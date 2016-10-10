@@ -366,7 +366,7 @@ public class DcMotor8863 {
      */
     public void resetEncoder(){
         if (getMotorMoveType() == MotorMoveType.RELATIVE) {
-            this.setMode(DcMotor.RunMode.RESET_ENCODERS);
+            this.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         }
     }
 
@@ -379,7 +379,7 @@ public class DcMotor8863 {
      */
     public void resetEncoder(boolean override){
         if (override) {
-            this.setMode(DcMotor.RunMode.RESET_ENCODERS);
+            this.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         } else {
             resetEncoder();
         }
@@ -527,9 +527,11 @@ public class DcMotor8863 {
     //*********************************************************************************************
 
     /**
-     * Run the motor with encoder feedback. If there is a load on the motor the power will be
-     * increased in an attempt to maintain the speed. Note that a high power command may result in
-     * the PID not being able to control the motor.
+     * Run the motor at a constant speed using encoder feedback. If there is a load on the motor the
+     * power will be increased in an attempt to maintain the speed. Note that a command for a high
+     * speed may require more power than is available to run the motor at that speed. So it may
+     * result in the PID not being able to control the motor and the motor will lose speed under
+     * load.
      *
      * @param power Power input for the motor.
      * @return true if successfully completed
@@ -539,7 +541,7 @@ public class DcMotor8863 {
             // reset the encoder
             this.resetEncoder();
             // set the run mode
-             this.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
+             this.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
              this.setMotorState(MotorState.MOVING);
              this.setPower(power);
             return true;
@@ -548,13 +550,24 @@ public class DcMotor8863 {
         }
     }
 
+    /**
+     * This is a better name for the runUsingEncoder method. They both do the same thing. See
+     * runUsingEncoder for a desciption of this method.
+     * @param power Power input for the motor.
+     * @return true if successfully completed
+     */
+    public boolean runAtConstantSpeed(double power) {
+        return runUsingEncoder(power);
+    }
+
     //*********************************************************************************************
     //          Methods for rotating the motor without encoders - open loop
     //*********************************************************************************************
 
     /**
-     * Run the motor without any encoder feedback. If there is a load on the motor the speed will
-     * drop.
+     * Run the motor at a constant power without any encoder feedback. If there is a load on the
+     * motor the speed will decrease. If you don't want the speed to decrease, use
+     * runAtConstantSpeed instead.
      *
      * @param power Power input for the motor.
      * @return true if successfully completed
@@ -564,7 +577,7 @@ public class DcMotor8863 {
             // reset the encoder
             this.resetEncoder();
             // set the run mode
-            this.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODERS);
+            this.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             this.setMotorState(MotorState.MOVING);
             this.setPower(power);
             return true;
@@ -572,6 +585,17 @@ public class DcMotor8863 {
             return false;
         }
     }
+
+    /**
+     * This is a better name for the runWithoutEncoder method. They both do the same thing. See
+     * runWithoutEncoder method for a description.
+     * @param power
+     * @return
+     */
+    public boolean runAtConstantPower(double power) {
+        return runWithoutEncoder(power);
+    }
+
     //*********************************************************************************************
     //          Methods for stopping a motor
     //*********************************************************************************************
@@ -587,10 +611,12 @@ public class DcMotor8863 {
     public void interruptMotor() {
 
         if (getNextMotorState() == NextMotorState.HOLD) {
-            setMotorState(MotorState.HOLDING);
-            rotateToEncoderCount(FTCDcMotor.getPower(), FTCDcMotor.getCurrentPosition(), NextMotorState.HOLD);
+            //setMotorState(MotorState.HOLDING);
+            //rotateToEncoderCount(FTCDcMotor.getPower(), FTCDcMotor.getCurrentPosition(), NextMotorState.HOLD);
+            setMotorToHold();
         } else {
-            stopMotor();
+            //stopMotor();
+            setMotorToFloat();
         }
     }
 
@@ -600,6 +626,26 @@ public class DcMotor8863 {
     public void stopMotor() {
         resetEncoder(true);
         setMotorState(MotorState.IDLE);
+    }
+
+    /**
+     * Set the motor to stop and actively hold its position. If something tries to turn the motor,
+     * it will resist that by applying enough power to hold its position.
+     */
+    public void setMotorToHold() {
+        this.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        setMotorState(MotorState.HOLDING);
+        this.setPower(0);
+    }
+
+    /**
+     * Set the motor to stop and just coast. It will turn freely. If there is something attached to
+     * the motor when power is turned off it will slowly come to a stop.
+     */
+    public void setMotorToFloat() {
+        this.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        setMotorState(MotorState.IDLE);
+        this.setPower(0);
     }
 
     //*********************************************************************************************
@@ -616,10 +662,9 @@ public class DcMotor8863 {
                 }
                 if (isRotationComplete()) {
                     if (getNextMotorState()== NextMotorState.FLOAT) {
-                        setMotorState(MotorState.FLOATING);
-                        this.setPowerFloat();
+                        setMotorToFloat();
                     } else {
-                        setMotorState(MotorState.HOLDING);
+                        setMotorToHold();
                     }
                 }
                 break;
@@ -639,7 +684,7 @@ public class DcMotor8863 {
     //          Wrapper Methods
     //*********************************************************************************************
     public void setMode(DcMotor.RunMode mode) {
-        if (mode == DcMotor.RunMode.RESET_ENCODERS) {
+        if (mode == DcMotor.RunMode.STOP_AND_RESET_ENCODER) {
             this.setMotorState(MotorState.IDLE);
         }
         FTCDcMotor.setMode(mode);
@@ -650,8 +695,12 @@ public class DcMotor8863 {
         FTCDcMotor.setPower(power);
     }
 
-    public void setPowerFloat() {
+    @Deprecated public void setPowerFloat() {
         FTCDcMotor.setPowerFloat();
+    }
+
+    public void setZeroPowerBehavior(DcMotor.ZeroPowerBehavior ZeroPowerBehavior) {
+        FTCDcMotor.setZeroPowerBehavior(ZeroPowerBehavior);
     }
 
     public void setTargetPosition(int position) {
