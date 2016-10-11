@@ -47,7 +47,7 @@ public class TestDCMotor8863 extends OpMode {
     // This declaration refers to my DcMotor8863 class
     DcMotor8863 sweeperMotor;
     int stallDetectionTolerance = 5;
-    double stallTimeLimit = 5;
+    double stallTimeLimit = 2;
     DcMotor8863.MotorState currentMotorState = DcMotor8863.MotorState.IDLE;
 
 	/**
