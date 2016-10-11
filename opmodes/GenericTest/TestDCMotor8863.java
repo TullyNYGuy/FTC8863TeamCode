@@ -45,7 +45,7 @@ import org.firstinspires.ftc.teamcode.Lib.ResQLib.RobotConfigMapping;
 public class TestDCMotor8863 extends OpMode {
 
     // This declaration refers to my DcMotor8863 class
-    DcMotor8863 sweeperMotor;
+    DcMotor8863 testMotor;
     int stallDetectionTolerance = 5;
     double stallTimeLimit = 2;
     DcMotor8863.MotorState currentMotorState = DcMotor8863.MotorState.IDLE;
@@ -65,22 +65,22 @@ public class TestDCMotor8863 extends OpMode {
 	public void init() {
 
         // Instantiate and initialize a motor
-        sweeperMotor = new DcMotor8863(RobotConfigMapping.getSweeperMotorName(), hardwareMap);
-        sweeperMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_20);
-        sweeperMotor.setUnitsPerRev(360);
-        sweeperMotor.setDesiredEncoderCount(0);
-        sweeperMotor.setEncoderTolerance(5);
-        sweeperMotor.setNextMotorState(DcMotor8863.NextMotorState.FLOAT);
-        sweeperMotor.setMotorMoveType(DcMotor8863.MotorMoveType.RELATIVE);
-        sweeperMotor.setMinMotorPower(-1);
-        sweeperMotor.setMaxMotorPower(1);
+        testMotor = new DcMotor8863("testMotor", hardwareMap);
+        testMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_20);
+        testMotor.setUnitsPerRev(360);
+        testMotor.setDesiredEncoderCount(0);
+        testMotor.setEncoderTolerance(5);
+        testMotor.setNextMotorState(DcMotor8863.NextMotorState.FLOAT);
+        testMotor.setMotorMoveType(DcMotor8863.MotorMoveType.RELATIVE);
+        testMotor.setMinMotorPower(-1);
+        testMotor.setMaxMotorPower(1);
 
 	}
 
     @Override
     public void start() {
-        sweeperMotor.runUsingEncoder(.15);
-        sweeperMotor.setupStallDetection(stallTimeLimit, stallDetectionTolerance);
+        testMotor.runUsingEncoder(.15);
+        testMotor.setupStallDetection(stallTimeLimit, stallDetectionTolerance);
     }
 
 	@Override
@@ -97,13 +97,13 @@ public class TestDCMotor8863 extends OpMode {
 //            motorRight.setMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
 //            motorRight.setPower(motorPower);
 
-            sweeperMotor.rotateToDistance(motorPower, -360, DcMotor8863.NextMotorState.HOLD);
+            testMotor.rotateToDistance(motorPower, -360, DcMotor8863.NextMotorState.HOLD);
         }
         if (gamepad1.a) {
             // if the A button is pushed on gamepad1, the motor stops
             //motorRight.setPowerFloat();
             //motorRight.setMode(DcMotorController.RunMode.RESET_ENCODERS);
-            sweeperMotor.resetEncoder(true);
+            testMotor.resetEncoder(true);
 
         }
 
@@ -115,17 +115,17 @@ public class TestDCMotor8863 extends OpMode {
 		 * are currently write only.
 		 */
 
-        currentMotorState = sweeperMotor.updateMotor();
+        currentMotorState = testMotor.updateMotor();
         telemetry.addData("State", currentMotorState.toString());
-        telemetry.addData("encoder value", sweeperMotor.getCurrentPosition());
+        telemetry.addData("encoder value", testMotor.getCurrentPosition());
 
 
-        /*if (sweeperMotor.isRotationComplete()){
+        /*if (testMotor.isRotationComplete()){
             telemetry.addData("Status",  "rotation complete");
         } else {
             telemetry.addData("Status",  "still going");
         }
-        telemetry.addData("Encoder",  "Encoder: " + String.format("%d", sweeperMotor.getCurrentPosition()));
+        telemetry.addData("Encoder",  "Encoder: " + String.format("%d", testMotor.getCurrentPosition()));
         //telemetry.addData("left Y scaled", "joy Y: " + String.format("%.2f", left));
 */
 
