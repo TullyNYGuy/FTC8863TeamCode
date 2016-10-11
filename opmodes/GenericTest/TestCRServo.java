@@ -41,7 +41,7 @@ public class TestCRServo extends OpMode {
 
     double noMovePosition = .5;
     double deadZone = .1;
-    CRServo slideServo;
+    CRServo testServo;
 
 	/**
 	 * Constructor
@@ -58,8 +58,8 @@ public class TestCRServo extends OpMode {
 	@Override
 	public void init() {
 
-        slideServo = new CRServo(RobotConfigMapping.getLinearSlideServoName(),hardwareMap, noMovePosition, deadZone);
-        slideServo.setDirection(Servo.Direction.REVERSE);
+        testServo = new CRServo("testServo",hardwareMap, noMovePosition, deadZone);
+        testServo.setDirection(Servo.Direction.REVERSE);
     }
 
     @Override
@@ -70,10 +70,10 @@ public class TestCRServo extends OpMode {
 	@Override
 	public void loop() {
 
-        slideServo.updatePosition(gamepad1.left_stick_x);
+        testServo.updatePosition(gamepad1.left_stick_x);
 
         telemetry.addData("Text", "*** Robot Data***");
-        telemetry.addData("slide", "position:  " + String.format("%.2f", slideServo.getPosition()));
+        telemetry.addData("slide", "position:  " + String.format("%.2f", testServo.getPosition()));
 
 	}
 
