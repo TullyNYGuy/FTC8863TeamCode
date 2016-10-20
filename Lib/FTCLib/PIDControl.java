@@ -166,6 +166,7 @@ public class PIDControl {
      * @return Correction to use in control code.
      */
     public double getCorrection(double feedback){
+
         return (getSetpoint() - feedback) * getKp();
     }
 }
