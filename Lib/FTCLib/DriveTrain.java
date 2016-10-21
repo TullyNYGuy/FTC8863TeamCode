@@ -114,7 +114,7 @@ public class DriveTrain {
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
 
-    public void rotateToDistance(double power, double distance){
+    public void driveDistance(double power, double distance){
         rightDriveMotor.rotateToDistance(power, distance, DcMotor8863.NextMotorState.HOLD);
         rightDriveMotor.rotateToDistance(power, distance, DcMotor8863.NextMotorState.HOLD);
     }
