@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 
 /**
  * This OpMode runs 2 motors at a given power, one in the opposite direction from the other. 
@@ -18,25 +19,19 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 //@Disabled
 public class DriveTrainTest extends LinearOpMode {
 
-    DcMotor8863 motor;
-    double powerToRunAt = 1.0; // 80% of full speed
+    DriveTrain myDriveTrain;
+    float powerToRunAt = (float)1.0; // 80% of full speed
 
     @Override
     public void runOpMode() {
 
 
         // Instantiate and initialize motors
-        motor = new DcMotor8863("motor", hardwareMap);
-        motor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
-        motor.setUnitsPerRev(360);
-        motor.setDesiredEncoderCount(0);
-        motor.setEncoderTolerance(5);
-        motor.setNextMotorState(DcMotor8863.NextMotorState.FLOAT);
-        motor.setMotorMoveType(DcMotor8863.MotorMoveType.RELATIVE);
-        motor.setMinMotorPower(-1);
-        motor.setMaxMotorPower(1);
+        myDriveTrain = new DriveTrain(hardwareMap);
+        myDriveTrain.setRightPower(powerToRunAt);
+        myDriveTrain.setLeftPower(powerToRunAt);
+        myDriveTrain.setCmPerRotation(15);
 
-        motor.setDirection(DcMotor.Direction.FORWARD);
         
         // Wait for the start button
         telemetry.addData(">", "Press Start to run Motors." );
@@ -45,9 +40,7 @@ public class DriveTrainTest extends LinearOpMode {
 
         // Ramp motor speeds till stop pressed.
         while(opModeIsActive()) {
-
-            motor.runWithoutEncoder(powerToRunAt);
-
+            myDriveTrain.driveDistance(0.7,30);
             // Display the current value
             telemetry.addData("Motor Speed = ", "%5.2f", powerToRunAt);
             telemetry.addData(">", "Press Stop to end test." );
@@ -57,7 +50,7 @@ public class DriveTrainTest extends LinearOpMode {
         }
 
         // Turn off motor and signal done;
-        motor.setMotorToFloat();
+        //myDriveTrain.setMotorToFloat();
         telemetry.addData(">", "Done");
         
         telemetry.update();

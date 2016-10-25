@@ -59,7 +59,7 @@ public class DriveTrain {
     // from it
     //*********************************************************************************************
 
-    private DriveTrain(HardwareMap hardwareMap) {
+    public DriveTrain(HardwareMap hardwareMap) {
         leftDriveMotor = new DcMotor8863(RobotConfigMapping.getLeftDriveMotorName(), hardwareMap);
         rightDriveMotor = new DcMotor8863(RobotConfigMapping.getRightDriveMotorName(), hardwareMap);
 
