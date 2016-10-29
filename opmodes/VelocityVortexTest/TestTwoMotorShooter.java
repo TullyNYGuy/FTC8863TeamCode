@@ -10,11 +10,10 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 
 /**
- * This OpMode runs 2 motors at a given power, one in the opposite direction from the other. 
+ * This OpMode runs 2 motors at a given power, one in the opposite direction from the other.
  * It is meant to be used to test a double ball shooter
- *
+ * <p>
  * This code assumes a DC motor configured with the name "leftShooterMotor"  and "rightShooterMotor"
- *
  */
 @TeleOp(name = "Test 2 motor shooter", group = "Test")
 //@Disabled
@@ -22,8 +21,8 @@ public class TestTwoMotorShooter extends LinearOpMode {
 
     DcMotor8863 leftShooterMotor;
     DcMotor8863 rightShooterMotor;
-    double leftSpeedToRunAt = .2; // stgart up at this speed
-    double rightSpeedToRunAt = .2; // start up at this speed
+    double leftSpeedToRunAt = 1.0; // stgart up at this speed
+    double rightSpeedToRunAt = 1.0; // start up at this speed
     double speedIncrement = .1;
 
     // multiply by this factor. If positive the motor speed will increase. If negative the motor
@@ -33,6 +32,12 @@ public class TestTwoMotorShooter extends LinearOpMode {
     // for use in debouncing the button. A long press will only result in one transition of the
     // speedIncrementDirection
     boolean rightBumperIsReleased = true;
+
+    boolean aButtonIsReleased = true;
+    boolean bButtonIsReleased = true;
+    boolean yButtonIsReleased = true;
+    boolean xButtonIsReleased = true;
+
 
     @Override
     public void runOpMode() {
@@ -60,15 +65,15 @@ public class TestTwoMotorShooter extends LinearOpMode {
         rightShooterMotor.setMotorMoveType(DcMotor8863.MotorMoveType.RELATIVE);
         rightShooterMotor.setMinMotorPower(-1);
         rightShooterMotor.setMaxMotorPower(1);
-        
+
         rightShooterMotor.setDirection(DcMotor.Direction.REVERSE);
 
         // Wait for the start button
-        telemetry.addData(">", "Press Start to run Motors." );
+        telemetry.addData(">", "Press Start to run Motors.");
         telemetry.update();
         waitForStart();
 
-        while(opModeIsActive()) {
+        while (opModeIsActive()) {
             //gamepad button configuration:
             //      Y
             //  X      B
@@ -94,8 +99,7 @@ public class TestTwoMotorShooter extends LinearOpMode {
                         speedIncrementDirection = -1.0;
                     }
                 }
-            }
-            else {
+            } else {
                 // The bumper is not pressed anymore; it has been released. So when it is pressed
                 // again the speedIncrementDirection can be changed.
                 rightBumperIsReleased = true;
@@ -104,23 +108,44 @@ public class TestTwoMotorShooter extends LinearOpMode {
             // Use gamepad Y & A raise and lower both motor speeds
             // Y = increase both motor speeds at the same time
             if (gamepad1.y) {
-                leftSpeedToRunAt = leftSpeedToRunAt + speedIncrement;
-                rightSpeedToRunAt = rightSpeedToRunAt + speedIncrement;
+                if (yButtonIsReleased) {
+                    leftSpeedToRunAt = leftSpeedToRunAt + speedIncrement;
+                    rightSpeedToRunAt = rightSpeedToRunAt + speedIncrement;
+                    yButtonIsReleased = false;
+                }
+            } else {
+                yButtonIsReleased = true;
             }
             // A = decrease both motor speeds at the same time
             if (gamepad1.a) {
-                leftSpeedToRunAt = leftSpeedToRunAt - speedIncrement;
-                rightSpeedToRunAt = rightSpeedToRunAt - speedIncrement;
+                if (aButtonIsReleased) {
+                    leftSpeedToRunAt = leftSpeedToRunAt - speedIncrement;
+                    rightSpeedToRunAt = rightSpeedToRunAt - speedIncrement;
+                    aButtonIsReleased = false;
+                }
+            } else {
+                aButtonIsReleased = true;
             }
 
             // Use gamepad X & B to raise or lower each side's motor speed individually
             // X controls the left motor
             if (gamepad1.x) {
-                leftSpeedToRunAt = leftSpeedToRunAt + speedIncrement * speedIncrementDirection;
+                if (xButtonIsReleased) {
+                    rightSpeedToRunAt = rightSpeedToRunAt + speedIncrement * speedIncrementDirection;
+                    xButtonIsReleased = false;
+                }
+            } else {
+                xButtonIsReleased = true;
             }
+
             // B controls the right motor
             if (gamepad1.b) {
-                leftSpeedToRunAt = leftSpeedToRunAt + speedIncrement * speedIncrementDirection;
+                if (bButtonIsReleased) {
+                    leftSpeedToRunAt = leftSpeedToRunAt + speedIncrement * speedIncrementDirection;
+                    bButtonIsReleased = false;
+                }
+            } else {
+                bButtonIsReleased = true;
             }
 
             // clip the speeds to 0 for min and 1 for max
@@ -134,9 +159,9 @@ public class TestTwoMotorShooter extends LinearOpMode {
             // Display the current speeds
             telemetry.addData("Left Motor Speed = ", "%3.2f", leftSpeedToRunAt);
             telemetry.addData("Right Motor Speed = ", "%3.2f", rightSpeedToRunAt);
-            telemetry.addData(">", "Press Stop to end test." );
+            telemetry.addData(">", "Press Stop to end test.");
             telemetry.update();
-            
+
             idle();
         }
 
@@ -144,7 +169,7 @@ public class TestTwoMotorShooter extends LinearOpMode {
         rightShooterMotor.setMotorToFloat();
         leftShooterMotor.setMotorToFloat();
         telemetry.addData(">", "Done");
-        
+
         telemetry.update();
 
     }
