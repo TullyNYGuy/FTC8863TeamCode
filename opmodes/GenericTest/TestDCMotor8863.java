@@ -67,7 +67,7 @@ public class TestDCMotor8863 extends OpMode {
         // Instantiate and initialize a motor
         testMotor = new DcMotor8863("testMotor", hardwareMap);
         testMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_20);
-        testMotor.setUnitsPerRev(360);
+        testMotor.setMovementPerRev(360);
         testMotor.setDesiredEncoderCount(0);
         testMotor.setEncoderTolerance(5);
         testMotor.setNextMotorState(DcMotor8863.NextMotorState.FLOAT);

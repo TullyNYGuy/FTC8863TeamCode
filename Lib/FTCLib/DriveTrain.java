@@ -69,7 +69,7 @@ public class DriveTrain {
         rightDriveMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
         rightDriveMotor.setMotorMoveType(DcMotor8863.MotorMoveType.RELATIVE);
         rightDriveMotor.setEncoderTolerance(3);
-        rightDriveMotor.setUnitsPerRev(10);
+        rightDriveMotor.setMovementPerRev(10);
         rightDriveMotor.setNextMotorState(DcMotor8863.NextMotorState.HOLD);
 
         leftDriveMotor.setDirection(DcMotor.Direction.FORWARD);
@@ -78,7 +78,7 @@ public class DriveTrain {
         leftDriveMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
         leftDriveMotor.setMotorMoveType(DcMotor8863.MotorMoveType.RELATIVE);
         leftDriveMotor.setEncoderTolerance(3);
-        leftDriveMotor.setUnitsPerRev(10);
+        leftDriveMotor.setMovementPerRev(10);
         leftDriveMotor.setNextMotorState(DcMotor8863.NextMotorState.HOLD);
     }
 

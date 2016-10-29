@@ -68,7 +68,7 @@ public class TapeMeasureWinch {
         tapeMeasureMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
         tapeMeasureMotor.setMotorMoveType(DcMotor8863.MotorMoveType.RELATIVE);
         tapeMeasureMotor.setEncoderTolerance(3);
-        tapeMeasureMotor.setUnitsPerRev(3.07 * Math.PI);
+        tapeMeasureMotor.setMovementPerRev(3.07 * Math.PI);
         tapeMeasureMotor.setNextMotorState(DcMotor8863.NextMotorState.HOLD);
     }
 

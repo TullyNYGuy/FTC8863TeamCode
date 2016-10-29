@@ -64,9 +64,9 @@ public class DcMotor8863 {
     private int countsPerRev = 0;
 
     /**
-     *  Number of cm moved for each motor shaft revolution
+     *  Number of cm or degrees or whatever moved for each motor shaft revolution
      */
-    private double UnitsPerRev = 0;
+    private double MovementPerRev = 0;
 
     /**
      * Hold the desired enocoder count for RUN_TO_POSITION
@@ -153,12 +153,12 @@ public class DcMotor8863 {
         this.countsPerRev = countsPerRev;
     }
 
-    public double getUnitsPerRev() {
-        return UnitsPerRev;
+    public double getMovementPerRev() {
+        return MovementPerRev;
     }
 
-    public void setUnitsPerRev(double UnitsPerRev) {
-        this.UnitsPerRev = UnitsPerRev;
+    public void setMovementPerRev(double MovementPerRev) {
+        this.MovementPerRev = MovementPerRev;
     }
 
     public int getDesiredEncoderCount() {
@@ -268,7 +268,7 @@ public class DcMotor8863 {
      */
     private void initMotorDefaults(){
         setMotorType(MotorType.ANDYMARK_40);
-        setUnitsPerRev(0);
+        setMovementPerRev(0);
         setStallDetectionEnabled(false);
         setDesiredEncoderCount(0);
         setEncoderTolerance(10);
@@ -326,28 +326,40 @@ public class DcMotor8863 {
 
     /**
      * Calculate the number or motor revolutions needed to move whatever is attached to the motor
-     * a certain distance. It uses the UnitsPerRev value for the calculation.
+     * a certain amount. It uses the MovementPerRev value for the calculation.
      *
-     * @param distance The amount to move whatever is attached. Although "distance" implies a
-     *                 distance, it could be angles, distance or any other units.
+     * @param movement The amount to move whatever is attached. It could be degrees, cm or any
+     *                 other units.
      * @return Number of motor revolutions to turn.
      */
-    public double getRevsForDistance(double distance){
-        return distance / getUnitsPerRev();
+    public double getRevsForMovement(double movement){
+        return movement / getMovementPerRev();
     }
 
     /**
      * Calculate the number of encoder counts needed to move whatever is attached to the motor
-     * a certain distance. It uses the UnitsPerRev value and number of encoder counts per revolution
+     * a certain amount. It uses the MovementPerRev value and number of encoder counts per revolution
      * for the calculation. The number of encoder counts per rev is dependent on the motor type.
      *
-     * @param distance The amount to move whatever is attached. Although "distance" implies a
-     *                 distance, it could be angles, distance or any other units.
-     * @return Number of enocder counts to turn.
+     * @param movement The amount to move whatever is attached. It could be degrees, cm or any
+     *                 other units.
+     * @return Number of encoder counts to turn.
      */
-    public int getEncoderCountForDistance(double distance){
-        return (int)((double)getCountsPerRev() * getRevsForDistance(distance));
+    public int getEncoderCountForMovement(double movement){
+        return (int)((double)getCountsPerRev() * getRevsForMovement(movement));
     }
+
+    /**
+     * Calculate the "movement" that whatever is attached to the motor has moved based on the
+     * encoder counts given. The movement can be the number of degrees the motor has moved, the
+     * number of cm a wheel attached to the motor has turned etc. It uses the MovementPerRev and
+     * CountsPerRev defined when the motor object is setup.
+     * @param encoderCount The position of the motor as given by the encoder count
+     * @return How far the motor has moved whatever is attached to it.
+     */
+    public double getMovementForEncoderCount(int encoderCount){
+        return (double) (1/getCountsPerRev() * getMovementPerRev() * encoderCount);
+    }   //10/26/16 Matt Was Here!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     /**
      * Gets the number of encoder counts for a certian number of revolutions.
@@ -400,7 +412,7 @@ public class DcMotor8863 {
      */
     public boolean rotateToDistance(double power, double distance, NextMotorState afterCompletion ) {
         if(this.currentMotorState != MotorState.MOVING) {
-            int encoderCountForDistance = getEncoderCountForDistance(distance);
+            int encoderCountForDistance = getEncoderCountForMovement(distance);
             return rotateToEncoderCount(power, encoderCountForDistance, afterCompletion);
         } else {
             return false;

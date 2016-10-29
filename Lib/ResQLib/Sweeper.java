@@ -51,7 +51,7 @@ public class Sweeper {
     public Sweeper(HardwareMap hardwareMap, Telemetry telemetry) {
         sweeperMotor = new DcMotor8863(RobotConfigMapping.getSweeperMotorName(), hardwareMap);
         sweeperMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_20);
-        sweeperMotor.setUnitsPerRev(360);
+        sweeperMotor.setMovementPerRev(360);
         sweeperMotor.setDesiredEncoderCount(0);
         sweeperMotor.setEncoderTolerance(5);
         sweeperMotor.setNextMotorState(DcMotor8863.NextMotorState.FLOAT);
