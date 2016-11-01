@@ -115,8 +115,8 @@ public class DriveTrain {
     //*********************************************************************************************
 
     public void driveDistance(double power, double distance){
-        rightDriveMotor.rotateToDistance(power, distance, DcMotor8863.NextMotorState.HOLD);
-        rightDriveMotor.rotateToDistance(power, distance, DcMotor8863.NextMotorState.HOLD);
+        rightDriveMotor.rotateToPosition(power, distance, DcMotor8863.NextMotorState.HOLD);
+        rightDriveMotor.rotateToPosition(power, distance, DcMotor8863.NextMotorState.HOLD);
     }
 
 /*    public boolean isRotationComplete() {

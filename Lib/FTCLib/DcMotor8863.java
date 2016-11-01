@@ -23,7 +23,7 @@ public class DcMotor8863 {
      * HOLD = not moving but actively holding a position under PID control
      * MOVING = actvitely rotating
      * INTERUPTED = not sure about this one yet, thinking it may be needed to indicate when the
-     *    motor movement was interupted before it completed
+     * motor movement was interupted before it completed
      */
     public enum MotorState {
         IDLE, HOLDING, INTERRUPTED, MOVING, STALLED, FLOATING
@@ -53,18 +53,18 @@ public class DcMotor8863 {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
-    public com.qualcomm.robotcore.hardware.DcMotor FTCDcMotor;
+    private com.qualcomm.robotcore.hardware.DcMotor FTCDcMotor;
     /**
      * Type of motor. Controls the encoder counts per revolution
      */
     private MotorType motorType = MotorType.ANDYMARK_40;
     /**
-     *  Encoder counts per shaft revolution for this motor
+     * Encoder counts per shaft revolution for this motor
      */
     private int countsPerRev = 0;
 
     /**
-     *  Number of cm or degrees or whatever moved for each motor shaft revolution
+     * Number of cm or degrees or whatever moved for each motor shaft revolution
      */
     private double MovementPerRev = 0;
 
@@ -119,6 +119,18 @@ public class DcMotor8863 {
     private int lastEncoderValue = 0;
 
     /**
+     * current value of the encoder. NOTE: this may not be the same as the encoder value of the
+     * underlying DCMotor. This is a separate copy of the encoder value. It may not be updated with
+     * the value of the encoder on the actual motor so it may not match. Or this value can be
+     * manipulated so that it is set to 0 even though the underlying encoder has not been reset.
+     * Note that for whatever reason the SDK forces the motor to stop when the actual encoder is
+     * reset. If we are just keeping track of a series of movements, we may not want the motor to
+     * stop even though we want the encoder to be set to 0 again.
+     * In essence, this is a virtual encoder.
+     */
+    private int currentEncoderValue = 0;
+
+    /**
      * timer used for stall detection
      */
     private ElapsedTime stallTimer;
@@ -135,6 +147,13 @@ public class DcMotor8863 {
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //*********************************************************************************************
+
+    /**
+     * @return Return the instance of the DCMotor associated with this instance of the DCMotor8863.
+     */
+    public DcMotor getMotorInstance() {
+        return FTCDcMotor;
+    }
 
     public MotorType getMotorType() {
         return motorType;
@@ -266,7 +285,7 @@ public class DcMotor8863 {
     /**
      * Set some reasonable defaults for a motor. The user should then set the real values.
      */
-    private void initMotorDefaults(){
+    private void initMotorDefaults() {
         setMotorType(MotorType.ANDYMARK_40);
         setMovementPerRev(0);
         setStallDetectionEnabled(false);
@@ -295,7 +314,7 @@ public class DcMotor8863 {
 
         int countsPerRev;
 
-        switch (motorType){
+        switch (motorType) {
             case NXT:
                 setCountsPerRev(360);
                 countsPerRev = 360;
@@ -332,7 +351,7 @@ public class DcMotor8863 {
      *                 other units.
      * @return Number of motor revolutions to turn.
      */
-    public double getRevsForMovement(double movement){
+    public double getRevsForMovement(double movement) {
         return movement / getMovementPerRev();
     }
 
@@ -345,8 +364,8 @@ public class DcMotor8863 {
      *                 other units.
      * @return Number of encoder counts to turn.
      */
-    public int getEncoderCountForMovement(double movement){
-        return (int)((double)getCountsPerRev() * getRevsForMovement(movement));
+    public int getEncoderCountForMovement(double movement) {
+        return (int) ((double) getCountsPerRev() * getRevsForMovement(movement));
     }
 
     /**
@@ -354,11 +373,12 @@ public class DcMotor8863 {
      * encoder counts given. The movement can be the number of degrees the motor has moved, the
      * number of cm a wheel attached to the motor has turned etc. It uses the MovementPerRev and
      * CountsPerRev defined when the motor object is setup.
+     *
      * @param encoderCount The position of the motor as given by the encoder count
      * @return How far the motor has moved whatever is attached to it.
      */
-    public double getMovementForEncoderCount(int encoderCount){
-        return (double) (1/getCountsPerRev() * getMovementPerRev() * encoderCount);
+    public double getMovementForEncoderCount(int encoderCount) {
+        return (double) (1 / getCountsPerRev() * getMovementPerRev() * encoderCount);
     }   //10/26/16 Matt Was Here!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     /**
@@ -368,7 +388,7 @@ public class DcMotor8863 {
      * @return encoder counts
      */
     public int getEncoderCountForRevs(double revs) {
-        return (int)(getCountsPerRev() * revs);
+        return (int) (getCountsPerRev() * revs);
     }
 
     /**
@@ -376,7 +396,7 @@ public class DcMotor8863 {
      * is set for absolute movement, the encoder needs to keep track of where the motor is, so
      * it cannot be reset.
      */
-    public void resetEncoder(){
+    public void resetEncoder() {
         if (getMotorMoveType() == MotorMoveType.RELATIVE) {
             this.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         }
@@ -389,7 +409,7 @@ public class DcMotor8863 {
      *
      * @param override If true, then reset the encoder, no matter what.
      */
-    public void resetEncoder(boolean override){
+    public void resetEncoder(boolean override) {
         if (override) {
             this.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         } else {
@@ -398,25 +418,52 @@ public class DcMotor8863 {
     }
 
     //*********************************************************************************************
-    //          Methods for rotating the motor to a desired encoder count
+    //          Methods for rotating the motor to a desired position
     //*********************************************************************************************
 
     /**
-     * Rotate the motor so that the output moves a certain distance. The encoder is used to
-     * determine if the distance has been met.
+     * Rotate the motor so that the thing connected to the motor moves a certain position. The
+     * encoder is used to determine if the position has been reached. This method provides a way
+     * to move whatever the motor is connected to in terms of its native position rather than in
+     * encoder counts.
+     * This moves the object to a certain position, not by a certain amount. I.E. an absolute
+     * movement.
+     * For example, move a claw to 5 cm open position.
      *
-     * @param power Power input for the motor. Note that it will be clipped to less than +/-0.8.
-     * @param distance Motor will be rotated so that it results in a movement of this distance.
+     * @param power           Power input for the motor. Note that it will be clipped to less than +/-0.8.
+     * @param position        Motor will be rotated so that it results in a movement of this distance.
      * @param afterCompletion What to do after this movement is completed: HOLD or COAST
      * @return true if successfully completed
      */
-    public boolean rotateToDistance(double power, double distance, NextMotorState afterCompletion ) {
-        if(this.currentMotorState != MotorState.MOVING) {
-            int encoderCountForDistance = getEncoderCountForMovement(distance);
-            return rotateToEncoderCount(power, encoderCountForDistance, afterCompletion);
+    public boolean rotateToPosition(double power, double position, NextMotorState afterCompletion) {
+        // this code is not correct. It needs to account for the final position relative to
+        // where the current position is.
+        if (this.currentMotorState != MotorState.MOVING) {
+            int encoderCountForPosition = getEncoderCountForMovement(position);
+            currentEncoderValue = FTCDcMotor.getCurrentPosition();
+            return rotateToEncoderCount(power, encoderCountForPosition+currentEncoderValue, afterCompletion);
         } else {
             return false;
         }
+    }
+
+    /**
+     * Rotate the motor so that the thing connected to the motor moves a certain amount. The encoder
+     * is used to determine when the movement is complete. This method provides a way
+     * to move whatever the motor is connected to in terms of its native position rather than in
+     * encoder counts.
+     * This moves the object by a certain amount, not to a certain position. I.E. a relative
+     * movement.
+     * For example, open a claw by 5 cm.
+     *
+     * @param power
+     * @param movement
+     * @param afterCompletion
+     * @return
+     */
+    public boolean rotateToProduceMovementOf(double power, double movement, NextMotorState afterCompletion) {
+        // need to complete the code
+        return true;
     }
 
     public boolean rotateNumberOfDegrees(double power, double degrees, NextMotorState afterCompletion) {
@@ -425,46 +472,42 @@ public class DcMotor8863 {
 
     /**
      * Makes the motor rotate to a certain amount of revolutions.
-     * @param power The power at which the motor moves
-     * @param revs The amount of revolutions you want it to go.
+     *
+     * @param power           The power at which the motor moves
+     * @param revs            The amount of revolutions you want it to go.
      * @param afterCompletion Whether it holds or floats after completion.
      * @return If return is true then it actually did it.
      */
-    public boolean rotateNumberOfRevolutions(double power, double revs, NextMotorState afterCompletion){
+    public boolean rotateNumberOfRevolutions(double power, double revs, NextMotorState afterCompletion) {
         return rotateToEncoderCount(power, getEncoderCountForRevs(revs), afterCompletion);
     }
 
     /**
      * Rotate the motor so the encoder gets to a certain count.
      *
-     * @param power Power input for the motor. Note that it will be clipped to less than +/-0.8.
-     * @param encoderCount Motor will be rotated so that it results in a movement of this distance.
-     * @param afterCompletion  What to do after this movement is completed: HOLD or COAST
+     * @param power           Power input for the motor. Note that it will be clipped to less than +/-0.8.
+     * @param encoderCount    Motor will be rotated so that it results in a movement of this distance.
+     * @param afterCompletion What to do after this movement is completed: HOLD or COAST
      * @return true if successfully completed
      */
     public boolean rotateToEncoderCount(double power, int encoderCount, NextMotorState afterCompletion) {
-        if(getMotorState() != MotorState.MOVING) {
-            // set what to do after the rotation completes
-            setNextMotorState(afterCompletion);
-            // reset the encoder
-            resetEncoder();
-            // set the desired encoder position
-            this.setTargetPosition(encoderCount);
-            // set the run mode
-            this.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            // clip the power so that it does not exceed 80% of max. The reason for this is that the
-            // PID controller inside the core motor controller needs to have some room to increase
-            // the power when it makes its PID adjustments. If you set the power to 100% then there is
-            // no room to increase the power if needed and PID control will not work.
-            power = Range.clip(power, -.8, .8);
-            this.setPower(power);
-            setMotorState(MotorState.MOVING);
-            return true;
-        } else {
-            return false;
-        }
+        // set what to do after the rotation completes
+        setNextMotorState(afterCompletion);
+        // reset the encoder
+        //resetEncoder();
+        // set the desired encoder position
+        this.setTargetPosition(encoderCount);
+        // set the run mode
+        this.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        // clip the power so that it does not exceed 80% of max. The reason for this is that the
+        // PID controller inside the core motor controller needs to have some room to increase
+        // the power when it makes its PID adjustments. If you set the power to 100% then there is
+        // no room to increase the power if needed and PID control will not work.
+        power = Range.clip(power, -.8, .8);
+        this.setPower(power);
+        setMotorState(MotorState.MOVING);
+        return true;
     }
-
 
     /**
      * Checks to see if the rotation to encoder count has completed. If it has then it sets the
@@ -482,7 +525,7 @@ public class DcMotor8863 {
             // get the current encoder position
             int currentEncoderCount = this.getCurrentPosition();
             // is the current position within the tolerance limit of the desired position?
-            if (Math.abs(getDesiredEncoderCount() - currentEncoderCount) <getEncoderTolerance()) {
+            if (Math.abs(getDesiredEncoderCount() - currentEncoderCount) < getEncoderTolerance()) {
                 // movement is complete
                 return true;
             } else {
@@ -544,32 +587,38 @@ public class DcMotor8863 {
      * speed may require more power than is available to run the motor at that speed. So it may
      * result in the PID not being able to control the motor and the motor will lose speed under
      * load.
+     * <p>
+     * Deprecated because the name of this method is not intuitive. RunAtConstantSpeed is a better
+     * name.
      *
      * @param power Power input for the motor.
      * @return true if successfully completed
      */
-     public boolean runUsingEncoder(double power) {
-         if(getMotorState() != MotorState.MOVING) {
-            // reset the encoder
-            this.resetEncoder();
-            // set the run mode
-             this.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-             this.setMotorState(MotorState.MOVING);
-             this.setPower(power);
-            return true;
-        } else {
-            return false;
-        }
+    @Deprecated
+    public boolean runUsingEncoder(double power) {
+        return runAtConstantSpeed(power);
     }
 
     /**
-     * This is a better name for the runUsingEncoder method. They both do the same thing. See
-     * runUsingEncoder for a desciption of this method.
+     * Run the motor at a constant speed using encoder feedback. If there is a load on the motor the
+     * power will be increased in an attempt to maintain the speed. Note that a command for a high
+     * speed may require more power than is available to run the motor at that speed. So it may
+     * result in the PID not being able to control the motor and the motor will lose speed under
+     * load.
+     *
      * @param power Power input for the motor.
      * @return true if successfully completed
      */
     public boolean runAtConstantSpeed(double power) {
-        return runUsingEncoder(power);
+        if (getMotorState() != MotorState.MOVING) {
+            // reset the encoder
+            this.resetEncoder();
+        }
+        // set the run mode
+        this.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        this.setMotorState(MotorState.MOVING);
+        this.setPower(power);
+        return true;
     }
 
     //*********************************************************************************************
@@ -580,12 +629,27 @@ public class DcMotor8863 {
      * Run the motor at a constant power without any encoder feedback. If there is a load on the
      * motor the speed will decrease. If you don't want the speed to decrease, use
      * runAtConstantSpeed instead.
+     * <p>
+     * Deprecated because the method name is not intuitive. runAtConstantPower is a better name.
      *
      * @param power Power input for the motor.
      * @return true if successfully completed
      */
-     public boolean runWithoutEncoder(double power) {
-        if(getMotorState() != MotorState.MOVING) {
+    @Deprecated
+    public boolean runWithoutEncoder(double power) {
+        return (runAtConstantPower(power));
+    }
+
+    /**
+     * Run the motor at a constant power without any encoder feedback. If there is a load on the
+     * motor the speed will decrease. If you don't want the speed to decrease, use
+     * runAtConstantSpeed instead.
+     *
+     * @param power Power input for the motor.
+     * @return true if successfully completed
+     */
+    public boolean runAtConstantPower(double power) {
+        if (getMotorState() != MotorState.MOVING) {
             // reset the encoder
             this.resetEncoder();
             // set the run mode
@@ -596,16 +660,6 @@ public class DcMotor8863 {
         } else {
             return false;
         }
-    }
-
-    /**
-     * This is a better name for the runWithoutEncoder method. They both do the same thing. See
-     * runWithoutEncoder method for a description.
-     * @param power
-     * @return
-     */
-    public boolean runAtConstantPower(double power) {
-        return runWithoutEncoder(power);
     }
 
     //*********************************************************************************************
@@ -665,7 +719,7 @@ public class DcMotor8863 {
     //*********************************************************************************************
 
     public MotorState updateMotor() {
-        switch(getCurrentMotorState()) {
+        switch (getCurrentMotorState()) {
             case IDLE:
                 break;
             case MOVING:
@@ -673,7 +727,7 @@ public class DcMotor8863 {
                     setMotorState(MotorState.STALLED);
                 }
                 if (isRotationComplete()) {
-                    if (getNextMotorState()== NextMotorState.FLOAT) {
+                    if (getNextMotorState() == NextMotorState.FLOAT) {
                         setMotorToFloat();
                     } else {
                         setMotorToHold();
@@ -703,11 +757,12 @@ public class DcMotor8863 {
     }
 
     public void setPower(double power) {
-        power = Range.clip(power, getMinMotorPower(),getMaxMotorPower());
+        power = Range.clip(power, getMinMotorPower(), getMaxMotorPower());
         FTCDcMotor.setPower(power);
     }
 
-    @Deprecated public void setPowerFloat() {
+    @Deprecated
+    public void setPowerFloat() {
         FTCDcMotor.setPowerFloat();
     }
 
