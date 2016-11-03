@@ -31,14 +31,15 @@ public class PIDMotorTest extends LinearOpMode {
         motor = new DcMotor8863("motor", hardwareMap);
         motor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
         motor.setMovementPerRev(360);
-        motor.setDesiredEncoderCount(0);
-        motor.setEncoderTolerance(5);
-        motor.setNextMotorState(DcMotor8863.NextMotorState.FLOAT);
+        motor.setTargetEncoderTolerance(5);
+        motor.setFinishBehavior(DcMotor8863.FinishBehavior.FLOAT);
         motor.setMotorMoveType(DcMotor8863.MotorMoveType.RELATIVE);
         motor.setMinMotorPower(-1);
         motor.setMaxMotorPower(1);
 
         motor.setDirection(DcMotor.Direction.FORWARD);
+        // setup the motor to be run at a constant power
+        motor.runAtConstantPowerSetup();
 
         pidControl = new PIDControl(6,597.1);
         
@@ -52,7 +53,7 @@ public class PIDMotorTest extends LinearOpMode {
             // Will not work - needs to have a proper argument!
             powerToRunAt = pidControl.getCorrection(0);
 
-            motor.runWithoutEncoder(powerToRunAt);
+            motor.runAtConstantPower(powerToRunAt);
 
             // Display the current value
             telemetry.addData("Motor Speed = ", "%5.2f", powerToRunAt);

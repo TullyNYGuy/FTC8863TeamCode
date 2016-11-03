@@ -68,9 +68,7 @@ public class TestDCMotor8863 extends OpMode {
         testMotor = new DcMotor8863("testMotor", hardwareMap);
         testMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_20);
         testMotor.setMovementPerRev(360);
-        testMotor.setDesiredEncoderCount(0);
-        testMotor.setEncoderTolerance(5);
-        testMotor.setNextMotorState(DcMotor8863.NextMotorState.FLOAT);
+        testMotor.setFinishBehavior(DcMotor8863.FinishBehavior.FLOAT);
         testMotor.setMotorMoveType(DcMotor8863.MotorMoveType.RELATIVE);
         testMotor.setMinMotorPower(-1);
         testMotor.setMaxMotorPower(1);
@@ -115,7 +113,7 @@ public class TestDCMotor8863 extends OpMode {
 		 * are currently write only.
 		 */
 
-        currentMotorState = testMotor.updateMotor();
+        currentMotorState = testMotor.update();
         telemetry.addData("State", currentMotorState.toString());
         telemetry.addData("encoder value", testMotor.getCurrentPosition());
 

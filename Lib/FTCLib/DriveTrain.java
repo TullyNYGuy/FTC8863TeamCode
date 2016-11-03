@@ -7,6 +7,9 @@ import org.firstinspires.ftc.teamcode.Lib.ResQLib.RobotConfigMapping;
 
 public class DriveTrain {
 
+    public enum Status {
+        MOVING, COMPLETE
+    }
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS
     //
@@ -14,12 +17,15 @@ public class DriveTrain {
     // getter and setter methods
     //*********************************************************************************************
 
-    private float rightPower = 0;
-    private float leftPower = 0;
-    private float cmPerRotation = 0;
+    private double rightPower = 0;
+    private double leftPower = 0;
+    private double cmPerRotation = 0;
 
-    public DcMotor8863 rightDriveMotor;
-    public DcMotor8863 leftDriveMotor;
+    private DcMotor8863 rightDriveMotor;
+    private DcMotor8863 leftDriveMotor;
+
+    private DcMotor8863.MotorState rightMotorState;
+    private DcMotor8863.MotorState leftMotorState;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -28,28 +34,30 @@ public class DriveTrain {
     // getMotorPosition
     //*********************************************************************************************
 
-    public float getRightPower(){
+    public double getRightPower(){
         return this.rightPower;
     }
 
-    public void setRightPower(float power){
+    public void setRightPower(double power){
         this.rightPower = power;
     }
 
-    public float getLeftPower(){
+    public double getLeftPower(){
         return this.leftPower;
     }
 
-    public void setLeftPower(float power){
+    public void setLeftPower(double power){
         this.leftPower = power;
     }
 
-    public float getCmPerRotation() {
+    public double getCmPerRotation() {
         return cmPerRotation;
     }
 
-    public void setCmPerRotation(float cmPerRotation) {
+    public void setCmPerRotation(double cmPerRotation) {
         this.cmPerRotation = cmPerRotation;
+        leftDriveMotor.setMovementPerRev(cmPerRotation);
+        rightDriveMotor.setMovementPerRev(cmPerRotation);
     }
 
     //*********************************************************************************************
@@ -68,18 +76,18 @@ public class DriveTrain {
         rightDriveMotor.setMinMotorPower(-1);
         rightDriveMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
         rightDriveMotor.setMotorMoveType(DcMotor8863.MotorMoveType.RELATIVE);
-        rightDriveMotor.setEncoderTolerance(3);
-        rightDriveMotor.setMovementPerRev(10);
-        rightDriveMotor.setNextMotorState(DcMotor8863.NextMotorState.HOLD);
+        rightDriveMotor.setTargetEncoderTolerance(3);
+        rightDriveMotor.setMovementPerRev(cmPerRotation);
+        rightDriveMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
 
         leftDriveMotor.setDirection(DcMotor.Direction.FORWARD);
         leftDriveMotor.setMaxMotorPower(1);
         leftDriveMotor.setMinMotorPower(-1);
         leftDriveMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
         leftDriveMotor.setMotorMoveType(DcMotor8863.MotorMoveType.RELATIVE);
-        leftDriveMotor.setEncoderTolerance(3);
-        leftDriveMotor.setMovementPerRev(10);
-        leftDriveMotor.setNextMotorState(DcMotor8863.NextMotorState.HOLD);
+        leftDriveMotor.setTargetEncoderTolerance(3);
+        leftDriveMotor.setMovementPerRev(cmPerRotation);
+        leftDriveMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
     }
 
     /**
@@ -90,8 +98,8 @@ public class DriveTrain {
      */
     public static DriveTrain DriveTrainTeleop(HardwareMap hardwareMap) {
         DriveTrain driveTrain = new DriveTrain(hardwareMap);
-        driveTrain.rightDriveMotor.setNextMotorState(DcMotor8863.NextMotorState.FLOAT);
-        driveTrain.leftDriveMotor.setNextMotorState(DcMotor8863.NextMotorState.FLOAT);
+        driveTrain.rightDriveMotor.setFinishBehavior(DcMotor8863.FinishBehavior.FLOAT);
+        driveTrain.leftDriveMotor.setFinishBehavior(DcMotor8863.FinishBehavior.FLOAT);
         return driveTrain;
     }
 
@@ -103,20 +111,29 @@ public class DriveTrain {
      */
     public static DriveTrain DriveTrainAutonomous(HardwareMap hardwareMap) {
         DriveTrain driveTrain = new DriveTrain(hardwareMap);
-        driveTrain.rightDriveMotor.setNextMotorState(DcMotor8863.NextMotorState.HOLD);
-        driveTrain.leftDriveMotor.setNextMotorState(DcMotor8863.NextMotorState.HOLD);
+        driveTrain.rightDriveMotor.setFinishBehavior(DcMotor8863.FinishBehavior.FLOAT);
+        driveTrain.leftDriveMotor.setFinishBehavior(DcMotor8863.FinishBehavior.FLOAT);
         return driveTrain;
     }
 
     //*********************************************************************************************
-    //          Helper Methods
-    //
-    // methods that aid or support the major functions in the class
+    // Autonomous Methods
     //*********************************************************************************************
 
-    public void driveDistance(double power, double distance){
-        rightDriveMotor.rotateToPosition(power, distance, DcMotor8863.NextMotorState.HOLD);
-        rightDriveMotor.rotateToPosition(power, distance, DcMotor8863.NextMotorState.HOLD);
+    public void driveDistance(double power, double distance, DcMotor8863.FinishBehavior finishBehavior){
+        rightDriveMotor.moveByAmount(power, distance, finishBehavior);
+        leftDriveMotor.moveByAmount(power, distance, finishBehavior);
+    }
+
+    public DriveTrain.Status update() {
+        rightMotorState = rightDriveMotor.update();
+        leftMotorState = leftDriveMotor.update();
+        if (rightMotorState == DcMotor8863.MotorState.COMPLETE_FLOAT || rightMotorState == DcMotor8863.MotorState.COMPLETE_HOLD &&
+                leftMotorState == DcMotor8863.MotorState.COMPLETE_FLOAT || leftMotorState == DcMotor8863.MotorState.COMPLETE_HOLD) {
+            return Status.COMPLETE;
+        } else {
+            return Status.MOVING;
+        }
     }
 
 /*    public boolean isRotationComplete() {

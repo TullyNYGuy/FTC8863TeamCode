@@ -52,9 +52,8 @@ public class Sweeper {
         sweeperMotor = new DcMotor8863(RobotConfigMapping.getSweeperMotorName(), hardwareMap);
         sweeperMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_20);
         sweeperMotor.setMovementPerRev(360);
-        sweeperMotor.setDesiredEncoderCount(0);
-        sweeperMotor.setEncoderTolerance(5);
-        sweeperMotor.setNextMotorState(DcMotor8863.NextMotorState.FLOAT);
+        sweeperMotor.setTargetEncoderTolerance(5);
+        sweeperMotor.setFinishBehavior(DcMotor8863.FinishBehavior.FLOAT);
         sweeperMotor.setMotorMoveType(DcMotor8863.MotorMoveType.RELATIVE);
         sweeperMotor.setMinMotorPower(-1);
         sweeperMotor.setMaxMotorPower(1);
@@ -91,8 +90,8 @@ public class Sweeper {
     }
 
     public void updateSweeper() {
-        if (sweeperMotor.updateMotor() == DcMotor8863.MotorState.STALLED && sweeperState == SweeperState.FORWARD) {
-            sweeperMotor.rotateNumberOfDegrees(reversePower, 100, DcMotor8863.NextMotorState.HOLD);
+        if (sweeperMotor.update() == DcMotor8863.MotorState.STALLED && sweeperState == SweeperState.FORWARD) {
+            sweeperMotor.rotateNumberOfDegrees(reversePower, 100, DcMotor8863.FinishBehavior.HOLD);
         }
 
     }

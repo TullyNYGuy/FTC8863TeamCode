@@ -20,7 +20,11 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 public class DriveTrainTest extends LinearOpMode {
 
     DriveTrain myDriveTrain;
-    float powerToRunAt = (float)1.0; // 80% of full speed
+    double powerToRunAt;
+    double powerToRunAt1 = 0.3; // % of full speed
+    double powerToRunAt2 = 0.1; // % of full speed
+    double distanceToMove1 = 30; // cm
+    double distanceToMove2 = 60; // cm
 
     @Override
     public void runOpMode() {
@@ -28,9 +32,9 @@ public class DriveTrainTest extends LinearOpMode {
 
         // Instantiate and initialize motors
         myDriveTrain = new DriveTrain(hardwareMap);
-        myDriveTrain.setRightPower(powerToRunAt);
-        myDriveTrain.setLeftPower(powerToRunAt);
-        myDriveTrain.setCmPerRotation(15);
+        myDriveTrain.setRightPower(powerToRunAt1);
+        myDriveTrain.setLeftPower(powerToRunAt1);
+        myDriveTrain.setCmPerRotation(15); // cm
 
         
         // Wait for the start button
@@ -38,9 +42,14 @@ public class DriveTrainTest extends LinearOpMode {
         telemetry.update();
         waitForStart();
 
+        powerToRunAt = powerToRunAt1;
+        myDriveTrain.driveDistance(powerToRunAt1, distanceToMove1, DcMotor8863.FinishBehavior.FLOAT);
+        powerToRunAt = powerToRunAt2;
+        myDriveTrain.driveDistance(powerToRunAt2, distanceToMove2, DcMotor8863.FinishBehavior.FLOAT);
+
         // Ramp motor speeds till stop pressed.
         while(opModeIsActive()) {
-            myDriveTrain.driveDistance(0.7,30);
+
             // Display the current value
             telemetry.addData("Motor Speed = ", "%5.2f", powerToRunAt);
             telemetry.addData(">", "Press Stop to end test." );

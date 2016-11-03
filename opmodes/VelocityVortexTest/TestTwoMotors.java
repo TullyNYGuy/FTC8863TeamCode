@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.opmodes.VelocityVortexTest;
 
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -13,14 +11,14 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
  * This OpMode runs 2 motors at a given power, one in the opposite direction from the other.
  * It is meant to be used to test a double ball shooter
  * <p>
- * This code assumes a DC motor configured with the name "leftShooterMotor"  and "rightShooterMotor"
+ * This code assumes a DC motor configured with the name "leftDriveMotor"  and "rightDriveMotor"
  */
-@TeleOp(name = "Test 2 motor shooter", group = "Test")
+@TeleOp(name = "Test 2 motors", group = "Test")
 //@Disabled
-public class TestTwoMotorShooter extends LinearOpMode {
+public class TestTwoMotors extends LinearOpMode {
 
-    DcMotor8863 leftShooterMotor;
-    DcMotor8863 rightShooterMotor;
+    DcMotor8863 leftDriveMotor;
+    DcMotor8863 rightDriveMotor;
     double leftSpeedToRunAt = 1.0; // stgart up at this speed
     double rightSpeedToRunAt = 1.0; // start up at this speed
     double speedIncrement = .1;
@@ -44,27 +42,26 @@ public class TestTwoMotorShooter extends LinearOpMode {
 
 
         // Instantiate and initialize motors
-        leftShooterMotor = new DcMotor8863("leftShooterMotor", hardwareMap);
-        leftShooterMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
-        leftShooterMotor.setMovementPerRev(360);
-        leftShooterMotor.setTargetEncoderTolerance(5);
-        leftShooterMotor.setFinishBehavior(DcMotor8863.FinishBehavior.FLOAT);
-        leftShooterMotor.setMotorMoveType(DcMotor8863.MotorMoveType.RELATIVE);
-        leftShooterMotor.setMinMotorPower(-1);
-        leftShooterMotor.setMaxMotorPower(1);
+        leftDriveMotor = new DcMotor8863("leftDriveMotor", hardwareMap);
+        leftDriveMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
+        leftDriveMotor.setMovementPerRev(360);
+        leftDriveMotor.setTargetEncoderTolerance(5);
+        leftDriveMotor.setFinishBehavior(DcMotor8863.FinishBehavior.FLOAT);
+        leftDriveMotor.setMotorMoveType(DcMotor8863.MotorMoveType.RELATIVE);
+        leftDriveMotor.setMinMotorPower(-1);
+        leftDriveMotor.setMaxMotorPower(1);
 
-        leftShooterMotor.setDirection(DcMotor.Direction.FORWARD);
+        leftDriveMotor.setDirection(DcMotor.Direction.FORWARD);
 
-        rightShooterMotor = new DcMotor8863("rightShooterMotor", hardwareMap);
-        rightShooterMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
-        rightShooterMotor.setMovementPerRev(360);
-        rightShooterMotor.setTargetEncoderTolerance(5);
-        rightShooterMotor.setFinishBehavior(DcMotor8863.FinishBehavior.FLOAT);
-        rightShooterMotor.setMotorMoveType(DcMotor8863.MotorMoveType.RELATIVE);
-        rightShooterMotor.setMinMotorPower(-1);
-        rightShooterMotor.setMaxMotorPower(1);
+        rightDriveMotor = new DcMotor8863("rightDriveMotor", hardwareMap);
+        rightDriveMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
+        rightDriveMotor.setTargetEncoderTolerance(5);
+        rightDriveMotor.setFinishBehavior(DcMotor8863.FinishBehavior.FLOAT);
+        rightDriveMotor.setMotorMoveType(DcMotor8863.MotorMoveType.RELATIVE);
+        rightDriveMotor.setMinMotorPower(-1);
+        rightDriveMotor.setMaxMotorPower(1);
 
-        rightShooterMotor.setDirection(DcMotor.Direction.REVERSE);
+        rightDriveMotor.setDirection(DcMotor.Direction.REVERSE);
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run Motors.");
@@ -151,8 +148,8 @@ public class TestTwoMotorShooter extends LinearOpMode {
             rightSpeedToRunAt = Range.clip(rightSpeedToRunAt, 0, 1);
 
             // apply the new speeds to the motors
-            leftShooterMotor.runAtConstantSpeed(leftSpeedToRunAt);
-            rightShooterMotor.runAtConstantSpeed(rightSpeedToRunAt);
+            leftDriveMotor.runAtConstantSpeed(leftSpeedToRunAt);
+            rightDriveMotor.runAtConstantSpeed(rightSpeedToRunAt);
 
             // Display the current speeds
             telemetry.addData("Left Motor Speed = ", "%3.2f", leftSpeedToRunAt);
@@ -164,8 +161,8 @@ public class TestTwoMotorShooter extends LinearOpMode {
         }
 
         // Turn off motor and signal done;
-        rightShooterMotor.setMotorToFloat();
-        leftShooterMotor.setMotorToFloat();
+        rightDriveMotor.setMotorToFloat();
+        leftDriveMotor.setMotorToFloat();
         telemetry.addData(">", "Done");
 
         telemetry.update();
