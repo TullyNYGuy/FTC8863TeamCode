@@ -38,6 +38,7 @@ import org.firstinspires.ftc.teamcode.opmodes.GenericTest.DriveTrainTest;
 import org.firstinspires.ftc.teamcode.opmodes.GenericTest.PIDMotorTest;
 //import org.firstinspires.ftc.teamcode.opmodes.GenericTest.RGBSensorClass;
 import org.firstinspires.ftc.teamcode.opmodes.GenericTest.RGBSensorClass;
+import org.firstinspires.ftc.teamcode.opmodes.GenericTest.TestServo8863;
 import org.firstinspires.ftc.teamcode.opmodes.VelocityVortexTest.TestTwoMotorShooter;
 /**
  * This class demonstrates how to manually register opmodes.
@@ -111,5 +112,6 @@ public class FTC8863RegisterOpModes
       manager.register("PID Motor Test", PIDMotorTest.class);
       manager.register("Drive Train Test", DriveTrainTest.class);
       manager.register("Color Sensor Test", RGBSensorClass.class);
+      manager.register("Generic Servo", TestServo8863.class);
   }
 }

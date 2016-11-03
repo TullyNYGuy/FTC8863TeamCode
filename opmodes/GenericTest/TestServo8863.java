@@ -32,27 +32,17 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 package org.firstinspires.ftc.teamcode.opmodes.GenericTest;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
 import org.firstinspires.ftc.teamcode.Lib.ResQLib.RobotConfigMapping;
 
-/**
- * TestJoyStick is meant to provide the driver wtih a way to test the various joystick control
- * methods.
- * Differential drive - one joystick for both speed and direction - use gamepad2 left joystick
- * Tank drive - two joysticks, one for left motor speed and one for right - use gamepad2 left
- *  and right joystick
- * Turn deadband compensation on or off (toggle) - gamepad2 left bumper
- *
- * It also allows the driver to control a repel servo
- *  gamepad2 a button = down
- *  gamepad2 y button = up
- *  gamepad2 x button = .5 (halfway)
- * <p>
- */
+@TeleOp(name = "Test servo", group = "Test")
+//@Disabled
+
 public class TestServo8863 extends OpMode {
-    boolean leftRepelServoActive = true;
+    boolean genericServoActive = true;
     double upPosition = .8;
     double downPosition = .2;
     double homePosition = .8;
@@ -60,7 +50,7 @@ public class TestServo8863 extends OpMode {
     double middleRepelPosition = .5;
     double upperRepelPosition = .6;
     double initPosition = homePosition;
-    Servo8863 leftRepelServo;
+    Servo8863 genericServo;
 
 	/**
 	 * Constructor
@@ -76,40 +66,40 @@ public class TestServo8863 extends OpMode {
 	 */
 	@Override
 	public void init() {
-        leftRepelServo = new Servo8863(RobotConfigMapping.getLeftZipLineServoName(), hardwareMap, telemetry, homePosition, upPosition, downPosition, initPosition, Servo.Direction.REVERSE);
+        genericServo = new Servo8863("GenericServo", hardwareMap, telemetry, homePosition, upPosition, downPosition, initPosition, Servo.Direction.REVERSE);
 
-        leftRepelServo.setPositionOne(lowerRepelPosition);
-        leftRepelServo.setPositionTwo(middleRepelPosition);
-        leftRepelServo.setPositionThree(upperRepelPosition);
+        genericServo.setPositionOne(lowerRepelPosition);
+        genericServo.setPositionTwo(middleRepelPosition);
+        genericServo.setPositionThree(upperRepelPosition);
 	}
 
     @Override
     public void start(){
-        leftRepelServo.goHome();
+        genericServo.goHome();
     }
 
 	@Override
 	public void loop() {
 
-        leftRepelServo.updateWiggle();
+        genericServo.updateWiggle();
 
         if (gamepad2.a) {
-                leftRepelServo.goPositionOne();
+                genericServo.goPositionOne();
                 telemetry.addData("leftRepel", "is lower");
         }
 
         if (gamepad2.b) {
-            leftRepelServo.goHome();
+            genericServo.goHome();
             telemetry.addData("leftRepel", "home");
         }
 
         if (gamepad2.x) {
-                leftRepelServo.goPositionTwo();
+                genericServo.goPositionTwo();
                 telemetry.addData("leftRepel", "is position 2");
         }
 
         if (gamepad2.y) {
-                leftRepelServo.goPositionThree();
+                genericServo.goPositionThree();
                 telemetry.addData("leftRepel", "is position 3");
         }
 
@@ -118,14 +108,14 @@ public class TestServo8863 extends OpMode {
             double wiggleDelta = -.5;
             double wiggleTime = 5.0;
 
-            leftRepelServo.startWiggle(upPosition, wiggleDelay, wiggleDelta, wiggleTime);
+            genericServo.startWiggle(upPosition, wiggleDelay, wiggleDelta, wiggleTime);
         }
 
         if (gamepad2.right_bumper) {
-            leftRepelServo.stopWiggle();
+            genericServo.stopWiggle();
         }
 
-        telemetry.addData("Position",  "Position: " + String.format("%.2f", leftRepelServo.getPosition()));
+        telemetry.addData("Position",  "Position: " + String.format("%.2f", genericServo.getPosition()));
 	}
 
 	/*
@@ -135,6 +125,6 @@ public class TestServo8863 extends OpMode {
 	 */
 	@Override
 	public void stop() {
-        leftRepelServo.goHome();
+        genericServo.goHome();
     }
 }
