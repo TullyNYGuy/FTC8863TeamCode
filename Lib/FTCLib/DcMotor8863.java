@@ -69,6 +69,16 @@ public class DcMotor8863 {
     private int countsPerRev = 0;
 
     /**
+     * The no load RPM for the motor as given by the motor datasheet
+     */
+    private int noLoadRPM = 0;
+
+    /**
+     * The no load max speed in encoder ticks per second
+     */
+    private int maxEmcoderTicksPerSecond = 0;
+
+    /**
      * Number of cm or degrees or whatever moved for each motor shaft revolution
      */
     private double MovementPerRev = 0;
@@ -171,14 +181,89 @@ public class DcMotor8863 {
     public void setMotorType(MotorType motorType) {
         this.motorType = motorType;
         setCountsPerRevForMotorType(motorType);
+        setMaxEmcoderTicksPerSecond(calculateMaxMotorSpeedInEncoderTicksPerSec(getCountsPerRev(), getNoLoadRPM()));
+    }
+
+    /**
+     * Set the number of encoder counts per revolution of the shaft based on the type of motor.
+     *
+     * @param motorType Type of motor.
+     * @return Number of encoder counts per revolution of the output shaft of the motor
+     */
+    private int setCountsPerRevForMotorType(MotorType motorType) {
+        switch (motorType) {
+            case NXT:
+                this.countsPerRev = 360;
+                break;
+            case ANDYMARK_20:
+                // http://www.andymark.com/NeveRest-20-12V-Gearmotor-p/am-3102.htm
+                this.countsPerRev = 560;
+                break;
+            case ANDYMARK_40:
+                // http://www.andymark.com/NeveRest-40-Gearmotor-p/am-2964a.htm
+                this.countsPerRev = 1120;
+                break;
+            case ANDYMARK_60:
+                // http://www.andymark.com/NeveRest-60-Gearmotor-p/am-3103.htm
+                this.countsPerRev = 1680;
+                break;
+            case TETRIX:
+                // http://www.cougarrobot.com/attachments/328_Tetrix_DC_Motor_V2.pdf
+                this.countsPerRev = 1440;
+                break;
+            default:
+                this.countsPerRev = 0;
+                break;
+        }
+        return getCountsPerRev();
     }
 
     public int getCountsPerRev() {
         return countsPerRev;
     }
 
-    private void setCountsPerRev(int countsPerRev) {
-        this.countsPerRev = countsPerRev;
+    public int getNoLoadRPM() {
+        return this.noLoadRPM;
+    }
+    /**
+     * Put the date in for the no load RPM of each type of motor.
+     * @param motorType
+     */
+    private int setNoLoadRPMForMotorType(MotorType motorType) {
+        switch (motorType) {
+            case NXT:
+                // http://www.philohome.com/nxtmotor/nxtmotor.htm
+                noLoadRPM = 165;
+                break;
+            case ANDYMARK_20:
+                // http://www.andymark.com/NeveRest-20-12V-Gearmotor-p/am-3102.htm
+                noLoadRPM = 315;
+                break;
+            case ANDYMARK_40:
+                // http://www.andymark.com/NeveRest-40-Gearmotor-p/am-2964a.htm
+                noLoadRPM = 160;
+                break;
+            case ANDYMARK_60:
+                // http://www.andymark.com/NeveRest-60-Gearmotor-p/am-3103.htm
+                noLoadRPM = 105;
+                break;
+            case TETRIX:
+                // http://www.cougarrobot.com/attachments/328_Tetrix_DC_Motor_V2.pdf
+                noLoadRPM = 150;
+                break;
+            default:
+                noLoadRPM = 0;
+                break;
+        }
+        return getNoLoadRPM();
+    }
+
+    private int getMaxEmcoderTicksPerSecond() {
+        return this.maxEmcoderTicksPerSecond;
+    }
+
+    private void setMaxEmcoderTicksPerSecond( int maxEncoderCountsPerSec) {
+        this.maxEmcoderTicksPerSecond = maxEncoderCountsPerSec;
     }
 
     public double getMovementPerRev() {
@@ -294,6 +379,7 @@ public class DcMotor8863 {
         FTCDcMotor = hardwareMap.dcMotor.get(motorName);
         stallTimer = new ElapsedTime();
         initMotorDefaults();
+        this.setMaxSpeed(this.getMaxEmcoderTicksPerSecond());
     }
 
     /**
@@ -318,35 +404,8 @@ public class DcMotor8863 {
     //          Helper Methods
     //*********************************************************************************************
 
-    /**
-     * Get the number of encoder counts per revolution of the shaft based on the type of motor.
-     *
-     * @param motorType Type of motor.
-     * @return Number of encoder counts per revolution of the output shaft of the motor
-     */
-    public int setCountsPerRevForMotorType(MotorType motorType) {
-
-        switch (motorType) {
-            case NXT:
-                setCountsPerRev(360);
-                break;
-            case ANDYMARK_20:
-                setCountsPerRev(560);
-                break;
-            case ANDYMARK_40:
-                setCountsPerRev(1120);
-                break;
-            case ANDYMARK_60:
-                setCountsPerRev(1680);
-                break;
-            case TETRIX:
-                setCountsPerRev(1440);
-                break;
-            default:
-                setCountsPerRev(0);
-                break;
-        }
-        return getCountsPerRev();
+    private int calculateMaxMotorSpeedInEncoderTicksPerSec(int countsPerRev, int noLoadRPM) {
+        return noLoadRPM * 1/60 * countsPerRev;
     }
 
     /**
@@ -384,8 +443,16 @@ public class DcMotor8863 {
      * @return How far the motor has moved whatever is attached to it.
      */
     public double getMovementForEncoderCount(int encoderCount) {
-        return (double) (encoderCount / getCountsPerRev() * getMovementPerRev());
-    }   //10/26/16 Matt Was Here!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        // note that I have to cast encoderCount to a double in order to get a double answer
+        // If I did not then 1000/300 = 3 rather than 3.3333 because 1000 and 300 are integers in the
+        // equation below. The compiler makes the answer int also and drops the .3333. So you get
+        // the wrong answer. Casting the numerator forces the compiler to do double math and you
+        // get the correct answer (3.333).
+        return (double) encoderCount / getCountsPerRev() * getMovementPerRev();
+    }
+    public double getMotorPosition () {
+        return getMovementForEncoderCount (getCurrentPosition());
+    }
 
     /**
      * Gets the number of encoder counts for a certain number of revolutions.
@@ -546,65 +613,6 @@ public class DcMotor8863 {
         return true;
     }
 
-    /**
-     * Checks to see if the rotation to encoder count has completed. If it has then it sets the
-     * motor to hold that encoder count or it sets the motor so that it can move freely, depending
-     * on the FinishBehavior being set to HOLD or COAST.
-     * Use this method in a loop to see if the movement has finished. Like and opmode loop() or in
-     * a while do loop.
-     *
-     * @return true if movement complete
-     */
-    private boolean isRotationComplete() {
-        return !FTCDcMotor.isBusy();
-//        if (FTCDcMotor.getMode() == DcMotor.RunMode.RUN_TO_POSITION) {
-//            // The motor is moving to a certain encoder position so it will complete movement at
-//            // some point.
-//            // get the current encoder position
-//            int currentEncoderCount = this.getCurrentPosition();
-//            // is the current position within the tolerance limit of the desired position?
-//            if (Math.abs(getTargetEncoderCount() - currentEncoderCount) < getTargetEncoderTolerance()) {
-//                // movement is complete
-//                return true;
-//            } else {
-//                // movement is not finished yet
-//                return false;
-//            }
-//        } else {
-//            // The motor is not moving to a position so there cannot be a point when the rotation is
-//            // complete
-//            return false;
-//        }
-
-    }
-
-    public void setupStallDetection(double stallTimeLimit, int stallDetectionTolerance) {
-        setStallDetectionEnabled(true);
-        setStallDetectionTolerance(stallDetectionTolerance);
-        setStallTimeLimit(stallTimeLimit);
-        stallTimer.reset();
-        this.lastEncoderValue = this.getCurrentPosition();
-    }
-
-    private boolean isStalled() {
-        int currentEncoderValue = this.getCurrentPosition();
-        if (currentMotorState == MotorState.MOVING && isStallDetectionEnabled()) {
-            // if the motor has not moved since the last time the position was read
-            if (Math.abs(currentEncoderValue - lastEncoderValue) < stallDetectionTolerance) {
-                // motor has not moved, checking to see how long the motor has been stalled for
-                if (stallTimer.time() > stallTimeLimit) {
-                    // it has been stalled for more than the time limit
-                    return true;
-                }
-            } else {
-                // reset the timer because the motor is not stalled
-                stallTimer.reset();
-            }
-        }
-        this.lastEncoderValue = currentEncoderValue;
-        return false;
-    }
-
     // How much does the encoder change in one cycle of the loop?
 
     // Example: motor is moving at 150 RPM, loop is 20 mSec.
@@ -688,6 +696,7 @@ public class DcMotor8863 {
     public void runAtConstantPowerSetup() {
         this.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
+
     /**
      * Run the motor at a constant power without any encoder feedback. If there is a load on the
      * motor the speed will decrease. If you don't want the speed to decrease, use
@@ -705,6 +714,70 @@ public class DcMotor8863 {
     }
 
     //*********************************************************************************************
+    //          Methods to help out the other methods that move a motor
+    //*********************************************************************************************
+
+    public void setupStallDetection(double stallTimeLimit, int stallDetectionTolerance) {
+        setStallDetectionEnabled(true);
+        setStallDetectionTolerance(stallDetectionTolerance);
+        setStallTimeLimit(stallTimeLimit);
+        stallTimer.reset();
+        this.lastEncoderValue = this.getCurrentPosition();
+    }
+
+    private boolean isStalled() {
+        int currentEncoderValue = this.getCurrentPosition();
+        if (currentMotorState == MotorState.MOVING && isStallDetectionEnabled()) {
+            // if the motor has not moved since the last time the position was read
+            if (Math.abs(currentEncoderValue - lastEncoderValue) < stallDetectionTolerance) {
+                // motor has not moved, checking to see how long the motor has been stalled for
+                if (stallTimer.time() > stallTimeLimit) {
+                    // it has been stalled for more than the time limit
+                    return true;
+                }
+            } else {
+                // reset the timer because the motor is not stalled
+                stallTimer.reset();
+            }
+        }
+        this.lastEncoderValue = currentEncoderValue;
+        return false;
+    }
+
+
+    /**
+     * Checks to see if the rotation to encoder count has completed. If it has then it sets the
+     * motor to hold that encoder count or it sets the motor so that it can move freely, depending
+     * on the FinishBehavior being set to HOLD or COAST.
+     * Use this method in a loop to see if the movement has finished. Like and opmode loop() or in
+     * a while do loop.
+     *
+     * @return true if movement complete
+     */
+    private boolean isRotationComplete() {
+        return !FTCDcMotor.isBusy();
+//        if (FTCDcMotor.getMode() == DcMotor.RunMode.RUN_TO_POSITION) {
+//            // The motor is moving to a certain encoder position so it will complete movement at
+//            // some point.
+//            // get the current encoder position
+//            int currentEncoderCount = this.getCurrentPosition();
+//            // is the current position within the tolerance limit of the desired position?
+//            if (Math.abs(getTargetEncoderCount() - currentEncoderCount) < getTargetEncoderTolerance()) {
+//                // movement is complete
+//                return true;
+//            } else {
+//                // movement is not finished yet
+//                return false;
+//            }
+//        } else {
+//            // The motor is not moving to a position so there cannot be a point when the rotation is
+//            // complete
+//            return false;
+//        }
+
+    }
+
+    //*********************************************************************************************
     //          Methods for stopping a motor
     //*********************************************************************************************
 
@@ -716,20 +789,14 @@ public class DcMotor8863 {
      * If the next motor state is coast, then just shut off the motor power and the motor will
      * move freely.
      */
-    public void interruptMotor() {
+    public void stopMotor() {
         if (getFinishBehavior() == FinishBehavior.HOLD) {
             setMotorToHold();
+            currentMotorState = MotorState.COMPLETE_HOLD;
         } else {
             setMotorToFloat();
+            currentMotorState = MotorState.COMPLETE_FLOAT;
         }
-    }
-
-    /**
-     * Stop the motor. It will just coast, ie rotate freely.
-     */
-    public void stopMotor() {
-        resetEncoder(true);
-        setMotorState(MotorState.IDLE);
     }
 
     /**
@@ -738,7 +805,6 @@ public class DcMotor8863 {
      */
     public void setMotorToHold() {
         this.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        setMotorState(MotorState.HOLD);
         this.setPower(0);
     }
 
@@ -748,7 +814,6 @@ public class DcMotor8863 {
      */
     public void setMotorToFloat() {
         this.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        setMotorState(MotorState.IDLE);
         this.setPower(0);
     }
 
@@ -758,37 +823,100 @@ public class DcMotor8863 {
 
     public MotorState update() {
         switch (getCurrentMotorState()) {
+            // Idle state means the motor is not moving and it will turn if a load is applied.
             case IDLE:
                 break;
+            // Hold state means the motor is not moving but it is actively holding its position.
             case HOLD:
                 break;
+            // Moving state means the motor is currently moving. IE it is in the middle of a command.
+            // Moving state is entered by giving the motor a command. Each command method adjusts
+            // the state of the motor.
             case MOVING:
                 if (stallDetectionEnabled && isStalled()) {
+                    shutdownMotor();
                     setMotorState(MotorState.STALLED);
                 }
                 // Rotation can only be complete if the motor is set to RUN_TO_POSITION
                 if (isRotationComplete()) {
+                    shutdownMotor();
                     if (getFinishBehavior() == FinishBehavior.FLOAT) {
                         setMotorState(MotorState.COMPLETE_FLOAT);
-                        // don't have to set the motor to actually float. That is done automatically
-                        // by the controller once the RUN_TO_POSITION is complete
-                        // But we do have to set the motor power to 0
-                        setPower(0.0);
                     } else {
                         setMotorState(MotorState.COMPLETE_HOLD);
-                        // don't have to set the motor to actually hold / brake. That is done automatically
-                        // by the controller once the RUN_TO_POSITION is complete
                     }
                 }
                 break;
+            // Stalled stete means that a stall was detected. The motor was not moving for a certain
+            // period of time due to excessive load being applied.
             case STALLED:
                 break;
+            // Complete_float state means that the motor movement has completed and the motor will
+            // turn if a load is applied.
             case COMPLETE_FLOAT:
                 break;
             case COMPLETE_HOLD:
                 break;
         }
         return getCurrentMotorState();
+    }
+
+    //*********************************************************************************************
+    //          State Machine - methcds to control the state machine
+    //*********************************************************************************************
+
+    /**
+     * Turn off the motor and leave it either floating or holding.
+     */
+    private void shutdownMotor() {
+        if (getFinishBehavior() == FinishBehavior.FLOAT) {
+            setMotorToFloat();
+        } else {
+            setMotorToHold();
+        }
+    }
+
+    //*********************************************************************************************
+    //          State Machine - methods to return status of the state machine
+    //*********************************************************************************************
+
+    /**
+     * Return whether the motor has completed its movement
+     *
+     * @return true = movement completed
+     */
+    public boolean isMotorStateComplete() {
+        if (getCurrentMotorState() == MotorState.COMPLETE_FLOAT || getCurrentMotorState() == MotorState.COMPLETE_HOLD) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Return whether the motor stalled and has been shutdown
+     *
+     * @return true = stall was detected and motor has been shut down
+     */
+    public boolean isMotorStateStalled() {
+        if (getCurrentMotorState() == MotorState.STALLED) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Return whether the motor is currently moving.
+     *
+     * @return true = motor is currently moving
+     */
+    public boolean isMotorStateMoving() {
+        if (getCurrentMotorState() == MotorState.MOVING) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     //*********************************************************************************************
@@ -835,4 +963,25 @@ public class DcMotor8863 {
         this.direction = direction;
     }
 
+    /**
+     * When the motor is running in one of the <a href="https://en.wikipedia.org/wiki/PID_controller">PID modes</a>
+     * the value set using the {@link #setPower(double) setPower()} method is indicative of a
+     * desired motor <em>velocity</em> rather than a raw <em>power</em> level. In those modes, the
+     * {@link #setMaxSpeed(int) setMaxSpeed()} method provides the interpretation of the speed to which
+     * a value of 1.0 passed to {@link #setPower(double) setPower()} should correspond.
+     *
+     * @param encoderTicksPerSecond the maximum targetable speed for this motor when the motor is
+     *                              in one of the PID modes, in units of encoder ticks per second.
+     *
+     * @see com.qualcomm.robotcore.hardware.DcMotor.RunMode#RUN_USING_ENCODER
+     * @see com.qualcomm.robotcore.hardware.DcMotor.RunMode#RUN_TO_POSITION
+     * @see #getMaxSpeed()
+     */
+    public void setMaxSpeed(int encoderTicksPerSecond) {
+        FTCDcMotor.setMaxSpeed(encoderTicksPerSecond);
+    }
+
+    public int getMaxSpeed() {
+        return FTCDcMotor.getMaxSpeed();
+    }
 }

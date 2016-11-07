@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.hardware.*;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.Lib.ResQLib.RobotConfigMapping;
+import org.firstinspires.ftc.teamcode.opmodes.GenericTest.RobotConfigMappingForGenericTest;
 
 public class DriveTrain {
 
@@ -68,8 +69,8 @@ public class DriveTrain {
     //*********************************************************************************************
 
     public DriveTrain(HardwareMap hardwareMap) {
-        leftDriveMotor = new DcMotor8863(RobotConfigMapping.getLeftDriveMotorName(), hardwareMap);
-        rightDriveMotor = new DcMotor8863(RobotConfigMapping.getRightDriveMotorName(), hardwareMap);
+        leftDriveMotor = new DcMotor8863(RobotConfigMappingForGenericTest.getleftMotorName(), hardwareMap);
+        rightDriveMotor = new DcMotor8863(RobotConfigMappingForGenericTest.getrightMotorName(), hardwareMap);
 
         rightDriveMotor.setDirection(DcMotor.Direction.REVERSE);
         rightDriveMotor.setMaxMotorPower(1);
@@ -124,6 +125,8 @@ public class DriveTrain {
         rightDriveMotor.moveByAmount(power, distance, finishBehavior);
         leftDriveMotor.moveByAmount(power, distance, finishBehavior);
     }
+
+    //public boolean
 
     public DriveTrain.Status update() {
         rightMotorState = rightDriveMotor.update();

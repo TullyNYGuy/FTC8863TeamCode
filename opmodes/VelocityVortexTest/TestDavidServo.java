@@ -29,23 +29,23 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 
-package org.firstinspires.ftc.teamcode.opmodes.GenericTest;
+package org.firstinspires.ftc.teamcode.opmodes.VelocityVortexTest;
 
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
-import org.firstinspires.ftc.teamcode.Lib.ResQLib.RobotConfigMapping;
 
-@TeleOp(name = "Test generic servo", group = "Test")
+@TeleOp(name = "Test David servo", group = "Test")
 @Disabled
 
-public class TestServo8863 extends OpMode {
+public class TestDavidServo extends OpMode {
     boolean genericServoActive = true;
-    double upPosition = .8;
-    double downPosition = .2;
+    double forwardPosition = .8;
+    double backwardsPosition = .2;
     double homePosition = .8;
     double lowerRepelPosition = .4;
     double middleRepelPosition = .5;
@@ -53,24 +53,17 @@ public class TestServo8863 extends OpMode {
     double initPosition = homePosition;
     Servo8863 genericServo;
 
-	/**
-	 * Constructor
-	 */
-	public TestServo8863() {
-
-	}
-
 	/*
 	 * Code to run when the op mode is first enabled goes here
 	 * 
 	 * @see com.qualcomm.robotcore.eventloop.opmode.OpMode#start()
 	 */
-	@Override
-	public void init() {
-        genericServo = new Servo8863("GenericServo", hardwareMap, telemetry, homePosition, upPosition, downPosition, initPosition, Servo.Direction.REVERSE);
+    @Override
+    public void init() {
+        genericServo = new Servo8863("GenericServo", hardwareMap, telemetry, homePosition, forwardPosition, backwardsPosition, initPosition, Servo.Direction.REVERSE);
 
-        genericServo.setPositionOne(lowerRepelPosition);
-        genericServo.setPositionTwo(middleRepelPosition);
+        genericServo.setPositionOne(forwardPosition);
+        genericServo.setPositionTwo(backwardsPosition);
         genericServo.setPositionThree(upperRepelPosition);
 	}
 
@@ -86,7 +79,7 @@ public class TestServo8863 extends OpMode {
 
         if (gamepad2.a) {
                 genericServo.goPositionOne();
-                telemetry.addData("leftRepel", "is lower");
+                telemetry.addData("Servo", "is forward");
         }
 
         if (gamepad2.b) {
@@ -96,7 +89,7 @@ public class TestServo8863 extends OpMode {
 
         if (gamepad2.x) {
                 genericServo.goPositionTwo();
-                telemetry.addData("leftRepel", "is position 2");
+                telemetry.addData("Servo", "is backward");
         }
 
         if (gamepad2.y) {
@@ -109,7 +102,7 @@ public class TestServo8863 extends OpMode {
             double wiggleDelta = -.5;
             double wiggleTime = 5.0;
 
-            genericServo.startWiggle(upPosition, wiggleDelay, wiggleDelta, wiggleTime);
+            genericServo.startWiggle(forwardPosition, wiggleDelay, wiggleDelta, wiggleTime);
         }
 
         if (gamepad2.right_bumper) {

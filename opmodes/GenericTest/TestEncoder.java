@@ -40,7 +40,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  * <p>
  * Enables control of the robot via the gamepad
  */
-public class EncoderTest extends OpMode {
+public class TestEncoder extends OpMode {
 
 	/*
 	 * Note: the configuration of the servos is such that
@@ -54,7 +54,7 @@ public class EncoderTest extends OpMode {
 	/**
 	 * Constructor
 	 */
-	public EncoderTest() {
+	public TestEncoder() {
 
 	}
 

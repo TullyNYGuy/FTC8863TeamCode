@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
+import org.firstinspires.ftc.teamcode.opmodes.GenericTest.RobotConfigMappingForGenericTest;
 
 /**
  * This OpMode runs 2 motors at a given power, one in the opposite direction from the other.
@@ -44,7 +45,7 @@ public class TestTwoMotorShooter extends LinearOpMode {
 
 
         // Instantiate and initialize motors
-        leftShooterMotor = new DcMotor8863("leftShooterMotor", hardwareMap);
+        leftShooterMotor = new DcMotor8863(RobotConfigMappingForGenericTest.getleftMotorName(), hardwareMap);
         leftShooterMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
         leftShooterMotor.setMovementPerRev(360);
         leftShooterMotor.setTargetEncoderTolerance(5);
@@ -55,7 +56,7 @@ public class TestTwoMotorShooter extends LinearOpMode {
 
         leftShooterMotor.setDirection(DcMotor.Direction.FORWARD);
 
-        rightShooterMotor = new DcMotor8863("rightShooterMotor", hardwareMap);
+        rightShooterMotor = new DcMotor8863(RobotConfigMappingForGenericTest.getrightMotorName(), hardwareMap);
         rightShooterMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
         rightShooterMotor.setMovementPerRev(360);
         rightShooterMotor.setTargetEncoderTolerance(5);
@@ -73,9 +74,11 @@ public class TestTwoMotorShooter extends LinearOpMode {
 
         while (opModeIsActive()) {
             //gamepad button configuration:
-            //      Y
-            //  X      B
-            //      A
+            //                                     Y = increase both motor speeds
+            //
+            //  X = increase or decrease left motor speed     B = increase or decrease right motor speed
+            //
+            //                                     A = decrease both motor speeds
 
             // if the right bumper is pressed, reverse the direction of the motor speed increase
             // or decrease. Example. Suppose that X and B presses are increasing the speed of the
