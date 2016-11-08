@@ -11,7 +11,6 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.PIDControl;
  * This OpMode runs 1 motor to a given position. The motor is an andymark 40 so 1120 encoder
  * counts is 1 revolution (360 degrees).
  *
- * This code assumes a DC motor configured with the name "motor"  and "rightShooterMotor"
  *
  */
 @TeleOp(name = "Run To Position Test", group = "Test")
@@ -19,7 +18,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.PIDControl;
 public class TestRunToPosition extends LinearOpMode {
 
     DcMotor motor;
-    double powerToRunAt = .6; // 80% of full speed
+    double powerToRunAt = .3; // 80% of full speed
 
     @Override
     public void runOpMode() {
@@ -37,7 +36,7 @@ public class TestRunToPosition extends LinearOpMode {
         waitForStart();
 
         // set the target position
-        motor.setTargetPosition(1120);
+        motor.setTargetPosition(2240);
         // set the run mode
         motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         // set the power

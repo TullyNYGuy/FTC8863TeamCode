@@ -50,8 +50,12 @@ public class TestPIDMotor extends LinearOpMode {
 
         pidControl = new PIDControl(.005, 360); //Kp, target
 
+        // test internal routines from DcMotor8863
+        telemetry.addData("Encoder Count for movement = ", "%d", motor.getEncoderCountForRevs(2.5));
+        telemetry.update();
+
         // Wait for the start button
-        telemetry.addData(">", "Press Start to run Motors.");
+        telemetry.addData(">", "Press Start to run Motor.");
         telemetry.update();
         waitForStart();
 

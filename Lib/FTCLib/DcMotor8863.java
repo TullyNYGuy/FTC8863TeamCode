@@ -5,6 +5,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
+import static java.lang.Thread.sleep;
+
 /**
  * Created by ball on 11/28/2015.
  */
@@ -76,7 +78,7 @@ public class DcMotor8863 {
     /**
      * The no load max speed in encoder ticks per second
      */
-    private int maxEmcoderTicksPerSecond = 0;
+    private int maxEncoderTicksPerSecond = 0;
 
     /**
      * Number of cm or degrees or whatever moved for each motor shaft revolution
@@ -181,7 +183,8 @@ public class DcMotor8863 {
     public void setMotorType(MotorType motorType) {
         this.motorType = motorType;
         setCountsPerRevForMotorType(motorType);
-        setMaxEmcoderTicksPerSecond(calculateMaxMotorSpeedInEncoderTicksPerSec(getCountsPerRev(), getNoLoadRPM()));
+        setNoLoadRPMForMotorType(motorType);
+        setMaxEncoderTicksPerSecond(getMotorSpeedInEncoderTicksPerSec(getCountsPerRev(), getNoLoadRPM()));
     }
 
     /**
@@ -258,12 +261,12 @@ public class DcMotor8863 {
         return getNoLoadRPM();
     }
 
-    private int getMaxEmcoderTicksPerSecond() {
-        return this.maxEmcoderTicksPerSecond;
+    private int getMaxEncoderTicksPerSecond() {
+        return this.maxEncoderTicksPerSecond;
     }
 
-    private void setMaxEmcoderTicksPerSecond( int maxEncoderCountsPerSec) {
-        this.maxEmcoderTicksPerSecond = maxEncoderCountsPerSec;
+    private void setMaxEncoderTicksPerSecond( int maxEncoderCountsPerSec) {
+        this.maxEncoderTicksPerSecond = maxEncoderCountsPerSec;
     }
 
     public double getMovementPerRev() {
@@ -379,7 +382,7 @@ public class DcMotor8863 {
         FTCDcMotor = hardwareMap.dcMotor.get(motorName);
         stallTimer = new ElapsedTime();
         initMotorDefaults();
-        this.setMaxSpeed(this.getMaxEmcoderTicksPerSecond());
+        this.setMaxSpeed(this.getMaxEncoderTicksPerSecond());
     }
 
     /**
@@ -404,8 +407,16 @@ public class DcMotor8863 {
     //          Helper Methods
     //*********************************************************************************************
 
-    private int calculateMaxMotorSpeedInEncoderTicksPerSec(int countsPerRev, int noLoadRPM) {
-        return noLoadRPM * 1/60 * countsPerRev;
+    /**
+     * Calculate the motor speed in encoder ticks per second given the number of ticks per revolution
+     * and the speed of the motor in RPM.
+     * @param countsPerRev
+     * @param motorRPM
+     * @return motor speed in encoder ticks / sec
+     */
+    // tested
+    private int getMotorSpeedInEncoderTicksPerSec(int countsPerRev, int motorRPM) {
+        return (int) Math.round((double) motorRPM * 1/60 * countsPerRev);
     }
 
     /**
@@ -416,6 +427,7 @@ public class DcMotor8863 {
      *                 other units.
      * @return Number of motor revolutions to turn.
      */
+    // tested
     public double getRevsForMovement(double movement) {
         return movement / getMovementPerRev();
     }
@@ -429,8 +441,9 @@ public class DcMotor8863 {
      *                 other units.
      * @return Number of encoder counts to turn to create the movement.
      */
+    // tested
     public int getEncoderCountForMovement(double movement) {
-        return (int) (getCountsPerRev() * getRevsForMovement(movement));
+        return (int) Math.round(getCountsPerRev() * getRevsForMovement(movement));
     }
 
     /**
@@ -442,6 +455,7 @@ public class DcMotor8863 {
      * @param encoderCount The position of the motor as given by the encoder count
      * @return How far the motor has moved whatever is attached to it.
      */
+    // tested
     public double getMovementForEncoderCount(int encoderCount) {
         // note that I have to cast encoderCount to a double in order to get a double answer
         // If I did not then 1000/300 = 3 rather than 3.3333 because 1000 and 300 are integers in the
@@ -450,6 +464,7 @@ public class DcMotor8863 {
         // get the correct answer (3.333).
         return (double) encoderCount / getCountsPerRev() * getMovementPerRev();
     }
+
     public double getMotorPosition () {
         return getMovementForEncoderCount (getCurrentPosition());
     }
@@ -460,8 +475,9 @@ public class DcMotor8863 {
      * @param revs number of revolutions
      * @return encoder counts
      */
+    // tested
     public int getEncoderCountForRevs(double revs) {
-        return (int) (getCountsPerRev() * revs);
+        return (int) Math.round((getCountsPerRev() * revs));
     }
 
     /**
@@ -523,12 +539,17 @@ public class DcMotor8863 {
      * This moves the object to a certain position, not by a certain amount. I.E. an absolute
      * movement.
      * For example, move a claw to 5 cm position.
+     * NOTE - FinishBehavior will not take affect unless the update() method is called in a loop
+     * after this method.
      *
      * @param power           Power input for the motor. Note that it will be clipped to less than +/-0.8.
      * @param targetPosition  Motor will be rotated so that this position of the object is reached.
      * @param afterCompletion What to do after this movement is completed: HOLD or FLOAT
-     * @return true if successfully completed
+     * @return true if the movement is started and not already ongoing
      */
+    // BUG - IF CALLED REPEATEDLY THE MOTOR GOES INTO AN ENDLESS LOOP BECAUSE AS SOON AS COMPLETE
+    // STATE IS ENTERED THE NEXT CALL TO THIS METHOD RESETS THE STATE TO MOVING AND OFF THE MOTOR
+    // GOES AGAIN. THERE NEEDS TO BE A WAY LOCK THE STATE OR THIS CAN'T BE CALLED REPEATEDLY.
     public boolean moveToPosition(double power, double targetPosition, FinishBehavior afterCompletion) {
         // Protect the movement from getting interrupted by another call to rotateToPosition. The
         // movement has to finish before another one can be started.
@@ -537,6 +558,8 @@ public class DcMotor8863 {
             int encoderCountForPosition = getEncoderCountForMovement(targetPosition);
             return rotateToEncoderCount(power, encoderCountForPosition, afterCompletion);
         } else {
+            // if the movement is ongoing, you can change the power
+            this.setPower(power);
             return false;
         }
     }
@@ -550,12 +573,17 @@ public class DcMotor8863 {
      * This moves the object by a certain amount, not to a certain position. I.E. a relative
      * movement.
      * For example, open a claw by 5 cm.
+     * NOTE - FinishBehavior will not take affect unless the update() method is called in a loop
+     * after this method.
      *
      * @param power
      * @param movement
      * @param afterCompletion
      * @return
      */
+    // BUG - IF CALLED REPEATEDLY THE MOTOR GOES INTO AN ENDLESS LOOP BECAUSE AS SOON AS COMPLETE
+    // STATE IS ENTERED THE NEXT CALL TO THIS METHOD RESETS THE STATE TO MOVING AND OFF THE MOTOR
+    // GOES AGAIN. THERE NEEDS TO BE A WAY LOCK THE STATE OR THIS CAN'T BE CALLED REPEATEDLY.
     public boolean moveByAmount(double power, double movement, FinishBehavior afterCompletion) {
         // Protect the movement from getting interrupted by another call to rotateToPosition. The
         // movement has to finish before another one can be started.
@@ -566,10 +594,20 @@ public class DcMotor8863 {
             int encoderCountForPosition = encoderCountForMovement + this.getCurrentPosition();
             return rotateToEncoderCount(power, encoderCountForPosition, afterCompletion);
         } else {
+            // if the movement is ongoing, you can change the power
+            this.setPower(power);
             return false;
         }
     }
 
+    /**
+     * Rotate the motor a given number of degrees. This is a relative movement.
+     * @param power
+     * @param degrees
+     * @param afterCompletion
+     * @return
+     */
+    // BUG - need code
     public boolean rotateNumberOfDegrees(double power, double degrees, FinishBehavior afterCompletion) {
         return true;
     }
@@ -582,6 +620,7 @@ public class DcMotor8863 {
      * @param afterCompletion Whether it holds or floats after completion.
      * @return If return is true then it actually did it.
      */
+    // BUG - this method is currently absolute rather than relative
     public boolean rotateNumberOfRevolutions(double power, double revs, FinishBehavior afterCompletion) {
         return rotateToEncoderCount(power, getEncoderCountForRevs(revs), afterCompletion);
     }
@@ -595,14 +634,14 @@ public class DcMotor8863 {
      * @return true if successfully completed
      */
     public boolean rotateToEncoderCount(double power, int encoderCount, FinishBehavior afterCompletion) {
-        // set what to do after the rotation completes
-        setFinishBehavior(afterCompletion);
-        // reset the encoder
-        //resetEncoder();
-        // set the desired encoder position
-        this.setTargetPosition(encoderCount);
-        // set the run mode
-        this.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        if (getCurrentMotorState() != MotorState.MOVING){
+            // set what to do after the rotation completes
+            setFinishBehavior(afterCompletion);
+            // set the desired encoder position
+            this.setTargetPosition(encoderCount);
+            // set the run mode
+            this.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        }
         // clip the power so that it does not exceed 80% of max. The reason for this is that the
         // PID controller inside the core motor controller needs to have some room to increase
         // the power when it makes its PID adjustments. If you set the power to 100% then there is
@@ -655,6 +694,7 @@ public class DcMotor8863 {
      * @param power Power input for the motor.
      * @return true if successfully completed
      */
+    // BUG - this routine stops the motor in between speed changes
     public boolean runAtConstantSpeed(double power) {
         if (getMotorState() != MotorState.MOVING) {
             // reset the encoder
@@ -822,7 +862,7 @@ public class DcMotor8863 {
     //*********************************************************************************************
 
     public MotorState update() {
-        switch (getCurrentMotorState()) {
+        switch (this.currentMotorState) {
             // Idle state means the motor is not moving and it will turn if a load is applied.
             case IDLE:
                 break;
@@ -839,6 +879,12 @@ public class DcMotor8863 {
                 }
                 // Rotation can only be complete if the motor is set to RUN_TO_POSITION
                 if (isRotationComplete()) {
+                    // !!!!!!!!!!!!!!!!!!!!!!!!!
+                    // IT LOOKS LIKE I NEED A DELAY HERE BEFORE SHUTTING DOWN THE MOTOR TO ALLOW
+                    // THE PID TO FINISH ADJUSTING THE POSITION OF THE MOTOR. OTHERWISE, I'M GETTING
+                    // SLIGHT INACCURACY IN THE FINAL POSITION. Or a change in the way isRotationComplete
+                    // works.
+                    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     shutdownMotor();
                     if (getFinishBehavior() == FinishBehavior.FLOAT) {
                         setMotorState(MotorState.COMPLETE_FLOAT);
@@ -847,7 +893,7 @@ public class DcMotor8863 {
                     }
                 }
                 break;
-            // Stalled stete means that a stall was detected. The motor was not moving for a certain
+            // Stalled state means that a stall was detected. The motor was not moving for a certain
             // period of time due to excessive load being applied.
             case STALLED:
                 break;
@@ -886,7 +932,7 @@ public class DcMotor8863 {
      * @return true = movement completed
      */
     public boolean isMotorStateComplete() {
-        if (getCurrentMotorState() == MotorState.COMPLETE_FLOAT || getCurrentMotorState() == MotorState.COMPLETE_HOLD) {
+        if (this.currentMotorState == MotorState.COMPLETE_FLOAT || this.currentMotorState == MotorState.COMPLETE_HOLD) {
             return true;
         } else {
             return false;
@@ -899,7 +945,7 @@ public class DcMotor8863 {
      * @return true = stall was detected and motor has been shut down
      */
     public boolean isMotorStateStalled() {
-        if (getCurrentMotorState() == MotorState.STALLED) {
+        if (this.currentMotorState == MotorState.STALLED) {
             return true;
         } else {
             return false;
@@ -912,7 +958,7 @@ public class DcMotor8863 {
      * @return true = motor is currently moving
      */
     public boolean isMotorStateMoving() {
-        if (getCurrentMotorState() == MotorState.MOVING) {
+        if (this.currentMotorState == MotorState.MOVING) {
             return true;
         } else {
             return false;
