@@ -73,7 +73,7 @@ public class Sweeper {
     //*********************************************************************************************
 
     public void stop() {
-        sweeperMotor.stopMotor();
+        sweeperMotor.stop();
         sweeperState = SweeperState.STOP;
     }
 

@@ -539,29 +539,33 @@ public class DcMotor8863 {
      * This moves the object to a certain position, not by a certain amount. I.E. an absolute
      * movement.
      * For example, move a claw to 5 cm position.
-     * NOTE - FinishBehavior will not take affect unless the update() method is called in a loop
+     * This method starts the movement. Once it is started there are 4 ways to stop it:
+     *     stop()
+     *     interrupt()
+     *     motor stalls and stall detection is enabled
+     *     movement completes
+     *
+     * WARNING: Do not call this method repeatedly in a loop and use update() in the same loop. If you do,
+     * the movement will complete and update() will set the mode to COMPLETE_HOLD or COMPLETE_FLOAT
+     * and as soon as this method is encountered in the loop it will start the movement all over
+     * again since motorState != MOVING.
+     *
+     * NOTE: FinishBehavior will not take affect unless the update() method is called in a loop
      * after this method.
+     *
+     * NOTE: You can change the power while the movement is going on by calling setPower().
      *
      * @param power           Power input for the motor. Note that it will be clipped to less than +/-0.8.
      * @param targetPosition  Motor will be rotated so that this position of the object is reached.
      * @param afterCompletion What to do after this movement is completed: HOLD or FLOAT
      * @return true if the movement is started and not already ongoing
      */
-    // BUG - IF CALLED REPEATEDLY THE MOTOR GOES INTO AN ENDLESS LOOP BECAUSE AS SOON AS COMPLETE
-    // STATE IS ENTERED THE NEXT CALL TO THIS METHOD RESETS THE STATE TO MOVING AND OFF THE MOTOR
-    // GOES AGAIN. THERE NEEDS TO BE A WAY LOCK THE STATE OR THIS CAN'T BE CALLED REPEATEDLY.
     public boolean moveToPosition(double power, double targetPosition, FinishBehavior afterCompletion) {
+        // figure out what the encoder count is that corresponds to the target position
+        int encoderCountForPosition = getEncoderCountForMovement(targetPosition);
         // Protect the movement from getting interrupted by another call to rotateToPosition. The
         // movement has to finish before another one can be started.
-        if (this.currentMotorState != MotorState.MOVING) {
-            // figure out what the encoder count is that corresponds to the target position
-            int encoderCountForPosition = getEncoderCountForMovement(targetPosition);
-            return rotateToEncoderCount(power, encoderCountForPosition, afterCompletion);
-        } else {
-            // if the movement is ongoing, you can change the power
-            this.setPower(power);
-            return false;
-        }
+        return rotateToEncoderCount(power, encoderCountForPosition, afterCompletion);
     }
 
     /**
@@ -573,31 +577,36 @@ public class DcMotor8863 {
      * This moves the object by a certain amount, not to a certain position. I.E. a relative
      * movement.
      * For example, open a claw by 5 cm.
-     * NOTE - FinishBehavior will not take affect unless the update() method is called in a loop
+     * This method starts the movement. Once it is started there are 4 ways to stop it:
+     *     stop()
+     *     interrupt()
+     *     motor stalls and stall detection is enabled
+     *     movement completes
+     *
+     * WARNING: Do not call this method repeatedly in a loop and use update() in the same loop. If you do,
+     * the movement will complete and update() will set the mode to COMPLETE_HOLD or COMPLETE_FLOAT
+     * and as soon as this method is encountered in the loop it will start the movement all over
+     * again since motorState != MOVING.
+     *
+     * NOTE: FinishBehavior will not take affect unless the update() method is called in a loop
      * after this method.
+     *
+     * NOTE: You can change the power while the movement is going on by calling setPower().
      *
      * @param power
      * @param movement
      * @param afterCompletion
      * @return
      */
-    // BUG - IF CALLED REPEATEDLY THE MOTOR GOES INTO AN ENDLESS LOOP BECAUSE AS SOON AS COMPLETE
-    // STATE IS ENTERED THE NEXT CALL TO THIS METHOD RESETS THE STATE TO MOVING AND OFF THE MOTOR
-    // GOES AGAIN. THERE NEEDS TO BE A WAY LOCK THE STATE OR THIS CAN'T BE CALLED REPEATEDLY.
     public boolean moveByAmount(double power, double movement, FinishBehavior afterCompletion) {
-        // Protect the movement from getting interrupted by another call to rotateToPosition. The
+        // figure out what the encoder count is that corresponds to the amount to be moved
+        // add that to the current encoder count
+        int encoderCountForMovement = getEncoderCountForMovement(movement);
+        int encoderCountForPosition = encoderCountForMovement + this.getCurrentPosition();
+        // Protect the movement from getting interrupted by another call. The
         // movement has to finish before another one can be started.
-        if (this.currentMotorState != MotorState.MOVING) {
-            // figure out what the encoder count is that corresponds to the amount to be moved
-            int encoderCountForMovement = getEncoderCountForMovement(movement);
-            // add that to the current encoder count
-            int encoderCountForPosition = encoderCountForMovement + this.getCurrentPosition();
-            return rotateToEncoderCount(power, encoderCountForPosition, afterCompletion);
-        } else {
-            // if the movement is ongoing, you can change the power
-            this.setPower(power);
-            return false;
-        }
+        return rotateToEncoderCount(power, encoderCountForPosition, afterCompletion);
+
     }
 
     /**
@@ -632,6 +641,22 @@ public class DcMotor8863 {
      * @param encoderCount    Motor will be rotated so that it results in a movement of this distance.
      * @param afterCompletion What to do after this movement is completed: HOLD or COAST
      * @return true if successfully completed
+     *
+     * This method starts the movement. Once it is started there are 4 ways to stop it:
+     *     stop()
+     *     interrupt()
+     *     motor stalls and stall detection is enabled
+     *     movement completes
+     *
+     * WARNING: Do not call this method repeatedly in a loop and use update() in the same loop. If you do,
+     * the movement will complete and update() will set the mode to COMPLETE_HOLD or COMPLETE_FLOAT
+     * and as soon as this method is encountered in the loop it will start the movement all over
+     * again since motorState != MOVING.
+     *
+     * NOTE: FinishBehavior will not take affect unless the update() method is called in a loop
+     * after this method.
+     *
+     * NOTE: You can change the power while the movement is going on by calling setPower().
      */
     public boolean rotateToEncoderCount(double power, int encoderCount, FinishBehavior afterCompletion) {
         if (getCurrentMotorState() != MotorState.MOVING){
@@ -641,15 +666,20 @@ public class DcMotor8863 {
             this.setTargetPosition(encoderCount);
             // set the run mode
             this.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            // clip the power so that it does not exceed 80% of max. The reason for this is that the
+            // PID controller inside the core motor controller needs to have some room to increase
+            // the power when it makes its PID adjustments. If you set the power to 100% then there is
+            // no room to increase the power if needed and PID control will not work.
+            power = Range.clip(power, -.8, .8);
+            // Start the motor moving.
+            this.setPower(power);
+            setMotorState(MotorState.MOVING);
+            return true;
+        } else {
+            // This method was called again while the movement was taking place. You can't do that.
+            return false;
         }
-        // clip the power so that it does not exceed 80% of max. The reason for this is that the
-        // PID controller inside the core motor controller needs to have some room to increase
-        // the power when it makes its PID adjustments. If you set the power to 100% then there is
-        // no room to increase the power if needed and PID control will not work.
-        power = Range.clip(power, -.8, .8);
-        this.setPower(power);
-        setMotorState(MotorState.MOVING);
-        return true;
+
     }
 
     // How much does the encoder change in one cycle of the loop?
@@ -829,7 +859,7 @@ public class DcMotor8863 {
      * If the next motor state is coast, then just shut off the motor power and the motor will
      * move freely.
      */
-    public void stopMotor() {
+    public void stop() {
         if (getFinishBehavior() == FinishBehavior.HOLD) {
             setMotorToHold();
             currentMotorState = MotorState.COMPLETE_HOLD;
@@ -837,6 +867,10 @@ public class DcMotor8863 {
             setMotorToFloat();
             currentMotorState = MotorState.COMPLETE_FLOAT;
         }
+    }
+
+    public void interrupt() {
+        //not implemented yet
     }
 
     /**
