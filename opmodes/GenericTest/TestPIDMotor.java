@@ -45,8 +45,6 @@ public class TestPIDMotor extends LinearOpMode {
         motor.resetEncoder();
 
         motor.setDirection(DcMotor.Direction.FORWARD);
-        // setup the motor to be run at a constant power
-        motor.runAtConstantPowerSetup();
 
         pidControl = new PIDControl(.005, 360); //Kp, target
 
@@ -65,7 +63,7 @@ public class TestPIDMotor extends LinearOpMode {
             //run the PID calculation
             powerToRunAt = Range.clip(pidControl.getCorrection(motor.getPositionInTermsOfAttachment()), -1, 1);
             // update the motor power
-            motor.runAtConstantPower(powerToRunAt);
+            motor.setPower(powerToRunAt);
 
             if (runningTimer.seconds() > lastTime + 1) {
                 lastTime++;

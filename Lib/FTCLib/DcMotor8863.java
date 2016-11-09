@@ -766,7 +766,6 @@ public class DcMotor8863 {
         } else {
             return false;
         }
-
     }
 
     //*********************************************************************************************
@@ -789,17 +788,6 @@ public class DcMotor8863 {
     }
 
     /**
-     * This method sets the motor controller to the mode for running the motor at a constant power.
-     * I could do this inside runAtConstantPower but since that is called inside a loop with updates
-     * to the power from a PID output, I don't want to incur the performance penalty of doing it in
-     * a loop a million times.
-     * MAKE SURE YOU RUN THIS FIRST BEFORE CALLING runAtConstantPower
-     */
-    public void runAtConstantPowerSetup() {
-        this.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-    }
-
-    /**
      * Run the motor at a constant power without any encoder feedback. If there is a load on the
      * motor the speed will decrease. If you don't want the speed to decrease, use
      * runAtConstantSpeed instead.
@@ -809,10 +797,15 @@ public class DcMotor8863 {
      * @return true if successfully completed
      */
     public boolean runAtConstantPower(double power) {
-        // I want to be able to change the power even if the motor is already moving
-        this.setMotorState(MotorState.MOVING);
-        this.setPower(power);
-        return true;
+        if (getMotorState() != MotorState.MOVING) {
+            // set the run mode
+            this.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            this.setMotorState(MotorState.MOVING);
+            this.setPower(power);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     //*********************************************************************************************
