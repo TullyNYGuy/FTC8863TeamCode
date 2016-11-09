@@ -39,7 +39,7 @@ public class RobotConfigMappingForGenericTest {
     //          GETTER and SETTER Methods
     //
     // allow access to private data fields for example setMotorPower,
-    // getMotorPosition
+    // getPositionInTermsOfAttachment
     //*********************************************************************************************
 
     public static String getleftMotorName() {return leftMotorName;}

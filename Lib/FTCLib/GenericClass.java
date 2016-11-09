@@ -23,7 +23,7 @@ public class GenericClass {
     //          GETTER and SETTER Methods
     //
     // allow access to private data fields for example setMotorPower,
-    // getMotorPosition
+    // getPositionInTermsOfAttachment
     //*********************************************************************************************
 
 

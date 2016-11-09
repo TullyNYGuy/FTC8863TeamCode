@@ -401,6 +401,9 @@ public class DcMotor8863 {
         setMaxMotorPower(1);
         setStallDetectionTolerance(5);
         setStallTimeLimit(0);
+        // reset the encoder and force the motor to be stopped
+        this.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        this.setPower(0);
     }
 
     //*********************************************************************************************
@@ -447,7 +450,7 @@ public class DcMotor8863 {
     }
 
     /**
-     * Calculate the "movement" that whatever is attached to the motor has moved based on the
+     * Calculate the "movement" of whatever is attached to the motor based on the
      * encoder counts given. The movement can be the number of degrees the motor has moved, the
      * number of cm a wheel attached to the motor has turned etc. It uses the MovementPerRev and
      * CountsPerRev defined when the motor object is setup.
@@ -465,7 +468,13 @@ public class DcMotor8863 {
         return (double) encoderCount / getCountsPerRev() * getMovementPerRev();
     }
 
-    public double getMotorPosition () {
+    /**
+     * Get the current motor position in terms of the position of whatever is attached to it. The
+     * position can be the number of degrees, the position of a wheel in cm etc.
+     * @return position in units of whatever is attached to it
+     */
+    // tested
+    public double getPositionInTermsOfAttachment() {
         return getMovementForEncoderCount (getCurrentPosition());
     }
 
@@ -478,6 +487,17 @@ public class DcMotor8863 {
     // tested
     public int getEncoderCountForRevs(double revs) {
         return (int) Math.round((getCountsPerRev() * revs));
+    }
+
+    /**
+     * Gets the number of encoder counts corresponding to a movement of a given number of degrees.
+     *
+     * @param degrees number of degrees
+     * @return encoder counts
+     */
+    //tested
+    public int getEncoderCountForDegrees(double degrees) {
+        return (int) Math.round(getCountsPerRev() * degrees / 360);
     }
 
     /**
@@ -560,11 +580,10 @@ public class DcMotor8863 {
      * @param afterCompletion What to do after this movement is completed: HOLD or FLOAT
      * @return true if the movement is started and not already ongoing
      */
+    // tested
     public boolean moveToPosition(double power, double targetPosition, FinishBehavior afterCompletion) {
         // figure out what the encoder count is that corresponds to the target position
         int encoderCountForPosition = getEncoderCountForMovement(targetPosition);
-        // Protect the movement from getting interrupted by another call to rotateToPosition. The
-        // movement has to finish before another one can be started.
         return rotateToEncoderCount(power, encoderCountForPosition, afterCompletion);
     }
 
@@ -598,30 +617,35 @@ public class DcMotor8863 {
      * @param afterCompletion
      * @return
      */
+    // tested
     public boolean moveByAmount(double power, double movement, FinishBehavior afterCompletion) {
         // figure out what the encoder count is that corresponds to the amount to be moved
-        // add that to the current encoder count
         int encoderCountForMovement = getEncoderCountForMovement(movement);
+        // add that to the current encoder count
         int encoderCountForPosition = encoderCountForMovement + this.getCurrentPosition();
-        // Protect the movement from getting interrupted by another call. The
-        // movement has to finish before another one can be started.
         return rotateToEncoderCount(power, encoderCountForPosition, afterCompletion);
 
     }
 
     /**
+     * A relative movement:
      * Rotate the motor a given number of degrees. This is a relative movement.
      * @param power
      * @param degrees
      * @param afterCompletion
      * @return
      */
-    // BUG - need code
+    // tested
     public boolean rotateNumberOfDegrees(double power, double degrees, FinishBehavior afterCompletion) {
-        return true;
+        // figure out what the encoder count is that corresponds to the amount to be moved
+        int encoderCountForDegrees = getEncoderCountForDegrees(degrees);
+        // add that to the current encoder count
+        int encoderCountForPosition = encoderCountForDegrees + this.getCurrentPosition();
+        return rotateToEncoderCount(power, encoderCountForPosition, afterCompletion);
     }
 
     /**
+     * A relative movement:
      * Makes the motor rotate to a certain amount of revolutions.
      *
      * @param power           The power at which the motor moves
@@ -629,9 +653,13 @@ public class DcMotor8863 {
      * @param afterCompletion Whether it holds or floats after completion.
      * @return If return is true then it actually did it.
      */
-    // BUG - this method is currently absolute rather than relative
+    // tested
     public boolean rotateNumberOfRevolutions(double power, double revs, FinishBehavior afterCompletion) {
-        return rotateToEncoderCount(power, getEncoderCountForRevs(revs), afterCompletion);
+        // figure out what the encoder count is that corresponds to the amount to be moved
+        int encoderCountForRevs = getEncoderCountForRevs(revs);
+        // add that to the current encoder count
+        int encoderCountForPosition = encoderCountForRevs + this.getCurrentPosition();
+        return rotateToEncoderCount(power, encoderCountForPosition, afterCompletion);
     }
 
     /**
@@ -658,6 +686,7 @@ public class DcMotor8863 {
      *
      * NOTE: You can change the power while the movement is going on by calling setPower().
      */
+    // tested
     public boolean rotateToEncoderCount(double power, int encoderCount, FinishBehavior afterCompletion) {
         if (getCurrentMotorState() != MotorState.MOVING){
             // set what to do after the rotation completes
@@ -721,20 +750,23 @@ public class DcMotor8863 {
      * result in the PID not being able to control the motor and the motor will lose speed under
      * load.
      *
+     * NOTE: You can change the power while the movement is going on by calling setPower().
+     *
      * @param power Power input for the motor.
      * @return true if successfully completed
      */
-    // BUG - this routine stops the motor in between speed changes
+    // tested
     public boolean runAtConstantSpeed(double power) {
         if (getMotorState() != MotorState.MOVING) {
-            // reset the encoder
-            this.resetEncoder();
+            // set the run mode
+            this.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            this.setMotorState(MotorState.MOVING);
+            this.setPower(power);
+            return true;
+        } else {
+            return false;
         }
-        // set the run mode
-        this.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        this.setMotorState(MotorState.MOVING);
-        this.setPower(power);
-        return true;
+
     }
 
     //*********************************************************************************************
@@ -824,6 +856,9 @@ public class DcMotor8863 {
      *
      * @return true if movement complete
      */
+    // BUG isBusy returns false if the mode is RUN_USING_ENCODERS (constant speed)
+    // and it does not return an accurate indication of completion on RUN_TO_POSITION.
+    // Will have to write my own.
     private boolean isRotationComplete() {
         return !FTCDcMotor.isBusy();
 //        if (FTCDcMotor.getMode() == DcMotor.RunMode.RUN_TO_POSITION) {

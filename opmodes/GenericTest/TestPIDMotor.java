@@ -63,7 +63,7 @@ public class TestPIDMotor extends LinearOpMode {
 
         while (opModeIsActive()) {
             //run the PID calculation
-            powerToRunAt = Range.clip(pidControl.getCorrection(motor.getMotorPosition()), -1, 1);
+            powerToRunAt = Range.clip(pidControl.getCorrection(motor.getPositionInTermsOfAttachment()), -1, 1);
             // update the motor power
             motor.runAtConstantPower(powerToRunAt);
 
@@ -74,7 +74,7 @@ public class TestPIDMotor extends LinearOpMode {
             // Display the current value
             telemetry.addData("Motor Speed = ", "%5.2f", powerToRunAt);
             telemetry.addData(">", "Press Stop to end test.");
-            telemetry.addData("feedback = ", "%5.2f", motor.getMotorPosition());
+            telemetry.addData("feedback = ", "%5.2f", motor.getPositionInTermsOfAttachment());
             telemetry.addData("Encoder Count = ", "%5d", motor.getCurrentPosition());
             telemetry.addData("Elapsed time = ", "%5.0f", lastTime);
             telemetry.update();

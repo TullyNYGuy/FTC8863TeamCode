@@ -4,11 +4,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.PIDControl;
-import org.firstinspires.ftc.teamcode.opmodes.GenericTest.RobotConfigMappingForGenericTest;
 
 /**
  * This OpMode tests a DC motor and is meant to test the functionality of the DcMotor8863 class.
@@ -20,6 +17,7 @@ public class TestDCMotor8863 extends LinearOpMode {
     DcMotor8863 motor;
     int feedback = 0;
     double powerToRunAt = .5; // % of full speed
+    int value = 0;
 
     private ElapsedTime runningTimer;
 
@@ -44,6 +42,8 @@ public class TestDCMotor8863 extends LinearOpMode {
         motor.setDirection(DcMotor.Direction.FORWARD);
 
         // test internal routines from DcMotor8863
+        //value = motor.getEncoderCountForDegrees(-400);
+        //telemetry.addData("Encoder count for degrees = ", "%d", value);
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run Motor.");
@@ -52,13 +52,23 @@ public class TestDCMotor8863 extends LinearOpMode {
 
         runningTimer.reset();
 
-        motor.rotateNumberOfRevolutions(powerToRunAt, 3, DcMotor8863.FinishBehavior.FLOAT);
+        //motor.moveToPosition(powerToRunAt, 720, DcMotor8863.FinishBehavior.HOLD); //works
+        //motor.moveByAmount(powerToRunAt, 720, DcMotor8863.FinishBehavior.HOLD); // works
+        //motor.rotateNumberOfRevolutions(powerToRunAt, 3, DcMotor8863.FinishBehavior.FLOAT); // works
+        //motor.rotateNumberOfDegrees(powerToRunAt, 720, DcMotor8863.FinishBehavior.HOLD); // works
+        //motor.rotateNumberOfRevolutions(powerToRunAt, 2, DcMotor8863.FinishBehavior.HOLD); // works
+        motor.runAtConstantSpeed(powerToRunAt);
+
+        //sleep(2000);
+        //motor.stop();
 
         while (opModeIsActive() && !motor.isMotorStateComplete()) {
             motor.update();
+            //powerToRunAt = powerToRunAt + .01;
+            //motor.setPower(powerToRunAt);
             telemetry.addData(">", "Not complete yet");
             telemetry.addData("Motor Speed = ", "%5.2f", powerToRunAt);
-            telemetry.addData("feedback = ", "%5.2f", motor.getMotorPosition());
+            telemetry.addData("feedback = ", "%5.2f", motor.getPositionInTermsOfAttachment());
             telemetry.addData("Encoder Count = ", "%5d", motor.getCurrentPosition());
             telemetry.addData("Elapsed time = ", "%5.0f", runningTimer.milliseconds());
             telemetry.addData(">", "Press Stop to end test.");
@@ -69,13 +79,17 @@ public class TestDCMotor8863 extends LinearOpMode {
 
         sleep(2000);
 
-        motor.rotateNumberOfRevolutions(powerToRunAt, 2, DcMotor8863.FinishBehavior.HOLD);
+        //motor.moveToPosition(powerToRunAt, 360, DcMotor8863.FinishBehavior.FLOAT); // works
+        //motor.moveByAmount(powerToRunAt, -360, DcMotor8863.FinishBehavior.FLOAT); // works
+        // motor.rotateNumberOfRevolutions(powerToRunAt, 2, DcMotor8863.FinishBehavior.HOLD); // works
+        //motor.rotateNumberOfDegrees(powerToRunAt, -720, DcMotor8863.FinishBehavior.HOLD); // works
+        //motor.rotateNumberOfRevolutions(powerToRunAt, -2, DcMotor8863.FinishBehavior.HOLD); // works
 
         while (opModeIsActive() && !motor.isMotorStateComplete()) {
             motor.update();
             telemetry.addData(">", "Not complete yet");
             telemetry.addData("Motor Speed = ", "%5.2f", powerToRunAt);
-            telemetry.addData("feedback = ", "%5.2f", motor.getMotorPosition());
+            telemetry.addData("feedback = ", "%5.2f", motor.getPositionInTermsOfAttachment());
             telemetry.addData("Encoder Count = ", "%5d", motor.getCurrentPosition());
             telemetry.addData("Elapsed time = ", "%5.0f", runningTimer.milliseconds());
             telemetry.addData(">", "Press Stop to end test.");
@@ -86,7 +100,7 @@ public class TestDCMotor8863 extends LinearOpMode {
 
 
         telemetry.addData("Motor Speed = ", "%5.2f", powerToRunAt);
-        telemetry.addData("feedback = ", "%5.2f", motor.getMotorPosition());
+        telemetry.addData("feedback = ", "%5.2f", motor.getPositionInTermsOfAttachment());
         telemetry.addData("Encoder Count = ", "%5d", motor.getCurrentPosition());
         telemetry.addData("Elapsed time = ", "%5.0f", runningTimer.milliseconds());
         telemetry.addData(">", "Movement complete");
@@ -108,7 +122,7 @@ public class TestDCMotor8863 extends LinearOpMode {
 //
 //            // Display the current value
 //            telemetry.addData("Motor Speed = ", "%5.2f", powerToRunAt);
-//            telemetry.addData("feedback = ", "%5.2f", motor.getMotorPosition());
+//            telemetry.addData("feedback = ", "%5.2f", motor.getPositionInTermsOfAttachment());
 //            telemetry.addData("Encoder Count = ", "%5d", motor.getCurrentPosition());
 //            telemetry.addData("Elapsed time = ", "%5.0f", lastTime);
 //            telemetry.addData(">", "Press Stop to end test.");
