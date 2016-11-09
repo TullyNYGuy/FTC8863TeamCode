@@ -32,7 +32,7 @@ public class DriveTrain {
     //          GETTER and SETTER Methods
     //
     // allow access to private data fields for example setMotorPower,
-    // getMotorPosition
+    // getPositionInTermsOfAttachment
     //*********************************************************************************************
 
     public double getRightPower(){
@@ -131,22 +131,21 @@ public class DriveTrain {
     public DriveTrain.Status update() {
         rightMotorState = rightDriveMotor.update();
         leftMotorState = leftDriveMotor.update();
-        if (rightMotorState == DcMotor8863.MotorState.COMPLETE_FLOAT || rightMotorState == DcMotor8863.MotorState.COMPLETE_HOLD &&
-                leftMotorState == DcMotor8863.MotorState.COMPLETE_FLOAT || leftMotorState == DcMotor8863.MotorState.COMPLETE_HOLD) {
+        if (this.isMotorStateComplete()){
             return Status.COMPLETE;
         } else {
             return Status.MOVING;
         }
     }
 
-/*    public boolean isRotationComplete() {
-        if(rightDriveMotor.isRotationComplete() && leftDriveMotor.isRotationComplete()) {
+    public boolean isMotorStateComplete() {
+        if(rightDriveMotor.isMotorStateComplete() && leftDriveMotor.isMotorStateComplete()) {
             return true;
         } else {
             return false;
         }
 
-    }*/
+    }
 
     //*********************************************************************************************
     //          MAJOR METHODS

@@ -22,9 +22,10 @@ public class TestDriveTrain extends LinearOpMode {
     DriveTrain myDriveTrain;
     double powerToRunAt;
     double powerToRunAt1 = 0.3; // % of full speed
-    double powerToRunAt2 = 0.1; // % of full speed
+    double powerToRunAt2 = 0.3; // % of full speed
     double distanceToMove1 = 30; // cm
     double distanceToMove2 = 60; // cm
+    DriveTrain.Status statusDrive = DriveTrain.Status.COMPLETE;
 
     @Override
     public void runOpMode() {
@@ -45,9 +46,28 @@ public class TestDriveTrain extends LinearOpMode {
         powerToRunAt = powerToRunAt1;
         myDriveTrain.driveDistance(powerToRunAt1, distanceToMove1, DcMotor8863.FinishBehavior.FLOAT);
 
+        while(opModeIsActive()) {
+            statusDrive = myDriveTrain.update();
+            if (statusDrive == DriveTrain.Status.COMPLETE) {
+                break;
+            }
+            idle();
+        }
+
+        telemetry.addData(">", "Finished movement 1" );
+        telemetry.update();
+        sleep(2000);
 
         powerToRunAt = powerToRunAt2;
         myDriveTrain.driveDistance(powerToRunAt2, distanceToMove2, DcMotor8863.FinishBehavior.FLOAT);
+
+        while(opModeIsActive()) {
+            statusDrive = myDriveTrain.update();
+            if (statusDrive == DriveTrain.Status.COMPLETE) {
+                break;
+            }
+            idle();
+        }
 
         // Ramp motor speeds till stop pressed.
         while(opModeIsActive()) {
