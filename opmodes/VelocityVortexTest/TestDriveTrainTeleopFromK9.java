@@ -60,7 +60,7 @@ import org.firstinspires.ftc.teamcode.opmodes.GenericTest.RobotConfigMappingForG
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@TeleOp(name="Drive Train Test: Telop Tank", group="K9bot")
+@TeleOp(name="Drive Train Teleop", group="Test")
 //@Disabled
 public class TestDriveTrainTeleopFromK9 extends LinearOpMode {
 

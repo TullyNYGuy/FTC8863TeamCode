@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.GenericTest;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -10,7 +11,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
  *
  */
 @TeleOp(name = "Linear Op Mode Shell - do not run", group = "Test")
-//@Disabled
+@Disabled
 public class LinearOpModeShell extends LinearOpMode {
 
     // Put your variable declarations here
