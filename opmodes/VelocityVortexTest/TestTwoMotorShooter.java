@@ -22,18 +22,22 @@ public class TestTwoMotorShooter extends LinearOpMode {
 
     DcMotor8863 leftShooterMotor;
     DcMotor8863 rightShooterMotor;
+    DcMotor8863 conveyorMotor;
+    
     double leftSpeedToRunAt = 1.0; // stgart up at this speed
     double rightSpeedToRunAt = 1.0; // start up at this speed
     double speedIncrement = .1;
+    double conveyorSpeed = .5;
 
     // multiply by this factor. If positive the motor speed will increase. If negative the motor
     // speed will decrease. Increase or decrease is controlled by the right bumper on the gamepad.
-    double speedIncrementDirection = 1.0;
+    double speedIncrementDirection = -1.0;
 
     // for use in debouncing the button. A long press will only result in one transition of the
     // speedIncrementDirection
     boolean rightBumperIsReleased = true;
-
+    boolean leftBumperIsReleased = true;
+    
     boolean aButtonIsReleased = true;
     boolean bButtonIsReleased = true;
     boolean yButtonIsReleased = true;
@@ -46,7 +50,7 @@ public class TestTwoMotorShooter extends LinearOpMode {
 
         // Instantiate and initialize motors
         leftShooterMotor = new DcMotor8863(RobotConfigMappingForGenericTest.getleftMotorName(), hardwareMap);
-        leftShooterMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
+        leftShooterMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_20);
         leftShooterMotor.setMovementPerRev(360);
         leftShooterMotor.setTargetEncoderTolerance(5);
         leftShooterMotor.setFinishBehavior(DcMotor8863.FinishBehavior.FLOAT);
@@ -57,7 +61,7 @@ public class TestTwoMotorShooter extends LinearOpMode {
         leftShooterMotor.setDirection(DcMotor.Direction.FORWARD);
 
         rightShooterMotor = new DcMotor8863(RobotConfigMappingForGenericTest.getrightMotorName(), hardwareMap);
-        rightShooterMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
+        rightShooterMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_20);
         rightShooterMotor.setMovementPerRev(360);
         rightShooterMotor.setTargetEncoderTolerance(5);
         rightShooterMotor.setFinishBehavior(DcMotor8863.FinishBehavior.FLOAT);
@@ -67,10 +71,25 @@ public class TestTwoMotorShooter extends LinearOpMode {
 
         rightShooterMotor.setDirection(DcMotor.Direction.REVERSE);
 
+        conveyorMotor = new DcMotor8863("conveyorMotor", hardwareMap);
+        conveyorMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
+        conveyorMotor.setMovementPerRev(360);
+        conveyorMotor.setTargetEncoderTolerance(5);
+        conveyorMotor.setFinishBehavior(DcMotor8863.FinishBehavior.FLOAT);
+        conveyorMotor.setMotorMoveType(DcMotor8863.MotorMoveType.RELATIVE);
+        conveyorMotor.setMinMotorPower(-1);
+        conveyorMotor.setMaxMotorPower(1);
+
+        conveyorMotor.setDirection(DcMotor.Direction.FORWARD);
+
         // Wait for the start button
         telemetry.addData(">", "Press Start to run Motors.");
         telemetry.update();
         waitForStart();
+
+        leftShooterMotor.runAtConstantSpeed(leftSpeedToRunAt);
+        rightShooterMotor.runAtConstantSpeed(rightSpeedToRunAt);
+        conveyorMotor.runAtConstantSpeed(0);
 
         while (opModeIsActive()) {
             //gamepad button configuration:
@@ -79,6 +98,8 @@ public class TestTwoMotorShooter extends LinearOpMode {
             //  X = increase or decrease left motor speed     B = increase or decrease right motor speed
             //
             //                                     A = decrease both motor speeds
+            
+            // left bumper = toggle conveyor       right bumper = toggle X/B direction
 
             // if the right bumper is pressed, reverse the direction of the motor speed increase
             // or decrease. Example. Suppose that X and B presses are increasing the speed of the
@@ -149,17 +170,35 @@ public class TestTwoMotorShooter extends LinearOpMode {
                 bButtonIsReleased = true;
             }
 
+            // left bumper controls the conveyor. When pressed the conveyor moves. When not pressed
+            // the conveyor does not move.
+            if (gamepad1.left_bumper) {
+                if (leftBumperIsReleased) {
+                    // set so that we know the button has been pressed.
+                    leftBumperIsReleased = false;
+                    // turn on the conveyor motor
+                    conveyorMotor.setPower(conveyorSpeed);
+                }
+            } else {
+                // The bumper is not pressed anymore; it has been released. Stop the conveyor motor.
+                leftBumperIsReleased = true;
+                conveyorMotor.setPower(0);
+            }
+
             // clip the speeds to 0 for min and 1 for max
             leftSpeedToRunAt = Range.clip(leftSpeedToRunAt, 0, 1);
             rightSpeedToRunAt = Range.clip(rightSpeedToRunAt, 0, 1);
 
             // apply the new speeds to the motors
-            leftShooterMotor.runAtConstantSpeed(leftSpeedToRunAt);
-            rightShooterMotor.runAtConstantSpeed(rightSpeedToRunAt);
+            leftShooterMotor.setPower(leftSpeedToRunAt);
+            rightShooterMotor.setPower(rightSpeedToRunAt);
 
             // Display the current speeds
             telemetry.addData("Left Motor Speed = ", "%3.2f", leftSpeedToRunAt);
             telemetry.addData("Right Motor Speed = ", "%3.2f", rightSpeedToRunAt);
+            telemetry.addData("Left Motor Encoder = ", "%d", leftShooterMotor.getCurrentPosition());
+            telemetry.addData("Right Motor Encoder = ", "%d", rightShooterMotor.getCurrentPosition());
+            telemetry.addData("Motor Difference = ", "%d", leftShooterMotor.getCurrentPosition() - rightShooterMotor.getCurrentPosition());
             telemetry.addData(">", "Press Stop to end test.");
             telemetry.update();
 
@@ -169,6 +208,7 @@ public class TestTwoMotorShooter extends LinearOpMode {
         // Turn off motor and signal done;
         rightShooterMotor.setMotorToFloat();
         leftShooterMotor.setMotorToFloat();
+        conveyorMotor.setMotorToFloat();
         telemetry.addData(">", "Done");
 
         telemetry.update();
