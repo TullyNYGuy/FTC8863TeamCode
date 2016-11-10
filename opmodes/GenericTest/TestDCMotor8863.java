@@ -16,7 +16,7 @@ public class TestDCMotor8863 extends LinearOpMode {
 
     DcMotor8863 motor;
     int feedback = 0;
-    double powerToRunAt = .5; // % of full speed
+    double powerToRunAt = 0.5; // % of full speed
     int value = 0;
 
     private ElapsedTime runningTimer;
@@ -33,7 +33,7 @@ public class TestDCMotor8863 extends LinearOpMode {
         motor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
         motor.setMovementPerRev(360);
         motor.setTargetEncoderTolerance(5);
-        motor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
+        motor.setFinishBehavior(DcMotor8863.FinishBehavior.FLOAT);
         motor.setMotorMoveType(DcMotor8863.MotorMoveType.RELATIVE);
         motor.setMinMotorPower(-1);
         motor.setMaxMotorPower(1);
@@ -57,10 +57,19 @@ public class TestDCMotor8863 extends LinearOpMode {
         //motor.rotateNumberOfRevolutions(powerToRunAt, 3, DcMotor8863.FinishBehavior.FLOAT); // works
         //motor.rotateNumberOfDegrees(powerToRunAt, 720, DcMotor8863.FinishBehavior.HOLD); // works
         //motor.rotateNumberOfRevolutions(powerToRunAt, 2, DcMotor8863.FinishBehavior.HOLD); // works
-        motor.runAtConstantSpeed(powerToRunAt);
+        //motor.runAtConstantSpeed(powerToRunAt);
+        motor.runAtConstantPower(powerToRunAt);
 
-        //sleep(2000);
-        //motor.stop();
+//        sleep(1000);
+//        motor.setPower(1);
+//        sleep(1000);
+//        //motor.stop();
+//        motor.interrupt();
+//        motor.runAtConstantSpeed(powerToRunAt);
+//        sleep(1000);
+//        motor.shutdownMotor();
+
+
 
         while (opModeIsActive() && !motor.isMotorStateComplete()) {
             motor.update();
