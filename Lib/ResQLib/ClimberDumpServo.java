@@ -41,7 +41,7 @@ public class ClimberDumpServo {
     //          GETTER and SETTER Methods
     //
     // allow access to private data fields for example setMotorPower,
-    // getMotorPosition
+    // getPositionInTermsOfAttachment
     //*********************************************************************************************
 
     // no getters and setters needed since the variable are all private and no one using this class

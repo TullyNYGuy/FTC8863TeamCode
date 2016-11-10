@@ -1,13 +1,10 @@
-package org.firstinspires.ftc.teamcode.Lib.ResQLib;
+package org.firstinspires.ftc.teamcode.opmodes.GenericTest;
 
-
-import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
-import org.firstinspires.ftc.robotcore.external.Telemetry;
-
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
-
-public class RightZipLineServo {
+/**
+ * This class defines names for generic objects that we want to test. This way we don't have a million
+ * different robot configs on the phone
+ */
+public class RobotConfigMappingForGenericTest {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -24,21 +21,19 @@ public class RightZipLineServo {
     // getter and setter methods
     //*********************************************************************************************
 
-    private Servo8863 rightZipLineServo;
+    //2 motors
+    private static String leftMotorName = "leftMotor"; //AH00qK3C port 1 (bottom)
+    private static String rightMotorName = "rightMotor"; //AH00qK3C port 2 (bottom)
 
-    // home position
-    private double rightZipLineHomePosition = 0.8;
+    //generic servo
+    private static String genericServo = "genericServo"; //AL004A89 port 2
 
-    // upper zip line guy
-    private double rightZipLineUpperPosition = 0.1;
+    //generic continuous rotation servo
+    private static String crServo = "crServo"; //AL00VV9L port 2
 
-    // middle zip line guy
-    private double rightZipLineMiddlePosition = 0.1;
 
-    // lower zip line guy
-    private double rightZipLineLowerPosition = .25;
 
-    private double rightZipLineInitPosition =  rightZipLineHomePosition;
+
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -47,6 +42,16 @@ public class RightZipLineServo {
     // getPositionInTermsOfAttachment
     //*********************************************************************************************
 
+    public static String getleftMotorName() {return leftMotorName;}
+
+    public static String getrightMotorName() {
+        return rightMotorName;
+    }
+
+    public static String getgenericServo() {return genericServo;}
+
+    public static String getcrServo() {return crServo;}
+
 
     //*********************************************************************************************
     //          Constructors
@@ -54,18 +59,6 @@ public class RightZipLineServo {
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
-
-
-    public RightZipLineServo(HardwareMap hardwareMap, Telemetry telemetry) {
-        rightZipLineServo = new Servo8863(RobotConfigMapping.getBarGrabberServoName(),hardwareMap, telemetry);
-        rightZipLineServo.setHomePosition(rightZipLineHomePosition);
-        rightZipLineServo.setUpPosition(rightZipLineUpperPosition);
-        rightZipLineServo.setPositionOne(rightZipLineMiddlePosition);
-        rightZipLineServo.setDownPosition(rightZipLineLowerPosition);
-        rightZipLineServo.setInitPosition(rightZipLineInitPosition);
-        rightZipLineServo.setDirection(Servo.Direction.FORWARD);
-        rightZipLineServo.goInitPosition();
-    }
 
 
     //*********************************************************************************************
@@ -80,28 +73,4 @@ public class RightZipLineServo {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
-
-    public void goHome() {
-        rightZipLineServo.goHome();
-    }
-
-    public void goUpperGuy() {
-        rightZipLineServo.goUp();
-    }
-
-    public void goMiddleGuy() {
-        rightZipLineServo.goPositionOne();
-    }
-
-    public void goLowerGuy() {
-        rightZipLineServo.goDown();
-    }
-
-    public double getPosition() {
-        return rightZipLineServo.getPosition();
-    }
-
-    public void setPosition(double position) {
-        rightZipLineServo.setPosition(position);
-    }
 }

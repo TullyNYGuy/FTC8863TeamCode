@@ -1,20 +1,22 @@
 package org.firstinspires.ftc.teamcode.opmodes.VelocityVortexTest;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
+import org.firstinspires.ftc.teamcode.opmodes.GenericTest.RobotConfigMappingForGenericTest;
 
 /**
  * This OpMode runs 2 motors at a given power, one in the opposite direction from the other.
  * It is meant to be used to test a double ball shooter
  * <p>
- * This code assumes a DC motor configured with the name "leftDriveMotor"  and "rightDriveMotor"
+ * This code assumes a DC motor configured with the name "leftMotor"  and "rightMotor"
  */
 @TeleOp(name = "Test 2 motors", group = "Test")
-//@Disabled
+@Disabled
 public class TestTwoMotors extends LinearOpMode {
 
     DcMotor8863 leftDriveMotor;
@@ -42,7 +44,7 @@ public class TestTwoMotors extends LinearOpMode {
 
 
         // Instantiate and initialize motors
-        leftDriveMotor = new DcMotor8863("leftDriveMotor", hardwareMap);
+        leftDriveMotor = new DcMotor8863(RobotConfigMappingForGenericTest.getleftMotorName(), hardwareMap);
         leftDriveMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
         leftDriveMotor.setMovementPerRev(360);
         leftDriveMotor.setTargetEncoderTolerance(5);
@@ -53,7 +55,7 @@ public class TestTwoMotors extends LinearOpMode {
 
         leftDriveMotor.setDirection(DcMotor.Direction.FORWARD);
 
-        rightDriveMotor = new DcMotor8863("rightDriveMotor", hardwareMap);
+        rightDriveMotor = new DcMotor8863(RobotConfigMappingForGenericTest.getrightMotorName(), hardwareMap);
         rightDriveMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
         rightDriveMotor.setTargetEncoderTolerance(5);
         rightDriveMotor.setFinishBehavior(DcMotor8863.FinishBehavior.FLOAT);

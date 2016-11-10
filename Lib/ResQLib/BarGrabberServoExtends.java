@@ -40,7 +40,7 @@ public class BarGrabberServoExtends extends Servo8863 {
     //          GETTER and SETTER Methods
     //
     // allow access to private data fields for example setMotorPower,
-    // getMotorPosition
+    // getPositionInTermsOfAttachment
     //*********************************************************************************************
 
 

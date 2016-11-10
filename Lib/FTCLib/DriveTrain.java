@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.hardware.*;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.Lib.ResQLib.RobotConfigMapping;
+import org.firstinspires.ftc.teamcode.opmodes.GenericTest.RobotConfigMappingForGenericTest;
 
 public class DriveTrain {
 
@@ -31,7 +32,7 @@ public class DriveTrain {
     //          GETTER and SETTER Methods
     //
     // allow access to private data fields for example setMotorPower,
-    // getMotorPosition
+    // getPositionInTermsOfAttachment
     //*********************************************************************************************
 
     public double getRightPower(){
@@ -68,8 +69,8 @@ public class DriveTrain {
     //*********************************************************************************************
 
     public DriveTrain(HardwareMap hardwareMap) {
-        leftDriveMotor = new DcMotor8863(RobotConfigMapping.getLeftDriveMotorName(), hardwareMap);
-        rightDriveMotor = new DcMotor8863(RobotConfigMapping.getRightDriveMotorName(), hardwareMap);
+        leftDriveMotor = new DcMotor8863(RobotConfigMappingForGenericTest.getleftMotorName(), hardwareMap);
+        rightDriveMotor = new DcMotor8863(RobotConfigMappingForGenericTest.getrightMotorName(), hardwareMap);
 
         rightDriveMotor.setDirection(DcMotor.Direction.REVERSE);
         rightDriveMotor.setMaxMotorPower(1);
@@ -125,25 +126,26 @@ public class DriveTrain {
         leftDriveMotor.moveByAmount(power, distance, finishBehavior);
     }
 
+    //public boolean
+
     public DriveTrain.Status update() {
         rightMotorState = rightDriveMotor.update();
         leftMotorState = leftDriveMotor.update();
-        if (rightMotorState == DcMotor8863.MotorState.COMPLETE_FLOAT || rightMotorState == DcMotor8863.MotorState.COMPLETE_HOLD &&
-                leftMotorState == DcMotor8863.MotorState.COMPLETE_FLOAT || leftMotorState == DcMotor8863.MotorState.COMPLETE_HOLD) {
+        if (this.isMotorStateComplete()){
             return Status.COMPLETE;
         } else {
             return Status.MOVING;
         }
     }
 
-/*    public boolean isRotationComplete() {
-        if(rightDriveMotor.isRotationComplete() && leftDriveMotor.isRotationComplete()) {
+    public boolean isMotorStateComplete() {
+        if(rightDriveMotor.isMotorStateComplete() && leftDriveMotor.isMotorStateComplete()) {
             return true;
         } else {
             return false;
         }
 
-    }*/
+    }
 
     //*********************************************************************************************
     //          MAJOR METHODS

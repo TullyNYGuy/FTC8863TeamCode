@@ -1,7 +1,9 @@
 package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
 
-public class ToggleSwitch {
+import com.qualcomm.robotcore.util.ElapsedTime;
+
+public class ThresholdTest {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -10,13 +12,6 @@ public class ToggleSwitch {
     //
     //*********************************************************************************************
 
-    public enum SwitchState {
-        PRESSED, RELEASED, BUMPED, RESET
-    }
-
-    public enum SwitchCommand {
-        RESET, NORESET
-    }
 
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS
@@ -24,11 +19,49 @@ public class ToggleSwitch {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
+    /**
+     * Timer to be used in checking if we have been on target for long enough;
+     */
+    private ElapsedTime timer;
 
     /**
-     * The state of the switch
+     * The time, in milliseconds, that we are supposed to at (or near) the target position before
+     * we say we have arrived there and are steady there.
      */
-    private SwitchState switchState = SwitchState.RELEASED;
+    private double timeToBeAtThresholdInmS = 0;
+
+    /**
+     * The last position that was given
+     */
+    private double previousPosition = 0;
+
+    /**
+     * The position that is given now
+     */
+    private double currentPosition = 0;
+
+    /**
+     * The position that is supposed to be the destination
+     */
+    private double targetPosition = 0;
+
+    /**
+     * A position that is close enough to the destination to call it good. Like 5 away from 1120
+     * is close enough
+     */
+    private double targetDelta = 0;
+
+    /**
+     * How many times in a row has the threshold been met?
+     */
+    private int numberOfThresholdsMet = 0;
+
+    /**
+     * How many times in a row must the threshold be met in order to say we are close enough to the
+     * destination.
+     */
+    private int numberOfThresholdsToBeMet = 0;
+
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -36,14 +69,6 @@ public class ToggleSwitch {
     // allow access to private data fields for example setMotorPower,
     // getPositionInTermsOfAttachment
     //*********************************************************************************************
-
-    public SwitchState getSwitchstate() {
-        return switchState;
-    }
-
-    public void setSwitchstate(SwitchState switchstate) {
-        this.switchState = switchstate;
-    }
 
 
     //*********************************************************************************************
@@ -53,11 +78,13 @@ public class ToggleSwitch {
     // from it
     //*********************************************************************************************
 
-    public ToggleSwitch() {
-        setSwitchstate(SwitchState.RELEASED);
+    public ThresholdTest( double targetPosition, double targetDelta, double timeToBeAtThresholdInmS, int numberOfThresholdsToBeMet) {
+        this.targetPosition = targetPosition;
+        this.targetDelta = targetDelta;
+        this.timeToBeAtThresholdInmS = timeToBeAtThresholdInmS;
+        this.numberOfThresholdsToBeMet = numberOfThresholdsToBeMet;
+        timer = new ElapsedTime();
     }
-
-
     //*********************************************************************************************
     //          Helper Methods
     //
@@ -71,18 +98,24 @@ public class ToggleSwitch {
     // public methods that give the class its functionality
     //*********************************************************************************************
 
-    public SwitchState updateSwitchState(boolean button, SwitchCommand switchCommand) {
+    public void update(double currentPosition) {
+        previousPosition = currentPosition;
+    }
 
-        switch(switchState) {
-            case RELEASED:
-                break;
-            case PRESSED:
-                break;
-            case BUMPED:
-                break;
-            case RESET:
-                break;
-        }
-        return SwitchState.RELEASED;
+    private boolean isWithinRange(){
+        return true;
+    }
+
+    private boolean isWithinRangeForElapsedTime() {
+        return true;
+    }
+
+    private boolean isWithinRangeForNumberOfTimes() {
+        return true;
+    }
+
+    private void reset(){
+
     }
 }
+

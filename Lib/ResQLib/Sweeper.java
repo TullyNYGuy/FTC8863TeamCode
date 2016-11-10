@@ -37,7 +37,7 @@ public class Sweeper {
     //          GETTER and SETTER Methods
     //
     // allow access to private data fields for example setMotorPower,
-    // getMotorPosition
+    // getPositionInTermsOfAttachment
     //*********************************************************************************************
 
 
@@ -73,18 +73,18 @@ public class Sweeper {
     //*********************************************************************************************
 
     public void stop() {
-        sweeperMotor.stopMotor();
+        sweeperMotor.stop();
         sweeperState = SweeperState.STOP;
     }
 
     public void forward() {
-        sweeperMotor.runUsingEncoder(forwardPower);
+        sweeperMotor.runAtConstantSpeed(forwardPower);
         sweeperState = SweeperState.FORWARD;
 
     }
 
     public void backward() {
-        sweeperMotor.runUsingEncoder(reversePower);
+        sweeperMotor.runAtConstantSpeed(reversePower);
         sweeperState = SweeperState.BACKWARD;
 
     }

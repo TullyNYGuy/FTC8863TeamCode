@@ -10,21 +10,22 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 
 /**
  * This OpMode runs 2 motors at a given power, one in the opposite direction from the other. 
- * It is meant to be used to test a double ball shooter
+ * It is meant to be used to test a drive train
  *
- * This code assumes a DC motor configured with the name "motor"  and "rightShooterMotor"
+ * This code assumes a DC motor configured with the name "leftMotor"  and "rightMotor"
  *
  */
-@Autonomous(name = "DriveTrainTest", group = "Test")
+@Autonomous(name = "Drive Train Test", group = "Test")
 //@Disabled
-public class DriveTrainTest extends LinearOpMode {
+public class TestDriveTrain extends LinearOpMode {
 
     DriveTrain myDriveTrain;
     double powerToRunAt;
     double powerToRunAt1 = 0.3; // % of full speed
-    double powerToRunAt2 = 0.1; // % of full speed
+    double powerToRunAt2 = 0.3; // % of full speed
     double distanceToMove1 = 30; // cm
     double distanceToMove2 = 60; // cm
+    DriveTrain.Status statusDrive = DriveTrain.Status.COMPLETE;
 
     @Override
     public void runOpMode() {
@@ -44,8 +45,29 @@ public class DriveTrainTest extends LinearOpMode {
 
         powerToRunAt = powerToRunAt1;
         myDriveTrain.driveDistance(powerToRunAt1, distanceToMove1, DcMotor8863.FinishBehavior.FLOAT);
+
+        while(opModeIsActive()) {
+            statusDrive = myDriveTrain.update();
+            if (statusDrive == DriveTrain.Status.COMPLETE) {
+                break;
+            }
+            idle();
+        }
+
+        telemetry.addData(">", "Finished movement 1" );
+        telemetry.update();
+        sleep(2000);
+
         powerToRunAt = powerToRunAt2;
         myDriveTrain.driveDistance(powerToRunAt2, distanceToMove2, DcMotor8863.FinishBehavior.FLOAT);
+
+        while(opModeIsActive()) {
+            statusDrive = myDriveTrain.update();
+            if (statusDrive == DriveTrain.Status.COMPLETE) {
+                break;
+            }
+            idle();
+        }
 
         // Ramp motor speeds till stop pressed.
         while(opModeIsActive()) {

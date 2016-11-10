@@ -1,13 +1,9 @@
-package org.firstinspires.ftc.teamcode.Lib.ResQLib;
+package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
 
-import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
-import org.firstinspires.ftc.robotcore.external.Telemetry;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
-
-public class RightZipLineServo {
+public class RampControl {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -24,21 +20,13 @@ public class RightZipLineServo {
     // getter and setter methods
     //*********************************************************************************************
 
-    private Servo8863 rightZipLineServo;
+    private ElapsedTime timer;
 
-    // home position
-    private double rightZipLineHomePosition = 0.8;
+    private double initialValue = 0;
 
-    // upper zip line guy
-    private double rightZipLineUpperPosition = 0.1;
+    private double finalValue = 0;
 
-    // middle zip line guy
-    private double rightZipLineMiddlePosition = 0.1;
-
-    // lower zip line guy
-    private double rightZipLineLowerPosition = .25;
-
-    private double rightZipLineInitPosition =  rightZipLineHomePosition;
+    private double timeToReachFinalValueInmSec = 0;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -47,6 +35,17 @@ public class RightZipLineServo {
     // getPositionInTermsOfAttachment
     //*********************************************************************************************
 
+    public void setInitialValue(double initialValue) {
+        this.initialValue = initialValue;
+    }
+
+    public void setFinalValue(double finalValue) {
+        this.finalValue = finalValue;
+    }
+
+    public void setTimeToReachFinalValueInmSec(double timeToReachFinalValueInmSec) {
+        this.timeToReachFinalValueInmSec = timeToReachFinalValueInmSec;
+    }
 
     //*********************************************************************************************
     //          Constructors
@@ -55,16 +54,11 @@ public class RightZipLineServo {
     // from it
     //*********************************************************************************************
 
-
-    public RightZipLineServo(HardwareMap hardwareMap, Telemetry telemetry) {
-        rightZipLineServo = new Servo8863(RobotConfigMapping.getBarGrabberServoName(),hardwareMap, telemetry);
-        rightZipLineServo.setHomePosition(rightZipLineHomePosition);
-        rightZipLineServo.setUpPosition(rightZipLineUpperPosition);
-        rightZipLineServo.setPositionOne(rightZipLineMiddlePosition);
-        rightZipLineServo.setDownPosition(rightZipLineLowerPosition);
-        rightZipLineServo.setInitPosition(rightZipLineInitPosition);
-        rightZipLineServo.setDirection(Servo.Direction.FORWARD);
-        rightZipLineServo.goInitPosition();
+    public RampControl(double initialValue, double finalValue, double timeToReachFinalValueInmSec) {
+        this.initialValue = initialValue;
+        this.finalValue = finalValue;
+        this.timeToReachFinalValueInmSec = timeToReachFinalValueInmSec;
+        timer = new ElapsedTime();
     }
 
 
@@ -81,27 +75,27 @@ public class RightZipLineServo {
     // public methods that give the class its functionality
     //*********************************************************************************************
 
-    public void goHome() {
-        rightZipLineServo.goHome();
+    public void start() {
+        timer.reset();
     }
 
-    public void goUpperGuy() {
-        rightZipLineServo.goUp();
-    }
+    public double getRampValueLinear(double value) {
 
-    public void goMiddleGuy() {
-        rightZipLineServo.goPositionOne();
-    }
+        double valueFromRamp;
 
-    public void goLowerGuy() {
-        rightZipLineServo.goDown();
-    }
-
-    public double getPosition() {
-        return rightZipLineServo.getPosition();
-    }
-
-    public void setPosition(double position) {
-        rightZipLineServo.setPosition(position);
+        if (timer.milliseconds() < timeToReachFinalValueInmSec) {
+            // if timer is less than time to reach the final value (so ramp should not be in effect)
+            // then calculate the value given by the ramp (valueFromRamp = m * elapsed time + initialValue) (y=mx+b)
+            valueFromRamp = (finalValue - initialValue) / timeToReachFinalValueInmSec * timer.milliseconds() + initialValue;
+            // if the value input is less than the calculated ramp value then use the input, otherwise use the ramp value
+            if (value < valueFromRamp) {
+                return value;
+            } else {
+                return valueFromRamp;
+            }
+        } else {
+            // if the time is longer than the specified time, then just return the input
+            return value;
+        }
     }
 }
