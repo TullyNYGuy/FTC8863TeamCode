@@ -46,7 +46,7 @@ public class TestPIDMotor extends LinearOpMode {
 
         motor.setDirection(DcMotor.Direction.FORWARD);
 
-        pidControl = new PIDControl(.005, 360); //Kp, target
+        pidControl = new PIDControl(.5, 360,.5); //Kp, target
 
         // test internal routines from DcMotor8863
         telemetry.addData("Encoder Count for movement = ", "%d", motor.getEncoderCountForRevs(2.5));
@@ -60,8 +60,9 @@ public class TestPIDMotor extends LinearOpMode {
         runningTimer.reset();
 
         while (opModeIsActive()) {
+            motor.runAtConstantPower(0);
             //run the PID calculation
-            powerToRunAt = Range.clip(pidControl.getCorrection(motor.getPositionInTermsOfAttachment()), -1, 1);
+            powerToRunAt = pidControl.getCorrection(motor.getPositionInTermsOfAttachment());
             // update the motor power
             motor.setPower(powerToRunAt);
 

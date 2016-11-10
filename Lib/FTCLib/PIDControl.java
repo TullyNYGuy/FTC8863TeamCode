@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
 
+import com.qualcomm.robotcore.util.Range;
+
 public class PIDControl {
 
     //*********************************************************************************************
@@ -37,6 +39,8 @@ public class PIDControl {
      * Desired Value for PIDControl. For example 45 degrees for a 45 degree turn.
      */
     private double setpoint = 0;
+
+    private double maxCorrection = 0;
 
 
     //*********************************************************************************************
@@ -110,6 +114,13 @@ public class PIDControl {
         this.setpoint = setpoint;
     }
 
+    public double getMaxCorrection() {
+        return maxCorrection;
+    }
+
+    public void setMaxCorrection(double maxCorrection) {
+        this.maxCorrection = maxCorrection;
+    }
 
     //*********************************************************************************************
     //          Constructors
@@ -140,10 +151,11 @@ public class PIDControl {
       * @param kp Proportionality constant for PIDControl
      * @param setpoint Set Desired Value for PIDControl
      */
-    public PIDControl(double kp, double setpoint) {
+    public PIDControl(double kp, double setpoint, double maxCorrection) {
         Kp = kp;
         Ki = 0;
         Kd = 0;
+        this.maxCorrection = maxCorrection;
         this.setpoint = setpoint;
     }
 
@@ -166,7 +178,12 @@ public class PIDControl {
      * @return Correction to use in control code.
      */
     public double getCorrection(double feedback){
+        double correction = (getSetpoint() - feedback) * getKp();
 
-        return (getSetpoint() - feedback) * getKp();
+        correction = Range.clip(correction, -maxCorrection, maxCorrection);
+
+
+
+        return correction;
     }
 }
