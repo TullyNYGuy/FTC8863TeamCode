@@ -20,6 +20,8 @@ public class RampControl {
     // getter and setter methods
     //*********************************************************************************************
 
+    // consider adding enable control and status
+
     private ElapsedTime timer;
 
     private double initialValue = 0;
@@ -27,6 +29,8 @@ public class RampControl {
     private double finalValue = 0;
 
     private double timeToReachFinalValueInmSec = 0;
+
+    private boolean enabled = false;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -39,12 +43,32 @@ public class RampControl {
         this.initialValue = initialValue;
     }
 
+    public double getInitialValue() {
+        return initialValue;
+    }
+
     public void setFinalValue(double finalValue) {
         this.finalValue = finalValue;
     }
 
+    public double getFinalValue() {
+        return finalValue;
+    }
+
     public void setTimeToReachFinalValueInmSec(double timeToReachFinalValueInmSec) {
         this.timeToReachFinalValueInmSec = timeToReachFinalValueInmSec;
+    }
+
+    public double getTimeToReachFinalValueInmSec() {
+        return timeToReachFinalValueInmSec;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 
     //*********************************************************************************************
@@ -59,6 +83,8 @@ public class RampControl {
         this.finalValue = finalValue;
         this.timeToReachFinalValueInmSec = timeToReachFinalValueInmSec;
         timer = new ElapsedTime();
+        // The ramp control is disabled to start out
+        this.enabled = false;
     }
 
 
@@ -77,25 +103,42 @@ public class RampControl {
 
     public void start() {
         timer.reset();
+        this.setEnabled(true);
+    }
+
+    public boolean isTimeExpired (){
+        if (timer.milliseconds() > timeToReachFinalValueInmSec) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public double getRampValueLinear(double value) {
 
         double valueFromRamp;
 
-        if (timer.milliseconds() < timeToReachFinalValueInmSec) {
-            // if timer is less than time to reach the final value (so ramp should not be in effect)
-            // then calculate the value given by the ramp (valueFromRamp = m * elapsed time + initialValue) (y=mx+b)
-            valueFromRamp = (finalValue - initialValue) / timeToReachFinalValueInmSec * timer.milliseconds() + initialValue;
-            // if the value input is less than the calculated ramp value then use the input, otherwise use the ramp value
-            if (value < valueFromRamp) {
-                return value;
+        if (this.isEnabled()) {
+            // The ramp is enabled
+            if (timer.milliseconds() < timeToReachFinalValueInmSec) {
+                // if timer is less than time to reach the final value (so ramp should not be in effect)
+                // then calculate the value given by the ramp (valueFromRamp = m * elapsed time + initialValue) (y=mx+b)
+                valueFromRamp = (finalValue - initialValue) / timeToReachFinalValueInmSec * timer.milliseconds() + initialValue;
+                // if the value input is less than the calculated ramp value then use the input, otherwise use the ramp value
+                if (value < valueFromRamp) {
+                    return value;
+                } else {
+                    return valueFromRamp;
+                }
             } else {
-                return valueFromRamp;
+                // if the time for the ramp has expired, disable the ramp and then just return the input
+                this.setEnabled(false);
+                return value;
             }
         } else {
-            // if the time is longer than the specified time, then just return the input
+            // The ramp is not enabled so just return the input
             return value;
         }
+
     }
 }
