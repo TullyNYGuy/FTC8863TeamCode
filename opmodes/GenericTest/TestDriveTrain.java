@@ -24,7 +24,7 @@ public class TestDriveTrain extends LinearOpMode {
     double powerToRunAt1 = 0.3; // % of full speed
     double powerToRunAt2 = 0.3; // % of full speed
     double distanceToMove1 = 30; // cm
-    double distanceToMove2 = 60; // cm
+    double distanceToMove2 = -30; // cm
     DriveTrain.Status statusDrive = DriveTrain.Status.COMPLETE;
 
     @Override
@@ -32,9 +32,7 @@ public class TestDriveTrain extends LinearOpMode {
 
 
         // Instantiate and initialize motors
-        myDriveTrain = new DriveTrain(hardwareMap);
-        myDriveTrain.setRightPower(powerToRunAt1);
-        myDriveTrain.setLeftPower(powerToRunAt1);
+        myDriveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap);
         myDriveTrain.setCmPerRotation(15); // cm
 
         
@@ -68,22 +66,20 @@ public class TestDriveTrain extends LinearOpMode {
             }
             idle();
         }
+        telemetry.addData(">", "Finished movement 2" );
+        telemetry.update();
+        sleep(2000);
 
-        // Ramp motor speeds till stop pressed.
         while(opModeIsActive()) {
-
-            // Display the current value
-            telemetry.addData("Motor Speed = ", "%5.2f", powerToRunAt);
             telemetry.addData(">", "Press Stop to end test." );
             telemetry.update();
             
             idle();
         }
 
-        // Turn off motor and signal done;
-        //myDriveTrain.setMotorToFloat();
+        // Turn off drivetrain and signal done;
+        myDriveTrain.shutdown();
         telemetry.addData(">", "Done");
-        
         telemetry.update();
 
     }

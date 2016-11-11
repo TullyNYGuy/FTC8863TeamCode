@@ -33,15 +33,15 @@ public class StatTracker {
     // getMotorPosition
     //*********************************************************************************************
 
-    public int getMaximum() {
+    public double getMaximum() {
         return maximum;
     }
 
-    public int getMinimum() {
+    public double getMinimum() {
         return minimum;
     }
 
-    public int getAverage() {
+    public double getAverage() {
         return average;
     }
 
@@ -49,7 +49,7 @@ public class StatTracker {
         return count;
     }
 
-    public int getSum() {
+    public double getSum() {
         return sum;
     }
 
@@ -82,7 +82,7 @@ public class StatTracker {
         if (count > 0) {
             sum = value1 + sum;
             //what should I do?? finish the sencond if statement ^^//
-    }
+        }
         //if (value1 > value2) {
         //    if (count == 0) {
         //        value1 = maximum;
@@ -96,7 +96,8 @@ public class StatTracker {
         //}
 
         //count++;
-
+        // This is bogus. I had to put something here in order to get the app to build
+        return 1;
     }
 
     //*********************************************************************************************

@@ -68,7 +68,13 @@ public class DriveTrain {
     // from it
     //*********************************************************************************************
 
-    public DriveTrain(HardwareMap hardwareMap) {
+    /**
+     * Construct a drive train. Create 2 motor objects and set them up.
+     * The reason this is private is to force the user to call either DriveTrainTeleop or
+     * DriveTrainAutonomous. Those methods then call this one. Those methods will optimize the
+     * @param hardwareMap
+     */
+    private DriveTrain(HardwareMap hardwareMap) {
         leftDriveMotor = new DcMotor8863(RobotConfigMappingForGenericTest.getleftMotorName(), hardwareMap);
         rightDriveMotor = new DcMotor8863(RobotConfigMappingForGenericTest.getrightMotorName(), hardwareMap);
 
@@ -93,27 +99,47 @@ public class DriveTrain {
 
     /**
      * This method is a factory method. It returns a driveTrain object that is setup to float the
-     * motors after a movement is completed.
+     * motors after a movement is completed. The motors are set to operate with a constant power.
+     *
      * @param hardwareMap
      * @return Instance of a driveTrain (a driveTrain oject) optimized for TeleOp
      */
-    public static DriveTrain DriveTrainTeleop(HardwareMap hardwareMap) {
+    public static DriveTrain DriveTrainTeleOp(HardwareMap hardwareMap) {
         DriveTrain driveTrain = new DriveTrain(hardwareMap);
+
+        // Set the motors to float after the power gets set to 0
         driveTrain.rightDriveMotor.setFinishBehavior(DcMotor8863.FinishBehavior.FLOAT);
         driveTrain.leftDriveMotor.setFinishBehavior(DcMotor8863.FinishBehavior.FLOAT);
+
+        // Set the motors to run at constant power - there is no PID control over them
+        // This needs to be set here because the teleop methods only adjust the power to the motors.
+        // They don't set the mode which is why it is done here. Setting power = 0 makes sure the
+        // motors don't actually move.
+        driveTrain.rightDriveMotor.runAtConstantPower(0);
+        driveTrain.leftDriveMotor.runAtConstantPower(0);
+
         return driveTrain;
     }
 
     /**
      * This method is a factory method. It returns a driveTrain object that is setup to float the
      * motors after a movement is completed.
+     *
      * @param hardwareMap
-     * @return Instance of a driveTrain (a driveTrain oject) optimized for TeleOp
+     * @return Instance of a driveTrain (a driveTrain oject) optimized for Autonomous
      */
     public static DriveTrain DriveTrainAutonomous(HardwareMap hardwareMap) {
         DriveTrain driveTrain = new DriveTrain(hardwareMap);
+
+        // Set the motors to float after the power gets set to 0
         driveTrain.rightDriveMotor.setFinishBehavior(DcMotor8863.FinishBehavior.FLOAT);
         driveTrain.leftDriveMotor.setFinishBehavior(DcMotor8863.FinishBehavior.FLOAT);
+
+        // the first call to moveByAmount will set the mode of the motors to run to a position
+        // No need to do that here. Just set the motor power to 0 to make sure it is initialized.
+        driveTrain.rightDriveMotor.setPower(0);
+        driveTrain.leftDriveMotor.setPower(0);
+
         return driveTrain;
     }
 
@@ -125,8 +151,6 @@ public class DriveTrain {
         rightDriveMotor.moveByAmount(power, distance, finishBehavior);
         leftDriveMotor.moveByAmount(power, distance, finishBehavior);
     }
-
-    //public boolean
 
     public DriveTrain.Status update() {
         rightMotorState = rightDriveMotor.update();
@@ -148,9 +172,7 @@ public class DriveTrain {
     }
 
     //*********************************************************************************************
-    //          MAJOR METHODS
-    //
-    // public methods that give the class its functionality
+    //          Teleop methods
     //*********************************************************************************************
 
     // Joystick info for reference.
@@ -162,18 +184,20 @@ public class DriveTrain {
     // All code assumes that joystick y is positive when the joystick is up.
     // Use the JoyStick object INVERT_SIGN to accomplish that.
 
-    // The differentialDrive is meant to use one joystick to control the drive train.
-    // Moving the joystick forward and backward controls speed (throttle).
-    // Moving the joystick left or right controls direction.
+
     /**
+     * The differentialDrive is meant to use one joystick to control the drive train.
+     * Moving the joystick forward and backward controls speed (throttle).
+     * Moving the joystick left or right controls direction.
+     *
      * Differential drive has a master speed that gets applied to both motors. That speed is the
      * same. Then the speed to the left and right is adjusted up and down, opposite of each other
      * to turn the robot.
+     *
      * @param throttle Master speed applied to both motors.
      * @param direction Adjustment applied to the master speed. Add to left. Subtract from right.
      */
     public void differentialDrive(double throttle, double direction){
-
         // To steer the robot left, the left motor needs to reduce power and the right needs to increase.
         // To steer the robot right, the left motor needs to increase power and the left needs to reduce.
         // Since left on the joystick is negative, we need to add the direction for the left motor and
@@ -182,17 +206,24 @@ public class DriveTrain {
         rightDriveMotor.setPower((float)(throttle - direction));
     }
 
-    // The tank drive uses the left joystick to control the left drive motor and the right joystick
-    // to control the right drive motor.
-
     /**
      * The tank drive applies power values to the left and right motors separately.
+     * The tank drive uses the left joystick to control the left drive motor and the right joystick
+     * to control the right drive motor.
      *
-     * @param leftValue
-     * @param rightValue
+     * @param leftValue Power to apply to the left motor.
+     * @param rightValue Power to apply tot the right motor.
      */
     public void tankDrive(double leftValue, double rightValue){
-        leftDriveMotor.setPower((float)leftValue);
-        rightDriveMotor.setPower((float)rightValue);
+        leftDriveMotor.setPower(leftValue);
+        rightDriveMotor.setPower(rightValue);
+    }
+
+    //*********************************************************************************************
+    //          Other methods
+    //*********************************************************************************************
+
+    public void shutdown(){
+
     }
 }
