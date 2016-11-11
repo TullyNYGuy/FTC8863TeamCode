@@ -19,12 +19,12 @@ public class StatTracker {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
-    private int maximum;
-    private int minimum;
-    private int average;
+    private double maximum;
+    private double minimum;
+    private double average;
     private int count;
 
-    private int sum;
+    private double sum;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -59,7 +59,7 @@ public class StatTracker {
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
-    public StatTracker(){
+    public StatTracker() {
         maximum = 0;
         minimum = 0;
         average = 0;
@@ -72,7 +72,32 @@ public class StatTracker {
     //
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
+    private int compareValue(double value1) {
+        if (count == 0) {
+            value1 = maximum;
+            value1 = minimum;
+            value1 = average;
+            value1 = sum;
+        }
+        if (count > 0) {
+            sum = value1 + sum;
+            //what should I do?? finish the sencond if statement ^^//
+    }
+        //if (value1 > value2) {
+        //    if (count == 0) {
+        //        value1 = maximum;
+        //        value2 = minimum;
+        //   }
+        //} else {
+        //    if (count == 0) {
+        //       value2 = maximum;
+        //        value1 = minimum;
+        //    }
+        //}
 
+        //count++;
+
+    }
 
     //*********************************************************************************************
     //          MAJOR METHODS
