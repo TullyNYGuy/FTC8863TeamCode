@@ -81,7 +81,7 @@ public class StatTracker {
         }
         if (count > 0) {
             sum = value1 + sum;
-            //what should I do?? finish the sencond if statement ^^//
+
     }
         //if (value1 > value2) {
         //    if (count == 0) {
