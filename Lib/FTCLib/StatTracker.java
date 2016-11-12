@@ -72,7 +72,7 @@ public class StatTracker {
     //
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
-    private int compareValue(double value1) {
+    public int compareValue(double value1) {
         if (count == 0) {
             value1 = maximum;
             value1 = minimum;
@@ -80,9 +80,19 @@ public class StatTracker {
             value1 = sum;
         }
         if (count > 0) {
+            if (maximum < value1) {
+                value1 = maximum;
+            }
             sum = value1 + sum;
-            //what should I do?? finish the sencond if statement ^^//
+
+            if (minimum > value1) {
+                value1 = minimum;
+            }
+            average = sum / count;
+
         }
+
+
         //if (value1 > value2) {
         //    if (count == 0) {
         //        value1 = maximum;
@@ -96,9 +106,9 @@ public class StatTracker {
         //}
 
         //count++;
-        // This is bogus. I had to put something here in order to get the app to build
-        return 1;
+        return 0;
     }
+}
 
     //*********************************************************************************************
     //          MAJOR METHODS
@@ -106,5 +116,3 @@ public class StatTracker {
     // public methods that give the class its functionality
     //*********************************************************************************************
 
-
-}
