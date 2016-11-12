@@ -23,7 +23,7 @@ public class TestDriveTrain extends LinearOpMode {
     double powerToRunAt;
     double powerToRunAt1 = 0.3; // % of full speed
     double powerToRunAt2 = 0.3; // % of full speed
-    double distanceToMove1 = 30; // cm
+    double distanceToMove1 = 100; // cm
     double distanceToMove2 = -30; // cm
     DriveTrain.Status statusDrive = DriveTrain.Status.COMPLETE;
 
@@ -33,7 +33,7 @@ public class TestDriveTrain extends LinearOpMode {
 
         // Instantiate and initialize motors
         myDriveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap);
-        myDriveTrain.setCmPerRotation(15); // cm
+        myDriveTrain.setCmPerRotation(31.1); // cm
 
         
         // Wait for the start button
@@ -43,7 +43,7 @@ public class TestDriveTrain extends LinearOpMode {
 
         powerToRunAt = powerToRunAt1;
         myDriveTrain.driveDistance(powerToRunAt1, distanceToMove1, DcMotor8863.FinishBehavior.FLOAT);
-
+        //myDriveTrain.rotateNumberOfDegrees(powerToRunAt1, 3600, DcMotor8863.FinishBehavior.HOLD);
         while(opModeIsActive()) {
             statusDrive = myDriveTrain.update();
             if (statusDrive == DriveTrain.Status.COMPLETE) {
@@ -56,7 +56,7 @@ public class TestDriveTrain extends LinearOpMode {
         telemetry.update();
         sleep(2000);
 
-        powerToRunAt = powerToRunAt2;
+       /* powerToRunAt = powerToRunAt2;
         myDriveTrain.driveDistance(powerToRunAt2, distanceToMove2, DcMotor8863.FinishBehavior.FLOAT);
 
         while(opModeIsActive()) {
@@ -68,7 +68,7 @@ public class TestDriveTrain extends LinearOpMode {
         }
         telemetry.addData(">", "Finished movement 2" );
         telemetry.update();
-        sleep(2000);
+        sleep(2000); */
 
         while(opModeIsActive()) {
             telemetry.addData(">", "Press Stop to end test." );

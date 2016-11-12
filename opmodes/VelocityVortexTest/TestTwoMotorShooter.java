@@ -22,12 +22,12 @@ public class TestTwoMotorShooter extends LinearOpMode {
 
     DcMotor8863 leftShooterMotor;
     DcMotor8863 rightShooterMotor;
-    DcMotor8863 conveyorMotor;
+    //DcMotor8863 conveyorMotor;
     
     double leftSpeedToRunAt = 1.0; // stgart up at this speed
     double rightSpeedToRunAt = 1.0; // start up at this speed
     double speedIncrement = .1;
-    double conveyorSpeed = .5;
+    //double conveyorSpeed = .5;
 
     // multiply by this factor. If positive the motor speed will increase. If negative the motor
     // speed will decrease. Increase or decrease is controlled by the right bumper on the gamepad.
@@ -71,16 +71,16 @@ public class TestTwoMotorShooter extends LinearOpMode {
 
         rightShooterMotor.setDirection(DcMotor.Direction.REVERSE);
 
-        conveyorMotor = new DcMotor8863("conveyorMotor", hardwareMap);
-        conveyorMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
-        conveyorMotor.setMovementPerRev(360);
-        conveyorMotor.setTargetEncoderTolerance(5);
-        conveyorMotor.setFinishBehavior(DcMotor8863.FinishBehavior.FLOAT);
-        conveyorMotor.setMotorMoveType(DcMotor8863.MotorMoveType.RELATIVE);
-        conveyorMotor.setMinMotorPower(-1);
-        conveyorMotor.setMaxMotorPower(1);
-
-        conveyorMotor.setDirection(DcMotor.Direction.FORWARD);
+//        conveyorMotor = new DcMotor8863("conveyorMotor", hardwareMap);
+//        conveyorMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
+//        conveyorMotor.setMovementPerRev(360);
+//        conveyorMotor.setTargetEncoderTolerance(5);
+//        conveyorMotor.setFinishBehavior(DcMotor8863.FinishBehavior.FLOAT);
+//        conveyorMotor.setMotorMoveType(DcMotor8863.MotorMoveType.RELATIVE);
+//        conveyorMotor.setMinMotorPower(-1);
+//        conveyorMotor.setMaxMotorPower(1);
+//
+//        conveyorMotor.setDirection(DcMotor.Direction.FORWARD);
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run Motors.");
@@ -89,7 +89,7 @@ public class TestTwoMotorShooter extends LinearOpMode {
 
         leftShooterMotor.runAtConstantSpeed(leftSpeedToRunAt);
         rightShooterMotor.runAtConstantSpeed(rightSpeedToRunAt);
-        conveyorMotor.runAtConstantSpeed(0);
+//        conveyorMotor.runAtConstantSpeed(0);
 
         while (opModeIsActive()) {
             //gamepad button configuration:
@@ -177,12 +177,12 @@ public class TestTwoMotorShooter extends LinearOpMode {
                     // set so that we know the button has been pressed.
                     leftBumperIsReleased = false;
                     // turn on the conveyor motor
-                    conveyorMotor.setPower(conveyorSpeed);
+//                    conveyorMotor.setPower(conveyorSpeed);
                 }
             } else {
                 // The bumper is not pressed anymore; it has been released. Stop the conveyor motor.
                 leftBumperIsReleased = true;
-                conveyorMotor.setPower(0);
+//                conveyorMotor.setPower(0);
             }
 
             // clip the speeds to 0 for min and 1 for max
@@ -208,7 +208,7 @@ public class TestTwoMotorShooter extends LinearOpMode {
         // Turn off motor and signal done;
         rightShooterMotor.setMotorToFloat();
         leftShooterMotor.setMotorToFloat();
-        conveyorMotor.setMotorToFloat();
+//        conveyorMotor.setMotorToFloat();
         telemetry.addData(">", "Done");
 
         telemetry.update();

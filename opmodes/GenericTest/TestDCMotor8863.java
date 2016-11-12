@@ -18,6 +18,9 @@ public class TestDCMotor8863 extends LinearOpMode {
     int feedback = 0;
     double powerToRunAt = 0.5; // % of full speed
     int value = 0;
+    double initialPower = 0;
+    double finalPower = 1.0;
+    double rampTime = 2000;
 
     private ElapsedTime runningTimer;
 
@@ -34,12 +37,12 @@ public class TestDCMotor8863 extends LinearOpMode {
         motor.setMovementPerRev(360);
         motor.setTargetEncoderTolerance(5);
         motor.setFinishBehavior(DcMotor8863.FinishBehavior.FLOAT);
-        motor.setMotorMoveType(DcMotor8863.MotorMoveType.RELATIVE);
         motor.setMinMotorPower(-1);
         motor.setMaxMotorPower(1);
-        motor.resetEncoder();
 
         motor.setDirection(DcMotor.Direction.FORWARD);
+
+        motor.enablePowerRamp(initialPower, finalPower, rampTime);
 
         // test internal routines from DcMotor8863
         //value = motor.getEncoderCountForDegrees(-400);

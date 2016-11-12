@@ -36,6 +36,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpModeRegistrar;
 
 //import org.firstinspires.ftc.teamcode.opmodes.GenericTest.RGBSensorClass;
 import org.firstinspires.ftc.teamcode.opmodes.GenericTest.RGBSensorClass;
+import org.firstinspires.ftc.teamcode.opmodes.GenericTest.SensorAdafruitIMUTest;
 
 /**
  * This class demonstrates how to manually register opmodes.
@@ -83,7 +84,7 @@ public class FTC8863RegisterOpModes
     // manager.register("K9 Telop",               K9botTeleopTank_Linear.class);
 
     // Sensor Samples
-    // manager.register("AdaFruit IMU",           SensorAdafruitIMU.class);
+     manager.register("AdaFruit IMU Test",           SensorAdafruitIMUTest.class);
     // manager.register("AdaFruit IMU Cal",       SensorAdafruitIMUCalibration.class);
     // manager.register("AdaFruit Color",         SensorAdafruitRGB.class);
     // manager.register("DIM DIO",                SensorDIO.class);
@@ -108,7 +109,7 @@ public class FTC8863RegisterOpModes
       //manager.register("Test 2 motor shooter",     TestTwoMotorShooter.class);
       //manager.register("PID Motor Test", TestPIDMotor.class);
       //manager.register("Drive Train Test", TestDriveTrain.class);
-      manager.register("Color Sensor Test", RGBSensorClass.class);
+      //manager.register("Color Sensor Test", RGBSensorClass.class);
       //manager.register("Generic Servo", TestServo8863.class);
       //manager.register("Generic Servo", TestServo8863.class);
       //manager.register("David servo test", TestDavidServo.class);
