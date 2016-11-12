@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.opmodes.GenericTest;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.RampControl;
 
@@ -19,13 +20,19 @@ public class TestRampControl extends LinearOpMode {
     double value = 1;
     double rampValue = 0;
     RampControl rampControl;
+    double startValue = .5;
+    double finishValue = 1;
+    double lengthOfTimeToRamp = 10000; // in mSec
+
+    ElapsedTime loopTimer;
 
     @Override
     public void runOpMode() {
 
 
         // Put your initializations here
-        rampControl = new RampControl(.5, 1, 10000);
+        rampControl = new RampControl(startValue, finishValue, lengthOfTimeToRamp);
+        loopTimer = new ElapsedTime();
         
         // Wait for the start button
         telemetry.addData(">", "Press Start to run" );
@@ -34,8 +41,9 @@ public class TestRampControl extends LinearOpMode {
 
         // Put your calls here - they will not run in a loop
         rampControl.start();
+        loopTimer.reset();
 
-        while(opModeIsActive()) {
+        while(opModeIsActive() && rampControl.isEnabled()) {
 
             // Put your calls that need to run in a loop here
             rampValue = rampControl.getRampValueLinear(value);
@@ -49,6 +57,11 @@ public class TestRampControl extends LinearOpMode {
             
             idle();
         }
+
+        // After the ramp control time expires, the loop will terminate and we end up here
+        telemetry.addData("Ramp time (in sec): ", "%5.2f", loopTimer.milliseconds()*1000);
+        telemetry.update();
+        sleep(2000);
 
         // Put your cleanup code here - it runs as the application shuts down
         telemetry.addData(">", "Done");

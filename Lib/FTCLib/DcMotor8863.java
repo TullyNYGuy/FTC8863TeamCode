@@ -165,6 +165,15 @@ public class DcMotor8863 {
      * if the encoder changes less than this since the last time we read it than we call it a stall.
      */
     private int stallDetectionTolerance = 5;
+
+    /**
+     * This object give the motor the ability to ramp the power up gradually. It only gets created
+     * if the user calls enablepowerRamp()
+     */
+    private RampControl powerRamp;
+
+    private double desiredPower = 0;
+
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //*********************************************************************************************
@@ -383,6 +392,7 @@ public class DcMotor8863 {
     public DcMotor8863(String motorName, HardwareMap hardwareMap) {
         FTCDcMotor = hardwareMap.dcMotor.get(motorName);
         stallTimer = new ElapsedTime();
+        powerRamp = new RampControl(0, 0, 0);
         initMotorDefaults();
         this.setMaxSpeed(this.getMaxEncoderTicksPerSecond());
     }
@@ -706,9 +716,11 @@ public class DcMotor8863 {
             // the power when it makes its PID adjustments. If you set the power to 100% then there is
             // no room to increase the power if needed and PID control will not work.
             power = Range.clip(power, -.8, .8);
-            // Start the motor moving.
-            this.setPower(power);
             setMotorState(MotorState.MOVING_PID);
+            // Start the motor moving.
+            // if there is a power ramp enabled then the initial power will be from the ramp, not
+            // the one the user passed in. Check if there is and handle it.
+            setInitialPower(power);
             return true;
         } else {
             // This method was called again while the movement was taking place. You can't do that.
@@ -755,13 +767,13 @@ public class DcMotor8863 {
      * speed may require more power than is available to run the motor at that speed. So it may
      * result in the PID not being able to control the motor and the motor will lose speed under
      * load.
-     *
+     * <p>
      * This method starts the movement. Once it is started there are 3 ways it can stop:
      * stop()
      * interrupt()
      * motor stalls and stall detection is enabled
      * Remember that movement cannot complete since this mode runs until specifically stopped.
-     *
+     * <p>
      * NOTE: You can change the power while the movement is going on by calling setPower().
      *
      * @param power Power input for the motor.
@@ -774,7 +786,9 @@ public class DcMotor8863 {
             // set the run mode
             this.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             this.setMotorState(MotorState.MOVING_PID);
-            this.setPower(power);
+            // if there is a power ramp enabled then the initial power will be from the ramp, not
+            // the one the user passed in. Check if there is and handle it.
+            setInitialPower(power);
             return true;
         } else {
             return false;
@@ -804,7 +818,7 @@ public class DcMotor8863 {
      * Run the motor at a constant power without any encoder feedback. If there is a load on the
      * motor the speed will decrease. If you don't want the speed to decrease, use
      * runAtConstantSpeed instead.
-     *
+     * <p>
      * This method starts the movement. Once it is started there are 3 ways it can stop:
      * stop()
      * interrupt()
@@ -821,11 +835,64 @@ public class DcMotor8863 {
             // set the run mode
             this.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             this.setMotorState(MotorState.MOVING_NO_PID);
-            this.setPower(power);
+            // if there is a power ramp enabled then the initial power will be from the ramp, not
+            // the one the user passed in. Check if there is and handle it.
+            setInitialPower(power);
             return true;
         } else {
             return false;
         }
+    }
+
+    //*********************************************************************************************
+    //          power ramp related methods
+    //*********************************************************************************************
+
+    /**
+     * Enable the power ramp and setup the line that controls power vs time.
+     *
+     * @param initialPower   The power the motor starts out at for time = 0.
+     * @param finalPower     The power that corresponds to the end of the ramp time. The ramp will finish
+     *                       at this power.
+     * @param rampTimeInmSec The length of time it takes to ramp up the power.
+     */
+    public void enablePowerRamp(double initialPower, double finalPower, double rampTimeInmSec) {
+        powerRamp.setInitialValue(initialPower);
+        powerRamp.setFinalValue(finalPower);
+        powerRamp.setTimeToReachFinalValueInmSec(rampTimeInmSec);
+        // enable the power ramp
+        powerRamp.setEnabled(true);
+    }
+
+    /**
+     * Get the power to apply to the motor. It will be either a power from the ramp equation, or
+     * the desired power previously set, whichever is less.
+     * Note that the power ramp will disable itself once the ramp time has expired.
+     */
+    private void updatePowerRamp() {
+        this.setPower(powerRamp.getRampValueLinear(desiredPower));
+    }
+
+    /**
+     * Set the initial power for the motor. If the ramp is enable then the power to apply to the
+     * motor is the initial power for the ramp. If the ramp is not enabled then the power to apply
+     * is the desired power for the motor. Effectively the ramp will trump the desired power if it
+     * is enabled. The desired power is stored so that it can be used later after the ramp is over.
+     *
+     * @param power The power to run the motor at after the ramp is over, or the power to run the
+     *              motor at if there is no ramp enabled.
+     */
+    private void setInitialPower(double power) {
+        // save the desired power for use after the power ramp finishes
+        this.desiredPower = power;
+        // if there is a power ramp, since this is the first time the motor is turned on, the
+        // power to it must be the initial power specified by the ramp
+        if (powerRamp.isEnabled()) {
+            power = powerRamp.getInitialValue();
+            // start the ramp control timer
+            powerRamp.start();
+        }
+        this.setPower(power);
     }
 
     //*********************************************************************************************
@@ -970,10 +1037,15 @@ public class DcMotor8863 {
             // Moving state is entered by giving the motor a command. Each command method adjusts
             // the state of the motor.
             case MOVING_PID:
+                // If there is a power ramp enabled, get the power from the ramp function and then
+                // apply the power to the motor.
+                updatePowerRamp();
+
                 if (stallDetectionEnabled && isStalled()) {
                     shutdownMotor();
                     setMotorState(MotorState.STALLED);
                 }
+
                 // Rotation can only be complete if the motor is set to RUN_TO_POSITION
                 if (isRotationComplete()) {
                     // !!!!!!!!!!!!!!!!!!!!!!!!!
@@ -991,6 +1063,10 @@ public class DcMotor8863 {
                 }
                 break;
             case MOVING_NO_PID:
+                // If there is a power ramp enabled, get the power from the ramp function and then
+                // apply the power to the motor.
+                updatePowerRamp();
+
                 if (stallDetectionEnabled && isStalled()) {
                     shutdownMotor();
                     setMotorState(MotorState.STALLED);
@@ -1013,7 +1089,6 @@ public class DcMotor8863 {
     //*********************************************************************************************
     //          State Machine - methcds to control the state machine
     //*********************************************************************************************
-
 
 
     //*********************************************************************************************
