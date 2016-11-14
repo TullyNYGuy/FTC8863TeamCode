@@ -1,10 +1,10 @@
-package org.firstinspires.ftc.teamcode.opmodes.GenericTest;
+package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
-/**
- * This class defines names for generic objects that we want to test. This way we don't have a million
- * different robot configs on the phone
- */
-public class RobotConfigMappingForGenericTest {
+
+import com.qualcomm.robotcore.hardware.AnalogInput;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+
+public class SharpDistanceSensor {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -20,42 +20,18 @@ public class RobotConfigMappingForGenericTest {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
-
-    //2 motors
-    private static String leftMotorName = "leftMotor";
-    private static String rightMotorName = "rightMotor";
-
-    //generic servo
-    private static String genericServo = "genericServo";
-
-    //generic continuous rotation servo
-    private static String crServo = "crServo";
-
-    // sharp distance sensor
-    private static String sharpDistanceSensor = "sharpDistanceSensor";
-
-
-
-
+    private AnalogInput sharpDistanceSensor;
+    private double voltageReading = 0;
+    private double maxVoltagePossible = 3.1;
+    private double minVoltagePossible = .5;
+    private double distance = 0;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
-    // allow access to private data fields for example setMotorPower,
-    // getPositionInTermsOfAttachment
+    // allow access to private data fields
+    //
     //*********************************************************************************************
-
-    public static String getleftMotorName() {return leftMotorName;}
-
-    public static String getrightMotorName() {
-        return rightMotorName;
-    }
-
-    public static String getgenericServo() {return genericServo;}
-
-    public static String getcrServoName() {return crServo;}
-
-    public static String getSharpDistanceSensorName() {return sharpDistanceSensor;}
 
 
     //*********************************************************************************************
@@ -64,18 +40,39 @@ public class RobotConfigMappingForGenericTest {
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
-
+    public SharpDistanceSensor(String sensorName, HardwareMap hardwareMap) {
+        sharpDistanceSensor = hardwareMap.analogInput.get(sensorName);
+    }
 
     //*********************************************************************************************
     //          Helper Methods
     //
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
-
+    private boolean verifyVoltageReading (double voltageReading) {
+        if (voltageReading <= maxVoltagePossible && voltageReading >= minVoltagePossible) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
     //*********************************************************************************************
     //          MAJOR METHODS
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
+
+    public double getDistance() {
+        // get the voltage reading
+        voltageReading = sharpDistanceSensor.getVoltage();
+        // verify it is valid
+        if (verifyVoltageReading(voltageReading)) {
+            // calculate the distance, the equation is a curve fit that still needs to be determined
+            this.distance = voltageReading;
+        } else {
+            this.distance = 999.0;
+        }
+        return this.distance;
+    }
 }
