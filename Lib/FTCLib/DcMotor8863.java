@@ -58,6 +58,9 @@ public class DcMotor8863 {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
+    /**
+     * A DcMotor from the qualcomm code
+     */
     private com.qualcomm.robotcore.hardware.DcMotor FTCDcMotor;
 
     /**
@@ -173,6 +176,8 @@ public class DcMotor8863 {
     private RampControl powerRamp;
 
     private double desiredPower = 0;
+
+    private double actualPower = 0;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -385,6 +390,10 @@ public class DcMotor8863 {
         return currentMotorState;
     }
 
+    public double getActualPower() {
+        return actualPower;
+    }
+
     //*********************************************************************************************
     //          Constructors
     //*********************************************************************************************
@@ -519,7 +528,8 @@ public class DcMotor8863 {
      * is set for absolute movement, the encoder needs to keep track of where the motor is, so
      * it cannot be reset.
      */
-    public void resetEncoder() {
+    @Deprecated
+    private void resetEncoder() {
         if (getMotorMoveType() == MotorMoveType.RELATIVE) {
             this.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         }
@@ -532,7 +542,8 @@ public class DcMotor8863 {
      *
      * @param override If true, then reset the encoder, no matter what.
      */
-    public void resetEncoder(boolean override) {
+    @Deprecated
+    private void resetEncoder(boolean override) {
         if (override) {
             this.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         } else {
@@ -1169,6 +1180,7 @@ public class DcMotor8863 {
 
     public void setPower(double power) {
         power = Range.clip(power, getMinMotorPower(), getMaxMotorPower());
+        this.actualPower = power;
         FTCDcMotor.setPower(power);
     }
 

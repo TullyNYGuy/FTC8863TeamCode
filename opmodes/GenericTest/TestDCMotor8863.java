@@ -102,7 +102,7 @@ public class TestDCMotor8863 extends LinearOpMode {
             motor.update();
             // display some information on the driver phone
             telemetry.addData(">", "Absolute move to 1440 degrees, use power ramp");
-            telemetry.addData("Motor Speed = ", "%5.2f", powerToRunAt);
+            telemetry.addData("Motor Speed = ", "%5.2f", motor.getActualPower());
             telemetry.addData("feedback = ", "%5.2f", motor.getPositionInTermsOfAttachment());
             telemetry.addData("Encoder Count = ", "%5d", motor.getCurrentPosition());
             telemetry.addData("Elapsed time = ", "%5.0f", runningTimer.milliseconds());
@@ -116,6 +116,7 @@ public class TestDCMotor8863 extends LinearOpMode {
 
         // wait for 2 second
         sleep(2000);
+        runningTimer.reset();
 
         // Since the motor is at 1440 degrees already, it should not move at all due to this
         // command. The loop should run once since the motor is complete already.
@@ -126,7 +127,7 @@ public class TestDCMotor8863 extends LinearOpMode {
             motor.update();
             // display some information on the driver phone
             telemetry.addData(">", "You should not see this - 1440 absolute");
-            telemetry.addData("Motor Speed = ", "%5.2f", powerToRunAt);
+            telemetry.addData("Motor Speed = ", "%5.2f", motor.getActualPower());
             telemetry.addData("feedback = ", "%5.2f", motor.getPositionInTermsOfAttachment());
             telemetry.addData("Encoder Count = ", "%5d", motor.getCurrentPosition());
             telemetry.addData("Elapsed time = ", "%5.0f", runningTimer.milliseconds());
@@ -140,6 +141,7 @@ public class TestDCMotor8863 extends LinearOpMode {
 
         // wait for 2 second
         sleep(2000);
+        runningTimer.reset();
 
         // Another way to move the motor is by a relative amount. It is like the current position is
         // set to 0 and then the motor moves relative to its current position. Think of these types
@@ -156,7 +158,7 @@ public class TestDCMotor8863 extends LinearOpMode {
             motor.update();
             // display some information on the driver phone
             telemetry.addData(">", "Changing position by 1440 degrees, use power ramp");
-            telemetry.addData("Motor Speed = ", "%5.2f", powerToRunAt);
+            telemetry.addData("Motor Speed = ", "%5.2f", motor.getActualPower());
             telemetry.addData("feedback = ", "%5.2f", motor.getPositionInTermsOfAttachment());
             telemetry.addData("Encoder Count = ", "%5d", motor.getCurrentPosition());
             telemetry.addData("Elapsed time = ", "%5.0f", runningTimer.milliseconds());
@@ -170,6 +172,7 @@ public class TestDCMotor8863 extends LinearOpMode {
 
         // wait for 2 second
         sleep(2000);
+        runningTimer.reset();
 
         // A relative movement by 1440 degrees again but this time FLOAT the motor at the end of the
         // movement and do not use the ramp
@@ -181,7 +184,7 @@ public class TestDCMotor8863 extends LinearOpMode {
             motor.update();
             // display some information on the driver phone
             telemetry.addData(">", "Changing position by 1440 degrees, no power ramp");
-            telemetry.addData("Motor Speed = ", "%5.2f", powerToRunAt);
+            telemetry.addData("Motor Speed = ", "%5.2f", motor.getActualPower());
             telemetry.addData("feedback = ", "%5.2f", motor.getPositionInTermsOfAttachment());
             telemetry.addData("Encoder Count = ", "%5d", motor.getCurrentPosition());
             telemetry.addData("Elapsed time = ", "%5.0f", runningTimer.milliseconds());
@@ -195,6 +198,7 @@ public class TestDCMotor8863 extends LinearOpMode {
 
         // wait for 2 second
         sleep(2000);
+        runningTimer.reset();
 
         // Because there are so many situation where you want to move the motor by a certain number
         // of revolutions or a certain number of degrees, there are special methods to do that.
@@ -208,7 +212,7 @@ public class TestDCMotor8863 extends LinearOpMode {
             motor.update();
             // display some information on the driver phone
             telemetry.addData(">", "Changing position by 1440 degrees, use power ramp");
-            telemetry.addData("Motor Speed = ", "%5.2f", powerToRunAt);
+            telemetry.addData("Motor Speed = ", "%5.2f", motor.getActualPower());
             telemetry.addData("feedback = ", "%5.2f", motor.getPositionInTermsOfAttachment());
             telemetry.addData("Encoder Count = ", "%5d", motor.getCurrentPosition());
             telemetry.addData("Elapsed time = ", "%5.0f", runningTimer.milliseconds());
@@ -222,6 +226,7 @@ public class TestDCMotor8863 extends LinearOpMode {
 
         // wait for 2 second
         sleep(2000);
+        runningTimer.reset();
 
         // A relative movement. Move the motor by 2.5 revolutions. Float at end. Power ramp disabled.
         motor.disablePowerRamp();
@@ -232,7 +237,7 @@ public class TestDCMotor8863 extends LinearOpMode {
             motor.update();
             // display some information on the driver phone
             telemetry.addData(">", "Changing position by 2.5 revolutions, no power ramp");
-            telemetry.addData("Motor Speed = ", "%5.2f", powerToRunAt);
+            telemetry.addData("Motor Speed = ", "%5.2f", motor.getActualPower());
             telemetry.addData("feedback = ", "%5.2f", motor.getPositionInTermsOfAttachment());
             telemetry.addData("Encoder Count = ", "%5d", motor.getCurrentPosition());
             telemetry.addData("Elapsed time = ", "%5.0f", runningTimer.milliseconds());
@@ -246,10 +251,9 @@ public class TestDCMotor8863 extends LinearOpMode {
 
         // wait for 2 second
         sleep(2000);
-
-        // I'm going to use a timer to stop the motor during my test. You probably won't want that
-        // so don't put in the next line.
         runningTimer.reset();
+
+        // I'm going to use a timer to stop the motor during my test.
 
         // Run the motor at a constant speed using encoder feedback. If there is a load on the motor the
         // power will be increased in an attempt to maintain the speed. Note that a command for a high
@@ -276,7 +280,7 @@ public class TestDCMotor8863 extends LinearOpMode {
 
             // display some information on the driver phone
             telemetry.addData(">", "Run at constant speed, use power ramp");
-            telemetry.addData("Motor Speed = ", "%5.2f", powerToRunAt);
+            telemetry.addData("Motor Speed = ", "%5.2f", motor.getActualPower());
             telemetry.addData("feedback = ", "%5.2f", motor.getPositionInTermsOfAttachment());
             telemetry.addData("Encoder Count = ", "%5d", motor.getCurrentPosition());
             telemetry.addData("Elapsed time = ", "%5.0f", runningTimer.milliseconds());
@@ -291,10 +295,9 @@ public class TestDCMotor8863 extends LinearOpMode {
 
         // wait for 2 second
         sleep(2000);
-
-        // I'm going to use a timer to stop the motor during my test. You probably won't want that
-        // so don't put in the next line.
         runningTimer.reset();
+
+        // I'm going to use a timer to stop the motor during my test.
 
         // Run the motor at a constant speed using encoder feedback. If there is a load on the motor the
         // power will be increased in an attempt to maintain the speed. Note that a command for a high
@@ -323,7 +326,7 @@ public class TestDCMotor8863 extends LinearOpMode {
 
             // display some information on the driver phone
             telemetry.addData(">", "Run at constant power, use power ramp");
-            telemetry.addData("Motor Speed = ", "%5.2f", powerToRunAt);
+            telemetry.addData("Motor Speed = ", "%5.2f", motor.getActualPower());
             telemetry.addData("feedback = ", "%5.2f", motor.getPositionInTermsOfAttachment());
             telemetry.addData("Encoder Count = ", "%5d", motor.getCurrentPosition());
             telemetry.addData("Elapsed time = ", "%5.0f", runningTimer.milliseconds());
@@ -334,6 +337,8 @@ public class TestDCMotor8863 extends LinearOpMode {
             // performed
             idle();
         }
+
+        sleep(2000);
 
         telemetry.addData(">", "Movement tests complete");
         telemetry.addData(">", "Press Stop to end test.");

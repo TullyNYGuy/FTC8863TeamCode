@@ -42,7 +42,6 @@ public class TestPIDMotor extends LinearOpMode {
         motor.setMotorMoveType(DcMotor8863.MotorMoveType.RELATIVE);
         motor.setMinMotorPower(-1);
         motor.setMaxMotorPower(1);
-        motor.resetEncoder();
 
         motor.setDirection(DcMotor.Direction.FORWARD);
 
