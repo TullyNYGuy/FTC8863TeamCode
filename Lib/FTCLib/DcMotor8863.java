@@ -540,6 +540,20 @@ public class DcMotor8863 {
         }
     }
 
+    /**
+     * After the motor stops moving it will be able to spin freely
+     */
+    public void setAfterCompletionToFloat() {
+        setFinishBehavior(FinishBehavior.FLOAT);
+    }
+
+    /**
+     * After the motor stops moving it will resist any movement or load.
+     */
+    public void setAfterCompletionToHold() {
+        setFinishBehavior(FinishBehavior.FLOAT);
+    }
+
     //*********************************************************************************************
     //          Methods for rotating the motor to a desired position
     //*********************************************************************************************
@@ -861,7 +875,14 @@ public class DcMotor8863 {
         powerRamp.setFinalValue(finalPower);
         powerRamp.setTimeToReachFinalValueInmSec(rampTimeInmSec);
         // enable the power ramp
-        powerRamp.setEnabled(true);
+        powerRamp.enable();
+    }
+
+    /**
+     * Disable the power ramp
+     */
+    public void disablePowerRamp() {
+        powerRamp.disable();
     }
 
     /**
@@ -978,7 +999,7 @@ public class DcMotor8863 {
     }
 
     /**
-     * Interrupt the motor. The motor power will be set to 0 and the motor will coast.
+     * Interrupt the motor. The motor power will be set to 0 and the motor will coast or float.
      */
     // tested
     public void interrupt() {
@@ -991,7 +1012,7 @@ public class DcMotor8863 {
      * Turn off the motor and leave it either floating or holding.
      */
     // tested
-    public void shutdownMotor() {
+    public void shutDown() {
         if (getFinishBehavior() == FinishBehavior.FLOAT) {
             setMotorToFloat();
         } else {
@@ -1011,7 +1032,7 @@ public class DcMotor8863 {
     }
 
     /**
-     * Set the motor to stop and just coast. It will turn freely. If there is something attached to
+     * Remove power from the motor and just coast. It will turn freely. If there is something attached to
      * the motor when power is turned off it will slowly come to a stop.
      */
     // tested
@@ -1042,7 +1063,7 @@ public class DcMotor8863 {
                 updatePowerRamp();
 
                 if (stallDetectionEnabled && isStalled()) {
-                    shutdownMotor();
+                    shutDown();
                     setMotorState(MotorState.STALLED);
                 }
 
@@ -1054,7 +1075,7 @@ public class DcMotor8863 {
                     // SLIGHT INACCURACY IN THE FINAL POSITION. Or a change in the way isRotationComplete
                     // works.
                     //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    shutdownMotor();
+                    shutDown();
                     if (getFinishBehavior() == FinishBehavior.FLOAT) {
                         setMotorState(MotorState.COMPLETE_FLOAT);
                     } else {
@@ -1068,7 +1089,7 @@ public class DcMotor8863 {
                 updatePowerRamp();
 
                 if (stallDetectionEnabled && isStalled()) {
-                    shutdownMotor();
+                    shutDown();
                     setMotorState(MotorState.STALLED);
                 }
                 break;

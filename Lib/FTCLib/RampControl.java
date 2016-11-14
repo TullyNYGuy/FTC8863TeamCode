@@ -3,6 +3,28 @@ package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+/**
+ * This class is used to implement a ramp over time. A line is setup using an intial and final value
+ * and a time to run the ramp over. The ramp is a limit. Any value that is passed in during the time
+ * the ramp is operating will be tested against the line. If the value is less than the line it is
+ * ok the value is passed back. If the value passed in is greater than the line, then it is clipped
+ * to the line's value and the value on the ramp line is passed back instead.
+ *
+ *  |   value is too big,       *
+ *  |   return the line's    *
+ *  |   value             *
+ *  |   instead        *
+ *  |               *
+ *  |            *
+ *  |         *
+ *  |      *    value is ok (less than line)
+ *  |   *       return the value back again
+ *  -*-----------------------------------
+ *         time ->
+ *  This calls can be used to implement a ceiling (maximum) that gradually increases over time. A
+ *  gradual increase in motor power from startup is one example of a good use for it.
+ */
+
 public class RampControl {
 
     //*********************************************************************************************
@@ -20,16 +42,32 @@ public class RampControl {
     // getter and setter methods
     //*********************************************************************************************
 
-    // consider adding enable control and status
-
+    /**
+     * A timer for use in the ramp function
+     */
     private ElapsedTime timer;
 
+    /**
+     * The y intercept of the ramp equation. This is the starting point of the ramp.
+     */
     private double initialValue = 0;
 
+    /**
+     * This is the endpoint of the line for the ramp function.
+     */
     private double finalValue = 0;
 
+    /**
+     * This is the time required to reach the final value. Slope of the line is determined from
+     * (finalValue - initialValue) / timeToReachFinalValueInmSec
+     * units are milli-seconds (1000 mSec = 1 sec)
+     */
     private double timeToReachFinalValueInmSec = 0;
 
+    /**
+     * Whether the ramp is enabled or not. If not then a call to it with a value will return the
+     * value right back.
+     */
     private boolean enabled = false;
 
     //*********************************************************************************************
@@ -101,11 +139,32 @@ public class RampControl {
     // public methods that give the class its functionality
     //*********************************************************************************************
 
+    /**
+     * Start the ramp control's timer
+     */
     public void start() {
         timer.reset();
         this.setEnabled(true);
     }
 
+    /**
+     * Disable the ramp control
+     */
+    public void disable() {
+        this.setEnabled(false);
+    }
+
+    /**
+     * Enable the ramp control
+     */
+    public void enable() {
+        this.setEnabled(true);
+    }
+
+    /**
+     * Has the ramp control's timer expired?
+     * @return timer expired = true
+     */
     public boolean isTimeExpired (){
         if (timer.milliseconds() > timeToReachFinalValueInmSec) {
             return true;
@@ -114,6 +173,14 @@ public class RampControl {
         }
     }
 
+    /**
+     * Pass in a value. If the ramp control is enabled and the time has not expired, check the value
+     * against a line deterimed by (finalValue - intialValue) / timeToReachFinalValueInmSec * time + initialValue
+     * If the value being tested is greater than the line's value, return the line's value. In other
+     * words reduce the value to the line's value. If it is less just leave the value as is.
+     * @param value value to test against the line
+     * @return
+     */
     public double getRampValueLinear(double value) {
 
         double valueFromRamp;
