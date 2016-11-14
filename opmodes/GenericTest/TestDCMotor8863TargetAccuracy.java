@@ -98,6 +98,7 @@ public class TestDCMotor8863TargetAccuracy extends LinearOpMode {
             // position etc.
             // These are absolute movement commands:
 
+            motor.enablePowerRamp(initialPower, finalPower, rampTime);
             // An absolute movement to 1440 degrees. Requires 4 revolutions to get there.
             motor.moveToPosition(powerToRunAt, 1440, DcMotor8863.FinishBehavior.HOLD); //works
             // You need to run this loop in order to be able to tell when the motor reaches the position
