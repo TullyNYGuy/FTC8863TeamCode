@@ -86,6 +86,15 @@ public class SharpDistanceSensor {
     //*********************************************************************************************
 
     /**
+     * Get the voltage reading from the sensor
+     */
+    public double getVoltageReading() {
+        // get the voltage reading
+        this.voltageReading = sharpDistanceSensor.getVoltage();
+        return this.voltageReading;
+    }
+
+    /**
      * Verify that the voltage read is within a valid range
      * @param voltageReading voltage read from the port
      * @return valid = true
@@ -109,12 +118,12 @@ public class SharpDistanceSensor {
      * @return distance in CM
      */
     public double getDistance() {
-        // get the voltage reading
-        voltageReading = sharpDistanceSensor.getVoltage();
+        this.voltageReading = sharpDistanceSensor.getVoltage();
         // verify it is valid
-        if (verifyVoltageReading(voltageReading)) {
+        if (verifyVoltageReading(this.voltageReading)) {
             // calculate the distance, the equation is a curve fit that still needs to be determined
-            this.distance = voltageReading;
+            // THIS EQUATION IS BOGUS
+            this.distance = this.voltageReading;
         } else {
             this.distance = 999.0;
         }

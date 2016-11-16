@@ -39,6 +39,7 @@ public class TestSharpDistanceSensor extends LinearOpMode {
             // Put your calls that need to run in a loop here
 
             // Display the current value
+            telemetry.addData("Voltage = ", "%5.2f", sharpDistanceSensor.getVoltageReading());
             telemetry.addData("Distance = ", "%5.2f", sharpDistanceSensor.getDistance());
             telemetry.addData(">", "Press Stop to end test." );
 
