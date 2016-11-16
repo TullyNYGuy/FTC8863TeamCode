@@ -89,7 +89,6 @@ public class StatTracker {
                 value1 = minimum;
             }
             average = sum / count;
-
         }
 
 
