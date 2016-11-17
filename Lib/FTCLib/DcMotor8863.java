@@ -29,9 +29,10 @@ public class DcMotor8863 {
      * holding its position under PID control
      * COMPLETE_FLOAT = movement of the motor has completed (target reached) and the motor is allowed
      * to float freely
+     * MOVING_NO_PID_POWER_RAMP = motor is moving not under PID control and a power ramp is active
      */
     public enum MotorState {
-        IDLE, HOLD, MOVING_PID, MOVING_NO_PID, STALLED, COMPLETE_HOLD, COMPLETE_FLOAT
+        IDLE, HOLD, MOVING_PID, MOVING_NO_PID, STALLED, COMPLETE_HOLD, COMPLETE_FLOAT, MOVING_NO_PID_POWER_RAMP
     }
 
     /**
@@ -896,6 +897,10 @@ public class DcMotor8863 {
         powerRamp.disable();
     }
 
+    public boolean isPowerRampEnabled() {
+        return powerRamp.isEnabled();
+    }
+
     /**
      * Get the power to apply to the motor. It will be either a power from the ramp equation, or
      * the desired power previously set, whichever is less.
@@ -1095,15 +1100,25 @@ public class DcMotor8863 {
                 }
                 break;
             case MOVING_NO_PID:
-                // If there is a power ramp enabled, get the power from the ramp function and then
-                // apply the power to the motor.
-                updatePowerRamp();
+                // If there a power ramp has just been enabled, start it and set the next motor
+                // state.
+                if (powerRamp.isEnabled()) {
+                    //start the power ramp
+                    powerRamp.start();
+                    setMotorState(MotorState.MOVING_NO_PID_POWER_RAMP);
+                }
 
                 if (stallDetectionEnabled && isStalled()) {
                     shutDown();
                     setMotorState(MotorState.STALLED);
                 }
                 break;
+            case MOVING_NO_PID_POWER_RAMP:
+                updatePowerRamp();
+                if (!powerRamp.isEnabled()) {
+                    //power ramp is now complete, transition state
+                    setMotorState(MotorState.MOVING_NO_PID);
+                }
             // Stalled state means that a stall was detected. The motor was not moving for a certain
             // period of time due to excessive load being applied.
             case STALLED:
