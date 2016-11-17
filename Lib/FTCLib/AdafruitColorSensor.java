@@ -108,6 +108,10 @@ public class AdafruitColorSensor {
         return hsvValues;
     }
 
+    public int color () {
+        return Color.HSVToColor(alpha(), hsv(red(), green(), blue()));
+    }
+
     public float hue() {
         return hsv(colorSensor.red(), colorSensor.green(), colorSensor.blue())[0];
     }
