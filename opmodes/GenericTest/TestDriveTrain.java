@@ -26,25 +26,33 @@ public class TestDriveTrain extends LinearOpMode {
     double distanceToMove1 = 100; // cm
     double distanceToMove2 = -30; // cm
     DriveTrain.Status statusDrive = DriveTrain.Status.COMPLETE;
+    double leftPower = 0;
+    double rightPower =0;
+
+
 
     @Override
     public void runOpMode() {
 
 
         // Instantiate and initialize motors
-        myDriveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap);
+        // myDriveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap);
         myDriveTrain.setCmPerRotation(31.1); // cm
+        myDriveTrain = DriveTrain.DriveTrainTeleOp(hardwareMap);
 
-        
         // Wait for the start button
         telemetry.addData(">", "Press Start to run Motors." );
         telemetry.update();
         waitForStart();
 
         powerToRunAt = powerToRunAt1;
-        myDriveTrain.driveDistance(powerToRunAt1, distanceToMove1, DcMotor8863.FinishBehavior.FLOAT);
+        //myDriveTrain.driveDistance(powerToRunAt1, distanceToMove1, DcMotor8863.FinishBehavior.FLOAT);
         //myDriveTrain.rotateNumberOfDegrees(powerToRunAt1, 3600, DcMotor8863.FinishBehavior.HOLD);
         while(opModeIsActive()) {
+            leftPower = -gamepad1.left_stick_y;
+            rightPower = -gamepad1.right_stick_y;
+            myDriveTrain.tankDrive(leftPower,rightPower);
+
             statusDrive = myDriveTrain.update();
             if (statusDrive == DriveTrain.Status.COMPLETE) {
                 break;
@@ -73,7 +81,7 @@ public class TestDriveTrain extends LinearOpMode {
         while(opModeIsActive()) {
             telemetry.addData(">", "Press Stop to end test." );
             telemetry.update();
-            
+
             idle();
         }
 

@@ -1,9 +1,9 @@
 package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
 
-import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.hardware.ams.AMSColorSensorImpl;
 
-public class StatTracker {
+public class MuxPort {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -19,39 +19,17 @@ public class StatTracker {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
-    private double maximum;
-    private double minimum;
-    private double average;
-    private int count;
-
-    private double sum;
+    int portNumber;
+    // objects that a port can interface with go here. Only one object can be created per port.
+    AMSColorSensorImpl colorSensor;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
     // allow access to private data fields for example setMotorPower,
-    // getMotorPosition
+    // getPositionInTermsOfAttachment
     //*********************************************************************************************
 
-    public double getMaximum() {
-        return maximum;
-    }
-
-    public double getMinimum() {
-        return minimum;
-    }
-
-    public double getAverage() {
-        return average;
-    }
-
-    public int getCount() {
-        return count;
-    }
-
-    public double getSum() {
-        return sum;
-    }
 
     //*********************************************************************************************
     //          Constructors
@@ -59,12 +37,9 @@ public class StatTracker {
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
-    public StatTracker() {
-        maximum = 0;
-        minimum = 0;
-        average = 0;
-        count = 0;
-        sum = 0;
+    public <T> MuxPort(int portNumber, T object ) {
+        // the object has already been created
+        this.portNumber = portNumber;
     }
 
     //*********************************************************************************************
@@ -72,36 +47,11 @@ public class StatTracker {
     //
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
-    public int compareValue(double value1) {
-            if (count == 0) {
-                maximum = value1;
-                minimum = value1;
-                average = value1;
-                sum = value1;
-                count ++;
-            }
-            if (count > 0) {
-                if (maximum < value1) {
-                    maximum = value1;
-                }
-                sum = value1 + sum;
 
-                if (minimum > value1) {
-                    minimum = value1;
-
-                }
-                average = sum / count;
-                count ++;
-        }
-
-
-        return 0;
-    }
-}
 
     //*********************************************************************************************
     //          MAJOR METHODS
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
-
+}
