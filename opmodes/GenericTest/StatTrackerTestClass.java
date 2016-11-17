@@ -12,8 +12,8 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.StatTracker;
  *
  *
  */
-@TeleOp(name = "Linear Op Mode Shell - do not run", group = "Test")
-@Disabled
+@TeleOp(name = "Matt's Test Code", group = "Test")
+//@Disabled
 public class StatTrackerTestClass extends LinearOpMode {
 
     // Put your variable declarations here
@@ -59,14 +59,14 @@ public class StatTrackerTestClass extends LinearOpMode {
         telemetry.addData("Maximum Value =", "%5.2f", statTrackerTest.getMaximum());
         telemetry.addData("Minimum Value =", "%5.2f", statTrackerTest.getMinimum());
         telemetry.addData("Average Value =", "%5.2f", statTrackerTest.getAverage());
-        telemetry.addData("Count Value =", "%5.2f", statTrackerTest.getCount());
+        telemetry.addData("Count Value =", "%d", statTrackerTest.getCount());
         telemetry.addData("Total Value =", "%5.2f", statTrackerTest.getSum());
-
-        //Lets the user see the data called above rather than having it disappear almost instantly
-        sleep(5000);
 
         // Put your cleanup code here - it runs as the application shuts down
         telemetry.addData(">", "Done");
         telemetry.update();
+
+        //Lets the user see the data called above rather than having it disappear almost instantly
+        sleep(10000);
     }
 }

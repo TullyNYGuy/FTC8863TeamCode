@@ -74,21 +74,24 @@ public class StatTracker {
     //*********************************************************************************************
     public int compareValue(double value1) {
         if (count == 0) {
-            value1 = maximum;
-            value1 = minimum;
-            value1 = average;
-            value1 = sum;
+            maximum = value1;
+            minimum = value1;
+            average = value1;
+            sum = value1;
+            count ++;
         }
         if (count > 0) {
             if (maximum < value1) {
-                value1 = maximum;
+                maximum = value1;
             }
             sum = value1 + sum;
 
             if (minimum > value1) {
-                value1 = minimum;
+                minimum = value1;
+
             }
             average = sum / count;
+            count ++;
         }
 
 
