@@ -188,11 +188,12 @@ public class RampControl {
         if (this.isEnabled()) {
             // The ramp is enabled
             if (timer.milliseconds() < timeToReachFinalValueInmSec) {
-                // if timer is less than time to reach the final value (so ramp should not be in effect)
+                // if timer is less than time to reach the final value (so ramp should be in effect)
                 // then calculate the value given by the ramp (valueFromRamp = m * elapsed time + initialValue) (y=mx+b)
                 valueFromRamp = (finalValue - initialValue) / timeToReachFinalValueInmSec * timer.milliseconds() + initialValue;
                 // if the value input is less than the calculated ramp value then use the input, otherwise use the ramp value
-                if (value < valueFromRamp) {
+                // There was a bug here when the input was negative, abs fixed it
+                if (Math.abs(value) < Math.abs(valueFromRamp)) {
                     return value;
                 } else {
                     return valueFromRamp;
