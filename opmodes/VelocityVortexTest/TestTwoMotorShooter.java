@@ -17,7 +17,7 @@ import org.firstinspires.ftc.teamcode.opmodes.GenericTest.RobotConfigMappingForG
  * This code assumes a DC motor configured with the name "leftShooterMotor"  and "rightShooterMotor"
  */
 @TeleOp(name = "Test 2 motor shooter", group = "Test")
-//@Disabled
+@Disabled
 public class TestTwoMotorShooter extends LinearOpMode {
 
     DcMotor8863 leftShooterMotor;

@@ -16,7 +16,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
  * This code assumes a DC motor configured with the name "leftMotor"  and "rightMotor"
  *
  */
-@Autonomous(name = "Drive Train Test", group = "Test")
+@Autonomous(name = "Sweeper Test", group = "Test")
 //@Disabled
 public class TestSweeper extends LinearOpMode {
 
