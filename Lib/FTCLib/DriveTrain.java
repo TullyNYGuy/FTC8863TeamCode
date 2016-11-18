@@ -208,8 +208,8 @@ public class DriveTrain {
         // To steer the robot right, the left motor needs to increase power and the left needs to reduce.
         // Since left on the joystick is negative, we need to add the direction for the left motor and
         // subtract from the right motor
-        leftDriveMotor.setPower((float)(throttle + direction));
-        rightDriveMotor.setPower((float)(throttle - direction));
+        leftDriveMotor.setPower(throttle + direction);
+        rightDriveMotor.setPower(throttle - direction);
     }
 
     /**

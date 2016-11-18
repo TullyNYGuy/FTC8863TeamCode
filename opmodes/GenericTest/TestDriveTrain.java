@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
  * This code assumes a DC motor configured with the name "leftMotor"  and "rightMotor"
  *
  */
-@Autonomous(name = "Drive Train Test", group = "Test")
+@TeleOp(name = "Test Drive Train", group = "Test")
 //@Disabled
 public class TestDriveTrain extends LinearOpMode {
 
@@ -28,6 +28,8 @@ public class TestDriveTrain extends LinearOpMode {
     DriveTrain.Status statusDrive = DriveTrain.Status.COMPLETE;
     double leftPower = 0;
     double rightPower =0;
+    double throttle = 0;
+    double direction = 0;
 
 
 
@@ -37,8 +39,10 @@ public class TestDriveTrain extends LinearOpMode {
 
         // Instantiate and initialize motors
         // myDriveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap);
-        myDriveTrain.setCmPerRotation(31.1); // cm
         myDriveTrain = DriveTrain.DriveTrainTeleOp(hardwareMap);
+
+
+        myDriveTrain.setCmPerRotation(31.1); // cm
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run Motors." );
@@ -48,10 +52,16 @@ public class TestDriveTrain extends LinearOpMode {
         powerToRunAt = powerToRunAt1;
         //myDriveTrain.driveDistance(powerToRunAt1, distanceToMove1, DcMotor8863.FinishBehavior.FLOAT);
         //myDriveTrain.rotateNumberOfDegrees(powerToRunAt1, 3600, DcMotor8863.FinishBehavior.HOLD);
+
         while(opModeIsActive()) {
-            leftPower = -gamepad1.left_stick_y;
-            rightPower = -gamepad1.right_stick_y;
-            myDriveTrain.tankDrive(leftPower,rightPower);
+
+            //leftPower = -gamepad1.left_stick_y;
+            //rightPower = -gamepad1.right_stick_y;
+            //myDriveTrain.tankDrive(leftPower,rightPower);
+
+            throttle = -gamepad1.right_stick_y;
+            direction = gamepad1.right_stick_x;
+            myDriveTrain.differentialDrive(throttle, direction);
 
             statusDrive = myDriveTrain.update();
             if (statusDrive == DriveTrain.Status.COMPLETE) {
