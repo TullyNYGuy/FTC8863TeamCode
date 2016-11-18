@@ -339,6 +339,64 @@ public class TestDCMotor8863 extends LinearOpMode {
         }
 
         sleep(2000);
+        runningTimer.reset();
+
+        // Next I will demonstrate / test the ability of a motor to change its speed not is a sudden
+        // change but by a gradual ramp of the power.
+
+        // Start the motor running in constant power mode (no PID). Then perform a series of
+        // gradual power changes.
+
+        boolean powerRampRan1x = false;
+        boolean powerRampRan2x = false;
+        boolean powerRampRan3x = false;
+
+        // Set the motor to spin freely when power is removed
+        motor.setAfterCompletionToFloat();
+        // Start the motor
+        motor.runAtConstantPower(powerToRunAt);
+        // You need to run this loop in order to use the power ramp.
+        while (opModeIsActive() && !motor.isMotorStateComplete()) {
+            motor.update();
+
+            // after 5 seconds, change motor direction
+            if (runningTimer.milliseconds() > 5000 && !powerRampRan1x) {
+                // start a power ramp. Power will gradually change from running forward to
+                // running backward over 2 seconds
+                motor.enablePowerRamp(powerToRunAt, -powerToRunAt, 2000);
+                powerRampRan1x = true;
+            }
+
+            // After 9 seconds slow the motor down gradually
+            if (runningTimer.milliseconds() > 9000 && !powerRampRan2x) {
+                // start a power ramp. Power will gradually reduce to 30 %
+                motor.enablePowerRamp(-powerToRunAt, -.3, 2000);
+                powerRampRan2x = true;
+            }
+
+            // After 13 seconds speed the motor up
+            if (runningTimer.milliseconds() > 13000 && !powerRampRan3x) {
+                // start a power ramp. Power will gradually reduce to 30 %
+                motor.enablePowerRamp(-.3, -1.0, 2000);
+                powerRampRan3x = true;
+            }
+
+            // Stop the motor after 17 seconds by gradually bringing it to a stop
+            if (runningTimer.milliseconds() > 17000) {
+                motor.enablePowerRamp(-1.0, 0, 2000);
+                motor.shutDown();
+                break;
+            }
+
+            // display some information on the driver phone
+            telemetry.addData(">", "Run at constant power, use power ramp to change rotation direction");
+            telemetry.addData("Motor Speed = ", "%5.2f", motor.getActualPower());
+            telemetry.addData("feedback = ", "%5.2f", motor.getPositionInTermsOfAttachment());
+            telemetry.addData("Encoder Count = ", "%5d", motor.getCurrentPosition());
+            telemetry.addData("Elapsed time = ", "%5.0f", runningTimer.milliseconds());
+            telemetry.addData(">", "Press Stop to end test.");
+            telemetry.update();
+        }
 
         telemetry.addData(">", "Movement tests complete");
         telemetry.addData(">", "Press Stop to end test.");
