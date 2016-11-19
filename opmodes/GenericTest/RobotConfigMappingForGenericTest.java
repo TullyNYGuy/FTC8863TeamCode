@@ -22,14 +22,17 @@ public class RobotConfigMappingForGenericTest {
     //*********************************************************************************************
 
     //2 motors
-    private static String leftMotorName = "leftMotor"; //AH00qK3C port 1 (bottom)
-    private static String rightMotorName = "rightMotor"; //AH00qK3C port 2 (bottom)
+    private static String leftMotorName = "leftMotor";
+    private static String rightMotorName = "rightMotor";
+
+    // third motor
+    private static String thirdMotorName = "thirdMotor";
 
     //generic servo
-    private static String genericServo = "genericServo"; //AL004A89 port 2
+    private static String genericServo = "genericServo";
 
     //generic continuous rotation servo
-    private static String crServo = "crServo"; //AL00VV9L port 2
+    private static String crServo = "crServo";
 
 
 
@@ -46,6 +49,10 @@ public class RobotConfigMappingForGenericTest {
 
     public static String getrightMotorName() {
         return rightMotorName;
+    }
+
+    public static String getthirdMotorName() {
+        return thirdMotorName;
     }
 
     public static String getgenericServo() {return genericServo;}
