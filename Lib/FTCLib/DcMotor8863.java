@@ -32,7 +32,8 @@ public class DcMotor8863 {
      * MOVING_NO_PID_POWER_RAMP = motor is moving not under PID control and a power ramp is active
      */
     public enum MotorState {
-        IDLE, HOLD, MOVING_PID, MOVING_NO_PID, STALLED, COMPLETE_HOLD, COMPLETE_FLOAT, MOVING_NO_PID_POWER_RAMP
+        IDLE, HOLD, MOVING_PID_NO_POWER_RAMP, MOVING_PID_POWER_RAMP, MOVING_NO_PID_NO_POWER_RAMP,
+        MOVING_NO_PID_POWER_RAMP, STALLED, COMPLETE_HOLD, COMPLETE_FLOAT
     }
 
     /**
@@ -176,7 +177,7 @@ public class DcMotor8863 {
      */
     private RampControl powerRamp;
 
-    private double desiredPower = 0;
+    private double runningPower = 0;
 
     private double actualPower = 0;
 
@@ -742,11 +743,19 @@ public class DcMotor8863 {
             // the power when it makes its PID adjustments. If you set the power to 100% then there is
             // no room to increase the power if needed and PID control will not work.
             power = Range.clip(power, -.8, .8);
-            setMotorState(MotorState.MOVING_PID);
-            // Start the motor moving.
-            // if there is a power ramp enabled then the initial power will be from the ramp, not
-            // the one the user passed in. Check if there is and handle it.
-            setInitialPower(power);
+            // Is there is a power ramp setup to automatically start with the motor is turned on?
+            if (powerRamp.isEnabled()) {
+                // yes there is
+                this.setMotorState(MotorState.MOVING_PID_POWER_RAMP);
+                // if there is a power ramp enabled then the initial power will be from the ramp, not
+                // the one the user passed in.
+                setInitialPower(power);
+            } else {
+                // No power ramp is set to automatically be started.
+                this.setMotorState(MotorState.MOVING_PID_NO_POWER_RAMP);
+                // Turn the motor on
+                this.setPower(power);
+            }
             return true;
         } else {
             // This method was called again while the movement was taking place. You can't do that.
@@ -811,10 +820,19 @@ public class DcMotor8863 {
         if (!isMotorStateMoving()) {
             // set the run mode
             this.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            this.setMotorState(MotorState.MOVING_PID);
-            // if there is a power ramp enabled then the initial power will be from the ramp, not
-            // the one the user passed in. Check if there is and handle it.
-            setInitialPower(power);
+            // Is there is a power ramp setup to automatically start with the motor is turned on?
+            if (powerRamp.isEnabled()) {
+                // yes there is
+                this.setMotorState(MotorState.MOVING_PID_POWER_RAMP);
+                // if there is a power ramp enabled then the initial power will be from the ramp, not
+                // the one the user passed in.
+                setInitialPower(power);
+            } else {
+                // No power ramp is set to automatically be started.
+                this.setMotorState(MotorState.MOVING_PID_NO_POWER_RAMP);
+                // Turn the motor on
+                this.setPower(power);
+            }
             return true;
         } else {
             return false;
@@ -860,10 +878,22 @@ public class DcMotor8863 {
         if (!isMotorStateMoving()) {
             // set the run mode
             this.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            this.setMotorState(MotorState.MOVING_NO_PID);
-            // if there is a power ramp enabled then the initial power will be from the ramp, not
-            // the one the user passed in. Check if there is and handle it.
-            setInitialPower(power);
+            // Is there is a power ramp setup to automatically start with the motor is turned on?
+            if (powerRamp.isEnabled()) {
+                // yes there is
+                this.setMotorState(MotorState.MOVING_NO_PID_POWER_RAMP);
+                // if there is a power ramp enabled then the initial power will be from the ramp, not
+                // the one the user passed in.
+                setInitialPower(power);
+            } else {
+                // No power ramp is set to automatically be started.
+                this.setMotorState(MotorState.MOVING_NO_PID_NO_POWER_RAMP);
+                // Turn the motor on
+                this.setPower(power);
+            }
+            if(powerRamp.isRunning()) {
+                doNothing();
+            }
             return true;
         } else {
             return false;
@@ -882,12 +912,20 @@ public class DcMotor8863 {
      *                       at this power.
      * @param rampTimeInmSec The length of time it takes to ramp up the power.
      */
-    public void enablePowerRamp(double initialPower, double finalPower, double rampTimeInmSec) {
-        powerRamp.setInitialValue(initialPower);
-        powerRamp.setFinalValue(finalPower);
-        powerRamp.setTimeToReachFinalValueInmSec(rampTimeInmSec);
-        // enable the power ramp
+    public void setupPowerRamp(double initialPower, double finalPower, double rampTimeInmSec) {
+        powerRamp.setup(initialPower, finalPower, rampTimeInmSec);
+        // allow the ramp to be automatically started
         powerRamp.enable();
+    }
+
+    public void startPowerRamp() {
+        powerRamp.start();
+    }
+
+    public void setupAndStartPowerRamp(double initialPower, double finalPower, double rampTimeInmSec) {
+        setupPowerRamp(initialPower, finalPower, rampTimeInmSec);
+        this.runningPower = finalPower;
+        startPowerRamp();
     }
 
     /**
@@ -907,29 +945,28 @@ public class DcMotor8863 {
      * Note that the power ramp will disable itself once the ramp time has expired.
      */
     private void updatePowerRamp() {
-        this.setPower(powerRamp.getRampValueLinear(desiredPower));
+        this.setPower(powerRamp.getRampValueLinear(runningPower));
     }
 
     /**
-     * Set the initial power for the motor. If the ramp is enable then the power to apply to the
-     * motor is the initial power for the ramp. If the ramp is not enabled then the power to apply
-     * is the desired power for the motor. Effectively the ramp will trump the desired power if it
-     * is enabled. The desired power is stored so that it can be used later after the ramp is over.
+     * Set the initial power for the motor. This should only be called when a power ramp is enabled
+     * and the motor is being turned on.
      *
-     * @param power The power to run the motor at after the ramp is over, or the power to run the
-     *              motor at if there is no ramp enabled.
+     * @param power The power to run the motor at after the ramp is over.
      */
     private void setInitialPower(double power) {
         // save the desired power for use after the power ramp finishes
-        this.desiredPower = power;
-        // if there is a power ramp, since this is the first time the motor is turned on, the
-        // power to it must be the initial power specified by the ramp
-        if (powerRamp.isEnabled()) {
-            power = powerRamp.getInitialValue();
-            // start the ramp control timer
-            powerRamp.start();
-        }
+        this.runningPower = power;
+        // now get the initial power for the power ramp
+        power = powerRamp.getValueAtStartTime();
+        // start the power ramp
+        powerRamp.start();
+        // turn the motor on
         this.setPower(power);
+    }
+
+    private void doNothing() {
+        return;
     }
 
     //*********************************************************************************************
@@ -1073,10 +1110,11 @@ public class DcMotor8863 {
             // Moving state means the motor is currently moving. IE it is in the middle of a command.
             // Moving state is entered by giving the motor a command. Each command method adjusts
             // the state of the motor.
-            case MOVING_PID:
-                // If there is a power ramp enabled, get the power from the ramp function and then
-                // apply the power to the motor.
-                updatePowerRamp();
+            case MOVING_PID_NO_POWER_RAMP:
+                // If a power ramp has just been started, set the next motor state.
+                if (powerRamp.isRunning()) {
+                    setMotorState(MotorState.MOVING_PID_POWER_RAMP);
+                }
 
                 if (stallDetectionEnabled && isStalled()) {
                     shutDown();
@@ -1099,12 +1137,42 @@ public class DcMotor8863 {
                     }
                 }
                 break;
-            case MOVING_NO_PID:
-                // If there a power ramp has just been enabled, start it and set the next motor
-                // state.
-                if (powerRamp.isEnabled()) {
-                    //start the power ramp
-                    powerRamp.start();
+            case MOVING_PID_POWER_RAMP:
+                // The only reason to have this state is to avoid the performance penalty of calling
+                // updatePowerRamp all the time. With 2 states I only call it when a power ramp is
+                // actually running.
+                updatePowerRamp();
+                // Is the power ramp still running?
+                if (!powerRamp.isRunning()) {
+                    //no, power ramp is now complete. Set the new running power and transition state
+                    this.setPower(runningPower);
+                    setMotorState(MotorState.MOVING_NO_PID_NO_POWER_RAMP);
+                }
+
+                if (stallDetectionEnabled && isStalled()) {
+                    shutDown();
+                    setMotorState(MotorState.STALLED);
+                }
+
+                // Rotation can only be complete if the motor is set to RUN_TO_POSITION
+                if (isRotationComplete()) {
+                    // !!!!!!!!!!!!!!!!!!!!!!!!!
+                    // IT LOOKS LIKE I NEED A DELAY HERE BEFORE SHUTTING DOWN THE MOTOR TO ALLOW
+                    // THE PID TO FINISH ADJUSTING THE POSITION OF THE MOTOR. OTHERWISE, I'M GETTING
+                    // SLIGHT INACCURACY IN THE FINAL POSITION. Or a change in the way isRotationComplete
+                    // works.
+                    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    shutDown();
+                    if (getFinishBehavior() == FinishBehavior.FLOAT) {
+                        setMotorState(MotorState.COMPLETE_FLOAT);
+                    } else {
+                        setMotorState(MotorState.COMPLETE_HOLD);
+                    }
+                }
+                break;
+            case MOVING_NO_PID_NO_POWER_RAMP:
+                // If a power ramp has just been started, set the next motor state.
+                if (powerRamp.isRunning()) {
                     setMotorState(MotorState.MOVING_NO_PID_POWER_RAMP);
                 }
 
@@ -1114,11 +1182,23 @@ public class DcMotor8863 {
                 }
                 break;
             case MOVING_NO_PID_POWER_RAMP:
+                // The only reason to have this state is to avoid the performance penalty of calling
+                // updatePowerRamp all the time. With 2 states I only call it when a power ramp is
+                // actually running.
                 updatePowerRamp();
-                if (!powerRamp.isEnabled()) {
-                    //power ramp is now complete, transition state
-                    setMotorState(MotorState.MOVING_NO_PID);
+
+                // Is the power ramp still running?
+                if (!powerRamp.isRunning()) {
+                    //power ramp is now complete. Set the new running power and transition state
+                    this.setPower(runningPower);
+                    setMotorState(MotorState.MOVING_NO_PID_NO_POWER_RAMP);
                 }
+
+                if (stallDetectionEnabled && isStalled()) {
+                    shutDown();
+                    setMotorState(MotorState.STALLED);
+                }
+                break;
             // Stalled state means that a stall was detected. The motor was not moving for a certain
             // period of time due to excessive load being applied.
             case STALLED:
@@ -1132,11 +1212,6 @@ public class DcMotor8863 {
         }
         return getCurrentMotorState();
     }
-
-    //*********************************************************************************************
-    //          State Machine - methcds to control the state machine
-    //*********************************************************************************************
-
 
     //*********************************************************************************************
     //          State Machine - methods to return status of the state machine
@@ -1176,7 +1251,10 @@ public class DcMotor8863 {
      */
     // tested
     public boolean isMotorStateMoving() {
-        if (this.currentMotorState == MotorState.MOVING_PID || this.currentMotorState == MotorState.MOVING_NO_PID) {
+        if (this.currentMotorState == MotorState.MOVING_PID_NO_POWER_RAMP ||
+                this.currentMotorState == MotorState.MOVING_PID_POWER_RAMP ||
+                this.currentMotorState == MotorState.MOVING_NO_PID_NO_POWER_RAMP ||
+                this.currentMotorState == MotorState.MOVING_NO_PID_POWER_RAMP) {
             return true;
         } else {
             return false;

@@ -17,11 +17,11 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.RampControl;
 public class TestRampControl extends LinearOpMode {
 
     // Put your variable declarations here
-    double value = 1;
+    double value = -1;
     double rampValue = 0;
     RampControl rampControl;
-    double startValue = .5;
-    double finishValue = 1;
+    double startValue = 1.0;
+    double finishValue = -1.0;
     double lengthOfTimeToRamp = 10000; // in mSec
 
     ElapsedTime loopTimer;
@@ -43,7 +43,7 @@ public class TestRampControl extends LinearOpMode {
         rampControl.start();
         loopTimer.reset();
 
-        while(opModeIsActive() && rampControl.isEnabled()) {
+        while(opModeIsActive() && rampControl.isRunning()) {
 
             // Put your calls that need to run in a loop here
             rampValue = rampControl.getRampValueLinear(value);

@@ -73,7 +73,7 @@ public class TestDCMotor8863 extends LinearOpMode {
         // just comment out this line. The motor may not actually go to the final power. These
         // parameters set the slope of a line that motor power cannot go above during the ramp up
         // time. Y axis = power, X axis = time
-        motor.enablePowerRamp(initialPower, finalPower, rampTime);
+        motor.setupPowerRamp(initialPower, finalPower, rampTime);
         //**************************************************************
 
         // test internal routines from DcMotor8863
@@ -149,6 +149,7 @@ public class TestDCMotor8863 extends LinearOpMode {
         // CHANGE POSITION BY A CERTAIN AMOUNT
         // Most of the motor commands are relative commands.
 
+        motor.setupPowerRamp(initialPower, finalPower, rampTime);
         // A relative movement to change the position of whatever is attached to the motor by a
         // certain amount. In this case rotor by 1440 degrees.
         motor.moveByAmount(powerToRunAt, 1440, DcMotor8863.FinishBehavior.HOLD); // works
@@ -204,7 +205,7 @@ public class TestDCMotor8863 extends LinearOpMode {
         // of revolutions or a certain number of degrees, there are special methods to do that.
 
         // A relative movement. Move the motor by 1440 degrees. Hold at end. Power ramp enabled.
-        motor.enablePowerRamp(initialPower, finalPower, rampTime);
+        motor.setupPowerRamp(initialPower, finalPower, rampTime);
         motor.rotateNumberOfDegrees(powerToRunAt, 1440, DcMotor8863.FinishBehavior.HOLD); // works
         // You need to run this loop in order to be able to tell when the motor reaches the position
         // you told it to go to.
@@ -261,7 +262,8 @@ public class TestDCMotor8863 extends LinearOpMode {
         // result in the PID not being able to control the motor and the motor will lose speed under
         // load.
         // If you use the power ramp you MUST use the update() method in a loop
-        motor.enablePowerRamp(initialPower, finalPower, rampTime);
+        motor.setupPowerRamp(initialPower, finalPower, rampTime);
+        motor.startPowerRamp();
         motor.runAtConstantSpeed(powerToRunAt);
         // You need to run this loop in order to use the power ramp.
         while (opModeIsActive() && !motor.isMotorStateComplete()) {
@@ -305,7 +307,7 @@ public class TestDCMotor8863 extends LinearOpMode {
         // result in the PID not being able to control the motor and the motor will lose speed under
         // load.
         // If you use the power ramp you MUST use the update() method in a loop
-        motor.enablePowerRamp(initialPower, finalPower, rampTime);
+        motor.setupPowerRamp(initialPower, finalPower, rampTime);
         // Set the motor to spin freely when power is removed
         motor.setAfterCompletionToFloat();
         motor.runAtConstantPower(powerToRunAt);
@@ -360,30 +362,30 @@ public class TestDCMotor8863 extends LinearOpMode {
             motor.update();
 
             // after 5 seconds, change motor direction
-            if (runningTimer.milliseconds() > 5000 && !powerRampRan1x) {
+            if (runningTimer.milliseconds() > 3000 && !powerRampRan1x) {
                 // start a power ramp. Power will gradually change from running forward to
                 // running backward over 2 seconds
-                motor.enablePowerRamp(powerToRunAt, -powerToRunAt, 2000);
+                motor.setupAndStartPowerRamp(powerToRunAt, -powerToRunAt, 2000);
                 powerRampRan1x = true;
             }
 
             // After 9 seconds slow the motor down gradually
-            if (runningTimer.milliseconds() > 9000 && !powerRampRan2x) {
+            if (runningTimer.milliseconds() > 8000 && !powerRampRan2x) {
                 // start a power ramp. Power will gradually reduce to 30 %
-                motor.enablePowerRamp(-powerToRunAt, -.3, 2000);
+                motor.setupAndStartPowerRamp(-powerToRunAt, -.3, 2000);
                 powerRampRan2x = true;
             }
 
             // After 13 seconds speed the motor up
             if (runningTimer.milliseconds() > 13000 && !powerRampRan3x) {
-                // start a power ramp. Power will gradually reduce to 30 %
-                motor.enablePowerRamp(-.3, -1.0, 2000);
+                // start a power ramp. Power will gradually increase to 100 %
+                motor.setupAndStartPowerRamp(-.3, -1.0, 2000);
                 powerRampRan3x = true;
             }
 
             // Stop the motor after 17 seconds by gradually bringing it to a stop
-            if (runningTimer.milliseconds() > 17000) {
-                motor.enablePowerRamp(-1.0, 0, 2000);
+            if (runningTimer.milliseconds() > 18000) {
+                motor.setupAndStartPowerRamp(-1.0, 0, 2000);
                 motor.shutDown();
                 break;
             }

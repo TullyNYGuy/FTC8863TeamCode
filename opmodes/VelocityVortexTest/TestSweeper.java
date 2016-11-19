@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
+import org.firstinspires.ftc.teamcode.opmodes.GenericTest.RobotConfigMappingForGenericTest;
 
 /**
  * This OpMode runs 2 motors at a given power, one in the opposite direction from the other. 
@@ -54,7 +55,7 @@ public class TestSweeper extends LinearOpMode {
         myDriveTrain.setCmPerRotation(31.1); // cm
         myDriveTrain = DriveTrain.DriveTrainTeleOp(hardwareMap);
         
-        sweeperMotor = new DcMotor8863("sweeperMotor", hardwareMap);
+        sweeperMotor = new DcMotor8863(RobotConfigMappingForGenericTest.getthirdMotorName(), hardwareMap);
         sweeperMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
         sweeperMotor.setMovementPerRev(360);
         sweeperMotor.setTargetEncoderTolerance(5);
@@ -74,17 +75,17 @@ public class TestSweeper extends LinearOpMode {
         while(opModeIsActive()) {
 
             //gamepad button configuration:
-            //   Y = increase sweeper motor speed
-            //
-            //   A = decrease sweeper motor speed
+            //               Y = increase sweeper motor speed
+            //  X = increase or decrease left motor speed
+            //               A = decrease sweeper motor speed
             //
             //   right bumper = toggle sweeper direction
 
             // if the right bumper is pressed, reverse the direction of the motor.
             // I have to check the status of the bumper. It is possible to hold it down for a long
-            // time and if I do, then I don't want to flip sweeperDirection back and forth.
+            // time and if I do, then I don't want to flip sweeper direction back and forth.
             // So I make sure that the button has been released before doing anything to the
-            // sweeperDirection.
+            // sweeper direction.
             if (gamepad1.right_bumper) {
                 if (rightBumperIsReleased) {
                     // set so that we know the button has been pressed. The button has to be
@@ -92,7 +93,7 @@ public class TestSweeper extends LinearOpMode {
                     rightBumperIsReleased = false;
                     // The direction should be changed. What is it now? Change to the opposite
                     // direction by ramping power to the opposite sign power over a period of time
-                    sweeperMotor.enablePowerRamp(sweeperPower, -sweeperPower, 1000);
+                    sweeperMotor.setupAndStartPowerRamp(sweeperPower, -sweeperPower, 1000);
                 }
             } else {
                 // The bumper is not pressed anymore; it has been released. So when it is pressed
@@ -126,6 +127,16 @@ public class TestSweeper extends LinearOpMode {
                 }
             } else {
                 aButtonIsReleased = true;
+            }
+
+            // x is used to stop the motor
+            if (gamepad1.x) {
+                if (xButtonIsReleased) {
+                    sweeperMotor.interrupt();
+                    xButtonIsReleased = false;
+                }
+            } else {
+                xButtonIsReleased = true;
             }
 
             // clip the sweeperPower

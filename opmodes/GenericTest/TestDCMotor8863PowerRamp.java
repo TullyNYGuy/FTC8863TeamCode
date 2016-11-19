@@ -1,22 +1,20 @@
 package org.firstinspires.ftc.teamcode.opmodes.GenericTest;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.StatTrackerGB;
 
 /**
  * This OpMode tests a DC motor and is meant to test the functionality of the DcMotor8863 class.
  * It also demonstrates the various methods available to control motor movement. Examples for each
  * of the major methods are given. Read the comments to understand the example.
  */
-@TeleOp(name = "Test DcMotor8863 Target Accuracy", group = "Test")
-@Disabled
-public class TestDCMotor8863TargetAccuracy extends LinearOpMode {
+@TeleOp(name = "Test DcMotor8863 Ramp", group = "Test")
+//@Disabled
+public class TestDCMotor8863PowerRamp extends LinearOpMode {
 
     //**************************************************************
     // You need these variables inside this block
@@ -37,8 +35,7 @@ public class TestDCMotor8863TargetAccuracy extends LinearOpMode {
     private ElapsedTime runningTimer;
     private double lastTime = 0;
 
-    StatTrackerGB targetTracker;
-    int targetDifference = 0;
+    private String mode;
 
     @Override
     public void runOpMode() {
@@ -74,14 +71,15 @@ public class TestDCMotor8863TargetAccuracy extends LinearOpMode {
         // BACKWARD.
         motor.setDirection(DcMotor.Direction.FORWARD);
 
-        // If you want the motor to slowly ramp up to speed enable a power ramp. If you don't
-        // just comment out this line. The motor may not actually go to the final power. These
-        // parameters set the slope of a line that motor power cannot go above during the ramp up
-        // time. Y axis = power, X axis = time
+        // If you want the motor to slowly ramp up to speed setup a power ramp. If you don't
+        // just comment out this line. These parameters set the slope of a line that motor power
+        // cannot go above during the ramp up time. Y axis = power, X axis = time
         motor.setupPowerRamp(initialPower, finalPower, rampTime);
         //**************************************************************
 
-        targetTracker = new StatTrackerGB();
+        // test internal routines from DcMotor8863
+        //value = motor.getEncoderCountForDegrees(-400);
+        //telemetry.addData("Encoder count for degrees = ", "%d", value);
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run Motor.");
@@ -90,49 +88,77 @@ public class TestDCMotor8863TargetAccuracy extends LinearOpMode {
 
         runningTimer.reset();
 
-        for (int i = 0; i < 10; i++) {
+        // Next I will demonstrate / test the ability of a motor to change its speed not is a sudden
+        // change but by a gradual ramp of the power.
 
-            // When the motor was initialized, the encoder was set to 0. Absolute movements are always
-            // done relative to that 0 position. Think of these types of commands as:
-            // GO TO A POSITION
-            // The position is in terms of what the motor is attached to. A claw position, a drive train
-            // position etc.
-            // These are absolute movement commands:
+        // Start the motor running in constant power mode (no PID). Then perform a series of
+        // gradual power changes.
 
-            motor.setupPowerRamp(initialPower, finalPower, rampTime);
-            // An absolute movement to 1440 degrees. Requires 4 revolutions to get there.
-            motor.moveToPosition(powerToRunAt, 1440, DcMotor8863.FinishBehavior.HOLD); //works
-            // You need to run this loop in order to be able to tell when the motor reaches the position
-            // you told it to go to.
-            while (opModeIsActive() && !motor.isMotorStateComplete()) {
-                motor.update();
-                // display some information on the driver phone
-                telemetry.addData(">", "Absolute move to 1440 degrees, use power ramp");
-                telemetry.addData("Motor Speed = ", "%5.2f", motor.getActualPower());
-                telemetry.addData("feedback = ", "%5.2f", motor.getPositionInTermsOfAttachment());
-                telemetry.addData("Encoder Count = ", "%5d", motor.getCurrentPosition());
-                telemetry.addData("Elapsed time = ", "%5.0f", runningTimer.milliseconds());
-                telemetry.addData(">", "Press Stop to end test.");
-                telemetry.update();
+        boolean powerRampRan1x = false;
+        boolean powerRampRan2x = false;
+        boolean powerRampRan3x = false;
+        boolean powerRampRan4x = false;
 
-                // You MUST call idle() in the loop so the other tasks the controller runs can be
-                // performed
-                idle();
+        // Set the motor to spin freely when power is removed
+        motor.setAfterCompletionToFloat();
+        motor.setupPowerRamp(0, 1.0, 4000);
+        // Start the motor. Since a power ramp has been setup, the motor start out with a ramp up of
+        // power.
+        motor.runAtConstantPower(powerToRunAt);
+        mode = "0 -> 0.8";
+        // You need to run this loop in order to use the power ramp.
+        while (opModeIsActive() && !motor.isMotorStateComplete()) {
+            motor.update();
+
+            // change motor direction
+            if (runningTimer.milliseconds() > 6000 && !powerRampRan1x) {
+                // start a power ramp. Power will gradually change from running forward to
+                // running backward over 2 seconds
+                motor.setupAndStartPowerRamp(1.0, -.8, 4000);
+                mode = "1.0 -> -0.8";
+                powerRampRan1x = true;
             }
 
-            targetTracker.updateStats(motor.getCurrentPosition());
+            // After 9 seconds slow the motor down gradually
+            if (runningTimer.milliseconds() > 12000 && !powerRampRan2x) {
+                // start a power ramp. Power will gradually reduce to 30 %
+                motor.setupAndStartPowerRamp(-.8, -.3, 4000);
+                mode = "-0.8 -> -0.3";
+                powerRampRan2x = true;
+            }
 
-            // wait for 2 second
-            sleep(2000);
+            // After 13 seconds speed the motor up
+            if (runningTimer.milliseconds() > 18000 && !powerRampRan3x) {
+                // start a power ramp. Power will gradually increase to 100 %
+                motor.setupAndStartPowerRamp(-.3, -1.0, 4000);
+                mode = "-0.3 -> -1.0";
+                powerRampRan3x = true;
+            }
 
-            motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            runningTimer.reset();
+            // Stop the motor after 17 seconds by gradually bringing it to a stop
+            if (runningTimer.milliseconds() > 24000 && !powerRampRan4x) {
+                motor.setupAndStartPowerRamp(-1.0, 0, 4000);
+                powerRampRan4x = true;
+                mode = "-1.0 -> 0.0";
+            }
+
+            // Shutdown the motor
+            if (runningTimer.milliseconds() > 30000) {
+                motor.shutDown();
+                break;
+            }
+
+            // display some information on the driver phone
+            telemetry.addData(">", mode);
+            telemetry.addData("Motor Speed = ", "%5.2f", motor.getActualPower());
+            telemetry.addData("feedback = ", "%5.2f", motor.getPositionInTermsOfAttachment());
+            telemetry.addData("Encoder Count = ", "%5d", motor.getCurrentPosition());
+            telemetry.addData("Elapsed time = ", "%5.0f", runningTimer.milliseconds());
+            telemetry.addData(">", "Press Stop to end test.");
+            telemetry.update();
         }
 
         telemetry.addData(">", "Movement tests complete");
-        telemetry.addData("Average = ", "%5.1f", targetTracker.getAverage());
-        telemetry.addData("Minimum = ", "%5.1f", targetTracker.getMinimum());
-        telemetry.addData("Maximum = ", "%5.1f", targetTracker.getMaximum());
         telemetry.addData(">", "Press Stop to end test.");
         telemetry.update();
 
