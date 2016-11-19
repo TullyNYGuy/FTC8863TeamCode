@@ -30,6 +30,8 @@ public class TestDriveTrain extends LinearOpMode {
     double rightPower =0;
     double throttle = 0;
     double direction = 0;
+    boolean differentialDrive = false;
+
 
 
 
@@ -54,19 +56,36 @@ public class TestDriveTrain extends LinearOpMode {
         //myDriveTrain.rotateNumberOfDegrees(powerToRunAt1, 3600, DcMotor8863.FinishBehavior.HOLD);
 
         while(opModeIsActive()) {
+            if (gamepad1.y) {
+                differentialDrive = true;
+            }
+            // A = decrease both motor speeds at the same time
+            if (gamepad1.a) {
+                differentialDrive = false;
+            }
 
-            //leftPower = -gamepad1.left_stick_y;
-            //rightPower = -gamepad1.right_stick_y;
-            //myDriveTrain.tankDrive(leftPower,rightPower);
+            if (differentialDrive == false) {
+                leftPower = -gamepad1.left_stick_y;
+                rightPower = -gamepad1.right_stick_y;
+                myDriveTrain.tankDrive(leftPower,rightPower);
+            }
 
-            throttle = -gamepad1.right_stick_y;
-            direction = gamepad1.right_stick_x;
-            myDriveTrain.differentialDrive(throttle, direction);
+            if (differentialDrive == true) {
+                throttle = -gamepad1.right_stick_y;
+                direction = gamepad1.right_stick_x;
+                myDriveTrain.differentialDrive(throttle, direction);
+            }
 
             statusDrive = myDriveTrain.update();
             if (statusDrive == DriveTrain.Status.COMPLETE) {
                 break;
             }
+
+            telemetry.addData("Left Motor Speed = ", "%3.2f", leftPower);
+            telemetry.addData("Right Motor Speed = ", "%3.2f", rightPower);
+            telemetry.addData("Left Motor Speed = ", "%3.2f", throttle);
+            telemetry.addData("Right Motor Speed = ", "%3.2f", direction);
+            telemetry.update();
             idle();
         }
 
