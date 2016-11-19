@@ -744,6 +744,7 @@ public class DcMotor8863 {
             // no room to increase the power if needed and PID control will not work.
             power = Range.clip(power, -.8, .8);
             // Is there is a power ramp setup to automatically start with the motor is turned on?
+            // Is there is a power ramp setup to automatically start with the motor is turned on?
             if (powerRamp.isEnabled()) {
                 // yes there is
                 this.setMotorState(MotorState.MOVING_PID_POWER_RAMP);
@@ -821,6 +822,7 @@ public class DcMotor8863 {
             // set the run mode
             this.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             // Is there is a power ramp setup to automatically start with the motor is turned on?
+            // Is there is a power ramp setup to automatically start with the motor is turned on?
             if (powerRamp.isEnabled()) {
                 // yes there is
                 this.setMotorState(MotorState.MOVING_PID_POWER_RAMP);
@@ -890,9 +892,6 @@ public class DcMotor8863 {
                 this.setMotorState(MotorState.MOVING_NO_PID_NO_POWER_RAMP);
                 // Turn the motor on
                 this.setPower(power);
-            }
-            if(powerRamp.isRunning()) {
-                doNothing();
             }
             return true;
         } else {
@@ -1146,7 +1145,7 @@ public class DcMotor8863 {
                 if (!powerRamp.isRunning()) {
                     //no, power ramp is now complete. Set the new running power and transition state
                     this.setPower(runningPower);
-                    setMotorState(MotorState.MOVING_NO_PID_NO_POWER_RAMP);
+                    setMotorState(MotorState.MOVING_PID_NO_POWER_RAMP);
                 }
 
                 if (stallDetectionEnabled && isStalled()) {

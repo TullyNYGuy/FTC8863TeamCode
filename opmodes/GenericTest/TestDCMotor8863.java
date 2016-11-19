@@ -352,46 +352,61 @@ public class TestDCMotor8863 extends LinearOpMode {
         boolean powerRampRan1x = false;
         boolean powerRampRan2x = false;
         boolean powerRampRan3x = false;
+        boolean powerRampRan4x = false;
+
+        String mode;
 
         // Set the motor to spin freely when power is removed
         motor.setAfterCompletionToFloat();
-        // Start the motor
+        motor.setupPowerRamp(0, 1.0, 4000);
+        // Start the motor. Since a power ramp has been setup, the motor start out with a ramp up of
+        // power.
         motor.runAtConstantPower(powerToRunAt);
+        mode = "0 -> 0.8";
         // You need to run this loop in order to use the power ramp.
         while (opModeIsActive() && !motor.isMotorStateComplete()) {
             motor.update();
 
-            // after 5 seconds, change motor direction
-            if (runningTimer.milliseconds() > 3000 && !powerRampRan1x) {
+            // change motor direction
+            if (runningTimer.milliseconds() > 6000 && !powerRampRan1x) {
                 // start a power ramp. Power will gradually change from running forward to
                 // running backward over 2 seconds
-                motor.setupAndStartPowerRamp(powerToRunAt, -powerToRunAt, 2000);
+                motor.setupAndStartPowerRamp(1.0, -.8, 4000);
+                mode = "1.0 -> -0.8";
                 powerRampRan1x = true;
             }
 
             // After 9 seconds slow the motor down gradually
-            if (runningTimer.milliseconds() > 8000 && !powerRampRan2x) {
+            if (runningTimer.milliseconds() > 12000 && !powerRampRan2x) {
                 // start a power ramp. Power will gradually reduce to 30 %
-                motor.setupAndStartPowerRamp(-powerToRunAt, -.3, 2000);
+                motor.setupAndStartPowerRamp(-.8, -.3, 4000);
+                mode = "-0.8 -> -0.3";
                 powerRampRan2x = true;
             }
 
             // After 13 seconds speed the motor up
-            if (runningTimer.milliseconds() > 13000 && !powerRampRan3x) {
+            if (runningTimer.milliseconds() > 18000 && !powerRampRan3x) {
                 // start a power ramp. Power will gradually increase to 100 %
-                motor.setupAndStartPowerRamp(-.3, -1.0, 2000);
+                motor.setupAndStartPowerRamp(-.3, -1.0, 4000);
+                mode = "-0.3 -> -1.0";
                 powerRampRan3x = true;
             }
 
             // Stop the motor after 17 seconds by gradually bringing it to a stop
-            if (runningTimer.milliseconds() > 18000) {
-                motor.setupAndStartPowerRamp(-1.0, 0, 2000);
+            if (runningTimer.milliseconds() > 24000 && !powerRampRan4x) {
+                motor.setupAndStartPowerRamp(-1.0, 0, 4000);
+                powerRampRan4x = true;
+                mode = "-1.0 -> 0.0";
+            }
+
+            // Shutdown the motor
+            if (runningTimer.milliseconds() > 30000) {
                 motor.shutDown();
                 break;
             }
 
             // display some information on the driver phone
-            telemetry.addData(">", "Run at constant power, use power ramp to change rotation direction");
+            telemetry.addData(">", mode);
             telemetry.addData("Motor Speed = ", "%5.2f", motor.getActualPower());
             telemetry.addData("feedback = ", "%5.2f", motor.getPositionInTermsOfAttachment());
             telemetry.addData("Encoder Count = ", "%5d", motor.getCurrentPosition());
