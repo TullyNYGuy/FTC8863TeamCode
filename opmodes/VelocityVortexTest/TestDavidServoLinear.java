@@ -33,7 +33,7 @@ public class TestDavidServoLinear extends LinearOpMode {
     public void runOpMode() {
 
 
-        genericServo = new Servo8863(RobotConfigMappingForGenericTest.getgenericServo(), hardwareMap, telemetry, homePosition, forwardPosition, backwardsPosition, initPosition, Servo.Direction.REVERSE);
+        genericServo = new Servo8863(RobotConfigMappingForGenericTest.getgenericServoName(), hardwareMap, telemetry, homePosition, forwardPosition, backwardsPosition, initPosition, Servo.Direction.REVERSE);
 
         genericServo.setPositionOne(forwardPosition);
         genericServo.setPositionTwo(backwardsPosition);
