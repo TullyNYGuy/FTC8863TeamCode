@@ -29,14 +29,13 @@ public class RobotConfigMappingForGenericTest {
     private static String thirdMotorName = "thirdMotor";
 
     //generic servo
-    private static String genericServo = "genericServo";
+    private static String genericServoName = "genericServo";
 
     //generic continuous rotation servo
-    private static String crServo = "crServo";
+    private static String crServoName = "crServo";
 
-
-
-
+    //generic IMU
+    private static String IMUName = "IMU";
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -55,9 +54,11 @@ public class RobotConfigMappingForGenericTest {
         return thirdMotorName;
     }
 
-    public static String getgenericServo() {return genericServo;}
+    public static String getgenericServoName() {return genericServoName;}
 
-    public static String getcrServo() {return crServo;}
+    public static String getcrServoName() {return crServoName;}
+
+    public static String getIMUName() {return IMUName;}
 
 
     //*********************************************************************************************
