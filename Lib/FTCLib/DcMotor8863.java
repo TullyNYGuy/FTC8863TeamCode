@@ -917,10 +917,21 @@ public class DcMotor8863 {
         powerRamp.enable();
     }
 
+    /**
+     * Start a power ramp. It must be setup first though!
+     */
     public void startPowerRamp() {
         powerRamp.start();
     }
 
+    /**
+     * Setup and start a power ramp. Combines setupPowerRamp() and startPowerRamp() in one
+     * method for ease of use.
+     * @param initialPower The power the motor starts out at for time = 0.
+     * @param finalPower The power that corresponds to the end of the ramp time. The ramp will finish
+     *                       at this power.
+     * @param rampTimeInmSec The length of time it takes to ramp up the power.
+     */
     public void setupAndStartPowerRamp(double initialPower, double finalPower, double rampTimeInmSec) {
         setupPowerRamp(initialPower, finalPower, rampTimeInmSec);
         this.runningPower = finalPower;
@@ -928,14 +939,28 @@ public class DcMotor8863 {
     }
 
     /**
-     * Disable the power ramp
+     * Disable the power ramp. This does not stop a running power ramp. It just prevents a ramp
+     * that is setup from starting.
      */
     public void disablePowerRamp() {
         powerRamp.disable();
     }
 
+    /**
+     * Is there a power ramp enabled but not running yet?
+     * @return true = power ramp enabled
+     */
     public boolean isPowerRampEnabled() {
         return powerRamp.isEnabled();
+    }
+
+    /**
+     * Check to see if there is a power ramp running. Since the motor maintains its own state, this
+     * is the only way for a user to tell if there is a power ramp running or if it is finished.
+     * @return true = power ramp is still running
+     */
+    public boolean isPowerRampRunning() {
+        return powerRamp.isRunning();
     }
 
     /**
@@ -964,6 +989,9 @@ public class DcMotor8863 {
         this.setPower(power);
     }
 
+    /**
+     * A method that can be called that does nothing. Used for debug to set breakpoints on.
+     */
     private void doNothing() {
         return;
     }
@@ -998,7 +1026,6 @@ public class DcMotor8863 {
         this.lastEncoderValue = currentEncoderValue;
         return false;
     }
-
 
     /**
      * Checks to see if the rotation to encoder count has completed. If it has then it sets the
@@ -1098,6 +1125,11 @@ public class DcMotor8863 {
     //          State Machine
     //*********************************************************************************************
 
+    /**
+     * Implement a state machine to track the motor. See enum declarations for a description of each
+     * state.
+     * @return the state that the motor is in currently
+     */
     public MotorState update() {
         switch (this.currentMotorState) {
             // Idle state means the motor is not moving and it will turn if a load is applied.
