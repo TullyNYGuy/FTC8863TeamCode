@@ -120,7 +120,8 @@ public class TestSweeper extends LinearOpMode {
                     rightBumperIsReleased = false;
                     // The direction should be changed. What is it now? Change to the opposite
                     // direction by ramping power to the opposite sign power over a period of time
-                    sweeperMotor.setupAndStartPowerRamp(sweeperPower, -sweeperPower, 1000);
+                    //sweeperMotor.setupAndStartPowerRamp(sweeperPower, -sweeperPower, 1000);
+                    sweeperPower = -sweeperPower;
                 }
             } else {
                 // The bumper is not pressed anymore; it has been released. So when it is pressed
@@ -159,6 +160,7 @@ public class TestSweeper extends LinearOpMode {
             if (gamepad1.x) {
                 if (xButtonIsReleased) {
                     sweeperMotor.interrupt();
+                    sweeperPower = 0;
                     xButtonIsReleased = false;
                 }
             } else {
