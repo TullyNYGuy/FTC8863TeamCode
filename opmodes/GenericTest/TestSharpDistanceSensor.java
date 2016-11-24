@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.SharpDistanceSensor;
  *
  */
 @TeleOp(name = "Test Sharp Distance Sensor ", group = "Test")
-@Disabled
+//@Disabled
 public class TestSharpDistanceSensor extends LinearOpMode {
 
     // Put your variable declarations here

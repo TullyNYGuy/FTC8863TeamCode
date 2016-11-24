@@ -115,6 +115,7 @@ public class SharpDistanceSensor {
 
     /**
      * Read the voltage, verify it, and then calculate the distance it represents.
+     * formula for voltage vs distance is
      * @return distance in CM
      */
     public double getDistance() {
