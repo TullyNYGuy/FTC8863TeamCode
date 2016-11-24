@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
 import com.qualcomm.robotcore.hardware.*;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 public class CRServo {
@@ -22,9 +23,10 @@ public class CRServo {
     // getter and setter methods
     //*********************************************************************************************
 
-    private double centerValue = 0.5;
+    private double centerValue = 0.4;
     private double deadBandRange = 0.1;
     private Servo crServo;
+    private ElapsedTime timer;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -61,6 +63,8 @@ public class CRServo {
         crServo = hardwareMap.servo.get(servoName);
         this.centerValue = centerValue;
         this.deadBandRange = deadBandRange;
+        timer = new ElapsedTime();
+        crServo.setPosition(centerValue);
     }
 
 
@@ -90,12 +94,30 @@ public class CRServo {
         }
     }
 
+    public void setPosition(double position) {
+        crServo.setPosition(position);
+    }
+
     public double getPosition() {
         return crServo.getPosition();
     }
 
     public void setDirection(Servo.Direction direction){
         crServo.setDirection(direction);
+    }
+
+    public void findNoMovementCommand() {
+        timer.reset();
+        double step = 1;
+        double command = 0;
+        double commandIncrement = .05;
+        int stepLength = 500; // milliseconds
+        while (command <= 1.0) {
+            if (timer.milliseconds() > step * 500) {
+                step++;
+                crServo.setPosition(command);
+            }
+        }
     }
 
 }
