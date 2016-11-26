@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitColorSensor;
+import org.firstinspires.ftc.teamcode.Lib.ResQLib.RobotConfigMapping;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
@@ -33,7 +34,8 @@ public class TestAdafruitColorSensor extends LinearOpMode {
 
 
         // Put your initializations here
-        colorSensor = new AdafruitColorSensor("colorSensor", "coreDIM", hardwareMap, CHANNEL_FOR_LED );
+        colorSensor = new AdafruitColorSensor(RobotConfigMappingForGenericTest.getadafruitColorSensorName(),
+                RobotConfigMappingForGenericTest.getCoreDeviceInterfaceName(), hardwareMap, CHANNEL_FOR_LED );
         
         // Wait for the start button
         telemetry.addData(">", "Press Start to run" );

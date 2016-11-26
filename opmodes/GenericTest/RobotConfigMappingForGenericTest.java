@@ -34,8 +34,14 @@ public class RobotConfigMappingForGenericTest {
     //generic continuous rotation servo
     private static String crServoName = "crServo";
 
+    //generic core device interface module
+    private static String coreDeviceInterfaceName = "coreDIM";
+
     //generic IMU
     private static String IMUName = "IMU";
+
+    //generic Adafruit ColorSensor
+    private static String adafruitColorSensorName = "colorSensor";
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -58,7 +64,11 @@ public class RobotConfigMappingForGenericTest {
 
     public static String getcrServoName() {return crServoName;}
 
+    public static String getCoreDeviceInterfaceName() {return coreDeviceInterfaceName;}
+
     public static String getIMUName() {return IMUName;}
+
+    public static String getadafruitColorSensorName() {return adafruitColorSensorName;}
 
 
     //*********************************************************************************************
