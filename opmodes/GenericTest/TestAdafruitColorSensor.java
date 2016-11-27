@@ -71,7 +71,9 @@ public class TestAdafruitColorSensor extends LinearOpMode {
             telemetry.addData("Green = ", colorSensor.green());
             telemetry.addData("Opaqueness = ", colorSensor.alpha());
             telemetry.addData("Hue = ", colorSensor.hue());
-            telemetry.addData("Color = ", colorSensor.color());
+            telemetry.addData("Sat = ", colorSensor.saturation());
+            telemetry.addData("Light = ", colorSensor.lightness());
+            telemetry.addData("Update interval (mS) = ", "%5.2f", colorSensor.updateTimeTracker.getAverage());
             telemetry.addData(">", "Press Stop to end test." );
 
             telemetry.update();

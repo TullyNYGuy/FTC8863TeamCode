@@ -3,10 +3,13 @@ package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
 import android.graphics.Color;
 
+import com.qualcomm.hardware.ams.AMSColorSensor;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DeviceInterfaceModule;
 import com.qualcomm.robotcore.hardware.DigitalChannelController;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 public class AdafruitColorSensor {
 
@@ -31,6 +34,9 @@ public class AdafruitColorSensor {
     private int ioChannelForLed;
     private String colorSensorName;
     private String coreDIMName;
+    private ElapsedTime updateTimer;
+    private int lastAlpha = 0;
+    public StatTracker updateTimeTracker;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -54,9 +60,20 @@ public class AdafruitColorSensor {
         this.ioChannelForLed = ioChannelForLed;
         this.controlLED = true;
         coreDIM = hardwareMap.deviceInterfaceModule.get(coreDIMName);
-        colorSensor = hardwareMap.colorSensor.get(colorSensorName);
+        // both of the calls below result in an abject instantiated from AdafruitI2cColorSensor.
+        // This is not desirable since the update rate is 600 mSec. And because it is marked
+        // deprecated. I really want an object of
+        // AMSColorSensorImpl since it has a configurable update rate and it new.
+        //colorSensor = hardwareMap.colorSensor.get(colorSensorName);
+        colorSensor = hardwareMap.get(ColorSensor.class, colorSensorName);
         coreDIM.setDigitalChannelMode(ioChannelForLed, DigitalChannelController.Mode.OUTPUT);
+        // Delay so the init can finish before setting the led off. Otherwise the LED does not get
+        // shut off.
+        delay(100);
         coreDIM.setDigitalChannelState(ioChannelForLed, ledOn);
+        updateTimer = new ElapsedTime();
+        // A tracker used to track the update rate of the color sensor.
+        updateTimeTracker = new StatTracker();
     }
     //*********************************************************************************************
     //          Helper Methods
@@ -64,6 +81,17 @@ public class AdafruitColorSensor {
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
 
+    /**
+     * Implements a delay
+     * @param mSec delay in milli Seconds
+     */
+    private void delay(int mSec) {
+        try {
+            Thread.sleep((int) (mSec));
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
 
     //*********************************************************************************************
     //          MAJOR METHODS
@@ -85,7 +113,15 @@ public class AdafruitColorSensor {
     }
 
     public int alpha() {
-        return colorSensor.alpha();
+        int alpha = colorSensor.alpha();
+        if(alpha != lastAlpha) {
+            // alpha changed so update the tracker
+            updateTimeTracker.compareValue(updateTimer.milliseconds());
+            updateTimer.reset();
+            // Since alpha changed save the new lastAlpha
+            lastAlpha = alpha;
+        }
+        return alpha;
     }
 
     public int red() {
@@ -114,5 +150,13 @@ public class AdafruitColorSensor {
 
     public float hue() {
         return hsv(colorSensor.red(), colorSensor.green(), colorSensor.blue())[0];
+    }
+
+    public float saturation() {
+        return hsv(colorSensor.red(), colorSensor.green(), colorSensor.blue())[1];
+    }
+
+    public float lightness() {
+        return hsv(colorSensor.red(), colorSensor.green(), colorSensor.blue())[2];
     }
 }
