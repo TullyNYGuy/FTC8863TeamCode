@@ -10,8 +10,6 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.CRServo;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
- *
- *
  */
 @TeleOp(name = "Test CR Servo Linear", group = "Test")
 //@Disabled
@@ -39,13 +37,13 @@ public class TestCRServoLinearOpMode extends LinearOpMode {
 
 
         // Put your initializations here
-        testServo = new CRServo(RobotConfigMappingForGenericTest.getgenericServoName(),hardwareMap, noMovePosition, deadZone);
+        testServo = new CRServo(RobotConfigMappingForGenericTest.getgenericServoName(), hardwareMap, noMovePosition, deadZone);
         testServo.setDirection(Servo.Direction.REVERSE);
         timer = new ElapsedTime();
         testServo.setPosition(testServo.getCenterValue());
-        
+
         // Wait for the start button
-        telemetry.addData(">", "Press Start to run" );
+        telemetry.addData(">", "Press Start to run");
         telemetry.update();
         waitForStart();
 
@@ -53,34 +51,76 @@ public class TestCRServoLinearOpMode extends LinearOpMode {
         timer.reset();
         command = startCommand;
 
-        while(opModeIsActive()) {
+        // runForTime runs in a loop and runs the servo for the given amount of time (timeToRunTest)
+        // at the power that is input. When it is done, the loop finishes
+        runForTime(1.0);
+        // wait for 2 seconds before moving again so the user can look
+        sleep(2000);
+        timer.reset();
 
-            // Put your calls that need to run in a loop here
+        runForTime(-1.0);
+        sleep(2000);
+        timer.reset();
+
+        // 2nd time
+        runForTime(1.0);
+        sleep(2000);
+        timer.reset();
+
+        runForTime(-1.0);
+        sleep(2000);
+        timer.reset();
+
+        // 3rd time
+        runForTime(1.0);
+        sleep(2000);
+        timer.reset();
+
+        runForTime(-1.0);
+        sleep(2000);
+        timer.reset();
+
+        // 4th time
+        runForTime(1.0);
+        sleep(2000);
+        timer.reset();
+
+        runForTime(-1.0);
+        sleep(2000);
+        timer.reset();
+
+        // 5th time
+        runForTime(1.0);
+        sleep(2000);
+        timer.reset();
+
+        runForTime(-1.0);
+        sleep(2000);
+        timer.reset();
+
+        // Display the current value
+        // Put your cleanup code here - it runs as the application shuts down
+        telemetry.addData(">","Done");
+        telemetry.update();
+        idle();
+    }
+
+    private void runForTime(double power) {
+        while (opModeIsActive()) {
             if (timer.milliseconds() < timeToRunTest) {
-                testServo.updatePosition(1.0);
-                telemetry.addData("Time (sec) = ", "%3.2f", timer.milliseconds()/1000);
-                telemetry.addData(">", "Press Stop to end test." );
+                testServo.updatePosition(power);
+                telemetry.addData("Time (sec) = ", "%3.2f", timer.milliseconds() / 1000);
+                telemetry.addData(">", "Press Stop to end test.");
                 telemetry.update();
             } else {
                 testServo.updatePosition(0);
-                if (!lockTimer) {
-                    telemetry.addData("Timer expired at (sec) = ", "%3.2f", timer.milliseconds()/1000 );
-                    lockTimer = true;
-                }
-                telemetry.addData(">", "Press Stop to end test." );
+                telemetry.addData("Timer expired at (sec) = ", "%3.2f", timer.milliseconds() / 1000);
+                telemetry.addData(">", "Press Stop to end test.");
+                telemetry.update();
+                break;
             }
-
-            // Display the current value
-
-            telemetry.update();
-            
             idle();
         }
-
-        // Put your cleanup code here - it runs as the application shuts down
-        telemetry.addData(">", "Done");
-        telemetry.update();
-
     }
 
     public void findNoMovementCommand() {
