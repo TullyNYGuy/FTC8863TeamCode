@@ -23,7 +23,7 @@ public class CRServo {
     // getter and setter methods
     //*********************************************************************************************
 
-    private double centerValue = 0.4;
+    private double centerValue = 0.46;
     private double deadBandRange = 0.1;
     private Servo crServo;
     private ElapsedTime timer;
@@ -64,6 +64,7 @@ public class CRServo {
         this.centerValue = centerValue;
         this.deadBandRange = deadBandRange;
         timer = new ElapsedTime();
+        delay(100);
         crServo.setPosition(centerValue);
     }
 
@@ -74,6 +75,17 @@ public class CRServo {
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
 
+    /**
+     * Implements a delay
+     * @param mSec delay in milli Seconds
+     */
+    private void delay(int mSec) {
+        try {
+            Thread.sleep((int) (mSec));
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
 
     //*********************************************************************************************
     //          MAJOR METHODS
