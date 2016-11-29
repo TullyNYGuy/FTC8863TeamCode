@@ -76,13 +76,13 @@ public class AMSColorSensorImpl8863 extends I2cDeviceSynchDevice<I2cDeviceSynchS
     // State
     //----------------------------------------------------------------------------------------------
 
-    protected AMSColorSensorImpl8863.Parameters parameters;
+    protected AMSColorSensorParameters parameters;
 
     //----------------------------------------------------------------------------------------------
     // Construction
     //----------------------------------------------------------------------------------------------
 
-    protected AMSColorSensorImpl8863(AMSColorSensorImpl8863.Parameters params, I2cDeviceSynchSimple deviceClient, boolean isOwned)
+    protected AMSColorSensorImpl8863(AMSColorSensorParameters params, I2cDeviceSynchSimple deviceClient, boolean isOwned)
     {
         super(deviceClient, isOwned);
         this.parameters = params;
@@ -91,15 +91,15 @@ public class AMSColorSensorImpl8863 extends I2cDeviceSynchDevice<I2cDeviceSynchS
         super.registerArmingStateCallback();
     }
 
-    public static AMSColorSensorImpl8863 create(AMSColorSensorImpl8863.Parameters parameters, I2cDevice i2cDevice)
+    public static AMSColorSensorImpl8863 create(AMSColorSensorParameters parameters, I2cDevice i2cDevice)
     {
         I2cDeviceSynchSimple i2cDeviceSynchSimple = new I2cDeviceSynchImpl(i2cDevice, parameters.i2cAddr, false);
         return create(parameters, i2cDeviceSynchSimple, true);
     }
-    public static AMSColorSensorImpl8863 create(AMSColorSensorImpl8863.Parameters parameters, I2cDeviceSynchSimple i2cDevice, boolean isOwned)
+    public static AMSColorSensorImpl8863 create(AMSColorSensorParameters parameters, I2cDeviceSynchSimple i2cDevice, boolean isOwned)
     {
         AMSColorSensorImpl8863 result = new AMSColorSensorImpl8863(parameters, i2cDevice, isOwned);
-        result.initialize(this.parameters);
+        result.initialize(parameters);
         return result;
     }
 
@@ -107,7 +107,7 @@ public class AMSColorSensorImpl8863 extends I2cDeviceSynchDevice<I2cDeviceSynchS
     // Initialization
     //----------------------------------------------------------------------------------------------
 
-    public AMSColorSensorImpl8863.Parameters getParameters()
+    public AMSColorSensorParameters getParameters()
     {
         return this.parameters;
     }
@@ -118,7 +118,7 @@ public class AMSColorSensorImpl8863 extends I2cDeviceSynchDevice<I2cDeviceSynchS
         return initialize(this.parameters);
     }
 
-    public synchronized boolean initialize(Parameters parameters)
+    public synchronized boolean initialize(AMSColorSensorParameters parameters)
     {
         if (initializeOnce(parameters))
         {
@@ -128,7 +128,7 @@ public class AMSColorSensorImpl8863 extends I2cDeviceSynchDevice<I2cDeviceSynchS
         return false;
     }
 
-    private synchronized boolean initializeOnce(Parameters parameters)
+    private synchronized boolean initializeOnce(AMSColorSensorParameters parameters)
     {
         if (this.parameters != null && this.parameters.deviceId != parameters.deviceId)
         {
@@ -227,25 +227,21 @@ public class AMSColorSensorImpl8863 extends I2cDeviceSynchDevice<I2cDeviceSynchS
         return this.read8(Register.DEVICE_ID);
     }
 
-    @Override
     public synchronized int red()
     {
         return this.readColorRegister(Register.RED);
     }
 
-    @Override
     public synchronized int green()
     {
         return this.readColorRegister(Register.GREEN);
     }
 
-    @Override
     public synchronized int blue()
     {
         return this.readColorRegister(Register.BLUE);
     }
 
-    @Override
     public synchronized int alpha()
     {
         return this.readColorRegister(Register.CLEAR);
@@ -256,7 +252,6 @@ public class AMSColorSensorImpl8863 extends I2cDeviceSynchDevice<I2cDeviceSynchS
         return readUnsignedShort(reg);
     }
 
-    @Override
     public synchronized int argb()
     {
         byte[] bytes = read(Register.CLEAR, 8);
@@ -270,20 +265,17 @@ public class AMSColorSensorImpl8863 extends I2cDeviceSynchDevice<I2cDeviceSynchS
         return Color.argb(clear, red, green, blue);
     }
 
-    @Override
     public synchronized void enableLed(boolean enable)
     // We can't directly control the LED with I2C; it's always on
     {
         throw new UnsupportedOperationException("controlling LED is not supported on this color sensor; use a digital channel for that.");
     }
 
-    @Override
     public synchronized I2cAddr getI2cAddress()
     {
         return this.deviceClient.getI2cAddr();
     }
 
-    @Override
     public synchronized void setI2cAddress(I2cAddr i2cAddr)
     {
         this.deviceClient.setI2cAddr(i2cAddr);
@@ -293,13 +285,11 @@ public class AMSColorSensorImpl8863 extends I2cDeviceSynchDevice<I2cDeviceSynchS
     // HardwareDevice
     //----------------------------------------------------------------------------------------------
 
-    @Override
     public String getDeviceName()
     {
         return "AMS I2C Color Sensor";
     }
 
-    @Override
     public Manufacturer getManufacturer()
     {
         return Manufacturer.AMS;
@@ -309,33 +299,28 @@ public class AMSColorSensorImpl8863 extends I2cDeviceSynchDevice<I2cDeviceSynchS
     // ColorSensor
     //----------------------------------------------------------------------------------------------
 
-    @Override
     public synchronized byte read8(final Register reg)
     {
         return deviceClient.read8(reg.byteVal | AMS_COLOR_COMMAND_BIT);
     }
 
-    @Override
     public synchronized byte[] read(final Register reg, final int cb)
     {
         return deviceClient.read(reg.byteVal | AMS_COLOR_COMMAND_BIT, cb);
     }
 
-    @Override
     public synchronized void write8(Register reg, int data)
     {
         this.deviceClient.write8(reg.byteVal | AMS_COLOR_COMMAND_BIT, data);
         this.deviceClient.waitForWriteCompletions();
     }
 
-    @Override
     public synchronized void write(Register reg, byte[] data)
     {
         this.deviceClient.write(reg.byteVal | AMS_COLOR_COMMAND_BIT, data);
         this.deviceClient.waitForWriteCompletions();
     }
 
-    @Override
     public int readUnsignedShort(Register reg)
     {
         byte[] bytes = this.read(reg, 2);
@@ -348,7 +333,6 @@ public class AMSColorSensorImpl8863 extends I2cDeviceSynchDevice<I2cDeviceSynchS
         return result;
     }
 
-    @Override
     public void writeShort(Register ireg, int value)
     {
         byte[] bytes = TypeConversion.shortToByteArray((short)value, ByteOrder.LITTLE_ENDIAN);
@@ -384,50 +368,6 @@ public class AMSColorSensorImpl8863 extends I2cDeviceSynchDevice<I2cDeviceSynchS
         catch (InterruptedException e)
         {
             Thread.currentThread().interrupt();
-        }
-    }
-
-    /**
-     * Instances of Parameters contain data indicating how the
-     * sensor is to be initialized.
-     *
-     * @see #initialize(AMSColorSensorImpl8863.Parameters)
-     */
-    class Parameters
-    {
-        /** the device id expected to be reported by the color sensor chip */
-        public final int deviceId;
-
-        /** the address at which the sensor resides on the I2C bus. */
-        public I2cAddr i2cAddr;
-
-        /** the integration time to use */
-        public AMSColorSensorImpl8863.IntegrationTime integrationTime = AMSColorSensorImpl8863.IntegrationTime.MS_24;
-
-        /** the gain level to use */
-        public AMSColorSensorImpl8863.Gain gain = AMSColorSensorImpl8863.Gain.GAIN_4;
-
-        /** set of registers to read in background, if supported by underlying I2cDeviceSynch */
-        public I2cDeviceSynch.ReadWindow readWindow = new I2cDeviceSynch.ReadWindow(IREG_READ_FIRST, IREG_READ_LAST-IREG_READ_FIRST+1, I2cDeviceSynch.ReadMode.REPEAT);
-
-        /** debugging aid: enable logging for this device? */
-        public boolean loggingEnabled = false;
-
-        /** debugging aid: the logging tag to use when logging */
-        public String loggingTag = "AMSColorSensor";
-
-        public Parameters(I2cAddr i2cAddr, int deviceId)
-        {
-            this.i2cAddr = i2cAddr;
-            this.deviceId    = deviceId;
-        }
-        public static AMSColorSensorImpl8863.Parameters createForAdaFruit()
-        {
-            return new AMSColorSensorImpl8863.Parameters(I2cAddr.create7bit(AMS_TCS34725_ADDRESS), AMS_TCS34725_ID);
-        }
-        public static AMSColorSensorImpl8863.Parameters createForLynx()
-        {
-            return new AMSColorSensorImpl8863.Parameters(I2cAddr.create7bit(AMS_TMD37821_ADDRESS), AMS_TMD37821_ID);
         }
     }
 

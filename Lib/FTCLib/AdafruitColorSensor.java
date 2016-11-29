@@ -8,6 +8,8 @@ import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DeviceInterfaceModule;
 import com.qualcomm.robotcore.hardware.DigitalChannelController;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.I2cAddr;
+import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -27,8 +29,15 @@ public class AdafruitColorSensor {
     // getter and setter methods
     //*********************************************************************************************
 
-    private ColorSensor colorSensor;
+    private AMSColorSensorImpl8863 colorSensor;
+    private I2cDeviceSynch i2cDevice;
+
+    private AMSColorSensorParameters parameters;
+    int AMS_TCS34725_ADDRESS = 0x29;
+    byte AMS_TCS34725_ID = 0x44;
+
     private DeviceInterfaceModule coreDIM;
+
     private boolean ledOn = false;
     private boolean controlLED = true;
     private int ioChannelForLed;
@@ -59,13 +68,15 @@ public class AdafruitColorSensor {
         this.coreDIMName = coreDIMName;
         this.ioChannelForLed = ioChannelForLed;
         this.controlLED = true;
+        parameters = AMSColorSensorParameters.createForAdaFruit();
         coreDIM = hardwareMap.deviceInterfaceModule.get(coreDIMName);
         // both of the calls below result in an abject instantiated from AdafruitI2cColorSensor.
         // This is not desirable since the update rate is 600 mSec. And because it is marked
         // deprecated. I really want an object of
         // AMSColorSensorImpl since it has a configurable update rate and it new.
         //colorSensor = hardwareMap.colorSensor.get(colorSensorName);
-        colorSensor = hardwareMap.get(ColorSensor.class, colorSensorName);
+        i2cDevice = hardwareMap.get(I2cDeviceSynch.class, colorSensorName);
+        colorSensor = AMSColorSensorImpl8863.create(parameters, i2cDevice, true);
         coreDIM.setDigitalChannelMode(ioChannelForLed, DigitalChannelController.Mode.OUTPUT);
         // Delay so the init can finish before setting the led off. Otherwise the LED does not get
         // shut off.
