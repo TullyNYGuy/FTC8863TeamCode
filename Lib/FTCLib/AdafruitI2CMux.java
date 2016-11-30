@@ -1,7 +1,11 @@
 package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
 
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.I2cAddr;
+import com.qualcomm.robotcore.hardware.I2cDevice;
+import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
+import com.qualcomm.robotcore.hardware.I2cDeviceSynchImpl;
 
 public class AdafruitI2CMux {
 
@@ -57,6 +61,12 @@ public class AdafruitI2CMux {
 
     private byte controlByte = 0x00;
 
+    private I2cDevice mux;
+    private I2cDeviceSynch muxReader;
+
+    private static final int WRITE = 0xFE;
+    private static final int READ = 0xFF;
+
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -72,12 +82,42 @@ public class AdafruitI2CMux {
     // from it
     //*********************************************************************************************
 
+    public AdafruitI2CMux(HardwareMap hardwareMap, String muxName, byte muxAddress) {
+        this.muxAddress = new I2cAddr(muxAddress);
+        // no ports are enabled to start (all 0s)
+        controlByte = 0x00;
+        mux = hardwareMap.i2cDevice.get(muxName);
+        muxReader = new I2cDeviceSynchImpl(mux, this.muxAddress, false);
+        muxReader.engage();
+    }
+
 
     //*********************************************************************************************
     //          Helper Methods
     //
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
+
+    /**
+     * For a write to the mux, the address is in bits 1-7 and bit 0 (read / write) is a low
+     * @return
+     */
+    private int getWriteAddressToMux() {
+        return (muxAddress.get8Bit() & WRITE);
+    }
+
+    /**
+     * For a read from the mux, the address is in bits 1-7 and bit 0 (read / write) is a high
+     * @return
+     */
+    private int getReadAddressToMux() {
+        return (muxAddress.get8Bit() | READ);
+    }
+
+    private void writeMux(byte controlByte) {
+        boolean waitForCompletion = true;
+        muxReader.write8(getWriteAddressToMux(), controlByte, waitForCompletion);
+    }
 
 
     //*********************************************************************************************
