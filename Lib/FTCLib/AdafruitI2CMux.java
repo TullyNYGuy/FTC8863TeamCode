@@ -38,6 +38,19 @@ public class AdafruitI2CMux {
         }
     }
 
+    /**
+     * This device only has one register. So this is totally not needed. But I'm doing it anyway
+     * to demonstrate how a more complex device with more registers could be implemented.
+     * A list of the registers available in the device.
+     */
+    enum Register
+    {
+        CONTROL(0x00);
+
+        public final byte byteVal;
+        Register(int i) { this.byteVal = (byte) i; }
+    }
+
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS
     //
@@ -62,10 +75,7 @@ public class AdafruitI2CMux {
     private byte controlByte = 0x00;
 
     private I2cDevice mux;
-    private I2cDeviceSynch muxReader;
-
-    private static final int WRITE = 0xFE;
-    private static final int READ = 0xFF;
+    private I2cDeviceSynch muxClient;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -87,8 +97,10 @@ public class AdafruitI2CMux {
         // no ports are enabled to start (all 0s)
         controlByte = 0x00;
         mux = hardwareMap.i2cDevice.get(muxName);
-        muxReader = new I2cDeviceSynchImpl(mux, this.muxAddress, false);
-        muxReader.engage();
+        muxClient = new I2cDeviceSynchImpl(mux, this.muxAddress, false);
+        muxClient.engage();
+        // turn all mux channels off
+        writeMux(controlByte);
     }
 
 
@@ -98,25 +110,15 @@ public class AdafruitI2CMux {
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
 
-    /**
-     * For a write to the mux, the address is in bits 1-7 and bit 0 (read / write) is a low
-     * @return
-     */
-    private int getWriteAddressToMux() {
-        return (muxAddress.get8Bit() & WRITE);
-    }
-
-    /**
-     * For a read from the mux, the address is in bits 1-7 and bit 0 (read / write) is a high
-     * @return
-     */
-    private int getReadAddressToMux() {
-        return (muxAddress.get8Bit() | READ);
-    }
-
     private void writeMux(byte controlByte) {
+        // declare a variable for readability's sake, otherwise it is hard for a newbie to tell
+        // what true means in the write8 call
         boolean waitForCompletion = true;
-        muxReader.write8(getWriteAddressToMux(), controlByte, waitForCompletion);
+        muxClient.write8(Register.CONTROL.byteVal, controlByte, waitForCompletion);
+    }
+
+    private byte readMux() {
+        return muxClient.read8(Register.CONTROL.byteVal);
     }
 
 
@@ -125,4 +127,22 @@ public class AdafruitI2CMux {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
+
+    public void selectPort(PortNumber portNumber) {
+        controlByte = portNumber.bVal | controlByte;
+    }
+
+    public void disablePorts() {
+        controlByte = PortNumber.NOPORT.bVal;
+        writeMux(controlByte);
+    }
+
+    public void enablePorts() {
+        writeMux(controlByte);
+    }
+
+    public void selectAndEnableAPort(PortNumber portNumber) {
+        controlByte = portNumber.bVal;
+        enablePorts();
+    }
 }
