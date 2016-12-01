@@ -42,6 +42,9 @@ public class PIDControl {
 
     private double maxCorrection = 0;
 
+    private double feedback = 0;
+
+    private double threshold = 0;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -104,6 +107,22 @@ public class PIDControl {
      */
     public double getSetpoint() {
         return setpoint;
+    }
+
+    public double getFeedback() {
+        return feedback;
+    }
+
+    public void setFeedback(double feedback) {
+        this.feedback = feedback;
+    }
+
+    public double getThreshold() {
+        return threshold;
+    }
+
+    public void setThreshold(double threshold) {
+        this.threshold = threshold;
     }
 
     /**
@@ -179,11 +198,14 @@ public class PIDControl {
      */
     public double getCorrection(double feedback){
         double correction = (getSetpoint() - feedback) * getKp();
-
         correction = Range.clip(correction, -maxCorrection, maxCorrection);
-
-
-
         return correction;
+    }
+    public boolean isFinished(){
+        if (Math.abs(getFeedback() - getSetpoint()) < getThreshold()){
+            return true;
+        } else {
+            return false;
+        }
     }
 }

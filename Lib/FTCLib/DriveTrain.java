@@ -28,6 +28,10 @@ public class DriveTrain {
     private DcMotor8863.MotorState rightMotorState;
     private DcMotor8863.MotorState leftMotorState;
 
+    private PIDControl pidControl;
+
+    private AdafruitIMU8863 imu8863;
+
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -95,6 +99,10 @@ public class DriveTrain {
         leftDriveMotor.setTargetEncoderTolerance(3);
         leftDriveMotor.setMovementPerRev(cmPerRotation);
         leftDriveMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
+
+        pidControl = new PIDControl();
+
+        imu8863 = new AdafruitIMU8863(hardwareMap);
     }
 
     /**
@@ -176,6 +184,22 @@ public class DriveTrain {
         }
 
     }
+
+    public void setupTurn (double turnAngle, double maxPower){
+        pidControl.setSetpoint(turnAngle);
+        pidControl.setMaxCorrection(maxPower);
+        imu8863.setAngleMode(AdafruitIMU8863.AngleMode.RELATIVE);
+        imu8863.resetAngleReferences();
+    }
+
+    public boolean updateTurn (){
+        double currentHeading = imu8863.getHeading();
+        double correction = pidControl.getCorrection(currentHeading);
+        this.differentialDrive(0,correction);
+        return pidControl.isFinished();
+    }
+
+
 
     //*********************************************************************************************
     //          Teleop methods
