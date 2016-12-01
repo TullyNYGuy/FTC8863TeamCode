@@ -30,6 +30,7 @@ public class AdafruitColorSensor {
     //*********************************************************************************************
 
     private AMSColorSensorImpl8863 colorSensor;
+    //private ColorSensor colorSensor;
     private I2cDeviceSynch i2cDevice;
 
     private AMSColorSensorParameters parameters;
@@ -75,6 +76,7 @@ public class AdafruitColorSensor {
         // deprecated. I really want an object of
         // AMSColorSensorImpl since it has a configurable update rate and it new.
         //colorSensor = hardwareMap.colorSensor.get(colorSensorName);
+        //colorSensor = hardwareMap.get(AMSColorSensor.class, colorSensorName);
         i2cDevice = hardwareMap.get(I2cDeviceSynch.class, colorSensorName);
         colorSensor = AMSColorSensorImpl8863.create(parameters, i2cDevice, true);
         coreDIM.setDigitalChannelMode(ioChannelForLed, DigitalChannelController.Mode.OUTPUT);
