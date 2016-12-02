@@ -87,27 +87,41 @@ public class AMSColorSensorParameters {
 
     // Registers we used to read-ahead, if supported
     int IREG_READ_FIRST = AMS_COLOR_CDATAL;
-    int IREG_READ_LAST  = AMS_COLOR_BDATAH;
+    int IREG_READ_LAST = AMS_COLOR_BDATAH;
 
-    /** the device id expected to be reported by the color sensor chip */
+    /**
+     * the device id expected to be reported by the color sensor chip
+     */
     public final int deviceId;
 
-    /** the address at which the sensor resides on the I2C bus. */
+    /**
+     * the address at which the sensor resides on the I2C bus.
+     */
     public I2cAddr i2cAddr;
 
-    /** the integration time to use */
+    /**
+     * the integration time to use
+     */
     public AMSColorSensorImpl8863.IntegrationTime integrationTime = AMSColorSensorImpl8863.IntegrationTime.MS_24;
 
-    /** the gain level to use */
+    /**
+     * the gain level to use
+     */
     public AMSColorSensorImpl8863.Gain gain = AMSColorSensorImpl8863.Gain.GAIN_4;
 
-    /** set of registers to read in background, if supported by underlying I2cDeviceSynch */
-    public I2cDeviceSynch.ReadWindow readWindow = new I2cDeviceSynch.ReadWindow(IREG_READ_FIRST, IREG_READ_LAST-IREG_READ_FIRST+1, I2cDeviceSynch.ReadMode.REPEAT);
+    /**
+     * set of registers to read in background, if supported by underlying I2cDeviceSynch
+     */
+    public I2cDeviceSynch.ReadWindow readWindow = new I2cDeviceSynch.ReadWindow(IREG_READ_FIRST, IREG_READ_LAST - IREG_READ_FIRST + 1, I2cDeviceSynch.ReadMode.REPEAT);
 
-    /** debugging aid: enable logging for this device? */
+    /**
+     * debugging aid: enable logging for this device?
+     */
     public boolean loggingEnabled = false;
 
-    /** debugging aid: the logging tag to use when logging */
+    /**
+     * debugging aid: the logging tag to use when logging
+     */
     public String loggingTag = "AMSColorSensor";
 
     //*********************************************************************************************
@@ -125,26 +139,26 @@ public class AMSColorSensorParameters {
     // from it
     //*********************************************************************************************
 
-    public AMSColorSensorParameters(I2cAddr i2cAddr, int deviceId)
-    {
+    public AMSColorSensorParameters(I2cAddr i2cAddr, int deviceId) {
         this.i2cAddr = i2cAddr;
-        this.deviceId    = deviceId;
+        this.deviceId = deviceId;
     }
-        public static AMSColorSensorParameters createForAdaFruit()
-        {
-            int AMS_TCS34725_ADDRESS = 0x29;
-            byte AMS_TCS34725_ID = 0x44;
-            AMSColorSensorParameters parameters = new AMSColorSensorParameters(I2cAddr.create7bit(AMS_TCS34725_ADDRESS), AMS_TCS34725_ID);
-            return parameters;
-        }
-        public static AMSColorSensorParameters createForLynx()
-        {
-            int AMS_TMD37821_ADDRESS = 0x39;
-            byte AMS_TMD37821_ID = 0x60;
 
-            AMSColorSensorParameters parameters = new AMSColorSensorParameters(I2cAddr.create7bit(AMS_TMD37821_ADDRESS), AMS_TMD37821_ID);
-            return parameters;
-        }
+    public static AMSColorSensorParameters createForAdaFruit() {
+        int AMS_TCS34725_ADDRESS = 0x29;
+        byte AMS_TCS34725_ID = 0x44;
+
+        AMSColorSensorParameters parameters = new AMSColorSensorParameters(I2cAddr.create7bit(AMS_TCS34725_ADDRESS), AMS_TCS34725_ID);
+        return parameters;
+    }
+
+    public static AMSColorSensorParameters createForLynx() {
+        int AMS_TMD37821_ADDRESS = 0x39;
+        byte AMS_TMD37821_ID = 0x60;
+
+        AMSColorSensorParameters parameters = new AMSColorSensorParameters(I2cAddr.create7bit(AMS_TMD37821_ADDRESS), AMS_TMD37821_ID);
+        return parameters;
+    }
 
     //*********************************************************************************************
     //          Helper Methods
