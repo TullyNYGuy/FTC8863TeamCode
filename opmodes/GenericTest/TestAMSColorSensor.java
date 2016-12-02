@@ -7,11 +7,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.AMSColorSensorParameters;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitColorSensor;
-
 /**
- * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
+ * Configure an I2C port on the phone as I2C Device
  *
  *
  */
@@ -36,6 +33,8 @@ public class TestAMSColorSensor extends LinearOpMode {
         i2cDevice = hardwareMap.get(I2cDevice.class, colorSensorName);
         colorSensor = AMSColorSensorImpl.create(parameters, i2cDevice);
 
+        // Use a timer just to see some changes on the driver station. With all 0s for the color
+        // sensor I want to see something change!
         timer = new ElapsedTime();
         
         // Wait for the start button
