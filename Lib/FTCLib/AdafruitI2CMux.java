@@ -10,9 +10,9 @@ import com.qualcomm.robotcore.hardware.I2cDeviceSynchImpl;
 /**
  * This class provides an interface to the Adafruit TCA9548A I2C 1 to 8 mux. The input I2C bus can
  * be connected to one or more of the 8 ports. Most often, this will be used if you have more than
- * one I2C device with the same address. Wire the devices to the pins on the board. The use the mux
+ * one I2C device with the same address. Wire the devices to the pins on the board. Then use the mux
  * to switch between the devices and talk to only one of them at a time (see selectAndEnableAPort())
- * This mux is very simple with only one register. So it makes a good learning tool to understand
+ * This mux is very simple since it has only one register. So it makes a good learning tool to understand
  * how to read and write an I2C device. The default address for the mux is 0x70.
  *
  * https://learn.adafruit.com/adafruit-tca9548a-1-to-8-i2c-multiplexer-breakout/wiring-and-test?view=all
@@ -45,7 +45,8 @@ public class AdafruitI2CMux {
         PORT4 (0x10),
         PORT5 (0x20),
         PORT6 (0x40),
-        PORT7 (0x80);
+        PORT7 (0x80),
+        MANYPORT (0xFF); // just a flag that more than 1 port has been selected
 
         private final byte bVal;
 
@@ -74,18 +75,20 @@ public class AdafruitI2CMux {
     // getter and setter methods
     //*********************************************************************************************
 
-    // The I2C address for the mux is default 0x70. By pulling up the input pins A0, A1, and A2 on the
-    // header of the board, you can change the address. Pulling up the pin can be accomplished by
-    // connecting the header pin to 5V through a 1K resistor. The address can range from:
-    // A2  A1  A0  Address
-    //  L   L   L   0x70 (default)
-    //  L   L   H   0x71
-    //  L   H   L   0x72
-    //  L   H   H   0x73
-    //  H   L   L   0x74
-    //  H   L   H   0x75
-    //  H   H   L   0x76
-    //  H   H   H   0x77
+    /**
+     * The I2C address for the mux is default 0x70. By pulling up the input pins A0, A1, and A2 on the
+     * header of the board, you can change the address. Pulling up the pin can be accomplished by
+     * connecting the header pin to 5V through a 1K resistor. The address can range from:
+     * A2  A1  A0  Address
+     *  L   L   L   0x70 (default)
+     *  L   L   H   0x71
+     *  L   H   L   0x72
+     *  L   H   H   0x73
+     *  H   L   L   0x74
+     *  H   L   H   0x75
+     *  H   H   L   0x76
+     *  H   H   H   0x77
+     */
     private I2cAddr muxAddress;
 
     /**
@@ -150,13 +153,15 @@ public class AdafruitI2CMux {
         muxClient.write8(Register.CONTROL.byteVal, controlByte, waitForCompletion);
     }
 
-    /**
-     * Read from the control register
-     * @return contents of the control register
-     */
-    private byte readMux() {
-        return muxClient.read8(Register.CONTROL.byteVal);
-    }
+    // ARGH! For some reason reading from the register is forcing the mux to disable all ports. No
+    // clue why! Comment out for now
+//    /**
+//     * Read from the control register
+//     * @return contents of the control register
+//     */
+//    private byte readMux() {
+//        return muxClient.read8(Register.CONTROL.byteVal);
+//    }
 
 
     //*********************************************************************************************
@@ -206,4 +211,60 @@ public class AdafruitI2CMux {
         controlByte = portNumber.bVal;
         enablePorts();
     }
+
+    // Commenting this out because readMux is not working
+//    /**
+//     * Get the active ports from the mux by reading the control register.
+//     * @return active port in the form of PortNumber enum
+//     */
+//    public PortNumber getActivePort() {
+//        PortNumber result;
+//        // because byte are treated as signed numbers in Java, I have to cast the data read from the
+//        // mux to int in order to compare to 0x80.
+//        switch ((int)readMux()) {
+//            case 0x00:
+//                result = PortNumber.NOPORT;
+//            break;
+//            case 0x01:
+//                result = PortNumber.PORT0;
+//            break;
+//            case 0x02:
+//                result = PortNumber.PORT1;
+//            break;
+//            case 0x04:
+//                result = PortNumber.PORT2;
+//            break;
+//            case 0x08:
+//                result = PortNumber.PORT3;
+//            break;
+//            case 0x10:
+//                result = PortNumber.PORT4;
+//            break;
+//            case 0x20:
+//                result = PortNumber.PORT5;
+//            break;
+//            case 0x40:
+//                result = PortNumber.PORT6;
+//            break;
+//            // why does this not compile? The compiler thinks 0x80 is int rather than byte
+//            case 0x80:
+//                result = PortNumber.PORT7;
+//            break;
+//            default:
+//                result = PortNumber.MANYPORT;
+//                break;
+//        }
+//        return result;
+//    }
+
+    // commenting this out because readMux is not working
+//    /**
+//     * Get the active port(s) from the mux by reading the control register.
+//     * @return active port in the form of a string
+//     */
+//    public String getActivePortAsString() {
+//        return getActivePort().toString();
+//    }
+
+
 }
