@@ -46,6 +46,7 @@ public class TestAMSColorSensor extends LinearOpMode {
         // Put your calls here - they will not run in a loop
 
         while(opModeIsActive()) {
+            // Put any calls here that you want to run in a loop
 
             // Display the current values from the sensor
             telemetry.addData("Red = ", colorSensor.red());
