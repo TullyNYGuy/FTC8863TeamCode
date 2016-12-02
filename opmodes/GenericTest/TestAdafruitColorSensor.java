@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.opmodes.GenericTest;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitColorSensor;
 import org.firstinspires.ftc.teamcode.Lib.ResQLib.RobotConfigMapping;
@@ -29,6 +30,8 @@ public class TestAdafruitColorSensor extends LinearOpMode {
 
     boolean ledState = false;
 
+    ElapsedTime timer;
+
     @Override
     public void runOpMode() {
 
@@ -36,11 +39,14 @@ public class TestAdafruitColorSensor extends LinearOpMode {
         // Put your initializations here
         colorSensor = new AdafruitColorSensor(RobotConfigMappingForGenericTest.getadafruitColorSensorName(),
                 RobotConfigMappingForGenericTest.getCoreDeviceInterfaceName(), hardwareMap, CHANNEL_FOR_LED );
+
+        timer = new ElapsedTime();
         
         // Wait for the start button
         telemetry.addData(">", "Press Start to run" );
         telemetry.update();
         waitForStart();
+        timer.reset();
 
         // Put your calls here - they will not run in a loop
 
@@ -74,6 +80,7 @@ public class TestAdafruitColorSensor extends LinearOpMode {
             telemetry.addData("Sat = ", colorSensor.saturation());
             telemetry.addData("Light = ", colorSensor.lightness());
             telemetry.addData("Update interval (mS) = ", "%5.2f", colorSensor.updateTimeTracker.getAverage());
+            telemetry.addData("Timer = ", "%3.1f", timer.seconds());
             telemetry.addData(">", "Press Stop to end test." );
 
             telemetry.update();
