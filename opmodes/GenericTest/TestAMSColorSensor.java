@@ -31,7 +31,6 @@ public class TestAMSColorSensor extends LinearOpMode {
     @Override
     public void runOpMode() {
 
-
         // Put your initializations here
         parameters = AMSColorSensor.Parameters.createForAdaFruit();
         i2cDevice = hardwareMap.get(I2cDevice.class, colorSensorName);
