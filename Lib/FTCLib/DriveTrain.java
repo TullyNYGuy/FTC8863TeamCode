@@ -28,9 +28,9 @@ public class DriveTrain {
     private DcMotor8863.MotorState rightMotorState;
     private DcMotor8863.MotorState leftMotorState;
 
-    private PIDControl pidControl;
+    public PIDControl pidControl;
 
-    private AdafruitIMU8863 imu8863;
+    public AdafruitIMU8863 imu8863;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -38,6 +38,8 @@ public class DriveTrain {
     // allow access to private data fields for example setMotorPower,
     // getPositionInTermsOfAttachment
     //*********************************************************************************************
+
+
 
     public double getRightPower(){
         return this.rightPower;
@@ -101,6 +103,7 @@ public class DriveTrain {
         leftDriveMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
 
         pidControl = new PIDControl();
+        pidControl.setKp(.025);
 
         imu8863 = new AdafruitIMU8863(hardwareMap);
     }
@@ -143,11 +146,9 @@ public class DriveTrain {
         driveTrain.rightDriveMotor.setFinishBehavior(DcMotor8863.FinishBehavior.FLOAT);
         driveTrain.leftDriveMotor.setFinishBehavior(DcMotor8863.FinishBehavior.FLOAT);
 
-        // the first call to moveByAmount will set the mode of the motors to run to a position
-        // No need to do that here. Just set the motor power to 0 to make sure it is initialized.
-        driveTrain.rightDriveMotor.setPower(0);
-        driveTrain.leftDriveMotor.setPower(0);
-
+        // set the mode of the motors to run with encoder feedback, controller the speed of the motors
+        driveTrain.rightDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        driveTrain.leftDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         return driveTrain;
     }
 
@@ -192,13 +193,17 @@ public class DriveTrain {
         imu8863.resetAngleReferences();
     }
 
-    public boolean updateTurn (){
+    public double updateTurn (){
         double currentHeading = imu8863.getHeading();
-        double correction = pidControl.getCorrection(currentHeading);
-        this.differentialDrive(0,correction);
-        return pidControl.isFinished();
+        double correction = -pidControl.getCorrection(currentHeading);
+        differentialDrive(0,correction);//correction);
+        return correction;
+        //return pidControl.isFinished();
     }
 
+    public void stopTurn() {
+        shutdown();
+    }
 
 
     //*********************************************************************************************
@@ -254,6 +259,7 @@ public class DriveTrain {
     //*********************************************************************************************
 
     public void shutdown(){
-
+        rightDriveMotor.shutDown();
+        leftDriveMotor.shutDown();
     }
 }

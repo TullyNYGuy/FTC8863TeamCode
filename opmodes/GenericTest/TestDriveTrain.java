@@ -73,6 +73,7 @@ public class TestDriveTrain extends LinearOpMode {
             if (differentialDrive == true) {
                 throttle = -gamepad1.right_stick_y;
                 direction = gamepad1.right_stick_x;
+                //myDriveTrain.differentialDrive(.0,correction);
                 myDriveTrain.differentialDrive(throttle, direction);
             }
 
