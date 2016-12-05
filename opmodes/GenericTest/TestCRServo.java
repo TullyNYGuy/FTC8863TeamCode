@@ -43,11 +43,14 @@ import org.firstinspires.ftc.teamcode.Lib.ResQLib.RobotConfigMapping;
 import static org.firstinspires.ftc.teamcode.opmodes.GenericTest.RobotConfigMappingForGenericTest.getcrServoName;
 import static org.firstinspires.ftc.teamcode.opmodes.GenericTest.RobotConfigMappingForGenericTest.getleftMotorName;
 
+@Deprecated // use TestCRServoLinearOpMode instead
+
 @TeleOp(name = "Test CR Servo", group = "Test")
 @Disabled
 public class TestCRServo extends OpMode {
 
-    double noMovePosition = .46;
+    double noMovePositionReverse = .46;
+    double noMovePositionForward = .50;
     double deadZone = .1;
     CRServo testServo;
 
@@ -75,8 +78,7 @@ public class TestCRServo extends OpMode {
 	@Override
 	public void init() {
 
-        testServo = new CRServo(RobotConfigMappingForGenericTest.getgenericServoName(),hardwareMap, noMovePosition, deadZone);
-        testServo.setDirection(Servo.Direction.REVERSE);
+        testServo = new CRServo(RobotConfigMappingForGenericTest.getgenericServoName(),hardwareMap, noMovePositionForward, noMovePositionReverse, deadZone, Servo.Direction.REVERSE);
         timer = new ElapsedTime();
         testServo.setPosition(testServo.getCenterValue());
 
@@ -99,7 +101,7 @@ public class TestCRServo extends OpMode {
             telemetry.update();
         }
 
-        testServo.updatePosition(noMovePosition);
+        testServo.updatePosition(noMovePositionForward);
 
 //            if (timer.milliseconds() > step * stepLength && command <= endCommand) {
 //                step++;

@@ -16,7 +16,8 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.CRServo;
 public class TestCRServoLinearOpMode extends LinearOpMode {
 
     // Put your variable declarations here
-    double noMovePosition = .46;
+    double noMovePositionReverse = .46;
+    double noMovePositionForward = .51;
     double deadZone = .1;
     CRServo testServo;
 
@@ -29,7 +30,7 @@ public class TestCRServoLinearOpMode extends LinearOpMode {
     double commandIncrement = .01;
     int stepLength = 1000; // milliseconds
 
-    int timeToRunTest = 2000; // milliseconds
+    int timeToRunTest = 4000; // milliseconds
     boolean lockTimer = false;
 
     @Override
@@ -37,10 +38,9 @@ public class TestCRServoLinearOpMode extends LinearOpMode {
 
 
         // Put your initializations here
-        testServo = new CRServo(RobotConfigMappingForGenericTest.getgenericServoName(), hardwareMap, noMovePosition, deadZone);
-        testServo.setDirection(Servo.Direction.REVERSE);
+        testServo = new CRServo(RobotConfigMappingForGenericTest.getcrServoName(), hardwareMap, noMovePositionForward, noMovePositionReverse, deadZone, Servo.Direction.FORWARD);
+        //testServo.setDirection(Servo.Direction.REVERSE);
         timer = new ElapsedTime();
-        testServo.setPosition(testServo.getCenterValue());
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
@@ -51,58 +51,88 @@ public class TestCRServoLinearOpMode extends LinearOpMode {
         timer.reset();
         command = startCommand;
 
-        // runForTime runs in a loop and runs the servo for the given amount of time (timeToRunTest)
-        // at the power that is input. When it is done, the loop finishes
-        runForTime(1.0);
-        // wait for 2 seconds before moving again so the user can look
-        sleep(2000);
-        timer.reset();
+        testServo.setBackwardCMPerSecond(1.88);
+        testServo.setForwardCMPerSecond(1.94);
 
-        runForTime(-1.0);
-        sleep(2000);
-        timer.reset();
+//        findNoMovementCommand();
 
-        // 2nd time
-        runForTime(1.0);
+        moveDistance(4.0, CRServo.CRServoDirection.BACKWARD);
         sleep(2000);
-        timer.reset();
+        moveDistance(4.0, CRServo.CRServoDirection.FORWARD);
+        sleep(2000);
 
-        runForTime(-1.0);
+        moveDistance(4.0, CRServo.CRServoDirection.BACKWARD);
         sleep(2000);
-        timer.reset();
+        moveDistance(4.0, CRServo.CRServoDirection.FORWARD);
+        sleep(2000);
 
-        // 3rd time
-        runForTime(1.0);
+        moveDistance(4.0, CRServo.CRServoDirection.BACKWARD);
         sleep(2000);
-        timer.reset();
+        moveDistance(4.0, CRServo.CRServoDirection.FORWARD);
+        sleep(2000);
 
-        runForTime(-1.0);
-        sleep(2000);
-        timer.reset();
-
-        // 4th time
-        runForTime(1.0);
-        sleep(2000);
-        timer.reset();
-
-        runForTime(-1.0);
-        sleep(2000);
-        timer.reset();
-
-        // 5th time
-        runForTime(1.0);
-        sleep(2000);
-        timer.reset();
-
-        runForTime(-1.0);
-        sleep(2000);
-        timer.reset();
+//        // runForTime runs in a loop and runs the servo for the given amount of time (timeToRunTest)
+//        // at the power that is input. When it is done, the loop finishes
+//        runForTime(-1.0);
+//        // wait for 2 seconds before moving again so the user can look
+//        sleep(2000);
+//        timer.reset();
+//
+//        runForTime(-1.0);
+//        sleep(2000);
+//        timer.reset();
+//
+//        // 2nd time
+//        runForTime(1.0);
+//        sleep(2000);
+//        timer.reset();
+//
+//        runForTime(-1.0);
+//        sleep(2000);
+//        timer.reset();
+//
+//        // 3rd time
+//        runForTime(1.0);
+//        sleep(2000);
+//        timer.reset();
+//
+//        runForTime(-1.0);
+//        sleep(2000);
+//        timer.reset();
+//
+//        // 4th time
+//        runForTime(1.0);
+//        sleep(2000);
+//        timer.reset();
+//
+//        runForTime(-1.0);
+//        sleep(2000);
+//        timer.reset();
+//
+//        // 5th time
+//        runForTime(1.0);
+//        sleep(2000);
+//        timer.reset();
+//
+//        runForTime(-1.0);
+//        sleep(2000);
+//        timer.reset();
 
         // Display the current value
         // Put your cleanup code here - it runs as the application shuts down
         telemetry.addData(">","Done");
         telemetry.update();
-        idle();
+    }
+
+    private void moveDistance(double distance, CRServo.CRServoDirection direction) {
+        testServo.startMoveDistance(distance, direction);
+        while (opModeIsActive()) {
+            // if movement is finished break out of the loop
+            if(testServo.updateMoveDistance()) {
+                break;
+            }
+            idle();
+        }
     }
 
     private void runForTime(double power) {
@@ -125,18 +155,23 @@ public class TestCRServoLinearOpMode extends LinearOpMode {
 
     public void findNoMovementCommand() {
         timer.reset();
-        double step = 1;
-        double command = 0;
-        double commandIncrement = .05;
+        int step = 1;
+        double command = .4;
+        double commandIncrement = .01;
         int stepLength = 500; // milliseconds
-        while (command <= 1.0) {
+        testServo.setPosition(command);
+        telemetry.addData("Step = ", "%d", step);
+        telemetry.addData("Command = ", "%3.2f", command);
+        while (command <= .5) {
             if (timer.milliseconds() > step * 500) {
                 step++;
+                command = command + commandIncrement;
                 testServo.setPosition(command);
             }
             telemetry.addData("Step = ", "%d", step);
             telemetry.addData("Command = ", "%3.2f", command);
             telemetry.update();
+            idle();
         }
     }
 }

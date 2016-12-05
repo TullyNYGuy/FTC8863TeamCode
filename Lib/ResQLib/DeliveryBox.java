@@ -67,7 +67,7 @@ public class DeliveryBox {
     //*********************************************************************************************
 
     public DeliveryBox(HardwareMap hardwareMap, Telemetry telemetry) {
-        slideServo = new CRServo(RobotConfigMapping.getLinearSlideServoName(),hardwareMap, slideServoZeroThrottle, slideServoZeroZone);
+        //slideServo = new CRServo(RobotConfigMapping.getLinearSlideServoName(),hardwareMap, slideServoZeroThrottle, slideServoZeroZone);
         rampServo = new Servo8863(RobotConfigMapping.getRampServoName(), hardwareMap, telemetry, dumpHomePosition, dumpUpPosition, dumpDownPosition, dumpInitPosition, Servo.Direction.REVERSE);
 
         //setup the dump ramp wiggle for later use
