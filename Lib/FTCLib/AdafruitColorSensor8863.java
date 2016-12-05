@@ -1,11 +1,14 @@
 package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
 
+import com.qualcomm.hardware.ams.AMSColorSensor;
+import com.qualcomm.hardware.ams.AMSColorSensorImpl;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynchImpl;
+import com.qualcomm.robotcore.util.RobotLog;
 
 public class AdafruitColorSensor8863 {
 
@@ -19,8 +22,7 @@ public class AdafruitColorSensor8863 {
     /**
      * REGISTER provides symbolic names for interesting device registers
      */
-    enum Register
-    {
+    enum Register {
         ENABLE(0x00),
         ATIME(0x01),
         CONFIGURATION(0x0D),
@@ -33,31 +35,38 @@ public class AdafruitColorSensor8863 {
         BLUE(0x1A);
 
         public final byte byteVal;
-        Register(int i) { this.byteVal = (byte) i; }
+
+        Register(int i) {
+            this.byteVal = (byte) i;
+        }
     }
 
-    enum Gain
-    {
-        GAIN_1(0x00),
-        GAIN_4(0x01),
-        GAIN_16(0x02),
-        GAIN_64(0x03);
+    enum Gain {
+        GAIN_1(0x00), // 1X
+        GAIN_4(0x01), // 4X
+        GAIN_16(0x02), // 16X
+        GAIN_64(0x03); // 64X
 
         public final byte byteVal;
-        Gain(int i) { this.byteVal = (byte) i; }
+
+        Gain(int i) {
+            this.byteVal = (byte) i;
+        }
     }
 
-    enum IntegrationTime
-    {
-        MS_2_4(0xFF),
-        MS_24(0xF6),
-        MS_50(0xEB),
-        MS_101(0xD5),
-        MS_154(0xC0),
-        MS_700(0x00);
+    enum IntegrationTime {
+        MS_2_4(0xFF), //2.4 mSec
+        MS_24(0xF6), // 24 mSec
+        MS_50(0xEB), // 50 mSec
+        MS_101(0xD5), // 101 mSec
+        MS_154(0xC0), // 154 mSec
+        MS_700(0x00); // 700 mSec
 
         public final byte byteVal;
-        IntegrationTime(int i) { this.byteVal = (byte) i; }
+
+        IntegrationTime(int i) {
+            this.byteVal = (byte) i;
+        }
     }
 
 
@@ -68,11 +77,12 @@ public class AdafruitColorSensor8863 {
     // getter and setter methods
     //*********************************************************************************************
 
-    I2cDevice colorSensor;
-    I2cDeviceSynch colorSensorClient;
-    AMSColorSensorParameters parameters;
+    private I2cDevice colorSensor;
+    private I2cDeviceSynch colorSensorClient;
+    private AMSColorSensorParameters parameters;
     boolean isOwned = false;
     boolean waitForWriteCompletion = true;
+    private AMSColorSensorImpl fred;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -106,22 +116,84 @@ public class AdafruitColorSensor8863 {
 
     private void initialize() {
         // check if isArmed() ?
-        // check if the proper chip is out there by checking the chip id?
+        // check if the proper chip is out there by checking the chip id
+        if (!checkDeviceId()) {
+            // do something, not sure what yet
+            doSomething();
+        }
         // Set the gain and integration time
         setIntegrationTime(parameters.integrationTime);
         setGain(parameters.gain);
+        // set up a read ahead?
+        enable();
     }
 
-    private void setIntegrationTime(IntegrationTime time)
-    {
+    private void setIntegrationTime(IntegrationTime time) {
         colorSensorClient.write8(Register.ATIME.byteVal, time.byteVal, waitForWriteCompletion);
     }
 
-    private void setGain(Gain gain)
-    {
+    private void setGain(Gain gain) {
         colorSensorClient.write8(Register.CONTROL.byteVal, gain.byteVal, waitForWriteCompletion);
     }
 
+    public byte getDeviceID() {
+        return colorSensorClient.read8(Register.DEVICE_ID.byteVal);
+    }
+
+    /**
+     * Verify that that's a color sensor!
+     */
+    private boolean checkDeviceId() {
+        byte id = this.getDeviceID();
+        if ((id != parameters.deviceId)) {
+            RobotLog.e("unexpected AMS color sensor chipid: found=%d expected=%d", id, parameters.deviceId);
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    private synchronized void enable() {
+        colorSensorClient.write8(Register.ENABLE.byteVal, parameters.AMS_COLOR_ENABLE_PON);
+        delayLore(6); // Adafruit's sample implementation uses 3ms
+        colorSensorClient.write8(Register.ENABLE.byteVal, parameters.AMS_COLOR_ENABLE_PON | parameters.AMS_COLOR_ENABLE_AEN);
+    }
+
+    private synchronized void disable() {
+        /* Turn the device off to save power */
+        byte reg = colorSensorClient.read8(Register.ENABLE.byteVal);
+        colorSensorClient.write8(Register.ENABLE.byteVal, reg & ~(parameters.AMS_COLOR_ENABLE_PON | parameters.AMS_COLOR_ENABLE_AEN));
+    }
+
+    /**
+     * delay() implements a delay that is specified in the device datasheet and therefore should be correct
+     *
+     * @see #delayLore(int)
+     */
+    void delay(int ms) {
+        try {
+            Thread.sleep(ms);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    /**
+     * delayLore() implements a delay that only known by lore and mythology to be necessary.
+     *
+     * @see #delay(int)
+     */
+    private void delayLore(int ms) {
+        try {
+            Thread.sleep(ms);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    private void doSomething(){
+
+    }
 
     //*********************************************************************************************
     //          MAJOR METHODS
@@ -129,24 +201,7 @@ public class AdafruitColorSensor8863 {
     // public methods that give the class its functionality
     //*********************************************************************************************
 
-
     private class AMSColorSensorParameters {
-
-        //*********************************************************************************************
-        //          ENUMERATED TYPES
-        //
-        // user defined types
-        //
-        //*********************************************************************************************
-
-
-        //*********************************************************************************************
-        //          PRIVATE DATA FIELDS
-        //
-        // can be accessed only by this class, or by using the public
-        // getter and setter methods
-        //*********************************************************************************************
-
         // The 7-bit I2C address of this device
         int AMS_TCS34725_ADDRESS = 0x29;
         int AMS_TMD37821_ADDRESS = 0x39;
@@ -270,7 +325,7 @@ public class AdafruitColorSensor8863 {
             byte AMS_TMD37821_ID = 0x60;
             byte AMS_TMD37823_ID = 0x69;
 
-            AMSColorSensorParameters parameters = new AMSColorSensorParameters(I2cAddr.create7bit( AMS_TCS34725_ADDRESS), AMS_TCS34725_ID);
+            AMSColorSensorParameters parameters = new AMSColorSensorParameters(I2cAddr.create7bit(AMS_TCS34725_ADDRESS), AMS_TCS34725_ID);
             return parameters;
         }
 
@@ -285,4 +340,5 @@ public class AdafruitColorSensor8863 {
             AMSColorSensorParameters parameters = new AMSColorSensorParameters(I2cAddr.create7bit(AMS_TMD37821_ADDRESS), AMS_TMD37821_ID);
             return parameters;
         }
+    }
 }
