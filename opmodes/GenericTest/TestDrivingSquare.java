@@ -1,12 +1,9 @@
 package org.firstinspires.ftc.teamcode.opmodes.GenericTest;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.PIDControl;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
@@ -15,7 +12,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.PIDControl;
  */
 @TeleOp(name = "Test Autonomous Turn", group = "Test")
 //@Disabled
-public class TestAutonomousTurn extends LinearOpMode {
+public class TestDrivingSquare extends LinearOpMode {
 
     // Put your variable declarations here
 
