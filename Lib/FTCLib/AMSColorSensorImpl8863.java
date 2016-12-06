@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import android.graphics.Color;
 
 import com.qualcomm.hardware.ams.AMSColorSensor;
+import com.qualcomm.hardware.ams.AMSColorSensorImpl;
 import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
@@ -77,6 +78,7 @@ public class AMSColorSensorImpl8863 extends I2cDeviceSynchDevice<I2cDeviceSynchS
     //----------------------------------------------------------------------------------------------
 
     protected AMSColorSensorParameters parameters;
+    private AMSColorSensorImpl fred;
 
     //----------------------------------------------------------------------------------------------
     // Construction

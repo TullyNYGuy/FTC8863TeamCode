@@ -25,10 +25,48 @@ public class AdafruitColorSensor8863 {
     //
     //*********************************************************************************************
 
+
+    /**
+     * This defines the bits in the command register and defines an enum for their function. OR them
+     * together to get the full command byte. To address another register, OR that address into the
+     * command byte.
+     */
+    enum CommandRegister {
+        AMS_COLOR_COMMAND_BIT(0x80), // bit 7 must be 1 when writing to this register
+        AMS_COLOR_COMMAND_REPEAT(0x00), // bits 6:5 = 00 to specify a repeated byte protocol transaction
+        AMS_COLOR_COMMAND_AUTO_INCREMENT(0x10), // bits 6:5 = 01 to specify an auto-increment protocol transaction
+        AMS_COLOR_COMMAND_SPECIAL_FUNCTION(0x30), // bits 6:5 = 11 to specify a special function
+        AMS_COLOR_COMMAND_CLEAR_CHANNEL_INTERRUPT(0x05); // bits 4:0 to clear the channel interrupt
+
+        public final byte byteVal;
+        CommandRegister(int i) {
+            this.byteVal = (byte) i;
+        }
+    }
+
+    /**
+     * This defines the bits in the enable register and defines an enum for their function. OR them
+     * together to get the full enable byte.
+     */
+    enum EnableRegister {
+        AMS_COLOR_ENABLE_PIEN(0x20),        /* Proximity interrupt enable */
+        AMS_COLOR_ENABLE_AIEN(0x10),        /* RGBC Interrupt Enable */
+        AMS_COLOR_ENABLE_WEN(0x08),         /* Wait enable - Writing 1 activates the wait timer */
+        AMS_COLOR_ENABLE_PEN(0x04),         /* Proximity enable */
+        AMS_COLOR_ENABLE_AEN(0x02),         /* RGBC Enable - Writing 1 actives the ADC, 0 disables it */
+        AMS_COLOR_ENABLE_PON(0x01);         /* Power on - Writing 1 activates the internal oscillator, 0 disables it */
+
+        public final byte byteVal;
+        EnableRegister(int i) {
+            this.byteVal = (byte) i;
+        }
+    }
+
     /**
      * REGISTER provides symbolic names for interesting device registers
      */
-    enum Register {
+    enum Register
+    {
         ENABLE(0x00),
         ATIME(0x01),
         CONFIGURATION(0x0D),
@@ -41,10 +79,7 @@ public class AdafruitColorSensor8863 {
         BLUE(0x1A);
 
         public final byte byteVal;
-
-        Register(int i) {
-            this.byteVal = (byte) i;
-        }
+        Register(int i) { this.byteVal = (byte) i; }
     }
 
 //    enum Gain {
@@ -203,23 +238,23 @@ public class AdafruitColorSensor8863 {
 
     public synchronized byte read8(final Register reg)
     {
-        return colorSensorClient.read8(reg.byteVal | AMSColorSensor.AMS_COLOR_COMMAND_BIT);
+        return colorSensorClient.read8(reg.byteVal | CommandRegister.AMS_COLOR_COMMAND_BIT.byteVal);
     }
 
     public synchronized byte[] read(final Register reg, final int cb)
     {
-        return colorSensorClient.read(reg.byteVal | AMSColorSensor.AMS_COLOR_COMMAND_BIT, cb);
+        return colorSensorClient.read(reg.byteVal | CommandRegister.AMS_COLOR_COMMAND_BIT.byteVal, cb);
     }
 
     public synchronized void write8(Register reg, int data)
     {
-        colorSensorClient.write8(reg.byteVal | AMSColorSensor.AMS_COLOR_COMMAND_BIT, data);
+        colorSensorClient.write8(reg.byteVal | CommandRegister.AMS_COLOR_COMMAND_BIT.byteVal, data);
         colorSensorClient.waitForWriteCompletions();
     }
 
     public synchronized void write(Register reg, byte[] data)
     {
-        colorSensorClient.write(reg.byteVal | AMSColorSensor.AMS_COLOR_COMMAND_BIT, data);
+        colorSensorClient.write(reg.byteVal | CommandRegister.AMS_COLOR_COMMAND_BIT.byteVal, data);
         colorSensorClient.waitForWriteCompletions();
     }
 
