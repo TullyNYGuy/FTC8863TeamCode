@@ -103,7 +103,7 @@ public class DriveTrain {
         leftDriveMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
 
         pidControl = new PIDControl();
-        pidControl.setKp(.025);
+        pidControl.setKp(0.01);
 
         imu8863 = new AdafruitIMU8863(hardwareMap);
     }
