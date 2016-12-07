@@ -27,46 +27,103 @@ public class AdafruitColorSensor8863 {
 
 
     /**
+     * Command Register (address = I2C address of device)
      * This defines the bits in the command register and defines an enum for their function. OR them
      * together to get the full command byte. To address another register, OR that address into the
      * command byte.
      */
     enum CommandRegister {
-        AMS_COLOR_COMMAND_BIT(0x80), // bit 7 must be 1 when writing to this register
-        AMS_COLOR_COMMAND_REPEAT(0x00), // bits 6:5 = 00 to specify a repeated byte protocol transaction
-        AMS_COLOR_COMMAND_AUTO_INCREMENT(0x10), // bits 6:5 = 01 to specify an auto-increment protocol transaction
-        AMS_COLOR_COMMAND_SPECIAL_FUNCTION(0x30), // bits 6:5 = 11 to specify a special function
-        AMS_COLOR_COMMAND_CLEAR_CHANNEL_INTERRUPT(0x05); // bits 4:0 to clear the channel interrupt
+        AMS_COLOR_COMMAND_BIT(0x80),                // bit 7 must be 1 when writing to this register
+        AMS_COLOR_COMMAND_REPEAT(0x00),             // bits 6:5 = 00 to specify a repeated byte protocol transaction
+        AMS_COLOR_COMMAND_AUTO_INCREMENT(0x10),     // bits 6:5 = 01 to specify an auto-increment protocol transaction
+        AMS_COLOR_COMMAND_SPECIAL_FUNCTION(0x30),   // bits 6:5 = 11 to specify a special function
+        AMS_COLOR_COMMAND_CLEAR_CHANNEL_INTERRUPT(0x05); // bits 4:0 to clear the channel interrupt or is the address of the register of interest
 
         public final byte byteVal;
+
         CommandRegister(int i) {
             this.byteVal = (byte) i;
         }
     }
 
     /**
+     * Enable Register (0x00)
      * This defines the bits in the enable register and defines an enum for their function. OR them
      * together to get the full enable byte.
      */
     enum EnableRegister {
-        AMS_COLOR_ENABLE_PIEN(0x20),        /* Proximity interrupt enable */
-        AMS_COLOR_ENABLE_AIEN(0x10),        /* RGBC Interrupt Enable */
-        AMS_COLOR_ENABLE_WEN(0x08),         /* Wait enable - Writing 1 activates the wait timer */
-        AMS_COLOR_ENABLE_PEN(0x04),         /* Proximity enable */
-        AMS_COLOR_ENABLE_AEN(0x02),         /* RGBC Enable - Writing 1 actives the ADC, 0 disables it */
-        AMS_COLOR_ENABLE_PON(0x01);         /* Power on - Writing 1 activates the internal oscillator, 0 disables it */
+        // bits 7:5: reserved
+        AMS_COLOR_ENABLE_PIEN(0x20),        // bit 5: Proximity interrupt enable (not in the datasheet)
+        AMS_COLOR_ENABLE_AIEN(0x10),        // bit 4: RGBC Interrupt Enable
+        AMS_COLOR_ENABLE_WEN(0x08),         // bit 3: Wait enable - Writing 1 activates the wait timer
+        AMS_COLOR_ENABLE_PEN(0x04),         // bit 2: Proximity enable  (not in the datasheet)
+        AMS_COLOR_ENABLE_AEN(0x02),         // bit 1: RGBC Enable - Writing 1 actives the ADC, 0 disables it
+        AMS_COLOR_ENABLE_PON(0x01);         // bit 0: Power on - Writing 1 activates the internal oscillator, 0 disables it
 
         public final byte byteVal;
+
         EnableRegister(int i) {
             this.byteVal = (byte) i;
         }
     }
 
     /**
+     * RBGC timing register (0x01)
+     * Definition of bits in register is not relevant. Values are.
+     * The RGBC timing register controls the internal integration time of the RBGC clear and IR
+     * channel ADCs in 2.4ms increments. Max RGBC count = (256-ATIME) x 1024 up to a max of 65535.
+     * You can trade off longer integtration time for a more accurate reading. The downside is that
+     * the response times from the color sensor become slower. In a typical Opmode loop you would
+     * reading the sensor every time through the loop, you will need to have the sensor at the 24ms
+     * integration time.
+     */
+    enum IntegrationTime {
+        MS_2_4(0xFF), //2.4 mSec
+        MS_24(0xF6), // 24 mSec
+        MS_50(0xEB), // 50 mSec
+        MS_101(0xD5), // 101 mSec
+        MS_154(0xC0), // 154 mSec
+        MS_700(0x00); // 700 mSec
+
+        public final byte byteVal;
+
+        IntegrationTime(int i) {
+            this.byteVal = (byte) i;
+        }
+    }
+
+    /**
+     * Wait time register (0x03)
+     * Definition of bits in register is not relevant. Valus are.
+     * Wait time register values. Wait time is set in 2.4ms increments unless WLONG bit is set, in
+     * which case the wait times are 12X longer. WTIME is programmed as a 2's complement number.
+     * These values are preset for you. You can calculate and set your own.
+     * NOTE TO ME: WHAT DOES WAIT TIME DO?
+     */
+    enum WaitTime {
+        AMS_COLOR_WTIME_2_4MS(0xFF),            // if WLONG=0, wait = 2.4ms; if WLONG=1 wait = 0.029s
+        AMS_COLOR_WTIME_204MS(0xAB),     // if WLONG=0, wait = 204ms; if WLONG=1 wait = 2.45s
+        AMS_COLOR_WTIME_614MS(0x00);     // if WLONG=0, wait = 614ms; if WLONG=1 wait = 7.4s
+
+
+        public final byte byteVal;
+
+        WaitTime(int i) {
+            this.byteVal = (byte) i;
+        }
+    }
+
+    // RGBC Interrupt Threshold Register (0x04 - 0x07)
+
+    //       int AMS_COLOR_AILTL = 0x04;              /* Clear channel lower interrupt threshold */
+//        int AMS_COLOR_AILTH = 0x05;
+//        int AMS_COLOR_AIHTL = 0x06;              /* Clear channel upper interrupt threshold */
+//        int AMS_COLOR_AIHTH = 0x07;
+
+    /**
      * REGISTER provides symbolic names for interesting device registers
      */
-    enum Register
-    {
+    enum Register {
         ENABLE(0x00),
         ATIME(0x01),
         CONFIGURATION(0x0D),
@@ -79,36 +136,24 @@ public class AdafruitColorSensor8863 {
         BLUE(0x1A);
 
         public final byte byteVal;
-        Register(int i) { this.byteVal = (byte) i; }
+
+        Register(int i) {
+            this.byteVal = (byte) i;
+        }
     }
 
-//    enum Gain {
-//        GAIN_1(0x00), // 1X
-//        GAIN_4(0x01), // 4X
-//        GAIN_16(0x02), // 16X
-//        GAIN_64(0x03); // 64X
-//
-//        public final byte byteVal;
-//
-//        Gain(int i) {
-//            this.byteVal = (byte) i;
-//        }
-//    }
-//
-//    enum IntegrationTime {
-//        MS_2_4(0xFF), //2.4 mSec
-//        MS_24(0xF6), // 24 mSec
-//        MS_50(0xEB), // 50 mSec
-//        MS_101(0xD5), // 101 mSec
-//        MS_154(0xC0), // 154 mSec
-//        MS_700(0x00); // 700 mSec
-//
-//        public final byte byteVal;
-//
-//        IntegrationTime(int i) {
-//            this.byteVal = (byte) i;
-//        }
-//    }
+    enum Gain {
+        GAIN_1(0x00), // 1X
+        GAIN_4(0x01), // 4X
+        GAIN_16(0x02), // 16X
+        GAIN_64(0x03); // 64X
+
+        public final byte byteVal;
+
+        Gain(int i) {
+            this.byteVal = (byte) i;
+        }
+    }
 
 
     //*********************************************************************************************
@@ -232,38 +277,32 @@ public class AdafruitColorSensor8863 {
         }
     }
 
-    private void doSomething(){
+    private void doSomething() {
 
     }
 
-    public synchronized byte read8(final Register reg)
-    {
+    public synchronized byte read8(final Register reg) {
         return colorSensorClient.read8(reg.byteVal | CommandRegister.AMS_COLOR_COMMAND_BIT.byteVal);
     }
 
-    public synchronized byte[] read(final Register reg, final int cb)
-    {
+    public synchronized byte[] read(final Register reg, final int cb) {
         return colorSensorClient.read(reg.byteVal | CommandRegister.AMS_COLOR_COMMAND_BIT.byteVal, cb);
     }
 
-    public synchronized void write8(Register reg, int data)
-    {
+    public synchronized void write8(Register reg, int data) {
         colorSensorClient.write8(reg.byteVal | CommandRegister.AMS_COLOR_COMMAND_BIT.byteVal, data);
         colorSensorClient.waitForWriteCompletions();
     }
 
-    public synchronized void write(Register reg, byte[] data)
-    {
+    public synchronized void write(Register reg, byte[] data) {
         colorSensorClient.write(reg.byteVal | CommandRegister.AMS_COLOR_COMMAND_BIT.byteVal, data);
         colorSensorClient.waitForWriteCompletions();
     }
 
-    public int readUnsignedShort(Register reg)
-    {
+    public int readUnsignedShort(Register reg) {
         byte[] bytes = this.read(reg, 2);
         int result = 0;
-        if (bytes.length == 2)
-        {
+        if (bytes.length == 2) {
             ByteBuffer buffer = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
             result = TypeConversion.unsignedShortToInt(buffer.getShort());
         }
@@ -276,40 +315,34 @@ public class AdafruitColorSensor8863 {
     // public methods that give the class its functionality
     //*********************************************************************************************
 
-    public synchronized int red()
-    {
+    public synchronized int red() {
         return this.readColorRegister(Register.RED);
     }
 
-    public synchronized int green()
-    {
+    public synchronized int green() {
         return this.readColorRegister(Register.GREEN);
     }
 
-    public synchronized int blue()
-    {
+    public synchronized int blue() {
         return this.readColorRegister(Register.BLUE);
     }
 
-    public synchronized int alpha()
-    {
+    public synchronized int alpha() {
         return this.readColorRegister(Register.CLEAR);
     }
 
-    private int readColorRegister(Register reg)
-    {
+    private int readColorRegister(Register reg) {
         return readUnsignedShort(reg);
     }
 
-    public synchronized int argb()
-    {
+    public synchronized int argb() {
         byte[] bytes = read(Register.CLEAR, 8);
         ByteBuffer buffer = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
         //
         int clear = TypeConversion.unsignedShortToInt(buffer.getShort());
-        int red   = TypeConversion.unsignedShortToInt(buffer.getShort());
+        int red = TypeConversion.unsignedShortToInt(buffer.getShort());
         int green = TypeConversion.unsignedShortToInt(buffer.getShort());
-        int blue  = TypeConversion.unsignedShortToInt(buffer.getShort());
+        int blue = TypeConversion.unsignedShortToInt(buffer.getShort());
         //
         return Color.argb(clear, red, green, blue);
     }
