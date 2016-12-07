@@ -156,12 +156,12 @@ public class DriveTrain {
     // Autonomous Methods
     //*********************************************************************************************
 
-    public void driveDistance(double power, double distance, DcMotor8863.FinishBehavior finishBehavior){
+    public void setupDriveDistance(double power, double distance, DcMotor8863.FinishBehavior finishBehavior){
         rightDriveMotor.moveByAmount(power, distance, finishBehavior);
         leftDriveMotor.moveByAmount(power, distance, finishBehavior);
     }
 
-    public DriveTrain.Status update() {
+    public DriveTrain.Status updateDriveDistance() {
         rightMotorState = rightDriveMotor.update();
         leftMotorState = leftDriveMotor.update();
         if (this.isMotorStateComplete()){
@@ -177,7 +177,7 @@ public class DriveTrain {
     }
 
 
-    public boolean isMotorStateComplete() {
+    private boolean isMotorStateComplete() {
         if(rightDriveMotor.isMotorStateComplete() && leftDriveMotor.isMotorStateComplete()) {
             return true;
         } else {
@@ -193,12 +193,12 @@ public class DriveTrain {
         imu8863.resetAngleReferences();
     }
 
-    public double updateTurn (){
+    public boolean updateTurn (){
         double currentHeading = imu8863.getHeading();
         double correction = -pidControl.getCorrection(currentHeading);
         differentialDrive(0,correction);//correction);
-        return correction;
-        //return pidControl.isFinished();
+        //return correction;
+        return pidControl.isFinished();
     }
 
     public void stopTurn() {

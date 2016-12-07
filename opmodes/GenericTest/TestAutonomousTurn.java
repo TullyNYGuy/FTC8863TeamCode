@@ -41,7 +41,7 @@ public class TestAutonomousTurn extends LinearOpMode {
 
         while(opModeIsActive()) {
 
-            correction = driveTrain.updateTurn();
+            driveTrain.updateTurn();
 
             // Put your calls that need to run in a loop here
 //            if(driveTrain.updateTurn()) {
@@ -53,7 +53,6 @@ public class TestAutonomousTurn extends LinearOpMode {
             //telemetry.addData("Encoder Count=", "%5d", motor.getCurrentPosition());
             telemetry.addData(">", "Press Stop to end test." );
             telemetry.addData("Angle = ", "%3.1f", driveTrain.imu8863.getHeading());
-            telemetry.addData("Correction =", "%2.2f", correction);
             telemetry.update();
 
             idle();

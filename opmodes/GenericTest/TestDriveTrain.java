@@ -77,7 +77,7 @@ public class TestDriveTrain extends LinearOpMode {
                 myDriveTrain.differentialDrive(throttle, direction);
             }
 
-            statusDrive = myDriveTrain.update();
+            statusDrive = myDriveTrain.updateDriveDistance();
             if (statusDrive == DriveTrain.Status.COMPLETE) {
                 break;
             }
