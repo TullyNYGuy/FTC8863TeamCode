@@ -187,6 +187,9 @@ public class DriveTrain {
     }
 
     public void setupTurn (double turnAngle, double maxPower){
+        // set the mode for the motors during the turn. Without this they may not move.
+        rightDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         pidControl.setSetpoint(turnAngle);
         pidControl.setMaxCorrection(maxPower);
         imu8863.setAngleMode(AdafruitIMU8863.AngleMode.RELATIVE);

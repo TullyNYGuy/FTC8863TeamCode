@@ -47,7 +47,9 @@ public class TestRunToPosition extends LinearOpMode {
 
             // Display the current value
             telemetry.addData("Motor Speed = ", "%5.2f", powerToRunAt);
+            telemetry.addData(">", "Encoder count should be = 2240");
             telemetry.addData("Encoder Count=", "%5d", motor.getCurrentPosition());
+            telemetry.addData("Is Busy = ", Boolean.toString(motor.isBusy()));
             telemetry.addData(">", "Press Stop to end test." );
 
             telemetry.update();

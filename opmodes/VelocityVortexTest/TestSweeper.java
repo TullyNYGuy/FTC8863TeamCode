@@ -183,7 +183,7 @@ public class TestSweeper extends LinearOpMode {
             // upddat the tank drive
             myDriveTrain.tankDrive(leftPower, rightPower);
 
-            statusDrive = myDriveTrain.update();
+            statusDrive = myDriveTrain.updateDriveDistance();
             if (statusDrive == DriveTrain.Status.COMPLETE) {
                 break;
             }

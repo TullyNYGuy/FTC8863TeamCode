@@ -106,6 +106,14 @@ public class DcMotor8863 {
     private MotorState currentMotorState = MotorState.IDLE;
 
     /**
+     * The current run mode of the motor. This mirrors the actual mode that the motor is set to.
+     * I could just call DcMotor.getMode() and return this from the controller. But this creates
+     * extra traffic on the bus and since we can store the value locally when it is set there is no
+     * need to make that call.
+     */
+    private DcMotor.RunMode currentRunMode = DcMotor.RunMode.STOP_AND_RESET_ENCODER;
+
+    /**
      * The desired action of the motor after the rotation is finished.
      */
     private FinishBehavior finishBehavior = FinishBehavior.FLOAT;
@@ -246,7 +254,7 @@ public class DcMotor8863 {
     }
 
     /**
-     * Put the date in for the no load RPM of each type of motor.
+     * Put the data in for the no load RPM of each type of motor.
      *
      * @param motorType
      */
@@ -317,6 +325,14 @@ public class DcMotor8863 {
 
     private void setMotorState(MotorState currentMotorState) {
         this.currentMotorState = currentMotorState;
+    }
+
+    private DcMotor.RunMode getCurrentRunMode() {
+        return currentRunMode;
+    }
+
+    private void setCurrentRunMode(DcMotor.RunMode currentRunMode) {
+        this.currentRunMode = currentRunMode;
     }
 
     public FinishBehavior getFinishBehavior() {
@@ -432,6 +448,18 @@ public class DcMotor8863 {
     //*********************************************************************************************
     //          Helper Methods
     //*********************************************************************************************
+
+    /**
+     * Implements a delay
+     * @param mSec delay in milli Seconds
+     */
+    private void delay(int mSec) {
+        try {
+            Thread.sleep((int) (mSec));
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
 
     /**
      * Calculate the motor speed in encoder ticks per second given the number of ticks per revolution
@@ -1036,11 +1064,49 @@ public class DcMotor8863 {
      *
      * @return true if movement complete
      */
-    // BUG isBusy returns false if the mode is RUN_USING_ENCODERS (constant speed)
-    // and it does not return an accurate indication of completion on RUN_TO_POSITION.
-    // Will have to write my own.
-    private boolean isRotationComplete() {
-        return !FTCDcMotor.isBusy();
+    // BUG isBusy returns false if the mode is RUN_USING_ENCODERS (constant speed) and the mode and power
+    // have just been set. It looks like a race condition between setting the mode and power and
+    // isBusy returning true. It must take a while for isBusy to get flagged as true even though the
+    // motor is already starting to turn. The net result of this is that the state machine starts
+    // into MOVING_PID_NO_POWER_RAMP or MOVING_PID_POWER_RAMP, immediately checks for
+    // isRotationComplete and it returns true. The state machine then moves to COMPLETE_FLOAT or
+    // COMPLETE_HOLD and the motor immediately shuts down. For this reason I have to filter the
+    // isBusy. It only is valid for RUN_TO_POSITION.
+    // isBusy also does not return an accurate indication of completion on RUN_TO_POSITION in certain
+    // situations. In the future, I will have to write my own instead of using DcMotor.isBusy()
+    public boolean isRotationComplete() {
+        boolean result = false;
+        switch (currentRunMode) {
+            case RUN_TO_POSITION:
+                // This is the only mode that will eventually have the motor stop turning. This next
+                // section of code is my replacement for DcMotor.isBusy().
+                // get the current encoder position
+                int currentEncoderCount = this.getCurrentPosition();
+                // is the current position within the tolerance limit of the desired position?
+                if (Math.abs(targetEncoderCount - currentEncoderCount) < targetEncoderTolerance) {
+                    // movement is complete
+                    result = true;
+                } else {
+                    // movement is not finished yet
+                    result = false;
+                }
+                break;
+            case RUN_USING_ENCODER:
+                // Running at constant speed can never be complete. The motor is just running
+                // continuously
+                result = false;
+                break;
+            case RUN_WITHOUT_ENCODER:
+                // Running at constant power can never be complete. The motor is just running
+                // continuously.
+                result = false;
+                break;
+            case STOP_AND_RESET_ENCODER:
+                // hmmm. I guess the fact that the motor is stopped indicates it is complete?
+                result = true;
+                break;
+        }
+        return result;
 //        if (FTCDcMotor.getMode() == DcMotor.RunMode.RUN_TO_POSITION) {
 //            // The motor is moving to a certain encoder position so it will complete movement at
 //            // some point.
@@ -1300,6 +1366,9 @@ public class DcMotor8863 {
             this.setMotorState(MotorState.IDLE);
         }
         FTCDcMotor.setMode(mode);
+        // Save the mode locally so that I don't have to make a call to the controller later and
+        // take up bus bandwidth to get the value. I can just look at this variable locally.
+        this.currentRunMode = mode;
     }
 
     public void setPower(double power) {

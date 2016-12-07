@@ -34,8 +34,9 @@ public class TestDrivingSquare extends LinearOpMode {
         telemetry.addData(">", "Press Start to run" );
         telemetry.update();
         waitForStart();
-        driveStraight(50,0.5);
-        anyTurn(-90,0.4);
+        driveStraight(50, 0.5);
+        sleep(2000);
+        anyTurn(-90, 0.4);
 
         // Put your cleanup code here - it runs as the application shuts down
         telemetry.addData(">", "Done");
@@ -46,7 +47,6 @@ public class TestDrivingSquare extends LinearOpMode {
 
     public void anyTurn(double angle, double power) {
         driveTrain.setupTurn(angle,power);
-        // Put your calls here - they will not run in a loop
 
         while(opModeIsActive() && !driveTrain.updateTurn()) {
             telemetry.addData(">", "Press Stop to end test." );
@@ -64,9 +64,13 @@ public class TestDrivingSquare extends LinearOpMode {
             if (statusDrive == DriveTrain.Status.COMPLETE) {
                 break;
             }
+            telemetry.addData(">", "Press Stop to end test." );
+            telemetry.addData("Status = ", statusDrive.toString());
+            telemetry.update();
             idle();
         }
-        telemetry.addData(">", "Finished movement 2" );
+        telemetry.addData(">", "Press Stop to end test." );
+        telemetry.addData("Status = ", statusDrive.toString());
         telemetry.update();
     }
 }
