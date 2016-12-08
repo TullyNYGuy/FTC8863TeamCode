@@ -42,6 +42,10 @@ public class PIDControl {
 
     private double maxCorrection = 0;
 
+    private RampControl rampControl;
+
+    private boolean useRampControl = false;
+
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -122,6 +126,14 @@ public class PIDControl {
         this.maxCorrection = maxCorrection;
     }
 
+    public boolean isUseRampControl() {
+        return useRampControl;
+    }
+
+    public void setUseRampControl(boolean useRampControl) {
+        this.useRampControl = useRampControl;
+    }
+
     //*********************************************************************************************
     //          Constructors
     //
@@ -157,7 +169,10 @@ public class PIDControl {
         Kd = 0;
         this.maxCorrection = maxCorrection;
         this.setpoint = setpoint;
+        rampControl = new RampControl(0,0,0);
+        useRampControl = false;
     }
+
 
     //*********************************************************************************************
     //          Helper Methods
@@ -179,6 +194,11 @@ public class PIDControl {
      */
     public double getCorrection(double feedback){
         double correction = (getSetpoint() - feedback) * getKp();
+        if (useRampControl && !rampControl.isRunning()){
+            rampControl.start();
+        }
+
+        correction = rampControl.getRampValueLinear(correction);
 
         correction = Range.clip(correction, -maxCorrection, maxCorrection);
 
@@ -186,4 +206,10 @@ public class PIDControl {
 
         return correction;
     }
+
+    public void setup(double valueAtStartTime, double valueAtFinishTime, double timeToReachFinishValueInmSec) {
+        rampControl.setup(valueAtStartTime,valueAtFinishTime,timeToReachFinishValueInmSec);
+        setUseRampControl(true);
+    }
+
 }
