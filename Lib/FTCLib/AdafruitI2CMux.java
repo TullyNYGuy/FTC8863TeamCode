@@ -1,6 +1,35 @@
 package org.firstinspires.ftc.teamcode.Lib.FTCLib;
+/*
+Copyright (c) 2016 Glenn Ball
+Written to support FTC team 8863, Tully Precision Cut-Ups
 
+All rights reserved.
 
+Redistribution and use in source and binary forms, with or without modification,
+are permitted (subject to the limitations in the disclaimer below) provided that
+the following conditions are met:
+
+Redistributions of source code must retain the above copyright notice, this list
+of conditions and the following disclaimer.
+
+Redistributions in binary form must reproduce the above copyright notice, this
+list of conditions and the following disclaimer in the documentation and/or
+other materials provided with the distribution.
+
+NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS
+LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESSFOR A PARTICULAR PURPOSE
+ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
+
+import com.qualcomm.hardware.ams.AMSColorSensorImpl;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.I2cDevice;
@@ -20,8 +49,6 @@ import com.qualcomm.robotcore.hardware.I2cDeviceSynchImpl;
  * You will need to configure your phone with a "I2C Device" on one of the I2C ports.
  * Give the device a name when you configure it on the phone. This will be the muxName you pass
  * into the constructor.
- *
- * For devices that are connected to the mux
  */
 public class AdafruitI2CMux {
 
@@ -33,8 +60,9 @@ public class AdafruitI2CMux {
     //*********************************************************************************************
 
     /**
+     * Create a symbolic name for each bit on the control register.
      * Each bit in the control register enables one port on the mux. There can be one or more than
-     * one port enabled at a time. This enum correlates a port with its corresponding control bit.
+     * one port enabled at a time. In most cases you will only want one port enabled.
      */
     public enum PortNumber {
         NOPORT (0x00),
@@ -58,7 +86,6 @@ public class AdafruitI2CMux {
     /**
      * This device only has one register. So this enum is totally not needed. But I'm doing it anyway
      * to demonstrate how a more complex device with more registers could be implemented.
-     * A list of the registers available in the device.
      */
     private enum Register
     {
@@ -76,9 +103,10 @@ public class AdafruitI2CMux {
     //*********************************************************************************************
 
     /**
-     * The I2C address for the mux is default 0x70. By pulling up the input pins A0, A1, and A2 on the
-     * header of the board, you can change the address. Pulling up the pin can be accomplished by
-     * connecting the header pin to 5V through a 1K resistor. The address can range from:
+     * The I2C address for the mux is by default 0x70. By pulling up the input pins A0, A1, and
+     * A2 on the header of the board, you can change the address. Pulling up the pin can be
+     * accomplished by wiring the header pin to 5V through a 1K or 10K resistor. The address
+     * can range from:
      * A2  A1  A0  Address
      *  L   L   L   0x70 (default)
      *  L   L   H   0x71
@@ -97,6 +125,13 @@ public class AdafruitI2CMux {
     private byte controlByte = 0x00;
 
     /**
+     * In an effort to minimize traffic on the I2C bus, I keep track of the last byte written and
+     * only write commands that change from the last command. This also cam be read instead of
+     * reading the actiual device and creating more bus traffic.
+     */
+    private byte lastControlByte = 0x00;
+
+    /**
      * The mux is an I2cDevice
      */
     private I2cDevice mux;
@@ -113,6 +148,14 @@ public class AdafruitI2CMux {
     // getPositionInTermsOfAttachment
     //*********************************************************************************************
 
+    /**
+     * Allow the user of the class to get read only access to the last control byte written.
+     * @return last control byte written to the mux control register
+     */
+    public byte getLastControlByte() {
+        return lastControlByte;
+    }
+
 
     //*********************************************************************************************
     //          Constructors
@@ -126,6 +169,7 @@ public class AdafruitI2CMux {
         // no ports are enabled to start (all 0s). The chip should come up in this state but just to
         // be sure.
         controlByte = 0x00;
+        lastControlByte = 0x00;
         // Get the mux from the hardware map
         mux = hardwareMap.i2cDevice.get(muxName);
         // Create a client to read and write to the mux at the address of the mux
@@ -147,21 +191,34 @@ public class AdafruitI2CMux {
      * @param controlByte the value to write into the control register
      */
     private void writeMux(byte controlByte) {
+        // check to see if the command has actually changed. If not there is no need to write it.
+        if (controlByte == lastControlByte) {
+            // It is the same. We don't need to do anything.
+            return;
+        }
+        // The command has changed since last command. Save the new controlByte for use later.
+        lastControlByte = controlByte;
         // declare a variable for readability's sake, otherwise it is hard for a newbie to tell
         // what true means in the write8 call
-        boolean waitForCompletion = true;
-        muxClient.write8(Register.CONTROL.byteVal, controlByte, waitForCompletion);
+        boolean WAIT_FOR_COMPLETION = true;
+        muxClient.write8(Register.CONTROL.byteVal, controlByte, WAIT_FOR_COMPLETION);
     }
 
-    // ARGH! For some reason reading from the register is forcing the mux to disable all ports. No
-    // clue why! Comment out for now
-//    /**
-//     * Read from the control register
-//     * @return contents of the control register
-//     */
-//    private byte readMux() {
-//        return muxClient.read8(Register.CONTROL.byteVal);
-//    }
+    // ARGH! For some reason reading from the device's register is forcing the mux to disable
+    // all ports. No clue why!
+    /**
+     * Read from the control register
+     * @return contents of the control register
+     */
+    private byte readMux() {
+        // If I was going to read from the mux this is how.
+        //return muxClient.read8(Register.CONTROL.byteVal);
+        // However, the contents of the control register were saved in a property. Use that instead
+        // of creating traffic on the bus to actually read the register on the device.
+        // Also, this works around the problem I have where reading the register turns off all of
+        // the ports.
+        return lastControlByte;
+    }
 
 
     //*********************************************************************************************
@@ -212,59 +269,54 @@ public class AdafruitI2CMux {
         enablePorts();
     }
 
-    // Commenting this out because readMux is not working
-//    /**
-//     * Get the active ports from the mux by reading the control register.
-//     * @return active port in the form of PortNumber enum
-//     */
-//    public PortNumber getActivePort() {
-//        PortNumber result;
-//        // because byte are treated as signed numbers in Java, I have to cast the data read from the
-//        // mux to int in order to compare to 0x80.
-//        switch ((int)readMux()) {
-//            case 0x00:
-//                result = PortNumber.NOPORT;
-//            break;
-//            case 0x01:
-//                result = PortNumber.PORT0;
-//            break;
-//            case 0x02:
-//                result = PortNumber.PORT1;
-//            break;
-//            case 0x04:
-//                result = PortNumber.PORT2;
-//            break;
-//            case 0x08:
-//                result = PortNumber.PORT3;
-//            break;
-//            case 0x10:
-//                result = PortNumber.PORT4;
-//            break;
-//            case 0x20:
-//                result = PortNumber.PORT5;
-//            break;
-//            case 0x40:
-//                result = PortNumber.PORT6;
-//            break;
-//            // why does this not compile? The compiler thinks 0x80 is int rather than byte
-//            case 0x80:
-//                result = PortNumber.PORT7;
-//            break;
-//            default:
-//                result = PortNumber.MANYPORT;
-//                break;
-//        }
-//        return result;
-//    }
+    /**
+     * Get the active ports from the mux.
+     * @return active port in the form of PortNumber enum
+     */
+    public PortNumber getActivePort() {
+        PortNumber result;
+        // because byte is treated as a signed number in Java, I have to cast the data read from the
+        // mux to int in order to compare to 0x80.
+        switch ((int)readMux()) {
+            case 0x00:
+                result = PortNumber.NOPORT;
+            break;
+            case 0x01:
+                result = PortNumber.PORT0;
+            break;
+            case 0x02:
+                result = PortNumber.PORT1;
+            break;
+            case 0x04:
+                result = PortNumber.PORT2;
+            break;
+            case 0x08:
+                result = PortNumber.PORT3;
+            break;
+            case 0x10:
+                result = PortNumber.PORT4;
+            break;
+            case 0x20:
+                result = PortNumber.PORT5;
+            break;
+            case 0x40:
+                result = PortNumber.PORT6;
+            break;
+            case 0x80:
+                result = PortNumber.PORT7;
+            break;
+            default:
+                result = PortNumber.MANYPORT;
+                break;
+        }
+        return result;
+    }
 
-    // commenting this out because readMux is not working
-//    /**
-//     * Get the active port(s) from the mux by reading the control register.
-//     * @return active port in the form of a string
-//     */
-//    public String getActivePortAsString() {
-//        return getActivePort().toString();
-//    }
-
-
+    /**
+     * Get the active port(s) from the mux.
+     * @return active port in the form of a string
+     */
+    public String getActivePortAsString() {
+        return getActivePort().toString();
+    }
 }
