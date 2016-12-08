@@ -88,14 +88,14 @@ public class AMSColorSensorImpl8863 extends I2cDeviceSynchDevice<I2cDeviceSynchS
     {
         super(deviceClient, isOwned);
         this.parameters = params;
-        this.deviceClient.setLogging(this.parameters.loggingEnabled);
-        this.deviceClient.setLoggingTag(this.parameters.loggingTag);
+        this.deviceClient.setLogging(this.parameters.isLoggingEnabled());
+        this.deviceClient.setLoggingTag(this.parameters.getLoggingTag());
         super.registerArmingStateCallback();
     }
 
     public static AMSColorSensorImpl8863 create(AMSColorSensorParameters parameters, I2cDevice i2cDevice)
     {
-        I2cDeviceSynchSimple i2cDeviceSynchSimple = new I2cDeviceSynchImpl(i2cDevice, parameters.i2cAddr, false);
+        I2cDeviceSynchSimple i2cDeviceSynchSimple = new I2cDeviceSynchImpl(i2cDevice, parameters.getI2cAddr(), false);
         return create(parameters, i2cDeviceSynchSimple, true);
     }
     public static AMSColorSensorImpl8863 create(AMSColorSensorParameters parameters, I2cDeviceSynchSimple i2cDevice, boolean isOwned)
@@ -132,9 +132,9 @@ public class AMSColorSensorImpl8863 extends I2cDeviceSynchDevice<I2cDeviceSynchS
 
     private synchronized boolean initializeOnce(AMSColorSensorParameters parameters)
     {
-        if (this.parameters != null && this.parameters.deviceId != parameters.deviceId)
+        if (this.parameters != null && this.parameters.getDeviceId() != parameters.getDeviceId())
         {
-            throw new IllegalArgumentException(String.format("can't change device types (modify existing params instead): old=%d new=%d", this.parameters.deviceId, parameters.deviceId));
+            throw new IllegalArgumentException(String.format("can't change device types (modify existing params instead): old=%d new=%d", this.parameters.getDeviceId(), parameters.getDeviceId()));
         }
 
         // Remember the parameters for future use
@@ -150,25 +150,25 @@ public class AMSColorSensorImpl8863 extends I2cDeviceSynchDevice<I2cDeviceSynchS
         this.engage();
 
         // Make sure we're talking to the correct I2c device
-        this.setI2cAddress(parameters.i2cAddr);
+        this.setI2cAddress(parameters.getI2cAddr());
 
         // Verify that that's a color sensor!
         byte id = this.getDeviceID();
-        if ((id != parameters.deviceId))
+        if ((id != parameters.getDeviceId()))
         {
-            RobotLog.e("unexpected AMS color sensor chipid: found=%d expected=%d", id, parameters.deviceId);
+            RobotLog.e("unexpected AMS color sensor chipid: found=%d expected=%d", id, parameters.getDeviceId());
             return false;
         }
 
         // Set the gain and integration time
-        setIntegrationTime(parameters.integrationTime);
-        setGain(parameters.gain);
+        setIntegrationTime(parameters.getIntegrationTime());
+        setGain(parameters.getGain());
 
         // Set up a read-ahead, if supported
-        if (this.deviceClient instanceof I2cDeviceSynch && parameters.readWindow != null)
+        if (this.deviceClient instanceof I2cDeviceSynch && parameters.getReadWindow() != null)
         {
             I2cDeviceSynch synch = ((I2cDeviceSynch)this.deviceClient);
-            synch.setReadWindow(parameters.readWindow);
+            synch.setReadWindow(parameters.getReadWindow());
         }
 
         // Enable the device
@@ -190,17 +190,17 @@ public class AMSColorSensorImpl8863 extends I2cDeviceSynchDevice<I2cDeviceSynchS
         write8(Register.ENABLE, reg & ~(AMS_COLOR_ENABLE_PON | AMS_COLOR_ENABLE_AEN));
     }
 
-    private void setIntegrationTime(IntegrationTime time)
+    private void setIntegrationTime(AdafruitColorSensor8863.IntegrationTime time)
     {
         write8(Register.ATIME, time.byteVal);
     }
 
     private boolean is3782()
     {
-        return this.parameters.deviceId==AMS_TMD37821_ID || this.parameters.deviceId==AMS_TMD37823_ID;
+        return this.parameters.getDeviceId()==AMS_TMD37821_ID || this.parameters.getDeviceId()==AMS_TMD37823_ID;
     }
 
-    private void setGain(Gain gain)
+    private void setGain(AdafruitColorSensor8863.Gain gain)
     {
         // 3782 must set bit 5 as 1. On 3472, that must be written as zero. Ugh.
         write8(Register.CONTROL, gain.byteVal | (is3782() ? 0x20 : 0));

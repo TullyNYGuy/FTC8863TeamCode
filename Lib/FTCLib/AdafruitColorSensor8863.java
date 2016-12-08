@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
 import android.graphics.Color;
 
-import com.qualcomm.hardware.ams.AMSColorSensor;
 import com.qualcomm.hardware.ams.AMSColorSensorImpl;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.I2cAddr;
@@ -25,6 +24,8 @@ public class AdafruitColorSensor8863 {
     //
     //*********************************************************************************************
 
+    // The enums below provide symbolic names for device registers and for register bits and values.
+    // All information is taken from the datasheet for the device.
 
     /**
      * Command Register (address = I2C address of device)
@@ -47,9 +48,11 @@ public class AdafruitColorSensor8863 {
     }
 
     /**
-     * Enable Register (0x00)
-     * This defines the bits in the enable register and defines an enum for their function. OR them
-     * together to get the full enable byte.
+     * Enable Register (address = 0x00)
+     * The enable register is used primarily to power the TCS3472 device on and off, and enable
+     * functions and interrupts as shown below.
+     * Provides symbolic names for the values the register can have.
+     * OR the enums together to get the full enable byte.
      */
     enum EnableRegister {
         // bits 7:5: reserved
@@ -68,7 +71,7 @@ public class AdafruitColorSensor8863 {
     }
 
     /**
-     * RBGC timing register (0x01)
+     * RBGC timing register (address = 0x01) (INTEGRATION_TIME)
      * Definition of bits in register is not relevant. Values are.
      * The RGBC timing register controls the internal integration time of the RBGC clear and IR
      * channel ADCs in 2.4ms increments. Max RGBC count = (256-ATIME) x 1024 up to a max of 65535.
@@ -76,14 +79,15 @@ public class AdafruitColorSensor8863 {
      * the response times from the color sensor become slower. In a typical Opmode loop you would
      * reading the sensor every time through the loop, you will need to have the sensor at the 24ms
      * integration time.
+     * Provides symbolic names for the values the register can have.
      */
     enum IntegrationTime {
-        MS_2_4(0xFF), //2.4 mSec
-        MS_24(0xF6), // 24 mSec
-        MS_50(0xEB), // 50 mSec
-        MS_101(0xD5), // 101 mSec
-        MS_154(0xC0), // 154 mSec
-        MS_700(0x00); // 700 mSec
+        AMS_COLOR_ITIME_2_4MS(0xFF), //2.4 mSec
+        AMS_COLOR_ITIME_24MS(0xF6), // 24 mSec
+        AMS_COLOR_ITIME_50MS(0xEB), // 50 mSec
+        AMS_COLOR_ITIME_101MS(0xD5), // 101 mSec
+        AMS_COLOR_ITIME_154MS(0xC0), // 154 mSec
+        AMS_COLOR_ITIME_700MS(0x00); // 700 mSec
 
         public final byte byteVal;
 
@@ -93,18 +97,18 @@ public class AdafruitColorSensor8863 {
     }
 
     /**
-     * Wait time register (0x03)
-     * Definition of bits in register is not relevant. Valus are.
+     * Wait time register (address = 0x03) (WAIT_TIME)
+     * Definition of bits in register is not relevant. Values are.
      * Wait time register values. Wait time is set in 2.4ms increments unless WLONG bit is set, in
      * which case the wait times are 12X longer. WTIME is programmed as a 2's complement number.
-     * These values are preset for you. You can calculate and set your own.
+     * These enum values are preset for you. You can also calculate and set your own.
+     * Provides symbolic names for the values the register can have.
      * NOTE TO ME: WHAT DOES WAIT TIME DO?
      */
     enum WaitTime {
-        AMS_COLOR_WTIME_2_4MS(0xFF),            // if WLONG=0, wait = 2.4ms; if WLONG=1 wait = 0.029s
+        AMS_COLOR_WTIME_2_4MS(0xFF),     // if WLONG=0, wait = 2.4ms; if WLONG=1 wait = 0.029s
         AMS_COLOR_WTIME_204MS(0xAB),     // if WLONG=0, wait = 204ms; if WLONG=1 wait = 2.45s
         AMS_COLOR_WTIME_614MS(0x00);     // if WLONG=0, wait = 614ms; if WLONG=1 wait = 7.4s
-
 
         public final byte byteVal;
 
@@ -113,40 +117,79 @@ public class AdafruitColorSensor8863 {
         }
     }
 
-    // RGBC Interrupt Threshold Register (0x04 - 0x07)
-
-    //       int AMS_COLOR_AILTL = 0x04;              /* Clear channel lower interrupt threshold */
-//        int AMS_COLOR_AILTH = 0x05;
-//        int AMS_COLOR_AIHTL = 0x06;              /* Clear channel upper interrupt threshold */
-//        int AMS_COLOR_AIHTH = 0x07;
+    // RGBC Interrupt Threshold Registers (addresses = 0x04 - 0x07)
+    // The RGBC interrupt threshold restoers provide the values to be used as the high and low 
+    // trigger points for the comparison function for interrupt generation. If the value generated
+    // by the clear channel crosses below the lower threshold specified, or above the higher 
+    // threshold, an interrupt is asserted on the interrupt pin. 
+    // See addresses below THRESHOLD_AILTL, AILTH, AIHTL, AIHTH
 
     /**
-     * REGISTER provides symbolic names for interesting device registers
+     * Persistence Register (address = 0x0C)
+     * The persistence register controls the filtering interrupt capabilities of the device.
+     * Configurable filtering is provided to allow interrupts to be generated after each integration
+     * cycle or if the integration has produced a result that is outside of the values specified
+     * by the threshold register for the specified amount of time.
+     * Provides symbolic names for the values the register can have.
      */
-    enum Register {
-        ENABLE(0x00),
-        ATIME(0x01),
-        CONFIGURATION(0x0D),
-        CONTROL(0x0F),
-        DEVICE_ID(0x12),
-        STATUS(0x13),
-        CLEAR(0x14),   //clear color value: 0x14 = low byte, 0x15 = high byte
-        RED(0x16),     //red color value: 0x16 = low byte, 0x17 = high byte
-        GREEN(0x18),   //etc.
-        BLUE(0x1A);
+    enum Persistence {
+        // bits 7:4 - reserved
+        // bits 3:0 - interrupt persistence. Controls rate of interrupt 
+        AMS_COLOR_PERS_NONE(0b0000),        // Every RGBC cycle generates an interrupt                                
+        AMS_COLOR_PERS_1_CYCLE(0b0001),     // 1 clean channel value outside threshold range generates an interrupt   
+        AMS_COLOR_PERS_2_CYCLE(0b0010),     // 2 clean channel values outside threshold range generates an interrupt  
+        AMS_COLOR_PERS_3_CYCLE(0b0011),     // 3 clean channel values outside threshold range generates an interrupt  
+        AMS_COLOR_PERS_5_CYCLE(0b0100),     // 5 clean channel values outside threshold range generates an interrupt  
+        AMS_COLOR_PERS_10_CYCLE(0b0101),    // 10 clean channel values outside threshold range generates an interrupt 
+        AMS_COLOR_PERS_15_CYCLE(0b0110),    // 15 clean channel values outside threshold range generates an interrupt 
+        AMS_COLOR_PERS_20_CYCLE(0b0111),    // 20 clean channel values outside threshold range generates an interrupt 
+        AMS_COLOR_PERS_25_CYCLE(0b1000),    // 25 clean channel values outside threshold range generates an interrupt 
+        AMS_COLOR_PERS_30_CYCLE(0b1001),    // 30 clean channel values outside threshold range generates an interrupt 
+        AMS_COLOR_PERS_35_CYCLE(0b1010),    // 35 clean channel values outside threshold range generates an interrupt 
+        AMS_COLOR_PERS_40_CYCLE(0b1011),    // 40 clean channel values outside threshold range generates an interrupt 
+        AMS_COLOR_PERS_45_CYCLE(0b1100),    // 45 clean channel values outside threshold range generates an interrupt 
+        AMS_COLOR_PERS_50_CYCLE(0b1101),    // 50 clean channel values outside threshold range generates an interrupt 
+        AMS_COLOR_PERS_55_CYCLE(0b1110),    // 55 clean channel values outside threshold range generates an interrupt 
+        AMS_COLOR_PERS_60_CYCLE(0b1111);    // 60 clean channel values outside threshold range generates an interrupt 
 
         public final byte byteVal;
 
-        Register(int i) {
+        Persistence(int i) {
             this.byteVal = (byte) i;
         }
     }
 
+    /**
+     * Configuration Register (address = 0x0D)
+     * The configuration register sets the wait long time.
+     * Provides symbolic names for the values the register can have.
+     */
+    enum Configuration {
+        // bits 7:2 reserved, write as 0
+        // bit 1 - WLONG, if set wait times increased by 12x
+        // bit 0 - reserved, write as 0
+        AMS_COLOR_CONFIG_NORMAL(0x00),    // normal wait times
+        AMS_COLOR_CONFIG_WLONG(0x02);     // Extended wait time(12x normal wait times via AMS_COLOR_WTIME
+
+        public final byte byteVal;
+
+        Configuration(int i) {
+            this.byteVal = (byte) i;
+        }
+    }
+
+    /**
+     * Control Register (address = 0x0F)
+     * The control register provides eight bits of miscellaneous control to the analog block. These
+     * bits typically control functions such as the gain setting and/or diode selection.
+     */
     enum Gain {
-        GAIN_1(0x00), // 1X
-        GAIN_4(0x01), // 4X
-        GAIN_16(0x02), // 16X
-        GAIN_64(0x03); // 64X
+        // bits 7:2 reserved, write as 0
+        // bits 1:0 - RGBC gain control
+        AMS_COLOR_GAIN_1(0x00),  // 1X
+        AMS_COLOR_GAIN_4(0x01),  // 4X
+        AMS_COLOR_GAIN_16(0x02), // 16X
+        AMS_COLOR_GAIN_64(0x03); // 64X
 
         public final byte byteVal;
 
@@ -155,6 +198,81 @@ public class AdafruitColorSensor8863 {
         }
     }
 
+    /**
+     * ID Register (address = 0x12)
+     * The ID register provides the value for the part number. The ID register is a read-only
+     * register.
+     */
+    enum DeviceID {
+        AMS_COLOR_TCS34721_5_ID(0x44),   // TCS34721 and TCS34725 ID
+        AMS_COLOR_TCS34723_7_ID(0x4D);   // TCS34723 and TCS34727 ID
+
+        public final byte byteVal;
+
+        DeviceID(int i) {
+            this.byteVal = (byte) i;
+        }
+    }
+
+    /**
+     * Status Register (address = 0x13)
+     * The status register provides the internal status of the device. This register is read only.
+     */
+    enum Status {
+        // bits 7:5 - reserved
+        // bit 4 - AINT
+        // bits 3:1 - reserved
+        // bit 0 - AVALID
+        AMS_COLOR_STATUS_A(0x10),        // RGBC Clear channel interrupt
+        AMS_COLOR_STATUS_AVALID(0x01);  // Indicates that the RGBC channels have completed an integration cycle
+
+        public final byte byteVal;
+
+        Status(int i) {
+            this.byteVal = (byte) i;
+        }
+    }
+
+    // RGBC Channel Data Registers (addresses = 0x14 - 0x1B)
+    // Clear, red, green and blue data is stored as 16 bit values. To ensure the data is read
+    // correctly, a two-byte read I2C transaction should be used with a read word protocol bit set
+    // in the command register. With this operation, when the lower byte register is read, the
+    // upper eight bits are stred into a shadow register, which is read by a subsequent read to the
+    // upper byte. The upper register will read the correct value even if additional ADC integration
+    // cycles end between the reading of the lower and upper bytes.
+    // see below for detailed addressing
+
+    /**
+     * REGISTER provides symbolic names for device registers
+     */
+    enum Register {
+        ENABLE(0x00),
+        INTEGRATION_TIME(0x01),
+        WAIT_TIME(0x03),
+        THRESHOLD_AILTL(0x04),
+        THRESHOLD_AILTH(0x05),
+        THRESHOLD_AIHTL(0x06),
+        THRESHOLD_AIHTH(0x07),
+        PERSISTENCE(0x0C),
+        CONFIGURATION(0x0D),
+        CONTROL(0x0F),
+        DEVICE_ID(0x12),
+        STATUS(0x13),
+        CLEARL(0x14),   // clear data value low byte
+        CLEARH(0x15),   // clear data value high byte
+        REDL(0x16),     // red data value low byte
+        REDH(0x17),     // red data value high byte
+        GREENL(0x18),   // green data value low byte
+        GREENH(0x19),   // green data value high byte
+        BLUEL(0x1A),    // blue data value low byte
+        BLUEH(0x1B);    // blue data value high byte
+
+        public final byte byteVal;
+
+        Register(int i) {
+            this.byteVal = (byte) i;
+        }
+    }
 
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS
@@ -165,7 +283,7 @@ public class AdafruitColorSensor8863 {
 
     private I2cDevice colorSensor;
     private I2cDeviceSynch colorSensorClient;
-    private AMSColorSensor.Parameters parameters;
+    private AMSColorSensorParameters parameters;
     boolean isOwned = false;
     boolean waitForWriteCompletion = true;
     private AMSColorSensorImpl fred;
@@ -186,9 +304,9 @@ public class AdafruitColorSensor8863 {
     //*********************************************************************************************
 
     public AdafruitColorSensor8863(HardwareMap hardwareMap, String colorSensorName) {
-        parameters = AMSColorSensor.Parameters.createForAdaFruit();
+        parameters = AMSColorSensorParameters.createForAdaFruit();
         colorSensor = hardwareMap.get(I2cDevice.class, colorSensorName);
-        colorSensorClient = new I2cDeviceSynchImpl(colorSensor, parameters.i2cAddr, isOwned);
+        colorSensorClient = new I2cDeviceSynchImpl(colorSensor, parameters.getI2cAddr(), isOwned);
         colorSensorClient.engage();
         initialize();
     }
@@ -208,17 +326,17 @@ public class AdafruitColorSensor8863 {
             doSomething();
         }
         // Set the gain and integration time
-        setIntegrationTime(parameters.integrationTime);
-        setGain(parameters.gain);
+        setIntegrationTime(parameters.getIntegrationTime());
+        setGain(parameters.getGain());
         // set up a read ahead?
         enable();
     }
 
-    private void setIntegrationTime(AMSColorSensor.IntegrationTime time) {
-        this.write8(Register.ATIME, time.byteVal);
+    private void setIntegrationTime(IntegrationTime time) {
+        this.write8(Register.INTEGRATION_TIME, time.byteVal);
     }
 
-    private void setGain(AMSColorSensor.Gain gain) {
+    private void setGain(Gain gain) {
         this.write8(Register.CONTROL, gain.byteVal);
     }
 
@@ -231,8 +349,8 @@ public class AdafruitColorSensor8863 {
      */
     private boolean checkDeviceId() {
         byte id = this.getDeviceID();
-        if ((id != parameters.deviceId)) {
-            RobotLog.e("unexpected AMS color sensor chipid: found=%d expected=%d", id, parameters.deviceId);
+        if ((id != parameters.getDeviceId())) {
+            RobotLog.e("unexpected AMS color sensor chipid: found=%d expected=%d", id, parameters.getDeviceId());
             return false;
         } else {
             return true;
@@ -240,15 +358,15 @@ public class AdafruitColorSensor8863 {
     }
 
     private synchronized void enable() {
-        this.write8(Register.ENABLE, AMSColorSensor.AMS_COLOR_ENABLE_PON);
+        this.write8(Register.ENABLE, EnableRegister.AMS_COLOR_ENABLE_PON.byteVal);
         delayLore(6); // Adafruit's sample implementation uses 3ms
-        this.write8(Register.ENABLE, AMSColorSensor.AMS_COLOR_ENABLE_PON | AMSColorSensor.AMS_COLOR_ENABLE_AEN);
+        this.write8(Register.ENABLE, EnableRegister.AMS_COLOR_ENABLE_PON.byteVal | EnableRegister.AMS_COLOR_ENABLE_AEN.byteVal);
     }
 
     private synchronized void disable() {
         /* Turn the device off to save power */
         byte reg = colorSensorClient.read8(Register.ENABLE.byteVal);
-        this.write8(Register.ENABLE, reg & ~(AMSColorSensor.AMS_COLOR_ENABLE_PON | AMSColorSensor.AMS_COLOR_ENABLE_AEN));
+        this.write8(Register.ENABLE, reg & ~(EnableRegister.AMS_COLOR_ENABLE_PON.byteVal | EnableRegister.AMS_COLOR_ENABLE_AEN.byteVal));
     }
 
     /**
@@ -316,19 +434,19 @@ public class AdafruitColorSensor8863 {
     //*********************************************************************************************
 
     public synchronized int red() {
-        return this.readColorRegister(Register.RED);
+        return this.readColorRegister(Register.REDL);
     }
 
     public synchronized int green() {
-        return this.readColorRegister(Register.GREEN);
+        return this.readColorRegister(Register.GREENL);
     }
 
     public synchronized int blue() {
-        return this.readColorRegister(Register.BLUE);
+        return this.readColorRegister(Register.BLUEL);
     }
 
     public synchronized int alpha() {
-        return this.readColorRegister(Register.CLEAR);
+        return this.readColorRegister(Register.CLEARL);
     }
 
     private int readColorRegister(Register reg) {
@@ -336,7 +454,7 @@ public class AdafruitColorSensor8863 {
     }
 
     public synchronized int argb() {
-        byte[] bytes = read(Register.CLEAR, 8);
+        byte[] bytes = read(Register.CLEARL, 8);
         ByteBuffer buffer = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
         //
         int clear = TypeConversion.unsignedShortToInt(buffer.getShort());
@@ -346,144 +464,4 @@ public class AdafruitColorSensor8863 {
         //
         return Color.argb(clear, red, green, blue);
     }
-//    private class AMSColorSensorParameters {
-//        // The 7-bit I2C address of this device
-//        int AMS_TCS34725_ADDRESS = 0x29;
-//        int AMS_TMD37821_ADDRESS = 0x39;
-//
-//        byte AMS_TCS34725_ID = 0x44;
-//        byte AMS_TMD37821_ID = 0x60;
-//        byte AMS_TMD37823_ID = 0x69;
-//
-//        int AMS_COLOR_COMMAND_BIT = 0x80;
-//
-//        int AMS_COLOR_ENABLE = 0x00;
-//        int AMS_COLOR_ENABLE_PIEN = 0x20;        /* Proximity interrupt enable */
-//        int AMS_COLOR_ENABLE_AIEN = 0x10;        /* RGBC Interrupt Enable */
-//        int AMS_COLOR_ENABLE_WEN = 0x08;         /* Wait enable - Writing 1 activates the wait timer */
-//        int AMS_COLOR_ENABLE_PEN = 0x04;         /* Proximity enable */
-//        int AMS_COLOR_ENABLE_AEN = 0x02;         /* RGBC Enable - Writing 1 actives the ADC, 0 disables it */
-//        int AMS_COLOR_ENABLE_PON = 0x01;         /* Power on - Writing 1 activates the internal oscillator, 0 disables it */
-//        int AMS_COLOR_ATIME = 0x01;              /* Integration time */
-//        int AMS_COLOR_WTIME = 0x03;              /* Wait time = if AMS_COLOR_ENABLE_WEN is asserted; */
-//        int AMS_COLOR_WTIME_2_4MS = 0xFF;        /* WLONG0 = 2.4ms   WLONG1 = 0.029s */
-//        int AMS_COLOR_WTIME_204MS = 0xAB;        /* WLONG0 = 204ms   WLONG1 = 2.45s  */
-//        int AMS_COLOR_WTIME_614MS = 0x00;        /* WLONG0 = 614ms   WLONG1 = 7.4s   */
-//        int AMS_COLOR_AILTL = 0x04;              /* Clear channel lower interrupt threshold */
-//        int AMS_COLOR_AILTH = 0x05;
-//        int AMS_COLOR_AIHTL = 0x06;              /* Clear channel upper interrupt threshold */
-//        int AMS_COLOR_AIHTH = 0x07;
-//        int AMS_COLOR_PERS = 0x0C;               /* Persistence register - basic SW filtering mechanism for interrupts */
-//        int AMS_COLOR_PERS_NONE = 0b0000;        /* Every RGBC cycle generates an interrupt                                */
-//        int AMS_COLOR_PERS_1_CYCLE = 0b0001;     /* 1 clean channel value outside threshold range generates an interrupt   */
-//        int AMS_COLOR_PERS_2_CYCLE = 0b0010;     /* 2 clean channel values outside threshold range generates an interrupt  */
-//        int AMS_COLOR_PERS_3_CYCLE = 0b0011;     /* 3 clean channel values outside threshold range generates an interrupt  */
-//        int AMS_COLOR_PERS_5_CYCLE = 0b0100;     /* 5 clean channel values outside threshold range generates an interrupt  */
-//        int AMS_COLOR_PERS_10_CYCLE = 0b0101;    /* 10 clean channel values outside threshold range generates an interrupt */
-//        int AMS_COLOR_PERS_15_CYCLE = 0b0110;    /* 15 clean channel values outside threshold range generates an interrupt */
-//        int AMS_COLOR_PERS_20_CYCLE = 0b0111;    /* 20 clean channel values outside threshold range generates an interrupt */
-//        int AMS_COLOR_PERS_25_CYCLE = 0b1000;    /* 25 clean channel values outside threshold range generates an interrupt */
-//        int AMS_COLOR_PERS_30_CYCLE = 0b1001;    /* 30 clean channel values outside threshold range generates an interrupt */
-//        int AMS_COLOR_PERS_35_CYCLE = 0b1010;    /* 35 clean channel values outside threshold range generates an interrupt */
-//        int AMS_COLOR_PERS_40_CYCLE = 0b1011;    /* 40 clean channel values outside threshold range generates an interrupt */
-//        int AMS_COLOR_PERS_45_CYCLE = 0b1100;    /* 45 clean channel values outside threshold range generates an interrupt */
-//        int AMS_COLOR_PERS_50_CYCLE = 0b1101;    /* 50 clean channel values outside threshold range generates an interrupt */
-//        int AMS_COLOR_PERS_55_CYCLE = 0b1110;    /* 55 clean channel values outside threshold range generates an interrupt */
-//        int AMS_COLOR_PERS_60_CYCLE = 0b1111;    /* 60 clean channel values outside threshold range generates an interrupt */
-//        int AMS_COLOR_CONFIG = 0x0D;
-//        int AMS_COLOR_CONFIG_NORMAL = 0x00;      /* normal wait times */
-//        int AMS_COLOR_CONFIG_WLONG = 0x02;       /* Extended wait time = 12x normal wait times via AMS_COLOR_WTIME */
-//        int AMS_COLOR_CONTROL = 0x0F;            /* Set the gain level for the sensor */
-//        int AMS_COLOR_GAIN_1 = 0x00;             /* normal gain */
-//        int AMS_COLOR_GAIN_4 = 0x01;             /* 4x gain */
-//        int AMS_COLOR_GAIN_16 = 0x02;            /* 16x gain */
-//        int AMS_COLOR_GAIN_60 = 0x03;            /* 60x gain */
-//        int AMS_COLOR_ID = 0x12;                 /* 0x44 = TCS34721/AMS_COLOR, 0x4D = TCS34723/TCS34727 */
-//        int AMS_COLOR_STATUS = 0x13;
-//        int AMS_COLOR_STATUS_AINT = 0x10;        /* RGBC Clean channel interrupt */
-//        int AMS_COLOR_STATUS_AVALID = 0x01;      /* Indicates that the RGBC channels have completed an integration cycle */
-//        int AMS_COLOR_CDATAL = 0x14;             /* Clear channel data */
-//        int AMS_COLOR_CDATAH = 0x15;
-//        int AMS_COLOR_RDATAL = 0x16;             /* Red channel data */
-//        int AMS_COLOR_RDATAH = 0x17;
-//        int AMS_COLOR_GDATAL = 0x18;             /* Green channel data */
-//        int AMS_COLOR_GDATAH = 0x19;
-//        int AMS_COLOR_BDATAL = 0x1A;             /* Blue channel data */
-//        int AMS_COLOR_BDATAH = 0x1B;
-//
-//        // Registers we used to read-ahead, if supported
-//        int IREG_READ_FIRST = AMS_COLOR_CDATAL;
-//        int IREG_READ_LAST = AMS_COLOR_BDATAH;
-//
-//        /**
-//         * the device id expected to be reported by the color sensor chip
-//         */
-//        public final int deviceId;
-//
-//        /**
-//         * the address at which the sensor resides on the I2C bus.
-//         */
-//        public I2cAddr i2cAddr;
-//
-//        /**
-//         * the integration time to use
-//         */
-//        public IntegrationTime integrationTime = IntegrationTime.MS_24;
-//
-//        /**
-//         * the gain level to use
-//         */
-//        public Gain gain = Gain.GAIN_4;
-//
-//        /**
-//         * set of registers to read in background, if supported by underlying I2cDeviceSynch
-//         */
-//        public I2cDeviceSynch.ReadWindow readWindow = new I2cDeviceSynch.ReadWindow(IREG_READ_FIRST, IREG_READ_LAST - IREG_READ_FIRST + 1, I2cDeviceSynch.ReadMode.REPEAT);
-//
-//        /**
-//         * debugging aid: enable logging for this device?
-//         */
-//        public boolean loggingEnabled = false;
-//
-//        /**
-//         * debugging aid: the logging tag to use when logging
-//         */
-//        public String loggingTag = "AMSColorSensor";
-//
-//        //*********************************************************************************************
-//        //          Constructors
-//        //
-//        // the function that builds the class when an object is created
-//        // from it
-//        //*********************************************************************************************
-//
-//        private AMSColorSensorParameters(I2cAddr i2cAddr, int deviceId) {
-//            this.i2cAddr = i2cAddr;
-//            this.deviceId = deviceId;
-//        }
-//
-//        public static AMSColorSensorParameters createForAdaFruit() {
-//            int AMS_TCS34725_ADDRESS = 0x29;
-//            int AMS_TMD37821_ADDRESS = 0x39;
-//
-//            byte AMS_TCS34725_ID = 0x44;
-//            byte AMS_TMD37821_ID = 0x60;
-//            byte AMS_TMD37823_ID = 0x69;
-//
-//            AMSColorSensorParameters parameters = new AMSColorSensorParameters(I2cAddr.create7bit(AMS_TCS34725_ADDRESS), AMS_TCS34725_ID);
-//            return parameters;
-//        }
-//
-//        public static AMSColorSensorParameters createForLynx() {
-//            int AMS_TCS34725_ADDRESS = 0x29;
-//            int AMS_TMD37821_ADDRESS = 0x39;
-//
-//            byte AMS_TCS34725_ID = 0x44;
-//            byte AMS_TMD37821_ID = 0x60;
-//            byte AMS_TMD37823_ID = 0x69;
-//
-//            AMSColorSensorParameters parameters = new AMSColorSensorParameters(I2cAddr.create7bit(AMS_TMD37821_ADDRESS), AMS_TMD37821_ID);
-//            return parameters;
-//        }
-//    }
 }
