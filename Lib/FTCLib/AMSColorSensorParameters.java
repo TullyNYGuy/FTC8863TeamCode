@@ -38,12 +38,12 @@ public class AMSColorSensorParameters {
     /**
      * the integration time to use, default to 24ms
      */
-    private AdafruitColorSensor8863.IntegrationTime integrationTime = AdafruitColorSensor8863.IntegrationTime.AMS_COLOR_ITIME_24MS;
+    private AdafruitColorSensor8863.IntegrationTime integrationTime = AdafruitColorSensor8863.IntegrationTime.AMS_COLOR_ITIME_700MS;
 
     /**
      * the gain level to use, default to 4x
      */
-    private AdafruitColorSensor8863.Gain gain = AdafruitColorSensor8863.Gain.AMS_COLOR_GAIN_4;
+    private AdafruitColorSensor8863.Gain gain = AdafruitColorSensor8863.Gain.AMS_COLOR_GAIN_64;
 
     /**
      * set of registers to read in background, if supported by underlying I2cDeviceSynch

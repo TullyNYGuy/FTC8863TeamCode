@@ -14,6 +14,10 @@ import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+/**
+ * Uses the deprecated AdafruitI2cColorSensor class to read the color sensor. The gain is fixed
+ * and the integration time is set to 600 ms. Not very useful. Dont' use this class.
+ */
 public class AdafruitColorSensor {
 
     //*********************************************************************************************
@@ -30,12 +34,12 @@ public class AdafruitColorSensor {
     // getter and setter methods
     //*********************************************************************************************
 
-    private AMSColorSensor colorSensor;
-    //private ColorSensor colorSensor;
+    //private AMSColorSensor colorSensor;
+    private ColorSensor colorSensor;
     //private AMSColorSensorImpl colorSensor;
-    private I2cDevice i2cDevice;
+    //private I2cDevice i2cDevice;
 
-    private AMSColorSensor.Parameters parameters;
+    //private AMSColorSensor.Parameters parameters;
 //    int AMS_TCS34725_ADDRESS = 0x29;
 //    byte AMS_TCS34725_ID = 0x44;
 
@@ -71,16 +75,16 @@ public class AdafruitColorSensor {
         this.coreDIMName = coreDIMName;
         this.ioChannelForLed = ioChannelForLed;
         this.controlLED = true;
-        parameters = AMSColorSensor.Parameters.createForAdaFruit();
+        //parameters = AMSColorSensor.Parameters.createForAdaFruit();
         coreDIM = hardwareMap.deviceInterfaceModule.get(coreDIMName);
         // both of the calls below result in an abject instantiated from AdafruitI2cColorSensor.
         // This is not desirable since the update rate is 600 mSec. And because it is marked
         // deprecated. I really want an object of
         // AMSColorSensorImpl since it has a configurable update rate and it new.
-        //colorSensor = hardwareMap.colorSensor.get(colorSensorName);
+        colorSensor = hardwareMap.colorSensor.get(colorSensorName);
         //colorSensor = hardwareMap.get(AMSColorSensor.class, colorSensorName);
-        i2cDevice = hardwareMap.get(I2cDevice.class, colorSensorName);
-        colorSensor = AMSColorSensorImpl.create(parameters, i2cDevice);
+        //i2cDevice = hardwareMap.get(I2cDevice.class, colorSensorName);
+        //colorSensor = AMSColorSensorImpl.create(parameters, i2cDevice);
         coreDIM.setDigitalChannelMode(ioChannelForLed, DigitalChannelController.Mode.OUTPUT);
         // Delay so the init can finish before setting the led off. Otherwise the LED does not get
         // shut off.

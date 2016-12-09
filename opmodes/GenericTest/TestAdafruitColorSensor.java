@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.Lib.ResQLib.RobotConfigMapping;
  *
  *
  */
-@TeleOp(name = "Test Adafruit Color Sensor", group = "Test")
+@TeleOp(name = "Test Adafruit Color Sensor Deprecated", group = "Test")
 //@Disabled
 public class TestAdafruitColorSensor extends LinearOpMode {
 

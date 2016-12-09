@@ -3,12 +3,13 @@ package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
 import android.graphics.Color;
 
-import com.qualcomm.hardware.ams.AMSColorSensorImpl;
+import com.qualcomm.robotcore.hardware.DeviceInterfaceModule;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynchImpl;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.RobotLog;
 import com.qualcomm.robotcore.util.TypeConversion;
 
@@ -79,6 +80,9 @@ public class AdafruitColorSensor8863 {
      * the response times from the color sensor become slower. In a typical Opmode loop you would
      * reading the sensor every time through the loop, you will need to have the sensor at the 24ms
      * integration time.
+     * Normal RGB color values range from 0 to 255. The color sensor returns values that are 2 bytes
+     * long. The max possible value is much bigger than 255. In order to get normal RGB values, I
+     * have to scale them down. The scaling factor is given by (256-ATIME) x 1024.
      * Provides symbolic names for the values the register can have.
      */
     enum IntegrationTime {
@@ -183,7 +187,7 @@ public class AdafruitColorSensor8863 {
      * The control register provides eight bits of miscellaneous control to the analog block. These
      * bits typically control functions such as the gain setting and/or diode selection.
      */
-    enum Gain {
+     enum Gain {
         // bits 7:2 reserved, write as 0
         // bits 1:0 - RGBC gain control
         AMS_COLOR_GAIN_1(0x00),  // 1X
@@ -280,13 +284,24 @@ public class AdafruitColorSensor8863 {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
+    private Gain currentGain;
+    private IntegrationTime currentIntegrationTime;
 
     private I2cDevice colorSensor;
     private I2cDeviceSynch colorSensorClient;
     private AMSColorSensorParameters parameters;
     boolean isOwned = false;
-    boolean waitForWriteCompletion = true;
-    private AMSColorSensorImpl fred;
+
+    // For controlling the LED
+    private DeviceInterfaceModule coreDIM;
+    private boolean ledOn = false;
+    private boolean controlLED = true;
+    private int ioChannelForLed;
+
+    // For tracking the update rate
+    private ElapsedTime updateTimer;
+    private int lastAlpha = 0;
+    private StatTracker updateTimeTracker;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -295,6 +310,9 @@ public class AdafruitColorSensor8863 {
     // getPositionInTermsOfAttachment
     //*********************************************************************************************
 
+    public Gain getCurrentGain() {
+        return currentGain;
+    }
 
     //*********************************************************************************************
     //          Constructors
@@ -309,6 +327,10 @@ public class AdafruitColorSensor8863 {
         colorSensorClient = new I2cDeviceSynchImpl(colorSensor, parameters.getI2cAddr(), isOwned);
         colorSensorClient.engage();
         initialize();
+        // Timer used to time the update rate
+        updateTimer = new ElapsedTime();
+        // A tracker used to track the update rate of the color sensor.
+        updateTimeTracker = new StatTracker();
     }
 
 
@@ -334,10 +356,13 @@ public class AdafruitColorSensor8863 {
 
     private void setIntegrationTime(IntegrationTime time) {
         this.write8(Register.INTEGRATION_TIME, time.byteVal);
+        this.currentIntegrationTime = time;
     }
 
     private void setGain(Gain gain) {
         this.write8(Register.CONTROL, gain.byteVal);
+        // save the gain
+        this.currentGain = gain;
     }
 
     public byte getDeviceID() {
@@ -446,7 +471,15 @@ public class AdafruitColorSensor8863 {
     }
 
     public synchronized int alpha() {
-        return this.readColorRegister(Register.CLEARL);
+        int alpha = this.readColorRegister(Register.CLEARL);
+        if(alpha != lastAlpha) {
+            // alpha changed so update the tracker
+            updateTimeTracker.compareValue(updateTimer.milliseconds());
+            updateTimer.reset();
+            // Since alpha changed save the new lastAlpha
+            lastAlpha = alpha;
+        }
+        return alpha;
     }
 
     private int readColorRegister(Register reg) {
@@ -463,5 +496,97 @@ public class AdafruitColorSensor8863 {
         int blue = TypeConversion.unsignedShortToInt(buffer.getShort());
         //
         return Color.argb(clear, red, green, blue);
+    }
+
+    public float[] hsv(int red, int green, int blue) {
+        // hsvValues is an array that will hold the hue, saturation, and value information.
+        float hsvValues[] = {0F,0F,0F};
+        // convert the RGB values to HSV values.
+        Color.RGBToHSV((red() * 255) / 800, (green() * 255) / 800, (blue() * 255) / 800, hsvValues);
+        return hsvValues;
+    }
+    
+    public float hue() {
+        return hsv(red(), green(), blue())[0];
+    }
+
+    public float saturation() {
+        return hsv(red(), green(), blue())[1];
+    }
+
+    public float value() {
+        return hsv(red(), green(), blue())[2];
+    }
+
+    public void setGain1x() {
+        setGain(Gain.AMS_COLOR_GAIN_1);
+    }
+
+    public void setGain4x() {
+        setGain(Gain.AMS_COLOR_GAIN_4);
+    }
+
+    public void setGain16x() {
+        setGain(Gain.AMS_COLOR_GAIN_16);
+    }
+
+    public void setGain64x() {
+        setGain(Gain.AMS_COLOR_GAIN_64);
+    }
+
+    public String getCurrentGainAsString() {
+        String gainAsString = "nothing";
+        switch (currentGain) {
+            case AMS_COLOR_GAIN_1:
+                gainAsString = "1X";
+                break;
+            case AMS_COLOR_GAIN_4:
+                gainAsString = "4X";
+                break;
+            case AMS_COLOR_GAIN_16:
+                gainAsString = "16X";
+                break;
+            case AMS_COLOR_GAIN_64:
+                gainAsString = "64X";
+                break;
+        }
+        return gainAsString;
+    }
+
+    public String getCurrentIntegrationTimeAsString() {
+        String integrationTimeAsString = "nothing";
+        switch (currentIntegrationTime) {
+            case AMS_COLOR_ITIME_2_4MS:
+                integrationTimeAsString = "2.4ms";
+                break;
+            case AMS_COLOR_ITIME_24MS:
+                integrationTimeAsString = "24ms";
+                break;
+            case AMS_COLOR_ITIME_50MS:
+                integrationTimeAsString = "50ms";
+                break;
+            case AMS_COLOR_ITIME_101MS:
+                integrationTimeAsString = "101ms";
+                break;
+            case AMS_COLOR_ITIME_154MS:
+                integrationTimeAsString = "154ms";
+                break;
+            case AMS_COLOR_ITIME_700MS:
+                integrationTimeAsString = "700ms";
+                break;
+        }
+        return integrationTimeAsString;
+    }
+
+    public double getUpdateRateMin() {
+        return updateTimeTracker.getMinimum();
+    }
+
+    public double getUpdateRateMax() {
+        return updateTimeTracker.getMaximum();
+    }
+
+    public double getUpdateRateAve() {
+        return updateTimeTracker.getAverage();
     }
 }
