@@ -84,6 +84,16 @@ public class AdafruitColorSensor8863 {
      * long. The max possible value is much bigger than 255. In order to get normal RGB values, I
      * have to scale them down. The scaling factor is given by (256-ATIME) x 1024.
      * Provides symbolic names for the values the register can have.
+     *
+     * For FTC this is the most important setting. Longer integration times = more accuracy and more
+     * resolution (higher max color values). Shorter integration = less accuracy and less resolution.
+     * But nothing comes for free right? Longer times make the sensor slower to respond. 700ms
+     * integration time means you will get a new reading a little less than once every second. Is
+     * that ok? Depends on your application. If you are line following, then no way. You want new
+     * readings very quickly so you can respond if you get off course. But if you have
+     * to take the color of something once then it may be ok. So take a look at your application.
+     * Trade off the accuracy vs the time to get a new reading. Test it. Change if needed.
+     * A good starting point is 24ms. That is around the time it takes to run one opmode loop.
      */
     enum IntegrationTime {
         AMS_COLOR_ITIME_2_4MS(0xFF), //2.4 mSec
@@ -107,7 +117,13 @@ public class AdafruitColorSensor8863 {
      * which case the wait times are 12X longer. WTIME is programmed as a 2's complement number.
      * These enum values are preset for you. You can also calculate and set your own.
      * Provides symbolic names for the values the register can have.
-     * NOTE TO ME: WHAT DOES WAIT TIME DO?
+     *
+     * WHAT DOES WAIT TIME DO? The wait time is the time the device waits between integration cycles.
+     * In other words, the device goes to sleep for a while before producing a new set of color
+     * values. For battery powered devices, this is good. Sleep reduces the power the sensor uses.
+     * But for FTC, we don't care. The power the sensor uses is miniscule compared to the motors and
+     * servos. We do care about speed though. We most likely want it fast. Our sensor does not get
+     * any sleep :-). So typically you want to set this wait time to 2.4ms and keep WLONG = 0.
      */
     enum WaitTime {
         AMS_COLOR_WTIME_2_4MS(0xFF),     // if WLONG=0, wait = 2.4ms; if WLONG=1 wait = 0.029s
@@ -128,6 +144,8 @@ public class AdafruitColorSensor8863 {
     // threshold, an interrupt is asserted on the interrupt pin. 
     // See addresses below THRESHOLD_AILTL, AILTH, AIHTL, AIHTH
 
+    // In FTC we don't have any interrupts. So these registers are not a concern to us.
+
     /**
      * Persistence Register (address = 0x0C)
      * The persistence register controls the filtering interrupt capabilities of the device.
@@ -135,6 +153,8 @@ public class AdafruitColorSensor8863 {
      * cycle or if the integration has produced a result that is outside of the values specified
      * by the threshold register for the specified amount of time.
      * Provides symbolic names for the values the register can have.
+     *
+     * In FTC we don't have any interrupts. So these registers are not a concern to us.
      */
     enum Persistence {
         // bits 7:4 - reserved
@@ -167,6 +187,8 @@ public class AdafruitColorSensor8863 {
      * Configuration Register (address = 0x0D)
      * The configuration register sets the wait long time.
      * Provides symbolic names for the values the register can have.
+     * See wait time register for an explanation of this. Short take: you almost certainly want
+     * normal wait times for FTC.
      */
     enum Configuration {
         // bits 7:2 reserved, write as 0
@@ -186,6 +208,19 @@ public class AdafruitColorSensor8863 {
      * Control Register (address = 0x0F)
      * The control register provides eight bits of miscellaneous control to the analog block. These
      * bits typically control functions such as the gain setting and/or diode selection.
+     *
+     * This setting is important for FTC. You want as high a gain as possible. But you don't want it
+     * so high that the values saturate at the max associated with the integration time you choose.
+     * So it is a tightrope walk. Too low and your color values will not be as good as they can be.
+     * Too high and they are total garbage.
+     * My recommendation: pick a gain and then look at the color values you get when you put the
+     * sensor into an environment where it reads the colors from an object of interest. Lighting
+     * in the room will have a big effect on this. Make sure it is similar to your competition
+     * lighting. Then increase the gain a step. Keep doing this until your color values saturate,
+     * then back down a step on the gain. You can tell what the max values will be by shining a
+     * bright flashlight at the sensor. The values will max out (saturate). You don't want that to
+     * happen while you are reading colors for real. Note that you may never saturate, even with
+     * gain at 64X. It all depends on the lighting on the object you read.
      */
      enum Gain {
         // bits 7:2 reserved, write as 0
@@ -392,6 +427,11 @@ public class AdafruitColorSensor8863 {
         /* Turn the device off to save power */
         byte reg = colorSensorClient.read8(Register.ENABLE.byteVal);
         this.write8(Register.ENABLE, reg & ~(EnableRegister.AMS_COLOR_ENABLE_PON.byteVal | EnableRegister.AMS_COLOR_ENABLE_AEN.byteVal));
+    }
+
+    private int getMaxRGBCCount(int integrationTime){
+        return 0;
+        //need to put real code here
     }
 
     /**
