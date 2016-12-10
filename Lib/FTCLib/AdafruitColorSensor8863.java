@@ -321,6 +321,7 @@ public class AdafruitColorSensor8863 {
     //*********************************************************************************************
     private Gain currentGain;
     private IntegrationTime currentIntegrationTime;
+    private int maxRGBCValue = 0;
 
     private I2cDevice colorSensor;
     private I2cDeviceSynch colorSensorClient;
@@ -429,9 +430,16 @@ public class AdafruitColorSensor8863 {
         this.write8(Register.ENABLE, reg & ~(EnableRegister.AMS_COLOR_ENABLE_PON.byteVal | EnableRegister.AMS_COLOR_ENABLE_AEN.byteVal));
     }
 
-    private int getMaxRGBCCount(int integrationTime){
-        return 0;
-        //need to put real code here
+    /**
+     * The maximum
+     * Equation: Max possible RGBC value = (256 - integration time (hex->decimal)) * 1024
+     * @param integrationTime
+     * @return
+     */
+    private int calculateMaxRGBCCount(int integrationTime){
+        this.maxRGBCValue = (256 - integrationTime) * 1024;
+        if (maxRGBCValue > 65535) {this.maxRGBCValue = 65535;}
+        return maxRGBCValue;
     }
 
     /**
