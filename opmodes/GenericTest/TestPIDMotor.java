@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.PIDControl;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.RampControl;
 
 /**
  * This OpMode runs 2 motors at a given power, one in the opposite direction from the other.
@@ -21,6 +22,7 @@ public class TestPIDMotor extends LinearOpMode {
 
     DcMotor8863 motor;
     PIDControl pidControl;
+    RampControl rampControl;
     int feedback = 0;
     double powerToRunAt = 1.0; // 80% of full speed
 
@@ -46,6 +48,8 @@ public class TestPIDMotor extends LinearOpMode {
         motor.setDirection(DcMotor.Direction.FORWARD);
 
         pidControl = new PIDControl(.005, 360,.5); //Kp, target, speed limit
+
+        rampControl = new RampControl(0, powerToRunAt, 5); //value at start, value at end, time to complete action
 
         // test internal routines from DcMotor8863
         telemetry.addData("Encoder Count for movement = ", "%d", motor.getEncoderCountForRevs(2.5));
