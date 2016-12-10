@@ -35,8 +35,40 @@ public class TestDrivingSquare extends LinearOpMode {
         telemetry.update();
         waitForStart();
         driveStraight(50, 0.5);
-        sleep(2000);
+        telemetry.addData("Finished Straight", "1");
+        telemetry.update();
+        sleep(1000);
         anyTurn(-90, 0.4);
+        telemetry.addData("Finished Turn", "1");
+        telemetry.update();
+        sleep(1000);
+
+        driveStraight(50, 0.5);
+        telemetry.addData("Finished Straight", "2");
+        telemetry.update();
+        sleep(1000);
+        anyTurn(-90, 0.4);
+        telemetry.addData("Finished Turn", "2");
+        telemetry.update();
+        sleep(1000);
+
+        driveStraight(50, 0.5);
+        telemetry.addData("Finished Straight", "3");
+        telemetry.update();
+        sleep(1000);
+        anyTurn(-90, 0.4);
+        telemetry.addData("Finished Turn", "3");
+        telemetry.update();
+        sleep(1000);
+
+        driveStraight(50, 0.5);
+        telemetry.addData("Finished Straight", "4");
+        telemetry.update();
+        sleep(1000);
+        anyTurn(-90, 0.4);
+        telemetry.addData("Finished Turn", "4");
+        telemetry.update();
+        sleep(1000);
 
         // Put your cleanup code here - it runs as the application shuts down
         telemetry.addData(">", "Done");
@@ -54,6 +86,8 @@ public class TestDrivingSquare extends LinearOpMode {
             telemetry.update();
             idle();
         }
+        telemetry.addData("Finished Turn", "0");
+        telemetry.update();
     }
 
     public void driveStraight(double distance, double power){

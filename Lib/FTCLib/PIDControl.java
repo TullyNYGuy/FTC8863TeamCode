@@ -197,6 +197,7 @@ public class PIDControl {
      * @return Correction to use in control code.
      */
     public double getCorrection(double feedback){
+        setFeedback(feedback);
         double correction = (getSetpoint() - feedback) * getKp();
         correction = Range.clip(correction, -maxCorrection, maxCorrection);
         return correction;

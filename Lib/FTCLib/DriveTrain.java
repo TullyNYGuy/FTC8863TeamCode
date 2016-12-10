@@ -192,6 +192,7 @@ public class DriveTrain {
         leftDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         pidControl.setSetpoint(turnAngle);
         pidControl.setMaxCorrection(maxPower);
+        pidControl.setThreshold(2);
         imu8863.setAngleMode(AdafruitIMU8863.AngleMode.RELATIVE);
         imu8863.resetAngleReferences();
     }
