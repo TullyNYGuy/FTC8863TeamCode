@@ -194,7 +194,7 @@ public class PIDControl {
      */
     public double getCorrection(double feedback){
         double correction = (getSetpoint() - feedback) * getKp();
-        if (useRampControl && !rampControl.isRunning()){
+        if (useRampControl && !rampControl.isRunning() && !rampControl.isFinished()){
             rampControl.start();
         }
 
