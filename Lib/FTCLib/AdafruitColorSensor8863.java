@@ -101,7 +101,8 @@ public class AdafruitColorSensor8863 {
         AMS_COLOR_ITIME_50MS(0xEB), // 50 mSec
         AMS_COLOR_ITIME_101MS(0xD5), // 101 mSec
         AMS_COLOR_ITIME_154MS(0xC0), // 154 mSec
-        AMS_COLOR_ITIME_700MS(0x00); // 700 mSec
+        AMS_COLOR_ITIME_700MS(0x00), // 700 mSec
+        AMS_COLOR_ITIME_CUSTOM(0xFFF); // place holder for a user specified integration time
 
         public final byte byteVal;
 
@@ -321,6 +322,7 @@ public class AdafruitColorSensor8863 {
     //*********************************************************************************************
     private Gain currentGain;
     private IntegrationTime currentIntegrationTime;
+    private int integrationTimeAsInt = 0;
     private int maxRGBCValue = 0;
 
     private I2cDevice colorSensor;
@@ -431,15 +433,30 @@ public class AdafruitColorSensor8863 {
     }
 
     /**
-     * The maximum
+     * The maximum possible value of a color depends on the integration time that is selected. This
+     * function returns that value given the integration time. This will get used in scaling the
+     * values from the sensor to standard RGB (0-255).
      * Equation: Max possible RGBC value = (256 - integration time (hex->decimal)) * 1024
-     * @param integrationTime
+     * @param integrationTime max possible value of a color
      * @return
      */
     private int calculateMaxRGBCCount(int integrationTime){
         this.maxRGBCValue = (256 - integrationTime) * 1024;
         if (maxRGBCValue > 65535) {this.maxRGBCValue = 65535;}
         return maxRGBCValue;
+    }
+
+    private int convertIntegrationTimeToInt (IntegrationTime integrationTime) {
+        int result;
+        switch (integrationTime) {
+            case AMS_COLOR_ITIME_CUSTOM:
+                result = integrationTimeAsInt;
+            break;
+            default:
+                result = integrationTime.byteVal;
+            break;
+        }
+        return result;
     }
 
     /**
