@@ -207,7 +207,7 @@ public class PIDControl {
         return correction;
     }
 
-    public void setup(double valueAtStartTime, double valueAtFinishTime, double timeToReachFinishValueInmSec) {
+    public void setupRamp (double valueAtStartTime, double valueAtFinishTime, double timeToReachFinishValueInmSec) {
         rampControl.setup(valueAtStartTime,valueAtFinishTime,timeToReachFinishValueInmSec);
         setUseRampControl(true);
     }
