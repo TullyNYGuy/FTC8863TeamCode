@@ -6,6 +6,41 @@ import com.qualcomm.robotcore.hardware.DigitalChannelController;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+/**
+ * This class supports a switch connected to a digital IO port on the core device interface module.
+ * As a switch is pressed, the mechanical stuff inside it can make and lose contact for very short
+ * periods of time (milli-seconds) before it finally makes contact for good. This is called switch
+ * bounce. When you have switch bounce, it can look like the switch is pressed or not pressed
+ * (released) depending on when you read it. This bouncing back and forth can give you false
+ * readings. This class debounces the switch in software by ignoring and quick transitions to
+ * pressed. It makes sure that the switch has been pressed for at least debounceLengthInMs (40
+ * milli-seconds by default) before it will tell you the switch is actually pressed. The class
+ * can tell you 3 things:
+ *    pressed - switch is currently pressed
+ *    released - switch is currently not pressed
+ *    bumped - switch was pressed and released at some point in the past
+ * As you can see, bumped has some memory. It remembers the switch pressed and released at some
+ * point in the past. This memory is erased if you check for pressed or released though. The
+ * assumption is that if you are checking for pressed or released you do not care about bumped at
+ * that point in time. Checking for bumped will also erase the memory once you have checked it.
+ *
+ * Switches come in 2 flavors:
+ *    normally open   - there is not a short between the two contacts when the switch is not pressed
+ *                    - the contacts will short when the switch is pressed
+ *    normally closed - there is a short between the two contacts when the switch is not pressed
+ *                    - there is no short when the switch is pressed
+ *
+ * In order to interface a switch with a port on the core device interface module, there needs to be
+ * a resistor that pulls one contact on the switch up to +5 volts through a resistor. Our cables
+ * include this resistor and all of our switches are normally open (NO), at least as of 12/2016.
+ * The class will handle all of the logic as long as you tell the constructor what type of switch
+ * you have.
+ *
+ * To use a switch you have to connect the switch to one of the digital ports on the core device
+ * interface module. Make sure that the dark wire is connected to the ground end. Configure your
+ * phone so that there is a digital device on the digital port and give it a name. You will pass
+ * that name into the constructor for the class.
+ */
 public class Switch {
 
     //*********************************************************************************************
@@ -78,7 +113,8 @@ public class Switch {
 
     /**
      * State machine for the switch. This method should be called once every loop cycle. This is
-     * because it has to track the switch for debouncing.
+     * because it has to track the switch for debouncing and for bumped. If we were not doing that
+     * we would not need a state machine and it would not have to be called every loop cycle.
      */
     public void updateSwitch() {
         switch(currentState) {
@@ -169,6 +205,12 @@ public class Switch {
     // public methods that give the class its functionality
     //*********************************************************************************************
 
+    /**
+     * If the switch is currently pressed return true. If it is not pressed return false. if the
+     * switch is in the middle of debouncing the assumption is that it is not pressed so return
+     * false.
+     * @return true = switch pressed
+     */
     public boolean isPressed() {
         boolean result = false;
         // The switch is not pressed if the state is released or in the process of debouncing
@@ -182,6 +224,11 @@ public class Switch {
         return result;
     }
 
+    /**
+     * If the switch is not pressed return true. If it is pressed return false. If it is currently
+     * in the middle of debouncing the assumption is that it is not pressed yet so true is returned.
+     * @return
+     */
     public boolean isReleased() {
         boolean result = false;
         if(currentState == SwitchState.RELEASED || currentState == SwitchState.DEBOUNCING) {
@@ -192,6 +239,12 @@ public class Switch {
         return result;
     }
 
+    /**
+     * Returns true if the switch has been pressed and released since the last time it was checked.
+     * Calling this will clear bumped after you get your answer.
+     * @return true if pressed and released since the last time you called any method to check
+     * the switch
+     */
     public boolean isBumped() {
         boolean result = bumped;
         // Since the user is checking bumped, they will get their answer but we now need to reset it
