@@ -38,7 +38,7 @@ public class AMSColorSensorParameters {
     /**
      * the integration time to use, default to 24ms
      */
-    private AdafruitColorSensor8863.IntegrationTime integrationTime = AdafruitColorSensor8863.IntegrationTime.AMS_COLOR_ITIME_700MS;
+    private AdafruitColorSensor8863.IntegrationTime integrationTime = AdafruitColorSensor8863.IntegrationTime.AMS_COLOR_ITIME_460MS;
 
     /**
      * the gain level to use, default to 4x
@@ -77,6 +77,10 @@ public class AMSColorSensorParameters {
 
     public AdafruitColorSensor8863.Gain getGain() {
         return gain;
+    }
+
+    public void setGain(AdafruitColorSensor8863.Gain gain) {
+        this.gain = gain;
     }
 
     public int getDeviceId() {

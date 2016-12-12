@@ -15,7 +15,13 @@ import com.qualcomm.robotcore.util.TypeConversion;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.ArrayList;
 
+// Things to do:
+//    investigate the update rate - it appears odd
+//    put in an instantaneous update rate
+//    add to test routine so that button controls gain and integration time
+//    add control of led in
 public class AdafruitColorSensor8863 {
 
     //*********************************************************************************************
@@ -84,7 +90,7 @@ public class AdafruitColorSensor8863 {
      * long. The max possible value is much bigger than 255. In order to get normal RGB values, I
      * have to scale them down. The scaling factor is given by (256-ATIME) x 1024.
      * Provides symbolic names for the values the register can have.
-     *
+     * <p>
      * For FTC this is the most important setting. Longer integration times = more accuracy and more
      * resolution (higher max color values). Shorter integration = less accuracy and less resolution.
      * But nothing comes for free right? Longer times make the sensor slower to respond. 700ms
@@ -94,15 +100,19 @@ public class AdafruitColorSensor8863 {
      * to take the color of something once then it may be ok. So take a look at your application.
      * Trade off the accuracy vs the time to get a new reading. Test it. Change if needed.
      * A good starting point is 24ms. That is around the time it takes to run one opmode loop.
+     * Equation for calculating integration time in milliseconds (ms) = (256-ATIME) * 2.4ms
+     * Equation for calculating ATIME (byte value of register) = (256-(integratin time in ms)) / 2.4ms
      */
     enum IntegrationTime {
-        AMS_COLOR_ITIME_2_4MS(0xFF), //2.4 mSec
-        AMS_COLOR_ITIME_24MS(0xF6), // 24 mSec
-        AMS_COLOR_ITIME_50MS(0xEB), // 50 mSec
-        AMS_COLOR_ITIME_101MS(0xD5), // 101 mSec
-        AMS_COLOR_ITIME_154MS(0xC0), // 154 mSec
-        AMS_COLOR_ITIME_700MS(0x00), // 700 mSec
-        AMS_COLOR_ITIME_CUSTOM(0xFFF); // place holder for a user specified integration time
+        AMS_COLOR_ITIME_2_4MS(0xFF), //2.4 mSec, max possible value = 1024
+        AMS_COLOR_ITIME_24MS(0xF6), // 24 mSec, max possible value = 10240
+        AMS_COLOR_ITIME_50MS(0xEB), // 50 mSec, max possible value = 21504
+        AMS_COLOR_ITIME_101MS(0xD5), // 101 mSec, max possible value = 44032 (data sheet has error in table 6)
+        AMS_COLOR_ITIME_154MS(0xC0), // 154 mSec, max possible value = 65535
+        AMS_COLOR_ITIME_307MS(0x80), // 307 mSec, max possible value = 65535
+        AMS_COLOR_ITIME_460MS(0x40), // 460 mSec, max possible value = 65535
+        AMS_COLOR_ITIME_537MS(0x20), // 537 mSec, max possible value = 65535
+        AMS_COLOR_ITIME_700MS(0x00); // 700 mSec, max possible value = 65535
 
         public final byte byteVal;
 
@@ -118,7 +128,7 @@ public class AdafruitColorSensor8863 {
      * which case the wait times are 12X longer. WTIME is programmed as a 2's complement number.
      * These enum values are preset for you. You can also calculate and set your own.
      * Provides symbolic names for the values the register can have.
-     *
+     * <p>
      * WHAT DOES WAIT TIME DO? The wait time is the time the device waits between integration cycles.
      * In other words, the device goes to sleep for a while before producing a new set of color
      * values. For battery powered devices, this is good. Sleep reduces the power the sensor uses.
@@ -154,7 +164,7 @@ public class AdafruitColorSensor8863 {
      * cycle or if the integration has produced a result that is outside of the values specified
      * by the threshold register for the specified amount of time.
      * Provides symbolic names for the values the register can have.
-     *
+     * <p>
      * In FTC we don't have any interrupts. So these registers are not a concern to us.
      */
     enum Persistence {
@@ -209,7 +219,7 @@ public class AdafruitColorSensor8863 {
      * Control Register (address = 0x0F)
      * The control register provides eight bits of miscellaneous control to the analog block. These
      * bits typically control functions such as the gain setting and/or diode selection.
-     *
+     * <p>
      * This setting is important for FTC. You want as high a gain as possible. But you don't want it
      * so high that the values saturate at the max associated with the integration time you choose.
      * So it is a tightrope walk. Too low and your color values will not be as good as they can be.
@@ -223,7 +233,7 @@ public class AdafruitColorSensor8863 {
      * happen while you are reading colors for real. Note that you may never saturate, even with
      * gain at 64X. It all depends on the lighting on the object you read.
      */
-     enum Gain {
+    enum Gain {
         // bits 7:2 reserved, write as 0
         // bits 1:0 - RGBC gain control
         AMS_COLOR_GAIN_1(0x00),  // 1X
@@ -320,10 +330,13 @@ public class AdafruitColorSensor8863 {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
-    private Gain currentGain;
-    private IntegrationTime currentIntegrationTime;
-    private int integrationTimeAsInt = 0;
+
     private int maxRGBCValue = 0;
+
+    private ArrayList<Gain> gainArrayList;
+    private int currentGainIndex = 0;
+    private ArrayList<IntegrationTime> integrationTimeArrayList;
+    private int currentIntegrationTimeIndex = 0;
 
     private I2cDevice colorSensor;
     private I2cDeviceSynch colorSensorClient;
@@ -348,8 +361,8 @@ public class AdafruitColorSensor8863 {
     // getPositionInTermsOfAttachment
     //*********************************************************************************************
 
-    public Gain getCurrentGain() {
-        return currentGain;
+    public int getMaxRGBCValue() {
+        return maxRGBCValue;
     }
 
     //*********************************************************************************************
@@ -387,20 +400,72 @@ public class AdafruitColorSensor8863 {
         }
         // Set the gain and integration time
         setIntegrationTime(parameters.getIntegrationTime());
+        // Get the index into the enum for the selected integration time
+        // This may get used later to change the integration time
         setGain(parameters.getGain());
+        // Get the index into the enum for the selected gain
+        // This may get used later to change the gain
         // set up a read ahead?
         enable();
     }
 
     private void setIntegrationTime(IntegrationTime time) {
         this.write8(Register.INTEGRATION_TIME, time.byteVal);
-        this.currentIntegrationTime = time;
+        // calculate maximum possible color value for use later in scaling
+        this.maxRGBCValue = calculateMaxRGBCCount(time);
     }
+
+    // following is start of code needed to be able to increment through Gains and Integration times
+    // It is not complete yet.
+    private void createGainArrayList() {
+        gainArrayList = new ArrayList<Gain>();
+        for(Gain g : Gain.values()) {
+            gainArrayList.add(g);
+        }
+    }
+
+    private int getCurrentGainIndex(Gain gain) {
+        int index = 0;
+        int result = 0;
+        for(Gain g: Gain.values()) {
+            if (g.equals(gain)) {
+                result = index;
+            } else {
+                index ++;
+            }
+        }
+        return result;
+    }
+
+    private void createIntegrationTimeArrayList() {
+        integrationTimeArrayList = new ArrayList<IntegrationTime>();
+        for(IntegrationTime i : IntegrationTime.values()) {
+            integrationTimeArrayList.add(i);
+        }
+    }
+
+    private int getCurrentIntegrationTimeIndex(IntegrationTime integrationTime) {
+        int index = 0;
+        int result = 0;
+        for(IntegrationTime i: IntegrationTime.values()) {
+            if (i.equals(integrationTime)) {
+                result = index;
+            } else {
+                index ++;
+            }
+        }
+        return result;
+    }
+
+//    public void nextGain() {
+//        currentIntegrationTimeIndex ++;
+//        setGain(gainArrayList[currentIntegrationTimeIndex].value);
+//    }
 
     private void setGain(Gain gain) {
         this.write8(Register.CONTROL, gain.byteVal);
         // save the gain
-        this.currentGain = gain;
+        parameters.setGain(gain);
     }
 
     public byte getDeviceID() {
@@ -432,31 +497,34 @@ public class AdafruitColorSensor8863 {
         this.write8(Register.ENABLE, reg & ~(EnableRegister.AMS_COLOR_ENABLE_PON.byteVal | EnableRegister.AMS_COLOR_ENABLE_AEN.byteVal));
     }
 
+    private int calculateMaxRGBCCount(IntegrationTime integrationTime) {
+        // since byte is 2's complement in java, have to convert it to unsigned for this equation
+        return calculateMaxRGBCCount((int) integrationTime.byteVal & 0xFF);
+    }
+
     /**
      * The maximum possible value of a color depends on the integration time that is selected. This
      * function returns that value given the integration time. This will get used in scaling the
      * values from the sensor to standard RGB (0-255).
      * Equation: Max possible RGBC value = (256 - integration time (hex->decimal)) * 1024
+     *
      * @param integrationTime max possible value of a color
      * @return
      */
-    private int calculateMaxRGBCCount(int integrationTime){
+    private int calculateMaxRGBCCount(int integrationTime) {
         this.maxRGBCValue = (256 - integrationTime) * 1024;
-        if (maxRGBCValue > 65535) {this.maxRGBCValue = 65535;}
+        if (maxRGBCValue > 65535) {
+            this.maxRGBCValue = 65535;
+        }
         return maxRGBCValue;
     }
 
-    private int convertIntegrationTimeToInt (IntegrationTime integrationTime) {
-        int result;
-        switch (integrationTime) {
-            case AMS_COLOR_ITIME_CUSTOM:
-                result = integrationTimeAsInt;
-            break;
-            default:
-                result = integrationTime.byteVal;
-            break;
-        }
-        return result;
+    private int calculateScaledRGBColor(int colorValue) {
+        double scaled;
+        // have to case one of the numbers to double in order to get a double result
+        scaled = (double) colorValue / maxRGBCValue * 255;
+        // case the result back to int
+        return (int) Math.round(scaled);
     }
 
     /**
@@ -537,7 +605,8 @@ public class AdafruitColorSensor8863 {
 
     public synchronized int alpha() {
         int alpha = this.readColorRegister(Register.CLEARL);
-        if(alpha != lastAlpha) {
+        //use reads of alphe to update the tracker that is tracking update times
+        if (alpha != lastAlpha) {
             // alpha changed so update the tracker
             updateTimeTracker.compareValue(updateTimer.milliseconds());
             updateTimer.reset();
@@ -545,6 +614,10 @@ public class AdafruitColorSensor8863 {
             lastAlpha = alpha;
         }
         return alpha;
+    }
+
+    public String rgbValuesAsString() {
+        return red() + " / " + blue() + " / " + green();
     }
 
     private int readColorRegister(Register reg) {
@@ -563,24 +636,49 @@ public class AdafruitColorSensor8863 {
         return Color.argb(clear, red, green, blue);
     }
 
-    public float[] hsv(int red, int green, int blue) {
+    public int redScaled() {
+        return calculateScaledRGBColor(red());
+    }
+
+    public int greenScaled() {
+        return calculateScaledRGBColor(green());
+    }
+
+    public int blueScaled() {
+        return calculateScaledRGBColor(blue());
+    }
+
+    public int alphaScaled() {
+        return calculateScaledRGBColor(alpha());
+    }
+
+    public String rgbValuesScaledAsString() {
+        return redScaled() + " / " + greenScaled() + " / " + blueScaled();
+    }
+
+    public float[] hsvScaled() {
         // hsvValues is an array that will hold the hue, saturation, and value information.
-        float hsvValues[] = {0F,0F,0F};
+        float hsvValues[] = {0F, 0F, 0F};
         // convert the RGB values to HSV values.
-        Color.RGBToHSV((red() * 255) / 800, (green() * 255) / 800, (blue() * 255) / 800, hsvValues);
+        Color.RGBToHSV(redScaled(), greenScaled(), blueScaled(), hsvValues);
         return hsvValues;
     }
-    
-    public float hue() {
-        return hsv(red(), green(), blue())[0];
+
+    public String hsvValuesScaledAsString() {
+        float hsvValues[] = hsvScaled();
+        return String.format("%4.1f", hsvValues[0]) + " / " + String.format("%4.2f", hsvValues[1]) + " / " + String.format("%4.2f", hsvValues[2]);
     }
 
-    public float saturation() {
-        return hsv(red(), green(), blue())[1];
+    public float hueScaled() {
+        return hsvScaled()[0];
     }
 
-    public float value() {
-        return hsv(red(), green(), blue())[2];
+    public float saturatationScaled() {
+        return hsvScaled()[1];
+    }
+
+    public float valueScaled() {
+        return hsvScaled()[2];
     }
 
     public void setGain1x() {
@@ -601,7 +699,7 @@ public class AdafruitColorSensor8863 {
 
     public String getCurrentGainAsString() {
         String gainAsString = "nothing";
-        switch (currentGain) {
+        switch (parameters.getGain()) {
             case AMS_COLOR_GAIN_1:
                 gainAsString = "1X";
                 break;
@@ -620,7 +718,7 @@ public class AdafruitColorSensor8863 {
 
     public String getCurrentIntegrationTimeAsString() {
         String integrationTimeAsString = "nothing";
-        switch (currentIntegrationTime) {
+        switch (parameters.getIntegrationTime()) {
             case AMS_COLOR_ITIME_2_4MS:
                 integrationTimeAsString = "2.4ms";
                 break;
@@ -635,6 +733,15 @@ public class AdafruitColorSensor8863 {
                 break;
             case AMS_COLOR_ITIME_154MS:
                 integrationTimeAsString = "154ms";
+                break;
+            case AMS_COLOR_ITIME_307MS:
+                integrationTimeAsString = "307ms";
+                break;
+            case AMS_COLOR_ITIME_460MS:
+                integrationTimeAsString = "460ms";
+                break;
+            case AMS_COLOR_ITIME_537MS:
+                integrationTimeAsString = "537ms";
                 break;
             case AMS_COLOR_ITIME_700MS:
                 integrationTimeAsString = "700ms";
@@ -653,5 +760,9 @@ public class AdafruitColorSensor8863 {
 
     public double getUpdateRateAve() {
         return updateTimeTracker.getAverage();
+    }
+
+    public String updateRateString() {
+        return String.format("%4.0f", getUpdateRateMin()) + " / " + String.format("%4.0f", getUpdateRateAve()) + " / " + String.format("%4.0f", getUpdateRateMax());
     }
 }

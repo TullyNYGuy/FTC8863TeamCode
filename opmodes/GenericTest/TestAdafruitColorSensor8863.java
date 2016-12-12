@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.GenericTest;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -24,6 +25,9 @@ public class TestAdafruitColorSensor8863 extends LinearOpMode {
     final int CHANNEL_FOR_LED = 5;
 
     boolean xButtonIsReleased = false;
+    boolean yButtonIsReleased = false;
+    boolean aButtonIsReleased = false;
+    boolean bButtonIsReleased = false;
 
     AdafruitColorSensor8863 colorSensor;
 
@@ -72,19 +76,14 @@ public class TestAdafruitColorSensor8863 extends LinearOpMode {
 //            }
 
             // Display the current values from the sensor
-            telemetry.addData("Opaqueness = ", colorSensor.alpha());
-            buffer = colorSensor.red() + " / " + colorSensor.blue() + " / " + colorSensor.green();
-            telemetry.addData("Red / Green / Blue ", buffer);
-            //telemetry.addData("Red / Green / Blue ", "%d", colorSensor.red(), colorSensor.green(), colorSensor.blue());
-            //telemetry.addData("Blue = ", colorSensor.blue());
-            //telemetry.addData("Green = ", colorSensor.green());
-//            telemetry.addData("Hue = ", colorSensor.hue());
-//            telemetry.addData("Sat = ", colorSensor.saturation());
-//            telemetry.addData("Light = ", colorSensor.lightness());
-            buffer = String.format("%4.0f", colorSensor.getUpdateRateMin()) + " / " + String.format("%4.0f", colorSensor.getUpdateRateAve()) + " / " + String.format("%4.0f", colorSensor.getUpdateRateMax());
-            telemetry.addData("Update min/ave/max (mS) = ", buffer);
             telemetry.addData("Color sensor gain = ", colorSensor.getCurrentGainAsString());
             telemetry.addData("Color sensor integration time = ", colorSensor.getCurrentIntegrationTimeAsString());
+            telemetry.addData("Max possible color value = ", colorSensor.getMaxRGBCValue());
+            telemetry.addData("Opaqueness = ", colorSensor.alpha());
+            telemetry.addData("Red / Green / Blue ", colorSensor.rgbValuesAsString());
+            telemetry.addData("Red / Green / Blue (scaled)", colorSensor.rgbValuesScaledAsString());
+            telemetry.addData("Hue / Sat / Value (scaled)", colorSensor.hsvValuesScaledAsString());
+            telemetry.addData("Update min/ave/max (mS) = ", colorSensor.updateRateString());
             telemetry.addData("Timer = ", "%3.1f", timer.seconds());
             telemetry.addData(">", "Press Stop to end test." );
 
