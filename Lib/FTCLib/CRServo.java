@@ -21,6 +21,9 @@ import com.qualcomm.robotcore.util.Range;
  * direction. Testing found them to be different. Note that forwards and backwards are defined by
  * the direction that the servo is setup for.
  * Position for a CRServo is really the speed (throttle) command.
+ *    0 is full power backward.
+ *    somewhere around 0.5 is stop
+ *    1 is full power forward
  */
 public class CRServo {
 
@@ -95,7 +98,10 @@ public class CRServo {
     private double milliSecondsToMove = 0;
 
     /**
-     * The direction that the servo must move.
+     * The direction that the servo must move. Note that this is different from the direction of the
+     * servo. Direction of the servo reverses the meaning of 0 and 1. See setDirection() Basically
+     * that re-defines the meaning of forward and backwards. This is just the direction to move.
+     * It does not re-define the meaning of forwards and backwards.
      */
     private CRServoDirection directionToMove = CRServoDirection.FORWARD;
 
@@ -214,6 +220,8 @@ public class CRServo {
      */
     public void updatePosition(double throttle) {
         double servoPosition;
+        // if the servo command is within the deadband range for the servo, then send out the
+        // center value (value that produces no movement) instead.
         if (-deadBandRange < throttle && throttle < deadBandRange) {
             // only send out a command to the servo if the value has changed from the last value sent
             // this saves some bandwidth on the bus.
@@ -246,7 +254,12 @@ public class CRServo {
     }
 
     /**
-     * Set the direction the servo turns when it is sent a positive command
+     * Set the direction the servo turns when it is sent a positive command. This method re-defines
+     * the meaning of forwards and backwards.
+     * Normally, the servo will not turn when the command is set to 0.5. However each servo varies.
+     * The actual command that creates no movement varies from servo to servo. It also varies if the
+     * direction is reversed. Which is why the center value (value that produces no movement) is set
+     * based on the direction chosen.
      * @param direction
      */
     public void setDirection(Servo.Direction direction) {
@@ -268,7 +281,7 @@ public class CRServo {
         if(backwardCMPerSecond == 0 || forwardCMPerSecond == 0) {
             // the user never setup the rate per second for this servo
             // throw an error
-            throw new IllegalArgumentException("backwardCMPerSecond or forwardCMPerSecond was never set");
+            throw new IllegalArgumentException("CRServo backwardCMPerSecond or forwardCMPerSecond was never set");
         }
         milliSecondsToMove = getMilliSecondsForMovement(distanceToMove, direction);
         directionToMove = direction;
