@@ -1,10 +1,8 @@
 package org.firstinspires.ftc.teamcode.Lib.VelocityVortex;
 
 
-import android.widget.Switch;
-
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitColorSensor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.CRServo;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Switch;
 
 public class FrontBeaconPusher {
 
@@ -16,11 +14,11 @@ public class FrontBeaconPusher {
     //*********************************************************************************************
 
     public enum BeaconPusherState {
-        BothBack,
-        BothMiddle,
-        LeftBackRightForward,
-        LeftForwardRightBack,
-        BothForward
+        BOTH_BACK,
+        BOTH_MIDDLE,
+        LEFT_BACK_RIGHT_FORWARD,
+        LEFT_FORWARD_RIGHT_BACK,
+        BOTH_FORWARD;
     }
 
 
@@ -31,7 +29,7 @@ public class FrontBeaconPusher {
     // getter and setter methods
     //*********************************************************************************************
 
-    private BeaconPusherState beaconPusherState = BeaconPusherState.BothBack;
+    private BeaconPusherState beaconPusherState = BeaconPusherState.BOTH_BACK;
 
     private CRServo leftCRServo;
     private CRServo rightCRServo;
@@ -40,7 +38,7 @@ public class FrontBeaconPusher {
     private Switch leftBackLimitSwitch;
     private Switch rightFrontLimitSwitch;
     private Switch rightBackLimitSwitch;
-    private AdafruitColorSensor rightColorSensor;
+    private AdafruitColorSensor8863 rightColorSensor;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
