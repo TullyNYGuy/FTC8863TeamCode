@@ -28,12 +28,18 @@ public class DriveTrain {
     private DcMotor8863.MotorState rightMotorState;
     private DcMotor8863.MotorState leftMotorState;
 
+    public PIDControl pidControl;
+
+    public AdafruitIMU8863 imu8863;
+
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
     // allow access to private data fields for example setMotorPower,
     // getPositionInTermsOfAttachment
     //*********************************************************************************************
+
+
 
     public double getRightPower(){
         return this.rightPower;
@@ -95,6 +101,11 @@ public class DriveTrain {
         leftDriveMotor.setTargetEncoderTolerance(3);
         leftDriveMotor.setMovementPerRev(cmPerRotation);
         leftDriveMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
+
+        pidControl = new PIDControl();
+        pidControl.setKp(0.01);
+
+        imu8863 = new AdafruitIMU8863(hardwareMap);
     }
 
     /**
@@ -135,11 +146,9 @@ public class DriveTrain {
         driveTrain.rightDriveMotor.setFinishBehavior(DcMotor8863.FinishBehavior.FLOAT);
         driveTrain.leftDriveMotor.setFinishBehavior(DcMotor8863.FinishBehavior.FLOAT);
 
-        // the first call to moveByAmount will set the mode of the motors to run to a position
-        // No need to do that here. Just set the motor power to 0 to make sure it is initialized.
-        driveTrain.rightDriveMotor.setPower(0);
-        driveTrain.leftDriveMotor.setPower(0);
-
+        // set the mode of the motors to run with encoder feedback, controller the speed of the motors
+        driveTrain.rightDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        driveTrain.leftDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         return driveTrain;
     }
 
@@ -147,12 +156,12 @@ public class DriveTrain {
     // Autonomous Methods
     //*********************************************************************************************
 
-    public void driveDistance(double power, double distance, DcMotor8863.FinishBehavior finishBehavior){
+    public void setupDriveDistance(double power, double distance, DcMotor8863.FinishBehavior finishBehavior){
         rightDriveMotor.moveByAmount(power, distance, finishBehavior);
         leftDriveMotor.moveByAmount(power, distance, finishBehavior);
     }
 
-    public DriveTrain.Status update() {
+    public DriveTrain.Status updateDriveDistance() {
         rightMotorState = rightDriveMotor.update();
         leftMotorState = leftDriveMotor.update();
         if (this.isMotorStateComplete()){
@@ -168,7 +177,7 @@ public class DriveTrain {
     }
 
 
-    public boolean isMotorStateComplete() {
+    private boolean isMotorStateComplete() {
         if(rightDriveMotor.isMotorStateComplete() && leftDriveMotor.isMotorStateComplete()) {
             return true;
         } else {
@@ -176,6 +185,30 @@ public class DriveTrain {
         }
 
     }
+
+    public void setupTurn (double turnAngle, double maxPower){
+        // set the mode for the motors during the turn. Without this they may not move.
+        rightDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        pidControl.setSetpoint(turnAngle);
+        pidControl.setMaxCorrection(maxPower);
+        pidControl.setThreshold(2);
+        imu8863.setAngleMode(AdafruitIMU8863.AngleMode.RELATIVE);
+        imu8863.resetAngleReferences();
+    }
+
+    public boolean updateTurn (){
+        double currentHeading = imu8863.getHeading();
+        double correction = -pidControl.getCorrection(currentHeading);
+        differentialDrive(0,correction);//correction);
+        //return correction;
+        return pidControl.isFinished();
+    }
+
+    public void stopTurn() {
+        shutdown();
+    }
+
 
     //*********************************************************************************************
     //          Teleop methods
@@ -230,6 +263,7 @@ public class DriveTrain {
     //*********************************************************************************************
 
     public void shutdown(){
-
+        rightDriveMotor.shutDown();
+        leftDriveMotor.shutDown();
     }
 }
