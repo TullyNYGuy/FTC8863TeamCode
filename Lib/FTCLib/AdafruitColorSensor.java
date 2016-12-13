@@ -178,12 +178,4 @@ public class AdafruitColorSensor {
     public float lightness() {
         return hsv(colorSensor.red(), colorSensor.green(), colorSensor.blue())[2];
     }
-
-    public float saturation() {
-        return hsv(colorSensor.red(), colorSensor.green(), colorSensor.blue())[1];
-    }
-
-    public float value() {
-        return hsv(colorSensor.red(), colorSensor.green(), colorSensor.blue())[2];
-    }
 }
