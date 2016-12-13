@@ -6,16 +6,16 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitColorSensor;
-import org.firstinspires.ftc.teamcode.Lib.ResQLib.RobotConfigMapping;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitColorSensor8863;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  *
  *
  */
-@TeleOp(name = "Test Adafruit Color Sensor Deprecated", group = "Test")
+@TeleOp(name = "Test Adafruit Color Sensor 8863", group = "Test")
 //@Disabled
-public class TestAdafruitColorSensor extends LinearOpMode {
+public class TestAdafruitColorSensor8863 extends LinearOpMode {
 
     // Put your variable declarations here
     int red = 0;
@@ -25,20 +25,25 @@ public class TestAdafruitColorSensor extends LinearOpMode {
     final int CHANNEL_FOR_LED = 5;
 
     boolean xButtonIsReleased = false;
+    boolean yButtonIsReleased = false;
+    boolean aButtonIsReleased = false;
+    boolean bButtonIsReleased = false;
 
-    AdafruitColorSensor colorSensor;
+    AdafruitColorSensor8863 colorSensor;
 
     boolean ledState = false;
 
     ElapsedTime timer;
+
+    String buffer;
 
     @Override
     public void runOpMode() {
 
 
         // Put your initializations here
-        colorSensor = new AdafruitColorSensor(RobotConfigMappingForGenericTest.getadafruitColorSensorName(),
-                RobotConfigMappingForGenericTest.getCoreDeviceInterfaceName(), hardwareMap, CHANNEL_FOR_LED );
+        colorSensor = new AdafruitColorSensor8863(hardwareMap, RobotConfigMappingForGenericTest.getadafruitColorSensorName(),
+            RobotConfigMappingForGenericTest.getCoreDeviceInterfaceName(), CHANNEL_FOR_LED);
 
         timer = new ElapsedTime();
         
@@ -69,17 +74,17 @@ public class TestAdafruitColorSensor extends LinearOpMode {
                 xButtonIsReleased = true;
             }
 
-
-
             // Display the current values from the sensor
-            telemetry.addData("Red = ", colorSensor.red());
-            telemetry.addData("Blue = ", colorSensor.blue());
-            telemetry.addData("Green = ", colorSensor.green());
+            telemetry.addData("Color sensor gain = ", colorSensor.getCurrentGainAsString());
+            telemetry.addData("Color sensor integration time = ", colorSensor.getCurrentIntegrationTimeAsString());
+            telemetry.addData("Max possible color value = ", colorSensor.getMaxRGBCValue());
             telemetry.addData("Opaqueness = ", colorSensor.alpha());
-            telemetry.addData("Hue = ", colorSensor.hue());
-            telemetry.addData("Sat = ", colorSensor.saturation());
-            telemetry.addData("Light = ", colorSensor.lightness());
-            telemetry.addData("Update interval (mS) = ", "%5.2f", colorSensor.updateTimeTracker.getAverage());
+            telemetry.addData("Red / Green / Blue ", colorSensor.rgbValuesAsString());
+            telemetry.addData("Red / Green / Blue (scaled)", colorSensor.rgbValuesScaledAsString());
+            telemetry.addData("Hue / Sat / Value (scaled)", colorSensor.hsvValuesScaledAsString());
+            telemetry.addData(colorSensor.colorTestResultUsingRGBCaption(), colorSensor.colorTestResultUsingRGB());
+            telemetry.addData(colorSensor.colorTestResultUsingHSVCaption(), colorSensor.colorTestResultUsingHSV());
+            telemetry.addData("Update min/ave/max (mS) = ", colorSensor.updateRateString());
             telemetry.addData("Timer = ", "%3.1f", timer.seconds());
             telemetry.addData(">", "Press Stop to end test." );
 

@@ -3,11 +3,21 @@ package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
 import android.graphics.Color;
 
+import com.qualcomm.hardware.ams.AMSColorSensor;
+import com.qualcomm.hardware.ams.AMSColorSensorImpl;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DeviceInterfaceModule;
 import com.qualcomm.robotcore.hardware.DigitalChannelController;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.I2cAddr;
+import com.qualcomm.robotcore.hardware.I2cDevice;
+import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
+/**
+ * Uses the deprecated AdafruitI2cColorSensor class to read the color sensor. The gain is fixed
+ * and the integration time is set to 600 ms. Not very useful. Dont' use this class.
+ */
 public class AdafruitColorSensor {
 
     //*********************************************************************************************
@@ -24,13 +34,25 @@ public class AdafruitColorSensor {
     // getter and setter methods
     //*********************************************************************************************
 
+    //private AMSColorSensor colorSensor;
     private ColorSensor colorSensor;
+    //private AMSColorSensorImpl colorSensor;
+    //private I2cDevice i2cDevice;
+
+    //private AMSColorSensor.Parameters parameters;
+//    int AMS_TCS34725_ADDRESS = 0x29;
+//    byte AMS_TCS34725_ID = 0x44;
+
     private DeviceInterfaceModule coreDIM;
+
     private boolean ledOn = false;
     private boolean controlLED = true;
     private int ioChannelForLed;
     private String colorSensorName;
     private String coreDIMName;
+    private ElapsedTime updateTimer;
+    private int lastAlpha = 0;
+    public StatTracker updateTimeTracker;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -53,10 +75,24 @@ public class AdafruitColorSensor {
         this.coreDIMName = coreDIMName;
         this.ioChannelForLed = ioChannelForLed;
         this.controlLED = true;
+        //parameters = AMSColorSensor.Parameters.createForAdaFruit();
         coreDIM = hardwareMap.deviceInterfaceModule.get(coreDIMName);
+        // both of the calls below result in an abject instantiated from AdafruitI2cColorSensor.
+        // This is not desirable since the update rate is 600 mSec. And because it is marked
+        // deprecated. I really want an object of
+        // AMSColorSensorImpl since it has a configurable update rate and it new.
         colorSensor = hardwareMap.colorSensor.get(colorSensorName);
+        //colorSensor = hardwareMap.get(AMSColorSensor.class, colorSensorName);
+        //i2cDevice = hardwareMap.get(I2cDevice.class, colorSensorName);
+        //colorSensor = AMSColorSensorImpl.create(parameters, i2cDevice);
         coreDIM.setDigitalChannelMode(ioChannelForLed, DigitalChannelController.Mode.OUTPUT);
+        // Delay so the init can finish before setting the led off. Otherwise the LED does not get
+        // shut off.
+        delay(100);
         coreDIM.setDigitalChannelState(ioChannelForLed, ledOn);
+        updateTimer = new ElapsedTime();
+        // A tracker used to track the update rate of the color sensor.
+        updateTimeTracker = new StatTracker();
     }
     //*********************************************************************************************
     //          Helper Methods
@@ -64,6 +100,17 @@ public class AdafruitColorSensor {
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
 
+    /**
+     * Implements a delay
+     * @param mSec delay in milli Seconds
+     */
+    private void delay(int mSec) {
+        try {
+            Thread.sleep((int) (mSec));
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
 
     //*********************************************************************************************
     //          MAJOR METHODS
@@ -85,7 +132,15 @@ public class AdafruitColorSensor {
     }
 
     public int alpha() {
-        return colorSensor.alpha();
+        int alpha = colorSensor.alpha();
+        if(alpha != lastAlpha) {
+            // alpha changed so update the tracker
+            updateTimeTracker.compareValue(updateTimer.milliseconds());
+            updateTimer.reset();
+            // Since alpha changed save the new lastAlpha
+            lastAlpha = alpha;
+        }
+        return alpha;
     }
 
     public int red() {
@@ -114,6 +169,14 @@ public class AdafruitColorSensor {
 
     public float hue() {
         return hsv(colorSensor.red(), colorSensor.green(), colorSensor.blue())[0];
+    }
+
+    public float saturation() {
+        return hsv(colorSensor.red(), colorSensor.green(), colorSensor.blue())[1];
+    }
+
+    public float lightness() {
+        return hsv(colorSensor.red(), colorSensor.green(), colorSensor.blue())[2];
     }
 
     public float saturation() {
