@@ -42,9 +42,8 @@ public class TestAdafruitColorSensor8863 extends LinearOpMode {
 
 
         // Put your initializations here
-//        colorSensor = new AdafruitColorSensor(RobotConfigMappingForGenericTest.getadafruitColorSensorName(),
-//                RobotConfigMappingForGenericTest.getCoreDeviceInterfaceName(), hardwareMap, CHANNEL_FOR_LED );
-        colorSensor = new AdafruitColorSensor8863(hardwareMap, RobotConfigMappingForGenericTest.getadafruitColorSensorName());
+        colorSensor = new AdafruitColorSensor8863(hardwareMap, RobotConfigMappingForGenericTest.getadafruitColorSensorName(),
+            RobotConfigMappingForGenericTest.getCoreDeviceInterfaceName(), CHANNEL_FOR_LED);
 
         timer = new ElapsedTime();
         
@@ -60,20 +59,20 @@ public class TestAdafruitColorSensor8863 extends LinearOpMode {
 
             // Put your calls that need to run in a loop here
             // Use gamepad X to toggle the led on or off
-//            if (gamepad1.x) {
-//                if (xButtonIsReleased) {
-//                    if (!ledState) {
-//                        colorSensor.turnLEDOn();
-//                        ledState = true;
-//                    } else {
-//                        colorSensor.turnLEDOff();
-//                        ledState = false;
-//                    }
-//                    xButtonIsReleased = false;
-//                }
-//            } else {
-//                xButtonIsReleased = true;
-//            }
+            if (gamepad1.x) {
+                if (xButtonIsReleased) {
+                    if (!ledState) {
+                        colorSensor.turnLEDOn();
+                        ledState = true;
+                    } else {
+                        colorSensor.turnLEDOff();
+                        ledState = false;
+                    }
+                    xButtonIsReleased = false;
+                }
+            } else {
+                xButtonIsReleased = true;
+            }
 
             // Display the current values from the sensor
             telemetry.addData("Color sensor gain = ", colorSensor.getCurrentGainAsString());
@@ -83,6 +82,8 @@ public class TestAdafruitColorSensor8863 extends LinearOpMode {
             telemetry.addData("Red / Green / Blue ", colorSensor.rgbValuesAsString());
             telemetry.addData("Red / Green / Blue (scaled)", colorSensor.rgbValuesScaledAsString());
             telemetry.addData("Hue / Sat / Value (scaled)", colorSensor.hsvValuesScaledAsString());
+            telemetry.addData(colorSensor.colorTestResultUsingRGBCaption(), colorSensor.colorTestResultUsingRGB());
+            telemetry.addData(colorSensor.colorTestResultUsingHSVCaption(), colorSensor.colorTestResultUsingHSV());
             telemetry.addData("Update min/ave/max (mS) = ", colorSensor.updateRateString());
             telemetry.addData("Timer = ", "%3.1f", timer.seconds());
             telemetry.addData(">", "Press Stop to end test." );

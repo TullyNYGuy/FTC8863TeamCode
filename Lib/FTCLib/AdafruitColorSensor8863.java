@@ -4,6 +4,7 @@ package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 import android.graphics.Color;
 
 import com.qualcomm.robotcore.hardware.DeviceInterfaceModule;
+import com.qualcomm.robotcore.hardware.DigitalChannelController;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.I2cDevice;
@@ -21,7 +22,6 @@ import java.util.ArrayList;
 //    investigate the update rate - it appears odd
 //    put in an instantaneous update rate
 //    add to test routine so that button controls gain and integration time
-//    add control of led in
 public class AdafruitColorSensor8863 {
 
     //*********************************************************************************************
@@ -346,7 +346,6 @@ public class AdafruitColorSensor8863 {
     // For controlling the LED
     private DeviceInterfaceModule coreDIM;
     private boolean ledOn = false;
-    private boolean controlLED = true;
     private int ioChannelForLed;
 
     // For tracking the update rate
@@ -372,12 +371,25 @@ public class AdafruitColorSensor8863 {
     // from it
     //*********************************************************************************************
 
-    public AdafruitColorSensor8863(HardwareMap hardwareMap, String colorSensorName) {
+    public AdafruitColorSensor8863(HardwareMap hardwareMap, String colorSensorName, String coreDIMName, int ioChannelForLed) {
+        // set up for controlling the LED
+        this.ledOn = false;
+        this.ioChannelForLed = ioChannelForLed;
+        coreDIM = hardwareMap.deviceInterfaceModule.get(coreDIMName);
+        coreDIM.setDigitalChannelMode(ioChannelForLed, DigitalChannelController.Mode.OUTPUT);
+        // Delay so the previous line can finish before setting the led off. Otherwise the LED does
+        // not get shut off.
+        delay(100);
+        coreDIM.setDigitalChannelState(ioChannelForLed, ledOn);
+
+        // setup for the color sensor
         parameters = AMSColorSensorParameters.createForAdaFruit();
         colorSensor = hardwareMap.get(I2cDevice.class, colorSensorName);
         colorSensorClient = new I2cDeviceSynchImpl(colorSensor, parameters.getI2cAddr(), isOwned);
         colorSensorClient.engage();
         initialize();
+
+        // setup for tracking the update rate of the sensor
         // Timer used to time the update rate
         updateTimer = new ElapsedTime();
         // A tracker used to track the update rate of the color sensor.
@@ -499,6 +511,7 @@ public class AdafruitColorSensor8863 {
 
     private int calculateMaxRGBCCount(IntegrationTime integrationTime) {
         // since byte is 2's complement in java, have to convert it to unsigned for this equation
+        // Casting to int and & 0xFF does that.
         return calculateMaxRGBCCount((int) integrationTime.byteVal & 0xFF);
     }
 
@@ -521,9 +534,9 @@ public class AdafruitColorSensor8863 {
 
     private int calculateScaledRGBColor(int colorValue) {
         double scaled;
-        // have to case one of the numbers to double in order to get a double result
+        // have to cast one of the numbers to double in order to get a double result
         scaled = (double) colorValue / maxRGBCValue * 255;
-        // case the result back to int
+        // cast the result back to int
         return (int) Math.round(scaled);
     }
 
@@ -590,6 +603,31 @@ public class AdafruitColorSensor8863 {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
+    //*********************************************************************************************
+    //          LED Control
+    //*********************************************************************************************
+
+    public void turnLEDOn() {
+        // only put commands on the bus if there is a change to be made
+        if (!this.ledOn) {
+            // the led is off so it makes sense to turn it on
+            this.ledOn = true;
+            coreDIM.setDigitalChannelState(ioChannelForLed, ledOn);
+        }
+    }
+
+    public void turnLEDOff() {
+        // only put commands on the bus if there is a change to be made
+        if (this.ledOn) {
+            // the led is on so it makes sense to turn it off
+            this.ledOn = false;
+            coreDIM.setDigitalChannelState(ioChannelForLed, ledOn);
+        }
+    }
+
+    //*********************************************************************************************
+    //          Reading colors
+    //*********************************************************************************************
 
     public synchronized int red() {
         return this.readColorRegister(Register.REDL);
@@ -605,7 +643,7 @@ public class AdafruitColorSensor8863 {
 
     public synchronized int alpha() {
         int alpha = this.readColorRegister(Register.CLEARL);
-        //use reads of alphe to update the tracker that is tracking update times
+        //use reads of alpha to update the tracker that is tracking update times
         if (alpha != lastAlpha) {
             // alpha changed so update the tracker
             updateTimeTracker.compareValue(updateTimer.milliseconds());
@@ -681,6 +719,95 @@ public class AdafruitColorSensor8863 {
         return hsvScaled()[2];
     }
 
+    //*********************************************************************************************
+    //          Color Testing - should probably put this into another class
+    //*********************************************************************************************
+
+    private int getMaxOfThree(int a, int b, int c) {
+        int max = a;
+        int which = 1;
+        if(b > a) {
+            max = b;
+            which = 2;
+        }
+        if (c > max ) {
+            max = c;
+            which = 3;
+        }
+        return which;
+    }
+
+    public boolean isRedUsingRGB() {
+        boolean result = false;
+        if(getMaxOfThree(redScaled(), greenScaled(), blueScaled()) == 1) {
+            result = true;
+        }
+        return result;
+    }
+
+    public boolean isGreenUsingRGB() {
+        boolean result = false;
+        if(getMaxOfThree(redScaled(), greenScaled(), blueScaled()) == 2) {
+            result = true;
+        }
+        return result;
+    }
+
+    public boolean isBlueUsingRGB() {
+        boolean result = false;
+        if(getMaxOfThree(redScaled(), greenScaled(), blueScaled()) == 3) {
+            result = true;
+        }
+        return result;
+    }
+
+    public String colorTestResultUsingRGBCaption() {
+        return "Red? / Green? / Blue? (RGB values)";
+    }
+
+    public String colorTestResultUsingRGB() {
+        return String.valueOf(isRedUsingRGB()) + " / " + String.valueOf(isGreenUsingRGB()) + " / " + String.valueOf(isBlueUsingRGB());
+    }
+
+    public boolean isRedUsingHSV() {
+        float hue = hueScaled();
+        if(hue >= 0 && hue <= 60 || hue >= 340 && hue <= 360) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean isGreenUsingHSV() {
+        float hue = hueScaled();
+        if(hue > 120 && hue <= 180) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean isBlueUsingHSV() {
+        float hue = hueScaled();
+        if(hue > 220 && hue <= 300) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public String colorTestResultUsingHSVCaption() {
+        return "Red? / Green? / Blue? (HSV values)";
+    }
+
+    public String colorTestResultUsingHSV() {
+        return String.valueOf(isRedUsingHSV()) + " / " + String.valueOf(isGreenUsingHSV()) + " / " + String.valueOf(isBlueUsingHSV());
+    }
+
+    //*********************************************************************************************
+    //          setting gain and integration time
+    //*********************************************************************************************
+
     public void setGain1x() {
         setGain(Gain.AMS_COLOR_GAIN_1);
     }
@@ -749,6 +876,10 @@ public class AdafruitColorSensor8863 {
         }
         return integrationTimeAsString;
     }
+
+    //*********************************************************************************************
+    //          Update Rate tracking
+    //*********************************************************************************************
 
     public double getUpdateRateMin() {
         return updateTimeTracker.getMinimum();
