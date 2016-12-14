@@ -20,10 +20,15 @@ import com.qualcomm.robotcore.util.Range;
  * each servo. The values are the ones that produce no movement in the forwards and backwards
  * direction. Testing found them to be different. Note that forwards and backwards are defined by
  * the direction that the servo is setup for.
- * Position for a CRServo is really the speed (throttle) command.
+ * Position command for a CRServo is really the speed (throttle) command.
  *    0 is full power backward.
  *    somewhere around 0.5 is stop
- *    1 is full power forward
+ *    +1 is full power forward
+ * This setup is not intuitive. I think this is more intuitive:
+ *    -1 is full power backward
+ *    0 is stop
+ *    +1 is full power forward
+ * So I am choosing to make the input range -1 to +1.
  */
 public class CRServo {
 
@@ -68,7 +73,7 @@ public class CRServo {
 
     /**
      * If the speed of the servo is set between -deadBandRange and + deadBandRange then the actual
-     * speed of the servo gets set to 0
+     * speed of the servo is set to stop
      */
     private double deadBandRange = 0.1;
 
@@ -99,9 +104,10 @@ public class CRServo {
 
     /**
      * The direction that the servo must move. Note that this is different from the direction of the
-     * servo. Direction of the servo reverses the meaning of 0 and 1. See setDirection() Basically
-     * that re-defines the meaning of forward and backwards. This is just the direction to move.
-     * It does not re-define the meaning of forwards and backwards.
+     * servo. Direction of the servo reverses the meaning of 0 and 1 (forwards and backwards).
+     * See setDirection(). Basically that re-defines the meaning of forward and backwards. This is
+     * just the direction to move. Move forwards. Move backwards. It does not re-define the meaning
+     * of forwards and backwards.
      */
     private CRServoDirection directionToMove = CRServoDirection.FORWARD;
 
@@ -110,6 +116,9 @@ public class CRServo {
      * send out the new command.
      */
     private double lastThrottleCommand = 0;
+
+    private double currentCommand = 0;
+    private double commandIncrement;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -157,7 +166,8 @@ public class CRServo {
     // from it
     //*********************************************************************************************
 
-    public CRServo(String servoName, HardwareMap hardwareMap, double centerValueForward, double centerValueReverse, double deadBandRange, Servo.Direction direction) {
+    public CRServo(String servoName, HardwareMap hardwareMap, double centerValueForward,
+                   double centerValueReverse, double deadBandRange, Servo.Direction direction) {
         crServo = hardwareMap.servo.get(servoName);
         this.centerValueReverse = centerValueReverse;
         this.centerValueForward = centerValueForward;
@@ -167,6 +177,8 @@ public class CRServo {
         setDirection(direction);
         this.deadBandRange = deadBandRange;
         timer = new ElapsedTime();
+        // If I don't put a delay here the next setPosition command seems to get lost and the servo
+        // starts to move at init.
         delay(100);
 
         crServo.setPosition(centerValue);
@@ -215,13 +227,18 @@ public class CRServo {
     //*********************************************************************************************
 
     /**
-     * Turn on the servo and run it at the given speed. 0 is no speed. 1 is max speed.
-     * @param throttle between 0 and 1 - how fast to run the servo
+     * Turn on the servo and run it at the given speed. 0 is stop. +1 is max speed forwards. -1 is
+     * max speed backwards.
+     * Note that a real servo only takes commands between 0 and 1. In this case I am treating the
+     * servo more like a motor without position feedback. It would seem weird and not intuitive to
+     * make the stop command 0.5. Instead I make extend the range and then will have to translate it
+     * to the 0-1 range that a servo can take.
+     * @param throttle between -1 and 1 - how fast to run the servo
      */
-    public void updatePosition(double throttle) {
-        double servoPosition;
+    public void setSpeed(double throttle) {
+        double servoCommand;
         // if the servo command is within the deadband range for the servo, then send out the
-        // center value (value that produces no movement) instead.
+        // center value (value that produces no movement) instead. The deadband is a range around 0.
         if (-deadBandRange < throttle && throttle < deadBandRange) {
             // only send out a command to the servo if the value has changed from the last value sent
             // this saves some bandwidth on the bus.
@@ -230,27 +247,25 @@ public class CRServo {
                 lastThrottleCommand = centerValue;
             }
         } else {
-            servoPosition = 0.5 * throttle + centerValue;
-            servoPosition = Range.clip(servoPosition, 0, 1);
+            // I have to translate the -1 to +1 input range to a 0 to +1 range that a servo can take.
+            servoCommand = 0.5 * throttle + 0.5;
+            servoCommand = Range.clip(servoCommand, 0, 1);
             // only send out a command to the servo if the value has changed from the last value sent
             // this saves some bandwidth on the bus.
             if(throttle != lastThrottleCommand) {
-                crServo.setPosition(servoPosition);
+                crServo.setPosition(servoCommand);
                 lastThrottleCommand = throttle;
             }
         }
     }
 
     /**
-     * Turn on the servo and run it at the given speed. 0 is no speed. 1 is max speed.
-     * @param position between -1 and 1 - how fast to run the servo
+     * Turn on the servo and run it at the given speed. Use this call if you don't want any position
+     * control and just want to run the servo.
+     * @param position 0 = full speed backwards, 1 = full speed forwards
      */
     public void setPosition(double position) {
         crServo.setPosition(position);
-    }
-
-    public double getPosition() {
-        return crServo.getPosition();
     }
 
     /**
@@ -287,23 +302,53 @@ public class CRServo {
         directionToMove = direction;
         timer.reset();
         if(direction == CRServoDirection.FORWARD) {
-            updatePosition(1);
+            setSpeed(1);
         } else {
-            updatePosition(-1);
+            setSpeed(-1);
         }
     }
 
     /**
      * This method gets called by the controlling routine once every loop cycle
-     * @return true if the movement has finished
+     * @return true if the movement has finished, false if it still in process
      */
     public boolean updateMoveDistance() {
+        // run until the time has been exceeded
         if(timer.milliseconds() >= milliSecondsToMove) {
-            updatePosition(0);
+            // stop the movement
+            setSpeed(0);
             // indicate that the movement has completed
             return true;
         } else {
+            // indicate that the movement is still in process
             return false;
         }
+    }
+
+    public void setupFindNoMovementCommand() {
+        timer.reset();
+        // start the testing for no movement at 0.4
+        currentCommand = .4;
+        crServo.setPosition(currentCommand);
+    }
+
+    public String updateFindNoMovementCommand() {
+        // increment the command by .01 each time 500 milliseconds has passed
+        double commandIncrement = .01;
+        int stepLength = 500; // milliseconds
+        String result = "Undefined";
+        if(currentCommand >= .6) {
+            // testing is done, we hit all the values from .4 to .6
+            return "Finished";
+        }
+        if(currentCommand < .6 && timer.milliseconds() > stepLength) {
+            // timer has expired and we have not hit the end of the range to test
+            currentCommand = currentCommand + commandIncrement;
+            // format a string to be displayed on the driver station phone
+            result = "Command = " + String.format("%1.2f", currentCommand);
+            crServo.setPosition(currentCommand);
+            timer.reset();
+        }
+        return result;
     }
 }

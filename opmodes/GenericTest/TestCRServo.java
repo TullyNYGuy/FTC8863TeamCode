@@ -96,12 +96,12 @@ public class TestCRServo extends OpMode {
 
 
         if (timer.milliseconds() < 2000) {
-            testServo.updatePosition(1.0);
+            testServo.setSpeed(1.0);
             telemetry.addData("Time = ", "%3.2f", timer.milliseconds()/1000);
             telemetry.update();
         }
 
-        testServo.updatePosition(noMovePositionForward);
+        testServo.setSpeed(noMovePositionForward);
 
 //            if (timer.milliseconds() > step * stepLength && command <= endCommand) {
 //                step++;
