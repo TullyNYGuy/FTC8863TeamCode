@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.CRServo;
 
 /**
- * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
+ * This opmode shows how to operate a CR Servo
  */
 @TeleOp(name = "Test CR Servo Linear", group = "Test")
 //@Disabled
@@ -38,7 +38,8 @@ public class TestCRServoLinearOpMode extends LinearOpMode {
 
 
         // Put your initializations here
-        testServo = new CRServo(RobotConfigMappingForGenericTest.getcrServoName(), hardwareMap, noMovePositionForward, noMovePositionReverse, deadZone, Servo.Direction.FORWARD);
+        testServo = new CRServo(RobotConfigMappingForGenericTest.getcrServoName(), hardwareMap,
+                noMovePositionForward, noMovePositionReverse, deadZone, Servo.Direction.FORWARD);
         //testServo.setDirection(Servo.Direction.REVERSE);
         timer = new ElapsedTime();
 
@@ -54,6 +55,9 @@ public class TestCRServoLinearOpMode extends LinearOpMode {
         testServo.setBackwardCMPerSecond(1.88);
         testServo.setForwardCMPerSecond(1.94);
 
+        // Use this next call to determine the forward and reverse command that results in no movement
+        // of the servo. It should be around .5 but will vary for each servo. This will need to be
+        // part of the constructor when you create the servo.
 //        findNoMovementCommand();
 
         moveDistance(4.0, CRServo.CRServoDirection.BACKWARD);
@@ -124,6 +128,11 @@ public class TestCRServoLinearOpMode extends LinearOpMode {
         telemetry.update();
     }
 
+    /**
+     * Move a distance
+     * @param distance distance to move in cm
+     * @param direction direction to move
+     */
     private void moveDistance(double distance, CRServo.CRServoDirection direction) {
         testServo.startMoveDistance(distance, direction);
         while (opModeIsActive()) {
@@ -135,15 +144,19 @@ public class TestCRServoLinearOpMode extends LinearOpMode {
         }
     }
 
+    /**
+     * Run the servo for a period of time
+     * @param power
+     */
     private void runForTime(double power) {
         while (opModeIsActive()) {
             if (timer.milliseconds() < timeToRunTest) {
-                testServo.updatePosition(power);
+                testServo.setSpeed(power);
                 telemetry.addData("Time (sec) = ", "%3.2f", timer.milliseconds() / 1000);
                 telemetry.addData(">", "Press Stop to end test.");
                 telemetry.update();
             } else {
-                testServo.updatePosition(0);
+                testServo.setSpeed(0);
                 telemetry.addData("Timer expired at (sec) = ", "%3.2f", timer.milliseconds() / 1000);
                 telemetry.addData(">", "Press Stop to end test.");
                 telemetry.update();
@@ -154,23 +167,38 @@ public class TestCRServoLinearOpMode extends LinearOpMode {
     }
 
     public void findNoMovementCommand() {
-        timer.reset();
-        int step = 1;
-        double command = .4;
-        double commandIncrement = .01;
-        int stepLength = 500; // milliseconds
-        testServo.setPosition(command);
-        telemetry.addData("Step = ", "%d", step);
-        telemetry.addData("Command = ", "%3.2f", command);
-        while (command <= .5) {
-            if (timer.milliseconds() > step * 500) {
-                step++;
-                command = command + commandIncrement;
-                testServo.setPosition(command);
+        String display;
+        // first test the forward direction of the servo
+        testServo.setDirection(Servo.Direction.FORWARD);
+        testServo.setupFindNoMovementCommand();
+        while (opModeIsActive()) {
+            display = testServo.updateFindNoMovementCommand();
+            if (display == "Finished") {
+                telemetry.addData(">", "Forward Test finished");
+                telemetry.update();
+                break;
+            } else {
+                telemetry.addData("Fowards ", "Look for no movement. Note the command for it.");
+                telemetry.addData(" ", display);
+                telemetry.update();
             }
-            telemetry.addData("Step = ", "%d", step);
-            telemetry.addData("Command = ", "%3.2f", command);
-            telemetry.update();
+            idle();
+        }
+        sleep(2000);
+        // now test the reverse direction of the servo
+        testServo.setDirection(Servo.Direction.REVERSE);
+        testServo.setupFindNoMovementCommand();
+        while (opModeIsActive()) {
+            display = testServo.updateFindNoMovementCommand();
+            if (display == "Finished") {
+                telemetry.addData(">", "Reverse Test finished");
+                telemetry.update();
+                break;
+            } else {
+                telemetry.addData("Reverse ", "Look for no movement. Note the command for it.");
+                telemetry.addData(" ", display);
+                telemetry.update();
+            }
             idle();
         }
     }
