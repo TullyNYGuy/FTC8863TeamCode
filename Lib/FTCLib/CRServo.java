@@ -6,6 +6,10 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
+// to do list
+// finish the state initialization for the servo in all 3 constructors
+// finish the state machine
+
 /**
  * A continuous rotation servo is a servo that can turn around and around like a motor but does not
  * have any position feedback like a normal servo does.
@@ -21,13 +25,13 @@ import com.qualcomm.robotcore.util.Range;
  * direction. Testing found them to be different. Note that forwards and backwards are defined by
  * the direction that the servo is setup for.
  * Position command for a CRServo is really the speed (throttle) command.
- *    0 is full power backward.
- *    somewhere around 0.5 is stop
- *    +1 is full power forward
+ * 0 is full power backward.
+ * somewhere around 0.5 is stop
+ * +1 is full power forward
  * This setup is not intuitive. I think this is more intuitive:
- *    -1 is full power backward
- *    0 is stop
- *    +1 is full power forward
+ * -1 is full power backward
+ * 0 is stop
+ * +1 is full power forward
  * So I am choosing to make the input range -1 to +1.
  */
 public class CRServo {
@@ -45,6 +49,22 @@ public class CRServo {
     public enum CRServoDirection {
         FORWARD,
         BACKWARD
+    }
+
+    public enum CRServoState {
+        AT_BACK_SWITCH,
+        AT_FRONT_SWITCH,
+        AT_BACK_POSITION,
+        AT_FRONT_POSITION,
+        MOVING_TO_BACK_SWITCH,
+        MOVING_TO_FRONT_SWITCH,
+        MOVING_TO_BACK_POSITION,
+        MOVING_TO_FRONT_POSITION;
+    }
+
+    public enum SwitchLocation {
+        FRONT,
+        BACK;
     }
 
     //*********************************************************************************************
@@ -120,6 +140,12 @@ public class CRServo {
     private double currentCommand = 0;
     private double commandIncrement;
 
+    private CRServoState crServoState = CRServoState.AT_BACK_POSITION;
+    private boolean backLimitSwitchPresent = false;
+    private boolean frontLimitSwitchPresent = false;
+    private Switch frontLimitSwitch;
+    private Switch backLimitSwitch;
+
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -168,6 +194,59 @@ public class CRServo {
 
     public CRServo(String servoName, HardwareMap hardwareMap, double centerValueForward,
                    double centerValueReverse, double deadBandRange, Servo.Direction direction) {
+        initialize(servoName, hardwareMap, centerValueForward, centerValueReverse, deadBandRange,
+                direction);
+        // initialize the CRServo State ????
+    }
+
+    /**
+     * Create a CRServo with one limit switch.
+     *
+     * @param servoName
+     * @param hardwareMap
+     * @param centerValueForward
+     * @param centerValueReverse
+     * @param deadBandRange
+     * @param direction
+     * @param switchName
+     * @param switchLocation
+     * @param switchType
+     */
+    public CRServo(String servoName, HardwareMap hardwareMap, double centerValueForward,
+                   double centerValueReverse, double deadBandRange, Servo.Direction direction,
+                   String switchName, SwitchLocation switchLocation, Switch.SwitchType switchType) {
+
+        initialize(servoName, hardwareMap, centerValueForward, centerValueReverse, deadBandRange, direction);
+        // create the limit switch
+        if (switchLocation == SwitchLocation.BACK) {
+            backLimitSwitch = new Switch(hardwareMap, switchName, switchType);
+            backLimitSwitchPresent = true;
+            frontLimitSwitchPresent = false;
+        } else {
+            frontLimitSwitch = new Switch(hardwareMap, switchName, switchType);
+            frontLimitSwitchPresent = true;
+            backLimitSwitchPresent = false;
+        }
+        // check to see if the servo is against the limit switch in order to initialize the state
+    }
+
+    public CRServo(String servoName, HardwareMap hardwareMap, double centerValueForward,
+                   double centerValueReverse, double deadBandRange, Servo.Direction direction,
+                   String frontSwitchName, Switch.SwitchType frontSwitchType,
+                   String backSwitchName, Switch.SwitchType backSwitchType) {
+
+        initialize(servoName, hardwareMap, centerValueForward, centerValueReverse, deadBandRange, direction);
+        // create the limit switches
+        frontLimitSwitch = new Switch(hardwareMap, frontSwitchName, frontSwitchType);
+        backLimitSwitch = new Switch(hardwareMap, backSwitchName, backSwitchType);
+        backLimitSwitchPresent = true;
+        frontLimitSwitchPresent = true;
+        // check to see if the servo is against the limit switches in order to initialize the state
+    }
+
+    private void initialize(String servoName, HardwareMap hardwareMap, double centerValueForward,
+                            double centerValueReverse, double deadBandRange,
+                            Servo.Direction direction) {
         crServo = hardwareMap.servo.get(servoName);
         this.centerValueReverse = centerValueReverse;
         this.centerValueForward = centerValueForward;
@@ -180,7 +259,6 @@ public class CRServo {
         // If I don't put a delay here the next setPosition command seems to get lost and the servo
         // starts to move at init.
         delay(100);
-
         crServo.setPosition(centerValue);
     }
 
@@ -207,13 +285,14 @@ public class CRServo {
     /**
      * Calculate the number of milliSeconds that the servo must be on in order to move a certain
      * distance.
+     *
      * @param distanceToMove in cm
-     * @param direction FORWARDS or BACKWARDS
+     * @param direction      FORWARDS or BACKWARDS
      * @return seconds to run the servo to get the desired movement
      */
     private double getMilliSecondsForMovement(double distanceToMove, CRServoDirection direction) {
         if (direction == CRServoDirection.BACKWARD) {
-            return distanceToMove * 1 / backwardCMPerSecond *1000;
+            return distanceToMove * 1 / backwardCMPerSecond * 1000;
         } else {
             //forwards
             return distanceToMove * 1 / forwardCMPerSecond * 1000;
@@ -233,6 +312,7 @@ public class CRServo {
      * servo more like a motor without position feedback. It would seem weird and not intuitive to
      * make the stop command 0.5. Instead I make extend the range and then will have to translate it
      * to the 0-1 range that a servo can take.
+     *
      * @param throttle between -1 and 1 - how fast to run the servo
      */
     public void setSpeed(double throttle) {
@@ -242,7 +322,7 @@ public class CRServo {
         if (-deadBandRange < throttle && throttle < deadBandRange) {
             // only send out a command to the servo if the value has changed from the last value sent
             // this saves some bandwidth on the bus.
-            if(centerValue != lastThrottleCommand) {
+            if (centerValue != lastThrottleCommand) {
                 crServo.setPosition(centerValue);
                 lastThrottleCommand = centerValue;
             }
@@ -252,7 +332,7 @@ public class CRServo {
             servoCommand = Range.clip(servoCommand, 0, 1);
             // only send out a command to the servo if the value has changed from the last value sent
             // this saves some bandwidth on the bus.
-            if(throttle != lastThrottleCommand) {
+            if (throttle != lastThrottleCommand) {
                 crServo.setPosition(servoCommand);
                 lastThrottleCommand = throttle;
             }
@@ -262,6 +342,7 @@ public class CRServo {
     /**
      * Turn on the servo and run it at the given speed. Use this call if you don't want any position
      * control and just want to run the servo.
+     *
      * @param position 0 = full speed backwards, 1 = full speed forwards
      */
     public void setPosition(double position) {
@@ -275,10 +356,11 @@ public class CRServo {
      * The actual command that creates no movement varies from servo to servo. It also varies if the
      * direction is reversed. Which is why the center value (value that produces no movement) is set
      * based on the direction chosen.
+     *
      * @param direction
      */
     public void setDirection(Servo.Direction direction) {
-        if(direction == Servo.Direction.FORWARD) {
+        if (direction == Servo.Direction.FORWARD) {
             centerValue = centerValueForward;
         } else {
             centerValue = centerValueReverse;
@@ -289,11 +371,12 @@ public class CRServo {
     /**
      * If you want something attached to the servo to move a certain distance, this method sets up
      * the movement
+     *
      * @param distanceToMove distance to move the object
-     * @param direction direction to move the object
+     * @param direction      direction to move the object
      */
     public void startMoveDistance(double distanceToMove, CRServoDirection direction) {
-        if(backwardCMPerSecond == 0 || forwardCMPerSecond == 0) {
+        if (backwardCMPerSecond == 0 || forwardCMPerSecond == 0) {
             // the user never setup the rate per second for this servo
             // throw an error
             throw new IllegalArgumentException("CRServo backwardCMPerSecond or forwardCMPerSecond was never set");
@@ -301,7 +384,7 @@ public class CRServo {
         milliSecondsToMove = getMilliSecondsForMovement(distanceToMove, direction);
         directionToMove = direction;
         timer.reset();
-        if(direction == CRServoDirection.FORWARD) {
+        if (direction == CRServoDirection.FORWARD) {
             setSpeed(1);
         } else {
             setSpeed(-1);
@@ -310,11 +393,12 @@ public class CRServo {
 
     /**
      * This method gets called by the controlling routine once every loop cycle
+     *
      * @return true if the movement has finished, false if it still in process
      */
     public boolean updateMoveDistance() {
         // run until the time has been exceeded
-        if(timer.milliseconds() >= milliSecondsToMove) {
+        if (timer.milliseconds() >= milliSecondsToMove) {
             // stop the movement
             setSpeed(0);
             // indicate that the movement has completed
@@ -323,6 +407,60 @@ public class CRServo {
             // indicate that the movement is still in process
             return false;
         }
+    }
+
+    public CRServoState updateCRServo() {
+        switch (crServoState) {
+            case AT_BACK_SWITCH:
+                // the only way out of this state is for the user to command a movement
+                // make sure the servo is not moving
+                setSpeed(0);
+                break;
+            case AT_FRONT_SWITCH:
+                // the only way out of this state is for the user to command a movement
+                // make sure the servo is not moving
+                setSpeed(0);
+                break;
+            case AT_BACK_POSITION:
+                // the only way out of this state is for the user to command a movement
+                // make sure the servo is not moving
+                setSpeed(0);
+                break;
+            case AT_FRONT_POSITION:
+                // the only way out of this state is for the user to command a movement
+                // make sure the servo is not moving
+                setSpeed(0);
+                break;
+            case MOVING_TO_BACK_POSITION:
+                // if the servo has a back limit switch check to make sure the servo has not hit it
+                // if not, then has the servo reached the desired position?
+                break;
+            case MOVING_TO_FRONT_POSITION:
+                // if the servo has a front limit switch check to make sure the servo has not hit it
+                // if not, then has the servo reached the desired position?
+                break;
+            case MOVING_TO_BACK_SWITCH:
+                // if the servo has a back limit switch check to make sure the servo has not hit it
+                if (backLimitSwitch.isPressed()) {
+                    // it is against the back switch, set the state and move to it
+                    crServoState = CRServoState.AT_BACK_SWITCH;
+                    setSpeed(0);
+                }
+                break;
+            case MOVING_TO_FRONT_SWITCH:
+                // if the servo has a front limit switch check to make sure the servo has not hit it
+                if (frontLimitSwitch.isPressed()) {
+                    // it is against the front switch, set the state and move to it
+                    crServoState = CRServoState.AT_FRONT_SWITCH;
+                    setSpeed(0);
+                }
+                break;
+        }
+        return crServoState;
+    }
+
+    private boolean isLimitSwitchPressed(Switch aSwitch) {
+        return aSwitch.isPressed();
     }
 
     public void setupFindNoMovementCommand() {
@@ -337,11 +475,11 @@ public class CRServo {
         double commandIncrement = .01;
         int stepLength = 500; // milliseconds
         String result = "Undefined";
-        if(currentCommand >= .6) {
+        if (currentCommand >= .6) {
             // testing is done, we hit all the values from .4 to .6
             return "Finished";
         }
-        if(currentCommand < .6 && timer.milliseconds() > stepLength) {
+        if (currentCommand < .6 && timer.milliseconds() > stepLength) {
             // timer has expired and we have not hit the end of the range to test
             currentCommand = currentCommand + commandIncrement;
             // format a string to be displayed on the driver station phone
@@ -350,5 +488,10 @@ public class CRServo {
             timer.reset();
         }
         return result;
+    }
+
+    public void updatePosition(double throttle) {
+        // this is just a place holder method to avoid having to change DeliveryBox
+        // delete it later
     }
 }
