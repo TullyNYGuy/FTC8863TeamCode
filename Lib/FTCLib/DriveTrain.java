@@ -22,6 +22,8 @@ public class DriveTrain {
     private double leftPower = 0;
     private double cmPerRotation = 0;
 
+    private boolean driveLocked = false;
+
     private DcMotor8863 rightDriveMotor;
     private DcMotor8863 leftDriveMotor;
 
@@ -30,7 +32,7 @@ public class DriveTrain {
 
     public PIDControl pidControl;
 
-    public AdafruitIMU8863 imu8863;
+    public AdafruitIMU8863 imu;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -105,7 +107,7 @@ public class DriveTrain {
         pidControl = new PIDControl();
         pidControl.setKp(0.01);
 
-        imu8863 = new AdafruitIMU8863(hardwareMap);
+        imu = new AdafruitIMU8863(hardwareMap);
     }
 
     /**
@@ -117,19 +119,27 @@ public class DriveTrain {
      */
     public static DriveTrain DriveTrainTeleOp(HardwareMap hardwareMap) {
         DriveTrain driveTrain = new DriveTrain(hardwareMap);
+        driveTrain.teleopInit();
+        return driveTrain;
+    }
 
-        // Set the motors to float after the power gets set to 0
-        driveTrain.rightDriveMotor.setFinishBehavior(DcMotor8863.FinishBehavior.FLOAT);
-        driveTrain.leftDriveMotor.setFinishBehavior(DcMotor8863.FinishBehavior.FLOAT);
+    /**
+     * Set how the motors behave when power is set to 0 and set the mode of the motors.
+     */
+    public void teleopInit() {
+        // Set the motors to hold after the power gets set to 0
+        // This way the robot will stop when the joystick go to 0 and not continue to coast
+        rightDriveMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
+        leftDriveMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
 
         // Set the motors to run at constant power - there is no PID control over them
         // This needs to be set here because the teleop methods only adjust the power to the motors.
         // They don't set the mode which is why it is done here. Setting power = 0 makes sure the
         // motors don't actually move.
-        driveTrain.rightDriveMotor.runAtConstantPower(0);
-        driveTrain.leftDriveMotor.runAtConstantPower(0);
-
-        return driveTrain;
+        rightDriveMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        leftDriveMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightDriveMotor.setPower(0);
+        leftDriveMotor.setPower(0);
     }
 
     /**
@@ -143,8 +153,8 @@ public class DriveTrain {
         DriveTrain driveTrain = new DriveTrain(hardwareMap);
 
         // Set the motors to float after the power gets set to 0
-        driveTrain.rightDriveMotor.setFinishBehavior(DcMotor8863.FinishBehavior.FLOAT);
-        driveTrain.leftDriveMotor.setFinishBehavior(DcMotor8863.FinishBehavior.FLOAT);
+        driveTrain.rightDriveMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
+        driveTrain.leftDriveMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
 
         // set the mode of the motors to run with encoder feedback, controller the speed of the motors
         driveTrain.rightDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -193,12 +203,12 @@ public class DriveTrain {
         pidControl.setSetpoint(turnAngle);
         pidControl.setMaxCorrection(maxPower);
         pidControl.setThreshold(2);
-        imu8863.setAngleMode(AdafruitIMU8863.AngleMode.RELATIVE);
-        imu8863.resetAngleReferences();
+        imu.setAngleMode(AdafruitIMU8863.AngleMode.RELATIVE);
+        imu.resetAngleReferences();
     }
 
     public boolean updateTurn (){
-        double currentHeading = imu8863.getHeading();
+        double currentHeading = imu.getHeading();
         double correction = -pidControl.getCorrection(currentHeading);
         differentialDrive(0,correction);//correction);
         //return correction;
@@ -256,6 +266,24 @@ public class DriveTrain {
     public void tankDrive(double leftValue, double rightValue){
         leftDriveMotor.setPower(leftValue);
         rightDriveMotor.setPower(rightValue);
+    }
+
+    /**
+     * Lock the motors so they resist turning. Might be useful for holding position on an incline.
+     */
+    public void freezeDrive() {
+        leftDriveMotor.setMotorToHold();
+        rightDriveMotor.setMotorToHold();
+        driveLocked = true;
+    }
+
+    // BUG after this method executes teleop via joysticks is very hesitant and jumpy
+    public void unFreezeDrive() {
+        if(driveLocked) {
+            leftDriveMotor.setMotorToFloat();
+            rightDriveMotor.setMotorToFloat();
+            teleopInit();
+        }
     }
 
     //*********************************************************************************************
