@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.util.Range;
 
 // to do list
 // finish the state initialization for the servo in all 3 constructors
-// finish the state machine
+// check the state diagram to see if it all covered
 
 /**
  * A continuous rotation servo is a servo that can turn around and around like a motor but does not
@@ -385,8 +385,10 @@ public class CRServo {
         directionToMove = direction;
         timer.reset();
         if (direction == CRServoDirection.FORWARD) {
+            crServoState = CRServoState.MOVING_TO_FRONT_POSITION;
             setSpeed(1);
         } else {
+            crServoState = CRServoState.MOVING_TO_BACK_POSITION;
             setSpeed(-1);
         }
     }
@@ -409,11 +411,21 @@ public class CRServo {
         }
     }
 
+    public void moveUntilLimitSwitch(CRServoDirection direction) {
+        if (direction == CRServoDirection.FORWARD) {
+            crServoState = CRServoState.MOVING_TO_FRONT_SWITCH;
+            setSpeed(1);
+        } else {
+            crServoState = CRServoState.MOVING_TO_BACK_SWITCH;
+            setSpeed(-1);
+        }
+    }
+
     public CRServoState updateCRServo() {
         switch (crServoState) {
             case AT_BACK_SWITCH:
                 // the only way out of this state is for the user to command a movement
-                // make sure the servo is not moving
+                // make sure the servo is not moving while it is here
                 setSpeed(0);
                 break;
             case AT_FRONT_SWITCH:
@@ -433,16 +445,42 @@ public class CRServo {
                 break;
             case MOVING_TO_BACK_POSITION:
                 // if the servo has a back limit switch check to make sure the servo has not hit it
+                if (backLimitSwitch != null) {
+                    if (backLimitSwitch.isPressed()) {
+                        // it is against the back switch, set the state and stop the servo
+                        crServoState = CRServoState.AT_BACK_SWITCH;
+                        setSpeed(0);
+                        // now something went wrong here. It should not have it the back switch since
+                        // it was supposed to reach a position. Not sure what to do about that yet.
+                    }
+                }
                 // if not, then has the servo reached the desired position?
+                if(updateMoveDistance()) {
+                    // movement to position has finished
+                    crServoState = CRServoState.AT_BACK_POSITION;
+                }
                 break;
             case MOVING_TO_FRONT_POSITION:
                 // if the servo has a front limit switch check to make sure the servo has not hit it
+                if (frontLimitSwitch != null) {
+                    if (frontLimitSwitch.isPressed()) {
+                        // it is against the back switch, set the state and stop the servo
+                        crServoState = CRServoState.AT_FRONT_SWITCH;
+                        setSpeed(0);
+                        // now something went wrong here. It should not have it the back switch since
+                        // it was supposed to reach a position. Not sure what to do about that yet.
+                    }
+                }
                 // if not, then has the servo reached the desired position?
+                if(updateMoveDistance()) {
+                    // movement to position has finished
+                    crServoState = CRServoState.AT_FRONT_POSITION;
+                }
                 break;
             case MOVING_TO_BACK_SWITCH:
                 // if the servo has a back limit switch check to make sure the servo has not hit it
                 if (backLimitSwitch.isPressed()) {
-                    // it is against the back switch, set the state and move to it
+                    // it is against the back switch, set the state and stop the servo
                     crServoState = CRServoState.AT_BACK_SWITCH;
                     setSpeed(0);
                 }
@@ -450,17 +488,13 @@ public class CRServo {
             case MOVING_TO_FRONT_SWITCH:
                 // if the servo has a front limit switch check to make sure the servo has not hit it
                 if (frontLimitSwitch.isPressed()) {
-                    // it is against the front switch, set the state and move to it
+                    // it is against the front switch, set the state and stop the servo
                     crServoState = CRServoState.AT_FRONT_SWITCH;
                     setSpeed(0);
                 }
                 break;
         }
         return crServoState;
-    }
-
-    private boolean isLimitSwitchPressed(Switch aSwitch) {
-        return aSwitch.isPressed();
     }
 
     public void setupFindNoMovementCommand() {
