@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.opmodes.VelocityVortex;
+package org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib;
 
 
 import com.qualcomm.robotcore.hardware.HardwareMap;

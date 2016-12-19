@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.JoyStick;
+import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.VelocityVortexRobot;
 import org.firstinspires.ftc.teamcode.opmodes.GenericTest.RobotConfigMappingForGenericTest;
 
 /**

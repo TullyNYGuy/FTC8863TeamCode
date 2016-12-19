@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.JoyStick;
+import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.VelocityVortexRobot;
 
 /**
  * Autonomous for competition - not complete, in fact not really started

@@ -2,14 +2,9 @@ package org.firstinspires.ftc.teamcode.opmodes.VelocityVortex;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.util.Hardware;
-import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.JoyStick;
-import org.firstinspires.ftc.teamcode.opmodes.GenericTest.RobotConfigMappingForGenericTest;
+import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.VelocityVortexRobot;
 
 /**
  * Teleop for competition

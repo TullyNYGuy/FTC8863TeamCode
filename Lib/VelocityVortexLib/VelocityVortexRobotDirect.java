@@ -1,9 +1,7 @@
-package org.firstinspires.ftc.teamcode.opmodes.VelocityVortex;
+package org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib;
 
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
-
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 
 /**
  * This was written under pressure at the Rochester qualifier to eliminate the use of DcMotor8863
