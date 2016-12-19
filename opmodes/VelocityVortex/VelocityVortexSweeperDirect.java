@@ -7,7 +7,13 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.opmodes.GenericTest.RobotConfigMappingForGenericTest;
 
-public class VelocityVortexSweeper {
+/**
+ * This was written under pressure at the Rochester qualifier to eliminate the use of DcMotor8863
+ * and instead use DcMotor. The problem was that the motors were not being initialized properly and
+ * the thinking was that using the SDK provided motor might elminate the problem. It lessened it
+ * but did not eliminate it.
+ */
+public class VelocityVortexSweeperDirect {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -33,7 +39,7 @@ public class VelocityVortexSweeper {
     //*********************************************************************************************
     private SweeperState currentState = SweeperState.NORMAL;
 
-    private DcMotor8863 sweeperMotor;
+    private DcMotor sweeperMotor;
 
     private double sweeperPower = 0;
 
@@ -56,16 +62,19 @@ public class VelocityVortexSweeper {
     // from it
     //*********************************************************************************************
 
-    public VelocityVortexSweeper(HardwareMap hardwareMap) {
+    public VelocityVortexSweeperDirect(HardwareMap hardwareMap) {
         // setup the motor
-        sweeperMotor = new DcMotor8863(RobotConfigMappingForGenericTest.getthirdMotorName(), hardwareMap);
-        sweeperMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
-        sweeperMotor.setMovementPerRev(360);
-        sweeperMotor.setTargetEncoderTolerance(5);
-        sweeperMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
-        sweeperMotor.setMotorMoveType(DcMotor8863.MotorMoveType.RELATIVE);
-        sweeperMotor.setMinMotorPower(-1);
-        sweeperMotor.setMaxMotorPower(1);
+        sweeperMotor = hardwareMap.dcMotor.get(RobotConfigMappingForGenericTest.getthirdMotorName());
+        sweeperMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        sweeperMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        sweeperMotor.setPower(0);
+//        sweeperMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
+//        sweeperMotor.setMovementPerRev(360);
+//        sweeperMotor.setTargetEncoderTolerance(5);
+//        sweeperMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
+//        sweeperMotor.setMotorMoveType(DcMotor8863.MotorMoveType.RELATIVE);
+//        sweeperMotor.setMinMotorPower(-1);
+//        sweeperMotor.setMaxMotorPower(1);
     }
 
 
@@ -85,11 +94,11 @@ public class VelocityVortexSweeper {
         // set its direction
         sweeperMotor.setDirection(DcMotor.Direction.FORWARD);
         // set the mode for the motor and lock it in place
-        sweeperMotor.runAtConstantSpeed(0);
+        //sweeperMotor.runAtConstantSpeed(0);
     }
 
     public void stop(){
-        sweeperMotor.interrupt();
+        //sweeperMotor.interrupt();
         sweeperPower = 0;
     }
     public void shoot(){
@@ -102,11 +111,11 @@ public class VelocityVortexSweeper {
         sweeperMotor.setPower(sweeperPower);
     }
 
-    public void update(){
-        sweeperMotor.update();
-    }
+//    public void update(){
+//        sweeperMotor.update();
+//    }
 
     public void shudown() {
-        sweeperMotor.shutDown();
+        sweeperMotor.setPower(0);
     }
 }

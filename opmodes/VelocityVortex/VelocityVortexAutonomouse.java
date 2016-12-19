@@ -2,21 +2,15 @@ package org.firstinspires.ftc.teamcode.opmodes.VelocityVortex;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.util.Hardware;
-import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.JoyStick;
-import org.firstinspires.ftc.teamcode.opmodes.GenericTest.RobotConfigMappingForGenericTest;
 
 /**
- * Teleop for competition
+ * Autonomous for competition - not complete, in fact not really started
  */
-@TeleOp(name = "Velocity Vortex Teleop Old", group = "Run")
+@TeleOp(name = "Velocity Vortex Teleop", group = "Run")
 //@Disabled
-public class VelocityVortexTeleop extends LinearOpMode {
+public class VelocityVortexAutonomouse extends LinearOpMode {
 
     //*********************************************************************************************
     //             Declarations

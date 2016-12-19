@@ -3,20 +3,20 @@ package org.firstinspires.ftc.teamcode.opmodes.VelocityVortex;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.util.Hardware;
-import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.JoyStick;
 import org.firstinspires.ftc.teamcode.opmodes.GenericTest.RobotConfigMappingForGenericTest;
 
 /**
  * Teleop for competition
+ * This was written under pressure at the Rochester qualifier to eliminate the use of DcMotor8863
+ * and instead use DcMotor. The problem was that the motors were not being initialized properly and
+ * the thinking was that using the SDK provided motor might elminate the problem. It lessened it
+ * but did not eliminate it.
  */
-@TeleOp(name = "Velocity Vortex Teleop Old", group = "Run")
+@TeleOp(name = "Velocity Vortex Teleop Direct", group = "Run")
 //@Disabled
-public class VelocityVortexTeleop extends LinearOpMode {
+public class VelocityVortexTeleopDirect extends LinearOpMode {
 
     //*********************************************************************************************
     //             Declarations
@@ -27,9 +27,12 @@ public class VelocityVortexTeleop extends LinearOpMode {
         DIFFERENTIAL_DRIVE;
     }
 
-    DriveTrainMode driveTrainMode = DriveTrainMode.TANK_DRIVE;
+    //DriveTrainMode driveTrainMode = DriveTrainMode.TANK_DRIVE;
 
     VelocityVortexRobot robot;
+    
+    DcMotor leftDriveMotor;
+    DcMotor rightDriveMotor;
 
     // for use in debouncing the button. A long press will only result in one transition of the
     // button
@@ -102,6 +105,17 @@ public class VelocityVortexTeleop extends LinearOpMode {
         //*********************************************************************************************
 
         robot = robot.createRobotForTeleop(hardwareMap, telemetry);
+        leftDriveMotor = hardwareMap.dcMotor.get(RobotConfigMappingForGenericTest.getleftMotorName());
+        rightDriveMotor = hardwareMap.dcMotor.get(RobotConfigMappingForGenericTest.getrightMotorName());
+        
+        leftDriveMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        leftDriveMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        leftDriveMotor.setPower(0);
+
+        rightDriveMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightDriveMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightDriveMotor.setPower(0);
+        
 
         // Game Pad 1 joysticks
         gamepad1LeftJoyStickX = new JoyStick(JoyStick.JoyStickMode.SQUARE, JOYSTICK_DEADBAND_VALUE, JoyStick.InvertSign.NO_INVERT_SIGN);
@@ -134,6 +148,7 @@ public class VelocityVortexTeleop extends LinearOpMode {
             
             if (gamepad1.y) {
                 if (gamepad1yButtonIsReleased) {
+                    robot.rightBeaconPusher.close();
                     gamepad1yButtonIsReleased = false;
                 }
             } else {
@@ -142,6 +157,7 @@ public class VelocityVortexTeleop extends LinearOpMode {
 
             if (gamepad1.a) {
                 if (gamepad1aButtonIsReleased) {
+                    robot.rightBeaconPusher.open();
                     gamepad1aButtonIsReleased = false;
                 }
             } else {
@@ -177,7 +193,7 @@ public class VelocityVortexTeleop extends LinearOpMode {
             if (gamepad1.left_bumper) {
                 if (gamepad1LeftBumperIsReleased) {
                     // toggle the drive train mode: differential <-> tank drive
-                    toggleDriveTrainMode();
+                    //toggleDriveTrainMode();
                     gamepad1LeftBumperIsReleased = false;
                 }
             } else {
@@ -369,13 +385,16 @@ public class VelocityVortexTeleop extends LinearOpMode {
             throttle = gamepad1RightJoyStickYValue;
             direction = gamepad1RightJoyStickXValue;
 
-            // update the drive motors
-            if(driveTrainMode == DriveTrainMode.TANK_DRIVE) {
-                robot.driveTrain.tankDrive(leftPower, rightPower);
-            } else {
-                // differential drive
-                robot.driveTrain.differentialDrive(throttle, direction);
-            }
+//            // update the drive motors
+//            if(driveTrainMode == DriveTrainMode.TANK_DRIVE) {
+//                robot.driveTrain.tankDrive(leftPower, rightPower);
+//            } else {
+//                // differential drive
+//                robot.driveTrain.differentialDrive(throttle, direction);
+//            }
+
+            leftDriveMotor.setPower(leftPower);
+            rightDriveMotor.setPower(rightPower);
             
             // update the robot
             robot.update();
@@ -384,7 +403,7 @@ public class VelocityVortexTeleop extends LinearOpMode {
             telemetry.addData("Left Motor Speed = ", "%3.2f", leftPower);
             telemetry.addData("Right Motor Speed = ", "%3.2f", rightPower);
             telemetry.addData("Sweeper Motor Speed = ", "%3.2f", robot.sweeper.getSweeperPower());
-            telemetry.addData("Drive train mode = ", driveTrainMode.toString());
+//            telemetry.addData("Drive train mode = ", driveTrainMode.toString());
             telemetry.addData(">", "Press Stop to end.");
             telemetry.update();
 
@@ -408,10 +427,10 @@ public class VelocityVortexTeleop extends LinearOpMode {
     /**
      * Change from differential drive mode to tank drive, or tank drive to differential
      */
-    private void toggleDriveTrainMode() {
-        if (driveTrainMode == DriveTrainMode.DIFFERENTIAL_DRIVE) {
-            driveTrainMode = DriveTrainMode.TANK_DRIVE;
-        } else
-            driveTrainMode = DriveTrainMode.DIFFERENTIAL_DRIVE;
-    }
+//    private void toggleDriveTrainMode() {
+//        if (driveTrainMode == DriveTrainMode.DIFFERENTIAL_DRIVE) {
+//            driveTrainMode = DriveTrainMode.TANK_DRIVE;
+//        } else
+//            driveTrainMode = DriveTrainMode.DIFFERENTIAL_DRIVE;
+//    }
 }

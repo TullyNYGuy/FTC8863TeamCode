@@ -1,13 +1,17 @@
 package org.firstinspires.ftc.teamcode.opmodes.VelocityVortex;
 
 
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
-import org.firstinspires.ftc.teamcode.opmodes.GenericTest.RobotConfigMappingForGenericTest;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 
-public class VelocityVortexSweeper {
+/**
+ * This was written under pressure at the Rochester qualifier to eliminate the use of DcMotor8863
+ * and instead use DcMotor. The problem was that the motors were not being initialized properly and
+ * the thinking was that using the SDK provided motor might elminate the problem. It lessened it
+ * but did not eliminate it.
+ */
+public class VelocityVortexRobotDirect {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -16,13 +20,9 @@ public class VelocityVortexSweeper {
     //
     //*********************************************************************************************
 
-    /**
-     * Eventually we will have a state machine to "soft" stop and "soft" reverse the direction
-     */
-    private enum SweeperState {
-        NORMAL, //power ramp is not active, power ramp has not just completed
-        POWER_RAMP_RUNNING, // power ramp is currently running
-        POWER_RAMP_COMPLETE // power ramp just completed
+    private enum RobotMode {
+        AUTONOMOUS,
+        TELEOP
     }
 
     //*********************************************************************************************
@@ -31,11 +31,10 @@ public class VelocityVortexSweeper {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
-    private SweeperState currentState = SweeperState.NORMAL;
 
-    private DcMotor8863 sweeperMotor;
-
-    private double sweeperPower = 0;
+    // note that the IMU is an object in the drive train
+    //public DriveTrain driveTrain;
+    public VelocityVortexSweeper sweeper;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -43,10 +42,6 @@ public class VelocityVortexSweeper {
     // allow access to private data fields for example setMotorPower,
     // getPositionInTermsOfAttachment
     //*********************************************************************************************
-
-    public double getSweeperPower() {
-        return sweeperPower;
-    }
 
 
     //*********************************************************************************************
@@ -56,18 +51,25 @@ public class VelocityVortexSweeper {
     // from it
     //*********************************************************************************************
 
-    public VelocityVortexSweeper(HardwareMap hardwareMap) {
-        // setup the motor
-        sweeperMotor = new DcMotor8863(RobotConfigMappingForGenericTest.getthirdMotorName(), hardwareMap);
-        sweeperMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
-        sweeperMotor.setMovementPerRev(360);
-        sweeperMotor.setTargetEncoderTolerance(5);
-        sweeperMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
-        sweeperMotor.setMotorMoveType(DcMotor8863.MotorMoveType.RELATIVE);
-        sweeperMotor.setMinMotorPower(-1);
-        sweeperMotor.setMaxMotorPower(1);
+    private VelocityVortexRobotDirect(HardwareMap hardwareMap, RobotMode robotMode) {
+//        if(robotMode == RobotMode.AUTONOMOUS) {
+//            driveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap);
+//        } else {
+//            driveTrain = DriveTrain.DriveTrainTeleOp(hardwareMap);
+//        }
+        sweeper = new VelocityVortexSweeper(hardwareMap);
+        init();
     }
 
+    public static VelocityVortexRobotDirect createRobotForAutonomous(HardwareMap hardwareMap) {
+        VelocityVortexRobotDirect robot = new VelocityVortexRobotDirect(hardwareMap, RobotMode.AUTONOMOUS);
+        return robot;
+    }
+
+    public static VelocityVortexRobotDirect createRobotForTeleop(HardwareMap hardwareMap) {
+        VelocityVortexRobotDirect robot = new VelocityVortexRobotDirect(hardwareMap, RobotMode.TELEOP);
+        return robot;
+    }
 
     //*********************************************************************************************
     //          Helper Methods
@@ -81,32 +83,18 @@ public class VelocityVortexSweeper {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
-    public void init(){
-        // set its direction
-        sweeperMotor.setDirection(DcMotor.Direction.FORWARD);
-        // set the mode for the motor and lock it in place
-        sweeperMotor.runAtConstantSpeed(0);
+
+    public void init() {
+        sweeper.init();
+//        driveTrain.setCmPerRotation(31.1); // cm
     }
 
-    public void stop(){
-        sweeperMotor.interrupt();
-        sweeperPower = 0;
-    }
-    public void shoot(){
-        sweeperPower = -1;
-        sweeperMotor.setPower(sweeperPower);
+    public void update() {
+        sweeper.update();
     }
 
-    public void collect(){
-        sweeperPower = .5;
-        sweeperMotor.setPower(sweeperPower);
-    }
-
-    public void update(){
-        sweeperMotor.update();
-    }
-
-    public void shudown() {
-        sweeperMotor.shutDown();
+    public void shutdown() {
+        sweeper.shudown();
+        //driveTrain.shutdown();
     }
 }

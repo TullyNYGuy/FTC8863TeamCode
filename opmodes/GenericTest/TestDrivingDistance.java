@@ -41,7 +41,7 @@ public class TestDrivingDistance extends LinearOpMode {
 
         // Put your cleanup code here - it runs as the application shuts down
         telemetry.addData(">", "Done");
-        telemetry.addData("Angle = ", "%3.1f", driveTrain.imu8863.getHeading());
+        telemetry.addData("Angle = ", "%3.1f", driveTrain.imu.getHeading());
         telemetry.update();
         sleep(3000);
     }
@@ -51,7 +51,7 @@ public class TestDrivingDistance extends LinearOpMode {
 
         while(opModeIsActive() && !driveTrain.updateTurn()) {
             telemetry.addData(">", "Press Stop to end test." );
-            telemetry.addData("Angle = ", "%3.1f", driveTrain.imu8863.getHeading());
+            telemetry.addData("Angle = ", "%3.1f", driveTrain.imu.getHeading());
             telemetry.update();
             idle();
         }

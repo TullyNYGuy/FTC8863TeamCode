@@ -52,7 +52,7 @@ public class TestAutonomousTurn extends LinearOpMode {
             //telemetry.addData("Motor Speed = ", "%5.2f", powerToRunAt);
             //telemetry.addData("Encoder Count=", "%5d", motor.getCurrentPosition());
             telemetry.addData(">", "Press Stop to end test." );
-            telemetry.addData("Angle = ", "%3.1f", driveTrain.imu8863.getHeading());
+            telemetry.addData("Angle = ", "%3.1f", driveTrain.imu.getHeading());
             telemetry.update();
 
             idle();
@@ -60,7 +60,7 @@ public class TestAutonomousTurn extends LinearOpMode {
 
         // Put your cleanup code here - it runs as the application shuts down
         telemetry.addData(">", "Done");
-        telemetry.addData("Angle = ", "%3.1f", driveTrain.imu8863.getHeading());
+        telemetry.addData("Angle = ", "%3.1f", driveTrain.imu.getHeading());
         telemetry.update();
         sleep(3000);
     }

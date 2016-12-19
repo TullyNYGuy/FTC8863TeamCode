@@ -3,7 +3,9 @@ package org.firstinspires.ftc.teamcode.opmodes.VelocityVortex;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.SideBeaconPusher;
 
 public class VelocityVortexRobot {
 
@@ -29,6 +31,7 @@ public class VelocityVortexRobot {
     // note that the IMU is an object in the drive train
     public DriveTrain driveTrain;
     public VelocityVortexSweeper sweeper;
+    public SideBeaconPusher rightBeaconPusher;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -45,23 +48,24 @@ public class VelocityVortexRobot {
     // from it
     //*********************************************************************************************
 
-    private VelocityVortexRobot(HardwareMap hardwareMap, RobotMode robotMode) {
+    private VelocityVortexRobot(HardwareMap hardwareMap, RobotMode robotMode, Telemetry telemetry) {
         if(robotMode == RobotMode.AUTONOMOUS) {
             driveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap);
         } else {
             driveTrain = DriveTrain.DriveTrainTeleOp(hardwareMap);
         }
         sweeper = new VelocityVortexSweeper(hardwareMap);
+        rightBeaconPusher = new SideBeaconPusher(hardwareMap, telemetry);
         init();
     }
 
-    public static VelocityVortexRobot createRobotForAutonomous(HardwareMap hardwareMap) {
-        VelocityVortexRobot robot = new VelocityVortexRobot(hardwareMap, RobotMode.AUTONOMOUS);
+    public static VelocityVortexRobot createRobotForAutonomous(HardwareMap hardwareMap, Telemetry telemetry) {
+        VelocityVortexRobot robot = new VelocityVortexRobot(hardwareMap, RobotMode.AUTONOMOUS, telemetry);
         return robot;
     }
 
-    public static VelocityVortexRobot createRobotForTeleop(HardwareMap hardwareMap) {
-        VelocityVortexRobot robot = new VelocityVortexRobot(hardwareMap, RobotMode.TELEOP);
+    public static VelocityVortexRobot createRobotForTeleop(HardwareMap hardwareMap, Telemetry telemetry) {
+        VelocityVortexRobot robot = new VelocityVortexRobot(hardwareMap, RobotMode.TELEOP, telemetry);
         return robot;
     }
 
@@ -81,6 +85,7 @@ public class VelocityVortexRobot {
     public void init() {
         sweeper.init();
         driveTrain.setCmPerRotation(31.1); // cm
+        rightBeaconPusher.init();
     }
 
     public void update() {
