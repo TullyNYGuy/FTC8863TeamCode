@@ -32,6 +32,7 @@ public class DriveTrain {
 
     public PIDControl pidControl;
 
+    private boolean imuPresent = true;
     public AdafruitIMU8863 imu;
 
     //*********************************************************************************************
@@ -82,7 +83,7 @@ public class DriveTrain {
      * DriveTrainAutonomous. Those methods then call this one. Those methods will optimize the
      * @param hardwareMap
      */
-    private DriveTrain(HardwareMap hardwareMap) {
+    private DriveTrain(HardwareMap hardwareMap, boolean imuPresent) {
         leftDriveMotor = new DcMotor8863(RobotConfigMappingForGenericTest.getleftMotorName(), hardwareMap);
         rightDriveMotor = new DcMotor8863(RobotConfigMappingForGenericTest.getrightMotorName(), hardwareMap);
 
@@ -107,7 +108,11 @@ public class DriveTrain {
         pidControl = new PIDControl();
         pidControl.setKp(0.01);
 
-        imu = new AdafruitIMU8863(hardwareMap);
+        this.imuPresent = imuPresent;
+
+        if (imuPresent) {
+            imu = new AdafruitIMU8863(hardwareMap);
+        }
     }
 
     /**
@@ -118,7 +123,7 @@ public class DriveTrain {
      * @return Instance of a driveTrain (a driveTrain oject) optimized for TeleOp
      */
     public static DriveTrain DriveTrainTeleOp(HardwareMap hardwareMap) {
-        DriveTrain driveTrain = new DriveTrain(hardwareMap);
+        DriveTrain driveTrain = new DriveTrain(hardwareMap, true);
         driveTrain.teleopInit();
         return driveTrain;
     }
@@ -150,7 +155,20 @@ public class DriveTrain {
      * @return Instance of a driveTrain (a driveTrain oject) optimized for Autonomous
      */
     public static DriveTrain DriveTrainAutonomous(HardwareMap hardwareMap) {
-        DriveTrain driveTrain = new DriveTrain(hardwareMap);
+        DriveTrain driveTrain = new DriveTrain(hardwareMap, true);
+
+        // Set the motors to float after the power gets set to 0
+        driveTrain.rightDriveMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
+        driveTrain.leftDriveMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
+
+        // set the mode of the motors to run with encoder feedback, controller the speed of the motors
+        driveTrain.rightDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        driveTrain.leftDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        return driveTrain;
+    }
+
+    public static DriveTrain DriveTrainAutonomousNoImu(HardwareMap hardwareMap) {
+        DriveTrain driveTrain = new DriveTrain(hardwareMap, false);
 
         // Set the motors to float after the power gets set to 0
         driveTrain.rightDriveMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
@@ -197,22 +215,34 @@ public class DriveTrain {
     }
 
     public void setupTurn (double turnAngle, double maxPower){
-        // set the mode for the motors during the turn. Without this they may not move.
-        rightDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        leftDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        pidControl.setSetpoint(turnAngle);
-        pidControl.setMaxCorrection(maxPower);
-        pidControl.setThreshold(2);
-        imu.setAngleMode(AdafruitIMU8863.AngleMode.RELATIVE);
-        imu.resetAngleReferences();
+
+        if (imuPresent) {
+            // set the mode for the motors during the turn. Without this they may not move.
+            rightDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            leftDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            pidControl.setSetpoint(turnAngle);
+            pidControl.setMaxCorrection(maxPower);
+            pidControl.setThreshold(2);
+            imu.setAngleMode(AdafruitIMU8863.AngleMode.RELATIVE);
+            imu.resetAngleReferences();
+        } else {
+            shutdown();
+            throw new IllegalArgumentException("No Imu found");
+        }
     }
 
     public boolean updateTurn (){
-        double currentHeading = imu.getHeading();
-        double correction = -pidControl.getCorrection(currentHeading);
-        differentialDrive(0,correction);//correction);
-        //return correction;
-        return pidControl.isFinished();
+
+        if (imuPresent) {
+            double currentHeading = imu.getHeading();
+            double correction = -pidControl.getCorrection(currentHeading);
+            differentialDrive(0,correction);//correction);
+            //return correction;
+            return pidControl.isFinished();
+        } else {
+            shutdown();
+            throw new IllegalArgumentException("No Imu found");
+        }
     }
 
     public void stopTurn() {

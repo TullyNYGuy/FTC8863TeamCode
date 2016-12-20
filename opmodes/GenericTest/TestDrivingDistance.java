@@ -27,21 +27,21 @@ public class TestDrivingDistance extends LinearOpMode {
 
 
         // Put your initializations here
-        driveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap);
+        driveTrain = DriveTrain.DriveTrainAutonomousNoImu(hardwareMap);
         driveTrain.setCmPerRotation(31.1); // cm
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run" );
         telemetry.update();
         waitForStart();
-        driveStraight(200, 0.5);
+        driveStraight(200, 0.3);
         telemetry.addData("Finished Straight", "1");
         telemetry.update();
         sleep(1000);
 
         // Put your cleanup code here - it runs as the application shuts down
         telemetry.addData(">", "Done");
-        telemetry.addData("Angle = ", "%3.1f", driveTrain.imu.getHeading());
+        //telemetry.addData("Angle = ", "%3.1f", driveTrain.imu.getHeading());
         telemetry.update();
         sleep(3000);
     }
