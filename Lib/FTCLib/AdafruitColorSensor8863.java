@@ -14,6 +14,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.RobotLog;
 import com.qualcomm.robotcore.util.TypeConversion;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -352,6 +354,11 @@ public class AdafruitColorSensor8863 {
     private ElapsedTime updateTimer;
     private int lastAlpha = 0;
     private StatTracker updateTimeTracker;
+
+    /**
+     * For putting test data out to the driver station
+     */
+    private Telemetry telemetry;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -895,5 +902,26 @@ public class AdafruitColorSensor8863 {
 
     public String updateRateString() {
         return String.format("%4.0f", getUpdateRateMin()) + " / " + String.format("%4.0f", getUpdateRateAve()) + " / " + String.format("%4.0f", getUpdateRateMax());
+    }
+
+    //*********************************************************************************************
+    //          Putting data onto the driver station
+    //*********************************************************************************************
+
+    public void displayColorSensorData(Telemetry telemetry) {
+        this.telemetry = telemetry;
+        telemetry.addData("Color sensor gain = ", getCurrentGainAsString());
+        telemetry.addData("Color sensor integration time = ", getCurrentIntegrationTimeAsString());
+        telemetry.addData("Max possible color value = ", getMaxRGBCValue());
+        telemetry.addData("Opaqueness = ", alpha());
+        telemetry.addData("Red / Green / Blue ", rgbValuesAsString());
+        telemetry.addData("Red / Green / Blue (scaled)", rgbValuesScaledAsString());
+        telemetry.addData("Hue / Sat / Value (scaled)", hsvValuesScaledAsString());
+        telemetry.addData(colorTestResultUsingRGBCaption(), colorTestResultUsingRGB());
+        telemetry.addData(colorTestResultUsingHSVCaption(), colorTestResultUsingHSV());
+        telemetry.addData("Update min/ave/max (mS) = ", updateRateString());
+        telemetry.addData(">", "Press Stop to end test." );
+
+        telemetry.update();
     }
 }
