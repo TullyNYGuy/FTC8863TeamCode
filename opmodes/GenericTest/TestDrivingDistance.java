@@ -34,7 +34,7 @@ public class TestDrivingDistance extends LinearOpMode {
         telemetry.addData(">", "Press Start to run" );
         telemetry.update();
         waitForStart();
-        driveStraight(200, 0.3);
+        driveStraight(200, 0.1);
         telemetry.addData("Finished Straight", "1");
         telemetry.update();
         sleep(1000);
