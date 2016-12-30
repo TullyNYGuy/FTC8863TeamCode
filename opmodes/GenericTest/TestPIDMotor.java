@@ -46,9 +46,9 @@ public class TestPIDMotor extends LinearOpMode {
 
         motor.setDirection(DcMotor.Direction.FORWARD);
 
-        pidControl = new PIDControl(.005, 1800,.5); //Kp, target, speed limit
+        pidControl = new PIDControl(.005, 18000,.5); //Kp, target, speed limit
 
-        pidControl.setupRamp(0, .5, 5000);
+        pidControl.setupRamp(0, .5, 5000); //starting power, ending power, time in ms from start to finish
 
         // test internal routines from DcMotor8863
         telemetry.addData("Encoder Count for movement = ", "%d", motor.getEncoderCountForRevs(2.5));
