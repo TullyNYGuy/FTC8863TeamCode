@@ -468,17 +468,17 @@ public class Servo8863 {
         return teamServo.getPosition();
     }
 
-    public void setUpServoCalibration(double startPosition, double endPosition, double positionIncrement, double timeBetweenPositions){
+    public void setUpServoCalibration(double startPosition, double endPosition, double positionIncrement, double timeBetweenPositionsInMilliseconds){
         setServoCalibrationStartPosition(startPosition);
         setServoCalibrationEndPosition(endPosition);
         setServoCalibrationPositionIncrement(positionIncrement);
-        setServoCalibrationTimeBetweenSteps(timeBetweenPositions);
+        setServoCalibrationTimeBetweenSteps(timeBetweenPositionsInMilliseconds);
         calibrationRoutineTimer = new ElapsedTime();
         calibrationRoutineCurrentPosition = startPosition;
     }
 
     public void updateServoCalibration(){
-        if( calibrationRoutineTimer.time() > servoCalibrationTimeBetweenSteps && calibrationRoutineCurrentPosition <= servoCalibrationEndPosition) {
+        if( calibrationRoutineTimer.milliseconds() > servoCalibrationTimeBetweenSteps && calibrationRoutineCurrentPosition <= servoCalibrationEndPosition) {
            calibrationRoutineCurrentPosition = calibrationRoutineCurrentPosition + servoCalibrationPositionIncrement;
             teamServo.setPosition(calibrationRoutineCurrentPosition);
             calibrationRoutineTimer.reset();
