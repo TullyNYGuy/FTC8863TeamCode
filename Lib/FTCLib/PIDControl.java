@@ -42,9 +42,10 @@ public class PIDControl {
 
     private double maxCorrection = 0;
 
-    private double feedback = 0;
+    private RampControl rampControl;
 
-    private double threshold = 0;
+    private boolean useRampControl = false;
+
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -109,22 +110,6 @@ public class PIDControl {
         return setpoint;
     }
 
-    public double getFeedback() {
-        return feedback;
-    }
-
-    public void setFeedback(double feedback) {
-        this.feedback = feedback;
-    }
-
-    public double getThreshold() {
-        return threshold;
-    }
-
-    public void setThreshold(double threshold) {
-        this.threshold = threshold;
-    }
-
     /**
      *
      * @param setpoint Set Desired Value for PIDControl
@@ -139,6 +124,14 @@ public class PIDControl {
 
     public void setMaxCorrection(double maxCorrection) {
         this.maxCorrection = maxCorrection;
+    }
+
+    public boolean isUseRampControl() {
+        return useRampControl;
+    }
+
+    public void setUseRampControl(boolean useRampControl) {
+        this.useRampControl = useRampControl;
     }
 
     //*********************************************************************************************
@@ -176,7 +169,10 @@ public class PIDControl {
         Kd = 0;
         this.maxCorrection = maxCorrection;
         this.setpoint = setpoint;
+        rampControl = new RampControl(0,0,0);
+        useRampControl = false;
     }
+
 
     //*********************************************************************************************
     //          Helper Methods
@@ -197,16 +193,23 @@ public class PIDControl {
      * @return Correction to use in control code.
      */
     public double getCorrection(double feedback){
-        setFeedback(feedback);
         double correction = (getSetpoint() - feedback) * getKp();
+        if (useRampControl && !rampControl.isRunning() && !rampControl.isFinished()){
+            rampControl.start();
+        }
+
+        correction = rampControl.getRampValueLinear(correction);
+
         correction = Range.clip(correction, -maxCorrection, maxCorrection);
+
+
+
         return correction;
     }
-    public boolean isFinished(){
-        if (Math.abs(getFeedback() - getSetpoint()) < getThreshold()){
-            return true;
-        } else {
-            return false;
-        }
+
+    public void setupRamp (double valueAtStartTime, double valueAtFinishTime, double timeToReachFinishValueInmSec) {
+        rampControl.setup(valueAtStartTime,valueAtFinishTime,timeToReachFinishValueInmSec);
+        setUseRampControl(true);
     }
+
 }
