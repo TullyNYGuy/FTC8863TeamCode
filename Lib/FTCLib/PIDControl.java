@@ -32,7 +32,7 @@ public class PIDControl {
 
     /**
      * Derivitive constant for PIDControl
-      */
+     */
     private double Kd = 0;
 
     /**
@@ -46,6 +46,9 @@ public class PIDControl {
 
     private boolean useRampControl = false;
 
+    private double feedback = 0;
+
+    private double threshold = 0;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -88,7 +91,7 @@ public class PIDControl {
 
     /**
      *
-      * @return Derivitive constant for PIDControl
+     * @return Derivitive constant for PIDControl
      */
     public double getKd() {
         return Kd;
@@ -96,7 +99,7 @@ public class PIDControl {
 
     /**
      *
-      * @param kd Set Derivitive constant for PIDControl
+     * @param kd Set Derivitive constant for PIDControl
      */
     public void setKd(double kd) {
         Kd = kd;
@@ -104,10 +107,26 @@ public class PIDControl {
 
     /**
      *
-      * @return Desired Value for PIDControl
+     * @return Desired Value for PIDControl
      */
     public double getSetpoint() {
         return setpoint;
+    }
+
+    public double getFeedback() {
+        return feedback;
+    }
+
+    public void setFeedback(double feedback) {
+        this.feedback = feedback;
+    }
+
+    public double getThreshold() {
+        return threshold;
+    }
+
+    public void setThreshold(double threshold) {
+        this.threshold = threshold;
     }
 
     /**
@@ -143,7 +162,7 @@ public class PIDControl {
 
     /**
      * Constructor. Integral and Derivivtive not implemented at this time.
-      * @param kp Proportionality constant for PIDControl
+     * @param kp Proportionality constant for PIDControl
      * @param ki Integral Constant for PIDControl
      * @param kd Derivitive constant for PIDControl
      * @param setpoint Set Desired Value for PIDControl
@@ -160,7 +179,7 @@ public class PIDControl {
 
     /**
      * Constructor Ki=0 Kd=0
-      * @param kp Proportionality constant for PIDControl
+     * @param kp Proportionality constant for PIDControl
      * @param setpoint Set Desired Value for PIDControl
      */
     public PIDControl(double kp, double setpoint, double maxCorrection) {
@@ -172,7 +191,6 @@ public class PIDControl {
         rampControl = new RampControl(0,0,0);
         useRampControl = false;
     }
-
 
     //*********************************************************************************************
     //          Helper Methods
@@ -187,29 +205,33 @@ public class PIDControl {
     // public methods that give the class its functionality
     //*********************************************************************************************
 
-    /**
-     * Returns correction from PIDControl
-      * @param feedback Actual Value from sensor.
-     * @return Correction to use in control code.
-     */
-    public double getCorrection(double feedback){
-        double correction = (getSetpoint() - feedback) * getKp();
-        if (useRampControl && !rampControl.isRunning() && !rampControl.isFinished()){
-            rampControl.start();
-        }
-
-        correction = rampControl.getRampValueLinear(correction);
-
-        correction = Range.clip(correction, -maxCorrection, maxCorrection);
-
-
-
-        return correction;
-    }
-
     public void setupRamp (double valueAtStartTime, double valueAtFinishTime, double timeToReachFinishValueInmSec) {
         rampControl.setup(valueAtStartTime,valueAtFinishTime,timeToReachFinishValueInmSec);
         setUseRampControl(true);
     }
 
+    /**
+     * Returns correction from PIDControl
+     * @param feedback Actual Value from sensor.
+     * @return Correction to use in control code.
+     */
+    public double getCorrection(double feedback){
+        // set the feedback property so it can be retrieved later
+        setFeedback(feedback);
+        double correction = (getSetpoint() - feedback) * getKp();
+        if (useRampControl && !rampControl.isRunning() && !rampControl.isFinished()){
+            rampControl.start();
+        }
+        correction = rampControl.getRampValueLinear(correction);
+        correction = Range.clip(correction, -maxCorrection, maxCorrection);
+        return correction;
+    }
+
+    public boolean isFinished(){
+        if (Math.abs(getFeedback() - getSetpoint()) < getThreshold()){
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

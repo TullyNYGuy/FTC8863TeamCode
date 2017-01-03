@@ -267,7 +267,7 @@ public class DriveTrain {
             pidControl.setSetpoint(heading);
             pidControl.setMaxCorrection(maxPower);
             pidControl.setThreshold(2);
-            pidControl.setKp(0.05);
+            pidControl.setKp(0.03);
             driveTrainPower = maxPower;
 
 

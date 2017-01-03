@@ -35,7 +35,7 @@ public class TestDrivingDistance extends LinearOpMode {
         telemetry.addData(">", "Press Start to run" );
         telemetry.update();
         waitForStart();
-        driveUsingIMU(0, 0.4);
+        driveUsingIMU(0, 1);
         telemetry.addData("Finished Straight", "1");
         telemetry.update();
         sleep(1000);
@@ -85,7 +85,7 @@ public class TestDrivingDistance extends LinearOpMode {
             double distance;
             distance = driveTrain.updateDriveUsingIMU();
 
-            if (distance > 100) {
+            if (distance > 200) {
                 driveTrain.stopDriveUsingIMU();
                 break;
             }
