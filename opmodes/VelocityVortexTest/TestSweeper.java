@@ -265,7 +265,7 @@ public class TestSweeper extends LinearOpMode {
                 // Get the last power applied to the motor at the end of the power ramp. Use this
                 // as the power for the motor now that the power ramp has completed. As soon as this
                 // is done move back to the normal state
-                sweeperPower = sweeperMotor.getActualPower();
+                sweeperPower = sweeperMotor.getCurrentPower();
                 setPower(sweeperPower);
                 currentState = SweeperState.NORMAL;
                 break;

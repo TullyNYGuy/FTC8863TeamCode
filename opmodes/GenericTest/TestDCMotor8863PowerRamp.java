@@ -150,7 +150,7 @@ public class TestDCMotor8863PowerRamp extends LinearOpMode {
 
             // display some information on the driver phone
             telemetry.addData(">", mode);
-            telemetry.addData("Motor Speed = ", "%5.2f", motor.getActualPower());
+            telemetry.addData("Motor Speed = ", "%5.2f", motor.getCurrentPower());
             telemetry.addData("feedback = ", "%5.2f", motor.getPositionInTermsOfAttachment());
             telemetry.addData("Encoder Count = ", "%5d", motor.getCurrentPosition());
             telemetry.addData("Elapsed time = ", "%5.0f", runningTimer.milliseconds());

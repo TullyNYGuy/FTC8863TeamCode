@@ -185,9 +185,12 @@ public class DcMotor8863 {
      */
     private RampControl powerRamp;
 
-    private double runningPower = 0;
+    private double desiredPowerAfterRamp = 0;
 
-    private double actualPower = 0;
+    /**
+     * The current power the motor has been commanded to run at
+     */
+    private double currentPower = 0;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -408,8 +411,8 @@ public class DcMotor8863 {
         return currentMotorState;
     }
 
-    public double getActualPower() {
-        return actualPower;
+    public double getCurrentPower() {
+        return currentPower;
     }
 
     //*********************************************************************************************
@@ -962,7 +965,7 @@ public class DcMotor8863 {
      */
     public void setupAndStartPowerRamp(double initialPower, double finalPower, double rampTimeInmSec) {
         setupPowerRamp(initialPower, finalPower, rampTimeInmSec);
-        this.runningPower = finalPower;
+        this.desiredPowerAfterRamp = finalPower;
         startPowerRamp();
     }
 
@@ -997,7 +1000,7 @@ public class DcMotor8863 {
      * Note that the power ramp will disable itself once the ramp time has expired.
      */
     private void updatePowerRamp() {
-        this.setPower(powerRamp.getRampValueLinear(runningPower));
+        this.setPower(powerRamp.getRampValueLinear(desiredPowerAfterRamp));
     }
 
     /**
@@ -1008,7 +1011,7 @@ public class DcMotor8863 {
      */
     private void setInitialPower(double power) {
         // save the desired power for use after the power ramp finishes
-        this.runningPower = power;
+        this.desiredPowerAfterRamp = power;
         // now get the initial power for the power ramp
         power = powerRamp.getValueAtStartTime();
         // start the power ramp
@@ -1242,7 +1245,7 @@ public class DcMotor8863 {
                 // Is the power ramp still running?
                 if (!powerRamp.isRunning()) {
                     //no, power ramp is now complete. Set the new running power and transition state
-                    this.setPower(runningPower);
+                    this.setPower(desiredPowerAfterRamp);
                     setMotorState(MotorState.MOVING_PID_NO_POWER_RAMP);
                 }
 
@@ -1287,7 +1290,7 @@ public class DcMotor8863 {
                 // Is the power ramp still running?
                 if (!powerRamp.isRunning()) {
                     //power ramp is now complete. Set the new running power and transition state
-                    this.setPower(runningPower);
+                    this.setPower(desiredPowerAfterRamp);
                     setMotorState(MotorState.MOVING_NO_PID_NO_POWER_RAMP);
                 }
 
@@ -1373,7 +1376,7 @@ public class DcMotor8863 {
 
     public void setPower(double power) {
         power = Range.clip(power, getMinMotorPower(), getMaxMotorPower());
-        this.actualPower = power;
+        this.currentPower = power;
         FTCDcMotor.setPower(power);
     }
 

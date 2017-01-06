@@ -102,7 +102,7 @@ public class TestDCMotor8863 extends LinearOpMode {
             motor.update();
             // display some information on the driver phone
             telemetry.addData(">", "Absolute move to 1440 degrees, use power ramp, hold");
-            telemetry.addData("Motor Speed = ", "%5.2f", motor.getActualPower());
+            telemetry.addData("Motor Speed = ", "%5.2f", motor.getCurrentPower());
             telemetry.addData("feedback = ", "%5.2f", motor.getPositionInTermsOfAttachment());
             telemetry.addData(">", "Encoder count should be = 4480");
             telemetry.addData("Encoder Count = ", "%5d", motor.getCurrentPosition());
@@ -128,7 +128,7 @@ public class TestDCMotor8863 extends LinearOpMode {
             motor.update();
             // display some information on the driver phone
             telemetry.addData(">", "You should not see this - 1440 absolute, hold");
-            telemetry.addData("Motor Speed = ", "%5.2f", motor.getActualPower());
+            telemetry.addData("Motor Speed = ", "%5.2f", motor.getCurrentPower());
             telemetry.addData("feedback = ", "%5.2f", motor.getPositionInTermsOfAttachment());
             telemetry.addData(">", "Encoder count should be = 4480");
             telemetry.addData("Encoder Count = ", "%5d", motor.getCurrentPosition());
@@ -161,7 +161,7 @@ public class TestDCMotor8863 extends LinearOpMode {
             motor.update();
             // display some information on the driver phone
             telemetry.addData(">", "Changing position by 1440 degrees, use power ramp, hold");
-            telemetry.addData("Motor Speed = ", "%5.2f", motor.getActualPower());
+            telemetry.addData("Motor Speed = ", "%5.2f", motor.getCurrentPower());
             telemetry.addData("feedback = ", "%5.2f", motor.getPositionInTermsOfAttachment());
             telemetry.addData(">", "Encoder count should be = 8960");
             telemetry.addData("Encoder Count = ", "%5d", motor.getCurrentPosition());
@@ -188,7 +188,7 @@ public class TestDCMotor8863 extends LinearOpMode {
             motor.update();
             // display some information on the driver phone
             telemetry.addData(">", "Changing position by 1440 degrees, no power ramp, float");
-            telemetry.addData("Motor Speed = ", "%5.2f", motor.getActualPower());
+            telemetry.addData("Motor Speed = ", "%5.2f", motor.getCurrentPower());
             telemetry.addData("feedback = ", "%5.2f", motor.getPositionInTermsOfAttachment());
             telemetry.addData(">", "Encoder count should be = 13440");
             telemetry.addData("Encoder Count = ", "%5d", motor.getCurrentPosition());
@@ -217,7 +217,7 @@ public class TestDCMotor8863 extends LinearOpMode {
             motor.update();
             // display some information on the driver phone
             telemetry.addData(">", "Changing position by 1440 degrees, use power ramp, hold");
-            telemetry.addData("Motor Speed = ", "%5.2f", motor.getActualPower());
+            telemetry.addData("Motor Speed = ", "%5.2f", motor.getCurrentPower());
             telemetry.addData("feedback = ", "%5.2f", motor.getPositionInTermsOfAttachment());
             telemetry.addData(">", "Encoder count should be = 17920");
             telemetry.addData("Encoder Count = ", "%5d", motor.getCurrentPosition());
@@ -243,7 +243,7 @@ public class TestDCMotor8863 extends LinearOpMode {
             motor.update();
             // display some information on the driver phone
             telemetry.addData(">", "Changing position by 2.5 revolutions, no power ramp, float");
-            telemetry.addData("Motor Speed = ", "%5.2f", motor.getActualPower());
+            telemetry.addData("Motor Speed = ", "%5.2f", motor.getCurrentPower());
             telemetry.addData("feedback = ", "%5.2f", motor.getPositionInTermsOfAttachment());
             telemetry.addData(">", "Encoder count should be = 20720");
             telemetry.addData("Encoder Count = ", "%5d", motor.getCurrentPosition());
@@ -288,7 +288,7 @@ public class TestDCMotor8863 extends LinearOpMode {
 
             // display some information on the driver phone
             telemetry.addData(">", "Run at constant speed, use power ramp, float");
-            telemetry.addData("Motor Speed = ", "%5.2f", motor.getActualPower());
+            telemetry.addData("Motor Speed = ", "%5.2f", motor.getCurrentPower());
             telemetry.addData("feedback = ", "%5.2f", motor.getPositionInTermsOfAttachment());
             telemetry.addData("Encoder Count = ", "%5d", motor.getCurrentPosition());
             telemetry.addData("Elapsed time = ", "%5.0f", runningTimer.milliseconds());
@@ -334,7 +334,7 @@ public class TestDCMotor8863 extends LinearOpMode {
 
             // display some information on the driver phone
             telemetry.addData(">", "Run at constant power, use power ramp, float");
-            telemetry.addData("Motor Speed = ", "%5.2f", motor.getActualPower());
+            telemetry.addData("Motor Speed = ", "%5.2f", motor.getCurrentPower());
             telemetry.addData("feedback = ", "%5.2f", motor.getPositionInTermsOfAttachment());
             telemetry.addData("Encoder Count = ", "%5d", motor.getCurrentPosition());
             telemetry.addData("Elapsed time = ", "%5.0f", runningTimer.milliseconds());
@@ -413,7 +413,7 @@ public class TestDCMotor8863 extends LinearOpMode {
 
             // display some information on the driver phone
             telemetry.addData(">", mode);
-            telemetry.addData("Motor Speed = ", "%5.2f", motor.getActualPower());
+            telemetry.addData("Motor Speed = ", "%5.2f", motor.getCurrentPower());
             telemetry.addData("feedback = ", "%5.2f", motor.getPositionInTermsOfAttachment());
             telemetry.addData("Encoder Count = ", "%5d", motor.getCurrentPosition());
             telemetry.addData("Elapsed time = ", "%5.0f", runningTimer.milliseconds());
