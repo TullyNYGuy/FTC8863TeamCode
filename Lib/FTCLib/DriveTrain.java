@@ -31,6 +31,7 @@ public class DriveTrain {
     private DcMotor8863.MotorState leftMotorState;
 
     public PIDControl pidControl;
+    private RampControl rampControl;
 
     private boolean imuPresent = true;
     public AdafruitIMU8863 imu;
@@ -120,6 +121,7 @@ public class DriveTrain {
         if (imuPresent) {
             imu = new AdafruitIMU8863(hardwareMap);
         }
+        rampControl = new RampControl(0,0,0);
     }
 
     /**
@@ -370,6 +372,12 @@ public class DriveTrain {
             rightDriveMotor.setMotorToFloat();
             teleopInit();
         }
+    }
+    //Drive distance using IMU
+    public void setupDriveDistanceUsingIMU(double nominalPower, double distance, double valueAtStartTime, double valueAtFinishTime, double timeToReachFinishValueInmSec){
+        leftDriveMotor.moveByAmount(nominalPower, distance, DcMotor8863.FinishBehavior.HOLD);
+        rightDriveMotor.moveByAmount(nominalPower, distance, DcMotor8863.FinishBehavior.HOLD);
+        rampControl.setup(valueAtStartTime,valueAtFinishTime,timeToReachFinishValueInmSec);
     }
 
     //*********************************************************************************************
