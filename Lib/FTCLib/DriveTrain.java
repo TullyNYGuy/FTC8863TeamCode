@@ -270,8 +270,6 @@ public class DriveTrain {
             pidControl.setKp(0.03);
             driveTrainPower = maxPower;
 
-
-
             switch (headingType) {
                 case RELATIVE:
                     imu.setAngleMode(AdafruitIMU8863.AngleMode.RELATIVE);

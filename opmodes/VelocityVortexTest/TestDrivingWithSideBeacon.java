@@ -86,21 +86,21 @@ public class TestDrivingWithSideBeacon extends LinearOpMode {
     }
 
     public void driveUsingIMU(double heading, double power){
+        double distance;
         driveTrain.setupDriveUsingIMU(heading, power, AdafruitIMU8863.AngleMode.RELATIVE);
 
         while(opModeIsActive()) {
-            double distance;
             distance = driveTrain.updateDriveUsingIMU();
-
-            if (distance > 200) {
-                driveTrain.stopDriveUsingIMU();
-                break;
-            }
-
-            telemetry.addData(">", "Press Stop to end test." );
-            telemetry.addData("Status = ", driveTrain.imu.getHeading());
-            telemetry.addData("distance = ", distance);
-            telemetry.update();
+//
+//            if (distance > 200) {
+//                driveTrain.stopDriveUsingIMU();
+//                break;
+//            }
+//
+//            telemetry.addData(">", "Press Stop to end test." );
+//            telemetry.addData("Status = ", driveTrain.imu.getHeading());
+//            telemetry.addData("distance = ", distance);
+//            telemetry.update();
             idle();
         }
         telemetry.addData(">", "Press Stop to end test." );
