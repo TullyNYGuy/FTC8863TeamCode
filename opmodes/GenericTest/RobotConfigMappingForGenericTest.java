@@ -43,6 +43,10 @@ public class RobotConfigMappingForGenericTest {
     //generic Adafruit ColorSensor
     private static String adafruitColorSensorName = "colorSensor";
 
+    // left and right servos for front beacon pusher
+    private static String frontLeftBeaconServo = "frontLeftBeaconServo";
+    private static String frontRightBeaconServo = "frontRightBeaconServo";
+
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -70,6 +74,13 @@ public class RobotConfigMappingForGenericTest {
 
     public static String getadafruitColorSensorName() {return adafruitColorSensorName;}
 
+    public static String getFrontLeftBeaconServo() {
+        return frontLeftBeaconServo;
+    }
+
+    public static String getFrontRightBeaconServo() {
+        return frontRightBeaconServo;
+    }
 
     //*********************************************************************************************
     //          Constructors

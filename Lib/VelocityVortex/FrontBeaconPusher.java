@@ -1,8 +1,12 @@
 package org.firstinspires.ftc.teamcode.Lib.VelocityVortex;
 
 
+import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
+
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.CRServo;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Switch;
+import org.firstinspires.ftc.teamcode.opmodes.GenericTest.RobotConfigMappingForGenericTest;
 
 public class FrontBeaconPusher {
 
@@ -34,10 +38,13 @@ public class FrontBeaconPusher {
     private CRServo leftCRServo;
     private CRServo rightCRServo;
 
-    private Switch leftFrontLimitSwitch;
-    private Switch leftBackLimitSwitch;
-    private Switch rightFrontLimitSwitch;
-    private Switch rightBackLimitSwitch;
+    private double frontLeftServoCenterValueForward = .5;
+    private double frontLeftServoCenterValueReverse = .5;
+    private double frontRightServoCenterValueForward = .5;
+    private double frontRightServoCenterValueReverse = .5;
+    private double deadband = .1;
+
+
     private AdafruitColorSensor8863 rightColorSensor;
 
     //*********************************************************************************************
@@ -55,6 +62,15 @@ public class FrontBeaconPusher {
     // from it
     //*********************************************************************************************
 
+    public FrontBeaconPusher(HardwareMap hardwareMap) {
+        leftCRServo = new CRServo(RobotConfigMappingForGenericTest.getFrontLeftBeaconServo(),
+                hardwareMap, frontLeftServoCenterValueForward, frontLeftServoCenterValueReverse,
+                deadband, Servo.Direction.FORWARD);
+        rightCRServo = new CRServo(RobotConfigMappingForGenericTest.getFrontRightBeaconServo(),
+                hardwareMap, frontRightServoCenterValueForward, frontRightServoCenterValueReverse,
+                deadband, Servo.Direction.REVERSE);
+
+    }
 
 
     //*********************************************************************************************
