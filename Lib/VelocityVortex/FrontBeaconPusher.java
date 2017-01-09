@@ -44,8 +44,9 @@ public class FrontBeaconPusher {
     private double frontRightServoCenterValueReverse = .5;
     private double deadband = .1;
 
-
     private AdafruitColorSensor8863 rightColorSensor;
+
+    private double pusherMidPoint = 6.4/2; //measured in cm using the robot
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -87,6 +88,38 @@ public class FrontBeaconPusher {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
+
+    public void moveLeftPusherBackRightPusherBack() {
+        leftCRServo.moveUntilLimitSwitch(CRServo.CRServoDirection.BACKWARD);
+        rightCRServo.moveUntilLimitSwitch(CRServo.CRServoDirection.BACKWARD);
+        leftCRServo.update();
+        rightCRServo.update();
+    }
+
+    public void moveLeftPusherForwardRightPusherForward() {
+        leftCRServo.moveUntilLimitSwitch(CRServo.CRServoDirection.FORWARD);
+        rightCRServo.moveUntilLimitSwitch(CRServo.CRServoDirection.FORWARD);
+        leftCRServo.update();
+        rightCRServo.update();
+    }
+
+    public void moveLeftPusherForwardRightPusherBack() {
+        leftCRServo.moveUntilLimitSwitch(CRServo.CRServoDirection.FORWARD);
+        rightCRServo.moveUntilLimitSwitch(CRServo.CRServoDirection.BACKWARD);
+        leftCRServo.update();
+        rightCRServo.update();
+    }
+
+    public void moveLeftPusherBackRightPusherForward() {
+        leftCRServo.moveUntilLimitSwitch(CRServo.CRServoDirection.BACKWARD);
+        rightCRServo.moveUntilLimitSwitch(CRServo.CRServoDirection.FORWARD);
+        leftCRServo.update();
+        rightCRServo.update();
+    }
+
+    public void moveLeftPusherMidwayRightPusherMidway() {
+
+    }
 
 
 }
