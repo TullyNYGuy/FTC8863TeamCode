@@ -39,6 +39,8 @@ public class DriveTrain {
     private double driveTrainPower;
     public double distance;
 
+    private boolean hasLoopRunYet = false;
+
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -374,10 +376,96 @@ public class DriveTrain {
         }
     }
     //Drive distance using IMU
-    public void setupDriveDistanceUsingIMU(double nominalPower, double distance, double valueAtStartTime, double valueAtFinishTime, double timeToReachFinishValueInmSec){
-        leftDriveMotor.moveByAmount(nominalPower, distance, DcMotor8863.FinishBehavior.HOLD);
-        rightDriveMotor.moveByAmount(nominalPower, distance, DcMotor8863.FinishBehavior.HOLD);
+    public void setupDriveDistanceUsingIMU(double heading, double maxPower, double distance,
+                 AdafruitIMU8863.AngleMode headingType, double valueAtStartTime,
+                 double valueAtFinishTime, double timeToReachFinishValueInmSec){
         rampControl.setup(valueAtStartTime,valueAtFinishTime,timeToReachFinishValueInmSec);
+        //If the IMU is present we proceed if not we give the user an error
+        if (imuPresent) {
+            // set the mode for the motors during the turn. Without this they may not move.
+            rightDriveMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            leftDriveMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            //setting up the PID
+            pidControl.setSetpoint(heading);
+            pidControl.setMaxCorrection(maxPower);
+            pidControl.setThreshold(2);
+            pidControl.setKp(0.03);
+            //Saving power for later use
+            driveTrainPower = maxPower;
+            //Setting the flag to say the loop hasn't run yet
+            hasLoopRunYet = false;
+            //Setting up IMU
+            switch (headingType) {
+                case RELATIVE:
+                    imu.setAngleMode(AdafruitIMU8863.AngleMode.RELATIVE);
+                    imu.resetAngleReferences();
+                    break;
+                case ABSOLUTE:
+                    imu.setAngleMode(AdafruitIMU8863.AngleMode.ABSOLUTE);
+                    break;
+                case RAW:
+                    imu.setAngleMode(AdafruitIMU8863.AngleMode.RAW);
+                    break;
+            }
+        //If IMU isn't present
+        } else {
+            shutdown();
+            throw new IllegalArgumentException("No Imu found");
+        }
+
+    }
+    public boolean updateDriveDistanceUsingIMU() {
+        //setting up an array so that we can hold onto the left and right motor drive powers
+        double[] drivePowers;
+        if (imuPresent) {
+            //If the IMU is present we proceed if not we give the user an error
+            if(!hasLoopRunYet){
+                //If we are running ths loop for the first time
+                rampControl.start();
+                drivePowers = calculatePowerUsingRampAndPID();
+                //we are starting the motors to move using our array setup earlier
+                leftDriveMotor.moveByAmount(drivePowers[0], distance, DcMotor8863.FinishBehavior.HOLD);
+                rightDriveMotor.moveByAmount(drivePowers[1], distance, DcMotor8863.FinishBehavior.HOLD);
+                hasLoopRunYet = true;
+            } else {
+                //If we are running the loop or a second or third or more time
+                drivePowers = calculatePowerUsingRampAndPID();
+                //setting new powers to the motors
+                leftDriveMotor.setPower(drivePowers[0]);
+                rightDriveMotor.setPower(drivePowers[1]);
+            }
+            //check to see if the motors get to our distance
+            leftDriveMotor.update();
+            rightDriveMotor.update();
+            //check to see if our desired distance has been met
+            if (leftDriveMotor.isMotorStateComplete() && rightDriveMotor.isMotorStateComplete()){
+                return true;
+            } else {
+                return false;
+            }
+        // If IMU isn't present
+        } else {
+            shutdown();
+            throw new IllegalArgumentException("No Imu found");
+        }
+    }
+    private double[] calculatePowerUsingRampAndPID(){
+        //this is what we use to calculate the ramp power
+        //after the ramp finishes running we get our drive train power applied back to the motors again
+        double rampPower = rampControl.getRampValueLinear(driveTrainPower);
+        double currentHeading = imu.getHeading();
+        //this is what we use to calculate the correction to the ramp power to adjust the steering
+        double correction = -pidControl.getCorrection(currentHeading);
+        double leftDrivePower = rampPower + correction;
+        double rightDrivePower = rampPower - correction;
+        double drivePowers[] = new double[2];
+        drivePowers[0] = leftDrivePower;
+        drivePowers[1] = rightDrivePower;
+        return drivePowers;
+    }
+
+    public void stopDriveDistanceUsingIMU() {
+        shutdown();
     }
 
     //*********************************************************************************************
