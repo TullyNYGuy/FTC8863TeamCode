@@ -69,7 +69,9 @@ public class FrontBeaconPusher {
         rightCRServo = new CRServo(RobotConfigMappingForGenericTest.getFrontRightBeaconServo(),
                 hardwareMap, frontRightServoCenterValueForward, frontRightServoCenterValueReverse,
                 deadband, Servo.Direction.REVERSE);
-
+        // add the creation of color sensor object
+        // check the positions and make sure that the pushers are both back against the limit
+        // switches
     }
 
 
@@ -85,4 +87,6 @@ public class FrontBeaconPusher {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
+
+
 }
