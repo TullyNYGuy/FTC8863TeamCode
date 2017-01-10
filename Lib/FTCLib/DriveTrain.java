@@ -289,7 +289,7 @@ public class DriveTrain {
     }
 
     public double updateDriveUsingIMU() {
-        
+
         if (imuPresent) {
             double currentHeading = imu.getHeading();
             double correction = -pidControl.getCorrection(currentHeading);
