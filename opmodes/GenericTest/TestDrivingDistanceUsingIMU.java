@@ -32,19 +32,19 @@ public class TestDrivingDistanceUsingIMU extends LinearOpMode {
         telemetry.update();
         waitForStart();
 
-        driveUsingIMU(0,1,250);
+        driveDistanceUsingIMU(0,1,250);
         telemetry.addData("Finished Straight", "1");
         telemetry.update();
         sleep(2000);
 
         // Put your cleanup code here - it runs as the application shuts down
         telemetry.addData(">", "Done");
-        //telemetry.addData("Angle = ", "%3.1f", driveTrain.imu.getHeading());
+        telemetry.addData("Angle = ", "%3.1f", driveTrain.imu.getHeading());
         telemetry.update();
         sleep(3000);
     }
 
-    public void driveUsingIMU(double heading, double power, double distance){
+    public void driveDistanceUsingIMU(double heading, double power, double distance){
         driveTrain.setupDriveDistanceUsingIMU(heading, power, distance, AdafruitIMU8863.AngleMode.RELATIVE, 0, power, 2000);
         while(opModeIsActive()) {
             boolean isDestinationReached = driveTrain.updateDriveDistanceUsingIMU();
