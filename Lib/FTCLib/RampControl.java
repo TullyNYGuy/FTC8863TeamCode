@@ -149,9 +149,6 @@ public class RampControl {
     //*********************************************************************************************
 
     public RampControl(double valueAtStartTime, double valueAtFinishTime, double timeToReachFinishValueInmSec) {
-        this.valueAtStartTime = valueAtStartTime;
-        this.valueAtFinishTime = valueAtFinishTime;
-        this.timeToReachFinishValueInmSec = timeToReachFinishValueInmSec;
         setup(valueAtStartTime, valueAtFinishTime, timeToReachFinishValueInmSec);
         timer = new ElapsedTime();
     }
@@ -276,7 +273,7 @@ public class RampControl {
                 // then calculate the value given by the ramp (valueFromRamp = m * elapsed time + valueAtStartTime) (y=mx+b)
                 valueFromRamp = this.slope * timer.milliseconds() + this.intercept;
                 // if the value input is less than the calculated ramp value then use the input, otherwise use the ramp value
-                // There was a bug here when the input was negative, abs fixed it
+                // There was a bug here when the input was negative, testing the slope fixed it
                 if (this.slope > 0) {
                     if (valueFromRamp < value) {
                         return valueFromRamp;
@@ -299,6 +296,9 @@ public class RampControl {
             // The ramp is not running so just return the input
             return value;
         }
-
     }
+
+//    public double getRampValueLinear(double value) {
+//        return value;
+//    }
 }

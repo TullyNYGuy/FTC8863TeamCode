@@ -168,13 +168,23 @@ public class PIDControl {
      * @param setpoint Set Desired Value for PIDControl
      */
     public PIDControl(double kp, double ki, double kd, double setpoint) {
-        Kp = kp;
-        Ki = ki;
-        Kd = kd;
+        this.Kp = kp;
+        this.Ki = ki;
+        this.Kd = kd;
+        this.maxCorrection =0;
         this.setpoint = setpoint;
+        rampControl = new RampControl(0,0,0);
+        useRampControl = false;
     }
 
     public PIDControl() {
+        this.Kp = 0;
+        this.Ki = 0;
+        this.Kd = 0;
+        this.maxCorrection =0;
+        this.setpoint = 0;
+        rampControl = new RampControl(0,0,0);
+        useRampControl = false;
     }
 
     /**
@@ -183,9 +193,9 @@ public class PIDControl {
      * @param setpoint Set Desired Value for PIDControl
      */
     public PIDControl(double kp, double setpoint, double maxCorrection) {
-        Kp = kp;
-        Ki = 0;
-        Kd = 0;
+        this.Kp = kp;
+        this.Ki = 0;
+        this.Kd = 0;
         this.maxCorrection = maxCorrection;
         this.setpoint = setpoint;
         rampControl = new RampControl(0,0,0);
