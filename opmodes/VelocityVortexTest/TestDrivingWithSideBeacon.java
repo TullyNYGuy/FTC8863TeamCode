@@ -33,7 +33,7 @@ public class TestDrivingWithSideBeacon extends LinearOpMode {
         driveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap);
         beaconServo = new Servo8863("beaconServo", hardwareMap, telemetry);
         driveTrain.setCmPerRotation(31.1); // cm
-        beaconServo.setHomePosition(0.6);
+        beaconServo.setHomePosition(0.8);
         beaconServo.setPositionOne(1);
         beaconServo.goHome();
 
@@ -42,7 +42,7 @@ public class TestDrivingWithSideBeacon extends LinearOpMode {
         telemetry.update();
         waitForStart();
         beaconServo.goPositionOne();
-        driveUsingIMU(0, 1);
+        driveUsingIMU(0, .3);
         telemetry.addData("Finished Straight", "1");
         telemetry.update();
         sleep(1000);
