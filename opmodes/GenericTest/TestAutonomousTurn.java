@@ -28,7 +28,7 @@ public class TestAutonomousTurn extends LinearOpMode {
 
 
         // Put your initializations here
-        driveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap);
+        driveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap, telemetry);
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run" );

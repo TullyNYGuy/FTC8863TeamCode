@@ -24,7 +24,7 @@ public class TestDrivingDistanceUsingIMU extends LinearOpMode {
     public void runOpMode() {
 
         // Put your initializations here
-        driveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap);
+        driveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap, telemetry);
         driveTrain.setCmPerRotation(31.1); // cm
 
         // Wait for the start button
@@ -54,9 +54,9 @@ public class TestDrivingDistanceUsingIMU extends LinearOpMode {
                 break;
             }
 
-            telemetry.addData(">", "Press Stop to end test." );
-            telemetry.addData("Heading = ", driveTrain.imu.getHeading());
-            telemetry.update();
+//            telemetry.addData(">", "Press Stop to end test." );
+//            telemetry.addData("Heading = ", driveTrain.imu.getHeading());
+//            telemetry.update();
             idle();
         }
         telemetry.addData(">", "Press Stop to end test." );

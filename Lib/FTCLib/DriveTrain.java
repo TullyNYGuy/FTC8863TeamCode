@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 import com.qualcomm.robotcore.hardware.*;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Lib.ResQLib.RobotConfigMapping;
 import org.firstinspires.ftc.teamcode.opmodes.GenericTest.RobotConfigMappingForGenericTest;
 
@@ -41,6 +42,7 @@ public class DriveTrain {
 
     private boolean hasLoopRunYet = false;
 
+    private Telemetry telemetry;
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -93,7 +95,7 @@ public class DriveTrain {
      *
      * @param hardwareMap
      */
-    private DriveTrain(HardwareMap hardwareMap, boolean imuPresent) {
+    private DriveTrain(HardwareMap hardwareMap, boolean imuPresent, Telemetry telemetry) {
         leftDriveMotor = new DcMotor8863(RobotConfigMappingForGenericTest.getleftMotorName(), hardwareMap);
         rightDriveMotor = new DcMotor8863(RobotConfigMappingForGenericTest.getrightMotorName(), hardwareMap);
 
@@ -124,6 +126,8 @@ public class DriveTrain {
             imu = new AdafruitIMU8863(hardwareMap);
         }
         rampControl = new RampControl(0,0,0);
+
+        this.telemetry = telemetry;
     }
 
     /**
@@ -133,8 +137,8 @@ public class DriveTrain {
      * @param hardwareMap
      * @return Instance of a driveTrain (a driveTrain oject) optimized for TeleOp
      */
-    public static DriveTrain DriveTrainTeleOp(HardwareMap hardwareMap) {
-        DriveTrain driveTrain = new DriveTrain(hardwareMap, true);
+    public static DriveTrain DriveTrainTeleOp(HardwareMap hardwareMap, Telemetry telemetry) {
+        DriveTrain driveTrain = new DriveTrain(hardwareMap, true, telemetry);
         driveTrain.teleopInit();
         return driveTrain;
     }
@@ -165,8 +169,8 @@ public class DriveTrain {
      * @param hardwareMap
      * @return Instance of a driveTrain (a driveTrain oject) optimized for Autonomous
      */
-    public static DriveTrain DriveTrainAutonomous(HardwareMap hardwareMap) {
-        DriveTrain driveTrain = new DriveTrain(hardwareMap, true);
+    public static DriveTrain DriveTrainAutonomous(HardwareMap hardwareMap, Telemetry telemetry) {
+        DriveTrain driveTrain = new DriveTrain(hardwareMap, true, telemetry);
 
         // Set the motors to float after the power gets set to 0
         driveTrain.rightDriveMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
@@ -178,8 +182,8 @@ public class DriveTrain {
         return driveTrain;
     }
 
-    public static DriveTrain DriveTrainAutonomousNoImu(HardwareMap hardwareMap) {
-        DriveTrain driveTrain = new DriveTrain(hardwareMap, false);
+    public static DriveTrain DriveTrainAutonomousNoImu(HardwareMap hardwareMap, Telemetry telemetry) {
+        DriveTrain driveTrain = new DriveTrain(hardwareMap, false, telemetry);
 
         // Set the motors to float after the power gets set to 0
         driveTrain.rightDriveMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
@@ -423,6 +427,9 @@ public class DriveTrain {
                 //If we are running ths loop for the first time
                 rampControl.start();
                 drivePowers = calculatePowerUsingRampAndPID();
+                telemetry.addData("Left drive power = ", "%2.2f", drivePowers[0]);
+                telemetry.addData("right drive power = ", "%2.2f", drivePowers[1]);
+                telemetry.update();
                 //we are starting the motors to move using our array setup earlier
                 leftDriveMotor.moveByAmount(drivePowers[0], distance, DcMotor8863.FinishBehavior.HOLD);
                 rightDriveMotor.moveByAmount(drivePowers[1], distance, DcMotor8863.FinishBehavior.HOLD);

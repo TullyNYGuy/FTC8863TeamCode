@@ -30,7 +30,7 @@ public class TestDrivingWithSideBeacon extends LinearOpMode {
 
 
         // Put your initializations here
-        driveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap);
+        driveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap, telemetry);
         beaconServo = new Servo8863("beaconServo", hardwareMap, telemetry);
         driveTrain.setCmPerRotation(31.1); // cm
         beaconServo.setHomePosition(0.8);
