@@ -56,6 +56,17 @@ public class CRServo {
         BACKWARD
     }
 
+    private enum CRServoState {
+        BACK_AT_SWITCH,
+        BACK_AT_POSITION,
+        MOVING_BACK_TO_SWITCH,
+        MOVING_BACK_TO_POSITION,
+        MOVING_FORWARD_TO_SWITCH,
+        MOVING_FORWARD_TO_POSITION,
+        FORWARD_AT_SWITCH,
+        FORWARD_AT_POSITION
+    }
+
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS
     //
@@ -128,6 +139,9 @@ public class CRServo {
 
     private double currentCommand = 0;
     private double commandIncrement;
+    private CRServoState currentState = CRServoState.BACK_AT_SWITCH;
+    private Switch frontSwitch;
+    private Switch backSwitch;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -189,6 +203,9 @@ public class CRServo {
 
         initialize(servoName, hardwareMap, centerValueForward, centerValueReverse, deadBandRange, direction);
         // check to see if the servo is against the limit switches in order to initialize the state
+
+        frontSwitch = new Switch(hardwareMap, frontSwitchName, frontSwitchType);
+        backSwitch = new Switch(hardwareMap, backSwitchName, backSwitchType);
     }
 
     private void initialize(String servoName, HardwareMap hardwareMap, double centerValueForward,
@@ -333,9 +350,14 @@ public class CRServo {
         timer.reset();
         if (direction == CRServoDirection.FORWARD) {
             setSpeed(1);
+            currentState = CRServoState.MOVING_FORWARD_TO_POSITION;
+            directionToMove = CRServoDirection.FORWARD;
         } else {
             setSpeed(-1);
+            currentState = CRServoState.MOVING_BACK_TO_POSITION;
+            directionToMove = CRServoDirection.BACKWARD;
         }
+        updateCRServo();
     }
 
     /**
@@ -359,9 +381,26 @@ public class CRServo {
     public void moveUntilLimitSwitch(CRServoDirection direction) {
         if (direction == CRServoDirection.FORWARD) {
             setSpeed(1);
+            currentState = CRServoState.MOVING_FORWARD_TO_SWITCH;
+            directionToMove = CRServoDirection.FORWARD;
         } else {
             setSpeed(-1);
+            currentState = CRServoState.MOVING_BACK_TO_SWITCH;
+            directionToMove = CRServoDirection.BACKWARD;
         }
+        updateCRServo();
+    }
+
+    public boolean updateMoveUntilLimitSwitch() {
+        if (frontSwitch.isPressed() && directionToMove == CRServoDirection.FORWARD) {
+            setSpeed(0);
+            return true;
+        }
+        if (backSwitch.isPressed() && directionToMove == CRServoDirection.BACKWARD) {
+            setSpeed(0);
+            return true;
+        }
+        return false;
     }
 
     public void setupFindNoMovementCommand() {
@@ -391,8 +430,51 @@ public class CRServo {
         return result;
     }
 
-    public void updatePosition(double throttle) {
-        // this is just a place holder method to avoid having to change DeliveryBox
-        // delete it later
+    public void updateCRServo() {
+        switch (currentState) {
+            case BACK_AT_POSITION:
+                setSpeed(0);
+                break;
+            case BACK_AT_SWITCH:
+                setSpeed(0);
+                break;
+            case MOVING_BACK_TO_POSITION:
+                if (updateMoveDistance()) {
+                    currentState = CRServoState.BACK_AT_POSITION;
+                }
+                if (updateMoveUntilLimitSwitch()){
+                    currentState = CRServoState.BACK_AT_SWITCH;
+                }
+                break;
+            case MOVING_BACK_TO_SWITCH:
+                if (updateMoveUntilLimitSwitch()) {
+                    currentState = CRServoState.BACK_AT_SWITCH;
+                }
+                break;
+            case MOVING_FORWARD_TO_POSITION:
+                if (updateMoveDistance()) {
+                    currentState = CRServoState.FORWARD_AT_POSITION;
+                }
+                if (updateMoveUntilLimitSwitch()) {
+                    currentState = CRServoState.FORWARD_AT_SWITCH;
+                }
+                break;
+            case MOVING_FORWARD_TO_SWITCH:
+                if (updateMoveUntilLimitSwitch()) {
+                    currentState = CRServoState.FORWARD_AT_SWITCH;
+                }
+                break;
+            case FORWARD_AT_POSITION:
+                setSpeed(0);
+                break;
+            case FORWARD_AT_SWITCH:
+                setSpeed(0);
+                break;
+        }
     }
+
+    //  public void updatePosition(double throttle) {
+    // this is just a place holder method to avoid having to change DeliveryBox
+    // delete it later
+    //   }
 }

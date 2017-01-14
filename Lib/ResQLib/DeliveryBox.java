@@ -95,7 +95,7 @@ public class DeliveryBox {
 
     public void initDeliveryBox() {
         // set slide servo so box is not moving
-        slideServo.updatePosition(slideServoZeroThrottle);
+        //slideServo.updatePosition(slideServoZeroThrottle);
     }
 
     public void updateDeliveryBox(double throttle){
@@ -109,7 +109,7 @@ public class DeliveryBox {
 
         // for now, there are no limit switches installed so just go ahead and move the box.
         // I hope the operator is good!
-        slideServo.updatePosition(throttle);
+        //slideServo.updatePosition(throttle);
 
         //update the wiggle for the dump ramp (if any)
         rampServo.updateWiggle();
