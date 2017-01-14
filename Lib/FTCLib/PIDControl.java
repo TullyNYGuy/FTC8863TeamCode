@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
 
+import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 public class PIDControl {
@@ -49,6 +50,16 @@ public class PIDControl {
     private double feedback = 0;
 
     private double threshold = 0;
+
+    private ElapsedTime elapsedTime;
+
+    private double lastTime = 0;
+
+    private double integral = 0;
+
+    private ElapsedTime finishedTimer;
+
+    private double lastFinishedTime = 0;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -175,6 +186,12 @@ public class PIDControl {
         this.setpoint = setpoint;
         rampControl = new RampControl(0,0,0);
         useRampControl = false;
+        elapsedTime = new ElapsedTime();
+        elapsedTime.reset();
+        lastTime = elapsedTime.milliseconds();
+        finishedTimer = new ElapsedTime();
+        finishedTimer.reset();
+        lastFinishedTime = elapsedTime.milliseconds();
     }
 
     public PIDControl() {
@@ -185,6 +202,12 @@ public class PIDControl {
         this.setpoint = 0;
         rampControl = new RampControl(0,0,0);
         useRampControl = false;
+        elapsedTime = new ElapsedTime();
+        elapsedTime.reset();
+        lastTime = elapsedTime.milliseconds();
+        finishedTimer = new ElapsedTime();
+        finishedTimer.reset();
+        lastFinishedTime = elapsedTime.milliseconds();
     }
 
     /**
@@ -200,6 +223,12 @@ public class PIDControl {
         this.setpoint = setpoint;
         rampControl = new RampControl(0,0,0);
         useRampControl = false;
+        elapsedTime = new ElapsedTime();
+        elapsedTime.reset();
+        lastTime = elapsedTime.milliseconds();
+        finishedTimer = new ElapsedTime();
+        finishedTimer.reset();
+        lastFinishedTime = elapsedTime.milliseconds();
     }
 
     //*********************************************************************************************
@@ -220,6 +249,10 @@ public class PIDControl {
         setUseRampControl(true);
     }
 
+    public void reset(){
+        elapsedTime.reset();
+    }
+
     /**
      * Returns correction from PIDControl
      * @param feedback Actual Value from sensor.
@@ -228,7 +261,10 @@ public class PIDControl {
     public double getCorrection(double feedback){
         // set the feedback property so it can be retrieved later
         setFeedback(feedback);
-        double correction = (getSetpoint() - feedback) * getKp();
+        double error = (getSetpoint() - feedback);
+        double timeDifference  = elapsedTime.milliseconds()- lastTime;
+        integral = error * timeDifference *getKi();
+        double correction = error * getKp() + integral;
         if (useRampControl && !rampControl.isRunning() && !rampControl.isFinished()){
             rampControl.start();
         }
@@ -239,8 +275,14 @@ public class PIDControl {
 
     public boolean isFinished(){
         if (Math.abs(getFeedback() - getSetpoint()) < getThreshold()){
-            return true;
+            if (finishedTimer.milliseconds() > 250) {
+                return true;
+            }
+            else {
+                return false;
+            }
         } else {
+            finishedTimer.reset();
             return false;
         }
     }
