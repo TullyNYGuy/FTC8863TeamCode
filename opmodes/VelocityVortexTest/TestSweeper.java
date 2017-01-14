@@ -68,7 +68,7 @@ public class TestSweeper extends LinearOpMode {
 
         // Instantiate and initialize motors
 
-        myDriveTrain = DriveTrain.DriveTrainTeleOp(hardwareMap);
+        myDriveTrain = DriveTrain.DriveTrainTeleOp(hardwareMap, telemetry);
         myDriveTrain.setCmPerRotation(31.1); // cm
 
         sweeperMotor = new DcMotor8863(RobotConfigMappingForGenericTest.getthirdMotorName(), hardwareMap);

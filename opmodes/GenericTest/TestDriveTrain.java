@@ -41,7 +41,7 @@ public class TestDriveTrain extends LinearOpMode {
 
         // Instantiate and initialize motors
         // myDriveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap);
-        myDriveTrain = DriveTrain.DriveTrainTeleOp(hardwareMap);
+        myDriveTrain = DriveTrain.DriveTrainTeleOp(hardwareMap, telemetry);
 
 
         myDriveTrain.setCmPerRotation(31.1); // cm

@@ -49,9 +49,9 @@ public class VelocityVortexRobot {
 
     private VelocityVortexRobot(HardwareMap hardwareMap, RobotMode robotMode, Telemetry telemetry) {
         if(robotMode == RobotMode.AUTONOMOUS) {
-            driveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap);
+            driveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap, telemetry);
         } else {
-            driveTrain = DriveTrain.DriveTrainTeleOp(hardwareMap);
+            driveTrain = DriveTrain.DriveTrainTeleOp(hardwareMap, telemetry);
         }
         sweeper = new VelocityVortexSweeper(hardwareMap);
         rightBeaconPusher = new SideBeaconPusher(hardwareMap, telemetry);

@@ -27,7 +27,7 @@ public class TestDrivingSquare extends LinearOpMode {
 
 
         // Put your initializations here
-        driveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap);
+        driveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap, telemetry);
         driveTrain.setCmPerRotation(31.1); // cm
 
         // Wait for the start button

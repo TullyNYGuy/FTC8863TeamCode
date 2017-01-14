@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 import com.qualcomm.robotcore.hardware.*;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Lib.ResQLib.RobotConfigMapping;
 import org.firstinspires.ftc.teamcode.opmodes.GenericTest.RobotConfigMappingForGenericTest;
 
@@ -31,6 +32,7 @@ public class DriveTrain {
     private DcMotor8863.MotorState leftMotorState;
 
     public PIDControl pidControl;
+    private RampControl rampControl;
 
     private boolean imuPresent = true;
     public AdafruitIMU8863 imu;
@@ -38,6 +40,9 @@ public class DriveTrain {
     private double driveTrainPower;
     public double distance;
 
+    private boolean hasLoopRunYet = false;
+
+    private Telemetry telemetry;
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -90,7 +95,7 @@ public class DriveTrain {
      *
      * @param hardwareMap
      */
-    private DriveTrain(HardwareMap hardwareMap, boolean imuPresent) {
+    private DriveTrain(HardwareMap hardwareMap, boolean imuPresent, Telemetry telemetry) {
         leftDriveMotor = new DcMotor8863(RobotConfigMappingForGenericTest.getleftMotorName(), hardwareMap);
         rightDriveMotor = new DcMotor8863(RobotConfigMappingForGenericTest.getrightMotorName(), hardwareMap);
 
@@ -120,6 +125,9 @@ public class DriveTrain {
         if (imuPresent) {
             imu = new AdafruitIMU8863(hardwareMap);
         }
+        rampControl = new RampControl(0,0,0);
+
+        this.telemetry = telemetry;
     }
 
     /**
@@ -129,8 +137,8 @@ public class DriveTrain {
      * @param hardwareMap
      * @return Instance of a driveTrain (a driveTrain oject) optimized for TeleOp
      */
-    public static DriveTrain DriveTrainTeleOp(HardwareMap hardwareMap) {
-        DriveTrain driveTrain = new DriveTrain(hardwareMap, true);
+    public static DriveTrain DriveTrainTeleOp(HardwareMap hardwareMap, Telemetry telemetry) {
+        DriveTrain driveTrain = new DriveTrain(hardwareMap, true, telemetry);
         driveTrain.teleopInit();
         return driveTrain;
     }
@@ -161,8 +169,8 @@ public class DriveTrain {
      * @param hardwareMap
      * @return Instance of a driveTrain (a driveTrain oject) optimized for Autonomous
      */
-    public static DriveTrain DriveTrainAutonomous(HardwareMap hardwareMap) {
-        DriveTrain driveTrain = new DriveTrain(hardwareMap, true);
+    public static DriveTrain DriveTrainAutonomous(HardwareMap hardwareMap, Telemetry telemetry) {
+        DriveTrain driveTrain = new DriveTrain(hardwareMap, true, telemetry);
 
         // Set the motors to float after the power gets set to 0
         driveTrain.rightDriveMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
@@ -174,8 +182,8 @@ public class DriveTrain {
         return driveTrain;
     }
 
-    public static DriveTrain DriveTrainAutonomousNoImu(HardwareMap hardwareMap) {
-        DriveTrain driveTrain = new DriveTrain(hardwareMap, false);
+    public static DriveTrain DriveTrainAutonomousNoImu(HardwareMap hardwareMap, Telemetry telemetry) {
+        DriveTrain driveTrain = new DriveTrain(hardwareMap, false, telemetry);
 
         // Set the motors to float after the power gets set to 0
         driveTrain.rightDriveMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
@@ -306,6 +314,105 @@ public class DriveTrain {
         shutdown();
     }
 
+    //Drive distance using IMU
+    public void setupDriveDistanceUsingIMU(double heading, double maxPower, double distance,
+                                           AdafruitIMU8863.AngleMode headingType, double valueAtStartTime,
+                                           double valueAtFinishTime, double timeToReachFinishValueInmSec){
+        //If the IMU is present we proceed. If not we give the user an error
+        if (imuPresent) {
+            // Setup the ramp control to ramp the power up from 0 to maxPower
+            rampControl.setup(valueAtStartTime,valueAtFinishTime,timeToReachFinishValueInmSec);
+            // Enable the ramp control so that it will start when the motors start moving
+            rampControl.enable();
+            // set the mode for the motors during the turn. Without this they may not move.
+            rightDriveMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            leftDriveMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            //setting up the PID
+            pidControl.setSetpoint(heading);
+            pidControl.setMaxCorrection(maxPower);
+            pidControl.setThreshold(2);
+            pidControl.setKp(0.03);
+            //Saving power for later use
+            driveTrainPower = maxPower;
+            //Setting the flag to say the loop hasn't run yet
+            hasLoopRunYet = false;
+            //Setting up IMU
+            switch (headingType) {
+                case RELATIVE:
+                    imu.setAngleMode(AdafruitIMU8863.AngleMode.RELATIVE);
+                    imu.resetAngleReferences();
+                    break;
+                case ABSOLUTE:
+                    imu.setAngleMode(AdafruitIMU8863.AngleMode.ABSOLUTE);
+                    break;
+                case RAW:
+                    imu.setAngleMode(AdafruitIMU8863.AngleMode.RAW);
+                    break;
+            }
+            //If IMU isn't present
+        } else {
+            shutdown();
+            throw new IllegalArgumentException("No Imu found");
+        }
+
+    }
+    public boolean updateDriveDistanceUsingIMU() {
+        //setting up an array so that we can hold onto the left and right motor drive powers
+        double[] drivePowers;
+        if (imuPresent) {
+            //If the IMU is present we proceed if not we give the user an error
+            if(!hasLoopRunYet){
+                //If we are running ths loop for the first time
+                drivePowers = calculatePowerUsingRampAndPID();
+                telemetry.addData("Left drive power = ", "%2.2f", drivePowers[0]);
+                telemetry.addData("right drive power = ", "%2.2f", drivePowers[1]);
+                telemetry.update();
+                rampControl.start();
+                //we start the motors moving using the powers calculated above
+                leftDriveMotor.moveByAmount(drivePowers[0], distance, DcMotor8863.FinishBehavior.HOLD);
+                rightDriveMotor.moveByAmount(drivePowers[1], distance, DcMotor8863.FinishBehavior.HOLD);
+                hasLoopRunYet = true;
+            } else {
+                //If we are running the loop or a second or third or more time
+                drivePowers = calculatePowerUsingRampAndPID();
+                //setting new powers to the motors
+                leftDriveMotor.setPower(drivePowers[0]);
+                rightDriveMotor.setPower(drivePowers[1]);
+            }
+            // update the motor state machines
+            leftDriveMotor.update();
+            rightDriveMotor.update();
+            // check to see if our desired distance has been met
+            if (leftDriveMotor.isMotorStateComplete() && rightDriveMotor.isMotorStateComplete()){
+                return true;
+            } else {
+                return false;
+            }
+            // If IMU isn't present
+        } else {
+            shutdown();
+            throw new IllegalArgumentException("No Imu found");
+        }
+    }
+    private double[] calculatePowerUsingRampAndPID(){
+        //this is what we use to calculate the ramp power
+        //after the ramp finishes running we get our drive train power applied back to the motors again
+        double rampPower = rampControl.getRampValueLinear(driveTrainPower);
+        double currentHeading = imu.getHeading();
+        //this is what we use to calculate the correction to the ramp power to adjust the steering
+        double correction = -pidControl.getCorrection(currentHeading);
+        double leftDrivePower = rampPower + correction;
+        double rightDrivePower = rampPower - correction;
+        double drivePowers[] = new double[2];
+        drivePowers[0] = leftDrivePower;
+        drivePowers[1] = rightDrivePower;
+        return drivePowers;
+    }
+
+    public void stopDriveDistanceUsingIMU() {
+        shutdown();
+    }
+
     //*********************************************************************************************
     //          Teleop methods
     //*********************************************************************************************
@@ -371,6 +478,7 @@ public class DriveTrain {
             teleopInit();
         }
     }
+
 
     //*********************************************************************************************
     //          Other methods
