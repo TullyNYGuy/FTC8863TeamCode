@@ -108,8 +108,8 @@ public class TestDCMotor8863MoveByAmount extends LinearOpMode {
                 // display some information on the driver phone
                 telemetry.addData(">", "Relative move by 1440 degrees, use power ramp");
                 telemetry.addData("Motor Speed = ", "%5.2f", motor.getCurrentPower());
-                telemetry.addData("feedback = ", "%5.2f", motor.getPositionInTermsOfAttachment());
-                telemetry.addData("Encoder Count = ", "%5d", motor.getCurrentPosition());
+                telemetry.addData("feedback = ", "%5.2f", motor.getPositionInTermsOfAttachmentRelativeToLast());
+                telemetry.addData("Encoder Count = ", "%5d", motor.getCurrentPositionRelativeToLast());
                 telemetry.addData("Elapsed time = ", "%5.0f", runningTimer.milliseconds());
                 telemetry.addData(">", "Press Stop to end test.");
                 telemetry.update();
@@ -119,7 +119,7 @@ public class TestDCMotor8863MoveByAmount extends LinearOpMode {
                 idle();
             }
 
-            targetTracker.updateStats(motor.getCurrentPosition());
+            targetTracker.updateStats(motor.getPositionInTermsOfAttachmentRelativeToLast());
 
             // wait for 2 second
             sleep(2000);

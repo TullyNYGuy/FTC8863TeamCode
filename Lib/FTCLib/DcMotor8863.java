@@ -533,6 +533,29 @@ public class DcMotor8863 {
     public double getPositionInTermsOfAttachment() {
         return getMovementForEncoderCount(getCurrentPosition());
     }
+    /**
+     * Get the current motor position in terms of the position of whatever is attached to it. The
+     * position can be the number of degrees, the position of a wheel in cm etc. The position is
+     * relative to the last position. In other words, the position is the current position - the
+     * position of the object before the last movement started.
+     *
+     * @return position in units of whatever is attached to it
+     */
+    // tested
+    public double getPositionInTermsOfAttachmentRelativeToLast() {
+        return getMovementForEncoderCount(getCurrentPosition() - this.lastEncoderValue);
+    }
+
+    /**
+     * Get the current encoder value relative to the last encoder value. In other words, the
+     * position is the current position - the position of the encoder  before the last movement
+     * started.
+     * @return encoder value - encoder value before the last movement started
+     */
+    public int getCurrentPositionRelativeToLast() {
+        return this.getCurrentPosition() - this.lastEncoderValue;
+    }
+
 
     /**
      * Gets the number of encoder counts for a certain number of revolutions.
@@ -656,6 +679,7 @@ public class DcMotor8863 {
     public boolean moveToPosition(double power, double targetPosition, FinishBehavior afterCompletion) {
         // figure out what the encoder count is that corresponds to the target position
         int encoderCountForPosition = getEncoderCountForMovement(targetPosition);
+        this.lastEncoderValue = this.getCurrentPosition();
         return rotateToEncoderCount(power, encoderCountForPosition, afterCompletion);
     }
 
@@ -691,10 +715,12 @@ public class DcMotor8863 {
      */
     // tested
     public boolean moveByAmount(double power, double movement, FinishBehavior afterCompletion) {
+        int currentPosition = this.getCurrentPosition();
         // figure out what the encoder count is that corresponds to the amount to be moved
         int encoderCountForMovement = getEncoderCountForMovement(movement);
         // add that to the current encoder count
-        int encoderCountForPosition = encoderCountForMovement + this.getCurrentPosition();
+        int encoderCountForPosition = encoderCountForMovement + currentPosition;
+        this.lastEncoderValue = currentPosition;
         return rotateToEncoderCount(power, encoderCountForPosition, afterCompletion);
 
     }
@@ -710,10 +736,12 @@ public class DcMotor8863 {
      */
     // tested
     public boolean rotateNumberOfDegrees(double power, double degrees, FinishBehavior afterCompletion) {
+        int currentPosition = this.getCurrentPosition();
         // figure out what the encoder count is that corresponds to the amount to be moved
         int encoderCountForDegrees = getEncoderCountForDegrees(degrees);
         // add that to the current encoder count
-        int encoderCountForPosition = encoderCountForDegrees + this.getCurrentPosition();
+        int encoderCountForPosition = encoderCountForDegrees + currentPosition;
+        this.lastEncoderValue = currentPosition;
         return rotateToEncoderCount(power, encoderCountForPosition, afterCompletion);
     }
 
@@ -728,10 +756,12 @@ public class DcMotor8863 {
      */
     // tested
     public boolean rotateNumberOfRevolutions(double power, double revs, FinishBehavior afterCompletion) {
+        int currentPosition = this.getCurrentPosition();
         // figure out what the encoder count is that corresponds to the amount to be moved
         int encoderCountForRevs = getEncoderCountForRevs(revs);
         // add that to the current encoder count
-        int encoderCountForPosition = encoderCountForRevs + this.getCurrentPosition();
+        int encoderCountForPosition = encoderCountForRevs + currentPosition;
+        this.lastEncoderValue = currentPosition;
         return rotateToEncoderCount(power, encoderCountForPosition, afterCompletion);
     }
 
