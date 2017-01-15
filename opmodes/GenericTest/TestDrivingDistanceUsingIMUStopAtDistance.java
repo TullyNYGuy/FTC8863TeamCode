@@ -12,9 +12,9 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
  *
  *
  */
-@TeleOp(name = "Test Driving Distance", group = "Test")
+@TeleOp(name = "Test Driving with IMU stop at distance", group = "Test")
 //@Disabled
-public class TestDrivingDistance extends LinearOpMode {
+public class TestDrivingDistanceUsingIMUStopAtDistance extends LinearOpMode {
 
     // Put your variable declarations here
 
@@ -29,20 +29,22 @@ public class TestDrivingDistance extends LinearOpMode {
 
         // Put your initializations here
         driveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap, telemetry);
-        driveTrain.setCmPerRotation(31.1); // cm
+        driveTrain.setCmPerRotation(32.25); // cm
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run" );
         telemetry.update();
         waitForStart();
-        driveUsingIMU(0, 1);
+
+        driveUsingIMU(0, .8, 200); // heading, power, distance in cm
+
         telemetry.addData("Finished Straight", "1");
         telemetry.update();
         sleep(1000);
 
         // Put your cleanup code here - it runs as the application shuts down
         telemetry.addData(">", "Done");
-        //telemetry.addData("Angle = ", "%3.1f", driveTrain.imu.getHeading());
+        telemetry.addData("Angle = ", "%3.1f", driveTrain.imu.getHeading());
         telemetry.update();
         sleep(3000);
     }
@@ -78,26 +80,18 @@ public class TestDrivingDistance extends LinearOpMode {
         telemetry.update();
     }
 
-    public void driveUsingIMU(double heading, double power){
+    public void driveUsingIMU(double heading, double power, double distanceToTravel){
+        double distance = 0;
         driveTrain.setupDriveUsingIMU(heading, power, AdafruitIMU8863.AngleMode.RELATIVE);
 
-        while(opModeIsActive()) {
-            double distance;
+        while(opModeIsActive() && distance < distanceToTravel) {
             distance = driveTrain.updateDriveUsingIMU();
-
-            if (distance > 200) {
-                driveTrain.stopDriveUsingIMU();
-                break;
-            }
-
-            telemetry.addData(">", "Press Stop to end test." );
-            telemetry.addData("Status = ", driveTrain.imu.getHeading());
-            telemetry.addData("distance = ", distance);
-            telemetry.update();
             idle();
         }
+        driveTrain.stopDriveUsingIMU();
         telemetry.addData(">", "Press Stop to end test." );
         telemetry.addData("distance = ", driveTrain.getDistance());
+        telemetry.addData("heading = ", driveTrain.imu.getHeading());
         telemetry.update();
         sleep(5000);
     }

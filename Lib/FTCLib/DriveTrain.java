@@ -172,7 +172,7 @@ public class DriveTrain {
     public static DriveTrain DriveTrainAutonomous(HardwareMap hardwareMap, Telemetry telemetry) {
         DriveTrain driveTrain = new DriveTrain(hardwareMap, true, telemetry);
 
-        // Set the motors to float after the power gets set to 0
+        // Set the motors to hold after the power gets set to 0
         driveTrain.rightDriveMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
         driveTrain.leftDriveMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
 
@@ -185,7 +185,7 @@ public class DriveTrain {
     public static DriveTrain DriveTrainAutonomousNoImu(HardwareMap hardwareMap, Telemetry telemetry) {
         DriveTrain driveTrain = new DriveTrain(hardwareMap, false, telemetry);
 
-        // Set the motors to float after the power gets set to 0
+        // Set the motors to hold after the power gets set to 0
         driveTrain.rightDriveMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
         driveTrain.leftDriveMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
 
@@ -362,10 +362,10 @@ public class DriveTrain {
         if (imuPresent) {
             //If the IMU is present we proceed if not we give the user an error
             if(!hasLoopRunYet){
-                //If we are running ths loop for the first time
+                //If we are running the loop for the first time
                 drivePowers = calculatePowerUsingRampAndPID();
-                telemetry.addData("Left drive power = ", "%2.2f", drivePowers[0]);
-                telemetry.addData("right drive power = ", "%2.2f", drivePowers[1]);
+                telemetry.addData("1st Left drive power = ", "%2.2f", drivePowers[0]);
+                telemetry.addData("1st right drive power = ", "%2.2f", drivePowers[1]);
                 telemetry.update();
                 rampControl.start();
                 //we start the motors moving using the powers calculated above

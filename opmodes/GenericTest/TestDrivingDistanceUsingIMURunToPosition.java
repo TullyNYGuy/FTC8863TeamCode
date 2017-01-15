@@ -12,9 +12,9 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
  *
  *
  */
-@TeleOp(name = "Test IMU Driving", group = "Test")
+@TeleOp(name = "Test Driving with IMU for distance using run_to_position", group = "Test")
 //@Disabled
-public class TestDrivingDistanceUsingIMU extends LinearOpMode {
+public class TestDrivingDistanceUsingIMURunToPosition extends LinearOpMode {
 
     // Put your variable declarations here
 
@@ -25,27 +25,29 @@ public class TestDrivingDistanceUsingIMU extends LinearOpMode {
 
         // Put your initializations here
         driveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap, telemetry);
-        driveTrain.setCmPerRotation(31.1); // cm
+        driveTrain.setCmPerRotation(32.25); // cm
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
         telemetry.update();
         waitForStart();
 
-        driveDistanceUsingIMU(0,1,250);
-        telemetry.addData("Finished Straight", "1");
-        telemetry.update();
-        sleep(2000);
+        driveDistanceUsingIMU(0, 1 , 250); //heading, power, distance
+        sleep(5000);
 
         // Put your cleanup code here - it runs as the application shuts down
         telemetry.addData(">", "Done");
-        telemetry.addData("Angle = ", "%3.1f", driveTrain.imu.getHeading());
         telemetry.update();
-        sleep(3000);
+        sleep(1000);
     }
 
     public void driveDistanceUsingIMU(double heading, double power, double distance){
         driveTrain.setupDriveDistanceUsingIMU(heading, power, distance, AdafruitIMU8863.AngleMode.RELATIVE, 0, power, 2000);
+
+        telemetry.addData(">", "Press Stop to end test." );
+        telemetry.update();
+        sleep(1000);
+
         while(opModeIsActive()) {
             boolean isDestinationReached = driveTrain.updateDriveDistanceUsingIMU();
             //boolean isDestinationReached = true;
@@ -59,9 +61,10 @@ public class TestDrivingDistanceUsingIMU extends LinearOpMode {
 //            telemetry.update();
             idle();
         }
-        telemetry.addData(">", "Press Stop to end test." );
-        //telemetry.addData("distance = ", driveTrain.getDistance());
+
+        telemetry.addData(">", "Destination Reached" );
+        telemetry.addData("distance = ", driveTrain.getDistance());
+        telemetry.addData("Heading = ", "%3.1f", driveTrain.imu.getHeading());
         telemetry.update();
-        sleep(5000);
     }
 }
