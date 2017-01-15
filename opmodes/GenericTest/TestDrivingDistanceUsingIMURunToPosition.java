@@ -32,7 +32,7 @@ public class TestDrivingDistanceUsingIMURunToPosition extends LinearOpMode {
         telemetry.update();
         waitForStart();
 
-        driveDistanceUsingIMU(0, 1 , 250); //heading, power, distance
+        driveDistanceUsingIMU(0, .8 , 200); //heading, power, distance
         sleep(5000);
 
         // Put your cleanup code here - it runs as the application shuts down
@@ -52,7 +52,7 @@ public class TestDrivingDistanceUsingIMURunToPosition extends LinearOpMode {
             boolean isDestinationReached = driveTrain.updateDriveDistanceUsingIMU();
             //boolean isDestinationReached = true;
             if (isDestinationReached){
-                driveTrain.stopDriveDistanceUsingIMU();
+                //driveTrain.stopDriveDistanceUsingIMU();
                 break;
             }
 

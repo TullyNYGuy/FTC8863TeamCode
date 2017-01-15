@@ -35,8 +35,9 @@ public class TestDriveTrainDistanceAccuracy extends LinearOpMode {
         telemetry.update();
         waitForStart();
 
-        driveStraight(100, 0.1);
-        telemetry.addData("Finished driving 100 cm", "!");
+        double distance = 200;
+        driveStraight(distance, 0.8);
+        telemetry.addData("Finished driving this distance", "%3.2f", distance);
         telemetry.update();
         sleep(2000);
 

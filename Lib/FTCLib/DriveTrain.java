@@ -331,11 +331,13 @@ public class DriveTrain {
             pidControl.setSetpoint(heading);
             pidControl.setMaxCorrection(maxPower);
             pidControl.setThreshold(2);
-            pidControl.setKp(0.03);
+            pidControl.setKp(0.015);
             //Saving power for later use
             driveTrainPower = maxPower;
             //Setting the flag to say the loop hasn't run yet
             hasLoopRunYet = false;
+            //MATT never set the distance so it was 0 when we started the update
+            this.distance = distance;
             //Setting up IMU
             switch (headingType) {
                 case RELATIVE:
@@ -363,11 +365,9 @@ public class DriveTrain {
             //If the IMU is present we proceed if not we give the user an error
             if(!hasLoopRunYet){
                 //If we are running the loop for the first time
-                drivePowers = calculatePowerUsingRampAndPID();
-                telemetry.addData("1st Left drive power = ", "%2.2f", drivePowers[0]);
-                telemetry.addData("1st right drive power = ", "%2.2f", drivePowers[1]);
-                telemetry.update();
+                //MATT the ramp start was after the calculatePowerUsingRampAndPID so initial power was 1
                 rampControl.start();
+                drivePowers = calculatePowerUsingRampAndPID();
                 //we start the motors moving using the powers calculated above
                 leftDriveMotor.moveByAmount(drivePowers[0], distance, DcMotor8863.FinishBehavior.HOLD);
                 rightDriveMotor.moveByAmount(drivePowers[1], distance, DcMotor8863.FinishBehavior.HOLD);
@@ -379,6 +379,10 @@ public class DriveTrain {
                 leftDriveMotor.setPower(drivePowers[0]);
                 rightDriveMotor.setPower(drivePowers[1]);
             }
+            telemetry.addData("Left drive power = ", "%2.2f", drivePowers[0]);
+            telemetry.addData("Right drive power = ", "%2.2f", drivePowers[1]);
+            telemetry.addData("Heading = ", "%3.1f", imu.getHeading());
+            telemetry.update();
             // update the motor state machines
             leftDriveMotor.update();
             rightDriveMotor.update();
