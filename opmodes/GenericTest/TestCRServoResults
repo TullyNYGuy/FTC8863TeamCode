@@ -1,0 +1,15 @@
+Results of testing CR servos for Front Beacon Pusher
+
+Left Servo on Port 2 of Servo Controller AVL00VV9L
+This servo needs to be REVERSE
+No movement Forwards = .51
+No movement Reverse = .48
+Rate forwards = 2.96
+Rate backwards = 3.21
+
+Right Servo on Port 1 of Servo Controller AVL00VV9L
+This servo needs to be FORWARD
+No movement Forwards = .51
+No movement Reverse = .48
+Rate forwards = 1.90
+Rate backwards = 2.07

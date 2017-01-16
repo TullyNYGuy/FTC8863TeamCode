@@ -6,6 +6,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
 // to do list
 // finish the state initialization for the servo in all 3 constructors
 // check the state diagram to see if it all covered
@@ -65,6 +67,11 @@ public class CRServo {
         MOVING_FORWARD_TO_POSITION,
         FORWARD_AT_SWITCH,
         FORWARD_AT_POSITION
+    }
+
+    public enum CRServoStep {
+        COARSE,
+        FINE
     }
 
     //*********************************************************************************************
@@ -137,6 +144,15 @@ public class CRServo {
      */
     private double lastThrottleCommand = 0;
 
+    /**
+     * The telemetry object will get passed in so that we can send info to the driver's station
+     */
+    private Telemetry telemetry;
+
+    private double noMovementPositionIncrement = .01;
+    private double noMovementPositionEndCommand = .55;
+    private double noMovementStepLength = 500;
+
     private double currentCommand = 0;
     private double commandIncrement;
     private CRServoState currentState = CRServoState.BACK_AT_SWITCH;
@@ -190,18 +206,21 @@ public class CRServo {
     //*********************************************************************************************
 
     public CRServo(String servoName, HardwareMap hardwareMap, double centerValueForward,
-                   double centerValueReverse, double deadBandRange, Servo.Direction direction) {
+                   double centerValueReverse, double deadBandRange, Servo.Direction direction,
+                   Telemetry telemetry) {
         initialize(servoName, hardwareMap, centerValueForward, centerValueReverse, deadBandRange,
-                direction);
+                direction, telemetry);
         // initialize the CRServo State ????
     }
 
     public CRServo(String servoName, HardwareMap hardwareMap, double centerValueForward,
                    double centerValueReverse, double deadBandRange, Servo.Direction direction,
                    String frontSwitchName, Switch.SwitchType frontSwitchType,
-                   String backSwitchName, Switch.SwitchType backSwitchType) {
+                   String backSwitchName, Switch.SwitchType backSwitchType,
+                   Telemetry telemetry) {
 
-        initialize(servoName, hardwareMap, centerValueForward, centerValueReverse, deadBandRange, direction);
+        initialize(servoName, hardwareMap, centerValueForward, centerValueReverse, deadBandRange,
+                direction, telemetry);
         // check to see if the servo is against the limit switches in order to initialize the state
 
         frontSwitch = new Switch(hardwareMap, frontSwitchName, frontSwitchType);
@@ -210,8 +229,9 @@ public class CRServo {
 
     private void initialize(String servoName, HardwareMap hardwareMap, double centerValueForward,
                             double centerValueReverse, double deadBandRange,
-                            Servo.Direction direction) {
+                            Servo.Direction direction, Telemetry telemetry) {
         crServo = hardwareMap.servo.get(servoName);
+        this.telemetry = telemetry;
         this.centerValueReverse = centerValueReverse;
         this.centerValueForward = centerValueForward;
         // Set the direction for a positive position command and also sets the center value
@@ -261,6 +281,54 @@ public class CRServo {
             //forwards
             return distanceToMove / forwardCMPerSecond * 1000;
         }
+    }
+
+    //*********************************************************************************************
+    //          Characterization METHODS
+    //
+    // public methods that give the class its functionality
+    //*********************************************************************************************
+
+    public void setupFindNoMovementCommand(CRServoStep stepType) {
+        timer.reset();
+        // if the stepping is coarse
+        if (stepType == CRServoStep.COARSE) {
+            currentCommand = .4;
+            noMovementPositionIncrement = .05;
+            noMovementPositionEndCommand = .6;
+            noMovementStepLength = 250;
+        } else {
+            currentCommand = .47;
+            noMovementPositionIncrement = .01;
+            noMovementPositionEndCommand = .53;
+            noMovementStepLength = 500;
+        }
+
+        crServo.setPosition(currentCommand);
+    }
+
+    public boolean updateFindNoMovementCommand(String direction) {
+        int stepLength = 250; // milliseconds
+        double endPositionCommand = .53;
+        boolean result = false;
+        if (currentCommand >= noMovementPositionEndCommand) {
+            // testing is done, we hit all the values from .4 to .6
+            result = true;
+        }
+        if (currentCommand < endPositionCommand && timer.milliseconds() > noMovementStepLength) {
+            // timer has expired and we have not hit the end of the range to test
+            // increment the command
+            currentCommand = currentCommand + noMovementPositionIncrement;
+            // apply the command
+            crServo.setPosition(currentCommand);
+            // restart the 500 millisecond timer
+            timer.reset();
+            result = false;
+        }
+        telemetry.addData("Direction = ", direction, currentCommand);
+        telemetry.addData("Command = ", "%1.2f", currentCommand);
+        telemetry.update();
+        return result;
     }
 
     //*********************************************************************************************
@@ -401,33 +469,6 @@ public class CRServo {
             return true;
         }
         return false;
-    }
-
-    public void setupFindNoMovementCommand() {
-        timer.reset();
-        // start the testing for no movement at 0.4
-        currentCommand = .4;
-        crServo.setPosition(currentCommand);
-    }
-
-    public String updateFindNoMovementCommand() {
-        // increment the command by .01 each time 500 milliseconds has passed
-        double commandIncrement = .01;
-        int stepLength = 500; // milliseconds
-        String result = "Undefined";
-        if (currentCommand >= .6) {
-            // testing is done, we hit all the values from .4 to .6
-            return "Finished";
-        }
-        if (currentCommand < .6 && timer.milliseconds() > stepLength) {
-            // timer has expired and we have not hit the end of the range to test
-            currentCommand = currentCommand + commandIncrement;
-            // format a string to be displayed on the driver station phone
-            result = "Command = " + String.format("%1.2f", currentCommand);
-            crServo.setPosition(currentCommand);
-            timer.reset();
-        }
-        return result;
     }
 
     public void updateCRServo() {

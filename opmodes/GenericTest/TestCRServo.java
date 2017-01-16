@@ -78,7 +78,9 @@ public class TestCRServo extends OpMode {
 	@Override
 	public void init() {
 
-        testServo = new CRServo(RobotConfigMappingForGenericTest.getgenericServoName(),hardwareMap, noMovePositionForward, noMovePositionReverse, deadZone, Servo.Direction.REVERSE);
+        testServo = new CRServo(RobotConfigMappingForGenericTest.getgenericServoName(),hardwareMap,
+                noMovePositionForward, noMovePositionReverse, deadZone, Servo.Direction.REVERSE,
+                telemetry);
         timer = new ElapsedTime();
         testServo.setPosition(testServo.getCenterValue());
 

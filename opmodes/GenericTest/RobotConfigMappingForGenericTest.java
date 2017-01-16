@@ -43,6 +43,16 @@ public class RobotConfigMappingForGenericTest {
     //generic Adafruit ColorSensor
     private static String adafruitColorSensorName = "colorSensor";
 
+    //front beacon pushers
+    // port 0
+    private static String rightFrontLimitSwitch = "rightFrontSwitch";
+    // port 2
+    private static String leftFrontLimitSwitch = "leftFrontSwitch";
+    // port 1
+    private static String rightBackLimitSwitch = "rightBackSwitch";
+    // port 3
+    private static String leftBackLimitSwitch = "leftBackSwitch";
+
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -50,7 +60,9 @@ public class RobotConfigMappingForGenericTest {
     // getPositionInTermsOfAttachment
     //*********************************************************************************************
 
-    public static String getleftMotorName() {return leftMotorName;}
+    public static String getleftMotorName() {
+        return leftMotorName;
+    }
 
     public static String getrightMotorName() {
         return rightMotorName;
@@ -60,16 +72,41 @@ public class RobotConfigMappingForGenericTest {
         return thirdMotorName;
     }
 
-    public static String getgenericServoName() {return genericServoName;}
+    public static String getgenericServoName() {
+        return genericServoName;
+    }
 
-    public static String getcrServoName() {return crServoName;}
+    public static String getcrServoName() {
+        return crServoName;
+    }
 
-    public static String getCoreDeviceInterfaceName() {return coreDeviceInterfaceName;}
+    public static String getCoreDeviceInterfaceName() {
+        return coreDeviceInterfaceName;
+    }
 
-    public static String getIMUName() {return IMUName;}
+    public static String getIMUName() {
+        return IMUName;
+    }
 
-    public static String getadafruitColorSensorName() {return adafruitColorSensorName;}
+    public static String getadafruitColorSensorName() {
+        return adafruitColorSensorName;
+    }
 
+    public static String getRightFrontLimitSwitchName() {
+        return rightFrontLimitSwitch;
+    }
+
+    public static String getLeftFrontLimitSwitchName() {
+        return leftFrontLimitSwitch;
+    }
+
+    public static String getRightBackLimitSwitchName() {
+        return rightBackLimitSwitch;
+    }
+
+    public static String getLeftBackLimitSwitchName() {
+        return leftBackLimitSwitch;
+    }
 
     //*********************************************************************************************
     //          Constructors
