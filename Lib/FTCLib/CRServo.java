@@ -425,7 +425,7 @@ public class CRServo {
             currentState = CRServoState.MOVING_BACK_TO_POSITION;
             directionToMove = CRServoDirection.BACKWARD;
         }
-        updateCRServo();
+        update();
     }
 
     /**
@@ -456,7 +456,7 @@ public class CRServo {
             currentState = CRServoState.MOVING_BACK_TO_SWITCH;
             directionToMove = CRServoDirection.BACKWARD;
         }
-        updateCRServo();
+        update();
     }
 
     public boolean updateMoveUntilLimitSwitch() {
@@ -471,7 +471,7 @@ public class CRServo {
         return false;
     }
 
-    public void updateCRServo() {
+    public void update() {
         switch (currentState) {
             case BACK_AT_POSITION:
                 setSpeed(0);
