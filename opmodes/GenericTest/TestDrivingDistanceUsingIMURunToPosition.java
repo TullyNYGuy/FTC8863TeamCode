@@ -25,14 +25,14 @@ public class TestDrivingDistanceUsingIMURunToPosition extends LinearOpMode {
 
         // Put your initializations here
         driveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap, telemetry);
-        driveTrain.setCmPerRotation(32.25); // cm
+        driveTrain.setCmPerRotation(31.1); // cm
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
         telemetry.update();
         waitForStart();
 
-        driveDistanceUsingIMU(0, .8 , 200); //heading, power, distance
+        driveDistanceUsingIMU(0, 1 , 200); //heading, power, distance
         sleep(5000);
 
         // Put your cleanup code here - it runs as the application shuts down
