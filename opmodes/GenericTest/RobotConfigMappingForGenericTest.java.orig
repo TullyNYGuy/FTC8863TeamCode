@@ -43,10 +43,7 @@ public class RobotConfigMappingForGenericTest {
     //generic Adafruit ColorSensor
     private static String adafruitColorSensorName = "colorSensor";
 
-    // left and right servos for front beacon pusher
-    private static String frontLeftBeaconServo = "frontLeftBeaconServo";
-    private static String frontRightBeaconServo = "frontRightBeaconServo";
-
+<<<<<<< HEAD
     //front beacon pushers
     // port 0
     private static String rightFrontLimitSwitch = "rightFrontSwitch";
@@ -56,6 +53,11 @@ public class RobotConfigMappingForGenericTest {
     private static String rightBackLimitSwitch = "rightBackSwitch";
     // port 3
     private static String leftBackLimitSwitch = "leftBackSwitch";
+=======
+    // left and right servos for front beacon pusher
+    private static String frontLeftBeaconServo = "frontLeftBeaconServo";
+    private static String frontRightBeaconServo = "frontRightBeaconServo";
+>>>>>>> FrontBeaconPusher
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -108,16 +110,17 @@ public class RobotConfigMappingForGenericTest {
         return rightBackLimitSwitch;
     }
 
+<<<<<<< HEAD
     public static String getLeftBackLimitSwitchName() {
         return leftBackLimitSwitch;
-    }
-    
-        public static String getFrontLeftBeaconServo() {
+=======
+    public static String getFrontLeftBeaconServo() {
         return frontLeftBeaconServo;
     }
 
     public static String getFrontRightBeaconServo() {
         return frontRightBeaconServo;
+>>>>>>> FrontBeaconPusher
     }
 
     //*********************************************************************************************

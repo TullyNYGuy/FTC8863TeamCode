@@ -4,6 +4,7 @@ package org.firstinspires.ftc.teamcode.Lib.VelocityVortex;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.CRServo;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Switch;
 import org.firstinspires.ftc.teamcode.opmodes.GenericTest.RobotConfigMappingForGenericTest;
@@ -48,7 +49,7 @@ public class FrontBeaconPusher {
 
     private AdafruitColorSensor8863 rightColorSensor;
 
-    private double pusherMidPoint = 6.4/2; //measured in cm using the robot
+    private double pusherMidPoint = 3.2; //measured in cm using the robot
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -65,13 +66,13 @@ public class FrontBeaconPusher {
     // from it
     //*********************************************************************************************
 
-    public FrontBeaconPusher(HardwareMap hardwareMap) {
+    public FrontBeaconPusher(HardwareMap hardwareMap, Telemetry telemetry) {
         leftCRServo = new CRServo(RobotConfigMappingForGenericTest.getFrontLeftBeaconServo(),
                 hardwareMap, frontLeftServoCenterValueForward, frontLeftServoCenterValueReverse,
-                deadband, Servo.Direction.FORWARD);
+                deadband, Servo.Direction.FORWARD, telemetry);
         rightCRServo = new CRServo(RobotConfigMappingForGenericTest.getFrontRightBeaconServo(),
                 hardwareMap, frontRightServoCenterValueForward, frontRightServoCenterValueReverse,
-                deadband, Servo.Direction.REVERSE);
+                deadband, Servo.Direction.REVERSE, telemetry);
         // add the creation of color sensor object
         // check the positions and make sure that the pushers are both back against the limit
         // switches
