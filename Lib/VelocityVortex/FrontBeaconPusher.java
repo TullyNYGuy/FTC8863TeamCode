@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.CRServo;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.CRServoGB;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Switch;
 import org.firstinspires.ftc.teamcode.opmodes.GenericTest.RobotConfigMappingForGenericTest;
 
@@ -137,8 +138,10 @@ public class FrontBeaconPusher {
     }
 
     private BeaconPusherState updateState() {
-        leftCRServo.update();
-        rightCRServo.update();
+        CRServo.CRServoState leftCRServoState;
+        CRServo.CRServoState rightCRServoState;
+        leftCRServoState = leftCRServo.update();
+        rightCRServoState = rightCRServo.update();
         switch(beaconPusherState) {
             case BOTH_BACK:
                 // check to see if the movement to this state is complete
