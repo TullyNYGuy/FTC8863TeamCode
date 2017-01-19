@@ -61,6 +61,8 @@ public class PIDControl {
 
     private double lastFinishedTime = 0;
 
+    private double lastIntegral = 0;
+
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -250,6 +252,8 @@ public class PIDControl {
     }
 
     public void reset(){
+        integral = 0;
+        lastIntegral = 0;
         elapsedTime.reset();
     }
 
@@ -264,7 +268,18 @@ public class PIDControl {
         double error = (getSetpoint() - feedback);
         double timeDifference  = elapsedTime.milliseconds()- lastTime;
         integral = error * timeDifference *getKi();
+        integral = integral + lastIntegral;
         double correction = error * getKp() + integral;
+        // if the correction that is calculated is above the limit of what is of what can be physically
+        // controlled (ie motor power is 110%), then we have to limit the integral portion or it will
+        // windup.
+        // if the correction is larger than limit
+        // clamp the integral term to the last one OR
+        // Kb * (correction - maxCorrection) added back to the integral term
+        if (correction > maxCorrection|| correction < -maxCorrection) {
+            integral = lastIntegral;
+        }
+        lastIntegral = integral;
         if (useRampControl && !rampControl.isRunning() && !rampControl.isFinished()){
             rampControl.start();
         }
