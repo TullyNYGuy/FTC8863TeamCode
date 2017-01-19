@@ -92,7 +92,7 @@ public class VelocityVortexSweeper {
         sweeperMotor.interrupt();
         sweeperPower = 0;
     }
-    public void shoot(){
+    public void push(){
         sweeperPower = -1;
         sweeperMotor.setPower(sweeperPower);
     }

@@ -27,10 +27,15 @@ public class VelocityVortexRobot {
     // getter and setter methods
     //*********************************************************************************************
 
+    // Here are all of the objects that make up the entire robot
     // note that the IMU is an object in the drive train
     public DriveTrain driveTrain;
     public VelocityVortexSweeper sweeper;
-    public SideBeaconPusher rightBeaconPusher;
+    public SideBeaconPusher rightSideBeaconPusher;
+    public SideBeaconPusher leftSideBeaconPusher;
+    // public FrontBeaconPusher frontBeaconPusher;
+    // public I2CMux mux;
+    // public BallShooter ballShooter;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -54,7 +59,7 @@ public class VelocityVortexRobot {
             driveTrain = DriveTrain.DriveTrainTeleOp(hardwareMap, telemetry);
         }
         sweeper = new VelocityVortexSweeper(hardwareMap);
-        rightBeaconPusher = new SideBeaconPusher(hardwareMap, telemetry);
+        rightSideBeaconPusher = new SideBeaconPusher(hardwareMap, telemetry);
         init();
     }
 
@@ -84,7 +89,7 @@ public class VelocityVortexRobot {
     public void init() {
         sweeper.init();
         driveTrain.setCmPerRotation(31.1); // cm
-        rightBeaconPusher.init();
+        rightSideBeaconPusher.init();
     }
 
     public void update() {
@@ -95,4 +100,9 @@ public class VelocityVortexRobot {
         sweeper.shudown();
         driveTrain.shutdown();
     }
+
+    // most of the functionality of the robot is reached by calling methods in the objects that make
+    // up the robot. For example:
+    // rightSideBeaconPusher.pushBeacon()
+    // ballShooter.shoot()
 }
