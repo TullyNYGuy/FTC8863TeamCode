@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.opmodes.GenericTest;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 
@@ -34,39 +35,43 @@ public class TestDrivingSquare extends LinearOpMode {
         telemetry.addData(">", "Press Start to run" );
         telemetry.update();
         waitForStart();
-        driveStraight(50, 0.5);
+        driveDistanceUsingIMU(0, 0.5, 200);
         telemetry.addData("Finished Straight", "1");
         telemetry.update();
         sleep(1000);
         anyTurn(-90, 0.4);
-        telemetry.addData("Finished Turn", "1");
+        telemetry.addData("Finished Turn", "2");
+        telemetry.addData("Angle = ", "%3.1f", driveTrain.imu.getHeading());
         telemetry.update();
         sleep(1000);
 
-        driveStraight(50, 0.5);
+        driveDistanceUsingIMU(0, 0.5, 200);
         telemetry.addData("Finished Straight", "2");
         telemetry.update();
         sleep(1000);
         anyTurn(-90, 0.4);
         telemetry.addData("Finished Turn", "2");
+        telemetry.addData("Angle = ", "%3.1f", driveTrain.imu.getHeading());
         telemetry.update();
         sleep(1000);
 
-        driveStraight(50, 0.5);
+        driveDistanceUsingIMU(0, 0.5, 200);
         telemetry.addData("Finished Straight", "3");
         telemetry.update();
         sleep(1000);
         anyTurn(-90, 0.4);
         telemetry.addData("Finished Turn", "3");
+        telemetry.addData("Angle = ", "%3.1f", driveTrain.imu.getHeading());
         telemetry.update();
         sleep(1000);
 
-        driveStraight(50, 0.5);
+        driveDistanceUsingIMU(0, 0.5, 200);
         telemetry.addData("Finished Straight", "4");
         telemetry.update();
         sleep(1000);
         anyTurn(-90, 0.4);
         telemetry.addData("Finished Turn", "4");
+        telemetry.addData("Angle = ", "%3.1f", driveTrain.imu.getHeading());
         telemetry.update();
         sleep(1000);
 
@@ -106,5 +111,27 @@ public class TestDrivingSquare extends LinearOpMode {
         telemetry.addData(">", "Press Stop to end test." );
         telemetry.addData("Status = ", statusDrive.toString());
         telemetry.update();
+    }
+
+    public void driveDistanceUsingIMU(double heading, double power, double distance) {
+        driveTrain.setupDriveDistanceUsingIMU(heading, power, distance, AdafruitIMU8863.AngleMode.RELATIVE, 0, power, 2000);
+
+        telemetry.addData(">", "Press Stop to end test.");
+        telemetry.update();
+        sleep(1000);
+
+        while (opModeIsActive()) {
+            boolean isDestinationReached = driveTrain.updateDriveDistanceUsingIMU();
+            //boolean isDestinationReached = true;
+            if (isDestinationReached) {
+                //driveTrain.stopDriveDistanceUsingIMU();
+                break;
+            }
+
+//            telemetry.addData(">", "Press Stop to end test." );
+//            telemetry.addData("Heading = ", driveTrain.imu.getHeading());
+//            telemetry.update();
+            idle();
+        }
     }
 }
