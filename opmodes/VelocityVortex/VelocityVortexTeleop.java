@@ -182,7 +182,7 @@ public class VelocityVortexTeleop extends LinearOpMode {
             if (gamepad1.dpad_up) {
                 if (gamepad1DpadUpIsReleased) {
                     // shoot balls 
-                    robot.sweeper.shoot();
+                    //robot.sweeper.shoot();
                     gamepad1DpadUpIsReleased = false;
                 }
             } else {

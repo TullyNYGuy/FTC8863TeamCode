@@ -149,7 +149,7 @@ public class VelocityVortexTeleopDirect extends LinearOpMode {
             
             if (gamepad1.y) {
                 if (gamepad1yButtonIsReleased) {
-                    robot.rightBeaconPusher.close();
+                    //robot.rightBeaconPusher.close();
                     gamepad1yButtonIsReleased = false;
                 }
             } else {
@@ -158,7 +158,7 @@ public class VelocityVortexTeleopDirect extends LinearOpMode {
 
             if (gamepad1.a) {
                 if (gamepad1aButtonIsReleased) {
-                    robot.rightBeaconPusher.open();
+                    //robot.rightBeaconPusher.open();
                     gamepad1aButtonIsReleased = false;
                 }
             } else {
@@ -204,7 +204,7 @@ public class VelocityVortexTeleopDirect extends LinearOpMode {
             if (gamepad1.dpad_up) {
                 if (gamepad1DpadUpIsReleased) {
                     // shoot balls 
-                    robot.sweeper.shoot();
+                    //robot.sweeper.shoot();
                     gamepad1DpadUpIsReleased = false;
                 }
             } else {

@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.opmodes.VelocityVortexTest;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitColorSensor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
@@ -24,6 +25,8 @@ public class TestDrivingWithSideBeacon extends LinearOpMode {
     DriveTrain.Status statusDrive;
     Servo8863 beaconServo;
 
+    AdafruitColorSensor8863 colorSensor;
+
 
     @Override
     public void runOpMode() {
@@ -34,8 +37,8 @@ public class TestDrivingWithSideBeacon extends LinearOpMode {
         driveTrain.setCmPerRotation(31.1); // cm
 
         beaconServo = new Servo8863("beaconServo", hardwareMap, telemetry);
-        beaconServo.setHomePosition(0.8);
-        beaconServo.setPositionOne(1);
+        beaconServo.setHomePosition(0.6);
+        beaconServo.setPositionOne(.8);
         beaconServo.goHome();
 
         // Wait for the start button
