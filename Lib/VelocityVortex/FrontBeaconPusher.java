@@ -21,10 +21,15 @@ public class FrontBeaconPusher {
 
     public enum BeaconPusherState {
         BOTH_BACK,
+        MOVING_TO_BOTH_BACK,
         BOTH_MIDDLE,
+        MOVING_TO_BOTH_MIDDLE,
         LEFT_BACK_RIGHT_FORWARD,
+        MOVING_TO_LEFT_BACK_RIGHT_FORWARD,
         LEFT_FORWARD_RIGHT_BACK,
-        BOTH_FORWARD;
+        MOVING_TO_LEFT_FORWARD_RIGHT_BACK,
+        BOTH_FORWARD,
+        MOVING_TO_BOTH_FORWARD;
     }
 
 
@@ -93,13 +98,9 @@ public class FrontBeaconPusher {
     // public methods that give the class its functionality
     //*********************************************************************************************
 
-    public void moveLeftPusherBackRightPusherBack() {
-        leftCRServo.moveUntilLimitSwitch(CRServo.CRServoDirection.BACKWARD);
-        rightCRServo.moveUntilLimitSwitch(CRServo.CRServoDirection.BACKWARD);
-        // set the next state
-        beaconPusherState = BeaconPusherState.BOTH_BACK;
-        // indicate that it has not gotten to the state yet
-        complete = false;
+    public void moveBothPushersBack() {
+        // change the state
+        beaconPusherState = BeaconPusherState.MOVING_TO_BOTH_BACK;
         updateState();
     }
 
@@ -144,20 +145,50 @@ public class FrontBeaconPusher {
         rightCRServoState = rightCRServo.update();
         switch(beaconPusherState) {
             case BOTH_BACK:
-                // check to see if the movement to this state is complete
-                // if it is set the complete flag
-                // check to see if there has been a command to move to the middle
-                // if there is start the movement and set the next state
-                // check to see if the movement timer has expired
-                // if it has do what?
+                // do nothing - until someone issues a command
+                break;
+            case MOVING_TO_BOTH_BACK:
+                // if both servos are at the back now then change state to BOTH_BACK
+                if (leftCRServoState == CRServo.CRServoState.BACK_AT_POSITION &&
+                        rightCRServoState == CRServo.CRServoState.BACK_AT_POSITION) {
+                    beaconPusherState = BeaconPusherState.BOTH_BACK;
+                } else {
+                    // if the left servo is not at the back and is not moving to the back already
+                    // then start it moving
+                    if (leftCRServoState != CRServo.CRServoState.MOVING_BACK_TO_POSITION &&
+                            leftCRServoState != CRServo.CRServoState.BACK_AT_SWITCH) {
+                        leftCRServo.moveUntilLimitSwitch(CRServo.CRServoDirection.BACKWARD);
+                    }
+                    // if the right servo is not at the back and is not moving to the back already
+                    // then start it moving
+                    if (rightCRServoState != CRServo.CRServoState.MOVING_BACK_TO_POSITION &&
+                            rightCRServoState != CRServo.CRServoState.BACK_AT_POSITION) {
+                        rightCRServo.moveUntilLimitSwitch(CRServo.CRServoDirection.BACKWARD);
+                    }
+                    // the only other possibility is that the servos are moving. IN that case just
+                    // do nothing until they finish moving. Could put a timer here to check to see
+                    // if they have been moving too long which would mean something is wrong.
+                }
                 break;
             case BOTH_MIDDLE:
+                // do nothing - until someone issues a command
+                break;
+            case MOVING_TO_BOTH_MIDDLE:
                 break;
             case LEFT_BACK_RIGHT_FORWARD:
+                // do nothing - until someone issues a command
+                break;
+            case MOVING_TO_LEFT_BACK_RIGHT_FORWARD:
                 break;
             case LEFT_FORWARD_RIGHT_BACK:
+                // do nothing - until someone issues a command
+                break;
+            case MOVING_TO_LEFT_FORWARD_RIGHT_BACK:
                 break;
             case BOTH_FORWARD:
+                // do nothing - until someone issues a command
+                break;
+            case MOVING_TO_BOTH_FORWARD:
                 break;
             default:
                 break;

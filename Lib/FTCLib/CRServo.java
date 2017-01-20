@@ -58,7 +58,7 @@ public class CRServo {
         BACKWARD
     }
 
-    private enum CRServoState {
+    public enum CRServoState {
         BACK_AT_SWITCH,
         BACK_AT_POSITION,
         MOVING_BACK_TO_SWITCH,
@@ -471,7 +471,7 @@ public class CRServo {
         return false;
     }
 
-    public void update() {
+    public CRServoState update() {
         switch (currentState) {
             case BACK_AT_POSITION:
                 setSpeed(0);
@@ -512,6 +512,7 @@ public class CRServo {
                 setSpeed(0);
                 break;
         }
+        return currentState;
     }
 
     //  public void updatePosition(double throttle) {
