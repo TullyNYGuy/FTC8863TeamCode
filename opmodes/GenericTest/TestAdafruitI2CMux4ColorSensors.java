@@ -70,12 +70,12 @@ public class TestAdafruitI2CMux4ColorSensors extends LinearOpMode {
 
         // connect only port 0. A color sensor (colorSensor1) has been wired to that port of the mux.
         mux.selectAndEnableAPort(AdafruitI2CMux.PortNumber.PORT0);
-        sleep(delayInMsec);
+        delay(delayInMsec);
         // create colorSensor1 and initialize it
         colorSensor1 = new AdafruitColorSensor(colorSensorName, coreDIMName, hardwareMap, CHANNEL_FOR_LED1);
         // I'm having trouble with the color sensors getting initialized. A delay seem to help some
         // of the time but not all.
-        sleep(delayInMsec);
+        delay(delayInMsec);
 
         // Note that there are 4 color sensor objects. But the phone and hardware map only know about
         // one. That is because you are switching between them using the mux. I'm not sure if you could
@@ -84,25 +84,25 @@ public class TestAdafruitI2CMux4ColorSensors extends LinearOpMode {
 
         // connect only port 1. A color sensor (colorSensor2) has been wired to that port of the mux.
         mux.selectAndEnableAPort(AdafruitI2CMux.PortNumber.PORT1);
-        sleep(delayInMsec);
+        delay(delayInMsec);
         // create colorSensor2 and initialize it
         colorSensor2 = new AdafruitColorSensor(colorSensorName, coreDIMName, hardwareMap, CHANNEL_FOR_LED2);
-        sleep(delayInMsec);
+        delay(delayInMsec);
 
         // connect only port 2. A color sensor (colorSensor3) has been wired to that port of the mux.
         mux.selectAndEnableAPort(AdafruitI2CMux.PortNumber.PORT2);
-        sleep(delayInMsec);
+        delay(delayInMsec);
         // create colorSensor2 and initialize it
         colorSensor3 = new AdafruitColorSensor(colorSensorName, coreDIMName, hardwareMap, CHANNEL_FOR_LED3);
-        sleep(delayInMsec);
+        delay(delayInMsec);
 
 
         // connect only port 3. A color sensor (colorSensor4) has been wired to that port of the mux.
         mux.selectAndEnableAPort(AdafruitI2CMux.PortNumber.PORT3);
-        sleep(delayInMsec);
+        delay(delayInMsec);
         // create colorSensor2 and initialize it
         colorSensor4 = new AdafruitColorSensor(colorSensorName, coreDIMName, hardwareMap, CHANNEL_FOR_LED4);
-        sleep(delayInMsec);
+        delay(delayInMsec);
 
 
         // connect only port 0. A color sensor has been wired to that port.
@@ -193,5 +193,13 @@ public class TestAdafruitI2CMux4ColorSensors extends LinearOpMode {
         telemetry.addData(">", "Done");
         telemetry.update();
 
+    }
+
+    void delay(int ms) {
+        try {
+            Thread.sleep(ms);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 }
