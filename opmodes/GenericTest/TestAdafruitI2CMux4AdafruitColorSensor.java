@@ -25,7 +25,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitI2CMux;
  */
 @TeleOp(name = "Test Adafruit I2C Mux 4 Color Sensors", group = "Test")
 //@Disabled
-public class TestAdafruitI2CMux4ColorSensors extends LinearOpMode {
+public class TestAdafruitI2CMux4AdafruitColorSensor extends LinearOpMode {
 
     // Put your variable declarations here
     AdafruitI2CMux mux;
