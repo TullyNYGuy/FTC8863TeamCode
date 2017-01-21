@@ -204,11 +204,10 @@ public class AdafruitI2CMux {
         muxClient.write8(Register.CONTROL.byteVal, controlByte, WAIT_FOR_COMPLETION);
     }
 
-    // ARGH! For some reason reading from the device's register is forcing the mux to disable
-    // all ports. No clue why!
     /**
-     * Read from the control register
-     * @return contents of the control register
+     * Read what was last written to the control register. This does not read the control register
+     * itself. It returns the value that was written from a property in this class
+     * @return what was written to the control register last
      */
     private byte readMux() {
         // If I was going to read from the mux this is how.
@@ -219,6 +218,12 @@ public class AdafruitI2CMux {
         // the ports.
         return lastControlByte;
     }
+
+    // ARGH! For some reason reading from the device's register is forcing the mux to disable
+    // all ports. No clue why!
+//    private byte readControlRegister() {
+//        return muxClient.read8(Register.CONTROL.byteVal);
+//    }
 
 
     //*********************************************************************************************
