@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmodes.GenericTest;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitColorSensor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitI2CMux;
@@ -14,7 +15,6 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitI2CMux;
  * colorSensor2 - port 1
  * colorSensor3 - port 2
  * colorSensor4 - port 4
- * The gamepad will be used to switch between the 4 sensors.
  * The phone needs to be configured with an "I2C Device" on the core device interface module port
  * that the mux is connected to. The name of the mux is "mux".
  * It also needs an Adafruit Color Sensor configured on one of the other I2C ports of the core
@@ -22,8 +22,11 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitI2CMux;
  * "colorSensor". The type of sensor is "I2C Device".
  * Lastly, the core device interface module needs to be named "coreDIM" in your phone configuration.
  *
+ * You can test that that mux is switching by disconnecting the SDA and SCL pins from a color sensor.
+ * If it comes back with a failure on the port then you know the switching is working.
+ *
  */
-@TeleOp(name = "Test Adafruit I2C Mux 1 AdafruitColorSensor8863", group = "Test")
+@TeleOp(name = "Test Adafruit I2C Mux switching", group = "Test")
 //@Disabled
 public class TestAdafruitI2CMuxSwitchingWithAdafruitColorSensor8863 extends LinearOpMode {
 
@@ -37,26 +40,47 @@ public class TestAdafruitI2CMuxSwitchingWithAdafruitColorSensor8863 extends Line
     // A color sensor for use in testing the mux. This is my class and is wrapped around ColorSensor.
     // This class integrates both the color sensor and the led control using a discrete output port.
     AdafruitColorSensor8863 colorSensor1;
+    AdafruitColorSensor8863 colorSensor2;
+    AdafruitColorSensor8863 colorSensor3;
+    AdafruitColorSensor8863 colorSensor4;
 
     // The next variable will point to one of the two colorSensors above; the one that is active
     AdafruitColorSensor8863 activeColorSensor;
+
     // The name of the color sensor. This needs to be used when configuring the phone.
     String colorSensorName = "colorSensor";
 
     // The name of the core device interface module. This needs to be used when configuring the phone.
     String coreDIMName = "coreDIM";
 
-    // Connect the wires for the led from the color sensor board to the discrete output pin on
-    // channel of the core DIM listed below.
     final int CHANNEL_FOR_LED1 = 1;
+    final int CHANNEL_FOR_LED2 = 2;
+    final int CHANNEL_FOR_LED3 = 3;
+    final int CHANNEL_FOR_LED4 = 4;
 
-    boolean xButtonIsReleased = false;
-    boolean ledState = false;
+    // a timer for use in testing the switching
+    ElapsedTime timer;
 
-    int delayInMsec = 100;
+    // counters for failure and success
+    int shutOffFailureCount = 0;
+    int shutOffSuccessCount = 0;
+    int switchPort0FailureCount = 0;
+    int switchPort0SuccessCount = 0;
+
+    int timeBetweenSwitchesInMSec = 10;
+
+    int delayInMsec = 0;
+
+    String buffer;
+
+    // controls the number of color sensors attached to the mux. This can range from 1 to 4.
+    int numberOfColorSensors = 4;
 
     @Override
     public void runOpMode() {
+
+        // Create the timer
+        timer = new ElapsedTime();
 
         // Create an I2C mux and initialize it
         mux = new AdafruitI2CMux(hardwareMap, muxName, muxAddress);
@@ -72,62 +96,100 @@ public class TestAdafruitI2CMuxSwitchingWithAdafruitColorSensor8863 extends Line
         // of the time but not all.
         delay(delayInMsec);
 
-        // start off with the active colorSensor = colorSensor1
-        // This is used to point to one of the four color sensors; the one that is active
+        // report whether the color sensor id and data are valid
         activeColorSensor = colorSensor1;
+        reportColorSensorStatus(colorSensor1, "Color Sensor 1");
 
-        if (activeColorSensor.checkDeviceId()) {
-            telemetry.addData("Color Sensor 1 id is ", "ok");
-        } else {
-            telemetry.addData("Color Sensor 1 id is ", "BAD!");
+       if (numberOfColorSensors >= 2) {
+            // connect only port 1. A color sensor (colorSensor2) has been wired to that port of the mux.
+            mux.selectAndEnableAPort(AdafruitI2CMux.PortNumber.PORT1);
+            delay(delayInMsec);
+            // create colorSensor1 and initialize it
+            colorSensor2 = new AdafruitColorSensor8863(hardwareMap, colorSensorName, coreDIMName, CHANNEL_FOR_LED2);
+            // I'm having trouble with the color sensors getting initialized. A delay seem to help some
+            // of the time but not all.
+            delay(delayInMsec);
+
+            // report whether the color sensor id and data are valid
+            activeColorSensor = colorSensor2;
+            reportColorSensorStatus(colorSensor2, "Color Sensor 2");
         }
 
-        if (activeColorSensor.isDataValid()) {
-            telemetry.addData("Color Sensor 1 data ", "valid");
-        } else {
-            telemetry.addData("Color Sensor 1 data ", "NOT VALID!");
+        if (numberOfColorSensors >= 3) {
+            // connect only port 1. A color sensor (colorSensor2) has been wired to that port of the mux.
+            mux.selectAndEnableAPort(AdafruitI2CMux.PortNumber.PORT2);
+            delay(delayInMsec);
+            // create colorSensor1 and initialize it
+            colorSensor3 = new AdafruitColorSensor8863(hardwareMap, colorSensorName, coreDIMName, CHANNEL_FOR_LED3);
+            // I'm having trouble with the color sensors getting initialized. A delay seem to help some
+            // of the time but not all.
+            delay(delayInMsec);
+
+            // report whether the color sensor id and data are valid
+            activeColorSensor = colorSensor3;
+            reportColorSensorStatus(colorSensor3, "Color Sensor 3");
         }
+
+
+        if (numberOfColorSensors >= 4) {
+            // connect only port 1. A color sensor (colorSensor2) has been wired to that port of the mux.
+            mux.selectAndEnableAPort(AdafruitI2CMux.PortNumber.PORT3);
+            delay(delayInMsec);
+            // create colorSensor1 and initialize it
+            colorSensor4 = new AdafruitColorSensor8863(hardwareMap, colorSensorName, coreDIMName, CHANNEL_FOR_LED4);
+            // I'm having trouble with the color sensors getting initialized. A delay seem to help some
+            // of the time but not all.
+            delay(delayInMsec);
+
+            // report whether the color sensor id and data are valid
+            activeColorSensor = colorSensor4;
+            reportColorSensorStatus(colorSensor4, "Color Sensor 4");
+        }
+
         
         // Wait for the start button
         telemetry.addData(">", "Press Start to run" );
         telemetry.update();
         waitForStart();
 
+        timer.reset();
+
         // Put your calls here - they will not run in a loop
 
         while(opModeIsActive()) {
 
-            // Use gamepad X to toggle the led on or off
-            if (gamepad1.x) {
-                if (xButtonIsReleased) {
-                    if (!ledState) {
-                        // note the activeColorSensor points to the colorSensor object that is active
-                        activeColorSensor.turnLEDOn();
-                        ledState = true;
-                    } else {
-                        activeColorSensor.turnLEDOff();
-                        ledState = false;
-                    }
-                    xButtonIsReleased = false;
-                }
-            } else {
-                xButtonIsReleased = true;
-            }
-
-            // Use gamepad Y to select the color sensor on port 0
-            if (gamepad1.y) {
-                mux.selectAndEnableAPort(AdafruitI2CMux.PortNumber.PORT0);
-                activeColorSensor = colorSensor1;
-            }
-
-            // Use gamepad right bumper to disable all ports
-            if (gamepad1.right_bumper) {
+            if (timer.milliseconds() > timeBetweenSwitchesInMSec) {
+                // switch all of the ports off
                 mux.disablePorts();
+                // check to see the color sensor is not responding
+                if (activeColorSensor.checkDeviceId()) {
+                    // uh oh the color sensor responded
+                    shutOffFailureCount++;
+                } else {
+                    // it worked - no response from the color sensor
+                    shutOffSuccessCount++;
+                }
+
+                // switch to port 0
+                mux.selectAndEnableAPort(AdafruitI2CMux.PortNumber.PORT0);
+                // check to see the color sensor is responding
+                if (activeColorSensor.checkDeviceId()) {
+                    // Yes! - the color sensor responded
+                    switchPort0SuccessCount++;
+                } else {
+                    // uh oh - no response from the color sensor
+                    switchPort0FailureCount++;
+                }
+                // reset the timer
+                timer.reset();
             }
 
             // Display the current values from the sensor
-            telemetry.addData("Port = ", mux.getActivePortAsString());
-            activeColorSensor.displayColorSensorData(telemetry);
+            buffer = shutOffSuccessCount + "/" +shutOffFailureCount;
+            telemetry.addData("Ports off success / failure = ", buffer);
+            buffer = switchPort0SuccessCount + "/" + switchPort0FailureCount;
+            telemetry.addData("Port 0 success / failure = ", buffer);
+            telemetry.update();
 
             idle();
         }
@@ -137,6 +199,22 @@ public class TestAdafruitI2CMuxSwitchingWithAdafruitColorSensor8863 extends Line
         telemetry.addData(">", "Done");
         telemetry.update();
 
+    }
+
+    private void reportColorSensorStatus(AdafruitColorSensor8863 colorSensor, String colorSensorString) {
+        String buffer = colorSensorString + " device id is ";
+        if (colorSensor.checkDeviceId()) {
+            telemetry.addData(buffer, "ok");
+        } else {
+            telemetry.addData(buffer, "BAD!");
+        }
+
+        buffer = colorSensorString + " data is ";
+        if (colorSensor.isDataValid()) {
+            telemetry.addData(buffer, "valid");
+        } else {
+            telemetry.addData(buffer, "NOT VALID!");
+        }
     }
 
     void delay(int ms) {
