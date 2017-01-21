@@ -494,10 +494,20 @@ public class AdafruitColorSensor8863 {
     /**
      * Verify that that's a color sensor!
      */
-    private boolean checkDeviceId() {
+    public boolean checkDeviceId() {
         byte id = this.getDeviceID();
         if ((id != parameters.getDeviceId())) {
             RobotLog.e("unexpected AMS color sensor chipid: found=%d expected=%d", id, parameters.getDeviceId());
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    public boolean isDataValid() {
+        if (redScaled() == 0 && blueScaled() == 0 && greenScaled() == 0) {
+            // They can't all be 0 if  the device is connected properly and initialized properly
+            // Odds are there is something wrong
             return false;
         } else {
             return true;
