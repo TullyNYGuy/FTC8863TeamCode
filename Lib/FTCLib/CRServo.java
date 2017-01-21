@@ -58,7 +58,7 @@ public class CRServo {
         BACKWARD
     }
 
-    private enum CRServoState {
+    public enum CRServoState {
         BACK_AT_SWITCH,
         BACK_AT_POSITION,
         MOVING_BACK_TO_SWITCH,
@@ -156,8 +156,8 @@ public class CRServo {
     private double currentCommand = 0;
     private double commandIncrement;
     private CRServoState currentState = CRServoState.BACK_AT_SWITCH;
-    private Switch frontSwitch;
-    private Switch backSwitch;
+    public Switch frontSwitch;
+    public Switch backSwitch;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -460,18 +460,20 @@ public class CRServo {
     }
 
     public boolean updateMoveUntilLimitSwitch() {
-        if (frontSwitch.isPressed() && directionToMove == CRServoDirection.FORWARD) {
+        if (backSwitch.isPressed() && directionToMove == CRServoDirection.FORWARD) {
             setSpeed(0);
             return true;
         }
-        if (backSwitch.isPressed() && directionToMove == CRServoDirection.BACKWARD) {
+        if (frontSwitch.isPressed() && directionToMove == CRServoDirection.BACKWARD) {
             setSpeed(0);
             return true;
         }
         return false;
     }
 
-    public void update() {
+    public CRServoState update() {
+        frontSwitch.updateSwitch();
+        backSwitch.updateSwitch();
         switch (currentState) {
             case BACK_AT_POSITION:
                 setSpeed(0);
@@ -483,7 +485,7 @@ public class CRServo {
                 if (updateMoveDistance()) {
                     currentState = CRServoState.BACK_AT_POSITION;
                 }
-                if (updateMoveUntilLimitSwitch()){
+                if (updateMoveUntilLimitSwitch()) {
                     currentState = CRServoState.BACK_AT_SWITCH;
                 }
                 break;
@@ -512,6 +514,7 @@ public class CRServo {
                 setSpeed(0);
                 break;
         }
+        return currentState;
     }
 
     //  public void updatePosition(double throttle) {

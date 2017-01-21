@@ -45,7 +45,7 @@ public class FrontBeaconPusher {
     private double frontRightServoCenterValueReverse = .5;
     private double deadband = .1;
 
-    private AdafruitColorSensor8863 rightColorSensor;
+   // private AdafruitColorSensor8863 rightColorSensor;
 
     private double pusherMidPoint = 3.2; //measured in cm using the robot
 
