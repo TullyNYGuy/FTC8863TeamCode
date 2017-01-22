@@ -75,18 +75,7 @@ public class TestAdafruitI2CMux1AdafruitColorSensor8863 extends LinearOpMode {
         // start off with the active colorSensor = colorSensor1
         // This is used to point to one of the four color sensors; the one that is active
         activeColorSensor = colorSensor1;
-
-        if (activeColorSensor.checkDeviceId()) {
-            telemetry.addData("Color Sensor 1 id is ", "ok");
-        } else {
-            telemetry.addData("Color Sensor 1 id is ", "BAD!");
-        }
-
-        if (activeColorSensor.isDataValid()) {
-            telemetry.addData("Color Sensor 1 data ", "valid");
-        } else {
-            telemetry.addData("Color Sensor 1 data ", "NOT VALID!");
-        }
+        activeColorSensor.reportStatus("Color Sensor 1", telemetry);
         
         // Wait for the start button
         telemetry.addData(">", "Press Start to run" );
@@ -127,6 +116,7 @@ public class TestAdafruitI2CMux1AdafruitColorSensor8863 extends LinearOpMode {
 
             // Display the current values from the sensor
             telemetry.addData("Port = ", mux.getActivePortAsString());
+            activeColorSensor.reportStatus("Color Sensor 1", telemetry);
             activeColorSensor.displayColorSensorData(telemetry);
 
             idle();
