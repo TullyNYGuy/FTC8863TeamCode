@@ -289,7 +289,7 @@ public class AdafruitColorSensor8863 {
     // Clear, red, green and blue data is stored as 16 bit values. To ensure the data is read
     // correctly, a two-byte read I2C transaction should be used with a read word protocol bit set
     // in the command register. With this operation, when the lower byte register is read, the
-    // upper eight bits are stred into a shadow register, which is read by a subsequent read to the
+    // upper eight bits are stored into a shadow register, which is read by a subsequent read to the
     // upper byte. The upper register will read the correct value even if additional ADC integration
     // cycles end between the reading of the lower and upper bytes.
     // see below for detailed addressing
@@ -354,11 +354,6 @@ public class AdafruitColorSensor8863 {
     private ElapsedTime updateTimer;
     private int lastAlpha = 0;
     private StatTracker updateTimeTracker;
-
-    /**
-     * For putting test data out to the driver station
-     */
-    private Telemetry telemetry;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -505,13 +500,39 @@ public class AdafruitColorSensor8863 {
     }
 
     public boolean isDataValid() {
-        if (redScaled() == 0 && blueScaled() == 0 && greenScaled() == 0) {
+        int red = redScaled();
+        int blue = blueScaled();
+        int green = greenScaled();
+        boolean result = true;
+        if (red == 0 && blue == 0 && green == 0) {
             // They can't all be 0 if  the device is connected properly and initialized properly
             // Odds are there is something wrong
-            return false;
-        } else {
-            return true;
+            result = false;
         }
+        if (red == blue && red == green) {
+            // It would be extremely unlikely that the values would all be equal to each other
+            // Most likely the sensor is not responding
+            result = false;
+        }
+        return result;
+    }
+
+    public void reportStatus(String colorSensorName, Telemetry telemetry) {
+        String buffer = colorSensorName + " device id is ";
+        if (checkDeviceId()) {
+            telemetry.addData(buffer, "ok");
+        } else {
+            telemetry.addData(buffer, "BAD!");
+        }
+
+        buffer = colorSensorName + " data is ";
+        if (isDataValid()) {
+            buffer = buffer +"valid ";
+        } else {
+            buffer = buffer + "NOT VALID ";
+        }
+        buffer = buffer + " " + redScaled() + "/" + greenScaled() + "/" + greenScaled();
+        telemetry.addData(buffer, "!");
     }
 
     private synchronized void enable() {
@@ -919,7 +940,6 @@ public class AdafruitColorSensor8863 {
     //*********************************************************************************************
 
     public void displayColorSensorData(Telemetry telemetry) {
-        this.telemetry = telemetry;
         telemetry.addData("Color sensor gain = ", getCurrentGainAsString());
         telemetry.addData("Color sensor integration time = ", getCurrentIntegrationTimeAsString());
         telemetry.addData("Max possible color value = ", getMaxRGBCValue());
