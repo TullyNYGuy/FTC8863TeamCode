@@ -20,6 +20,10 @@ public class VelocityVortexRobot {
         TELEOP
     }
 
+    public enum AllianceColor {
+        BLUE,
+        RED
+    }
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS
     //
@@ -59,7 +63,7 @@ public class VelocityVortexRobot {
             driveTrain = DriveTrain.DriveTrainTeleOp(hardwareMap, telemetry);
         }
         sweeper = new VelocityVortexSweeper(hardwareMap);
-        rightSideBeaconPusher = new SideBeaconPusher(hardwareMap, telemetry);
+        rightSideBeaconPusher = new SideBeaconPusher(hardwareMap, telemetry, driveTrain, SideBeaconPusher.SideBeaconPusherPosition.RIGHT);
         init();
     }
 
