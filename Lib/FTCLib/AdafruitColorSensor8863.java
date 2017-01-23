@@ -531,7 +531,7 @@ public class AdafruitColorSensor8863 {
         } else {
             buffer = buffer + "NOT VALID ";
         }
-        buffer = buffer + " " + redScaled() + "/" + greenScaled() + "/" + greenScaled();
+        buffer = buffer + " " + redScaled() + "/" + greenScaled() + "/" + blueScaled();
         telemetry.addData(buffer, "!");
     }
 
@@ -660,6 +660,14 @@ public class AdafruitColorSensor8863 {
             // the led is on so it makes sense to turn it off
             this.ledOn = false;
             coreDIM.setDigitalChannelState(ioChannelForLed, ledOn);
+        }
+    }
+
+    public void toggleLED() {
+        if (this.ledOn) {
+            turnLEDOff();
+        } else {
+            turnLEDOn();
         }
     }
 

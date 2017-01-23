@@ -34,7 +34,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitI2CMux;
  * to talk to. I'm not sure I understand why. You think you could switch between objects freely.
  * I'm guessing there must be something in the way the hardware map and the objects it creates that
  * causes this issue.
- *
+ * <p>
  * IMPORTANT NOTE: this is the potential to lead to bugs. For example, set the mux port to 0 so you
  * are talking to color sensor 1. Set the gain to 64x. Now switch to mux port 1 so you are talking
  * to color sensor 2. Set the gain to 4x. Now switch back to port 0 so you are talking to color
@@ -79,12 +79,12 @@ public class TestAdafruitI2CMux4AdafruitColorSensor8863 extends LinearOpMode {
 
     // Connect the wires for the led from the color sensor board to the discrete output pin on
     // channel of the core DIM listed below.
-    final int CHANNEL_FOR_LED1 = 1;
-    final int CHANNEL_FOR_LED2 = 2;
-    final int CHANNEL_FOR_LED3 = 3;
-    final int CHANNEL_FOR_LED4 = 4;
+    final int CHANNEL_FOR_LED1 = 0;
+    final int CHANNEL_FOR_LED2 = 1;
+    final int CHANNEL_FOR_LED3 = 2;
+    final int CHANNEL_FOR_LED4 = 3;
 
-    boolean xButtonIsReleased = false;
+    boolean leftBumperIsReleased = false;
     boolean ledState = false;
 
     int delayInMsec = 100;
@@ -158,21 +158,15 @@ public class TestAdafruitI2CMux4AdafruitColorSensor8863 extends LinearOpMode {
         while (opModeIsActive()) {
 
             // Use gamepad X to toggle the led on or off
-            if (gamepad1.x) {
-                if (xButtonIsReleased) {
-                    if (!ledState) {
-                        // note the actualColorSensor points to the colorSensor object that is really
-                        // being used, not one that is used for communication
-                        actualColorSensor.turnLEDOn();
-                        ledState = true;
-                    } else {
-                        actualColorSensor.turnLEDOff();
-                        ledState = false;
-                    }
-                    xButtonIsReleased = false;
+            if (gamepad1.left_bumper) {
+                if (leftBumperIsReleased) {
+                    // note the actualColorSensor points to the colorSensor object that is really
+                    // being used, not one that is used for communication
+                    actualColorSensor.toggleLED();
+                    leftBumperIsReleased = false;
                 }
             } else {
-                xButtonIsReleased = true;
+                leftBumperIsReleased = true;
             }
 
             // Use gamepad Y to select the color sensor on port 0
