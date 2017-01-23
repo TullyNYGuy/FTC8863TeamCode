@@ -515,6 +515,22 @@ public class CRServo {
         return currentState;
     }
 
+    public boolean isAtPosition() {
+        if (currentState == CRServoState.FORWARD_AT_POSITION || currentState == CRServoState.BACK_AT_POSITION) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean isMovingToPosition() {
+        if (currentState == CRServoState.MOVING_FORWARD_TO_POSITION || currentState == CRServoState.MOVING_BACK_TO_POSITION) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     //  public void updatePosition(double throttle) {
     // this is just a place holder method to avoid having to change DeliveryBox
     // delete it later
