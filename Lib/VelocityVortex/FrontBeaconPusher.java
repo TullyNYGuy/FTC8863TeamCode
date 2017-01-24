@@ -32,6 +32,11 @@ public class FrontBeaconPusher {
         MOVING_TO_BOTH_FORWARD;
     }
 
+    public enum BeaconColor {
+        BLUE_RED,
+        RED_BLUE
+    }
+
 
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS
@@ -121,7 +126,7 @@ public class FrontBeaconPusher {
         updateState();
     }
 
-    public void moveLeftPusherMidwayRightPusherMidway() {
+    public void moveBothMidway() {
         // first I am assuming that the pusher is in one of three places when this command is
         // issued: forward at the switch, back at switch, or in the middle already.
         // I cannot handle the situation where the pusher is already moving because I don't know
@@ -135,6 +140,10 @@ public class FrontBeaconPusher {
             beaconPusherState = BeaconPusherState.MOVING_TO_BOTH_MIDDLE;
         }
         updateState();
+    }
+
+    public BeaconColor getBeaconColor() {
+        return BeaconColor.RED_BLUE
     }
 
     private BeaconPusherState updateState() {
@@ -173,7 +182,7 @@ public class FrontBeaconPusher {
                 // do nothing - until someone issues a command
                 break;
             case MOVING_TO_BOTH_MIDDLE:
-                // if already at middle then do nothing, and move the state
+                // if already at middle then do nothing and move the state
                 if (leftCRServo.isAtPosition() && rightCRServo.isAtPosition() ) {
                     beaconPusherState = BeaconPusherState.BOTH_MIDDLE;
                 } else {
