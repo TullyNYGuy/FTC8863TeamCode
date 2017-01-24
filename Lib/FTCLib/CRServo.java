@@ -218,13 +218,12 @@ public class CRServo {
                    String frontSwitchName, Switch.SwitchType frontSwitchType,
                    String backSwitchName, Switch.SwitchType backSwitchType,
                    Telemetry telemetry) {
+        // create the switch objects
+        frontSwitch = new Switch(hardwareMap, frontSwitchName, frontSwitchType);
+        backSwitch = new Switch(hardwareMap, backSwitchName, backSwitchType);
 
         initialize(servoName, hardwareMap, centerValueForward, centerValueReverse, deadBandRange,
                 direction, telemetry);
-        // check to see if the servo is against the limit switches in order to initialize the state
-
-        frontSwitch = new Switch(hardwareMap, frontSwitchName, frontSwitchType);
-        backSwitch = new Switch(hardwareMap, backSwitchName, backSwitchType);
     }
 
     private void initialize(String servoName, HardwareMap hardwareMap, double centerValueForward,
@@ -244,6 +243,8 @@ public class CRServo {
         // starts to move at init.
         delay(100);
         crServo.setPosition(centerValue);
+        // check to see if the servo is against the limit switches in order to initialize the state
+        currentState = findCRServoState();
     }
 
 
