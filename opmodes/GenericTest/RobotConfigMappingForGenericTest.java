@@ -112,11 +112,11 @@ public class RobotConfigMappingForGenericTest {
         return leftBackLimitSwitch;
     }
     
-        public static String getFrontLeftBeaconServo() {
+    public static String getFrontLeftBeaconServoName() {
         return frontLeftBeaconServo;
     }
 
-    public static String getFrontRightBeaconServo() {
+    public static String getFrontRightBeaconServoName() {
         return frontRightBeaconServo;
     }
 

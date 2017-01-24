@@ -89,6 +89,7 @@ public class FrontBeaconPusherControl {
             case RIGHT_BACK_LEFT_FORWARD:
                 break;
         }
+        return frontBeaconControlState;
     }
 
 }

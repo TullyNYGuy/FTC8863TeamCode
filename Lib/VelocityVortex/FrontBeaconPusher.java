@@ -59,7 +59,7 @@ public class FrontBeaconPusher {
 
     private boolean complete = false;
 
-    private AdafruitColorSensor8863 rightColorSensor;
+    //private AdafruitColorSensor8863 rightColorSensor;
 
     private double pusherMidPoint = 3.2; //measured in cm using the robot
 
@@ -104,6 +104,10 @@ public class FrontBeaconPusher {
     // public methods that give the class its functionality
     //*********************************************************************************************
 
+    public BeaconColor getBeaconColor() {
+        return BeaconColor.RED_BLUE;
+    }
+
     public void moveBothPushersBack() {
         // change the state
         beaconPusherState = BeaconPusherState.MOVING_TO_BOTH_BACK;
@@ -117,7 +121,7 @@ public class FrontBeaconPusher {
     }
 
     public void moveLeftPusherForwardRightPusherBack() {
-        beaconPusherState = BeaconPusherState.MOVING_TO_LEFT_FORWARD_RIGHT_BACK
+        beaconPusherState = BeaconPusherState.MOVING_TO_LEFT_FORWARD_RIGHT_BACK;
         updateState();
     }
 
@@ -127,23 +131,18 @@ public class FrontBeaconPusher {
     }
 
     public void moveBothMidway() {
-        // first I am assuming that the pusher is in one of three places when this command is
+        // first I am assuming that both of the pushers are in one of three places when this command is
         // issued: forward at the switch, back at switch, or in the middle already.
         // I cannot handle the situation where the pusher is already moving because I don't know
         // its location. Without knowing its location there is no way to tell how to move it to the
-        // middle. So I lock out this command unless the pusher is in one of the three positions.
-        if (beaconPusherState == BeaconPusherState.BOTH_BACK ||
-                beaconPusherState == BeaconPusherState.BOTH_FORWARD ||
-                beaconPusherState == BeaconPusherState.BOTH_MIDDLE) {
+        // middle. So I lock out this command unless the pusher is in one of the three positions, in
+        // other words if it is not moving.
+        if (isStationary()) {
             // we are ok to start a move
             lastBeaconPusherState = beaconPusherState;
             beaconPusherState = BeaconPusherState.MOVING_TO_BOTH_MIDDLE;
         }
         updateState();
-    }
-
-    public BeaconColor getBeaconColor() {
-        return BeaconColor.RED_BLUE
     }
 
     private BeaconPusherState updateState() {
@@ -182,20 +181,27 @@ public class FrontBeaconPusher {
                 // do nothing - until someone issues a command
                 break;
             case MOVING_TO_BOTH_MIDDLE:
-                // if already at middle then do nothing and move the state
+                // if both servos are at the destination then change the state
                 if (leftCRServo.isAtPosition() && rightCRServo.isAtPosition() ) {
                     beaconPusherState = BeaconPusherState.BOTH_MIDDLE;
                 } else {
                     // if the left servo is not at the middle and is not moving already then start it
                     // moving.
-                    if (!leftCRServo.isAtPosition() && !leftCRServo.isMovingToPosition()) {
-
+                    if (leftCRServoState == CRServo.CRServoState.BACK_AT_SWITCH) {
+                        leftCRServo.startMoveDistance(pusherMidPoint, CRServo.CRServoDirection.FORWARD);
+                    }
+                    if (leftCRServoState == CRServo.CRServoState.FORWARD_AT_SWITCH) {
+                        leftCRServo.startMoveDistance(pusherMidPoint, CRServo.CRServoDirection.BACKWARD);
+                    }
+                    // if the right servo is not at the middle and is not moving already the start it
+                    // moving.
+                    if (rightCRServoState == CRServo.CRServoState.BACK_AT_SWITCH) {
+                        rightCRServo.startMoveDistance(pusherMidPoint, CRServo.CRServoDirection.FORWARD);
+                    }
+                    if (rightCRServoState == CRServo.CRServoState.FORWARD_AT_SWITCH) {
+                        rightCRServo.startMoveDistance(pusherMidPoint, CRServo.CRServoDirection.BACKWARD);
                     }
                 }
-
-
-                // if the right servo is not at the middle and is not moving already the start it
-                // moving.
                 // the only other possibility is that the servos are moving. IN that case just
                 // do nothing until they finish moving. Could put a timer here to check to see
                 // if they have been moving too long which would mean something is wrong.
@@ -282,6 +288,30 @@ public class FrontBeaconPusher {
                 break;
         }
         return beaconPusherState;
+    }
+
+    public boolean isMoving() {
+        if (beaconPusherState == BeaconPusherState.MOVING_TO_BOTH_MIDDLE ||
+                beaconPusherState == BeaconPusherState.MOVING_TO_BOTH_BACK ||
+                beaconPusherState == BeaconPusherState.MOVING_TO_BOTH_FORWARD ||
+                beaconPusherState == BeaconPusherState.MOVING_TO_LEFT_BACK_RIGHT_FORWARD ||
+                beaconPusherState == BeaconPusherState.MOVING_TO_LEFT_FORWARD_RIGHT_BACK) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean isStationary() {
+        if (beaconPusherState == BeaconPusherState.BOTH_MIDDLE ||
+                beaconPusherState == BeaconPusherState.BOTH_FORWARD ||
+                beaconPusherState == BeaconPusherState.BOTH_BACK ||
+                beaconPusherState == BeaconPusherState.LEFT_BACK_RIGHT_FORWARD ||
+                beaconPusherState == BeaconPusherState.LEFT_FORWARD_RIGHT_BACK) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
 }
