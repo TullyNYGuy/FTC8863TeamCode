@@ -79,10 +79,16 @@ public class FrontBeaconPusher {
     public FrontBeaconPusher(HardwareMap hardwareMap, Telemetry telemetry, MuxPlusColorSensors muxPlusColorSensors) {
         leftCRServo = new CRServo(RobotConfigMappingForGenericTest.getFrontLeftBeaconServoName(),
                 hardwareMap, frontLeftServoNoMovePositionForward, frontLeftServoNoMovePositionReverse,
-                deadband, Servo.Direction.FORWARD, telemetry);
+                deadband, Servo.Direction.FORWARD,
+                RobotConfigMappingForGenericTest.getLeftFrontLimitSwitchName(), Switch.SwitchType.NORMALLY_OPEN,
+                RobotConfigMappingForGenericTest.getLeftBackLimitSwitchName(), Switch.SwitchType.NORMALLY_OPEN,
+                telemetry);
         rightCRServo = new CRServo(RobotConfigMappingForGenericTest.getFrontRightBeaconServoName(),
                 hardwareMap, frontRightServoNoMovePositionForward, frontRightServoNoMovePositionReverse,
-                deadband, Servo.Direction.REVERSE, telemetry);
+                deadband, Servo.Direction.REVERSE,
+                RobotConfigMappingForGenericTest.getRightFrontLimitSwitchName(), Switch.SwitchType.NORMALLY_OPEN,
+                RobotConfigMappingForGenericTest.getRightBackLimitSwitchName(), Switch.SwitchType.NORMALLY_OPEN,
+                telemetry);
         initialize();
         this.muxPlusColorSensors = muxPlusColorSensors;
     }
@@ -99,8 +105,8 @@ public class FrontBeaconPusher {
         // switches are hit. NEED TO FIND A SOLUTION!
         beaconPusherState = findBeaconPusherState();
         if (beaconPusherState == BeaconPusherState.UNKNOWN) {
-            moveBothPushersBack();
-            updateState();
+            //moveBothPushersBack();
+            //updateState();
         }
     }
 
