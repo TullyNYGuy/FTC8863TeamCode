@@ -517,6 +517,26 @@ public class CRServo {
         return currentState;
     }
 
+    /**
+     * When the state of the CRServo is unknown, like when it is constucted, we need to try to
+     * determine the state as best we can. We are assuming that the servo is not moving.
+     * @return
+     */
+    public CRServoState findCRServoState() {
+        CRServoState result;
+        // Check the switches first to see if it is at a limit switch
+        if (frontSwitch.isPressed()) {
+            return CRServoState.FORWARD_AT_SWITCH;
+        }
+        if (backSwitch.isPressed()) {
+            return CRServoState.BACK_AT_SWITCH;
+        }
+        // since I am assuming it is not moving, the only other options are FORWARD_AT_POSITION
+        // and BACK_AT_POSITION. It does not really matter which one since the only difference
+        // between the two is how it got to the position. Pick one.
+        return CRServoState.FORWARD_AT_POSITION;
+    }
+
     public boolean isAtPosition() {
         if (currentState == CRServoState.FORWARD_AT_POSITION || currentState == CRServoState.BACK_AT_POSITION) {
             return true;
@@ -531,11 +551,5 @@ public class CRServo {
         } else {
             return false;
         }
-        return currentState;
     }
-
-    //  public void updatePosition(double throttle) {
-    // this is just a place holder method to avoid having to change DeliveryBox
-    // delete it later
-    //   }
 }

@@ -28,7 +28,8 @@ public class FrontBeaconPusher {
         LEFT_FORWARD_RIGHT_BACK,
         MOVING_TO_LEFT_FORWARD_RIGHT_BACK,
         BOTH_FORWARD,
-        MOVING_TO_BOTH_FORWARD;
+        MOVING_TO_BOTH_FORWARD,
+        UNKNOWN;
     }
 
     public enum BeaconColor {
@@ -50,10 +51,10 @@ public class FrontBeaconPusher {
     private CRServo leftCRServo;
     private CRServo rightCRServo;
 
-    private double frontLeftServoCenterValueForward = .5;
-    private double frontLeftServoCenterValueReverse = .5;
-    private double frontRightServoCenterValueForward = .5;
-    private double frontRightServoCenterValueReverse = .5;
+    private double frontLeftServoNoMovePositionForward = .51;
+    private double frontLeftServoNoMovePositionReverse = .48;
+    private double frontRightServoNoMovePositionForward = .51;
+    private double frontRightServoNoMovePositionReverse = .48;
     private double deadband = .1;
 
    // private AdafruitColorSensor8863 rightColorSensor;
@@ -77,14 +78,30 @@ public class FrontBeaconPusher {
 
     public FrontBeaconPusher(HardwareMap hardwareMap, Telemetry telemetry) {
         leftCRServo = new CRServo(RobotConfigMappingForGenericTest.getFrontLeftBeaconServoName(),
-                hardwareMap, frontLeftServoCenterValueForward, frontLeftServoCenterValueReverse,
+                hardwareMap, frontLeftServoNoMovePositionForward, frontLeftServoNoMovePositionReverse,
                 deadband, Servo.Direction.FORWARD, telemetry);
         rightCRServo = new CRServo(RobotConfigMappingForGenericTest.getFrontRightBeaconServoName(),
-                hardwareMap, frontRightServoCenterValueForward, frontRightServoCenterValueReverse,
+                hardwareMap, frontRightServoNoMovePositionForward, frontRightServoNoMovePositionReverse,
                 deadband, Servo.Direction.REVERSE, telemetry);
+        initialize();
         // add the creation of color sensor object
         // check the positions and make sure that the pushers are both back against the limit
         // switches
+    }
+
+    private void initialize() {
+        // set the rate of speed for each servo and direction
+        leftCRServo.setForwardCMPerSecond(2.96);
+        leftCRServo.setBackwardCMPerSecond(3.21);
+        rightCRServo.setForwardCMPerSecond(1.90);
+        rightCRServo.setBackwardCMPerSecond(2.07);
+
+        // determine the current state and if it is not known, put it into the default state
+        beaconPusherState = findBeaconPusherState();
+        if (beaconPusherState == BeaconPusherState.UNKNOWN) {
+            moveBothPushersBack();
+            updateState();
+        }
     }
 
 
@@ -103,6 +120,46 @@ public class FrontBeaconPusher {
 
     public BeaconColor getBeaconColor() {
         return BeaconColor.RED_BLUE;
+    }
+
+    /**
+     * This method will try to determine what the current state of the pushers is when we don't
+     * know what it is. This will be called from initialize and hopefully never again.
+     * @return current state of the pushers
+     */
+    private BeaconPusherState findBeaconPusherState() {
+        CRServo.CRServoState leftCRServoState = leftCRServo.findCRServoState();
+        CRServo.CRServoState rightCRServoState = rightCRServo.findCRServoState();
+        // check the limit switches first
+        if (leftCRServoState == CRServo.CRServoState.FORWARD_AT_SWITCH &&
+                rightCRServoState == CRServo.CRServoState.FORWARD_AT_SWITCH) {
+            return BeaconPusherState.BOTH_FORWARD;
+        }
+        if (leftCRServoState == CRServo.CRServoState.BACK_AT_SWITCH &&
+                rightCRServoState == CRServo.CRServoState.BACK_AT_SWITCH) {
+            return BeaconPusherState.BOTH_BACK;
+        }
+        if (leftCRServoState == CRServo.CRServoState.FORWARD_AT_SWITCH &&
+                rightCRServoState == CRServo.CRServoState.BACK_AT_SWITCH) {
+            return BeaconPusherState.LEFT_FORWARD_RIGHT_BACK;
+        }
+        if (leftCRServoState == CRServo.CRServoState.BACK_AT_SWITCH &&
+                rightCRServoState == CRServo.CRServoState.FORWARD_AT_SWITCH) {
+            return BeaconPusherState.LEFT_BACK_RIGHT_FORWARD;
+        }
+        // if both servos are at a position between the limit switches, assume that they are at
+        // the middle
+        if ((leftCRServoState == CRServo.CRServoState.FORWARD_AT_POSITION ||
+                leftCRServoState == CRServo.CRServoState.BACK_AT_POSITION) &&
+                (rightCRServoState == CRServo.CRServoState.FORWARD_AT_POSITION ||
+                rightCRServoState == CRServo.CRServoState.BACK_AT_POSITION)) {
+            return BeaconPusherState.BOTH_MIDDLE;
+        }
+        // if the states are any of these, then they are not really valid
+        // left = XX_AT_POSITION, right = XX_AT_SWITCH
+        // left = XX_AT_SWITCH, right = XX_AT_POSITION
+        // left = MOVING_XX, right = MOVING_XX
+        return BeaconPusherState.UNKNOWN;
     }
 
     public void moveBothPushersBack() {
