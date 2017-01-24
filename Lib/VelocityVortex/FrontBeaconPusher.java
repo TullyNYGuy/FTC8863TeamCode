@@ -131,7 +131,8 @@ public class FrontBeaconPusher {
      * know what it is. This will be called from initialize and hopefully never again.
      * @return current state of the pushers
      */
-    private BeaconPusherState findBeaconPusherState() {
+    // NEED TO CHANGE BACK TO PRIVATE
+    public BeaconPusherState findBeaconPusherState() {
         CRServo.CRServoState leftCRServoState = leftCRServo.findCRServoState();
         CRServo.CRServoState rightCRServoState = rightCRServo.findCRServoState();
         // check the limit switches first
@@ -204,7 +205,7 @@ public class FrontBeaconPusher {
     }
 
     // NEED TO HANLDE UNKNOWN STATE IN EACH STATE SO THE PUSHERS CAN BE PUT INTO KNOWN STATES
-    private BeaconPusherState updateState() {
+    public BeaconPusherState updateState() {
         CRServo.CRServoState leftCRServoState;
         CRServo.CRServoState rightCRServoState;
         leftCRServoState = leftCRServo.update();

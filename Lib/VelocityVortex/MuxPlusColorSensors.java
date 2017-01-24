@@ -46,6 +46,8 @@ public class MuxPlusColorSensors {
 
     private AdafruitI2CMux.PortNumber currentPort;
 
+    private Telemetry telemetry;
+
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -107,6 +109,8 @@ public class MuxPlusColorSensors {
             activeColorSensor.reportStatus("front right beacon color sensor", telemetry);
         }
         activeColorSensor.turnLEDOff();
+
+        this.telemetry = telemetry;
     }
 
 
@@ -158,6 +162,16 @@ public class MuxPlusColorSensors {
     public boolean leftSideBeaconPusherColorSensorIsRed() {
         setPort(leftSideBeaconPusherColorSensorPort);
         return activeColorSensor.isBlueUsingRGB();
+    }
+
+    public void displayAllColorResults() {
+        telemetry.addData("Front right blue = ", frontRightBeaconPusherColorSensorIsBlue());
+        telemetry.addData("Front right red = ", frontRightBeaconPusherColorSensorIsRed());
+        telemetry.addData("Right side blue = ", rightSideBeaconPusherColorSensorIsBlue());
+        telemetry.addData("Right side red = ", rightSideBeaconPusherColorSensorIsRed());
+        telemetry.addData("Left side blue = ", leftSideBeaconPusherColorSensorIsBlue());
+        telemetry.addData("Left side blue = ", leftSideBeaconPusherColorSensorIsBlue());
+        telemetry.update();
     }
 
 }
