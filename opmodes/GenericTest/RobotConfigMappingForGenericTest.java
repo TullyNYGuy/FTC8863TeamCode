@@ -43,28 +43,44 @@ public class RobotConfigMappingForGenericTest {
     private static String IMUName = "IMU";
 
     // left and right servos for front beacon pusher
+
+    // Core DIM servo controller port 5, configure as Servo
     private static String frontLeftBeaconServo = "frontLeftBeaconServo";
+    // Core DIM servo controller port 6, configure as Servo
     private static String frontRightBeaconServo = "frontRightBeaconServo";
 
     //front beacon pushers
-    // port 0
+
+    // Core DIM module Digital port 0
     private static String rightFrontLimitSwitch = "rightFrontSwitch";
-    // port 2
-    private static String leftFrontLimitSwitch = "leftFrontSwitch";
-    // port 1
+    // Core DIM module Digital port 1
     private static String rightBackLimitSwitch = "rightBackSwitch";
-    // port 3
+    // Core DIM module Digital port 2
+    private static String leftFrontLimitSwitch = "leftFrontSwitch";
+    // Core DIM module Digital port 3
     private static String leftBackLimitSwitch = "leftBackSwitch";
 
     // Color Sensors and mux
+
+    // mux
+    // Core DIM I2C port 0, configure as I2C Device
     private static String muxName = "mux";
     private static byte muxAddress = 0x70;
+
+    // color sensors
     // Even though there are multiple color sensors we only need 1 name since the mux makes it look
     // like there is only 1 color sensor attached to the core DIM
+
+    // Core DIM I2C Port 1, configure as I2C Device
     private static String adafruitColorSensorName = "colorSensor";
-    private static int frontBeaconPusherRightColorSensorLEDPort = 0;
-    private static int rightBeaconPusherColorSensorLEDPort = 1;
-    private static int leftBeaconPusherColorSensorLEDPort = 2;
+    // LED ports for the color sensors
+    // Core DIM module Digital port 4
+    private static int frontBeaconPusherRightColorSensorLEDPort = 4;
+    // Core DIM module Digital port 5
+    private static int rightBeaconPusherColorSensorLEDPort = 5;
+    // Core DIM module Digital port 6
+    private static int leftBeaconPusherColorSensorLEDPort = 6;
+    // mux ports for the color sensors
     private static AdafruitI2CMux.PortNumber frontBeaconPusherRightColorSensorPort = AdafruitI2CMux.PortNumber.PORT0;
     private static AdafruitI2CMux.PortNumber rightSideBeaconPusherColorSensorPort = AdafruitI2CMux.PortNumber.PORT1;
     private static AdafruitI2CMux.PortNumber leftSideBeaconPusherColorSensorPort = AdafruitI2CMux.PortNumber.PORT2;
