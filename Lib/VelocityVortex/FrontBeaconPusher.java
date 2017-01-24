@@ -51,13 +51,13 @@ public class FrontBeaconPusher {
     private CRServo leftCRServo;
     private CRServo rightCRServo;
 
+    private MuxPlusColorSensors muxPlusColorSensors;
+
     private double frontLeftServoNoMovePositionForward = .51;
     private double frontLeftServoNoMovePositionReverse = .48;
     private double frontRightServoNoMovePositionForward = .51;
     private double frontRightServoNoMovePositionReverse = .48;
     private double deadband = .1;
-
-   // private AdafruitColorSensor8863 rightColorSensor;
 
     private double pusherMidPoint = 3.2; //measured in cm using the robot
 
@@ -76,7 +76,7 @@ public class FrontBeaconPusher {
     // from it
     //*********************************************************************************************
 
-    public FrontBeaconPusher(HardwareMap hardwareMap, Telemetry telemetry) {
+    public FrontBeaconPusher(HardwareMap hardwareMap, Telemetry telemetry, MuxPlusColorSensors muxPlusColorSensors) {
         leftCRServo = new CRServo(RobotConfigMappingForGenericTest.getFrontLeftBeaconServoName(),
                 hardwareMap, frontLeftServoNoMovePositionForward, frontLeftServoNoMovePositionReverse,
                 deadband, Servo.Direction.FORWARD, telemetry);
@@ -84,9 +84,7 @@ public class FrontBeaconPusher {
                 hardwareMap, frontRightServoNoMovePositionForward, frontRightServoNoMovePositionReverse,
                 deadband, Servo.Direction.REVERSE, telemetry);
         initialize();
-        // add the creation of color sensor object
-        // check the positions and make sure that the pushers are both back against the limit
-        // switches
+        this.muxPlusColorSensors = muxPlusColorSensors;
     }
 
     private void initialize() {
@@ -97,6 +95,8 @@ public class FrontBeaconPusher {
         rightCRServo.setBackwardCMPerSecond(2.07);
 
         // determine the current state and if it is not known, put it into the default state
+        // Can't do this because there is no update called in a loop to determine when the limit
+        // switches are hit. NEED TO FIND A SOLUTION!
         beaconPusherState = findBeaconPusherState();
         if (beaconPusherState == BeaconPusherState.UNKNOWN) {
             moveBothPushersBack();
@@ -119,7 +119,11 @@ public class FrontBeaconPusher {
     //*********************************************************************************************
 
     public BeaconColor getBeaconColor() {
-        return BeaconColor.RED_BLUE;
+        if (muxPlusColorSensors.frontRightBeaconPusherColorSensorIsBlue()) {
+            return BeaconColor.RED_BLUE;
+        } else {
+            return BeaconColor.BLUE_RED;
+        }
     }
 
     /**
@@ -199,6 +203,7 @@ public class FrontBeaconPusher {
         updateState();
     }
 
+    // NEED TO HANLDE UNKNOWN STATE IN EACH STATE SO THE PUSHERS CAN BE PUT INTO KNOWN STATES
     private BeaconPusherState updateState() {
         CRServo.CRServoState leftCRServoState;
         CRServo.CRServoState rightCRServoState;

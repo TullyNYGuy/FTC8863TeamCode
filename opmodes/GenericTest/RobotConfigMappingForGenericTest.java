@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.GenericTest;
 
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitI2CMux;
+
 /**
  * This class defines names for generic objects that we want to test. This way we don't have a million
  * different robot configs on the phone
@@ -40,9 +42,6 @@ public class RobotConfigMappingForGenericTest {
     //generic IMU
     private static String IMUName = "IMU";
 
-    //generic Adafruit ColorSensor
-    private static String adafruitColorSensorName = "colorSensor";
-
     // left and right servos for front beacon pusher
     private static String frontLeftBeaconServo = "frontLeftBeaconServo";
     private static String frontRightBeaconServo = "frontRightBeaconServo";
@@ -56,6 +55,19 @@ public class RobotConfigMappingForGenericTest {
     private static String rightBackLimitSwitch = "rightBackSwitch";
     // port 3
     private static String leftBackLimitSwitch = "leftBackSwitch";
+
+    // Color Sensors and mux
+    private static String muxName = "mux";
+    private static byte muxAddress = 0x70;
+    // Even though there are multiple color sensors we only need 1 name since the mux makes it look
+    // like there is only 1 color sensor attached to the core DIM
+    private static String adafruitColorSensorName = "colorSensor";
+    private static int frontBeaconPusherRightColorSensorLEDPort = 0;
+    private static int rightBeaconPusherColorSensorLEDPort = 1;
+    private static int leftBeaconPusherColorSensorLEDPort = 2;
+    private static AdafruitI2CMux.PortNumber frontBeaconPusherRightColorSensorPort = AdafruitI2CMux.PortNumber.PORT0;
+    private static AdafruitI2CMux.PortNumber rightSideBeaconPusherColorSensorPort = AdafruitI2CMux.PortNumber.PORT1;
+    private static AdafruitI2CMux.PortNumber leftSideBeaconPusherColorSensorPort = AdafruitI2CMux.PortNumber.PORT2;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -118,6 +130,38 @@ public class RobotConfigMappingForGenericTest {
 
     public static String getFrontRightBeaconServoName() {
         return frontRightBeaconServo;
+    }
+
+    public static String getMuxName() {
+        return muxName;
+    }
+
+    public static byte getMuxAddress() {
+        return muxAddress;
+    }
+
+    public static int getFrontBeaconPusherRightColorSensorLEDPort() {
+        return frontBeaconPusherRightColorSensorLEDPort;
+    }
+
+    public static int getRightBeaconPusherColorSensorLEDPort() {
+        return rightBeaconPusherColorSensorLEDPort;
+    }
+
+    public static int getLeftBeaconPusherColorSensorLEDPort() {
+        return leftBeaconPusherColorSensorLEDPort;
+    }
+
+    public static AdafruitI2CMux.PortNumber getFrontBeaconPusherRightColorSensorPort() {
+        return frontBeaconPusherRightColorSensorPort;
+    }
+
+    public static AdafruitI2CMux.PortNumber getRightSideBeaconPusherColorSensorPort() {
+        return rightSideBeaconPusherColorSensorPort;
+    }
+
+    public static AdafruitI2CMux.PortNumber getLeftSideBeaconPusherColorSensorPort() {
+        return leftSideBeaconPusherColorSensorPort;
     }
 
     //*********************************************************************************************
