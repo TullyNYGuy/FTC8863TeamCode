@@ -14,6 +14,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.RobotLog;
 import com.qualcomm.robotcore.util.TypeConversion;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -287,7 +289,7 @@ public class AdafruitColorSensor8863 {
     // Clear, red, green and blue data is stored as 16 bit values. To ensure the data is read
     // correctly, a two-byte read I2C transaction should be used with a read word protocol bit set
     // in the command register. With this operation, when the lower byte register is read, the
-    // upper eight bits are stred into a shadow register, which is read by a subsequent read to the
+    // upper eight bits are stored into a shadow register, which is read by a subsequent read to the
     // upper byte. The upper register will read the correct value even if additional ADC integration
     // cycles end between the reading of the lower and upper bytes.
     // see below for detailed addressing
@@ -487,7 +489,7 @@ public class AdafruitColorSensor8863 {
     /**
      * Verify that that's a color sensor!
      */
-    private boolean checkDeviceId() {
+    public boolean checkDeviceId() {
         byte id = this.getDeviceID();
         if ((id != parameters.getDeviceId())) {
             RobotLog.e("unexpected AMS color sensor chipid: found=%d expected=%d", id, parameters.getDeviceId());
@@ -495,6 +497,42 @@ public class AdafruitColorSensor8863 {
         } else {
             return true;
         }
+    }
+
+    public boolean isDataValid() {
+        int red = redScaled();
+        int blue = blueScaled();
+        int green = greenScaled();
+        boolean result = true;
+        if (red == 0 && blue == 0 && green == 0) {
+            // They can't all be 0 if  the device is connected properly and initialized properly
+            // Odds are there is something wrong
+            result = false;
+        }
+        if (red == blue && red == green) {
+            // It would be extremely unlikely that the values would all be equal to each other
+            // Most likely the sensor is not responding
+            result = false;
+        }
+        return result;
+    }
+
+    public void reportStatus(String colorSensorName, Telemetry telemetry) {
+        String buffer = colorSensorName + " device id is ";
+        if (checkDeviceId()) {
+            telemetry.addData(buffer, "ok");
+        } else {
+            telemetry.addData(buffer, "BAD!");
+        }
+
+        buffer = colorSensorName + " data is ";
+        if (isDataValid()) {
+            buffer = buffer +"valid ";
+        } else {
+            buffer = buffer + "NOT VALID ";
+        }
+        buffer = buffer + " " + redScaled() + "/" + greenScaled() + "/" + blueScaled();
+        telemetry.addData(buffer, "!");
     }
 
     private synchronized void enable() {
@@ -622,6 +660,14 @@ public class AdafruitColorSensor8863 {
             // the led is on so it makes sense to turn it off
             this.ledOn = false;
             coreDIM.setDigitalChannelState(ioChannelForLed, ledOn);
+        }
+    }
+
+    public void toggleLED() {
+        if (this.ledOn) {
+            turnLEDOff();
+        } else {
+            turnLEDOn();
         }
     }
 
@@ -895,5 +941,25 @@ public class AdafruitColorSensor8863 {
 
     public String updateRateString() {
         return String.format("%4.0f", getUpdateRateMin()) + " / " + String.format("%4.0f", getUpdateRateAve()) + " / " + String.format("%4.0f", getUpdateRateMax());
+    }
+
+    //*********************************************************************************************
+    //          Putting data onto the driver station
+    //*********************************************************************************************
+
+    public void displayColorSensorData(Telemetry telemetry) {
+        telemetry.addData("Color sensor gain = ", getCurrentGainAsString());
+        telemetry.addData("Color sensor integration time = ", getCurrentIntegrationTimeAsString());
+        telemetry.addData("Max possible color value = ", getMaxRGBCValue());
+        telemetry.addData("Opaqueness = ", alpha());
+        telemetry.addData("Red / Green / Blue ", rgbValuesAsString());
+        telemetry.addData("Red / Green / Blue (scaled)", rgbValuesScaledAsString());
+        telemetry.addData("Hue / Sat / Value (scaled)", hsvValuesScaledAsString());
+        telemetry.addData(colorTestResultUsingRGBCaption(), colorTestResultUsingRGB());
+        telemetry.addData(colorTestResultUsingHSVCaption(), colorTestResultUsingHSV());
+        telemetry.addData("Update min/ave/max (mS) = ", updateRateString());
+        telemetry.addData(">", "Press Stop to end test." );
+
+        telemetry.update();
     }
 }

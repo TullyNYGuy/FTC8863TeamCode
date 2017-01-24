@@ -75,20 +75,7 @@ public class TestAdafruitColorSensor8863 extends LinearOpMode {
             }
 
             // Display the current values from the sensor
-            telemetry.addData("Color sensor gain = ", colorSensor.getCurrentGainAsString());
-            telemetry.addData("Color sensor integration time = ", colorSensor.getCurrentIntegrationTimeAsString());
-            telemetry.addData("Max possible color value = ", colorSensor.getMaxRGBCValue());
-            telemetry.addData("Opaqueness = ", colorSensor.alpha());
-            telemetry.addData("Red / Green / Blue ", colorSensor.rgbValuesAsString());
-            telemetry.addData("Red / Green / Blue (scaled)", colorSensor.rgbValuesScaledAsString());
-            telemetry.addData("Hue / Sat / Value (scaled)", colorSensor.hsvValuesScaledAsString());
-            telemetry.addData(colorSensor.colorTestResultUsingRGBCaption(), colorSensor.colorTestResultUsingRGB());
-            telemetry.addData(colorSensor.colorTestResultUsingHSVCaption(), colorSensor.colorTestResultUsingHSV());
-            telemetry.addData("Update min/ave/max (mS) = ", colorSensor.updateRateString());
-            telemetry.addData("Timer = ", "%3.1f", timer.seconds());
-            telemetry.addData(">", "Press Stop to end test." );
-
-            telemetry.update();
+            colorSensor.displayColorSensorData(telemetry);
             
             idle();
         }
