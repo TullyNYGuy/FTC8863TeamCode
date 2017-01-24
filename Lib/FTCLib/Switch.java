@@ -212,6 +212,8 @@ public class Switch {
      * @return true = switch pressed
      */
     public boolean isPressed() {
+        // force an update to run so the state is correct
+        updateSwitch();
         boolean result = false;
         // The switch is not pressed if the state is released or in the process of debouncing
         if(currentState == SwitchState.RELEASED || currentState == SwitchState.DEBOUNCING) {
@@ -230,6 +232,8 @@ public class Switch {
      * @return
      */
     public boolean isReleased() {
+        // force an update to run so the state is correct
+        updateSwitch();
         boolean result = false;
         if(currentState == SwitchState.RELEASED || currentState == SwitchState.DEBOUNCING) {
             result = true;
@@ -246,6 +250,8 @@ public class Switch {
      * the switch
      */
     public boolean isBumped() {
+        // force an update to run so the state is correct
+        updateSwitch();
         boolean result = bumped;
         // Since the user is checking bumped, they will get their answer but we now need to reset it
         bumped = false;
