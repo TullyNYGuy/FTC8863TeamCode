@@ -30,7 +30,7 @@ public class TestFrontBeaconPusherHalf extends LinearOpMode {
     String servoName;
     String backSwitchName;
     String frontSwitchName;
-    boolean testLeftServo = true;
+    boolean testLeftServo = false;
 
 
     @Override
@@ -69,13 +69,15 @@ public class TestFrontBeaconPusherHalf extends LinearOpMode {
         telemetry.update();
         waitForStart();
 
-        telemetry.addData("current state ", testServo.update().toString());
-        telemetry.addData("back switch ", testServo.backSwitch.isPressed());
-        telemetry.addData("front switch ", testServo.frontSwitch.isPressed());
+        // display the initial state that was figured out during the constructor
+        currentState = testServo.update();
+        telemetry.addData("current state ", currentState.toString());
+        // since the entire robot is not moving, don't debounce the switches
+        telemetry.addData("back switch ", testServo.backSwitch.isPressed(Switch.Debounce.NO_DEBOUNCE));
+        telemetry.addData("front switch ", testServo.frontSwitch.isPressed(Switch.Debounce.NO_DEBOUNCE));
         telemetry.update();
         sleep(4000);
 
-        // Put your calls here - they will not run in a loop
         timer.reset();
         testServo.moveUntilLimitSwitch(CRServo.CRServoDirection.FORWARD);
         while (opModeIsActive() && currentState != CRServo.CRServoState.FORWARD_AT_SWITCH) {
@@ -86,6 +88,10 @@ public class TestFrontBeaconPusherHalf extends LinearOpMode {
             telemetry.update();
             idle();
         }
+        telemetry.addData("current state ", currentState.toString());
+        telemetry.addData("back switch ", testServo.backSwitch.isPressed());
+        telemetry.addData("front switch ", testServo.frontSwitch.isPressed());
+        telemetry.update();
         sleep(4000);
 
         testServo.moveUntilLimitSwitch(CRServo.CRServoDirection.BACKWARD);
@@ -97,6 +103,10 @@ public class TestFrontBeaconPusherHalf extends LinearOpMode {
             telemetry.update();
             idle();
         }
+        telemetry.addData("current state", currentState.toString());
+        telemetry.addData("back switch ", testServo.backSwitch.isPressed());
+        telemetry.addData("front switch ", testServo.frontSwitch.isPressed());
+        telemetry.update();
         sleep(4000);
 
         testServo.startMoveDistance(4, CRServo.CRServoDirection.FORWARD);
@@ -108,6 +118,10 @@ public class TestFrontBeaconPusherHalf extends LinearOpMode {
             telemetry.update();
             idle();
         }
+        telemetry.addData("current state", currentState.toString());
+        telemetry.addData("back switch ", testServo.backSwitch.isPressed());
+        telemetry.addData("front switch ", testServo.frontSwitch.isPressed());
+        telemetry.update();
         sleep(4000);
 
         testServo.startMoveDistance(3, CRServo.CRServoDirection.BACKWARD);
@@ -119,6 +133,10 @@ public class TestFrontBeaconPusherHalf extends LinearOpMode {
             telemetry.update();
             idle();
         }
+        telemetry.addData("current state", currentState.toString());
+        telemetry.addData("back switch ", testServo.backSwitch.isPressed());
+        telemetry.addData("front switch ", testServo.frontSwitch.isPressed());
+        telemetry.update();
 
         // Display the current value
         // Put your cleanup code here - it runs as the application shuts down
