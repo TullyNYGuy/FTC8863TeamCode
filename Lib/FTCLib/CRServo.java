@@ -526,11 +526,16 @@ public class CRServo {
     public CRServoState findCRServoState() {
         CRServoState result;
         // Check the switches first to see if it is at a limit switch
-        if (frontSwitch.isPressed()) {
-            return CRServoState.FORWARD_AT_SWITCH;
-        }
-        if (backSwitch.isPressed()) {
+        // Note that I cannot use isPressed() to check the switch. isPressed() depends on the
+        // update() (state machine) being run periodically. Since it is not running at init, the
+        // result will not be accurate. I have to use getPressed(false) or no debounce applied
+        // instead. That just reads the port. No debounce is applied but that should be fine since
+        // things are not moving anyway.
+        if (frontSwitch.isPressed(Switch.Debounce.NO_DEBOUNCE)) {
             return CRServoState.BACK_AT_SWITCH;
+        }
+        if (backSwitch.isPressed(Switch.Debounce.NO_DEBOUNCE)) {
+            return CRServoState.FORWARD_AT_SWITCH;
         }
         // since I am assuming it is not moving, the only other options are FORWARD_AT_POSITION
         // and BACK_AT_POSITION. It does not really matter which one since the only difference
