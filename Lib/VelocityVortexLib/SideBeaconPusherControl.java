@@ -91,25 +91,51 @@ public class SideBeaconPusherControl {
                     sideBeaconPusherState = SideBeaconPusherState.SKIP_BUTTON;
                 }
                 break;
-            //CURRENTLY SETTING DRIVING AND DISTANCE
             case PUSH_BUTTON:
                 sideBeaconPusher.extendingArmFully();
-                sideBeaconPusher.
+                sideBeaconPusher.driveDistanceAndPower(0,.3);
+                //
+                sideBeaconPusherState = SideBeaconPusherState.DRIVE_COMPLETE;
                 break;
+
             case DRIVE_COMPLETE:
+                sideBeaconPusher.retractArm();
+                sideBeaconPusher.driveAlongWall();
+                sideBeaconPusherState = SideBeaconPusherState.RUNNING_ALONG_THE_WALL;
                 break;
 
 
             case SKIP_BUTTON:
                 sideBeaconPusher.retractArm();
+                sideBeaconPusherState = SideBeaconPusherState.DRIVE_FORWARD_AFTER_BEACON;
                 break;
             case DRIVE_FORWARD_AFTER_BEACON:
+                sideBeaconPusher.driveNearBeacon();
+                //Same code from Beacon Detected
+                if (sideBeaconPusher.isBeaconBlue() && allianceColor == VelocityVortexRobot.AllianceColor.BLUE ||
+                        sideBeaconPusher.isBeaconRed() && allianceColor == VelocityVortexRobot.AllianceColor.RED ) {
+                    sideBeaconPusherState = SideBeaconPusherState.PUSH_BUTTON;
+                } else {
+                    sideBeaconPusherState = SideBeaconPusherState.SKIP_BUTTON;
+                }
+                //////////
                 break;
             case DETECT_AFTER_SKIP:
+                if (sideBeaconPusher.isBeaconBlue() && allianceColor == VelocityVortexRobot.AllianceColor.BLUE) {
+                    sideBeaconPusherState = SideBeaconPusherState.PUSH_AFTER_SKIP;
+                } else if (sideBeaconPusher.isBeaconRed() && allianceColor == VelocityVortexRobot.AllianceColor.RED){
+                    sideBeaconPusherState = SideBeaconPusherState.PUSH_AFTER_SKIP;
+                } else {
+                    sideBeaconPusherState = SideBeaconPusherState.SKIP_BUTTON;
+                }
                 break;
             case PUSH_AFTER_SKIP:
+                sideBeaconPusher.extendingArmFully();
+                sideBeaconPusher.driveAlongWall();
+                sideBeaconPusherState = SideBeaconPusherState.RETRACT_ARM_AFTER_SKIP;
                 break;
             case RETRACT_ARM_AFTER_SKIP:
+                sideBeaconPusher.retractArm();
                 break;
         }
     }
