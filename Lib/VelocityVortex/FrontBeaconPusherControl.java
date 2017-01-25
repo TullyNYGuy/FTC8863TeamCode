@@ -15,7 +15,8 @@ public class FrontBeaconPusherControl {
         BOTH_MIDDLE,
         BOTH_FORWARD,
         LEFT_BACK_RIGHT_FORWARD,
-        RIGHT_BACK_LEFT_FORWARD
+        RIGHT_BACK_LEFT_FORWARD,
+        PUSH_BEACON
     }
 
     public enum AllianceColor {
@@ -35,6 +36,10 @@ public class FrontBeaconPusherControl {
     private AllianceColor allianceColor = AllianceColor.RED;
 
     private FrontBeaconPusher frontBeaconPusher;
+
+    private FrontBeaconPusher.BeaconPusherState frontBeaconPusherState;
+
+    private FrontBeaconPusher.BeaconColor beaconColor;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -66,27 +71,42 @@ public class FrontBeaconPusherControl {
     //*********************************************************************************************
 
     public FrontBeaconControlState update(){
+        frontBeaconPusherState = frontBeaconPusher.updateState();
+        beaconColor = frontBeaconPusher.getBeaconColor();
         switch (frontBeaconControlState) {
             case BOTH_BACK:
                 frontBeaconControlState = FrontBeaconControlState.BOTH_MIDDLE;
                 frontBeaconPusher.moveBothMidway();
                 break;
             case BOTH_MIDDLE:
-                if (allianceColor == AllianceColor.BLUE && frontBeaconPusher.getBeaconColor() == FrontBeaconPusher.BeaconColor.RED_BLUE
-                    || allianceColor == AllianceColor.RED && frontBeaconPusher.getBeaconColor() == FrontBeaconPusher.BeaconColor.BLUE_RED) {
-                    frontBeaconControlState = FrontBeaconControlState.LEFT_BACK_RIGHT_FORWARD;
-                }
-                if (allianceColor == AllianceColor.BLUE && frontBeaconPusher.getBeaconColor() == FrontBeaconPusher.BeaconColor.BLUE_RED
-                        || allianceColor == AllianceColor.RED && frontBeaconPusher.getBeaconColor() == FrontBeaconPusher.BeaconColor.RED_BLUE) {
+                if (frontBeaconPusherState == FrontBeaconPusher.BeaconPusherState.BOTH_MIDDLE) {
+                    if (allianceColor == AllianceColor.BLUE && beaconColor == FrontBeaconPusher.BeaconColor.RED_BLUE
+                            || allianceColor == AllianceColor.RED && beaconColor == FrontBeaconPusher.BeaconColor.BLUE_RED) {
+                        frontBeaconControlState = FrontBeaconControlState.LEFT_BACK_RIGHT_FORWARD;
+                    }
+                    if (allianceColor == AllianceColor.BLUE && beaconColor == FrontBeaconPusher.BeaconColor.BLUE_RED
+                            || allianceColor == AllianceColor.RED && beaconColor == FrontBeaconPusher.BeaconColor.RED_BLUE) {
+                        frontBeaconControlState = FrontBeaconControlState.RIGHT_BACK_LEFT_FORWARD;
+                    }
                     frontBeaconControlState = FrontBeaconControlState.RIGHT_BACK_LEFT_FORWARD;
                 }
-                frontBeaconControlState = FrontBeaconControlState.RIGHT_BACK_LEFT_FORWARD;
                 break;
             case BOTH_FORWARD:
                 break;
             case LEFT_BACK_RIGHT_FORWARD:
+                if (frontBeaconPusherState == FrontBeaconPusher.BeaconPusherState.LEFT_BACK_RIGHT_FORWARD){
+                    frontBeaconControlState = FrontBeaconControlState.PUSH_BEACON;
+                }
                 break;
             case RIGHT_BACK_LEFT_FORWARD:
+                if (frontBeaconPusherState == FrontBeaconPusher.BeaconPusherState.LEFT_FORWARD_RIGHT_BACK){
+                    frontBeaconControlState = FrontBeaconControlState.PUSH_BEACON;
+                }
+                break;
+            case PUSH_BEACON:
+                if (beaconColor != frontBeaconPusher.getBeaconColor()){
+                    frontBeaconControlState = FrontBeaconControlState.BOTH_MIDDLE;
+                }
                 break;
         }
         return frontBeaconControlState;
