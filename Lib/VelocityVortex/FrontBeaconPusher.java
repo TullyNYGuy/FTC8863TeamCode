@@ -29,7 +29,8 @@ public class FrontBeaconPusher {
         MOVING_TO_LEFT_FORWARD_RIGHT_BACK,
         BOTH_FORWARD,
         MOVING_TO_BOTH_FORWARD,
-        UNKNOWN;
+        UNKNOWN,
+        MOVING_TO_BOTH_BACK_THEN_TO_BOTH_MIDDLE;
     }
 
     public enum BeaconColor {
@@ -173,6 +174,19 @@ public class FrontBeaconPusher {
         return BeaconPusherState.UNKNOWN;
     }
 
+    // UNKNOWN state - how does it impact movements?
+    // If the beacon pusher is initialized and the left and right pushers are not against the limit
+    // switches, it is not possible to know where they are. In this case the state is UNKNOWN. It is
+    // not possible to correct this until the robot loop starts up. Any movement of the pushers has
+    // to have an update() called in order to determine when the limit switches are hit. The update()
+    // can only be called from an opmode loop. So it is possible to make a call to one of the
+    // following commands to move the pushers when the pushers are starting from an UNKNOWN state
+    // or location. For commands that tell the pushers to move to a switch, this is not a problem.
+    // We don't need to know where they are starting from in order to finish at the proper location,
+    // which is against the switch. But for any command the is moving the pusher a distance, this is
+    // a problem. We don't know where we are starting from. So the workaround is to first move the
+    // pushers to a known spot, then move the pushers the distance.
+
     public void moveBothPushersBack() {
         // change the state
         beaconPusherState = BeaconPusherState.MOVING_TO_BOTH_BACK;
@@ -196,16 +210,19 @@ public class FrontBeaconPusher {
     }
 
     public void moveBothMidway() {
-        // first I am assuming that both of the pushers are in one of three places when this command is
-        // issued: forward at the switch, back at switch, or in the middle already.
-        // I cannot handle the situation where the pusher is already moving because I don't know
+        // As discussed above, if the pushers are in an UNKNOWN state or location, then this command
+        // has to put the pushers into a known location, then move to the middle.
+        // Also, I cannot handle the situation where the pusher is already moving because I don't know
         // its location. Without knowing its location there is no way to tell how to move it to the
-        // middle. So I lock out this command unless the pusher is in one of the three positions, in
-        // other words if it is not moving.
+        // middle. So I lock out this command if the pushers are moving.
         if (isStationary()) {
             // we are ok to start a move
             lastBeaconPusherState = beaconPusherState;
             beaconPusherState = BeaconPusherState.MOVING_TO_BOTH_MIDDLE;
+        }
+        if (beaconPusherState == BeaconPusherState.UNKNOWN) {
+            // move the pushers to the back, then to the middle
+            beaconPusherState = BeaconPusherState.MOVING_TO_BOTH_BACK_THEN_TO_BOTH_MIDDLE;
         }
         updateState();
     }
@@ -344,6 +361,36 @@ public class FrontBeaconPusher {
                     if (rightCRServoState != CRServo.CRServoState.MOVING_FORWARD_TO_SWITCH &&
                             rightCRServoState != CRServo.CRServoState.FORWARD_AT_SWITCH) {
                         rightCRServo.moveUntilLimitSwitch(CRServo.CRServoDirection.FORWARD);
+                    }
+                    // the only other possibility is that the servos are moving. IN that case just
+                    // do nothing until they finish moving. Could put a timer here to check to see
+                    // if they have been moving too long which would mean something is wrong.
+                }
+                break;
+            case UNKNOWN:
+                // if the pushers are in an unknown state then the only thing to do is get them
+                // into a known position.
+                beaconPusherState = BeaconPusherState.MOVING_TO_BOTH_BACK;
+                break;
+            case MOVING_TO_BOTH_BACK_THEN_TO_BOTH_MIDDLE:
+                // This state moves the pushers to the back and then move them to the middle.
+
+                // if both servos are at the back now then move them to the middle
+                if (leftCRServoState == CRServo.CRServoState.BACK_AT_SWITCH &&
+                        rightCRServoState == CRServo.CRServoState.BACK_AT_SWITCH) {
+                    beaconPusherState = BeaconPusherState.MOVING_TO_BOTH_MIDDLE;
+                } else {
+                    // if the left servo is not at the back and is not moving to the back already
+                    // then start it moving
+                    if (leftCRServoState != CRServo.CRServoState.MOVING_BACK_TO_SWITCH &&
+                            leftCRServoState != CRServo.CRServoState.BACK_AT_SWITCH) {
+                        leftCRServo.moveUntilLimitSwitch(CRServo.CRServoDirection.BACKWARD);
+                    }
+                    // if the right servo is not at the back and is not moving to the back already
+                    // then start it moving
+                    if (rightCRServoState != CRServo.CRServoState.MOVING_BACK_TO_SWITCH &&
+                            rightCRServoState != CRServo.CRServoState.BACK_AT_SWITCH) {
+                        rightCRServo.moveUntilLimitSwitch(CRServo.CRServoDirection.BACKWARD);
                     }
                     // the only other possibility is that the servos are moving. IN that case just
                     // do nothing until they finish moving. Could put a timer here to check to see

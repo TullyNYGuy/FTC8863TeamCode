@@ -45,6 +45,7 @@ public class TestFrontBeaconPusherMovement extends LinearOpMode {
         // Put your calls that need to run in a loop here
         timer.reset();
         frontBeaconPusher.moveBothPushersBack();
+        //NEED TO check to see if using frontBeaconPusherState will cause bugs when it is not known
         while (opModeIsActive() && frontBeaconPusherState != FrontBeaconPusher.BeaconPusherState.BOTH_BACK) {
             frontBeaconPusherState = frontBeaconPusher.updateState();
             telemetry.addData("Beacon pusher state = ", frontBeaconPusherState.toString());
