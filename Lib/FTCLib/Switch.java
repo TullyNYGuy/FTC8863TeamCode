@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
 
+import com.qualcomm.robotcore.hardware.DeviceInterfaceModule;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.DigitalChannelController;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -56,6 +57,11 @@ public class Switch {
 
     public enum SwitchType {
         NORMALLY_OPEN, NORMALLY_CLOSED;
+    }
+
+    public enum Debounce {
+        DEBOUNCE,
+        NO_DEBOUNCE
     }
 
     //*********************************************************************************************
@@ -227,6 +233,23 @@ public class Switch {
     }
 
     /**
+     * There are times when you don't care about debouncing a switch. For example, a toggle switch
+     * that is set once at the beginning of the match and never changed. Why debounce it? Another
+     * example is a limit switch on a part that is being initialized at robot startup. If the part
+     * is against the limit switch we don't want to debounce the switch. There is no movement that
+     * would cause switch bounce.
+     * @param debounce - use NO_DEBOUNCE to not debounce the switch
+     * @return true = pressed, false = released
+     */
+    public boolean isPressed(Debounce debounce) {
+        if (debounce == Debounce.DEBOUNCE) {
+            return isPressed();
+        } else {
+            return getPressed();
+        }
+    }
+
+    /**
      * If the switch is not pressed return true. If it is pressed return false. If it is currently
      * in the middle of debouncing the assumption is that it is not pressed yet so true is returned.
      * @return
@@ -241,6 +264,25 @@ public class Switch {
         // Since the user is checking released, they don't care about bumped so reset it.
         bumped = false;
         return result;
+    }
+
+    /**
+     * There are times when you don't care about debouncing a switch. For example, a toggle switch
+     * that is set once at the beginning of the match and never changed. Why debounce it? Another
+     * example is a limit switch on a part that is being initialized at robot startup. If the part
+     * is against the limit switch we don't want to debounce the switch. There is no movement that
+     * would cause switch bounce.
+     * @param debounce - use NO_DEBOUNCE to not debounce the switch
+     * @return true = pressed, false = released
+     */
+    public boolean isReleased(Debounce debounce) {
+        if (debounce == Debounce.DEBOUNCE) {
+            return isReleased();
+        } else {
+            // getPressed() returns true if pressed. I want to return false in that case. So negate
+            // the getPressed()
+            return !getPressed();
+        }
     }
 
     /**
