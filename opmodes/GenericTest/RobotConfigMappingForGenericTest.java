@@ -39,14 +39,15 @@ public class RobotConfigMappingForGenericTest {
     //generic core device interface module
     private static String coreDeviceInterfaceName = "coreDIM";
 
-    //generic IMU
+    // IMU
+    // Core DIM module I2C port 0, configure as Adafruit IMU
     private static String IMUName = "IMU";
 
     // left and right servos for front beacon pusher
 
-    // Core DIM servo controller port 5, configure as Servo
+    // Core servo controller port 5, configure as Servo
     private static String frontLeftBeaconServo = "frontLeftBeaconServo";
-    // Core DIM servo controller port 6, configure as Servo
+    // Core servo controller port 6, configure as Servo
     private static String frontRightBeaconServo = "frontRightBeaconServo";
 
     //front beacon pushers
