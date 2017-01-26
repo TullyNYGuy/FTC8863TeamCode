@@ -108,18 +108,23 @@ public class SideBeaconPusher {
     public boolean isBeaconBlue () {
         return beaconColorSensor.isBlueUsingRGB();
     }
-    public void driveAlongWall () {
-        driveTrain.setupDriveUsingIMU (0, .6, AdafruitIMU8863.AngleMode.RELATIVE);
+    public void driveAlongWall (double heading, double power) {
+        driveTrain.setupDriveUsingIMU (heading, power, AdafruitIMU8863.AngleMode.RELATIVE);
     }
-    public void updateDriveAlongWall () {
-        driveTrain.updateDriveUsingIMU();
+    public double updateDriveAlongWall () {
+        return driveTrain.updateDriveUsingIMU();
     }
-    //AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-    public void driveDistanceAndPower (double power, double distance) {
-        driveTrain.setupDriveDistanceUsingIMU(0, power, distance, );
+    public void stopDriveAlongWall () {
+        driveTrain.stopDriveUsingIMU();
     }
     public void driveNearBeacon () {
         driveTrain.setupDriveUsingIMU (0, .4, AdafruitIMU8863.AngleMode.RELATIVE);
+    }
+    public void driveDistance (double distance, double power) {
+        driveTrain.setupDriveDistanceUsingIMU(0, power, distance, AdafruitIMU8863.AngleMode.RELATIVE, 0, power, 1000);
+    }
+    public boolean updateDriveDistance () {
+        return driveTrain.updateDriveDistanceUsingIMU();
     }
     public void updateDriveNearBeacon () {
         driveTrain.updateDriveUsingIMU();
