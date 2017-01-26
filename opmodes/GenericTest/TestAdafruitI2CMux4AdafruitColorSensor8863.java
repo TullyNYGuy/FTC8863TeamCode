@@ -211,6 +211,17 @@ public class TestAdafruitI2CMux4AdafruitColorSensor8863 extends LinearOpMode {
             activeColorSensor.reportStatus(colorSensorName, telemetry);
             activeColorSensor.displayColorSensorData(telemetry);
 
+            // turn on the led in the core DIM that matches the color read from the sensor - as long
+            // as the color is red or blue :-)
+            if (activeColorSensor.isBlueUsingRGB()) {
+                activeColorSensor.turnCoreDIMBlueLEDOn();
+                activeColorSensor.turnCoreDIMRedLEDOff();
+            }
+            if (activeColorSensor.isRedUsingRGB()) {
+                activeColorSensor.turnCoreDIMRedLEDOn();
+                activeColorSensor.turnCoreDIMBlueLEDOff();
+            }
+
             idle();
         }
 
