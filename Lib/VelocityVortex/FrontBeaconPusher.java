@@ -125,6 +125,8 @@ public class FrontBeaconPusher {
     // public methods that give the class its functionality
     //*********************************************************************************************
 
+    // COLOR SENSOR METHODS
+
     public BeaconColor getBeaconColor() {
         if (muxPlusColorSensors.frontRightBeaconPusherColorSensorIsBlue()) {
             return BeaconColor.RED_BLUE;
@@ -132,6 +134,28 @@ public class FrontBeaconPusher {
             return BeaconColor.BLUE_RED;
         }
     }
+
+    public String rgbValuesScaledAsString(MuxPlusColorSensors.BeaconSide side) {
+        if (side == MuxPlusColorSensors.BeaconSide.RIGHT) {
+            return muxPlusColorSensors.frontBeaconPusherRightColorSensorRGBValuesScaledAsString();
+        } else {
+            return muxPlusColorSensors.frontBeaconPusherRightColorSensorRGBValuesScaledAsString();
+        }
+    }
+
+    public boolean isRightColorSensorBlue() {
+        return muxPlusColorSensors.frontRightBeaconPusherColorSensorIsBlue();
+    }
+
+    public boolean isRightColorSensorRed() {
+        return muxPlusColorSensors.frontRightBeaconPusherColorSensorIsRed();
+    }
+
+    public void setCoreDimLEDToMatchColorSensor(MuxPlusColorSensors.BeaconSide side) {
+        muxPlusColorSensors.setCoreDimLedToMatchColorSensor(side);
+    }
+
+    // PUSHER METHODS
 
     /**
      * This method will try to determine what the current state of the pushers is when we don't
