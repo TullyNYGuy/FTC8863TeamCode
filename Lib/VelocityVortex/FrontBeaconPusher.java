@@ -373,7 +373,10 @@ public class FrontBeaconPusher {
                 beaconPusherState = BeaconPusherState.MOVING_TO_BOTH_BACK;
                 break;
             case MOVING_TO_BOTH_BACK_THEN_TO_BOTH_MIDDLE:
-                // This state moves the pushers to the back and then move them to the middle.
+                // This state moves the pushers to the back and then move them to the middle. The
+                // state can be gotten into when the State is UNKNOWN and a command to move to the
+                // middle is recieved. Moving to the back puts the pushers in a known state and
+                // from there they can be moved to the middle.
 
                 // if both servos are at the back now then move them to the middle
                 if (leftCRServoState == CRServo.CRServoState.BACK_AT_SWITCH &&

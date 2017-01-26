@@ -33,7 +33,6 @@ public class TestFrontBeaconPusherMovement extends LinearOpMode {
 
         frontBeaconPusherState = frontBeaconPusher.findBeaconPusherState();
         telemetry.addData("Beacon pusher state found = ", frontBeaconPusherState.toString());
-        telemetry.update();
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
