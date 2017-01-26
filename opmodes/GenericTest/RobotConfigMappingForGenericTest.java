@@ -83,6 +83,7 @@ public class RobotConfigMappingForGenericTest {
     private static int leftBeaconPusherColorSensorLEDPort = 6;
     // mux ports for the color sensors
     private static AdafruitI2CMux.PortNumber frontBeaconPusherRightColorSensorPort = AdafruitI2CMux.PortNumber.PORT0;
+    private static AdafruitI2CMux.PortNumber frontBeaconPusherLeftColorSensorPort = AdafruitI2CMux.PortNumber.PORT3;
     private static AdafruitI2CMux.PortNumber rightSideBeaconPusherColorSensorPort = AdafruitI2CMux.PortNumber.PORT1;
     private static AdafruitI2CMux.PortNumber leftSideBeaconPusherColorSensorPort = AdafruitI2CMux.PortNumber.PORT2;
 
@@ -171,6 +172,10 @@ public class RobotConfigMappingForGenericTest {
 
     public static AdafruitI2CMux.PortNumber getFrontBeaconPusherRightColorSensorPort() {
         return frontBeaconPusherRightColorSensorPort;
+    }
+
+    public static AdafruitI2CMux.PortNumber getFrontBeaconPusherLeftColorSensorPort() {
+        return frontBeaconPusherLeftColorSensorPort;
     }
 
     public static AdafruitI2CMux.PortNumber getRightSideBeaconPusherColorSensorPort() {
