@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 import com.qualcomm.robotcore.hardware.*;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Lib.ResQLib.RobotConfigMapping;
 import org.firstinspires.ftc.teamcode.opmodes.GenericTest.RobotConfigMappingForGenericTest;
 
@@ -22,12 +23,26 @@ public class DriveTrain {
     private double leftPower = 0;
     private double cmPerRotation = 0;
 
+    private boolean driveLocked = false;
+
     private DcMotor8863 rightDriveMotor;
     private DcMotor8863 leftDriveMotor;
 
     private DcMotor8863.MotorState rightMotorState;
     private DcMotor8863.MotorState leftMotorState;
 
+    public PIDControl pidControl;
+    private RampControl rampControl;
+
+    private boolean imuPresent = true;
+    public AdafruitIMU8863 imu;
+
+    private double driveTrainPower;
+    public double distance;
+
+    private boolean hasLoopRunYet = false;
+
+    private Telemetry telemetry;
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -35,19 +50,20 @@ public class DriveTrain {
     // getPositionInTermsOfAttachment
     //*********************************************************************************************
 
-    public double getRightPower(){
+
+    public double getRightPower() {
         return this.rightPower;
     }
 
-    public void setRightPower(double power){
+    public void setRightPower(double power) {
         this.rightPower = power;
     }
 
-    public double getLeftPower(){
+    public double getLeftPower() {
         return this.leftPower;
     }
 
-    public void setLeftPower(double power){
+    public void setLeftPower(double power) {
         this.leftPower = power;
     }
 
@@ -61,6 +77,10 @@ public class DriveTrain {
         rightDriveMotor.setMovementPerRev(cmPerRotation);
     }
 
+    public double getDistance() {
+        return distance;
+    }
+
     //*********************************************************************************************
     //          Constructors
     //
@@ -72,9 +92,10 @@ public class DriveTrain {
      * Construct a drive train. Create 2 motor objects and set them up.
      * The reason this is private is to force the user to call either DriveTrainTeleop or
      * DriveTrainAutonomous. Those methods then call this one. Those methods will optimize the
+     *
      * @param hardwareMap
      */
-    private DriveTrain(HardwareMap hardwareMap) {
+    private DriveTrain(HardwareMap hardwareMap, boolean imuPresent, Telemetry telemetry) {
         leftDriveMotor = new DcMotor8863(RobotConfigMappingForGenericTest.getleftMotorName(), hardwareMap);
         rightDriveMotor = new DcMotor8863(RobotConfigMappingForGenericTest.getrightMotorName(), hardwareMap);
 
@@ -95,6 +116,18 @@ public class DriveTrain {
         leftDriveMotor.setTargetEncoderTolerance(3);
         leftDriveMotor.setMovementPerRev(cmPerRotation);
         leftDriveMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
+
+        pidControl = new PIDControl();
+        pidControl.setKp(0.01);
+
+        this.imuPresent = imuPresent;
+
+        if (imuPresent) {
+            imu = new AdafruitIMU8863(hardwareMap);
+        }
+        rampControl = new RampControl(0,0,0);
+
+        this.telemetry = telemetry;
     }
 
     /**
@@ -104,21 +137,29 @@ public class DriveTrain {
      * @param hardwareMap
      * @return Instance of a driveTrain (a driveTrain oject) optimized for TeleOp
      */
-    public static DriveTrain DriveTrainTeleOp(HardwareMap hardwareMap) {
-        DriveTrain driveTrain = new DriveTrain(hardwareMap);
+    public static DriveTrain DriveTrainTeleOp(HardwareMap hardwareMap, Telemetry telemetry) {
+        DriveTrain driveTrain = new DriveTrain(hardwareMap, true, telemetry);
+        driveTrain.teleopInit();
+        return driveTrain;
+    }
 
-        // Set the motors to float after the power gets set to 0
-        driveTrain.rightDriveMotor.setFinishBehavior(DcMotor8863.FinishBehavior.FLOAT);
-        driveTrain.leftDriveMotor.setFinishBehavior(DcMotor8863.FinishBehavior.FLOAT);
+    /**
+     * Set how the motors behave when power is set to 0 and set the mode of the motors.
+     */
+    public void teleopInit() {
+        // Set the motors to hold after the power gets set to 0
+        // This way the robot will stop when the joystick go to 0 and not continue to coast
+        rightDriveMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
+        leftDriveMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
 
         // Set the motors to run at constant power - there is no PID control over them
         // This needs to be set here because the teleop methods only adjust the power to the motors.
         // They don't set the mode which is why it is done here. Setting power = 0 makes sure the
         // motors don't actually move.
-        driveTrain.rightDriveMotor.runAtConstantPower(0);
-        driveTrain.leftDriveMotor.runAtConstantPower(0);
-
-        return driveTrain;
+        rightDriveMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        leftDriveMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightDriveMotor.setPower(0);
+        leftDriveMotor.setPower(0);
     }
 
     /**
@@ -128,18 +169,29 @@ public class DriveTrain {
      * @param hardwareMap
      * @return Instance of a driveTrain (a driveTrain oject) optimized for Autonomous
      */
-    public static DriveTrain DriveTrainAutonomous(HardwareMap hardwareMap) {
-        DriveTrain driveTrain = new DriveTrain(hardwareMap);
+    public static DriveTrain DriveTrainAutonomous(HardwareMap hardwareMap, Telemetry telemetry) {
+        DriveTrain driveTrain = new DriveTrain(hardwareMap, true, telemetry);
 
-        // Set the motors to float after the power gets set to 0
-        driveTrain.rightDriveMotor.setFinishBehavior(DcMotor8863.FinishBehavior.FLOAT);
-        driveTrain.leftDriveMotor.setFinishBehavior(DcMotor8863.FinishBehavior.FLOAT);
+        // Set the motors to hold after the power gets set to 0
+        driveTrain.rightDriveMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
+        driveTrain.leftDriveMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
 
-        // the first call to moveByAmount will set the mode of the motors to run to a position
-        // No need to do that here. Just set the motor power to 0 to make sure it is initialized.
-        driveTrain.rightDriveMotor.setPower(0);
-        driveTrain.leftDriveMotor.setPower(0);
+        // set the mode of the motors to run with encoder feedback, controller the speed of the motors
+        driveTrain.rightDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        driveTrain.leftDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        return driveTrain;
+    }
 
+    public static DriveTrain DriveTrainAutonomousNoImu(HardwareMap hardwareMap, Telemetry telemetry) {
+        DriveTrain driveTrain = new DriveTrain(hardwareMap, false, telemetry);
+
+        // Set the motors to hold after the power gets set to 0
+        driveTrain.rightDriveMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
+        driveTrain.leftDriveMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
+
+        // set the mode of the motors to run with encoder feedback, controller the speed of the motors
+        driveTrain.rightDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        driveTrain.leftDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         return driveTrain;
     }
 
@@ -147,34 +199,224 @@ public class DriveTrain {
     // Autonomous Methods
     //*********************************************************************************************
 
-    public void driveDistance(double power, double distance, DcMotor8863.FinishBehavior finishBehavior){
+    public void setupDriveDistance(double power, double distance, DcMotor8863.FinishBehavior finishBehavior) {
         rightDriveMotor.moveByAmount(power, distance, finishBehavior);
         leftDriveMotor.moveByAmount(power, distance, finishBehavior);
     }
 
-    public DriveTrain.Status update() {
+    public DriveTrain.Status updateDriveDistance() {
         rightMotorState = rightDriveMotor.update();
         leftMotorState = leftDriveMotor.update();
-        if (this.isMotorStateComplete()){
+        if (this.isMotorStateComplete()) {
             return Status.COMPLETE;
         } else {
             return Status.MOVING;
         }
     }
 
-    public void rotateNumberOfDegrees(double power, double degreesToRotate, DcMotor8863.FinishBehavior finishBehavior ) {
+    public void rotateNumberOfDegrees(double power, double degreesToRotate, DcMotor8863.FinishBehavior finishBehavior) {
         rightDriveMotor.rotateNumberOfDegrees(power, degreesToRotate, finishBehavior);
         leftDriveMotor.rotateNumberOfDegrees(power, degreesToRotate, finishBehavior);
     }
 
 
-    public boolean isMotorStateComplete() {
-        if(rightDriveMotor.isMotorStateComplete() && leftDriveMotor.isMotorStateComplete()) {
+    private boolean isMotorStateComplete() {
+        if (rightDriveMotor.isMotorStateComplete() && leftDriveMotor.isMotorStateComplete()) {
             return true;
         } else {
             return false;
         }
 
+    }
+
+    public void setupTurn(double turnAngle, double maxPower) {
+
+        if (imuPresent) {
+            // set the mode for the motors during the turn. Without this they may not move.
+            rightDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            leftDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            pidControl.setSetpoint(turnAngle);
+            pidControl.setMaxCorrection(maxPower);
+            pidControl.setThreshold(0.5);
+            pidControl.setKp(0.025);
+            pidControl.setKi(0.0000000015);
+            pidControl.reset();
+
+            imu.setAngleMode(AdafruitIMU8863.AngleMode.RELATIVE);
+            imu.resetAngleReferences();
+        } else {
+            shutdown();
+            throw new IllegalArgumentException("No Imu found");
+        }
+    }
+
+    public boolean updateTurn() {
+
+        if (imuPresent) {
+            double currentHeading = imu.getHeading();
+            double correction = -pidControl.getCorrection(currentHeading);
+            differentialDrive(0, correction);//correction);
+            //return correction;
+            return pidControl.isFinished();
+        } else {
+            shutdown();
+            throw new IllegalArgumentException("No Imu found");
+        }
+    }
+
+    public void stopTurn() {
+        shutdown();
+    }
+
+    public void setupDriveUsingIMU(double heading, double maxPower, AdafruitIMU8863.AngleMode headingType) {
+
+        if (imuPresent) {
+            // set the mode for the motors during the turn. Without this they may not move.
+            rightDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            leftDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            pidControl.setSetpoint(heading);
+            pidControl.setMaxCorrection(maxPower);
+            pidControl.setThreshold(2);
+            pidControl.setKp(0.03);
+            driveTrainPower = maxPower;
+
+            switch (headingType) {
+                case RELATIVE:
+                    imu.setAngleMode(AdafruitIMU8863.AngleMode.RELATIVE);
+                    imu.resetAngleReferences();
+                    break;
+                case ABSOLUTE:
+                    imu.setAngleMode(AdafruitIMU8863.AngleMode.ABSOLUTE);
+                    break;
+                case RAW:
+                    imu.setAngleMode(AdafruitIMU8863.AngleMode.RAW);
+                    break;
+            }
+        } else {
+            shutdown();
+            throw new IllegalArgumentException("No Imu found");
+        }
+    }
+
+    public double updateDriveUsingIMU() {
+
+        if (imuPresent) {
+            double currentHeading = imu.getHeading();
+            double correction = -pidControl.getCorrection(currentHeading);
+            differentialDrive(driveTrainPower, correction);//correction);
+            distance = (leftDriveMotor.getPositionInTermsOfAttachment() + rightDriveMotor.getPositionInTermsOfAttachment()) / 2;
+            return distance;
+        } else {
+            shutdown();
+            throw new IllegalArgumentException("No Imu found");
+        }
+    }
+
+    public void stopDriveUsingIMU() {
+        shutdown();
+    }
+
+    //Drive distance using IMU
+    public void setupDriveDistanceUsingIMU(double heading, double maxPower, double distance,
+                                           AdafruitIMU8863.AngleMode headingType, double valueAtStartTime,
+                                           double valueAtFinishTime, double timeToReachFinishValueInmSec){
+        //If the IMU is present we proceed. If not we give the user an error
+        if (imuPresent) {
+            // Setup the ramp control to ramp the power up from 0 to maxPower
+            rampControl.setup(valueAtStartTime,valueAtFinishTime,timeToReachFinishValueInmSec);
+            // Enable the ramp control so that it will start when the motors start moving
+            rampControl.enable();
+            // set the mode for the motors during the turn. Without this they may not move.
+            rightDriveMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            leftDriveMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            //setting up the PID
+            pidControl.setSetpoint(heading);
+            pidControl.setMaxCorrection(maxPower);
+            pidControl.setThreshold(2);
+            pidControl.setKp(0.015);
+            //Saving power for later use
+            driveTrainPower = maxPower;
+            //Setting the flag to say the loop hasn't run yet
+            hasLoopRunYet = false;
+            //MATT never set the distance so it was 0 when we started the update
+            this.distance = distance;
+            //Setting up IMU
+            switch (headingType) {
+                case RELATIVE:
+                    imu.setAngleMode(AdafruitIMU8863.AngleMode.RELATIVE);
+                    imu.resetAngleReferences();
+                    break;
+                case ABSOLUTE:
+                    imu.setAngleMode(AdafruitIMU8863.AngleMode.ABSOLUTE);
+                    break;
+                case RAW:
+                    imu.setAngleMode(AdafruitIMU8863.AngleMode.RAW);
+                    break;
+            }
+            //If IMU isn't present
+        } else {
+            shutdown();
+            throw new IllegalArgumentException("No Imu found");
+        }
+
+    }
+    public boolean updateDriveDistanceUsingIMU() {
+        //setting up an array so that we can hold onto the left and right motor drive powers
+        double[] drivePowers;
+        if (imuPresent) {
+            //If the IMU is present we proceed if not we give the user an error
+            if(!hasLoopRunYet){
+                //If we are running the loop for the first time
+                //MATT the ramp start was after the calculatePowerUsingRampAndPID so initial power was 1
+                rampControl.start();
+                drivePowers = calculatePowerUsingRampAndPID();
+                //we start the motors moving using the powers calculated above
+                leftDriveMotor.moveByAmount(drivePowers[0], distance, DcMotor8863.FinishBehavior.HOLD);
+                rightDriveMotor.moveByAmount(drivePowers[1], distance, DcMotor8863.FinishBehavior.HOLD);
+                hasLoopRunYet = true;
+            } else {
+                //If we are running the loop or a second or third or more time
+                drivePowers = calculatePowerUsingRampAndPID();
+                //setting new powers to the motors
+                leftDriveMotor.setPower(drivePowers[0]);
+                rightDriveMotor.setPower(drivePowers[1]);
+            }
+            telemetry.addData("Left drive power = ", "%2.2f", drivePowers[0]);
+            telemetry.addData("Right drive power = ", "%2.2f", drivePowers[1]);
+            telemetry.addData("Heading = ", "%3.1f", imu.getHeading());
+            telemetry.update();
+            // update the motor state machines
+            leftDriveMotor.update();
+            rightDriveMotor.update();
+            // check to see if our desired distance has been met
+            if (leftDriveMotor.isMotorStateComplete() && rightDriveMotor.isMotorStateComplete()){
+                return true;
+            } else {
+                return false;
+            }
+            // If IMU isn't present
+        } else {
+            shutdown();
+            throw new IllegalArgumentException("No Imu found");
+        }
+    }
+    private double[] calculatePowerUsingRampAndPID(){
+        //this is what we use to calculate the ramp power
+        //after the ramp finishes running we get our drive train power applied back to the motors again
+        double rampPower = rampControl.getRampValueLinear(driveTrainPower);
+        double currentHeading = imu.getHeading();
+        //this is what we use to calculate the correction to the ramp power to adjust the steering
+        double correction = -pidControl.getCorrection(currentHeading);
+        double leftDrivePower = rampPower + correction;
+        double rightDrivePower = rampPower - correction;
+        double drivePowers[] = new double[2];
+        drivePowers[0] = leftDrivePower;
+        drivePowers[1] = rightDrivePower;
+        return drivePowers;
+    }
+
+    public void stopDriveDistanceUsingIMU() {
+        shutdown();
     }
 
     //*********************************************************************************************
@@ -195,15 +437,15 @@ public class DriveTrain {
      * The differentialDrive is meant to use one joystick to control the drive train.
      * Moving the joystick forward and backward controls speed (throttle).
      * Moving the joystick left or right controls direction.
-     *
+     * <p>
      * Differential drive has a master speed that gets applied to both motors. That speed is the
      * same. Then the speed to the left and right is adjusted up and down, opposite of each other
      * to turn the robot.
      *
-     * @param throttle Master speed applied to both motors.
+     * @param throttle  Master speed applied to both motors.
      * @param direction Adjustment applied to the master speed. Add to left. Subtract from right.
      */
-    public void differentialDrive(double throttle, double direction){
+    public void differentialDrive(double throttle, double direction) {
         // To steer the robot left, the left motor needs to reduce power and the right needs to increase.
         // To steer the robot right, the left motor needs to increase power and the left needs to reduce.
         // Since left on the joystick is negative, we need to add the direction for the left motor and
@@ -217,19 +459,39 @@ public class DriveTrain {
      * The tank drive uses the left joystick to control the left drive motor and the right joystick
      * to control the right drive motor.
      *
-     * @param leftValue Power to apply to the left motor.
+     * @param leftValue  Power to apply to the left motor.
      * @param rightValue Power to apply tot the right motor.
      */
-    public void tankDrive(double leftValue, double rightValue){
+    public void tankDrive(double leftValue, double rightValue) {
         leftDriveMotor.setPower(leftValue);
         rightDriveMotor.setPower(rightValue);
     }
+
+    /**
+     * Lock the motors so they resist turning. Might be useful for holding position on an incline.
+     */
+    public void freezeDrive() {
+        leftDriveMotor.setMotorToHold();
+        rightDriveMotor.setMotorToHold();
+        driveLocked = true;
+    }
+
+    // BUG after this method executes teleop via joysticks is very hesitant and jumpy
+    public void unFreezeDrive() {
+        if (driveLocked) {
+            leftDriveMotor.setMotorToFloat();
+            rightDriveMotor.setMotorToFloat();
+            teleopInit();
+        }
+    }
+
 
     //*********************************************************************************************
     //          Other methods
     //*********************************************************************************************
 
-    public void shutdown(){
-
+    public void shutdown() {
+        rightDriveMotor.shutDown();
+        leftDriveMotor.shutDown();
     }
 }
