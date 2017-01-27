@@ -4,6 +4,7 @@ package org.firstinspires.ftc.teamcode.Lib.VelocityVortex;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 
 public class FrontBeaconPusherControlGB {
@@ -135,7 +136,8 @@ public class FrontBeaconPusherControlGB {
                 break;
             case DRIVE_TO_BEACON:
                 // start a drive towards the beacon for a known distance
-                driveTrain.setupDriveDistanceUsingIMU(heading, distance, power);
+            driveTrain.setupDriveDistanceUsingIMU(heading, power, distance, AdafruitIMU8863.AngleMode.RELATIVE,
+                    0, .3, 1000);
                 frontBeaconControlState = FrontBeaconControlState.LOOKING_FOR_BEACON;
                 break;
             case LOOKING_FOR_BEACON:
@@ -232,7 +234,8 @@ public class FrontBeaconPusherControlGB {
                 // start to move the pushers back to the middle
                 frontBeaconPusher.moveBothMidway();
                 // start a move distance backwards
-                driveTrain.setupDriveDistanceUsingIMU(heading, -distance, power);
+                driveTrain.setupDriveDistanceUsingIMU(heading, power, -distance, AdafruitIMU8863.AngleMode.RELATIVE,
+                        0, power, 1000);
                 // move to next state
                 frontBeaconControlState = FrontBeaconControlState.DRIVE_BACK_TO_START;
                 break;

@@ -82,7 +82,7 @@ public class ResQRobot {
     public static ResQRobot ResQRobotTeleop(HardwareMap hardwareMap, Telemetry telemetry) {
         ResQRobot resQRobot = new ResQRobot(hardwareMap, telemetry);
         //this.telemetry = telemetry;
-        driveTrain = DriveTrain.DriveTrainTeleOp(hardwareMap);
+        driveTrain = DriveTrain.DriveTrainTeleOp(hardwareMap, telemetry);
         return resQRobot;
     }
 
@@ -94,7 +94,7 @@ public class ResQRobot {
      */
     public static ResQRobot ResQRobotAutonomous(HardwareMap hardwareMap, Telemetry telemetry) {
         ResQRobot resQRobot = new ResQRobot(hardwareMap,telemetry);
-        driveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap);
+        driveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap, telemetry);
         return resQRobot;
     }
     //*********************************************************************************************

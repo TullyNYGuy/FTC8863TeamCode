@@ -68,7 +68,7 @@ public class TestSweeper extends LinearOpMode {
 
         // Instantiate and initialize motors
 
-        myDriveTrain = DriveTrain.DriveTrainTeleOp(hardwareMap);
+        myDriveTrain = DriveTrain.DriveTrainTeleOp(hardwareMap, telemetry);
         myDriveTrain.setCmPerRotation(31.1); // cm
 
         sweeperMotor = new DcMotor8863(RobotConfigMappingForGenericTest.getthirdMotorName(), hardwareMap);
@@ -183,10 +183,10 @@ public class TestSweeper extends LinearOpMode {
             // upddat the tank drive
             myDriveTrain.tankDrive(leftPower, rightPower);
 
-            statusDrive = myDriveTrain.update();
-            if (statusDrive == DriveTrain.Status.COMPLETE) {
-                break;
-            }
+//            statusDrive = myDriveTrain.update();
+//            if (statusDrive == DriveTrain.Status.COMPLETE) {
+//                break;
+//            }
 
             // Display the current speeds
             telemetry.addData("Left Motor Speed = ", "%3.2f", leftPower);

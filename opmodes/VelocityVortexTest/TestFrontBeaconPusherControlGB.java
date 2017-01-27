@@ -35,7 +35,7 @@ public class TestFrontBeaconPusherControlGB extends LinearOpMode {
 
         // Put your initializations here
 
-        driveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap);
+        driveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap, telemetry);
         muxPlusColorSensors = new MuxPlusColorSensors(hardwareMap, telemetry);
         frontBeaconPusherControl =  new FrontBeaconPusherControlGB(hardwareMap, telemetry,
                 muxPlusColorSensors, driveTrain, allianceColor);
