@@ -1,6 +1,10 @@
 package org.firstinspires.ftc.teamcode.Lib.VelocityVortex;
 
 
+import com.qualcomm.robotcore.hardware.HardwareMap;
+
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
 public class FrontBeaconPusherControl {
 
     //*********************************************************************************************
@@ -10,13 +14,14 @@ public class FrontBeaconPusherControl {
     //
     //*********************************************************************************************
 
-    private enum FrontBeaconControlState {
+    public enum FrontBeaconControlState {
         BOTH_BACK,
         BOTH_MIDDLE,
         BOTH_FORWARD,
         LEFT_BACK_RIGHT_FORWARD,
         RIGHT_BACK_LEFT_FORWARD,
-        PUSH_BEACON
+        PUSH_BEACON,
+        IDLE
     }
 
     public enum AllianceColor {
@@ -56,6 +61,11 @@ public class FrontBeaconPusherControl {
     // from it
     //*********************************************************************************************
 
+    public FrontBeaconPusherControl(HardwareMap hardwareMap, Telemetry telemetry, MuxPlusColorSensors muxPlusColorSensors, AllianceColor allianceColor) {
+        frontBeaconPusher = new FrontBeaconPusher(hardwareMap, telemetry, muxPlusColorSensors);
+        this.allianceColor = allianceColor;
+        frontBeaconControlState = FrontBeaconControlState.IDLE;
+    }
 
     //*********************************************************************************************
     //          Helper Methods
@@ -70,10 +80,16 @@ public class FrontBeaconPusherControl {
     // public methods that give the class its functionality
     //*********************************************************************************************
 
+    public void startBeaconControl() {
+        frontBeaconControlState = FrontBeaconControlState.BOTH_BACK;
+    }
+
     public FrontBeaconControlState update(){
         frontBeaconPusherState = frontBeaconPusher.updateState();
         beaconColor = frontBeaconPusher.getBeaconColor();
         switch (frontBeaconControlState) {
+            case IDLE:
+                break;
             case BOTH_BACK:
                 frontBeaconControlState = FrontBeaconControlState.BOTH_MIDDLE;
                 frontBeaconPusher.moveBothMidway();
@@ -88,7 +104,6 @@ public class FrontBeaconPusherControl {
                             || allianceColor == AllianceColor.RED && beaconColor == FrontBeaconPusher.BeaconColor.RED_BLUE) {
                         frontBeaconControlState = FrontBeaconControlState.RIGHT_BACK_LEFT_FORWARD;
                     }
-                    frontBeaconControlState = FrontBeaconControlState.RIGHT_BACK_LEFT_FORWARD;
                 }
                 break;
             case BOTH_FORWARD:
