@@ -43,6 +43,13 @@ public class RobotConfigMappingForGenericTest {
     //generic Adafruit ColorSensor
     private static String adafruitColorSensorName = "colorSensor";
 
+
+    private static String rightSideBeaconColorSensorName = "rightBeaconColorSensor";
+    private static String leftSideBeaconColorSensorName = "leftBeaconColorSensor";
+
+    //LED channel
+    private static int rightSideBeaconColorSensorLEDPort = 1;
+    private static int leftSideBeaconColorSensorLEDPort = 2;
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -70,6 +77,21 @@ public class RobotConfigMappingForGenericTest {
 
     public static String getadafruitColorSensorName() {return adafruitColorSensorName;}
 
+    public static String getRightSideBeaconColorSensorName() {
+        return rightSideBeaconColorSensorName;
+    }
+
+    public static String getLeftSideBeaconColorSensorName() {
+        return leftSideBeaconColorSensorName;
+    }
+
+    public static int getRightSideBeaconColorSensorLEDPort() {
+        return rightSideBeaconColorSensorLEDPort;
+    }
+
+    public static int getLeftSideBeaconColorSensorLEDPort() {
+        return leftSideBeaconColorSensorLEDPort;
+    }
 
     //*********************************************************************************************
     //          Constructors
