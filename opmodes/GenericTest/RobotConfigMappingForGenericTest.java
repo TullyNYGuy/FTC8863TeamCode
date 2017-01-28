@@ -64,7 +64,7 @@ public class RobotConfigMappingForGenericTest {
     // Color Sensors and mux
 
     // mux
-    // Core DIM I2C port 0, configure as I2C Device
+    // Core DIM I2C port 1, configure as I2C Device
     private static String muxName = "mux";
     private static byte muxAddress = 0x70;
 
