@@ -67,7 +67,7 @@ public class DeliveryBox {
     //*********************************************************************************************
 
     public DeliveryBox(HardwareMap hardwareMap, Telemetry telemetry) {
-        slideServo = new CRServo(RobotConfigMapping.getLinearSlideServoName(),hardwareMap, slideServoZeroThrottle, slideServoZeroZone);
+        //slideServo = new CRServo(RobotConfigMapping.getLinearSlideServoName(),hardwareMap, slideServoZeroThrottle, slideServoZeroZone);
         rampServo = new Servo8863(RobotConfigMapping.getRampServoName(), hardwareMap, telemetry, dumpHomePosition, dumpUpPosition, dumpDownPosition, dumpInitPosition, Servo.Direction.REVERSE);
 
         //setup the dump ramp wiggle for later use
@@ -95,7 +95,7 @@ public class DeliveryBox {
 
     public void initDeliveryBox() {
         // set slide servo so box is not moving
-        slideServo.updatePosition(slideServoZeroThrottle);
+        //slideServo.updatePosition(slideServoZeroThrottle);
     }
 
     public void updateDeliveryBox(double throttle){
@@ -109,7 +109,7 @@ public class DeliveryBox {
 
         // for now, there are no limit switches installed so just go ahead and move the box.
         // I hope the operator is good!
-        slideServo.updatePosition(throttle);
+        //slideServo.updatePosition(throttle);
 
         //update the wiggle for the dump ramp (if any)
         rampServo.updateWiggle();

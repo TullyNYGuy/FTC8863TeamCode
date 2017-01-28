@@ -31,6 +31,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 
 package org.firstinspires.ftc.teamcode.opmodes.GenericTest;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -42,11 +43,14 @@ import org.firstinspires.ftc.teamcode.Lib.ResQLib.RobotConfigMapping;
 import static org.firstinspires.ftc.teamcode.opmodes.GenericTest.RobotConfigMappingForGenericTest.getcrServoName;
 import static org.firstinspires.ftc.teamcode.opmodes.GenericTest.RobotConfigMappingForGenericTest.getleftMotorName;
 
+@Deprecated // use TestCRServoLinearOpMode instead
+
 @TeleOp(name = "Test CR Servo", group = "Test")
-//@Disabled
+@Disabled
 public class TestCRServo extends OpMode {
 
-    double noMovePosition = .5;
+    double noMovePositionReverse = .46;
+    double noMovePositionForward = .50;
     double deadZone = .1;
     CRServo testServo;
 
@@ -74,8 +78,9 @@ public class TestCRServo extends OpMode {
 	@Override
 	public void init() {
 
-        testServo = new CRServo(getcrServoName(),hardwareMap, noMovePosition, deadZone);
-        testServo.setDirection(Servo.Direction.REVERSE);
+        testServo = new CRServo(RobotConfigMappingForGenericTest.getgenericServoName(),hardwareMap,
+                noMovePositionForward, noMovePositionReverse, deadZone, Servo.Direction.REVERSE,
+                telemetry);
         timer = new ElapsedTime();
         testServo.setPosition(testServo.getCenterValue());
 
@@ -90,24 +95,28 @@ public class TestCRServo extends OpMode {
 	@Override
 	public void loop() {
 
-//        if (timer.milliseconds() < 5000) {
-//            testServo.updatePosition(1.0);
-//            telemetry.addData("Time = ", "%3.2f", timer.milliseconds()/1000);
-//            telemetry.update();
-//        }
 
-            if (timer.milliseconds() > step * stepLength && command <= endCommand) {
-                step++;
-                command = command + commandIncrement;
-                testServo.setPosition(command);
-            }
-            telemetry.addData("Step = ", "%d", step);
-            telemetry.addData("Command = ", "%3.2f", command);
+
+        if (timer.milliseconds() < 2000) {
+            testServo.setSpeed(1.0);
+            telemetry.addData("Time = ", "%3.2f", timer.milliseconds()/1000);
             telemetry.update();
-
-        if(command == 1.0) {
-            stop();
         }
+
+        testServo.setSpeed(noMovePositionForward);
+
+//            if (timer.milliseconds() > step * stepLength && command <= endCommand) {
+//                step++;
+//                command = command + commandIncrement;
+//                testServo.setPosition(command);
+//            }
+//            telemetry.addData("Step = ", "%d", step);
+//            telemetry.addData("Command = ", "%3.2f", command);
+//            telemetry.update();
+//
+//        if(command == 1.0) {
+//            stop();
+//        }
 
 //        telemetry.addData("Text", "*** Robot Data***");
 //        telemetry.addData("slide", "position:  " + String.format("%.2f", testServo.getPosition()));

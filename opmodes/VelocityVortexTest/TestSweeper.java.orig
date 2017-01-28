@@ -183,10 +183,17 @@ public class TestSweeper extends LinearOpMode {
             // upddat the tank drive
             myDriveTrain.tankDrive(leftPower, rightPower);
 
+<<<<<<< HEAD
+            statusDrive = myDriveTrain.updateDriveDistance();
+            if (statusDrive == DriveTrain.Status.COMPLETE) {
+                break;
+            }
+=======
 //            statusDrive = myDriveTrain.update();
 //            if (statusDrive == DriveTrain.Status.COMPLETE) {
 //                break;
 //            }
+>>>>>>> FrontBeaconPusher
 
             // Display the current speeds
             telemetry.addData("Left Motor Speed = ", "%3.2f", leftPower);

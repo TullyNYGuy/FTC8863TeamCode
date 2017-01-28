@@ -77,10 +77,17 @@ public class TestDriveTrain extends LinearOpMode {
                 myDriveTrain.differentialDrive(throttle, direction);
             }
 
+<<<<<<< HEAD
+            statusDrive = myDriveTrain.updateDriveDistance();
+            if (statusDrive == DriveTrain.Status.COMPLETE) {
+                break;
+            }
+=======
 //            statusDrive = myDriveTrain.update();
 //            if (statusDrive == DriveTrain.Status.COMPLETE) {
 //                break;
 //            }
+>>>>>>> FrontBeaconPusher
 
             telemetry.addData("Left Motor Speed = ", "%3.2f", leftPower);
             telemetry.addData("Right Motor Speed = ", "%3.2f", rightPower);

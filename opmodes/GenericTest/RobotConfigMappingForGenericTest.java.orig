@@ -137,20 +137,14 @@ public class RobotConfigMappingForGenericTest {
         return rightFrontLimitSwitch;
     }
 
-    public static String getLeftSideBeaconColorSensorName() {
-        return leftSideBeaconColorSensorName;
     public static String getLeftFrontLimitSwitchName() {
         return leftFrontLimitSwitch;
     }
 
-    public static int getRightSideBeaconColorSensorLEDPort() {
-        return rightSideBeaconColorSensorLEDPort;
     public static String getRightBackLimitSwitchName() {
         return rightBackLimitSwitch;
     }
 
-    public static int getLeftSideBeaconColorSensorLEDPort() {
-        return leftSideBeaconColorSensorLEDPort;
     public static String getLeftBackLimitSwitchName() {
         return leftBackLimitSwitch;
     }
@@ -167,6 +161,22 @@ public class RobotConfigMappingForGenericTest {
         return muxName;
     }
 
+<<<<<<< HEAD
+    public static String getRightSideBeaconColorSensorName() {
+        return rightSideBeaconColorSensorName;
+    }
+
+    public static String getLeftSideBeaconColorSensorName() {
+        return leftSideBeaconColorSensorName;
+    }
+
+    public static int getRightSideBeaconColorSensorLEDPort() {
+        return rightSideBeaconColorSensorLEDPort;
+    }
+
+    public static int getLeftSideBeaconColorSensorLEDPort() {
+        return leftSideBeaconColorSensorLEDPort;
+=======
     public static byte getMuxAddress() {
         return muxAddress;
     }
@@ -197,6 +207,7 @@ public class RobotConfigMappingForGenericTest {
 
     public static AdafruitI2CMux.PortNumber getLeftSideBeaconPusherColorSensorPort() {
         return leftSideBeaconPusherColorSensorPort;
+>>>>>>> FrontBeaconPusher
     }
 
     //*********************************************************************************************

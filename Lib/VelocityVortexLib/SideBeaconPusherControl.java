@@ -25,7 +25,7 @@ public class SideBeaconPusherControl {
         DRIVE_FORWARD_AFTER_BEACON,
         DETECT_AFTER_SKIP,
         CHECK_DRIVE_AFTER_FIRST_BEACON,
-        RETRACT_ARM_AFTER_SKIP,
+        RETRACT_ARM_AFTER_SKIP
     }
 
 
@@ -56,7 +56,7 @@ public class SideBeaconPusherControl {
 
     public SideBeaconPusherControl(HardwareMap hardwareMap, Telemetry telemetry, DriveTrain
             driveTrain, SideBeaconPusher.SideBeaconPusherPosition sideBeaconPusherPosition,
-            VelocityVortexRobot.AllianceColor allianceColor) {
+                                   VelocityVortexRobot.AllianceColor allianceColor) {
         this.sideBeaconPusher = new SideBeaconPusher(hardwareMap, telemetry, driveTrain, sideBeaconPusherPosition);
         this.allianceColor = allianceColor;
     }
@@ -74,23 +74,23 @@ public class SideBeaconPusherControl {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
-    public SideBeaconPusherState update () {
-        switch (sideBeaconPusherState){
+    public SideBeaconPusherState update() {
+        switch (sideBeaconPusherState) {
             case RUNNING_ALONG_THE_WALL:
                 sideBeaconPusher.driveAlongWall(0, .6);
                 sideBeaconPusher.extendArmHalfWay();
                 sideBeaconPusherState = SideBeaconPusherState.SEARCHING_FOR_BEACON;
                 break;
             case SEARCHING_FOR_BEACON:
-                if (sideBeaconPusher.isBeaconBlue() || sideBeaconPusher.isBeaconRed()){
+                if (sideBeaconPusher.isBeaconBlue() || sideBeaconPusher.isBeaconRed()) {
                     sideBeaconPusher.stopDriveAlongWall();
                     sideBeaconPusherState = SideBeaconPusherState.BEACON_DETECTED;
                 }
                 break;
-            case  BEACON_DETECTED:
+            case BEACON_DETECTED:
                 sideBeaconPusher.driveNearBeacon();
                 if (sideBeaconPusher.isBeaconBlue() && allianceColor == VelocityVortexRobot.AllianceColor.BLUE ||
-                 sideBeaconPusher.isBeaconRed() && allianceColor == VelocityVortexRobot.AllianceColor.RED ) {
+                        sideBeaconPusher.isBeaconRed() && allianceColor == VelocityVortexRobot.AllianceColor.RED) {
                     sideBeaconPusherState = SideBeaconPusherState.PUSH_BUTTON;
                 } else {
                     sideBeaconPusherState = SideBeaconPusherState.SKIP_BUTTON;
@@ -98,7 +98,7 @@ public class SideBeaconPusherControl {
                 break;
             case PUSH_BUTTON:
                 sideBeaconPusher.extendingArmFully();
-                sideBeaconPusher.driveDistance(0,.3);
+                sideBeaconPusher.driveDistance(0, .3);
                 sideBeaconPusherState = SideBeaconPusherState.DRIVE_COMPLETE;
                 break;
 
@@ -131,11 +131,13 @@ public class SideBeaconPusherControl {
             case CHECK_DRIVE_AFTER_FIRST_BEACON:
                 if (sideBeaconPusher.updateDriveDistance()) {
                     sideBeaconPusherState = SideBeaconPusherState.RUNNING_ALONG_THE_WALL;
+                }
                 break;
             case RETRACT_ARM_AFTER_SKIP:
                 sideBeaconPusher.retractArm();
                 break;
+            }
+        return sideBeaconPusherState;
         }
     }
-}
 //IDEA use telemetry to print out the state we are currently in on the phone that way we can debug easier

@@ -218,12 +218,13 @@ public class CRServo {
                    String frontSwitchName, Switch.SwitchType frontSwitchType,
                    String backSwitchName, Switch.SwitchType backSwitchType,
                    Telemetry telemetry) {
-        // create the switch objects
-        frontSwitch = new Switch(hardwareMap, frontSwitchName, frontSwitchType);
-        backSwitch = new Switch(hardwareMap, backSwitchName, backSwitchType);
 
         initialize(servoName, hardwareMap, centerValueForward, centerValueReverse, deadBandRange,
                 direction, telemetry);
+        // check to see if the servo is against the limit switches in order to initialize the state
+
+        frontSwitch = new Switch(hardwareMap, frontSwitchName, frontSwitchType);
+        backSwitch = new Switch(hardwareMap, backSwitchName, backSwitchType);
     }
 
     private void initialize(String servoName, HardwareMap hardwareMap, double centerValueForward,
@@ -243,8 +244,6 @@ public class CRServo {
         // starts to move at init.
         delay(100);
         crServo.setPosition(centerValue);
-        // check to see if the servo is against the limit switches in order to initialize the state
-        currentState = findCRServoState();
     }
 
 
@@ -473,8 +472,11 @@ public class CRServo {
     }
 
     public CRServoState update() {
+<<<<<<< HEAD
+=======
         frontSwitch.updateSwitch();
         backSwitch.updateSwitch();
+>>>>>>> CRServo
         switch (currentState) {
             case BACK_AT_POSITION:
                 setSpeed(0);
@@ -516,31 +518,7 @@ public class CRServo {
                 break;
         }
         return currentState;
-    }
-
-    /**
-     * When the state of the CRServo is unknown, like when it is constucted, we need to try to
-     * determine the state as best we can. We are assuming that the servo is not moving.
-     * @return
-     */
-    public CRServoState findCRServoState() {
-        CRServoState result;
-        // Check the switches first to see if it is at a limit switch
-        // Note that I cannot use isPressed() to check the switch. isPressed() depends on the
-        // update() (state machine) being run periodically. Since it is not running at init, the
-        // result will not be accurate. I have to use getPressed(false) or no debounce applied
-        // instead. That just reads the port. No debounce is applied but that should be fine since
-        // things are not moving anyway.
-        if (frontSwitch.isPressed(Switch.Debounce.NO_DEBOUNCE)) {
-            return CRServoState.BACK_AT_SWITCH;
-        }
-        if (backSwitch.isPressed(Switch.Debounce.NO_DEBOUNCE)) {
-            return CRServoState.FORWARD_AT_SWITCH;
-        }
-        // since I am assuming it is not moving, the only other options are FORWARD_AT_POSITION
-        // and BACK_AT_POSITION. It does not really matter which one since the only difference
-        // between the two is how it got to the position. Pick one.
-        return CRServoState.FORWARD_AT_POSITION;
+<<<<<<< HEAD
     }
 
     public boolean isAtPosition() {
@@ -557,5 +535,12 @@ public class CRServo {
         } else {
             return false;
         }
+=======
+>>>>>>> CRServo
     }
+
+    //  public void updatePosition(double throttle) {
+    // this is just a place holder method to avoid having to change DeliveryBox
+    // delete it later
+    //   }
 }

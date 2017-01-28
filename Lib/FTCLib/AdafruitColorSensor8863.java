@@ -326,6 +326,21 @@ public class AdafruitColorSensor8863 {
         }
     }
 
+    /**
+     * The core DIM has a blue and a red led built into it. You can use these to give a visual
+     * indication of what color the color sensor is reading. Turn the red led on if the color
+     * sensor is reading red, or turn the blue led on if the core DIM is reading blue. Just one
+     * idea of what to do with them.
+     */
+    private enum CoreDIMLEDChannel {
+        BLUE(0x00),
+        RED(0x01);
+
+        public final byte byteVal;
+
+        CoreDIMLEDChannel(int i) {this.byteVal = (byte) i;}
+    }
+
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS
     //
@@ -645,6 +660,10 @@ public class AdafruitColorSensor8863 {
     //          LED Control
     //*********************************************************************************************
 
+    /**
+     * Turn the led on the color sensor on. The led pin on the color sensor is connected to a
+     * digital input port on the core DIM.
+     */
     public void turnLEDOn() {
         // only put commands on the bus if there is a change to be made
         if (!this.ledOn) {
@@ -654,6 +673,10 @@ public class AdafruitColorSensor8863 {
         }
     }
 
+    /**
+     * Turn the led on the color sensor off. The led pin on the color sensor is connected to a
+     * digital input port on the core DIM.
+     */
     public void turnLEDOff() {
         // only put commands on the bus if there is a change to be made
         if (this.ledOn) {
@@ -663,6 +686,10 @@ public class AdafruitColorSensor8863 {
         }
     }
 
+    /**
+     * Toggle the led on the color sensor. The led pin on the color sensor is connected to a
+     * digital input port on the core DIM.
+     */
     public void toggleLED() {
         if (this.ledOn) {
             turnLEDOff();
@@ -670,6 +697,35 @@ public class AdafruitColorSensor8863 {
             turnLEDOn();
         }
     }
+
+    /**
+     * Turn the blue led in the core DIM on
+     */
+    public void turnCoreDIMBlueLEDOn() {
+        coreDIM.setLED(CoreDIMLEDChannel.BLUE.byteVal, true);
+    }
+
+    /**
+     * Turn the blue led in the core DIM off
+     */
+    public void turnCoreDIMBlueLEDOff() {
+        coreDIM.setLED(CoreDIMLEDChannel.BLUE.byteVal, false);
+    }
+
+    /**
+     * Turn the red led in the core DIM on
+     */
+    public void turnCoreDIMRedLEDOn() {
+        coreDIM.setLED(CoreDIMLEDChannel.RED.byteVal, true);
+    }
+
+    /**
+     * Turn the blue led in the core DIM off
+     */
+    public void turnCoreDIMRedLEDOff() {
+        coreDIM.setLED(CoreDIMLEDChannel.RED.byteVal, false);
+    }
+
 
     //*********************************************************************************************
     //          Reading colors
