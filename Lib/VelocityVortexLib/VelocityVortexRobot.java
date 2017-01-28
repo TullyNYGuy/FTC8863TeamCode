@@ -5,6 +5,8 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
+import org.firstinspires.ftc.teamcode.Lib.VelocityVortex.FrontBeaconPusher;
+import org.firstinspires.ftc.teamcode.Lib.VelocityVortex.MuxPlusColorSensors;
 
 public class VelocityVortexRobot {
 
@@ -34,6 +36,8 @@ public class VelocityVortexRobot {
     // Here are all of the objects that make up the entire robot
     // note that the IMU is an object in the drive train
     public DriveTrain driveTrain;
+    public FrontBeaconPusher frontBeaconPusher;
+    public MuxPlusColorSensors muxPlusColorSensors;
     public VelocityVortexSweeper sweeper;
     public SideBeaconPusher rightSideBeaconPusher;
     public SideBeaconPusher leftSideBeaconPusher;
@@ -64,8 +68,12 @@ public class VelocityVortexRobot {
         }
         sweeper = new VelocityVortexSweeper(hardwareMap);
         rightSideBeaconPusher = new SideBeaconPusher(hardwareMap, telemetry, driveTrain, SideBeaconPusher.SideBeaconPusherPosition.RIGHT);
+        muxPlusColorSensors = new MuxPlusColorSensors(hardwareMap, telemetry);
+        frontBeaconPusher = new FrontBeaconPusher(hardwareMap, telemetry, muxPlusColorSensors);
         init();
+
     }
+
 
     public static VelocityVortexRobot createRobotForAutonomous(HardwareMap hardwareMap, Telemetry telemetry) {
         VelocityVortexRobot robot = new VelocityVortexRobot(hardwareMap, RobotMode.AUTONOMOUS, telemetry);
@@ -98,6 +106,7 @@ public class VelocityVortexRobot {
 
     public void update() {
         sweeper.update();
+        frontBeaconPusher.updateState();
     }
 
     public void shutdown() {

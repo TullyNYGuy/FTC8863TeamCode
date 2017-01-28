@@ -138,19 +138,26 @@ public class RobotConfigMappingForGenericTest {
     }
 
     public static String getLeftSideBeaconColorSensorName() {
-        return leftSideBeaconColorSensorName;
+        return leftSideBeaconColorSensorName;}
+
+    public static String getRightSideBeaconColorSensorName() {
+        return rightSideBeaconColorSensorName;
+    }
+
     public static String getLeftFrontLimitSwitchName() {
         return leftFrontLimitSwitch;
     }
 
     public static int getRightSideBeaconColorSensorLEDPort() {
         return rightSideBeaconColorSensorLEDPort;
+    }
     public static String getRightBackLimitSwitchName() {
         return rightBackLimitSwitch;
     }
 
     public static int getLeftSideBeaconColorSensorLEDPort() {
         return leftSideBeaconColorSensorLEDPort;
+    }
     public static String getLeftBackLimitSwitchName() {
         return leftBackLimitSwitch;
     }

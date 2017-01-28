@@ -25,6 +25,11 @@ public class VelocityVortexSweeper {
         POWER_RAMP_COMPLETE // power ramp just completed
     }
 
+    private enum PushVSCollect {
+        COLLECT,
+        PUSH;
+    }
+
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS
     //
@@ -36,6 +41,8 @@ public class VelocityVortexSweeper {
     private DcMotor8863 sweeperMotor;
 
     private double sweeperPower = 0;
+
+    private PushVSCollect pushVSCollect = PushVSCollect.COLLECT;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -94,13 +101,24 @@ public class VelocityVortexSweeper {
     }
     public void push(){
         sweeperPower = -1;
+        pushVSCollect = PushVSCollect.PUSH;
         sweeperMotor.setPower(sweeperPower);
     }
 
     public void collect(){
         sweeperPower = .5;
+        pushVSCollect = PushVSCollect.COLLECT;
         sweeperMotor.setPower(sweeperPower);
     }
+
+    public void reverseDirection() {
+        if (pushVSCollect == PushVSCollect.COLLECT) {
+            push();
+        } else {
+            collect();
+        }
+    }
+
 
     public void update(){
         sweeperMotor.update();

@@ -218,6 +218,7 @@ public class TestSweeper extends LinearOpMode {
      * This method will only send a power to the motor controller if the power changes from the
      * last power that was sent. Not really needed to function but it cuts down on the traffic to
      * the I2C devices.
+     *
      * @param power power to set the motor to
      */
     private void setPower(double power) {
