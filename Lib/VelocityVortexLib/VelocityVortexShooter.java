@@ -26,7 +26,8 @@ public class VelocityVortexShooter {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
-    private DcMotor8863 shooterMotor;
+    public DcMotor8863 shooterMotor;
+    public DcMotor8863 shooterLeadScrewMotor;
 
     private double shooterPower = 0;
 
@@ -51,7 +52,7 @@ public class VelocityVortexShooter {
 
     public VelocityVortexShooter(HardwareMap hardwareMap) {
         // setup the motor
-        shooterMotor = new DcMotor8863(RobotConfigMappingForGenericTest.getleftMotorName(), hardwareMap);
+        shooterMotor = new DcMotor8863(RobotConfigMappingForGenericTest.getShooterMotorName(), hardwareMap);
         shooterMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
         shooterMotor.setMovementPerRev(360);
         shooterMotor.setTargetEncoderTolerance(5);
@@ -59,6 +60,16 @@ public class VelocityVortexShooter {
         shooterMotor.setMotorMoveType(DcMotor8863.MotorMoveType.RELATIVE);
         shooterMotor.setMinMotorPower(-1);
         shooterMotor.setMaxMotorPower(1);
+
+        // setup the motor
+        shooterLeadScrewMotor = new DcMotor8863(RobotConfigMappingForGenericTest.getShooterMotorName(), hardwareMap);
+        shooterLeadScrewMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
+        shooterLeadScrewMotor.setMovementPerRev(360);
+        shooterLeadScrewMotor.setTargetEncoderTolerance(5);
+        shooterLeadScrewMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
+        shooterLeadScrewMotor.setMotorMoveType(DcMotor8863.MotorMoveType.RELATIVE);
+        shooterLeadScrewMotor.setMinMotorPower(-1);
+        shooterLeadScrewMotor.setMaxMotorPower(1);
     }
 
 
@@ -79,6 +90,10 @@ public class VelocityVortexShooter {
         shooterMotor.setDirection(DcMotor.Direction.FORWARD);
         // set the mode for the motor and lock it in place
         shooterMotor.runAtConstantSpeed(0);
+        // set its direction
+        shooterLeadScrewMotor.setDirection(DcMotor.Direction.FORWARD);
+        // set the mode for the motor and lock it in place
+        shooterLeadScrewMotor.runAtConstantSpeed(0);
     }
 
     public void stop(){

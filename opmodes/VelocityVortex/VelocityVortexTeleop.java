@@ -3,13 +3,14 @@ package org.firstinspires.ftc.teamcode.opmodes.VelocityVortex;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.JoyStick;
 import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.VelocityVortexRobot;
 
 /**
  * Teleop for competition
  */
-@TeleOp(name = "Velocity Vortex Teleop Old", group = "Run")
+@TeleOp(name = "Velocity Vortex Teleop", group = "Run")
 //@Disabled
 public class VelocityVortexTeleop extends LinearOpMode {
 
@@ -129,7 +130,7 @@ public class VelocityVortexTeleop extends LinearOpMode {
             
             if (gamepad1.y) {
                 if (gamepad1yButtonIsReleased) {
-                    //Pushed ball out of sweeper
+                    //Pushs ball out of sweeper
                     robot.sweeper.push();
                     gamepad1yButtonIsReleased = false;
                 }
@@ -157,6 +158,7 @@ public class VelocityVortexTeleop extends LinearOpMode {
 
             if (gamepad1.b) {
                 if (gamepad1bButtonIsReleased) {
+                    // stop the sweeper
                     robot.sweeper.stop();
                     gamepad1bButtonIsReleased = false;
                 }
@@ -185,8 +187,6 @@ public class VelocityVortexTeleop extends LinearOpMode {
 
             if (gamepad1.dpad_up) {
                 if (gamepad1DpadUpIsReleased) {
-                    // shoot balls 
-                    //robot.sweeper.shoot();
                     gamepad1DpadUpIsReleased = false;
                 }
             } else {
@@ -195,8 +195,7 @@ public class VelocityVortexTeleop extends LinearOpMode {
 
             if (gamepad1.dpad_down) {
                 if (gamepad1DpadDownIsReleased) {
-                    //collect balls
-                    robot.sweeper.collect();
+                    robot.driveTrain.toggleDriveDirection();
                     gamepad1DpadDownIsReleased = false;
                 }
             } else {

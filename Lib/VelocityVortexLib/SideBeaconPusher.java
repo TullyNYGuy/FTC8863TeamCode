@@ -34,8 +34,9 @@ public class SideBeaconPusher {
     Servo8863 beaconServo;
     AdafruitColorSensor8863 beaconColorSensor;
     DriveTrain driveTrain;
-    double homePosition = 0;
-    double openPosition = 1;
+    double homePosition = .65;
+    double halfwayPosition = .8;
+    double openPosition = 1.0;
     double extraPosition1 = 0;
     double extraPosition2 = 0;
 
@@ -57,25 +58,25 @@ public class SideBeaconPusher {
     public SideBeaconPusher(HardwareMap hardwareMap, Telemetry telemetry, DriveTrain driveTrain, SideBeaconPusherPosition sideBeaconPusherPosition) {
         String beaconColorSensorName;
         int beaconColorSensorLEDPort;
-        beaconServo = new Servo8863("beaconServo", hardwareMap, telemetry, homePosition, openPosition, extraPosition1, extraPosition2, Servo.Direction.FORWARD);
+        beaconServo = new Servo8863(RobotConfigMappingForGenericTest.getRightSideBeaconPusherServo(), hardwareMap, telemetry, homePosition, openPosition, extraPosition1, extraPosition2, Servo.Direction.FORWARD);
         this.driveTrain = driveTrain;
 
         if (sideBeaconPusherPosition == SideBeaconPusherPosition.LEFT) {
             beaconColorSensorName = RobotConfigMappingForGenericTest.getLeftSideBeaconColorSensorName();
             beaconColorSensorLEDPort = RobotConfigMappingForGenericTest.getLeftSideBeaconColorSensorLEDPort();
             //
-            beaconServo.setHomePosition(0); //running against the wall
-            beaconServo.setPositionOne(.5); //scanning for beacon
-            beaconServo.setPositionTwo(.7); //pushing button
+            beaconServo.setHomePosition(homePosition); //running against the wall
+            beaconServo.setPositionOne(halfwayPosition); //scanning for beacon
+            beaconServo.setPositionTwo(openPosition); //pushing button
         } else {
             beaconColorSensorName = RobotConfigMappingForGenericTest.getRightSideBeaconColorSensorName();
             beaconColorSensorLEDPort = RobotConfigMappingForGenericTest.getRightSideBeaconColorSensorLEDPort();
             //
-            beaconServo.setHomePosition(0); //running against the wall
-            beaconServo.setPositionOne(.5); //scanning for beacon
-            beaconServo.setPositionTwo(.7); //pushing button
+            beaconServo.setHomePosition(homePosition); //running against the wall
+            beaconServo.setPositionOne(halfwayPosition); //scanning for beacon
+            beaconServo.setPositionTwo(openPosition); //pushing button
         }
-        beaconColorSensor = new AdafruitColorSensor8863(hardwareMap, beaconColorSensorName, RobotConfigMappingForGenericTest.getCoreDeviceInterfaceName(), beaconColorSensorLEDPort);
+        //beaconColorSensor = new AdafruitColorSensor8863(hardwareMap, beaconColorSensorName, RobotConfigMappingForGenericTest.getCoreDeviceInterfaceName(), beaconColorSensorLEDPort);
     }
 
 

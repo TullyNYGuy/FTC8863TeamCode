@@ -27,6 +27,9 @@ public class RobotConfigMappingForGenericTest {
     private static String leftMotorName = "leftMotor";
     private static String rightMotorName = "rightMotor";
 
+    // sweeper
+    private static String sweeperMotor = "sweeperMotor";
+
     // third motor
     private static String thirdMotorName = "thirdMotor";
 
@@ -43,25 +46,31 @@ public class RobotConfigMappingForGenericTest {
     // Core DIM module I2C port 0, configure as Adafruit IMU
     private static String IMUName = "IMU";
 
+    //-----------------------------------------------
+    //front beacon pushers
+    //-----------------------------------------------
+
+    // Core DIM module Digital port 0, configure as Digital Device
+    private static String rightFrontLimitSwitch = "rightFrontSwitch";
+    // Core DIM module Digital port 1, configure as Digital Device
+    private static String rightBackLimitSwitch = "rightBackSwitch";
+    // Core DIM module Digital port 2, configure as Digital Device
+    private static String leftFrontLimitSwitch = "leftFrontSwitch";
+    // Core DIM module Digital port 3, configure as Digital Device
+    private static String leftBackLimitSwitch = "leftBackSwitch";
+    // Color sensor LEDs
+    private static String frontBeaconPusherRightColorSensorLEDName = "frontRightBeaconLED";
+
     // left and right servos for front beacon pusher
 
     // Core servo controller port 5, configure as Servo
-    private static String frontLeftBeaconServo = "frontLeftBeaconServo";
+    private static String frontLeftBeaconServo = "frontLeftBeaconPusherServo";
     // Core servo controller port 6, configure as Servo
-    private static String frontRightBeaconServo = "frontRightBeaconServo";
+    private static String frontRightBeaconServo = "frontRightBeaconPusherServo";
 
-    //front beacon pushers
-
-    // Core DIM module Digital port 0
-    private static String rightFrontLimitSwitch = "rightFrontSwitch";
-    // Core DIM module Digital port 1
-    private static String rightBackLimitSwitch = "rightBackSwitch";
-    // Core DIM module Digital port 2
-    private static String leftFrontLimitSwitch = "leftFrontSwitch";
-    // Core DIM module Digital port 3
-    private static String leftBackLimitSwitch = "leftBackSwitch";
-
+    //-------------------------------------------------
     // Color Sensors and mux
+    //-------------------------------------------------
 
     // mux
     // Core DIM I2C port 1, configure as I2C Device
@@ -72,28 +81,45 @@ public class RobotConfigMappingForGenericTest {
     // Even though there are multiple color sensors we only need 1 name since the mux makes it look
     // like there is only 1 color sensor attached to the core DIM
 
-    // Core DIM I2C Port 1, configure as I2C Device
+    // Core DIM I2C Port 2, configure as I2C Device
     private static String adafruitColorSensorName = "colorSensor";
     // LED ports for the color sensors
-    // Core DIM module Digital port 4
+    // Core DIM module Digital port 4, configure as digital device
     private static int frontBeaconPusherRightColorSensorLEDPort = 4;
-    // Core DIM module Digital port 5
-    private static int rightBeaconPusherColorSensorLEDPort = 5;
-    // Core DIM module Digital port 6
-    private static int leftBeaconPusherColorSensorLEDPort = 6;
+
     // mux ports for the color sensors
     private static AdafruitI2CMux.PortNumber frontBeaconPusherRightColorSensorPort = AdafruitI2CMux.PortNumber.PORT0;
     private static AdafruitI2CMux.PortNumber frontBeaconPusherLeftColorSensorPort = AdafruitI2CMux.PortNumber.PORT3;
     private static AdafruitI2CMux.PortNumber rightSideBeaconPusherColorSensorPort = AdafruitI2CMux.PortNumber.PORT1;
     private static AdafruitI2CMux.PortNumber leftSideBeaconPusherColorSensorPort = AdafruitI2CMux.PortNumber.PORT2;
 
+    //----------------------------------------------------
+    // Side Beacon pushers
+    //-----------------------------------------------------
 
     private static String rightSideBeaconColorSensorName = "rightBeaconColorSensor";
     private static String leftSideBeaconColorSensorName = "leftBeaconColorSensor";
 
+    // Core servo controller port 4, configure as Servo
+    private static String rightSideBeaconPusherServo = "rightSideBeaconPusherServo";
+
+    // LED ports for the color sensors
+    // Core DIM module Digital port 5
+    private static int rightBeaconPusherColorSensorLEDPort = 5;
+    // Core DIM module Digital port 6
+    private static int leftBeaconPusherColorSensorLEDPort = 6;
+
     //LED channel
     private static int rightSideBeaconColorSensorLEDPort = 1;
     private static int leftSideBeaconColorSensorLEDPort = 2;
+
+    //---------------------------------------------
+    // shooter
+    //---------------------------------------------
+
+    private static String shooterLeadscrewMotorName = "shooterLeadscrewMotor";
+    private static String shooterMotorName = "shooterMotor";
+
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -107,6 +133,10 @@ public class RobotConfigMappingForGenericTest {
 
     public static String getrightMotorName() {
         return rightMotorName;
+    }
+
+    public static String getSweeperMotor() {
+        return sweeperMotor;
     }
 
     public static String getthirdMotorName() {
@@ -146,6 +176,10 @@ public class RobotConfigMappingForGenericTest {
 
     public static String getLeftFrontLimitSwitchName() {
         return leftFrontLimitSwitch;
+    }
+
+    public static String getRightSideBeaconPusherServo() {
+        return rightSideBeaconPusherServo;
     }
 
     public static int getRightSideBeaconColorSensorLEDPort() {
@@ -206,7 +240,14 @@ public class RobotConfigMappingForGenericTest {
         return leftSideBeaconPusherColorSensorPort;
     }
 
-    //*********************************************************************************************
+    public static String getShooterLeadscrewMotorName() {
+        return shooterLeadscrewMotorName;
+    }
+
+    public static String getShooterMotorName() {
+        return shooterMotorName;
+    }
+//*********************************************************************************************
     //          Constructors
     //
     // the function that builds the class when an object is created
