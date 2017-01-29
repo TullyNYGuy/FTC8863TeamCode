@@ -65,7 +65,7 @@ public class VelocityVortexSweeper {
 
     public VelocityVortexSweeper(HardwareMap hardwareMap) {
         // setup the motor
-        sweeperMotor = new DcMotor8863(RobotConfigMappingForGenericTest.getthirdMotorName(), hardwareMap);
+        sweeperMotor = new DcMotor8863(RobotConfigMappingForGenericTest.getSweeperMotor(), hardwareMap);
         sweeperMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
         sweeperMotor.setMovementPerRev(360);
         sweeperMotor.setTargetEncoderTolerance(5);
@@ -100,7 +100,7 @@ public class VelocityVortexSweeper {
         sweeperPower = 0;
     }
     public void push(){
-        sweeperPower = -1;
+        sweeperPower = -.5;
         pushVSCollect = PushVSCollect.PUSH;
         sweeperMotor.setPower(sweeperPower);
     }
