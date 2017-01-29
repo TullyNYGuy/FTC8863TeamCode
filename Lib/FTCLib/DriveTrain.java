@@ -12,6 +12,10 @@ public class DriveTrain {
     public enum Status {
         MOVING, COMPLETE
     }
+
+    private enum DriveDirection {
+        FORWARD, REVERSE
+    }
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS
     //
@@ -22,6 +26,7 @@ public class DriveTrain {
     private double rightPower = 0;
     private double leftPower = 0;
     private double cmPerRotation = 0;
+    private DriveDirection driveDirection = DriveDirection.FORWARD;
 
     private boolean driveLocked = false;
 
@@ -126,6 +131,8 @@ public class DriveTrain {
             imu = new AdafruitIMU8863(hardwareMap);
         }
         rampControl = new RampControl(0,0,0);
+
+        driveDirection = DriveDirection.FORWARD;
 
         this.telemetry = telemetry;
     }
@@ -463,8 +470,30 @@ public class DriveTrain {
      * @param rightValue Power to apply tot the right motor.
      */
     public void tankDrive(double leftValue, double rightValue) {
-        leftDriveMotor.setPower(leftValue);
-        rightDriveMotor.setPower(rightValue);
+        // if the drive is currently reverse, the left and right motors have to be swapped to match
+        // the drivers joysticks
+        if (driveDirection == DriveDirection.REVERSE) {
+            leftDriveMotor.setPower(rightValue);
+            rightDriveMotor.setPower(leftValue);
+        } else {
+            // the drive is forward - ie normal
+            leftDriveMotor.setPower(leftValue);
+            rightDriveMotor.setPower(rightValue);
+        }
+    }
+
+    public void toggleDriveDirection() {
+        // if the direction is currently forward switch it to reverse
+        if(driveDirection == DriveDirection.FORWARD){
+            leftDriveMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+            rightDriveMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+            driveDirection = DriveDirection.REVERSE;
+        } else {
+            // if the drive is currently reverse, switch it to forward
+            leftDriveMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+            rightDriveMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+            driveDirection = DriveDirection.FORWARD;
+        }
     }
 
     /**
