@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.VelocityVortexRobot;
  */
 @Autonomous(name = "Velocity Vortex Autonomous", group = "Run")
 //@Disabled
-public class VelocityVortexAutonomouse extends LinearOpMode {
+public class VelocityVortexAutonomous extends LinearOpMode {
 
     //*********************************************************************************************
     //             Declarations
