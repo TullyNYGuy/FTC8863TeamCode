@@ -49,7 +49,7 @@ public class FrontBeaconPusher {
     private BeaconPusherState beaconPusherState = BeaconPusherState.BOTH_BACK;
     private BeaconPusherState lastBeaconPusherState = BeaconPusherState.BOTH_BACK;
 
-    private CRServo leftCRServo;
+    public CRServo leftCRServo;
     private CRServo rightCRServo;
 
     private MuxPlusColorSensors muxPlusColorSensors;

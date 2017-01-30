@@ -2,10 +2,14 @@ package org.firstinspires.ftc.teamcode.opmodes.VelocityVortex;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.JoyStick;
 import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.VelocityVortexRobot;
+import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.VelocityVortexShooter;
+import org.firstinspires.ftc.teamcode.opmodes.GenericTest.RobotConfigMappingForGenericTest;
 
 /**
  * Teleop for competition
@@ -26,6 +30,8 @@ public class VelocityVortexTeleop extends LinearOpMode {
     DriveTrainMode driveTrainMode = DriveTrainMode.TANK_DRIVE;
 
     VelocityVortexRobot robot;
+
+    DcMotor8863 shooterMotorDirect;
 
     // for use in debouncing the button. A long press will only result in one transition of the
     // button
@@ -98,6 +104,19 @@ public class VelocityVortexTeleop extends LinearOpMode {
         //*********************************************************************************************
 
         robot = robot.createRobotForTeleop(hardwareMap, telemetry);
+
+        // this next section was an experiment to see if we could get the shooter motor to work at
+        // Corning. It seems to have worked. Not sure why.
+        shooterMotorDirect = new DcMotor8863("shooterMotor", hardwareMap);
+        shooterMotorDirect = new DcMotor8863(RobotConfigMappingForGenericTest.getShooterMotorName(), hardwareMap);
+        shooterMotorDirect.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
+        shooterMotorDirect.setMovementPerRev(360);
+        shooterMotorDirect.setTargetEncoderTolerance(5);
+        shooterMotorDirect.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
+        shooterMotorDirect.setMotorMoveType(DcMotor8863.MotorMoveType.RELATIVE);
+        shooterMotorDirect.setMinMotorPower(-1);
+        shooterMotorDirect.setMaxMotorPower(1);
+        shooterMotorDirect.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         // Game Pad 1 joysticks
         gamepad1LeftJoyStickX = new JoyStick(JoyStick.JoyStickMode.SQUARE, JOYSTICK_DEADBAND_VALUE, JoyStick.InvertSign.NO_INVERT_SIGN);
@@ -286,6 +305,8 @@ public class VelocityVortexTeleop extends LinearOpMode {
 
             if (gamepad2.right_bumper) {
                 if (gamepad2RightBumperIsReleased) {
+                    robot.shooter.shoot();
+                    telemetry.addData("Shot Taken", "!");
                     gamepad2RightBumperIsReleased = false;
                 }
             } else {
@@ -294,6 +315,7 @@ public class VelocityVortexTeleop extends LinearOpMode {
 
             if (gamepad2.left_bumper) {
                 if (gamepad2LeftBumperIsReleased) {
+                    shooterMotorDirect.moveByAmount(.5, 360, DcMotor8863.FinishBehavior.HOLD);
                     gamepad2LeftBumperIsReleased = false;
                 }
             } else {
@@ -378,6 +400,8 @@ public class VelocityVortexTeleop extends LinearOpMode {
                 // differential drive
                 robot.driveTrain.differentialDrive(throttle, direction);
             }
+            //lead screw
+            robot.shooter.aimShooter(gamepad2RightJoyStickYValue);
             
             // update the robot
             robot.update();

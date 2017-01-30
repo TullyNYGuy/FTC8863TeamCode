@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib;
 
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
@@ -62,7 +63,7 @@ public class VelocityVortexShooter {
         shooterMotor.setMaxMotorPower(1);
 
         // setup the motor
-        shooterLeadScrewMotor = new DcMotor8863(RobotConfigMappingForGenericTest.getShooterMotorName(), hardwareMap);
+        shooterLeadScrewMotor = new DcMotor8863(RobotConfigMappingForGenericTest.getShooterLeadscrewMotorName(), hardwareMap);
         shooterLeadScrewMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
         shooterLeadScrewMotor.setMovementPerRev(360);
         shooterLeadScrewMotor.setTargetEncoderTolerance(5);
@@ -87,11 +88,11 @@ public class VelocityVortexShooter {
     //*********************************************************************************************
     public void init(){
         // set its direction
-        shooterMotor.setDirection(DcMotor.Direction.FORWARD);
+        shooterMotor.setDirection(DcMotor.Direction.REVERSE);
         // set the mode for the motor and lock it in place
-        shooterMotor.runAtConstantSpeed(0);
+        shooterMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         // set its direction
-        shooterLeadScrewMotor.setDirection(DcMotor.Direction.FORWARD);
+        shooterLeadScrewMotor.setDirection(DcMotor.Direction.REVERSE);
         // set the mode for the motor and lock it in place
         shooterLeadScrewMotor.runAtConstantSpeed(0);
     }
@@ -102,11 +103,16 @@ public class VelocityVortexShooter {
     }
 
     public void shoot(){
-        shooterPower = -.05;
-        shooterMotor.setPower(shooterPower);
+        shooterPower = 0.5;
+        shooterMotor.moveByAmount(shooterPower, 360, DcMotor8863.FinishBehavior.HOLD);
+    }
+
+    public void aimShooter(double leadScrewPower) {
+        shooterLeadScrewMotor.setPower(leadScrewPower);
     }
 
     public void update(){
+        shooterLeadScrewMotor.update();
         shooterMotor.update();
     }
 

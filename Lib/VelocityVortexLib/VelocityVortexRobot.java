@@ -39,6 +39,7 @@ public class VelocityVortexRobot {
     public FrontBeaconPusher frontBeaconPusher;
     public MuxPlusColorSensors muxPlusColorSensors;
     public VelocityVortexSweeper sweeper;
+    public VelocityVortexShooter shooter;
     public SideBeaconPusher rightSideBeaconPusher;
     public SideBeaconPusher leftSideBeaconPusher;
     // public FrontBeaconPusher frontBeaconPusher;
@@ -70,6 +71,7 @@ public class VelocityVortexRobot {
         rightSideBeaconPusher = new SideBeaconPusher(hardwareMap, telemetry, driveTrain, SideBeaconPusher.SideBeaconPusherPosition.RIGHT);
         muxPlusColorSensors = new MuxPlusColorSensors(hardwareMap, telemetry);
         frontBeaconPusher = new FrontBeaconPusher(hardwareMap, telemetry, muxPlusColorSensors);
+        shooter = new VelocityVortexShooter(hardwareMap);
         init();
 
     }
@@ -100,12 +102,14 @@ public class VelocityVortexRobot {
 
     public void init() {
         sweeper.init();
+        shooter.init();
         driveTrain.setCmPerRotation(31.1); // cm
         //rightSideBeaconPusher.init();
     }
 
     public void update() {
         sweeper.update();
+        shooter.update();
         frontBeaconPusher.updateState();
     }
 
