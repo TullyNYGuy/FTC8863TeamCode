@@ -245,8 +245,10 @@ public class DriveTrain {
             pidControl.setSetpoint(turnAngle);
             pidControl.setMaxCorrection(maxPower);
             pidControl.setThreshold(0.5);
-            pidControl.setKp(0.025);
-            pidControl.setKi(0.0000000015);
+            //pidControl.setKp(0.025);
+            //pidControl.setKi(0.0000000015);
+            pidControl.setKp(0.0125);
+            pidControl.setKi(0.00000000025);
             pidControl.reset();
 
             imu.setAngleMode(AdafruitIMU8863.AngleMode.RELATIVE);
