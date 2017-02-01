@@ -119,6 +119,7 @@ public class RobotConfigMappingForGenericTest {
 
     private static String shooterLeadscrewMotorName = "shooterLeadscrewMotor";
     private static String shooterMotorName = "shooterMotor";
+    private static String ballGateServoName = "ballGateServo";
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -247,7 +248,12 @@ public class RobotConfigMappingForGenericTest {
     public static String getShooterMotorName() {
         return shooterMotorName;
     }
-//*********************************************************************************************
+
+    public static String getBallGateServoName() {
+        return ballGateServoName;
+    }
+
+    //*********************************************************************************************
     //          Constructors
     //
     // the function that builds the class when an object is created

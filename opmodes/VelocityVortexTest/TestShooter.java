@@ -26,7 +26,7 @@ public class TestShooter extends LinearOpMode {
     //             Declarations
     //*********************************************************************************************
 
-    VelocityVortexShooter shooterMotor;
+    VelocityVortexShooter shooter;
 
     double shooterPower = 0;
     double lastShooterPower = 0;
@@ -52,10 +52,10 @@ public class TestShooter extends LinearOpMode {
         //*********************************************************************************************
         //  Initializations after the pogram is selected by the user on the driver phone
         //*********************************************************************************************
-        shooterMotor = new VelocityVortexShooter(hardwareMap);
+        shooter = new VelocityVortexShooter(hardwareMap);
 
         // set the mode for the motor
-        shooterMotor.init();
+        shooter.init();
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run Motors.");
@@ -127,7 +127,7 @@ public class TestShooter extends LinearOpMode {
             // x is used to stop the motor
             if (gamepad1.x) {
                 if (xButtonIsReleased) {
-                    shooterMotor.shutdown();
+                    shooter.shutdown();
                     shooterPower = 0;
                     xButtonIsReleased = false;
                 }
@@ -137,7 +137,7 @@ public class TestShooter extends LinearOpMode {
 
             // clip the shooterPower. The user cannot increase power higher or lower than this
             shooterPower = Range.clip(shooterPower, -1.0, 1.0);
-            shooterMotor.setPower(shooterPower);
+            shooter.shooterMotor.setPower(shooterPower);
 
             // update the state machine for the shooter motor
 
@@ -158,7 +158,7 @@ public class TestShooter extends LinearOpMode {
         // ************************************************************************************
 
         // Turn off drivetrain and signal done;
-        shooterMotor.stop();
+        shooter.shooterMotor.stop();
         telemetry.addData(">", "Done");
         telemetry.update();
 
@@ -179,7 +179,7 @@ public class TestShooter extends LinearOpMode {
         // I.E. only set the power if it changes.
         if (power != lastShooterPower) {
             lastShooterPower = power;
-            shooterMotor.setPower(power);
+            shooter.shooterMotor.setPower(power);
         }
     }
 }
