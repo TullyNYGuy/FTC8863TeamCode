@@ -35,7 +35,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitI2CMux;
  * I'm guessing there must be something in the way the hardware map and the objects it creates that
  * causes this issue.
  * <p>
- * IMPORTANT NOTE: this is the potential to lead to bugs. For example, set the mux port to 0 so you
+ * IMPORTANT NOTE: this has the potential to lead to bugs. For example, set the mux port to 0 so you
  * are talking to color sensor 1. Set the gain to 64x. Now switch to mux port 1 so you are talking
  * to color sensor 2. Set the gain to 4x. Now switch back to port 0 so you are talking to color
  * sensor 1 again. Get the gain. Since the gain is stored as a property of the object, and the last

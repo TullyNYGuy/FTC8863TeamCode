@@ -1,12 +1,41 @@
 package org.firstinspires.ftc.teamcode.Lib.FTCLib;
+/*
+Copyright (c) 2017 Glenn Ball
+Written to support FTC team 8863, Tully Precision Cut-Ups
 
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification,
+are permitted (subject to the limitations in the disclaimer below) provided that
+the following conditions are met:
+
+Redistributions of source code must retain the above copyright notice, this list
+of conditions and the following disclaimer.
+
+Redistributions in binary form must reproduce the above copyright notice, this
+list of conditions and the following disclaimer in the documentation and/or
+other materials provided with the distribution.
+
+NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS
+LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+Some of this code has been borrowed from the FTC SDK.
+*/
 
 import android.graphics.Color;
 
 import com.qualcomm.robotcore.hardware.DeviceInterfaceModule;
 import com.qualcomm.robotcore.hardware.DigitalChannelController;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynchImpl;
@@ -23,7 +52,68 @@ import java.util.ArrayList;
 // Things to do:
 //    investigate the update rate - it appears odd
 //    put in an instantaneous update rate
-//    add to test routine so that button controls gain and integration time
+//    add to test routine so that game pad buttons control gain and integration time
+
+/**
+ * This class provides an interface to the Adafruit TCS34725 Color Sensor:
+ * https://www.adafruit.com/products/1334
+ * There are a number of classes that have been written for this color sensor, including two that
+ * are in the FTC SDK (AdafruitI2cColorSensor and AMSColorSensor). FYI, AdafruitI2cColorSensor is
+ * what you get when you config a phone for Adafruit Color Sensor. You cannot set the gain or update
+ * rate (integration time) using this class. The update rate used in that class is 600 mSec and is
+ * way too slow to be useable for a robot. AMSColorSensor is a class in the SDK that allows you
+ * to set the gain and integration time, but there is no way to get an instance of this class. The
+ * other third party classes are not based on the newer I2C communication classes. None of the classes
+ * I found properly scale the RGB values read from the sensor given the gain and integration time
+ * that have been selected. So I have chosen to write my own class.
+ *
+ * This class assumes that you want to control the LED on the adafruit circuit board. In order to do
+ * this you must connect a wire from the LED pin on the circuit board to a digital input port on the
+ * modern robotics core device interface (DIM) module. The wire gets connected to the "SIGNAL" pin
+ * of the DIM digital input/output port. You then pass in the core DIM name you configured
+ * on your phone and the port number you connected the wire to.
+ *
+ * IF YOU JUST WANT TO GET STARTED USING THE COLOR SENSOR SKIP RIGHT DOWN TO THE SECTION TITLED
+ * MAJOR METHODS.
+ *
+ * If you care to explore and understand the sensor read on. PARTICULARLY IMPORTANT
+ * TO GETTING THE BEST RESULTS FROM THIS SENSOR ARE UNDERSTANDING INTEGRATION TIME AND GAIN. See
+ * below and the descriptions in the associated registers in the enum section.
+ *
+ * The TCS34725 color sensor chip allows you to set the gain (how much amplification the color
+ * signals get) and the integration time (in simple terms how long the color sensor values are
+ * averaged between readings). If light levels are low you can pick a higher gain to get better
+ * resolution of the color readings. BUT if you go too high you will saturate the color sensor. In
+ * other words you will get the same reading no matter what the actual color value is. It is a
+ * tradeoff. More gain = better resolution unless you saturate and then your readings are garbage.
+ *
+ * If you want more accurate color values you can pick a longer
+ * integration time. The trade off there is that you don't get values as quickly and that can be a
+ * problem for your robot. For example if you choose a 600 mSec integration time, you only get a
+ * color reading once every 600mSec. A lot can happen in that time so a long integration time is
+ * only good if you don't expect much to change very quickly. I found that a nice balance is 24
+ * mSec. That is about one robot loop cycle.
+ *
+ * The raw RGB (red, green, blue) and clear values read from each of the
+ * 4 sensors built into the chip have a max value that is dependent on the gain and integration time.
+ * The max value occurs for a long integration time and is 65535. For a 24 mSec integration time
+ * the max value will be 10240. If you vary the integration time, you should not just use
+ * the raw readings. They need to be scaled from the maximum. For example, you read a raw red value
+ * of 1200. If your integration time is 24 mSec then the max possible value is 10240. Your scaled
+ * reading is 1200/10240. If your integration time is 600 mSec then your scaled reading is
+ * 1200/65535. That is a whole lot different from the 24 mSec reading. If you are just comparing the
+ * red value to the blue and the green values, the scaling does not really matter. But if you are
+ * going to calculate HSV color then it is crucial. HSV (Hue, Saturation, Value) is a different way
+ * of representing color than RGB and in some cases is better and easier to use. This driver properly
+ * scales the reading for you. It can also give you HSV values. None of the other drivers I found
+ * did this correctly.
+ *
+ * The register definitions below offer more description of the sensor and help you determine what
+ * is important for FTC and what is not.
+ *
+ * For support, email ftc8863@gmail.com. I can't promise support but I'll do my best.
+ * Glenn Ball
+ */
 public class AdafruitColorSensor8863 {
 
     //*********************************************************************************************
@@ -35,6 +125,7 @@ public class AdafruitColorSensor8863 {
 
     // The enums below provide symbolic names for device registers and for register bits and values.
     // All information is taken from the datasheet for the device.
+    // https://cdn-shop.adafruit.com/datasheets/TCS34725.pdf
 
     /**
      * Command Register (address = I2C address of device)
@@ -360,7 +451,7 @@ public class AdafruitColorSensor8863 {
     private AMSColorSensorParameters parameters;
     boolean isOwned = false;
 
-    // For controlling the LED
+    // For controlling the LED on the adafruit circuit board
     private DeviceInterfaceModule coreDIM;
     private boolean ledOn = false;
     private int ioChannelForLed;
@@ -445,46 +536,49 @@ public class AdafruitColorSensor8863 {
     }
 
     // following is start of code needed to be able to increment through Gains and Integration times
-    // It is not complete yet.
-    private void createGainArrayList() {
-        gainArrayList = new ArrayList<Gain>();
-        for(Gain g : Gain.values()) {
-            gainArrayList.add(g);
-        }
-    }
+    // It is not complete yet. The goal is to eventually have the class auto select the proper gain
+    // for maximum resolution. In the interest of getting this out the door I'm releasing without
+    // this functionality.
 
-    private int getCurrentGainIndex(Gain gain) {
-        int index = 0;
-        int result = 0;
-        for(Gain g: Gain.values()) {
-            if (g.equals(gain)) {
-                result = index;
-            } else {
-                index ++;
-            }
-        }
-        return result;
-    }
-
-    private void createIntegrationTimeArrayList() {
-        integrationTimeArrayList = new ArrayList<IntegrationTime>();
-        for(IntegrationTime i : IntegrationTime.values()) {
-            integrationTimeArrayList.add(i);
-        }
-    }
-
-    private int getCurrentIntegrationTimeIndex(IntegrationTime integrationTime) {
-        int index = 0;
-        int result = 0;
-        for(IntegrationTime i: IntegrationTime.values()) {
-            if (i.equals(integrationTime)) {
-                result = index;
-            } else {
-                index ++;
-            }
-        }
-        return result;
-    }
+//    private void createGainArrayList() {
+//        gainArrayList = new ArrayList<Gain>();
+//        for(Gain g : Gain.values()) {
+//            gainArrayList.add(g);
+//        }
+//    }
+//
+//    private int getCurrentGainIndex(Gain gain) {
+//        int index = 0;
+//        int result = 0;
+//        for(Gain g: Gain.values()) {
+//            if (g.equals(gain)) {
+//                result = index;
+//            } else {
+//                index ++;
+//            }
+//        }
+//        return result;
+//    }
+//
+//    private void createIntegrationTimeArrayList() {
+//        integrationTimeArrayList = new ArrayList<IntegrationTime>();
+//        for(IntegrationTime i : IntegrationTime.values()) {
+//            integrationTimeArrayList.add(i);
+//        }
+//    }
+//
+//    private int getCurrentIntegrationTimeIndex(IntegrationTime integrationTime) {
+//        int index = 0;
+//        int result = 0;
+//        for(IntegrationTime i: IntegrationTime.values()) {
+//            if (i.equals(integrationTime)) {
+//                result = index;
+//            } else {
+//                index ++;
+//            }
+//        }
+//        return result;
+//    }
 
 //    public void nextGain() {
 //        currentIntegrationTimeIndex ++;
@@ -503,6 +597,7 @@ public class AdafruitColorSensor8863 {
 
     /**
      * Verify that that's a color sensor!
+     * @return true if the color sensor is attached to the I2C bus
      */
     public boolean checkDeviceId() {
         byte id = this.getDeviceID();
@@ -514,6 +609,12 @@ public class AdafruitColorSensor8863 {
         }
     }
 
+    /**
+     * You may have a color sensor attached to the I2C bus, but it may not be initialized properly.
+     * This method reads the data for the color sensors and takes a guess at whether the data is
+     * valid or not. If it is not valid, odds are the color sensor was not initialized properly.
+     * @return true = data is valid
+     */
     public boolean isDataValid() {
         int red = redScaled();
         int blue = blueScaled();
@@ -532,6 +633,12 @@ public class AdafruitColorSensor8863 {
         return result;
     }
 
+    /**
+     * Add a line to the telemetry buffer indicating is the color sensor is on the I2C bus and if
+     * the data read from it is likely to be valid.
+     * @param colorSensorName
+     * @param telemetry
+     */
     public void reportStatus(String colorSensorName, Telemetry telemetry) {
         String buffer = colorSensorName + " device id is ";
         if (checkDeviceId()) {
@@ -550,18 +657,32 @@ public class AdafruitColorSensor8863 {
         telemetry.addData(buffer, "!");
     }
 
+    /**
+     * Turn the color sensor on.
+     */
     private synchronized void enable() {
         this.write8(Register.ENABLE, EnableRegister.AMS_COLOR_ENABLE_PON.byteVal);
         delayLore(6); // Adafruit's sample implementation uses 3ms
         this.write8(Register.ENABLE, EnableRegister.AMS_COLOR_ENABLE_PON.byteVal | EnableRegister.AMS_COLOR_ENABLE_AEN.byteVal);
     }
 
+    /**
+     * Turn the color sensor off. Don't do this. There is not a need to save power for FTC because
+     * the power the color sensor uses is minimal.
+     */
     private synchronized void disable() {
         /* Turn the device off to save power */
         byte reg = colorSensorClient.read8(Register.ENABLE.byteVal);
         this.write8(Register.ENABLE, reg & ~(EnableRegister.AMS_COLOR_ENABLE_PON.byteVal | EnableRegister.AMS_COLOR_ENABLE_AEN.byteVal));
     }
 
+    /**
+     * Figure out what the maximum possible color value is given the integration time that is chosen.
+     * If you actually read this max value then it is likely that your gain is set too high and
+     * you are saturating the sensor. In that case choose a lower gain.
+     * @param integrationTime
+     * @return max possible value for a color sensor reading.
+     */
     private int calculateMaxRGBCCount(IntegrationTime integrationTime) {
         // since byte is 2's complement in java, have to convert it to unsigned for this equation
         // Casting to int and & 0xFF does that.
@@ -585,6 +706,12 @@ public class AdafruitColorSensor8863 {
         return maxRGBCValue;
     }
 
+    /**
+     * Scale a raw color sensor value reading to the max value that is possible. This normalizes
+     * the reading so it can be compared to readings using different integration times.
+     * @param colorValue
+     * @return scaled color value
+     */
     private int calculateScaledRGBColor(int colorValue) {
         double scaled;
         // have to cast one of the numbers to double in order to get a double result
@@ -620,8 +747,12 @@ public class AdafruitColorSensor8863 {
     }
 
     private void doSomething() {
-
+        // yeah well it actually does nothing for now. Some day maybe ...
     }
+
+    //*********************************************************************************************
+    //          I2C read and write methods
+    //*********************************************************************************************
 
     public synchronized byte read8(final Register reg) {
         return colorSensorClient.read8(reg.byteVal | CommandRegister.AMS_COLOR_COMMAND_BIT.byteVal);
@@ -656,8 +787,10 @@ public class AdafruitColorSensor8863 {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
+
     //*********************************************************************************************
-    //          LED Control
+    //          LED Control - control the led on the Adafruit board and the leds in the modern
+    //          robotics core dim module
     //*********************************************************************************************
 
     /**
@@ -726,9 +859,9 @@ public class AdafruitColorSensor8863 {
         coreDIM.setLED(CoreDIMLEDChannel.RED.byteVal, false);
     }
 
-
     //*********************************************************************************************
-    //          Reading colors
+    //          Reading colors - these are the raw unscaled values, you probably don't want these
+    //          Use the scaled values instead. See below.
     //*********************************************************************************************
 
     public synchronized int red() {
@@ -776,6 +909,10 @@ public class AdafruitColorSensor8863 {
         return Color.argb(clear, red, green, blue);
     }
 
+    //*********************************************************************************************
+    //          Reading colors - these are the scaled values
+    //*********************************************************************************************
+
     public int redScaled() {
         return calculateScaledRGBColor(red());
     }
@@ -822,9 +959,16 @@ public class AdafruitColorSensor8863 {
     }
 
     //*********************************************************************************************
-    //          Color Testing - should probably put this into another class
+    //          Color Testing using RGB as the method - should probably put this into another class
     //*********************************************************************************************
 
+    /**
+     * A utility method that takes in 3 values and returns the one that is the max of the 3.
+     * @param a
+     * @param b
+     * @param c
+     * @return max value of the three inputs
+     */
     private int getMaxOfThree(int a, int b, int c) {
         int max = a;
         int which = 1;
@@ -839,6 +983,11 @@ public class AdafruitColorSensor8863 {
         return which;
     }
 
+    /**
+     * Determine if the color seen is red by comparing the RGB values. The one that is the max is
+     * judged to be the color you are reading. In this case check if red is the max.
+     * @return true = red, false = not red
+     */
     public boolean isRedUsingRGB() {
         boolean result = false;
         if(getMaxOfThree(redScaled(), greenScaled(), blueScaled()) == 1) {
@@ -847,6 +996,11 @@ public class AdafruitColorSensor8863 {
         return result;
     }
 
+    /**
+     * Determine if the color seen is green by comparing the RGB values. The one that is the max is
+     * judged to be the color you are reading. In this case check if green is the max.
+     * @return true = green, false = not green
+     */
     public boolean isGreenUsingRGB() {
         boolean result = false;
         if(getMaxOfThree(redScaled(), greenScaled(), blueScaled()) == 2) {
@@ -855,6 +1009,11 @@ public class AdafruitColorSensor8863 {
         return result;
     }
 
+    /**
+     * Determine if the color seen is blue by comparing the RGB values. The one that is the max is
+     * judged to be the color you are reading. In this case check if blue is the max.
+     * @return true = blue, false = not blue
+     */
     public boolean isBlueUsingRGB() {
         boolean result = false;
         if(getMaxOfThree(redScaled(), greenScaled(), blueScaled()) == 3) {
@@ -863,14 +1022,31 @@ public class AdafruitColorSensor8863 {
         return result;
     }
 
+    /**
+     * Return a caption to be used for a telemetry.addData call
+     * @return
+     */
     public String colorTestResultUsingRGBCaption() {
         return "Red? / Green? / Blue? (RGB values)";
     }
 
+    /**
+     * Return a string with the results of testing the color for red, green and blue.
+     * @return a true will appear where the color is matched.
+     */
     public String colorTestResultUsingRGB() {
         return String.valueOf(isRedUsingRGB()) + " / " + String.valueOf(isGreenUsingRGB()) + " / " + String.valueOf(isBlueUsingRGB());
     }
 
+    //*********************************************************************************************
+    //          Color Testing using HSV as the method - should probably put this into another class
+    //          for more info on HSV see http://www.tech-faq.com/hsv.html
+    //*********************************************************************************************
+
+    /**
+     * Using HSV, determine if the color seen is red
+     * @return true = red
+     */
     public boolean isRedUsingHSV() {
         float hue = hueScaled();
         if(hue >= 0 && hue <= 60 || hue >= 340 && hue <= 360) {
@@ -880,6 +1056,10 @@ public class AdafruitColorSensor8863 {
         }
     }
 
+    /**
+     * Using HSV, determine if the color seen is green
+     * @return true = green
+     */
     public boolean isGreenUsingHSV() {
         float hue = hueScaled();
         if(hue > 120 && hue <= 180) {
@@ -889,6 +1069,10 @@ public class AdafruitColorSensor8863 {
         }
     }
 
+    /**
+     * Using HSV, determine if the color seen is blue
+     * @return true = blue
+     */
     public boolean isBlueUsingHSV() {
         float hue = hueScaled();
         if(hue > 220 && hue <= 300) {
@@ -898,10 +1082,19 @@ public class AdafruitColorSensor8863 {
         }
     }
 
+    /**
+     * Return a caption to be used for a telemetry.addData call
+     * @return
+     */
     public String colorTestResultUsingHSVCaption() {
         return "Red? / Green? / Blue? (HSV values)";
     }
 
+    /**
+     * Return a string with the results of testing the color for red, green and blue. HSV is used
+     * for the test
+     * @return a true will appear where the color is matched.
+     */
     public String colorTestResultUsingHSV() {
         return String.valueOf(isRedUsingHSV()) + " / " + String.valueOf(isGreenUsingHSV()) + " / " + String.valueOf(isBlueUsingHSV());
     }
@@ -980,7 +1173,8 @@ public class AdafruitColorSensor8863 {
     }
 
     //*********************************************************************************************
-    //          Update Rate tracking
+    //          Update Rate tracking - test how often the sensor is giving you new data
+    //          This appears to have a bug in the minimum time that I have yet to look into.
     //*********************************************************************************************
 
     public double getUpdateRateMin() {
@@ -1003,6 +1197,11 @@ public class AdafruitColorSensor8863 {
     //          Putting data onto the driver station
     //*********************************************************************************************
 
+    /**
+     * On the driver station phone display most of the pertinent data from a color sensor. Use this
+     * for debug.
+     * @param telemetry
+     */
     public void displayColorSensorData(Telemetry telemetry) {
         telemetry.addData("Color sensor gain = ", getCurrentGainAsString());
         telemetry.addData("Color sensor integration time = ", getCurrentIntegrationTimeAsString());

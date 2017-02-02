@@ -9,8 +9,10 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitColorSensor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitColorSensor8863;
 
 /**
- * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
- *
+ * This opmode can be used to test the Adafruit color sensor using AdafruitColorSensor8863 as the
+ * driver. Note that if you have more than one color sensor you will have to use an I2C mux since
+ * the address for this color sensor is fixed and you can't have two sensors with the same address
+ * on the bus.
  *
  */
 @TeleOp(name = "Test Adafruit Color Sensor 8863", group = "Test")
@@ -22,7 +24,14 @@ public class TestAdafruitColorSensor8863 extends LinearOpMode {
     int green = 0;
     int blue = 0;
 
+    // You connect a wire from the pin on the circuit board labeled LED to the SIGNAL pin on a
+    // core DIM digital I/O port. If you don't do this, no biggie. The LED will just stay on
+    // all the time.
     final int CHANNEL_FOR_LED = 5;
+    // configure your phone with this name for the core device interface module
+    final String coreDIMName = "coreDIM";
+    // configure your phone for an I2C Device type with this name
+    final String colorSensorName = "colorSensor";
 
     boolean xButtonIsReleased = false;
     boolean yButtonIsReleased = false;
@@ -35,15 +44,13 @@ public class TestAdafruitColorSensor8863 extends LinearOpMode {
 
     ElapsedTime timer;
 
-    String buffer;
-
     @Override
     public void runOpMode() {
 
 
         // Put your initializations here
-        colorSensor = new AdafruitColorSensor8863(hardwareMap, RobotConfigMappingForGenericTest.getadafruitColorSensorName(),
-            RobotConfigMappingForGenericTest.getCoreDeviceInterfaceName(), CHANNEL_FOR_LED);
+        colorSensor = new AdafruitColorSensor8863(hardwareMap, colorSensorName,
+                coreDIMName, CHANNEL_FOR_LED);
 
         timer = new ElapsedTime();
         

@@ -57,29 +57,11 @@ public class TestAdafruitI2CMuxSwitchingWithAdafruitColorSensor8863 extends Line
     final int CHANNEL_FOR_LED3 = 2;
     final int CHANNEL_FOR_LED4 = 3;
 
-    // a timer for use in testing the switching
-    ElapsedTime timer;
-
-    // counters for failure and success
-    int portOffSensorPresentCount = 0;
-    int portOffSensorNotPresentCount = 0;
-    int portOnSuccessCount = 0;
-    int portOnFailureCount = 0;
-
-    int timeBetweenSwitchesInMSec = 10;
-
-    int delayInMsec = 0;
-
-    String buffer;
-
     // controls the number of color sensors attached to the mux. This can range from 1 to 4.
     int numberOfColorSensors = 4;
 
     @Override
     public void runOpMode() {
-
-        // Create the timer
-        timer = new ElapsedTime();
 
         // Create an I2C mux and initialize it
         mux = new AdafruitI2CMux(hardwareMap, muxName, muxAddress);
@@ -114,7 +96,6 @@ public class TestAdafruitI2CMuxSwitchingWithAdafruitColorSensor8863 extends Line
             activeColorSensor.reportStatus("Color Sensor 3", telemetry);
         }
 
-
         if (numberOfColorSensors >= 4) {
             // connect only port 4. A color sensor (colorSensor2) has been wired to that port of the mux.
             mux.selectAndEnableAPort(AdafruitI2CMux.PortNumber.PORT3);
@@ -125,13 +106,10 @@ public class TestAdafruitI2CMuxSwitchingWithAdafruitColorSensor8863 extends Line
             activeColorSensor.reportStatus("Color Sensor 4", telemetry);
         }
 
-
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
         telemetry.update();
         waitForStart();
-
-        timer.reset();
 
         // Put your calls here - they will not run in a loop
 
@@ -158,39 +136,5 @@ public class TestAdafruitI2CMuxSwitchingWithAdafruitColorSensor8863 extends Line
         mux.disablePorts();
         telemetry.addData(">", "Done");
         telemetry.update();
-
-    }
-
-    private int loopUntilValidData(AdafruitColorSensor8863 colorSensor, String colorSensorString) {
-        timer.reset();
-        int counter = 0;
-        String buffer;
-        double timeToValidOrFail = 0;
-        boolean dataValid = false;
-        while (!dataValid && counter < 10) {
-            if (colorSensor.isDataValid()) {
-                dataValid = true;
-            } else {
-                counter++;
-            }
-            idle();
-        }
-        timeToValidOrFail = timer.milliseconds();
-        if (dataValid) {
-            buffer = colorSensorString + "data valid after " + (int) timeToValidOrFail + " mS & " + counter;
-            telemetry.addData(buffer, " tries");
-        } else {
-            buffer = colorSensorString + " data NOT valid after " + (int) timeToValidOrFail + " mS " + counter;
-            telemetry.addData(buffer, " tries");
-        }
-        return counter;
-    }
-
-    void delay(int ms) {
-        try {
-            Thread.sleep(ms);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
     }
 }

@@ -22,8 +22,9 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitI2CMux;
  * "colorSensor". The type of sensor is "I2C Device".
  * Lastly, the core device interface module needs to be named "coreDIM" in your phone configuration.
  * <p>
- * You can test that that mux is switching by disconnecting the SDA and SCL pins from a color sensor.
- * If it comes back with a failure on the port then you know the switching is working.
+ * The purpose of this opmode is to check if a color sensor attached to the mux ever disconnects
+ * spontaneously. Or you can disconnect the sensor by pulling the SDA and SCL pins from the sensor
+ * and make sure that the code detects that the sensor has gone away.
  */
 @TeleOp(name = "Test Adafruit I2C Mux Sensor dropout", group = "Test")
 //@Disabled
@@ -114,7 +115,6 @@ public class TestAdafruitI2CMuxSensorDropoutWithAdafruitColorSensor8863 extends 
             activeColorSensor.reportStatus("Color Sensor 3", telemetry);
         }
 
-
         if (numberOfColorSensors >= 4) {
             // connect only port 4. A color sensor (colorSensor2) has been wired to that port of the mux.
             mux.selectAndEnableAPort(AdafruitI2CMux.PortNumber.PORT3);
@@ -124,7 +124,6 @@ public class TestAdafruitI2CMuxSensorDropoutWithAdafruitColorSensor8863 extends 
             activeColorSensor = colorSensor4;
             activeColorSensor.reportStatus("Color Sensor 4", telemetry);
         }
-
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
@@ -179,38 +178,5 @@ public class TestAdafruitI2CMuxSensorDropoutWithAdafruitColorSensor8863 extends 
         telemetry.addData(">", "Done");
         telemetry.update();
 
-    }
-
-    private int loopUntilValidData(AdafruitColorSensor8863 colorSensor, String colorSensorString) {
-        timer.reset();
-        int counter = 0;
-        String buffer;
-        double timeToValidOrFail = 0;
-        boolean dataValid = false;
-        while (!dataValid && counter < 10) {
-            if (colorSensor.isDataValid()) {
-                dataValid = true;
-            } else {
-                counter++;
-            }
-            idle();
-        }
-        timeToValidOrFail = timer.milliseconds();
-        if (dataValid) {
-            buffer = colorSensorString + "data valid after " + (int) timeToValidOrFail + " mS & " + counter;
-            telemetry.addData(buffer, " tries");
-        } else {
-            buffer = colorSensorString + " data NOT valid after " + (int) timeToValidOrFail + " mS " + counter;
-            telemetry.addData(buffer, " tries");
-        }
-        return counter;
-    }
-
-    void delay(int ms) {
-        try {
-            Thread.sleep(ms);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
     }
 }
