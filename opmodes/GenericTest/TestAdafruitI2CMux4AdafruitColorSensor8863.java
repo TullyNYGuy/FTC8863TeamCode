@@ -44,6 +44,14 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitI2CMux;
  * valid. I.E. assume the color sensor objects are write only, except for those values that are
  * actually read from the sensor and not from a stored property. For example, color values are
  * actually read from the sensor.
+ *
+ * WARNING: When you switch from one color sensor on one port to another color sensor on
+ * another port, there will be a period of time needed before the data will be valid for the new
+ * sensor. This is because it takes time to get data from the new color sensor and populate the
+ * data in the data cache. Reports on the FTC forum indicate that it takes from 50 mSec to 150 mSec
+ * to get valid data. If you read before then, you will likely get the data from the first color
+ * sensor not the new one. In order to avoid this switch the mux port well before you need valid
+ * data or put a delay in your code after switching mux ports and before reading color values.
  */
 @TeleOp(name = "Test Adafruit I2C Mux 4 AdafruitColorSensor8863", group = "Test")
 //@Disabled
@@ -103,12 +111,8 @@ public class TestAdafruitI2CMux4AdafruitColorSensor8863 extends LinearOpMode {
 
         // connect only port 0. A color sensor (colorSensor1) has been wired to that port of the mux.
         mux.selectAndEnableAPort(AdafruitI2CMux.PortNumber.PORT0);
-        delay(delayInMsec);
         // create colorSensor1 and initialize it
         colorSensor1 = new AdafruitColorSensor8863(hardwareMap, colorSensorName, coreDIMName, CHANNEL_FOR_LED1);
-        // I'm having trouble with the color sensors getting initialized. A delay seem to help some
-        // of the time but not all.
-        delay(delayInMsec);
         activeColorSensor = colorSensor1;
         activeColorSensor.reportStatus("Color Sensor 1", telemetry);
 
@@ -119,28 +123,22 @@ public class TestAdafruitI2CMux4AdafruitColorSensor8863 extends LinearOpMode {
 
         // connect only port 1. A color sensor (colorSensor2) has been wired to that port of the mux.
         mux.selectAndEnableAPort(AdafruitI2CMux.PortNumber.PORT1);
-        delay(delayInMsec);
         // create colorSensor2 and initialize it
         colorSensor2 = new AdafruitColorSensor8863(hardwareMap, colorSensorName, coreDIMName, CHANNEL_FOR_LED2);
-        delay(delayInMsec);
         activeColorSensor = colorSensor2;
         activeColorSensor.reportStatus("Color Sensor 2", telemetry);
 
         // connect only port 2. A color sensor (colorSensor3) has been wired to that port of the mux.
         mux.selectAndEnableAPort(AdafruitI2CMux.PortNumber.PORT2);
-        delay(delayInMsec);
         // create colorSensor2 and initialize it
         colorSensor3 = new AdafruitColorSensor8863(hardwareMap, colorSensorName, coreDIMName, CHANNEL_FOR_LED3);
-        delay(delayInMsec);
         activeColorSensor = colorSensor3;
         activeColorSensor.reportStatus("Color Sensor 3", telemetry);
 
         // connect only port 3. A color sensor (colorSensor4) has been wired to that port of the mux.
         mux.selectAndEnableAPort(AdafruitI2CMux.PortNumber.PORT3);
-        delay(delayInMsec);
         // create colorSensor2 and initialize it
         colorSensor4 = new AdafruitColorSensor8863(hardwareMap, colorSensorName, coreDIMName, CHANNEL_FOR_LED4);
-        delay(delayInMsec);
         activeColorSensor = colorSensor4;
         activeColorSensor.reportStatus("Color Sensor 4", telemetry);
 

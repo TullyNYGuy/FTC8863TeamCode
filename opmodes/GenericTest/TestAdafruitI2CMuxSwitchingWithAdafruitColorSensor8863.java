@@ -24,6 +24,14 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitI2CMux;
  * <p>
  * You can test that that mux is switching by disconnecting the SDA and SCL pins from a color sensor.
  * If it comes back with a failure on the port then you know the switching is working.
+ *
+ * WARNING: When you switch from one color sensor on one port to another color sensor on
+ * another port, there will be a period of time needed before the data will be valid for the new
+ * sensor. This is because it takes time to get data from the new color sensor and populate the
+ * data in the data cache. Reports on the FTC forum indicate that it takes from 50 mSec to 150 mSec
+ * to get valid data. If you read before then, you will likely get the data from the first color
+ * sensor not the new one. In order to avoid this switch the mux port well before you need valid
+ * data or put a delay in your code after switching mux ports and before reading color values.
  */
 @TeleOp(name = "Test Adafruit I2C Mux switching", group = "Test")
 //@Disabled
@@ -116,15 +124,19 @@ public class TestAdafruitI2CMuxSwitchingWithAdafruitColorSensor8863 extends Line
         while (opModeIsActive()) {
 
             mux.selectAndEnableAPort(AdafruitI2CMux.PortNumber.PORT0);
+            // you may need a delay here to get valid data. See warning in intro section
             activeColorSensor.reportStatus("Color Sensor 1", telemetry);
 
             mux.selectAndEnableAPort(AdafruitI2CMux.PortNumber.PORT1);
+            // you may need a delay here to get valid data. See warning in intro section
             activeColorSensor.reportStatus("Color Sensor 2", telemetry);
 
             mux.selectAndEnableAPort(AdafruitI2CMux.PortNumber.PORT2);
+            // you may need a delay here to get valid data. See warning in intro section
             activeColorSensor.reportStatus("Color Sensor 3", telemetry);
 
             mux.selectAndEnableAPort(AdafruitI2CMux.PortNumber.PORT3);
+            // you may need a delay here to get valid data. See warning in intro section
             activeColorSensor.reportStatus("Color Sensor 4", telemetry);
 
             telemetry.update();
@@ -136,5 +148,14 @@ public class TestAdafruitI2CMuxSwitchingWithAdafruitColorSensor8863 extends Line
         mux.disablePorts();
         telemetry.addData(">", "Done");
         telemetry.update();
+    }
+
+    // example method used to implement a delay
+    void delay(int ms) {
+        try {
+            Thread.sleep(ms);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 }

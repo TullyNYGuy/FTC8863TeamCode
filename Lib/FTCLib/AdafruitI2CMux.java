@@ -48,6 +48,15 @@ import com.qualcomm.robotcore.hardware.I2cDeviceSynchImpl;
  * You will need to configure your phone with a "I2C Device" on one of the I2C ports.
  * Give the device a name when you configure it on the phone. This will be the muxName you pass
  * into the constructor.
+ *
+ * WARNING: if you are using this mux to read multiple adafruit color sensors then be aware of a
+ * possible issue. When you switch from one color sensor on one port to another color sensor on
+ * another port, there will be a period of time needed before the data will be valid for the new
+ * sensor. This is because it takes time to get data from the new color sensor and populate the
+ * data in the data cache. Reports on the FTC forum indicate that it takes from 50 mSec to 150 mSec
+ * to get valid data. If you read before then, you will likely get the data from the first color
+ * sensor not the new one. In order to avoid this switch the mux port well before you need valid
+ * data or put a delay in your code after switching mux ports and before reading color values.
  */
 public class AdafruitI2CMux {
 

@@ -19,6 +19,14 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitI2CMux;
  * one. The name of the color sensor is "colorSensor".
  * Lastly, the core device interface module needs to be named "coreDIM".
  *
+ * WARNING: When you switch from one color sensor on one port to another color sensor on
+ * another port, there will be a period of time needed before the data will be valid for the new
+ * sensor. This is because it takes time to get data from the new color sensor and populate the
+ * data in the data cache. Reports on the FTC forum indicate that it takes from 50 mSec to 150 mSec
+ * to get valid data. If you read before then, you will likely get the data from the first color
+ * sensor not the new one. In order to avoid this switch the mux port well before you need valid
+ * data or put a delay in your code after switching mux ports and before reading color values.
+ *
  */
 @TeleOp(name = "Test Adafruit I2C Mux", group = "Test")
 //@Disabled
