@@ -5,8 +5,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
-import org.firstinspires.ftc.teamcode.Lib.VelocityVortex.FrontBeaconPusherControlGB;
-import org.firstinspires.ftc.teamcode.Lib.VelocityVortex.MuxPlusColorSensors;
+import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.FrontBeaconPusherControlGB;
+import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.MuxPlusColorSensors;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.

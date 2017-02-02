@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Lib.VelocityVortex;
+package org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib;
 
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.CRServo;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Switch;
+import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.MuxPlusColorSensors;
 import org.firstinspires.ftc.teamcode.opmodes.GenericTest.RobotConfigMappingForGenericTest;
 
 public class FrontBeaconPusher {

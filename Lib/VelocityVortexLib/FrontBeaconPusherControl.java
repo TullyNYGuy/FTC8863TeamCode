@@ -1,11 +1,9 @@
-package org.firstinspires.ftc.teamcode.Lib.VelocityVortex;
+package org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib;
 
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-
-import java.util.IllegalFormatCodePointException;
 
 public class FrontBeaconPusherControl {
 

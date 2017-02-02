@@ -5,8 +5,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
-import org.firstinspires.ftc.teamcode.Lib.VelocityVortex.FrontBeaconPusher;
-import org.firstinspires.ftc.teamcode.Lib.VelocityVortex.MuxPlusColorSensors;
 
 public class VelocityVortexRobot {
 
