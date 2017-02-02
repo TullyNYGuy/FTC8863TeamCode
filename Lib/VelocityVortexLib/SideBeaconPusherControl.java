@@ -22,10 +22,8 @@ public class SideBeaconPusherControl {
         PUSH_BUTTON,
         DRIVE_COMPLETE,
         SKIP_BUTTON,
-        DRIVE_FORWARD_AFTER_BEACON,
-        DETECT_AFTER_SKIP,
-        CHECK_DRIVE_AFTER_FIRST_BEACON,
-        RETRACT_ARM_AFTER_SKIP
+        DRIVE_FORWARD_AFTER_BEACON_PUSH,
+        FINISHED
     }
 
 
@@ -35,9 +33,11 @@ public class SideBeaconPusherControl {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
+    private Telemetry telemetry;
     private SideBeaconPusher sideBeaconPusher;
     private SideBeaconPusherState sideBeaconPusherState;
     private VelocityVortexRobot.AllianceColor allianceColor;
+    private int beaconCount = 1;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -59,6 +59,7 @@ public class SideBeaconPusherControl {
                                    VelocityVortexRobot.AllianceColor allianceColor) {
         this.sideBeaconPusher = new SideBeaconPusher(hardwareMap, telemetry, driveTrain, sideBeaconPusherPosition);
         this.allianceColor = allianceColor;
+        this.telemetry = telemetry;
     }
 
 
@@ -77,18 +78,24 @@ public class SideBeaconPusherControl {
     public SideBeaconPusherState update() {
         switch (sideBeaconPusherState) {
             case RUNNING_ALONG_THE_WALL:
+                telemetry.addData("State =", sideBeaconPusherState.toString());
+                telemetry.update();
                 sideBeaconPusher.driveAlongWall(0, .6);
                 sideBeaconPusher.extendArmHalfWay();
                 sideBeaconPusherState = SideBeaconPusherState.SEARCHING_FOR_BEACON;
                 break;
             case SEARCHING_FOR_BEACON:
+                telemetry.addData("State =", sideBeaconPusherState.toString());
+                telemetry.update();
+                sideBeaconPusher.updateDriveAlongWall();
                 if (sideBeaconPusher.isBeaconBlue() || sideBeaconPusher.isBeaconRed()) {
                     sideBeaconPusher.stopDriveAlongWall();
                     sideBeaconPusherState = SideBeaconPusherState.BEACON_DETECTED;
                 }
                 break;
             case BEACON_DETECTED:
-                sideBeaconPusher.driveNearBeacon();
+                telemetry.addData("State =", sideBeaconPusherState.toString());
+                telemetry.update();
                 if (sideBeaconPusher.isBeaconBlue() && allianceColor == VelocityVortexRobot.AllianceColor.BLUE ||
                         sideBeaconPusher.isBeaconRed() && allianceColor == VelocityVortexRobot.AllianceColor.RED) {
                     sideBeaconPusherState = SideBeaconPusherState.PUSH_BUTTON;
@@ -97,47 +104,47 @@ public class SideBeaconPusherControl {
                 }
                 break;
             case PUSH_BUTTON:
+                telemetry.addData("State =", sideBeaconPusherState.toString());
+                telemetry.update();
                 sideBeaconPusher.extendingArmFully();
                 sideBeaconPusher.driveDistance(0, .3);
                 sideBeaconPusherState = SideBeaconPusherState.DRIVE_COMPLETE;
                 break;
 
             case DRIVE_COMPLETE:
+                telemetry.addData("State =", sideBeaconPusherState.toString());
+                telemetry.update();
                 sideBeaconPusher.retractArm();
                 sideBeaconPusher.driveAlongWall(0, .3);
-                sideBeaconPusherState = SideBeaconPusherState.RUNNING_ALONG_THE_WALL;
+                sideBeaconPusherState = SideBeaconPusherState.DRIVE_FORWARD_AFTER_BEACON_PUSH;
                 break;
 
-
-            case SKIP_BUTTON:
-                sideBeaconPusher.retractArm();
-                sideBeaconPusher.driveDistance(0, .3); //Change distance later
-                sideBeaconPusherState = SideBeaconPusherState.DRIVE_FORWARD_AFTER_BEACON;
-                break;
-            case DRIVE_FORWARD_AFTER_BEACON:
-                if (sideBeaconPusher.updateDriveDistance()) {
-                    sideBeaconPusher.extendingArmFully();
-                    sideBeaconPusher.driveDistance(0, .8);
-                    sideBeaconPusherState = SideBeaconPusherState.DETECT_AFTER_SKIP;
-                }
-                break;
-            case DETECT_AFTER_SKIP:
-                if (sideBeaconPusher.updateDriveDistance()) {
-                    sideBeaconPusher.driveDistance(0, .6);
-                    sideBeaconPusher.retractArm();
-                    sideBeaconPusherState = SideBeaconPusherState.CHECK_DRIVE_AFTER_FIRST_BEACON;
-                }
-                break;
-            case CHECK_DRIVE_AFTER_FIRST_BEACON:
-                if (sideBeaconPusher.updateDriveDistance()) {
+            case DRIVE_FORWARD_AFTER_BEACON_PUSH:
+                telemetry.addData("State =", sideBeaconPusherState.toString());
+                telemetry.update();
+                beaconCount = beaconCount + 1;
+                if (beaconCount == 2) {
+                    sideBeaconPusherState = SideBeaconPusherState.FINISHED;
+                } else {
                     sideBeaconPusherState = SideBeaconPusherState.RUNNING_ALONG_THE_WALL;
                 }
                 break;
-            case RETRACT_ARM_AFTER_SKIP:
+
+            case SKIP_BUTTON:
+                telemetry.addData("State =", sideBeaconPusherState.toString());
+                telemetry.update();
                 sideBeaconPusher.retractArm();
+                sideBeaconPusher.driveDistance(0, .3);
+                sideBeaconPusherState = SideBeaconPusherState.SEARCHING_FOR_BEACON;
+                break;
+
+            case FINISHED:
+                telemetry.addData("State =", sideBeaconPusherState.toString());
+                telemetry.update();
                 break;
             }
         return sideBeaconPusherState;
         }
     }
 //IDEA use telemetry to print out the state we are currently in on the phone that way we can debug easier
+// ADD ALL DISTANCES

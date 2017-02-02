@@ -118,8 +118,8 @@ public class SideBeaconPusher {
     public void stopDriveAlongWall () {
         driveTrain.stopDriveUsingIMU();
     }
-    public void driveNearBeacon () {
-        driveTrain.setupDriveUsingIMU (0, .4, AdafruitIMU8863.AngleMode.RELATIVE);
+    public void driveNearBeacon (double heading, double maxPower) {
+        driveTrain.setupDriveUsingIMU (heading, maxPower, AdafruitIMU8863.AngleMode.RELATIVE);
     }
     public void driveDistance (double distance, double power) {
         driveTrain.setupDriveDistanceUsingIMU(0, power, distance, AdafruitIMU8863.AngleMode.RELATIVE, 0, power, 1000);

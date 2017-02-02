@@ -5,6 +5,8 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
+import java.util.IllegalFormatCodePointException;
+
 public class FrontBeaconPusherControl {
 
     //*********************************************************************************************
@@ -15,11 +17,16 @@ public class FrontBeaconPusherControl {
     //*********************************************************************************************
 
     public enum FrontBeaconControlState {
+        LOOK_FOR_BEACON,
+        MOVE_PUSHERS_TO_MIDDLE,
         BOTH_BACK,
-        BOTH_MIDDLE,
+        AT_MIDDLE,
         BOTH_FORWARD,
-        LEFT_BACK_RIGHT_FORWARD,
-        RIGHT_BACK_LEFT_FORWARD,
+        AT_LEFT_BACK_RIGHT_FORWARD,
+        CHECK_BEACON_PUSHED,
+        MOVING_LEFT_FORWARD_RIGHT_BACK,
+        MOVING_RIGHT_FORWARD_LEFT_BACK,
+        AT_RIGHT_BACK_LEFT_FORWARD,
         PUSH_BEACON,
         IDLE
     }
@@ -81,50 +88,72 @@ public class FrontBeaconPusherControl {
     //*********************************************************************************************
 
     public void startBeaconControl() {
-        frontBeaconControlState = FrontBeaconControlState.BOTH_BACK;
+        frontBeaconControlState = FrontBeaconControlState.LOOK_FOR_BEACON;
     }
 
-    public FrontBeaconControlState update(){
+    public FrontBeaconControlState update() {
         frontBeaconPusherState = frontBeaconPusher.updateState();
         beaconColor = frontBeaconPusher.getBeaconColor();
         switch (frontBeaconControlState) {
             case IDLE:
                 break;
             case BOTH_BACK:
-                frontBeaconControlState = FrontBeaconControlState.BOTH_MIDDLE;
+                frontBeaconControlState = FrontBeaconControlState.MOVE_PUSHERS_TO_MIDDLE;
                 frontBeaconPusher.moveBothMidway();
                 break;
-            case BOTH_MIDDLE:
+            case MOVE_PUSHERS_TO_MIDDLE:
                 if (frontBeaconPusherState == FrontBeaconPusher.BeaconPusherState.BOTH_MIDDLE) {
-                    if (allianceColor == AllianceColor.BLUE && beaconColor == FrontBeaconPusher.BeaconColor.RED_BLUE
-                            || allianceColor == AllianceColor.RED && beaconColor == FrontBeaconPusher.BeaconColor.BLUE_RED) {
-                        frontBeaconControlState = FrontBeaconControlState.LEFT_BACK_RIGHT_FORWARD;
-                    }
-                    if (allianceColor == AllianceColor.BLUE && beaconColor == FrontBeaconPusher.BeaconColor.BLUE_RED
-                            || allianceColor == AllianceColor.RED && beaconColor == FrontBeaconPusher.BeaconColor.RED_BLUE) {
-                        frontBeaconControlState = FrontBeaconControlState.RIGHT_BACK_LEFT_FORWARD;
-                    }
+                    frontBeaconControlState = FrontBeaconControlState.AT_MIDDLE;
+                }
+                if (frontBeaconPusherState != FrontBeaconPusher.BeaconPusherState.MOVING_TO_BOTH_MIDDLE) {
+                    frontBeaconPusher.moveBothMidway();
                 }
                 break;
-            case BOTH_FORWARD:
+
+            case AT_MIDDLE:
                 break;
-            case LEFT_BACK_RIGHT_FORWARD:
+            case LOOK_FOR_BEACON:
+                if (allianceColor == AllianceColor.BLUE && beaconColor == FrontBeaconPusher.BeaconColor.RED_BLUE
+                        || allianceColor == AllianceColor.RED && beaconColor == FrontBeaconPusher.BeaconColor.BLUE_RED) {
+                    frontBeaconControlState = FrontBeaconControlState.MOVING_RIGHT_FORWARD_LEFT_BACK;
+                }
+                if (allianceColor == AllianceColor.BLUE && beaconColor == FrontBeaconPusher.BeaconColor.BLUE_RED
+                        || allianceColor == AllianceColor.RED && beaconColor == FrontBeaconPusher.BeaconColor.RED_BLUE) {
+                    frontBeaconControlState = FrontBeaconControlState.MOVING_LEFT_FORWARD_RIGHT_BACK;
+                }
+                break;
+            case MOVING_RIGHT_FORWARD_LEFT_BACK:
+                if (frontBeaconPusherState != FrontBeaconPusher.BeaconPusherState.MOVING_TO_LEFT_BACK_RIGHT_FORWARD){
+                    frontBeaconPusher.moveLeftPusherBackRightPusherForward();
+                }
                 if (frontBeaconPusherState == FrontBeaconPusher.BeaconPusherState.LEFT_BACK_RIGHT_FORWARD){
-                    frontBeaconControlState = FrontBeaconControlState.PUSH_BEACON;
+                    frontBeaconControlState = FrontBeaconControlState.AT_LEFT_BACK_RIGHT_FORWARD;
                 }
                 break;
-            case RIGHT_BACK_LEFT_FORWARD:
+            case MOVING_LEFT_FORWARD_RIGHT_BACK:
+                if (frontBeaconPusherState != FrontBeaconPusher.BeaconPusherState.MOVING_TO_LEFT_FORWARD_RIGHT_BACK){
+                    frontBeaconPusher.moveLeftPusherForwardRightPusherBack();
+                }
                 if (frontBeaconPusherState == FrontBeaconPusher.BeaconPusherState.LEFT_FORWARD_RIGHT_BACK){
-                    frontBeaconControlState = FrontBeaconControlState.PUSH_BEACON;
+                    frontBeaconControlState = FrontBeaconControlState.AT_RIGHT_BACK_LEFT_FORWARD;
                 }
                 break;
-            case PUSH_BEACON:
-                if (beaconColor != frontBeaconPusher.getBeaconColor()){
-                    frontBeaconControlState = FrontBeaconControlState.BOTH_MIDDLE;
-                }
+            case AT_LEFT_BACK_RIGHT_FORWARD:
+                frontBeaconControlState = FrontBeaconControlState.CHECK_BEACON_PUSHED;
+                break;
+            case AT_RIGHT_BACK_LEFT_FORWARD:
+                frontBeaconControlState = FrontBeaconControlState.CHECK_BEACON_PUSHED;
+                break;
+            case CHECK_BEACON_PUSHED:
+                frontBeaconControlState = FrontBeaconControlState.MOVE_PUSHERS_TO_MIDDLE;
+                break;
+
+            case BOTH_FORWARD:
                 break;
         }
         return frontBeaconControlState;
     }
 
 }
+
+

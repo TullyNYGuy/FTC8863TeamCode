@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 /*
-Copyright (c) 2016 Glenn Ball
+Copyright (c) 2017 Glenn Ball
 Written to support FTC team 8863, Tully Precision Cut-Ups
 
 All rights reserved.
@@ -19,7 +19,7 @@ other materials provided with the distribution.
 NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS
 LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
-THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESSFOR A PARTICULAR PURPOSE
+THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
 ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
 FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
 DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
@@ -29,7 +29,6 @@ TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-import com.qualcomm.hardware.ams.AMSColorSensorImpl;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.I2cDevice;
@@ -65,7 +64,7 @@ public class AdafruitI2CMux {
      * one port enabled at a time. In most cases you will only want one port enabled.
      */
     public enum PortNumber {
-        NOPORT (0x00),
+        NOPORT (0x00), // inicates that no port have been selected
         PORT0 (0x01),
         PORT1 (0x02),
         PORT2 (0x04),
@@ -126,7 +125,7 @@ public class AdafruitI2CMux {
 
     /**
      * In an effort to minimize traffic on the I2C bus, I keep track of the last byte written and
-     * only write commands that change from the last command. This also cam be read instead of
+     * only write commands that change from the last command. This also can be read instead of
      * reading the actiual device and creating more bus traffic.
      */
     private byte lastControlByte = 0x00;
@@ -144,8 +143,7 @@ public class AdafruitI2CMux {
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
-    // allow access to private data fields for example setMotorPower,
-    // getPositionInTermsOfAttachment
+    // allow access to private data fields
     //*********************************************************************************************
 
     /**
