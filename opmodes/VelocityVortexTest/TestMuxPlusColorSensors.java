@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmodes.VelocityVortexTest;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.MuxPlusColorSensors;
 
@@ -16,6 +17,7 @@ public class TestMuxPlusColorSensors extends LinearOpMode {
 
     // Put your variable declarations here
     MuxPlusColorSensors muxPlusColorSensors;
+    ElapsedTime timer;
 
     @Override
     public void runOpMode() {
@@ -23,8 +25,7 @@ public class TestMuxPlusColorSensors extends LinearOpMode {
 
         // Put your initializations here
         muxPlusColorSensors = new MuxPlusColorSensors(hardwareMap, telemetry);
-        // display the initialization results
-        telemetry.update();
+        timer = new ElapsedTime();
         
         // Wait for the start button
         telemetry.addData(">", "Press Start to run" );
@@ -32,11 +33,12 @@ public class TestMuxPlusColorSensors extends LinearOpMode {
         waitForStart();
 
         // Put your calls here - they will not run in a loop
+        timer.reset();
 
         while(opModeIsActive()) {
 
             // Put your calls that need to run in a loop here
-            muxPlusColorSensors.displayAllColorResults();
+            muxPlusColorSensors.displayColorValues(MuxPlusColorSensors.WhichColorSensor.FRONT_RIGHT);
 
             telemetry.addData(">", "Press Stop to end test." );
             telemetry.update();
