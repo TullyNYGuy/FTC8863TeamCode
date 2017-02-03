@@ -61,7 +61,7 @@ import org.firstinspires.ftc.teamcode.opmodes.GenericTest.RobotConfigMappingForG
  */
 
 @TeleOp(name="Drive Train Teleop", group="Test")
-//@Disabled
+@Disabled
 public class TestDriveTrainTeleopFromK9 extends LinearOpMode {
 
     DcMotor leftMotor;

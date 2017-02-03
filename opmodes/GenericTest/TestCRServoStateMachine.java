@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.CRServo;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.CRServoGB;
@@ -14,7 +15,7 @@ import org.firstinspires.ftc.teamcode.Lib.ResQLib.RobotConfigMapping;
  * This opmode shows how to operate a CR Servo
  */
 @TeleOp(name = "Test CR Servo State Machine", group = "Test")
-//@Disabled
+@Disabled
 public class TestCRServoStateMachine extends LinearOpMode {
 
     // Put your variable declarations here

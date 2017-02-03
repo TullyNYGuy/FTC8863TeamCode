@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.CRServo;
  * This opmode shows how to operate a CR Servo
  */
 @TeleOp(name = "Test CR Servo Linear", group = "Test")
-//@Disabled
+@Disabled
 public class TestCRServoLinearOpMode extends LinearOpMode {
 
     // Put your variable declarations here

@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.StatTracker;
  *
  */
 @TeleOp(name = "Matt's Test Code", group = "Test")
-//@Disabled
+@Disabled
 public class StatTrackerTestClass extends LinearOpMode {
 
     // Put your variable declarations here

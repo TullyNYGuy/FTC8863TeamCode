@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
@@ -18,7 +19,7 @@ import org.firstinspires.ftc.teamcode.opmodes.GenericTest.RobotConfigMappingForG
  * This code assumes a DC motor configured with the name "leftDriveMotor"  and "rightDriveMotor"
  */
 @TeleOp(name = "Test David Servo Linear", group = "Test")
-//@Disabled
+@Disabled
 public class TestDavidServoLinear extends LinearOpMode {
 
     boolean genericServoActive = true;

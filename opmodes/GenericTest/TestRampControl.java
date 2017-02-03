@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.RampControl;
  *
  */
 @TeleOp(name = "Test Ramp Control", group = "Test")
-//@Disabled
+@Disabled
 public class TestRampControl extends LinearOpMode {
 
     // Put your variable declarations here

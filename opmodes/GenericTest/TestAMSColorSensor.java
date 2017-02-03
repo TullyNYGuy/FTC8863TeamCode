@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 /**
  * Configure an I2C port on the phone as I2C Device
@@ -13,7 +14,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  *
  */
 @TeleOp(name = "Test AMSColor Sensor", group = "Test")
-//@Disabled
+@Disabled
 public class TestAMSColorSensor extends LinearOpMode {
 
     // Put your variable declarations here

@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.Switch;
  *
  */
 @TeleOp(name = "Test Switch", group = "Test")
-//@Disabled
+@Disabled
 public class TestSwitch extends LinearOpMode {
 
     // Put your variable declarations here
