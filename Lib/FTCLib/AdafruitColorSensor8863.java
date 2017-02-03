@@ -36,6 +36,7 @@ import android.graphics.Color;
 import com.qualcomm.robotcore.hardware.DeviceInterfaceModule;
 import com.qualcomm.robotcore.hardware.DigitalChannelController;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynchImpl;
@@ -441,6 +442,8 @@ public class AdafruitColorSensor8863 {
 
     private int maxRGBCValue = 0;
 
+    private AdafruitColorSensor8863 adafruitColorSensor8863;
+
     private ArrayList<Gain> gainArrayList;
     private int currentGainIndex = 0;
     private ArrayList<IntegrationTime> integrationTimeArrayList;
@@ -479,7 +482,7 @@ public class AdafruitColorSensor8863 {
     // from it
     //*********************************************************************************************
 
-    public AdafruitColorSensor8863(HardwareMap hardwareMap, String colorSensorName, String coreDIMName, int ioChannelForLed) {
+    private AdafruitColorSensor8863(HardwareMap hardwareMap, String coreDIMName, int ioChannelForLed) {
         // set up for controlling the LED
         this.ledOn = false;
         this.ioChannelForLed = ioChannelForLed;
@@ -489,19 +492,51 @@ public class AdafruitColorSensor8863 {
         // not get shut off.
         delay(100);
         coreDIM.setDigitalChannelState(ioChannelForLed, ledOn);
+    }
 
-        // setup for the color sensor
-        parameters = AMSColorSensorParameters.createForAdaFruit();
-        colorSensor = hardwareMap.get(I2cDevice.class, colorSensorName);
-        colorSensorClient = new I2cDeviceSynchImpl(colorSensor, parameters.getI2cAddr(), isOwned);
-        colorSensorClient.engage();
-        initialize();
+    public static AdafruitColorSensor8863 createAdaFruitColorSensor8863Single(HardwareMap hardwareMap,
+                          String colorSensorName, String coreDIMName, int ioChannelForLed) {
+        // create the color sensor object
+        AdafruitColorSensor8863 adafruitColorSensor8863 = new AdafruitColorSensor8863(
+                hardwareMap, coreDIMName, ioChannelForLed);
 
-        // setup for tracking the update rate of the sensor
-        // Timer used to time the update rate
-        updateTimer = new ElapsedTime();
-        // A tracker used to track the update rate of the color sensor.
-        updateTimeTracker = new StatTracker();
+        // create the I2C device within the color sensor object
+        adafruitColorSensor8863.parameters = AMSColorSensorParameters.createForAdaFruit();
+        adafruitColorSensor8863.colorSensor = hardwareMap.get(I2cDevice.class, colorSensorName);
+        adafruitColorSensor8863.colorSensorClient = new I2cDeviceSynchImpl(adafruitColorSensor8863.colorSensor,
+                adafruitColorSensor8863.parameters.getI2cAddr(), adafruitColorSensor8863.isOwned);
+
+        // initialize the color sensor
+        adafruitColorSensor8863.initialize();
+        // return the color sensor object to the user
+        return adafruitColorSensor8863;
+    }
+
+    public static AdafruitColorSensor8863 createAdaFruitColorSensor8863ForMux(HardwareMap hardwareMap,
+            I2cDeviceCommunicator i2cDeviceCommunicator, String coreDIMName, int ioChannelForLed) {
+        // create the color sensor object
+        AdafruitColorSensor8863 adafruitColorSensor8863 = new AdafruitColorSensor8863(
+                hardwareMap, coreDIMName, ioChannelForLed);
+
+        // populate the I2C device objects within the color sensor object using the I2C Device that
+        // was passed to us. This is because the same I2C Device will be used to communicate with
+        // multiple color sensors.
+        adafruitColorSensor8863.colorSensor = i2cDeviceCommunicator.getI2cDevice();
+        adafruitColorSensor8863.colorSensorClient = i2cDeviceCommunicator.getI2cDeviceClient();
+
+        // initialize the color sensor
+        adafruitColorSensor8863.initialize();
+        // return the color sensor object to the user
+        return adafruitColorSensor8863;
+    }
+
+    /**
+     * Get the I2C address for the Adafruit color sensor.
+     * @return I2C address for the Adagruit color sensor
+     */
+    public static I2cAddr getAdafruitColorSensor8863I2cAddress() {
+        AMSColorSensorParameters parameters = AMSColorSensorParameters.createForAdaFruit();
+        return parameters.getI2cAddr();
     }
 
 
@@ -512,6 +547,7 @@ public class AdafruitColorSensor8863 {
     //*********************************************************************************************
 
     private void initialize() {
+        colorSensorClient.engage();
         // check if isArmed() ?
         // check if the proper chip is out there by checking the chip id
         if (!checkDeviceId()) {
@@ -527,6 +563,11 @@ public class AdafruitColorSensor8863 {
         // This may get used later to change the gain
         // set up a read ahead?
         enable();
+        // setup for tracking the update rate of the sensor
+        // Timer used to time the update rate
+        updateTimer = new ElapsedTime();
+        // A tracker used to track the update rate of the color sensor.
+        updateTimeTracker = new StatTracker();
     }
 
     private void setIntegrationTime(IntegrationTime time) {

@@ -83,6 +83,9 @@ public class MuxPlusColorSensors {
         // disconnect all 8 ports
         mux.disablePorts();
 
+        // Create an I2C device that will allow us to talk to the color sensors
+
+
         mux.selectAndEnableAPort(frontBeaconPusherRightColorSensorPort);
         // create colorSensor1 and initialize it
         frontBeaconPusherRightColorSensor = new AdafruitColorSensor8863(hardwareMap, 
