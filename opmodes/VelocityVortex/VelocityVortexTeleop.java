@@ -340,6 +340,7 @@ public class VelocityVortexTeleop extends LinearOpMode {
 
             if (gamepad2.dpad_left) {
                 if (gamepad2DpadLeftIsReleased) {
+                    robot.shooter.openBallGate();
                     gamepad2DpadLeftIsReleased = false;
                 }
             } else {
@@ -348,6 +349,7 @@ public class VelocityVortexTeleop extends LinearOpMode {
 
             if (gamepad2.dpad_right) {
                 if (gamepad2DpadRightIsReleased) {
+                    robot.shooter.closeBallGate();
                     gamepad2DpadRightIsReleased = false;
                 }
             } else {

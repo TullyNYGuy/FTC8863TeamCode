@@ -48,7 +48,7 @@ public class TestShooterLeadScrew extends LinearOpMode {
         //*********************************************************************************************
         //  Initializations after the pogram is selected by the user on the driver phone
         //*********************************************************************************************
-        shooter= new VelocityVortexShooter(hardwareMap);
+        shooter= new VelocityVortexShooter(hardwareMap, telemetry);
 
         // set the mode for the motor
         shooter.init();

@@ -27,6 +27,7 @@ public class TestShooter extends LinearOpMode {
     //*********************************************************************************************
 
     VelocityVortexShooter shooter;
+    DcMotor8863 shooterMotor;
 
     double shooterPower = 0;
     double lastShooterPower = 0;
@@ -52,7 +53,15 @@ public class TestShooter extends LinearOpMode {
         //*********************************************************************************************
         //  Initializations after the pogram is selected by the user on the driver phone
         //*********************************************************************************************
-        shooter = new VelocityVortexShooter(hardwareMap);
+        shooter = new VelocityVortexShooter(hardwareMap, telemetry);
+        shooterMotor = new DcMotor8863(RobotConfigMappingForGenericTest.getShooterMotorName(), hardwareMap);
+        shooterMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
+        shooterMotor.setMovementPerRev(360);
+        shooterMotor.setTargetEncoderTolerance(5);
+        shooterMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
+        shooterMotor.setMotorMoveType(DcMotor8863.MotorMoveType.RELATIVE);
+        shooterMotor.setMinMotorPower(-1);
+        shooterMotor.setMaxMotorPower(1);
 
         // set the mode for the motor
         shooter.init();
@@ -137,7 +146,7 @@ public class TestShooter extends LinearOpMode {
 
             // clip the shooterPower. The user cannot increase power higher or lower than this
             shooterPower = Range.clip(shooterPower, -1.0, 1.0);
-            shooter.shooterMotor.setPower(shooterPower);
+            shooterMotor.setPower(shooterPower);
 
             // update the state machine for the shooter motor
 

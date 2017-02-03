@@ -5,7 +5,9 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
 import org.firstinspires.ftc.teamcode.opmodes.GenericTest.RobotConfigMappingForGenericTest;
 
 public class VelocityVortexShooter {
@@ -29,8 +31,16 @@ public class VelocityVortexShooter {
     //*********************************************************************************************
     public DcMotor8863 shooterMotor;
     public DcMotor8863 shooterLeadScrewMotor;
+    public Servo8863 ballGateServo;
+
+    private Telemetry telemetry;
 
     private double shooterPower = 0;
+
+
+    private double openPosition = 0.75;
+    private double closedPosition = 1.00;
+    private double initPosition = closedPosition;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -51,7 +61,7 @@ public class VelocityVortexShooter {
     // from it
     //*********************************************************************************************
 
-    public VelocityVortexShooter(HardwareMap hardwareMap) {
+    public VelocityVortexShooter(HardwareMap hardwareMap, Telemetry telemetry) {
         // setup the motor
         shooterMotor = new DcMotor8863(RobotConfigMappingForGenericTest.getShooterMotorName(), hardwareMap);
         shooterMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
@@ -71,6 +81,14 @@ public class VelocityVortexShooter {
         shooterLeadScrewMotor.setMotorMoveType(DcMotor8863.MotorMoveType.RELATIVE);
         shooterLeadScrewMotor.setMinMotorPower(-1);
         shooterLeadScrewMotor.setMaxMotorPower(1);
+
+        // setup the servo
+        this.telemetry = telemetry;
+        ballGateServo = new Servo8863(RobotConfigMappingForGenericTest.getBallGateServoName(), hardwareMap, telemetry);
+        ballGateServo.setHomePosition(closedPosition);
+        ballGateServo.setPositionOne(openPosition);
+        ballGateServo.setInitPosition(closedPosition);
+        ballGateServo.goInitPosition();
     }
 
 
@@ -122,5 +140,13 @@ public class VelocityVortexShooter {
     }
     public void setPower(double power){
         shooterMotor.setPower(power);
+    }
+
+    public void openBallGate() {
+        ballGateServo.goPositionOne();
+    }
+
+    public void closeBallGate() {
+        ballGateServo.goHome();
     }
 }

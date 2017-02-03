@@ -69,7 +69,7 @@ public class VelocityVortexRobot {
         rightSideBeaconPusher = new SideBeaconPusher(hardwareMap, telemetry, driveTrain, SideBeaconPusher.SideBeaconPusherPosition.RIGHT);
         muxPlusColorSensors = new MuxPlusColorSensors(hardwareMap, telemetry);
         frontBeaconPusher = new FrontBeaconPusher(hardwareMap, telemetry, muxPlusColorSensors);
-        shooter = new VelocityVortexShooter(hardwareMap);
+        shooter = new VelocityVortexShooter(hardwareMap, telemetry);
         init();
 
     }
