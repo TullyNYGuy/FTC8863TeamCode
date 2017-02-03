@@ -25,6 +25,7 @@ public class StatTracker {
     private int count;
 
     private double sum;
+    private double instantaneous;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -53,6 +54,10 @@ public class StatTracker {
         return sum;
     }
 
+    public double getInstantaneous() {
+        return instantaneous;
+    }
+
     //*********************************************************************************************
     //          Constructors
     //
@@ -65,6 +70,7 @@ public class StatTracker {
         average = 0;
         count = 0;
         sum = 0;
+        instantaneous = 0;
     }
 
     //*********************************************************************************************
@@ -72,36 +78,43 @@ public class StatTracker {
     //
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
-    public int compareValue(double value1) {
-            if (count == 0) {
-                maximum = value1;
-                minimum = value1;
-                average = value1;
-                sum = value1;
-                count ++;
-            }
-            if (count > 0) {
-                if (maximum < value1) {
-                    maximum = value1;
-                }
-                sum = value1 + sum;
-
-                if (minimum > value1) {
-                    minimum = value1;
-
-                }
-                average = sum / count;
-                count ++;
+    public void compareValue(double value1) {
+        instantaneous = value1;
+        if (count == 0) {
+            maximum = value1;
+            minimum = value1;
+            average = value1;
+            sum = value1;
+            count++;
         }
+        if (count > 0) {
+            if (maximum < value1) {
+                maximum = value1;
+            }
+            sum = value1 + sum;
 
+            if (minimum > value1) {
+                minimum = value1;
 
-        return 0;
+            }
+            average = sum / count;
+            count++;
+        }
     }
-}
+
+
+    public void reset() {
+        maximum = 0;
+        minimum = 0;
+        average = 0;
+        count = 0;
+        sum = 0;
+        instantaneous = 0;
+    }
 
     //*********************************************************************************************
     //          MAJOR METHODS
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
-
+}
