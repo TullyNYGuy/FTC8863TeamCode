@@ -196,7 +196,7 @@ public class AdafruitColorSensor8863 {
      * Equation for calculating integration time in milliseconds (ms) = (256-ATIME) * 2.4ms
      * Equation for calculating ATIME (byte value of register) = (256-(integratin time in ms)) / 2.4ms
      */
-    enum IntegrationTime {
+    public enum IntegrationTime {
         AMS_COLOR_ITIME_2_4MS(0xFF), //2.4 mSec, max possible value = 1024
         AMS_COLOR_ITIME_24MS(0xF6), // 24 mSec, max possible value = 10240
         AMS_COLOR_ITIME_50MS(0xEB), // 50 mSec, max possible value = 21504
@@ -534,6 +534,11 @@ public class AdafruitColorSensor8863 {
         // calculate maximum possible color value for use later in scaling
         this.maxRGBCValue = calculateMaxRGBCCount(time);
     }
+
+//    public IntegrationTime readIntegrationTime() {
+//        byte registerContents;
+//        registerContents = this.read8(Register.INTEGRATION_TIME);
+//    }
 
     // following is start of code needed to be able to increment through Gains and Integration times
     // It is not complete yet. The goal is to eventually have the class auto select the proper gain
@@ -1138,6 +1143,39 @@ public class AdafruitColorSensor8863 {
         return gainAsString;
     }
 
+    public void setIntegrationTime2_4ms() {
+        setIntegrationTime(IntegrationTime.AMS_COLOR_ITIME_2_4MS);
+    }
+
+    public void setIntegrationTime24ms() {
+        setIntegrationTime(IntegrationTime.AMS_COLOR_ITIME_24MS);
+    }
+
+    public void setIntegrationTime50ms() {
+        setIntegrationTime(IntegrationTime.AMS_COLOR_ITIME_50MS);
+    }
+
+    public void setIntegrationTime101ms() {
+        setIntegrationTime(IntegrationTime.AMS_COLOR_ITIME_101MS);
+    }
+
+    public void setIntegrationTime154ms() {
+        setIntegrationTime(IntegrationTime.AMS_COLOR_ITIME_154MS);
+    }
+    public void setIntegrationTime307ms() {
+        setIntegrationTime(IntegrationTime.AMS_COLOR_ITIME_307MS);
+    }
+    public void setIntegrationTime460ms() {
+        setIntegrationTime(IntegrationTime.AMS_COLOR_ITIME_460MS);
+    }
+    public void setIntegrationTime537ms() {
+        setIntegrationTime(IntegrationTime.AMS_COLOR_ITIME_537MS);
+    }
+
+    public void setIntegrationTime700ms() {
+        setIntegrationTime(IntegrationTime.AMS_COLOR_ITIME_700MS);
+    }
+
     public String getCurrentIntegrationTimeAsString() {
         String integrationTimeAsString = "nothing";
         switch (parameters.getIntegrationTime()) {
@@ -1189,8 +1227,13 @@ public class AdafruitColorSensor8863 {
         return updateTimeTracker.getAverage();
     }
 
+    public double getUpdateRateInstantaneous() {
+        return updateTimeTracker.getInstantaneous();
+    }
+
     public String updateRateString() {
-        return String.format("%4.0f", getUpdateRateMin()) + " / " + String.format("%4.0f", getUpdateRateAve()) + " / " + String.format("%4.0f", getUpdateRateMax());
+        return String.format("%4.0f", getUpdateRateMin()) + " / " + String.format("%4.0f", getUpdateRateAve())
+                + " / " + String.format("%4.0f", getUpdateRateMax()) + " / " + String.format("%4.0f", getUpdateRateInstantaneous());
     }
 
     //*********************************************************************************************
@@ -1212,7 +1255,7 @@ public class AdafruitColorSensor8863 {
         telemetry.addData("Hue / Sat / Value (scaled)", hsvValuesScaledAsString());
         telemetry.addData(colorTestResultUsingRGBCaption(), colorTestResultUsingRGB());
         telemetry.addData(colorTestResultUsingHSVCaption(), colorTestResultUsingHSV());
-        telemetry.addData("Update min/ave/max (mS) = ", updateRateString());
+        telemetry.addData("Update min/ave/max/instant (mS) = ", updateRateString());
         telemetry.addData(">", "Press Stop to end test." );
 
         telemetry.update();
