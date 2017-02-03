@@ -22,6 +22,12 @@ public class MuxPlusColorSensors {
         LEFT;
     }
 
+    public enum WhichColorSensor {
+        FRONT_RIGHT,
+        RIGHT_SIDE,
+        LEFT_SIDE
+    }
+
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS
     //
@@ -70,6 +76,7 @@ public class MuxPlusColorSensors {
     //*********************************************************************************************
     //NEED TO TEST THE CLASS
     public MuxPlusColorSensors(HardwareMap hardwareMap, Telemetry telemetry) {
+        this.telemetry = telemetry;
         // Create an I2C mux and initialize it
         mux = new AdafruitI2CMux(hardwareMap, RobotConfigMappingForGenericTest.getMuxName(), 
                 RobotConfigMappingForGenericTest.getMuxAddress());
@@ -115,8 +122,6 @@ public class MuxPlusColorSensors {
             activeColorSensor.reportStatus("left side beacon color sensor", telemetry);
         }
         activeColorSensor.turnLEDOff();
-
-        this.telemetry = telemetry;
     }
 
 
@@ -138,6 +143,24 @@ public class MuxPlusColorSensors {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
+
+    public void frontRightBeaconPusherColorSensorSetIntegrationTime (AdafruitColorSensor8863.IntegrationTime integrationTime) {
+        setPort(frontBeaconPusherLeftColorSensorPort);
+        switch(integrationTime) {
+            case AMS_COLOR_ITIME_24MS:
+                activeColorSensor.setIntegrationTime24ms();
+                break;
+            case AMS_COLOR_ITIME_50MS:
+                activeColorSensor.setIntegrationTime50ms();
+                break;
+            case AMS_COLOR_ITIME_307MS:
+                activeColorSensor.setIntegrationTime307ms();
+                break;
+            case AMS_COLOR_ITIME_700MS:
+                activeColorSensor.setIntegrationTime700ms();
+                break;
+        }
+    }
 
     public boolean frontRightBeaconPusherColorSensorIsBlue() {
         setPort(frontBeaconPusherRightColorSensorPort);
@@ -200,6 +223,21 @@ public class MuxPlusColorSensors {
         telemetry.addData("Left side blue = ", leftSideBeaconPusherColorSensorIsBlue());
         telemetry.addData("Left side blue = ", leftSideBeaconPusherColorSensorIsBlue());
         telemetry.update();
+    }
+
+    public void displayColorValues(WhichColorSensor whichColorSensor) {
+        switch (whichColorSensor) {
+            case FRONT_RIGHT:
+                setPort(frontBeaconPusherRightColorSensorPort);
+                break;
+            case LEFT_SIDE:
+                setPort(leftSideBeaconPusherColorSensorPort);
+                break;
+            case RIGHT_SIDE:
+                setPort(rightSideBeaconPusherColorSensorPort);
+                break;
+        }
+        activeColorSensor.displayColorSensorData(telemetry);
     }
 
     /**
