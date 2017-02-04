@@ -38,7 +38,7 @@ public class VelocityVortexShooter {
     private double shooterPower = 0;
 
 
-    private double openPosition = 0.75;
+    private double openPosition = 0.50;
     private double closedPosition = 1.00;
     private double initPosition = closedPosition;
 
