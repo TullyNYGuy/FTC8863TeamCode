@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitColorSensor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitColorSensor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitI2CMux;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.I2cDeviceCommunicator;
 
 /**
  * This opmode demonstates how to use the AdafruitI2CMux class to talk to an I2C mux.
@@ -64,6 +65,8 @@ public class TestAdafruitI2CMux4AdafruitColorSensor8863 extends LinearOpMode {
     // The default address of the I2C mux. If you change that, then you have to change this address.
     byte muxAddress = 0x70;
 
+    I2cDeviceCommunicator colorSensorCommunicator;
+
     // A color sensor for use in testing the mux. This is my class and is wrapped around ColorSensor.
     // This class integrates both the color sensor and the led control using a discrete output port.
     AdafruitColorSensor8863 colorSensor1;
@@ -109,10 +112,12 @@ public class TestAdafruitI2CMux4AdafruitColorSensor8863 extends LinearOpMode {
         // disconnect all 8 ports
         mux.disablePorts();
 
+        colorSensorCommunicator = new I2cDeviceCommunicator(hardwareMap, "colorSensor", AdafruitColorSensor8863.getAdafruitColorSensor8863I2cAddress());
+
         // connect only port 0. A color sensor (colorSensor1) has been wired to that port of the mux.
         mux.selectAndEnableAPort(AdafruitI2CMux.PortNumber.PORT0);
         // create colorSensor1 and initialize it
-        colorSensor1 = new AdafruitColorSensor8863(hardwareMap, colorSensorName, coreDIMName, CHANNEL_FOR_LED1);
+        colorSensor1 = AdafruitColorSensor8863.createAdaFruitColorSensor8863ForMux(hardwareMap, colorSensorCommunicator, coreDIMName, CHANNEL_FOR_LED1);
         activeColorSensor = colorSensor1;
         activeColorSensor.reportStatus("Color Sensor 1", telemetry);
 
@@ -124,21 +129,21 @@ public class TestAdafruitI2CMux4AdafruitColorSensor8863 extends LinearOpMode {
         // connect only port 1. A color sensor (colorSensor2) has been wired to that port of the mux.
         mux.selectAndEnableAPort(AdafruitI2CMux.PortNumber.PORT1);
         // create colorSensor2 and initialize it
-        colorSensor2 = new AdafruitColorSensor8863(hardwareMap, colorSensorName, coreDIMName, CHANNEL_FOR_LED2);
+        colorSensor2 = AdafruitColorSensor8863.createAdaFruitColorSensor8863ForMux(hardwareMap, colorSensorCommunicator, coreDIMName, CHANNEL_FOR_LED2);
         activeColorSensor = colorSensor2;
         activeColorSensor.reportStatus("Color Sensor 2", telemetry);
 
         // connect only port 2. A color sensor (colorSensor3) has been wired to that port of the mux.
         mux.selectAndEnableAPort(AdafruitI2CMux.PortNumber.PORT2);
         // create colorSensor2 and initialize it
-        colorSensor3 = new AdafruitColorSensor8863(hardwareMap, colorSensorName, coreDIMName, CHANNEL_FOR_LED3);
+        colorSensor3 = AdafruitColorSensor8863.createAdaFruitColorSensor8863ForMux(hardwareMap, colorSensorCommunicator, coreDIMName, CHANNEL_FOR_LED3);
         activeColorSensor = colorSensor3;
         activeColorSensor.reportStatus("Color Sensor 3", telemetry);
 
         // connect only port 3. A color sensor (colorSensor4) has been wired to that port of the mux.
         mux.selectAndEnableAPort(AdafruitI2CMux.PortNumber.PORT3);
         // create colorSensor2 and initialize it
-        colorSensor4 = new AdafruitColorSensor8863(hardwareMap, colorSensorName, coreDIMName, CHANNEL_FOR_LED4);
+        colorSensor4 = AdafruitColorSensor8863.createAdaFruitColorSensor8863ForMux(hardwareMap, colorSensorCommunicator, coreDIMName, CHANNEL_FOR_LED4);
         activeColorSensor = colorSensor4;
         activeColorSensor.reportStatus("Color Sensor 4", telemetry);
 
@@ -158,9 +163,7 @@ public class TestAdafruitI2CMux4AdafruitColorSensor8863 extends LinearOpMode {
             // Use gamepad X to toggle the led on or off
             if (gamepad1.left_bumper) {
                 if (leftBumperIsReleased) {
-                    // note the actualColorSensor points to the colorSensor object that is really
-                    // being used, not one that is used for communication
-                    actualColorSensor.toggleLED();
+                    activeColorSensor.toggleLED();
                     leftBumperIsReleased = false;
                 }
             } else {
@@ -170,7 +173,7 @@ public class TestAdafruitI2CMux4AdafruitColorSensor8863 extends LinearOpMode {
             // Use gamepad Y to select the color sensor on port 0
             if (gamepad1.y) {
                 mux.selectAndEnableAPort(AdafruitI2CMux.PortNumber.PORT0);
-                actualColorSensor = colorSensor1;
+                activeColorSensor = colorSensor1;
                 colorSensorName = "Color Sensor 1";
             }
 
@@ -181,21 +184,21 @@ public class TestAdafruitI2CMux4AdafruitColorSensor8863 extends LinearOpMode {
                 mux.disablePorts();
                 mux.selectPort(AdafruitI2CMux.PortNumber.PORT1);
                 mux.enablePorts();
-                actualColorSensor = colorSensor2;
+                activeColorSensor = colorSensor2;
                 colorSensorName = "Color Sensor 2";
             }
 
             // Use gamepad X to select the color sensor on port 2
             if (gamepad1.a) {
                 mux.selectAndEnableAPort(AdafruitI2CMux.PortNumber.PORT2);
-                actualColorSensor = colorSensor3;
+                activeColorSensor = colorSensor3;
                 colorSensorName = "Color Sensor 3";
             }
 
             // Use gamepad B to select the color sensor on port 3
             if (gamepad1.b) {
                 mux.selectAndEnableAPort(AdafruitI2CMux.PortNumber.PORT3);
-                actualColorSensor = colorSensor4;
+                activeColorSensor = colorSensor4;
                 colorSensorName = "Color Sensor 4";
             }
 
