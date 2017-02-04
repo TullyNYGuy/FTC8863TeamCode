@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.MuxPlusColorSensors;
  *
  */
 @TeleOp(name = "Test Front Beacon Pusher Control", group = "Test")
-@Disabled
+//@Disabled
 public class TestFrontBeaconPusherControl extends LinearOpMode {
 
     // Put your variable declarations here
@@ -22,9 +22,11 @@ public class TestFrontBeaconPusherControl extends LinearOpMode {
 
     private MuxPlusColorSensors muxPlusColorSensors;
 
-    private FrontBeaconPusherControl.AllianceColor allianceColor = FrontBeaconPusherControl.AllianceColor.BLUE;
+    private FrontBeaconPusherControl.AllianceColor allianceColor = FrontBeaconPusherControl.AllianceColor.RED;
 
     private FrontBeaconPusherControl.FrontBeaconControlState frontBeaconControlState;
+
+    private boolean gamepad1LeftBumperIsReleased = true;
 
     @Override
     public void runOpMode() {
@@ -39,11 +41,21 @@ public class TestFrontBeaconPusherControl extends LinearOpMode {
         telemetry.addData(">", "Press Start to run" );
         telemetry.update();
         waitForStart();
-        frontBeaconPusherControl.startBeaconControl();
+        frontBeaconPusherControl.initialize();
 
         // Put your calls here - they will not run in a loop
 
         while(opModeIsActive()) {
+
+            if (gamepad1.left_bumper) {
+                if (gamepad1LeftBumperIsReleased) {
+                    // toggle the drive train mode: differential <-> tank drive
+                    frontBeaconPusherControl.startBeaconControl();
+                    gamepad1LeftBumperIsReleased = false;
+                }
+            } else {
+                gamepad1LeftBumperIsReleased = true;
+            }
 
             // Put your calls that need to run in a loop here
             frontBeaconControlState = frontBeaconPusherControl.update();
