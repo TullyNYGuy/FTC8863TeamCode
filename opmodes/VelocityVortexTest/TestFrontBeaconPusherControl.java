@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.FrontBeaconPusherControl;
 import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.MuxPlusColorSensors;
 
@@ -28,6 +29,8 @@ public class TestFrontBeaconPusherControl extends LinearOpMode {
 
     private boolean gamepad1LeftBumperIsReleased = true;
 
+    private DriveTrain driveTrain;
+
     @Override
     public void runOpMode() {
 
@@ -35,7 +38,9 @@ public class TestFrontBeaconPusherControl extends LinearOpMode {
         // Put your initializations here
 
         muxPlusColorSensors = new MuxPlusColorSensors(hardwareMap, telemetry);
-        frontBeaconPusherControl =  new FrontBeaconPusherControl(hardwareMap, telemetry, muxPlusColorSensors, allianceColor);
+        driveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap, telemetry);
+        driveTrain.setCmPerRotation(31.1); // cm
+        frontBeaconPusherControl =  new FrontBeaconPusherControl(hardwareMap, telemetry, muxPlusColorSensors, allianceColor, driveTrain);
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run" );

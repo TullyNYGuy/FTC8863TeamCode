@@ -5,6 +5,8 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 
 public class FrontBeaconPusherControl {
 
@@ -16,6 +18,7 @@ public class FrontBeaconPusherControl {
     //*********************************************************************************************
 
     public enum FrontBeaconControlState {
+        DRIVE_TOWARDS_BEACON,
         LOOK_FOR_BEACON,
         MOVE_PUSHERS_TO_MIDDLE,
         BOTH_BACK,
@@ -27,6 +30,8 @@ public class FrontBeaconPusherControl {
         MOVING_RIGHT_FORWARD_LEFT_BACK,
         AT_RIGHT_BACK_LEFT_FORWARD,
         PUSH_BEACON,
+        SUCCESS,
+        FAILURE,
         IDLE
     }
 
@@ -56,6 +61,8 @@ public class FrontBeaconPusherControl {
 
     private ElapsedTime timer;
 
+    private DriveTrain driveTrain;
+
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -71,11 +78,12 @@ public class FrontBeaconPusherControl {
     // from it
     //*********************************************************************************************
 
-    public FrontBeaconPusherControl(HardwareMap hardwareMap, Telemetry telemetry, MuxPlusColorSensors muxPlusColorSensors, AllianceColor allianceColor) {
+    public FrontBeaconPusherControl(HardwareMap hardwareMap, Telemetry telemetry, MuxPlusColorSensors muxPlusColorSensors, AllianceColor allianceColor, DriveTrain driveTrain) {
         frontBeaconPusher = new FrontBeaconPusher(hardwareMap, telemetry, muxPlusColorSensors);
         this.allianceColor = allianceColor;
         frontBeaconControlState = FrontBeaconControlState.IDLE;
         timer = new ElapsedTime();
+        this.driveTrain = driveTrain;
     }
 
     //*********************************************************************************************
@@ -96,7 +104,7 @@ public class FrontBeaconPusherControl {
     }
 
     public void startBeaconControl() {
-        frontBeaconControlState = FrontBeaconControlState.LOOK_FOR_BEACON;
+        frontBeaconControlState = FrontBeaconControlState.DRIVE_TOWARDS_BEACON;
     }
 
     public FrontBeaconControlState update() {
@@ -120,19 +128,31 @@ public class FrontBeaconPusherControl {
 
             case AT_MIDDLE:
                 break;
+            case DRIVE_TOWARDS_BEACON:
+                driveTrain.setupDriveDistance(0.4, 25, DcMotor8863.FinishBehavior.HOLD);
+                frontBeaconControlState = FrontBeaconControlState.LOOK_FOR_BEACON;
+                break;
             case LOOK_FOR_BEACON:
+                if (driveTrain.updateDriveDistance() == DriveTrain.Status.COMPLETE) {
+                    // Reached our destination
+                    frontBeaconControlState = FrontBeaconControlState.FAILURE;
+                }
                 if (allianceColor == AllianceColor.BLUE && beaconColor == FrontBeaconPusher.BeaconColor.RED_BLUE
                         || allianceColor == AllianceColor.RED && beaconColor == FrontBeaconPusher.BeaconColor.BLUE_RED) {
                     saveColor = beaconColor;
-                    frontBeaconControlState = FrontBeaconControlState.MOVING_RIGHT_FORWARD_LEFT_BACK;
+                    frontBeaconControlState = FrontBeaconControlState.MOVING_LEFT_FORWARD_RIGHT_BACK;
                 }
                 if (allianceColor == AllianceColor.BLUE && beaconColor == FrontBeaconPusher.BeaconColor.BLUE_RED
                         || allianceColor == AllianceColor.RED && beaconColor == FrontBeaconPusher.BeaconColor.RED_BLUE) {
                     saveColor = beaconColor;
-                    frontBeaconControlState = FrontBeaconControlState.MOVING_LEFT_FORWARD_RIGHT_BACK;
+                    frontBeaconControlState = FrontBeaconControlState.MOVING_RIGHT_FORWARD_LEFT_BACK;
                 }
                 break;
             case MOVING_RIGHT_FORWARD_LEFT_BACK:
+                if (driveTrain.updateDriveDistance() == DriveTrain.Status.COMPLETE) {
+                    // Reached our destination
+                    frontBeaconControlState = FrontBeaconControlState.FAILURE;
+                }
                 if (frontBeaconPusherState != FrontBeaconPusher.BeaconPusherState.MOVING_TO_LEFT_BACK_RIGHT_FORWARD) {
                     frontBeaconPusher.moveLeftPusherBackRightPusherForward();
                 }
@@ -141,6 +161,10 @@ public class FrontBeaconPusherControl {
                 }
                 break;
             case MOVING_LEFT_FORWARD_RIGHT_BACK:
+                if (driveTrain.updateDriveDistance() == DriveTrain.Status.COMPLETE) {
+                    // Reached our destination
+                    frontBeaconControlState = FrontBeaconControlState.FAILURE;
+                }
                 if (frontBeaconPusherState != FrontBeaconPusher.BeaconPusherState.MOVING_TO_LEFT_FORWARD_RIGHT_BACK) {
                     frontBeaconPusher.moveLeftPusherForwardRightPusherBack();
                 }
@@ -149,30 +173,49 @@ public class FrontBeaconPusherControl {
                 }
                 break;
             case AT_LEFT_BACK_RIGHT_FORWARD:
+                if (driveTrain.updateDriveDistance() == DriveTrain.Status.COMPLETE) {
+                    // Reached our destination
+                    frontBeaconControlState = FrontBeaconControlState.FAILURE;
+                }
                 frontBeaconControlState = FrontBeaconControlState.CHECK_BEACON_PUSHED;
                 timer.reset();
                 break;
             case AT_RIGHT_BACK_LEFT_FORWARD:
+                if (driveTrain.updateDriveDistance() == DriveTrain.Status.COMPLETE) {
+                    // Reached our destination
+                    frontBeaconControlState = FrontBeaconControlState.FAILURE;
+                }
                 frontBeaconControlState = FrontBeaconControlState.CHECK_BEACON_PUSHED;
                 timer.reset();
                 break;
             case CHECK_BEACON_PUSHED:
+                if (driveTrain.updateDriveDistance() == DriveTrain.Status.COMPLETE) {
+                    // Reached our destination
+                    frontBeaconControlState = FrontBeaconControlState.FAILURE;
+                }
                 // if the beacon does not get detected as pushed, then move on after a few seconds
-                if (timer.milliseconds() > 2000) {
-                    frontBeaconControlState = FrontBeaconControlState.MOVE_PUSHERS_TO_MIDDLE;
+                if (timer.milliseconds() > 5000) {
+                    frontBeaconControlState = FrontBeaconControlState.FAILURE;
                 }
                 if (allianceColor == AllianceColor.RED && saveColor == FrontBeaconPusher.BeaconColor.RED_BLUE) {
-                    if (beaconColor == FrontBeaconPusher.BeaconColor.BLUE_RED) {
-                        frontBeaconControlState = FrontBeaconControlState.MOVE_PUSHERS_TO_MIDDLE;
+                    if (beaconColor == FrontBeaconPusher.BeaconColor.RED_RED) {
+                        // successful push
+                        frontBeaconControlState = FrontBeaconControlState.SUCCESS;
                     }
                 }
                 if (allianceColor == AllianceColor.BLUE && saveColor == FrontBeaconPusher.BeaconColor.BLUE_RED) {
-                    if (beaconColor == FrontBeaconPusher.BeaconColor.RED_BLUE) {
-                        frontBeaconControlState = FrontBeaconControlState.MOVE_PUSHERS_TO_MIDDLE;
+                    if (beaconColor == FrontBeaconPusher.BeaconColor.BLUE_BLUE) {
+                        // successful push
+                        frontBeaconControlState = FrontBeaconControlState.SUCCESS;
                     }
                 }
                 break;
             case BOTH_FORWARD:
+                break;
+            case SUCCESS:
+                driveTrain.stopDriveDistance();
+                break;
+            case FAILURE:
                 break;
         }
         return frontBeaconControlState;

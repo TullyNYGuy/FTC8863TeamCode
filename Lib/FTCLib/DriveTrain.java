@@ -221,6 +221,11 @@ public class DriveTrain {
         }
     }
 
+    public DriveTrain.Status stopDriveDistance(){
+        shutdown();
+        return Status.COMPLETE;
+    }
+
     public void rotateNumberOfDegrees(double power, double degreesToRotate, DcMotor8863.FinishBehavior finishBehavior) {
         rightDriveMotor.rotateNumberOfDegrees(power, degreesToRotate, finishBehavior);
         leftDriveMotor.rotateNumberOfDegrees(power, degreesToRotate, finishBehavior);
