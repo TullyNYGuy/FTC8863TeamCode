@@ -432,10 +432,23 @@ public class AdafruitColorSensor8863 {
         CoreDIMLEDChannel(int i) {this.byteVal = (byte) i;}
     }
 
-
+    /**
+     * Controls whether there is a full set of color data put into the telemetry object buffer or
+     * just a minimum set.
+     */
     public enum AmountOfDataToDisplay {
         NORMAL,
         MIN
+    }
+
+    /**
+     * A quick and dirty color to be returned to the user
+     */
+    public enum ColorFromSensor{
+        RED,
+        GREEN,
+        BLUE,
+        UNKNOWN
     }
 
     //*********************************************************************************************
@@ -1083,6 +1096,23 @@ public class AdafruitColorSensor8863 {
         } else {
             result = false;
         }
+        return result;
+    }
+
+    public ColorFromSensor getSimpleColor () {
+        ColorFromSensor result = ColorFromSensor.UNKNOWN;
+        if (isRedUsingRGB()) {
+            result = ColorFromSensor.RED;
+        } else {
+            if (isBlueUsingRGB()) {
+                result = ColorFromSensor.BLUE;
+            } else {
+                if (isGreenUsingRGB()) {
+                    result = ColorFromSensor.GREEN;
+                }
+            }
+        }
+        // if none of the test were match the result is unknown
         return result;
     }
 

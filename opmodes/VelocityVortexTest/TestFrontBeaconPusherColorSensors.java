@@ -10,9 +10,9 @@ import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.MuxPlusColorSensors;
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Test Front Beacon Color Sensor", group = "Test")
+@TeleOp(name = "Test Front Beacon Pusher Color", group = "Test")
 //@Disabled
-public class TestFrontBeaconPusherColorSensor extends LinearOpMode {
+public class TestFrontBeaconPusherColorSensors extends LinearOpMode {
 
     // Put your variable declarations here
     FrontBeaconPusher frontBeaconPusher;
@@ -38,18 +38,16 @@ public class TestFrontBeaconPusherColorSensor extends LinearOpMode {
         telemetry.update();
         waitForStart();
 
-        // Put your calls here - they will not run in a loop
-
-        // Put your calls that need to run in a loop here
-        timer.reset();
-
         while (opModeIsActive()) {
-            telemetry.addData("Beacon color is (left/right) ", frontBeaconPusher.getBeaconColor().toString());
+            frontBeaconPusher.displayBeaconColor(telemetry);
             telemetry.addData("Right color sensor value = ", frontBeaconPusher.rgbValuesScaledAsString(MuxPlusColorSensors.BeaconSide.RIGHT));
+            telemetry.addData("Left color sensor value = ", frontBeaconPusher.rgbValuesScaledAsString(MuxPlusColorSensors.BeaconSide.LEFT));
             telemetry.update();
             frontBeaconPusher.setCoreDimLEDToMatchColorSensor(MuxPlusColorSensors.BeaconSide.RIGHT);
+
             idle();
         }
+
 
         // Put your cleanup code here - it runs as the application shuts down
         telemetry.addData(">", "Done");

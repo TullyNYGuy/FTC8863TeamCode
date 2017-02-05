@@ -178,6 +178,16 @@ public class MuxPlusColorSensors {
         }
     }
 
+    public AdafruitColorSensor8863.ColorFromSensor getSimpleColorFrontBeaconPusherRightColorSensor() {
+        setPort(frontBeaconPusherRightColorSensorPort);
+        return activeColorSensor.getSimpleColor();
+    }
+
+    public AdafruitColorSensor8863.ColorFromSensor getSimpleColorFrontBeaconPusherLeftColorSensor() {
+        setPort(frontBeaconPusherLeftColorSensorPort);
+        return activeColorSensor.getSimpleColor();
+    }
+
     public boolean frontBeaconPusherRightColorSensorIsBlue() {
         setPort(frontBeaconPusherRightColorSensorPort);
         return activeColorSensor.isBlueUsingRGB();

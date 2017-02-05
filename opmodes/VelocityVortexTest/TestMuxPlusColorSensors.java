@@ -42,6 +42,8 @@ public class TestMuxPlusColorSensors extends LinearOpMode {
             muxPlusColorSensors.displayColorValues(MuxPlusColorSensors.WhichColorSensor.FRONT_RIGHT, AdafruitColorSensor8863.AmountOfDataToDisplay.MIN);
             muxPlusColorSensors.displayColorValues(MuxPlusColorSensors.WhichColorSensor.FRONT_LEFT, AdafruitColorSensor8863.AmountOfDataToDisplay.MIN);
 
+            telemetry.addData("Front Pusher Right Color = ", muxPlusColorSensors.getSimpleColorFrontBeaconPusherRightColorSensor().toString());
+            telemetry.addData("Front Pusher Left Color = ", muxPlusColorSensors.getSimpleColorFrontBeaconPusherLeftColorSensor().toString());
             telemetry.addData(">", "Press Stop to end test." );
             telemetry.update();
             

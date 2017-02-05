@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitColorSensor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.CRServo;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Switch;
 import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.MuxPlusColorSensors;
@@ -38,7 +39,12 @@ public class FrontBeaconPusher {
         BLUE_RED,
         RED_BLUE,
         BLUE_BLUE,
-        RED_RED
+        RED_RED,
+        UNKNOWN_RED,
+        UNKNOWN_BLUE,
+        RED_UNKNOWN,
+        BLUE_UNKNOWN,
+        UNKNOWN_UNKNOWN,
     }
 
 
@@ -128,14 +134,58 @@ public class FrontBeaconPusher {
     // public methods that give the class its functionality
     //*********************************************************************************************
 
+    // --------------------------------------------------
     // COLOR SENSOR METHODS
+    //---------------------------------------------------
 
     public BeaconColor getBeaconColor() {
-        if (muxPlusColorSensors.frontBeaconPusherRightColorSensorIsBlue()) {
-            return BeaconColor.RED_BLUE;
-        } else {
-            return BeaconColor.BLUE_RED;
+        BeaconColor result = BeaconColor.UNKNOWN_UNKNOWN;
+        switch (muxPlusColorSensors.getSimpleColorFrontBeaconPusherRightColorSensor()) {
+            case BLUE:
+                switch (muxPlusColorSensors.getSimpleColorFrontBeaconPusherLeftColorSensor()) {
+                    case BLUE:
+                        result = BeaconColor.BLUE_BLUE;
+                        break;
+                    case RED:
+                        result = BeaconColor.BLUE_RED;
+                        break;
+                    case GREEN:
+                    case UNKNOWN:
+                        result = BeaconColor.BLUE_UNKNOWN;
+                        break;
+                }
+                break;
+            case RED:
+                switch (muxPlusColorSensors.getSimpleColorFrontBeaconPusherLeftColorSensor()) {
+                    case BLUE:
+                        result = BeaconColor.RED_BLUE;
+                        break;
+                    case RED:
+                        result = BeaconColor.RED_RED;
+                        break;
+                    case GREEN:
+                    case UNKNOWN:
+                        result = BeaconColor.RED_UNKNOWN;
+                        break;
+                }
+                break;
+            case GREEN:
+            case UNKNOWN:
+                switch (muxPlusColorSensors.getSimpleColorFrontBeaconPusherLeftColorSensor()) {
+                    case BLUE:
+                        result = BeaconColor.UNKNOWN_BLUE;
+                        break;
+                    case RED:
+                        result = BeaconColor.UNKNOWN_RED;
+                        break;
+                    case GREEN:
+                    case UNKNOWN:
+                        result = BeaconColor.UNKNOWN_UNKNOWN;
+                        break;
+                }
+                break;
         }
+        return result;
     }
 
     public String rgbValuesScaledAsString(MuxPlusColorSensors.BeaconSide side) {
@@ -144,6 +194,10 @@ public class FrontBeaconPusher {
         } else {
             return muxPlusColorSensors.frontBeaconPusherRightColorSensorRGBValuesScaledAsString();
         }
+    }
+
+    public void displayBeaconColor(Telemetry telemetry) {
+        telemetry.addData("Beacon Color (right / left = ", getBeaconColor().toString());
     }
 
     public boolean isRightColorSensorBlue() {
@@ -158,7 +212,9 @@ public class FrontBeaconPusher {
         muxPlusColorSensors.setCoreDimLedToMatchColorSensor(side);
     }
 
+    //-------------------------------------------------------------------------------
     // PUSHER METHODS
+    //-------------------------------------------------------------------------------
 
     /**
      * This method will try to determine what the current state of the pushers is when we don't
@@ -214,6 +270,10 @@ public class FrontBeaconPusher {
     // a problem. We don't know where we are starting from. So the workaround is to first move the
     // pushers to a known spot, then move the pushers the distance.
 
+    //---------------------------------------------------------------
+    // Commands
+    //---------------------------------------------------------------
+
     public void moveBothPushersBack() {
         // change the state
         beaconPusherState = BeaconPusherState.MOVING_TO_BOTH_BACK;
@@ -253,6 +313,10 @@ public class FrontBeaconPusher {
         }
         updateState();
     }
+
+    //----------------------------------------------------------
+    // State machine
+    //----------------------------------------------------------
 
     // NEED TO HANLDE UNKNOWN STATE IN EACH STATE SO THE PUSHERS CAN BE PUT INTO KNOWN STATES
     public BeaconPusherState updateState() {
@@ -432,6 +496,10 @@ public class FrontBeaconPusher {
         }
         return beaconPusherState;
     }
+
+    //---------------------------------------------------------------
+    // Status methods
+    //---------------------------------------------------------------
 
     public boolean isMoving() {
         if (beaconPusherState == BeaconPusherState.MOVING_TO_BOTH_MIDDLE ||
