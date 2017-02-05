@@ -16,12 +16,15 @@ public class SideBeaconPusherControl {
     //
     //*********************************************************************************************
     private enum SideBeaconPusherState {
+        IDLE,
         RUNNING_ALONG_THE_WALL,
         SEARCHING_FOR_BEACON,
         BEACON_DETECTED,
         PUSH_BUTTON,
-        DRIVE_COMPLETE,
+        DRIVE_PAST_BEACON,
         SKIP_BUTTON,
+        DRIVE_TO_SECOND_BUTTON,
+        PUSH_SECOND_BUTTON,
         DRIVE_FORWARD_AFTER_BEACON_PUSH,
         FINISHED
     }
@@ -38,6 +41,7 @@ public class SideBeaconPusherControl {
     private SideBeaconPusherState sideBeaconPusherState;
     private VelocityVortexRobot.AllianceColor allianceColor;
     private int beaconCount = 1;
+    MuxPlusColorSensors muxPlusColorSensors;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -57,9 +61,11 @@ public class SideBeaconPusherControl {
     public SideBeaconPusherControl(HardwareMap hardwareMap, Telemetry telemetry, DriveTrain
             driveTrain, SideBeaconPusher.SideBeaconPusherPosition sideBeaconPusherPosition,
                                    VelocityVortexRobot.AllianceColor allianceColor) {
-        this.sideBeaconPusher = new SideBeaconPusher(hardwareMap, telemetry, driveTrain, sideBeaconPusherPosition);
+        muxPlusColorSensors = new MuxPlusColorSensors(hardwareMap, telemetry);
+        this.sideBeaconPusher = new SideBeaconPusher(hardwareMap, telemetry, driveTrain, sideBeaconPusherPosition, muxPlusColorSensors);
         this.allianceColor = allianceColor;
         this.telemetry = telemetry;
+        sideBeaconPusherState = SideBeaconPusherState.IDLE;
     }
 
 
@@ -75,8 +81,19 @@ public class SideBeaconPusherControl {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
+    // before running this method navigate to the wall
+    public void  startSideBeaconPusherControl() {
+        sideBeaconPusherState = SideBeaconPusherState.RUNNING_ALONG_THE_WALL;
+        update();
+    }
+    //----------------------------------------------------
+    //  STATE MACHINE
+    //----------------------------------------------------
+
     public SideBeaconPusherState update() {
         switch (sideBeaconPusherState) {
+            case IDLE:
+                break;
             case RUNNING_ALONG_THE_WALL:
                 telemetry.addData("State =", sideBeaconPusherState.toString());
                 telemetry.update();
@@ -88,6 +105,7 @@ public class SideBeaconPusherControl {
                 telemetry.addData("State =", sideBeaconPusherState.toString());
                 telemetry.update();
                 sideBeaconPusher.updateDriveAlongWall();
+                //check if we have passed a beacon
                 if (sideBeaconPusher.isBeaconBlue() || sideBeaconPusher.isBeaconRed()) {
                     sideBeaconPusher.stopDriveAlongWall();
                     sideBeaconPusherState = SideBeaconPusherState.BEACON_DETECTED;
@@ -108,15 +126,17 @@ public class SideBeaconPusherControl {
                 telemetry.update();
                 sideBeaconPusher.extendingArmFully();
                 sideBeaconPusher.driveDistance(0, .3);
-                sideBeaconPusherState = SideBeaconPusherState.DRIVE_COMPLETE;
+                sideBeaconPusherState = SideBeaconPusherState.DRIVE_PAST_BEACON;
                 break;
 
-            case DRIVE_COMPLETE:
+            case DRIVE_PAST_BEACON:
                 telemetry.addData("State =", sideBeaconPusherState.toString());
                 telemetry.update();
-                sideBeaconPusher.retractArm();
-                sideBeaconPusher.driveAlongWall(0, .3);
-                sideBeaconPusherState = SideBeaconPusherState.DRIVE_FORWARD_AFTER_BEACON_PUSH;
+                if (sideBeaconPusher.updateDriveDistance()) {
+                    sideBeaconPusher.retractArm();
+                    sideBeaconPusher.driveAlongWall(0, .3);
+                    sideBeaconPusherState = SideBeaconPusherState.DRIVE_FORWARD_AFTER_BEACON_PUSH;
+                }
                 break;
 
             case DRIVE_FORWARD_AFTER_BEACON_PUSH:
@@ -135,7 +155,25 @@ public class SideBeaconPusherControl {
                 telemetry.update();
                 sideBeaconPusher.retractArm();
                 sideBeaconPusher.driveDistance(0, .3);
-                sideBeaconPusherState = SideBeaconPusherState.SEARCHING_FOR_BEACON;
+                sideBeaconPusherState = SideBeaconPusherState.DRIVE_TO_SECOND_BUTTON;
+                break;
+
+            case DRIVE_TO_SECOND_BUTTON:
+                telemetry.addData("State =", sideBeaconPusherState.toString());
+                telemetry.update();
+                if (sideBeaconPusher.updateDriveDistance()) {
+                    sideBeaconPusher.extendingArmFully();
+                    sideBeaconPusher.driveDistance(0, .5);
+                }
+                sideBeaconPusherState = SideBeaconPusherState.PUSH_SECOND_BUTTON;
+                break;
+
+            case PUSH_SECOND_BUTTON:
+                telemetry.addData("State =", sideBeaconPusherState.toString());
+                telemetry.update();
+                if (sideBeaconPusher.updateDriveDistance()) {
+                    sideBeaconPusherState = SideBeaconPusherState.RUNNING_ALONG_THE_WALL;
+                }
                 break;
 
             case FINISHED:

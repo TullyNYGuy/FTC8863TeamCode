@@ -87,10 +87,10 @@ public class TestAdafruitI2CMux4AdafruitColorSensor8863 extends LinearOpMode {
 
     // Connect the wires for the led from the color sensor board to the discrete output pin on
     // channel of the core DIM listed below.
-    final int CHANNEL_FOR_LED1 = 0;
-    final int CHANNEL_FOR_LED2 = 1;
-    final int CHANNEL_FOR_LED3 = 2;
-    final int CHANNEL_FOR_LED4 = 3;
+    final int CHANNEL_FOR_LED1 = 4;
+    final int CHANNEL_FOR_LED2 = 5;
+    final int CHANNEL_FOR_LED3 = 6;
+    final int CHANNEL_FOR_LED4 = 7;
 
     boolean leftBumperIsReleased = false;
     boolean ledState = false;

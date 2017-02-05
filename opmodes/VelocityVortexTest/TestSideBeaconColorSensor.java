@@ -1,10 +1,12 @@
 package org.firstinspires.ftc.teamcode.opmodes.VelocityVortexTest;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
+import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.MuxPlusColorSensors;
+import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.SideBeaconPusher;
 import org.firstinspires.ftc.teamcode.opmodes.GenericTest.RobotConfigMappingForGenericTest;
 
 /**
@@ -12,17 +14,15 @@ import org.firstinspires.ftc.teamcode.opmodes.GenericTest.RobotConfigMappingForG
  *
  *
  */
-@TeleOp(name = "Test Side Beacon Servo", group = "Test")
+@TeleOp(name = "Test Side Beacon Color Sensor", group = "Test")
 //@Disabled
-public class TestSideBeaconServo extends LinearOpMode {
+public class TestSideBeaconColorSensor extends LinearOpMode {
 
     // Put your variable declarations here
     Servo8863 beaconServo;
-    double homePosition = .25;
-    double halfwayPosition = .30;
-    double openPosition = .40;
-    double extraPosition1 = 0;
-    double extraPosition2 = 0;
+    MuxPlusColorSensors muxPlusColorSensors;
+    SideBeaconPusher sideBeaconPusher;
+    DriveTrain driveTrain;
 
     //@Override
     public void runOpMode() {
@@ -30,13 +30,11 @@ public class TestSideBeaconServo extends LinearOpMode {
 
         // Put your initializations here
         beaconServo = new Servo8863(RobotConfigMappingForGenericTest.getRightSideBeaconPusherServo(), hardwareMap, telemetry);
-        beaconServo.setHomePosition(homePosition);
-        beaconServo.setPositionOne(halfwayPosition);
-        beaconServo.setPositionTwo(openPosition);
+        muxPlusColorSensors = new MuxPlusColorSensors(hardwareMap, telemetry);
+        sideBeaconPusher = new SideBeaconPusher(hardwareMap, telemetry, driveTrain, SideBeaconPusher.SideBeaconPusherPosition.RIGHT, muxPlusColorSensors);
         // Wait for the start button
         telemetry.addData(">", "Press Start to run" );
         telemetry.update();
-        beaconServo.goHome();
         waitForStart();
 
         // Put your calls here - they will not run in a loop
@@ -48,14 +46,9 @@ public class TestSideBeaconServo extends LinearOpMode {
         while(opModeIsActive()) {
 
             // Put your calls that need to run in a loop here
-            //beaconServo.updateServoCalibration();
-            beaconServo.goPositionTwo();
-            sleep(1000);
-            beaconServo.goPositionOne();
-            sleep(1000);
-            beaconServo.goHome();
-            sleep(1000);
-
+            //sideBeaconPusher.displayBeaconColor(telemetry);
+            telemetry.addData("Right color sensor value = ", sideBeaconPusher.rgbValuesScaledAsString(MuxPlusColorSensors.BeaconSide.RIGHT));
+            //sideBeaconPusher.setCoreDimLEDToMatchColorSensor(MuxPlusColorSensors.BeaconSide.RIGHT);
             telemetry.addData(">", "Press Stop to end test." );
 
 

@@ -101,7 +101,7 @@ public class RobotConfigMappingForGenericTest {
 
     //----------------------------------------------------
     // Side Beacon pushers
-    //-----------------------------------------------------
+    //----------------------------------------------------
 
     // Servos
 
@@ -116,9 +116,9 @@ public class RobotConfigMappingForGenericTest {
     // LED ports for the color sensors
 
     // Core DIM module Digital port 5
-    private static int rightSideBeaconPusherColorSensorLEDPort = 5;
+    private static int rightSideBeaconPusherColorSensorLEDPort = 6;
     // Core DIM module Digital port 6
-    private static int leftSideBeaconPusherColorSensorLEDPort = 6;
+    private static int leftSideBeaconPusherColorSensorLEDPort = 7;
 
     //---------------------------------------------
     // shooter

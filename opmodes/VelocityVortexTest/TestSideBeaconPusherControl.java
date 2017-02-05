@@ -45,7 +45,8 @@ public class TestSideBeaconPusherControl extends LinearOpMode {
             //telemetry.addData("Motor Speed = ", "%5.2f", powerToRunAt);
             //telemetry.addData("Encoder Count=", "%5d", motor.getCurrentPosition());
             telemetry.addData(">", "Press Stop to end test." );
-
+            //navigate to wall boi
+            sideBeaconPusherControl.startSideBeaconPusherControl();
             telemetry.update();
             
             idle();
