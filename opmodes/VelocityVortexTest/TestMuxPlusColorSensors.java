@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitColorSensor8863;
 import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.MuxPlusColorSensors;
 
 /**
@@ -38,7 +39,8 @@ public class TestMuxPlusColorSensors extends LinearOpMode {
         while(opModeIsActive()) {
 
             // Put your calls that need to run in a loop here
-            muxPlusColorSensors.displayColorValues(MuxPlusColorSensors.WhichColorSensor.FRONT_RIGHT);
+            muxPlusColorSensors.displayColorValues(MuxPlusColorSensors.WhichColorSensor.FRONT_RIGHT, AdafruitColorSensor8863.AmountOfDataToDisplay.MIN);
+            muxPlusColorSensors.displayColorValues(MuxPlusColorSensors.WhichColorSensor.FRONT_LEFT, AdafruitColorSensor8863.AmountOfDataToDisplay.MIN);
 
             telemetry.addData(">", "Press Stop to end test." );
             telemetry.update();

@@ -207,7 +207,7 @@ public class TestAdafruitI2CMux4AdafruitColorSensor8863 extends LinearOpMode {
             //Display the current values from the sensor
             telemetry.addData("Port = ", mux.getActivePortAsString());
             activeColorSensor.reportStatus(colorSensorName, telemetry);
-            activeColorSensor.displayColorSensorData(telemetry);
+            activeColorSensor.displayColorSensorData(telemetry, AdafruitColorSensor8863.AmountOfDataToDisplay.NORMAL);
 
             // turn on the led in the core DIM that matches the color read from the sensor - as long
             // as the color is red or blue :-)

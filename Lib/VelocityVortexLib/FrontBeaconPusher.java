@@ -36,7 +36,9 @@ public class FrontBeaconPusher {
 
     public enum BeaconColor {
         BLUE_RED,
-        RED_BLUE
+        RED_BLUE,
+        BLUE_BLUE,
+        RED_RED
     }
 
 
@@ -129,7 +131,7 @@ public class FrontBeaconPusher {
     // COLOR SENSOR METHODS
 
     public BeaconColor getBeaconColor() {
-        if (muxPlusColorSensors.frontRightBeaconPusherColorSensorIsBlue()) {
+        if (muxPlusColorSensors.frontBeaconPusherRightColorSensorIsBlue()) {
             return BeaconColor.RED_BLUE;
         } else {
             return BeaconColor.BLUE_RED;
@@ -145,11 +147,11 @@ public class FrontBeaconPusher {
     }
 
     public boolean isRightColorSensorBlue() {
-        return muxPlusColorSensors.frontRightBeaconPusherColorSensorIsBlue();
+        return muxPlusColorSensors.frontBeaconPusherRightColorSensorIsBlue();
     }
 
     public boolean isRightColorSensorRed() {
-        return muxPlusColorSensors.frontRightBeaconPusherColorSensorIsRed();
+        return muxPlusColorSensors.frontBeaconPusherRightColorSensorIsRed();
     }
 
     public void setCoreDimLEDToMatchColorSensor(MuxPlusColorSensors.BeaconSide side) {

@@ -82,7 +82,7 @@ public class TestAdafruitColorSensor8863 extends LinearOpMode {
             }
 
             // Display the current values from the sensor
-            colorSensor.displayColorSensorData(telemetry);
+            colorSensor.displayColorSensorData(telemetry, AdafruitColorSensor8863.AmountOfDataToDisplay.NORMAL);
             
             idle();
         }

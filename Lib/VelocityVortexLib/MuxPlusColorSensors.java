@@ -24,6 +24,7 @@ public class MuxPlusColorSensors {
 
     public enum WhichColorSensor {
         FRONT_RIGHT,
+        FRONT_LEFT,
         RIGHT_SIDE,
         LEFT_SIDE
     }
@@ -36,6 +37,7 @@ public class MuxPlusColorSensors {
     //*********************************************************************************************
     private AdafruitI2CMux mux;
     private AdafruitColorSensor8863 frontBeaconPusherRightColorSensor;
+    private AdafruitColorSensor8863 frontBeaconPusherLeftColorSensor;
     private AdafruitColorSensor8863 rightSideBeaconPusherColorSensor;
     private AdafruitColorSensor8863 leftSideBeaconPusherColorSensor;
     
@@ -74,7 +76,7 @@ public class MuxPlusColorSensors {
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
-    //NEED TO TEST THE CLASS
+
     public MuxPlusColorSensors(HardwareMap hardwareMap, Telemetry telemetry) {
         this.telemetry = telemetry;
         // Create an I2C mux and initialize it
@@ -97,12 +99,26 @@ public class MuxPlusColorSensors {
         // shut off the led
         activeColorSensor.turnLEDOff();
 
+        mux.selectAndEnableAPort(frontBeaconPusherLeftColorSensorPort);
+        // create colorSensor1 and initialize it
+        frontBeaconPusherLeftColorSensor = new AdafruitColorSensor8863(hardwareMap,
+                RobotConfigMappingForGenericTest.getadafruitColorSensorName(),
+                RobotConfigMappingForGenericTest.getCoreDeviceInterfaceName(),
+                RobotConfigMappingForGenericTest.getFrontBeaconPusherLeftColorSensorLEDPort());
+        activeColorSensor = frontBeaconPusherLeftColorSensor;
+        // if the color sensor is not operation properly report it
+        if (!activeColorSensor.checkDeviceId() || !activeColorSensor.isDataValid()) {
+            activeColorSensor.reportStatus("front left beacon color sensor", telemetry);
+        }
+        // shut off the led
+        activeColorSensor.turnLEDOff();
+
         mux.selectAndEnableAPort(rightSideBeaconPusherColorSensorPort);
         // create colorSensor1 and initialize it
         rightSideBeaconPusherColorSensor = new AdafruitColorSensor8863(hardwareMap,
                 RobotConfigMappingForGenericTest.getadafruitColorSensorName(),
                 RobotConfigMappingForGenericTest.getCoreDeviceInterfaceName(),
-                RobotConfigMappingForGenericTest.getRightBeaconPusherColorSensorLEDPort());
+                RobotConfigMappingForGenericTest.getRightSideBeaconPusherColorSensorLEDPort());
         activeColorSensor = rightSideBeaconPusherColorSensor;
         // if the color sensor is not operation properly report it
         if (!activeColorSensor.checkDeviceId() || !activeColorSensor.isDataValid()) {
@@ -115,7 +131,7 @@ public class MuxPlusColorSensors {
         leftSideBeaconPusherColorSensor = new AdafruitColorSensor8863(hardwareMap,
                 RobotConfigMappingForGenericTest.getadafruitColorSensorName(),
                 RobotConfigMappingForGenericTest.getCoreDeviceInterfaceName(),
-                RobotConfigMappingForGenericTest.getLeftBeaconPusherColorSensorLEDPort());
+                RobotConfigMappingForGenericTest.getLeftSideBeaconPusherColorSensorLEDPort());
         activeColorSensor = leftSideBeaconPusherColorSensor;
         // if the color sensor is not operation properly report it
         if (!activeColorSensor.checkDeviceId() || !activeColorSensor.isDataValid()) {
@@ -162,13 +178,24 @@ public class MuxPlusColorSensors {
         }
     }
 
-    public boolean frontRightBeaconPusherColorSensorIsBlue() {
+    public boolean frontBeaconPusherRightColorSensorIsBlue() {
         setPort(frontBeaconPusherRightColorSensorPort);
         return activeColorSensor.isBlueUsingRGB();
     }
 
-    public boolean frontRightBeaconPusherColorSensorIsRed() {
+    public boolean frontBeaconPusherRightColorSensorIsRed() {
         setPort(frontBeaconPusherRightColorSensorPort);
+        return activeColorSensor.isRedUsingRGB();
+
+    }
+
+    public boolean frontBeaconPusherLeftColorSensorIsBlue() {
+        setPort(frontBeaconPusherLeftColorSensorPort);
+        return activeColorSensor.isBlueUsingRGB();
+    }
+
+    public boolean frontBeaconPusherLeftColorSensorIsRed() {
+        setPort(frontBeaconPusherLeftColorSensorPort);
         return activeColorSensor.isRedUsingRGB();
 
     }
@@ -216,8 +243,10 @@ public class MuxPlusColorSensors {
 
 
     public void displayAllColorResults() {
-        telemetry.addData("Front right blue = ", frontRightBeaconPusherColorSensorIsBlue());
-        telemetry.addData("Front right red = ", frontRightBeaconPusherColorSensorIsRed());
+        telemetry.addData("Front right blue = ", frontBeaconPusherRightColorSensorIsBlue());
+        telemetry.addData("Front right red = ", frontBeaconPusherLeftColorSensorIsRed());
+        telemetry.addData("Front left blue = ", frontBeaconPusherRightColorSensorIsBlue());
+        telemetry.addData("Front left red = ", frontBeaconPusherLeftColorSensorIsRed());
         telemetry.addData("Right side blue = ", rightSideBeaconPusherColorSensorIsBlue());
         telemetry.addData("Right side red = ", rightSideBeaconPusherColorSensorIsRed());
         telemetry.addData("Left side blue = ", leftSideBeaconPusherColorSensorIsBlue());
@@ -225,10 +254,13 @@ public class MuxPlusColorSensors {
         telemetry.update();
     }
 
-    public void displayColorValues(WhichColorSensor whichColorSensor) {
+    public void displayColorValues(WhichColorSensor whichColorSensor, AdafruitColorSensor8863.AmountOfDataToDisplay amountOfDataToDisplay) {
         switch (whichColorSensor) {
             case FRONT_RIGHT:
                 setPort(frontBeaconPusherRightColorSensorPort);
+                break;
+            case FRONT_LEFT:
+                setPort(frontBeaconPusherLeftColorSensorPort);
                 break;
             case LEFT_SIDE:
                 setPort(leftSideBeaconPusherColorSensorPort);
@@ -237,7 +269,7 @@ public class MuxPlusColorSensors {
                 setPort(rightSideBeaconPusherColorSensorPort);
                 break;
         }
-        activeColorSensor.displayColorSensorData(telemetry);
+        activeColorSensor.displayColorSensorData(telemetry, amountOfDataToDisplay);
     }
 
     /**

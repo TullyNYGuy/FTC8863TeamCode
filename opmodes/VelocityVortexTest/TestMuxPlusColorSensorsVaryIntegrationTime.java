@@ -55,7 +55,7 @@ public class TestMuxPlusColorSensorsVaryIntegrationTime extends LinearOpMode {
                 timer.reset();
             }
             // Put your calls that need to run in a loop here
-            muxPlusColorSensors.displayColorValues(MuxPlusColorSensors.WhichColorSensor.FRONT_RIGHT);
+            muxPlusColorSensors.displayColorValues(MuxPlusColorSensors.WhichColorSensor.FRONT_RIGHT, AdafruitColorSensor8863.AmountOfDataToDisplay.NORMAL);
 
             // REPORTED INTEGRATION TIME IS NOT CORRECT. iT IS ALWAYS 24MS
             // RED IS 35% MORE THAN GREEN AND BLUE

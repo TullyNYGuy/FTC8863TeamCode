@@ -48,7 +48,7 @@ public class TestAdafruitI2CMux1AdafruitColorSensor8863 extends LinearOpMode {
 
     // Connect the wires for the led from the color sensor board to the discrete output pin on
     // channel of the core DIM listed below.
-    final int CHANNEL_FOR_LED1 = 1;
+    final int CHANNEL_FOR_LED1 = 4;
 
     boolean xButtonIsReleased = false;
     boolean ledState = false;
@@ -117,7 +117,7 @@ public class TestAdafruitI2CMux1AdafruitColorSensor8863 extends LinearOpMode {
             // Display the current values from the sensor
             telemetry.addData("Port = ", mux.getActivePortAsString());
             activeColorSensor.reportStatus("Color Sensor 1", telemetry);
-            activeColorSensor.displayColorSensorData(telemetry);
+            activeColorSensor.displayColorSensorData(telemetry, AdafruitColorSensor8863.AmountOfDataToDisplay.NORMAL);
 
             idle();
         }

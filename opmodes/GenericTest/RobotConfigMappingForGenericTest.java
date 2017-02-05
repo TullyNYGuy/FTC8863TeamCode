@@ -23,12 +23,9 @@ public class RobotConfigMappingForGenericTest {
     // getter and setter methods
     //*********************************************************************************************
 
-    //2 motors
+    //2 drive motors
     private static String leftMotorName = "leftMotor";
     private static String rightMotorName = "rightMotor";
-
-    // sweeper
-    private static String sweeperMotor = "sweeperMotor";
 
     // third motor
     private static String thirdMotorName = "thirdMotor";
@@ -42,31 +39,12 @@ public class RobotConfigMappingForGenericTest {
     //generic core device interface module
     private static String coreDeviceInterfaceName = "coreDIM";
 
+    // sweeper
+    private static String sweeperMotor = "sweeperMotor";
+
     // IMU
     // Core DIM module I2C port 0, configure as Adafruit IMU
     private static String IMUName = "IMU";
-
-    //-----------------------------------------------
-    //front beacon pushers
-    //-----------------------------------------------
-
-    // Core DIM module Digital port 0, configure as Digital Device
-    private static String rightFrontLimitSwitch = "rightFrontSwitch";
-    // Core DIM module Digital port 1, configure as Digital Device
-    private static String rightBackLimitSwitch = "rightBackSwitch";
-    // Core DIM module Digital port 2, configure as Digital Device
-    private static String leftFrontLimitSwitch = "leftFrontSwitch";
-    // Core DIM module Digital port 3, configure as Digital Device
-    private static String leftBackLimitSwitch = "leftBackSwitch";
-    // Color sensor LEDs
-    private static String frontBeaconPusherRightColorSensorLEDName = "frontRightBeaconLED";
-
-    // left and right servos for front beacon pusher
-
-    // Core servo controller port 5, configure as Servo
-    private static String frontLeftBeaconServo = "frontLeftBeaconPusherServo";
-    // Core servo controller port 6, configure as Servo
-    private static String frontRightBeaconServo = "frontRightBeaconPusherServo";
 
     //-------------------------------------------------
     // Color Sensors and mux
@@ -77,41 +55,70 @@ public class RobotConfigMappingForGenericTest {
     private static String muxName = "mux";
     private static byte muxAddress = 0x70;
 
+    // mux ports for the color sensors
+    private static AdafruitI2CMux.PortNumber frontBeaconPusherRightColorSensorPort = AdafruitI2CMux.PortNumber.PORT0;
+    private static AdafruitI2CMux.PortNumber frontBeaconPusherLeftColorSensorPort = AdafruitI2CMux.PortNumber.PORT1;
+    private static AdafruitI2CMux.PortNumber rightSideBeaconPusherColorSensorPort = AdafruitI2CMux.PortNumber.PORT2;
+    private static AdafruitI2CMux.PortNumber leftSideBeaconPusherColorSensorPort = AdafruitI2CMux.PortNumber.PORT3;
+
     // color sensors
     // Even though there are multiple color sensors we only need 1 name since the mux makes it look
     // like there is only 1 color sensor attached to the core DIM
 
     // Core DIM I2C Port 2, configure as I2C Device
     private static String adafruitColorSensorName = "colorSensor";
+
+    //-----------------------------------------------
+    //front beacon pushers
+    //-----------------------------------------------
+
+    //Limit Switches
+
+    // Core DIM module Digital port 0, configure as Digital Device
+    private static String rightFrontLimitSwitchName = "rightFrontSwitch";
+    // Core DIM module Digital port 1, configure as Digital Device
+    private static String rightBackLimitSwitchName = "rightBackSwitch";
+    // Core DIM module Digital port 2, configure as Digital Device
+    private static String leftFrontLimitSwitchName = "leftFrontSwitch";
+    // Core DIM module Digital port 3, configure as Digital Device
+    private static String leftBackLimitSwitchName = "leftBackSwitch";
+
+    // left and right servos for front beacon pusher
+
+    // Core servo controller port 5, configure as Servo
+    private static String frontLeftBeaconServoName = "frontLeftBeaconPusherServo";
+    // Core servo controller port 6, configure as Servo
+    private static String frontRightBeaconServoName = "frontRightBeaconPusherServo";
+
     // LED ports for the color sensors
+
     // Core DIM module Digital port 4, configure as digital device
     private static int frontBeaconPusherRightColorSensorLEDPort = 4;
-
-    // mux ports for the color sensors
-    private static AdafruitI2CMux.PortNumber frontBeaconPusherRightColorSensorPort = AdafruitI2CMux.PortNumber.PORT0;
-    private static AdafruitI2CMux.PortNumber frontBeaconPusherLeftColorSensorPort = AdafruitI2CMux.PortNumber.PORT3;
-    private static AdafruitI2CMux.PortNumber rightSideBeaconPusherColorSensorPort = AdafruitI2CMux.PortNumber.PORT1;
-    private static AdafruitI2CMux.PortNumber leftSideBeaconPusherColorSensorPort = AdafruitI2CMux.PortNumber.PORT2;
+    private static String frontBeaconPusherRightColorSensorLEDName = "frontRightBeaconLED";
+    // Core DIM module Digital port 5, configure as digital device
+    private static int frontBeaconPusherLeftColorSensorLEDPort = 5;
+    private static String frontBeaconPusherLeftColorSensorLEDName = "frontLeftBeaconLED";
 
     //----------------------------------------------------
     // Side Beacon pushers
     //-----------------------------------------------------
 
+    // Servos
+
+    // Core servo controller port 4, configure as Servo
+    private static String rightSideBeaconPusherServoName = "rightSideBeaconPusherServo";
+
+    // Color sensors
+
     private static String rightSideBeaconColorSensorName = "rightBeaconColorSensor";
     private static String leftSideBeaconColorSensorName = "leftBeaconColorSensor";
 
-    // Core servo controller port 4, configure as Servo
-    private static String rightSideBeaconPusherServo = "rightSideBeaconPusherServo";
-
     // LED ports for the color sensors
-    // Core DIM module Digital port 5
-    private static int rightBeaconPusherColorSensorLEDPort = 5;
-    // Core DIM module Digital port 6
-    private static int leftBeaconPusherColorSensorLEDPort = 6;
 
-    //LED channel
-    private static int rightSideBeaconColorSensorLEDPort = 1;
-    private static int leftSideBeaconColorSensorLEDPort = 2;
+    // Core DIM module Digital port 5
+    private static int rightSideBeaconPusherColorSensorLEDPort = 5;
+    // Core DIM module Digital port 6
+    private static int leftSideBeaconPusherColorSensorLEDPort = 6;
 
     //---------------------------------------------
     // shooter
@@ -164,10 +171,6 @@ public class RobotConfigMappingForGenericTest {
         return adafruitColorSensorName;
     }
 
-    public static String getRightFrontLimitSwitchName() {
-        return rightFrontLimitSwitch;
-    }
-
     public static String getLeftSideBeaconColorSensorName() {
         return leftSideBeaconColorSensorName;}
 
@@ -176,33 +179,32 @@ public class RobotConfigMappingForGenericTest {
     }
 
     public static String getLeftFrontLimitSwitchName() {
-        return leftFrontLimitSwitch;
+        return leftFrontLimitSwitchName;
+    }
+
+    public static String getLeftBackLimitSwitchName() {
+        return leftBackLimitSwitchName;
+    }
+
+    public static String getRightFrontLimitSwitchName() {
+        return rightFrontLimitSwitchName;
+    }
+
+    public static String getRightBackLimitSwitchName() {
+        return rightBackLimitSwitchName;
     }
 
     public static String getRightSideBeaconPusherServo() {
-        return rightSideBeaconPusherServo;
+        return rightSideBeaconPusherServoName;
     }
 
-    public static int getRightSideBeaconColorSensorLEDPort() {
-        return rightSideBeaconColorSensorLEDPort;
-    }
-    public static String getRightBackLimitSwitchName() {
-        return rightBackLimitSwitch;
-    }
-
-    public static int getLeftSideBeaconColorSensorLEDPort() {
-        return leftSideBeaconColorSensorLEDPort;
-    }
-    public static String getLeftBackLimitSwitchName() {
-        return leftBackLimitSwitch;
-    }
     
     public static String getFrontLeftBeaconServoName() {
-        return frontLeftBeaconServo;
+        return frontLeftBeaconServoName;
     }
 
     public static String getFrontRightBeaconServoName() {
-        return frontRightBeaconServo;
+        return frontRightBeaconServoName;
     }
 
     public static String getMuxName() {
@@ -217,12 +219,16 @@ public class RobotConfigMappingForGenericTest {
         return frontBeaconPusherRightColorSensorLEDPort;
     }
 
-    public static int getRightBeaconPusherColorSensorLEDPort() {
-        return rightBeaconPusherColorSensorLEDPort;
+    public static int getFrontBeaconPusherLeftColorSensorLEDPort() {
+        return frontBeaconPusherLeftColorSensorLEDPort;
     }
 
-    public static int getLeftBeaconPusherColorSensorLEDPort() {
-        return leftBeaconPusherColorSensorLEDPort;
+    public static int getRightSideBeaconPusherColorSensorLEDPort() {
+        return rightSideBeaconPusherColorSensorLEDPort;
+    }
+
+    public static int getLeftSideBeaconPusherColorSensorLEDPort() {
+        return leftSideBeaconPusherColorSensorLEDPort;
     }
 
     public static AdafruitI2CMux.PortNumber getFrontBeaconPusherRightColorSensorPort() {

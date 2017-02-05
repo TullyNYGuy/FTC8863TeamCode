@@ -432,6 +432,12 @@ public class AdafruitColorSensor8863 {
         CoreDIMLEDChannel(int i) {this.byteVal = (byte) i;}
     }
 
+
+    public enum AmountOfDataToDisplay {
+        NORMAL,
+        MIN
+    }
+
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS
     //
@@ -460,6 +466,12 @@ public class AdafruitColorSensor8863 {
     private ElapsedTime updateTimer;
     private int lastAlpha = 0;
     private StatTracker updateTimeTracker;
+
+    // For testing color that has been sensed
+    private double redValueOverNominalInPercent = .35;
+    private double colorValueThresholdInPercent = .20;
+    private double isRedRatioLimit = 1.2;
+    private double isBlueRatioLimit = .85;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -504,6 +516,21 @@ public class AdafruitColorSensor8863 {
         updateTimeTracker = new StatTracker();
     }
 
+    public double getIsRedRatioLimit() {
+        return isRedRatioLimit;
+    }
+
+    public void setIsRedRatioLimit(double isRedRatioLimit) {
+        this.isRedRatioLimit = isRedRatioLimit;
+    }
+
+    public double getIsBlueRatioLimit() {
+        return isBlueRatioLimit;
+    }
+
+    public void setIsBlueRatioLimit(double isBlueRatioLimit) {
+        this.isBlueRatioLimit = isBlueRatioLimit;
+    }
 
     //*********************************************************************************************
     //          Helper Methods
@@ -712,7 +739,9 @@ public class AdafruitColorSensor8863 {
     }
 
     /**
-     * Scale a raw color sensor value reading to the max value that is possible. This normalizes
+     *  Standard RBG values range from 0 to 255. The raw color sensor values can range from 0 to
+     *  65535 depending on the integration time selected. This method scales a raw color sensor
+     *  value reading to the range of 0 to 255. This normalizes
      * the reading so it can be compared to readings using different integration times.
      * @param colorValue
      * @return scaled color value
@@ -934,8 +963,34 @@ public class AdafruitColorSensor8863 {
         return calculateScaledRGBColor(alpha());
     }
 
+
+    /**
+     * The red sensor in the Adafruit color sensor tends to return a higher value than the green
+     * or blue sensors. In fact the graph in the data sheet for spectral response show this too.
+     * When the sensor looks at white, it should return red green and blue values that are about
+     * equal. It does not. Red is always higher. This method reduces the red value by a certain
+     * percent. You must determine the percent for each sensor since they seem to vary.
+     * @param redValue
+     * @return
+     */
+    private int redAdjusted(int redValue) {
+        return (int) Math.round(redValue/(1+redValueOverNominalInPercent));
+    }
+
+    /**
+     *
+     * @return
+     */
+    public int redScaledAndAdjusted() {
+        return redAdjusted(redScaled());
+    }
+
     public String rgbValuesScaledAsString() {
         return redScaled() + " / " + greenScaled() + " / " + blueScaled();
+    }
+
+    public String rbgValuesScaledAndAdjustedAsString() {
+        return redScaledAndAdjusted() + " / " + greenScaled() + " / " + blueScaled();
     }
 
     public float[] hsvScaled() {
@@ -995,8 +1050,10 @@ public class AdafruitColorSensor8863 {
      */
     public boolean isRedUsingRGB() {
         boolean result = false;
-        if(getMaxOfThree(redScaled(), greenScaled(), blueScaled()) == 1) {
+        if((float)redScaled()/blueScaled() > isRedRatioLimit) {
             result = true;
+        } else  {
+            result = false;
         }
         return result;
     }
@@ -1021,8 +1078,10 @@ public class AdafruitColorSensor8863 {
      */
     public boolean isBlueUsingRGB() {
         boolean result = false;
-        if(getMaxOfThree(redScaled(), greenScaled(), blueScaled()) == 3) {
+        if((float)redScaled() / blueScaled() < isBlueRatioLimit) {
             result = true;
+        } else {
+            result = false;
         }
         return result;
     }
@@ -1043,6 +1102,13 @@ public class AdafruitColorSensor8863 {
         return String.valueOf(isRedUsingRGB()) + " / " + String.valueOf(isGreenUsingRGB()) + " / " + String.valueOf(isBlueUsingRGB());
     }
 
+    public String colorRatiosUsingRGBCaption() {
+        return "Red / Blue ratio: ";
+    }
+
+    public String colorRatiosUsingRGBValues() {
+        return String.format("%2.2f", (float)redScaled()/blueScaled());
+    }
     //*********************************************************************************************
     //          Color Testing using HSV as the method - should probably put this into another class
     //          for more info on HSV see http://www.tech-faq.com/hsv.html
@@ -1245,7 +1311,8 @@ public class AdafruitColorSensor8863 {
      * for debug.
      * @param telemetry
      */
-    public void displayColorSensorData(Telemetry telemetry) {
+    public void displayColorSensorData(Telemetry telemetry, AmountOfDataToDisplay amountOfDataToDisplay) {
+        if (amountOfDataToDisplay == AmountOfDataToDisplay.NORMAL) {
         telemetry.addData("Color sensor gain = ", getCurrentGainAsString());
         telemetry.addData("Color sensor integration time = ", getCurrentIntegrationTimeAsString());
         telemetry.addData("Max possible color value = ", getMaxRGBCValue());
@@ -1253,11 +1320,17 @@ public class AdafruitColorSensor8863 {
         telemetry.addData("Red / Green / Blue ", rgbValuesAsString());
         telemetry.addData("Red / Green / Blue (scaled)", rgbValuesScaledAsString());
         telemetry.addData("Hue / Sat / Value (scaled)", hsvValuesScaledAsString());
+        telemetry.addData(colorRatiosUsingRGBCaption(), colorRatiosUsingRGBValues());
         telemetry.addData(colorTestResultUsingRGBCaption(), colorTestResultUsingRGB());
         telemetry.addData(colorTestResultUsingHSVCaption(), colorTestResultUsingHSV());
         telemetry.addData("Update min/ave/max/instant (mS) = ", updateRateString());
         telemetry.addData(">", "Press Stop to end test." );
-
-        telemetry.update();
+        }
+        if (amountOfDataToDisplay == AmountOfDataToDisplay.MIN) {
+            telemetry.addData("Red / Green / Blue (scaled)", rgbValuesScaledAsString());
+            telemetry.addData(colorRatiosUsingRGBCaption(), colorRatiosUsingRGBValues());
+            telemetry.addData(colorTestResultUsingRGBCaption(), colorTestResultUsingRGB());
+            telemetry.addData(colorTestResultUsingHSVCaption(), colorTestResultUsingHSV());
+        }
     }
 }

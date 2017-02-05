@@ -63,14 +63,14 @@ public class SideBeaconPusher {
 
         if (sideBeaconPusherPosition == SideBeaconPusherPosition.LEFT) {
             beaconColorSensorName = RobotConfigMappingForGenericTest.getLeftSideBeaconColorSensorName();
-            beaconColorSensorLEDPort = RobotConfigMappingForGenericTest.getLeftSideBeaconColorSensorLEDPort();
+            beaconColorSensorLEDPort = RobotConfigMappingForGenericTest.getLeftSideBeaconPusherColorSensorLEDPort();
             //
             beaconServo.setHomePosition(homePosition); //running against the wall
             beaconServo.setPositionOne(halfwayPosition); //scanning for beacon
             beaconServo.setPositionTwo(openPosition); //pushing button
         } else {
             beaconColorSensorName = RobotConfigMappingForGenericTest.getRightSideBeaconColorSensorName();
-            beaconColorSensorLEDPort = RobotConfigMappingForGenericTest.getRightSideBeaconColorSensorLEDPort();
+            beaconColorSensorLEDPort = RobotConfigMappingForGenericTest.getRightSideBeaconPusherColorSensorLEDPort();
             //
             beaconServo.setHomePosition(homePosition); //running against the wall
             beaconServo.setPositionOne(halfwayPosition); //scanning for beacon
