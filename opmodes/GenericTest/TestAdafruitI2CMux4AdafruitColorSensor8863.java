@@ -9,6 +9,8 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitColorSensor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitI2CMux;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.I2cDeviceCommunicator;
 
+import java.util.ArrayList;
+
 /**
  * This opmode demonstates how to use the AdafruitI2CMux class to talk to an I2C mux.
  * It assumes that you have 4 adafruit color sensors connected on these ports of the mux (not the
@@ -45,7 +47,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.I2cDeviceCommunicator;
  * valid. I.E. assume the color sensor objects are write only, except for those values that are
  * actually read from the sensor and not from a stored property. For example, color values are
  * actually read from the sensor.
- *
+ * <p>
  * WARNING: When you switch from one color sensor on one port to another color sensor on
  * another port, there will be a period of time needed before the data will be valid for the new
  * sensor. This is because it takes time to get data from the new color sensor and populate the
@@ -90,10 +92,17 @@ public class TestAdafruitI2CMux4AdafruitColorSensor8863 extends LinearOpMode {
 
     // Connect the wires for the led from the color sensor board to the discrete output pin on
     // channel of the core DIM listed below.
-    final int CHANNEL_FOR_LED1 = 0;
-    final int CHANNEL_FOR_LED2 = 1;
-    final int CHANNEL_FOR_LED3 = 2;
-    final int CHANNEL_FOR_LED4 = 3;
+    final int CHANNEL_FOR_LED1 = 4;
+    final int CHANNEL_FOR_LED2 = 5;
+    final int CHANNEL_FOR_LED3 = 6;
+    final int CHANNEL_FOR_LED4 = 7;
+
+    ArrayList<AdafruitColorSensor8863.IntegrationTime> integrationTime = new ArrayList<AdafruitColorSensor8863.IntegrationTime>();
+    int integrationTimeIndexColorSensor1 = 0;
+    int integrationTimeIndexColorSensor2 = 0;
+    int integrationTimeIndexColorSensor3 = 0;
+    int integrationTimeIndexColorSensor4 = 0;
+    int integrationTimeIndex;
 
     boolean leftBumperIsReleased = false;
     boolean ledState = false;
@@ -105,7 +114,15 @@ public class TestAdafruitI2CMux4AdafruitColorSensor8863 extends LinearOpMode {
     @Override
     public void runOpMode() {
 
+        integrationTime.add(AdafruitColorSensor8863.IntegrationTime.AMS_COLOR_ITIME_24MS);
+        integrationTime.add(AdafruitColorSensor8863.IntegrationTime.AMS_COLOR_ITIME_101MS);
+        integrationTime.add(AdafruitColorSensor8863.IntegrationTime.AMS_COLOR_ITIME_307MS);
+        integrationTime.add(AdafruitColorSensor8863.IntegrationTime.AMS_COLOR_ITIME_537MS);
+        integrationTime.add(AdafruitColorSensor8863.IntegrationTime.AMS_COLOR_ITIME_700MS);
+
         timer = new ElapsedTime();
+
+        boolean dpad_upIsReleased = false;
 
         // Create an I2C mux and initialize it
         mux = new AdafruitI2CMux(hardwareMap, muxName, muxAddress);
@@ -128,28 +145,34 @@ public class TestAdafruitI2CMux4AdafruitColorSensor8863 extends LinearOpMode {
 
         // connect only port 1. A color sensor (colorSensor2) has been wired to that port of the mux.
         mux.selectAndEnableAPort(AdafruitI2CMux.PortNumber.PORT1);
-        // create colorSensor2 and initialize it
+        // create colorSensor and initialize it
         colorSensor2 = AdafruitColorSensor8863.createAdaFruitColorSensor8863ForMux(hardwareMap, colorSensorCommunicator, coreDIMName, CHANNEL_FOR_LED2);
         activeColorSensor = colorSensor2;
+        integrationTimeIndex = integrationTimeIndexColorSensor2;
         activeColorSensor.reportStatus("Color Sensor 2", telemetry);
 
-        // connect only port 2. A color sensor (colorSensor3) has been wired to that port of the mux.
+
+        // connect only port 3. A color sensor (colorSensor3) has been wired to that port of the mux.
         mux.selectAndEnableAPort(AdafruitI2CMux.PortNumber.PORT2);
-        // create colorSensor2 and initialize it
+        // create colorSensor and initialize it
         colorSensor3 = AdafruitColorSensor8863.createAdaFruitColorSensor8863ForMux(hardwareMap, colorSensorCommunicator, coreDIMName, CHANNEL_FOR_LED3);
         activeColorSensor = colorSensor3;
+        integrationTimeIndex = integrationTimeIndexColorSensor3;
         activeColorSensor.reportStatus("Color Sensor 3", telemetry);
 
-        // connect only port 3. A color sensor (colorSensor4) has been wired to that port of the mux.
+
+        // connect only port 4. A color sensor (colorSensor4) has been wired to that port of the mux.
         mux.selectAndEnableAPort(AdafruitI2CMux.PortNumber.PORT3);
-        // create colorSensor2 and initialize it
+        // create colorSensor and initialize it
         colorSensor4 = AdafruitColorSensor8863.createAdaFruitColorSensor8863ForMux(hardwareMap, colorSensorCommunicator, coreDIMName, CHANNEL_FOR_LED4);
         activeColorSensor = colorSensor4;
+        integrationTimeIndex = integrationTimeIndexColorSensor4;
         activeColorSensor.reportStatus("Color Sensor 4", telemetry);
 
         // connect only port 0. A color sensor has been wired to that port.
         mux.selectAndEnableAPort(AdafruitI2CMux.PortNumber.PORT0);
         actualColorSensor = colorSensor1;
+        integrationTimeIndex = integrationTimeIndexColorSensor1;
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
@@ -160,7 +183,7 @@ public class TestAdafruitI2CMux4AdafruitColorSensor8863 extends LinearOpMode {
 
         while (opModeIsActive()) {
 
-            // Use gamepad X to toggle the led on or off
+            // Use Left bumpre to toggle the led on or off
             if (gamepad1.left_bumper) {
                 if (leftBumperIsReleased) {
                     activeColorSensor.toggleLED();
@@ -175,9 +198,10 @@ public class TestAdafruitI2CMux4AdafruitColorSensor8863 extends LinearOpMode {
                 mux.selectAndEnableAPort(AdafruitI2CMux.PortNumber.PORT0);
                 activeColorSensor = colorSensor1;
                 colorSensorName = "Color Sensor 1";
+                integrationTimeIndex = integrationTimeIndexColorSensor1;
             }
 
-            // Use gamepad A to select the color sensor on port 1
+            // Use gamepad x to select the color sensor on port 1
             // I'm using the alternative set of methods to select and enable a port just to
             // show how they are used.
             if (gamepad1.x) {
@@ -188,7 +212,7 @@ public class TestAdafruitI2CMux4AdafruitColorSensor8863 extends LinearOpMode {
                 colorSensorName = "Color Sensor 2";
             }
 
-            // Use gamepad X to select the color sensor on port 2
+            // Use gamepad a to select the color sensor on port 2
             if (gamepad1.a) {
                 mux.selectAndEnableAPort(AdafruitI2CMux.PortNumber.PORT2);
                 activeColorSensor = colorSensor3;
@@ -207,8 +231,19 @@ public class TestAdafruitI2CMux4AdafruitColorSensor8863 extends LinearOpMode {
                 mux.disablePorts();
             }
 
+            // Change the integration time for this color sensor
+            if (gamepad1.dpad_up) {
+                if (dpad_upIsReleased) {
+                    incrementIntegrationTime();
+                }
+                dpad_upIsReleased = false;
+            } else {
+                dpad_upIsReleased = true;
+            }
+
             //Display the current values from the sensor
             telemetry.addData("Port = ", mux.getActivePortAsString());
+            telemetry.addData("Integration time = ", integrationTime.get(integrationTimeIndex).toString());
             activeColorSensor.reportStatus(colorSensorName, telemetry);
             activeColorSensor.displayColorSensorData(telemetry);
 
@@ -238,6 +273,33 @@ public class TestAdafruitI2CMux4AdafruitColorSensor8863 extends LinearOpMode {
             Thread.sleep(ms);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+        }
+    }
+
+    public void incrementIntegrationTime() {
+        // get the current index corresponding to the setting on the active color sensor
+        AdafruitColorSensor8863.IntegrationTime currentIntegrationTime = activeColorSensor.getIntegrationTime();
+        integrationTimeIndex = integrationTime.indexOf(currentIntegrationTime);
+        integrationTimeIndex++;
+        if (integrationTimeIndex > 4) {
+            integrationTimeIndex = 0;
+        }
+        switch (integrationTime.get(integrationTimeIndex)) {
+            case AMS_COLOR_ITIME_24MS:
+                activeColorSensor.setIntegrationTime24ms();
+                break;
+            case AMS_COLOR_ITIME_101MS:
+                activeColorSensor.setIntegrationTime101ms();
+                break;
+            case AMS_COLOR_ITIME_307MS:
+                activeColorSensor.setIntegrationTime307ms();
+                break;
+            case AMS_COLOR_ITIME_537MS:
+                activeColorSensor.setIntegrationTime307ms();
+                break;
+            case AMS_COLOR_ITIME_700MS:
+                activeColorSensor.setIntegrationTime700ms();
+                break;
         }
     }
 }

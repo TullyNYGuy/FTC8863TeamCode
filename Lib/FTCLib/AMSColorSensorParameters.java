@@ -75,6 +75,10 @@ public class AMSColorSensorParameters {
         return integrationTime;
     }
 
+    public void setIntegrationTime(AdafruitColorSensor8863.IntegrationTime integrationTime) {
+        this.integrationTime = integrationTime;
+    }
+
     public AdafruitColorSensor8863.Gain getGain() {
         return gain;
     }

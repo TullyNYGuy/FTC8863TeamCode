@@ -484,6 +484,7 @@ public class AdafruitColorSensor8863 {
 
     private AdafruitColorSensor8863(HardwareMap hardwareMap, String coreDIMName, int ioChannelForLed) {
         // set up for controlling the LED
+        parameters = AMSColorSensorParameters.createForAdaFruit();
         this.ledOn = false;
         this.ioChannelForLed = ioChannelForLed;
         coreDIM = hardwareMap.deviceInterfaceModule.get(coreDIMName);
@@ -574,6 +575,7 @@ public class AdafruitColorSensor8863 {
         this.write8(Register.INTEGRATION_TIME, time.byteVal);
         // calculate maximum possible color value for use later in scaling
         this.maxRGBCValue = calculateMaxRGBCCount(time);
+        this.parameters.setIntegrationTime(time);
     }
 
 //    public IntegrationTime readIntegrationTime() {
@@ -1215,6 +1217,10 @@ public class AdafruitColorSensor8863 {
 
     public void setIntegrationTime700ms() {
         setIntegrationTime(IntegrationTime.AMS_COLOR_ITIME_700MS);
+    }
+
+    public IntegrationTime getIntegrationTime() {
+        return parameters.getIntegrationTime();
     }
 
     public String getCurrentIntegrationTimeAsString() {

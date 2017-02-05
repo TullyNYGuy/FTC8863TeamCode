@@ -49,7 +49,7 @@ public class TestAdafruitColorSensor8863 extends LinearOpMode {
 
 
         // Put your initializations here
-        colorSensor = new AdafruitColorSensor8863(hardwareMap, colorSensorName,
+        colorSensor = AdafruitColorSensor8863.createAdaFruitColorSensor8863Single(hardwareMap, colorSensorName,
                 coreDIMName, CHANNEL_FOR_LED);
 
         timer = new ElapsedTime();

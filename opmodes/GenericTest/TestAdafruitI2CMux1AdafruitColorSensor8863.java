@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitColorSensor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitI2CMux;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.I2cDeviceCommunicator;
 
 /**
  * This opmode demonstates how to use the AdafruitI2CMux class to talk to an I2C mux.
@@ -37,6 +38,7 @@ public class TestAdafruitI2CMux1AdafruitColorSensor8863 extends LinearOpMode {
     // A color sensor for use in testing the mux. This is my class and is wrapped around ColorSensor.
     // This class integrates both the color sensor and the led control using a discrete output port.
     AdafruitColorSensor8863 colorSensor1;
+    I2cDeviceCommunicator colorSensorCommunicater;
 
     // The next variable will point to one of the two colorSensors above; the one that is active
     AdafruitColorSensor8863 activeColorSensor;
@@ -58,6 +60,7 @@ public class TestAdafruitI2CMux1AdafruitColorSensor8863 extends LinearOpMode {
     @Override
     public void runOpMode() {
 
+        colorSensorCommunicater = new I2cDeviceCommunicator(hardwareMap,colorSensorName, AdafruitColorSensor8863.getAdafruitColorSensor8863I2cAddress());
         // Create an I2C mux and initialize it
         mux = new AdafruitI2CMux(hardwareMap, muxName, muxAddress);
         // disconnect all 8 ports
@@ -65,12 +68,8 @@ public class TestAdafruitI2CMux1AdafruitColorSensor8863 extends LinearOpMode {
 
         // connect only port 0. A color sensor (colorSensor1) has been wired to that port of the mux.
         mux.selectAndEnableAPort(AdafruitI2CMux.PortNumber.PORT0);
-        delay(delayInMsec);
         // create colorSensor1 and initialize it
-        colorSensor1 = new AdafruitColorSensor8863(hardwareMap, colorSensorName, coreDIMName, CHANNEL_FOR_LED1);
-        // I'm having trouble with the color sensors getting initialized. A delay seem to help some
-        // of the time but not all.
-        delay(delayInMsec);
+        colorSensor1 = AdafruitColorSensor8863.createAdaFruitColorSensor8863ForMux(hardwareMap, colorSensorCommunicater, coreDIMName, CHANNEL_FOR_LED1);
 
         // start off with the active colorSensor = colorSensor1
         // This is used to point to one of the four color sensors; the one that is active
@@ -127,13 +126,5 @@ public class TestAdafruitI2CMux1AdafruitColorSensor8863 extends LinearOpMode {
         telemetry.addData(">", "Done");
         telemetry.update();
 
-    }
-
-    void delay(int ms) {
-        try {
-            Thread.sleep(ms);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
     }
 }
