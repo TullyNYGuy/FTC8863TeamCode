@@ -98,6 +98,7 @@ public class MuxPlusColorSensors {
         }
         // shut off the led
         activeColorSensor.turnLEDOff();
+        activeColorSensor.setIntegrationTime24ms();
 
         mux.selectAndEnableAPort(frontBeaconPusherLeftColorSensorPort);
         // create colorSensor1 and initialize it
@@ -112,32 +113,36 @@ public class MuxPlusColorSensors {
         }
         // shut off the led
         activeColorSensor.turnLEDOff();
+        activeColorSensor.setIntegrationTime24ms();
+        activeColorSensor.setIntegrationTime24ms();
 
-        mux.selectAndEnableAPort(rightSideBeaconPusherColorSensorPort);
-        // create colorSensor1 and initialize it
-        rightSideBeaconPusherColorSensor = new AdafruitColorSensor8863(hardwareMap,
-                RobotConfigMappingForGenericTest.getadafruitColorSensorName(),
-                RobotConfigMappingForGenericTest.getCoreDeviceInterfaceName(),
-                RobotConfigMappingForGenericTest.getRightSideBeaconPusherColorSensorLEDPort());
-        activeColorSensor = rightSideBeaconPusherColorSensor;
-        // if the color sensor is not operation properly report it
-        if (!activeColorSensor.checkDeviceId() || !activeColorSensor.isDataValid()) {
-            activeColorSensor.reportStatus("right side beacon color sensor", telemetry);
-        }
-        activeColorSensor.turnLEDOff();
-
-        mux.selectAndEnableAPort(leftSideBeaconPusherColorSensorPort);
-        // create colorSensor1 and initialize it
-        leftSideBeaconPusherColorSensor = new AdafruitColorSensor8863(hardwareMap,
-                RobotConfigMappingForGenericTest.getadafruitColorSensorName(),
-                RobotConfigMappingForGenericTest.getCoreDeviceInterfaceName(),
-                RobotConfigMappingForGenericTest.getLeftSideBeaconPusherColorSensorLEDPort());
-        activeColorSensor = leftSideBeaconPusherColorSensor;
-        // if the color sensor is not operation properly report it
-        if (!activeColorSensor.checkDeviceId() || !activeColorSensor.isDataValid()) {
-            activeColorSensor.reportStatus("left side beacon color sensor", telemetry);
-        }
-        activeColorSensor.turnLEDOff();
+//        mux.selectAndEnableAPort(rightSideBeaconPusherColorSensorPort);
+//        // create colorSensor1 and initialize it
+//        rightSideBeaconPusherColorSensor = new AdafruitColorSensor8863(hardwareMap,
+//                RobotConfigMappingForGenericTest.getadafruitColorSensorName(),
+//                RobotConfigMappingForGenericTest.getCoreDeviceInterfaceName(),
+//                RobotConfigMappingForGenericTest.getRightSideBeaconPusherColorSensorLEDPort());
+//        activeColorSensor = rightSideBeaconPusherColorSensor;
+//        // if the color sensor is not operation properly report it
+//        if (!activeColorSensor.checkDeviceId() || !activeColorSensor.isDataValid()) {
+//            activeColorSensor.reportStatus("right side beacon color sensor", telemetry);
+//        }
+//        activeColorSensor.turnLEDOff();
+//        activeColorSensor.setIntegrationTime24ms();
+//
+//        mux.selectAndEnableAPort(leftSideBeaconPusherColorSensorPort);
+//        // create colorSensor1 and initialize it
+//        leftSideBeaconPusherColorSensor = new AdafruitColorSensor8863(hardwareMap,
+//                RobotConfigMappingForGenericTest.getadafruitColorSensorName(),
+//                RobotConfigMappingForGenericTest.getCoreDeviceInterfaceName(),
+//                RobotConfigMappingForGenericTest.getLeftSideBeaconPusherColorSensorLEDPort());
+//        activeColorSensor = leftSideBeaconPusherColorSensor;
+//        // if the color sensor is not operation properly report it
+//        if (!activeColorSensor.checkDeviceId() || !activeColorSensor.isDataValid()) {
+//            activeColorSensor.reportStatus("left side beacon color sensor", telemetry);
+//        }
+//        activeColorSensor.turnLEDOff();
+//        activeColorSensor.setIntegrationTime24ms();
     }
 
 
