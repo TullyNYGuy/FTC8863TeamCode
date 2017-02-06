@@ -721,6 +721,22 @@ public class AdafruitColorSensor8863 {
         this.write8(Register.ENABLE, reg & ~(EnableRegister.AMS_COLOR_ENABLE_PON.byteVal | EnableRegister.AMS_COLOR_ENABLE_AEN.byteVal));
     }
 
+    private synchronized void enableInterrupt() {
+        byte reg = colorSensorClient.read8(Register.ENABLE.byteVal);
+        this.write8(Register.ENABLE, reg | EnableRegister.AMS_COLOR_ENABLE_AIEN.byteVal);
+    }
+
+    private synchronized void disableInterrupt() {
+        byte reg = colorSensorClient.read8(Register.ENABLE.byteVal);
+        this.write8(Register.ENABLE, reg & ~EnableRegister.AMS_COLOR_ENABLE_AIEN.byteVal);
+    }
+
+    private synchronized void forceInterrupt() {
+        // set the clear low interrupt threshold way high so an interrupt is guaranteed
+        // set the clear high interrupt threshold low so it is not evaluated
+        // enable the interrupt
+    }
+
     /**
      * Figure out what the maximum possible color value is given the integration time that is chosen.
      * If you actually read this max value then it is likely that your gain is set too high and
@@ -878,6 +894,9 @@ public class AdafruitColorSensor8863 {
         }
     }
 
+    public void turnLEDOnNew(){
+        // disable the interrupt
+    }
     /**
      * Turn the blue led in the core DIM on
      */
