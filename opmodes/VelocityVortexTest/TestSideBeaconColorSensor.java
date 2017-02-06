@@ -29,7 +29,6 @@ public class TestSideBeaconColorSensor extends LinearOpMode {
 
 
         // Put your initializations here
-        beaconServo = new Servo8863(RobotConfigMappingForGenericTest.getRightSideBeaconPusherServo(), hardwareMap, telemetry);
         muxPlusColorSensors = new MuxPlusColorSensors(hardwareMap, telemetry);
         sideBeaconPusher = new SideBeaconPusher(hardwareMap, telemetry, driveTrain, SideBeaconPusher.SideBeaconPusherPosition.RIGHT, muxPlusColorSensors);
         // Wait for the start button
@@ -39,19 +38,14 @@ public class TestSideBeaconColorSensor extends LinearOpMode {
 
         // Put your calls here - they will not run in a loop
 
-        //double startPosition, double endPosition, double positionIncrement, double timeBetweenPositions
-        //beaconServo.setUpServoCalibration(0, 1, .05, 1000);
-        //beaconServo.setPosition(.5);
-
         while(opModeIsActive()) {
 
             // Put your calls that need to run in a loop here
-            //sideBeaconPusher.displayBeaconColor(telemetry);
+
             telemetry.addData("Right color sensor value = ", sideBeaconPusher.rgbValuesScaledAsString(MuxPlusColorSensors.BeaconSide.RIGHT));
-            //sideBeaconPusher.setCoreDimLEDToMatchColorSensor(MuxPlusColorSensors.BeaconSide.RIGHT);
+            sideBeaconPusher.displayBeaconColor(telemetry, MuxPlusColorSensors.BeaconSide.RIGHT);
+            sideBeaconPusher.setCoreDimLEDToMatchColorSensor(MuxPlusColorSensors.BeaconSide.RIGHT);
             telemetry.addData(">", "Press Stop to end test." );
-
-
             telemetry.update();
             
             idle();

@@ -58,10 +58,11 @@ public class SideBeaconPusherControl {
     // from it
     //*********************************************************************************************
 
-    public SideBeaconPusherControl(HardwareMap hardwareMap, Telemetry telemetry, DriveTrain
-            driveTrain, SideBeaconPusher.SideBeaconPusherPosition sideBeaconPusherPosition,
+    public SideBeaconPusherControl(HardwareMap hardwareMap, Telemetry telemetry,
+                                   MuxPlusColorSensors muxPlusColorSensors,
+                                   DriveTrain driveTrain,
+                                   SideBeaconPusher.SideBeaconPusherPosition sideBeaconPusherPosition,
                                    VelocityVortexRobot.AllianceColor allianceColor) {
-        muxPlusColorSensors = new MuxPlusColorSensors(hardwareMap, telemetry);
         this.sideBeaconPusher = new SideBeaconPusher(hardwareMap, telemetry, driveTrain, sideBeaconPusherPosition, muxPlusColorSensors);
         this.allianceColor = allianceColor;
         this.telemetry = telemetry;
@@ -81,11 +82,17 @@ public class SideBeaconPusherControl {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
+
+    //----------------------------------------------------
+    //  Commands
+    //----------------------------------------------------
+
     // before running this method navigate to the wall
     public void  startSideBeaconPusherControl() {
         sideBeaconPusherState = SideBeaconPusherState.RUNNING_ALONG_THE_WALL;
         update();
     }
+
     //----------------------------------------------------
     //  STATE MACHINE
     //----------------------------------------------------
@@ -106,7 +113,7 @@ public class SideBeaconPusherControl {
                 telemetry.update();
                 sideBeaconPusher.updateDriveAlongWall();
                 //check if we have passed a beacon
-                if (sideBeaconPusher.isBeaconBlue() || sideBeaconPusher.isBeaconRed()) {
+                if (sideBeaconPusher.isRightSideBeaconBlue() || sideBeaconPusher.isRightSideBeaconRed()) {
                     sideBeaconPusher.stopDriveAlongWall();
                     sideBeaconPusherState = SideBeaconPusherState.BEACON_DETECTED;
                 }
@@ -114,8 +121,8 @@ public class SideBeaconPusherControl {
             case BEACON_DETECTED:
                 telemetry.addData("State =", sideBeaconPusherState.toString());
                 telemetry.update();
-                if (sideBeaconPusher.isBeaconBlue() && allianceColor == VelocityVortexRobot.AllianceColor.BLUE ||
-                        sideBeaconPusher.isBeaconRed() && allianceColor == VelocityVortexRobot.AllianceColor.RED) {
+                if (sideBeaconPusher.isRightSideBeaconBlue() && allianceColor == VelocityVortexRobot.AllianceColor.BLUE ||
+                        sideBeaconPusher.isRightSideBeaconRed() && allianceColor == VelocityVortexRobot.AllianceColor.RED) {
                     sideBeaconPusherState = SideBeaconPusherState.PUSH_BUTTON;
                 } else {
                     sideBeaconPusherState = SideBeaconPusherState.SKIP_BUTTON;

@@ -36,7 +36,7 @@ public class SideBeaconPusher {
     MuxPlusColorSensors muxPlusColorSensors;
     DriveTrain driveTrain;
     double homePosition = .25;
-    double halfwayPosition = .75;
+    double halfwayPosition = .35;
     double openPosition = .40;
     double extraPosition1 = 0;
     double extraPosition2 = 0;
@@ -59,7 +59,7 @@ public class SideBeaconPusher {
     public SideBeaconPusher(HardwareMap hardwareMap, Telemetry telemetry, DriveTrain driveTrain, SideBeaconPusherPosition sideBeaconPusherPosition, MuxPlusColorSensors muxPlusColorSensors) {
         String beaconColorSensorName;
         int beaconColorSensorLEDPort;
-        beaconServo = new Servo8863(RobotConfigMappingForGenericTest.getRightSideBeaconPusherServo(), hardwareMap, telemetry, homePosition, openPosition, extraPosition1, extraPosition2, Servo.Direction.FORWARD);
+        beaconServo = new Servo8863(RobotConfigMappingForGenericTest.getRightSideBeaconPusherServo(), hardwareMap, telemetry, homePosition, openPosition, homePosition, homePosition, Servo.Direction.FORWARD);
         this.driveTrain = driveTrain;
 
         if (sideBeaconPusherPosition == SideBeaconPusherPosition.LEFT) {
@@ -94,7 +94,11 @@ public class SideBeaconPusher {
     // public methods that give the class its functionality
     //*********************************************************************************************
     // drive near beacon,
+
+    //--------------------------------
     //Methods for controlling the arm
+    //--------------------------------
+
     public void retractArm () {
         beaconServo.goHome();
     }
@@ -107,6 +111,9 @@ public class SideBeaconPusher {
         beaconServo.goPositionTwo();
     }
 
+    //----------------------------------
+    // Methods for driving
+    //----------------------------------
 
     public void driveAlongWall (double heading, double power) {
         driveTrain.setupDriveUsingIMU (heading, power, AdafruitIMU8863.AngleMode.RELATIVE);
@@ -140,20 +147,52 @@ public class SideBeaconPusher {
     // Color Sensor Methods
     //-----------------------------------------------
 
-    public boolean isBeaconRed () {
+    public boolean isRightSideBeaconRed () {
         return muxPlusColorSensors.rightSideBeaconPusherColorSensorIsRed();
     }
 
-    public boolean isBeaconBlue () {
+    public boolean isRightSideBeaconBlue () {
         return muxPlusColorSensors.rightSideBeaconPusherColorSensorIsBlue();
+    }
+
+
+    public boolean isLeftSideBeaconRed () {
+        return muxPlusColorSensors.leftSideBeaconPusherColorSensorIsRed();
+    }
+
+    public boolean isLeftSideBeaconBlue () {
+        return muxPlusColorSensors.leftSideBeaconPusherColorSensorIsBlue();
+    }
+
+    public AdafruitColorSensor8863.ColorFromSensor getRightSideBeaconColor() {
+        return muxPlusColorSensors.getSimpleColorRightSideBeaconPushColorSensor();
+    }
+
+    public AdafruitColorSensor8863.ColorFromSensor getLeftSideBeaconColor() {
+        return muxPlusColorSensors.getSimpleColorLeftSideBeaconPushColorSensor();
+    }
+
+
+    public void displayBeaconColor(Telemetry telemetry, MuxPlusColorSensors.BeaconSide side) {
+        if (side == MuxPlusColorSensors.BeaconSide.RIGHT) {
+            telemetry.addData("Beacon Color (right) = ", getRightSideBeaconColor().toString());
+        } else {
+            telemetry.addData("Beacon Color (left) = ", getLeftSideBeaconColor().toString());
+        }
+
     }
 
     public String rgbValuesScaledAsString(MuxPlusColorSensors.BeaconSide side) {
         if (side == MuxPlusColorSensors.BeaconSide.RIGHT) {
-            return muxPlusColorSensors.frontBeaconPusherRightColorSensorRGBValuesScaledAsString();
+            return muxPlusColorSensors.rightSideBeaconPusherColorSensorRGBValuesScaledAsString();
         } else {
-            return muxPlusColorSensors.frontBeaconPusherRightColorSensorRGBValuesScaledAsString();
+            return muxPlusColorSensors.leftSideBeaconPusherColorSensorRGBValuesScaledAsString();
         }
+    }
+
+
+    public void setCoreDimLEDToMatchColorSensor(MuxPlusColorSensors.BeaconSide side) {
+        muxPlusColorSensors.setCoreDimLedToMatchColorSensor(side);
     }
 
 //    public void displayBeaconColor(Telemetry telemetry) {
