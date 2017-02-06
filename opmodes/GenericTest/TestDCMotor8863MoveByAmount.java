@@ -59,7 +59,7 @@ public class TestDCMotor8863MoveByAmount extends LinearOpMode {
         motor.setMovementPerRev(360);
         // When the motor finishes its movement, how close to the goal does it need to be in order
         // to call it done? 5 encoder ticks? 1 encoder tick?
-        motor.setTargetEncoderTolerance(5);
+        motor.setTargetEncoderTolerance(10);
         // When the motor finishes its movement is the motor able to spin freely (FLOAT) or does it
         // actively resist being moved and hold its position (HOLD)?
         motor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
@@ -110,6 +110,7 @@ public class TestDCMotor8863MoveByAmount extends LinearOpMode {
                 telemetry.addData("Motor Speed = ", "%5.2f", motor.getCurrentPower());
                 telemetry.addData("feedback = ", "%5.2f", motor.getPositionInTermsOfAttachmentRelativeToLast());
                 telemetry.addData("Encoder Count = ", "%5d", motor.getCurrentPositionRelativeToLast());
+                telemetry.addData("Motor state = ", motor.getCurrentMotorState());
                 telemetry.addData("Elapsed time = ", "%5.0f", runningTimer.milliseconds());
                 telemetry.addData(">", "Press Stop to end test.");
                 telemetry.update();
