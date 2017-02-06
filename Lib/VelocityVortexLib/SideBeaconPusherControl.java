@@ -104,7 +104,7 @@ public class SideBeaconPusherControl {
             case RUNNING_ALONG_THE_WALL:
                 telemetry.addData("State =", sideBeaconPusherState.toString());
                 telemetry.update();
-                sideBeaconPusher.driveAlongWall(0, .6);
+                sideBeaconPusher.driveAlongWall(0, .1);
                 sideBeaconPusher.extendArmHalfWay();
                 sideBeaconPusherState = SideBeaconPusherState.SEARCHING_FOR_BEACON;
                 break;
@@ -132,7 +132,7 @@ public class SideBeaconPusherControl {
                 telemetry.addData("State =", sideBeaconPusherState.toString());
                 telemetry.update();
                 sideBeaconPusher.extendingArmFully();
-                sideBeaconPusher.driveDistance(0, .3);
+                sideBeaconPusher.driveDistance(0, .1);
                 sideBeaconPusherState = SideBeaconPusherState.DRIVE_PAST_BEACON;
                 break;
 
@@ -141,7 +141,7 @@ public class SideBeaconPusherControl {
                 telemetry.update();
                 if (sideBeaconPusher.updateDriveDistance()) {
                     sideBeaconPusher.retractArm();
-                    sideBeaconPusher.driveAlongWall(0, .3);
+                    sideBeaconPusher.driveAlongWall(0, .1);
                     sideBeaconPusherState = SideBeaconPusherState.DRIVE_FORWARD_AFTER_BEACON_PUSH;
                 }
                 break;
@@ -161,7 +161,7 @@ public class SideBeaconPusherControl {
                 telemetry.addData("State =", sideBeaconPusherState.toString());
                 telemetry.update();
                 sideBeaconPusher.retractArm();
-                sideBeaconPusher.driveDistance(0, .3);
+                sideBeaconPusher.driveDistance(0, .1);
                 sideBeaconPusherState = SideBeaconPusherState.DRIVE_TO_SECOND_BUTTON;
                 break;
 

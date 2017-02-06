@@ -78,6 +78,7 @@ public class SideBeaconPusher {
             beaconServo.setPositionTwo(openPosition); //pushing button
         }
         this.muxPlusColorSensors = muxPlusColorSensors;
+        beaconServo.goHome();
     }
 
 
