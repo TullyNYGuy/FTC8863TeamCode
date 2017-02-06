@@ -101,7 +101,6 @@ public class VelocityVortexRobot {
     public void init() {
         sweeper.init();
         shooter.init();
-        driveTrain.setCmPerRotation(31.1); // cm
         //rightSideBeaconPusher.init();
     }
 
