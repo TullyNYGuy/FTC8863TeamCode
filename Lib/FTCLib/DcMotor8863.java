@@ -192,6 +192,17 @@ public class DcMotor8863 {
      */
     private double currentPower = 0;
 
+    /**
+     * A timer used in the isRotationComplete method
+     */
+    private ElapsedTime completionTimer;
+
+    /**
+     * The amount of time in mSec that the motor has to be on its target in order for me to call
+     * the movement to that target complete.
+     */
+    private double completionTimeoutInmSec = 100;
+
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //*********************************************************************************************
@@ -415,6 +426,14 @@ public class DcMotor8863 {
         return currentPower;
     }
 
+    public double getCompletionTimeoutInmSec() {
+        return completionTimeoutInmSec;
+    }
+
+    public void setCompletionTimeoutInmSec(double completionTimeoutInmSec) {
+        this.completionTimeoutInmSec = completionTimeoutInmSec;
+    }
+
     //*********************************************************************************************
     //          Constructors
     //*********************************************************************************************
@@ -422,6 +441,7 @@ public class DcMotor8863 {
     public DcMotor8863(String motorName, HardwareMap hardwareMap) {
         FTCDcMotor = hardwareMap.dcMotor.get(motorName);
         stallTimer = new ElapsedTime();
+        completionTimer = new ElapsedTime();
         powerRamp = new RampControl(0, 0, 0);
         initMotorDefaults();
         this.setMaxSpeed(this.getMaxEncoderTicksPerSecond());
@@ -804,7 +824,9 @@ public class DcMotor8863 {
             // the power when it makes its PID adjustments. If you set the power to 100% then there is
             // no room to increase the power if needed and PID control will not work.
             power = Range.clip(power, -.8, .8);
-            // Is there is a power ramp setup to automatically start with the motor is turned on?
+            // reset the completion timer since we are starting a motor movement that will end
+            // once rotation is detected as complete
+            completionTimer.reset();
             // Is there is a power ramp setup to automatically start with the motor is turned on?
             if (powerRamp.isEnabled()) {
                 // yes there is
@@ -1106,7 +1128,17 @@ public class DcMotor8863 {
     // COMPLETE_HOLD and the motor immediately shuts down. For this reason I have to filter the
     // isBusy. It only is valid for RUN_TO_POSITION.
     // isBusy also does not return an accurate indication of completion on RUN_TO_POSITION in certain
-    // situations. In the future, I will have to write my own instead of using DcMotor.isBusy()
+    // situations. So, I will have to write my own instead of using DcMotor.isBusy()
+    //
+    // 2/5/17 - looks like there might be a bug in this method. It was observed in the ball shooter.
+    // The pinion gear is presenting a heavy load to the motor until the point when the area with
+    // no teeth rotates into position. At that point the load goes to 0 and the motor overshoots its
+    // goal of 360 rotation. It takes some time to come back to 360. But my test for completion is
+    // a simple "Did it hit the target?". It did when it was shooting past the target. Then I shut
+    // flag rotation complete and the motor gets shut down before the PID has a chance to recover
+    // from the overshoot.
+    // The new algorithm is to check that it is in position for a specific period of time.
+    // Specifically, has the motor been at the target for greater than X mSec.
     public boolean isRotationComplete() {
         boolean result = false;
         switch (currentRunMode) {
@@ -1115,12 +1147,18 @@ public class DcMotor8863 {
                 // section of code is my replacement for DcMotor.isBusy().
                 // get the current encoder position
                 int currentEncoderCount = this.getCurrentPosition();
-                // is the current position within the tolerance limit of the desired position?
+                // is the current position within the tolerance limit of the desired position? and
+                // has it been there for longer than the completion timeout?
                 if (Math.abs(targetEncoderCount - currentEncoderCount) < targetEncoderTolerance) {
-                    // movement is complete
-                    result = true;
+                    if (completionTimer.milliseconds() > completionTimeoutInmSec) {
+                        // movement is complete
+                        result = true;
+                    } else {
+                        // if on target but the timer is not yet expired just let it run
+                    }
                 } else {
                     // movement is not finished yet
+                    completionTimer.reset();
                     result = false;
                 }
                 break;
