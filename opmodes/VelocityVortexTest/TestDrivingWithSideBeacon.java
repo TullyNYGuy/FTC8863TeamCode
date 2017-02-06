@@ -109,7 +109,7 @@ public class TestDrivingWithSideBeacon extends LinearOpMode {
             idle();
         }
         telemetry.addData(">", "Press Stop to end test." );
-        telemetry.addData("distance = ", driveTrain.getDistance());
+        telemetry.addData("distance = ", driveTrain.getDistanceDriven());
         telemetry.update();
         sleep(5000);
     }

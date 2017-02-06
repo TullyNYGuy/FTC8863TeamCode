@@ -108,7 +108,7 @@ public class FTC8863RegisterOpModes
 
       //manager.register("Test 2 motor shooter",     TestTwoMotorShooter.class);
       //manager.register("PID Motor Test", TestPIDMotor.class);
-      //manager.register("Drive Train Test", TestDriveTrain.class);
+      //manager.register("Drive Train Test", TestDriveTrainTeleop.class);
       //manager.register("Color Sensor Test", RGBSensorClass.class);
       //manager.register("Generic Servo", TestServo8863.class);
       //manager.register("Generic Servo", TestServo8863.class);

@@ -29,16 +29,22 @@ public class TestDrivingDistanceUsingIMUStopAtDistance extends LinearOpMode {
 
         // Put your initializations here
         driveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap, telemetry);
-        driveTrain.setCmPerRotation(32.25); // cm
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run" );
         telemetry.update();
         waitForStart();
 
-        driveUsingIMU(0, .8, 200); // heading, power, distance in cm
+        driveUsingIMU(0, .2, 100); // heading, power, distance in cm
 
-        telemetry.addData("Finished Straight", "1");
+        telemetry.addData("Finished Forwards", "...");
+        telemetry.update();
+        sleep(1000);
+
+        // drive backwards
+        driveUsingIMU(0, .2, 100); // heading, power, distance in cm
+
+        telemetry.addData("Finished Backwards", "!");
         telemetry.update();
         sleep(1000);
 
@@ -84,14 +90,19 @@ public class TestDrivingDistanceUsingIMUStopAtDistance extends LinearOpMode {
         double distance = 0;
         driveTrain.setupDriveUsingIMU(heading, power, AdafruitIMU8863.AngleMode.RELATIVE);
 
-        while(opModeIsActive() && distance < distanceToTravel) {
-            distance = driveTrain.updateDriveUsingIMU();
+        while(opModeIsActive() && driveTrain.updateDriveUsingIMU() < distanceToTravel) {
+            telemetry.addData("distance = ", driveTrain.getDistanceDriven());
+            telemetry.addData("heading = ", driveTrain.imu.getHeading());
+            telemetry.addData("left motor power = ", "%f1.2", driveTrain.getLeftPower());
+            telemetry.addData("right motor power = ", "%f1.2", driveTrain.getRightPower());
+            telemetry.addData(">", "Press Stop to end test." );
+            telemetry.update();
             idle();
         }
         driveTrain.stopDriveUsingIMU();
-        telemetry.addData(">", "Press Stop to end test." );
-        telemetry.addData("distance = ", driveTrain.getDistance());
+        telemetry.addData("distance = ", driveTrain.getDistanceDriven());
         telemetry.addData("heading = ", driveTrain.imu.getHeading());
+        telemetry.addData(">", "Press Stop to end test." );
         telemetry.update();
         sleep(5000);
     }

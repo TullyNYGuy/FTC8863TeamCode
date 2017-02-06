@@ -15,9 +15,9 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
  * This code assumes a DC motor configured with the name "leftMotor"  and "rightMotor"
  *
  */
-@TeleOp(name = "Test Drive Train", group = "Test")
+@TeleOp(name = "Test Drive Train Teleop", group = "Test")
 //@Disabled
-public class TestDriveTrain extends LinearOpMode {
+public class TestDriveTrainTeleop extends LinearOpMode {
 
     DriveTrain myDriveTrain;
     double powerToRunAt;

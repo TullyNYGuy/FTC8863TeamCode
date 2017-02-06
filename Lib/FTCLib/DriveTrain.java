@@ -23,8 +23,6 @@ public class DriveTrain {
     // getter and setter methods
     //*********************************************************************************************
 
-    private double rightPower = 0;
-    private double leftPower = 0;
     private double cmPerRotation = 0;
     private DriveDirection driveDirection = DriveDirection.FORWARD;
 
@@ -43,7 +41,9 @@ public class DriveTrain {
     public AdafruitIMU8863 imu;
 
     private double driveTrainPower;
-    public double distance;
+    private double distanceToDrive;
+    private double distanceDriven;
+
 
     private boolean hasLoopRunYet = false;
 
@@ -55,23 +55,6 @@ public class DriveTrain {
     // getPositionInTermsOfAttachment
     //*********************************************************************************************
 
-
-    public double getRightPower() {
-        return this.rightPower;
-    }
-
-    public void setRightPower(double power) {
-        this.rightPower = power;
-    }
-
-    public double getLeftPower() {
-        return this.leftPower;
-    }
-
-    public void setLeftPower(double power) {
-        this.leftPower = power;
-    }
-
     public double getCmPerRotation() {
         return cmPerRotation;
     }
@@ -82,8 +65,12 @@ public class DriveTrain {
         rightDriveMotor.setMovementPerRev(cmPerRotation);
     }
 
-    public double getDistance() {
-        return distance;
+    public double getdistanceToDrive() {
+        return distanceToDrive;
+    }
+
+    public double getDistanceDriven() {
+        return distanceDriven;
     }
 
     //*********************************************************************************************
@@ -109,7 +96,7 @@ public class DriveTrain {
         rightDriveMotor.setMinMotorPower(-1);
         rightDriveMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
         rightDriveMotor.setMotorMoveType(DcMotor8863.MotorMoveType.RELATIVE);
-        rightDriveMotor.setTargetEncoderTolerance(3);
+        rightDriveMotor.setTargetEncoderTolerance(10);
         rightDriveMotor.setMovementPerRev(cmPerRotation);
         rightDriveMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
 
@@ -118,7 +105,7 @@ public class DriveTrain {
         leftDriveMotor.setMinMotorPower(-1);
         leftDriveMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
         leftDriveMotor.setMotorMoveType(DcMotor8863.MotorMoveType.RELATIVE);
-        leftDriveMotor.setTargetEncoderTolerance(3);
+        leftDriveMotor.setTargetEncoderTolerance(10);
         leftDriveMotor.setMovementPerRev(cmPerRotation);
         leftDriveMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
 
@@ -135,6 +122,11 @@ public class DriveTrain {
         driveDirection = DriveDirection.FORWARD;
 
         this.telemetry = telemetry;
+
+        // for the competition robot
+        this.setCmPerRotation(32.05);
+        // for the developement robot
+        //this.cmPerRotation = 31.1;
     }
 
     /**
@@ -209,11 +201,13 @@ public class DriveTrain {
     public void setupDriveDistance(double power, double distance, DcMotor8863.FinishBehavior finishBehavior) {
         rightDriveMotor.moveByAmount(power, distance, finishBehavior);
         leftDriveMotor.moveByAmount(power, distance, finishBehavior);
+        this.distanceToDrive = distance;
     }
 
     public DriveTrain.Status updateDriveDistance() {
         rightMotorState = rightDriveMotor.update();
         leftMotorState = leftDriveMotor.update();
+        distanceDriven = (leftDriveMotor.getPositionInTermsOfAttachment() + rightDriveMotor.getPositionInTermsOfAttachment()) / 2;
         if (this.isMotorStateComplete()) {
             return Status.COMPLETE;
         } else {
@@ -316,10 +310,17 @@ public class DriveTrain {
 
         if (imuPresent) {
             double currentHeading = imu.getHeading();
+            // I have to reverse the sign since the differential drive method expects a negative
+            // joystick input for a left turn (joystick left = negative number, not what you would
+            // expect).
             double correction = -pidControl.getCorrection(currentHeading);
+            if (driveTrainPower < 0) {
+                // sign on correction has to flip or feedback is wrong direction
+                correction = correction * -1;
+            }
             differentialDrive(driveTrainPower, correction);//correction);
-            distance = (leftDriveMotor.getPositionInTermsOfAttachment() + rightDriveMotor.getPositionInTermsOfAttachment()) / 2;
-            return distance;
+            distanceDriven = (leftDriveMotor.getPositionInTermsOfAttachment() + rightDriveMotor.getPositionInTermsOfAttachment()) / 2;
+            return distanceDriven;
         } else {
             shutdown();
             throw new IllegalArgumentException("No Imu found");
@@ -353,7 +354,7 @@ public class DriveTrain {
             //Setting the flag to say the loop hasn't run yet
             hasLoopRunYet = false;
             //MATT never set the distance so it was 0 when we started the update
-            this.distance = distance;
+            this.distanceToDrive = distance;
             //Setting up IMU
             switch (headingType) {
                 case RELATIVE:
@@ -385,8 +386,8 @@ public class DriveTrain {
                 rampControl.start();
                 drivePowers = calculatePowerUsingRampAndPID();
                 //we start the motors moving using the powers calculated above
-                leftDriveMotor.moveByAmount(drivePowers[0], distance, DcMotor8863.FinishBehavior.HOLD);
-                rightDriveMotor.moveByAmount(drivePowers[1], distance, DcMotor8863.FinishBehavior.HOLD);
+                leftDriveMotor.moveByAmount(drivePowers[0], distanceToDrive, DcMotor8863.FinishBehavior.HOLD);
+                rightDriveMotor.moveByAmount(drivePowers[1], distanceToDrive, DcMotor8863.FinishBehavior.HOLD);
                 hasLoopRunYet = true;
             } else {
                 //If we are running the loop or a second or third or more time
@@ -394,10 +395,16 @@ public class DriveTrain {
                 //setting new powers to the motors
                 leftDriveMotor.setPower(drivePowers[0]);
                 rightDriveMotor.setPower(drivePowers[1]);
+                // if the ramp has finished then setup a ramp for the de-acceleration
+                // then enable it
+                // start the ramp down of power when the distance has reached 80% of the target
             }
+            distanceDriven = (leftDriveMotor.getPositionInTermsOfAttachment() + rightDriveMotor.getPositionInTermsOfAttachment()) / 2;
+            //
             telemetry.addData("Left drive power = ", "%2.2f", drivePowers[0]);
             telemetry.addData("Right drive power = ", "%2.2f", drivePowers[1]);
             telemetry.addData("Heading = ", "%3.1f", imu.getHeading());
+            telemetry.addData("distance = ", "%3.1f", distanceDriven);
             telemetry.update();
             // update the motor state machines
             leftDriveMotor.update();
@@ -460,12 +467,27 @@ public class DriveTrain {
      * @param direction Adjustment applied to the master speed. Add to left. Subtract from right.
      */
     public void differentialDrive(double throttle, double direction) {
+        // When going forwards:
+        // To steer the robot left, the left motor needs to reduce power and the right needs to increase.
+        // To steer the robot right, the left motor needs to increase power and the left needs to reduce.
+        // When going backwards. the vewpoint of the driver switches; left becomes right and vice
+        // versa:
         // To steer the robot left, the left motor needs to reduce power and the right needs to increase.
         // To steer the robot right, the left motor needs to increase power and the left needs to reduce.
         // Since left on the joystick is negative, we need to add the direction for the left motor and
         // subtract from the right motor
         leftDriveMotor.setPower(throttle + direction);
         rightDriveMotor.setPower(throttle - direction);
+//        if (throttle >= 0) {
+//            //going forwards
+//            leftDriveMotor.setPower(throttle + direction);
+//            rightDriveMotor.setPower(throttle - direction);
+//        } else {
+//            // throttle is negative so we are driving backwards
+//            leftDriveMotor.setPower(throttle + direction);
+//            rightDriveMotor.setPower(throttle - direction);
+//        }
+
     }
 
     /**
@@ -525,6 +547,14 @@ public class DriveTrain {
     //*********************************************************************************************
     //          Other methods
     //*********************************************************************************************
+
+    public double getRightPower() {
+        return rightDriveMotor.getCurrentPower();
+    }
+
+    public double getLeftPower() {
+        return leftDriveMotor.getCurrentPower();
+    }
 
     public void shutdown() {
         rightDriveMotor.shutDown();
