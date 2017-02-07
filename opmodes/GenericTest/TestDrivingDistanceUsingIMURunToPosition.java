@@ -26,12 +26,14 @@ public class TestDrivingDistanceUsingIMURunToPosition extends LinearOpMode {
         // Put your initializations here
         driveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap, telemetry);
 
+        telemetry.addData("heading = ", driveTrain.imu.getHeading());
+
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
         telemetry.update();
         waitForStart();
 
-        driveDistanceUsingIMU(0, .3 , 200); //heading, power, distance
+        driveDistanceUsingIMU(0, .1 , -100); //heading, power, distance
         sleep(5000);
 
         // Put your cleanup code here - it runs as the application shuts down
@@ -49,15 +51,12 @@ public class TestDrivingDistanceUsingIMURunToPosition extends LinearOpMode {
 
         while(opModeIsActive()) {
             boolean isDestinationReached = driveTrain.updateDriveDistanceUsingIMU();
-            //boolean isDestinationReached = true;
             if (isDestinationReached){
                 //driveTrain.stopDriveDistanceUsingIMU();
                 break;
             }
 
-//            telemetry.addData(">", "Press Stop to end test." );
-//            telemetry.addData("Heading = ", driveTrain.imu.getHeading());
-//            telemetry.update();
+            telemetry.update();
             idle();
         }
 

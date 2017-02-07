@@ -35,9 +35,10 @@ public class TestDriveTrainDistanceAccuracy extends LinearOpMode {
         telemetry.update();
         waitForStart();
 
-        double distance = 200;
-        driveStraight(distance, 0.8);
-        telemetry.addData("Finished driving this distance", "%3.2f", distance);
+        // if you want to go backwards then put in a negative distance
+        double distance = 100;
+        driveStraight(distance, 0.1);
+        telemetry.addData("Finished driving this distance", "%3.2f", driveTrain.getDistanceDriven());
         telemetry.update();
         sleep(2000);
 
@@ -47,10 +48,13 @@ public class TestDriveTrainDistanceAccuracy extends LinearOpMode {
 
     public void driveStraight(double distance, double power){
         driveTrain.setupDriveDistance(power, distance, DcMotor8863.FinishBehavior.HOLD);
-        telemetry.addData("Driving", "...");
-        telemetry.update();
 
         while(opModeIsActive() && driveTrain.updateDriveDistance() != DriveTrain.Status.COMPLETE) {
+            telemetry.addData("distance = ", driveTrain.getDistanceDriven());
+            telemetry.addData("heading = ", driveTrain.imu.getHeading());
+            telemetry.addData("left motor power = ", "%f1.2", driveTrain.getLeftPower());
+            telemetry.addData("right motor power = ", "%f1.2", driveTrain.getRightPower());
+            telemetry.update();
             idle();
         }
     }
