@@ -111,7 +111,7 @@ public class VelocityVortexTeleop extends LinearOpMode {
         shooterMotorDirect = new DcMotor8863(RobotConfigMappingForGenericTest.getShooterMotorName(), hardwareMap);
         shooterMotorDirect.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
         shooterMotorDirect.setMovementPerRev(360);
-        shooterMotorDirect.setTargetEncoderTolerance(5);
+        shooterMotorDirect.setTargetEncoderTolerance(10);
         shooterMotorDirect.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
         shooterMotorDirect.setMotorMoveType(DcMotor8863.MotorMoveType.RELATIVE);
         shooterMotorDirect.setMinMotorPower(-1);

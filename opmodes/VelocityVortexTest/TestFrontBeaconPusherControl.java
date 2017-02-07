@@ -54,7 +54,6 @@ public class TestFrontBeaconPusherControl extends LinearOpMode {
 
             if (gamepad1.left_bumper) {
                 if (gamepad1LeftBumperIsReleased) {
-                    // toggle the drive train mode: differential <-> tank drive
                     frontBeaconPusherControl.startBeaconControl();
                     gamepad1LeftBumperIsReleased = false;
                 }

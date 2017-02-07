@@ -215,6 +215,11 @@ public class DriveTrain {
         }
     }
 
+    public void setDriveTrainPower(double power) {
+        rightDriveMotor.setPower(power);
+        leftDriveMotor.setPower(power);
+    }
+
     public DriveTrain.Status stopDriveDistance(){
         shutdown();
         return Status.COMPLETE;

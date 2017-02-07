@@ -49,7 +49,7 @@ public class FrontBeaconPusherControl {
 
     private FrontBeaconControlState frontBeaconControlState;
 
-    private AllianceColor allianceColor = AllianceColor.RED;
+    private AllianceColor allianceColor = AllianceColor.BLUE;
 
     private FrontBeaconPusher frontBeaconPusher;
 
@@ -129,7 +129,7 @@ public class FrontBeaconPusherControl {
             case AT_MIDDLE:
                 break;
             case DRIVE_TOWARDS_BEACON:
-                driveTrain.setupDriveDistance(0.4, 25, DcMotor8863.FinishBehavior.HOLD);
+                driveTrain.setupDriveDistance(0.2, 100, DcMotor8863.FinishBehavior.HOLD);
                 frontBeaconControlState = FrontBeaconControlState.LOOK_FOR_BEACON;
                 break;
             case LOOK_FOR_BEACON:
@@ -149,6 +149,7 @@ public class FrontBeaconPusherControl {
                 }
                 break;
             case MOVING_RIGHT_FORWARD_LEFT_BACK:
+                driveTrain.setDriveTrainPower(0.03);
                 if (driveTrain.updateDriveDistance() == DriveTrain.Status.COMPLETE) {
                     // Reached our destination
                     frontBeaconControlState = FrontBeaconControlState.FAILURE;
@@ -161,6 +162,7 @@ public class FrontBeaconPusherControl {
                 }
                 break;
             case MOVING_LEFT_FORWARD_RIGHT_BACK:
+                driveTrain.setDriveTrainPower(0.025);
                 if (driveTrain.updateDriveDistance() == DriveTrain.Status.COMPLETE) {
                     // Reached our destination
                     frontBeaconControlState = FrontBeaconControlState.FAILURE;
@@ -197,13 +199,15 @@ public class FrontBeaconPusherControl {
                 if (timer.milliseconds() > 5000) {
                     frontBeaconControlState = FrontBeaconControlState.FAILURE;
                 }
-                if (allianceColor == AllianceColor.RED && saveColor == FrontBeaconPusher.BeaconColor.RED_BLUE) {
+                if (allianceColor == AllianceColor.RED && saveColor == FrontBeaconPusher.BeaconColor.RED_BLUE ||
+                        allianceColor == AllianceColor.RED && saveColor == FrontBeaconPusher.BeaconColor.BLUE_RED) {
                     if (beaconColor == FrontBeaconPusher.BeaconColor.RED_RED) {
                         // successful push
                         frontBeaconControlState = FrontBeaconControlState.SUCCESS;
                     }
                 }
-                if (allianceColor == AllianceColor.BLUE && saveColor == FrontBeaconPusher.BeaconColor.BLUE_RED) {
+                if (allianceColor == AllianceColor.BLUE && saveColor == FrontBeaconPusher.BeaconColor.BLUE_RED ||
+                        allianceColor == AllianceColor.BLUE && saveColor == FrontBeaconPusher.BeaconColor.RED_BLUE) {
                     if (beaconColor == FrontBeaconPusher.BeaconColor.BLUE_BLUE) {
                         // successful push
                         frontBeaconControlState = FrontBeaconControlState.SUCCESS;

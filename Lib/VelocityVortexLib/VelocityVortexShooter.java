@@ -66,7 +66,7 @@ public class VelocityVortexShooter {
         shooterMotor = new DcMotor8863(RobotConfigMappingForGenericTest.getShooterMotorName(), hardwareMap);
         shooterMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
         shooterMotor.setMovementPerRev(360);
-        shooterMotor.setTargetEncoderTolerance(5);
+        shooterMotor.setTargetEncoderTolerance(10);
         shooterMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
         shooterMotor.setMotorMoveType(DcMotor8863.MotorMoveType.RELATIVE);
         shooterMotor.setMinMotorPower(-1);
@@ -76,7 +76,7 @@ public class VelocityVortexShooter {
         shooterLeadScrewMotor = new DcMotor8863(RobotConfigMappingForGenericTest.getShooterLeadscrewMotorName(), hardwareMap);
         shooterLeadScrewMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
         shooterLeadScrewMotor.setMovementPerRev(360);
-        shooterLeadScrewMotor.setTargetEncoderTolerance(5);
+        shooterLeadScrewMotor.setTargetEncoderTolerance(10);
         shooterLeadScrewMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
         shooterLeadScrewMotor.setMotorMoveType(DcMotor8863.MotorMoveType.RELATIVE);
         shooterLeadScrewMotor.setMinMotorPower(-1);
