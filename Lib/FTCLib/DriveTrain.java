@@ -501,7 +501,7 @@ public class DriveTrain {
     // Autonomous Methods - turns
     //*********************************************************************************************
 
-    public void setupTurn(double turnAngle, double maxPower) {
+    public void setupTurn(double turnAngle, double maxPower, AdafruitIMU8863.AngleMode angleMode) {
 
         if (imuPresent) {
             // set the mode for the motors during the turn. Without this they may not move.
@@ -516,8 +516,10 @@ public class DriveTrain {
             pidControl.setKi(0.00000000025);
             pidControl.reset();
 
-            imu.setAngleMode(AdafruitIMU8863.AngleMode.RELATIVE);
-            imu.resetAngleReferences();
+            imu.setAngleMode(angleMode);
+            if (angleMode == AdafruitIMU8863.AngleMode.RELATIVE) {
+                imu.resetAngleReferences();
+            }
         } else {
             shutdown();
             throw new IllegalArgumentException("No Imu found");
@@ -529,7 +531,7 @@ public class DriveTrain {
         if (imuPresent) {
             double currentHeading = imu.getHeading();
             double correction = -pidControl.getCorrection(currentHeading);
-            differentialDrive(0, correction);//correction);
+            differentialDrive(0, correction);
             //return correction;
             return pidControl.isFinished();
         } else {

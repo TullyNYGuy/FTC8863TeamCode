@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.PIDControl;
 
@@ -71,7 +72,7 @@ public class TestAutonomousTurn extends LinearOpMode {
     }
 
     public void anyTurn(double angle, double power) {
-        driveTrain.setupTurn(angle,power);
+        driveTrain.setupTurn(angle,power, AdafruitIMU8863.AngleMode.RELATIVE);
 
         while(opModeIsActive() && !driveTrain.updateTurn()) {
             telemetry.addData(">", "Press Stop to end test." );
