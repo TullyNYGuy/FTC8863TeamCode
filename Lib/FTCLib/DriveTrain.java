@@ -405,15 +405,6 @@ public class DriveTrain {
         shutdown();
     }
 
-    public void setupDriveDistanceUsingIMU(double heading, double maxPower, double distance,
-                                           AdafruitIMU8863.AngleMode headingType, double valueAtStartTime,
-                                           double valueAtFinishTime, double timeToReachFinishValueInmSec,
-                                           double initialPower, double finalPower, double distanceTotarget) {
-        setupDriveDistanceUsingIMU(heading, maxPower, distance, headingType, valueAtStartTime,
-                valueAtFinishTime, timeToReachFinishValueInmSec);
-        setupChangeInPower(initialPower, finalPower, distanceTotarget);
-    }
-
     /**
      * Drive a distance on a heading using the IMU for heading feedback and the RUN_TO_POSITION of
      * the motor controller to control distance. This method also has a ramp up of the power to
@@ -473,6 +464,32 @@ public class DriveTrain {
             shutdown();
             throw new IllegalArgumentException("No Imu found");
         }
+    }
+
+    /**
+     * An overload that allows you to setup a ramp down of the power also. See other version of this
+     * method for a full description.
+     *
+     * @param heading                      drive at this heading
+     * @param maxPower                     power to drive at (-1 to 1) Positive is forwards. Negative is backwards.
+     * @param distance                     distance to drive
+     * @param headingType                  is the heading relative to where the robot is starting or absolute. Absolute
+     *                                     means it is relative to the startup of the robot
+     * @param valueAtStartTime             power at the start of the ramp
+     * @param valueAtFinishTime            power at the end of the ramp. Typically you make this equal to the
+     *                                     maxPower.
+     * @param timeToReachFinishValueInmSec how long to run the ramp up in power (in milliseconds)
+     * @param initialPower start the ramp down at this power
+     * @param finalPower finish the ramp down at this power
+     * @param distanceTotarget ramp down the power over this distance
+     */
+    public void setupDriveDistanceUsingIMU(double heading, double maxPower, double distance,
+                                           AdafruitIMU8863.AngleMode headingType, double valueAtStartTime,
+                                           double valueAtFinishTime, double timeToReachFinishValueInmSec,
+                                           double initialPower, double finalPower, double distanceTotarget) {
+        setupDriveDistanceUsingIMU(heading, maxPower, distance, headingType, valueAtStartTime,
+                valueAtFinishTime, timeToReachFinishValueInmSec);
+        setupChangeInPower(initialPower, finalPower, distanceTotarget);
     }
 
     public DrivingState updateDriveDistanceUsingIMUState() {
