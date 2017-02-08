@@ -458,6 +458,12 @@ public class DriveTrain {
                     break;
             }
             rampDown = false;
+            // a negative distance means the robot is driving backwards
+            if (distance < 0) {
+                driveDirection = DriveDirection.REVERSE;
+            } else {
+                driveDirection = DriveDirection.FORWARD;
+            }
             drivingState = DrivingState.START_RAMP;
             //If IMU isn't present
         } else {
@@ -512,7 +518,7 @@ public class DriveTrain {
                         drivePowers = adjustPowerUsingPID(power);
                         //we start the motors moving using the powers calculated above
                         // check for forwards or backwards movement
-                        if (distanceToDrive > 0) {
+                        if (driveDirection == DriveDirection.FORWARD) {
                             // forwards
                             leftDriveMotor.moveByAmount(drivePowers[0], distanceToDrive, DcMotor8863.FinishBehavior.HOLD);
                             rightDriveMotor.moveByAmount(drivePowers[1], distanceToDrive, DcMotor8863.FinishBehavior.HOLD);
@@ -538,17 +544,12 @@ public class DriveTrain {
                     if (isDriveTrainComplete()) {
                         drivingState = DrivingState.COMPLETE;
                     }
-                    power = rampControl.getRampValueLinear(driveTrainPower);
-                    drivePowers = adjustPowerUsingPID(power);
-                    //setting new powers to the motors - is the robot going forwards or backwards?
-                    if (distanceToDrive > 0) {
-                        // forwards
-                        leftDriveMotor.setPower(drivePowers[0]);
-                        rightDriveMotor.setPower(drivePowers[1]);
-                    } else {
-                        // if driving backwards the left and right drive motors are effectively swapped
-                        leftDriveMotor.setPower(drivePowers[1]);
-                        rightDriveMotor.setPower(drivePowers[0]);
+                    // only calculate a new ramp power power if we are still in that state
+                    // This means we skip a power update for the time slot
+                    if (drivingState == DrivingState.RAMP_UP) {
+                        power = rampControl.getRampValueLinear(driveTrainPower);
+                        drivePowers = adjustPowerUsingPID(power);
+                        applyPowersToMotors(drivePowers);
                     }
                     break;
                 case CONSTANT_SPEED:
@@ -562,55 +563,36 @@ public class DriveTrain {
                         drivingState = DrivingState.COMPLETE;
                     }
                     drivePowers = adjustPowerUsingPID(driveTrainPower);
-                    //setting new powers to the motors - is the robot going forwards or backwards?
-                    if (distanceToDrive > 0) {
-                        // forwards
-                        leftDriveMotor.setPower(drivePowers[0]);
-                        rightDriveMotor.setPower(drivePowers[1]);
-                    } else {
-                        // if driving backwards the left and right drive motors are effectively swapped
-                        leftDriveMotor.setPower(drivePowers[1]);
-                        rightDriveMotor.setPower(drivePowers[0]);
-                    }
+                    applyPowersToMotors(drivePowers);
                     break;
                 case RAMP_DOWN:
                     // if the movement of the motors is complete then move to the complete state
                     if (isDriveTrainComplete()) {
                         drivingState = DrivingState.COMPLETE;
                     }
-                    power = torcelli.getPower(distanceRemaining);
-                    if (torcelli.isComplete()) {
-                        drivingState = DrivingState.MOVING_UNTIL_COMPLETE;
-                    }
-                    drivePowers = adjustPowerUsingPID(power);
-                    //setting new powers to the motors - is the robot going forwards or backwards?
-                    if (distanceToDrive > 0) {
-                        // forwards
-                        leftDriveMotor.setPower(drivePowers[0]);
-                        rightDriveMotor.setPower(drivePowers[1]);
-                    } else {
-                        // if driving backwards the left and right drive motors are effectively swapped
-                        leftDriveMotor.setPower(drivePowers[1]);
-                        rightDriveMotor.setPower(drivePowers[0]);
+                    // If the robot is driving backwards, the distances are negative and the distance
+                    // remaining will be negative. But this does not matter since Torcelli takes
+                    // absolute value of the distances.
+                    // Only update the ramp if we are still in this state
+                    if (drivingState == DrivingState.RAMP_DOWN) {
+                        power = torcelli.getPower(distanceRemaining);
+                        if (torcelli.isComplete()) {
+                            drivingState = DrivingState.MOVING_UNTIL_COMPLETE;
+                        }
+                        drivePowers = adjustPowerUsingPID(power);
+                        applyPowersToMotors(drivePowers);
                     }
                     break;
                 case MOVING_UNTIL_COMPLETE:
+                    // in this state the ramp down has finished but the robot is not quite at the
+                    // final destination
                     // if the movement of the motors is complete then move to the complete state
                     if (isDriveTrainComplete()) {
                         drivingState = DrivingState.COMPLETE;
                     }
                     power = torcelli.getFinalPower();
                     drivePowers = adjustPowerUsingPID(power);
-                    //setting new powers to the motors - is the robot going forwards or backwards?
-                    if (distanceToDrive > 0) {
-                        // forwards
-                        leftDriveMotor.setPower(drivePowers[0]);
-                        rightDriveMotor.setPower(drivePowers[1]);
-                    } else {
-                        // if driving backwards the left and right drive motors are effectively swapped
-                        leftDriveMotor.setPower(drivePowers[1]);
-                        rightDriveMotor.setPower(drivePowers[0]);
-                    }
+                    applyPowersToMotors(drivePowers);
                     break;
                 case COMPLETE:
                     stopDriveDistanceUsingIMU();
@@ -622,6 +604,25 @@ public class DriveTrain {
             throw new IllegalArgumentException("No Imu found");
         }
         return drivingState;
+    }
+
+    /**
+     * Apply a power to the drive motors, using the direction of travel to determine whether to
+     * swap the left and right motors. If the direction is backwards, then the left and right
+     * get swapped.
+     * @param drivePowers - an array with left, right powers
+     */
+    private void applyPowersToMotors(double[] drivePowers) {
+        //setting new powers to the motors - is the robot going forwards or backwards?
+        if (driveDirection == DriveDirection.FORWARD) {
+            // forwards
+            leftDriveMotor.setPower(drivePowers[0]);
+            rightDriveMotor.setPower(drivePowers[1]);
+        } else {
+            // if driving backwards the left and right drive motors are effectively swapped
+            leftDriveMotor.setPower(drivePowers[1]);
+            rightDriveMotor.setPower(drivePowers[0]);
+        }
     }
 
     /**

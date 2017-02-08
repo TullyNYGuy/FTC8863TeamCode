@@ -85,13 +85,16 @@ public class Torcelli {
      * Setup the torcelli equation for the change in velocity you want over the distance you want.
      * @param initialPower the power you are starting with
      * @param finalPower the power you want to end up with
-     * @param distance the distance to change the velocity over
+     * @param deltaX the distance to change the velocity over
      */
-    public void setupTorcelli(double initialPower, double finalPower, double distance) {
+    public void setupTorcelli(double initialPower, double finalPower, double deltaX) {
         this.initialPower = initialPower;
         this.finalPower = finalPower;
-        this.deltaX = distance;
-        this.accelerationTimesTwo = get2a(initialPower, finalPower, distance);
+        // force the distances to be positive. They could be negative but they have to be consistent.
+        // In order to avoid bugs from the user passing in inconsistent signs, just make it +
+        deltaX = Math.abs(deltaX);
+        this.deltaX = deltaX;
+        this.accelerationTimesTwo = get2a(initialPower, finalPower, deltaX);
         // precalculate initial power ^2
         this.initialPowerSquared = Math.pow(initialPower, 2);
     }
@@ -105,14 +108,17 @@ public class Torcelli {
      */
     public double getPower(double distanceToTarget) {
         double result;
-        double power = Math.sqrt(initialPowerSquared + (accelerationTimesTwo * distanceToTarget));
+        // force the distances to be positive. They could be negative but they have to be consistent.
+        // In order to avoid bugs from the user passing in inconsistent signs, just make it +
+        double power = Math.sqrt(initialPowerSquared + (accelerationTimesTwo * Math.abs(distanceToTarget)));
+        // the resulting power will be at least the final power
         if (power <= finalPower) {
             result = finalPower;
             complete = true;
         } else {
             result = power;
         }
-        return power;
+        return result;
     }
 
     public boolean isComplete() {
