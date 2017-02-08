@@ -16,6 +16,16 @@ public class DriveTrain {
     private enum DriveDirection {
         FORWARD, REVERSE
     }
+
+    public enum DrivingState {
+        START_RAMP,
+        RAMP_UP,
+        CONSTANT_SPEED,
+        RAMP_DOWN,
+        MOVING_UNTIL_COMPLETE,
+        COMPLETE
+    }
+
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS
     //
@@ -43,11 +53,15 @@ public class DriveTrain {
     private double driveTrainPower;
     private double distanceToDrive;
     private double distanceDriven;
+    private double distanceRemaining;
 
 
     private boolean hasLoopRunYet = false;
 
     private Telemetry telemetry;
+    private Torcelli torcelli;
+    private boolean rampDown = false;
+    private DrivingState drivingState;
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -122,11 +136,13 @@ public class DriveTrain {
         if (imuPresent) {
             imu = new AdafruitIMU8863(hardwareMap);
         }
-        rampControl = new RampControl(0,0,0);
+        rampControl = new RampControl(0, 0, 0);
 
         driveDirection = DriveDirection.FORWARD;
 
         this.telemetry = telemetry;
+        torcelli = new Torcelli(0, 0, 0);
+        rampDown = false;
     }
 
     /**
@@ -199,12 +215,43 @@ public class DriveTrain {
     //*********************************************************************************************
 
     /**
+     * Torcelli's equation can be used to calculate the power for ramping down or up to get a
+     * constant acceleration over a certain distance. Looked at another way if you want to change
+     * speed over a certain distance using a constant acceleration, you can use this method to setup
+     * the change and getCurrentPowerForChangeInPower to update the powers as the distance to the
+     * target changes.
+     * Vfinal^2 = Vinitial^2 + 2*a*deltaX
+     * In this case you specify the distance for the ramp (deltaX), and the final and initial powers
+     * and the method will calculate the acceleration needed to achieve it.
+     *
+     * @param finalPower
+     * @param initialPower
+     * @param distanceTotarget
+     */
+    private void setupChangeInPower(double initialPower, double finalPower, double distanceTotarget) {
+        torcelli.setupTorcelli(initialPower, finalPower, distanceTotarget);
+        rampDown = true;
+    }
+
+    /**
+     * As the speed changes you constantly have to recalculate the power to the motors given the
+     * distance that remains to the target distance.
+     *
+     * @param distanceRemaining
+     * @return power needed to achieve constant acceleration
+     */
+    private double getCurrentPowerForChangeInPower(double distanceRemaining) {
+        return torcelli.getPower(distanceRemaining);
+    }
+
+    /**
      * This method is mostly used to determine the circumference of the drive wheels. Give it
      * 3600 degrees to rotate (10 revolutions) and then measure the distance traveled with a
      * measuring tape. Divide by 10 and you have the circumference.
-     * @param power 0 to 1, keep it low for an accurate measurement
+     *
+     * @param power           0 to 1, keep it low for an accurate measurement
      * @param degreesToRotate
-     * @param finishBehavior HOLD the motors in place or FLOAT them to allow them to spin
+     * @param finishBehavior  HOLD the motors in place or FLOAT them to allow them to spin
      */
     public void rotateNumberOfDegrees(double power, double degreesToRotate, DcMotor8863.FinishBehavior finishBehavior) {
         rightDriveMotor.rotateNumberOfDegrees(power, degreesToRotate, finishBehavior);
@@ -214,6 +261,7 @@ public class DriveTrain {
     /**
      * Use this method to manually change the power while the drive train is in the middle of a
      * movement.
+     *
      * @param power
      */
     public void setDriveTrainPower(double power) {
@@ -223,11 +271,12 @@ public class DriveTrain {
 
     /**
      * Drives a straight line by applying the same power to both motors
-     * @param power the power to move at. This can only be positive.
-     * @param distance the distance to move. If you want to go backwards then make the distance
-     *                 negative. The distance to travel is relative to where the robot is located
-     *                 now. In other words, 0 is where the robot is at right at the beginning
-     *                 of the movement.
+     *
+     * @param power          the power to move at. This can only be positive.
+     * @param distance       the distance to move. If you want to go backwards then make the distance
+     *                       negative. The distance to travel is relative to where the robot is located
+     *                       now. In other words, 0 is where the robot is at right at the beginning
+     *                       of the movement.
      * @param finishBehavior whether to lock the motors and hold position or float the motors and
      *                       let them roll when the movement is done
      */
@@ -242,6 +291,7 @@ public class DriveTrain {
     /**
      * You must call this method in a loop after you call setupDriveDistance() in order to get the
      * movement to work properly.
+     *
      * @return COMPLETE if distance has been reached, MOVING if not
      */
     public DriveTrain.Status updateDriveDistance() {
@@ -259,9 +309,10 @@ public class DriveTrain {
 
     /**
      * Stop the movement of the robot
+     *
      * @return
      */
-    public DriveTrain.Status stopDriveDistance(){
+    public DriveTrain.Status stopDriveDistance() {
         shutdown();
         return Status.COMPLETE;
     }
@@ -270,12 +321,13 @@ public class DriveTrain {
      * Drive on a heading using the IMU to give heading feedback. This will only stop when you tell
      * it to stop using stopDriveUsingIMU(). The heading can be relative to the robot's heading at
      * the start, or can be relative to whenever the IMU heading was last set to 0.
-     * @param heading heading in degrees. Counter clockwise is +. Clockwise is -. Range from -180 to
-     *                +180. Note that if you input 180 it will have problems navigating due to the
-     *                sign change at the 180 boundary. If you really need to do that then there will
-     *                have to be some code written to control the range on the IMU.
-     * @param maxPower the max power to apply to the motors. This really corresponds to speed.
-     *                 Positive is forwards. Negative is backwards.
+     *
+     * @param heading     heading in degrees. Counter clockwise is +. Clockwise is -. Range from -180 to
+     *                    +180. Note that if you input 180 it will have problems navigating due to the
+     *                    sign change at the 180 boundary. If you really need to do that then there will
+     *                    have to be some code written to control the range on the IMU.
+     * @param maxPower    the max power to apply to the motors. This really corresponds to speed.
+     *                    Positive is forwards. Negative is backwards.
      * @param headingType RAW, ABSOLUTE or RELATIVE. See AngleMode for desscription.
      */
     // THIS METHOD HAS A BUG. IT DOES NOT DRIVE BACKWARDS PROPERLY. NEED TO FIX IT
@@ -322,6 +374,7 @@ public class DriveTrain {
     /**
      * You must call this method in a loop after you call setupDriveDistance() in order to get the
      * movement to work properly.
+     *
      * @return distance driven
      */
     public double updateDriveUsingIMU() {
@@ -352,27 +405,38 @@ public class DriveTrain {
         shutdown();
     }
 
+    public void setupDriveDistanceUsingIMU(double heading, double maxPower, double distance,
+                                           AdafruitIMU8863.AngleMode headingType, double valueAtStartTime,
+                                           double valueAtFinishTime, double timeToReachFinishValueInmSec,
+                                           double initialPower, double finalPower, double distanceTotarget) {
+        setupDriveDistanceUsingIMU(heading, maxPower, distance, headingType, valueAtStartTime,
+                valueAtFinishTime, timeToReachFinishValueInmSec);
+        setupChangeInPower(initialPower, finalPower, distanceTotarget);
+    }
+
     /**
      * Drive a distance on a heading using the IMU for heading feedback and the RUN_TO_POSITION of
      * the motor controller to control distance. This method also has a ramp up of the power to
-     * eliminate wheel slip at startup.
-     * @param heading drive at this heading
-     * @param maxPower power to drive at (-1 to 1) Positive is forwards. Negative is backwards.
-     * @param distance distance to drive
-     * @param headingType is the heading relative to where the robot is starting or absolute. Absolute
-     *                    means it is relative to the startup of the robot
-     * @param valueAtStartTime power at the start of the ramp
-     * @param valueAtFinishTime power at the end of the ramp. Typically you make this equal to the
-     *                          maxPower.
+     * eliminate wheel slip at startup. It can have a ramp down in power to gradually slow the
+     * robot down at the end of the drive.
+     *
+     * @param heading                      drive at this heading
+     * @param maxPower                     power to drive at (-1 to 1) Positive is forwards. Negative is backwards.
+     * @param distance                     distance to drive
+     * @param headingType                  is the heading relative to where the robot is starting or absolute. Absolute
+     *                                     means it is relative to the startup of the robot
+     * @param valueAtStartTime             power at the start of the ramp
+     * @param valueAtFinishTime            power at the end of the ramp. Typically you make this equal to the
+     *                                     maxPower.
      * @param timeToReachFinishValueInmSec how long to run the ramp up in power (in milliseconds)
      */
     public void setupDriveDistanceUsingIMU(double heading, double maxPower, double distance,
                                            AdafruitIMU8863.AngleMode headingType, double valueAtStartTime,
-                                           double valueAtFinishTime, double timeToReachFinishValueInmSec){
+                                           double valueAtFinishTime, double timeToReachFinishValueInmSec) {
         //If the IMU is present we proceed. If not we give the user an error
         if (imuPresent) {
             // Setup the ramp control to ramp the power up from 0 to maxPower
-            rampControl.setup(valueAtStartTime,valueAtFinishTime,timeToReachFinishValueInmSec);
+            rampControl.setup(valueAtStartTime, valueAtFinishTime, timeToReachFinishValueInmSec);
             // Enable the ramp control so that it will start when the motors start moving
             rampControl.enable();
             // set the mode for the motors during the turn. Without this they may not move.
@@ -402,50 +466,224 @@ public class DriveTrain {
                     imu.setAngleMode(AdafruitIMU8863.AngleMode.RAW);
                     break;
             }
+            rampDown = false;
+            drivingState = DrivingState.START_RAMP;
             //If IMU isn't present
         } else {
             shutdown();
             throw new IllegalArgumentException("No Imu found");
         }
+    }
 
+    public DrivingState updateDriveDistanceUsingIMUState() {
+        //setting up an array so that we can hold onto the left and right motor drive powers
+        double[] drivePowers;
+        double power = driveTrainPower;
+
+        if (imuPresent) {
+            // Figure out where the robot is at now during the drive
+            distanceDriven = (leftDriveMotor.getPositionInTermsOfAttachmentRelativeToLast() + rightDriveMotor.getPositionInTermsOfAttachmentRelativeToLast()) / 2;
+            distanceRemaining = distanceToDrive - distanceDriven;
+            // run the state machine
+            switch (drivingState) {
+                case START_RAMP:
+                    // if ramp up is enabled but not running start it and then start the motors
+                    if (rampControl.isEnabled() && !rampControl.isRunning()) {
+                        rampControl.start();
+                        power = rampControl.getRampValueLinear(driveTrainPower);
+                        // run the PID to adjust powers to keep on heading
+                        drivePowers = adjustPowerUsingPID(power);
+                        //we start the motors moving using the powers calculated above
+                        // check for forwards or backwards movement
+                        if (distanceToDrive > 0) {
+                            // forwards
+                            leftDriveMotor.moveByAmount(drivePowers[0], distanceToDrive, DcMotor8863.FinishBehavior.HOLD);
+                            rightDriveMotor.moveByAmount(drivePowers[1], distanceToDrive, DcMotor8863.FinishBehavior.HOLD);
+                        } else {
+                            // if driving backwards the left and right drive motors are effectively swapped
+                            leftDriveMotor.moveByAmount(drivePowers[1], distanceToDrive, DcMotor8863.FinishBehavior.HOLD);
+                            rightDriveMotor.moveByAmount(drivePowers[0], distanceToDrive, DcMotor8863.FinishBehavior.HOLD);
+                        }
+                    }
+                    drivingState = DrivingState.RAMP_UP;
+                    break;
+                case RAMP_UP:
+                    // if ramp is finished then we are in the constant speed mode next time
+                    if (rampControl.isFinished()) {
+                        drivingState = DrivingState.CONSTANT_SPEED;
+                    }
+                    // if the remaining distance to be driven is into the zone where the ramp down
+                    // should start, change the state for the next update
+                    if (Math.abs(distanceRemaining) < torcelli.getDistanceToChangeVelocityOver() && rampDown) {
+                        drivingState = DrivingState.RAMP_DOWN;
+                    }
+                    // if the movement of the motors is complete then move to the complete state
+                    if (isDriveTrainComplete()) {
+                        drivingState = DrivingState.COMPLETE;
+                    }
+                    power = rampControl.getRampValueLinear(driveTrainPower);
+                    drivePowers = adjustPowerUsingPID(power);
+                    //setting new powers to the motors - is the robot going forwards or backwards?
+                    if (distanceToDrive > 0) {
+                        // forwards
+                        leftDriveMotor.setPower(drivePowers[0]);
+                        rightDriveMotor.setPower(drivePowers[1]);
+                    } else {
+                        // if driving backwards the left and right drive motors are effectively swapped
+                        leftDriveMotor.setPower(drivePowers[1]);
+                        rightDriveMotor.setPower(drivePowers[0]);
+                    }
+                    break;
+                case CONSTANT_SPEED:
+                    // if the remaining distance to be driven is into the zone where the ramp down
+                    // should start, change the state for the next update
+                    if (Math.abs(distanceRemaining) < torcelli.getDistanceToChangeVelocityOver() && rampDown) {
+                        drivingState = DrivingState.RAMP_DOWN;
+                    }
+                    // if the movement of the motors is complete then move to the complete state
+                    if (isDriveTrainComplete()) {
+                        drivingState = DrivingState.COMPLETE;
+                    }
+                    drivePowers = adjustPowerUsingPID(driveTrainPower);
+                    //setting new powers to the motors - is the robot going forwards or backwards?
+                    if (distanceToDrive > 0) {
+                        // forwards
+                        leftDriveMotor.setPower(drivePowers[0]);
+                        rightDriveMotor.setPower(drivePowers[1]);
+                    } else {
+                        // if driving backwards the left and right drive motors are effectively swapped
+                        leftDriveMotor.setPower(drivePowers[1]);
+                        rightDriveMotor.setPower(drivePowers[0]);
+                    }
+                    break;
+                case RAMP_DOWN:
+                    // if the movement of the motors is complete then move to the complete state
+                    if (isDriveTrainComplete()) {
+                        drivingState = DrivingState.COMPLETE;
+                    }
+                    power = torcelli.getPower(distanceRemaining);
+                    if (torcelli.isComplete()) {
+                        drivingState = DrivingState.MOVING_UNTIL_COMPLETE;
+                    }
+                    drivePowers = adjustPowerUsingPID(power);
+                    //setting new powers to the motors - is the robot going forwards or backwards?
+                    if (distanceToDrive > 0) {
+                        // forwards
+                        leftDriveMotor.setPower(drivePowers[0]);
+                        rightDriveMotor.setPower(drivePowers[1]);
+                    } else {
+                        // if driving backwards the left and right drive motors are effectively swapped
+                        leftDriveMotor.setPower(drivePowers[1]);
+                        rightDriveMotor.setPower(drivePowers[0]);
+                    }
+                    break;
+                case MOVING_UNTIL_COMPLETE:
+                    // if the movement of the motors is complete then move to the complete state
+                    if (isDriveTrainComplete()) {
+                        drivingState = DrivingState.COMPLETE;
+                    }
+                    power = torcelli.getFinalPower();
+                    drivePowers = adjustPowerUsingPID(power);
+                    //setting new powers to the motors - is the robot going forwards or backwards?
+                    if (distanceToDrive > 0) {
+                        // forwards
+                        leftDriveMotor.setPower(drivePowers[0]);
+                        rightDriveMotor.setPower(drivePowers[1]);
+                    } else {
+                        // if driving backwards the left and right drive motors are effectively swapped
+                        leftDriveMotor.setPower(drivePowers[1]);
+                        rightDriveMotor.setPower(drivePowers[0]);
+                    }
+                    break;
+                case COMPLETE:
+                    stopDriveDistanceUsingIMU();
+                    break;
+            }
+            // If IMU isn't present
+        } else {
+            shutdown();
+            throw new IllegalArgumentException("No Imu found");
+        }
+        return drivingState;
     }
 
     /**
      * You must run this update in a loop in order for the drive distance to work.
+     *
      * @return true if movement is complete
      */
+
     public boolean updateDriveDistanceUsingIMU() {
         //setting up an array so that we can hold onto the left and right motor drive powers
         double[] drivePowers;
+        double power = driveTrainPower;
+        double distanceRemaining = 0;
+        double currentLocation = 0;
         if (imuPresent) {
             //If the IMU is present we proceed if not we give the user an error
-            if(!hasLoopRunYet){
+            if (!hasLoopRunYet) {
                 //If we are running the loop for the first time
                 //MATT the ramp start was after the calculatePowerUsingRampAndPID so initial power was 1
                 rampControl.start();
-                drivePowers = calculatePowerUsingRampAndPID();
+                if (rampControl.isRunning()) {
+                    power = rampControl.getRampValueLinear(driveTrainPower);
+                }
+                drivePowers = adjustPowerUsingPID(power);
                 //we start the motors moving using the powers calculated above
-                leftDriveMotor.moveByAmount(drivePowers[0], distanceToDrive, DcMotor8863.FinishBehavior.HOLD);
-                rightDriveMotor.moveByAmount(drivePowers[1], distanceToDrive, DcMotor8863.FinishBehavior.HOLD);
+                // check for forwards or backwards movement
+                if (distanceToDrive > 0) {
+                    // forwards
+                    leftDriveMotor.moveByAmount(drivePowers[0], distanceToDrive, DcMotor8863.FinishBehavior.HOLD);
+                    rightDriveMotor.moveByAmount(drivePowers[1], distanceToDrive, DcMotor8863.FinishBehavior.HOLD);
+                } else {
+                    // if driving backwards the left and right drive motors are effectively swapped
+                    leftDriveMotor.moveByAmount(drivePowers[1], distanceToDrive, DcMotor8863.FinishBehavior.HOLD);
+                    rightDriveMotor.moveByAmount(drivePowers[0], distanceToDrive, DcMotor8863.FinishBehavior.HOLD);
+                }
+                // set the flag so this section of code does not run again
                 hasLoopRunYet = true;
             } else {
                 //If we are running the loop or a second or third or more time
-                drivePowers = calculatePowerUsingRampAndPID();
-                //setting new powers to the motors - is the robot going forwards or backwards?
-                if (distanceToDrive > 0) {
-                    // forwards
-                    leftDriveMotor.setPower(drivePowers[0]);
-                    rightDriveMotor.setPower(drivePowers[1]);
-                } else {
-                    // if driving backwards the left and right drive motors are effectively swapped
-                    leftDriveMotor.setPower(drivePowers[1]);
-                    rightDriveMotor.setPower(drivePowers[0]);
+                // Figure out where the robot is at now during the drive
+                distanceDriven = (leftDriveMotor.getPositionInTermsOfAttachmentRelativeToLast() + rightDriveMotor.getPositionInTermsOfAttachmentRelativeToLast()) / 2;
+                distanceRemaining = distanceToDrive - distanceDriven;
+
+                // if a ramp control is running get the power from it
+                if (rampControl.isRunning()) {
+                    power = rampControl.getRampValueLinear(driveTrainPower);
                 }
 
-                // if the ramp has finished then setup a ramp for the de-acceleration
-                // then enable it
-                // start the ramp down of power when the distance has reached 80% of the target
+                // if a rampDown is called for override the ramp control and use the ramp down
+                // instead
+                if (rampDown) {
+                    if (distanceRemaining < torcelli.getDistanceToChangeVelocityOver()) {
+                        // Since we are within the zone of the ramp down distance get the power from it
+                        power = torcelli.getPower(distanceRemaining);
+                    }
+                }
+
+                distanceRemaining = distanceToDrive - distanceDriven;
+                // if ramp down is running get a new power based on the distance remaining to
+                // the target
+                power = getCurrentPowerForChangeInPower(distanceRemaining);
             }
+            drivePowers = adjustPowerUsingPID(power);
+            // if the distance to the target is less than what is setup for the ramp down then
+            // use torcelli's equation to ramp the power down
+            //setting new powers to the motors - is the robot going forwards or backwards?
+            if (distanceToDrive > 0) {
+                // forwards
+                leftDriveMotor.setPower(drivePowers[0]);
+                rightDriveMotor.setPower(drivePowers[1]);
+            } else {
+                // if driving backwards the left and right drive motors are effectively swapped
+                leftDriveMotor.setPower(drivePowers[1]);
+                rightDriveMotor.setPower(drivePowers[0]);
+            }
+
+            // if the ramp has finished then setup a ramp for the de-acceleration
+            // then enable it
+            // start the ramp down of power when the distance has reached 80% of the target
             distanceDriven = (leftDriveMotor.getPositionInTermsOfAttachment() + rightDriveMotor.getPositionInTermsOfAttachment()) / 2;
             //
             telemetry.addData("Left drive power = ", "%2.2f", drivePowers[0]);
@@ -456,7 +694,7 @@ public class DriveTrain {
             leftDriveMotor.update();
             rightDriveMotor.update();
             // check to see if our desired distance has been met
-            if (leftDriveMotor.isMotorStateComplete() && rightDriveMotor.isMotorStateComplete()){
+            if (leftDriveMotor.isMotorStateComplete() && rightDriveMotor.isMotorStateComplete()) {
                 return true;
             } else {
                 return false;
@@ -466,15 +704,17 @@ public class DriveTrain {
             shutdown();
             throw new IllegalArgumentException("No Imu found");
         }
+
     }
 
 
     /**
      * Runs the ramp up for the power and then adjusts the power to each motor to maintain the
      * heading using a PID.
+     *
      * @return left and right motor powers
      */
-    private double[] calculatePowerUsingRampAndPID(){
+    private double[] calculatePowerUsingRampAndPID() {
         //this is what we use to calculate the ramp power
         //after the ramp finishes running we get our drive train power applied back to the motors again
         double rampPower = rampControl.getRampValueLinear(driveTrainPower);
@@ -484,6 +724,19 @@ public class DriveTrain {
         telemetry.addData("correction = ", "%3.1f", correction);
         double leftDrivePower = rampPower + correction;
         double rightDrivePower = rampPower - correction;
+        double drivePowers[] = new double[2];
+        drivePowers[0] = leftDrivePower;
+        drivePowers[1] = rightDrivePower;
+        return drivePowers;
+    }
+
+    private double[] adjustPowerUsingPID(double power) {
+        double currentHeading = imu.getHeading();
+        //this is what we use to calculate the correction to the power to adjust the steering
+        double correction = -pidControl.getCorrection(currentHeading);
+        telemetry.addData("correction = ", "%3.1f", correction);
+        double leftDrivePower = power + correction;
+        double rightDrivePower = power - correction;
         double drivePowers[] = new double[2];
         drivePowers[0] = leftDrivePower;
         drivePowers[1] = rightDrivePower;
@@ -641,7 +894,7 @@ public class DriveTrain {
 
     public void toggleDriveDirection() {
         // if the direction is currently forward switch it to reverse
-        if(driveDirection == DriveDirection.FORWARD){
+        if (driveDirection == DriveDirection.FORWARD) {
             leftDriveMotor.setDirection(DcMotorSimple.Direction.REVERSE);
             rightDriveMotor.setDirection(DcMotorSimple.Direction.FORWARD);
             driveDirection = DriveDirection.REVERSE;
