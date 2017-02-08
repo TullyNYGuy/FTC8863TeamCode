@@ -60,7 +60,7 @@ public class TestDrivingWithSideBeacon extends LinearOpMode {
     }
 
     public void anyTurn(double angle, double power) {
-        driveTrain.setupTurn(angle,power);
+        driveTrain.setupTurn(angle, power, AdafruitIMU8863.AngleMode.RELATIVE);
 
         while(opModeIsActive() && !driveTrain.updateTurn()) {
             telemetry.addData(">", "Press Stop to end test." );

@@ -609,81 +609,40 @@ public class DriveTrain {
 
     /**
      * You must run this update in a loop in order for the drive distance to work.
-     *
      * @return true if movement is complete
      */
-
     public boolean updateDriveDistanceUsingIMU() {
         //setting up an array so that we can hold onto the left and right motor drive powers
         double[] drivePowers;
-        double power = driveTrainPower;
-        double distanceRemaining = 0;
-        double currentLocation = 0;
         if (imuPresent) {
             //If the IMU is present we proceed if not we give the user an error
-            if (!hasLoopRunYet) {
+            if(!hasLoopRunYet){
                 //If we are running the loop for the first time
                 //MATT the ramp start was after the calculatePowerUsingRampAndPID so initial power was 1
                 rampControl.start();
-                if (rampControl.isRunning()) {
-                    power = rampControl.getRampValueLinear(driveTrainPower);
-                }
-                drivePowers = adjustPowerUsingPID(power);
+                drivePowers = calculatePowerUsingRampAndPID();
                 //we start the motors moving using the powers calculated above
-                // check for forwards or backwards movement
-                if (distanceToDrive > 0) {
-                    // forwards
-                    leftDriveMotor.moveByAmount(drivePowers[0], distanceToDrive, DcMotor8863.FinishBehavior.HOLD);
-                    rightDriveMotor.moveByAmount(drivePowers[1], distanceToDrive, DcMotor8863.FinishBehavior.HOLD);
-                } else {
-                    // if driving backwards the left and right drive motors are effectively swapped
-                    leftDriveMotor.moveByAmount(drivePowers[1], distanceToDrive, DcMotor8863.FinishBehavior.HOLD);
-                    rightDriveMotor.moveByAmount(drivePowers[0], distanceToDrive, DcMotor8863.FinishBehavior.HOLD);
-                }
-                // set the flag so this section of code does not run again
+                leftDriveMotor.moveByAmount(drivePowers[0], distanceToDrive, DcMotor8863.FinishBehavior.HOLD);
+                rightDriveMotor.moveByAmount(drivePowers[1], distanceToDrive, DcMotor8863.FinishBehavior.HOLD);
                 hasLoopRunYet = true;
             } else {
                 //If we are running the loop or a second or third or more time
-                // Figure out where the robot is at now during the drive
-                distanceDriven = (leftDriveMotor.getPositionInTermsOfAttachmentRelativeToLast() + rightDriveMotor.getPositionInTermsOfAttachmentRelativeToLast()) / 2;
-                distanceRemaining = distanceToDrive - distanceDriven;
-
-                // if a ramp control is running get the power from it
-                if (rampControl.isRunning()) {
-                    power = rampControl.getRampValueLinear(driveTrainPower);
+                drivePowers = calculatePowerUsingRampAndPID();
+                //setting new powers to the motors - is the robot going forwards or backwards?
+                if (distanceToDrive > 0) {
+                    // forwards
+                    leftDriveMotor.setPower(drivePowers[0]);
+                    rightDriveMotor.setPower(drivePowers[1]);
+                } else {
+                    // if driving backwards the left and right drive motors are effectively swapped
+                    leftDriveMotor.setPower(drivePowers[1]);
+                    rightDriveMotor.setPower(drivePowers[0]);
                 }
 
-                // if a rampDown is called for override the ramp control and use the ramp down
-                // instead
-                if (rampDown) {
-                    if (distanceRemaining < torcelli.getDistanceToChangeVelocityOver()) {
-                        // Since we are within the zone of the ramp down distance get the power from it
-                        power = torcelli.getPower(distanceRemaining);
-                    }
-                }
-
-                distanceRemaining = distanceToDrive - distanceDriven;
-                // if ramp down is running get a new power based on the distance remaining to
-                // the target
-                power = getCurrentPowerForChangeInPower(distanceRemaining);
+                // if the ramp has finished then setup a ramp for the de-acceleration
+                // then enable it
+                // start the ramp down of power when the distance has reached 80% of the target
             }
-            drivePowers = adjustPowerUsingPID(power);
-            // if the distance to the target is less than what is setup for the ramp down then
-            // use torcelli's equation to ramp the power down
-            //setting new powers to the motors - is the robot going forwards or backwards?
-            if (distanceToDrive > 0) {
-                // forwards
-                leftDriveMotor.setPower(drivePowers[0]);
-                rightDriveMotor.setPower(drivePowers[1]);
-            } else {
-                // if driving backwards the left and right drive motors are effectively swapped
-                leftDriveMotor.setPower(drivePowers[1]);
-                rightDriveMotor.setPower(drivePowers[0]);
-            }
-
-            // if the ramp has finished then setup a ramp for the de-acceleration
-            // then enable it
-            // start the ramp down of power when the distance has reached 80% of the target
             distanceDriven = (leftDriveMotor.getPositionInTermsOfAttachment() + rightDriveMotor.getPositionInTermsOfAttachment()) / 2;
             //
             telemetry.addData("Left drive power = ", "%2.2f", drivePowers[0]);
@@ -694,7 +653,7 @@ public class DriveTrain {
             leftDriveMotor.update();
             rightDriveMotor.update();
             // check to see if our desired distance has been met
-            if (leftDriveMotor.isMotorStateComplete() && rightDriveMotor.isMotorStateComplete()) {
+            if (leftDriveMotor.isMotorStateComplete() && rightDriveMotor.isMotorStateComplete()){
                 return true;
             } else {
                 return false;
@@ -704,9 +663,7 @@ public class DriveTrain {
             shutdown();
             throw new IllegalArgumentException("No Imu found");
         }
-
     }
-
 
     /**
      * Runs the ramp up for the power and then adjusts the power to each motor to maintain the
