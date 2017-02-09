@@ -9,6 +9,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.JoyStick;
+import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.FrontBeaconPusherControl;
 import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.VelocityVortexRobot;
 
 /**
@@ -46,18 +47,24 @@ public class VelocityVortexAutonomous extends LinearOpMode {
         //             Robot Running after the user his play on the driver phone
         //*********************************************************************************************
 
-        driveDistanceUsingIMU(0, .5, 65.5); //heading, power, distance
-        sleep(1000);
+        driveDistanceUsingIMU(0, .5, 20); //heading, power, distance
+        //sleep(1000);
 
         spinTurn(45, 0.4, AdafruitIMU8863.AngleMode.ABSOLUTE);
-        sleep(1000);
+        //sleep(1000);
 
-        driveDistanceUsingIMU(0, .5, 129.5); //heading, power, distance
-        sleep(1000);
+        driveDistanceUsingIMU(0, .5, 153.5); //heading, power, distance
+        //sleep(1000);
 
         // another 45 degree turn puts the robot at 90 degrees relative to its start position
         spinTurn(90, 0.4, AdafruitIMU8863.AngleMode.ABSOLUTE);
-        sleep(1000);
+        //sleep(1000);
+
+        robot.frontBeaconPusherControl.startBeaconControl();
+
+        while (opModeIsActive()&& robot.frontBeaconPusherControl.update() != FrontBeaconPusherControl.FrontBeaconControlState.SUCCESS) {
+
+        }
 
 //        driveStraight(161, 0.5);
 //        telemetry.addData("Finished Straight", "1");

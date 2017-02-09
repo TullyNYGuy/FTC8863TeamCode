@@ -51,7 +51,7 @@ public class FrontBeaconPusherControl {
 
     private AllianceColor allianceColor = AllianceColor.BLUE;
 
-    private FrontBeaconPusher frontBeaconPusher;
+    public FrontBeaconPusher frontBeaconPusher;
 
     private FrontBeaconPusher.BeaconPusherState frontBeaconPusherState;
 
@@ -99,7 +99,7 @@ public class FrontBeaconPusherControl {
     // public methods that give the class its functionality
     //*********************************************************************************************
 
-    public void initialize() {
+    public void init() {
         frontBeaconControlState = FrontBeaconControlState.MOVE_PUSHERS_TO_MIDDLE;
     }
 

@@ -46,7 +46,7 @@ public class TestFrontBeaconPusherControl extends LinearOpMode {
         telemetry.addData(">", "Press Start to run" );
         telemetry.update();
         waitForStart();
-        frontBeaconPusherControl.initialize();
+        frontBeaconPusherControl.init();
 
         // Put your calls here - they will not run in a loop
 

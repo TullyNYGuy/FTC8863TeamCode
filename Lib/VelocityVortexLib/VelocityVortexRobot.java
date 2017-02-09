@@ -34,12 +34,13 @@ public class VelocityVortexRobot {
     // Here are all of the objects that make up the entire robot
     // note that the IMU is an object in the drive train
     public DriveTrain driveTrain;
-    public FrontBeaconPusher frontBeaconPusher;
+    //public FrontBeaconPusher frontBeaconPusher;
     public MuxPlusColorSensors muxPlusColorSensors;
     public VelocityVortexSweeper sweeper;
     public VelocityVortexShooter shooter;
     public SideBeaconPusher rightSideBeaconPusher;
     public SideBeaconPusher leftSideBeaconPusher;
+    public FrontBeaconPusherControl frontBeaconPusherControl;
     // public FrontBeaconPusher frontBeaconPusher;
     // public I2CMux mux;
     // public BallShooter ballShooter;
@@ -68,7 +69,8 @@ public class VelocityVortexRobot {
         sweeper = new VelocityVortexSweeper(hardwareMap);
         muxPlusColorSensors = new MuxPlusColorSensors(hardwareMap, telemetry);
         rightSideBeaconPusher = new SideBeaconPusher(hardwareMap, telemetry, driveTrain, SideBeaconPusher.SideBeaconPusherPosition.RIGHT, muxPlusColorSensors);
-        frontBeaconPusher = new FrontBeaconPusher(hardwareMap, telemetry, muxPlusColorSensors);
+        //frontBeaconPusher = new FrontBeaconPusher(hardwareMap, telemetry, muxPlusColorSensors);
+        frontBeaconPusherControl = new FrontBeaconPusherControl(hardwareMap, telemetry, muxPlusColorSensors, FrontBeaconPusherControl.AllianceColor.RED, driveTrain);
         shooter = new VelocityVortexShooter(hardwareMap, telemetry);
         init();
 
@@ -102,12 +104,14 @@ public class VelocityVortexRobot {
         sweeper.init();
         shooter.init();
         //rightSideBeaconPusher.init();
+        frontBeaconPusherControl.init();
     }
 
     public void update() {
         sweeper.update();
         shooter.update();
-        frontBeaconPusher.updateState();
+        //frontBeaconPusher.updateState();
+        frontBeaconPusherControl.update();
     }
 
     public void shutdown() {

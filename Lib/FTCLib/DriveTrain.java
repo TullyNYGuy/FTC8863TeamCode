@@ -737,7 +737,7 @@ public class DriveTrain {
             leftDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             pidControl.setSetpoint(turnAngle);
             pidControl.setMaxCorrection(maxPower);
-            pidControl.setThreshold(0.5);
+            pidControl.setThreshold(2.5);
             //pidControl.setKp(0.025);
             //pidControl.setKi(0.0000000015);
             pidControl.setKp(0.0125);
