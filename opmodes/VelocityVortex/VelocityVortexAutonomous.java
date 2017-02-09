@@ -26,6 +26,7 @@ public class VelocityVortexAutonomous extends LinearOpMode {
     VelocityVortexRobot robot;
     DriveTrain.Status statusDrive;
     ElapsedTime timer;
+    FrontBeaconPusherControl.FrontBeaconControlState frontBeaconControlState;
 
     @Override
     public void runOpMode() {
@@ -47,22 +48,34 @@ public class VelocityVortexAutonomous extends LinearOpMode {
         //             Robot Running after the user his play on the driver phone
         //*********************************************************************************************
 
+        // get front beacon pushers into position
+        robot.frontBeaconPusherControl.init();
+
+        // leave wall and give robot enough room to spin turn
         driveDistanceUsingIMU(0, .5, 20); //heading, power, distance
-        //sleep(1000);
 
+        // Setup to drive across face of corner vortex
         spinTurn(45, 0.4, AdafruitIMU8863.AngleMode.ABSOLUTE);
-        //sleep(1000);
 
+        // drive across face of corner vortex
         driveDistanceUsingIMU(0, .5, 153.5); //heading, power, distance
-        //sleep(1000);
 
         // another 45 degree turn puts the robot at 90 degrees relative to its start position
+        // and facing the beacon
         spinTurn(90, 0.4, AdafruitIMU8863.AngleMode.ABSOLUTE);
         //sleep(1000);
 
+        // hand off control to the front beacon pusher control object
         robot.frontBeaconPusherControl.startBeaconControl();
 
-        while (opModeIsActive()&& robot.frontBeaconPusherControl.update() != FrontBeaconPusherControl.FrontBeaconControlState.SUCCESS) {
+        // update the front beacon pusher control state machine and look for signal that it succeeded or failed
+        while (opModeIsActive()) {
+            frontBeaconControlState = robot.frontBeaconPusherControl.update();
+            if (frontBeaconControlState == FrontBeaconPusherControl.FrontBeaconControlState.SUCCESS ||
+                    frontBeaconControlState == FrontBeaconPusherControl.FrontBeaconControlState.FAILURE) {
+                // beacon push is done
+                break;
+            }
 
         }
 
@@ -110,6 +123,8 @@ public class VelocityVortexAutonomous extends LinearOpMode {
         robot.driveTrain.setupTurn(angle, power, angleMode);
 
         while (opModeIsActive() && !robot.driveTrain.updateTurn()) {
+            // update the front beacon pusher state machine
+            robot.frontBeaconPusherControl.update();
             telemetry.addData(">", "Press Stop to end test.");
             telemetry.addData("Angle = ", "%3.1f", robot.driveTrain.imu.getHeading());
             telemetry.update();
@@ -135,6 +150,8 @@ public class VelocityVortexAutonomous extends LinearOpMode {
 
         // updateDriveDistanceUsingIMU return true when the robot has traveled the distance that was requested
         while (opModeIsActive() && !robot.driveTrain.updateDriveDistanceUsingIMU()) {
+            // update the front beacon pusher state machine
+            robot.frontBeaconPusherControl.update();
             telemetry.addData("Angle = ", "%3.1f", robot.driveTrain.imu.getHeading());
             telemetry.addData("distance = ", robot.driveTrain.getDistanceDriven());
             telemetry.update();

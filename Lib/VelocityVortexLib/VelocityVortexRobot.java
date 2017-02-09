@@ -103,14 +103,11 @@ public class VelocityVortexRobot {
     public void init() {
         sweeper.init();
         shooter.init();
-        //rightSideBeaconPusher.init();
-        frontBeaconPusherControl.init();
     }
 
     public void update() {
         sweeper.update();
         shooter.update();
-        //frontBeaconPusher.updateState();
         frontBeaconPusherControl.update();
     }
 
