@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
 /**
  * Torcelli's equation allows you to calculate the velocity needed to achieve a constant acceleration
  * as a function of distance. Normally you would think of it as a function of time. This is very
@@ -37,6 +39,8 @@ public class Torcelli {
     private double accelerationTimesTwo;
     private boolean complete = false;
 
+    private Telemetry telemetry;
+
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -63,7 +67,8 @@ public class Torcelli {
     // from it
     //*********************************************************************************************
 
-    public Torcelli(double initialPower, double finalPower, double distance) {
+    public Torcelli(double initialPower, double finalPower, double distance, Telemetry telemetry) {
+        this.telemetry = telemetry;
         setupTorcelli(initialPower, finalPower, distance);
     }
 

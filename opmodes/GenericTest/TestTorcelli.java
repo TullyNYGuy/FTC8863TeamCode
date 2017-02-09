@@ -26,7 +26,7 @@ public class TestTorcelli extends LinearOpMode {
     public void runOpMode() {
 
         // Put your initializations here
-        torcelli = new Torcelli(1, .1, distance); // initial power, finish power
+        torcelli = new Torcelli(1, .1, distance, telemetry); // initial power, finish power
         telemetry.addData("Torcelli 2a = ", "%2.3f", torcelli.getAccelerationTimesTwo());
         timer = new ElapsedTime();
         

@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmodes.GenericTest;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
@@ -16,12 +17,16 @@ public class TestDrivingDistanceUsingIMURunToPositionRampUpDown extends LinearOp
     // Put your variable declarations here
 
     DriveTrain driveTrain;
+    ElapsedTime timer;
+    double travelTime = 0;
 
     @Override
     public void runOpMode() {
 
         // Put your initializations here
         driveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap, telemetry);
+        driveTrain.setDebug(false);
+        timer = new ElapsedTime();
 
         telemetry.addData("heading = ", driveTrain.imu.getHeading());
 
@@ -30,13 +35,24 @@ public class TestDrivingDistanceUsingIMURunToPositionRampUpDown extends LinearOp
         telemetry.update();
         waitForStart();
 
-        driveDistanceUsingIMU(0, .4, 100, 1000, .1, 20); //heading, power, distance, ramp time, power after ramp down, distance to ramp down
-        sleep(5000);
+        timer.reset();
+        driveDistanceUsingIMU(0, .9, 200, 1500, .1, 40); //heading, power, distance, ramp time, power after ramp down, distance to ramp down
+        travelTime = timer.milliseconds();
+        telemetry.addData("Travel time = ", "%4.1f", travelTime);
+        telemetry.update();
+        sleep(2000);
+        timer.reset();
+        driveDistanceUsingIMU(0, .9, -200, 1500, .1, 60); //heading, power, distance, ramp time, power after ramp down, distance to ramp down
+        travelTime = timer.milliseconds();
+        telemetry.addData("Travel time = ", "%4.1f", travelTime);
+        telemetry.update();
+        sleep(20000);
 
         // Put your cleanup code here - it runs as the application shuts down
+        telemetry.addData("Travel time = ", "%4.1f", travelTime);
         telemetry.addData(">", "Done");
         telemetry.update();
-        sleep(1000);
+        sleep(2000);
     }
 
     public void driveDistanceUsingIMU(double heading, double power, double distance,
@@ -56,7 +72,7 @@ public class TestDrivingDistanceUsingIMURunToPositionRampUpDown extends LinearOp
         while (opModeIsActive()) {
             drivingState = driveTrain.updateDriveDistanceUsingIMUState();
             if (drivingState == DriveTrain.DrivingState.COMPLETE) {
-                //driveTrain.stopDriveDistanceUsingIMU();
+                //driveTrain.updateDriveDistanceUsingIMUState();
                 break;
             }
             telemetry.update();
@@ -66,6 +82,5 @@ public class TestDrivingDistanceUsingIMURunToPositionRampUpDown extends LinearOp
         telemetry.addData(">", "Destination Reached");
         telemetry.addData("distance = ", driveTrain.getDistanceDriven());
         telemetry.addData("Heading = ", "%3.1f", driveTrain.imu.getHeading());
-        telemetry.update();
     }
 }

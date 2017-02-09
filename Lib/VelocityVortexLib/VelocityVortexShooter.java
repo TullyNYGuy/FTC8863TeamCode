@@ -10,6 +10,9 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
 import org.firstinspires.ftc.teamcode.opmodes.GenericTest.RobotConfigMappingForGenericTest;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class VelocityVortexShooter {
 
     //*********************************************************************************************
@@ -36,11 +39,15 @@ public class VelocityVortexShooter {
     private Telemetry telemetry;
 
     private double shooterPower = 0;
+    private int shotCount = 0;
 
 
     private double openPosition = 0.50;
     private double closedPosition = 1.00;
     private double initPosition = closedPosition;
+
+    // aiming
+    Map<Integer, Double> distanceVsAim;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -53,6 +60,9 @@ public class VelocityVortexShooter {
         return shooterPower;
     }
 
+    public int getShotCount() {
+        return shotCount;
+    }
 
     //*********************************************************************************************
     //          Constructors
@@ -89,6 +99,11 @@ public class VelocityVortexShooter {
         ballGateServo.setPositionOne(openPosition);
         ballGateServo.setInitPosition(closedPosition);
         ballGateServo.goInitPosition();
+
+        // setup a lookup table for the distance to the vortex vs the aiming location
+        distanceVsAim = new HashMap<Integer, Double>();
+        //distanceVsAim.put(1, 2.6);
+
     }
 
 
@@ -122,12 +137,23 @@ public class VelocityVortexShooter {
 
     public void shoot(){
         shooterPower = 0.5;
-        shooterMotor.moveByAmount(shooterPower, 360, DcMotor8863.FinishBehavior.HOLD);
+        shotCount++;
+        shooterMotor.moveToPosition(shooterPower, 360*shotCount, DcMotor8863.FinishBehavior.HOLD);
     }
 
+    // NEED TO add limit switch shut down of motor into this method.
+    /**
+     * Use the joystick to input a power to the leadscrew to manually aim the shooter.
+     * @param leadScrewPower
+     */
     public void aimShooter(double leadScrewPower) {
         shooterLeadScrewMotor.setPower(leadScrewPower);
     }
+
+    // need a method to aimShooter that will accept the distance to the vortex and move the
+    // leadscrew so that the shooter is aimed there.
+    // Use the HashMap defined above as a lookup table.
+    // Use this method to automatically aim the shooter or to return it to the loading station.
 
     public void update(){
         shooterLeadScrewMotor.update();
@@ -137,6 +163,7 @@ public class VelocityVortexShooter {
     public void shutdown() {
         shooterMotor.setPower(0);
         shooterMotor.shutDown();
+        // return the shooter to its home position, then shutdown the motor
     }
     public void setPower(double power){
         shooterMotor.setPower(power);
