@@ -32,6 +32,7 @@ public class VelocityVortexTeleop extends LinearOpMode {
     VelocityVortexRobot robot;
 
     DcMotor8863 shooterMotorDirect;
+    int shotCount = 0;
 
     // for use in debouncing the button. A long press will only result in one transition of the
     // button
@@ -107,16 +108,16 @@ public class VelocityVortexTeleop extends LinearOpMode {
 
         // this next section was an experiment to see if we could get the shooter motor to work at
         // Corning. It seems to have worked. Not sure why.
-        shooterMotorDirect = new DcMotor8863("shooterMotor", hardwareMap);
-        shooterMotorDirect = new DcMotor8863(RobotConfigMappingForGenericTest.getShooterMotorName(), hardwareMap);
-        shooterMotorDirect.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
-        shooterMotorDirect.setMovementPerRev(360);
-        shooterMotorDirect.setTargetEncoderTolerance(10);
-        shooterMotorDirect.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
-        shooterMotorDirect.setMotorMoveType(DcMotor8863.MotorMoveType.RELATIVE);
-        shooterMotorDirect.setMinMotorPower(-1);
-        shooterMotorDirect.setMaxMotorPower(1);
-        shooterMotorDirect.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//        shooterMotorDirect = new DcMotor8863("shooterMotor", hardwareMap);
+//        shooterMotorDirect = new DcMotor8863(RobotConfigMappingForGenericTest.getShooterMotorName(), hardwareMap);
+//        shooterMotorDirect.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
+//        shooterMotorDirect.setMovementPerRev(360);
+//        shooterMotorDirect.setTargetEncoderTolerance(10);
+//        shooterMotorDirect.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
+//        shooterMotorDirect.setMotorMoveType(DcMotor8863.MotorMoveType.RELATIVE);
+//        shooterMotorDirect.setMinMotorPower(-1);
+//        shooterMotorDirect.setMaxMotorPower(1);
+//        shooterMotorDirect.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         // Game Pad 1 joysticks
         gamepad1LeftJoyStickX = new JoyStick(JoyStick.JoyStickMode.SQUARE, JOYSTICK_DEADBAND_VALUE, JoyStick.InvertSign.NO_INVERT_SIGN);
@@ -315,7 +316,10 @@ public class VelocityVortexTeleop extends LinearOpMode {
 
             if (gamepad2.left_bumper) {
                 if (gamepad2LeftBumperIsReleased) {
-                    shooterMotorDirect.moveByAmount(.5, 360, DcMotor8863.FinishBehavior.HOLD);
+//                    double shooterPower = 0.5;
+//                    shotCount++;
+//                    shooterMotorDirect.moveToPosition(shooterPower, 360*shotCount, DcMotor8863.FinishBehavior.HOLD);
+//                    shooterMotorDirect.moveByAmount(.5, 360, DcMotor8863.FinishBehavior.HOLD);
                     gamepad2LeftBumperIsReleased = false;
                 }
             } else {

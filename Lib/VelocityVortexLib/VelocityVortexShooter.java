@@ -124,11 +124,21 @@ public class VelocityVortexShooter {
         shooterMotor.setDirection(DcMotor.Direction.REVERSE);
         // set the mode for the motor and lock it in place
         shooterMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        //delay(100);
         // set its direction
         shooterLeadScrewMotor.setDirection(DcMotor.Direction.REVERSE);
         // set the mode for the motor and lock it in place
         shooterLeadScrewMotor.runAtConstantSpeed(0);
     }
+
+    private void delay(int ms) {
+        try {
+            Thread.sleep(ms);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
 
     public void stop(){
         shooterMotor.interrupt();
