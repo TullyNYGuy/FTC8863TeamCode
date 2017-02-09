@@ -317,7 +317,7 @@ public class DcMotor8863 {
         this.MovementPerRev = MovementPerRev;
     }
 
-    private int getTargetEncoderCount() {
+    public int getTargetEncoderCount() {
         return targetEncoderCount;
     }
 

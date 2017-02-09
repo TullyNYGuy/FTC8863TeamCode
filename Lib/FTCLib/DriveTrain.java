@@ -61,6 +61,7 @@ public class DriveTrain {
     private Telemetry telemetry;
     private Torcelli torcelli;
     private boolean rampDown = false;
+    private double deltaX;
     private DrivingState drivingState;
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -234,14 +235,16 @@ public class DriveTrain {
     }
 
     /**
-     * As the speed changes you constantly have to recalculate the power to the motors given the
-     * distance that remains to the target distance.
+     * When you are trying to change the speed in a linear way (constant acceleration), you have to
+     * re-calculate the power to the motors given the
+     * distance past the point that the change in velocity started.
      *
-     * @param distanceRemaining
+     * @param distancePastStartOfVelocityChange the location of the robot using 0 for where the
+     *                                          start of the velocity change occurred
      * @return power needed to achieve constant acceleration
      */
-    private double getCurrentPowerForChangeInPower(double distanceRemaining) {
-        return torcelli.getPower(distanceRemaining);
+    private double getCurrentPowerForChangeInPower(double distancePastStartOfVelocityChange) {
+        return torcelli.getPower(distancePastStartOfVelocityChange);
     }
 
     /**
@@ -409,7 +412,7 @@ public class DriveTrain {
      * Drive a distance on a heading using the IMU for heading feedback and the RUN_TO_POSITION of
      * the motor controller to control distance. This method also has a ramp up of the power to
      * eliminate wheel slip at startup. It can have a ramp down in power to gradually slow the
-     * robot down at the end of the drive.
+     * robot down at the end of the drive if you use the overloaded method.
      *
      * @param heading                      drive at this heading
      * @param maxPower                     power to drive at (-1 to 1) Positive is forwards. Negative is backwards.
@@ -473,8 +476,9 @@ public class DriveTrain {
     }
 
     /**
-     * An overload that allows you to setup a ramp down of the power also. See other version of this
-     * method for a full description.
+     * Drive a distance on a heading using the IMU for heading feedback and the RUN_TO_POSITION of
+     * the motor controller to control distance. This method also has a ramp up of the power to
+     * eliminate wheel slip at startup. This overloaded method allows you to setup a ramp down also.
      *
      * @param heading                      drive at this heading
      * @param maxPower                     power to drive at (-1 to 1) Positive is forwards. Negative is backwards.
@@ -487,26 +491,31 @@ public class DriveTrain {
      * @param timeToReachFinishValueInmSec how long to run the ramp up in power (in milliseconds)
      * @param initialPower start the ramp down at this power
      * @param finalPower finish the ramp down at this power
-     * @param distanceTotarget ramp down the power over this distance
+     * @param distanceToRampDownOver ramp down the power over this distance
      */
     public void setupDriveDistanceUsingIMU(double heading, double maxPower, double distance,
                                            AdafruitIMU8863.AngleMode headingType, double valueAtStartTime,
                                            double valueAtFinishTime, double timeToReachFinishValueInmSec,
-                                           double initialPower, double finalPower, double distanceTotarget) {
+                                           double initialPower, double finalPower, double distanceToRampDownOver) {
         setupDriveDistanceUsingIMU(heading, maxPower, distance, headingType, valueAtStartTime,
                 valueAtFinishTime, timeToReachFinishValueInmSec);
-        setupChangeInPower(initialPower, finalPower, distanceTotarget);
+        this.deltaX = distanceToRampDownOver;
+        setupChangeInPower(initialPower, finalPower, distanceToRampDownOver);
     }
 
     public DrivingState updateDriveDistanceUsingIMUState() {
         //setting up an array so that we can hold onto the left and right motor drive powers
-        double[] drivePowers;
+        double[] drivePowers = new double[2];
         double power = driveTrainPower;
+        double distancePastRampDownStart = 0;
 
         if (imuPresent) {
             // Figure out where the robot is at now during the drive
             distanceDriven = (leftDriveMotor.getPositionInTermsOfAttachmentRelativeToLast() + rightDriveMotor.getPositionInTermsOfAttachmentRelativeToLast()) / 2;
-            distanceRemaining = distanceToDrive - distanceDriven;
+            // calculate the distance the robot is from the point the ramp down will start
+            // if this is positive it is past the point and the ramp down should be running
+            // if this is negative the point has not been reached yet
+            distancePastRampDownStart = distanceDriven - (distanceToDrive - deltaX);
             // run the state machine
             switch (drivingState) {
                 case START_RAMP:
@@ -535,9 +544,9 @@ public class DriveTrain {
                     if (rampControl.isFinished()) {
                         drivingState = DrivingState.CONSTANT_SPEED;
                     }
-                    // if the remaining distance to be driven is into the zone where the ramp down
-                    // should start, change the state for the next update
-                    if (Math.abs(distanceRemaining) < torcelli.getDistanceToChangeVelocityOver() && rampDown) {
+                    // if the robot is past the point where the ramp down should start
+                    // (distancePastRampDownStart > 0), change the state for the next update
+                    if (distancePastRampDownStart >= 0 && rampDown) {
                         drivingState = DrivingState.RAMP_DOWN;
                     }
                     // if the movement of the motors is complete then move to the complete state
@@ -553,15 +562,16 @@ public class DriveTrain {
                     }
                     break;
                 case CONSTANT_SPEED:
-                    // if the remaining distance to be driven is into the zone where the ramp down
-                    // should start, change the state for the next update
-                    if (Math.abs(distanceRemaining) < torcelli.getDistanceToChangeVelocityOver() && rampDown) {
+                    // if the robot is past the point where the ramp down should start
+                    // (distancePastRampDownStart > 0), change the state for the next update
+                    if (distancePastRampDownStart >= 0 && rampDown) {
                         drivingState = DrivingState.RAMP_DOWN;
                     }
                     // if the movement of the motors is complete then move to the complete state
                     if (isDriveTrainComplete()) {
                         drivingState = DrivingState.COMPLETE;
                     }
+                    // cruise at constant speed, adjusting motors to maintain heading
                     drivePowers = adjustPowerUsingPID(driveTrainPower);
                     applyPowersToMotors(drivePowers);
                     break;
@@ -575,12 +585,29 @@ public class DriveTrain {
                     // absolute value of the distances.
                     // Only update the ramp if we are still in this state
                     if (drivingState == DrivingState.RAMP_DOWN) {
-                        power = torcelli.getPower(distanceRemaining);
+                        power = torcelli.getPower(distancePastRampDownStart);
+                        if (Double.isNaN(power)) {
+                            telemetry.addData("torcelli.getPower is NAN, distance = ", "%2.2f", distancePastRampDownStart);
+                            telemetry.update();
+                            throw new IllegalArgumentException("torcelli.getPower returned NaN");
+                        }
                         if (torcelli.isComplete()) {
                             drivingState = DrivingState.MOVING_UNTIL_COMPLETE;
                         }
                         drivePowers = adjustPowerUsingPID(power);
+                        if (Double.isNaN(drivePowers[0]) || Double.isNaN(drivePowers[1])) {
+                            telemetry.addData("PID ajusted power (left) = ", "%1.2", drivePowers[0]);
+                            telemetry.addData("PID ajusted power (left) = ", "%1.2", drivePowers[1]);
+                            telemetry.update();
+                            throw new IllegalArgumentException("PID returned NaN");
+                        }
                         applyPowersToMotors(drivePowers);
+                        telemetry.addData("Left motor isComplete = ", leftDriveMotor.isRotationComplete());
+                        telemetry.addData("Left motor target = ", "%5d", leftDriveMotor.getTargetEncoderCount());
+                        telemetry.addData("Left motor position = ", "%5d", leftDriveMotor.getCurrentPosition());
+                        telemetry.addData("Right motor isComplete = ", rightDriveMotor.isRotationComplete());
+                        telemetry.addData("Right motor target = ", "%5d", rightDriveMotor.getTargetEncoderCount());
+                        telemetry.addData("Right motor position = ", "%5d", rightDriveMotor.getCurrentPosition());
                     }
                     break;
                 case MOVING_UNTIL_COMPLETE:
@@ -589,10 +616,17 @@ public class DriveTrain {
                     // if the movement of the motors is complete then move to the complete state
                     if (isDriveTrainComplete()) {
                         drivingState = DrivingState.COMPLETE;
+                    } else {
+                        power = torcelli.getFinalPower();
+                        drivePowers = adjustPowerUsingPID(power);
+                        applyPowersToMotors(drivePowers);
                     }
-                    power = torcelli.getFinalPower();
-                    drivePowers = adjustPowerUsingPID(power);
-                    applyPowersToMotors(drivePowers);
+                    telemetry.addData("Left motor isComplete = ", leftDriveMotor.isRotationComplete());
+                    telemetry.addData("Left motor target = ", "%5d", leftDriveMotor.getTargetEncoderCount());
+                    telemetry.addData("Left motor position = ", "%5d", leftDriveMotor.getCurrentPosition());
+                    telemetry.addData("Right motor isComplete = ", rightDriveMotor.isRotationComplete());
+                    telemetry.addData("Right motor target = ", "%5d", rightDriveMotor.getTargetEncoderCount());
+                    telemetry.addData("Right motor position = ", "%5d", rightDriveMotor.getCurrentPosition());
                     break;
                 case COMPLETE:
                     stopDriveDistanceUsingIMU();
@@ -603,6 +637,18 @@ public class DriveTrain {
             shutdown();
             throw new IllegalArgumentException("No Imu found");
         }
+        //
+        telemetry.addData("State = ", drivingState.toString());
+        telemetry.addData("Left drive power = ", "%2.2f", drivePowers[0]);
+        telemetry.addData("Right drive power = ", "%2.2f", drivePowers[1]);
+        telemetry.addData("Heading = ", "%3.1f", imu.getHeading());
+        telemetry.addData("distance = ", "%3.1f", distanceDriven);
+        telemetry.addData("Left motor isComplete = ", leftDriveMotor.isRotationComplete());
+        telemetry.addData("Left motor target = ", "%5d", leftDriveMotor.getTargetEncoderCount());
+        telemetry.addData("Left motor position = ", "%5d", leftDriveMotor.getCurrentPosition());
+        telemetry.addData("Right motor isComplete = ", rightDriveMotor.isRotationComplete());
+        telemetry.addData("Right motor target = ", "%5d", rightDriveMotor.getTargetEncoderCount());
+        telemetry.addData("Right motor position = ", "%5d", rightDriveMotor.getCurrentPosition());
         return drivingState;
     }
 

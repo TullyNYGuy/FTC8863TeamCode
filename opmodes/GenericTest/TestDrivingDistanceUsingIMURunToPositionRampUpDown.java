@@ -8,10 +8,8 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
- *
- *
  */
-@TeleOp(name = "Test Driving with IMU for distance using run_to_position", group = "Test")
+@TeleOp(name = "Test Driving with IMU for distance with ramps", group = "Test")
 //@Disabled
 public class TestDrivingDistanceUsingIMURunToPositionRampUpDown extends LinearOpMode {
 
@@ -32,7 +30,7 @@ public class TestDrivingDistanceUsingIMURunToPositionRampUpDown extends LinearOp
         telemetry.update();
         waitForStart();
 
-        driveDistanceUsingIMU(0, 1 , 300); //heading, power, distance
+        driveDistanceUsingIMU(0, .4, 100, 1000, .1, 20); //heading, power, distance, ramp time, power after ramp down, distance to ramp down
         sleep(5000);
 
         // Put your cleanup code here - it runs as the application shuts down
@@ -41,25 +39,31 @@ public class TestDrivingDistanceUsingIMURunToPositionRampUpDown extends LinearOp
         sleep(1000);
     }
 
-    public void driveDistanceUsingIMU(double heading, double power, double distance){
-        driveTrain.setupDriveDistanceUsingIMU(heading, power, distance, AdafruitIMU8863.AngleMode.RELATIVE, 0, power, 2000);
+    public void driveDistanceUsingIMU(double heading, double power, double distance,
+                                      double timeToRampUpInmSec,
+                                      double powerAfterRampDown, double distanceToRampDown) {
+        DriveTrain.DrivingState drivingState;
 
-        telemetry.addData(">", "Press Stop to end test." );
+        // setup the drive including the ramp up and the ramp down
+        driveTrain.setupDriveDistanceUsingIMU(heading, power, distance,
+                AdafruitIMU8863.AngleMode.RELATIVE,
+                0, power, timeToRampUpInmSec, // ramp up
+                power, powerAfterRampDown, distanceToRampDown); // ramp down
+
+        telemetry.addData(">", "Press Stop to end test.");
         telemetry.update();
-        sleep(1000);
 
-        while(opModeIsActive()) {
-            boolean isDestinationReached = driveTrain.updateDriveDistanceUsingIMU();
-            if (isDestinationReached){
+        while (opModeIsActive()) {
+            drivingState = driveTrain.updateDriveDistanceUsingIMUState();
+            if (drivingState == DriveTrain.DrivingState.COMPLETE) {
                 //driveTrain.stopDriveDistanceUsingIMU();
                 break;
             }
-
             telemetry.update();
             idle();
         }
 
-        telemetry.addData(">", "Destination Reached" );
+        telemetry.addData(">", "Destination Reached");
         telemetry.addData("distance = ", driveTrain.getDistanceDriven());
         telemetry.addData("Heading = ", "%3.1f", driveTrain.imu.getHeading());
         telemetry.update();

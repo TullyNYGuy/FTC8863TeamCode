@@ -13,20 +13,21 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.Torcelli;
  *
  */
 @TeleOp(name = "Test Torcelli", group = "Test")
-//@Disabled
+@Disabled
 public class TestTorcelli extends LinearOpMode {
 
     // Put your variable declarations here
     Torcelli torcelli;
     ElapsedTime timer;
     double distance = 10;
-    double distanceRemaining = distance;
+    double distanceAlongWay = 0;
 
     @Override
     public void runOpMode() {
 
         // Put your initializations here
-        torcelli = new Torcelli(1, .1, distance); // intial power, finish power
+        torcelli = new Torcelli(1, .1, distance); // initial power, finish power
+        telemetry.addData("Torcelli 2a = ", "%2.3f", torcelli.getAccelerationTimesTwo());
         timer = new ElapsedTime();
         
         // Wait for the start button
@@ -37,12 +38,12 @@ public class TestTorcelli extends LinearOpMode {
 
         // Put your calls here - they will not run in a loop
 
-        while(opModeIsActive() && distanceRemaining >= 0) {
+        while(opModeIsActive() && distanceAlongWay <= distance) {
 
             //simulate travel by using the timer to create a fake distance
-            distanceRemaining = distance - timer.seconds();
+            distanceAlongWay = timer.seconds();
 
-            telemetry.addData("power is now = ", "%2.2f", torcelli.getPower(distanceRemaining));
+            telemetry.addData("power is now = ", "%2.2f", torcelli.getPower(distanceAlongWay));
             telemetry.addData(">", "Press Stop to end test." );
             telemetry.update();
             
@@ -50,9 +51,10 @@ public class TestTorcelli extends LinearOpMode {
         }
 
         // Put your cleanup code here - it runs as the application shuts down
-        telemetry.addData("Final power = ", "%2.2f", torcelli.getPower(distanceRemaining));
+        telemetry.addData("Final power = ", "%2.2f", torcelli.getPower(distanceAlongWay));
         telemetry.addData(">", "Done");
         telemetry.update();
+        sleep(2000);
 
     }
 }
