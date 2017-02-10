@@ -20,10 +20,6 @@ public class VelocityVortexRobot {
         TELEOP
     }
 
-    public enum AllianceColor {
-        BLUE,
-        RED
-    }
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS
     //
@@ -40,7 +36,9 @@ public class VelocityVortexRobot {
     public VelocityVortexShooter shooter;
     public SideBeaconPusher rightSideBeaconPusher;
     public SideBeaconPusher leftSideBeaconPusher;
+    public FrontBeaconPusher frontBeaconPusher;
     public FrontBeaconPusherControl frontBeaconPusherControl;
+    public AllianceColorSwitch allianceColorSwitch;
     // public FrontBeaconPusher frontBeaconPusher;
     // public I2CMux mux;
     // public BallShooter ballShooter;
@@ -68,12 +66,13 @@ public class VelocityVortexRobot {
         }
         sweeper = new VelocityVortexSweeper(hardwareMap);
         muxPlusColorSensors = new MuxPlusColorSensors(hardwareMap, telemetry);
+        allianceColorSwitch = new AllianceColorSwitch(hardwareMap);
         rightSideBeaconPusher = new SideBeaconPusher(hardwareMap, telemetry, driveTrain, SideBeaconPusher.SideBeaconPusherPosition.RIGHT, muxPlusColorSensors);
         //frontBeaconPusher = new FrontBeaconPusher(hardwareMap, telemetry, muxPlusColorSensors);
-        frontBeaconPusherControl = new FrontBeaconPusherControl(hardwareMap, telemetry, muxPlusColorSensors, FrontBeaconPusherControl.AllianceColor.RED, driveTrain);
+        frontBeaconPusherControl = new FrontBeaconPusherControl(hardwareMap, telemetry, muxPlusColorSensors, allianceColorSwitch.getAllianceColor(), driveTrain);
         shooter = new VelocityVortexShooter(hardwareMap, telemetry);
+        frontBeaconPusher = new FrontBeaconPusher(hardwareMap, telemetry, muxPlusColorSensors);
         init();
-
     }
 
 
@@ -103,17 +102,21 @@ public class VelocityVortexRobot {
     public void init() {
         sweeper.init();
         shooter.init();
+        rightSideBeaconPusher.init();
     }
 
     public void update() {
         sweeper.update();
         shooter.update();
-        frontBeaconPusherControl.update();
+        frontBeaconPusher.updateState();
+
     }
 
     public void shutdown() {
         sweeper.shudown();
         driveTrain.shutdown();
+        shooter.shutdown();
+        rightSideBeaconPusher.shutdown();
     }
 
     // most of the functionality of the robot is reached by calling methods in the objects that make

@@ -35,8 +35,8 @@ public class SideBeaconPusher {
     AdafruitColorSensor8863 beaconColorSensor;
     MuxPlusColorSensors muxPlusColorSensors;
     DriveTrain driveTrain;
-    double homePosition = .25;
-    double halfwayPosition = .35;
+    double homePosition = 0;
+    double halfwayPosition = .25;
     double openPosition = .40;
     double extraPosition1 = 0;
     double extraPosition2 = 0;
@@ -94,7 +94,14 @@ public class SideBeaconPusher {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
-    // drive near beacon,
+
+    public void init() {
+        retractArm();
+    }
+
+    public void shutdown() {
+        retractArm();
+    }
 
     //--------------------------------
     //Methods for controlling the arm

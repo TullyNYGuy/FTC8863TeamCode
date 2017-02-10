@@ -52,6 +52,8 @@ public class VelocityVortexTeleop extends LinearOpMode {
 
     // joystick and joystick value declarations - game pad 1
     final static double JOYSTICK_DEADBAND_VALUE = .15;
+    final static double JOYSTICK_HALF_POWER = .5;
+    final static double JOYSTICK_QUARTER_POWER = .25;
 
     JoyStick gamepad1LeftJoyStickX;
     JoyStick gamepad1LeftJoyStickY;
@@ -150,8 +152,6 @@ public class VelocityVortexTeleop extends LinearOpMode {
             
             if (gamepad1.y) {
                 if (gamepad1yButtonIsReleased) {
-                    //Pushs ball out of sweeper
-                    robot.sweeper.push();
                     gamepad1yButtonIsReleased = false;
                 }
             } else {
@@ -168,8 +168,6 @@ public class VelocityVortexTeleop extends LinearOpMode {
 
             if (gamepad1.x) {
                 if (gamepad1xButtonIsReleased) {
-                    // stop the sweeper motor
-                    robot.sweeper.collect();
                     gamepad1xButtonIsReleased = false;
                 }
             } else {
@@ -178,8 +176,6 @@ public class VelocityVortexTeleop extends LinearOpMode {
 
             if (gamepad1.b) {
                 if (gamepad1bButtonIsReleased) {
-                    // stop the sweeper
-                    robot.sweeper.stop();
                     gamepad1bButtonIsReleased = false;
                 }
             } else {
@@ -188,7 +184,7 @@ public class VelocityVortexTeleop extends LinearOpMode {
 
             if (gamepad1.right_bumper) {
                 if (gamepad1RightBumperIsReleased) {
-                    robot.sweeper.reverseDirection();
+                    robot.driveTrain.toggleDriveDirection();
                     gamepad1RightBumperIsReleased = false;
                 }
             } else {
@@ -207,6 +203,10 @@ public class VelocityVortexTeleop extends LinearOpMode {
 
             if (gamepad1.dpad_up) {
                 if (gamepad1DpadUpIsReleased) {
+                    gamepad1LeftJoyStickX.setFullPower();
+                    gamepad1LeftJoyStickY.setFullPower();
+                    gamepad1RightJoyStickX.setFullPower();
+                    gamepad1RightJoyStickY.setFullPower();
                     gamepad1DpadUpIsReleased = false;
                 }
             } else {
@@ -215,7 +215,10 @@ public class VelocityVortexTeleop extends LinearOpMode {
 
             if (gamepad1.dpad_down) {
                 if (gamepad1DpadDownIsReleased) {
-                    robot.driveTrain.toggleDriveDirection();
+                    gamepad1LeftJoyStickX.setQuarterPower();
+                    gamepad1LeftJoyStickY.setQuarterPower();
+                    gamepad1RightJoyStickX.setQuarterPower();
+                    gamepad1RightJoyStickY.setQuarterPower();
                     gamepad1DpadDownIsReleased = false;
                 }
             } else {
@@ -224,6 +227,10 @@ public class VelocityVortexTeleop extends LinearOpMode {
 
             if (gamepad1.dpad_left) {
                 if (gamepad1DpadLeftIsReleased) {
+                    gamepad1LeftJoyStickX.setHalfPower();
+                    gamepad1LeftJoyStickY.setHalfPower();
+                    gamepad1RightJoyStickX.setHalfPower();
+                    gamepad1RightJoyStickY.setHalfPower();
                     gamepad1DpadLeftIsReleased = false;
                 }
             } else {
@@ -232,6 +239,10 @@ public class VelocityVortexTeleop extends LinearOpMode {
 
             if (gamepad1.dpad_right) {
                 if (gamepad1DpadRightIsReleased) {
+                    gamepad1LeftJoyStickX.set10PercentPower();
+                    gamepad1LeftJoyStickY.set10PercentPower();
+                    gamepad1RightJoyStickX.set10PercentPower();
+                    gamepad1RightJoyStickY.set10PercentPower();
                     gamepad1DpadRightIsReleased = false;
                 }
             } else {
@@ -270,7 +281,6 @@ public class VelocityVortexTeleop extends LinearOpMode {
 
             if (gamepad2.y) {
                 if (gamepad2yButtonIsReleased) {
-                    robot.frontBeaconPusherControl.frontBeaconPusher.moveBothPushersForward();
                     gamepad2yButtonIsReleased = false;
                 }
             } else {
@@ -279,7 +289,7 @@ public class VelocityVortexTeleop extends LinearOpMode {
 
             if (gamepad2.a) {
                 if (gamepad2aButtonIsReleased) {
-                    robot.rightSideBeaconPusher.retractArm();
+                    robot.sweeper.reverseDirection();
                     gamepad2aButtonIsReleased = false;
                 }
             } else {
@@ -288,7 +298,7 @@ public class VelocityVortexTeleop extends LinearOpMode {
 
             if (gamepad2.x) {
                 if (gamepad2xButtonIsReleased) {
-                    robot.frontBeaconPusherControl.frontBeaconPusher.moveBothPushersBack();
+                    robot.sweeper.stop();
                     gamepad2xButtonIsReleased = false;
                 }
             } else {
@@ -297,7 +307,7 @@ public class VelocityVortexTeleop extends LinearOpMode {
 
             if (gamepad2.b) {
                 if (gamepad2bButtonIsReleased) {
-                    robot.rightSideBeaconPusher.extendingArmFully();
+                    robot.shooter.toggleBallGate();
                     gamepad2bButtonIsReleased = false;
                 }
             } else {
@@ -328,6 +338,7 @@ public class VelocityVortexTeleop extends LinearOpMode {
 
             if (gamepad2.dpad_up) {
                 if (gamepad2DpadUpIsReleased) {
+                    robot.frontBeaconPusher.moveBothPushersForward();
                     gamepad2DpadUpIsReleased = false;
                 }
             } else {
@@ -336,6 +347,7 @@ public class VelocityVortexTeleop extends LinearOpMode {
 
             if (gamepad2.dpad_down) {
                 if (gamepad2DpadDownIsReleased) {
+                    robot.frontBeaconPusher.moveBothPushersBack();
                     gamepad2DpadDownIsReleased = false;
                 }
             } else {
@@ -344,7 +356,7 @@ public class VelocityVortexTeleop extends LinearOpMode {
 
             if (gamepad2.dpad_left) {
                 if (gamepad2DpadLeftIsReleased) {
-                    robot.shooter.openBallGate();
+                    robot.rightSideBeaconPusher.retractArm();
                     gamepad2DpadLeftIsReleased = false;
                 }
             } else {
@@ -353,7 +365,7 @@ public class VelocityVortexTeleop extends LinearOpMode {
 
             if (gamepad2.dpad_right) {
                 if (gamepad2DpadRightIsReleased) {
-                    robot.shooter.closeBallGate();
+                    robot.rightSideBeaconPusher.extendingArmFully();
                     gamepad2DpadRightIsReleased = false;
                 }
             } else {
@@ -417,6 +429,8 @@ public class VelocityVortexTeleop extends LinearOpMode {
             telemetry.addData("Right Motor Speed = ", "%3.2f", rightPower);
             telemetry.addData("Sweeper Motor Speed = ", "%3.2f", robot.sweeper.getSweeperPower());
             telemetry.addData("Drive train mode = ", driveTrainMode.toString());
+            telemetry.addData("Drive Forward / Reverse = ", robot.driveTrain.getDriveDirection().toString());
+            telemetry.addData("Power Reduction = ", "%1.2f", gamepad1LeftJoyStickY.getReductionFactor());
             telemetry.addData(">", "Press Stop to end.");
             telemetry.update();
 

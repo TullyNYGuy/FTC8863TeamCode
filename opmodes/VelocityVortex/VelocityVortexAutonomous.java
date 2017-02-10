@@ -39,6 +39,7 @@ public class VelocityVortexAutonomous extends LinearOpMode {
         timer = new ElapsedTime();
 
         // Wait for the start button
+        robot.allianceColorSwitch.displayAllianceSwitch(telemetry);
         telemetry.addData(">", "Press start to run Autonomous");
         telemetry.update();
         waitForStart();

@@ -128,6 +128,13 @@ public class RobotConfigMappingForGenericTest {
     private static String shooterMotorName = "shooterMotor";
     private static String ballGateServoName = "ballGateServo";
 
+    // Alliance Switches
+    // Core DIM module Digital port 6, configure as Digital Device
+    private static String blueAllianceSwitchName = "blueAllianceSwitch";
+    // Core DIM module Digital port 7, configure as Digital Device
+    private static String redAllianceSwitchName = "redAllianceSwitch";
+
+
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -257,6 +264,14 @@ public class RobotConfigMappingForGenericTest {
 
     public static String getBallGateServoName() {
         return ballGateServoName;
+    }
+
+    public static String getBlueAllianceSwitchName() {
+        return blueAllianceSwitchName;
+    }
+
+    public static String getRedAllianceSwitchName() {
+        return redAllianceSwitchName;
     }
 
     //*********************************************************************************************

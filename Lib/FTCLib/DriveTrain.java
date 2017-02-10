@@ -13,7 +13,7 @@ public class DriveTrain {
         MOVING, COMPLETE
     }
 
-    private enum DriveDirection {
+    public enum DriveDirection {
         FORWARD, REVERSE
     }
 
@@ -102,6 +102,10 @@ public class DriveTrain {
 
     public double getDistanceDriven() {
         return distanceDriven;
+    }
+
+    public DriveDirection getDriveDirection() {
+        return driveDirection;
     }
 
     public boolean isDebug() {

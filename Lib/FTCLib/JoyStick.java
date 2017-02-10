@@ -32,6 +32,17 @@ public class JoyStick {
         INVERT_SIGN, NO_INVERT_SIGN
     }
 
+    /**
+     * An enum defining power reduction states
+     */
+    private enum PowerReduction {
+        FULL_POWER,
+        HALF_POWER,
+        QUARTER_POWER,
+        TWENTY_PERCENT_POWER,
+        TEN_PERCENT_POWER
+    }
+
     //*********************************************************************************************
     // private data fields that can be accessed only by this class, or by using the public
     // getter and setter methods
@@ -55,6 +66,11 @@ public class JoyStick {
      * that. Value should be between 0 and 1. 1 is no reduction.
      */
     private double reductionFactor;
+
+    private PowerReduction toggleQuarterPower = PowerReduction.FULL_POWER;
+    private PowerReduction toggleHalfPower = PowerReduction.FULL_POWER;
+    private PowerReduction toggle_20_Power = PowerReduction.FULL_POWER;
+    private PowerReduction toggle_10_Power = PowerReduction.FULL_POWER;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -144,6 +160,10 @@ public class JoyStick {
         this.deadBand = deadBand;
         this.invertSign = invertSign;
         this.reductionFactor = reductionFactor;
+        this.toggleHalfPower = PowerReduction.FULL_POWER;
+        this.toggleQuarterPower = PowerReduction.FULL_POWER;
+        this.toggle_20_Power = PowerReduction.FULL_POWER;
+        this.toggle_10_Power = PowerReduction.FULL_POWER;
     }
 
     /**
@@ -159,6 +179,10 @@ public class JoyStick {
         this.deadBand = deadBand;
         this.invertSign = invertSign;
         this.reductionFactor = 1;
+        this.toggleHalfPower = PowerReduction.FULL_POWER;
+        this.toggleQuarterPower = PowerReduction.FULL_POWER;
+        this.toggle_20_Power = PowerReduction.FULL_POWER;
+        this.toggle_10_Power = PowerReduction.FULL_POWER;
     }
     /**
      * Constructor
@@ -172,6 +196,10 @@ public class JoyStick {
         this.deadBand = deadBand;
         this.invertSign = InvertSign.NO_INVERT_SIGN;
         this.reductionFactor = 1;
+        this.toggleHalfPower = PowerReduction.FULL_POWER;
+        this.toggleQuarterPower = PowerReduction.FULL_POWER;
+        this.toggle_20_Power = PowerReduction.FULL_POWER;
+        this.toggle_10_Power = PowerReduction.FULL_POWER;
     }
 
     /**
@@ -184,6 +212,10 @@ public class JoyStick {
         this.deadBand = 0;
         this.invertSign = InvertSign.NO_INVERT_SIGN;
         this.reductionFactor = 1;
+        this.toggleHalfPower = PowerReduction.FULL_POWER;
+        this.toggleQuarterPower = PowerReduction.FULL_POWER;
+        this.toggle_20_Power = PowerReduction.FULL_POWER;
+        this.toggle_10_Power = PowerReduction.FULL_POWER;
     }
 
     /**
@@ -197,6 +229,10 @@ public class JoyStick {
         this.deadBand = 0;
         this.invertSign = InvertSign.NO_INVERT_SIGN;
         this.reductionFactor = 1;
+        this.toggleHalfPower = PowerReduction.FULL_POWER;
+        this.toggleQuarterPower = PowerReduction.FULL_POWER;
+        this.toggle_20_Power = PowerReduction.FULL_POWER;
+        this.toggle_10_Power = PowerReduction.FULL_POWER;
     }
     //*********************************************************************************************
     //          UTILITY METHODS
@@ -377,4 +413,84 @@ public class JoyStick {
         return scaleInputSquared(joyStickValue, 0, 1);
     }
 
+    public void toggleQuarterPower () {
+        if (toggleQuarterPower == PowerReduction.FULL_POWER) {
+            toggleQuarterPower = PowerReduction.QUARTER_POWER;
+            reductionFactor = .25;
+        } else {
+            toggleQuarterPower = PowerReduction.FULL_POWER;
+            reductionFactor = 1.0;
+        }
+    }
+
+    public void toggleHalfPower () {
+        if (toggleHalfPower == PowerReduction.FULL_POWER) {
+            toggleHalfPower = PowerReduction.HALF_POWER;
+            reductionFactor = .5;
+        } else {
+            toggleHalfPower = PowerReduction.FULL_POWER;
+            reductionFactor = 1.0;
+        }
+    }
+
+
+    public void toggle20PercentPower () {
+        if (toggle_20_Power == PowerReduction.FULL_POWER) {
+            toggle_20_Power = PowerReduction.TWENTY_PERCENT_POWER;
+            reductionFactor = .2;
+        } else {
+            toggle_20_Power = PowerReduction.FULL_POWER;
+            reductionFactor = 1.0;
+        }
+    }
+
+    public void toggle10PercentPower () {
+        if (toggle_10_Power == PowerReduction.FULL_POWER) {
+            toggle_10_Power = PowerReduction.TEN_PERCENT_POWER;
+            reductionFactor = .1;
+        } else {
+            toggle_10_Power = PowerReduction.FULL_POWER;
+            reductionFactor = 1.0;
+        }
+    }
+
+    public void setFullPower() {
+        reductionFactor = 1.0;
+        toggleHalfPower = PowerReduction.FULL_POWER;
+        toggleQuarterPower = PowerReduction.FULL_POWER;
+        toggle_20_Power = PowerReduction.FULL_POWER;
+        toggle_10_Power = PowerReduction.FULL_POWER;
+    }
+
+    public void setHalfPower() {
+        reductionFactor = .5;
+        toggleHalfPower = PowerReduction.HALF_POWER;
+        toggleQuarterPower = PowerReduction.FULL_POWER;
+        toggle_20_Power = PowerReduction.FULL_POWER;
+        toggle_10_Power = PowerReduction.FULL_POWER;
+    }
+
+    public void setQuarterPower() {
+        reductionFactor = .25;
+        toggleHalfPower = PowerReduction.FULL_POWER;
+        toggleQuarterPower = PowerReduction.QUARTER_POWER;
+        toggle_20_Power = PowerReduction.FULL_POWER;
+        toggle_10_Power = PowerReduction.FULL_POWER;
+    }
+
+    public void set20PercentPower() {
+        reductionFactor = .2;
+        toggleHalfPower = PowerReduction.FULL_POWER;
+        toggleQuarterPower = PowerReduction.FULL_POWER;
+        toggle_20_Power = PowerReduction.TWENTY_PERCENT_POWER;
+        toggle_10_Power = PowerReduction.FULL_POWER;
+    }
+
+    public void set10PercentPower() {
+        reductionFactor = .1;
+        toggleHalfPower = PowerReduction.FULL_POWER;
+        toggleQuarterPower = PowerReduction.FULL_POWER;
+        toggle_20_Power = PowerReduction.FULL_POWER;
+        toggle_10_Power = PowerReduction.TEN_PERCENT_POWER;
+    }
 }

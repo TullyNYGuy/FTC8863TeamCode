@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.opmodes.GenericTest.RobotConfigMappingForG
  *
  *
  */
-@TeleOp(name = "Calibrate Servo", group = "Test")
+@TeleOp(name = "Calibrate Side Beacon Servo", group = "Test")
 //@Disabled
 public class CalibrateSideBeaconServo extends LinearOpMode {
 

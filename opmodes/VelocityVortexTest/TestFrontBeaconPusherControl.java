@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
+import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.AllianceColorSwitch;
 import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.FrontBeaconPusherControl;
 import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.MuxPlusColorSensors;
 
@@ -23,7 +24,7 @@ public class TestFrontBeaconPusherControl extends LinearOpMode {
 
     private MuxPlusColorSensors muxPlusColorSensors;
 
-    private FrontBeaconPusherControl.AllianceColor allianceColor = FrontBeaconPusherControl.AllianceColor.RED;
+    private AllianceColorSwitch.AllianceColor allianceColor = AllianceColorSwitch.AllianceColor.RED;
 
     private FrontBeaconPusherControl.FrontBeaconControlState frontBeaconControlState;
 

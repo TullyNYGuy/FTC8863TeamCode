@@ -154,7 +154,7 @@ public class TestShooterLeadScrew extends LinearOpMode {
         // ************************************************************************************
 
         // Turn off drivetrain and signal done;
-        shooter.stop();
+        shooter.shutdown();
         telemetry.addData(">", "Done");
         telemetry.update();
 

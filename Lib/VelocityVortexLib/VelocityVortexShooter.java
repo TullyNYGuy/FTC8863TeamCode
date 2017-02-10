@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
 import org.firstinspires.ftc.teamcode.opmodes.GenericTest.RobotConfigMappingForGenericTest;
@@ -21,11 +22,15 @@ public class VelocityVortexShooter {
     // user defined types
     //
     //*********************************************************************************************
+    private enum BallGatePosition {
+        OPEN,
+        CLOSE
+    }
 
     /**
      * Eventually we will have a state machine to "soft" stop and "soft" reverse the direction
      */
-    
+
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS
     //
@@ -45,6 +50,8 @@ public class VelocityVortexShooter {
     private double openPosition = 0.50;
     private double closedPosition = 1.00;
     private double initPosition = closedPosition;
+
+    private BallGatePosition ballGatePosition = BallGatePosition.CLOSE;
 
     // aiming
     Map<Integer, Double> distanceVsAim;
@@ -119,7 +126,7 @@ public class VelocityVortexShooter {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
-    public void init(){
+    public void init() {
         // set its direction
         shooterMotor.setDirection(DcMotor.Direction.REVERSE);
         // set the mode for the motor and lock it in place
@@ -129,31 +136,53 @@ public class VelocityVortexShooter {
         shooterLeadScrewMotor.setDirection(DcMotor.Direction.REVERSE);
         // set the mode for the motor and lock it in place
         shooterLeadScrewMotor.runAtConstantSpeed(0);
+        closeBallGate();
     }
 
-    private void delay(int ms) {
-        try {
-            Thread.sleep(ms);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+    public void update() {
+        shooterLeadScrewMotor.update();
+        shooterMotor.update();
+    }
+
+    public void shutdown() {
+        shooterMotor.setPower(0);
+        shooterMotor.shutDown();
+        // return the shooter to its loading position then shutdown the motor
+        shooterLeadScrewMotor.setPower(0);
+        shooterLeadScrewMotor.shutDown();
+
+        closeBallGate();
+    }
+
+    //--------------------------------------------
+    //  shooter methods
+    //--------------------------------------------
+
+    /**
+     * For joystick control over shooter motor
+     * @param power
+     */
+    public void setPower(double power) {
+        shooterMotor.setPower(power);
     }
 
 
-    public void stop(){
-        shooterMotor.interrupt();
-        shooterPower = 0;
-    }
-
-    public void shoot(){
+    public void shoot() {
         shooterPower = 0.5;
         shotCount++;
-        shooterMotor.moveToPosition(shooterPower, 360*shotCount, DcMotor8863.FinishBehavior.HOLD);
+        shooterMotor.moveToPosition(shooterPower, 360 * shotCount, DcMotor8863.FinishBehavior.HOLD);
     }
+
+
+    //--------------------------------------------
+    //  aiming methods
+    //--------------------------------------------
+
 
     // NEED TO add limit switch shut down of motor into this method.
     /**
      * Use the joystick to input a power to the leadscrew to manually aim the shooter.
+     *
      * @param leadScrewPower
      */
     public void aimShooter(double leadScrewPower) {
@@ -165,25 +194,33 @@ public class VelocityVortexShooter {
     // Use the HashMap defined above as a lookup table.
     // Use this method to automatically aim the shooter or to return it to the loading station.
 
-    public void update(){
-        shooterLeadScrewMotor.update();
-        shooterMotor.update();
-    }
-
-    public void shutdown() {
-        shooterMotor.setPower(0);
-        shooterMotor.shutDown();
-        // return the shooter to its home position, then shutdown the motor
-    }
-    public void setPower(double power){
-        shooterMotor.setPower(power);
-    }
+    //--------------------------------------------
+    //  ball gate methods
+    //--------------------------------------------
 
     public void openBallGate() {
         ballGateServo.goPositionOne();
+        ballGatePosition = BallGatePosition.OPEN;
     }
 
     public void closeBallGate() {
         ballGateServo.goHome();
+        ballGatePosition = BallGatePosition.CLOSE;
+    }
+
+    public void toggleBallGate() {
+        if (ballGatePosition == BallGatePosition.CLOSE) {
+            openBallGate();
+        } else {
+            closeBallGate();
+        }
+    }
+
+    private void delay(int ms) {
+        try {
+            Thread.sleep(ms);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 }

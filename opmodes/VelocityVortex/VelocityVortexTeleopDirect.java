@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.VelocityVortex;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -16,7 +17,7 @@ import org.firstinspires.ftc.teamcode.opmodes.GenericTest.RobotConfigMappingForG
  * but did not eliminate it.
  */
 @TeleOp(name = "Velocity Vortex Teleop Direct", group = "Run")
-//@Disabled
+@Disabled
 public class VelocityVortexTeleopDirect extends LinearOpMode {
 
     //*********************************************************************************************

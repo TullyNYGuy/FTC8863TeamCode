@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
+import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.AllianceColorSwitch;
 import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.MuxPlusColorSensors;
 import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.SideBeaconPusher;
 import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.SideBeaconPusherControl;
@@ -34,7 +35,7 @@ public class TestSideBeaconPusherControl extends LinearOpMode {
         muxPlusColorSensors = new MuxPlusColorSensors(hardwareMap, telemetry);
         sideBeaconPusherControl = new SideBeaconPusherControl(hardwareMap, telemetry,
                 muxPlusColorSensors, driveTrain,
-                SideBeaconPusher.SideBeaconPusherPosition.RIGHT, VelocityVortexRobot.AllianceColor.RED);
+                SideBeaconPusher.SideBeaconPusherPosition.RIGHT, AllianceColorSwitch.AllianceColor.RED);
         // Wait for the start button
         telemetry.addData(">", "Press Start to run" );
         telemetry.update();

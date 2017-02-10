@@ -39,7 +39,7 @@ public class SideBeaconPusherControl {
     private Telemetry telemetry;
     private SideBeaconPusher sideBeaconPusher;
     private SideBeaconPusherState sideBeaconPusherState;
-    private VelocityVortexRobot.AllianceColor allianceColor;
+    private AllianceColorSwitch.AllianceColor allianceColor;
     private int beaconCount = 1;
     MuxPlusColorSensors muxPlusColorSensors;
 
@@ -62,7 +62,7 @@ public class SideBeaconPusherControl {
                                    MuxPlusColorSensors muxPlusColorSensors,
                                    DriveTrain driveTrain,
                                    SideBeaconPusher.SideBeaconPusherPosition sideBeaconPusherPosition,
-                                   VelocityVortexRobot.AllianceColor allianceColor) {
+                                   AllianceColorSwitch.AllianceColor allianceColor) {
         this.sideBeaconPusher = new SideBeaconPusher(hardwareMap, telemetry, driveTrain, sideBeaconPusherPosition, muxPlusColorSensors);
         this.allianceColor = allianceColor;
         this.telemetry = telemetry;
@@ -121,8 +121,8 @@ public class SideBeaconPusherControl {
             case BEACON_DETECTED:
                 telemetry.addData("State =", sideBeaconPusherState.toString());
                 telemetry.update();
-                if (sideBeaconPusher.isRightSideBeaconBlue() && allianceColor == VelocityVortexRobot.AllianceColor.BLUE ||
-                        sideBeaconPusher.isRightSideBeaconRed() && allianceColor == VelocityVortexRobot.AllianceColor.RED) {
+                if (sideBeaconPusher.isRightSideBeaconBlue() && allianceColor == AllianceColorSwitch.AllianceColor.BLUE ||
+                        sideBeaconPusher.isRightSideBeaconRed() && allianceColor == AllianceColorSwitch.AllianceColor.RED) {
                     sideBeaconPusherState = SideBeaconPusherState.PUSH_BUTTON;
                 } else {
                     sideBeaconPusherState = SideBeaconPusherState.SKIP_BUTTON;
