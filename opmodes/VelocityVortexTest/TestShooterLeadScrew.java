@@ -133,16 +133,10 @@ public class TestShooterLeadScrew extends LinearOpMode {
 
             // clip the motorPower. The user cannot increase power higher or lower than this
             motorPower = Range.clip(motorPower, -1.0, 1.0);
-            shooter.shooterLeadScrewMotor.setPower(motorPower);
-
-            // update the state machine for the shooter motor
-
-            //*************************************************************************************
-            //  Process joysticks into tank drive
-            // ************************************************************************************
+            shooter.aimingMotor.setPower(motorPower);
 
             // Display the current speeds
-            telemetry.addData("Shooter Motor Speed = ", "%3.2f", motorPower);
+            telemetry.addData("Aiming Motor Speed = ", "%3.2f", motorPower);
             telemetry.addData(">", "Press Stop to end test.");
             telemetry.update();
 
@@ -175,12 +169,7 @@ public class TestShooterLeadScrew extends LinearOpMode {
         // I.E. only set the power if it changes.
         if (power != lastMotorPower) {
             lastMotorPower = power;
-            shooter.shooterLeadScrewMotor.setPower(power);
+            shooter.aimingMotor.setPower(power);
         }
     }
 }
-
-    //*********************************************************************************************
-    //     State machine - it was easier to implement the logic for when to update power
-    //     in a state machine. At least for me.
-    //*********************************************************************************************

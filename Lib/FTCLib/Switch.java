@@ -64,6 +64,15 @@ public class Switch {
         NO_DEBOUNCE
     }
 
+    /**
+     * This gives a public state for the switch so a user can keep track of what the position of the
+     * switch is.
+     */
+    public enum SwitchPosition {
+        PRESSED,
+        NOT_PRESSED
+    }
+
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS
     //
@@ -179,6 +188,7 @@ public class Switch {
      * on the type of the switch:
      * Normally open: released = 1, pressed = 0
      * Normally closed: released = 0, pressed = 1
+     * This method does not need to run the state machine so there is no debouncing.
      * @return true = pressed
      */
     private boolean getPressed() {
@@ -298,5 +308,13 @@ public class Switch {
         // Since the user is checking bumped, they will get their answer but we now need to reset it
         bumped = false;
         return result;
+    }
+
+    public SwitchPosition getSwitchPosition() {
+        if (isPressed()) {
+            return SwitchPosition.PRESSED;
+        } else {
+            return SwitchPosition.NOT_PRESSED;
+        }
     }
 }

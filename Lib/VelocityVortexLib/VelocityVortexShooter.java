@@ -4,11 +4,14 @@ package org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.StatTracker;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Switch;
 import org.firstinspires.ftc.teamcode.opmodes.GenericTest.RobotConfigMappingForGenericTest;
 
 import java.util.HashMap;
@@ -27,9 +30,51 @@ public class VelocityVortexShooter {
         CLOSE
     }
 
-    /**
-     * Eventually we will have a state machine to "soft" stop and "soft" reverse the direction
-     */
+    public enum Position {
+        LOAD(100),
+        ONE_FOOT(12000),
+        TWO_FEET(9000),
+        THREE_FEET(7000),
+        FOUR_FEET(6000),
+        FIVE_FEET(5000),
+        SIX_FEET(4000),
+        SEVEN_FEET(3000),
+        EIGHT_FEET(2000),
+        LIMIT_SWITCH(0);
+
+        public final int intVal;
+
+        Position(int i) {
+            this.intVal = i;
+        }
+    }
+
+    public enum State {
+        RESET_ENCODER,
+        MOVING_TO_LIMIT_SWITCH,
+        AT_SWITCH,
+        MOVING_TO_LOAD,
+        AT_LOAD,
+        MOVING_TO_1_FOOT,
+        AT_1_FOOT,
+        MOVING_TO_2_FEET,
+        AT_2_FEET,
+        MOVING_TO_3_FEET,
+        AT_3_FEET,
+        MOVING_TO_4_FEET,
+        AT_4_FEET,
+        MOVING_TO_5_FEET,
+        AT_5_FEET,
+        MOVING_TO_6_FEET,
+        AT_6_FEET,
+        MOVING_TO_7_FEET,
+        AT_7_FEET,
+        MOVING_TO_8_FEET,
+        AT_8_FEET,
+        SHOOTING,
+        SHOT_TAKEN,
+        MANUAL_AIM;
+    }
 
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS
@@ -38,14 +83,25 @@ public class VelocityVortexShooter {
     // getter and setter methods
     //*********************************************************************************************
     public DcMotor8863 shooterMotor;
-    public DcMotor8863 shooterLeadScrewMotor;
+    public DcMotor8863 aimingMotor;
     public Servo8863 ballGateServo;
+    public Switch limitSwitch;
+    private ElapsedTime timer;
 
     private Telemetry telemetry;
 
-    private double shooterPower = 0;
+    private DcMotor8863.MotorState shooterMotorState = DcMotor8863.MotorState.IDLE;
+    private DcMotor8863.MotorState aimingMotorState = DcMotor8863.MotorState.IDLE;
+    private double aimingMotorPower = .5;
+    private double automaticAimingMotorPower = .5;
+    private double shooterMotorPower = .5;
+    private int encoderOffset = 0;
+    private int encoderActual = 0;
+    private boolean encoderOffsetAlreadySet = false;
+
     private int shotCount = 0;
 
+    private Switch.SwitchPosition limitSwitchPosition = Switch.SwitchPosition.PRESSED;
 
     private double openPosition = 0.50;
     private double closedPosition = 1.00;
@@ -53,8 +109,16 @@ public class VelocityVortexShooter {
 
     private BallGatePosition ballGatePosition = BallGatePosition.CLOSE;
 
-    // aiming
-    Map<Integer, Double> distanceVsAim;
+    private State shooterState = State.AT_LOAD;
+
+    // debug
+    boolean debug = false;
+
+    int resetEncoderCount = 0;
+    int atSwitchCount = 0;
+    int setEncoderOffsetCount = 0;
+    int movingTo1FootCounter = 0;
+    int at1FootCounter = 0;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -63,12 +127,36 @@ public class VelocityVortexShooter {
     // getPositionInTermsOfAttachment
     //*********************************************************************************************
 
-    public double getshooterPower() {
-        return shooterPower;
+    public double getshooterMotorPower() {
+        return shooterMotorPower;
     }
 
     public int getShotCount() {
         return shotCount;
+    }
+
+    public int getEncoderOffset() {
+        return encoderOffset;
+    }
+
+    public int getResetEncoderCount() {
+        return resetEncoderCount;
+    }
+
+    public int getAtSwitchCount() {
+        return atSwitchCount;
+    }
+
+    public int getSetEncoderOffsetCount() {
+        return setEncoderOffsetCount;
+    }
+
+    public int getMovingTo1FootCounter() {
+        return movingTo1FootCounter;
+    }
+
+    public int getAt1FootCounter() {
+        return at1FootCounter;
     }
 
     //*********************************************************************************************
@@ -90,14 +178,14 @@ public class VelocityVortexShooter {
         shooterMotor.setMaxMotorPower(1);
 
         // setup the motor
-        shooterLeadScrewMotor = new DcMotor8863(RobotConfigMappingForGenericTest.getShooterLeadscrewMotorName(), hardwareMap);
-        shooterLeadScrewMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
-        shooterLeadScrewMotor.setMovementPerRev(360);
-        shooterLeadScrewMotor.setTargetEncoderTolerance(10);
-        shooterLeadScrewMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
-        shooterLeadScrewMotor.setMotorMoveType(DcMotor8863.MotorMoveType.RELATIVE);
-        shooterLeadScrewMotor.setMinMotorPower(-1);
-        shooterLeadScrewMotor.setMaxMotorPower(1);
+        aimingMotor = new DcMotor8863(RobotConfigMappingForGenericTest.getShooterLeadscrewMotorName(), hardwareMap);
+        aimingMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
+        aimingMotor.setMovementPerRev(360);
+        aimingMotor.setTargetEncoderTolerance(10);
+        aimingMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
+        aimingMotor.setMotorMoveType(DcMotor8863.MotorMoveType.RELATIVE);
+        aimingMotor.setMinMotorPower(-1);
+        aimingMotor.setMaxMotorPower(1);
 
         // setup the servo
         this.telemetry = telemetry;
@@ -107,9 +195,12 @@ public class VelocityVortexShooter {
         ballGateServo.setInitPosition(closedPosition);
         ballGateServo.goInitPosition();
 
-        // setup a lookup table for the distance to the vortex vs the aiming location
-        distanceVsAim = new HashMap<Integer, Double>();
-        //distanceVsAim.put(1, 2.6);
+        timer = new ElapsedTime();
+        timer.reset();
+
+        limitSwitch = new Switch(hardwareMap, RobotConfigMappingForGenericTest.getShooterLimitSwitchName(), Switch.SwitchType.NORMALLY_OPEN);
+
+        // locate the shooter aiming position
 
     }
 
@@ -132,26 +223,63 @@ public class VelocityVortexShooter {
         // set the mode for the motor and lock it in place
         shooterMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         //delay(100);
+
+        aimingMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         // set its direction
-        shooterLeadScrewMotor.setDirection(DcMotor.Direction.REVERSE);
+        // Positive power means move away from the limit switch
+        aimingMotor.setDirection(DcMotor.Direction.REVERSE);
         // set the mode for the motor and lock it in place
-        shooterLeadScrewMotor.runAtConstantSpeed(0);
+        aimingMotor.runAtConstantSpeed(0);
+
         closeBallGate();
+
+        timer.reset();
     }
 
     public void update() {
-        shooterLeadScrewMotor.update();
         shooterMotor.update();
+        updateAutomaticAiming();
     }
 
     public void shutdown() {
         shooterMotor.setPower(0);
         shooterMotor.shutDown();
         // return the shooter to its loading position then shutdown the motor
-        shooterLeadScrewMotor.setPower(0);
-        shooterLeadScrewMotor.shutDown();
+        aimingMotor.setPower(0);
+        aimingMotor.shutDown();
 
         closeBallGate();
+    }
+
+    //--------------------------------------------
+    //  Encoder methods
+    //--------------------------------------------
+
+    /**
+     * Translate a real encoder value to a virtual encoder value.
+     * @return
+     */
+    public int getVirtualEncoderValue() {
+        return aimingMotor.getCurrentPosition() - encoderOffset;
+    }
+
+    /**
+     * Translate the virtual encoder value to a real encoder value
+     * @param virtualEncoderValue
+     * @return
+     */
+    private int getActualEncoderValue(int virtualEncoderValue) {
+        return virtualEncoderValue + encoderOffset;
+    }
+
+    /**
+     * This method is meant to be run when the shooter is at the limit switch. It stores the
+     * enocoder value at that point. This value can then be subtracted from any later encoder value
+     * to find a virtual encoder value that is always the same at the same shooter position.
+     */
+    private void setEncoderOffset() {
+        setEncoderOffsetCount++;
+        encoderOffset = aimingMotor.getCurrentPosition();
     }
 
     //--------------------------------------------
@@ -160,6 +288,7 @@ public class VelocityVortexShooter {
 
     /**
      * For joystick control over shooter motor
+     *
      * @param power
      */
     public void setPower(double power) {
@@ -168,9 +297,16 @@ public class VelocityVortexShooter {
 
 
     public void shoot() {
-        shooterPower = 0.5;
         shotCount++;
-        shooterMotor.moveToPosition(shooterPower, 360 * shotCount, DcMotor8863.FinishBehavior.HOLD);
+        shooterMotor.moveToPosition(shooterMotorPower, 360 * shotCount, DcMotor8863.FinishBehavior.HOLD);
+        // reset the shooter timer so we can wait a bit after the motor has completed its movement
+        timer.reset();
+    }
+
+    public void shootAndLoad() {
+        shoot();
+        shooterState = State.SHOOTING;
+        update();
     }
 
 
@@ -180,19 +316,87 @@ public class VelocityVortexShooter {
 
 
     // NEED TO add limit switch shut down of motor into this method.
+
     /**
      * Use the joystick to input a power to the leadscrew to manually aim the shooter.
      *
-     * @param leadScrewPower
+     * @param aimingPower
      */
-    public void aimShooter(double leadScrewPower) {
-        shooterLeadScrewMotor.setPower(leadScrewPower);
+    public void aimShooter(double aimingPower) {
+        this.aimingMotorPower = aimingPower;
+        limitSwitch.updateSwitch();
+        limitSwitchPosition = limitSwitch.getSwitchPosition();
+        if (limitSwitchPosition == Switch.SwitchPosition.PRESSED) {
+            shooterState = State.AT_SWITCH;
+            // The limit switch is hit, disable any movement backwards
+            if (aimingPower < 0) {
+                aimingPower = 0;
+            }
+        } else {
+            shooterState = State.MANUAL_AIM;
+        }
+        updateManualAiming();
     }
 
-    // need a method to aimShooter that will accept the distance to the vortex and move the
-    // leadscrew so that the shooter is aimed there.
-    // Use the HashMap defined above as a lookup table.
-    // Use this method to automatically aim the shooter or to return it to the loading station.
+    public void moveToLoadPosition() {
+        aimingMotor.rotateToEncoderCount(automaticAimingMotorPower, getActualEncoderValue(Position.LOAD.intVal), DcMotor8863.FinishBehavior.HOLD);
+        shooterState = State.MOVING_TO_LOAD;
+        updateAutomaticAiming();
+    }
+
+    public void moveToLimitSwitch() {
+        aimingMotor.rotateToEncoderCount(automaticAimingMotorPower, getActualEncoderValue(Position.LIMIT_SWITCH.intVal), DcMotor8863.FinishBehavior.HOLD);
+        shooterState = State.MOVING_TO_LIMIT_SWITCH;
+        updateAutomaticAiming();
+    }
+
+    public void moveTo1Foot() {
+        aimingMotor.rotateToEncoderCount(automaticAimingMotorPower, getActualEncoderValue(Position.ONE_FOOT.intVal), DcMotor8863.FinishBehavior.HOLD);
+        shooterState = State.MOVING_TO_1_FOOT;
+        updateAutomaticAiming();
+    }
+
+    public void moveTo2Feet() {
+        aimingMotor.rotateToEncoderCount(automaticAimingMotorPower, getActualEncoderValue(Position.TWO_FEET.intVal), DcMotor8863.FinishBehavior.HOLD);
+        shooterState = State.MOVING_TO_2_FEET;
+        updateAutomaticAiming();
+    }
+
+    public void moveTo3Feet() {
+        aimingMotor.rotateToEncoderCount(automaticAimingMotorPower, getActualEncoderValue(Position.THREE_FEET.intVal), DcMotor8863.FinishBehavior.HOLD);
+        shooterState = State.MOVING_TO_3_FEET;
+        updateAutomaticAiming();
+    }
+
+    public void moveTo4Feet() {
+        aimingMotor.rotateToEncoderCount(automaticAimingMotorPower, getActualEncoderValue(Position.FOUR_FEET.intVal), DcMotor8863.FinishBehavior.HOLD);
+        shooterState = State.MOVING_TO_4_FEET;
+        updateAutomaticAiming();
+    }
+
+    public void moveTo5Feet() {
+        aimingMotor.rotateToEncoderCount(automaticAimingMotorPower, getActualEncoderValue(Position.FIVE_FEET.intVal), DcMotor8863.FinishBehavior.HOLD);
+        shooterState = State.MOVING_TO_5_FEET;
+        updateAutomaticAiming();
+    }
+
+    public void moveTo6Feet() {
+        aimingMotor.rotateToEncoderCount(automaticAimingMotorPower, getActualEncoderValue(Position.SIX_FEET.intVal), DcMotor8863.FinishBehavior.HOLD);
+        shooterState = State.MOVING_TO_6_FEET;
+        updateAutomaticAiming();
+    }
+
+    public void moveTo7Feet() {
+        aimingMotor.rotateToEncoderCount(automaticAimingMotorPower, getActualEncoderValue(Position.SEVEN_FEET.intVal), DcMotor8863.FinishBehavior.HOLD);
+        shooterState = State.MOVING_TO_7_FEET;
+        updateAutomaticAiming();
+    }
+
+    public void moveTo8Feet() {
+        aimingMotor.rotateToEncoderCount(automaticAimingMotorPower, getActualEncoderValue(Position.EIGHT_FEET.intVal), DcMotor8863.FinishBehavior.HOLD);
+        shooterState = State.MOVING_TO_8_FEET;
+        updateAutomaticAiming();
+    }
 
     //--------------------------------------------
     //  ball gate methods
@@ -222,5 +426,265 @@ public class VelocityVortexShooter {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
+    }
+
+    //--------------------------------------------
+    //  Switch methods
+    //--------------------------------------------
+
+    public boolean isLimitSwitchPressed() {
+        return limitSwitch.isPressed(Switch.Debounce.NO_DEBOUNCE);
+    }
+
+    //--------------------------------------------
+    //  State machine
+    //--------------------------------------------
+
+    public State updateAutomaticAiming() {
+
+        // update the objects
+        aimingMotorState = aimingMotor.update();
+        limitSwitch.updateSwitch();
+        limitSwitchPosition = limitSwitch.getSwitchPosition();
+
+        switch (shooterState) {
+            case MOVING_TO_LIMIT_SWITCH:
+                if (limitSwitchPosition == Switch.SwitchPosition.PRESSED) {
+                    shooterState = State.RESET_ENCODER;
+                    aimingMotor.setPower(0);
+                }
+                break;
+            case RESET_ENCODER:
+                resetEncoderCount ++;
+                aimingMotor.setPower(0);
+                // This is the virtual encoder point =0. In order to make all the other vitual
+                // encoder values work we need to get the real encoder value at this point and save
+                // it.
+                setEncoderOffset();
+                shooterState = State.AT_SWITCH;
+                break;
+            case AT_SWITCH:
+                atSwitchCount++;
+                if (!encoderOffsetAlreadySet) {
+                    setEncoderOffset();
+                    encoderOffsetAlreadySet = true;
+                }
+                // sit at the limit switch until therre is a power in the right direction to take
+                // the shooter off the limit switch. There will be a period of time that the limit
+                // switch is still pressed while the shooter moves away from it. For that we have
+                // to continue to apply power. Then once the limit switch has been cleared move
+                // back to the manual aim state.
+                if (aimingMotorPower >= 0) {
+                    if (limitSwitchPosition != Switch.SwitchPosition.PRESSED) {
+                        shooterState = State.MANUAL_AIM;
+                    }
+                } else {
+                    // if the aiming power is in the wrong direction force motor to stop
+                    aimingMotorPower = 0;
+                }
+                aimingMotor.setPower(aimingMotorPower);
+                break;
+
+            case MOVING_TO_LOAD:
+                // check to see is something went wrong and the limit switch has been hit
+                if (limitSwitchPosition == Switch.SwitchPosition.PRESSED) {
+                    shooterState = State.RESET_ENCODER;
+                    aimingMotor.setPower(0);
+                }
+                // check to see if the motor has arrived at the position
+                if (aimingMotor.isMotorStateComplete()) {
+                    shooterState = State.AT_LOAD;
+                }
+                break;
+            case AT_LOAD:
+                break;
+
+            case MOVING_TO_1_FOOT:
+                movingTo1FootCounter++;
+                // check to see is something went wrong and the limit switch has been hit
+                if (limitSwitchPosition == Switch.SwitchPosition.PRESSED) {
+                    shooterState = State.RESET_ENCODER;
+                    aimingMotor.setPower(0);
+                }
+                // check to see if the motor has arrived at the position
+                if (aimingMotor.isMotorStateComplete()) {
+                    shooterState = State.AT_1_FOOT;
+                }
+                break;
+            case AT_1_FOOT:
+                at1FootCounter++;
+                break;
+
+            case MOVING_TO_2_FEET:
+                // check to see is something went wrong and the limit switch has been hit
+                if (limitSwitchPosition == Switch.SwitchPosition.PRESSED) {
+                    shooterState = State.RESET_ENCODER;
+                    aimingMotor.setPower(0);
+                }
+                // check to see if the motor has arrived at the position
+                if (aimingMotor.isMotorStateComplete()) {
+                    shooterState = State.AT_2_FEET;
+                }
+                break;
+            case AT_2_FEET:
+                break;
+
+            case MOVING_TO_3_FEET:
+                // check to see is something went wrong and the limit switch has been hit
+                if (limitSwitchPosition == Switch.SwitchPosition.PRESSED) {
+                    shooterState = State.RESET_ENCODER;
+                    aimingMotor.setPower(0);
+                }
+                // check to see if the motor has arrived at the position
+                if (aimingMotor.isMotorStateComplete()) {
+                    shooterState = State.AT_3_FEET;
+                }
+                break;
+            case AT_3_FEET:
+                break;
+
+            case MOVING_TO_4_FEET:
+                // check to see is something went wrong and the limit switch has been hit
+                if (limitSwitchPosition == Switch.SwitchPosition.PRESSED) {
+                    shooterState = State.RESET_ENCODER;
+                    aimingMotor.setPower(0);
+                }
+                // check to see if the motor has arrived at the position
+                if (aimingMotor.isMotorStateComplete()) {
+                    shooterState = State.AT_4_FEET;
+                }
+                break;
+            case AT_4_FEET:
+                break;
+
+            case MOVING_TO_5_FEET:
+                // check to see is something went wrong and the limit switch has been hit
+                if (limitSwitchPosition == Switch.SwitchPosition.PRESSED) {
+                    shooterState = State.RESET_ENCODER;
+                    aimingMotor.setPower(0);
+                }
+                // check to see if the motor has arrived at the position
+                if (aimingMotor.isMotorStateComplete()) {
+                    shooterState = State.AT_5_FEET;
+                }
+                break;
+            case AT_5_FEET:
+                break;
+
+            case MOVING_TO_6_FEET:
+                // check to see is something went wrong and the limit switch has been hit
+                if (limitSwitchPosition == Switch.SwitchPosition.PRESSED) {
+                    shooterState = State.RESET_ENCODER;
+                    aimingMotor.setPower(0);
+                }
+                // check to see if the motor has arrived at the position
+                if (aimingMotor.isMotorStateComplete()) {
+                    shooterState = State.AT_6_FEET;
+                }
+                break;
+            case AT_6_FEET:
+                break;
+
+            case MOVING_TO_7_FEET:
+                // check to see is something went wrong and the limit switch has been hit
+                if (limitSwitchPosition == Switch.SwitchPosition.PRESSED) {
+                    shooterState = State.RESET_ENCODER;
+                    aimingMotor.setPower(0);
+                }
+                // check to see if the motor has arrived at the position
+                if (aimingMotor.isMotorStateComplete()) {
+                    shooterState = State.AT_7_FEET;
+                }
+                break;
+            case AT_7_FEET:
+                break;
+
+            case MOVING_TO_8_FEET:
+                // check to see is something went wrong and the limit switch has been hit
+                if (limitSwitchPosition == Switch.SwitchPosition.PRESSED) {
+                    shooterState = State.RESET_ENCODER;
+                    aimingMotor.setPower(0);
+                }
+                // check to see if the motor has arrived at the position
+                if (aimingMotor.isMotorStateComplete()) {
+                    shooterState = State.AT_8_FEET;
+                }
+                break;
+            case AT_8_FEET:
+                break;
+
+            case SHOOTING:
+                if (shooterMotor.isMotorStateComplete()) {
+                    // shot taken, wait a little
+                    if (timer.milliseconds() > 100) {
+                        shooterState = State.SHOT_TAKEN;
+                        timer.reset();
+                    }
+                }
+                break;
+            case SHOT_TAKEN:
+                // After the shot has been taken move the shooter to load position
+                moveToLoadPosition();
+                break;
+
+            case MANUAL_AIM:
+                // check to see is something went wrong and the limit switch has been hit
+                if (limitSwitchPosition == Switch.SwitchPosition.PRESSED) {
+                    shooterState = State.RESET_ENCODER;
+                    aimingMotor.setPower(0);
+                } else {
+                    aimingMotor.setPower(aimingMotorPower);
+                }
+        }
+
+        return shooterState;
+    }
+
+    public State updateManualAiming() {
+
+        // update the objects
+        aimingMotorState = aimingMotor.update();
+        limitSwitch.updateSwitch();
+        limitSwitchPosition = limitSwitch.getSwitchPosition();
+
+        switch (shooterState) {
+
+            case AT_SWITCH:
+                atSwitchCount++;
+                if (!encoderOffsetAlreadySet) {
+                    setEncoderOffset();
+                    encoderOffsetAlreadySet = true;
+                }
+                // sit at the limit switch until therre is a power in the right direction to take
+                // the shooter off the limit switch. There will be a period of time that the limit
+                // switch is still pressed while the shooter moves away from it. For that we have
+                // to continue to apply power. Then once the limit switch has been cleared move
+                // back to the manual aim state.
+                if (aimingMotorPower >= 0) {
+                    if (limitSwitchPosition != Switch.SwitchPosition.PRESSED) {
+                        shooterState = State.MANUAL_AIM;
+                    }
+                } else {
+                    // if the aiming power is in the wrong direction force motor to stop
+                    aimingMotorPower = 0;
+                }
+                aimingMotor.setPower(aimingMotorPower);
+                break;
+            
+            case MANUAL_AIM:
+                // check to see is something went wrong and the limit switch has been hit
+                if (limitSwitchPosition == Switch.SwitchPosition.PRESSED) {
+                    shooterState = State.AT_SWITCH;
+                    aimingMotor.setPower(0);
+                } else {
+                    aimingMotor.setPower(aimingMotorPower);
+                }
+        }
+
+        return shooterState;
+    }
+
+    public State getShooterState() {
+        return shooterState;
     }
 }

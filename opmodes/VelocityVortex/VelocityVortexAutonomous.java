@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.FrontBeaconPusherCon
 import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.VelocityVortexRobot;
 
 /**
- * Autonomous for competition - not complete, in fact not really started
+ * Autonomous for competition
  */
 @Autonomous(name = "Velocity Vortex Autonomous", group = "Run")
 //@Disabled
