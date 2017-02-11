@@ -82,7 +82,7 @@ public class TestShooterAimingSystem extends LinearOpMode {
 
             if (gamepad1.y) {
                 if (gamepad1yButtonIsReleased) {
-                    shooter.moveTo1Foot();
+                    shooter.moveToLoadPosition();
                     aimingMode = AimingMode.AUTOMATIC;
                     gamepad1yButtonIsReleased = false;
                 }
@@ -93,7 +93,7 @@ public class TestShooterAimingSystem extends LinearOpMode {
 
             if (gamepad1.x) {
                 if (gamepad1xButtonIsReleased) {
-                    shooter.moveTo2Feet();
+                    shooter.moveToLimitSwitch();
                     aimingMode = AimingMode.AUTOMATIC;
                     gamepad1xButtonIsReleased = false;
                 }
@@ -133,11 +133,15 @@ public class TestShooterAimingSystem extends LinearOpMode {
             }
             shooter.aimShooter(gamepad1RightJoyStickYValue);
 
-            shooter.updateAutomaticAiming();
+            shooter.updateAiming();
             telemetry.addData("Joystick value = ", "%2.3f", gamepad1RightJoyStickYValue);
+            telemetry.addData("Cmd Motor Power = ", "%2.3f", shooter.getAutomaticAimingMotorPower());
+            telemetry.addData("Actual Motor Power = ", "%2.3f", shooter.aimingMotor.getCurrentPower());
+            telemetry.addData("Motor Mode = ", shooter.aimingMotor.getMode().toString());
             telemetry.addData("Actual Encoder Value = ", "%5d", shooter.aimingMotor.getCurrentPosition());
             telemetry.addData("Virtual Encoder Value = ", "%5d", shooter.getVirtualEncoderValue());
             telemetry.addData("Offset Encoder Value = ", "%5d", shooter.getEncoderOffset());
+            telemetry.addData("Encoder Cmd = ", "%5d", shooter.getAdjustedEncoderCmd());
             telemetry.addData("At switch count = ", "%5d", shooter.getAtSwitchCount());
             telemetry.addData("Reset Encoder count = ", "%5d", shooter.getResetEncoderCount());
             telemetry.addData("Set Encoder Offset count = ", "%5d", shooter.getSetEncoderOffsetCount());
@@ -145,6 +149,7 @@ public class TestShooterAimingSystem extends LinearOpMode {
             telemetry.addData("At 1 foot count = ", "%5d", shooter.getAt1FootCounter());
             telemetry.addData("aiming mode = ", aimingMode.toString());
             telemetry.addData("Shooter state = ", shooter.getShooterState().toString());
+            telemetry.addData("Motor state = ", shooter.aimingMotor.getCurrentMotorState().toString());
 
             telemetry.addData(">", "Press Stop to end test.");
             telemetry.update();

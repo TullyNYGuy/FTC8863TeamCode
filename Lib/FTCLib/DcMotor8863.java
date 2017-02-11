@@ -1442,6 +1442,10 @@ public class DcMotor8863 {
         this.currentRunMode = mode;
     }
 
+    public DcMotor.RunMode getMode() {
+        return FTCDcMotor.getMode();
+    }
+
     public void setPower(double power) {
         power = Range.clip(power, getMinMotorPower(), getMaxMotorPower());
         this.currentPower = power;
