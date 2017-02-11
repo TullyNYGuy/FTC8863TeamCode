@@ -96,6 +96,7 @@ public class FrontBeaconPusherControl {
     //*********************************************************************************************
 
     public void init() {
+        frontBeaconPusher.moveBothPushersForward();
         frontBeaconControlState = FrontBeaconControlState.MOVE_PUSHERS_TO_MIDDLE;
     }
 
@@ -125,7 +126,7 @@ public class FrontBeaconPusherControl {
             case AT_MIDDLE:
                 break;
             case DRIVE_TOWARDS_BEACON:
-                driveTrain.setupDriveDistance(0.2, 100, DcMotor8863.FinishBehavior.HOLD);
+                driveTrain.setupDriveDistance(0.1, 55, DcMotor8863.FinishBehavior.HOLD);
                 frontBeaconControlState = FrontBeaconControlState.LOOK_FOR_BEACON;
                 break;
             case LOOK_FOR_BEACON:
@@ -145,7 +146,7 @@ public class FrontBeaconPusherControl {
                 }
                 break;
             case MOVING_RIGHT_FORWARD_LEFT_BACK:
-                driveTrain.setDriveTrainPower(0.03);
+                driveTrain.setDriveTrainPower(0.1);
                 if (driveTrain.updateDriveDistance() == DriveTrain.Status.COMPLETE) {
                     // Reached our destination
                     frontBeaconControlState = FrontBeaconControlState.FAILURE;
@@ -158,7 +159,7 @@ public class FrontBeaconPusherControl {
                 }
                 break;
             case MOVING_LEFT_FORWARD_RIGHT_BACK:
-                driveTrain.setDriveTrainPower(0.025);
+                driveTrain.setDriveTrainPower(0.1);
                 if (driveTrain.updateDriveDistance() == DriveTrain.Status.COMPLETE) {
                     // Reached our destination
                     frontBeaconControlState = FrontBeaconControlState.FAILURE;
@@ -171,6 +172,7 @@ public class FrontBeaconPusherControl {
                 }
                 break;
             case AT_LEFT_BACK_RIGHT_FORWARD:
+                driveTrain.setDriveTrainPower(0.2);
                 if (driveTrain.updateDriveDistance() == DriveTrain.Status.COMPLETE) {
                     // Reached our destination
                     frontBeaconControlState = FrontBeaconControlState.FAILURE;
@@ -179,6 +181,7 @@ public class FrontBeaconPusherControl {
                 timer.reset();
                 break;
             case AT_RIGHT_BACK_LEFT_FORWARD:
+                driveTrain.setDriveTrainPower(0.2);
                 if (driveTrain.updateDriveDistance() == DriveTrain.Status.COMPLETE) {
                     // Reached our destination
                     frontBeaconControlState = FrontBeaconControlState.FAILURE;

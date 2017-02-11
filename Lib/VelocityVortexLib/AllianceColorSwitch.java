@@ -18,7 +18,8 @@ public class AllianceColorSwitch {
     //*********************************************************************************************
     public enum AllianceColor {
         BLUE,
-        RED
+        RED,
+        NONE
     }
 
     //*********************************************************************************************
@@ -29,6 +30,7 @@ public class AllianceColorSwitch {
     //*********************************************************************************************
     private Switch redSwitch;
     private Switch blueSwitch;
+    Telemetry telemetry;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -44,9 +46,10 @@ public class AllianceColorSwitch {
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
-    public AllianceColorSwitch(HardwareMap hardwareMap) {
+    public AllianceColorSwitch(HardwareMap hardwareMap, Telemetry telemetry) {
         redSwitch = new Switch(hardwareMap, RobotConfigMappingForGenericTest.getRedAllianceSwitchName(), Switch.SwitchType.NORMALLY_CLOSED);
         blueSwitch = new Switch(hardwareMap, RobotConfigMappingForGenericTest.getBlueAllianceSwitchName(), Switch.SwitchType.NORMALLY_CLOSED);
+        this.telemetry = telemetry;
     }
 
     //*********************************************************************************************
@@ -64,14 +67,14 @@ public class AllianceColorSwitch {
     public AllianceColor getAllianceColor() {
         AllianceColor result = AllianceColor.BLUE;
         if (redSwitch.isPressed(Switch.Debounce.NO_DEBOUNCE) && blueSwitch.isPressed(Switch.Debounce.NO_DEBOUNCE)) {
-            throw new IllegalArgumentException("Both alliance switches are set!!");
+            telemetry.addData ("Both alliance switches are set", "!!");
         }
         if (!redSwitch.isPressed(Switch.Debounce.NO_DEBOUNCE) && !blueSwitch.isPressed(Switch.Debounce.NO_DEBOUNCE)) {
-            throw new IllegalArgumentException("None of the alliance switches are set!!");
+            telemetry.addData("None of the alliance switches are set", "!!");
         }
         if (redSwitch.isPressed(Switch.Debounce.NO_DEBOUNCE)) {
             result = AllianceColor.RED;
-        }
+    }
         if (blueSwitch.isPressed(Switch.Debounce.NO_DEBOUNCE)) {
             result = AllianceColor.BLUE;
         }

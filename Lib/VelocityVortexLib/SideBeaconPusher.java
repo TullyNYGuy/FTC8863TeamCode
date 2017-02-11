@@ -35,7 +35,7 @@ public class SideBeaconPusher {
     AdafruitColorSensor8863 beaconColorSensor;
     MuxPlusColorSensors muxPlusColorSensors;
     DriveTrain driveTrain;
-    double homePosition = 0;
+    double homePosition = 0.1;
     double halfwayPosition = .25;
     double openPosition = .40;
     double extraPosition1 = 0;

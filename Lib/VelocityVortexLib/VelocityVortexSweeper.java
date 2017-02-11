@@ -93,6 +93,7 @@ public class VelocityVortexSweeper {
         sweeperMotor.setDirection(DcMotor.Direction.FORWARD);
         // set the mode for the motor and lock it in place
         sweeperMotor.runAtConstantSpeed(0);
+        pushVSCollect = PushVSCollect.COLLECT;
     }
 
     public void stop(){

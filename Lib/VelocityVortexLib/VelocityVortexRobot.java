@@ -29,6 +29,7 @@ public class VelocityVortexRobot {
 
     // Here are all of the objects that make up the entire robot
     // note that the IMU is an object in the drive train
+    public RobotMode robotMode;
     public DriveTrain driveTrain;
     //public FrontBeaconPusher frontBeaconPusher;
     public MuxPlusColorSensors muxPlusColorSensors;
@@ -39,6 +40,7 @@ public class VelocityVortexRobot {
     public FrontBeaconPusher frontBeaconPusher;
     public FrontBeaconPusherControl frontBeaconPusherControl;
     public AllianceColorSwitch allianceColorSwitch;
+    public AllianceColorSwitch.AllianceColor allianceColor;
     // public FrontBeaconPusher frontBeaconPusher;
     // public I2CMux mux;
     // public BallShooter ballShooter;
@@ -61,15 +63,17 @@ public class VelocityVortexRobot {
     private VelocityVortexRobot(HardwareMap hardwareMap, RobotMode robotMode, Telemetry telemetry) {
         if(robotMode == RobotMode.AUTONOMOUS) {
             driveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap, telemetry);
+            allianceColorSwitch = new AllianceColorSwitch(hardwareMap, telemetry);
+            allianceColor = allianceColorSwitch.getAllianceColor();
         } else {
             driveTrain = DriveTrain.DriveTrainTeleOp(hardwareMap, telemetry);
+            allianceColor = AllianceColorSwitch.AllianceColor.BLUE;
         }
         sweeper = new VelocityVortexSweeper(hardwareMap);
         muxPlusColorSensors = new MuxPlusColorSensors(hardwareMap, telemetry);
-        allianceColorSwitch = new AllianceColorSwitch(hardwareMap);
         rightSideBeaconPusher = new SideBeaconPusher(hardwareMap, telemetry, driveTrain, SideBeaconPusher.SideBeaconPusherPosition.RIGHT, muxPlusColorSensors);
         //frontBeaconPusher = new FrontBeaconPusher(hardwareMap, telemetry, muxPlusColorSensors);
-        frontBeaconPusherControl = new FrontBeaconPusherControl(hardwareMap, telemetry, muxPlusColorSensors, allianceColorSwitch.getAllianceColor(), driveTrain);
+        frontBeaconPusherControl = new FrontBeaconPusherControl(hardwareMap, telemetry, muxPlusColorSensors, allianceColor, driveTrain);
         shooter = new VelocityVortexShooter(hardwareMap, telemetry);
         frontBeaconPusher = new FrontBeaconPusher(hardwareMap, telemetry, muxPlusColorSensors);
         init();

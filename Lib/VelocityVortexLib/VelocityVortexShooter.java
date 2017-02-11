@@ -94,7 +94,7 @@ public class VelocityVortexShooter {
     private DcMotor8863.MotorState shooterMotorState = DcMotor8863.MotorState.IDLE;
     private DcMotor8863.MotorState aimingMotorState = DcMotor8863.MotorState.IDLE;
     private double aimingMotorPower = .5;
-    private double automaticAimingMotorPower = 1;
+    private double automaticAimingMotorPower = .2;
     private double manualAimingPower = .5;
     private double shooterMotorPower = .5;
     private int encoderOffset = 0;
@@ -243,6 +243,8 @@ public class VelocityVortexShooter {
         aimingMotor.runAtConstantSpeed(0);
         shooterState = State.MANUAL_AIM_INTERRUPTABLE;
 
+        //moveToLimitSwitch();
+
         closeBallGate();
 
         timer.reset();
@@ -321,7 +323,27 @@ public class VelocityVortexShooter {
         shoot();
         shooterState = State.SHOOTING;
         update();
+        moveToLimitSwitch();
+        update();
     }
+
+    // autonomous single shot
+    // shoot
+    // move to load position
+
+//    public singleShot() {
+//
+//    }
+
+    // autonomous double shot
+    // shoot
+    // move to load position
+    // open ball gate
+    // wait
+    // move to shoot position
+    // shoot
+    // move to load position
+
 
 
     //--------------------------------------------

@@ -24,7 +24,7 @@ public class TestAllianceColorSwitchClass extends LinearOpMode {
 
 
         // Put your initializations here
-        allianceColorSwitch = new AllianceColorSwitch(hardwareMap);
+        allianceColorSwitch = new AllianceColorSwitch(hardwareMap, telemetry);
 
         timer = new ElapsedTime();
 
