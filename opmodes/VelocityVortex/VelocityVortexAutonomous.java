@@ -61,7 +61,7 @@ public class VelocityVortexAutonomous extends LinearOpMode {
             spinTurn(45, 1, AdafruitIMU8863.AngleMode.ABSOLUTE);
 
             // drive across face of corner vortex
-            driveDistanceUsingIMU(0, .5, 153.5); //heading, power, distance
+            driveDistanceUsingIMU(0, .8, 153.5); //heading, power, distance
 
             // another 45 degree turn puts the robot at 90 degrees relative to its start position
             // and facing the beacon
@@ -94,7 +94,7 @@ public class VelocityVortexAutonomous extends LinearOpMode {
             spinTurn(-45, 1, AdafruitIMU8863.AngleMode.ABSOLUTE);
 
             // drive across face of corner vortex
-            driveDistanceUsingIMU(0, .5, 166); //heading, power, distance
+            driveDistanceUsingIMU(0, .8, 166); //heading, power, distance
 
             // another 45 degree turn puts the robot at 90 degrees relative to its start position
             // and facing the beacon
