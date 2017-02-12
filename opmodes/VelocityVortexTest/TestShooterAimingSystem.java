@@ -103,7 +103,7 @@ public class TestShooterAimingSystem extends LinearOpMode {
 
             if (gamepad1.a) {
                 if (gamepad1aButtonIsReleased) {
-                    shooter.moveTo4Feet();
+                    shooter.moveTo2Feet();
                     aimingMode = AimingMode.AUTOMATIC;
                     gamepad1aButtonIsReleased = false;
                 }
@@ -133,7 +133,7 @@ public class TestShooterAimingSystem extends LinearOpMode {
             }
             shooter.aimShooter(gamepad1RightJoyStickYValue);
 
-            shooter.updateAiming();
+            shooter.update();
             telemetry.addData("Joystick value = ", "%2.3f", gamepad1RightJoyStickYValue);
             telemetry.addData("Cmd Motor Power = ", "%2.3f", shooter.getAutomaticAimingMotorPower());
             telemetry.addData("Actual Motor Power = ", "%2.3f", shooter.aimingMotor.getCurrentPower());

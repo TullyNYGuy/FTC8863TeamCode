@@ -12,6 +12,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.JoyStick;
 import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.AllianceColorSwitch;
 import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.FrontBeaconPusherControl;
 import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.VelocityVortexRobot;
+import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.VelocityVortexShooter;
 
 /**
  * Autonomous for competition
@@ -201,6 +202,19 @@ public class VelocityVortexAutonomous extends LinearOpMode {
         telemetry.addData("Final heading = ", "%3.1f", robot.driveTrain.imu.getHeading());
         telemetry.addData("Running time = ", "%2.1f", timer.seconds());
         telemetry.update();
+    }
+
+    public void shootAndMoveToLoadingPosition () {
+        while (opModeIsActive() && !robot.shooter.shootThenMoveToLoad()) {
+            // wait for shot to be taken and shooter to move to load position
+        }
+    }
+
+    public void loadABall() {
+        while (opModeIsActive() && !robot.shooter.loadABall()) {
+            // wait for ball to be loaded
+            // might need to wiggle the robot while waiting
+        }
     }
 
     /**

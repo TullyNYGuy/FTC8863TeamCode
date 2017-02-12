@@ -4,6 +4,7 @@ package org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -25,15 +26,20 @@ public class VelocityVortexShooter {
     // user defined types
     //
     //*********************************************************************************************
-    private enum BallGatePosition {
+    public enum BallGatePosition {
         OPEN,
         CLOSE
+    }
+
+    private enum CheckLimitSwitch {
+        CHECK_LIMIT_SWITCH,
+        NO_CHECK_LIMIT_SWITCH
     }
 
     public enum Position {
         LOAD(50),
         ONE_FOOT(12000),
-        TWO_FEET(9000),
+        TWO_FEET(8981),
         THREE_FEET(7000),
         FOUR_FEET(6000),
         FIVE_FEET(5000),
@@ -54,22 +60,31 @@ public class VelocityVortexShooter {
         MOVING_TO_LIMIT_SWITCH,
         AT_SWITCH,
         MOVING_TO_LOAD,
+        MOVING_TO_LOAD_NO_LIMIT_SWITCH_CHECK,
         AT_LOAD,
         MOVING_TO_1_FOOT,
+        MOVING_TO_1_FOOT_NO_LIMIT_SWITCH_CHECK,
         AT_1_FOOT,
         MOVING_TO_2_FEET,
+        MOVING_TO_2_FEET_NO_LIMIT_SWITCH_CHECK,
         AT_2_FEET,
         MOVING_TO_3_FEET,
+        MOVING_TO_3_FEET_NO_LIMIT_SWITCH_CHECK,
         AT_3_FEET,
         MOVING_TO_4_FEET,
+        MOVING_TO_4_FEET_NO_LIMIT_SWITCH_CHECK,
         AT_4_FEET,
         MOVING_TO_5_FEET,
+        MOVING_TO_5_FEET_NO_LIMIT_SWITCH_CHECK,
         AT_5_FEET,
         MOVING_TO_6_FEET,
+        MOVING_TO_6_FEET_NO_LIMIT_SWITCH_CHECK,
         AT_6_FEET,
         MOVING_TO_7_FEET,
+        MOVING_TO_7_FEET_NO_LIMIT_SWITCH_CHECK,
         AT_7_FEET,
         MOVING_TO_8_FEET,
+        MOVING_TO_8_FEET_NO_LIMIT_SWITCH_CHECK,
         AT_8_FEET,
         SHOOTING,
         SHOT_TAKEN,
@@ -87,14 +102,13 @@ public class VelocityVortexShooter {
     public DcMotor8863 aimingMotor;
     public Servo8863 ballGateServo;
     public Switch limitSwitch;
-    private ElapsedTime timer;
+    private ElapsedTime shootingTimer;
 
     private Telemetry telemetry;
 
     private DcMotor8863.MotorState shooterMotorState = DcMotor8863.MotorState.IDLE;
     private DcMotor8863.MotorState aimingMotorState = DcMotor8863.MotorState.IDLE;
-    private double aimingMotorPower = .5;
-    private double automaticAimingMotorPower = .2;
+    private double automaticAimingMotorPower = .1;
     private double manualAimingPower = .5;
     private double shooterMotorPower = .5;
     private int encoderOffset = 0;
@@ -109,6 +123,7 @@ public class VelocityVortexShooter {
     private double openPosition = 0.50;
     private double closedPosition = 1.00;
     private double initPosition = closedPosition;
+    private ElapsedTime ballGateTimer;
 
     private BallGatePosition ballGatePosition = BallGatePosition.CLOSE;
 
@@ -200,14 +215,16 @@ public class VelocityVortexShooter {
 
         // setup the servo
         this.telemetry = telemetry;
-        ballGateServo = new Servo8863(RobotConfigMappingForGenericTest.getBallGateServoName(), hardwareMap, telemetry);
+        ballGateServo = new Servo8863(RobotConfigMappingForGenericTest.getBallGateServoName(), hardwareMap, telemetry, closedPosition, closedPosition, closedPosition, initPosition, Servo.Direction.FORWARD);
         ballGateServo.setHomePosition(closedPosition);
         ballGateServo.setPositionOne(openPosition);
         ballGateServo.setInitPosition(closedPosition);
         ballGateServo.goInitPosition();
 
-        timer = new ElapsedTime();
-        timer.reset();
+        ballGateTimer = new ElapsedTime();
+
+        shootingTimer = new ElapsedTime();
+        shootingTimer.reset();
 
         limitSwitch = new Switch(hardwareMap, RobotConfigMappingForGenericTest.getShooterLimitSwitchName(), Switch.SwitchType.NORMALLY_OPEN);
 
@@ -247,13 +264,10 @@ public class VelocityVortexShooter {
 
         closeBallGate();
 
-        timer.reset();
+        shootingTimer.reset();
     }
 
-    public void update() {
-        shooterMotor.update();
-        updateAiming();
-    }
+    // see state machine for update()
 
     public void shutdown() {
         shooterMotor.setPower(0);
@@ -316,19 +330,47 @@ public class VelocityVortexShooter {
         shotCount++;
         shooterMotor.moveToPosition(shooterMotorPower, 360 * shotCount, DcMotor8863.FinishBehavior.HOLD);
         // reset the shooter timer so we can wait a bit after the motor has completed its movement
-        timer.reset();
+        shootingTimer.reset();
     }
 
-    public void shootAndLoad() {
+    /**
+     * This method has to be run in an opmode loop while running the update()
+     *
+     * @return
+     */
+    public boolean checkShotComplete() {
+        boolean result = false;
+        if (shooterMotor.isMotorStateComplete()) {
+            // shot taken, wait a little
+            if (shootingTimer.milliseconds() > 100) {
+                shootingTimer.reset();
+                result = true;
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Start a shoot and load sequence
+     * Call this in an opmode loop and the shooter will shoot and the state machine will take over
+     * and when the shot is done it will move the shooter to the load position
+     */
+    public boolean shootThenMoveToLoad() {
+        boolean result = false;
         shoot();
         shooterState = State.SHOOTING;
         update();
-        moveToLimitSwitch();
-        update();
+        if (shooterState == State.AT_LOAD || shooterState == State.AT_SWITCH) {
+            result = true;
+        }
+        return result;
     }
 
-    // autonomous single shot
-    // shoot
+
+    // autonomous single shot - run this in an opmode loop
+    // shoot();
+    // if (checkShotComplete() {
+    //
     // move to load position
 
 //    public singleShot() {
@@ -345,6 +387,62 @@ public class VelocityVortexShooter {
     // move to load position
 
 
+    //--------------------------------------------
+    //  ball gate methods
+    //--------------------------------------------
+
+    public void openBallGate() {
+        ballGateServo.goPositionOne();
+        ballGatePosition = BallGatePosition.OPEN;
+        ballGateTimer.reset();
+    }
+
+    public void closeBallGate() {
+        ballGateServo.goHome();
+        ballGatePosition = BallGatePosition.CLOSE;
+    }
+
+    /**
+     * This method will keep the ball gate open for a given time and then close it after that.
+     * You must call this method in an opmode loop
+     *
+     * @param timeInMSec
+     * @return
+     */
+    public boolean keepBallGateOpenForMSec(double timeInMSec) {
+        if (ballGateTimer.milliseconds() > timeInMSec) {
+            closeBallGate();
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Load a ball into the shooter. You must call this method in an opmode loop
+     *
+     * @return true if ball has been loaded
+     */
+    public boolean loadABall() {
+        openBallGate();
+        return keepBallGateOpenForMSec(4000);
+    }
+
+    public void toggleBallGate() {
+        if (ballGatePosition == BallGatePosition.CLOSE) {
+            openBallGate();
+        } else {
+            closeBallGate();
+        }
+    }
+
+    private void delay(int ms) {
+        try {
+            Thread.sleep(ms);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
 
     //--------------------------------------------
     //  aiming methods
@@ -380,7 +478,7 @@ public class VelocityVortexShooter {
             aimingMotor.stop();
             aimingMotor.rotateToEncoderCount(automaticAimingMotorPower, getActualEncoderValue(Position.LOAD.intVal), DcMotor8863.FinishBehavior.HOLD);
             shooterState = State.MOVING_TO_LOAD;
-            updateAiming();
+            update();
         }
     }
 
@@ -390,7 +488,7 @@ public class VelocityVortexShooter {
             aimingMotor.stop();
             aimingMotor.rotateToEncoderCount(automaticAimingMotorPower, getActualEncoderValue(Position.LIMIT_SWITCH.intVal), DcMotor8863.FinishBehavior.HOLD);
             shooterState = State.MOVING_TO_LIMIT_SWITCH;
-            updateAiming();
+            update();
         }
     }
 
@@ -400,8 +498,14 @@ public class VelocityVortexShooter {
             aimingMotor.stop();
             adjustedEncoderCmd = getActualEncoderValue(Position.ONE_FOOT.intVal);
             aimingMotor.rotateToEncoderCount(automaticAimingMotorPower, adjustedEncoderCmd, DcMotor8863.FinishBehavior.HOLD);
+            if (limitSwitchPosition == Switch.SwitchPosition.PRESSED) {
+                shooterState = State.MOVING_TO_1_FOOT_NO_LIMIT_SWITCH_CHECK;
+            } else {
+                shooterState = State.MOVING_TO_1_FOOT;
+            }
+
             shooterState = State.MOVING_TO_1_FOOT;
-            updateAiming();
+            update();
         }
     }
 
@@ -411,7 +515,7 @@ public class VelocityVortexShooter {
             aimingMotor.stop();
             aimingMotor.rotateToEncoderCount(automaticAimingMotorPower, getActualEncoderValue(Position.TWO_FEET.intVal), DcMotor8863.FinishBehavior.HOLD);
             shooterState = State.MOVING_TO_2_FEET;
-            updateAiming();
+            update();
         }
     }
 
@@ -421,7 +525,7 @@ public class VelocityVortexShooter {
             aimingMotor.stop();
             aimingMotor.rotateToEncoderCount(automaticAimingMotorPower, getActualEncoderValue(Position.THREE_FEET.intVal), DcMotor8863.FinishBehavior.HOLD);
             shooterState = State.MOVING_TO_3_FEET;
-            updateAiming();
+            update();
         }
     }
 
@@ -431,7 +535,7 @@ public class VelocityVortexShooter {
             aimingMotor.stop();
             aimingMotor.rotateToEncoderCount(automaticAimingMotorPower, getActualEncoderValue(Position.FOUR_FEET.intVal), DcMotor8863.FinishBehavior.HOLD);
             shooterState = State.MOVING_TO_4_FEET;
-            updateAiming();
+            update();
         }
     }
 
@@ -441,7 +545,7 @@ public class VelocityVortexShooter {
             aimingMotor.stop();
             aimingMotor.rotateToEncoderCount(automaticAimingMotorPower, getActualEncoderValue(Position.FIVE_FEET.intVal), DcMotor8863.FinishBehavior.HOLD);
             shooterState = State.MOVING_TO_5_FEET;
-            updateAiming();
+            update();
         }
     }
 
@@ -451,7 +555,7 @@ public class VelocityVortexShooter {
             aimingMotor.stop();
             aimingMotor.rotateToEncoderCount(automaticAimingMotorPower, getActualEncoderValue(Position.SIX_FEET.intVal), DcMotor8863.FinishBehavior.HOLD);
             shooterState = State.MOVING_TO_6_FEET;
-            updateAiming();
+            update();
         }
     }
 
@@ -461,7 +565,7 @@ public class VelocityVortexShooter {
             aimingMotor.stop();
             aimingMotor.rotateToEncoderCount(automaticAimingMotorPower, getActualEncoderValue(Position.SEVEN_FEET.intVal), DcMotor8863.FinishBehavior.HOLD);
             shooterState = State.MOVING_TO_7_FEET;
-            updateAiming();
+            update();
         }
     }
 
@@ -471,7 +575,7 @@ public class VelocityVortexShooter {
             aimingMotor.stop();
             aimingMotor.rotateToEncoderCount(automaticAimingMotorPower, getActualEncoderValue(Position.EIGHT_FEET.intVal), DcMotor8863.FinishBehavior.HOLD);
             shooterState = State.MOVING_TO_8_FEET;
-            updateAiming();
+            update();
         }
     }
 
@@ -484,35 +588,15 @@ public class VelocityVortexShooter {
         return result;
     }
 
-    //--------------------------------------------
-    //  ball gate methods
-    //--------------------------------------------
-
-    public void openBallGate() {
-        ballGateServo.goPositionOne();
-        ballGatePosition = BallGatePosition.OPEN;
-    }
-
-    public void closeBallGate() {
-        ballGateServo.goHome();
-        ballGatePosition = BallGatePosition.CLOSE;
-    }
-
-    public void toggleBallGate() {
-        if (ballGatePosition == BallGatePosition.CLOSE) {
-            openBallGate();
-        } else {
-            closeBallGate();
+    public boolean isAtLoadingPosition() {
+        if (shooterState == VelocityVortexShooter.State.AT_LOAD ||
+        shooterState == VelocityVortexShooter.State.AT_SWITCH){
+            return true;
+        }else{
+            return false;
         }
     }
 
-    private void delay(int ms) {
-        try {
-            Thread.sleep(ms);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-    }
 
     //--------------------------------------------
     //  Switch methods
@@ -526,9 +610,10 @@ public class VelocityVortexShooter {
     //  State machine
     //--------------------------------------------
 
-    public State updateAiming() {
+    public State update() {
 
         // update the objects
+        shooterMotor.update();
         aimingMotorState = aimingMotor.update();
         limitSwitch.updateSwitch();
         limitSwitchPosition = limitSwitch.getSwitchPosition();
@@ -598,15 +683,28 @@ public class VelocityVortexShooter {
                 break;
 
             case MOVING_TO_LOAD:
-                movingToAutomaticPosition(State.AT_LOAD);
+                movingToAutomaticPosition(State.AT_LOAD, CheckLimitSwitch.CHECK_LIMIT_SWITCH);
+                break;
+            case MOVING_TO_LOAD_NO_LIMIT_SWITCH_CHECK:
+                movingToAutomaticPosition(State.AT_LOAD, CheckLimitSwitch.NO_CHECK_LIMIT_SWITCH);
+                // if the shooter is now clear of limit switch then change state to one which checks
+                // for limit switch
+                checkClearOfLimitSwitch(State.MOVING_TO_LOAD);
                 break;
             case AT_LOAD:
                 checkAndAllowManualAiming();
                 break;
 
             case MOVING_TO_1_FOOT:
-                movingToAutomaticPosition(State.AT_1_FOOT);
+                movingToAutomaticPosition(State.AT_1_FOOT, CheckLimitSwitch.CHECK_LIMIT_SWITCH);
                 movingTo1FootCounter++;
+                break;
+            case MOVING_TO_1_FOOT_NO_LIMIT_SWITCH_CHECK:
+                movingToAutomaticPosition(State.AT_1_FOOT, CheckLimitSwitch.NO_CHECK_LIMIT_SWITCH);
+                movingTo1FootCounter++;
+                // if the shooter is now clear of limit switch then change state to one which checks
+                // for limit switch
+                checkClearOfLimitSwitch(State.MOVING_TO_1_FOOT);
                 break;
             case AT_1_FOOT:
                 at1FootCounter++;
@@ -614,61 +712,99 @@ public class VelocityVortexShooter {
                 break;
 
             case MOVING_TO_2_FEET:
-                movingToAutomaticPosition(State.AT_2_FEET);
+                movingToAutomaticPosition(State.AT_2_FEET, CheckLimitSwitch.CHECK_LIMIT_SWITCH);
+                break;
+            case MOVING_TO_2_FEET_NO_LIMIT_SWITCH_CHECK:
+                movingToAutomaticPosition(State.AT_2_FEET, CheckLimitSwitch.NO_CHECK_LIMIT_SWITCH);
+                // if the shooter is now clear of limit switch then change state to one which checks
+                // for limit switch
+                checkClearOfLimitSwitch(State.MOVING_TO_2_FEET);
                 break;
             case AT_2_FEET:
                 checkAndAllowManualAiming();
                 break;
 
             case MOVING_TO_3_FEET:
-                movingToAutomaticPosition(State.AT_3_FEET);
+                movingToAutomaticPosition(State.AT_3_FEET, CheckLimitSwitch.CHECK_LIMIT_SWITCH);
+                break;
+            case MOVING_TO_3_FEET_NO_LIMIT_SWITCH_CHECK:
+                movingToAutomaticPosition(State.AT_3_FEET, CheckLimitSwitch.NO_CHECK_LIMIT_SWITCH);
+                // if the shooter is now clear of limit switch then change state to one which checks
+                // for limit switch
+                checkClearOfLimitSwitch(State.MOVING_TO_3_FEET);
                 break;
             case AT_3_FEET:
                 checkAndAllowManualAiming();
                 break;
 
             case MOVING_TO_4_FEET:
-                movingToAutomaticPosition(State.AT_4_FEET);
+                movingToAutomaticPosition(State.AT_4_FEET, CheckLimitSwitch.CHECK_LIMIT_SWITCH);
+                break;
+            case MOVING_TO_4_FEET_NO_LIMIT_SWITCH_CHECK:
+                movingToAutomaticPosition(State.AT_4_FEET, CheckLimitSwitch.NO_CHECK_LIMIT_SWITCH);
+                // if the shooter is now clear of limit switch then change state to one which checks
+                // for limit switch
+                checkClearOfLimitSwitch(State.MOVING_TO_4_FEET);
                 break;
             case AT_4_FEET:
                 checkAndAllowManualAiming();
                 break;
 
             case MOVING_TO_5_FEET:
-                movingToAutomaticPosition(State.AT_5_FEET);
+                movingToAutomaticPosition(State.AT_5_FEET, CheckLimitSwitch.CHECK_LIMIT_SWITCH);
+                break;
+            case MOVING_TO_5_FEET_NO_LIMIT_SWITCH_CHECK:
+                movingToAutomaticPosition(State.AT_5_FEET, CheckLimitSwitch.NO_CHECK_LIMIT_SWITCH);
+                // if the shooter is now clear of limit switch then change state to one which checks
+                // for limit switch
+                checkClearOfLimitSwitch(State.MOVING_TO_5_FEET);
                 break;
             case AT_5_FEET:
                 checkAndAllowManualAiming();
                 break;
 
             case MOVING_TO_6_FEET:
-                movingToAutomaticPosition(State.AT_6_FEET);
+                movingToAutomaticPosition(State.AT_6_FEET, CheckLimitSwitch.CHECK_LIMIT_SWITCH);
+                break;
+            case MOVING_TO_6_FEET_NO_LIMIT_SWITCH_CHECK:
+                movingToAutomaticPosition(State.AT_6_FEET, CheckLimitSwitch.NO_CHECK_LIMIT_SWITCH);
+                // if the shooter is now clear of limit switch then change state to one which checks
+                // for limit switch
+                checkClearOfLimitSwitch(State.MOVING_TO_6_FEET);
                 break;
             case AT_6_FEET:
                 checkAndAllowManualAiming();
                 break;
 
             case MOVING_TO_7_FEET:
-                movingToAutomaticPosition(State.AT_7_FEET);
+                movingToAutomaticPosition(State.AT_7_FEET, CheckLimitSwitch.CHECK_LIMIT_SWITCH);
+                break;
+            case MOVING_TO_7_FEET_NO_LIMIT_SWITCH_CHECK:
+                movingToAutomaticPosition(State.AT_7_FEET, CheckLimitSwitch.NO_CHECK_LIMIT_SWITCH);
+                // if the shooter is now clear of limit switch then change state to one which checks
+                // for limit switch
+                checkClearOfLimitSwitch(State.MOVING_TO_7_FEET);
                 break;
             case AT_7_FEET:
                 checkAndAllowManualAiming();
                 break;
 
             case MOVING_TO_8_FEET:
-                movingToAutomaticPosition(State.AT_8_FEET);
+                movingToAutomaticPosition(State.AT_8_FEET, CheckLimitSwitch.CHECK_LIMIT_SWITCH);
+                break;
+            case MOVING_TO_8_FEET_NO_LIMIT_SWITCH_CHECK:
+                movingToAutomaticPosition(State.AT_8_FEET, CheckLimitSwitch.NO_CHECK_LIMIT_SWITCH);
+                // if the shooter is now clear of limit switch then change state to one which checks
+                // for limit switch
+                checkClearOfLimitSwitch(State.MOVING_TO_8_FEET);
                 break;
             case AT_8_FEET:
                 checkAndAllowManualAiming();
                 break;
 
             case SHOOTING:
-                if (shooterMotor.isMotorStateComplete()) {
-                    // shot taken, wait a little
-                    if (timer.milliseconds() > 100) {
-                        shooterState = State.SHOT_TAKEN;
-                        timer.reset();
-                    }
+                if (checkShotComplete()) {
+                    shooterState = State.SHOT_TAKEN;
                 }
                 break;
             case SHOT_TAKEN:
@@ -712,7 +848,7 @@ public class VelocityVortexShooter {
         return shooterState;
     }
 
-    private void movingToAutomaticPosition(State desiredState) {
+    private void movingToAutomaticPosition(State desiredState, CheckLimitSwitch checkLimitSwitch) {
         // if there is a manual power requested that is not 0, then honor that
         if (manualAimingPower != 0) {
             // switch the mode of the motor
@@ -726,13 +862,20 @@ public class VelocityVortexShooter {
                 shooterState = desiredState;
             }
         }
-        // removed this code because the shooter will not come off the limit switch when an
-        // automatic mode is selected - SAFETY????
-//        // check to see is something went wrong and the limit switch has been hit
-//        if (limitSwitchPosition == Switch.SwitchPosition.PRESSED) {
-//            shooterState = State.RESET_ENCODER;
-//            aimingMotor.setPower(0);
-//        }
+        if (checkLimitSwitch == CheckLimitSwitch.CHECK_LIMIT_SWITCH) {
+            // check to see is something went wrong and the limit switch has been hit
+            if (limitSwitchPosition == Switch.SwitchPosition.PRESSED) {
+                shooterState = State.RESET_ENCODER;
+                aimingMotor.setPower(0);
+            }
+        }
+    }
+
+    private void checkClearOfLimitSwitch(State nextState) {
+        if (limitSwitchPosition != Switch.SwitchPosition.PRESSED) {
+            // shooter has cleared limit switch
+            shooterState = nextState;
+        }
     }
 
 
