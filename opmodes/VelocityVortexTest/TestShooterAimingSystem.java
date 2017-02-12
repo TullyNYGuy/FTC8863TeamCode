@@ -134,6 +134,7 @@ public class TestShooterAimingSystem extends LinearOpMode {
             shooter.aimShooter(gamepad1RightJoyStickYValue);
 
             shooter.update();
+            telemetry.addData("Is Auto Ok", shooter.isAutoAimingOK());
             telemetry.addData("Joystick value = ", "%2.3f", gamepad1RightJoyStickYValue);
             telemetry.addData("Cmd Motor Power = ", "%2.3f", shooter.getAutomaticAimingMotorPower());
             telemetry.addData("Actual Motor Power = ", "%2.3f", shooter.aimingMotor.getCurrentPower());
@@ -147,6 +148,8 @@ public class TestShooterAimingSystem extends LinearOpMode {
             telemetry.addData("Set Encoder Offset count = ", "%5d", shooter.getSetEncoderOffsetCount());
             telemetry.addData("Moving to 1 foot count = ", "%5d", shooter.getMovingTo1FootCounter());
             telemetry.addData("At 1 foot count = ", "%5d", shooter.getAt1FootCounter());
+            telemetry.addData("Moving To 2 foot count = ", "%5d", shooter.getAtMovingTo2FeetCounter());
+            telemetry.addData("At 2 foot count = ", "%5d", shooter.getAt2FootCounter());
             telemetry.addData("aiming mode = ", aimingMode.toString());
             telemetry.addData("Shooter state = ", shooter.getShooterState().toString());
             telemetry.addData("Motor state = ", shooter.aimingMotor.getCurrentMotorState().toString());
@@ -157,5 +160,7 @@ public class TestShooterAimingSystem extends LinearOpMode {
             idle();
         }
     }
+
+
 }
 

@@ -211,7 +211,7 @@ public class VelocityVortexAutonomous extends LinearOpMode {
     }
 
     public void loadABall() {
-        while (opModeIsActive() && !robot.shooter.loadABall()) {
+        while (opModeIsActive() && !robot.shooter.openBallGateAndWait()) {
             // wait for ball to be loaded
             // might need to wiggle the robot while waiting
         }

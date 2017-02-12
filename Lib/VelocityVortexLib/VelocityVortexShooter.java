@@ -137,6 +137,9 @@ public class VelocityVortexShooter {
     int setEncoderOffsetCount = 0;
     int movingTo1FootCounter = 0;
     int at1FootCounter = 0;
+    int atMovingTo2FeetCounter = 0;
+    int at2FootCounter = 0;
+    int movingTo2FeetNoLimitSwitchCounter = 0;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -183,6 +186,13 @@ public class VelocityVortexShooter {
 
     public int getAdjustedEncoderCmd() {
         return adjustedEncoderCmd;
+    }
+
+    public int getAt2FootCounter() {return at2FootCounter;}
+    public int getAtMovingTo2FeetCounter() {return atMovingTo2FeetCounter;}
+
+    public int getMovingTo2FeetNoLimitSwitchCounter() {
+        return movingTo2FeetNoLimitSwitchCounter;
     }
 
     //*********************************************************************************************
@@ -395,10 +405,14 @@ public class VelocityVortexShooter {
         ballGateServo.goPositionOne();
         ballGatePosition = BallGatePosition.OPEN;
         ballGateTimer.reset();
+        telemetry.addData("Ball gate has opened", "!");
+        telemetry.update();
     }
 
     public void closeBallGate() {
         ballGateServo.goHome();
+        telemetry.addData("Ball gate has closed", "!");
+        telemetry.update();
         ballGatePosition = BallGatePosition.CLOSE;
     }
 
@@ -414,6 +428,8 @@ public class VelocityVortexShooter {
             closeBallGate();
             return true;
         } else {
+            telemetry.addData("Ball gate timer =", "%5.1f", ballGateTimer.milliseconds());
+            telemetry.update();
             return false;
         }
     }
@@ -423,7 +439,7 @@ public class VelocityVortexShooter {
      *
      * @return true if ball has been loaded
      */
-    public boolean loadABall() {
+    public boolean openBallGateAndWait() {
         openBallGate();
         return keepBallGateOpenForMSec(4000);
     }
@@ -492,19 +508,25 @@ public class VelocityVortexShooter {
         }
     }
 
+    public void moveToLimitSwitchManual() {
+        telemetry.addData("Motor Power", "%2.2f", aimingMotor.getCurrentPower());
+        telemetry.addData("Current Shooter State", shooterState.toString());
+        telemetry.update();
+        aimShooter(-0.4);
+    }
     public void moveTo1Foot() {
         if (isAutoAimingOK()) {
             aimingMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             aimingMotor.stop();
             adjustedEncoderCmd = getActualEncoderValue(Position.ONE_FOOT.intVal);
             aimingMotor.rotateToEncoderCount(automaticAimingMotorPower, adjustedEncoderCmd, DcMotor8863.FinishBehavior.HOLD);
-            if (limitSwitchPosition == Switch.SwitchPosition.PRESSED) {
-                shooterState = State.MOVING_TO_1_FOOT_NO_LIMIT_SWITCH_CHECK;
-            } else {
-                shooterState = State.MOVING_TO_1_FOOT;
-            }
+//            //if (limitSwitchPosition == Switch.SwitchPosition.PRESSED) {
+//                shooterState = State.MOVING_TO_1_FOOT_NO_LIMIT_SWITCH_CHECK;
+//            } else {
+//                shooterState = State.MOVING_TO_1_FOOT;
+//            }
 
-            shooterState = State.MOVING_TO_1_FOOT;
+            shooterState = State.MOVING_TO_1_FOOT_NO_LIMIT_SWITCH_CHECK;
             update();
         }
     }
@@ -514,7 +536,7 @@ public class VelocityVortexShooter {
             aimingMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             aimingMotor.stop();
             aimingMotor.rotateToEncoderCount(automaticAimingMotorPower, getActualEncoderValue(Position.TWO_FEET.intVal), DcMotor8863.FinishBehavior.HOLD);
-            shooterState = State.MOVING_TO_2_FEET;
+            shooterState = State.MOVING_TO_2_FEET_NO_LIMIT_SWITCH_CHECK;
             update();
         }
     }
@@ -524,7 +546,7 @@ public class VelocityVortexShooter {
             aimingMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             aimingMotor.stop();
             aimingMotor.rotateToEncoderCount(automaticAimingMotorPower, getActualEncoderValue(Position.THREE_FEET.intVal), DcMotor8863.FinishBehavior.HOLD);
-            shooterState = State.MOVING_TO_3_FEET;
+            shooterState = State.MOVING_TO_3_FEET_NO_LIMIT_SWITCH_CHECK;
             update();
         }
     }
@@ -534,7 +556,7 @@ public class VelocityVortexShooter {
             aimingMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             aimingMotor.stop();
             aimingMotor.rotateToEncoderCount(automaticAimingMotorPower, getActualEncoderValue(Position.FOUR_FEET.intVal), DcMotor8863.FinishBehavior.HOLD);
-            shooterState = State.MOVING_TO_4_FEET;
+            shooterState = State.MOVING_TO_4_FEET_NO_LIMIT_SWITCH_CHECK;
             update();
         }
     }
@@ -544,7 +566,7 @@ public class VelocityVortexShooter {
             aimingMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             aimingMotor.stop();
             aimingMotor.rotateToEncoderCount(automaticAimingMotorPower, getActualEncoderValue(Position.FIVE_FEET.intVal), DcMotor8863.FinishBehavior.HOLD);
-            shooterState = State.MOVING_TO_5_FEET;
+            shooterState = State.MOVING_TO_5_FEET_NO_LIMIT_SWITCH_CHECK;
             update();
         }
     }
@@ -554,7 +576,7 @@ public class VelocityVortexShooter {
             aimingMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             aimingMotor.stop();
             aimingMotor.rotateToEncoderCount(automaticAimingMotorPower, getActualEncoderValue(Position.SIX_FEET.intVal), DcMotor8863.FinishBehavior.HOLD);
-            shooterState = State.MOVING_TO_6_FEET;
+            shooterState = State.MOVING_TO_6_FEET_NO_LIMIT_SWITCH_CHECK;
             update();
         }
     }
@@ -564,7 +586,7 @@ public class VelocityVortexShooter {
             aimingMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             aimingMotor.stop();
             aimingMotor.rotateToEncoderCount(automaticAimingMotorPower, getActualEncoderValue(Position.SEVEN_FEET.intVal), DcMotor8863.FinishBehavior.HOLD);
-            shooterState = State.MOVING_TO_7_FEET;
+            shooterState = State.MOVING_TO_7_FEET_NO_LIMIT_SWITCH_CHECK;
             update();
         }
     }
@@ -574,15 +596,15 @@ public class VelocityVortexShooter {
             aimingMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             aimingMotor.stop();
             aimingMotor.rotateToEncoderCount(automaticAimingMotorPower, getActualEncoderValue(Position.EIGHT_FEET.intVal), DcMotor8863.FinishBehavior.HOLD);
-            shooterState = State.MOVING_TO_8_FEET;
+            shooterState = State.MOVING_TO_8_FEET_NO_LIMIT_SWITCH_CHECK;
             update();
         }
     }
 
-    private boolean isAutoAimingOK() {
+    public boolean isAutoAimingOK() {
         boolean result = true;
         // Nothing can interrupt manual aiming with a non 0 power applied
-        if (shooterState == State.MANUAL_AIM_NO_INTERRUPT || shooterState == State.AT_SWITCH) {
+        if (shooterState == State.MANUAL_AIM_NO_INTERRUPT) {
             result = false;
         }
         return result;
@@ -712,9 +734,11 @@ public class VelocityVortexShooter {
                 break;
 
             case MOVING_TO_2_FEET:
+                atMovingTo2FeetCounter++;
                 movingToAutomaticPosition(State.AT_2_FEET, CheckLimitSwitch.CHECK_LIMIT_SWITCH);
                 break;
             case MOVING_TO_2_FEET_NO_LIMIT_SWITCH_CHECK:
+                movingTo2FeetNoLimitSwitchCounter++;
                 movingToAutomaticPosition(State.AT_2_FEET, CheckLimitSwitch.NO_CHECK_LIMIT_SWITCH);
                 // if the shooter is now clear of limit switch then change state to one which checks
                 // for limit switch

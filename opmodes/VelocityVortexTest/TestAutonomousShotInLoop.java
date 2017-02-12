@@ -1,14 +1,10 @@
 package org.firstinspires.ftc.teamcode.opmodes.VelocityVortexTest;
 
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
-import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.AllianceColorSwitch;
 import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.FrontBeaconPusherControl;
 import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.VelocityVortexRobot;
 import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.VelocityVortexShooter;
@@ -16,9 +12,9 @@ import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.VelocityVortexShoote
 /**
  * Autonomous for competition
  */
-@TeleOp(name = "Test Shooter Autonomous Shot", group = "Test")
+@TeleOp(name = "Test Shooter Autonomous Shot Loop", group = "Test")
 //@Disabled
-public class TestAutonomousShot extends LinearOpMode {
+public class TestAutonomousShotInLoop extends LinearOpMode {
 
     //*********************************************************************************************
     //             Declarations
@@ -29,6 +25,14 @@ public class TestAutonomousShot extends LinearOpMode {
     ElapsedTime timer;
     FrontBeaconPusherControl.FrontBeaconControlState frontBeaconControlState;
 
+    enum AutonomousState {
+        START,
+        MOVING_TO_LIMIT_SWITCH,
+        MOVING_TO_FIRING_POSITION
+    }
+
+    AutonomousState autonomousState = AutonomousState.START;
+
     @Override
     public void runOpMode() {
 
@@ -38,6 +42,7 @@ public class TestAutonomousShot extends LinearOpMode {
 
         robot = robot.createRobotForAutonomous(hardwareMap, telemetry);
         timer = new ElapsedTime();
+        boolean stopStateMachine = false;
 
         // Wait for the start button
         robot.allianceColorSwitch.displayAllianceSwitch(telemetry);
@@ -50,8 +55,27 @@ public class TestAutonomousShot extends LinearOpMode {
         //             Robot Running after the user his play on the driver phone
         //*********************************************************************************************
 
-        moveToLimitSwitch();
-        moveToFiringPosition();
+        while(opModeIsActive() && !stopStateMachine) {
+            switch (autonomousState) {
+                case START:
+                    robot.shooter.moveToLimitSwitchManual();
+                    autonomousState = AutonomousState.MOVING_TO_LIMIT_SWITCH;
+                    break;
+                case MOVING_TO_LIMIT_SWITCH:
+                    // check to see if we got to the limit switch
+                    if (robot.shooter.getShooterState() == VelocityVortexShooter.State.AT_SWITCH) {
+                        robot.shooter.moveTo2Feet();
+                        autonomousState = AutonomousState.MOVING_TO_FIRING_POSITION;
+                    }
+                    break;
+                case MOVING_TO_FIRING_POSITION:
+                    if (robot.shooter.getShooterState() == VelocityVortexShooter.State.AT_2_FEET) {
+                        stopStateMachine = true;
+                    }
+                    break;
+            }
+            robot.shooter.update();
+        }
         //shootAndMoveToLoadingPosition();
         //loadABall();
 
