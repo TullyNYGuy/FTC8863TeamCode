@@ -63,19 +63,54 @@ public class VelocityVortexRobot {
     private VelocityVortexRobot(HardwareMap hardwareMap, RobotMode robotMode, Telemetry telemetry) {
         if(robotMode == RobotMode.AUTONOMOUS) {
             driveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap, telemetry);
+            telemetry.addData("Drive Train Initialized", "!");
+            telemetry.update();
             allianceColorSwitch = new AllianceColorSwitch(hardwareMap, telemetry);
+            telemetry.addData("Drive Train Initialized", "!");
+            telemetry.addData("Color Switches Initialized", "!");
+            telemetry.update();
             allianceColor = allianceColorSwitch.getAllianceColor();
         } else {
             driveTrain = DriveTrain.DriveTrainTeleOp(hardwareMap, telemetry);
             allianceColor = AllianceColorSwitch.AllianceColor.BLUE;
         }
         sweeper = new VelocityVortexSweeper(hardwareMap);
+        telemetry.addData("Drive Train Initialized", "!");
+        telemetry.addData("Color Switches Initialized", "!");
+        telemetry.addData("Sweeper Initialized", "!");
+        telemetry.update();
         muxPlusColorSensors = new MuxPlusColorSensors(hardwareMap, telemetry);
+        telemetry.addData("Drive Train Initialized", "!");
+        telemetry.addData("Color Switches Initialized", "!");
+        telemetry.addData("Sweeper Initialized", "!");
+        telemetry.addData("MuxPlusColorSensors Initialized", "!");
+        telemetry.update();
         rightSideBeaconPusher = new SideBeaconPusher(hardwareMap, telemetry, driveTrain, SideBeaconPusher.SideBeaconPusherPosition.RIGHT, muxPlusColorSensors);
+        telemetry.addData("Drive Train Initialized", "!");
+        telemetry.addData("Color Switches Initialized", "!");
+        telemetry.addData("Sweeper Initialized", "!");
+        telemetry.addData("MuxPlusColorSensors Initialized", "!");
+        telemetry.addData("Right side beacon pusher Initialized", "!");
+        telemetry.update();
         //frontBeaconPusher = new FrontBeaconPusher(hardwareMap, telemetry, muxPlusColorSensors);
         frontBeaconPusherControl = new FrontBeaconPusherControl(hardwareMap, telemetry, muxPlusColorSensors, allianceColor, driveTrain);
+        telemetry.addData("Drive Train Initialized", "!");
+        telemetry.addData("Color Switches Initialized", "!");
+        telemetry.addData("Sweeper Initialized", "!");
+        telemetry.addData("MuxPlusColorSensors Initialized", "!");
+        telemetry.addData("Rigght side beacon pusher Initialized", "!");
+        telemetry.addData("Front beacon pusher Control Initialized", "!");
+        telemetry.update();
         shooter = new VelocityVortexShooter(hardwareMap, telemetry);
-        frontBeaconPusher = new FrontBeaconPusher(hardwareMap, telemetry, muxPlusColorSensors);
+        telemetry.addData("Drive Train Initialized", "!");
+        telemetry.addData("Color Switches Initialized", "!");
+        telemetry.addData("Sweeper Initialized", "!");
+        telemetry.addData("MuxPlusColorSensors Initialized", "!");
+        telemetry.addData("Rigght side beacon pusher Initialized", "!");
+        telemetry.addData("Front beacon pusher Initialized", "!");
+        telemetry.addData("Shooter initialized", "!");
+        telemetry.update();
+        //frontBeaconPusher = new FrontBeaconPusher(hardwareMap, telemetry, muxPlusColorSensors);
         init();
     }
 
