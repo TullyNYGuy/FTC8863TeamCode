@@ -56,28 +56,42 @@ public class TestAutonomousShotInLoop extends LinearOpMode {
         //*********************************************************************************************
 
         while(opModeIsActive() && !stopStateMachine) {
-            switch (autonomousState) {
-                case START:
-                    robot.shooter.moveToLimitSwitchManual();
-                    autonomousState = AutonomousState.MOVING_TO_LIMIT_SWITCH;
-                    break;
-                case MOVING_TO_LIMIT_SWITCH:
-                    // check to see if we got to the limit switch
-                    if (robot.shooter.getShooterState() == VelocityVortexShooter.State.AT_SWITCH) {
-                        robot.shooter.moveTo2Feet();
-                        autonomousState = AutonomousState.MOVING_TO_FIRING_POSITION;
-                    }
-                    break;
-                case MOVING_TO_FIRING_POSITION:
-                    if (robot.shooter.getShooterState() == VelocityVortexShooter.State.AT_2_FEET) {
-                        stopStateMachine = true;
-                    }
-                    break;
-            }
-            robot.shooter.update();
+                switch (autonomousState) {
+                    case START:
+                        robot.shooter.moveToLimitSwitchManual();
+                        autonomousState = AutonomousState.MOVING_TO_LIMIT_SWITCH;
+                        break;
+                    case MOVING_TO_LIMIT_SWITCH:
+                        // check to see if we got to the limit switch
+                        if (robot.shooter.getShooterState() == VelocityVortexShooter.State.AT_SWITCH) {
+                            robot.shooter.moveTo2Feet();
+                            autonomousState = AutonomousState.MOVING_TO_FIRING_POSITION;
+                        }
+                        break;
+                    case MOVING_TO_FIRING_POSITION:
+                        if (robot.shooter.getShooterState() == VelocityVortexShooter.State.AT_2_FEET) {
+                            stopStateMachine = true;
+                        }
+                        break;
+                }
+                robot.shooter.update();
         }
+
+        telemetry.addData("Finished moving to Firing Point", "");
+        telemetry.update();
+        sleep(3000);
+
         //shootAndMoveToLoadingPosition();
-        //loadABall();
+
+        shootThenWait();
+        telemetry.addData("Finished shooting", "");
+        telemetry.update();
+        sleep(3000);
+        moveToLoadingPosition();
+        telemetry.addData("Finished moving to loading point", "");
+        telemetry.update();
+        sleep(3000);
+        loadABall();
 
         //*************************************************************************************
         //  Stop everything after the user hits the stop button on the driver phone
@@ -137,5 +151,12 @@ public class TestAutonomousShotInLoop extends LinearOpMode {
         robot.shooter.closeBallGate();
         telemetry.addData("Done with loading a ball", "!");
         telemetry.update();
+    }
+
+    public void shootThenWait() {
+        robot.shooter.shoot();
+        while(opModeIsActive()&&! robot.shooter.checkShotComplete()) {
+            robot.shooter.shooterMotor.update();
+        }
     }
 }
