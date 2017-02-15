@@ -721,11 +721,17 @@ public class AdafruitColorSensor8863 {
         this.write8(Register.ENABLE, reg & ~(EnableRegister.AMS_COLOR_ENABLE_PON.byteVal | EnableRegister.AMS_COLOR_ENABLE_AEN.byteVal));
     }
 
+    /**
+     * Enable the interrupt that get set when the clear is under or over the threshold
+     */
     private synchronized void enableInterrupt() {
         byte reg = colorSensorClient.read8(Register.ENABLE.byteVal);
         this.write8(Register.ENABLE, reg | EnableRegister.AMS_COLOR_ENABLE_AIEN.byteVal);
     }
 
+    /**
+     * Disable the interrupt
+     */
     private synchronized void disableInterrupt() {
         byte reg = colorSensorClient.read8(Register.ENABLE.byteVal);
         this.write8(Register.ENABLE, reg & ~EnableRegister.AMS_COLOR_ENABLE_AIEN.byteVal);
@@ -733,8 +739,19 @@ public class AdafruitColorSensor8863 {
 
     private synchronized void forceInterrupt() {
         // set the clear low interrupt threshold way high so an interrupt is guaranteed
+        this.write8(Register.THRESHOLD_AILTL, 0xFF);
+        this.write8(Register.THRESHOLD_AILTH, 0xFF);
         // set the clear high interrupt threshold low so it is not evaluated
+        this.write8(Register.THRESHOLD_AIHTL, 0x00);
+        this.write8(Register.THRESHOLD_AIHTH, 0x00);
         // enable the interrupt
+        enableInterrupt();
+    }
+
+    private synchronized  void clearInterrupt() {
+        // clear the interrupt
+        // disable the interrupt
+        disableInterrupt();
     }
 
     /**
