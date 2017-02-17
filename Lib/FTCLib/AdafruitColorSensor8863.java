@@ -75,6 +75,11 @@ import java.util.Map;
  * modern robotics core device interface (DIM) module. The wire gets connected to the "SIGNAL" pin
  * of the DIM digital input/output port. You then pass in the core DIM name you configured
  * on your phone and the port number you connected the wire to.
+ *
+ * Another way to control the LED and not use up a valuable core DIM digital port is to use the
+ * interrupt PIN to drive the LED pin on the circuit board. This is a bit of a trick but it works.
+ * You need to install a 2 pin shorting jumper between the LED pin and the INT pin of the circuit
+ * board. Use the turnLEDOnByInterrupt() and turnLEDOffByInterrupt() methods.
  * <p>
  * IF YOU JUST WANT TO GET STARTED USING THE COLOR SENSOR SKIP RIGHT DOWN TO THE SECTION TITLED
  * MAJOR METHODS.
@@ -1522,51 +1527,54 @@ public class AdafruitColorSensor8863 {
     //          Reading colors - these are the scaled values - USE THESE INSTEAD OF RAW VALUES
     //*********************************************************************************************
 
+    /**
+     * RGB is typically defined as a range from 0 to 255. This method returns a scaled value based
+     * on the integration time selected.
+     * @return RGB value in the range from 0 to 255
+     */
     public int redScaled() {
         return calculateScaledRGBColor(red());
     }
 
+    /**
+     * RGB is typically defined as a range from 0 to 255. This method returns a scaled value based
+     * on the integration time selected.
+     * @return RGB value in the range from 0 to 255
+     */
     public int greenScaled() {
         return calculateScaledRGBColor(green());
     }
 
+    /**
+     * RGB is typically defined as a range from 0 to 255. This method returns a scaled value based
+     * on the integration time selected.
+     * @return RGB value in the range from 0 to 255
+     */
     public int blueScaled() {
         return calculateScaledRGBColor(blue());
     }
 
+    /**
+     * RGB is typically defined as a range from 0 to 255. This method returns a scaled value based
+     * on the integration time selected.
+     * @return RGB value in the range from 0 to 255
+     */
     public int alphaScaled() {
         return calculateScaledRGBColor(alpha());
     }
 
-//    /**
-//     * The red sensor in the Adafruit color sensor tends to return a higher value than the green
-//     * or blue sensors. In fact the graph in the data sheet for spectral response show this too.
-//     * When the sensor looks at white, it should return red green and blue values that are about
-//     * equal. It does not. Red is always higher. This method reduces the red value by a certain
-//     * percent. You must determine the percent for each sensor since they seem to vary.
-//     * @param redValue
-//     * @return
-//     */
-//    private int redAdjusted(int redValue) {
-//        return (int) Math.round(redValue/(1+redValueOverNominalInPercent));
-//    }
-//
-//    /**
-//     *
-//     * @return
-//     */
-//    public int redScaledAndAdjusted() {
-//        return redAdjusted(redScaled());
-//    }
-
+    /**
+     * Format a string with the scaled RGB values
+     * @return
+     */
     public String rgbValuesScaledAsString() {
         return redScaled() + " / " + greenScaled() + " / " + blueScaled();
     }
 
-//    public String rbgValuesScaledAndAdjustedAsString() {
-//        return redScaledAndAdjusted() + " / " + greenScaled() + " / " + blueScaled();
-//    }
-
+    /**
+     * Get an HSV color
+     * @return array with hue [0], saturation [1], value [2]
+     */
     public float[] hsvScaled() {
         // hsvValues is an array that will hold the hue, saturation, and value information.
         float hsvValues[] = {0F, 0F, 0F};
@@ -1575,19 +1583,36 @@ public class AdafruitColorSensor8863 {
         return hsvValues;
     }
 
+    /**
+     * Format a string with the HSV values
+     * @return
+     */
     public String hsvValuesScaledAsString() {
         float hsvValues[] = hsvScaled();
         return String.format("%4.1f", hsvValues[0]) + " / " + String.format("%4.2f", hsvValues[1]) + " / " + String.format("%4.2f", hsvValues[2]);
     }
 
+
+    /**
+     * Get the hue
+     * @return
+     */
     public float hueScaled() {
         return hsvScaled()[0];
     }
 
+    /**
+     * Get the saturation
+     * @return
+     */
     public float saturatationScaled() {
         return hsvScaled()[1];
     }
 
+    /**
+     * Get the value
+     * @return
+     */
     public float valueScaled() {
         return hsvScaled()[2];
     }
