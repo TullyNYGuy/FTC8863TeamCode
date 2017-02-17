@@ -45,9 +45,12 @@ import com.qualcomm.robotcore.util.TypeConversion;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
+import java.lang.reflect.GenericArrayType;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 // Things to do:
 //    investigate the update rate - it appears odd
@@ -66,34 +69,34 @@ import java.util.ArrayList;
  * other third party classes are not based on the newer I2C communication classes. None of the classes
  * I found properly scale the RGB values read from the sensor given the gain and integration time
  * that have been selected. So I have chosen to write my own class.
- *
+ * <p>
  * This class assumes that you want to control the LED on the adafruit circuit board. In order to do
  * this you must connect a wire from the LED pin on the circuit board to a digital input port on the
  * modern robotics core device interface (DIM) module. The wire gets connected to the "SIGNAL" pin
  * of the DIM digital input/output port. You then pass in the core DIM name you configured
  * on your phone and the port number you connected the wire to.
- *
+ * <p>
  * IF YOU JUST WANT TO GET STARTED USING THE COLOR SENSOR SKIP RIGHT DOWN TO THE SECTION TITLED
  * MAJOR METHODS.
- *
+ * <p>
  * If you care to explore and understand the sensor read on. PARTICULARLY IMPORTANT
  * TO GETTING THE BEST RESULTS FROM THIS SENSOR ARE UNDERSTANDING INTEGRATION TIME AND GAIN. See
  * below and the descriptions in the associated registers in the enum section.
- *
+ * <p>
  * The TCS34725 color sensor chip allows you to set the gain (how much amplification the color
  * signals get) and the integration time (in simple terms how long the color sensor values are
  * averaged between readings). If light levels are low you can pick a higher gain to get better
  * resolution of the color readings. BUT if you go too high you will saturate the color sensor. In
  * other words you will get the same reading no matter what the actual color value is. It is a
  * tradeoff. More gain = better resolution unless you saturate and then your readings are garbage.
- *
+ * <p>
  * If you want more accurate color values you can pick a longer
  * integration time. The trade off there is that you don't get values as quickly and that can be a
  * problem for your robot. For example if you choose a 600 mSec integration time, you only get a
  * color reading once every 600mSec. A lot can happen in that time so a long integration time is
  * only good if you don't expect much to change very quickly. I found that a nice balance is 24
  * mSec. That is about one robot loop cycle.
- *
+ * <p>
  * The raw RGB (red, green, blue) and clear values read from each of the
  * 4 sensors built into the chip have a max value that is dependent on the gain and integration time.
  * The max value occurs for a long integration time and is 65535. For a 24 mSec integration time
@@ -107,10 +110,10 @@ import java.util.ArrayList;
  * of representing color than RGB and in some cases is better and easier to use. This driver properly
  * scales the reading for you. It can also give you HSV values. None of the other drivers I found
  * did this correctly.
- *
+ * <p>
  * The register definitions below offer more description of the sensor and help you determine what
  * is important for FTC and what is not.
- *
+ * <p>
  * For support, email ftc8863@gmail.com. I can't promise support but I'll do my best.
  * Glenn Ball
  */
@@ -194,7 +197,7 @@ public class AdafruitColorSensor8863 {
      * Trade off the accuracy vs the time to get a new reading. Test it. Change if needed.
      * A good starting point is 24ms. That is around the time it takes to run one opmode loop.
      * Equation for calculating integration time in milliseconds (ms) = (256-ATIME) * 2.4ms
-     * Equation for calculating ATIME (byte value of register) = (256-(integratin time in ms)) / 2.4ms
+     * Equation for calculating ATIME (byte value of register) = (256-(integration time in ms)) / 2.4ms
      */
     public enum IntegrationTime {
         AMS_COLOR_ITIME_2_4MS(0xFF), //2.4 mSec, max possible value = 1024
@@ -209,8 +212,33 @@ public class AdafruitColorSensor8863 {
 
         public final byte byteVal;
 
+        // declare a lookup table so I can lookup the enum value given the byte value
+        private static final Map<Byte, IntegrationTime> lookup = new HashMap<Byte, IntegrationTime>();
+
+        // populate the lookup table using a static block
+        static {
+            for (IntegrationTime integrationTimeEnum : IntegrationTime.values()) {
+                lookup.put(integrationTimeEnum.byteVal, integrationTimeEnum);
+            }
+        }
+
+        // constructor for the class
         IntegrationTime(int i) {
             this.byteVal = (byte) i;
+        }
+
+        /**
+         * Get the enum value given the byte value. If someone writes a value other than one of the
+         * predefined values above this method will throw a null pointer exception. Since there is
+         * no write method in this class that writes anything other than a predefined value above,
+         * that cannot happen - as long as the user does not use something outside this class to
+         * write to the sensor.
+         *
+         * @param byteVal
+         * @return IntegrationTime enum value corresponding to the byte value of the integration time
+         */
+        public static IntegrationTime valueOf(byte byteVal) {
+            return lookup.get(byteVal);
         }
     }
 
@@ -236,8 +264,32 @@ public class AdafruitColorSensor8863 {
 
         public final byte byteVal;
 
+        // declare a lookup table so I can lookup the enum value given the byte value
+        private static final Map<Byte, WaitTime> lookup = new HashMap<Byte, WaitTime>();
+
+        // populate the lookup table using a static block
+        static {
+            for (WaitTime waitTimeEnum : WaitTime.values()) {
+                lookup.put(waitTimeEnum.byteVal, waitTimeEnum);
+            }
+        }
+
         WaitTime(int i) {
             this.byteVal = (byte) i;
+        }
+
+        /**
+         * Get the enum value given the byte value. If someone writes a value other than one of the
+         * predefined values above this method will throw a null pointer exception. Since there is
+         * no write method in this class that writes anything other than a predefined value above,
+         * that cannot happen - as long as the user does not use something outside this class to
+         * write to the sensor.
+         *
+         * @param byteVal
+         * @return WaitTime enum value corresponding to the byte value of the integration time
+         */
+        public static WaitTime valueOf(byte byteVal) {
+            return lookup.get(byteVal);
         }
     }
 
@@ -282,8 +334,29 @@ public class AdafruitColorSensor8863 {
 
         public final byte byteVal;
 
+
+        // declare a lookup table so I can lookup the enum value given the byte value
+        private static final Map<Byte, Persistence> lookup = new HashMap<Byte, Persistence>();
+
+        // populate the lookup table using a static block
+        static {
+            for (Persistence persistenceEnum : Persistence.values()) {
+                lookup.put(persistenceEnum.byteVal, persistenceEnum);
+            }
+        }
+
         Persistence(int i) {
             this.byteVal = (byte) i;
+        }
+
+        /**
+         * Get the enum value given the byte value
+         *
+         * @param byteVal
+         * @return IntegrationTime enum value corresponding to the byte value of the integration time
+         */
+        public static Persistence valueOf(byte byteVal) {
+            return lookup.get(byteVal);
         }
     }
 
@@ -303,8 +376,30 @@ public class AdafruitColorSensor8863 {
 
         public final byte byteVal;
 
+        // declare a lookup table so I can lookup the enum value given the byte value
+        private static final Map<Byte, Configuration> lookup = new HashMap<Byte, Configuration>();
+
+        // populate the lookup table using a static block
+        static {
+            for (Configuration configurationEnum : Configuration.values()) {
+                lookup.put(configurationEnum.byteVal, configurationEnum);
+            }
+        }
+
+        // constructor for the class
         Configuration(int i) {
             this.byteVal = (byte) i;
+        }
+
+        /**
+         * Get the enum value given the byte value
+         *
+         * @param byteVal
+         * @return Configuration enum value corresponding to the byte value of the configuration
+         * register
+         */
+        public static Configuration valueOf(byte byteVal) {
+            return lookup.get(byteVal);
         }
     }
 
@@ -336,8 +431,29 @@ public class AdafruitColorSensor8863 {
 
         public final byte byteVal;
 
+        // declare a lookup table so I can lookup the enum value given the byte value
+        private static final Map<Byte, Gain> lookup = new HashMap<Byte, Gain>();
+
+        // populate the lookup table using a static block
+        static {
+            for (Gain gainEnum : Gain.values()) {
+                lookup.put(gainEnum.byteVal, gainEnum);
+            }
+        }
+
+        // constructor for the class
         Gain(int i) {
             this.byteVal = (byte) i;
+        }
+
+        /**
+         * Get the enum value given the byte value
+         *
+         * @param byteVal
+         * @return Gain enum value corresponding to the byte value of the gain
+         */
+        public static Gain valueOf(byte byteVal) {
+            return lookup.get(byteVal);
         }
     }
 
@@ -366,8 +482,8 @@ public class AdafruitColorSensor8863 {
         // bit 4 - AINT
         // bits 3:1 - reserved
         // bit 0 - AVALID
-        AMS_COLOR_STATUS_A(0x10),        // RGBC Clear channel interrupt
-        AMS_COLOR_STATUS_AVALID(0x01);  // Indicates that the RGBC channels have completed an integration cycle
+        AMS_COLOR_STATUS_INTERRUPT(0x10),        // RGBC Clear channel interrupt
+        AMS_COLOR_STATUS_DATA_VALID(0x01);  // Indicates that the RGBC channels have completed an integration cycle
 
         public final byte byteVal;
 
@@ -429,7 +545,9 @@ public class AdafruitColorSensor8863 {
 
         public final byte byteVal;
 
-        CoreDIMLEDChannel(int i) {this.byteVal = (byte) i;}
+        CoreDIMLEDChannel(int i) {
+            this.byteVal = (byte) i;
+        }
     }
 
     /**
@@ -444,7 +562,7 @@ public class AdafruitColorSensor8863 {
     /**
      * A quick and dirty color to be returned to the user
      */
-    public enum ColorFromSensor{
+    public enum ColorFromSensor {
         RED,
         GREEN,
         BLUE,
@@ -569,95 +687,11 @@ public class AdafruitColorSensor8863 {
         enable();
     }
 
-    private void setIntegrationTime(IntegrationTime time) {
-        this.write8(Register.INTEGRATION_TIME, time.byteVal);
-        // calculate maximum possible color value for use later in scaling
-        this.maxRGBCValue = calculateMaxRGBCCount(time);
-    }
-
-//    public IntegrationTime readIntegrationTime() {
-//        byte registerContents;
-//        registerContents = this.read8(Register.INTEGRATION_TIME);
-//    }
-
-    // following is start of code needed to be able to increment through Gains and Integration times
-    // It is not complete yet. The goal is to eventually have the class auto select the proper gain
-    // for maximum resolution. In the interest of getting this out the door I'm releasing without
-    // this functionality.
-
-//    private void createGainArrayList() {
-//        gainArrayList = new ArrayList<Gain>();
-//        for(Gain g : Gain.values()) {
-//            gainArrayList.add(g);
-//        }
-//    }
-//
-//    private int getCurrentGainIndex(Gain gain) {
-//        int index = 0;
-//        int result = 0;
-//        for(Gain g: Gain.values()) {
-//            if (g.equals(gain)) {
-//                result = index;
-//            } else {
-//                index ++;
-//            }
-//        }
-//        return result;
-//    }
-//
-//    private void createIntegrationTimeArrayList() {
-//        integrationTimeArrayList = new ArrayList<IntegrationTime>();
-//        for(IntegrationTime i : IntegrationTime.values()) {
-//            integrationTimeArrayList.add(i);
-//        }
-//    }
-//
-//    private int getCurrentIntegrationTimeIndex(IntegrationTime integrationTime) {
-//        int index = 0;
-//        int result = 0;
-//        for(IntegrationTime i: IntegrationTime.values()) {
-//            if (i.equals(integrationTime)) {
-//                result = index;
-//            } else {
-//                index ++;
-//            }
-//        }
-//        return result;
-//    }
-
-//    public void nextGain() {
-//        currentIntegrationTimeIndex ++;
-//        setGain(gainArrayList[currentIntegrationTimeIndex].value);
-//    }
-
-    private void setGain(Gain gain) {
-        this.write8(Register.CONTROL, gain.byteVal);
-        // save the gain
-        parameters.setGain(gain);
-    }
-
-    public byte getDeviceID() {
-        return this.read8(Register.DEVICE_ID);
-    }
-
-    /**
-     * Verify that that's a color sensor!
-     * @return true if the color sensor is attached to the I2C bus
-     */
-    public boolean checkDeviceId() {
-        byte id = this.getDeviceID();
-        if ((id != parameters.getDeviceId())) {
-            RobotLog.e("unexpected AMS color sensor chipid: found=%d expected=%d", id, parameters.getDeviceId());
-            return false;
-        } else {
-            return true;
-        }
-    }
-
     /**
      * You may have a color sensor attached to the I2C bus, but it may not be initialized properly.
      * This method reads the data for the color sensors and takes a guess at whether the data is
      * valid or not. If it is not valid, odds are the color sensor was not initialized properly.
+     *
      * @return true = data is valid
      */
     public boolean isDataValid() {
@@ -681,6 +715,7 @@ public class AdafruitColorSensor8863 {
     /**
      * Add a line to the telemetry buffer indicating is the color sensor is on the I2C bus and if
      * the data read from it is likely to be valid.
+     *
      * @param colorSensorName
      * @param telemetry
      */
@@ -694,12 +729,30 @@ public class AdafruitColorSensor8863 {
 
         buffer = colorSensorName + " data is ";
         if (isDataValid()) {
-            buffer = buffer +"valid ";
+            buffer = buffer + "valid ";
         } else {
             buffer = buffer + "NOT VALID ";
         }
         buffer = buffer + " " + redScaled() + "/" + greenScaled() + "/" + blueScaled();
         telemetry.addData(buffer, "!");
+    }
+
+    //---------------------------------------------------------------------------------
+    //  METHODS that communicate with the color sensor registers. These methods:
+    //  - read and write raw bit values from and to the register
+    //  - read and interpret the bit values into something more understandable
+    //---------------------------------------------------------------------------------
+
+    // ENABLE REGISTER
+
+    /**
+     * Read the enable register and return it as a byte
+     *
+     * @return enable register bits as byte
+     */
+    private synchronized byte getEnableRegisterFromSensor() {
+        byte reg = colorSensorClient.read8(Register.ENABLE.byteVal);
+        return reg;
     }
 
     /**
@@ -717,47 +770,571 @@ public class AdafruitColorSensor8863 {
      */
     private synchronized void disable() {
         /* Turn the device off to save power */
-        byte reg = colorSensorClient.read8(Register.ENABLE.byteVal);
+        byte reg = getEnableRegisterFromSensor();
         this.write8(Register.ENABLE, reg & ~(EnableRegister.AMS_COLOR_ENABLE_PON.byteVal | EnableRegister.AMS_COLOR_ENABLE_AEN.byteVal));
     }
 
     /**
-     * Enable the interrupt that get set when the clear is under or over the threshold
+     * Is the color sensor powered on? (Technically is the oscillator running?)
+     *
+     * @return true if powered on
+     */
+    private synchronized boolean isPowerEnabled() {
+        byte reg = getEnableRegisterFromSensor();
+        if ((reg & EnableRegister.AMS_COLOR_ENABLE_PON.byteVal) == EnableRegister.AMS_COLOR_ENABLE_PON.byteVal) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Is the color sensor enabled:
+     *
+     * @return true if enabled
+     */
+    private synchronized boolean isColorSensorEnabled() {
+        byte reg = getEnableRegisterFromSensor();
+        if ((reg & EnableRegister.AMS_COLOR_ENABLE_AEN.byteVal) == EnableRegister.AMS_COLOR_ENABLE_AEN.byteVal) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Enable the interrupt that gets set when the clear value is under or over the threshold. This
+     * allows the INT pin on the circuit board to get driven.
      */
     private synchronized void enableInterrupt() {
-        byte reg = colorSensorClient.read8(Register.ENABLE.byteVal);
+        byte reg = getEnableRegisterFromSensor();
         this.write8(Register.ENABLE, reg | EnableRegister.AMS_COLOR_ENABLE_AIEN.byteVal);
     }
 
     /**
-     * Disable the interrupt
+     * Disable the interrupt. The INT pin on the circuit board will not be driven and will float.
      */
     private synchronized void disableInterrupt() {
-        byte reg = colorSensorClient.read8(Register.ENABLE.byteVal);
+        byte reg = getEnableRegisterFromSensor();
         this.write8(Register.ENABLE, reg & ~EnableRegister.AMS_COLOR_ENABLE_AIEN.byteVal);
     }
 
-    private synchronized void forceInterrupt() {
-        // set the clear low interrupt threshold way high so an interrupt is guaranteed
-        this.write8(Register.THRESHOLD_AILTL, 0xFF);
-        this.write8(Register.THRESHOLD_AILTH, 0xFF);
-        // set the clear high interrupt threshold low so it is not evaluated
-        this.write8(Register.THRESHOLD_AIHTL, 0x00);
-        this.write8(Register.THRESHOLD_AIHTH, 0x00);
-        // enable the interrupt
-        enableInterrupt();
+    /**
+     * Is the interrupt enabled?
+     *
+     * @return true if enabled
+     */
+    private synchronized boolean isInterruptEnabled() {
+        byte reg = getEnableRegisterFromSensor();
+        if ((reg & EnableRegister.AMS_COLOR_ENABLE_AIEN.byteVal) == EnableRegister.AMS_COLOR_ENABLE_AIEN.byteVal) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
-    private synchronized  void clearInterrupt() {
-        // clear the interrupt
-        // disable the interrupt
-        disableInterrupt();
+    /**
+     * The wait timer controls if there is a period of time that the sensor waits before starting
+     * a new color integration cycle. You can enable it or disable it. The benefit of this is that
+     * it saves power. For FTC we don't care about saving power. Keep the wait timer disabled.
+     *
+     * @return true if enabled
+     */
+    private synchronized boolean isWaitTimerEnabled() {
+        byte reg = getEnableRegisterFromSensor();
+        if ((reg & EnableRegister.AMS_COLOR_ENABLE_WEN.byteVal) == EnableRegister.AMS_COLOR_ENABLE_WEN.byteVal) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Enable the wait timer as described in isWaitTimerEnabled(). Not recommended for FTC. Leave it
+     * disabled.
+     */
+    private synchronized void enableWaitTimer() {
+        byte reg = getEnableRegisterFromSensor();
+        this.write8(Register.ENABLE, (reg | EnableRegister.AMS_COLOR_ENABLE_WEN.byteVal));
+    }
+
+    /**
+     * Disable the wait timer as described in isWaitTimerEnabled(). For FTC, you want to leave it
+     * disabled.
+     */
+    private synchronized void disableWaitTimer() {
+        byte reg = getEnableRegisterFromSensor();
+        this.write8(Register.ENABLE, (reg & ~EnableRegister.AMS_COLOR_ENABLE_WEN.byteVal));
+    }
+
+    // INTEGRATION TIME REGISTER
+
+    /**
+     * Read the integration time register and return it as a byte
+     *
+     * @return integration time register bits as byte
+     */
+    private synchronized byte getIntegrationTimeRegisterFromSensor() {
+        byte reg = colorSensorClient.read8(Register.INTEGRATION_TIME.byteVal);
+        return reg;
+    }
+
+    /**
+     * Read the integration time register and return it as the enum value corresponding to the
+     * data in the register.
+     *
+     * @return IntegrationTime enum value
+     */
+    private synchronized IntegrationTime getIntegrationTimeValueFromSensor() {
+        byte reg = getIntegrationTimeRegisterFromSensor();
+        return IntegrationTime.valueOf(reg);
+    }
+
+    /**
+     * Write an integration time into the integration time register
+     *
+     * @param time an IntegrationTime enum value
+     */
+    private void setIntegrationTime(IntegrationTime time) {
+        this.write8(Register.INTEGRATION_TIME, time.byteVal);
+        // calculate maximum possible color value for use later in scaling
+        this.maxRGBCValue = calculateMaxRGBCCount(time);
+    }
+
+    // WAIT TIME REGISTER
+
+    /**
+     * Read the wait time register and return it as a byte
+     *
+     * @return wait time register bits as byte
+     */
+    private synchronized byte getWaitTimeRegisterFromSensor() {
+        byte reg = colorSensorClient.read8(Register.WAIT_TIME.byteVal);
+        return reg;
+    }
+
+    /**
+     * Read the wait time register and return it as the enum value corresponding to the
+     * data in the register.
+     *
+     * @return WaitTime enum value
+     */
+    private synchronized WaitTime getWaitTimeValueFromSensor() {
+        byte reg = getIntegrationTimeRegisterFromSensor();
+        return WaitTime.valueOf(reg);
+    }
+
+
+    /**
+     * Write the specified wait time into the register
+     *
+     * @param waitTime
+     */
+    private synchronized void setWaitTimeRegister(WaitTime waitTime) {
+        this.write8(Register.WAIT_TIME, waitTime.byteVal);
+    }
+
+    // INTERRUPT LOW AND HIGH THRESHOLD REGISTERS
+
+    /**
+     * Read the low byte of low threshold register and return it as a byte
+     *
+     * @return low byte of low threshold register
+     */
+    private synchronized byte getLowThresholdLowByteRegisterFromSensor() {
+        byte reg = colorSensorClient.read8(Register.THRESHOLD_AILTL.byteVal);
+        return reg;
+    }
+
+    /**
+     * Set the low byte of the low interrupt threshold
+     *
+     * @param byteVal
+     */
+    private synchronized void setLowThresholdLowByte(byte byteVal) {
+        this.write8(Register.THRESHOLD_AILTL, byteVal);
+    }
+
+    /**
+     * Read the high byte of low threshold register and return it as a byte
+     *
+     * @return high byte of low threshold register
+     */
+    private synchronized byte getLowThresholdHighByteRegisterFromSensor() {
+        byte reg = colorSensorClient.read8(Register.THRESHOLD_AILTH.byteVal);
+        return reg;
+    }
+
+    /**
+     * Set the high byte of the low interrupt threshold
+     *
+     * @param byteVal
+     */
+    private synchronized void setLowThresholdHighByte(byte byteVal) {
+        this.write8(Register.THRESHOLD_AILTH, byteVal);
+    }
+
+    /**
+     * Read the high and low bytes from the low threshold registers and return as an int.
+     *
+     * @return int formed from the high and low bytes of the threshold registers
+     */
+    private synchronized int getLowThresholdFromSensor() {
+        return readUnsignedShort(Register.THRESHOLD_AILTL);
+    }
+
+    /**
+     * Read the low byte of high threshold register and return it as a byte
+     *
+     * @return low byte of high threshold register
+     */
+    private synchronized byte getHighThresholdLowByteRegisterFromSensor() {
+        byte reg = colorSensorClient.read8(Register.THRESHOLD_AIHTL.byteVal);
+        return reg;
+    }
+
+    /**
+     * Set the low byte of the high interrupt threshold
+     *
+     * @param byteVal
+     */
+    private synchronized void setHighThresholdLowByte(byte byteVal) {
+        this.write8(Register.THRESHOLD_AIHTL, byteVal);
+    }
+
+    /**
+     * Read the high byte of high threshold register and return it as a byte
+     *
+     * @return high byte of high threshold register
+     */
+    private synchronized byte getHighThresholdHighByteRegisterFromSensor() {
+        byte reg = colorSensorClient.read8(Register.THRESHOLD_AIHTH.byteVal);
+        return reg;
+    }
+
+    /**
+     * Set the high byte of the high interrupt threshold
+     *
+     * @param byteVal
+     */
+    private synchronized void setHighThresholdHighByte(byte byteVal) {
+        this.write8(Register.THRESHOLD_AIHTH, byteVal);
+    }
+
+
+    /**
+     * Read the high and low bytes from the low threshold registers and return as an int.
+     *
+     * @return int formed from the high and low bytes of the threshold registers
+     */
+    private synchronized int getHighThresholdFromSensor() {
+        return readUnsignedShort(Register.THRESHOLD_AIHTL);
+    }
+
+    // PERSISTENCE REGISTER
+
+    /**
+     * Read the persistence register from the sensor and return it as a byte
+     *
+     * @return persistence register bits as byte
+     */
+    private synchronized byte getPersistenceRegisterFromSensor() {
+        byte reg = colorSensorClient.read8(Register.PERSISTENCE.byteVal);
+        return reg;
+    }
+
+    /**
+     * Read the persistence register from the sensor and return it as one of the persistence values.
+     *
+     * @return persistence as one of the persistence enum values
+     */
+    private synchronized Persistence getPersistenceValueFromSensor() {
+        byte reg = getPersistenceRegisterFromSensor();
+        return Persistence.valueOf(reg);
+    }
+
+    /**
+     * Set the persistence value. This controls how many times in a row an interrupt condition must
+     * persist before the interrupt pin is actually set.
+     *
+     * @param persistence
+     */
+    private synchronized void setPersistence(Persistence persistence) {
+        this.write8(Register.PERSISTENCE, persistence.byteVal);
+    }
+
+    // CONFIGURATION
+
+    private synchronized byte getConfigurationRegisterFromSensor() {
+        byte reg = colorSensorClient.read8(Register.CONFIGURATION.byteVal);
+        return reg;
+    }
+
+    private synchronized void setConfiguration(Configuration configuration) {
+        this.write8(Register.CONFIGURATION, configuration.byteVal);
+    }
+
+    private synchronized Configuration getConfigurationValueFromSensor() {
+        // setup a mask to yeild only bits 1:0
+        byte configMask = 0x03;
+        // read the gain
+        byte reg = colorSensorClient.read8(Register.CONFIGURATION.byteVal);
+        // mask off the 7:2 bits
+        reg = (byte) (reg & configMask);
+        return Configuration.valueOf(reg);
+
+    }
+
+    // CONTROL / GAIN REGISTER
+
+    /**
+     * Read the contents of the Control register and return it as a byte
+     *
+     * @return control register bits as byte
+     */
+    private synchronized byte getControlRegisterFromSensor() {
+        byte reg = colorSensorClient.read8(Register.CONTROL.byteVal);
+        return reg;
+    }
+
+    /**
+     * The gain is set using bits 1:0 in the control register. Read the gain and return the enum
+     * for it.
+     *
+     * @return Gain enum value corresponding to the gain bits in the register
+     */
+    private synchronized Gain getGainValueFromSensor() {
+        // setup a mask to yeild only bits 1:0
+        byte gainMask = 0x03;
+        // read the gain
+        byte reg = colorSensorClient.read8(Register.CONTROL.byteVal);
+        // mask off the 7:2 bits
+        reg = (byte) (reg & gainMask);
+        return Gain.valueOf(reg);
+    }
+
+    /**
+     * Set the gain applied to the color sensors
+     *
+     * @param gain
+     */
+    private void setGain(Gain gain) {
+        this.write8(Register.CONTROL, gain.byteVal);
+        // save the gain
+        parameters.setGain(gain);
+    }
+
+    // DEVICE ID REGISTER
+
+    /**
+     * Get the device id built into the sensor
+     *
+     * @return
+     */
+    public byte getDeviceID() {
+        return this.read8(Register.DEVICE_ID);
+    }
+
+
+    /**
+     * Verify that that's a color sensor!
+     *
+     * @return true if the color sensor is attached to the I2C bus
+     */
+    public boolean checkDeviceId() {
+        byte id = this.getDeviceID();
+        if ((id != parameters.getDeviceId())) {
+            RobotLog.e("unexpected AMS color sensor chipid: found=%d expected=%d", id, parameters.getDeviceId());
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    // STATUS REGISTER
+
+    /**
+     * Read the contents of the Status register and return it as a byte
+     *
+     * @return status register bits as byte
+     */
+    private synchronized byte getStatusRegisterFromSensor() {
+        byte reg = colorSensorClient.read8(Register.STATUS.byteVal);
+        return reg;
+    }
+
+    /**
+     * Get the interrupt status from the status register. Note that if the interrupt is not enabled
+     * onto the INT pin, then the status bit will not match the INT pin.
+     */
+    private synchronized boolean isInterruptSetInStatusRegister() {
+        // read the status register
+        byte reg = colorSensorClient.read8(Register.STATUS.byteVal);
+        if ((reg & Status.AMS_COLOR_STATUS_INTERRUPT.byteVal) == Status.AMS_COLOR_STATUS_INTERRUPT.byteVal) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * The status register has a bit that indicates if there is valid data from an integration
+     * cycle. This method checks to see if there is valid data available.
+     *
+     * @return true if there is valid data available
+     */
+    private synchronized boolean isDataValidInStatusRegister() {
+        // read the status register
+        byte reg = colorSensorClient.read8(Register.STATUS.byteVal);
+        if ((reg & Status.AMS_COLOR_STATUS_DATA_VALID.byteVal) == Status.AMS_COLOR_STATUS_DATA_VALID.byteVal) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    // COLOR REGISTERS - THESE ARE RAW UNSCALED VALUES - YOU PROBABLY WANT TO USE THE SCALED
+    // VALUES INSTEAD OF THESE
+
+    private int readColorRegister(Register reg) {
+        return readUnsignedShort(reg);
+    }
+
+    /**
+     * Read the red registers
+     *
+     * @return red value - raw and not scaled to 0-255 standard RGB value range
+     */
+    public synchronized int red() {
+        return this.readColorRegister(Register.REDL);
+    }
+
+    /**
+     * Read the green registers
+     *
+     * @return green value - raw and not scaled to 0-255 standard RGB value range
+     */
+    public synchronized int green() {
+        return this.readColorRegister(Register.GREENL);
+    }
+
+    /**
+     * Read the blue registers
+     *
+     * @return blue value - raw and not scaled to 0-255 standard RGB value range
+     */
+    public synchronized int blue() {
+        return this.readColorRegister(Register.BLUEL);
+    }
+
+    /**
+     * Read the clear (alpha) registers
+     *
+     * @return clear or alpha value - raw and not scaled to 0-255 standard RGB value range
+     */
+    public synchronized int alpha() {
+        int alpha = this.readColorRegister(Register.CLEARL);
+        //use reads of alpha to update the tracker that is tracking update times
+        if (alpha != lastAlpha) {
+            // alpha changed so update the tracker
+            updateTimeTracker.compareValue(updateTimer.milliseconds());
+            updateTimer.reset();
+            // Since alpha changed save the new lastAlpha
+            lastAlpha = alpha;
+        }
+        return alpha;
+    }
+
+    /**
+     * Read the 4 color values (clear + red, green and blue) from the registers and return them as
+     * an array. The advantage of this method is that one read is a lot faster than individual reads
+     * from each register as done in the red(), green(), blue() and alpha() methods.
+     *
+     * @return array of values [clear, red, green, blue]
+     */
+    public synchronized int[] getClearRGB() {
+        int[] result = new int[4];
+        byte[] bytes = read(Register.CLEARL, 8);
+        ByteBuffer buffer = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
+        //
+        int clear = TypeConversion.unsignedShortToInt(buffer.getShort());
+        int red = TypeConversion.unsignedShortToInt(buffer.getShort());
+        int green = TypeConversion.unsignedShortToInt(buffer.getShort());
+        int blue = TypeConversion.unsignedShortToInt(buffer.getShort());
+        //
+        result[0] = clear;
+        result[1] = red;
+        result[2] = green;
+        result[3] = blue;
+        return result;
+    }
+
+    public String rgbValuesAsString() {
+        return red() + " / " + blue() + " / " + green();
+    }
+
+    //*********************************************************************************************
+    //          I2C low level read and write methods
+    //*********************************************************************************************
+
+    public synchronized byte read8(final Register reg) {
+        return colorSensorClient.read8(reg.byteVal | CommandRegister.AMS_COLOR_COMMAND_BIT.byteVal);
+    }
+
+    public synchronized byte[] read(final Register reg, final int cb) {
+        return colorSensorClient.read(reg.byteVal | CommandRegister.AMS_COLOR_COMMAND_BIT.byteVal, cb);
+    }
+
+    public synchronized void write8(Register reg, int data) {
+        colorSensorClient.write8(reg.byteVal | CommandRegister.AMS_COLOR_COMMAND_BIT.byteVal, data);
+        colorSensorClient.waitForWriteCompletions();
+    }
+
+    public synchronized void write(Register reg, byte[] data) {
+        colorSensorClient.write(reg.byteVal | CommandRegister.AMS_COLOR_COMMAND_BIT.byteVal, data);
+        colorSensorClient.waitForWriteCompletions();
+    }
+
+    public int readUnsignedShort(Register reg) {
+        byte[] bytes = this.read(reg, 2);
+        int result = 0;
+        if (bytes.length == 2) {
+            ByteBuffer buffer = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
+            result = TypeConversion.unsignedShortToInt(buffer.getShort());
+        }
+        return result;
+    }
+
+    //---------------------------------------------------------------------------------
+    //  Utility methods
+    //---------------------------------------------------------------------------------
+
+    /**
+     * Force an interrupt to be output on the INT pin of the circuit board. The interrupt is active
+     * low. If there is no interrupt, the output is floating (open drain). If the INT pin is jumpered
+     * to the LED pin, then the interrupt can be used to turn the LED on and off. Tricky huh?
+     * interrupt = LED off
+     * no interrupt = LED on
+     */
+    private synchronized void forceInterrupt() {
+        // set the clear persistence interrupt filter so that an interrupt is generated the first
+        // time the threshold is exceeded
+        setPersistence(Persistence.AMS_COLOR_PERS_NONE);
+        // set the low interrupt threshold way high so an interrupt is guaranteed
+        setLowThresholdLowByte((byte) 0xFF);
+        setLowThresholdHighByte((byte) 0xFF);
+        // set the high interrupt threshold low so it is not evaluated
+        setHighThresholdLowByte((byte) 0x00);
+        setHighThresholdHighByte((byte) 0x00);
+        // enable the interrupt
+        enableInterrupt();
     }
 
     /**
      * Figure out what the maximum possible color value is given the integration time that is chosen.
      * If you actually read this max value then it is likely that your gain is set too high and
      * you are saturating the sensor. In that case choose a lower gain.
+     *
      * @param integrationTime
      * @return max possible value for a color sensor reading.
      */
@@ -785,10 +1362,11 @@ public class AdafruitColorSensor8863 {
     }
 
     /**
-     *  Standard RBG values range from 0 to 255. The raw color sensor values can range from 0 to
-     *  65535 depending on the integration time selected. This method scales a raw color sensor
-     *  value reading to the range of 0 to 255. This normalizes
+     * Standard RBG values range from 0 to 255. The raw color sensor values can range from 0 to
+     * 65535 depending on the integration time selected. This method scales a raw color sensor
+     * value reading to the range of 0 to 255. This normalizes
      * the reading so it can be compared to readings using different integration times.
+     *
      * @param colorValue
      * @return scaled color value
      */
@@ -828,38 +1406,6 @@ public class AdafruitColorSensor8863 {
 
     private void doSomething() {
         // yeah well it actually does nothing for now. Some day maybe ...
-    }
-
-    //*********************************************************************************************
-    //          I2C read and write methods
-    //*********************************************************************************************
-
-    public synchronized byte read8(final Register reg) {
-        return colorSensorClient.read8(reg.byteVal | CommandRegister.AMS_COLOR_COMMAND_BIT.byteVal);
-    }
-
-    public synchronized byte[] read(final Register reg, final int cb) {
-        return colorSensorClient.read(reg.byteVal | CommandRegister.AMS_COLOR_COMMAND_BIT.byteVal, cb);
-    }
-
-    public synchronized void write8(Register reg, int data) {
-        colorSensorClient.write8(reg.byteVal | CommandRegister.AMS_COLOR_COMMAND_BIT.byteVal, data);
-        colorSensorClient.waitForWriteCompletions();
-    }
-
-    public synchronized void write(Register reg, byte[] data) {
-        colorSensorClient.write(reg.byteVal | CommandRegister.AMS_COLOR_COMMAND_BIT.byteVal, data);
-        colorSensorClient.waitForWriteCompletions();
-    }
-
-    public int readUnsignedShort(Register reg) {
-        byte[] bytes = this.read(reg, 2);
-        int result = 0;
-        if (bytes.length == 2) {
-            ByteBuffer buffer = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
-            result = TypeConversion.unsignedShortToInt(buffer.getShort());
-        }
-        return result;
     }
 
     //*********************************************************************************************
@@ -911,9 +1457,39 @@ public class AdafruitColorSensor8863 {
         }
     }
 
-    public void turnLEDOnNew(){
-        // disable the interrupt
+    /**
+     * You have to put a shorting jumper across the INT and LED pins in order to use this method.
+     * The advantage is that you don't have to connect to a digital port on the core DIM module.
+     * Turn the LED on
+     */
+    public void turnLEDOnByInterrupt() {
+        disableInterrupt();
+        this.ledOn = true;
     }
+
+    /**
+     * You have to put a shorting jumper across the INT and LED pins in order to use this method.
+     * The advantage is that you don't have to connect to a digital port on the core DIM module.
+     * Turn the LED off
+     */
+    public void turnLEDOffByInterrupt() {
+        forceInterrupt();
+        this.ledOn = false;
+    }
+
+    /**
+     * You have to put a shorting jumper across the INT and LED pins in order to use this method.
+     * The advantage is that you don't have to connect to a digital port on the core DIM module.
+     * Toggle the led
+     */
+    public void toggleLEDByInterrupt() {
+        if (this.ledOn) {
+            turnLEDOffByInterrupt();
+        } else {
+            turnLEDOnByInterrupt();
+        }
+    }
+
     /**
      * Turn the blue led in the core DIM on
      */
@@ -936,64 +1512,14 @@ public class AdafruitColorSensor8863 {
     }
 
     /**
-     * Turn the blue led in the core DIM off
+     * Turn the red led in the core DIM off
      */
     public void turnCoreDIMRedLEDOff() {
         coreDIM.setLED(CoreDIMLEDChannel.RED.byteVal, false);
     }
 
     //*********************************************************************************************
-    //          Reading colors - these are the raw unscaled values, you probably don't want these
-    //          Use the scaled values instead. See below.
-    //*********************************************************************************************
-
-    public synchronized int red() {
-        return this.readColorRegister(Register.REDL);
-    }
-
-    public synchronized int green() {
-        return this.readColorRegister(Register.GREENL);
-    }
-
-    public synchronized int blue() {
-        return this.readColorRegister(Register.BLUEL);
-    }
-
-    public synchronized int alpha() {
-        int alpha = this.readColorRegister(Register.CLEARL);
-        //use reads of alpha to update the tracker that is tracking update times
-        if (alpha != lastAlpha) {
-            // alpha changed so update the tracker
-            updateTimeTracker.compareValue(updateTimer.milliseconds());
-            updateTimer.reset();
-            // Since alpha changed save the new lastAlpha
-            lastAlpha = alpha;
-        }
-        return alpha;
-    }
-
-    public String rgbValuesAsString() {
-        return red() + " / " + blue() + " / " + green();
-    }
-
-    private int readColorRegister(Register reg) {
-        return readUnsignedShort(reg);
-    }
-
-    public synchronized int argb() {
-        byte[] bytes = read(Register.CLEARL, 8);
-        ByteBuffer buffer = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
-        //
-        int clear = TypeConversion.unsignedShortToInt(buffer.getShort());
-        int red = TypeConversion.unsignedShortToInt(buffer.getShort());
-        int green = TypeConversion.unsignedShortToInt(buffer.getShort());
-        int blue = TypeConversion.unsignedShortToInt(buffer.getShort());
-        //
-        return Color.argb(clear, red, green, blue);
-    }
-
-    //*********************************************************************************************
-    //          Reading colors - these are the scaled values
+    //          Reading colors - these are the scaled values - USE THESE INSTEAD OF RAW VALUES
     //*********************************************************************************************
 
     public int redScaled() {
@@ -1012,35 +1538,34 @@ public class AdafruitColorSensor8863 {
         return calculateScaledRGBColor(alpha());
     }
 
-
-    /**
-     * The red sensor in the Adafruit color sensor tends to return a higher value than the green
-     * or blue sensors. In fact the graph in the data sheet for spectral response show this too.
-     * When the sensor looks at white, it should return red green and blue values that are about
-     * equal. It does not. Red is always higher. This method reduces the red value by a certain
-     * percent. You must determine the percent for each sensor since they seem to vary.
-     * @param redValue
-     * @return
-     */
-    private int redAdjusted(int redValue) {
-        return (int) Math.round(redValue/(1+redValueOverNominalInPercent));
-    }
-
-    /**
-     *
-     * @return
-     */
-    public int redScaledAndAdjusted() {
-        return redAdjusted(redScaled());
-    }
+//    /**
+//     * The red sensor in the Adafruit color sensor tends to return a higher value than the green
+//     * or blue sensors. In fact the graph in the data sheet for spectral response show this too.
+//     * When the sensor looks at white, it should return red green and blue values that are about
+//     * equal. It does not. Red is always higher. This method reduces the red value by a certain
+//     * percent. You must determine the percent for each sensor since they seem to vary.
+//     * @param redValue
+//     * @return
+//     */
+//    private int redAdjusted(int redValue) {
+//        return (int) Math.round(redValue/(1+redValueOverNominalInPercent));
+//    }
+//
+//    /**
+//     *
+//     * @return
+//     */
+//    public int redScaledAndAdjusted() {
+//        return redAdjusted(redScaled());
+//    }
 
     public String rgbValuesScaledAsString() {
         return redScaled() + " / " + greenScaled() + " / " + blueScaled();
     }
 
-    public String rbgValuesScaledAndAdjustedAsString() {
-        return redScaledAndAdjusted() + " / " + greenScaled() + " / " + blueScaled();
-    }
+//    public String rbgValuesScaledAndAdjustedAsString() {
+//        return redScaledAndAdjusted() + " / " + greenScaled() + " / " + blueScaled();
+//    }
 
     public float[] hsvScaled() {
         // hsvValues is an array that will hold the hue, saturation, and value information.
@@ -1073,6 +1598,7 @@ public class AdafruitColorSensor8863 {
 
     /**
      * A utility method that takes in 3 values and returns the one that is the max of the 3.
+     *
      * @param a
      * @param b
      * @param c
@@ -1081,11 +1607,11 @@ public class AdafruitColorSensor8863 {
     private int getMaxOfThree(int a, int b, int c) {
         int max = a;
         int which = 1;
-        if(b > a) {
+        if (b > a) {
             max = b;
             which = 2;
         }
-        if (c > max ) {
+        if (c > max) {
             max = c;
             which = 3;
         }
@@ -1093,15 +1619,17 @@ public class AdafruitColorSensor8863 {
     }
 
     /**
-     * Determine if the color seen is red by comparing the RGB values. The one that is the max is
-     * judged to be the color you are reading. In this case check if red is the max.
+     * Determine if the color seen is red by looking at the ratio of red to blue. If the ratio is
+     * larger than a certain limit then we call it red.
+     *
      * @return true = red, false = not red
      */
     public boolean isRedUsingRGB() {
         boolean result = false;
-        if((float)redScaled()/blueScaled() > isRedRatioLimit) {
+        // need to cast one operand as float in order to get a float result
+        if ((float) redScaled() / blueScaled() > isRedRatioLimit) {
             result = true;
-        } else  {
+        } else {
             result = false;
         }
         return result;
@@ -1110,24 +1638,26 @@ public class AdafruitColorSensor8863 {
     /**
      * Determine if the color seen is green by comparing the RGB values. The one that is the max is
      * judged to be the color you are reading. In this case check if green is the max.
+     *
      * @return true = green, false = not green
      */
     public boolean isGreenUsingRGB() {
         boolean result = false;
-        if(getMaxOfThree(redScaled(), greenScaled(), blueScaled()) == 2) {
+        if (getMaxOfThree(redScaled(), greenScaled(), blueScaled()) == 2) {
             result = true;
         }
         return result;
     }
 
     /**
-     * Determine if the color seen is blue by comparing the RGB values. The one that is the max is
-     * judged to be the color you are reading. In this case check if blue is the max.
+     * Determine if the color seen is blue by looking at the ratio of red to blue. If the ratio is
+     * less than a certain limit then we call it blue.
+     *
      * @return true = blue, false = not blue
      */
     public boolean isBlueUsingRGB() {
         boolean result = false;
-        if((float)redScaled() / blueScaled() < isBlueRatioLimit) {
+        if ((float) redScaled() / blueScaled() < isBlueRatioLimit) {
             result = true;
         } else {
             result = false;
@@ -1135,7 +1665,7 @@ public class AdafruitColorSensor8863 {
         return result;
     }
 
-    public ColorFromSensor getSimpleColor () {
+    public ColorFromSensor getSimpleColor() {
         ColorFromSensor result = ColorFromSensor.UNKNOWN;
         if (isRedUsingRGB()) {
             result = ColorFromSensor.RED;
@@ -1154,6 +1684,7 @@ public class AdafruitColorSensor8863 {
 
     /**
      * Return a caption to be used for a telemetry.addData call
+     *
      * @return
      */
     public String colorTestResultUsingRGBCaption() {
@@ -1162,6 +1693,7 @@ public class AdafruitColorSensor8863 {
 
     /**
      * Return a string with the results of testing the color for red, green and blue.
+     *
      * @return a true will appear where the color is matched.
      */
     public String colorTestResultUsingRGB() {
@@ -1173,7 +1705,7 @@ public class AdafruitColorSensor8863 {
     }
 
     public String colorRatiosUsingRGBValues() {
-        return String.format("%2.2f", (float)redScaled()/blueScaled());
+        return String.format("%2.2f", (float) redScaled() / blueScaled());
     }
     //*********************************************************************************************
     //          Color Testing using HSV as the method - should probably put this into another class
@@ -1182,11 +1714,12 @@ public class AdafruitColorSensor8863 {
 
     /**
      * Using HSV, determine if the color seen is red
+     *
      * @return true = red
      */
     public boolean isRedUsingHSV() {
         float hue = hueScaled();
-        if(hue >= 0 && hue <= 60 || hue >= 340 && hue <= 360) {
+        if (hue >= 0 && hue <= 60 || hue >= 340 && hue <= 360) {
             return true;
         } else {
             return false;
@@ -1195,11 +1728,12 @@ public class AdafruitColorSensor8863 {
 
     /**
      * Using HSV, determine if the color seen is green
+     *
      * @return true = green
      */
     public boolean isGreenUsingHSV() {
         float hue = hueScaled();
-        if(hue > 120 && hue <= 180) {
+        if (hue > 120 && hue <= 180) {
             return true;
         } else {
             return false;
@@ -1208,11 +1742,12 @@ public class AdafruitColorSensor8863 {
 
     /**
      * Using HSV, determine if the color seen is blue
+     *
      * @return true = blue
      */
     public boolean isBlueUsingHSV() {
         float hue = hueScaled();
-        if(hue > 220 && hue <= 300) {
+        if (hue > 220 && hue <= 300) {
             return true;
         } else {
             return false;
@@ -1221,6 +1756,7 @@ public class AdafruitColorSensor8863 {
 
     /**
      * Return a caption to be used for a telemetry.addData call
+     *
      * @return
      */
     public String colorTestResultUsingHSVCaption() {
@@ -1230,6 +1766,7 @@ public class AdafruitColorSensor8863 {
     /**
      * Return a string with the results of testing the color for red, green and blue. HSV is used
      * for the test
+     *
      * @return a true will appear where the color is matched.
      */
     public String colorTestResultUsingHSV() {
@@ -1256,6 +1793,12 @@ public class AdafruitColorSensor8863 {
         setGain(Gain.AMS_COLOR_GAIN_64);
     }
 
+    /**
+     * Use the stored value for the gain to return a string representing the gain. Note this is not
+     * reading from the color sensor register, it is just the cache of the value in the register.
+     *
+     * @return String with the gain
+     */
     public String getCurrentGainAsString() {
         String gainAsString = "nothing";
         switch (parameters.getGain()) {
@@ -1294,12 +1837,15 @@ public class AdafruitColorSensor8863 {
     public void setIntegrationTime154ms() {
         setIntegrationTime(IntegrationTime.AMS_COLOR_ITIME_154MS);
     }
+
     public void setIntegrationTime307ms() {
         setIntegrationTime(IntegrationTime.AMS_COLOR_ITIME_307MS);
     }
+
     public void setIntegrationTime460ms() {
         setIntegrationTime(IntegrationTime.AMS_COLOR_ITIME_460MS);
     }
+
     public void setIntegrationTime537ms() {
         setIntegrationTime(IntegrationTime.AMS_COLOR_ITIME_537MS);
     }
@@ -1308,6 +1854,13 @@ public class AdafruitColorSensor8863 {
         setIntegrationTime(IntegrationTime.AMS_COLOR_ITIME_700MS);
     }
 
+    /**
+     * Use the stored value for the integration time to return a string representing the integration
+     * time. Note this is not reading from the color sensor register, it is just the cache of the
+     * value in the register.
+     *
+     * @return String with the integration time
+     */
     public String getCurrentIntegrationTimeAsString() {
         String integrationTimeAsString = "nothing";
         switch (parameters.getIntegrationTime()) {
@@ -1375,22 +1928,23 @@ public class AdafruitColorSensor8863 {
     /**
      * On the driver station phone display most of the pertinent data from a color sensor. Use this
      * for debug.
+     *
      * @param telemetry
      */
     public void displayColorSensorData(Telemetry telemetry, AmountOfDataToDisplay amountOfDataToDisplay) {
         if (amountOfDataToDisplay == AmountOfDataToDisplay.NORMAL) {
-        telemetry.addData("Color sensor gain = ", getCurrentGainAsString());
-        telemetry.addData("Color sensor integration time = ", getCurrentIntegrationTimeAsString());
-        telemetry.addData("Max possible color value = ", getMaxRGBCValue());
-        telemetry.addData("Opaqueness = ", alpha());
-        telemetry.addData("Red / Green / Blue ", rgbValuesAsString());
-        telemetry.addData("Red / Green / Blue (scaled)", rgbValuesScaledAsString());
-        telemetry.addData("Hue / Sat / Value (scaled)", hsvValuesScaledAsString());
-        telemetry.addData(colorRatiosUsingRGBCaption(), colorRatiosUsingRGBValues());
-        telemetry.addData(colorTestResultUsingRGBCaption(), colorTestResultUsingRGB());
-        telemetry.addData(colorTestResultUsingHSVCaption(), colorTestResultUsingHSV());
-        telemetry.addData("Update min/ave/max/instant (mS) = ", updateRateString());
-        telemetry.addData(">", "Press Stop to end test." );
+            telemetry.addData("Color sensor gain = ", getCurrentGainAsString());
+            telemetry.addData("Color sensor integration time = ", getCurrentIntegrationTimeAsString());
+            telemetry.addData("Max possible color value = ", getMaxRGBCValue());
+            telemetry.addData("Opaqueness = ", alpha());
+            telemetry.addData("Red / Green / Blue ", rgbValuesAsString());
+            telemetry.addData("Red / Green / Blue (scaled)", rgbValuesScaledAsString());
+            telemetry.addData("Hue / Sat / Value (scaled)", hsvValuesScaledAsString());
+            telemetry.addData(colorRatiosUsingRGBCaption(), colorRatiosUsingRGBValues());
+            telemetry.addData(colorTestResultUsingRGBCaption(), colorTestResultUsingRGB());
+            telemetry.addData(colorTestResultUsingHSVCaption(), colorTestResultUsingHSV());
+            telemetry.addData("Update min/ave/max/instant (mS) = ", updateRateString());
+            telemetry.addData(">", "Press Stop to end test.");
         }
         if (amountOfDataToDisplay == AmountOfDataToDisplay.MIN) {
             telemetry.addData("Red / Green / Blue (scaled)", rgbValuesScaledAsString());
@@ -1398,5 +1952,47 @@ public class AdafruitColorSensor8863 {
             telemetry.addData(colorTestResultUsingRGBCaption(), colorTestResultUsingRGB());
             telemetry.addData(colorTestResultUsingHSVCaption(), colorTestResultUsingHSV());
         }
+    }
+
+    public void displayRegisterByteValues(Telemetry telemetry) {
+        telemetry.addData("ENABLE register =           ", "%02X ", getEnableRegisterFromSensor());
+        telemetry.addData("INTEGRATION_TIME register = ", "%02X ", getIntegrationTimeRegisterFromSensor());
+        telemetry.addData("WAIT_TIME register =        ", "%02X ", getWaitTimeRegisterFromSensor());
+        telemetry.addData("THRESHOLD_AILTL register =  ", "%02X ", getLowThresholdLowByteRegisterFromSensor());
+        telemetry.addData("THRESHOLD_AILTH register =  ", "%02X ", getLowThresholdHighByteRegisterFromSensor());
+        telemetry.addData("THRESHOLD_AIHTL register =  ", "%02X ", getHighThresholdLowByteRegisterFromSensor());
+        telemetry.addData("THRESHOLD_AIHTH register =  ", "%02X ", getHighThresholdLowByteRegisterFromSensor());
+        telemetry.addData("PERSISTENCE register =      ", "%02X ", getPersistenceRegisterFromSensor());
+        telemetry.addData("CONFIGURATION register =    ", "%02X ", getConfigurationRegisterFromSensor());
+        telemetry.addData("CONTROL register =          ", "%02X ", getControlRegisterFromSensor());
+        telemetry.addData("DEVICE_ID register =        ", "%02X ", getDeviceID());
+        telemetry.addData("STATUS register =           ", "%02X ", getStatusRegisterFromSensor());
+        telemetry.addData("Clear data =                ", "%5d", alpha());
+        telemetry.addData("Red data =                  ", "%5d", red());
+        telemetry.addData("Green data =                ", "%5d", green());
+        telemetry.addData("Blue data =                 ", "%5d", blue());
+    }
+
+    public void displayRegisterValues(Telemetry telemetry) {
+        telemetry.addData("ENABLE register: ", " ");
+        telemetry.addData("  Wait timer enabled =   ", isWaitTimerEnabled());
+        telemetry.addData("  Interrupt enabled =    ", isInterruptEnabled());
+        telemetry.addData("  Color sensor enabled = ", isColorSensorEnabled());
+        telemetry.addData("  Powered on  =          ", isPowerEnabled());
+        telemetry.addData("Integration time =       ", getIntegrationTimeValueFromSensor().toString());
+        telemetry.addData("Wait time =              ", getWaitTimeValueFromSensor().toString());
+        telemetry.addData("Low threshold =          ", "%5d", getLowThresholdFromSensor());
+        telemetry.addData("High threshold =         ", "%5d", getHighThresholdFromSensor());
+        telemetry.addData("Persistence =            ", getPersistenceValueFromSensor().toString());
+        telemetry.addData("Configuration =          ", getConfigurationValueFromSensor());
+        telemetry.addData("Gain =                   ", getGainValueFromSensor());
+        telemetry.addData("Device ok =              ", checkDeviceId());
+        telemetry.addData("STATUS register:         ", " ");
+        telemetry.addData("  Interrupt status =     ", isInterruptSetInStatusRegister());
+        telemetry.addData("  Data valid =           ", isDataValidInStatusRegister());
+        telemetry.addData("Clear (scaled) data =    ", "%5d", alphaScaled());
+        telemetry.addData("Red (scaled) data =      ", "%5d", redScaled());
+        telemetry.addData("Green (scaled) data =    ", "%5d", greenScaled());
+        telemetry.addData("Blue (scaled) data =     ", "%5d", blueScaled());
     }
 }
