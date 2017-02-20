@@ -141,7 +141,7 @@ public class AdafruitColorSensor8863 {
      * together to get the full command byte. To address another register, OR that address into the
      * command byte.
      */
-    enum CommandRegister {
+    public enum CommandRegister {
         AMS_COLOR_COMMAND_BIT(0x80),                // bit 7 must be 1 when writing to this register
         AMS_COLOR_COMMAND_REPEAT(0x00),             // bits 6:5 = 00 to specify a repeated byte protocol transaction
         AMS_COLOR_COMMAND_AUTO_INCREMENT(0x10),     // bits 6:5 = 01 to specify an auto-increment protocol transaction
@@ -162,7 +162,7 @@ public class AdafruitColorSensor8863 {
      * Provides symbolic names for the values the register can have.
      * OR the enums together to get the full enable byte.
      */
-    enum EnableRegister {
+    public enum EnableRegister {
         // bits 7:5: reserved
         AMS_COLOR_ENABLE_PIEN(0x20),        // bit 5: Proximity interrupt enable (not in the datasheet)
         AMS_COLOR_ENABLE_AIEN(0x10),        // bit 4: RGBC Interrupt Enable
@@ -213,7 +213,9 @@ public class AdafruitColorSensor8863 {
         AMS_COLOR_ITIME_307MS(0x80), // 307 mSec, max possible value = 65535
         AMS_COLOR_ITIME_460MS(0x40), // 460 mSec, max possible value = 65535
         AMS_COLOR_ITIME_537MS(0x20), // 537 mSec, max possible value = 65535
-        AMS_COLOR_ITIME_700MS(0x00); // 700 mSec, max possible value = 65535
+        AMS_COLOR_ITIME_700MS(0x00), // 700 mSec, max possible value = 65535
+        AMS_COLOR_ITIME_UNKNOWN(0xFE); // Not really unknown but not a preset value so treat it as
+                                       // unknown
 
         public final byte byteVal;
 
@@ -233,17 +235,20 @@ public class AdafruitColorSensor8863 {
         }
 
         /**
-         * Get the enum value given the byte value. If someone writes a value other than one of the
-         * predefined values above this method will throw a null pointer exception. Since there is
-         * no write method in this class that writes anything other than a predefined value above,
-         * that cannot happen - as long as the user does not use something outside this class to
-         * write to the sensor.
+         * Get the enum value given the byte value.
          *
          * @param byteVal
-         * @return IntegrationTime enum value corresponding to the byte value of the integration time
+         * @return IntegrationTime enum value corresponding to the byte value of the integration
+         * time or UNKNOWN if the byte value does not match any of the enums.
          */
         public static IntegrationTime valueOf(byte byteVal) {
-            return lookup.get(byteVal);
+            // Does the value from the register match one of the enums defined?
+            if (lookup.containsKey(byteVal)){
+                return lookup.get(byteVal);
+            } else {
+                // no - return uknown
+                return AMS_COLOR_ITIME_UNKNOWN;
+            }
         }
     }
 
@@ -262,10 +267,12 @@ public class AdafruitColorSensor8863 {
      * servos. We do care about speed though. We most likely want it fast. Our sensor does not get
      * any sleep :-). So typically you want to set this wait time to 2.4ms and keep WLONG = 0.
      */
-    enum WaitTime {
+    public enum WaitTime {
         AMS_COLOR_WTIME_2_4MS(0xFF),     // if WLONG=0, wait = 2.4ms; if WLONG=1 wait = 0.029s
         AMS_COLOR_WTIME_204MS(0xAB),     // if WLONG=0, wait = 204ms; if WLONG=1 wait = 2.45s
-        AMS_COLOR_WTIME_614MS(0x00);     // if WLONG=0, wait = 614ms; if WLONG=1 wait = 7.4s
+        AMS_COLOR_WTIME_614MS(0x00),     // if WLONG=0, wait = 614ms; if WLONG=1 wait = 7.4s
+        AMS_COLOR_WTIME_UNKNOWN(0xFE);   // Not really unknown but not a preset value so treat it as
+                                          // unknown
 
         public final byte byteVal;
 
@@ -284,17 +291,20 @@ public class AdafruitColorSensor8863 {
         }
 
         /**
-         * Get the enum value given the byte value. If someone writes a value other than one of the
-         * predefined values above this method will throw a null pointer exception. Since there is
-         * no write method in this class that writes anything other than a predefined value above,
-         * that cannot happen - as long as the user does not use something outside this class to
-         * write to the sensor.
+         * Get the enum value given the byte value.
          *
          * @param byteVal
-         * @return WaitTime enum value corresponding to the byte value of the integration time
+         * @return IntegrationTime enum value corresponding to the byte value of the wait
+         * time or UNKNOWN if the byte value does not match any of the enums.
          */
         public static WaitTime valueOf(byte byteVal) {
-            return lookup.get(byteVal);
+            // Does the value from the register match one of the enums defined?
+            if (lookup.containsKey(byteVal)) {
+                return lookup.get(byteVal);
+            } else {
+                // no - return uknown
+                return AMS_COLOR_WTIME_UNKNOWN;
+            }
         }
     }
 
@@ -317,7 +327,7 @@ public class AdafruitColorSensor8863 {
      * <p>
      * In FTC we don't have any interrupts. So these registers are not a concern to us.
      */
-    enum Persistence {
+    public enum Persistence {
         // bits 7:4 - reserved
         // bits 3:0 - interrupt persistence. Controls rate of interrupt 
         AMS_COLOR_PERS_NONE(0b0000),        // Every RGBC cycle generates an interrupt                                
@@ -335,7 +345,8 @@ public class AdafruitColorSensor8863 {
         AMS_COLOR_PERS_45_CYCLE(0b1100),    // 45 clean channel values outside threshold range generates an interrupt 
         AMS_COLOR_PERS_50_CYCLE(0b1101),    // 50 clean channel values outside threshold range generates an interrupt 
         AMS_COLOR_PERS_55_CYCLE(0b1110),    // 55 clean channel values outside threshold range generates an interrupt 
-        AMS_COLOR_PERS_60_CYCLE(0b1111);    // 60 clean channel values outside threshold range generates an interrupt 
+        AMS_COLOR_PERS_60_CYCLE(0b1111),    // 60 clean channel values outside threshold range generates an interrupt
+        AMS_COLOR_PERS_UNKNOWN(0xFF);       // Not really unknown but not a preset value so treat it as unknown
 
         public final byte byteVal;
 
@@ -355,13 +366,20 @@ public class AdafruitColorSensor8863 {
         }
 
         /**
-         * Get the enum value given the byte value
+         * Get the enum value given the byte value.
          *
          * @param byteVal
-         * @return IntegrationTime enum value corresponding to the byte value of the integration time
+         * @return IntegrationTime enum value corresponding to the byte value of the persistence
+         * or UNKNOWN if the byte value does not match any of the enums.
          */
         public static Persistence valueOf(byte byteVal) {
-            return lookup.get(byteVal);
+            // Does the value from the register match one of the enums defined?
+            if (lookup.containsKey(byteVal)) {
+                return lookup.get(byteVal);
+            } else {
+                // no - return uknown
+                return AMS_COLOR_PERS_UNKNOWN;
+            }
         }
     }
 
@@ -372,12 +390,13 @@ public class AdafruitColorSensor8863 {
      * See wait time register for an explanation of this. Short take: you almost certainly want
      * normal wait times for FTC.
      */
-    enum Configuration {
+    public enum Configuration {
         // bits 7:2 reserved, write as 0
         // bit 1 - WLONG, if set wait times increased by 12x
         // bit 0 - reserved, write as 0
         AMS_COLOR_CONFIG_NORMAL(0x00),    // normal wait times
-        AMS_COLOR_CONFIG_WLONG(0x02);     // Extended wait time(12x normal wait times via AMS_COLOR_WTIME
+        AMS_COLOR_CONFIG_WLONG(0x02),     // Extended wait time(12x normal wait times via AMS_COLOR_WTIME
+        AMS_COLOR_CONFIG_UNKNOWN(0xFF);   // Not really unknown but not a preset value so treat it as unknown
 
         public final byte byteVal;
 
@@ -397,14 +416,20 @@ public class AdafruitColorSensor8863 {
         }
 
         /**
-         * Get the enum value given the byte value
+         * Get the enum value given the byte value.
          *
          * @param byteVal
-         * @return Configuration enum value corresponding to the byte value of the configuration
-         * register
+         * @return IntegrationTime enum value corresponding to the byte value of the wait
+         * time or UNKNOWN if the byte value does not match any of the enums.
          */
         public static Configuration valueOf(byte byteVal) {
-            return lookup.get(byteVal);
+            // Does the value from the register match one of the enums defined?
+            if (lookup.containsKey(byteVal)) {
+                return lookup.get(byteVal);
+            } else {
+                // no - return uknown
+                return AMS_COLOR_CONFIG_UNKNOWN;
+            }
         }
     }
 
@@ -426,13 +451,14 @@ public class AdafruitColorSensor8863 {
      * happen while you are reading colors for real. Note that you may never saturate, even with
      * gain at 64X. It all depends on the lighting on the object you read.
      */
-    enum Gain {
+    public enum Gain {
         // bits 7:2 reserved, write as 0
         // bits 1:0 - RGBC gain control
         AMS_COLOR_GAIN_1(0x00),  // 1X
         AMS_COLOR_GAIN_4(0x01),  // 4X
         AMS_COLOR_GAIN_16(0x02), // 16X
-        AMS_COLOR_GAIN_64(0x03); // 64X
+        AMS_COLOR_GAIN_64(0x03), // 64X
+        AMS_COLOR_GAIN_UNKNOWN(0xFF); // Not really unknown but not a preset value so treat it as unknown
 
         public final byte byteVal;
 
@@ -452,13 +478,20 @@ public class AdafruitColorSensor8863 {
         }
 
         /**
-         * Get the enum value given the byte value
+         * Get the enum value given the byte value.
          *
          * @param byteVal
-         * @return Gain enum value corresponding to the byte value of the gain
+         * @return IntegrationTime enum value corresponding to the byte value of the wait
+         * time or UNKNOWN if the byte value does not match any of the enums.
          */
         public static Gain valueOf(byte byteVal) {
-            return lookup.get(byteVal);
+            // Does the value from the register match one of the enums defined?
+            if (lookup.containsKey(byteVal)) {
+                return lookup.get(byteVal);
+            } else {
+                // no - return uknown
+                return AMS_COLOR_GAIN_UNKNOWN;
+            }
         }
     }
 
@@ -467,7 +500,7 @@ public class AdafruitColorSensor8863 {
      * The ID register provides the value for the part number. The ID register is a read-only
      * register.
      */
-    enum DeviceID {
+    public enum DeviceID {
         AMS_COLOR_TCS34721_5_ID(0x44),   // TCS34721 and TCS34725 ID
         AMS_COLOR_TCS34723_7_ID(0x4D);   // TCS34723 and TCS34727 ID
 
@@ -482,7 +515,7 @@ public class AdafruitColorSensor8863 {
      * Status Register (address = 0x13)
      * The status register provides the internal status of the device. This register is read only.
      */
-    enum Status {
+    public enum Status {
         // bits 7:5 - reserved
         // bit 4 - AINT
         // bits 3:1 - reserved
@@ -509,7 +542,7 @@ public class AdafruitColorSensor8863 {
     /**
      * REGISTER provides symbolic names for device registers
      */
-    enum Register {
+    public enum Register {
         ENABLE(0x00),
         INTEGRATION_TIME(0x01),
         WAIT_TIME(0x03),
@@ -583,11 +616,6 @@ public class AdafruitColorSensor8863 {
 
     private int maxRGBCValue = 0;
 
-    private ArrayList<Gain> gainArrayList;
-    private int currentGainIndex = 0;
-    private ArrayList<IntegrationTime> integrationTimeArrayList;
-    private int currentIntegrationTimeIndex = 0;
-
     private I2cDevice colorSensor;
     private I2cDeviceSynch colorSensorClient;
     private AMSColorSensorParameters parameters;
@@ -604,8 +632,6 @@ public class AdafruitColorSensor8863 {
     private StatTracker updateTimeTracker;
 
     // For testing color that has been sensed
-    private double redValueOverNominalInPercent = .35;
-    private double colorValueThresholdInPercent = .20;
     private double isRedRatioLimit = 1.2;
     private double isBlueRatioLimit = .85;
 
@@ -743,9 +769,11 @@ public class AdafruitColorSensor8863 {
     }
 
     //---------------------------------------------------------------------------------
+    //
     //  METHODS that communicate with the color sensor registers. These methods:
     //  - read and write raw bit values from and to the register
     //  - read and interpret the bit values into something more understandable
+    //
     //---------------------------------------------------------------------------------
 
     // ENABLE REGISTER
@@ -763,7 +791,7 @@ public class AdafruitColorSensor8863 {
     /**
      * Turn the color sensor on.
      */
-    private synchronized void enable() {
+    public synchronized void enable() {
         this.write8(Register.ENABLE, EnableRegister.AMS_COLOR_ENABLE_PON.byteVal);
         delayLore(6); // Adafruit's sample implementation uses 3ms
         this.write8(Register.ENABLE, EnableRegister.AMS_COLOR_ENABLE_PON.byteVal | EnableRegister.AMS_COLOR_ENABLE_AEN.byteVal);
@@ -829,7 +857,7 @@ public class AdafruitColorSensor8863 {
      *
      * @return true if enabled
      */
-    private synchronized boolean isInterruptEnabled() {
+    public synchronized boolean isInterruptEnabled() {
         byte reg = getEnableRegisterFromSensor();
         if ((reg & EnableRegister.AMS_COLOR_ENABLE_AIEN.byteVal) == EnableRegister.AMS_COLOR_ENABLE_AIEN.byteVal) {
             return true;
@@ -890,7 +918,7 @@ public class AdafruitColorSensor8863 {
      *
      * @return IntegrationTime enum value
      */
-    private synchronized IntegrationTime getIntegrationTimeValueFromSensor() {
+    public synchronized IntegrationTime getIntegrationTimeValueFromSensor() {
         byte reg = getIntegrationTimeRegisterFromSensor();
         return IntegrationTime.valueOf(reg);
     }
@@ -900,7 +928,7 @@ public class AdafruitColorSensor8863 {
      *
      * @param time an IntegrationTime enum value
      */
-    private void setIntegrationTime(IntegrationTime time) {
+    public void setIntegrationTime(IntegrationTime time) {
         this.write8(Register.INTEGRATION_TIME, time.byteVal);
         // calculate maximum possible color value for use later in scaling
         this.maxRGBCValue = calculateMaxRGBCCount(time);
@@ -928,7 +956,6 @@ public class AdafruitColorSensor8863 {
         byte reg = getIntegrationTimeRegisterFromSensor();
         return WaitTime.valueOf(reg);
     }
-
 
     /**
      * Write the specified wait time into the register
@@ -984,7 +1011,7 @@ public class AdafruitColorSensor8863 {
      *
      * @return int formed from the high and low bytes of the threshold registers
      */
-    private synchronized int getLowThresholdFromSensor() {
+    public synchronized int getLowThresholdFromSensor() {
         return readUnsignedShort(Register.THRESHOLD_AILTL);
     }
 
@@ -1032,7 +1059,7 @@ public class AdafruitColorSensor8863 {
      *
      * @return int formed from the high and low bytes of the threshold registers
      */
-    private synchronized int getHighThresholdFromSensor() {
+    public synchronized int getHighThresholdFromSensor() {
         return readUnsignedShort(Register.THRESHOLD_AIHTL);
     }
 
@@ -1079,7 +1106,7 @@ public class AdafruitColorSensor8863 {
         this.write8(Register.CONFIGURATION, configuration.byteVal);
     }
 
-    private synchronized Configuration getConfigurationValueFromSensor() {
+    public synchronized Configuration getConfigurationValueFromSensor() {
         // setup a mask to yeild only bits 1:0
         byte configMask = 0x03;
         // read the gain
@@ -1108,7 +1135,7 @@ public class AdafruitColorSensor8863 {
      *
      * @return Gain enum value corresponding to the gain bits in the register
      */
-    private synchronized Gain getGainValueFromSensor() {
+    public synchronized Gain getGainValueFromSensor() {
         // setup a mask to yeild only bits 1:0
         byte gainMask = 0x03;
         // read the gain
@@ -1172,7 +1199,7 @@ public class AdafruitColorSensor8863 {
      * Get the interrupt status from the status register. Note that if the interrupt is not enabled
      * onto the INT pin, then the status bit will not match the INT pin.
      */
-    private synchronized boolean isInterruptSetInStatusRegister() {
+    public synchronized boolean isInterruptSetInStatusRegister() {
         // read the status register
         byte reg = colorSensorClient.read8(Register.STATUS.byteVal);
         if ((reg & Status.AMS_COLOR_STATUS_INTERRUPT.byteVal) == Status.AMS_COLOR_STATUS_INTERRUPT.byteVal) {
@@ -1188,7 +1215,7 @@ public class AdafruitColorSensor8863 {
      *
      * @return true if there is valid data available
      */
-    private synchronized boolean isDataValidInStatusRegister() {
+    public synchronized boolean isDataValidInStatusRegister() {
         // read the status register
         byte reg = colorSensorClient.read8(Register.STATUS.byteVal);
         if ((reg & Status.AMS_COLOR_STATUS_DATA_VALID.byteVal) == Status.AMS_COLOR_STATUS_DATA_VALID.byteVal) {
@@ -1947,7 +1974,7 @@ public class AdafruitColorSensor8863 {
     }
 
     //*********************************************************************************************
-    //          Putting data onto the driver station
+    //          Putting data onto the driver station / test methods
     //*********************************************************************************************
 
     /**
@@ -2019,5 +2046,289 @@ public class AdafruitColorSensor8863 {
         telemetry.addData("Red (scaled) data =      ", "%5d", redScaled());
         telemetry.addData("Green (scaled) data =    ", "%5d", greenScaled());
         telemetry.addData("Blue (scaled) data =     ", "%5d", blueScaled());
+    }
+    
+    public void testReadWriteRegisters(Telemetry telemetry) {
+
+        //read and write the enable register
+
+        telemetry.addData("Enable register tests", "!");
+        sleep(2000);
+        telemetry.addData("Color sensor default after power up", "!");
+        telemetry.addData("ENABLE register =           ", "%02X ", getEnableRegisterFromSensor());
+        telemetry.addData("ENABLE register: ", " ");
+        telemetry.addData("  Wait timer enabled =   ", isWaitTimerEnabled());
+        telemetry.addData("  Interrupt enabled =    ", isInterruptEnabled());
+        telemetry.addData("  Color sensor enabled = ", isColorSensorEnabled());
+        telemetry.addData("  Powered on  =          ", isPowerEnabled());
+        telemetry.update();
+        sleep(5000);
+        enableInterrupt();
+        telemetry.addData("Interrupt enabled", "...");
+        telemetry.addData("ENABLE register =           ", "%02X ", getEnableRegisterFromSensor());
+        telemetry.addData("ENABLE register: ", " ");
+        telemetry.addData("  Wait timer enabled =   ", isWaitTimerEnabled());
+        telemetry.addData("  Interrupt enabled =    ", isInterruptEnabled());
+        telemetry.addData("  Color sensor enabled = ", isColorSensorEnabled());
+        telemetry.addData("  Powered on  =          ", isPowerEnabled());
+        telemetry.update();
+        sleep(5000);
+        disableInterrupt();
+        telemetry.addData("Interrupt disabled", "...");
+        telemetry.addData("ENABLE register =           ", "%02X ", getEnableRegisterFromSensor());
+        telemetry.addData("ENABLE register: ", " ");
+        telemetry.addData("  Wait timer enabled =   ", isWaitTimerEnabled());
+        telemetry.addData("  Interrupt enabled =    ", isInterruptEnabled());
+        telemetry.addData("  Color sensor enabled = ", isColorSensorEnabled());
+        telemetry.addData("  Powered on  =          ", isPowerEnabled());
+        telemetry.update();
+        sleep(5000);
+        enableWaitTimer();
+        telemetry.addData("Wait Timer enabled", "...");
+        telemetry.addData("ENABLE register =           ", "%02X ", getEnableRegisterFromSensor());
+        telemetry.addData("ENABLE register: ", " ");
+        telemetry.addData("  Wait timer enabled =   ", isWaitTimerEnabled());
+        telemetry.addData("  Interrupt enabled =    ", isInterruptEnabled());
+        telemetry.addData("  Color sensor enabled = ", isColorSensorEnabled());
+        telemetry.addData("  Powered on  =          ", isPowerEnabled());
+        telemetry.update();
+        sleep(5000);
+        disableWaitTimer();
+        telemetry.addData("Wait Timer disabled", "...");
+        telemetry.addData("ENABLE register =           ", "%02X ", getEnableRegisterFromSensor());
+        telemetry.addData("ENABLE register: ", " ");
+        telemetry.addData("  Wait timer enabled =   ", isWaitTimerEnabled());
+        telemetry.addData("  Interrupt enabled =    ", isInterruptEnabled());
+        telemetry.addData("  Color sensor enabled = ", isColorSensorEnabled());
+        telemetry.addData("  Powered on  =          ", isPowerEnabled());
+        telemetry.update();
+        sleep(5000);
+
+        // read and write the integration time register
+
+        telemetry.addData("Integration time register tests", "!");
+        telemetry.update();
+        sleep(2000);
+        telemetry.addData("INTEGRATION_TIME register = ", "%02X ", getIntegrationTimeRegisterFromSensor());
+        telemetry.addData("Integration time =       ", getIntegrationTimeValueFromSensor().toString());
+        telemetry.update();
+        sleep(5000);
+        setIntegrationTime(AdafruitColorSensor8863.IntegrationTime.AMS_COLOR_ITIME_700MS);
+        telemetry.addData("700mSec integration time", "...");
+        telemetry.addData("INTEGRATION_TIME register = ", "%02X ", getIntegrationTimeRegisterFromSensor());
+        telemetry.addData("Integration time =       ", getIntegrationTimeValueFromSensor().toString());
+        telemetry.update();
+        sleep(5000);
+        setIntegrationTime(AdafruitColorSensor8863.IntegrationTime.AMS_COLOR_ITIME_24MS);
+        telemetry.addData("24mSec integration time", "...");
+        telemetry.addData("INTEGRATION_TIME register = ", "%02X ", getIntegrationTimeRegisterFromSensor());
+        telemetry.addData("Integration time =       ", getIntegrationTimeValueFromSensor().toString());
+        telemetry.update();
+        sleep(5000);
+        setIntegrationTime537ms();
+        telemetry.addData("537mSec integration time", "...");
+        telemetry.addData("INTEGRATION_TIME register = ", "%02X ", getIntegrationTimeRegisterFromSensor());
+        telemetry.addData("Integration time =       ", getIntegrationTimeValueFromSensor().toString());
+        telemetry.update();
+        sleep(5000);
+        setIntegrationTime24ms();
+        telemetry.addData("24mSec integration time", "...");
+        telemetry.addData("INTEGRATION_TIME register = ", "%02X ", getIntegrationTimeRegisterFromSensor());
+        telemetry.addData("Integration time =       ", getIntegrationTimeValueFromSensor().toString());
+        telemetry.update();
+        sleep(5000);
+
+        // Wait time register
+
+        telemetry.addData("Wait time register tests", "!");
+        telemetry.update();
+        sleep(2000);
+        telemetry.addData("Defaults", "...");
+        telemetry.addData("WAIT_TIME register = ", "%02X ", getWaitTimeRegisterFromSensor());
+        telemetry.addData("Wait time =          ", getWaitTimeValueFromSensor().toString());
+        telemetry.update();
+        sleep(5000);
+        telemetry.addData("614mSec wait time", "...");
+        setWaitTimeRegister(AdafruitColorSensor8863.WaitTime.AMS_COLOR_WTIME_614MS);
+        telemetry.addData("WAIT_TIME register = ", "%02X ", getWaitTimeRegisterFromSensor());
+        telemetry.addData("Wait time =          ", getWaitTimeValueFromSensor().toString());
+        telemetry.update();
+        sleep(5000);
+        telemetry.addData("2.4mSec wait time", "...");
+        setWaitTimeRegister(AdafruitColorSensor8863.WaitTime.AMS_COLOR_WTIME_2_4MS);
+        telemetry.addData("WAIT_TIME register = ", "%02X ", getWaitTimeRegisterFromSensor());
+        telemetry.addData("Wait time =          ", getWaitTimeValueFromSensor().toString());
+        telemetry.update();
+        sleep(5000);
+
+        // high and low bytes of low threshold
+
+        telemetry.addData("Low interrupt threshold tests", "!");
+        telemetry.update();
+        sleep(2000);
+        telemetry.addData("Defaults", "...");
+        telemetry.addData("THRESHOLD_AILTL register = ", "%02X ", getLowThresholdLowByteRegisterFromSensor());
+        telemetry.addData("THRESHOLD_AILTH register = ", "%02X ", getLowThresholdHighByteRegisterFromSensor());
+        telemetry.addData("Low threshold =            ", "%5d", getLowThresholdFromSensor());
+        telemetry.update();
+        sleep(5000);
+        setLowThresholdLowByte((byte) 0xFF);
+        setLowThresholdHighByte((byte) 0xFF);
+        telemetry.addData("FFFF", "...");
+        telemetry.addData("THRESHOLD_AILTL register = ", "%02X ", getLowThresholdLowByteRegisterFromSensor());
+        telemetry.addData("THRESHOLD_AILTH register = ", "%02X ", getLowThresholdHighByteRegisterFromSensor());
+        telemetry.addData("Low threshold =            ", "%5d", getLowThresholdFromSensor());
+        telemetry.update();
+        sleep(5000);
+        setLowThresholdLowByte((byte) 0x00);
+        setLowThresholdHighByte((byte) 0x00);
+        telemetry.addData("0000", "...");
+        telemetry.addData("THRESHOLD_AILTL register = ", "%02X ", getLowThresholdLowByteRegisterFromSensor());
+        telemetry.addData("THRESHOLD_AILTH register = ", "%02X ", getLowThresholdHighByteRegisterFromSensor());
+        telemetry.addData("Low threshold =            ", "%5d", getLowThresholdFromSensor());
+        telemetry.update();
+        sleep(5000);
+
+        telemetry.addData("High interrupt threshold tests", "!");
+        telemetry.update();
+        sleep(2000);
+        telemetry.addData("Defaults", "...");
+        telemetry.addData("THRESHOLD_AIHTL register = ", "%02X ", getHighThresholdLowByteRegisterFromSensor());
+        telemetry.addData("THRESHOLD_AIHTH register = ", "%02X ", getHighThresholdHighByteRegisterFromSensor());
+        telemetry.addData("High threshold =           ", "%5d", getHighThresholdFromSensor());
+        telemetry.update();
+        sleep(5000);
+        setHighThresholdLowByte((byte) 0xFF);
+        setHighThresholdHighByte((byte) 0xFF);
+        telemetry.addData("FFFF", "...");
+        telemetry.addData("THRESHOLD_AIHTL register = ", "%02X ", getHighThresholdLowByteRegisterFromSensor());
+        telemetry.addData("THRESHOLD_AIHTH register = ", "%02X ", getHighThresholdHighByteRegisterFromSensor());
+        telemetry.addData("High threshold =           ", "%5d", getHighThresholdFromSensor());
+        telemetry.update();
+        sleep(5000);
+        setHighThresholdLowByte((byte) 0x00);
+        setHighThresholdHighByte((byte) 0x00);
+        telemetry.addData("0000", "...");
+        telemetry.addData("THRESHOLD_AIHTL register = ", "%02X ", getHighThresholdLowByteRegisterFromSensor());
+        telemetry.addData("THRESHOLD_AIHTH register = ", "%02X ", getHighThresholdHighByteRegisterFromSensor());
+        telemetry.addData("High threshold =           ", "%5d", getHighThresholdFromSensor());
+        telemetry.update();
+        sleep(5000);
+
+        // persistence register
+
+        telemetry.addData("Persistence register tests", "!");
+        telemetry.update();
+        sleep(2000);
+        telemetry.addData("Defaults", "...");
+        telemetry.addData("PERSISTENCE register = ", "%02X ", getPersistenceRegisterFromSensor());
+        telemetry.addData("Persistence =          ", getPersistenceValueFromSensor().toString());
+        telemetry.update();
+        sleep(5000);
+        telemetry.addData("Persistence = 10 cycles", "...");
+        setPersistence(AdafruitColorSensor8863.Persistence.AMS_COLOR_PERS_10_CYCLE);
+        telemetry.addData("PERSISTENCE register = ", "%02X ", getPersistenceRegisterFromSensor());
+        telemetry.addData("Persistence =          ", getPersistenceValueFromSensor().toString());
+        telemetry.update();
+        sleep(5000);
+        telemetry.addData("Persistence = 0 cycles ", "...");
+        setPersistence(AdafruitColorSensor8863.Persistence.AMS_COLOR_PERS_NONE);
+        telemetry.addData("PERSISTENCE register = ", "%02X ", getPersistenceRegisterFromSensor());
+        telemetry.addData("Persistence =          ", getPersistenceValueFromSensor().toString());
+        telemetry.update();
+        sleep(5000);
+
+        // configuration register
+
+        telemetry.addData("Configuration register tests", "!");
+        telemetry.update();
+        sleep(2000);
+        telemetry.addData("Defaults", "...");
+        telemetry.addData("CONFIGURATION register =    ", "%02X ", getConfigurationRegisterFromSensor());
+        telemetry.addData("Configuration =          ", getConfigurationValueFromSensor());
+        telemetry.update();
+        sleep(5000);
+        telemetry.addData("WLONG set", "...");
+        setConfiguration(AdafruitColorSensor8863.Configuration.AMS_COLOR_CONFIG_WLONG);
+        telemetry.addData("CONFIGURATION register =    ", "%02X ", getConfigurationRegisterFromSensor());
+        telemetry.addData("Configuration =          ", getConfigurationValueFromSensor());
+        telemetry.update();
+        sleep(5000);
+        telemetry.addData("NORMAL set", "...");
+        setConfiguration(AdafruitColorSensor8863.Configuration.AMS_COLOR_CONFIG_NORMAL);
+        telemetry.addData("CONFIGURATION register =    ", "%02X ", getConfigurationRegisterFromSensor());
+        telemetry.addData("Configuration =          ", getConfigurationValueFromSensor());
+        telemetry.update();
+        sleep(5000);
+
+        // Control / gain register
+
+        telemetry.addData("Control / gain register tests", "!");
+        telemetry.update();
+        sleep(2000);
+        telemetry.addData("Defaults", "...");
+        telemetry.addData("CONTROL / gain register =          ", "%02X ", getControlRegisterFromSensor());
+        telemetry.addData("Gain =                   ", getGainValueFromSensor());
+        telemetry.update();
+        sleep(5000);
+        telemetry.addData("Gain = 16X", "...");
+        setGain16x();
+        telemetry.addData("CONTROL / gain register =          ", "%02X ", getControlRegisterFromSensor());
+        telemetry.addData("Gain =                   ", getGainValueFromSensor());
+        telemetry.update();
+        sleep(5000);
+        telemetry.addData("Gain = 64X", "...");
+        setGain64x();
+        telemetry.addData("CONTROL / gain register =          ", "%02X ", getControlRegisterFromSensor());
+        telemetry.addData("Gain =                   ", getGainValueFromSensor());
+        telemetry.update();
+        sleep(5000);
+
+        // Device ID register - read only
+
+        telemetry.addData("Device ID register tests", "!");
+        telemetry.update();
+        sleep(2000);
+        telemetry.addData("Device ID = ", getDeviceID());
+        telemetry.addData("Is device ID OK = ", checkDeviceId());
+        telemetry.update();
+        sleep(5000);
+
+        // status register
+
+        telemetry.addData("Status register tests", "!");
+        telemetry.update();
+        sleep(2000);
+        telemetry.addData("Defaults", "...");
+        telemetry.addData("STATUS register =    ", "%02X ", getStatusRegisterFromSensor());
+        telemetry.addData("  Interrupt status = ", isInterruptSetInStatusRegister());
+        telemetry.addData("  Data valid =       ", isDataValidInStatusRegister());
+        telemetry.update();
+        sleep(5000);
+
+        // set the integration time to be long and see if the data valid toggles
+
+        telemetry.addData("Set long integration time to see if data valid toggles", "!");
+        telemetry.update();
+        sleep(2000);
+        setIntegrationTime700ms();
+        telemetry.addData("  Data valid =       ", isDataValidInStatusRegister());
+        telemetry.update();
+        sleep(5000);
+    }
+
+    /**
+     * Sleeps for the given amount of milliseconds, or until the thread is interrupted. This is
+     * simple shorthand for the operating-system-provided {@link Thread#sleep(long) sleep()} method.
+     *
+     * @param milliseconds amount of time to sleep, in milliseconds
+     * @see Thread#sleep(long)
+     */
+    public final void sleep(long milliseconds) {
+        try {
+            Thread.sleep(milliseconds);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 }
