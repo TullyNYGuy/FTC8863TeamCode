@@ -36,6 +36,7 @@ import android.graphics.Color;
 import com.qualcomm.robotcore.hardware.DeviceInterfaceModule;
 import com.qualcomm.robotcore.hardware.DigitalChannelController;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynchImpl;
@@ -55,7 +56,6 @@ import java.util.Map;
 // Things to do:
 //    investigate the update rate - it appears odd
 //    put in an instantaneous update rate
-//    add to test routine so that game pad buttons control gain and integration time
 
 /**
  * This class provides an interface to the Adafruit TCS34725 Color Sensor:
@@ -75,7 +75,7 @@ import java.util.Map;
  * modern robotics core device interface (DIM) module. The wire gets connected to the "SIGNAL" pin
  * of the DIM digital input/output port. You then pass in the core DIM name you configured
  * on your phone and the port number you connected the wire to.
- *
+ * <p>
  * Another way to control the LED and not use up a valuable core DIM digital port is to use the
  * interrupt PIN to drive the LED pin on the circuit board. This is a bit of a trick but it works.
  * You need to install a 2 pin shorting jumper between the LED pin and the INT pin of the circuit
@@ -215,7 +215,7 @@ public class AdafruitColorSensor8863 {
         AMS_COLOR_ITIME_537MS(0x20), // 537 mSec, max possible value = 65535
         AMS_COLOR_ITIME_700MS(0x00), // 700 mSec, max possible value = 65535
         AMS_COLOR_ITIME_UNKNOWN(0xFE); // Not really unknown but not a preset value so treat it as
-                                       // unknown
+        // unknown
 
         public final byte byteVal;
 
@@ -243,7 +243,7 @@ public class AdafruitColorSensor8863 {
          */
         public static IntegrationTime valueOf(byte byteVal) {
             // Does the value from the register match one of the enums defined?
-            if (lookup.containsKey(byteVal)){
+            if (lookup.containsKey(byteVal)) {
                 return lookup.get(byteVal);
             } else {
                 // no - return uknown
@@ -272,7 +272,7 @@ public class AdafruitColorSensor8863 {
         AMS_COLOR_WTIME_204MS(0xAB),     // if WLONG=0, wait = 204ms; if WLONG=1 wait = 2.45s
         AMS_COLOR_WTIME_614MS(0x00),     // if WLONG=0, wait = 614ms; if WLONG=1 wait = 7.4s
         AMS_COLOR_WTIME_UNKNOWN(0xFE);   // Not really unknown but not a preset value so treat it as
-                                          // unknown
+        // unknown
 
         public final byte byteVal;
 
@@ -607,6 +607,15 @@ public class AdafruitColorSensor8863 {
         UNKNOWN
     }
 
+    /**
+     * How is the LED on the Adafruit circuit board controlled?
+     */
+    public enum LEDControl {
+        NONE, // no control
+        CORE_DIM, // controlled by connecting the LED pin on the board to a port on the core DIM
+        INTERRUPT // controlled by shorting the INT pin to the LED pin
+    }
+
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS
     //
@@ -614,17 +623,41 @@ public class AdafruitColorSensor8863 {
     // getter and setter methods
     //*********************************************************************************************
 
+    // properties and initializations for this color sensor
+    /**
+     * Initial gain will be 64X
+     */
+    private Gain gain = Gain.AMS_COLOR_GAIN_64;
+
+    /**
+     * Initial integration time will be 24 mSec.
+     */
+    private IntegrationTime integrationTime = IntegrationTime.AMS_COLOR_ITIME_24MS;
+
+    /**
+     * The I2C address of the Adafruit board is fixed and cannot be changed - bummer when you have
+     * more than one of the boards connected to the core DIM! For that you need an I2C mux in
+     * between the color sensors and the core DIM.
+     */
+    private int AMS_TCS34725_ADDRESS = 0x29;
+
+    /**
+     * The Chip ID is also a fixed property of the color sensor chip.
+     */
+    private byte deviceID = 0x44;
+
     private int maxRGBCValue = 0;
 
+    private I2cAddr i2cAddr = I2cAddr.create7bit(AMS_TCS34725_ADDRESS);
     private I2cDevice colorSensor;
     private I2cDeviceSynch colorSensorClient;
-    private AMSColorSensorParameters parameters;
     boolean isOwned = false;
 
     // For controlling the LED on the adafruit circuit board
     private DeviceInterfaceModule coreDIM;
     private boolean ledOn = false;
     private int ioChannelForLed;
+    private LEDControl ledControl;
 
     // For tracking the update rate
     private ElapsedTime updateTimer;
@@ -646,37 +679,6 @@ public class AdafruitColorSensor8863 {
         return maxRGBCValue;
     }
 
-    //*********************************************************************************************
-    //          Constructors
-    //
-    // the function that builds the class when an object is created
-    // from it
-    //*********************************************************************************************
-
-    public AdafruitColorSensor8863(HardwareMap hardwareMap, String colorSensorName, String coreDIMName, int ioChannelForLed) {
-        // set up for controlling the LED
-        this.ledOn = false;
-        this.ioChannelForLed = ioChannelForLed;
-        coreDIM = hardwareMap.deviceInterfaceModule.get(coreDIMName);
-        coreDIM.setDigitalChannelMode(ioChannelForLed, DigitalChannelController.Mode.OUTPUT);
-        // Delay so the previous line can finish before setting the led off. Otherwise the LED does
-        // not get shut off.
-        delay(100);
-        coreDIM.setDigitalChannelState(ioChannelForLed, ledOn);
-
-        // setup for the color sensor
-        parameters = AMSColorSensorParameters.createForAdaFruit();
-        colorSensor = hardwareMap.get(I2cDevice.class, colorSensorName);
-        colorSensorClient = new I2cDeviceSynchImpl(colorSensor, parameters.getI2cAddr(), isOwned);
-        colorSensorClient.engage();
-        initialize();
-
-        // setup for tracking the update rate of the sensor
-        // Timer used to time the update rate
-        updateTimer = new ElapsedTime();
-        // A tracker used to track the update rate of the color sensor.
-        updateTimeTracker = new StatTracker();
-    }
 
     public double getIsRedRatioLimit() {
         return isRedRatioLimit;
@@ -695,10 +697,118 @@ public class AdafruitColorSensor8863 {
     }
 
     //*********************************************************************************************
+    //          Constructors
+    //
+    // the function that builds the class when an object is created
+    // from it
+    //*********************************************************************************************
+
+    /**
+     * This constructor is intended to be used when the LED is going to be controlled by using the
+     * a digital input on the core DIM module. The LED is initialized to off.
+     *
+     * @param hardwareMap
+     * @param colorSensorName
+     * @param coreDIMName
+     * @param ioChannelForLed
+     */
+    public AdafruitColorSensor8863(HardwareMap hardwareMap, String colorSensorName, String coreDIMName, int ioChannelForLed) {
+        // set up for controlling the LED. The LED is on at power up.
+        this.ledOn = true;
+        this.ledControl = LEDControl.CORE_DIM;
+        setupCoreDIM(hardwareMap, coreDIMName, ioChannelForLed);
+
+        // setup for the color sensor
+        createClient(hardwareMap, colorSensorName);
+        initialize();
+
+        // setup for tracking the update rate of the sensor
+        // Timer used to time the update rate
+        updateTimer = new ElapsedTime();
+        // A tracker used to track the update rate of the color sensor.
+        updateTimeTracker = new StatTracker();
+    }
+
+    /**
+     * This constructor is intended to be used when the LED is going to be controlled by using the
+     * interrupt pin on the circuit board. A 2 pin jumper must be installed on the INT and LED pins.
+     * The advantage of this approach is that a core DIM digital input is not taken up to control
+     * the LED. The LED is intialized to off.
+     *
+     * @param hardwareMap
+     * @param colorSensorName string that was used to setup the color sensor on the phone
+     * @param ledControlMode NONE = no control over LED, INTERRUPT = use interrupt pin to control
+     *                       led. CORE_DIM is not a valid choice for this version of the constructor
+     */
+    public AdafruitColorSensor8863(HardwareMap hardwareMap, String colorSensorName, LEDControl ledControlMode) {
+
+        // the user cannot use a digital port on the core DIM to control the LED when using this
+        // constructor. Only NONE or INTERRUPT is allowed.
+        if (ledControlMode == LEDControl.CORE_DIM) {
+            throw new IllegalArgumentException("In order to control the color sensor LED with a Core DIM digital port, you must use the proper AdafruitColorSensor8863 constructor!");
+        }
+        // setup for the color sensor
+        this.ledControl = ledControlMode;
+        createClient(hardwareMap, colorSensorName);
+        initialize();
+
+        // setup for tracking the update rate of the sensor
+        // Timer used to time the update rate
+        updateTimer = new ElapsedTime();
+        // A tracker used to track the update rate of the color sensor.
+        updateTimeTracker = new StatTracker();
+
+        // turn the led off. The LED is on at power up.
+        this.ledOn = true;
+        turnLEDOff();
+    }
+
+    /**
+     * This constructor is intended to be used when the LED is going to be controlled by using the
+     * interrupt pin on the circuit board. A 2 pin jumper must be installed on the INT and LED pins.
+     * The advantage of this approach is that a core DIM digital input is not taken up to control
+     * the LED. The LED is intialized to off.
+     *
+     * The difference between this constructor and the previous one is that this one sets up the core
+     * DIM object so you can control the LEDs built into the core DIM.
+     *
+     * @param hardwareMap
+     * @param colorSensorName string that was used to setup the color sensor on the phone
+     * @param coreDIMName the name of the core DIM as configured on the phone. You will be able to
+     *                    control the built in blue and red LEDs if you use this version of the
+     *                    constructor
+     * @param ledControlMode NONE = no control over LED, INTERRUPT = use interrupt pin to control
+     *                       led. CORE_DIM is not a valid choice for this version of the constructor
+     */
+    public AdafruitColorSensor8863(HardwareMap hardwareMap, String colorSensorName, String coreDIMName, LEDControl ledControlMode) {
+        // the constructor is the same as the previous one - except for the core DIM
+        this(hardwareMap, colorSensorName, ledControlMode);
+        // the core DIM leds can be turned on and off using this constructor
+        coreDIM = hardwareMap.deviceInterfaceModule.get(coreDIMName);
+    }
+
+
+    //*********************************************************************************************
     //          Helper Methods
     //
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
+
+    private void setupCoreDIM(HardwareMap hardwareMap, String coreDIMName, int ioChannelForLed) {
+        this.ioChannelForLed = ioChannelForLed;
+        coreDIM = hardwareMap.deviceInterfaceModule.get(coreDIMName);
+        coreDIM.setDigitalChannelMode(ioChannelForLed, DigitalChannelController.Mode.OUTPUT);
+        // Delay so the previous line can finish before setting the led off. Otherwise the LED does
+        // not get shut off.
+        delay(100);
+        coreDIM.setDigitalChannelState(ioChannelForLed, ledOn);
+    }
+
+    private void createClient(HardwareMap hardwareMap, String colorSensorName) {
+        colorSensor = hardwareMap.get(I2cDevice.class, colorSensorName);
+        colorSensorClient = new I2cDeviceSynchImpl(colorSensor, i2cAddr, isOwned);
+        colorSensorClient.engage();
+    }
 
     private void initialize() {
         // check if isArmed() ?
@@ -708,13 +818,14 @@ public class AdafruitColorSensor8863 {
             doSomething();
         }
         // Set the gain and integration time
-        setIntegrationTime(parameters.getIntegrationTime());
-        // Get the index into the enum for the selected integration time
-        // This may get used later to change the integration time
-        setGain(parameters.getGain());
-        // Get the index into the enum for the selected gain
-        // This may get used later to change the gain
-        // set up a read ahead?
+        setIntegrationTime(integrationTime);
+        setGain(gain);
+        // disable interrupt?
+        // initialize needed?
+        // persistence?
+        // disable the wait timer?
+        // set wait time register?
+        // set the configuration to normal rather than wlong?
         enable();
     }
 
@@ -1153,7 +1264,7 @@ public class AdafruitColorSensor8863 {
     private void setGain(Gain gain) {
         this.write8(Register.CONTROL, gain.byteVal);
         // save the gain
-        parameters.setGain(gain);
+        this.gain= gain;
     }
 
     // DEVICE ID REGISTER
@@ -1175,8 +1286,8 @@ public class AdafruitColorSensor8863 {
      */
     public boolean checkDeviceId() {
         byte id = this.getDeviceID();
-        if ((id != parameters.getDeviceId())) {
-            RobotLog.e("unexpected AMS color sensor chipid: found=%d expected=%d", id, parameters.getDeviceId());
+        if ((id != deviceID)) {
+            RobotLog.e("unexpected AMS color sensor chipid: found=%d expected=%d", id, deviceID);
             return false;
         } else {
             return true;
@@ -1309,25 +1420,25 @@ public class AdafruitColorSensor8863 {
     //          I2C low level read and write methods
     //*********************************************************************************************
 
-    public synchronized byte read8(final Register reg) {
+    private synchronized byte read8(final Register reg) {
         return colorSensorClient.read8(reg.byteVal | CommandRegister.AMS_COLOR_COMMAND_BIT.byteVal);
     }
 
-    public synchronized byte[] read(final Register reg, final int cb) {
+    private synchronized byte[] read(final Register reg, final int cb) {
         return colorSensorClient.read(reg.byteVal | CommandRegister.AMS_COLOR_COMMAND_BIT.byteVal, cb);
     }
 
-    public synchronized void write8(Register reg, int data) {
+    private synchronized void write8(Register reg, int data) {
         colorSensorClient.write8(reg.byteVal | CommandRegister.AMS_COLOR_COMMAND_BIT.byteVal, data);
         colorSensorClient.waitForWriteCompletions();
     }
 
-    public synchronized void write(Register reg, byte[] data) {
+    private synchronized void write(Register reg, byte[] data) {
         colorSensorClient.write(reg.byteVal | CommandRegister.AMS_COLOR_COMMAND_BIT.byteVal, data);
         colorSensorClient.waitForWriteCompletions();
     }
 
-    public int readUnsignedShort(Register reg) {
+    private int readUnsignedShort(Register reg) {
         byte[] bytes = this.read(reg, 2);
         int result = 0;
         if (bytes.length == 2) {
@@ -1452,28 +1563,62 @@ public class AdafruitColorSensor8863 {
     //*********************************************************************************************
 
     /**
-     * Turn the led on the color sensor on. The led pin on the color sensor is connected to a
-     * digital input port on the core DIM.
+     * Turn the led on the color sensor circuit board on.
      */
     public void turnLEDOn() {
-        // only put commands on the bus if there is a change to be made
+        // if the led is not on already go ahead and turn it on. This check saves bus transactions
+        // if the led is already on.
         if (!this.ledOn) {
-            // the led is off so it makes sense to turn it on
+            switch (ledControl) {
+                // the LED on the adafruit board is controlled using a digital port on the Modern
+                // Robotics core DIM
+                case CORE_DIM:
+                    // only put commands on the bus if there is a change to be made
+                    // the led is off so it makes sense to turn it on
+                    coreDIM.setDigitalChannelState(ioChannelForLed, ledOn);
+                    break;
+                // the LED is controlled using the INT pin on the adafruit circuit board
+                case INTERRUPT:
+                    // the interrupt pin is open drain (active low). Disabling it allows the pullup
+                    // resistor on the gate of the FET controlling LED to pull high, turning on the
+                    // FET and the LED
+                    disableInterrupt();
+                    break;
+                // there is no control over the led
+                case NONE:
+                    break;
+            }
             this.ledOn = true;
-            coreDIM.setDigitalChannelState(ioChannelForLed, ledOn);
+
         }
     }
 
     /**
-     * Turn the led on the color sensor off. The led pin on the color sensor is connected to a
-     * digital input port on the core DIM.
+     * Turn the led on the color sensor circuit board off.
      */
     public void turnLEDOff() {
-        // only put commands on the bus if there is a change to be made
+        // if the led is not off already go ahead and turn it off. This check saves bus transactions
+        // if the led is already off.
         if (this.ledOn) {
-            // the led is on so it makes sense to turn it off
+            switch (ledControl) {
+                // the LED on the adafruit board is controlled using a digital port on the Modern
+                // Robotics core DIM
+                case CORE_DIM:
+                    // only put commands on the bus if there is a change to be made
+                    // the led is on so it makes sense to turn it off
+                    coreDIM.setDigitalChannelState(ioChannelForLed, ledOn);
+                    break;
+                // the LED is controlled using the INT pin on the adafruit circuit board
+                case INTERRUPT:
+                    // the interrupt pin is open drain (active low). Forcing an interrupt pulls
+                    // the gate of the FET controlling LED low, turning off the FET and the LED
+                    forceInterrupt();
+                    break;
+                // there is no control over the led
+                case NONE:
+                    break;
+            }
             this.ledOn = false;
-            coreDIM.setDigitalChannelState(ioChannelForLed, ledOn);
         }
     }
 
@@ -1490,64 +1635,39 @@ public class AdafruitColorSensor8863 {
     }
 
     /**
-     * You have to put a shorting jumper across the INT and LED pins in order to use this method.
-     * The advantage is that you don't have to connect to a digital port on the core DIM module.
-     * Turn the LED on
-     */
-    public void turnLEDOnByInterrupt() {
-        disableInterrupt();
-        this.ledOn = true;
-    }
-
-    /**
-     * You have to put a shorting jumper across the INT and LED pins in order to use this method.
-     * The advantage is that you don't have to connect to a digital port on the core DIM module.
-     * Turn the LED off
-     */
-    public void turnLEDOffByInterrupt() {
-        forceInterrupt();
-        this.ledOn = false;
-    }
-
-    /**
-     * You have to put a shorting jumper across the INT and LED pins in order to use this method.
-     * The advantage is that you don't have to connect to a digital port on the core DIM module.
-     * Toggle the led
-     */
-    public void toggleLEDByInterrupt() {
-        if (this.ledOn) {
-            turnLEDOffByInterrupt();
-        } else {
-            turnLEDOnByInterrupt();
-        }
-    }
-
-    /**
      * Turn the blue led in the core DIM on
      */
     public void turnCoreDIMBlueLEDOn() {
-        coreDIM.setLED(CoreDIMLEDChannel.BLUE.byteVal, true);
+        if (coreDIM != null) {
+            coreDIM.setLED(CoreDIMLEDChannel.BLUE.byteVal, true);
+        }
     }
 
     /**
      * Turn the blue led in the core DIM off
      */
     public void turnCoreDIMBlueLEDOff() {
-        coreDIM.setLED(CoreDIMLEDChannel.BLUE.byteVal, false);
+        if (coreDIM != null) {
+            coreDIM.setLED(CoreDIMLEDChannel.BLUE.byteVal, false);
+        }
     }
 
     /**
      * Turn the red led in the core DIM on
      */
     public void turnCoreDIMRedLEDOn() {
-        coreDIM.setLED(CoreDIMLEDChannel.RED.byteVal, true);
+        if (coreDIM != null) {
+            coreDIM.setLED(CoreDIMLEDChannel.RED.byteVal, true);
+        }
     }
 
     /**
      * Turn the red led in the core DIM off
      */
     public void turnCoreDIMRedLEDOff() {
-        coreDIM.setLED(CoreDIMLEDChannel.RED.byteVal, false);
+        if (coreDIM != null) {
+            coreDIM.setLED(CoreDIMLEDChannel.RED.byteVal, false);
+        }
     }
 
     //*********************************************************************************************
@@ -1557,6 +1677,7 @@ public class AdafruitColorSensor8863 {
     /**
      * RGB is typically defined as a range from 0 to 255. This method returns a scaled value based
      * on the integration time selected.
+     *
      * @return RGB value in the range from 0 to 255
      */
     public int redScaled() {
@@ -1566,6 +1687,7 @@ public class AdafruitColorSensor8863 {
     /**
      * RGB is typically defined as a range from 0 to 255. This method returns a scaled value based
      * on the integration time selected.
+     *
      * @return RGB value in the range from 0 to 255
      */
     public int greenScaled() {
@@ -1575,6 +1697,7 @@ public class AdafruitColorSensor8863 {
     /**
      * RGB is typically defined as a range from 0 to 255. This method returns a scaled value based
      * on the integration time selected.
+     *
      * @return RGB value in the range from 0 to 255
      */
     public int blueScaled() {
@@ -1584,6 +1707,7 @@ public class AdafruitColorSensor8863 {
     /**
      * RGB is typically defined as a range from 0 to 255. This method returns a scaled value based
      * on the integration time selected.
+     *
      * @return RGB value in the range from 0 to 255
      */
     public int alphaScaled() {
@@ -1592,6 +1716,7 @@ public class AdafruitColorSensor8863 {
 
     /**
      * Format a string with the scaled RGB values
+     *
      * @return
      */
     public String rgbValuesScaledAsString() {
@@ -1600,6 +1725,7 @@ public class AdafruitColorSensor8863 {
 
     /**
      * Get an HSV color
+     *
      * @return array with hue [0], saturation [1], value [2]
      */
     public float[] hsvScaled() {
@@ -1612,6 +1738,7 @@ public class AdafruitColorSensor8863 {
 
     /**
      * Format a string with the HSV values
+     *
      * @return
      */
     public String hsvValuesScaledAsString() {
@@ -1622,6 +1749,7 @@ public class AdafruitColorSensor8863 {
 
     /**
      * Get the hue
+     *
      * @return
      */
     public float hueScaled() {
@@ -1630,6 +1758,7 @@ public class AdafruitColorSensor8863 {
 
     /**
      * Get the saturation
+     *
      * @return
      */
     public float saturatationScaled() {
@@ -1638,6 +1767,7 @@ public class AdafruitColorSensor8863 {
 
     /**
      * Get the value
+     *
      * @return
      */
     public float valueScaled() {
@@ -1853,7 +1983,7 @@ public class AdafruitColorSensor8863 {
      */
     public String getCurrentGainAsString() {
         String gainAsString = "nothing";
-        switch (parameters.getGain()) {
+        switch (gain) {
             case AMS_COLOR_GAIN_1:
                 gainAsString = "1X";
                 break;
@@ -1915,7 +2045,7 @@ public class AdafruitColorSensor8863 {
      */
     public String getCurrentIntegrationTimeAsString() {
         String integrationTimeAsString = "nothing";
-        switch (parameters.getIntegrationTime()) {
+        switch (integrationTime) {
             case AMS_COLOR_ITIME_2_4MS:
                 integrationTimeAsString = "2.4ms";
                 break;
@@ -2047,7 +2177,7 @@ public class AdafruitColorSensor8863 {
         telemetry.addData("Green (scaled) data =    ", "%5d", greenScaled());
         telemetry.addData("Blue (scaled) data =     ", "%5d", blueScaled());
     }
-    
+
     public void testReadWriteRegisters(Telemetry telemetry) {
 
         //read and write the enable register

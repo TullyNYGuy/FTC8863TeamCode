@@ -21,7 +21,7 @@ public class TestAdafruitColorSensor8863LEDByInterrupt extends LinearOpMode {
 
     // You connect a 2 pin jumper from the pin on the circuit board labeled LED to the INT pin. If
     // you don't do this no biggie, the LED will just stay on all the time.
-    final int CHANNEL_FOR_LED = 5;
+
     // configure your phone with this name for the core device interface module
     final String coreDIMName = "coreDIM";
     // configure your phone for an I2C Device type with this name
@@ -35,8 +35,7 @@ public class TestAdafruitColorSensor8863LEDByInterrupt extends LinearOpMode {
     public void runOpMode() {
 
         // Put your initializations here
-        colorSensor = new AdafruitColorSensor8863(hardwareMap, colorSensorName,
-                coreDIMName, CHANNEL_FOR_LED);
+        colorSensor = new AdafruitColorSensor8863(hardwareMap, colorSensorName, coreDIMName, AdafruitColorSensor8863.LEDControl.INTERRUPT);
 
         timer = new ElapsedTime();
 
@@ -49,21 +48,25 @@ public class TestAdafruitColorSensor8863LEDByInterrupt extends LinearOpMode {
 
         while (opModeIsActive()) {
             if (timer.milliseconds() > 2000) {
-                colorSensor.turnLEDOffByInterrupt();
+                colorSensor.turnLEDOff();
                 telemetry.addData("LED is off", "!");
                 telemetry.addData("Low threshold =          ", "%5d", colorSensor.getLowThresholdFromSensor());
                 telemetry.addData("High threshold =         ", "%5d", colorSensor.getHighThresholdFromSensor());
                 telemetry.addData("Interrupt enabled =    ", colorSensor.isInterruptEnabled());
                 telemetry.update();
+                colorSensor.turnCoreDIMRedLEDOff();
+                colorSensor.turnCoreDIMBlueLEDOff();
             }
             if (timer.milliseconds() > 4000) {
-                colorSensor.turnLEDOnByInterrupt();
+                colorSensor.turnLEDOn();
                 telemetry.addData("LED is on", "!");
                 telemetry.addData("Low threshold =          ", "%5d", colorSensor.getLowThresholdFromSensor());
                 telemetry.addData("High threshold =         ", "%5d", colorSensor.getHighThresholdFromSensor());
                 telemetry.addData("Interrupt enabled =    ", colorSensor.isInterruptEnabled());
                 telemetry.update();
                 timer.reset();
+                colorSensor.turnCoreDIMRedLEDOn();
+                colorSensor.turnCoreDIMBlueLEDOn();
             }
         }
     }

@@ -24,7 +24,7 @@ public class TestAdafruitColorSensor8863ReadWriteRegisters extends LinearOpMode 
 
     // You connect a 2 pin jumper from the pin on the circuit board labeled LED to the INT pin. If
     // you don't do this no biggie, the LED will just stay on all the time.
-    final int CHANNEL_FOR_LED = 5;
+
     // configure your phone with this name for the core device interface module
     final String coreDIMName = "coreDIM";
     // configure your phone for an I2C Device type with this name
@@ -38,8 +38,7 @@ public class TestAdafruitColorSensor8863ReadWriteRegisters extends LinearOpMode 
     public void runOpMode() {
 
         // Put your initializations here
-        colorSensor = new AdafruitColorSensor8863(hardwareMap, colorSensorName,
-                coreDIMName, CHANNEL_FOR_LED);
+        colorSensor = new AdafruitColorSensor8863(hardwareMap, colorSensorName, AdafruitColorSensor8863.LEDControl.INTERRUPT);
 
         timer = new ElapsedTime();
 
