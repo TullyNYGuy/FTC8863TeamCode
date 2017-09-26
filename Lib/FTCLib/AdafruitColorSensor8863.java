@@ -40,6 +40,7 @@ import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynchImpl;
+import com.qualcomm.robotcore.hardware.I2cWaitControl;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.RobotLog;
 import com.qualcomm.robotcore.util.TypeConversion;
@@ -802,6 +803,10 @@ public class AdafruitColorSensor8863 {
     //          I2C read and write methods
     //*********************************************************************************************
 
+
+    // new in FTC SDK 3.4 - not sure if this works but it compiles - needs testing
+    private I2cWaitControl i2cWaitControl = I2cWaitControl.WRITTEN;
+
     public synchronized byte read8(final Register reg) {
         return colorSensorClient.read8(reg.byteVal | CommandRegister.AMS_COLOR_COMMAND_BIT.byteVal);
     }
@@ -812,12 +817,12 @@ public class AdafruitColorSensor8863 {
 
     public synchronized void write8(Register reg, int data) {
         colorSensorClient.write8(reg.byteVal | CommandRegister.AMS_COLOR_COMMAND_BIT.byteVal, data);
-        colorSensorClient.waitForWriteCompletions();
+        colorSensorClient.waitForWriteCompletions(i2cWaitControl);
     }
 
     public synchronized void write(Register reg, byte[] data) {
         colorSensorClient.write(reg.byteVal | CommandRegister.AMS_COLOR_COMMAND_BIT.byteVal, data);
-        colorSensorClient.waitForWriteCompletions();
+        colorSensorClient.waitForWriteCompletions(i2cWaitControl);
     }
 
     public int readUnsignedShort(Register reg) {

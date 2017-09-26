@@ -424,7 +424,8 @@ public class DcMotor8863 {
         stallTimer = new ElapsedTime();
         powerRamp = new RampControl(0, 0, 0);
         initMotorDefaults();
-        this.setMaxSpeed(this.getMaxEncoderTicksPerSecond());
+        //FTC SDK 3.4 removed setMaxSpeed
+        //this.setMaxSpeed(this.getMaxEncoderTicksPerSecond());
     }
 
     /**
@@ -1452,11 +1453,12 @@ public class DcMotor8863 {
      * @see com.qualcomm.robotcore.hardware.DcMotor.RunMode#RUN_TO_POSITION
      * @see #getMaxSpeed()
      */
-    public void setMaxSpeed(int encoderTicksPerSecond) {
+    // FTC SDK 3.4 removed the setMaxSpeed and getMaxSpeed calls
+/*    public void setMaxSpeed(int encoderTicksPerSecond) {
         FTCDcMotor.setMaxSpeed(encoderTicksPerSecond);
     }
 
     public int getMaxSpeed() {
         return FTCDcMotor.getMaxSpeed();
-    }
+    }*/
 }
