@@ -34,6 +34,7 @@ import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynchImpl;
+import com.qualcomm.robotcore.hardware.I2cWaitControl;
 
 /**
  * This class provides an interface to the Adafruit TCA9548A I2C 1 to 8 mux. The input I2C bus can
@@ -207,8 +208,9 @@ public class AdafruitI2CMux {
         lastControlByte = controlByte;
         // declare a variable for readability's sake, otherwise it is hard for a newbie to tell
         // what true means in the write8 call
-        boolean WAIT_FOR_COMPLETION = true;
-        muxClient.write8(Register.CONTROL.byteVal, controlByte, WAIT_FOR_COMPLETION);
+        // FTC SDK 3.4 added enums for wait control instead of a boolean
+        //boolean WAIT_FOR_COMPLETION = true;
+        muxClient.write8(Register.CONTROL.byteVal, controlByte, I2cWaitControl.WRITTEN);
     }
 
     /**

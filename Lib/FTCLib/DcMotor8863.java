@@ -444,7 +444,8 @@ public class DcMotor8863 {
         completionTimer = new ElapsedTime();
         powerRamp = new RampControl(0, 0, 0);
         initMotorDefaults();
-        this.setMaxSpeed(this.getMaxEncoderTicksPerSecond());
+        // FTC SDK 3.4 removed setMaxSpeed - I was never sure what it did anyway
+        //this.setMaxSpeed(this.getMaxEncoderTicksPerSecond());
     }
 
     /**
@@ -1481,7 +1482,8 @@ public class DcMotor8863 {
         this.direction = direction;
     }
 
-    /**
+    // FTC SDK 3.4 removed these calls so I'm commenting out this code
+/*    *//**
      * When the motor is running in one of the <a href="https://en.wikipedia.org/wiki/PID_controller">PID modes</a>
      * the value set using the {@link #setPower(double) setPower()} method is indicative of a
      * desired motor <em>velocity</em> rather than a raw <em>power</em> level. In those modes, the
@@ -1493,12 +1495,12 @@ public class DcMotor8863 {
      * @see com.qualcomm.robotcore.hardware.DcMotor.RunMode#RUN_USING_ENCODER
      * @see com.qualcomm.robotcore.hardware.DcMotor.RunMode#RUN_TO_POSITION
      * @see #getMaxSpeed()
-     */
+     *//*
     public void setMaxSpeed(int encoderTicksPerSecond) {
         FTCDcMotor.setMaxSpeed(encoderTicksPerSecond);
     }
 
     public int getMaxSpeed() {
         return FTCDcMotor.getMaxSpeed();
-    }
+    }*/
 }

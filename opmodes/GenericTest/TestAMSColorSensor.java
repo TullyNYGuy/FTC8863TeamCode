@@ -29,6 +29,10 @@ public class TestAMSColorSensor extends LinearOpMode {
     @Override
     public void runOpMode() {
 
+        // FTC SDK changed the implementation of a colorSensor a lot. This code is no longer
+        // relevant so I'm going to comment it out in order to get a clean compile.
+/*
+
         // Put your initializations here
         parameters = AMSColorSensor.Parameters.createForAdaFruit();
         i2cDevice = hardwareMap.get(I2cDevice.class, colorSensorName);
@@ -65,6 +69,7 @@ public class TestAMSColorSensor extends LinearOpMode {
         // Put your cleanup code here - it runs as the application shuts down
         telemetry.addData(">", "Done");
         telemetry.update();
+*/
 
     }
 }

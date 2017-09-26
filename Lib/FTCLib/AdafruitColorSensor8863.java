@@ -40,6 +40,7 @@ import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynchImpl;
+import com.qualcomm.robotcore.hardware.I2cWaitControl;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.RobotLog;
 import com.qualcomm.robotcore.util.TypeConversion;
@@ -1430,12 +1431,14 @@ public class AdafruitColorSensor8863 {
 
     private synchronized void write8(Register reg, int data) {
         colorSensorClient.write8(reg.byteVal | CommandRegister.AMS_COLOR_COMMAND_BIT.byteVal, data);
-        colorSensorClient.waitForWriteCompletions();
+        // FTC SKD 3.4 added control enums to this, so I'm making sure the data gets written
+        colorSensorClient.waitForWriteCompletions(I2cWaitControl.WRITTEN);
     }
 
     private synchronized void write(Register reg, byte[] data) {
         colorSensorClient.write(reg.byteVal | CommandRegister.AMS_COLOR_COMMAND_BIT.byteVal, data);
-        colorSensorClient.waitForWriteCompletions();
+        // FTC SKD 3.4 added control enums to this, so I'm making sure the data gets written
+        colorSensorClient.waitForWriteCompletions(I2cWaitControl.WRITTEN);
     }
 
     private int readUnsignedShort(Register reg) {
