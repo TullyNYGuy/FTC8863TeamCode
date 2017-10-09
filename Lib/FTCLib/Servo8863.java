@@ -464,10 +464,24 @@ public class Servo8863 {
         teamServo.setPosition(wiggleStartPosition);
     }
 
+    /**
+     * Get the current position of the servo. The current position is relative to whereever 0
+     * is set to.
+     * @return current position
+     */
     public double getPosition(){
         return teamServo.getPosition();
     }
 
+    /**
+     * Setup for moving the servo from a start position to an end position by a certain increment with a
+     * certain time between each movement. This is useful for find the locations you want for a certain
+     * servo.
+     * @param startPosition start stepping the servo movements from this position
+     * @param endPosition end the servo movements when it hits this position
+     * @param positionIncrement move the servo by this much every time it moves
+     * @param timeBetweenPositionsInMilliseconds wait for this much time between each movement
+     */
     public void setUpServoCalibration(double startPosition, double endPosition, double positionIncrement, double timeBetweenPositionsInMilliseconds){
         setServoCalibrationStartPosition(startPosition);
         setServoCalibrationEndPosition(endPosition);
@@ -477,6 +491,10 @@ public class Servo8863 {
         calibrationRoutineCurrentPosition = startPosition;
     }
 
+    /**
+     * Call this method repeatedly in an opmode loop so that the servo movements get updated as it
+     * steps through the calibration positions.
+     */
     public void updateServoCalibration(){
         if( calibrationRoutineTimer.milliseconds() > servoCalibrationTimeBetweenSteps && calibrationRoutineCurrentPosition <= servoCalibrationEndPosition) {
            calibrationRoutineCurrentPosition = calibrationRoutineCurrentPosition + servoCalibrationPositionIncrement;
