@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmodes.GenericTest;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
 
@@ -23,9 +24,9 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
  * below.
  *
  */
-@TeleOp(name = "Calibrate Servo", group = "Test")
+@TeleOp(name = "Calibrate Servo Reverse", group = "Test")
 //@Disabled
-public class CalibrateServo extends LinearOpMode {
+public class CalibrateServoReverse extends LinearOpMode {
 
     // Put your variable declarations here
     Servo8863 servoToCalibrate;
@@ -42,6 +43,7 @@ public class CalibrateServo extends LinearOpMode {
 
         // Put your initializations here
         servoToCalibrate = new Servo8863(servoName, hardwareMap, telemetry);
+        servoToCalibrate.setDirection(Servo.Direction.REVERSE);
         
         // Wait for the start button
         telemetry.addData(">", "Press Start to run" );
