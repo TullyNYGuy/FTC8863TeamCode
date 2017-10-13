@@ -183,7 +183,7 @@ public class DriveTrain {
      * @return Instance of a driveTrain (a driveTrain oject) optimized for TeleOp
      */
     public static DriveTrain DriveTrainTeleOp(HardwareMap hardwareMap, Telemetry telemetry) {
-        DriveTrain driveTrain = new DriveTrain(hardwareMap, true, telemetry);
+        DriveTrain driveTrain = new DriveTrain(hardwareMap, false, telemetry);
         driveTrain.teleopInit();
         return driveTrain;
     }
