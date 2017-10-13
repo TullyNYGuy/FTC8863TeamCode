@@ -71,16 +71,19 @@ public class NathanMagicRobot {
         }
         telemetry.addData("Drive Train Initialized", "!");
         telemetry.update();
+
         leftBlockGrabberServo = new Servo8863("leftBlockGrabberServo", hardwareMap, telemetry);
         leftBlockGrabberServo.setDirection(Servo.Direction.FORWARD);
         leftBlockGrabberServo.setHomePosition(0);
         leftBlockGrabberServo.setInitPosition(1);
-        leftBlockGrabberServo.setPositionOne(.5);
+        leftBlockGrabberServo.setPositionOne(.75);
+
         rightBlockGrabberServo = new Servo8863("rightBlockGrabberServo", hardwareMap, telemetry);
-        rightBlockGrabberServo.setDirection(Servo.Direction.REVERSE);
+        rightBlockGrabberServo.setDirection(Servo.Direction.FORWARD);
         leftBlockGrabberServo.setHomePosition(0);
         leftBlockGrabberServo.setInitPosition(1);
-        leftBlockGrabberServo.setPositionOne(.5);
+        leftBlockGrabberServo.setPositionOne(.75);
+
         liftMotor = new DcMotor8863("liftMotor", hardwareMap);
         liftMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_20);
         liftMotor.setMovementPerRev(360);
@@ -89,6 +92,7 @@ public class NathanMagicRobot {
         liftMotor.setMotorMoveType(DcMotor8863.MotorMoveType.RELATIVE);
         liftMotor.setMinMotorPower(-1);
         liftMotor.setMaxMotorPower(1);
+
         init();
     }
 
