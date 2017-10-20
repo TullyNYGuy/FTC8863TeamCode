@@ -9,6 +9,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Switch;
 
 public class NathanMagicRobot {
 
@@ -40,6 +41,13 @@ public class NathanMagicRobot {
     public DcMotor8863 liftMotor;
     public Servo8863 relicfingers;
     public Servo8863 relicwrist;
+
+    //**********************************************
+    // EXAMPLE LIMIT SWITCH
+    public Switch lowerLiftLimitSwitch;
+    // you will need to add the code for the upper limit switch
+    //**********************************************
+
     //public FrontBeaconPusher frontBeaconPusher;
     //public MuxPlusColorSensors muxPlusColorSensors;
     //public AllianceColorSwitch allianceColorSwitch;
@@ -107,6 +115,22 @@ public class NathanMagicRobot {
         liftMotor.setMinMotorPower(-1);
         liftMotor.setMaxMotorPower(1);
 
+        //**********************************************
+        // EXAMPLE LIMIT SWITCH - IF YOU DO NOT HAVE LIMIT SWITCHES CONNECTED ON THE ROBOT COMMENT
+        // OUT THIS SECTION
+        // you need to configure the robot controller phone
+        //    add the core device interface module
+        //    within the core device interface module config, select the port the wires for the switch are plugged into and make it a digital device
+        //    set the name of the device to the string in green below
+        // connecting the switch to the core i/o port -
+        //     pick a digital port ( has a D next to it and the number) and plug the connector from the switch into the port
+        //         see http://modernroboticsinc.com/core-device-interface-module-2 if you need a picture
+        //     plug the cable in so that the dark colored wire is next to the black rectangle right next to the port
+        //
+        lowerLiftLimitSwitch = new Switch(hardwareMap, "lowerLiftLimitSwitch", Switch.SwitchType.NORMALLY_OPEN);
+        // You will need to add the code for the upper limit switch
+        //**********************************************
+
         init();
     }
 
@@ -141,6 +165,11 @@ public class NathanMagicRobot {
     }
 
     public void update() {
+        //**********************************************
+        // EXAMPLE LIMIT SWITCH
+        lowerLiftLimitSwitch.updateSwitch();
+        // you will need to add the code for the upper limit switch
+        //**********************************************
     }
 
     public void shutdown() {
@@ -149,6 +178,31 @@ public class NathanMagicRobot {
     }
 
     public void setLiftPower(double liftPower) {
+        //**********************************************
+        // EXAMPLE LIMIT SWITCH - IF YOU DO NOT HAVE LIMIT SWITCHES CONNECTED ON THE ROBOT COMMENT
+        // OUT THIS SECTION
+        // In the example below I'm assuming that
+        //    liftPower > 0 means that the lift is going up
+        //    liftPower < 0 means that the lift is going down
+        // I may not be right! I'm only guessing. If the code does not work, then I got it wrong
+        // so you will have to change the greater and lesser than symbols.
+
+        // check if the limit switch is pressed and the direction that the lift is being told
+        // to move.
+        if (lowerLiftLimitSwitch.isPressed() && liftPower < 0) {
+            // the lift is being commanded to move down but the lower limit switch is pressed so
+            // it cannot go down any more. Force the motor power to 0 to shut off the motor.
+            // Note that if the limit switch is being pressed and the command is to raise the lift
+            // (liftPower > 0) then that is ok so don't change the lift power to 0.
+            liftPower = 0;
+        }
+
+        // you will need to do something similar for the upper limit switch.
+        // But think about it. What are you going to check the liftPower for when the
+        // upper limit switch is pressed?
+        //**********************************************
+
+        // Now send the resulting power to the lift motor
         liftMotor.setPower(liftPower);
     }
 
