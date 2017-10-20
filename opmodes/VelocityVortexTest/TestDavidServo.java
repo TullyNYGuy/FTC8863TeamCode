@@ -40,7 +40,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
 
 @TeleOp(name = "Test David servo", group = "Test")
-@Disabled
+//@Disabled
 
 public class TestDavidServo extends OpMode {
     boolean genericServoActive = true;
