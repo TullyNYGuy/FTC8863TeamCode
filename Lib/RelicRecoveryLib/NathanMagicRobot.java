@@ -38,6 +38,8 @@ public class NathanMagicRobot {
     public Servo8863 leftBlockGrabberServo;
     public Servo8863 rightBlockGrabberServo;
     public DcMotor8863 liftMotor;
+    public Servo8863 relicfingers;
+    public Servo8863 relicwrist;
     //public FrontBeaconPusher frontBeaconPusher;
     //public MuxPlusColorSensors muxPlusColorSensors;
     //public AllianceColorSwitch allianceColorSwitch;
@@ -83,6 +85,18 @@ public class NathanMagicRobot {
         leftBlockGrabberServo.setHomePosition(0);
         leftBlockGrabberServo.setInitPosition(1);
         leftBlockGrabberServo.setPositionOne(.75);
+
+        relicfingers = new Servo8863("relicFingers", hardwareMap, telemetry);
+        relicfingers.setDirection(Servo.Direction.FORWARD);
+        relicfingers.setHomePosition(.55);
+        relicfingers.setInitPosition(.55);
+        relicfingers.setPositionOne(.1);
+
+        relicwrist = new Servo8863("relicWrist", hardwareMap, telemetry);
+        relicwrist.setDirection(Servo.Direction.FORWARD);
+        relicwrist.setHomePosition(.6);
+        relicwrist.setInitPosition(.6);
+        relicwrist.setPositionOne(0);
 
         liftMotor = new DcMotor8863("liftMotor", hardwareMap);
         liftMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_20);
