@@ -44,8 +44,8 @@ public class NathanMagicRobot {
 
     //**********************************************
     // EXAMPLE LIMIT SWITCH
+    public Switch upperLiftLimitSwitch;
     public Switch lowerLiftLimitSwitch;
-    // you will need to add the code for the upper limit switch
     //**********************************************
 
     //public FrontBeaconPusher frontBeaconPusher;
@@ -127,8 +127,8 @@ public class NathanMagicRobot {
         //         see http://modernroboticsinc.com/core-device-interface-module-2 if you need a picture
         //     plug the cable in so that the dark colored wire is next to the black rectangle right next to the port
         //
+        upperLiftLimitSwitch = new Switch(hardwareMap, "upperLiftLimitSwitch", Switch.SwitchType.NORMALLY_OPEN);
         lowerLiftLimitSwitch = new Switch(hardwareMap, "lowerLiftLimitSwitch", Switch.SwitchType.NORMALLY_OPEN);
-        // You will need to add the code for the upper limit switch
         //**********************************************
 
         init();
@@ -167,8 +167,8 @@ public class NathanMagicRobot {
     public void update() {
         //**********************************************
         // EXAMPLE LIMIT SWITCH
+        upperLiftLimitSwitch.updateSwitch();
         lowerLiftLimitSwitch.updateSwitch();
-        // you will need to add the code for the upper limit switch
         //**********************************************
     }
 
@@ -189,6 +189,11 @@ public class NathanMagicRobot {
 
         // check if the limit switch is pressed and the direction that the lift is being told
         // to move.
+
+        if (upperLiftLimitSwitch.isPressed() && liftPower > 0) {
+            liftPower = 0;
+        }
+
         if (lowerLiftLimitSwitch.isPressed() && liftPower < 0) {
             // the lift is being commanded to move down but the lower limit switch is pressed so
             // it cannot go down any more. Force the motor power to 0 to shut off the motor.
