@@ -416,6 +416,8 @@ public class NathanMagicRobotTeleop extends LinearOpMode {
                 robot.driveTrain.differentialDrive(throttle, direction);
             }
 
+            telemetry.addData("Lift Motor Command", "%3.2f", liftMotorPower);
+
             robot.setLiftPower(liftMotorPower);
 
             // update the robot
