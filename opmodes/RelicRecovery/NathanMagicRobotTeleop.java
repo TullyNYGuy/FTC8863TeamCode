@@ -29,7 +29,6 @@ public class NathanMagicRobotTeleop extends LinearOpMode {
 
     NathanMagicRobot robot;
 
-    DcMotor8863 shooterMotorDirect;
     int shotCount = 0;
 
     // for use in debouncing the button. A long press will only result in one transition of the
@@ -99,6 +98,7 @@ public class NathanMagicRobotTeleop extends LinearOpMode {
 
     // lift motor power
     double liftMotorPower = 0;
+    double actualLiftMotorPower = 0;
 
     @Override
     public void runOpMode() {
@@ -418,13 +418,14 @@ public class NathanMagicRobotTeleop extends LinearOpMode {
 
             telemetry.addData("Lift Motor Command", "%3.2f", liftMotorPower);
 
-            robot.setLiftPower(liftMotorPower);
+            actualLiftMotorPower = robot.setLiftPower(liftMotorPower);
 
             // update the robot
             robot.update();
 
             // Display telemetry
             telemetry.addData("Left Motor Speed = ", "%3.2f", leftPower);
+            telemetry.addData("Actual Lift Motor Power", "%3.2f", actualLiftMotorPower);
             telemetry.addData("Right Motor Speed = ", "%3.2f", rightPower);
             telemetry.addData("Drive train mode = ", driveTrainMode.toString());
             telemetry.addData("Drive Forward / Reverse = ", robot.driveTrain.getDriveDirection().toString());

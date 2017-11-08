@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Lib.RelicRecoveryLib;
 
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -41,20 +42,13 @@ public class NathanMagicRobot {
     public DcMotor8863 liftMotor;
     public Servo8863 relicfingers;
     public Servo8863 relicwrist;
+    public Servo8863 jewelSmackerServo;
 
     //**********************************************
     // EXAMPLE LIMIT SWITCH
     public Switch upperLiftLimitSwitch;
     public Switch lowerLiftLimitSwitch;
     //**********************************************
-
-    //public FrontBeaconPusher frontBeaconPusher;
-    //public MuxPlusColorSensors muxPlusColorSensors;
-    //public AllianceColorSwitch allianceColorSwitch;
-    //public AllianceColorSwitch.AllianceColor allianceColor;
-    // public FrontBeaconPusher frontBeaconPusher;
-    // public I2CMux mux;
-    // public BallShooter ballShooter;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -90,15 +84,15 @@ public class NathanMagicRobot {
 
         rightBlockGrabberServo = new Servo8863("rightBlockGrabberServo", hardwareMap, telemetry);
         rightBlockGrabberServo.setDirection(Servo.Direction.FORWARD);
-        leftBlockGrabberServo.setHomePosition(0);
-        leftBlockGrabberServo.setInitPosition(1);
-        leftBlockGrabberServo.setPositionOne(.75);
+        rightBlockGrabberServo.setHomePosition(0);
+        rightBlockGrabberServo.setInitPosition(1);
+        rightBlockGrabberServo.setPositionOne(.75);
 
         relicfingers = new Servo8863("relicFingers", hardwareMap, telemetry);
         relicfingers.setDirection(Servo.Direction.FORWARD);
         relicfingers.setHomePosition(.55);
         relicfingers.setInitPosition(.55);
-        relicfingers.setPositionOne(.1);
+        relicfingers.setPositionOne(.05);
 
         relicwrist = new Servo8863("relicWrist", hardwareMap, telemetry);
         relicwrist.setDirection(Servo.Direction.FORWARD);
@@ -106,14 +100,27 @@ public class NathanMagicRobot {
         relicwrist.setInitPosition(.6);
         relicwrist.setPositionOne(0);
 
-        liftMotor = new DcMotor8863("liftMotor", hardwareMap);
-        liftMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_20);
-        liftMotor.setMovementPerRev(360);
-        liftMotor.setTargetEncoderTolerance(5);
-        liftMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
-        liftMotor.setMotorMoveType(DcMotor8863.MotorMoveType.RELATIVE);
-        liftMotor.setMinMotorPower(-1);
+
+
+        liftMotor = new DcMotor8863("liftMotor",hardwareMap);
+        liftMotor.setDirection(DcMotor.Direction.REVERSE);
         liftMotor.setMaxMotorPower(1);
+        liftMotor.setMinMotorPower(-1);
+        liftMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
+       liftMotor.setMotorMoveType(DcMotor8863.MotorMoveType.RELATIVE);
+        liftMotor.setTargetEncoderTolerance(10);
+        liftMotor.setMovementPerRev(360);
+        liftMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
+        // switched to SDK provided motor for debug since the above code does not drive the motor in the negative direction
+        //liftMotor = hardwareMap.get(DcMotor.class, "liftMotor");
+        //liftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        //liftMotor.setPower(0);
+
+        jewelSmackerServo = new Servo8863("jewelSmackerServo", hardwareMap, telemetry);
+        jewelSmackerServo.setDirection(Servo.Direction.FORWARD);
+        jewelSmackerServo.setHomePosition(0);
+        jewelSmackerServo.setInitPosition(1);
+        jewelSmackerServo.setPositionOne(.75);
 
         //**********************************************
         // EXAMPLE LIMIT SWITCH - IF YOU DO NOT HAVE LIMIT SWITCHES CONNECTED ON THE ROBOT COMMENT
@@ -161,7 +168,9 @@ public class NathanMagicRobot {
     public void init() {
         liftMotor.setDirection(DcMotor.Direction.FORWARD);
         // set the mode for the motor and lock it in place
-        liftMotor.runAtConstantSpeed(0);
+        //liftMotor.runAtConstantSpeed(0);
+        //liftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        liftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
     public void update() {
@@ -177,7 +186,7 @@ public class NathanMagicRobot {
         setLiftPower(0);
     }
 
-    public void setLiftPower(double liftPower) {
+    public double setLiftPower(double liftPower) {
         //**********************************************
         // EXAMPLE LIMIT SWITCH - IF YOU DO NOT HAVE LIMIT SWITCHES CONNECTED ON THE ROBOT COMMENT
         // OUT THIS SECTION
@@ -209,6 +218,7 @@ public class NathanMagicRobot {
 
         // Now send the resulting power to the lift motor
         liftMotor.setPower(liftPower);
+        return liftPower;
     }
 
     // most of the functionality of the robot is reached by calling methods in the objects that make

@@ -30,6 +30,7 @@ public class CalibrateServoForward extends LinearOpMode {
 
     // Put your variable declarations here
     Servo8863 servoToCalibrate;
+
     
     // SETUP THE CALIBRATION HERE
     double startPosition = 0;
@@ -44,7 +45,8 @@ public class CalibrateServoForward extends LinearOpMode {
         // Put your initializations here
         servoToCalibrate = new Servo8863(servoName, hardwareMap, telemetry);
         servoToCalibrate.setDirection(Servo.Direction.FORWARD);
-        
+        servoToCalibrate.setHomePosition(0);
+
         // Wait for the start button
         telemetry.addData(">", "Press Start to run" );
         telemetry.update();
@@ -72,6 +74,7 @@ public class CalibrateServoForward extends LinearOpMode {
         // Put your cleanup code here - it runs as the application shuts down
         telemetry.addData(">", "Done");
         telemetry.update();
+        servoToCalibrate.goHome();
 
     }
 }
