@@ -104,24 +104,24 @@ public class ThreeAxisArmTest extends LinearOpMode {
         //*********************************************************************************************
         
 
-//        rollMotor = new DcMotor8863("rollMotor", hardwareMap);
-//        rollMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_20);
-//        rollMotor.setMovementPerRev(360);
-//        rollMotor.setTargetEncoderTolerance(10);
-//        rollMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
-//        rollMotor.setMotorMoveType(DcMotor8863.MotorMoveType.RELATIVE);
-//        rollMotor.setMinMotorPower(-1);
-//        rollMotor.setMaxMotorPower(1);
+        rollMotor = new DcMotor8863("rollMotor", hardwareMap);
+        rollMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_20);
+        rollMotor.setMovementPerRev(360);
+        rollMotor.setTargetEncoderTolerance(10);
+        rollMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
+        rollMotor.setMotorMoveType(DcMotor8863.MotorMoveType.RELATIVE);
+        rollMotor.setMinMotorPower(-1);
+        rollMotor.setMaxMotorPower(1);
 //        pitchMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//
-//        pitchMotor = new DcMotor8863("pitchMotor", hardwareMap);
-//        pitchMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_20);
-//        pitchMotor.setMovementPerRev(360);
-//        pitchMotor.setTargetEncoderTolerance(10);
-//        pitchMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
-//        pitchMotor.setMotorMoveType(DcMotor8863.MotorMoveType.RELATIVE);
-//        pitchMotor.setMinMotorPower(-1);
-//        pitchMotor.setMaxMotorPower(1);
+
+        pitchMotor = new DcMotor8863("pitchMotor", hardwareMap);
+        pitchMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_20);
+        pitchMotor.setMovementPerRev(360);
+        pitchMotor.setTargetEncoderTolerance(10);
+        pitchMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
+        pitchMotor.setMotorMoveType(DcMotor8863.MotorMoveType.RELATIVE);
+        pitchMotor.setMinMotorPower(-1);
+        pitchMotor.setMaxMotorPower(1);
 //        pitchMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
 
@@ -276,8 +276,8 @@ public class ThreeAxisArmTest extends LinearOpMode {
             gamepad1RightJoyStickXValue = gamepad1RightJoyStickX.scaleInput(gamepad1.right_stick_x);
             gamepad1RightJoyStickYValue = gamepad1RightJoyStickY.scaleInput(gamepad1.right_stick_y);
 
-//            pitchMotor.setPower(gamepad1RightJoyStickYValue);
-//            rollMotor.setPower(gamepad1RightJoyStickXValue);
+            pitchMotor.setPower(gamepad1RightJoyStickYValue);
+            rollMotor.setPower(gamepad1RightJoyStickXValue);
             //**************************************************************************************
             // Gamepad 2 buttons
             //**************************************************************************************

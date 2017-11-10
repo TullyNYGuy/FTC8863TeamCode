@@ -161,8 +161,8 @@ public class NathanMagicRobotTeleop extends LinearOpMode {
 
             if (gamepad1.a) {
                 if (gamepad1aButtonIsReleased) {
-                    robot.leftBlockGrabberServo.goPositionOne();
-                    robot.rightBlockGrabberServo.goPositionOne();
+                    //robot.leftBlockGrabberServo.goPositionOne();
+                    //robot.rightBlockGrabberServo.goPositionOne();
                     gamepad1aButtonIsReleased = false;
                 }
             } else {
@@ -179,8 +179,8 @@ public class NathanMagicRobotTeleop extends LinearOpMode {
 
             if (gamepad1.b) {
                 if (gamepad1bButtonIsReleased) {
-                    robot.leftBlockGrabberServo.goHome();
-                    robot.rightBlockGrabberServo.goHome();
+                    //robot.leftBlockGrabberServo.goHome();
+                    //robot.rightBlockGrabberServo.goHome();
                     gamepad1bButtonIsReleased = false;
                 }
             } else {

@@ -37,8 +37,8 @@ public class NathanMagicRobot {
     // note that the IMU is an object in the drive train
     public RobotMode robotMode;
     public DriveTrain driveTrain;
-    public Servo8863 leftBlockGrabberServo;
-    public Servo8863 rightBlockGrabberServo;
+    //public Servo8863 leftBlockGrabberServo;
+    //public Servo8863 rightBlockGrabberServo;
     public DcMotor8863 liftMotor;
     public Servo8863 relicfingers;
     public Servo8863 relicwrist;
@@ -76,17 +76,17 @@ public class NathanMagicRobot {
         telemetry.addData("Drive Train Initialized", "!");
         telemetry.update();
 
-        leftBlockGrabberServo = new Servo8863("leftBlockGrabberServo", hardwareMap, telemetry);
-        leftBlockGrabberServo.setDirection(Servo.Direction.FORWARD);
-        leftBlockGrabberServo.setHomePosition(0);
-        leftBlockGrabberServo.setInitPosition(1);
-        leftBlockGrabberServo.setPositionOne(.75);
-
-        rightBlockGrabberServo = new Servo8863("rightBlockGrabberServo", hardwareMap, telemetry);
-        rightBlockGrabberServo.setDirection(Servo.Direction.FORWARD);
-        rightBlockGrabberServo.setHomePosition(0);
-        rightBlockGrabberServo.setInitPosition(1);
-        rightBlockGrabberServo.setPositionOne(.75);
+//        leftBlockGrabberServo = new Servo8863("leftBlockGrabberServo", hardwareMap, telemetry);
+//        leftBlockGrabberServo.setDirection(Servo.Direction.FORWARD);
+//        leftBlockGrabberServo.setHomePosition(0);
+//        leftBlockGrabberServo.setInitPosition(1);
+//        leftBlockGrabberServo.setPositionOne(.75);
+//
+//        rightBlockGrabberServo = new Servo8863("rightBlockGrabberServo", hardwareMap, telemetry);
+//        rightBlockGrabberServo.setDirection(Servo.Direction.FORWARD);
+//        rightBlockGrabberServo.setHomePosition(0);
+//        rightBlockGrabberServo.setInitPosition(1);
+//        rightBlockGrabberServo.setPositionOne(.75);
 
         relicfingers = new Servo8863("relicFingers", hardwareMap, telemetry);
         relicfingers.setDirection(Servo.Direction.FORWARD);
