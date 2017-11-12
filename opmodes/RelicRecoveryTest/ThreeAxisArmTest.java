@@ -3,9 +3,11 @@ package org.firstinspires.ftc.teamcode.opmodes.RelicRecoveryTest;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.JoyStick;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.MuxPort;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
 import org.firstinspires.ftc.teamcode.Lib.RelicRecoveryLib.NathanMagicRobot;
 import org.firstinspires.ftc.teamcode.opmodes.GenericTest.RobotConfigMappingForGenericTest;
@@ -22,9 +24,12 @@ public class ThreeAxisArmTest extends LinearOpMode {
     //*********************************************************************************************
     //             Declarations
     //*********************************************************************************************
+    public enum MotorType {
+        ANDYMARK_20, ANDYMARK_40, ANDYMARK_60
+    }
     
-    public DcMotor8863 rollMotor;
-    public DcMotor8863 pitchMotor;
+    public DcMotor rollMotor;
+    public DcMotor pitchMotor;
     public Servo8863 yawServo;
     
     // for use in debouncing the button. A long press will only result in one transition of the
@@ -104,25 +109,32 @@ public class ThreeAxisArmTest extends LinearOpMode {
         //*********************************************************************************************
         
 
-        rollMotor = new DcMotor8863("rollMotor", hardwareMap);
-        rollMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_20);
-        rollMotor.setMovementPerRev(360);
-        rollMotor.setTargetEncoderTolerance(10);
-        rollMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
-        rollMotor.setMotorMoveType(DcMotor8863.MotorMoveType.RELATIVE);
-        rollMotor.setMinMotorPower(-1);
-        rollMotor.setMaxMotorPower(1);
+//        rollMotor = new DcMotor8863("rollMotor", hardwareMap);
+//        rollMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_20);
+//        rollMotor.setMovementPerRev(360);
+//        rollMotor.setTargetEncoderTolerance(10);
+//        rollMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
+//        rollMotor.setMotorMoveType(DcMotor8863.MotorMoveType.ABSOLUTE);
+//        rollMotor.setMinMotorPower(-1);
+//        rollMotor.setMaxMotorPower(1);
+
+        rollMotor = hardwareMap.get(DcMotor.class, "rollMotor");
+        rollMotor.setDirection(DcMotor.Direction.FORWARD);
+        
+        pitchMotor  = hardwareMap.get(DcMotor.class, "pitchMotor");
+        pitchMotor.setDirection(DcMotor.Direction.FORWARD);
+
 //        pitchMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        pitchMotor = new DcMotor8863("pitchMotor", hardwareMap);
+/*        pitchMotor = new DcMotor8863("pitchMotor", hardwareMap);
         pitchMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_20);
         pitchMotor.setMovementPerRev(360);
         pitchMotor.setTargetEncoderTolerance(10);
         pitchMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
-        pitchMotor.setMotorMoveType(DcMotor8863.MotorMoveType.RELATIVE);
+        pitchMotor.setMotorMoveType(DcMotor8863.MotorMoveType.ABSOLUTE);
         pitchMotor.setMinMotorPower(-1);
         pitchMotor.setMaxMotorPower(1);
-//        pitchMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        pitchMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);*/
 
 
         // Game Pad 1 joysticks
@@ -276,8 +288,10 @@ public class ThreeAxisArmTest extends LinearOpMode {
             gamepad1RightJoyStickXValue = gamepad1RightJoyStickX.scaleInput(gamepad1.right_stick_x);
             gamepad1RightJoyStickYValue = gamepad1RightJoyStickY.scaleInput(gamepad1.right_stick_y);
 
-            pitchMotor.setPower(gamepad1RightJoyStickYValue);
-            rollMotor.setPower(gamepad1RightJoyStickXValue);
+            gamepad1RightJoyStickXValue = limitPosition(gamepad1RightJoyStickXValue,180, pitchMotor.getCurrentPosition(),MotorType.ANDYMARK_40);
+            gamepad1RightJoyStickYValue = limitPosition(gamepad1RightJoyStickYValue,180, rollMotor.getCurrentPosition(),MotorType.ANDYMARK_20);
+            pitchMotor.setPower(gamepad1RightJoyStickXValue);
+            rollMotor.setPower(gamepad1RightJoyStickYValue);
             //**************************************************************************************
             // Gamepad 2 buttons
             //**************************************************************************************
@@ -412,6 +426,8 @@ public class ThreeAxisArmTest extends LinearOpMode {
             telemetry.addData("Actual Lift Motor Power", "%3.2f", actualLiftMotorPower);
             telemetry.addData("Right Motor Speed = ", "%3.2f", rightPower);
             telemetry.addData("Power Reduction = ", "%1.2f", gamepad1LeftJoyStickY.getReductionFactor());
+            telemetry.addData("Pitch Encoder Count = ", "%d", pitchMotor.getCurrentPosition());
+            telemetry.addData("Roll Encoder Count = ", "%d", rollMotor.getCurrentPosition());
             telemetry.addData(">", "Press Stop to end.");
             telemetry.update();
 
@@ -430,4 +446,36 @@ public class ThreeAxisArmTest extends LinearOpMode {
     //*********************************************************************************************
     //             Helper methods
     //*********************************************************************************************
+    public double limitPosition(double requestedPower, int degrees, int currentEncoderCount, MotorType motorType){
+        if (Math.abs(currentEncoderCount) < degreeToEncoder(degrees, motorType)){
+        return requestedPower/5;
+        }else{
+            return 0;
+        }
+    }
+
+
+    public int degreeToEncoder(int degrees, MotorType motorType) {
+        int countPerRevolution;
+        switch (motorType) {
+            case ANDYMARK_20:
+                // http://www.andymark.com/NeveRest-20-12V-Gearmotor-p/am-3102.htm
+                countPerRevolution = 560;
+                break;
+            case ANDYMARK_40:
+                // http://www.andymark.com/NeveRest-40-Gearmotor-p/am-2964a.htm
+                countPerRevolution = 1120;
+                break;
+            case ANDYMARK_60:
+                // http://www.andymark.com/NeveRest-60-Gearmotor-p/am-3103.htm
+                countPerRevolution = 1680;
+                break;
+            default:
+                countPerRevolution = 0;
+                break;
+        }
+        int count = Math.round((float)degrees / 360 * countPerRevolution);
+    telemetry.addData("Encoder limit =", "%d",count);
+        return count;
+    }
 }
