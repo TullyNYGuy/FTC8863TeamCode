@@ -40,6 +40,7 @@ public class NathanMagicRobot {
     public Servo8863 leftBlockGrabberServo;
     public Servo8863 rightBlockGrabberServo;
     public DcMotor8863 liftMotor;
+    public DcMotor8863 extendingArmMotor;
     public Servo8863 relicfingers;
     public Servo8863 relicwrist;
     public Servo8863 jewelSmackerServo;
@@ -121,6 +122,16 @@ public class NathanMagicRobot {
         //liftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         //liftMotor.setPower(0);
 
+        extendingArmMotor = new DcMotor8863("extendingArmMotor",hardwareMap);
+        extendingArmMotor.setDirection(DcMotor.Direction.REVERSE);
+        extendingArmMotor.setMaxMotorPower(1);
+        extendingArmMotor.setMinMotorPower(-1);
+        extendingArmMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_20);
+        extendingArmMotor.setMotorMoveType(DcMotor8863.MotorMoveType.RELATIVE);
+        extendingArmMotor.setTargetEncoderTolerance(10);
+        extendingArmMotor.setMovementPerRev(360);
+        extendingArmMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
+        
         jewelSmackerServo = new Servo8863("jewelSmackerServo", hardwareMap, telemetry);
         jewelSmackerServo.setDirection(Servo.Direction.FORWARD);
         jewelSmackerServo.setHomePosition(0);

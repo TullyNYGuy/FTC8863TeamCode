@@ -153,6 +153,7 @@ public class NathanMagicRobotTeleop extends LinearOpMode {
 
             if (gamepad1.y) {
                 if (gamepad1yButtonIsReleased) {
+                    robot.extendingArmMotor.stop();
                     gamepad1yButtonIsReleased = false;
                 }
             } else {
@@ -171,6 +172,7 @@ public class NathanMagicRobotTeleop extends LinearOpMode {
 
             if (gamepad1.x) {
                 if (gamepad1xButtonIsReleased) {
+                    robot.extendingArmMotor.runAtConstantPower(0.);
                     gamepad1xButtonIsReleased = false;
                 }
             } else {
