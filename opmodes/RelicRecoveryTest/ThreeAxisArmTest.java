@@ -446,6 +446,15 @@ public class ThreeAxisArmTest extends LinearOpMode {
     //*********************************************************************************************
     //             Helper methods
     //*********************************************************************************************
+
+    /**
+     * Checks if you can move further using the encoder count and a max amount of degree rotation.
+     * @param requestedPower power you are moving
+     * @param degrees max degree rotation
+     * @param currentEncoderCount where you are now
+     * @param motorType determines your encoder count per revolution
+     * @return
+     */
     public double limitPosition(double requestedPower, int degrees, int currentEncoderCount, MotorType motorType){
         if (Math.abs(currentEncoderCount) < degreeToEncoder(degrees, motorType)){
         return requestedPower/5;
@@ -454,7 +463,12 @@ public class ThreeAxisArmTest extends LinearOpMode {
         }
     }
 
-
+    /**
+     * Converts degrees to encoder counts based on your motor type.
+     * @param degrees max rotation
+     * @param motorType determines your encoder count per revolution
+     * @return
+     */
     public int degreeToEncoder(int degrees, MotorType motorType) {
         int countPerRevolution;
         switch (motorType) {
@@ -474,6 +488,7 @@ public class ThreeAxisArmTest extends LinearOpMode {
                 countPerRevolution = 0;
                 break;
         }
+        //We have to cast the division as a float so that we dont gat 0 as a limit.
         int count = Math.round((float)degrees / 360 * countPerRevolution);
     telemetry.addData("Encoder limit =", "%d",count);
         return count;
