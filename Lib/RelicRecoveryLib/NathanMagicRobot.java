@@ -118,9 +118,9 @@ public class NathanMagicRobot {
 
         jewelSmackerServo = new Servo8863("jewelSmackerServo", hardwareMap, telemetry);
         jewelSmackerServo.setDirection(Servo.Direction.FORWARD);
-        jewelSmackerServo.setHomePosition(0);
-        jewelSmackerServo.setInitPosition(1);
-        jewelSmackerServo.setPositionOne(.75);
+        jewelSmackerServo.setHomePosition(0.3);
+        jewelSmackerServo.setInitPosition(0.3);
+        jewelSmackerServo.setPositionOne(0.9);
 
         //**********************************************
         // EXAMPLE LIMIT SWITCH - IF YOU DO NOT HAVE LIMIT SWITCHES CONNECTED ON THE ROBOT COMMENT
@@ -225,4 +225,22 @@ public class NathanMagicRobot {
     // up the robot. For example:
     // rightSideBeaconPusher.pushBeacon()
     // ballShooter.shoot()
+
+    /**
+     * causes the jewelArm to go up
+     */
+    public void jewelArmServoUp (){
+        jewelSmackerServo.goHome();
+    }
+
+    /**
+     * causes the jewelArm to go down
+     */
+    public void jewelArmServoDown (){
+        jewelSmackerServo.goPositionOne();
+    }
+
+    public void jewelArmServoInit (){
+        jewelSmackerServo.goInitPosition();
+    }
 }

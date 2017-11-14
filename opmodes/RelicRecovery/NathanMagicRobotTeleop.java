@@ -122,6 +122,8 @@ public class NathanMagicRobotTeleop extends LinearOpMode {
 //        shooterMotorDirect.setMaxMotorPower(1);
 //        shooterMotorDirect.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
+        robot.jewelArmServoInit();
+
         // Game Pad 1 joysticks
         gamepad1LeftJoyStickX = new JoyStick(JoyStick.JoyStickMode.SQUARE, JOYSTICK_DEADBAND_VALUE, JoyStick.InvertSign.NO_INVERT_SIGN);
         gamepad1LeftJoyStickY = new JoyStick(JoyStick.JoyStickMode.SQUARE, JOYSTICK_DEADBAND_VALUE, JoyStick.InvertSign.INVERT_SIGN);
@@ -153,6 +155,7 @@ public class NathanMagicRobotTeleop extends LinearOpMode {
 
             if (gamepad1.y) {
                 if (gamepad1yButtonIsReleased) {
+                    robot.jewelArmServoUp();
                     gamepad1yButtonIsReleased = false;
                 }
             } else {
@@ -161,8 +164,9 @@ public class NathanMagicRobotTeleop extends LinearOpMode {
 
             if (gamepad1.a) {
                 if (gamepad1aButtonIsReleased) {
-                    robot.leftBlockGrabberServo.goPositionOne();
-                    robot.rightBlockGrabberServo.goPositionOne();
+                    robot.jewelArmServoDown();
+                    //robot.leftBlockGrabberServo.goPositionOne();
+                    //robot.rightBlockGrabberServo.goPositionOne();
                     gamepad1aButtonIsReleased = false;
                 }
             } else {
@@ -459,5 +463,7 @@ public class NathanMagicRobotTeleop extends LinearOpMode {
         } else
             driveTrainMode = org.firstinspires.ftc.teamcode.opmodes.RelicRecovery.NathanMagicRobotTeleop.DriveTrainMode.DIFFERENTIAL_DRIVE;
     }
+
+
 }
 
