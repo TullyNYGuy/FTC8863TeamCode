@@ -448,21 +448,23 @@ public class ThreeAxisArmTest extends LinearOpMode {
     //*********************************************************************************************
 
     public double limitPosition(double requestedPower, int maxDegrees, int currentEncoderCount, MotorType motorType){
+        double outputPower = 0;
         if(requestedPower > 0) {
             if (currentEncoderCount < degreeToEncoder(maxDegrees, motorType)) {
-                return 0;
+                outputPower = requestedPower/5;
             } else {
-                return requestedPower/5;
+                outputPower = 0;
             }
         }
 
         if(requestedPower < 0) {
             if(currentEncoderCount < degreeToEncoder(-maxDegrees, motorType)) {
-                return 0;
+                outputPower = requestedPower/5;
             } else {
-                return requestedPower/5;
+                outputPower = 0;
             }
-        } return requestedPower/10;
+        }
+        return outputPower;
     }
 
     /**
