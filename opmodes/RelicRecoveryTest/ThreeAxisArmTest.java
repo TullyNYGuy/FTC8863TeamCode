@@ -447,21 +447,39 @@ public class ThreeAxisArmTest extends LinearOpMode {
     //             Helper methods
     //*********************************************************************************************
 
+    public double limitPosition(double requestedPower, int maxDegrees, int currentEncoderCount, MotorType motorType){
+        if(requestedPower > 0) {
+            if (currentEncoderCount < degreeToEncoder(maxDegrees, motorType)) {
+                return 0;
+            } else {
+                return requestedPower/5;
+            }
+        }
+
+        if(requestedPower < 0) {
+            if(currentEncoderCount < degreeToEncoder(-maxDegrees, motorType)) {
+                return 0;
+            } else {
+                return requestedPower/5;
+            }
+        } return requestedPower/10;
+    }
+
     /**
      * Checks if you can move further using the encoder count and a max amount of degree rotation.
      * @param requestedPower power you are moving
-     * @param degrees max degree rotation
+     * @param maxDegrees max degree rotation
      * @param currentEncoderCount where you are now
      * @param motorType determines your encoder count per revolution
      * @return
      */
-    public double limitPosition(double requestedPower, int degrees, int currentEncoderCount, MotorType motorType){
-        if (Math.abs(currentEncoderCount) < degreeToEncoder(degrees, motorType)){
-        return requestedPower/5;
-        }else{
-            return 0;
-        }
-    }
+//    public double limitPositionOLD(double requestedPower, int degrees, int currentEncoderCount, MotorType motorType){
+//        if (Math.abs(currentEncoderCount) < degreeToEncoder(degrees, motorType)){
+//        return requestedPower/5;
+//        }else{
+//            return 0;
+//        }
+//    }
 
     /**
      * Converts degrees to encoder counts based on your motor type.
