@@ -449,6 +449,10 @@ public class ThreeAxisArmTest extends LinearOpMode {
 
     public double limitPosition(double requestedPower, int maxDegrees, int currentEncoderCount, MotorType motorType){
         double outputPower = 0;
+        // current encoder count = -140 degrees, max = +180 -> true so output power = requestedPower/5 --- OK!
+        // current encoder count = +150 degrees, max = +180 -> true so output power = requestedPower/5 --- OK!
+        // current encoder count = +180 degrees, max = +180 -> false so output power = 0 --- OK!
+        // current encoder count = +181 degrees, max = +180 -> false so output power = 0 --- OK!
         if(requestedPower > 0) {
             if (currentEncoderCount < degreeToEncoder(maxDegrees, motorType)) {
                 outputPower = requestedPower/5;
@@ -458,6 +462,11 @@ public class ThreeAxisArmTest extends LinearOpMode {
         }
 
         if(requestedPower < 0) {
+            // current encoder count = +140 degrees, max = -180 -> false so output power = 0 --- UH OH!
+            // current encoder count = -150 degrees, max = -180 -> false so output power = 0 --- UH OH!
+            // current encoder count = -180 degrees, max = -180 -> false so output power = 0 --- UH OH!
+            // current encoder count = -181 degrees, max = -180 -> true so output power = requestedPower/5 --- UH OH!
+            // MOTOR WILL NEVER RESPOND TO A NEGATIVE POWER!
             if(currentEncoderCount < degreeToEncoder(-maxDegrees, motorType)) {
                 outputPower = requestedPower/5;
             } else {
