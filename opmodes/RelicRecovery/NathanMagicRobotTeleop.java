@@ -410,7 +410,9 @@ public class NathanMagicRobotTeleop extends LinearOpMode {
             direction = gamepad1RightJoyStickXValue;
 
             // joystick for lift motor
-            liftMotorPower = gamepad2RightJoyStickYValue;
+            // made it negative because the motor was running in the wrong direction
+            // note we had to switch the upper and lower limit switches
+            liftMotorPower = -gamepad2RightJoyStickYValue;
 
             // update the drive motors
             if (driveTrainMode == org.firstinspires.ftc.teamcode.opmodes.RelicRecovery.NathanMagicRobotTeleop.DriveTrainMode.TANK_DRIVE) {

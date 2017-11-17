@@ -109,7 +109,7 @@ public class NathanMagicRobot {
         clampServo.setPositionOne(.45);
 
         liftMotor = new DcMotor8863("liftMotor",hardwareMap);
-        liftMotor.setDirection(DcMotor.Direction.REVERSE);
+        liftMotor.setDirection(DcMotor.Direction.FORWARD);
         liftMotor.setMaxMotorPower(1);
         liftMotor.setMinMotorPower(-1);
         liftMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
