@@ -4,6 +4,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.JoyStick;
@@ -124,6 +126,14 @@ public class ThreeAxisArmTest extends LinearOpMode {
         pitchMotor  = hardwareMap.get(DcMotor.class, "pitchMotor");
         pitchMotor.setDirection(DcMotor.Direction.FORWARD);
 
+        yawServo = new Servo8863("yawServo",hardwareMap,telemetry);
+        yawServo.setDirection(Servo.Direction.FORWARD);
+        yawServo.setHomePosition(0.5);
+        yawServo.setInitPosition(0.5);
+        yawServo.setPositionOne(0);
+        yawServo.setPositionTwo(1);
+        yawServo.goInitPosition();
+
 //        pitchMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
 /*        pitchMotor = new DcMotor8863("pitchMotor", hardwareMap);
@@ -168,6 +178,7 @@ public class ThreeAxisArmTest extends LinearOpMode {
 
             if (gamepad1.y) {
                 if (gamepad1yButtonIsReleased) {
+                    yawServo.goPositionOne();
                     gamepad1yButtonIsReleased = false;
                 }
             } else {
@@ -176,6 +187,7 @@ public class ThreeAxisArmTest extends LinearOpMode {
 
             if (gamepad1.a) {
                 if (gamepad1aButtonIsReleased) {
+                    yawServo.goHome();
                     gamepad1aButtonIsReleased = false;
                 }
             } else {
@@ -184,6 +196,7 @@ public class ThreeAxisArmTest extends LinearOpMode {
 
             if (gamepad1.x) {
                 if (gamepad1xButtonIsReleased) {
+                    yawServo.goPositionTwo();
                     gamepad1xButtonIsReleased = false;
                 }
             } else {
@@ -192,6 +205,9 @@ public class ThreeAxisArmTest extends LinearOpMode {
 
             if (gamepad1.b) {
                 if (gamepad1bButtonIsReleased) {
+                    moveMotor(-180, 0.5,pitchMotor,MotorType.ANDYMARK_40);
+                    moveMotor(-90,0.5,rollMotor,MotorType.ANDYMARK_20);
+                    yawServo.goPositionTwo();
                     gamepad1bButtonIsReleased = false;
                 }
             } else {
@@ -419,16 +435,16 @@ public class ThreeAxisArmTest extends LinearOpMode {
             liftMotorPower = gamepad2RightJoyStickYValue;
 
 
-            telemetry.addData("Lift Motor Command", "%3.2f", liftMotorPower);
+            //telemetry.addData("Lift Motor Command", "%3.2f", liftMotorPower);
 
             // Display telemetry
-            telemetry.addData("Left Motor Speed = ", "%3.2f", leftPower);
-            telemetry.addData("Actual Lift Motor Power", "%3.2f", actualLiftMotorPower);
-            telemetry.addData("Right Motor Speed = ", "%3.2f", rightPower);
-            telemetry.addData("Power Reduction = ", "%1.2f", gamepad1LeftJoyStickY.getReductionFactor());
-            telemetry.addData("Pitch Encoder Count = ", "%d", pitchMotor.getCurrentPosition());
-            telemetry.addData("Roll Encoder Count = ", "%d", rollMotor.getCurrentPosition());
-            telemetry.addData(">", "Press Stop to end.");
+//            telemetry.addData("Left Motor Speed = ", "%3.2f", leftPower);
+//            telemetry.addData("Actual Lift Motor Power", "%3.2f", actualLiftMotorPower);
+//            telemetry.addData("Right Motor Speed = ", "%3.2f", rightPower);
+//            telemetry.addData("Power Reduction = ", "%1.2f", gamepad1LeftJoyStickY.getReductionFactor());
+//            telemetry.addData("Pitch Encoder Count = ", "%d", pitchMotor.getCurrentPosition());
+//            telemetry.addData("Roll Encoder Count = ", "%d", rollMotor.getCurrentPosition());
+//            telemetry.addData(">", "Press Stop to end.");
             telemetry.update();
 
             idle();
@@ -447,7 +463,25 @@ public class ThreeAxisArmTest extends LinearOpMode {
     //             Helper methods
     //*********************************************************************************************
 
-    public double limitPosition(double requestedPower, int maxDegrees, int currentEncoderCount, MotorType motorType){
+    public void moveMotor(double positionInDegrees, double power, DcMotor motor, MotorType motorType){
+        motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        sleep(200);
+        motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        sleep(200);
+        //limits the position
+        if (positionInDegrees > 180){
+            positionInDegrees = 180;
+        }
+        if (positionInDegrees < -180){
+            positionInDegrees = -180;
+        }
+        motor.setTargetPosition(degreeToEncoder(positionInDegrees, motorType));
+        motor.setPower(power);
+        telemetry.addData("Current Power =", "%1.2f",power);
+        telemetry.addData("Encoder Count =", "%d",degreeToEncoder(positionInDegrees, motorType));
+    }
+
+    public double limitPosition(double requestedPower, double maxDegrees, int currentEncoderCount, MotorType motorType){
         double outputPower = 0;
         // current encoder count = -140 degrees, max = +180 -> true so output power = requestedPower/5 --- OK!
         // current encoder count = +150 degrees, max = +180 -> true so output power = requestedPower/5 --- OK!
@@ -455,7 +489,7 @@ public class ThreeAxisArmTest extends LinearOpMode {
         // current encoder count = +181 degrees, max = +180 -> false so output power = 0 --- OK!
         if(requestedPower > 0) {
             if (currentEncoderCount < degreeToEncoder(maxDegrees, motorType)) {
-                outputPower = requestedPower/5;
+                outputPower = requestedPower/2;
             } else {
                 outputPower = 0;
             }
@@ -467,8 +501,8 @@ public class ThreeAxisArmTest extends LinearOpMode {
             // current encoder count = -180 degrees, max = -180 -> false so output power = 0 --- UH OH!
             // current encoder count = -181 degrees, max = -180 -> true so output power = requestedPower/5 --- UH OH!
             // MOTOR WILL NEVER RESPOND TO A NEGATIVE POWER!
-            if(currentEncoderCount < degreeToEncoder(-maxDegrees, motorType)) {
-                outputPower = requestedPower/5;
+            if(currentEncoderCount > degreeToEncoder(-maxDegrees, motorType)) {
+                outputPower = requestedPower/2;
             } else {
                 outputPower = 0;
             }
@@ -498,7 +532,7 @@ public class ThreeAxisArmTest extends LinearOpMode {
      * @param motorType determines your encoder count per revolution
      * @return
      */
-    public int degreeToEncoder(int degrees, MotorType motorType) {
+    public int degreeToEncoder(double degrees, MotorType motorType) {
         int countPerRevolution;
         switch (motorType) {
             case ANDYMARK_20:
@@ -519,7 +553,7 @@ public class ThreeAxisArmTest extends LinearOpMode {
         }
         //We have to cast the division as a float so that we dont gat 0 as a limit.
         int count = Math.round((float)degrees / 360 * countPerRevolution);
-    telemetry.addData("Encoder limit =", "%d",count);
+    //telemetry.addData("Encoder limit =", "%d",count);
         return count;
     }
 }
