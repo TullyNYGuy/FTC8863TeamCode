@@ -29,7 +29,7 @@ public class NathanMagicRobotTeleop extends LinearOpMode {
 
     NathanMagicRobot robot;
 
-    int shotCount = 0;
+    double powerFactor = 1;
 
     // for use in debouncing the button. A long press will only result in one transition of the
     // button
@@ -191,6 +191,7 @@ public class NathanMagicRobotTeleop extends LinearOpMode {
 
             if (gamepad1.right_bumper) {
                 if (gamepad1RightBumperIsReleased) {
+                    powerFactor = .5;
                     gamepad1RightBumperIsReleased = false;
                 }
             } else {
@@ -199,6 +200,7 @@ public class NathanMagicRobotTeleop extends LinearOpMode {
 
             if (gamepad1.left_bumper) {
                 if (gamepad1LeftBumperIsReleased) {
+                    powerFactor = 1;
                     gamepad1LeftBumperIsReleased = false;
                 }
             } else {
@@ -402,8 +404,8 @@ public class NathanMagicRobotTeleop extends LinearOpMode {
             // ************************************************************************************
 
             // joysticks to tank drive
-            leftPower = gamepad1LeftJoyStickYValue;
-            rightPower = gamepad1RightJoyStickYValue;
+            leftPower = gamepad1LeftJoyStickYValue * powerFactor;
+            rightPower = gamepad1RightJoyStickYValue * powerFactor;
 
             // joysticks to differential drive
             throttle = gamepad1RightJoyStickYValue;
