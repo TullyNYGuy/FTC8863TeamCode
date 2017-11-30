@@ -1,14 +1,14 @@
-package org.firstinspires.ftc.teamcode.opmodes.VelocityVortex;
+package org.firstinspires.ftc.teamcode.opmodes.RelicRecovery;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.robot.Robot;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.JoyStick;
+import org.firstinspires.ftc.teamcode.Lib.RelicRecoveryLib.NathanMagicRobot;
 import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.AllianceColorSwitch;
 import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.FrontBeaconPusherControl;
 import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.VelocityVortexRobot;
@@ -18,13 +18,13 @@ import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.VelocityVortexRobot;
  */
 @Autonomous(name = "Velocity Vortex Autonomous", group = "Run")
 //@Disabled
-public class VelocityVortexAutonomous extends LinearOpMode {
+public class RelicRecoveryAutonomous extends LinearOpMode {
 
     //*********************************************************************************************
     //             Declarations
     //*********************************************************************************************
 
-    VelocityVortexRobot robot;
+    NathanMagicRobot robot;
     DriveTrain.Status statusDrive;
     ElapsedTime timer;
     FrontBeaconPusherControl.FrontBeaconControlState frontBeaconControlState;
@@ -51,72 +51,19 @@ public class VelocityVortexAutonomous extends LinearOpMode {
         //*********************************************************************************************
 
         if(robot.allianceColorSwitch.getAllianceColor() == AllianceColorSwitch.AllianceColor.RED) {
-            // get front beacon pushers into position
-            robot.frontBeaconPusherControl.init();
+            //drop jewel arm
+            robot.jewelSmackerServo.goPositionOne();
+            //read the color of the jewel
 
-            // leave wall and give robot enough room to spin turn
-            driveDistanceUsingIMU(0, .5, 20); //heading, power, distance
+            //hit the correct color jewel off
 
-            // Setup to drive across face of corner vortex
-            spinTurn(45, 1, AdafruitIMU8863.AngleMode.ABSOLUTE);
+            //raise jewel arm back up
 
-            // drive across face of corner vortex
-            driveDistanceUsingIMU(0, .8, 153.5); //heading, power, distance
-
-            // another 45 degree turn puts the robot at 90 degrees relative to its start position
-            // and facing the beacon
-            spinTurn(90, 1, AdafruitIMU8863.AngleMode.ABSOLUTE);
-            //sleep(1000);
-
-            // hand off control to the front beacon pusher control object
-            robot.frontBeaconPusherControl.startBeaconControl();
-
-            // update the front beacon pusher control state machine and look for signal that it succeeded or failed
-            while (opModeIsActive()) {
-                frontBeaconControlState = robot.frontBeaconPusherControl.update();
-                if (frontBeaconControlState == FrontBeaconPusherControl.FrontBeaconControlState.SUCCESS ||
-                        frontBeaconControlState == FrontBeaconPusherControl.FrontBeaconControlState.FAILURE) {
-                    // beacon push is done
-                    break;
-                }
-
-            }
+            //read pictograph
         }
 
         if(robot.allianceColorSwitch.getAllianceColor() == AllianceColorSwitch.AllianceColor.BLUE) {
-            // get front beacon pushers into position
-            robot.frontBeaconPusherControl.init();
-
-            // leave wall and give robot enough room to spin turn
-            driveDistanceUsingIMU(0, .5, 20); //heading, power, distance
-
-            // Setup to drive across face of corner vortex
-            spinTurn(-45, 1, AdafruitIMU8863.AngleMode.ABSOLUTE);
-
-            // drive across face of corner vortex
-            driveDistanceUsingIMU(0, .8, 166); //heading, power, distance
-
-            // another 45 degree turn puts the robot at 90 degrees relative to its start position
-            // and facing the beacon
-            spinTurn(-90, 1, AdafruitIMU8863.AngleMode.ABSOLUTE);
-            //sleep(1000);
-
-            // hand off control to the front beacon pusher control object
-            robot.frontBeaconPusherControl.startBeaconControl();
-
-            // update the front beacon pusher control state machine and look for signal that it succeeded or failed
-            while (opModeIsActive()) {
-                frontBeaconControlState = robot.frontBeaconPusherControl.update();
-                if (frontBeaconControlState == FrontBeaconPusherControl.FrontBeaconControlState.SUCCESS ||
-                        frontBeaconControlState == FrontBeaconPusherControl.FrontBeaconControlState.FAILURE) {
-                    // beacon push is done
-                    break;
-                }
-
             }
-        }
-
-        driveDistanceUsingIMU(0, .5, -10); //heading, power, distance
 
 
 //        driveStraight(161, 0.5);
@@ -191,7 +138,6 @@ public class VelocityVortexAutonomous extends LinearOpMode {
         // updateDriveDistanceUsingIMU return true when the robot has traveled the distance that was requested
         while (opModeIsActive() && !robot.driveTrain.updateDriveDistanceUsingIMU()) {
             // update the front beacon pusher state machine
-            robot.frontBeaconPusherControl.update();
             telemetry.addData("Angle = ", "%3.1f", robot.driveTrain.imu.getHeading());
             telemetry.addData("distance = ", robot.driveTrain.getDistanceDriven());
             telemetry.update();
