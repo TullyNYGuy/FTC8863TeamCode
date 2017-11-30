@@ -11,6 +11,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Switch;
+import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.AllianceColorSwitch;
 
 public class NathanMagicRobot {
 
@@ -36,6 +37,8 @@ public class NathanMagicRobot {
     // Here are all of the objects that make up the entire robot
     // note that the IMU is an object in the drive train
     public RobotMode robotMode;
+    public AllianceColorSwitch allianceColorSwitch;
+    public AllianceColorSwitch.AllianceColor allianceColor;
     public DriveTrain driveTrain;
     public Servo8863 leftBlockGrabberServo;
     public Servo8863 rightBlockGrabberServo;
