@@ -323,6 +323,7 @@ public class NathanMagicRobotTeleop extends LinearOpMode {
             }
 
             if (gamepad2.right_bumper) {
+                robot.jewelSmackerServoTwo.goPositionOne();
                 if (gamepad2RightBumperIsReleased) {
                     gamepad2RightBumperIsReleased = false;
                 }
@@ -331,6 +332,7 @@ public class NathanMagicRobotTeleop extends LinearOpMode {
             }
 
             if (gamepad2.left_bumper) {
+                robot.jewelSmackerServoTwo.goPositionTwo();
                 if (gamepad2LeftBumperIsReleased) {
                     gamepad2LeftBumperIsReleased = false;
                 }
@@ -357,6 +359,7 @@ public class NathanMagicRobotTeleop extends LinearOpMode {
             }
 
             if (gamepad2.dpad_left) {
+                robot.jewelSmackerServo.goHome();
                 if (gamepad2DpadLeftIsReleased) {
                     gamepad2DpadLeftIsReleased = false;
                 }
@@ -365,6 +368,7 @@ public class NathanMagicRobotTeleop extends LinearOpMode {
             }
 
             if (gamepad2.dpad_right) {
+                robot.jewelSmackerServo.goPositionOne();
                 if (gamepad2DpadRightIsReleased) {
                     gamepad2DpadRightIsReleased = false;
                 }
@@ -373,6 +377,7 @@ public class NathanMagicRobotTeleop extends LinearOpMode {
             }
 
             if (gamepad2.left_stick_button) {
+                robot.jewelSmackerServoTwo.goHome();
                 if (gamepad2LeftStickButtonIsReleased) {
                     gamepad2LeftStickButtonIsReleased = false;
                 }

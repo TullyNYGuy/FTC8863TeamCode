@@ -48,6 +48,7 @@ public class NathanMagicRobot {
     public Servo8863 relicwrist;
     public Servo8863 jewelSmackerServo;
     public Servo8863 clampServo;
+    public Servo8863 jewelSmackerServoTwo;
 
     //**********************************************
     // EXAMPLE LIMIT SWITCH
@@ -140,6 +141,13 @@ public class NathanMagicRobot {
         jewelSmackerServo.setHomePosition(0);
         jewelSmackerServo.setInitPosition(1);
         jewelSmackerServo.setPositionOne(.75);
+
+        jewelSmackerServoTwo = new Servo8863("jewelSmackerServoTwo", hardwareMap, telemetry);
+        jewelSmackerServoTwo.setDirection(Servo.Direction.FORWARD);
+        jewelSmackerServoTwo.setHomePosition(.5);
+        jewelSmackerServoTwo.setPositionOne(.35); //position set to front of the robot
+        jewelSmackerServoTwo.setPositionTwo(.6);  //position set to the back of the robot
+
 
         //**********************************************
         // EXAMPLE LIMIT SWITCH - IF YOU DO NOT HAVE LIMIT SWITCHES CONNECTED ON THE ROBOT COMMENT
