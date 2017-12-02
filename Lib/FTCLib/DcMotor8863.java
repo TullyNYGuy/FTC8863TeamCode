@@ -1226,11 +1226,11 @@ public class DcMotor8863 {
      * @see com.qualcomm.robotcore.hardware.DcMotor.RunMode#RUN_TO_POSITION
      * @see #getMaxSpeed()
      */
-    public void setMaxSpeed(int encoderTicksPerSecond) {
-        FTCDcMotor.setMaxSpeed(encoderTicksPerSecond);
-    }
-
-    public int getMaxSpeed() {
-        return FTCDcMotor.getMaxSpeed();
-    }
+//    public void setMaxSpeed(int encoderTicksPerSecond) {
+//        FTCDcMotor.setMaxSpeed(encoderTicksPerSecond);
+//    }
+//
+//    public int getMaxSpeed() {
+//        return FTCDcMotor.getMaxSpeed();
+//    }
 }
