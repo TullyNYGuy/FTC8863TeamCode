@@ -403,7 +403,8 @@ public class DcMotor8863 {
         stallTimer = new ElapsedTime();
         powerRamp = new RampControl(0, 0, 0);
         initMotorDefaults();
-        this.setMaxSpeed(this.getMaxEncoderTicksPerSecond());
+        // FTC SDK 3.4 removed setMaxSpeed - I was never sure what it did anyway
+        //this.setMaxSpeed(this.getMaxEncoderTicksPerSecond());
     }
 
     /**
