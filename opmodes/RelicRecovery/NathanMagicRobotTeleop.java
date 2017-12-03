@@ -288,7 +288,7 @@ public class NathanMagicRobotTeleop extends LinearOpMode {
             if (gamepad2.y) {
                 if (gamepad2yButtonIsReleased) {
                     robot.clampServo.goHome();
-                    gamepad2yButtonIsReleased = true;
+                    gamepad2yButtonIsReleased = false;
                 }
             } else {
                 gamepad2yButtonIsReleased = true;
@@ -298,7 +298,7 @@ public class NathanMagicRobotTeleop extends LinearOpMode {
                 if (gamepad2aButtonIsReleased) {
                     robot.relicfingers.goPositionOne();
 
-                    gamepad2aButtonIsReleased = true;
+                    gamepad2aButtonIsReleased = false;
                 }
             } else {
                 gamepad2aButtonIsReleased = true;
@@ -307,7 +307,7 @@ public class NathanMagicRobotTeleop extends LinearOpMode {
             if (gamepad2.x) {
                 if (gamepad2xButtonIsReleased) {
                     robot.clampServo.goPositionOne();
-                    gamepad2xButtonIsReleased = true;
+                    gamepad2xButtonIsReleased = false;
                 }
             } else {
                 gamepad2xButtonIsReleased = true;
@@ -316,7 +316,7 @@ public class NathanMagicRobotTeleop extends LinearOpMode {
             if (gamepad2.b) {
                 if (gamepad2bButtonIsReleased) {
                     robot.relicfingers.goHome();
-                    gamepad2bButtonIsReleased = true;
+                    gamepad2bButtonIsReleased = false;
                 }
             } else {
                 gamepad2bButtonIsReleased = true;
