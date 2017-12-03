@@ -47,7 +47,7 @@ public class NathanMagicRobot {
     public Servo8863 relicfingers;
     public Servo8863 relicwrist;
     public Servo8863 jewelSmackerServo;
-    public Servo8863 clampServo;
+    public Servo8863 glyphDumpServo;
 
     //**********************************************
     // EXAMPLE LIMIT SWITCH
@@ -105,11 +105,11 @@ public class NathanMagicRobot {
         relicwrist.setInitPosition(.6);
         relicwrist.setPositionOne(0);
 
-        clampServo = new Servo8863("clampServo", hardwareMap, telemetry);
-        clampServo.setDirection(Servo.Direction.FORWARD);
-        clampServo.setHomePosition(0);
-        clampServo.setInitPosition(0);
-        clampServo.setPositionOne(.45);
+        glyphDumpServo = new Servo8863("glyphDumpServo", hardwareMap, telemetry);
+        glyphDumpServo.setDirection(Servo.Direction.FORWARD);
+        glyphDumpServo.setHomePosition(.8);
+        glyphDumpServo.setInitPosition(0);
+        glyphDumpServo.setPositionOne(.25);
 
         liftMotor = new DcMotor8863("liftMotor",hardwareMap);
         liftMotor.setDirection(DcMotor.Direction.FORWARD);
