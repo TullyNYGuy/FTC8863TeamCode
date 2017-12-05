@@ -54,7 +54,7 @@ public class JewelArm {
     public JewelArm(RobotSide robotSide, HardwareMap hardwareMap, Telemetry telemetry) {
         if (robotSide == RobotSide.LEFT) {
             servoArmUpPosition = 0;
-            servoArmDownPosition = 0.75;
+            servoArmDownPosition = 0.65;
             servoArmFrontPosition = 0.35;
             servoArmCenterPosition = 0.5;
             servoArmBackPosition = 0.6;
@@ -73,11 +73,11 @@ public class JewelArm {
             frontBackServo.setPositionTwo(servoArmBackPosition);
 
             colorSensor = new AdafruitColorSensor8863(hardwareMap, "leftColorSensor",
-                    "coreDIM1",0);
+                    "coreDIM1", 0);
 
         } else {
             servoArmUpPosition = 0;
-            servoArmDownPosition = 0.75;
+            servoArmDownPosition = 0.65;
             servoArmFrontPosition = 0.35;
             servoArmCenterPosition = 0.5;
             servoArmBackPosition = 0.6;
@@ -95,8 +95,8 @@ public class JewelArm {
             frontBackServo.setPositionOne(servoArmFrontPosition);
             frontBackServo.setPositionTwo(servoArmBackPosition);
 
-            colorSensor = new AdafruitColorSensor8863 (hardwareMap,"rightColorSensor",
-                    "coreDIM1",1);
+            colorSensor = new AdafruitColorSensor8863(hardwareMap, "rightColorSensor",
+                    "coreDIM1", 1);
 
         }
 
@@ -108,6 +108,13 @@ public class JewelArm {
     //
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
+    private void delay(int mSec) {
+        try {
+            Thread.sleep((int) (mSec));
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
 
 
     //*********************************************************************************************
@@ -116,26 +123,27 @@ public class JewelArm {
     // public methods that give the class its functionality
     //*********************************************************************************************
 
-    private void armDown() {
+    public void armDown() {
         upDownServo.goPositionOne();
     }
 
-    private void armUp() {
+    public void armUp() {
         upDownServo.goHome();
     }
 
-    private void armFront() {
+    public void armFront() {
         frontBackServo.goPositionOne();
     }
 
-    private void armBack() {
+    public void armBack() {
         frontBackServo.goPositionTwo();
     }
 
-    private void armCenter() {
+    public void armCenter() {
         frontBackServo.goHome();
     }
 
+    //change the initposition commands with the ones above so its easier to read
     public void initialize() {
         upDownServo.goInitPosition();
         frontBackServo.goInitPosition();
@@ -159,7 +167,24 @@ public class JewelArm {
         armCenter();
 
     }
+
+    public void knockFrontBall() {
+        armDown();
+        delay(1000);
+        armFront();
+
+    }
+
+    public void knockBackBall() {
+
+
+        armDown();
+        delay(1000);
+        armBack();
+
+    }
 }
+
 
 
 
