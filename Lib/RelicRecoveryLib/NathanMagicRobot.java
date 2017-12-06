@@ -43,7 +43,7 @@ public class NathanMagicRobot {
     public Servo8863 leftBlockGrabberServo;
     public Servo8863 rightBlockGrabberServo;
     public DcMotor8863 liftMotor;
-    public DcMotor8863 extendingArmMotor;
+    public DcMotor8863 spinnerMotor;
     public Servo8863 relicfingers;
     public Servo8863 relicwrist;
     public Servo8863 jewelSmackerServo;
@@ -83,33 +83,15 @@ public class NathanMagicRobot {
 
         leftBlockGrabberServo = new Servo8863("leftBlockGrabberServo", hardwareMap, telemetry);
         leftBlockGrabberServo.setDirection(Servo.Direction.FORWARD);
-        leftBlockGrabberServo.setHomePosition(0);
-        leftBlockGrabberServo.setInitPosition(1);
-        leftBlockGrabberServo.setPositionOne(.75);
+        leftBlockGrabberServo.setHomePosition(.65);
+        leftBlockGrabberServo.setInitPosition(.65);
+        leftBlockGrabberServo.setPositionOne(.95);
 
         rightBlockGrabberServo = new Servo8863("rightBlockGrabberServo", hardwareMap, telemetry);
-        rightBlockGrabberServo.setDirection(Servo.Direction.FORWARD);
-        rightBlockGrabberServo.setHomePosition(0);
-        rightBlockGrabberServo.setInitPosition(1);
-        rightBlockGrabberServo.setPositionOne(.75);
-
-        relicfingers = new Servo8863("relicFingers", hardwareMap, telemetry);
-        relicfingers.setDirection(Servo.Direction.FORWARD);
-        relicfingers.setHomePosition(.55);
-        relicfingers.setInitPosition(.55);
-        relicfingers.setPositionOne(.05);
-
-        relicwrist = new Servo8863("relicWrist", hardwareMap, telemetry);
-        relicwrist.setDirection(Servo.Direction.FORWARD);
-        relicwrist.setHomePosition(.6);
-        relicwrist.setInitPosition(.6);
-        relicwrist.setPositionOne(0);
-
-        clampServo = new Servo8863("clampServo", hardwareMap, telemetry);
-        clampServo.setDirection(Servo.Direction.FORWARD);
-        clampServo.setHomePosition(0);
-        clampServo.setInitPosition(0);
-        clampServo.setPositionOne(.45);
+        rightBlockGrabberServo.setDirection(Servo.Direction.REVERSE);
+        rightBlockGrabberServo.setHomePosition(.4);
+        rightBlockGrabberServo.setInitPosition(.4);
+        rightBlockGrabberServo.setPositionOne(.65);
 
         liftMotor = new DcMotor8863("liftMotor",hardwareMap);
         liftMotor.setDirection(DcMotor.Direction.FORWARD);
@@ -125,21 +107,16 @@ public class NathanMagicRobot {
         //liftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         //liftMotor.setPower(0);
 
-        extendingArmMotor = new DcMotor8863("extendingArmMotor",hardwareMap);
-        extendingArmMotor.setDirection(DcMotor.Direction.REVERSE);
-        extendingArmMotor.setMaxMotorPower(1);
-        extendingArmMotor.setMinMotorPower(-1);
-        extendingArmMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_20);
-        extendingArmMotor.setMotorMoveType(DcMotor8863.MotorMoveType.RELATIVE);
-        extendingArmMotor.setTargetEncoderTolerance(10);
-        extendingArmMotor.setMovementPerRev(360);
-        extendingArmMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
-        
-        jewelSmackerServo = new Servo8863("jewelSmackerServo", hardwareMap, telemetry);
-        jewelSmackerServo.setDirection(Servo.Direction.FORWARD);
-        jewelSmackerServo.setHomePosition(0);
-        jewelSmackerServo.setInitPosition(1);
-        jewelSmackerServo.setPositionOne(.75);
+        spinnerMotor = new DcMotor8863("spinnerMotor",hardwareMap);
+        spinnerMotor.setDirection(DcMotor.Direction.REVERSE);
+        spinnerMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        spinnerMotor.setMaxMotorPower(1);
+        spinnerMotor.setMinMotorPower(-1);
+        spinnerMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_20);
+        spinnerMotor.setMotorMoveType(DcMotor8863.MotorMoveType.RELATIVE);
+        spinnerMotor.setTargetEncoderTolerance(10);
+        spinnerMotor.setMovementPerRev(360);
+        spinnerMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
 
         //**********************************************
         // EXAMPLE LIMIT SWITCH - IF YOU DO NOT HAVE LIMIT SWITCHES CONNECTED ON THE ROBOT COMMENT
@@ -238,6 +215,21 @@ public class NathanMagicRobot {
         // Now send the resulting power to the lift motor
         liftMotor.setPower(liftPower);
         return liftPower;
+    }
+
+    public void rotateLeftGrabberUp(){
+        spinnerMotor.setTargetPosition(1120/4);
+        spinnerMotor.setPower(.5);
+    }
+
+    public void rotateSpinnerLevel() {
+        spinnerMotor.setTargetPosition(0);
+        spinnerMotor.setPower(.5);
+    }
+
+    public void rotateRightGrabberUp(){
+        spinnerMotor.setTargetPosition(1120/4);
+        spinnerMotor.setPower(.5);
     }
 
     // most of the functionality of the robot is reached by calling methods in the objects that make

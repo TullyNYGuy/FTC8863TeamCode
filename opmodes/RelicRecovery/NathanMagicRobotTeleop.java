@@ -108,19 +108,8 @@ public class NathanMagicRobotTeleop extends LinearOpMode {
         //*********************************************************************************************
 
         robot = robot.createRobotForTeleop(hardwareMap, telemetry);
-
-        // this next section was an experiment to see if we could get the shooter motor to work at
-        // Corning. It seems to have worked. Not sure why.
-//        shooterMotorDirect = new DcMotor8863("shooterMotor", hardwareMap);
-//        shooterMotorDirect = new DcMotor8863(RobotConfigMappingForGenericTest.getShooterMotorName(), hardwareMap);
-//        shooterMotorDirect.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
-//        shooterMotorDirect.setMovementPerRev(360);
-//        shooterMotorDirect.setTargetEncoderTolerance(10);
-//        shooterMotorDirect.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
-//        shooterMotorDirect.setMotorMoveType(DcMotor8863.MotorMoveType.RELATIVE);
-//        shooterMotorDirect.setMinMotorPower(-1);
-//        shooterMotorDirect.setMaxMotorPower(1);
-//        shooterMotorDirect.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.leftBlockGrabberServo.goInitPosition();
+        robot.rightBlockGrabberServo.goInitPosition();
 
         // Game Pad 1 joysticks
         gamepad1LeftJoyStickX = new JoyStick(JoyStick.JoyStickMode.SQUARE, JOYSTICK_DEADBAND_VALUE, JoyStick.InvertSign.NO_INVERT_SIGN);
@@ -153,7 +142,7 @@ public class NathanMagicRobotTeleop extends LinearOpMode {
 
             if (gamepad1.y) {
                 if (gamepad1yButtonIsReleased) {
-                    robot.extendingArmMotor.stop();
+                    robot.rightBlockGrabberServo.goPositionOne();
                     gamepad1yButtonIsReleased = false;
                 }
             } else {
@@ -163,7 +152,6 @@ public class NathanMagicRobotTeleop extends LinearOpMode {
             if (gamepad1.a) {
                 if (gamepad1aButtonIsReleased) {
                     robot.leftBlockGrabberServo.goPositionOne();
-                    robot.rightBlockGrabberServo.goPositionOne();
                     gamepad1aButtonIsReleased = false;
                 }
             } else {
@@ -172,7 +160,7 @@ public class NathanMagicRobotTeleop extends LinearOpMode {
 
             if (gamepad1.x) {
                 if (gamepad1xButtonIsReleased) {
-                    robot.extendingArmMotor.runAtConstantPower(0.);
+                    robot.leftBlockGrabberServo.goHome();
                     gamepad1xButtonIsReleased = false;
                 }
             } else {
@@ -181,7 +169,6 @@ public class NathanMagicRobotTeleop extends LinearOpMode {
 
             if (gamepad1.b) {
                 if (gamepad1bButtonIsReleased) {
-                    robot.leftBlockGrabberServo.goHome();
                     robot.rightBlockGrabberServo.goHome();
                     gamepad1bButtonIsReleased = false;
                 }
@@ -191,7 +178,7 @@ public class NathanMagicRobotTeleop extends LinearOpMode {
 
             if (gamepad1.right_bumper) {
                 if (gamepad1RightBumperIsReleased) {
-                    powerFactor = .5;
+                    robot.rotateRightGrabberUp();
                     gamepad1RightBumperIsReleased = false;
                 }
             } else {
@@ -200,7 +187,7 @@ public class NathanMagicRobotTeleop extends LinearOpMode {
 
             if (gamepad1.left_bumper) {
                 if (gamepad1LeftBumperIsReleased) {
-                    powerFactor = 1;
+                    robot.rotateLeftGrabberUp();
                     gamepad1LeftBumperIsReleased = false;
                 }
             } else {
@@ -209,10 +196,7 @@ public class NathanMagicRobotTeleop extends LinearOpMode {
 
             if (gamepad1.dpad_up) {
                 if (gamepad1DpadUpIsReleased) {
-                    gamepad1LeftJoyStickX.setFullPower();
-                    gamepad1LeftJoyStickY.setFullPower();
-                    gamepad1RightJoyStickX.setFullPower();
-                    gamepad1RightJoyStickY.setFullPower();
+                    robot.rotateSpinnerLevel();
                     gamepad1DpadUpIsReleased = false;
                 }
             } else {
