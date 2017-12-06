@@ -224,12 +224,12 @@ public class NathanMagicRobot {
 
     public void rotateSpinnerLevel() {
         spinnerMotor.setTargetPosition(0);
-        spinnerMotor.setPower(.5);
+        spinnerMotor.setPower(.1);
     }
 
     public void rotateRightGrabberUp(){
-        spinnerMotor.setTargetPosition(1120/4);
-        spinnerMotor.setPower(.5);
+        spinnerMotor.setTargetPosition(-1120/4);
+        spinnerMotor.setPower(.1);
     }
 
     // most of the functionality of the robot is reached by calling methods in the objects that make
