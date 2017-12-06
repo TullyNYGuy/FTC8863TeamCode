@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.Lib.RelicRecoveryLib;
 
 
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -13,7 +12,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Switch;
 import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.AllianceColorSwitch;
 
-public class NathanMagicRobot {
+public class RotatingCollectorRobot {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -70,7 +69,7 @@ public class NathanMagicRobot {
     // from it
     //*********************************************************************************************
 
-    private NathanMagicRobot(HardwareMap hardwareMap, RobotMode robotMode, Telemetry telemetry) {
+    private RotatingCollectorRobot(HardwareMap hardwareMap, RobotMode robotMode, Telemetry telemetry) {
         if(robotMode == RobotMode.AUTONOMOUS) {
             driveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap, telemetry);
             telemetry.addData("Drive Train Initialized", "!");
@@ -109,11 +108,11 @@ public class NathanMagicRobot {
 
         spinnerMotor = new DcMotor8863("spinnerMotor",hardwareMap);
         spinnerMotor.setDirection(DcMotor.Direction.REVERSE);
-        spinnerMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        spinnerMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         spinnerMotor.setMaxMotorPower(1);
         spinnerMotor.setMinMotorPower(-1);
         spinnerMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_20);
-        spinnerMotor.setMotorMoveType(DcMotor8863.MotorMoveType.RELATIVE);
+        spinnerMotor.setMotorMoveType(DcMotor8863.MotorMoveType.ABSOLUTE);
         spinnerMotor.setTargetEncoderTolerance(10);
         spinnerMotor.setMovementPerRev(360);
         spinnerMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
@@ -138,13 +137,13 @@ public class NathanMagicRobot {
     }
 
 
-    public static NathanMagicRobot createRobotForAutonomous(HardwareMap hardwareMap, Telemetry telemetry) {
-        NathanMagicRobot robot = new NathanMagicRobot(hardwareMap, RobotMode.AUTONOMOUS, telemetry);
+    public static RotatingCollectorRobot createRobotForAutonomous(HardwareMap hardwareMap, Telemetry telemetry) {
+        RotatingCollectorRobot robot = new RotatingCollectorRobot(hardwareMap, RobotMode.AUTONOMOUS, telemetry);
         return robot;
     }
 
-    public static NathanMagicRobot createRobotForTeleop(HardwareMap hardwareMap, Telemetry telemetry) {
-        NathanMagicRobot robot = new NathanMagicRobot(hardwareMap, RobotMode.TELEOP, telemetry);
+    public static RotatingCollectorRobot createRobotForTeleop(HardwareMap hardwareMap, Telemetry telemetry) {
+        RotatingCollectorRobot robot = new RotatingCollectorRobot(hardwareMap, RobotMode.TELEOP, telemetry);
         return robot;
     }
 
@@ -218,18 +217,15 @@ public class NathanMagicRobot {
     }
 
     public void rotateLeftGrabberUp(){
-        spinnerMotor.setTargetPosition(1120/4);
-        spinnerMotor.setPower(.5);
+        spinnerMotor.moveToPosition(.1,90, DcMotor8863.FinishBehavior.HOLD);
     }
 
     public void rotateSpinnerLevel() {
-        spinnerMotor.setTargetPosition(0);
-        spinnerMotor.setPower(.1);
+        spinnerMotor.moveToPosition(.1,0, DcMotor8863.FinishBehavior.HOLD);
     }
 
     public void rotateRightGrabberUp(){
-        spinnerMotor.setTargetPosition(-1120/4);
-        spinnerMotor.setPower(.1);
+        spinnerMotor.moveToPosition(.1,-90, DcMotor8863.FinishBehavior.HOLD);
     }
 
     // most of the functionality of the robot is reached by calling methods in the objects that make
