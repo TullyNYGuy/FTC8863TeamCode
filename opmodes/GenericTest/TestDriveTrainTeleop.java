@@ -20,17 +20,13 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 public class TestDriveTrainTeleop extends LinearOpMode {
 
     DriveTrain myDriveTrain;
-    double powerToRunAt;
-    double powerToRunAt1 = 0.3; // % of full speed
-    double powerToRunAt2 = 0.3; // % of full speed
-    double distanceToMove1 = 100; // cm
-    double distanceToMove2 = -30; // cm
     DriveTrain.Status statusDrive = DriveTrain.Status.COMPLETE;
     double leftPower = 0;
     double rightPower =0;
     double throttle = 0;
     double direction = 0;
     boolean differentialDrive = false;
+    double powerFactor = 1.0;
 
 
 
@@ -40,9 +36,7 @@ public class TestDriveTrainTeleop extends LinearOpMode {
 
 
         // Instantiate and initialize motors
-        // myDriveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap);
         myDriveTrain = DriveTrain.DriveTrainTeleOp(hardwareMap, telemetry);
-
 
         myDriveTrain.setCmPerRotation(31.1); // cm
 
@@ -51,67 +45,45 @@ public class TestDriveTrainTeleop extends LinearOpMode {
         telemetry.update();
         waitForStart();
 
-        powerToRunAt = powerToRunAt1;
-        //myDriveTrain.driveDistance(powerToRunAt1, distanceToMove1, DcMotor8863.FinishBehavior.FLOAT);
-        //myDriveTrain.rotateNumberOfDegrees(powerToRunAt1, 3600, DcMotor8863.FinishBehavior.HOLD);
-
         while(opModeIsActive()) {
+            // Y = differential drive
             if (gamepad1.y) {
                 differentialDrive = true;
             }
-            // A = decrease both motor speeds at the same time
+
+            // A = tank drive
             if (gamepad1.a) {
                 differentialDrive = false;
             }
 
+            // B = full power
+            if (gamepad1.b) {
+                powerFactor = 1.0;
+            }
+
+            // X = 30% power
+            if (gamepad1.x) {
+                powerFactor = 0.3;
+            }
+
             if (differentialDrive == false) {
-                leftPower = -gamepad1.left_stick_y;
-                rightPower = -gamepad1.right_stick_y;
+                leftPower = -gamepad1.left_stick_y* powerFactor;
+                rightPower = -gamepad1.right_stick_y* powerFactor;
                 myDriveTrain.tankDrive(leftPower,rightPower);
             }
 
             if (differentialDrive == true) {
-                throttle = -gamepad1.right_stick_y;
+                throttle = -gamepad1.right_stick_y* powerFactor;
                 direction = gamepad1.right_stick_x;
                 //myDriveTrain.differentialDrive(.0,correction);
                 myDriveTrain.differentialDrive(throttle, direction);
             }
-
-//            statusDrive = myDriveTrain.update();
-//            if (statusDrive == DriveTrain.Status.COMPLETE) {
-//                break;
-//            }
 
             telemetry.addData("Left Motor Speed = ", "%3.2f", leftPower);
             telemetry.addData("Right Motor Speed = ", "%3.2f", rightPower);
             telemetry.addData("Left Motor Speed = ", "%3.2f", throttle);
             telemetry.addData("Right Motor Speed = ", "%3.2f", direction);
             telemetry.update();
-            idle();
-        }
-
-        telemetry.addData(">", "Finished movement 1" );
-        telemetry.update();
-        sleep(2000);
-
-       /* powerToRunAt = powerToRunAt2;
-        myDriveTrain.driveDistance(powerToRunAt2, distanceToMove2, DcMotor8863.FinishBehavior.FLOAT);
-
-        while(opModeIsActive()) {
-            statusDrive = myDriveTrain.update();
-            if (statusDrive == DriveTrain.Status.COMPLETE) {
-                break;
-            }
-            idle();
-        }
-        telemetry.addData(">", "Finished movement 2" );
-        telemetry.update();
-        sleep(2000); */
-
-        while(opModeIsActive()) {
-            telemetry.addData(">", "Press Stop to end test." );
-            telemetry.update();
-
             idle();
         }
 
