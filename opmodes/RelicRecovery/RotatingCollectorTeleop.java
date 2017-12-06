@@ -3,18 +3,17 @@ package org.firstinspires.ftc.teamcode.opmodes.RelicRecovery;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.JoyStick;
-import org.firstinspires.ftc.teamcode.Lib.RelicRecoveryLib.NathanMagicRobot;
+import org.firstinspires.ftc.teamcode.Lib.RelicRecoveryLib.RotatingCollectorRobot;
 
 /**
  * Created by ball on 10/7/2017.
  */
 
-@TeleOp(name = "Nathan Magic Teleop", group = "Run")
+@TeleOp(name = "Test Rotating Collector", group = "Test")
 //@Disabled
 
-public class NathanMagicRobotTeleop extends LinearOpMode {
+public class RotatingCollectorTeleop extends LinearOpMode {
 
     //*********************************************************************************************
     //             Declarations
@@ -25,9 +24,9 @@ public class NathanMagicRobotTeleop extends LinearOpMode {
         DIFFERENTIAL_DRIVE;
     }
 
-    DriveTrainMode driveTrainMode = org.firstinspires.ftc.teamcode.opmodes.RelicRecovery.NathanMagicRobotTeleop.DriveTrainMode.TANK_DRIVE;
+    DriveTrainMode driveTrainMode = RotatingCollectorTeleop.DriveTrainMode.TANK_DRIVE;
 
-    NathanMagicRobot robot;
+    RotatingCollectorRobot robot;
 
     double powerFactor = 1;
 
@@ -142,7 +141,7 @@ public class NathanMagicRobotTeleop extends LinearOpMode {
 
             if (gamepad1.y) {
                 if (gamepad1yButtonIsReleased) {
-                    robot.rightBlockGrabberServo.goPositionOne();
+                    robot.rightBlockGrabberServo.goPositionOne(); //close the grabber
                     gamepad1yButtonIsReleased = false;
                 }
             } else {
@@ -151,7 +150,7 @@ public class NathanMagicRobotTeleop extends LinearOpMode {
 
             if (gamepad1.a) {
                 if (gamepad1aButtonIsReleased) {
-                    robot.leftBlockGrabberServo.goPositionOne();
+                    robot.leftBlockGrabberServo.goPositionOne(); //close the grabber
                     gamepad1aButtonIsReleased = false;
                 }
             } else {
@@ -160,7 +159,7 @@ public class NathanMagicRobotTeleop extends LinearOpMode {
 
             if (gamepad1.x) {
                 if (gamepad1xButtonIsReleased) {
-                    robot.leftBlockGrabberServo.goHome();
+                    robot.leftBlockGrabberServo.goHome(); //open the grabber
                     gamepad1xButtonIsReleased = false;
                 }
             } else {
@@ -169,7 +168,7 @@ public class NathanMagicRobotTeleop extends LinearOpMode {
 
             if (gamepad1.b) {
                 if (gamepad1bButtonIsReleased) {
-                    robot.rightBlockGrabberServo.goHome();
+                    robot.rightBlockGrabberServo.goHome(); //open the grabber
                     gamepad1bButtonIsReleased = false;
                 }
             } else {
@@ -178,7 +177,7 @@ public class NathanMagicRobotTeleop extends LinearOpMode {
 
             if (gamepad1.right_bumper) {
                 if (gamepad1RightBumperIsReleased) {
-                    robot.rotateRightGrabberUp();
+                    robot.rotateRightGrabberUp(); //spin the collector so the right glyph is above the left glyph
                     gamepad1RightBumperIsReleased = false;
                 }
             } else {
@@ -187,7 +186,7 @@ public class NathanMagicRobotTeleop extends LinearOpMode {
 
             if (gamepad1.left_bumper) {
                 if (gamepad1LeftBumperIsReleased) {
-                    robot.rotateLeftGrabberUp();
+                    robot.rotateLeftGrabberUp(); //spin the collector so the left glyph is above the right glyph
                     gamepad1LeftBumperIsReleased = false;
                 }
             } else {
@@ -196,7 +195,7 @@ public class NathanMagicRobotTeleop extends LinearOpMode {
 
             if (gamepad1.dpad_up) {
                 if (gamepad1DpadUpIsReleased) {
-                    robot.rotateSpinnerLevel();
+                    robot.rotateSpinnerLevel(); //spin the collector so the collectors are at the same height
                     gamepad1DpadUpIsReleased = false;
                 }
             } else {
@@ -401,7 +400,7 @@ public class NathanMagicRobotTeleop extends LinearOpMode {
             liftMotorPower = -gamepad2RightJoyStickYValue;
 
             // update the drive motors
-            if (driveTrainMode == org.firstinspires.ftc.teamcode.opmodes.RelicRecovery.NathanMagicRobotTeleop.DriveTrainMode.TANK_DRIVE) {
+            if (driveTrainMode == RotatingCollectorTeleop.DriveTrainMode.TANK_DRIVE) {
                 robot.driveTrain.tankDrive(leftPower, rightPower);
             } else {
                 // differential drive
@@ -446,10 +445,10 @@ public class NathanMagicRobotTeleop extends LinearOpMode {
      * Change from differential drive mode to tank drive, or tank drive to differential
      */
     private void toggleDriveTrainMode() {
-        if (driveTrainMode == org.firstinspires.ftc.teamcode.opmodes.RelicRecovery.NathanMagicRobotTeleop.DriveTrainMode.DIFFERENTIAL_DRIVE) {
-            driveTrainMode = org.firstinspires.ftc.teamcode.opmodes.RelicRecovery.NathanMagicRobotTeleop.DriveTrainMode.TANK_DRIVE;
+        if (driveTrainMode == RotatingCollectorTeleop.DriveTrainMode.DIFFERENTIAL_DRIVE) {
+            driveTrainMode = RotatingCollectorTeleop.DriveTrainMode.TANK_DRIVE;
         } else
-            driveTrainMode = org.firstinspires.ftc.teamcode.opmodes.RelicRecovery.NathanMagicRobotTeleop.DriveTrainMode.DIFFERENTIAL_DRIVE;
+            driveTrainMode = RotatingCollectorTeleop.DriveTrainMode.DIFFERENTIAL_DRIVE;
     }
 }
 
