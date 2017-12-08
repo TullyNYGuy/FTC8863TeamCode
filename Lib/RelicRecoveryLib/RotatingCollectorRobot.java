@@ -218,17 +218,17 @@ public class RotatingCollectorRobot {
         return liftPower;
     }
 
-    public void rotateLeftGrabberUp(){
-        spinnerMotor.moveToPosition(.1,90, DcMotor8863.FinishBehavior.HOLD);
-    }
-
-    public void rotateSpinnerLevel() {
-        spinnerMotor.moveToPosition(.1,0, DcMotor8863.FinishBehavior.HOLD);
-    }
-
-    public void rotateRightGrabberUp(){
-        spinnerMotor.moveToPosition(.1,-90, DcMotor8863.FinishBehavior.HOLD);
-    }
+//    public void rotateLeftGrabberUp(){
+//        spinnerMotor.moveToPosition(.1,90, DcMotor8863.FinishBehavior.HOLD);
+//    }
+//
+//    public void rotateSpinnerLevel() {
+//        spinnerMotor.moveToPosition(.1,0, DcMotor8863.FinishBehavior.HOLD);
+//    }
+//
+//    public void rotateRightGrabberUp(){
+//        spinnerMotor.moveToPosition(.1,-90, DcMotor8863.FinishBehavior.HOLD);
+//    }
 
     // most of the functionality of the robot is reached by calling methods in the objects that make
     // up the robot. For example:

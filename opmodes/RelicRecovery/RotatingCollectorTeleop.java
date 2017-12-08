@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.JoyStick;
 import org.firstinspires.ftc.teamcode.Lib.RelicRecoveryLib.RotatingCollectorRobot;
 
@@ -101,6 +102,8 @@ public class RotatingCollectorTeleop extends LinearOpMode {
     double actualLiftMotorPower = 0;
 
     public DcMotor spinnerMotor;
+    public int currentEncoderCount;
+    public int encoderCountForLevel;
 
     @Override
     public void runOpMode() {
@@ -113,7 +116,8 @@ public class RotatingCollectorTeleop extends LinearOpMode {
         robot.leftBlockGrabberServo.goInitPosition();
         robot.rightBlockGrabberServo.goInitPosition();
 
-        spinnerMotor = hardwareMap.get(DcMotor.class, "spinnerMotor")
+        spinnerMotor = hardwareMap.get(DcMotor.class, "spinnerMotor");
+        initSpinnerMotor();
 
         // Game Pad 1 joysticks
         gamepad1LeftJoyStickX = new JoyStick(JoyStick.JoyStickMode.SQUARE, JOYSTICK_DEADBAND_VALUE, JoyStick.InvertSign.NO_INVERT_SIGN);
@@ -182,7 +186,7 @@ public class RotatingCollectorTeleop extends LinearOpMode {
 
             if (gamepad1.right_bumper) {
                 if (gamepad1RightBumperIsReleased) {
-                    robot.rotateRightGrabberUp(); //spin the collector so the right glyph is above the left glyph
+                    rotateRightGrabberUp(); //spin the collector so the right glyph is above the left glyph
                     gamepad1RightBumperIsReleased = false;
                 }
             } else {
@@ -191,7 +195,7 @@ public class RotatingCollectorTeleop extends LinearOpMode {
 
             if (gamepad1.left_bumper) {
                 if (gamepad1LeftBumperIsReleased) {
-                    robot.rotateLeftGrabberUp(); //spin the collector so the left glyph is above the right glyph
+                    rotateLeftGrabberUp(); //spin the collector so the left glyph is above the right glyph
                     gamepad1LeftBumperIsReleased = false;
                 }
             } else {
@@ -200,7 +204,7 @@ public class RotatingCollectorTeleop extends LinearOpMode {
 
             if (gamepad1.dpad_up) {
                 if (gamepad1DpadUpIsReleased) {
-                    robot.rotateSpinnerLevel(); //spin the collector so the collectors are at the same height
+                    rotateSpinnerLevel(); //spin the collector so the collectors are at the same height
                     gamepad1DpadUpIsReleased = false;
                 }
             } else {
@@ -458,6 +462,24 @@ public class RotatingCollectorTeleop extends LinearOpMode {
 
     private void initSpinnerMotor() {
         spinnerMotor.setDirection(DcMotor.Direction.REVERSE);
+        spinnerMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        spinnerMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        encoderCountForLevel = spinnerMotor.getCurrentPosition();
+    }
+
+    public void rotateLeftGrabberUp(){
+        spinnerMotor.setTargetPosition(encoderCountForLevel + 1120/4);
+        spinnerMotor.setPower(.07);
+    }
+
+    public void rotateSpinnerLevel() {
+        spinnerMotor.setTargetPosition(encoderCountForLevel);
+        spinnerMotor.setPower(.07);
+    }
+
+    public void rotateRightGrabberUp(){
+        spinnerMotor.setTargetPosition(encoderCountForLevel - 1120/4);
+        spinnerMotor.setPower(.07);
     }
 }
 
