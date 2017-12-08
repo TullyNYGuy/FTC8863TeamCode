@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmodes.RelicRecovery;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.JoyStick;
 import org.firstinspires.ftc.teamcode.Lib.RelicRecoveryLib.RotatingCollectorRobot;
@@ -99,6 +100,8 @@ public class RotatingCollectorTeleop extends LinearOpMode {
     double liftMotorPower = 0;
     double actualLiftMotorPower = 0;
 
+    public DcMotor spinnerMotor;
+
     @Override
     public void runOpMode() {
 
@@ -109,6 +112,8 @@ public class RotatingCollectorTeleop extends LinearOpMode {
         robot = robot.createRobotForTeleop(hardwareMap, telemetry);
         robot.leftBlockGrabberServo.goInitPosition();
         robot.rightBlockGrabberServo.goInitPosition();
+
+        spinnerMotor = hardwareMap.get(DcMotor.class, "spinnerMotor")
 
         // Game Pad 1 joysticks
         gamepad1LeftJoyStickX = new JoyStick(JoyStick.JoyStickMode.SQUARE, JOYSTICK_DEADBAND_VALUE, JoyStick.InvertSign.NO_INVERT_SIGN);
@@ -449,6 +454,10 @@ public class RotatingCollectorTeleop extends LinearOpMode {
             driveTrainMode = RotatingCollectorTeleop.DriveTrainMode.TANK_DRIVE;
         } else
             driveTrainMode = RotatingCollectorTeleop.DriveTrainMode.DIFFERENTIAL_DRIVE;
+    }
+
+    private void initSpinnerMotor() {
+        spinnerMotor.setDirection(DcMotor.Direction.REVERSE);
     }
 }
 

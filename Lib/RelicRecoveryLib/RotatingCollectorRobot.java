@@ -42,7 +42,7 @@ public class RotatingCollectorRobot {
     public Servo8863 leftBlockGrabberServo;
     public Servo8863 rightBlockGrabberServo;
     public DcMotor8863 liftMotor;
-    public DcMotor8863 spinnerMotor;
+    //public DcMotor spinnerMotor;
     public Servo8863 relicfingers;
     public Servo8863 relicwrist;
     public Servo8863 jewelSmackerServo;
@@ -106,16 +106,18 @@ public class RotatingCollectorRobot {
         //liftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         //liftMotor.setPower(0);
 
-        spinnerMotor = new DcMotor8863("spinnerMotor",hardwareMap);
-        spinnerMotor.setDirection(DcMotor.Direction.REVERSE);
-        spinnerMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        spinnerMotor.setMaxMotorPower(1);
-        spinnerMotor.setMinMotorPower(-1);
-        spinnerMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_20);
-        spinnerMotor.setMotorMoveType(DcMotor8863.MotorMoveType.ABSOLUTE);
-        spinnerMotor.setTargetEncoderTolerance(10);
-        spinnerMotor.setMovementPerRev(360);
-        spinnerMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
+
+
+//        spinnerMotor = new DcMotor8863("spinnerMotor",hardwareMap);
+//        spinnerMotor.setDirection(DcMotor.Direction.REVERSE);
+//        spinnerMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//        spinnerMotor.setMaxMotorPower(1);
+//        spinnerMotor.setMinMotorPower(-1);
+//        spinnerMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_20);
+//        spinnerMotor.setMotorMoveType(DcMotor8863.MotorMoveType.ABSOLUTE);
+//        spinnerMotor.setTargetEncoderTolerance(10);
+//        spinnerMotor.setMovementPerRev(360);
+//        spinnerMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
 
         //**********************************************
         // EXAMPLE LIMIT SWITCH - IF YOU DO NOT HAVE LIMIT SWITCHES CONNECTED ON THE ROBOT COMMENT
