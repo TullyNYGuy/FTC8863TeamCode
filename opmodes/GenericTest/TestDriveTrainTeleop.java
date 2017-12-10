@@ -63,7 +63,7 @@ public class TestDriveTrainTeleop extends LinearOpMode {
 
             // X = 30% power
             if (gamepad1.x) {
-                powerFactor = 0.3;
+                powerFactor = 0.1;
             }
 
             if (differentialDrive == false) {
@@ -74,7 +74,7 @@ public class TestDriveTrainTeleop extends LinearOpMode {
 
             if (differentialDrive == true) {
                 throttle = -gamepad1.right_stick_y* powerFactor;
-                direction = gamepad1.right_stick_x;
+                direction = gamepad1.right_stick_x* powerFactor;
                 //myDriveTrain.differentialDrive(.0,correction);
                 myDriveTrain.differentialDrive(throttle, direction);
             }

@@ -16,7 +16,7 @@ import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.VelocityVortexRobot;
 /**
  * Autonomous for competition
  */
-@Autonomous(name = "Velocity Vortex Autonomous", group = "Run")
+@Autonomous(name = "Relic Recovery Autonomous", group = "Run")
 //@Disabled
 public class RelicRecoveryAutonomous extends LinearOpMode {
 
