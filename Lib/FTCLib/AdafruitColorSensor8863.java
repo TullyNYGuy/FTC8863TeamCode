@@ -960,6 +960,9 @@ public class AdafruitColorSensor8863 {
      * Enable the interrupt that gets set when the clear value is under or over the threshold. This
      * allows the INT pin on the circuit board to get driven.
      */
+    // Based on testing in TestAdafruitColorSensor8863LEDByInterrupt this method is not working,
+    // or isInterruptEnabled is not working.
+    // GB 12/10/2017
     private synchronized void enableInterrupt() {
         byte reg = getEnableRegisterFromSensor();
         this.write8(Register.ENABLE, reg | EnableRegister.AMS_COLOR_ENABLE_AIEN.byteVal);
