@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.GenericTest;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -14,7 +15,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitColorSensor8863;
  *
  */
 @TeleOp(name = "Test Adafruit Color Sensor 8863 LED", group = "Test")
-//@Disabled
+@Disabled
 public class TestAdafruitColorSensor8863LEDByInterrupt extends LinearOpMode {
 
     // Put your variable declarations here

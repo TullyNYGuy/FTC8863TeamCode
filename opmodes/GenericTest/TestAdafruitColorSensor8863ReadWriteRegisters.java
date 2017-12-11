@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.GenericTest;
 
 import com.qualcomm.hardware.ams.AMSColorSensor;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -17,7 +18,7 @@ import static org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitColorSensor8863.
  *
  */
 @TeleOp(name = "Test Adafruit Color Sensor 8863 read write registers", group = "Test")
-//@Disabled
+@Disabled
 public class TestAdafruitColorSensor8863ReadWriteRegisters extends LinearOpMode {
 
     // Put your variable declarations here
