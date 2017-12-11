@@ -34,6 +34,7 @@ Some of this code has been borrowed from the FTC SDK.
 import android.graphics.Color;
 
 import com.qualcomm.robotcore.hardware.DeviceInterfaceModule;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.DigitalChannelController;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.I2cAddr;
@@ -84,6 +85,13 @@ import java.util.Map;
  * <p>
  * IF YOU JUST WANT TO GET STARTED USING THE COLOR SENSOR SKIP RIGHT DOWN TO THE SECTION TITLED
  * MAJOR METHODS.
+ *
+ * HERE IS HOW TO CONFIGURE THE COLOR SENSOR:
+ * CONFIGURE AN I2C PORT ON THE CORE DEVICE INTERFACE MODULE AS AN I2C DEVICE.
+ * GIVE THE SENSOR THE NAME THAT YOU WILL USE IN CREATING YOUR OBJECT FROM THIS CLASS; THE NAME
+ * YOU WILL USE TO REFER TO THE COLOR SENSOR. AS AN EXAMPLE: sensorColorLeft.
+ * IN THE PHONE CONFIGURATION, GIVE THE CORE DEVICE INTERFACE MODULE A NAME THAT YOU WILL USE
+ * TO REFER TO IT.
  * <p>
  * If you care to explore and understand the sensor read on. PARTICULARLY IMPORTANT
  * TO GETTING THE BEST RESULTS FROM THIS SENSOR ARE UNDERSTANDING INTEGRATION TIME AND GAIN. See
@@ -310,10 +318,10 @@ public class AdafruitColorSensor8863 {
     }
 
     // RGBC Interrupt Threshold Registers (addresses = 0x04 - 0x07)
-    // The RGBC interrupt threshold restoers provide the values to be used as the high and low 
+    // The RGBC interrupt threshold restoers provide the values to be used as the high and low
     // trigger points for the comparison function for interrupt generation. If the value generated
-    // by the clear channel crosses below the lower threshold specified, or above the higher 
-    // threshold, an interrupt is asserted on the interrupt pin. 
+    // by the clear channel crosses below the lower threshold specified, or above the higher
+    // threshold, an interrupt is asserted on the interrupt pin.
     // See addresses below THRESHOLD_AILTL, AILTH, AIHTL, AIHTH
 
     // In FTC we don't have any interrupts. So these registers are not a concern to us.
@@ -330,22 +338,22 @@ public class AdafruitColorSensor8863 {
      */
     public enum Persistence {
         // bits 7:4 - reserved
-        // bits 3:0 - interrupt persistence. Controls rate of interrupt 
-        AMS_COLOR_PERS_NONE(0b0000),        // Every RGBC cycle generates an interrupt                                
-        AMS_COLOR_PERS_1_CYCLE(0b0001),     // 1 clean channel value outside threshold range generates an interrupt   
-        AMS_COLOR_PERS_2_CYCLE(0b0010),     // 2 clean channel values outside threshold range generates an interrupt  
-        AMS_COLOR_PERS_3_CYCLE(0b0011),     // 3 clean channel values outside threshold range generates an interrupt  
-        AMS_COLOR_PERS_5_CYCLE(0b0100),     // 5 clean channel values outside threshold range generates an interrupt  
-        AMS_COLOR_PERS_10_CYCLE(0b0101),    // 10 clean channel values outside threshold range generates an interrupt 
-        AMS_COLOR_PERS_15_CYCLE(0b0110),    // 15 clean channel values outside threshold range generates an interrupt 
-        AMS_COLOR_PERS_20_CYCLE(0b0111),    // 20 clean channel values outside threshold range generates an interrupt 
-        AMS_COLOR_PERS_25_CYCLE(0b1000),    // 25 clean channel values outside threshold range generates an interrupt 
-        AMS_COLOR_PERS_30_CYCLE(0b1001),    // 30 clean channel values outside threshold range generates an interrupt 
-        AMS_COLOR_PERS_35_CYCLE(0b1010),    // 35 clean channel values outside threshold range generates an interrupt 
-        AMS_COLOR_PERS_40_CYCLE(0b1011),    // 40 clean channel values outside threshold range generates an interrupt 
-        AMS_COLOR_PERS_45_CYCLE(0b1100),    // 45 clean channel values outside threshold range generates an interrupt 
-        AMS_COLOR_PERS_50_CYCLE(0b1101),    // 50 clean channel values outside threshold range generates an interrupt 
-        AMS_COLOR_PERS_55_CYCLE(0b1110),    // 55 clean channel values outside threshold range generates an interrupt 
+        // bits 3:0 - interrupt persistence. Controls rate of interrupt
+        AMS_COLOR_PERS_NONE(0b0000),        // Every RGBC cycle generates an interrupt
+        AMS_COLOR_PERS_1_CYCLE(0b0001),     // 1 clean channel value outside threshold range generates an interrupt
+        AMS_COLOR_PERS_2_CYCLE(0b0010),     // 2 clean channel values outside threshold range generates an interrupt
+        AMS_COLOR_PERS_3_CYCLE(0b0011),     // 3 clean channel values outside threshold range generates an interrupt
+        AMS_COLOR_PERS_5_CYCLE(0b0100),     // 5 clean channel values outside threshold range generates an interrupt
+        AMS_COLOR_PERS_10_CYCLE(0b0101),    // 10 clean channel values outside threshold range generates an interrupt
+        AMS_COLOR_PERS_15_CYCLE(0b0110),    // 15 clean channel values outside threshold range generates an interrupt
+        AMS_COLOR_PERS_20_CYCLE(0b0111),    // 20 clean channel values outside threshold range generates an interrupt
+        AMS_COLOR_PERS_25_CYCLE(0b1000),    // 25 clean channel values outside threshold range generates an interrupt
+        AMS_COLOR_PERS_30_CYCLE(0b1001),    // 30 clean channel values outside threshold range generates an interrupt
+        AMS_COLOR_PERS_35_CYCLE(0b1010),    // 35 clean channel values outside threshold range generates an interrupt
+        AMS_COLOR_PERS_40_CYCLE(0b1011),    // 40 clean channel values outside threshold range generates an interrupt
+        AMS_COLOR_PERS_45_CYCLE(0b1100),    // 45 clean channel values outside threshold range generates an interrupt
+        AMS_COLOR_PERS_50_CYCLE(0b1101),    // 50 clean channel values outside threshold range generates an interrupt
+        AMS_COLOR_PERS_55_CYCLE(0b1110),    // 55 clean channel values outside threshold range generates an interrupt
         AMS_COLOR_PERS_60_CYCLE(0b1111),    // 60 clean channel values outside threshold range generates an interrupt
         AMS_COLOR_PERS_UNKNOWN(0xFF);       // Not really unknown but not a preset value so treat it as unknown
 
@@ -798,7 +806,8 @@ public class AdafruitColorSensor8863 {
     private void setupCoreDIM(HardwareMap hardwareMap, String coreDIMName, int ioChannelForLed) {
         this.ioChannelForLed = ioChannelForLed;
         coreDIM = hardwareMap.deviceInterfaceModule.get(coreDIMName);
-        coreDIM.setDigitalChannelMode(ioChannelForLed, DigitalChannelController.Mode.OUTPUT);
+        //coreDIM.setDigitalChannelMode(ioChannelForLed, DigitalChannelController.Mode.OUTPUT);
+        coreDIM.setDigitalChannelMode(ioChannelForLed, DigitalChannel.Mode.OUTPUT);
         // Delay so the previous line can finish before setting the led off. Otherwise the LED does
         // not get shut off.
         delay(100);
@@ -951,6 +960,9 @@ public class AdafruitColorSensor8863 {
      * Enable the interrupt that gets set when the clear value is under or over the threshold. This
      * allows the INT pin on the circuit board to get driven.
      */
+    // Based on testing in TestAdafruitColorSensor8863LEDByInterrupt this method is not working,
+    // or isInterruptEnabled is not working.
+    // GB 12/10/2017
     private synchronized void enableInterrupt() {
         byte reg = getEnableRegisterFromSensor();
         this.write8(Register.ENABLE, reg | EnableRegister.AMS_COLOR_ENABLE_AIEN.byteVal);
@@ -1293,6 +1305,18 @@ public class AdafruitColorSensor8863 {
         } else {
             return true;
         }
+    }
+
+    public boolean isColorSensorAttached(Telemetry telemetry){
+        boolean result;
+        if(checkDeviceId()) {
+            telemetry.addData("Color sensor is attached.", "!");
+            result = true;
+        } else {
+            telemetry.addData("No color sensor found", "!");
+            result = false;
+        }
+        return result;
     }
 
     // STATUS REGISTER
