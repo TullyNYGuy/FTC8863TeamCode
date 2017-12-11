@@ -14,6 +14,11 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitColorSensor8863;
  * the address for this color sensor is fixed and you can't have two sensors with the same address
  * on the bus.
  *
+ * Phone configuration:
+ * core device interface module name: coreDIM
+ * I2C port type: I2C DEVICE
+ * I2C device name: colorSensor
+ *
  */
 @TeleOp(name = "Test Adafruit Color Sensor 8863", group = "Test")
 //@Disabled
@@ -42,6 +47,8 @@ public class TestAdafruitColorSensor8863 extends LinearOpMode {
 
     boolean ledState = false;
 
+    boolean isColorSensorAttached;
+
     ElapsedTime timer;
 
     @Override
@@ -51,6 +58,8 @@ public class TestAdafruitColorSensor8863 extends LinearOpMode {
         // Put your initializations here
         colorSensor = new AdafruitColorSensor8863(hardwareMap, colorSensorName,
                 coreDIMName, CHANNEL_FOR_LED);
+        // check if the color sensor is attached
+        isColorSensorAttached = colorSensor.isColorSensorAttached(telemetry);
 
         timer = new ElapsedTime();
         
@@ -82,7 +91,12 @@ public class TestAdafruitColorSensor8863 extends LinearOpMode {
             }
 
             // Display the current values from the sensor
-            colorSensor.displayColorSensorData(telemetry, AdafruitColorSensor8863.AmountOfDataToDisplay.NORMAL);
+            if (isColorSensorAttached) {
+                colorSensor.displayColorSensorData(telemetry, AdafruitColorSensor8863.AmountOfDataToDisplay.NORMAL);
+            } else {
+                telemetry.addData("ERROR - color sensor is not connected!", " Check the wiring.");
+            }
+            telemetry.update();
             
             idle();
         }
