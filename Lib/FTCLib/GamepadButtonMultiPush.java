@@ -15,7 +15,7 @@ import java.net.PortUnreachableException;
  * Example use:
  * GamepadButtonMultiPush gamepad1xMultiPush;
  * gamepad1xMultiPush = new GamepadButtonMultiPush(4);
- * if (gamepad1xMultiPush(gamepad1.x)) {
+ * if (gamepad1xMultiPush.buttonPress(gamepad1.x)) {
  *     if (gamepad1xMultiPush.isCommand1()) {
  *         // call the first command you want to run
  *     }
