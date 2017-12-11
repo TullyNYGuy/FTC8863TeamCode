@@ -19,6 +19,8 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitColorSensor8863;
  * I2C port type: I2C DEVICE
  * I2C device name: colorSensor
  *
+ * Connect the LED pin to digital port 5, left pin
+ *
  */
 @TeleOp(name = "Test Adafruit Color Sensor 8863", group = "Test")
 //@Disabled
@@ -48,6 +50,7 @@ public class TestAdafruitColorSensor8863 extends LinearOpMode {
     boolean ledState = false;
 
     boolean isColorSensorAttached;
+    boolean displayDetailedDataState = true;
 
     ElapsedTime timer;
 
@@ -90,9 +93,31 @@ public class TestAdafruitColorSensor8863 extends LinearOpMode {
                 xButtonIsReleased = true;
             }
 
+            // Put your calls that need to run in a loop here
+            // Use gamepad Y to
+            // Toggle between showing detailed data and just a simple color result
+            if (gamepad1.y) {
+                if (yButtonIsReleased) {
+                    if (!displayDetailedDataState) {
+                        displayDetailedDataState = true;
+                    } else {
+                        // display a simple color result
+                        displayDetailedDataState = false;
+                    }
+                    yButtonIsReleased = false;
+                }
+            } else {
+                yButtonIsReleased = true;
+            }
+
             // Display the current values from the sensor
             if (isColorSensorAttached) {
-                colorSensor.displayColorSensorData(telemetry, AdafruitColorSensor8863.AmountOfDataToDisplay.NORMAL);
+                if (displayDetailedDataState){
+                    colorSensor.displayColorSensorData(telemetry, AdafruitColorSensor8863.AmountOfDataToDisplay.NORMAL);
+                } else {
+                    telemetry.addData("Color = ", String.valueOf(colorSensor.getSimpleColor()));
+                }
+
             } else {
                 telemetry.addData("ERROR - color sensor is not connected!", " Check the wiring.");
             }
