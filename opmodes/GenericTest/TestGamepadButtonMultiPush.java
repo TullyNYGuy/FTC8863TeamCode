@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.GamepadButtonMultiPush;
  * <p>
  * This opmode tests a class that does that.
  */
-@TeleOp(name = "Linear Gamepad Multi Push Button", group = "Test")
+@TeleOp(name = "Test Gamepad Multi Push Button", group = "Test")
 //@Disabled
 public class TestGamepadButtonMultiPush extends LinearOpMode {
 
@@ -23,6 +23,8 @@ public class TestGamepadButtonMultiPush extends LinearOpMode {
     public GamepadButtonMultiPush gamepad1y;
     public GamepadButtonMultiPush gamepad1a;
     public GamepadButtonMultiPush gamepad1b;
+
+    public boolean newTelemetry = false;
 
     @Override
     public void runOpMode() {
@@ -53,6 +55,7 @@ public class TestGamepadButtonMultiPush extends LinearOpMode {
                 telemetry.addData("x command 1", "!");
                 gamepad1xCount++;
                 telemetry.addData("Number of presses = ", "%d", gamepad1xCount);
+                newTelemetry = true;
             }
 
             // this is a button with 2 commands tied to it
@@ -66,6 +69,7 @@ public class TestGamepadButtonMultiPush extends LinearOpMode {
                     // call the 2nd command you want to run
                     telemetry.addData("y command 2", "!");
                 }
+                newTelemetry = true;
             }
 
             // this is a button with 3 commands tied to it
@@ -89,6 +93,7 @@ public class TestGamepadButtonMultiPush extends LinearOpMode {
                     // call the 4th command you want to run
                     telemetry.addData("a command 4", "!");
                 }
+                newTelemetry = true;
             }
 
             // this is a button with 4 commands tied to it
@@ -110,11 +115,16 @@ public class TestGamepadButtonMultiPush extends LinearOpMode {
                     // call the 4th command you want to run
                     telemetry.addData("b command 4", "!");
                 }
+                newTelemetry = true;
             }
 
             telemetry.addData(">", "Press Stop to end test.");
 
             telemetry.update();
+            if (newTelemetry) {
+                sleep(1000);
+                newTelemetry = false;
+            }
 
             idle();
         }
