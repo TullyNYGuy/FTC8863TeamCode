@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitColorSensor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
+import org.firstinspires.ftc.teamcode.opmodes.RelicRecovery.TestJewelArm;
 
 
 public class JewelArm {
@@ -19,6 +20,10 @@ public class JewelArm {
     //*********************************************************************************************
     public enum RobotSide {
         LEFT, RIGHT;
+    }
+
+    public enum BallColor {
+        RED, BLUE;
     }
 
     //*********************************************************************************************
@@ -36,6 +41,7 @@ public class JewelArm {
     private Servo8863 upDownServo;
     private Servo8863 frontBackServo;
     private AdafruitColorSensor8863 colorSensor;
+    private TestJewelArm.AllianceColor allianceColor;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -51,10 +57,11 @@ public class JewelArm {
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
-    public JewelArm(RobotSide robotSide, HardwareMap hardwareMap, Telemetry telemetry) {
+    public JewelArm(RobotSide robotSide, HardwareMap hardwareMap, Telemetry telemetry, TestJewelArm.AllianceColor allianceColor) {
+        this.allianceColor = allianceColor;
         if (robotSide == RobotSide.LEFT) {
             servoArmUpPosition = 0;
-            servoArmDownPosition = 0.65;
+            servoArmDownPosition = 0.75;
             servoArmFrontPosition = 0.35;
             servoArmCenterPosition = 0.5;
             servoArmBackPosition = 0.6;
@@ -77,7 +84,7 @@ public class JewelArm {
 
         } else {
             servoArmUpPosition = 0;
-            servoArmDownPosition = 0.65;
+            servoArmDownPosition = 0.75;
             servoArmFrontPosition = 0.35;
             servoArmCenterPosition = 0.5;
             servoArmBackPosition = 0.6;
@@ -155,11 +162,14 @@ public class JewelArm {
         frontBackServo.goInitPosition();
     }
 
-    public AdafruitColorSensor8863.ColorFromSensor getBallColor() {
-        armCenter();
-        armDown();
-        return colorSensor.getSimpleColor();
-
+    public BallColor getBallColor() {
+        AdafruitColorSensor8863.ColorFromSensor colorFromSensor;
+        colorFromSensor = colorSensor.getSimpleColor();
+        if (colorFromSensor == AdafruitColorSensor8863.ColorFromSensor.BLUE) {
+            return BallColor.BLUE;
+        } else {
+            return BallColor.RED;
+        }
     }
 
     public void resetPosition() {
@@ -182,6 +192,29 @@ public class JewelArm {
         delay(1000);
         armBack();
 
+    }
+
+    public BallColor knockOffBall() {
+        BallColor ballColor;
+        armDown();
+        delay(1000);
+        ballColor = getBallColor();
+        if (allianceColor == TestJewelArm.AllianceColor.BLUE) {
+            if (ballColor == BallColor.BLUE) {
+                knockFrontBall();
+            } else {
+                knockBackBall();
+
+            }
+        }
+        if (allianceColor == TestJewelArm.AllianceColor.RED) {
+            if (ballColor == BallColor.RED) {
+                knockFrontBall();
+            } else {
+                knockBackBall();
+            }
+        }
+        return ballColor;
     }
 }
 

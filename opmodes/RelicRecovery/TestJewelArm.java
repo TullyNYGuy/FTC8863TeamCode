@@ -12,70 +12,34 @@ import org.firstinspires.ftc.teamcode.Lib.RelicRecoveryLib.JewelArm;
 @TeleOp(name = "Test for Jewel Arm", group = "Test")
 //@Disabled
 public class TestJewelArm extends LinearOpMode {
-
+    public enum AllianceColor {
+        BLUE, RED
+    }
     JewelArm leftJewelArm;
 
     @Override
     public void runOpMode() {
 
-
         // Put your initializations here
-        leftJewelArm = new JewelArm(JewelArm.RobotSide.LEFT, hardwareMap, telemetry);
+        leftJewelArm = new JewelArm(JewelArm.RobotSide.LEFT, hardwareMap, telemetry, AllianceColor.BLUE);
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
         telemetry.update();
         waitForStart();
-
+        leftJewelArm.initialize();
         // Put your calls here - they will not run in a loop
+        sleep(2000);
 
+        leftJewelArm.knockOffBall();
+
+        sleep (2000);
+
+       leftJewelArm.shutdown();
         while (opModeIsActive()) {
 
             // Put your calls that need to run in a loop here
 
-            leftJewelArm.initialize();
 
-            sleep(2000);
-
-            leftJewelArm.knockFrontBall();
-
-            sleep(2000);
-
-            leftJewelArm.resetPosition();
-
-            sleep(2000);
-
-            leftJewelArm.knockBackBall();
-
-            sleep(2000);
-
-
-
-
-//            leftJewelArm.armDown();
-//
-//            sleep(2000);
-//
-//            leftJewelArm.armUp();
-//
-//            sleep(2000);
-//
-//            leftJewelArm.resetPosition();
-//
-//            sleep(2000);
-//
-//            leftJewelArm.armFront();
-//
-//            sleep(2000);
-//
-//            leftJewelArm.armBack();
-//
-//            sleep(2000);
-//
-//            leftJewelArm.armCenter();
-//
-//            sleep(2000);
-
-            leftJewelArm.shutdown();
 
             // Display the current value
             //telemetry.addData("Motor Speed = ", "%5.2f", powerToRunAt);
