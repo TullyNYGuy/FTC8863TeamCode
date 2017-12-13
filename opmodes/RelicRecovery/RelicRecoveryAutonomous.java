@@ -9,6 +9,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 import org.firstinspires.ftc.teamcode.Lib.RelicRecoveryLib.NathanMagicRobot;
+import org.firstinspires.ftc.teamcode.Lib.RelicRecoveryLib.RelicRecoveryRobotStJohnFisher;
 import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.AllianceColorSwitch;
 import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.FrontBeaconPusherControl;
 import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.VelocityVortexRobot;
@@ -16,7 +17,7 @@ import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.VelocityVortexRobot;
 /**
  * Autonomous for competition
  */
-@Autonomous(name = "Velocity Vortex Autonomous", group = "Run")
+@Autonomous(name = "Relic Recovery Autonomous", group = "Run")
 //@Disabled
 public class RelicRecoveryAutonomous extends LinearOpMode {
 
@@ -24,10 +25,9 @@ public class RelicRecoveryAutonomous extends LinearOpMode {
     //             Declarations
     //*********************************************************************************************
 
-    NathanMagicRobot robot;
+    RelicRecoveryRobotStJohnFisher robot;
     DriveTrain.Status statusDrive;
     ElapsedTime timer;
-    FrontBeaconPusherControl.FrontBeaconControlState frontBeaconControlState;
 
     @Override
     public void runOpMode() {
@@ -50,20 +50,14 @@ public class RelicRecoveryAutonomous extends LinearOpMode {
         //             Robot Running after the user his play on the driver phone
         //*********************************************************************************************
 
-        if(robot.allianceColorSwitch.getAllianceColor() == AllianceColorSwitch.AllianceColor.RED) {
-            //drop jewel arm
-            robot.jewelSmackerServo.goPositionOne();
-            //read the color of the jewel
-
-            //hit the correct color jewel off
-
-            //raise jewel arm back up
+        if (robot.allianceColorSwitch.getAllianceColor() == AllianceColorSwitch.AllianceColor.RED) {
+            //jewel arm knocks proper ball off
 
             //read pictograph
         }
 
-        if(robot.allianceColorSwitch.getAllianceColor() == AllianceColorSwitch.AllianceColor.BLUE) {
-            }
+        if (robot.allianceColorSwitch.getAllianceColor() == AllianceColorSwitch.AllianceColor.BLUE) {
+        }
 
 
 //        driveStraight(161, 0.5);
@@ -72,7 +66,7 @@ public class RelicRecoveryAutonomous extends LinearOpMode {
 //        telemetry.update();
 //        sleep(1000);
 //
-//        anyTurn(36, 0.4);
+//        spinTurn(36, 0.4, AdafruitIMU8863.AngleMode.ABSOLUTE);
 //        telemetry.addData("Finished Turn", "1");
 //        telemetry.addData("Angle = ", "%3.1f", robot.driveTrain.imu.getHeading());
 //        telemetry.update();
@@ -101,6 +95,7 @@ public class RelicRecoveryAutonomous extends LinearOpMode {
     /**
      * Does a spin turn about the center of the robot. Uses the IMU and a PI control to make it
      * work.
+     *
      * @param angle
      * @param power
      * @param angleMode RELATIVE - 0 degrees is where the robot is now or ABSOLUTE - 0 is where
@@ -110,8 +105,6 @@ public class RelicRecoveryAutonomous extends LinearOpMode {
         robot.driveTrain.setupTurn(angle, power, angleMode);
 
         while (opModeIsActive() && !robot.driveTrain.updateTurn()) {
-            // update the front beacon pusher state machine
-            //robot.frontBeaconPusherControl.update();
             telemetry.addData(">", "Press Stop to end test.");
             telemetry.addData("Angle = ", "%3.1f", robot.driveTrain.imu.getHeading());
             telemetry.update();
@@ -127,6 +120,7 @@ public class RelicRecoveryAutonomous extends LinearOpMode {
      * Drive at a heading for a certain distance. The IMU is read for feedback to PID control for
      * controlling the heading. The start of the drive has a ramp up for the power to the motors
      * to help with wheel slip.
+     *
      * @param heading
      * @param power
      * @param distance
@@ -137,7 +131,6 @@ public class RelicRecoveryAutonomous extends LinearOpMode {
 
         // updateDriveDistanceUsingIMU return true when the robot has traveled the distance that was requested
         while (opModeIsActive() && !robot.driveTrain.updateDriveDistanceUsingIMU()) {
-            // update the front beacon pusher state machine
             telemetry.addData("Angle = ", "%3.1f", robot.driveTrain.imu.getHeading());
             telemetry.addData("distance = ", robot.driveTrain.getDistanceDriven());
             telemetry.update();
@@ -151,6 +144,7 @@ public class RelicRecoveryAutonomous extends LinearOpMode {
 
     /**
      * not used anymore
+     *
      * @param angle
      * @param power
      */
@@ -172,6 +166,7 @@ public class RelicRecoveryAutonomous extends LinearOpMode {
 
     /**
      * NOT used anymore
+     *
      * @param distance
      * @param power
      */

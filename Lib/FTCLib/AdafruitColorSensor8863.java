@@ -34,6 +34,7 @@ Some of this code has been borrowed from the FTC SDK.
 import android.graphics.Color;
 
 import com.qualcomm.robotcore.hardware.DeviceInterfaceModule;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.DigitalChannelController;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.I2cAddr;
@@ -84,6 +85,13 @@ import java.util.Map;
  * <p>
  * IF YOU JUST WANT TO GET STARTED USING THE COLOR SENSOR SKIP RIGHT DOWN TO THE SECTION TITLED
  * MAJOR METHODS.
+ *
+ * HERE IS HOW TO CONFIGURE THE COLOR SENSOR:
+ * CONFIGURE AN I2C PORT ON THE CORE DEVICE INTERFACE MODULE AS AN I2C DEVICE.
+ * GIVE THE SENSOR THE NAME THAT YOU WILL USE IN CREATING YOUR OBJECT FROM THIS CLASS; THE NAME
+ * YOU WILL USE TO REFER TO THE COLOR SENSOR. AS AN EXAMPLE: sensorColorLeft.
+ * IN THE PHONE CONFIGURATION, GIVE THE CORE DEVICE INTERFACE MODULE A NAME THAT YOU WILL USE
+ * TO REFER TO IT.
  * <p>
  * If you care to explore and understand the sensor read on. PARTICULARLY IMPORTANT
  * TO GETTING THE BEST RESULTS FROM THIS SENSOR ARE UNDERSTANDING INTEGRATION TIME AND GAIN. See
@@ -798,7 +806,8 @@ public class AdafruitColorSensor8863 {
     private void setupCoreDIM(HardwareMap hardwareMap, String coreDIMName, int ioChannelForLed) {
         this.ioChannelForLed = ioChannelForLed;
         coreDIM = hardwareMap.deviceInterfaceModule.get(coreDIMName);
-        coreDIM.setDigitalChannelMode(ioChannelForLed, DigitalChannelController.Mode.OUTPUT);
+        //coreDIM.setDigitalChannelMode(ioChannelForLed, DigitalChannelController.Mode.OUTPUT);
+        coreDIM.setDigitalChannelMode(ioChannelForLed, DigitalChannel.Mode.OUTPUT);
         // Delay so the previous line can finish before setting the led off. Otherwise the LED does
         // not get shut off.
         delay(100);
@@ -951,6 +960,9 @@ public class AdafruitColorSensor8863 {
      * Enable the interrupt that gets set when the clear value is under or over the threshold. This
      * allows the INT pin on the circuit board to get driven.
      */
+    // Based on testing in TestAdafruitColorSensor8863LEDByInterrupt this method is not working,
+    // or isInterruptEnabled is not working.
+    // GB 12/10/2017
     private synchronized void enableInterrupt() {
         byte reg = getEnableRegisterFromSensor();
         this.write8(Register.ENABLE, reg | EnableRegister.AMS_COLOR_ENABLE_AIEN.byteVal);
@@ -1293,6 +1305,18 @@ public class AdafruitColorSensor8863 {
         } else {
             return true;
         }
+    }
+
+    public boolean isColorSensorAttached(Telemetry telemetry){
+        boolean result;
+        if(checkDeviceId()) {
+            telemetry.addData("Color sensor is attached.", "!");
+            result = true;
+        } else {
+            telemetry.addData("No color sensor found", "!");
+            result = false;
+        }
+        return result;
     }
 
     // STATUS REGISTER
