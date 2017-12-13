@@ -38,7 +38,8 @@ public class RelicRecoveryRobotStJohnFisher {
     // note that the IMU is an object in the drive train
     public RobotMode robotMode;
     public DriveTrain driveTrain;
-public ExtensionArm extensionArm;
+    public ExtensionArm extensionArm;
+    public GlyphDumper glyphDumper;
     public AllianceColorSwitch allianceColorSwitch;
     public AllianceColorSwitch.AllianceColor allianceColor;
 
@@ -58,27 +59,41 @@ public ExtensionArm extensionArm;
     //*********************************************************************************************
 
     private RelicRecoveryRobotStJohnFisher(HardwareMap hardwareMap, RobotMode robotMode, Telemetry telemetry) {
-        if(robotMode == RobotMode.AUTONOMOUS) {
+        if (robotMode == RobotMode.AUTONOMOUS) {
             // create the robot for autonomous
             driveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap, telemetry);
             telemetry.addData("Drive Train Initialized", "!");
             telemetry.update();
+
             allianceColorSwitch = new AllianceColorSwitch(hardwareMap, telemetry);
             telemetry.addData("Drive Train Initialized", "!");
             telemetry.addData("Color Switches Initialized", "!");
             telemetry.update();
+
             allianceColor = allianceColorSwitch.getAllianceColor();
+            telemetry.update();
         } else {
             // create the robot for teleop
             driveTrain = DriveTrain.DriveTrainTeleOp(hardwareMap, telemetry);
+            telemetry.addData("Drive Train Initialized", "!");
+            telemetry.update();
+
             allianceColor = AllianceColorSwitch.AllianceColor.BLUE;
         }
+
         extensionArm = new ExtensionArm(hardwareMap, telemetry);
         telemetry.addData("Drive Train Initialized", "!");
         telemetry.addData("Color Switches Initialized", "!");
-        telemetry.addData("ExtensionArm Initialized", "!");
+        telemetry.addData("ExtensionArm Created", "!");
         telemetry.update();
-        init();
+
+        glyphDumper = new GlyphDumper(hardwareMap, telemetry);
+        telemetry.addData("Drive Train Initialized", "!");
+        telemetry.addData("Color Switches Initialized", "!");
+        telemetry.addData("ExtensionArm created", "!");
+        telemetry.addData("Glyph Dumper created", "!");
+        telemetry.update();
+        init(telemetry);
     }
 
     public static RelicRecoveryRobotStJohnFisher createRobotForAutonomous(HardwareMap hardwareMap, Telemetry telemetry) {
@@ -104,16 +119,30 @@ public ExtensionArm extensionArm;
     // public methods that give the class its functionality
     //*********************************************************************************************
 
-    public void init() {
+    public void init(Telemetry telemetry) {
         extensionArm.init();
+        telemetry.addData("Drive Train Initialized", "!");
+        telemetry.addData("Color Switches Initialized", "!");
+        telemetry.addData("ExtensionArm Initialized", "!");
+        telemetry.addData("Glyph Dumper created", "!");
+        telemetry.update();
+
+        glyphDumper.init();
+        telemetry.addData("Drive Train Initialized", "!");
+        telemetry.addData("Color Switches Initialized", "!");
+        telemetry.addData("ExtensionArm Initialized", "!");
+        telemetry.addData("Glyph Dumper Initialized", "!");
+        telemetry.update();
     }
 
     public void update() {
         extensionArm.update();
+        glyphDumper.update();
     }
 
     public void shutdown() {
         extensionArm.shutdown();
+        glyphDumper.shutdown();
         driveTrain.shutdown();
     }
 }
