@@ -98,8 +98,6 @@ public class ExtensionArm {
        // the motor will move to the target position and then narrow in on it - the motor controller
        // will control this for us
        armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-       // the motor power is initially 0
-       armMotor.setPower(0);
    }
 
 
@@ -124,16 +122,23 @@ public class ExtensionArm {
        wristServo.goPositionOne();
     }
 
-    public void initialize() {
-       wristServo.goInitPosition();
-       clawServo.goInitPosition();
-    }
-
     public void openClaw() {
        clawServo.goPositionOne();
     }
 
     public void closeClaw() {
        clawServo.goPositionTwo();
+    }
+
+
+    public void init() {
+        wristServo.goInitPosition();
+        clawServo.goInitPosition();
+        // the motor power is initially 0
+        armMotor.setPower(0);
+    }
+
+    public void shutdown(){
+       // put the shutdown commands here
     }
 }
