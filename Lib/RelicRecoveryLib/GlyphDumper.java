@@ -75,6 +75,10 @@ public class GlyphDumper {
         glyphDumpServo.goPositionOne();
     }
 
+    public void update() {
+        // put any update commands here
+    }
+
     public void shutdown() {
         goHome();
     }
