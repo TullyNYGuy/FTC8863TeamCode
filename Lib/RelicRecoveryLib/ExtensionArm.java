@@ -138,6 +138,10 @@ public class ExtensionArm {
         armMotor.setPower(0);
     }
 
+    public void update() {
+       // put update commands here for anything that needs to update every few milliseconds
+    }
+
     public void shutdown(){
        // put the shutdown commands here
     }
