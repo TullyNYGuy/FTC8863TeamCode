@@ -413,6 +413,10 @@ public class JoyStick {
         return scaleInputSquared(joyStickValue, 0, 1);
     }
 
+    /**
+     * A small state machine that allows the reduction factor to toggle between .25 and 1 each time
+     * the method is called.
+     */
     public void toggleQuarterPower () {
         if (toggleQuarterPower == PowerReduction.FULL_POWER) {
             toggleQuarterPower = PowerReduction.QUARTER_POWER;
@@ -423,6 +427,10 @@ public class JoyStick {
         }
     }
 
+    /**
+     * A small state machine that allows the reduction factor to toggle between .5 and 1 each time
+     * the method is called.
+     */
     public void toggleHalfPower () {
         if (toggleHalfPower == PowerReduction.FULL_POWER) {
             toggleHalfPower = PowerReduction.HALF_POWER;
@@ -433,7 +441,10 @@ public class JoyStick {
         }
     }
 
-
+    /**
+     * A small state machine that allows the reduction factor to toggle between .2 and 1 each time
+     * the method is called.
+     */
     public void toggle20PercentPower () {
         if (toggle_20_Power == PowerReduction.FULL_POWER) {
             toggle_20_Power = PowerReduction.TWENTY_PERCENT_POWER;
@@ -444,6 +455,10 @@ public class JoyStick {
         }
     }
 
+    /**
+     * A small state machine that allows the reduction factor to toggle between .1 and 1 each time
+     * the method is called.
+     */
     public void toggle10PercentPower () {
         if (toggle_10_Power == PowerReduction.FULL_POWER) {
             toggle_10_Power = PowerReduction.TEN_PERCENT_POWER;
@@ -454,6 +469,9 @@ public class JoyStick {
         }
     }
 
+    /**
+     * Set the power to full power
+     */
     public void setFullPower() {
         reductionFactor = 1.0;
         toggleHalfPower = PowerReduction.FULL_POWER;
@@ -462,6 +480,9 @@ public class JoyStick {
         toggle_10_Power = PowerReduction.FULL_POWER;
     }
 
+    /**
+     * Set the power to 50%
+     */
     public void setHalfPower() {
         reductionFactor = .5;
         toggleHalfPower = PowerReduction.HALF_POWER;
@@ -470,6 +491,9 @@ public class JoyStick {
         toggle_10_Power = PowerReduction.FULL_POWER;
     }
 
+    /**
+     * Set the power to 25%
+     */
     public void setQuarterPower() {
         reductionFactor = .25;
         toggleHalfPower = PowerReduction.FULL_POWER;
@@ -478,6 +502,9 @@ public class JoyStick {
         toggle_10_Power = PowerReduction.FULL_POWER;
     }
 
+    /**
+     * Set the power to 20%
+     */
     public void set20PercentPower() {
         reductionFactor = .2;
         toggleHalfPower = PowerReduction.FULL_POWER;
@@ -486,6 +513,9 @@ public class JoyStick {
         toggle_10_Power = PowerReduction.FULL_POWER;
     }
 
+    /**
+     * Set the power to 10%
+     */
     public void set10PercentPower() {
         reductionFactor = .1;
         toggleHalfPower = PowerReduction.FULL_POWER;
