@@ -287,7 +287,6 @@ public class NathanMagicRobotTeleop extends LinearOpMode {
 
             if (gamepad2.y) {
                 if (gamepad2yButtonIsReleased) {
-                    robot.clampServo.goHome();
                     gamepad2yButtonIsReleased = false;
                 }
             } else {
@@ -306,7 +305,6 @@ public class NathanMagicRobotTeleop extends LinearOpMode {
 
             if (gamepad2.x) {
                 if (gamepad2xButtonIsReleased) {
-                    robot.clampServo.goPositionOne();
                     gamepad2xButtonIsReleased = false;
                 }
             } else {
