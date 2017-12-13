@@ -148,7 +148,7 @@ public class RelicRecoveryTeleop extends LinearOpMode {
         gamepad2RightJoyStickX = new JoyStick(JoyStick.JoyStickMode.SQUARE, JOYSTICK_DEADBAND_VALUE, JoyStick.InvertSign.NO_INVERT_SIGN);
         gamepad2RightJoyStickY = new JoyStick(JoyStick.JoyStickMode.SQUARE, JOYSTICK_DEADBAND_VALUE, JoyStick.InvertSign.INVERT_SIGN);
 
-        robot.init();
+        robot.init(telemetry);
 
         // Wait for the start button
         telemetry.addData(">", "Press start to run Teleop");
