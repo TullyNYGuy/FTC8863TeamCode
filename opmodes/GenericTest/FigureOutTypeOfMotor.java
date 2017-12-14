@@ -68,6 +68,8 @@ public class FigureOutTypeOfMotor extends LinearOpMode {
             // the 100 is added in the following tests to account for the fact that the user could
             // turn the motor just a little past one full rotation. I still want the motor to show
             // up properly so I give the user a little margin.
+            telemetry.addData("Encoder count change so far: ", "%d", currentEncoderCount - startingEncoderCount);
+
             if (Math.abs(currentEncoderCount - startingEncoderCount+100) < countPerRevForNeverest20) {
                 telemetry.addData("So far motor could be a 20", " OR");
             }
