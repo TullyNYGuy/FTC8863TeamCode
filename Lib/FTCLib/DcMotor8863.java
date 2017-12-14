@@ -16,7 +16,7 @@ public class DcMotor8863 {
      * Defines the type of motor.
      */
     public enum MotorType {
-        NXT, ANDYMARK_20, ANDYMARK_40, ANDYMARK_60, TETRIX
+        NXT, ANDYMARK_20, ANDYMARK_40, ANDYMARK_60, TETRIX, ANDYMARK_20_ORBITAL
     }
 
     /**
@@ -252,6 +252,9 @@ public class DcMotor8863 {
                 // http://www.cougarrobot.com/attachments/328_Tetrix_DC_Motor_V2.pdf
                 this.countsPerRev = 1440;
                 break;
+            case ANDYMARK_20_ORBITAL:
+                this.countsPerRev = 537;
+                break;
             default:
                 this.countsPerRev = 0;
                 break;
@@ -293,6 +296,9 @@ public class DcMotor8863 {
             case TETRIX:
                 // http://www.cougarrobot.com/attachments/328_Tetrix_DC_Motor_V2.pdf
                 noLoadRPM = 150;
+                break;
+            case ANDYMARK_20_ORBITAL:
+                noLoadRPM = 340;
                 break;
             default:
                 noLoadRPM = 0;
