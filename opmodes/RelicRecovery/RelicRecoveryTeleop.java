@@ -330,21 +330,25 @@ public class RelicRecoveryTeleop extends LinearOpMode {
             if (gamepad2DpadUp.buttonPress(gamepad2.dpad_up)) {
                 // this was a new button press, not a button held down for a while
                 // put the command to be executed here
+                robot.extensionArm.goToZone3();
             }
 
             if (gamepad2DpadDown.buttonPress(gamepad2.dpad_down)) {
                 // this was a new button press, not a button held down for a while
                 // put the command to be executed here
+                robot.extensionArm.retractArm();
             }
 
             if (gamepad2DpadLeft.buttonPress(gamepad2.dpad_left)) {
                 // this was a new button press, not a button held down for a while
                 // put the command to be executed here
+                robot.extensionArm.goToZone1();
             }
 
             if (gamepad2DpadRight.buttonPress(gamepad2.dpad_right)) {
                 // this was a new button press, not a button held down for a while
                 // put the command to be executed here
+                robot.extensionArm.goToZone2();
             }
 
             if (gamepad2LeftStickButton.buttonPress(gamepad2.left_stick_button)) {
