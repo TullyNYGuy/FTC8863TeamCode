@@ -2,24 +2,20 @@ package org.firstinspires.ftc.teamcode.opmodes.RelicRecovery;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.robot.Robot;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
-import org.firstinspires.ftc.teamcode.Lib.RelicRecoveryLib.NathanMagicRobot;
 import org.firstinspires.ftc.teamcode.Lib.RelicRecoveryLib.RelicRecoveryRobotStJohnFisher;
 import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.AllianceColorSwitch;
-import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.FrontBeaconPusherControl;
-import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.VelocityVortexRobot;
 
 /**
  * Autonomous for competition
  */
 @Autonomous(name = "Relic Recovery Autonomous", group = "Run")
 //@Disabled
-public class RelicRecoveryAutonomous extends LinearOpMode {
+public class RelicRecoveryAutonomousBLUE02 extends LinearOpMode {
 
     //*********************************************************************************************
     //             Declarations
@@ -28,6 +24,7 @@ public class RelicRecoveryAutonomous extends LinearOpMode {
     RelicRecoveryRobotStJohnFisher robot;
     DriveTrain.Status statusDrive;
     ElapsedTime timer;
+    int columnNumber = 0;
 
     @Override
     public void runOpMode() {
@@ -49,34 +46,20 @@ public class RelicRecoveryAutonomous extends LinearOpMode {
         //*********************************************************************************************
         //             Robot Running after the user his play on the driver phone
         //*********************************************************************************************
-
-        if (robot.allianceColorSwitch.getAllianceColor() == AllianceColorSwitch.AllianceColor.RED) {
             //jewel arm knocks proper ball off
-
             //read pictograph
-        }
+            //determine 1, 2, or 3
 
-        if (robot.allianceColorSwitch.getAllianceColor() == AllianceColorSwitch.AllianceColor.BLUE) {
-        }
-
-
-//        driveStraight(161, 0.5);
-//        telemetry.addData("Finished Straight", "1");
-//        telemetry.addData("Angle = ", "%3.1f", robot.driveTrain.imu.getHeading());
-//        telemetry.update();
-//        sleep(1000);
-//
-//        spinTurn(36, 0.4, AdafruitIMU8863.AngleMode.ABSOLUTE);
-//        telemetry.addData("Finished Turn", "1");
-//        telemetry.addData("Angle = ", "%3.1f", robot.driveTrain.imu.getHeading());
-//        telemetry.update();
-//        sleep(1000);
-//
-//        driveStraight(-170, 0.5);
-//        telemetry.addData("Finished Straight", "1");
-//        telemetry.addData("Angle = ", "%3.1f", robot.driveTrain.imu.getHeading());
-//        telemetry.update();
-//        sleep(1000);
+            //move
+            if(columnNumber == 1){
+                column1BLUE02();
+            }
+            else if(columnNumber == 2){
+                column2BLUE02();
+            }
+            else if(columnNumber == 3){
+                column3BLUE02();
+            }
 
         //*************************************************************************************
         //  Stop everything after the user hits the stop button on the driver phone
@@ -91,6 +74,25 @@ public class RelicRecoveryAutonomous extends LinearOpMode {
     //*********************************************************************************************
     //             Helper methods
     //*********************************************************************************************
+    public void column1BLUE02(){
+        //turn on block
+        spinTurn(-5, 0.5, AdafruitIMU8863.AngleMode.ABSOLUTE);
+        //drive straight
+        driveStraight(93.98, 0.5);
+    }
+
+    public void column2BLUE02() {
+        //turn on block
+        spinTurn(-13, 0.5, AdafruitIMU8863.AngleMode.ABSOLUTE);
+        //drive straight
+        driveStraight(101.6, 0.5);
+    }
+    public void column3BLUE02(){
+        //turn on block
+        spinTurn(-25, 0.5, AdafruitIMU8863.AngleMode.ABSOLUTE);
+        //drive straight
+        driveStraight(109.22, 0.5);
+    }
 
     /**
      * Does a spin turn about the center of the robot. Uses the IMU and a PI control to make it
