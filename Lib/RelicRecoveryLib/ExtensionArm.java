@@ -30,23 +30,27 @@ public class ExtensionArm {
     // this servo controls the position of the wrist on the arm
     private Servo8863 wristServo;
     // setup positions for the wrist servo
-    private double wristPositionInit = 0;
-    private double wristPositionHome = 0;
-    private double wristPositionPickup = .3;
-    private double wristPositionCarry = .9;
+    private double wristPositionInit = 1.0;
+    private double wristPositionHome = 1.0;
+    private double wristPositionPickup = .8;
+    private double wristPositionCarry = .05;
 
     // this servo controls the claw at the end of the wrist. The claw clamps onto the relic
     private Servo8863 clawServo;
     // setup positions for the claw servo
-    private double clawPositionInit =  0;
-    private double clawPositionHome = 0;
-    private double clawPositionOpen = .8;
-    private  double clawPositionClose = .4;
+    private double clawPositionInit =  0.8;
+    private double clawPositionHome = 0.8;
+    private double clawPositionOpen = 0;
+    private  double clawPositionClose = .55;
 
     // The motor the extends and retracts the arm
     private DcMotor8863 armMotor;
     // for each revolution of the motor, how much does the arm extend?
     private double inchPerRotation = 3.0;
+    private double zone1Position = 8.0;
+    private double zone2Position = 24.0;
+    private double zone3Position = 40.0;
+    private double retractedPosition = 1.0;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -114,23 +118,6 @@ public class ExtensionArm {
     // public methods that give the class its functionality
     //*********************************************************************************************
 
-    public void carryRelic() {
-       wristServo.goPositionTwo();
-    }
-
-    public void goToPickup() {
-       wristServo.goPositionOne();
-    }
-
-    public void openClaw() {
-       clawServo.goPositionOne();
-    }
-
-    public void closeClaw() {
-       clawServo.goPositionTwo();
-    }
-
-
     public void init() {
         wristServo.goInitPosition();
         clawServo.goInitPosition();
@@ -140,9 +127,93 @@ public class ExtensionArm {
 
     public void update() {
        // put update commands here for anything that needs to update every few milliseconds
+        armMotor.update();
     }
 
     public void shutdown(){
        // put the shutdown commands here
+        armMotor.shutDown();
+        wristServo.goInitPosition();
+        clawServo.goInitPosition();
+    }
+
+    /**
+     * Move the wrist servo so that the relic is held upside down in the air
+     */
+    public void carryRelic() {
+        wristServo.goPositionTwo();
+    }
+
+    /**
+     * Move the wrist servo so that the claw is in position to pick up the relic
+     */
+    public void goToPickup() {
+        wristServo.goPositionOne();
+    }
+
+    /**
+     * Open the claw to either prepare to pick up the relic or to release it.
+     */
+    public void openClaw() {
+        clawServo.goPositionOne();
+    }
+
+    /**
+     * Close the claw around the relic
+     */
+    public void closeClaw() {
+        clawServo.goPositionTwo();
+    }
+
+    /**
+     * Move the extension arm to a position. 0 inches is fully retracted.
+     * @param distanceInInches
+     */
+    public void goToPosition(double distanceInInches) {
+        armMotor.moveToPosition(.1, distanceInInches, DcMotor8863.FinishBehavior.HOLD);
+    }
+
+    /**
+     * Extend the arm to the middle of relic recovery zone 1
+     */
+    public void goToZone1() {
+        goToPosition(zone1Position);
+    }
+
+    /**
+     * Extend the arm to the middle of relic recovery zone 2
+     */
+    public void goToZone2() {
+        goToPosition(zone2Position);
+    }
+
+    /**
+     * Extend the arm to the middle of relic recovery zone 3
+     */
+    public void goToZone3() {
+        goToPosition(zone3Position);
+    }
+
+    /**
+     * Retract the extension arm almost to its starting point.
+     */
+    public void retractArm() {
+        goToPosition(retractedPosition);
+    }
+
+    /**
+     * Use this to find out how many inches the arm moves for each revolution
+     */
+    public void getInchPerRotation() {
+        double numberOfRotations = 2;
+        armMotor.rotateNumberOfDegrees(.2, numberOfRotations * 360, DcMotor8863.FinishBehavior.HOLD);
+    }
+
+    /**
+     * Rotate the motor a tiny bit in the forward direction so the operator can see which direction
+     * is forward.
+     */
+    public void testMotorDirection() {
+        armMotor.rotateNumberOfDegrees(.2, 5, DcMotor8863.FinishBehavior.HOLD);
     }
 }
