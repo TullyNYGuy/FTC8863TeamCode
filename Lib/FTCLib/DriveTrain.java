@@ -142,7 +142,7 @@ public class DriveTrain {
         rightDriveMotor.setDirection(DcMotor.Direction.REVERSE);
         rightDriveMotor.setMaxMotorPower(1);
         rightDriveMotor.setMinMotorPower(-1);
-        rightDriveMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
+        rightDriveMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_20_ORBITAL);
         rightDriveMotor.setMotorMoveType(DcMotor8863.MotorMoveType.RELATIVE);
         rightDriveMotor.setTargetEncoderTolerance(10);
         rightDriveMotor.setMovementPerRev(cmPerRotation);
@@ -151,7 +151,7 @@ public class DriveTrain {
         leftDriveMotor.setDirection(DcMotor.Direction.FORWARD);
         leftDriveMotor.setMaxMotorPower(1);
         leftDriveMotor.setMinMotorPower(-1);
-        leftDriveMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
+        leftDriveMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_20_ORBITAL);
         leftDriveMotor.setMotorMoveType(DcMotor8863.MotorMoveType.RELATIVE);
         leftDriveMotor.setTargetEncoderTolerance(10);
         leftDriveMotor.setMovementPerRev(cmPerRotation);
