@@ -27,7 +27,7 @@ public class TestDriveTrainWheelCircumference extends LinearOpMode {
 
 
         // Put your initializations here
-        driveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap, telemetry);
+        driveTrain = DriveTrain.DriveTrainAutonomousNoImu(hardwareMap, telemetry);
         driveTrain.setCmPerRotation(29.9); // cm
 
         // Wait for the start button
