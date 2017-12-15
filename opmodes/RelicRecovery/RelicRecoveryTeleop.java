@@ -130,8 +130,8 @@ public class RelicRecoveryTeleop extends LinearOpMode {
         // create the gamepad 2 buttons and tell each button how many commands it has
         gamepad2RightBumper = new GamepadButtonMultiPush(1);
         gamepad2LeftBumper = new GamepadButtonMultiPush(1);
-        gamepad2a = new GamepadButtonMultiPush(1);
-        gamepad2b = new GamepadButtonMultiPush(1);
+        gamepad2a = new GamepadButtonMultiPush(2);
+        gamepad2b = new GamepadButtonMultiPush(2);
         gamepad2y = new GamepadButtonMultiPush(1);
         gamepad2x = new GamepadButtonMultiPush(1);
         gamepad2DpadUp = new GamepadButtonMultiPush(1);
@@ -164,7 +164,7 @@ public class RelicRecoveryTeleop extends LinearOpMode {
             //*************************************************************************************
             // Gamepad 1 buttons
             //*************************************************************************************
-            
+
             // example for a button with multiple commands attached to it:
             // don't forget to change the new line with the number of commands attached like this:
             // gamepad1x = new GamepadButtonMultiPush(4);
@@ -309,17 +309,32 @@ public class RelicRecoveryTeleop extends LinearOpMode {
 
             if (gamepad2a.buttonPress(gamepad2.a)) {
                 // this was a new button press, not a button held down for a while
+                if (gamepad2a.isCommand1()) {
+                    robot.extensionArm.goToPickup();
+                }
+                if (gamepad2a.isCommand2()) {
+                    robot.extensionArm.carryRelic();
+                }
+
                 // put the command to be executed here
+
             }
 
             if (gamepad2b.buttonPress(gamepad2.b)) {
-                // this was a new button press, not a button held down for a while
-                // put the command to be executed here
+                if (gamepad2b.isCommand1()) {
+                    // call the first command you want to run
+                    robot.extensionArm.openClaw();
+                }
+                if (gamepad2b.isCommand2()) {
+                    // call the 2nd command you want to run
+                    robot.extensionArm.closeClaw();
+                }
             }
 
             if (gamepad2y.buttonPress(gamepad2.y)) {
                 // this was a new button press, not a button held down for a while
                 // put the command to be executed here
+                robot.extensionArm.testMotorDirection();
             }
 
             if (gamepad2x.buttonPress(gamepad2.x)) {
