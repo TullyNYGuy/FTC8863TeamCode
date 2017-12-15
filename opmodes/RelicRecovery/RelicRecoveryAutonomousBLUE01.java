@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.Lib.RelicRecoveryLib.RelicRecoveryRobotStJ
 /**
  * Autonomous for competition
  */
-@Autonomous(name = "Relic Recovery Autonomous", group = "Run")
+@Autonomous(name = "Relic Recovery Autonomous Blue 01", group = "Run")
 //@Disabled
 public class RelicRecoveryAutonomousBLUE01 extends LinearOpMode {
 

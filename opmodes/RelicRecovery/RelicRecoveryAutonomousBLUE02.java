@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.AllianceColorSwitch;
 /**
  * Autonomous for competition
  */
-@Autonomous(name = "Relic Recovery Autonomous", group = "Run")
+@Autonomous(name = "Relic Recovery Autonomous Blue 02", group = "Run")
 //@Disabled
 public class RelicRecoveryAutonomousBLUE02 extends LinearOpMode {
 
