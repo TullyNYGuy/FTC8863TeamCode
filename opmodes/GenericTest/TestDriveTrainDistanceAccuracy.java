@@ -27,7 +27,7 @@ public class TestDriveTrainDistanceAccuracy extends LinearOpMode {
 
 
         // Put your initializations here
-        driveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap, telemetry);
+        driveTrain = DriveTrain.DriveTrainAutonomousNoImu(hardwareMap, telemetry);
         driveTrain.setCmPerRotation(32.25); // cm
 
         // Wait for the start button
