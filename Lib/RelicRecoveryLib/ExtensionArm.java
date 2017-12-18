@@ -31,8 +31,8 @@ public class ExtensionArm {
     private Servo8863 wristServo;
     // setup positions for the wrist servo
     private double wristPositionInit = 1.0;
-    private double wristPositionHome = 1.0;
-    private double wristPositionPickup = .8;
+    private double wristPositionHome = 1.00;
+    private double wristPositionPickup = .7;
     private double wristPositionCarry = .05;
 
     // this servo controls the claw at the end of the wrist. The claw clamps onto the relic
@@ -43,10 +43,15 @@ public class ExtensionArm {
     private double clawPositionOpen = 0;
     private  double clawPositionClose = .55;
 
+//    private double clawPositionInit =  0.2;
+//    private double clawPositionHome = 0.2;
+//    private double clawPositionOpen = 1.0;
+//    private  double clawPositionClose = .45;
+
     // The motor the extends and retracts the arm
     private DcMotor8863 armMotor;
     // for each revolution of the motor, how much does the arm extend?
-    private double inchPerRotation = 3.0;
+    private double inchPerRotation = 11.0;
     private double zone1Position = 8.0;
     private double zone2Position = 24.0;
     private double zone3Position = 40.0;
@@ -86,7 +91,7 @@ public class ExtensionArm {
 
        // create and setup the arm motor
        armMotor = new DcMotor8863("armMotor", hardwareMap);
-       armMotor.setDirection(DcMotor.Direction.FORWARD);
+       armMotor.setDirection(DcMotor.Direction.REVERSE);
        armMotor.setMaxMotorPower(1);
        armMotor.setMinMotorPower(-1);
        armMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);

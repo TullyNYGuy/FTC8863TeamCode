@@ -25,7 +25,7 @@ public class GlyphDumper {
     //*********************************************************************************************
     private Servo8863 glyphDumpServo;
     private double homePosition = .8;
-    private double initPosition = 0;
+    private double initPosition = 1;
     private double dumpPosition = .25;
 
     //*********************************************************************************************

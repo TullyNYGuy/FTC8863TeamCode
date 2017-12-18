@@ -197,11 +197,13 @@ public class RelicRecoveryTeleop extends LinearOpMode {
             }
 
             if (gamepad1a.buttonPress(gamepad1.a)) {
+                    robot.glyphDumper.goHome();
                 // this was a new button press, not a button held down for a while
                 // put the command to be executed here
             }
 
             if (gamepad1b.buttonPress(gamepad1.b)) {
+                    robot.glyphDumper.dump();
                 // this was a new button press, not a button held down for a while
                 // put the command to be executed here
             }
@@ -338,6 +340,7 @@ public class RelicRecoveryTeleop extends LinearOpMode {
             }
 
             if (gamepad2x.buttonPress(gamepad2.x)) {
+                robot.extensionArm.getInchPerRotation();
                 // this was a new button press, not a button held down for a while
                 // put the command to be executed here
             }
