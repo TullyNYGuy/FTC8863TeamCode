@@ -1248,9 +1248,18 @@ public class DcMotor8863 {
      * it will resist that by applying enough power to hold its position.
      */
     // tested
+    // 12/20/2017 there is a bug. If the motor is going to hold, it has to have power applied to it.
+    // Setting it to brake just shorts the power leads together so it gives an instanteous slowdown
+    // but will not actually hold a position. In order to hold, the PID has to be running: motor
+    // mode must be RON_TO_POSITION and the target must be reached with power still applied.
     public void setMotorToHold() {
         this.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        this.setPower(0);
+        // get the curent position and set the target to that
+        this.setTargetPosition(getCurrentPosition());
+        // change the motor mode so the PID is enabled
+        this.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        // set the power to the last known power
+        this.setPower(currentPower);
         currentMotorState = MotorState.HOLD;
     }
 
@@ -1304,10 +1313,13 @@ public class DcMotor8863 {
                     // SLIGHT INACCURACY IN THE FINAL POSITION. Or a change in the way isRotationComplete
                     // works.
                     //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    shutDown();
+                    // Bug 12/20/2017 in order to hold the motor must be left in RUN_TO_POSITION mode
+                    // with power applied. It cannot be shut down.
                     if (getFinishBehavior() == FinishBehavior.FLOAT) {
+                        shutDown();
                         setMotorState(MotorState.COMPLETE_FLOAT);
                     } else {
+                        // motor mode is still RUN_TO_POSITION with power applied in order to hold
                         setMotorState(MotorState.COMPLETE_HOLD);
                     }
                 }
@@ -1337,10 +1349,13 @@ public class DcMotor8863 {
                     // SLIGHT INACCURACY IN THE FINAL POSITION. Or a change in the way isRotationComplete
                     // works.
                     //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    shutDown();
+                    // Bug 12/20/2017 in order to hold the motor must be left in RUN_TO_POSITION mode
+                    // with power applied. It cannot be shut down.
                     if (getFinishBehavior() == FinishBehavior.FLOAT) {
+                        shutDown();
                         setMotorState(MotorState.COMPLETE_FLOAT);
                     } else {
+                        // motor mode is still RUN_TO_POSITION with power applied in order to hold
                         setMotorState(MotorState.COMPLETE_HOLD);
                     }
                 }
