@@ -57,6 +57,7 @@ public class ExtensionArm {
     private double zone3Position = 40.0;
     private double retractedPosition = 1.0;
 
+    private Telemetry telemetry;
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -107,6 +108,8 @@ public class ExtensionArm {
        // the motor will move to the target position and then narrow in on it - the motor controller
        // will control this for us
        armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+       this.telemetry = telemetry;
    }
 
 
@@ -133,7 +136,8 @@ public class ExtensionArm {
     public void update() {
        // put update commands here for anything that needs to update every few milliseconds
         armMotor.update();
-    }
+        telemetry.addData("encoder = ", "%d", armMotor.getCurrentPosition());
+}
 
     public void shutdown(){
        // put the shutdown commands here
@@ -175,7 +179,7 @@ public class ExtensionArm {
      * @param distanceInInches
      */
     public void goToPosition(double distanceInInches) {
-        armMotor.moveToPosition(.1, distanceInInches, DcMotor8863.FinishBehavior.HOLD);
+        armMotor.moveToPosition(.3, distanceInInches, DcMotor8863.FinishBehavior.HOLD);
     }
 
     /**
