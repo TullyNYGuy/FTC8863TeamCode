@@ -28,7 +28,7 @@ public class TestDriveTrainWheelCircumference extends LinearOpMode {
 
         // Put your initializations here
         driveTrain = DriveTrain.DriveTrainAutonomousNoImu(hardwareMap, telemetry);
-        driveTrain.setCmPerRotation(29.9); // cm
+        driveTrain.setCmPerRotation(31.9); // cm
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run" );
@@ -38,6 +38,8 @@ public class TestDriveTrainWheelCircumference extends LinearOpMode {
         driveTrain.rotateNumberOfDegrees(.1, 3600, DcMotor8863.FinishBehavior.HOLD); //10 rotations
 
         while(opModeIsActive() && driveTrain.updateDriveDistance() != DriveTrain.Status.COMPLETE) {
+            driveTrain.getEncoderCounts();
+            telemetry.update();
             idle();
         }
 
