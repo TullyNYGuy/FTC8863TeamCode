@@ -26,6 +26,8 @@ public class DriveTrain {
         COMPLETE
     }
 
+    double cmPerRotationCompetitionRobot = 31.9;
+
     // debug counters
     int startRampCounter = 0;
     int rampUpCounter = 0;
@@ -135,7 +137,7 @@ public class DriveTrain {
         rightDriveMotor = new DcMotor8863(RobotConfigMappingForGenericTest.getrightMotorName(), hardwareMap);
 
         // for the competition robot
-        this.setCmPerRotation(32.05);
+        this.setCmPerRotation(cmPerRotationCompetitionRobot);
         // for the development robot
         //this.cmPerRotation = 31.1;
 
@@ -1111,4 +1113,9 @@ public class DriveTrain {
         rightDriveMotor.shutDown();
         leftDriveMotor.shutDown();
     }
+
+   public void getEncoderCounts() {
+        telemetry.addData("left encoder count = ", "%d", leftDriveMotor.getCurrentPosition());
+       telemetry.addData("right encoder count = ", "%d", rightDriveMotor.getCurrentPosition());
+   }
 }
