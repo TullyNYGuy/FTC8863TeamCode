@@ -28,7 +28,7 @@ public class TestDriveTrainDistanceAccuracy extends LinearOpMode {
 
         // Put your initializations here
         driveTrain = DriveTrain.DriveTrainAutonomousNoImu(hardwareMap, telemetry);
-        driveTrain.setCmPerRotation(32.25); // cm
+        driveTrain.setCmPerRotation(31.9); // cm
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run" );
@@ -37,7 +37,7 @@ public class TestDriveTrainDistanceAccuracy extends LinearOpMode {
 
         // if you want to go backwards then put in a negative distance
         double distance = 100;
-        driveStraight(distance, 0.1);
+        driveStraight(distance, 0.5);
         telemetry.addData("Finished driving this distance", "%3.2f", driveTrain.getDistanceDriven());
         telemetry.update();
         sleep(2000);
@@ -51,7 +51,7 @@ public class TestDriveTrainDistanceAccuracy extends LinearOpMode {
 
         while(opModeIsActive() && driveTrain.updateDriveDistance() != DriveTrain.Status.COMPLETE) {
             telemetry.addData("distance = ", driveTrain.getDistanceDriven());
-            telemetry.addData("heading = ", driveTrain.imu.getHeading());
+            // telemetry.addData("heading = ", driveTrain.imu.getHeading());
             telemetry.addData("left motor power = ", "%f1.2", driveTrain.getLeftPower());
             telemetry.addData("right motor power = ", "%f1.2", driveTrain.getRightPower());
             telemetry.update();
