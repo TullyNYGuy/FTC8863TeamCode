@@ -222,7 +222,7 @@ public class AdafruitIMU8863 {
         // Retrieve and initialize the IMU. We expect the IMU to be attached to an I2C port
         // on a Core Device Interface Module, configured to be a sensor of type "AdaFruit IMU",
         // and named "IMU"
-        imu = hardwareMap.get(BNO055IMU.class, RobotConfigMappingForGenericTest.getIMUName());
+        imu = hardwareMap.get(BNO055IMU.class, "IMU");
         imu.initialize(parameters);
         // The resetAngleReferences() does not seem to be getting correct data. I'm guessing that
         // the IMU has not finished initializing yet. Delay the execution of resetAngleReferences()
