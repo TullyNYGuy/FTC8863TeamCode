@@ -36,7 +36,7 @@ public class TestAutonomousTurn extends LinearOpMode {
         telemetry.update();
         waitForStart();
 
-        anyTurn(-90, 0.4);
+        anyTurn(-90, 0.1);
         telemetry.addData("Finished Turn", "2");
         telemetry.update();
         sleep(1000);
