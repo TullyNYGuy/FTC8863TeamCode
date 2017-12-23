@@ -29,47 +29,47 @@ public class TestDrivingSquare extends LinearOpMode {
 
         // Put your initializations here
         driveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap, telemetry);
-        driveTrain.setCmPerRotation(31.1); // cm
+        driveTrain.setCmPerRotation(31.9); // cm
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run" );
         telemetry.update();
         waitForStart();
-        driveDistanceUsingIMU(0, 0.5, 200);
+        driveDistanceUsingIMU(0, 0.1, 200);
         telemetry.addData("Finished Straight", "1");
         telemetry.update();
         sleep(1000);
-        anyTurn(-90, 0.4);
+        anyTurn(-90, 0.1);
         telemetry.addData("Finished Turn", "2");
         telemetry.addData("Angle = ", "%3.1f", driveTrain.imu.getHeading());
         telemetry.update();
         sleep(1000);
 
-        driveDistanceUsingIMU(0, 0.5, 200);
+        driveDistanceUsingIMU(0, 0.1, 200);
         telemetry.addData("Finished Straight", "2");
         telemetry.update();
         sleep(1000);
-        anyTurn(-90, 0.4);
+        anyTurn(-90, 0.1);
         telemetry.addData("Finished Turn", "2");
         telemetry.addData("Angle = ", "%3.1f", driveTrain.imu.getHeading());
         telemetry.update();
         sleep(1000);
 
-        driveDistanceUsingIMU(0, 0.5, 200);
+        driveDistanceUsingIMU(0, 0.1, 200);
         telemetry.addData("Finished Straight", "3");
         telemetry.update();
         sleep(1000);
-        anyTurn(-90, 0.4);
+        anyTurn(-90, 0.1);
         telemetry.addData("Finished Turn", "3");
         telemetry.addData("Angle = ", "%3.1f", driveTrain.imu.getHeading());
         telemetry.update();
         sleep(1000);
 
-        driveDistanceUsingIMU(0, 0.5, 200);
+        driveDistanceUsingIMU(0, 0.1, 200);
         telemetry.addData("Finished Straight", "4");
         telemetry.update();
         sleep(1000);
-        anyTurn(-90, 0.4);
+        anyTurn(-90, 0.1);
         telemetry.addData("Finished Turn", "4");
         telemetry.addData("Angle = ", "%3.1f", driveTrain.imu.getHeading());
         telemetry.update();
