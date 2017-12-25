@@ -351,6 +351,10 @@ public class DriveTrain {
         return Status.COMPLETE;
     }
 
+    //*********************************************************************************************
+    // Autonomous Methods - driving a heading
+    //*********************************************************************************************
+
     /**
      * Drive on a heading using the IMU to give heading feedback. This will only stop when you tell
      * it to stop using stopDriveUsingIMU(). The heading can be relative to the robot's heading at
@@ -450,18 +454,18 @@ public class DriveTrain {
      * @param distance                     distance to drive
      * @param headingType                  is the heading relative to where the robot is starting or absolute. Absolute
      *                                     means it is relative to the startup of the robot
-     * @param valueAtStartTime             power at the start of the ramp
-     * @param valueAtFinishTime            power at the end of the ramp. Typically you make this equal to the
+     * @param powerAtStartRamp             power at the start of the ramp
+     * @param powerAtFinishRamp            power at the end of the ramp. Typically you make this equal to the
      *                                     maxPower.
-     * @param timeToReachFinishValueInmSec how long to run the ramp up in power (in milliseconds)
+     * @param timeToReachFinishPowerInmSec how long to run the ramp up in power (in milliseconds)
      */
     public void setupDriveDistanceUsingIMU(double heading, double maxPower, double distance,
-                                           AdafruitIMU8863.AngleMode headingType, double valueAtStartTime,
-                                           double valueAtFinishTime, double timeToReachFinishValueInmSec) {
+                                           AdafruitIMU8863.AngleMode headingType, double powerAtStartRamp,
+                                           double powerAtFinishRamp, double timeToReachFinishPowerInmSec) {
         //If the IMU is present we proceed. If not we give the user an error
         if (imuPresent) {
             // Setup the ramp control to ramp the power up from 0 to maxPower
-            rampControl.setup(valueAtStartTime, valueAtFinishTime, timeToReachFinishValueInmSec);
+            rampControl.setup(powerAtStartRamp, powerAtFinishRamp, timeToReachFinishPowerInmSec);
             // Enable the ramp control so that it will start when the motors start moving
             rampControl.enable();
             // set the mode for the motors during the turn. Without this they may not move.
