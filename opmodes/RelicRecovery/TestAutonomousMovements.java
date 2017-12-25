@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
  */
 @TeleOp(name = "Autonomous Column 1", group = "Test")
 //@Disabled
-public class COLUMN01BLUE extends LinearOpMode {
+public class TestAutonomousMovements extends LinearOpMode {
 
     // Put your variable declarations here
 
@@ -34,12 +34,7 @@ public class COLUMN01BLUE extends LinearOpMode {
         telemetry.update();
         waitForStart();
 
-
-        //turn on block
-        spinTurn(-8.5, 0.1, AdafruitIMU8863.AngleMode.ABSOLUTE);
-        //drive straight
-        driveStraight(-85, 0.1);
-
+        blueNonMatMovements();
 
         // Put your cleanup code here - it runs as the application shuts down
         telemetry.addData(">", "Done");
@@ -48,17 +43,14 @@ public class COLUMN01BLUE extends LinearOpMode {
         sleep(3000);
     }
 
-    public void anyTurn(double angle, double power) {
-        driveTrain.setupTurn(angle, power, AdafruitIMU8863.AngleMode.RELATIVE);
-
-        while (opModeIsActive() && !driveTrain.updateTurn()) {
-            telemetry.addData(">", "Press Stop to end test.");
-            telemetry.addData("Angle = ", "%3.1f", driveTrain.imu.getHeading());
-            telemetry.update();
-            idle();
-        }
-        telemetry.addData("Finished Turn", "0");
-        telemetry.update();
+    /**
+     * Movements from blue side toward cryptobox that is farthest away from relic zone mats
+     */
+    public void blueNonMatMovements() {
+        //turn on block
+        spinTurn(-8.5, 0.1, AdafruitIMU8863.AngleMode.ABSOLUTE);
+        //drive straight
+        driveStraight(-85, 0.1);
     }
 
     public void driveStraight(double distance, double power) {
@@ -76,6 +68,20 @@ public class COLUMN01BLUE extends LinearOpMode {
         }
         telemetry.addData(">", "Press Stop to end test.");
         telemetry.addData("Status = ", statusDrive.toString());
+        telemetry.update();
+    }
+
+    public void spinTurn(double angle, double power, AdafruitIMU8863.AngleMode angleMode) {
+        driveTrain.setupTurn(angle, power, angleMode);
+
+        while (opModeIsActive() && !driveTrain.updateTurn()) {
+            telemetry.addData(">", "Press Stop to end test.");
+            telemetry.addData("Angle = ", "%3.1f", driveTrain.imu.getHeading());
+            telemetry.update();
+            idle();
+        }
+        driveTrain.stopTurn();
+        telemetry.addData("Turn Angle = ", "%3.1f", driveTrain.imu.getHeading());
         telemetry.update();
     }
 
@@ -101,17 +107,4 @@ public class COLUMN01BLUE extends LinearOpMode {
         }
     }
 
-    public void spinTurn(double angle, double power, AdafruitIMU8863.AngleMode angleMode) {
-        driveTrain.setupTurn(angle, power, angleMode);
-
-        while (opModeIsActive() && !driveTrain.updateTurn()) {
-            telemetry.addData(">", "Press Stop to end test.");
-            telemetry.addData("Angle = ", "%3.1f", driveTrain.imu.getHeading());
-            telemetry.update();
-            idle();
-        }
-        driveTrain.stopTurn();
-        telemetry.addData("Turn Angle = ", "%3.1f", driveTrain.imu.getHeading());
-        telemetry.update();
-    }
 }
