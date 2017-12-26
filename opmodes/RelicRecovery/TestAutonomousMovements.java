@@ -6,16 +6,18 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
+import org.firstinspires.ftc.teamcode.Lib.RelicRecoveryLib.GlyphDumper;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Autonomous Column 1", group = "Test")
+@TeleOp(name = "Test Autonomous Movements", group = "Test")
 //@Disabled
 public class TestAutonomousMovements extends LinearOpMode {
 
     // Put your variable declarations here
 
+    public GlyphDumper glyphDumper;
     DriveTrain driveTrain;
     double correction;
     DriveTrain.Status statusDrive;
@@ -29,12 +31,14 @@ public class TestAutonomousMovements extends LinearOpMode {
         driveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap, telemetry);
         driveTrain.setCmPerRotation(31.9); // cm
 
+        glyphDumper = new GlyphDumper(hardwareMap, telemetry);
+
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
         telemetry.update();
         waitForStart();
 
-        blueNonMatMovements();
+        blueNonMatColumn3Movements();
 
         // Put your cleanup code here - it runs as the application shuts down
         telemetry.addData(">", "Done");
@@ -46,11 +50,45 @@ public class TestAutonomousMovements extends LinearOpMode {
     /**
      * Movements from blue side toward cryptobox that is farthest away from relic zone mats
      */
-    public void blueNonMatMovements() {
+    public void blueNonMatColumn1Movements() {
         //turn on block
-        spinTurn(-8.5, 0.1, AdafruitIMU8863.AngleMode.ABSOLUTE);
+        spinTurn(-9.0, 0.1, AdafruitIMU8863.AngleMode.ABSOLUTE);
+        //drive straight
+        driveStraight(-75, 0.1);
+        glyphDumper.dump();
+        sleep(1000);
+        glyphDumper.goHome();
+        driveStraight(-4, 0.1);
+        sleep(1500);
+        driveStraight(5, 0.1);
+    }
+
+    public void blueNonMatColumn2Movements() {
+        //turn on block
+        //spinTurn(-9.0, 0.1, AdafruitIMU8863.AngleMode.ABSOLUTE);
+        spinTurn(-18.5, 0.1, AdafruitIMU8863.AngleMode.ABSOLUTE);
+        //drive straight
+        driveStraight(-75, 0.1);
+        glyphDumper.dump();
+        sleep(1000);
+        glyphDumper.goHome();
+        driveStraight(-5, 0.1);
+        sleep(1500);
+        driveStraight(6, 0.1);
+    }
+
+    public void blueNonMatColumn3Movements() {
+        //turn on block
+        //spinTurn(-9.0, 0.1, AdafruitIMU8863.AngleMode.ABSOLUTE);
+        spinTurn(-26.5, 0.1, AdafruitIMU8863.AngleMode.ABSOLUTE);
         //drive straight
         driveStraight(-85, 0.1);
+        glyphDumper.dump();
+        sleep(1000);
+        glyphDumper.goHome();
+        driveStraight(-5, 0.1);
+        sleep(1500);
+        driveStraight(6, 0.1);
     }
 
     public void driveStraight(double distance, double power) {
