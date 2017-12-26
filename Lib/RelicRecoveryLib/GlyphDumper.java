@@ -24,9 +24,9 @@ public class GlyphDumper {
     // getter and setter methods
     //*********************************************************************************************
     private Servo8863 glyphDumpServo;
-    private double homePosition = .8;
-    private double initPosition = 1;
-    private double dumpPosition = .25;
+    private double homePosition = .95;
+    private double initPosition = 0.95;
+    private double dumpPosition = .60;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
