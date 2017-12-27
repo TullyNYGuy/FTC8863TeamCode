@@ -30,7 +30,7 @@ public class TestJewelArm extends LinearOpMode {
         // Put your calls here - they will not run in a loop
         sleep(2000);
 
-        leftJewelArm.knockOffBall();
+       leftJewelArm.knockOffBall();
 
         sleep (2000);
 

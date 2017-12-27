@@ -64,12 +64,12 @@ public class JewelArm {
         this.allianceColor = allianceColor;
         if (robotSide == RobotSide.LEFT) {
             servoArmUpPosition = 0;
-            servoArmDownPosition = 0.60;
+            servoArmDownPosition = 0.5;
             servoArmFrontPosition = 0.35;
             servoArmCenterPosition = 0.5;
             servoArmBackPosition = 0.6;
             servoArmInPosition = 0.95;
-            servoArmOutPosition = 0.50;
+            servoArmOutPosition = 0.2;
 
             elbowServo = new Servo8863("leftElbowServo" , hardwareMap, telemetry);
             elbowServo.setDirection(Servo.Direction.FORWARD);
@@ -95,12 +95,12 @@ public class JewelArm {
 
         } else {
             servoArmUpPosition = 0;
-            servoArmDownPosition = 0.60;
+            servoArmDownPosition = 0.5;
             servoArmFrontPosition = 0.35;
             servoArmCenterPosition = 0.5;
             servoArmBackPosition = 0.6;
             servoArmInPosition = 0.95;
-            servoArmOutPosition = 0.50;
+            servoArmOutPosition = 0.2;  //orginal was 0.5
 
             elbowServo = new Servo8863("rightElbowServo" , hardwareMap, telemetry);
             elbowServo.setDirection(Servo.Direction.FORWARD);
@@ -222,8 +222,9 @@ public class JewelArm {
 
     public BallColor knockOffBall() {
         BallColor ballColor;
-        armDown();
         armOut();
+        delay(3000);
+        armDown();
         delay(1000);
         ballColor = getBallColor();
         if (allianceColor == TestJewelArm.AllianceColor.BLUE) {
