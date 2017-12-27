@@ -33,7 +33,7 @@ public class TestDrivingDistanceUsingIMURunToPosition extends LinearOpMode {
         telemetry.update();
         waitForStart();
 
-        driveDistanceUsingIMU(0, .3 , -100); //heading, power, distance
+        driveDistanceUsingIMU(0, .1 , -500); //heading, power, distance
         sleep(5000);
 
         // Put your cleanup code here - it runs as the application shuts down

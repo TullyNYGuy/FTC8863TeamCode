@@ -7,6 +7,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 import org.firstinspires.ftc.teamcode.Lib.RelicRecoveryLib.GlyphDumper;
+import org.firstinspires.ftc.teamcode.opmodes.GenericTest.TestDrivingDistanceUsingIMURunToPosition;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
@@ -21,6 +22,7 @@ public class TestAutonomousMovements extends LinearOpMode {
     DriveTrain driveTrain;
     double correction;
     DriveTrain.Status statusDrive;
+    public double actualTurnAngle;
 
 
     @Override
@@ -38,11 +40,12 @@ public class TestAutonomousMovements extends LinearOpMode {
         telemetry.update();
         waitForStart();
 
-        blueNonMatColumn3Movements();
+        redNonMatColumnTest2Movements();
 
         // Put your cleanup code here - it runs as the application shuts down
+        telemetry.addData("actual turn angle was ", "%3.2f", actualTurnAngle);
         telemetry.addData(">", "Done");
-        telemetry.addData("Angle = ", "%3.1f", driveTrain.imu.getHeading());
+        telemetry.addData("final Angle = ", "%3.1f", driveTrain.imu.getHeading());
         telemetry.update();
         sleep(3000);
     }
@@ -89,6 +92,54 @@ public class TestAutonomousMovements extends LinearOpMode {
         driveStraight(-5, 0.1);
         sleep(1500);
         driveStraight(6, 0.1);
+    }
+
+    public void redNonMatColumn1Movements() {
+        //turn on block
+        //spinTurn(-9.0, 0.1, AdafruitIMU8863.AngleMode.ABSOLUTE);
+        spinTurn(4.3, 0.1, AdafruitIMU8863.AngleMode.ABSOLUTE);
+        actualTurnAngle = driveTrain.imu.getHeading();
+        //drive straight
+        driveStraight(-65, 0.1);
+        glyphDumper.dump();
+        sleep(1000);
+        glyphDumper.goHome();
+        driveStraight(-10, 0.1);
+        sleep(1500);
+        driveStraight(15, 0.1);
+    }
+
+    public void redNonMatColumnTestMovements() {
+        //turn on block
+        //spinTurn(-9.0, 0.1, AdafruitIMU8863.AngleMode.ABSOLUTE);
+        driveStraight(-67, 0.1);
+        spinTurn(10, 0.1, AdafruitIMU8863.AngleMode.ABSOLUTE);
+        actualTurnAngle = driveTrain.imu.getHeading();
+        glyphDumper.dump();
+        sleep(1000);
+        glyphDumper.goHome();
+        driveStraight(-15,0.1);
+        driveStraight(10, 0.1);
+        //drive straight
+        //driveStraight(-65, 0.1);
+        //glyphDumper.dump();
+        //sleep(1000);
+        //glyphDumper.goHome();
+        //driveStraight(-10, 0.1);
+        //sleep(1500);
+        //driveStraight(15, 0.1);
+    }
+
+    public void redNonMatColumnTest2Movements() {
+        //turn on block
+        //spinTurn(-9.0, 0.1, AdafruitIMU8863.AngleMode.ABSOLUTE);
+        driveStraight(-55, 0.1);
+        spinTurn(27, 0.1, AdafruitIMU8863.AngleMode.ABSOLUTE);
+        actualTurnAngle = driveTrain.imu.getHeading();
+        glyphDumper.dump();
+        sleep(1000);
+        glyphDumper.goHome();
+        driveStraight(-30,0.1);
     }
 
     public void driveStraight(double distance, double power) {
