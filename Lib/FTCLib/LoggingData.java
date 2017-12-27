@@ -69,6 +69,12 @@ public class LoggingData {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd@HH-mm-ss", Locale.US);
         String logFilePath = folderPath + "/" + filePrefix + "_" + dateFormat.format(new Date()) + ".log";
         File folder = new File(folderPath);
+        if(!folder.exists()) {
+            // the folder does not exist so create it
+            if(!folder.mkdir()) {
+
+            }
+        }
         folder.mkdir();
 
         return openTraceLog(logFilePath);

@@ -22,7 +22,7 @@ public class TestLoggingData extends LinearOpMode {
 
 
         // Put your initializations here
-        testLoggingData = new LoggingData("test", "/FIRST/Logs");
+        testLoggingData = new LoggingData("test", "/Phone/FIRST/Logs");
         // Wait for the start button
         telemetry.addData(">", "Press Start to run" );
         telemetry.update();
@@ -34,11 +34,9 @@ public class TestLoggingData extends LinearOpMode {
 
             // Put your calls that need to run in a loop here
 
-            // Display the current value
-            //telemetry.addData("Motor Speed = ", "%5.2f", powerToRunAt);
-            //telemetry.addData("Encoder Count=", "%5d", motor.getCurrentPosition());
+            testLoggingData.logData("Test");
+
             telemetry.addData(">", "Press Stop to end test." );
-            //testLoggingData.logData("Test");
             telemetry.update();
             
             idle();
