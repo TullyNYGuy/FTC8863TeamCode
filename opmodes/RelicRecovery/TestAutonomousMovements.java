@@ -40,7 +40,7 @@ public class TestAutonomousMovements extends LinearOpMode {
         telemetry.update();
         waitForStart();
 
-        redNonMatColumnTest2Movements();
+        redNonMatColumnTest3Movements();
 
         // Put your cleanup code here - it runs as the application shuts down
         telemetry.addData("actual turn angle was ", "%3.2f", actualTurnAngle);
@@ -134,13 +134,29 @@ public class TestAutonomousMovements extends LinearOpMode {
         //turn on block
         //spinTurn(-9.0, 0.1, AdafruitIMU8863.AngleMode.ABSOLUTE);
         driveStraight(-55, 0.1);
-        spinTurn(27, 0.1, AdafruitIMU8863.AngleMode.ABSOLUTE);
+        spinTurn(25, 0.1, AdafruitIMU8863.AngleMode.ABSOLUTE);
         actualTurnAngle = driveTrain.imu.getHeading();
         glyphDumper.dump();
         sleep(1000);
         glyphDumper.goHome();
         driveStraight(-30,0.1);
+        driveStraight(10, 0.1);
     }
+
+    public void redNonMatColumnTest3Movements() {
+        //turn on block
+        //spinTurn(-9.0, 0.1, AdafruitIMU8863.AngleMode.ABSOLUTE);
+        driveStraight(-55, 0.1);
+        spinTurn(43, 0.1, AdafruitIMU8863.AngleMode.ABSOLUTE);
+        actualTurnAngle = driveTrain.imu.getHeading();
+        glyphDumper.dump();
+        sleep(1000);
+        glyphDumper.goHome();
+        driveStraight(-37,0.1);
+        driveStraight(10, 0.1);
+    }
+
+
 
     public void driveStraight(double distance, double power) {
         driveTrain.setupDriveDistance(power, distance, DcMotor8863.FinishBehavior.FLOAT);
