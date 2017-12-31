@@ -151,6 +151,7 @@ public class RelicRecoveryTeleop extends LinearOpMode {
         robot.init(telemetry);
 
         // Wait for the start button
+        telemetry.addData(">", "Initialization complete.");
         telemetry.addData(">", "Press start to run Teleop");
         telemetry.update();
         waitForStart();
