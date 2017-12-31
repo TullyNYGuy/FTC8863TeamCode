@@ -481,6 +481,7 @@ public class DcMotor8863 {
 
     /**
      * Implements a delay
+     *
      * @param mSec delay in milli Seconds
      */
     private void delay(int mSec) {
@@ -560,6 +561,7 @@ public class DcMotor8863 {
     public double getPositionInTermsOfAttachment() {
         return getMovementForEncoderCount(getCurrentPosition());
     }
+
     /**
      * Get the current motor position in terms of the position of whatever is attached to it. The
      * position can be the number of degrees, the position of a wheel in cm etc. The position is
@@ -577,6 +579,7 @@ public class DcMotor8863 {
      * Get the current encoder value relative to the last encoder value. In other words, the
      * position is the current position - the position of the encoder  before the last movement
      * started.
+     *
      * @return encoder value - encoder value before the last movement started
      */
     public int getCurrentPositionRelativeToLast() {
@@ -1017,8 +1020,9 @@ public class DcMotor8863 {
     /**
      * Setup and start a power ramp. Combines setupPowerRamp() and startPowerRamp() in one
      * method for ease of use.
-     * @param initialPower The power the motor starts out at for time = 0.
-     * @param finalPower The power that corresponds to the end of the ramp time. The ramp will finish
+     *
+     * @param initialPower   The power the motor starts out at for time = 0.
+     * @param finalPower     The power that corresponds to the end of the ramp time. The ramp will finish
      *                       at this power.
      * @param rampTimeInmSec The length of time it takes to ramp up the power.
      */
@@ -1038,6 +1042,7 @@ public class DcMotor8863 {
 
     /**
      * Is there a power ramp enabled but not running yet?
+     *
      * @return true = power ramp enabled
      */
     public boolean isPowerRampEnabled() {
@@ -1047,6 +1052,7 @@ public class DcMotor8863 {
     /**
      * Check to see if there is a power ramp running. Since the motor maintains its own state, this
      * is the only way for a user to tell if there is a power ramp running or if it is finished.
+     *
      * @return true = power ramp is still running
      */
     public boolean isPowerRampRunning() {
@@ -1281,6 +1287,7 @@ public class DcMotor8863 {
     /**
      * Implement a state machine to track the motor. See enum declarations for a description of each
      * state.
+     *
      * @return the state that the motor is in currently
      */
     public MotorState update() {
@@ -1462,6 +1469,42 @@ public class DcMotor8863 {
         // Save the mode locally so that I don't have to make a call to the controller later and
         // take up bus bandwidth to get the value. I can just look at this variable locally.
         this.currentRunMode = mode;
+    }
+
+    /**
+     * This version of setMode sets the motor mode and then tries to confirm the mode was actually
+     * set. We have seen times when modes are not getting set properly.
+     *
+     * @param mode
+     * @param verifyMode true = try to verify mode was actually set
+     * @return false if mode was not set properly and verifyMode was true, false if verifyMode was
+     * false, true if verifyMode was true and mode was actually set properly.
+     * I have a suspicion that this due to controller caching of the mode, this method will not
+     * actually confirm that the controller register was properly set.
+     */
+    public boolean setMode(DcMotor.RunMode mode, boolean verifyMode) {
+        boolean result = false;
+        int retryCount = 3; // number of times to retry the
+
+        // set the mode
+        setMode(mode);
+        if (verifyMode) {
+            // now try to confirm the mode was actually set
+            while (result == false && retryCount > 0) {
+                // note that I think the dc motor controller object caches the mode value and may not
+                // actually read it from the controller register. So there is no gaurantee that what
+                // is being returned from getMode is actually what the controller is set to.
+                if (FTCDcMotor.getMode() != mode) {
+                    // the mode is not what it was set to, wait for it
+                    retryCount = retryCount - 1;
+                    delay(100);
+                } else {
+                    //mode is what it is supposed to be so flag that fact
+                    result = true;
+                }
+            }
+        }
+        return result;
     }
 
     public DcMotor.RunMode getMode() {
