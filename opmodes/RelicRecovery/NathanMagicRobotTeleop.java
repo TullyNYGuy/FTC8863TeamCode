@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.RelicRecovery;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -12,7 +13,7 @@ import org.firstinspires.ftc.teamcode.Lib.RelicRecoveryLib.NathanMagicRobot;
  */
 
 @TeleOp(name = "Nathan Magic Teleop", group = "Run")
-//@Disabled
+@Disabled
 
 public class NathanMagicRobotTeleop extends LinearOpMode {
 
