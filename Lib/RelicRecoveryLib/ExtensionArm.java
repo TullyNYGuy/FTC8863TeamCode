@@ -30,8 +30,8 @@ public class ExtensionArm {
     // this servo controls the position of the wrist on the arm
     private Servo8863 wristServo;
     // setup positions for the wrist servo
-    private double wristPositionInit = 1.0;
-    private double wristPositionHome = 1.00;
+    private double wristPositionInit = .95;
+    private double wristPositionHome = .95;
     private double wristPositionPickup = .7;
     private double wristPositionCarry = .05;
 
