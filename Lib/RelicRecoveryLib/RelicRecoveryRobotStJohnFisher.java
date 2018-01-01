@@ -12,6 +12,7 @@ import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.MuxPlusColorSensors;
 import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.SideBeaconPusher;
 import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.VelocityVortexShooter;
 import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.VelocityVortexSweeper;
+import org.firstinspires.ftc.teamcode.opmodes.RelicRecovery.TestJewelArm;
 
 public class RelicRecoveryRobotStJohnFisher {
 
@@ -40,6 +41,7 @@ public class RelicRecoveryRobotStJohnFisher {
     public DriveTrain driveTrain;
     public ExtensionArm extensionArm;
     public GlyphDumper glyphDumper;
+    public JewelArm jewelArm;
     public AllianceColorSwitch allianceColorSwitch;
     public AllianceColorSwitch.AllianceColor allianceColor;
     private Telemetry telemetry;
@@ -74,6 +76,8 @@ public class RelicRecoveryRobotStJohnFisher {
         }
         extensionArm = new ExtensionArm(hardwareMap, telemetry);
         glyphDumper = new GlyphDumper(hardwareMap, telemetry);
+        //NEED A NEW CLASS to DEFINE ALLICANCE COLOR
+        jewelArm = new JewelArm(JewelArm.RobotSide.LEFT, hardwareMap, telemetry, TestJewelArm.AllianceColor.RED);
         init(telemetry);
     }
 
@@ -103,6 +107,11 @@ public class RelicRecoveryRobotStJohnFisher {
     public void init(Telemetry telemetry) {
         extensionArm.init();
         glyphDumper.init();
+        jewelArm.init();
+    }
+
+    public void setupForRun() {
+        jewelArm.goHome();
     }
 
     public void update() {

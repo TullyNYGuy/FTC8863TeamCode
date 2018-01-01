@@ -34,6 +34,7 @@ public class JewelArm {
     //*********************************************************************************************
     private double servoArmUpPosition;
     private double servoArmDownPosition;
+    private double servoArmUpDownHomePosition;
     private double servoArmCenterPosition;
     private double servoArmFrontPosition;
     private double servoArmBackPosition;
@@ -45,6 +46,7 @@ public class JewelArm {
     private Servo8863 elbowServo;
     private AdafruitColorSensor8863 colorSensor;
     private TestJewelArm.AllianceColor allianceColor;
+    private Telemetry telemetry;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -62,9 +64,11 @@ public class JewelArm {
     //*********************************************************************************************
     public JewelArm(RobotSide robotSide, HardwareMap hardwareMap, Telemetry telemetry, TestJewelArm.AllianceColor allianceColor) {
         this.allianceColor = allianceColor;
+        this.telemetry = telemetry;
         if (robotSide == RobotSide.LEFT) {
             servoArmUpPosition = 0;
             servoArmDownPosition = 0.5;
+            servoArmUpDownHomePosition = .2;
             servoArmFrontPosition = 0.35;
             servoArmCenterPosition = 0.5;
             servoArmBackPosition = 0.6;
@@ -80,7 +84,7 @@ public class JewelArm {
             upDownServo = new Servo8863("leftUpDownServo", hardwareMap, telemetry);
             upDownServo.setDirection(Servo.Direction.FORWARD);
             upDownServo.setInitPosition(servoArmUpPosition);
-            upDownServo.setHomePosition(servoArmUpPosition);
+            upDownServo.setHomePosition(servoArmUpDownHomePosition);
             upDownServo.setPositionOne(servoArmDownPosition);
 
             frontBackServo = new Servo8863("leftFrontBackServo", hardwareMap, telemetry);
@@ -96,6 +100,7 @@ public class JewelArm {
         } else {
             servoArmUpPosition = 0;
             servoArmDownPosition = 0.5;
+            servoArmUpDownHomePosition = .1;
             servoArmFrontPosition = 0.35;
             servoArmCenterPosition = 0.5;
             servoArmBackPosition = 0.6;
@@ -111,7 +116,7 @@ public class JewelArm {
             upDownServo = new Servo8863("rightUpDownServo", hardwareMap, telemetry);
             upDownServo.setDirection(Servo.Direction.FORWARD);
             upDownServo.setInitPosition(servoArmUpPosition);
-            upDownServo.setHomePosition(servoArmUpPosition);
+            upDownServo.setHomePosition(servoArmUpDownHomePosition);
             upDownServo.setPositionOne(servoArmDownPosition);
 
             frontBackServo = new Servo8863("rightFrontBackServo", hardwareMap, telemetry);
@@ -174,11 +179,12 @@ public class JewelArm {
     public void armOut() {elbowServo.goPositionOne();}
 
     //change the initposition commands with the ones above so its easier to read
-    public void initialize() {
+    public void init() {
         upDownServo.goInitPosition();
         frontBackServo.goInitPosition();
         elbowServo.goInitPosition();
         colorSensor.turnLEDOn();
+        telemetry.addData("Jewel Arm initialized", "!");
     }
 
     public void shutdown() {
@@ -197,11 +203,10 @@ public class JewelArm {
         }
     }
 
-    public void resetPosition() {
+    public void goHome() {
         armUp();
         armCenter();
         armIn();
-
     }
 
     public void knockFrontBall() {

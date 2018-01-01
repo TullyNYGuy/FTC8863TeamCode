@@ -159,6 +159,9 @@ public class RelicRecoveryTeleop extends LinearOpMode {
         //             Robot Running after the user hits play on the driver phone
         //*********************************************************************************************
 
+        // set the positions that the various systems need to be in when the robot is running
+        robot.setupForRun();
+
         while (opModeIsActive()) {
 
             //*************************************************************************************

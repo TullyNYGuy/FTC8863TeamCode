@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.Lib.RelicRecoveryLib.JewelArm;
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Test for Jewel Arm", group = "Test")
+@TeleOp(name = "Test Jewel Arm", group = "Test")
 //@Disabled
 public class TestJewelArm extends LinearOpMode {
     public enum AllianceColor {
@@ -22,15 +22,19 @@ public class TestJewelArm extends LinearOpMode {
 
         // Put your initializations here
         leftJewelArm = new JewelArm(JewelArm.RobotSide.LEFT, hardwareMap, telemetry, AllianceColor.BLUE);
+        leftJewelArm.init();
+
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
         telemetry.update();
         waitForStart();
-        leftJewelArm.initialize();
+
+        leftJewelArm.goHome();
+
         // Put your calls here - they will not run in a loop
         sleep(2000);
 
-       leftJewelArm.knockOffBall();
+       //leftJewelArm.knockOffBall();
 
         sleep (2000);
 
