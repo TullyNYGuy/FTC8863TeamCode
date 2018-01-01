@@ -166,6 +166,7 @@ public class DriveTrain {
 
         if (imuPresent) {
             imu = new AdafruitIMU8863(hardwareMap);
+            telemetry.addData("IMU Initialized", "!");
         }
         rampControl = new RampControl(0, 0, 0);
 
@@ -191,22 +192,31 @@ public class DriveTrain {
     }
 
     /**
-     * Set how the motors behave when power is set to 0 and set the mode of the motors.
+     * This method is not part of the DriveTrainTeleOp because it can be called separately to
+     * reinitialize teleop after the drive train has been created.
      */
     public void teleopInit() {
+        // Set the motors to run at constant power - there is no PID control over them
+        // This needs to be set here because the teleop methods only adjust the power to the motors.
+        // They don't set the mode which is why it is done here.
+        // Note there is a bug in the SDK. If you set the mode on a motor too soon after the motor
+        // is created in the hardware map, the mode set command does not get run. So this is the
+        // reason for the delay below.
+        // Based on testing, 300mSec is not enough delay. 500mSec is.
+        delay(500);
+        rightDriveMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        leftDriveMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
         // Set the motors to hold after the power gets set to 0
         // This way the robot will stop when the joystick go to 0 and not continue to coast
         rightDriveMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
         leftDriveMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
 
-        // Set the motors to run at constant power - there is no PID control over them
-        // This needs to be set here because the teleop methods only adjust the power to the motors.
-        // They don't set the mode which is why it is done here. Setting power = 0 makes sure the
-        // motors don't actually move.
-        rightDriveMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        leftDriveMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        // Setting power = 0 makes sure the motors don't actually move.
         rightDriveMotor.setPower(0);
         leftDriveMotor.setPower(0);
+
+        telemetry.addData("Drive Train Initialized", "!");
     }
 
     /**
@@ -226,6 +236,7 @@ public class DriveTrain {
         // set the mode of the motors to run with encoder feedback, controller the speed of the motors
         driveTrain.rightDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         driveTrain.leftDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        telemetry.addData("Drive Train Initialized", "!");
         return driveTrain;
     }
 
@@ -239,7 +250,24 @@ public class DriveTrain {
         // set the mode of the motors to run with encoder feedback, controller the speed of the motors
         driveTrain.rightDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         driveTrain.leftDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        telemetry.addData("Drive Train Initialized", "!");
         return driveTrain;
+    }
+
+    //*********************************************************************************************
+    // Helper Methods
+    //********************************************************************************************
+
+    /**
+     * Implements a delay
+     * @param mSec delay in milli Seconds
+     */
+    private void delay(int mSec) {
+        try {
+            Thread.sleep((int) (mSec));
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     //*********************************************************************************************
