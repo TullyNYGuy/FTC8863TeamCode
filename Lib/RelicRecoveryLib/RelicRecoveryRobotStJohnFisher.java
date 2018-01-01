@@ -135,6 +135,13 @@ public class RelicRecoveryRobotStJohnFisher {
         telemetry.update();
     }
 
+private void createAndInitExtensionArm(Telemetry telemetry) {
+
+}
+
+private void createAndInitGlyphDumper(Telemetry telemetry){
+
+}
     public void update() {
         extensionArm.update();
         glyphDumper.update();
