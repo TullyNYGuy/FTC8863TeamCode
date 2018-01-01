@@ -104,6 +104,8 @@ public class RelicRecoveryTeleop extends LinearOpMode {
         //*********************************************************************************************
 
         // create the robot
+        telemetry.addData("Initializing ...", "Wait for it ...");
+        telemetry.update();
         robot = robot.createRobotForTeleop(hardwareMap, telemetry);
 
         // create the gamepad 1 buttons and tell each button how many commands it has
@@ -147,8 +149,6 @@ public class RelicRecoveryTeleop extends LinearOpMode {
 
         gamepad2RightJoyStickX = new JoyStick(JoyStick.JoyStickMode.SQUARE, JOYSTICK_DEADBAND_VALUE, JoyStick.InvertSign.NO_INVERT_SIGN);
         gamepad2RightJoyStickY = new JoyStick(JoyStick.JoyStickMode.SQUARE, JOYSTICK_DEADBAND_VALUE, JoyStick.InvertSign.INVERT_SIGN);
-
-        robot.init(telemetry);
 
         // Wait for the start button
         telemetry.addData(">", "Press start to run Teleop");

@@ -131,6 +131,7 @@ public class ExtensionArm {
         clawServo.goInitPosition();
         // the motor power is initially 0
         armMotor.setPower(0);
+        telemetry.addData("ExtensionArm Initialized", "!");
     }
 
     public void update() {

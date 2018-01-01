@@ -24,6 +24,7 @@ public class GlyphDumper {
     // getter and setter methods
     //*********************************************************************************************
     private Servo8863 glyphDumpServo;
+    private Telemetry telemetry;
     private double homePosition = .95;
     private double initPosition = 0.95;
     private double dumpPosition = .60;
@@ -44,6 +45,7 @@ public class GlyphDumper {
     //*********************************************************************************************
     public GlyphDumper(HardwareMap hardwareMap, Telemetry telemetry) {
         glyphDumpServo = new Servo8863("glyphDumpServo", hardwareMap, telemetry);
+        this.telemetry = telemetry;
         glyphDumpServo.setDirection(Servo.Direction.FORWARD);
         glyphDumpServo.setHomePosition(homePosition);
         glyphDumpServo.setInitPosition(initPosition);
@@ -65,6 +67,7 @@ public class GlyphDumper {
 
     public void init() {
         glyphDumpServo.goInitPosition();
+        telemetry.addData("Glyph Dumper initialized", "!");
     }
 
     public void goHome() {

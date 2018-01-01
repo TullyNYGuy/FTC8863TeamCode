@@ -50,6 +50,7 @@ public class AllianceColorSwitch {
         redSwitch = new Switch(hardwareMap, RobotConfigMappingForGenericTest.getRedAllianceSwitchName(), Switch.SwitchType.NORMALLY_CLOSED);
         blueSwitch = new Switch(hardwareMap, RobotConfigMappingForGenericTest.getBlueAllianceSwitchName(), Switch.SwitchType.NORMALLY_CLOSED);
         this.telemetry = telemetry;
+        telemetry.addData("Color Switches Initialized", "!");
     }
 
     //*********************************************************************************************
