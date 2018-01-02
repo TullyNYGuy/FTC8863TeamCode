@@ -187,6 +187,10 @@ public class JewelArm {
         telemetry.addData("Jewel Arm initialized", "!");
     }
 
+    public void update() {
+        //nothing to update yet
+    }
+
     public void shutdown() {
         upDownServo.goInitPosition();
         frontBackServo.goInitPosition();
