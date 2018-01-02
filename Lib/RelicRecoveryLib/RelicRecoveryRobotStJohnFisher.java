@@ -67,8 +67,9 @@ public class RelicRecoveryRobotStJohnFisher {
             // create the robot for autonomous
             driveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap, telemetry);
 
-            allianceColorSwitch = new AllianceColorSwitch(hardwareMap, telemetry);
-            allianceColor = allianceColorSwitch.getAllianceColor();
+            //allianceColorSwitch = new AllianceColorSwitch(hardwareMap, telemetry);
+            //allianceColor = allianceColorSwitch.getAllianceColor();
+            allianceColor = AllianceColorSwitch.AllianceColor.BLUE;
         } else {
             // create the robot for teleop
             driveTrain = DriveTrain.DriveTrainTeleOp(hardwareMap, telemetry);
@@ -112,16 +113,20 @@ public class RelicRecoveryRobotStJohnFisher {
 
     public void setupForRun() {
         jewelArm.goHome();
+        extensionArm.openClaw();
+        extensionArm.goToPickup();
     }
 
     public void update() {
         extensionArm.update();
         glyphDumper.update();
+        jewelArm.update();
     }
 
     public void shutdown() {
         extensionArm.shutdown();
         glyphDumper.shutdown();
         driveTrain.shutdown();
+        jewelArm.shutdown();
     }
 }
