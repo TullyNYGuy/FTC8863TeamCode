@@ -51,11 +51,12 @@ public class ExtensionArm {
     // The motor the extends and retracts the arm
     private DcMotor8863 armMotor;
     // for each revolution of the motor, how much does the arm extend?
-    private double inchPerRotation = 11.0;
-    private double zone1Position = 8.0;
+    private double inchPerRotation = 10.0;
+    private double zone1Position = 9.0; //This is really 7.75, plus 1 to get us there
     private double zone2Position = 24.0;
-    private double zone3Position = 40.0;
+    private double zone3Position = 41.0;
     private double retractedPosition = 1.0;
+    private DcMotor8863.MotorState armMotorState;
 
     private Telemetry telemetry;
     //*********************************************************************************************
@@ -136,8 +137,9 @@ public class ExtensionArm {
 
     public void update() {
        // put update commands here for anything that needs to update every few milliseconds
-        armMotor.update();
+        armMotorState = armMotor.update();
         telemetry.addData("encoder = ", "%d", armMotor.getCurrentPosition());
+        telemetry.addData("Arm motor state = ", armMotorState.toString());
 }
 
     public void shutdown(){
@@ -179,36 +181,36 @@ public class ExtensionArm {
      * Move the extension arm to a position. 0 inches is fully retracted.
      * @param distanceInInches
      */
-    public void goToPosition(double distanceInInches) {
-        armMotor.moveToPosition(.3, distanceInInches, DcMotor8863.FinishBehavior.HOLD);
+    public void goToPosition(double distanceInInches, double power) {
+        armMotor.moveToPosition(power, distanceInInches, DcMotor8863.FinishBehavior.HOLD);
     }
 
     /**
      * Extend the arm to the middle of relic recovery zone 1
      */
     public void goToZone1() {
-        goToPosition(zone1Position);
+        goToPosition(zone1Position, .6);
     }
 
     /**
      * Extend the arm to the middle of relic recovery zone 2
      */
     public void goToZone2() {
-        goToPosition(zone2Position);
+        goToPosition(zone2Position, .6);
     }
 
     /**
      * Extend the arm to the middle of relic recovery zone 3
      */
     public void goToZone3() {
-        goToPosition(zone3Position);
+        goToPosition(zone3Position, .6);
     }
 
     /**
      * Retract the extension arm almost to its starting point.
      */
     public void retractArm() {
-        goToPosition(retractedPosition);
+        goToPosition(retractedPosition, .3);
     }
 
     /**
