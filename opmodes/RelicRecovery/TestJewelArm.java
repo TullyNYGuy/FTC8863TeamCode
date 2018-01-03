@@ -17,6 +17,8 @@ public class TestJewelArm extends LinearOpMode {
     }
     JewelArm leftJewelArm;
 
+    JewelArm.BallColor printBallColor;
+
     @Override
     public void runOpMode() {
 
@@ -29,14 +31,17 @@ public class TestJewelArm extends LinearOpMode {
         telemetry.update();
         waitForStart();
 
-        leftJewelArm.goHome();
+       // leftJewelArm.goHome();
 
         // Put your calls here - they will not run in a loop
         sleep(2000);
 
-       //leftJewelArm.knockOffBall();
+       printBallColor = leftJewelArm.knockOffBall();
 
-        sleep (2000);
+        telemetry.addData("Ball color = ", printBallColor.toString());
+        telemetry.update();
+
+        sleep (6000);
 
        leftJewelArm.shutdown();
         while (opModeIsActive()) {
@@ -56,8 +61,10 @@ public class TestJewelArm extends LinearOpMode {
         }
 
         // Put your cleanup code here - it runs as the application shuts down
+        telemetry.addData("Ball color = ", printBallColor.toString());
         telemetry.addData(">", "Done");
         telemetry.update();
+
 
     }
 }
