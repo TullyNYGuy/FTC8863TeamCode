@@ -45,7 +45,7 @@ public class TestTiltArmMotorPID extends LinearOpMode {
         tiltMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         sleep(200);
 
-        pidControl = new PIDControl(.05, 28, 1);
+        pidControl = new PIDControl(.02, 28, 1);
         pidControl.setThreshold(.5);
         pidControl.setUseRampControl(false);
 
