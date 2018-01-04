@@ -42,10 +42,10 @@ public class TestTiltArmMotorPID extends LinearOpMode {
         tiltMotor.setFinishBehavior(DcMotor8863.FinishBehavior.FLOAT);
         // the motor will move to the target position and then narrow in on it - the motor controller
         // will control this for us
-        tiltMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        tiltMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         sleep(200);
 
-        pidControl = new PIDControl(.1, 28, 1);
+        pidControl = new PIDControl(.05, 28, 1);
         pidControl.setThreshold(.5);
         pidControl.setUseRampControl(false);
 
@@ -57,12 +57,12 @@ public class TestTiltArmMotorPID extends LinearOpMode {
         waitForStart();
 
         // Put your calls here - they will not run in a loop
-        tiltMotor.moveToPosition(.1, -15, DcMotor8863.FinishBehavior.HOLD);
+       // tiltMotor.moveToPosition(.1, -15, DcMotor8863.FinishBehavior.HOLD);
         while (opModeIsActive()) {
 
             // Put your calls that need to run in a loop here
-            correction = pidControl.getCorrection(rangeSensor.cmUltrasonic());
-            //tiltMotor.setPower(correction);
+            correction = -pidControl.getCorrection(rangeSensor.cmUltrasonic());
+            tiltMotor.setPower(correction);
             // Display the current value
             //telemetry.addData("Motor Speed = ", "%5.2f", powerToRunAt);
             telemetry.addData("Encoder Count=", "%5d", tiltMotor.getCurrentPosition());

@@ -39,18 +39,18 @@ public class TestTiltArmMotor extends LinearOpMode {
         tiltMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
         // the motor will move to the target position and then narrow in on it - the motor controller
         // will control this for us
-        tiltMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        tiltMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         // Wait for the start button
         telemetry.addData(">", "Press Start to run" );
         telemetry.update();
         waitForStart();
 
         // Put your calls here - they will not run in a loop
-tiltMotor.moveToPosition(.1, -15, DcMotor8863.FinishBehavior.HOLD);
+
         while(opModeIsActive()) {
 
             // Put your calls that need to run in a loop here
-
+tiltMotor.setPower(.1);
             // Display the current value
             //telemetry.addData("Motor Speed = ", "%5.2f", powerToRunAt);
             telemetry.addData("Encoder Count=", "%5d", tiltMotor.getCurrentPosition());
