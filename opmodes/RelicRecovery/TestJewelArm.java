@@ -31,6 +31,8 @@ public class TestJewelArm extends LinearOpMode {
         telemetry.update();
         waitForStart();
 
+        //servoToCalibrate.setUpServoCalibration(startPosition, endPosition, positionIncrement, timeBetweenPosition);
+
        // leftJewelArm.goHome();
 
         // Put your calls here - they will not run in a loop
@@ -48,13 +50,9 @@ public class TestJewelArm extends LinearOpMode {
 
             // Put your calls that need to run in a loop here
 
+            //servoToCalibrate.updateServoCalibration();
 
-
-            // Display the current value
-            //telemetry.addData("Motor Speed = ", "%5.2f", powerToRunAt);
-            //telemetry.addData("Encoder Count=", "%5d", motor.getCurrentPosition());
             telemetry.addData(">", "Press Stop to end test.");
-
             telemetry.update();
 
             idle();
