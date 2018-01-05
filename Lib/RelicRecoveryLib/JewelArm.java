@@ -223,16 +223,12 @@ public class JewelArm {
         armDown();
         delay(1000);
         armFront();
-
     }
 
     public void knockBackBall() {
-
-
         armDown();
         delay(1000);
         armBack();
-
     }
 
     public BallColor knockOffBall() {
