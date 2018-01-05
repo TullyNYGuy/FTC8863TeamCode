@@ -52,8 +52,8 @@ public class ExtensionArm {
     private DcMotor8863 armMotor;
     // for each revolution of the motor, how much does the arm extend?
     private double inchPerRotation = 10.0;
-    private double zone1Position = 9.0; //This is really 7.75, plus 1 to get us there
-    private double zone2Position = 24.0;
+    private double zone1Position = 9.0; // Actual is 7.75"
+    private double zone2Position = 24.0; // Actual is 24"
     private double zone3Position = 37.0; //This is the max we can go - actual is 39.25"
     private double retractedPosition = 1.0;
     private DcMotor8863.MotorState armMotorState;
