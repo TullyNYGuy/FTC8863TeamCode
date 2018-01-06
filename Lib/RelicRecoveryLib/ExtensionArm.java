@@ -32,7 +32,9 @@ public class ExtensionArm {
     // setup positions for the wrist servo
     private double wristPositionInit = .95;
     private double wristPositionHome = .95;
-    private double wristPositionPickup = .7;
+    //private double wristPositionPickup = .7;
+    private double wristPositionPickup = .65;
+    private double getWristPositionDrop = .6;
     private double wristPositionCarry = .05;
 
     // this servo controls the claw at the end of the wrist. The claw clamps onto the relic
@@ -54,7 +56,8 @@ public class ExtensionArm {
     private double inchPerRotation = 10.0;
     private double zone1Position = 9.0; // Actual is 7.75"
     private double zone2Position = 24.0; // Actual is 24"
-    private double zone3Position = 37.0; //This is the max we can go - actual is 39.25"
+    //private double zone3Position = 37.0; //This is the max we can go - actual is 39.25"
+    private double zone3Position = 36.0; //This is the max we can go - actual is 39.25"
     private double retractedPosition = 1.0;
     private DcMotor8863.MotorState armMotorState;
 
@@ -81,6 +84,7 @@ public class ExtensionArm {
        wristServo.setHomePosition(wristPositionHome);
        wristServo.setPositionOne(wristPositionPickup);
        wristServo.setPositionTwo(wristPositionCarry);
+       wristServo.setPositionThree(getWristPositionDrop);
        wristServo.setDirection(Servo.Direction.FORWARD);
 
        // create and setup the claw servo
@@ -92,7 +96,7 @@ public class ExtensionArm {
        clawServo.setDirection(Servo.Direction.FORWARD);
 
        // create and setup the arm motor
-       armMotor = new DcMotor8863("armMotor", hardwareMap);
+       armMotor = new DcMotor8863("armMotor", hardwareMap, telemetry);
        armMotor.setDirection(DcMotor.Direction.REVERSE);
        armMotor.setMaxMotorPower(1);
        armMotor.setMinMotorPower(-1);
@@ -103,6 +107,7 @@ public class ExtensionArm {
        // how close to the target encoder value do we have to get before we call it good enough
        // to stop the motor
        armMotor.setTargetEncoderTolerance(10);
+       armMotor.setupStallDetection(2000,5);
        armMotor.setMovementPerRev(inchPerRotation);
        // the motor will apply power to hold its position after it arrives at the position
        armMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
@@ -138,7 +143,9 @@ public class ExtensionArm {
     public void update() {
        // put update commands here for anything that needs to update every few milliseconds
         armMotorState = armMotor.update();
-        telemetry.addData("encoder = ", "%d", armMotor.getCurrentPosition());
+        telemetry.addData("encoder target = ", "%d", armMotor.getTargetEncoderCount());
+        telemetry.addData("encoder actual = ", "%d", armMotor.getCurrentPosition());
+        telemetry.addData("Motor stalled  = ", armMotor.isStalled());
         telemetry.addData("Arm motor state = ", armMotorState.toString());
 }
 
@@ -154,6 +161,13 @@ public class ExtensionArm {
      */
     public void carryRelic() {
         wristServo.goPositionTwo();
+    }
+
+    /**
+     * Move the wrist servo so that the claw is in position to pick up the relic
+     */
+    public void goToDrop() {
+        wristServo.goPositionThree();
     }
 
     /**
@@ -189,6 +203,8 @@ public class ExtensionArm {
      * Extend the arm to the middle of relic recovery zone 1
      */
     public void goToZone1() {
+
+        armMotor.setStallDetectionEnabled(true);
         goToPosition(zone1Position, .6);
     }
 
@@ -196,6 +212,8 @@ public class ExtensionArm {
      * Extend the arm to the middle of relic recovery zone 2
      */
     public void goToZone2() {
+
+        armMotor.setStallDetectionEnabled(true);
         goToPosition(zone2Position, .6);
     }
 
@@ -203,6 +221,8 @@ public class ExtensionArm {
      * Extend the arm to the middle of relic recovery zone 3
      */
     public void goToZone3() {
+
+        armMotor.setStallDetectionEnabled(true);
         goToPosition(zone3Position, .6);
     }
 
@@ -210,6 +230,7 @@ public class ExtensionArm {
      * Retract the extension arm almost to its starting point.
      */
     public void retractArm() {
+        armMotor.setStallDetectionEnabled(false);
         goToPosition(retractedPosition, .3);
     }
 

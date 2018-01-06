@@ -5,6 +5,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
 import static java.lang.Thread.sleep;
 
 /**
@@ -202,6 +204,8 @@ public class DcMotor8863 {
      * the movement to that target complete.
      */
     private double completionTimeoutInmSec = 100;
+
+    private Telemetry telemetry = null;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -444,9 +448,14 @@ public class DcMotor8863 {
     //          Constructors
     //*********************************************************************************************
 
+    public DcMotor8863(String motorName, HardwareMap hardwareMap, Telemetry telemetry) {
+        this(motorName, hardwareMap);
+        this.telemetry = telemetry;
+    }
+
     public DcMotor8863(String motorName, HardwareMap hardwareMap) {
         FTCDcMotor = hardwareMap.dcMotor.get(motorName);
-        stallTimer = new ElapsedTime();
+        stallTimer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
         completionTimer = new ElapsedTime();
         powerRamp = new RampControl(0, 0, 0);
         initMotorDefaults();
@@ -834,6 +843,9 @@ public class DcMotor8863 {
             // reset the completion timer since we are starting a motor movement that will end
             // once rotation is detected as complete
             completionTimer.reset();
+            // reset the stall timer since the motor is about to start moving
+            // this was a bug discovered 1/5/2018. It was not here.
+            stallTimer.reset();
             // Is there is a power ramp setup to automatically start with the motor is turned on?
             if (powerRamp.isEnabled()) {
                 // yes there is
@@ -1098,17 +1110,39 @@ public class DcMotor8863 {
         this.lastEncoderValue = this.getCurrentPosition();
     }
 
-    private boolean isStalled() {
+    public boolean isStalled() {
+        if(telemetry != null) {
+            telemetry.addData("motor is moving = ", isMotorStateMoving());
+            telemetry.addData("motor stall detection enabled = ", isStallDetectionEnabled());
+            telemetry.addData("stall timer = ", "%5.2f", stallTimer.time());
+            telemetry.addData("stall time limit = ", "%5.2f", stallTimeLimit);
+        }
         int currentEncoderValue = this.getCurrentPosition();
         if (isMotorStateMoving() && isStallDetectionEnabled()) {
+            if(telemetry != null) {
+                telemetry.addData("checking for a stall", "!");
+            }
             // if the motor has not moved since the last time the position was read
             if (Math.abs(currentEncoderValue - lastEncoderValue) < stallDetectionTolerance) {
+                if(telemetry != null) {
+                    telemetry.addData("motor is not moving", "!");
+                }
                 // motor has not moved, checking to see how long the motor has been stalled for
                 if (stallTimer.time() > stallTimeLimit) {
+                    if(telemetry != null){
+                        telemetry.addData("stall timer has expired", "!");
+                    }
                     // it has been stalled for more than the time limit
                     return true;
+                } else {
+                    if(telemetry != null) {
+                        telemetry.addData("stall time has NOT expired", "!");
+                    }
                 }
             } else {
+                if(telemetry != null) {
+                    telemetry.addData("motor is still moving.", " Resetting stall timer.");
+                }
                 // reset the timer because the motor is not stalled
                 stallTimer.reset();
             }
