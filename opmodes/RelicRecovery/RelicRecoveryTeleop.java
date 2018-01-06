@@ -339,11 +339,9 @@ public class RelicRecoveryTeleop extends LinearOpMode {
             if (gamepad2y.buttonPress(gamepad2.y)) {
                 // this was a new button press, not a button held down for a while
                 // put the command to be executed here
-                robot.extensionArm.testMotorDirection();
             }
 
             if (gamepad2x.buttonPress(gamepad2.x)) {
-                robot.extensionArm.getInchPerRotation();
                 // this was a new button press, not a button held down for a while
                 // put the command to be executed here
             }
