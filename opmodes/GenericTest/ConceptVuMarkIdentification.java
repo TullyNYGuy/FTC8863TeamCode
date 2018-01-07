@@ -70,17 +70,23 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 //@Disabled
 public class ConceptVuMarkIdentification extends LinearOpMode {
 
+    //**********************************************************************************************
+    // Vuforia declarations
+    //**********************************************************************************************
     public static final String TAG = "Vuforia VuMark Sample";
-
     OpenGLMatrix lastLocation = null;
-
     /**
      * {@link #vuforia} is the variable we will use to store our instance of the Vuforia
      * localization engine.
      */
     VuforiaLocalizer vuforia;
+    //**********************************************************************************************
 
     @Override public void runOpMode() {
+
+        //**********************************************************************************************
+        // Vuforia initializations
+        //**********************************************************************************************
 
         /*
          * To start up Vuforia, tell it the view that we wish to use for camera monitor (on the RC phone);
@@ -111,7 +117,7 @@ public class ConceptVuMarkIdentification extends LinearOpMode {
          * Here we chose the back (HiRes) camera (for greater range), but
          * for a competition robot, the front camera might be more convenient.
          */
-        parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
+        parameters.cameraDirection = VuforiaLocalizer.CameraDirection.FRONT;
         this.vuforia = ClassFactory.createVuforiaLocalizer(parameters);
 
         /**
@@ -123,6 +129,7 @@ public class ConceptVuMarkIdentification extends LinearOpMode {
         VuforiaTrackables relicTrackables = this.vuforia.loadTrackablesFromAsset("RelicVuMark");
         VuforiaTrackable relicTemplate = relicTrackables.get(0);
         relicTemplate.setName("relicVuMarkTemplate"); // can help in debugging; otherwise not necessary
+        //**********************************************************************************************
 
         telemetry.addData(">", "Press Play to start");
         telemetry.update();
@@ -131,6 +138,10 @@ public class ConceptVuMarkIdentification extends LinearOpMode {
         relicTrackables.activate();
 
         while (opModeIsActive()) {
+
+            //**********************************************************************************************
+            //Vuforia opmode
+            //**********************************************************************************************
 
             /**
              * See if any of the instances of {@link relicTemplate} are currently visible.
@@ -149,29 +160,30 @@ public class ConceptVuMarkIdentification extends LinearOpMode {
                 /* For fun, we also exhibit the navigational pose. In the Relic Recovery game,
                  * it is perhaps unlikely that you will actually need to act on this pose information, but
                  * we illustrate it nevertheless, for completeness. */
-                OpenGLMatrix pose = ((VuforiaTrackableDefaultListener)relicTemplate.getListener()).getPose();
-                telemetry.addData("Pose", format(pose));
+                //OpenGLMatrix pose = ((VuforiaTrackableDefaultListener)relicTemplate.getListener()).getPose();
+                //telemetry.addData("Pose", format(pose));
 
                 /* We further illustrate how to decompose the pose into useful rotational and
                  * translational components */
-                if (pose != null) {
-                    VectorF trans = pose.getTranslation();
-                    Orientation rot = Orientation.getOrientation(pose, AxesReference.EXTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES);
-
-                    // Extract the X, Y, and Z components of the offset of the target relative to the robot
-                    double tX = trans.get(0);
-                    double tY = trans.get(1);
-                    double tZ = trans.get(2);
-
-                    // Extract the rotational components of the target relative to the robot
-                    double rX = rot.firstAngle;
-                    double rY = rot.secondAngle;
-                    double rZ = rot.thirdAngle;
-                }
+//                if (pose != null) {
+//                    VectorF trans = pose.getTranslation();
+//                    Orientation rot = Orientation.getOrientation(pose, AxesReference.EXTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES);
+//
+//                    // Extract the X, Y, and Z components of the offset of the target relative to the robot
+//                    double tX = trans.get(0);
+//                    double tY = trans.get(1);
+//                    double tZ = trans.get(2);
+//
+//                    // Extract the rotational components of the target relative to the robot
+//                    double rX = rot.firstAngle;
+//                    double rY = rot.secondAngle;
+//                    double rZ = rot.thirdAngle;
+//                }
             }
             else {
                 telemetry.addData("VuMark", "not visible");
             }
+            //**********************************************************************************************
 
             telemetry.update();
         }
