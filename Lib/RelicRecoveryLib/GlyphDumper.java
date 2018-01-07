@@ -27,7 +27,7 @@ public class GlyphDumper {
     private Telemetry telemetry;
     private double homePosition = .95;
     private double initPosition = 0.95;
-    private double dumpPosition = .60;
+    private double dumpPosition = .70;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
