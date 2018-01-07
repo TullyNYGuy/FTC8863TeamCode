@@ -5,7 +5,9 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitColorSensor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitColorSensor8863;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
 import org.firstinspires.ftc.teamcode.opmodes.RelicRecovery.TestJewelArm;
 
@@ -22,9 +24,7 @@ public class JewelArm {
         LEFT, RIGHT;
     }
 
-    public enum BallColor {
-        RED, BLUE;
-    }
+    AllianceColor.TeamColor teamColor;
 
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS
@@ -42,11 +42,10 @@ public class JewelArm {
     private double servoArmOutPosition;
     private double servoDownALittleMorePosition;
     private RobotSide robotSide;
-    private Servo8863 upDownServo;
-    private Servo8863 frontBackServo;
-    private Servo8863 elbowServo;
+    public Servo8863 upDownServo;
+    public Servo8863 frontBackServo;
+    public Servo8863 elbowServo;
     private AdafruitColorSensor8863 colorSensor;
-    private TestJewelArm.AllianceColor allianceColor;
     private Telemetry telemetry;
 
     //*********************************************************************************************
@@ -63,21 +62,20 @@ public class JewelArm {
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
-    public JewelArm(RobotSide robotSide, HardwareMap hardwareMap, Telemetry telemetry, TestJewelArm.AllianceColor allianceColor) {
-        this.allianceColor = allianceColor;
+    public JewelArm(RobotSide robotSide, HardwareMap hardwareMap, Telemetry telemetry) {
         this.telemetry = telemetry;
         if (robotSide == RobotSide.LEFT) {
-            servoArmUpPosition = 0;
+            servoArmUpPosition = 0.05;
             servoArmDownPosition = 0.55;
             servoArmUpDownHomePosition = .2;
             servoArmFrontPosition = 0.35;
             servoArmCenterPosition = 0.5;
             servoArmBackPosition = 0.6;
-            servoArmInPosition = 0.95;
+            servoArmInPosition = 0.92;
             servoArmOutPosition = 0.2;
             servoDownALittleMorePosition = 0.1;
 
-            elbowServo = new Servo8863("leftElbowServo" , hardwareMap, telemetry);
+            elbowServo = new Servo8863("leftElbowServo", hardwareMap, telemetry);
             elbowServo.setDirection(Servo.Direction.FORWARD);
             elbowServo.setInitPosition(servoArmInPosition);
             elbowServo.setHomePosition(servoArmInPosition);
@@ -101,16 +99,16 @@ public class JewelArm {
                     "coreDIM1", 0);
 
         } else {
-            servoArmUpPosition = 0;
+            servoArmUpPosition = 0.05;
             servoArmDownPosition = 0.55;
             servoArmUpDownHomePosition = .1;
             servoArmFrontPosition = 0.35;
             servoArmCenterPosition = 0.5;
             servoArmBackPosition = 0.6;
-            servoArmInPosition = 0.95;
+            servoArmInPosition = 0.92;
             servoArmOutPosition = 0.2;//orginal was 0.5
 
-            elbowServo = new Servo8863("rightElbowServo" , hardwareMap, telemetry);
+            elbowServo = new Servo8863("rightElbowServo", hardwareMap, telemetry);
             elbowServo.setDirection(Servo.Direction.FORWARD);
             elbowServo.setInitPosition(servoArmInPosition);
             elbowServo.setHomePosition(servoArmInPosition);
@@ -178,11 +176,17 @@ public class JewelArm {
         frontBackServo.goHome();
     }
 
-    public void armIn() {elbowServo.goHome();}
+    public void armIn() {
+        elbowServo.goHome();
+    }
 
-    public void armOut() {elbowServo.goPositionOne();}
+    public void armOut() {
+        elbowServo.goPositionOne();
+    }
 
-    public void armDownALittleMore() {elbowServo.goPositionTwo();}
+    public void armDownALittleMore() {
+        elbowServo.goPositionTwo();
+    }
 
     //change the initposition commands with the ones above so its easier to read
     public void init() {
@@ -203,14 +207,16 @@ public class JewelArm {
         elbowServo.goInitPosition();
     }
 
-    public BallColor getBallColor() {
+    public AdafruitColorSensor8863.ColorFromSensor getBallColor() {
         AdafruitColorSensor8863.ColorFromSensor colorFromSensor;
         colorFromSensor = colorSensor.getSimpleColor();
-        if (colorFromSensor == AdafruitColorSensor8863.ColorFromSensor.BLUE) {
-            return BallColor.BLUE;
-        } else {
-            return BallColor.RED;
-        }
+        return colorFromSensor;
+    }
+
+    public void goInit() {
+        upDownServo.goInitPosition();
+        frontBackServo.goInitPosition();
+        elbowServo.goInitPosition();
     }
 
     public void goHome() {
@@ -221,18 +227,18 @@ public class JewelArm {
 
     public void knockFrontBall() {
         armDown();
-        delay(1000);
+        delay(500);
         armFront();
     }
 
     public void knockBackBall() {
         armDown();
-        delay(1000);
+        delay(500);
         armBack();
     }
 
-    public BallColor knockOffBall() {
-        BallColor ballColor;
+    public AdafruitColorSensor8863.ColorFromSensor knockOffBall(AllianceColor.TeamColor teamColor) {
+        AdafruitColorSensor8863.ColorFromSensor ballColor;
         armOut();
         delay(100);
         armDown();
@@ -240,16 +246,16 @@ public class JewelArm {
         armDownALittleMore();
         delay(2000);
         ballColor = getBallColor();
-        if (allianceColor == TestJewelArm.AllianceColor.BLUE) {
-            if (ballColor == BallColor.BLUE) {
+        if (teamColor == AllianceColor.TeamColor.BLUE) {
+            if (ballColor == AdafruitColorSensor8863.ColorFromSensor.BLUE) {
                 knockFrontBall();
             } else {
                 knockBackBall();
 
             }
         }
-        if (allianceColor == TestJewelArm.AllianceColor.RED) {
-            if (ballColor == BallColor.RED) {
+        if (teamColor == AllianceColor.TeamColor.RED) {
+            if (ballColor == AdafruitColorSensor8863.ColorFromSensor.RED) {
                 knockFrontBall();
             } else {
                 knockBackBall();
@@ -257,6 +263,79 @@ public class JewelArm {
         }
         return ballColor;
     }
+
+    public void goAboveBall() {
+        //upDownServo - up = .05 down = .50
+        //frontBackServo - front = 0 back = 1
+        //elbowServo - in = 1 out = 0
+        frontBackServo.setPosition(.50);
+        elbowServo.setPosition(.20);
+        delay(1000);
+        upDownServo.setPosition(.42);
+        delay(1000);
+        frontBackServo.setPosition(.54);
+        delay(1000);
+        elbowServo.setPosition(.10);
+        upDownServo.setPosition(.55);
+        //delay(500);
+    }
+
+    public void goAboveBall2() {
+        //upDownServo - up = .05 down = .50
+        //frontBackServo - front = 0 back = 1
+        //elbowServo - in = 1 out = 0
+        frontBackServo.setPosition(.55);
+        elbowServo.setPosition(.20);
+        delay(500);
+        upDownServo.setPosition(.30);
+        delay(500);
+        elbowServo.setPosition(.10);
+        delay(500);
+        upDownServo.setPosition(.47);
+        delay(500);
+    }
+
+    public void moveBetweenBalls() {
+        upDownServo.setPosition(.30);
+        elbowServo.setPosition(.20);
+        frontBackServo.setPosition(.50);
+        delay(500);
+        upDownServo.setPosition(50);
+        delay(100);
+        elbowServo.setPosition(.10);
+        delay(500);
+    }
+
+    public void knockOffBall2(AllianceColor.TeamColor teamColor, AdafruitColorSensor8863.ColorFromSensor ballColor) {
+        if (teamColor == AllianceColor.TeamColor.BLUE) {
+            if (ballColor == AdafruitColorSensor8863.ColorFromSensor.BLUE) {
+                knockFrontBall();
+            } else {
+                knockBackBall();
+            }
+        }
+        if (teamColor == AllianceColor.TeamColor.RED) {
+            if (ballColor == AdafruitColorSensor8863.ColorFromSensor.RED) {
+                knockFrontBall();
+            } else {
+                knockBackBall();;
+            }
+        }
+        delay(1000);
+    }
+
+    public AdafruitColorSensor8863.ColorFromSensor getBallColorAndKnockOffBall(AllianceColor.TeamColor teamColor) {
+        AdafruitColorSensor8863.ColorFromSensor ballColor;
+
+        goAboveBall2();
+        ballColor = getBallColor();
+        moveBetweenBalls();
+        knockOffBall2(teamColor, ballColor);
+        goInit();
+        delay(250);
+        return ballColor;
+    }
+
 }
 
 
