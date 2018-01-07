@@ -205,7 +205,20 @@ public class DcMotor8863 {
      */
     private double completionTimeoutInmSec = 100;
 
+    /**
+     * Telemetry object for user feedback
+     */
     private Telemetry telemetry = null;
+
+    /**
+     * An optional log file for logging data
+     */
+    private DataLogging dataLog = null;
+
+    /**
+     * Should data be logged into the log file
+     */
+    private boolean logFlag = false;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -442,6 +455,14 @@ public class DcMotor8863 {
 
     public void setCompletionTimeoutInmSec(double completionTimeoutInmSec) {
         this.completionTimeoutInmSec = completionTimeoutInmSec;
+    }
+
+    public DataLogging getDataLog() {
+        return dataLog;
+    }
+
+    public void setDataLog(DataLogging dataLog) {
+        this.dataLog = dataLog;
     }
 
     //*********************************************************************************************
@@ -858,6 +879,10 @@ public class DcMotor8863 {
                 this.setMotorState(MotorState.MOVING_PID_NO_POWER_RAMP);
                 // Turn the motor on
                 this.setPower(power);
+            }
+            logFlag = true;
+            if(dataLog != null) {
+                dataLog.logData("Rotate to encoder count = " + Integer.toString(encoderCount) + " from encoder count = " + Integer.toString(getCurrentPosition()) + " at power " + Double.toString(power) + "in");
             }
             return true;
         } else {
@@ -1426,6 +1451,9 @@ public class DcMotor8863 {
             // Stalled state means that a stall was detected. The motor was not moving for a certain
             // period of time due to excessive load being applied.
             case STALLED:
+                if(dataLog != null && logFlag) {
+                    dataLog.logData("Motor Stalled!");
+                }
                 break;
             // Complete_float state means that the motor movement has completed and the motor will
             // turn if a load is applied.
