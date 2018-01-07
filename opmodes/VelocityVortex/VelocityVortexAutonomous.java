@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.VelocityVortex;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -17,7 +18,7 @@ import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.VelocityVortexRobot;
  * Autonomous for competition
  */
 @Autonomous(name = "Velocity Vortex Autonomous", group = "Run")
-//@Disabled
+@Disabled
 public class VelocityVortexAutonomous extends LinearOpMode {
 
     //*********************************************************************************************
