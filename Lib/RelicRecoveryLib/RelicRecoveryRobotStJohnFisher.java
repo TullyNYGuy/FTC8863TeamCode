@@ -78,7 +78,7 @@ public class RelicRecoveryRobotStJohnFisher {
         extensionArm = new ExtensionArm(hardwareMap, telemetry);
         glyphDumper = new GlyphDumper(hardwareMap, telemetry);
         //NEED A NEW CLASS to DEFINE ALLICANCE COLOR
-        jewelArm = new JewelArm(JewelArm.RobotSide.LEFT, hardwareMap, telemetry, TestJewelArm.AllianceColor.RED);
+        jewelArm = new JewelArm(JewelArm.RobotSide.LEFT, hardwareMap, telemetry);
         init(telemetry);
     }
 
