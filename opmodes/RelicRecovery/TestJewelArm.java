@@ -32,7 +32,7 @@ public class TestJewelArm extends LinearOpMode {
 
         //leftJewelArm.elbowServo.setUpServoCalibration(0, 1, 0.05, 1000);
        //leftJewelArm.frontBackServo.setUpServoCalibration(.5, 6, 0.01, 2000);
-        //leftJewelArm.upDownServo.setUpServoCalibration(.40, .50,0.01, 2000);
+        leftJewelArm.upDownServo.setUpServoCalibration(.05, .55,0.01, 5);
 
 
 
@@ -42,12 +42,13 @@ public class TestJewelArm extends LinearOpMode {
 //        telemetry.addData("Ball color = ", ballColor.toString());
 //        leftJewelArm.moveBetweenBalls();
 //        leftJewelArm.knockOffBall2(AllianceColor.TeamColor.RED, ballColor);
-        ballColor = leftJewelArm.getBallColorAndKnockOffBall(AllianceColor.TeamColor.BLUE);
-        telemetry.addData("Ball color = ", ballColor.toString());
-        telemetry.update();
+        //ballColor = leftJewelArm.getBallColorAndKnockOffBall(AllianceColor.TeamColor.BLUE);
+        //telemetry.addData("Ball color = ", ballColor.toString());
+        //telemetry.update();
 
         sleep (6000);
 
+        leftJewelArm.elbowServo.setPosition(0);
       //leftJewelArm.shutdown();
         while (opModeIsActive()) {
 
@@ -55,11 +56,11 @@ public class TestJewelArm extends LinearOpMode {
 
             //leftJewelArm.elbowServo.updateServoCalibration();
             //leftJewelArm.frontBackServo.updateServoCalibration();
-            //leftJewelArm.upDownServo.updateServoCalibration();
+            leftJewelArm.upDownServo.updateServoCalibration();
 
             //ballColor = leftJewelArm.getBallColor();
             //telemetry.addData("Ball color = ", ballColor.toString());
-            telemetry.addData("Ball color = ", ballColor.toString());
+            //telemetry.addData("Ball color = ", ballColor.toString());
             telemetry.addData(">", "Press Stop to end test.");
             telemetry.update();
 
