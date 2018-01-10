@@ -32,7 +32,7 @@ public class TestJewelArm extends LinearOpMode {
 
         //leftJewelArm.elbowServo.setUpServoCalibration(0, 1, 0.05, 1000);
        //leftJewelArm.frontBackServo.setUpServoCalibration(.5, 6, 0.01, 2000);
-        leftJewelArm.upDownServo.setUpServoCalibration(.05, .55,0.01, 5);
+        //leftJewelArm.upDownServo.setUpServoCalibration(.05, .55,0.01, 5);
 
 
 
@@ -48,15 +48,16 @@ public class TestJewelArm extends LinearOpMode {
 
         sleep (6000);
 
-        leftJewelArm.elbowServo.setPosition(0);
+        //leftJewelArm.elbowServo.setPosition(0);
       //leftJewelArm.shutdown();
         while (opModeIsActive()) {
 
             // Put your calls that need to run in a loop here
+            leftJewelArm.updateGoAboveBall();
 
             //leftJewelArm.elbowServo.updateServoCalibration();
             //leftJewelArm.frontBackServo.updateServoCalibration();
-            leftJewelArm.upDownServo.updateServoCalibration();
+            //leftJewelArm.upDownServo.updateServoCalibration();
 
             //ballColor = leftJewelArm.getBallColor();
             //telemetry.addData("Ball color = ", ballColor.toString());

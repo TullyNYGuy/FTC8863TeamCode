@@ -33,6 +33,7 @@ public class JewelArm {
         START, // no movements have been started yet
         COMPLETE, // the movement to get the color sensor above the ball has completed
         ROTATE_TO_BALL, // rotate the front back servo to put the sensor in line with the ball
+        ARM_PARTIALLY_OUT, // move the elbow so the forearm is partially extended = clear the robot
         ARM_PARTIALLY_OUT_AND_PARTIALLY_DOWN, // the first movement to lower the sensor down towards the ball
         // This movement to lower the sensor on top of the ball is done
         // in steps to avoid extending too far and hitting the wall.
@@ -363,13 +364,14 @@ public class JewelArm {
      *
      * @return is the overall movement complete
      */
-    private boolean updateGoAboveBall() {
+    public boolean updateGoAboveBall() {
         boolean completed = false;
         boolean upDownServoComplete = false;
         boolean elbowServoComplete = false;
 
         switch (currentGoAboveBallState) {
             case START:
+                telemetry.addData("state = ", currentGoAboveBallState.toString());
                 // setup the movement
                 // in this case we are not stepping the front back servo so just make it move in one big
                 // movement
@@ -378,22 +380,33 @@ public class JewelArm {
                 currentGoAboveBallState = GoAboveBallStates.ROTATE_TO_BALL;
                 break;
             case ROTATE_TO_BALL:
+                telemetry.addData("state = ", currentGoAboveBallState.toString());
                 // delay so the front back servo has time to reach its destination
                 delay(100);
                 // setup the next movements
                 elbowServo.setupMoveBySteps(.20, .01, 5);
-                upDownServo.setupMoveBySteps(.30, .01, 5);
                 // start the servos moving
                 elbowServoComplete = elbowServo.updateMoveBySteps();
-                upDownServoComplete = upDownServo.updateMoveBySteps();
                 // transition to the next state
-                currentGoAboveBallState = GoAboveBallStates.ARM_PARTIALLY_OUT_AND_PARTIALLY_DOWN;
+                currentGoAboveBallState = GoAboveBallStates.ARM_PARTIALLY_OUT;
+                break;
+            case ARM_PARTIALLY_OUT:
+                telemetry.addData("state = ", currentGoAboveBallState.toString());
+                elbowServoComplete = elbowServo.updateMoveBySteps();
+                if(elbowServoComplete) {
+                    //setup the next movements
+                    upDownServo.setupMoveBySteps(.30, .01, 5);
+                    // start the servos moving
+                    upDownServoComplete = upDownServo.updateMoveBySteps();
+                    // transition to the next state
+                    currentGoAboveBallState = GoAboveBallStates.ARM_PARTIALLY_OUT_AND_PARTIALLY_DOWN;
+                }
                 break;
             case ARM_PARTIALLY_OUT_AND_PARTIALLY_DOWN:
+                telemetry.addData("state = ", currentGoAboveBallState.toString());
                 // find out if the last step command is complete - is the movement complete?
-                elbowServoComplete = elbowServo.updateMoveBySteps();
                 upDownServoComplete = upDownServo.updateMoveBySteps();
-                if (elbowServoComplete && upDownServoComplete) {
+                if (upDownServoComplete) {
                     // movement is complete setup the next movement
                     elbowServo.setupMoveBySteps(.10, .01, 5);
                     // start the servo moving
@@ -403,6 +416,7 @@ public class JewelArm {
                 }
                 break;
             case ARM_COMPLETELY_OUT_AND_PARTIALLY_DOWN:
+                telemetry.addData("state = ", currentGoAboveBallState.toString());
                 elbowServoComplete = elbowServo.updateMoveBySteps();
                 if (elbowServoComplete) {
                     // movement is complete setup the next movement
@@ -414,15 +428,16 @@ public class JewelArm {
                 }
                 break;
             case ARM_OUT_AND_COMPLETELY_DOWN:
+                telemetry.addData("state = ", currentGoAboveBallState.toString());
                 upDownServoComplete = upDownServo.updateMoveBySteps();
                 if (upDownServoComplete) {
                     // movement is complete and this overall movement is also complete
                     // transition to the next state
-                    completed = true;
                     currentGoAboveBallState = GoAboveBallStates.COMPLETE;
                 }
                 break;
             case COMPLETE:
+                telemetry.addData("state = ", currentGoAboveBallState.toString());
                 completed = true;
                 break;
         }
