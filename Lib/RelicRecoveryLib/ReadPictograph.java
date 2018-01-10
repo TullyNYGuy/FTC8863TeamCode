@@ -34,16 +34,16 @@ public class ReadPictograph {
      * {@link #vuforia} is the variable we will use to store our instance of the Vuforia
      * localization engine.
      */
-    VuforiaLocalizer vuforia;
-    HardwareMap hardwareMap;
-    Telemetry telemetry;
+    private VuforiaLocalizer vuforia;
+    private HardwareMap hardwareMap;
+    private Telemetry telemetry;
 
-    VuforiaTrackables relicTrackables;
-    VuforiaTrackable relicTemplate;
+    private VuforiaTrackables relicTrackables;
+    private VuforiaTrackable relicTemplate;
 
-    int cameraMonitorViewId;
+    private int cameraMonitorViewId;
 
-    VuforiaLocalizer.Parameters parameters;
+    private VuforiaLocalizer.Parameters parameters;
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -60,7 +60,9 @@ public class ReadPictograph {
     //*********************************************************************************************
     public ReadPictograph(HardwareMap hardwareMap, Telemetry telemetry) {
         init(hardwareMap);
-        runAtStart();
+        // MATT and JARED - this method is not supposed to run until after play is pressed - so
+        // I commented it out
+        //runAtStart();
     }
 
 
@@ -95,18 +97,13 @@ public class ReadPictograph {
 
     public RelicRecoveryVuMark getvuMark() {
         RelicRecoveryVuMark vuMark = RelicRecoveryVuMark.from(relicTemplate);
-        if (vuMark != RelicRecoveryVuMark.UNKNOWN) {
-            telemetry.addData("VuMark", "%s visible", vuMark);
-        } else {
-            telemetry.addData("VuMark", "not visible");
-        }
+            if (vuMark != RelicRecoveryVuMark.UNKNOWN) {
+                telemetry.addData("VuMark", "%s visible", vuMark);
+            } else {
+                telemetry.addData("VuMark", "not visible");
+            }
         telemetry.update();
 
         return vuMark;
     }
-
-    String format(OpenGLMatrix transformationMatrix) {
-        return (transformationMatrix != null) ? transformationMatrix.formatAsTransform() : "null";
-    }
-
 }
