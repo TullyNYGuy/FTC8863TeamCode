@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Lib.RelicRecoveryLib;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitColorSensor;
@@ -24,6 +25,41 @@ public class JewelArm {
         LEFT, RIGHT;
     }
 
+    /**
+     * This defines the states for a state machine that controls the servo movements to get the color
+     * sensor sitting just above the ball so a color can be read
+     */
+    private enum GoAboveBallStates {
+        START, // no movements have been started yet
+        COMPLETE, // the movement to get the color sensor above the ball has completed
+        ROTATE_TO_BALL, // rotate the front back servo to put the sensor in line with the ball
+        ARM_PARTIALLY_OUT_AND_PARTIALLY_DOWN, // the first movement to lower the sensor down towards the ball
+        // This movement to lower the sensor on top of the ball is done
+        // in steps to avoid extending too far and hitting the wall.
+        ARM_COMPLETELY_OUT_AND_PARTIALLY_DOWN, // the elbow is fully extended now but the arm still
+        // has to go down more
+        ARM_OUT_AND_COMPLETELY_DOWN // the movement to get from partially down to sitting the sensor
+        // just over the ball.
+    }
+
+    private enum GoBetweenBallStates {
+        START, //no movements
+        COMPLETE, //finished
+        UP_AND_EXTENDING_OUT, //move up down servo up from ball, then extend the elbow servo outwards
+        ROTATE_BETWEEN_BALLS, //moves front back servo between the balls, still above
+        DOWN_AND_EXTENDING_OUT, //moves up down servo down between balls and extends elbow servo out more also between balls.
+    }
+
+    private enum GetBallColorAndKnockBallOffStates {
+        START,
+        COMPLETE,
+        GO_ABOVE_BALL,
+        GET_BALL_COLOR,
+        MOVE_BETWEEN_BALLS,
+        KNOCK_OFF_BALL,
+        GO_INIT
+    }
+
     AllianceColor.TeamColor teamColor;
 
     //*********************************************************************************************
@@ -32,6 +68,19 @@ public class JewelArm {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
+
+    /**
+     * This variable holds the current state of the movement from init to locating the color
+     * sensor just above the ball. It initially equals START since nothing has moved yet.
+     * When the movement is complete it will equal COMPLETE.
+     */
+
+    private GetBallColorAndKnockBallOffStates currentGetBallColorAndKnockBallOffStates = GetBallColorAndKnockBallOffStates.START;
+
+    private GoAboveBallStates currentGoAboveBallState = GoAboveBallStates.START;
+
+    private GoBetweenBallStates currentGoBetweenBallState = GoBetweenBallStates.START;
+
     private double servoArmUpPosition;
     private double servoArmDownPosition;
     private double servoArmUpDownHomePosition;
@@ -198,7 +247,16 @@ public class JewelArm {
     }
 
     public void update() {
-        //nothing to update yet
+        boolean isUpdateGoAboveBallComplete = false;
+        AdafruitColorSensor8863.ColorFromSensor ballColor;
+        // this calls state machines that control the movements of the servos.
+        // It could be one big state machine but it is easier to debug if we keep the movements
+        // separate.
+        isUpdateGoAboveBallComplete = updateGoAboveBall();
+        if(isUpdateGoAboveBallComplete) {
+            ballColor = getBallColor();
+        }
+        // one update for each movement will go here
     }
 
     public void shutdown() {
@@ -215,7 +273,9 @@ public class JewelArm {
 
     public void goInit() {
         upDownServo.goInitPosition();
+        delay(500);
         frontBackServo.goInitPosition();
+        delay(500);
         elbowServo.goInitPosition();
     }
 
@@ -295,15 +355,147 @@ public class JewelArm {
         delay(500);
     }
 
+
+    /**
+     * This state machine replaces the goAboveBall2 method above. It has to be a state machine since
+     * the servo movements are done in little steps and they have to be constantly updated, one update
+     * per loop of the robot opmode
+     *
+     * @return is the overall movement complete
+     */
+    private boolean updateGoAboveBall() {
+        boolean completed = false;
+        boolean upDownServoComplete = false;
+        boolean elbowServoComplete = false;
+
+        switch (currentGoAboveBallState) {
+            case START:
+                // setup the movement
+                // in this case we are not stepping the front back servo so just make it move in one big
+                // movement
+                frontBackServo.setPosition(.55);
+                // transition to the next state
+                currentGoAboveBallState = GoAboveBallStates.ROTATE_TO_BALL;
+                break;
+            case ROTATE_TO_BALL:
+                // delay so the front back servo has time to reach its destination
+                delay(100);
+                // setup the next movements
+                elbowServo.setupMoveBySteps(.20, .01, 5);
+                upDownServo.setupMoveBySteps(.30, .01, 5);
+                // start the servos moving
+                elbowServoComplete = elbowServo.updateMoveBySteps();
+                upDownServoComplete = upDownServo.updateMoveBySteps();
+                // transition to the next state
+                currentGoAboveBallState = GoAboveBallStates.ARM_PARTIALLY_OUT_AND_PARTIALLY_DOWN;
+                break;
+            case ARM_PARTIALLY_OUT_AND_PARTIALLY_DOWN:
+                // find out if the last step command is complete - is the movement complete?
+                elbowServoComplete = elbowServo.updateMoveBySteps();
+                upDownServoComplete = upDownServo.updateMoveBySteps();
+                if (elbowServoComplete && upDownServoComplete) {
+                    // movement is complete setup the next movement
+                    elbowServo.setupMoveBySteps(.10, .01, 5);
+                    // start the servo moving
+                    elbowServoComplete = elbowServo.updateMoveBySteps();
+                    // transition to the next state
+                    currentGoAboveBallState = GoAboveBallStates.ARM_COMPLETELY_OUT_AND_PARTIALLY_DOWN;
+                }
+                break;
+            case ARM_COMPLETELY_OUT_AND_PARTIALLY_DOWN:
+                elbowServoComplete = elbowServo.updateMoveBySteps();
+                if (elbowServoComplete) {
+                    // movement is complete setup the next movement
+                    upDownServo.setupMoveBySteps(.47, .01, 5);
+                    // start the servo moving
+                    upDownServoComplete = upDownServo.updateMoveBySteps();
+                    // transition to the next state
+                    currentGoAboveBallState = GoAboveBallStates.ARM_OUT_AND_COMPLETELY_DOWN;
+                }
+                break;
+            case ARM_OUT_AND_COMPLETELY_DOWN:
+                upDownServoComplete = upDownServo.updateMoveBySteps();
+                if (upDownServoComplete) {
+                    // movement is complete and this overall movement is also complete
+                    // transition to the next state
+                    completed = true;
+                    currentGoAboveBallState = GoAboveBallStates.COMPLETE;
+                }
+                break;
+            case COMPLETE:
+                completed = true;
+                break;
+        }
+        return completed;
+    }
+
+    private boolean updateGoBetweenBall() {
+        boolean completed = false;
+        boolean elbowServoComplete = false;
+        boolean frontBackServoComplete = false;
+        boolean upDownServoComplete = false;
+
+        switch (currentGoBetweenBallState) {
+            case START:
+                upDownServo.setupMoveBySteps(.30, 0.01, 5);
+                elbowServo.setupMoveBySteps(0.2, 0.01, 5);
+                elbowServoComplete = elbowServo.updateMoveBySteps();
+                upDownServoComplete = upDownServo.updateMoveBySteps();
+                currentGoBetweenBallState = currentGoBetweenBallState.UP_AND_EXTENDING_OUT;
+                break;
+            case UP_AND_EXTENDING_OUT:
+                elbowServoComplete = elbowServo.updateMoveBySteps();
+                upDownServoComplete = upDownServo.updateMoveBySteps();
+                if (elbowServoComplete && upDownServoComplete){
+                    currentGoBetweenBallState = currentGoBetweenBallState.ROTATE_BETWEEN_BALLS;
+                    frontBackServo.setupMoveBySteps(.5, 0.01, 5);
+                }
+                break;
+            case ROTATE_BETWEEN_BALLS:
+                frontBackServoComplete = frontBackServo.updateMoveBySteps();
+                if (frontBackServoComplete){
+                    currentGoBetweenBallState = currentGoBetweenBallState.DOWN_AND_EXTENDING_OUT;
+                    upDownServo.setupMoveBySteps(.5, 0.01, 5);
+                    elbowServo.setupMoveBySteps(0.10, 0.01, 5);
+                }
+                break;
+            case DOWN_AND_EXTENDING_OUT:
+                upDownServoComplete = upDownServo.updateMoveBySteps();
+                elbowServoComplete = elbowServo.updateMoveBySteps();
+                if (upDownServoComplete && elbowServoComplete){
+                    currentGoBetweenBallState = currentGoBetweenBallState.COMPLETE;
+                }
+                break;
+            case COMPLETE:
+                break;
+        }
+        return completed;
+    }
+
     public void moveBetweenBalls() {
-        upDownServo.setPosition(.30);
+        upDownServo.setPosition(.30); //up and extending
         elbowServo.setPosition(.20);
-        frontBackServo.setPosition(.50);
+        frontBackServo.setPosition(.50); //between balls
         delay(500);
-        upDownServo.setPosition(50);
+        upDownServo.setPosition(.50); //going down
         delay(100);
-        elbowServo.setPosition(.10);
+        elbowServo.setPosition(.10); //going farther out
         delay(500);
+    }
+
+    /**
+     * This state machine replaces the moveBetweenBalls method above. It has to be a state machine since
+     * the servo movements are done in little steps and they have to be constantly updated, one update
+     * per loop of the robot opmode
+     *
+     * @return
+     */
+    private boolean updateMoveBetweenBalls() {
+        boolean completed = false;
+        boolean upDownServoComplete = false;
+        boolean elbowServoComplete = false;
+
+        return completed;
     }
 
     public void knockOffBall2(AllianceColor.TeamColor teamColor, AdafruitColorSensor8863.ColorFromSensor ballColor) {
@@ -318,7 +510,8 @@ public class JewelArm {
             if (ballColor == AdafruitColorSensor8863.ColorFromSensor.RED) {
                 knockFrontBall();
             } else {
-                knockBackBall();;
+                knockBackBall();
+                ;
             }
         }
         delay(1000);
@@ -337,7 +530,3 @@ public class JewelArm {
     }
 
 }
-
-
-
-
