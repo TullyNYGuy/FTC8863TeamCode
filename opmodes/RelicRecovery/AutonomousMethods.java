@@ -231,7 +231,7 @@ public class AutonomousMethods extends LinearOpMode {
         }
     }
 
-    public RelicRecoveryVuMark getPictograph() {
+    /*public RelicRecoveryVuMark getPictograph() {
 
         final String TAG = "Vuforia VuMark Sample";
         VuforiaLocalizer vuforia;
@@ -242,12 +242,12 @@ public class AutonomousMethods extends LinearOpMode {
         parameters.cameraDirection = VuforiaLocalizer.CameraDirection.FRONT;
         vuforia = ClassFactory.createVuforiaLocalizer(parameters);
 
-        /**
-         * See if any of the instances of {@link relicTemplate} are currently visible.
+        *//**
+         * See if any of the instances of {@link } are currently visible.
          * {@link RelicRecoveryVuMark} is an enum which can have the following values:
          * UNKNOWN, LEFT, CENTER, and RIGHT. When a VuMark is visible, something other than
          * UNKNOWN will be returned by {@link RelicRecoveryVuMark#from(VuforiaTrackable)}.
-         */
+         *//*
         VuforiaTrackables relicTrackables = vuforia.loadTrackablesFromAsset("RelicVuMark");
         VuforiaTrackable relicTemplate = relicTrackables.get(0);
         relicTemplate.setName("relicVuMarkTemplate"); // can help in debugging; otherwise not necessary
@@ -257,9 +257,9 @@ public class AutonomousMethods extends LinearOpMode {
 //        RelicRecoveryVuMark vuMark = RelicRecoveryVuMark.from(relicTemplate);
 //        if (vuMark != RelicRecoveryVuMark.UNKNOWN) {
 //
-//                /* Found an instance of the template. In the actual game, you will probably
+//                *//* Found an instance of the template. In the actual game, you will probably
 //                 * loop until this condition occurs, then move on to act accordingly depending
-//                 * on which VuMark was visible. */
+//                 * on which VuMark was visible. *//*
 //            telemetry.addData("VuMark", "%s visible", vuMark);
 //
 //        } else {
@@ -267,7 +267,7 @@ public class AutonomousMethods extends LinearOpMode {
 //        }
 //        return vuMark;
         return RelicRecoveryVuMark.UNKNOWN;
-    }
+    }*/
 
     String format(OpenGLMatrix transformationMatrix) {
         return (transformationMatrix != null) ? transformationMatrix.formatAsTransform() : "null";
