@@ -504,5 +504,42 @@ public class Servo8863 {
         telemetry.addData("servo cmd", "position" + String.format("%.2f", calibrationRoutineCurrentPosition));
         telemetry.addData("servo actual", "position" + String.format("%.2f", teamServo.getPosition()));
     }
+
+    /**
+     * Setup a servo so that it moves by little baby steps over time. This give better control for a
+     * servo that does not have much load on it. The overshoot is reduced a lot.
+     * @param position final desired position of the servo
+     * @param positionStepSize how big is the baby step
+     * @param timeBetweenStepsInMilliseconds how much time passes between steps
+     */
+    public void setupMoveBySteps(double position, double positionStepSize, double timeBetweenStepsInMilliseconds) {
+        setUpServoCalibration(teamServo.getPosition(), position, positionStepSize, timeBetweenStepsInMilliseconds);
+    }
+
+    public boolean updateMoveBySteps () {
+        boolean isComplete = false;
+
+        if(calibrationRoutineCurrentPosition <= servoCalibrationEndPosition) {
+            // there are still baby steps to be taken
+            if (calibrationRoutineTimer.milliseconds() > servoCalibrationTimeBetweenSteps) {
+                // time between the steps has reached the point when we have to issue a new position
+                // command
+                // figure out the command
+                calibrationRoutineCurrentPosition = calibrationRoutineCurrentPosition + servoCalibrationPositionIncrement;
+                // issue the command
+                teamServo.setPosition(calibrationRoutineCurrentPosition);
+                // reset the timer for the step
+                calibrationRoutineTimer.reset();
+            }
+        } else {
+            // the last step command to the servo was already issued so the MoveBySteps is complete
+            // IMPORTANT NOTE: this does not mean the servo has reached the final position. It may
+            // not have gotten there yet. A large load will slow it down. It may even stall and never
+            // reach the final position. All this mean is that the commanded position is the final
+            // position.
+            isComplete = true;
+        }
+        return isComplete;
+    }
 }
 
