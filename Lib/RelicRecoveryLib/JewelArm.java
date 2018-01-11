@@ -400,8 +400,6 @@ public class JewelArm {
                 delay(100);
                 // setup the next movements
                 elbowServo.setupMoveBySteps(.20, .01, 100);
-                // start the servos moving
-                elbowServoComplete = elbowServo.updateMoveBySteps();
                 // transition to the next state
                 currentGoAboveBallState = GoAboveBallStates.ARM_PARTIALLY_OUT;
                 delay(1000);
@@ -412,8 +410,6 @@ public class JewelArm {
                 if(elbowServoComplete) {
                     //setup the next movements
                     upDownServo.setupMoveBySteps(.30, .01, 100);
-                    // start the servos moving
-                    upDownServoComplete = upDownServo.updateMoveBySteps();
                     // transition to the next state
                     currentGoAboveBallState = GoAboveBallStates.COMPLETE;
                     //currentGoAboveBallState = GoAboveBallStates.ARM_PARTIALLY_OUT_AND_PARTIALLY_DOWN;
@@ -427,8 +423,6 @@ public class JewelArm {
                 if (upDownServoComplete) {
                     // movement is complete setup the next movement
                     elbowServo.setupMoveBySteps(.10, .01, 100);
-                    // start the servo moving
-                    elbowServoComplete = elbowServo.updateMoveBySteps();
                     // transition to the next state
                     currentGoAboveBallState = GoAboveBallStates.ARM_COMPLETELY_OUT_AND_PARTIALLY_DOWN;
                     delay(1000);
@@ -440,8 +434,6 @@ public class JewelArm {
                 if (elbowServoComplete) {
                     // movement is complete setup the next movement
                     upDownServo.setupMoveBySteps(.47, .01, 100);
-                    // start the servo moving
-                    upDownServoComplete = upDownServo.updateMoveBySteps();
                     // transition to the next state
                     currentGoAboveBallState = GoAboveBallStates.ARM_OUT_AND_COMPLETELY_DOWN;
                     delay(1000);
