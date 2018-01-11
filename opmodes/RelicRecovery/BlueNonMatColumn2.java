@@ -50,8 +50,8 @@ public class BlueNonMatColumn2 extends LinearOpMode {
         telemetry.update();
         waitForStart();
 
-        ballColor = robot.jewelArm.getBallColorAndKnockOffBall(AllianceColor.TeamColor.BLUE);
-        telemetry.addData("Ball color = ", ballColor.toString());
+        //ballColor = robot.jewelArm.getBallColorAndKnockOffBall(AllianceColor.TeamColor.BLUE);
+        //telemetry.addData("Ball color = ", ballColor.toString());
         telemetry.update();
         //sleep(500);
         blueNonMatColumn2Movements();
@@ -88,15 +88,15 @@ public class BlueNonMatColumn2 extends LinearOpMode {
     }
 
     public void blueNonMatColumn2Movements() {
-        driveStraight(-67, 0.1);
-        spinTurn(-40, 0.1, AdafruitIMU8863.AngleMode.ABSOLUTE);
+        driveStraight(-30.5, 0.1);
+        spinTurn(-45, 0.1, AdafruitIMU8863.AngleMode.ABSOLUTE);
         actualTurnAngle = robot.driveTrain.imu.getHeading();
-        robot.glyphDumper.dump();
+        //robot.glyphDumper.dump();
         sleep(1000);
-        robot.glyphDumper.goHome();
-        driveStraight(-20, 0.1);
-        driveStraight(10, 0.1);
-        telemetry.addData("Aiming for column 2 ", "BLUE");
+        //robot.glyphDumper.goHome();
+        //driveStraight(-20, 0.1);
+        //driveStraight(10, 0.1);
+        telemetry.addData("Ready for relic", "BLUE");
     }
 
     public void blueNonMatColumn3Movements() {
