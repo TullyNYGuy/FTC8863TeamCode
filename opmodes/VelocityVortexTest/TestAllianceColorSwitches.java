@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.VelocityVortexTest;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -13,7 +14,7 @@ import org.firstinspires.ftc.teamcode.opmodes.GenericTest.RobotConfigMappingForG
  *
  */
 @TeleOp(name = "Test Alliance Color Switches", group = "Test")
-//@Disabled
+@Disabled
 public class TestAllianceColorSwitches extends LinearOpMode {
 
     // Put your variable declarations here

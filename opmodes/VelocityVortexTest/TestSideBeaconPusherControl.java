@@ -17,7 +17,7 @@ import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.VelocityVortexRobot;
  *
  */
 @TeleOp(name = "Test Side Beacon Control", group = "Test")
-//@Disabled
+@Disabled
 public class TestSideBeaconPusherControl extends LinearOpMode {
 
     // Put your variable declarations here

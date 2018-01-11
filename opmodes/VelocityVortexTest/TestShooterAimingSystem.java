@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.VelocityVortexTest;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -14,7 +15,7 @@ import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.VelocityVortexShoote
  * This code assumes a DC motor configured with the name "leftMotor"  and "rightMotor"
  */
 @TeleOp(name = "Test Shooter Aiming System", group = "Test")
-//@Disabled
+@Disabled
 public class TestShooterAimingSystem extends LinearOpMode {
 
     // enums for a state machine for the shooter motor

@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.MuxPlusColorSensors;
  *
  */
 @TeleOp(name = "Test Front Beacon Pusher Control", group = "Test")
-//@Disabled
+@Disabled
 public class TestFrontBeaconPusherControl extends LinearOpMode {
 
     // Put your variable declarations here

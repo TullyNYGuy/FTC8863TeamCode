@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.GenericTest;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -34,7 +35,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitI2CMux;
  * data or put a delay in your code after switching mux ports and before reading color values.
  */
 @TeleOp(name = "Test Adafruit I2C Mux switching", group = "Test")
-//@Disabled
+@Disabled
 public class TestAdafruitI2CMuxSwitchingWithAdafruitColorSensor8863 extends LinearOpMode {
 
     // Put your variable declarations here

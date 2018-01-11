@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.VelocityVortexTest;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -15,7 +16,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
  *
  */
 @TeleOp(name = "Test Drive Beacon", group = "Test")
-//@Disabled
+@Disabled
 public class TestDrivingWithSideBeacon extends LinearOpMode {
 
     // Put your variable declarations here

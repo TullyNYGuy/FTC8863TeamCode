@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.VelocityVortexTest;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -15,7 +16,7 @@ import org.firstinspires.ftc.teamcode.opmodes.GenericTest.RobotConfigMappingForG
  *
  */
 @TeleOp(name = "Test Side Beacon Color Sensor", group = "Test")
-//@Disabled
+@Disabled
 public class TestSideBeaconColorSensor extends LinearOpMode {
 
     // Put your variable declarations here

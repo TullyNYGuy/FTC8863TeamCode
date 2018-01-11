@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.VelocityVortexTest;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -18,7 +19,7 @@ import org.firstinspires.ftc.teamcode.opmodes.GenericTest.RobotConfigMappingForG
  * This code assumes a DC motor configured with the name "leftMotor"  and "rightMotor"
  */
 @TeleOp(name = "Test Sweeper", group = "Test")
-//@Disabled
+@Disabled
 public class TestSweeper extends LinearOpMode {
 
     // enums for a state machine for the sweeper motor

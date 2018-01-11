@@ -29,7 +29,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitI2CMux;
  *
  */
 @TeleOp(name = "Test Adafruit I2C Mux", group = "Test")
-//@Disabled
+@Disabled
 public class TestAdafruitI2CMux extends LinearOpMode {
 
     // Put your variable declarations here
