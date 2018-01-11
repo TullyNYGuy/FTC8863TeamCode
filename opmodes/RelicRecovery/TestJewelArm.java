@@ -46,7 +46,9 @@ public class TestJewelArm extends LinearOpMode {
         //telemetry.addData("Ball color = ", ballColor.toString());
         //telemetry.update();
 
-        sleep (6000);
+        sleep (1000);
+
+        //leftJewelArm.testServoMotions();
 
         //leftJewelArm.elbowServo.setPosition(0);
       //leftJewelArm.shutdown();

@@ -247,6 +247,20 @@ public class JewelArm {
         telemetry.addData("Jewel Arm initialized", "!");
     }
 
+    public void testServoMotions() {
+        upDownServo.goPositionOne();
+        delay(1000);
+        upDownServo.goInitPosition();
+        delay(1000);
+        elbowServo.goPositionOne();
+        delay(1000);
+        elbowServo.goHome();
+        delay(1000);
+        frontBackServo.goPositionOne();
+        delay(1000);
+        frontBackServo.goPositionTwo();
+    }
+
     public void update() {
         boolean isUpdateGoAboveBallComplete = false;
         AdafruitColorSensor8863.ColorFromSensor ballColor;
@@ -378,28 +392,32 @@ public class JewelArm {
                 frontBackServo.setPosition(.55);
                 // transition to the next state
                 currentGoAboveBallState = GoAboveBallStates.ROTATE_TO_BALL;
+                delay(1000);
                 break;
             case ROTATE_TO_BALL:
                 telemetry.addData("state = ", currentGoAboveBallState.toString());
                 // delay so the front back servo has time to reach its destination
                 delay(100);
                 // setup the next movements
-                elbowServo.setupMoveBySteps(.20, .01, 5);
+                elbowServo.setupMoveBySteps(.20, .01, 100);
                 // start the servos moving
                 elbowServoComplete = elbowServo.updateMoveBySteps();
                 // transition to the next state
                 currentGoAboveBallState = GoAboveBallStates.ARM_PARTIALLY_OUT;
+                delay(1000);
                 break;
             case ARM_PARTIALLY_OUT:
                 telemetry.addData("state = ", currentGoAboveBallState.toString());
                 elbowServoComplete = elbowServo.updateMoveBySteps();
                 if(elbowServoComplete) {
                     //setup the next movements
-                    upDownServo.setupMoveBySteps(.30, .01, 5);
+                    upDownServo.setupMoveBySteps(.30, .01, 100);
                     // start the servos moving
                     upDownServoComplete = upDownServo.updateMoveBySteps();
                     // transition to the next state
-                    currentGoAboveBallState = GoAboveBallStates.ARM_PARTIALLY_OUT_AND_PARTIALLY_DOWN;
+                    currentGoAboveBallState = GoAboveBallStates.COMPLETE;
+                    //currentGoAboveBallState = GoAboveBallStates.ARM_PARTIALLY_OUT_AND_PARTIALLY_DOWN;
+                    delay(1000);
                 }
                 break;
             case ARM_PARTIALLY_OUT_AND_PARTIALLY_DOWN:
@@ -408,11 +426,12 @@ public class JewelArm {
                 upDownServoComplete = upDownServo.updateMoveBySteps();
                 if (upDownServoComplete) {
                     // movement is complete setup the next movement
-                    elbowServo.setupMoveBySteps(.10, .01, 5);
+                    elbowServo.setupMoveBySteps(.10, .01, 100);
                     // start the servo moving
                     elbowServoComplete = elbowServo.updateMoveBySteps();
                     // transition to the next state
                     currentGoAboveBallState = GoAboveBallStates.ARM_COMPLETELY_OUT_AND_PARTIALLY_DOWN;
+                    delay(1000);
                 }
                 break;
             case ARM_COMPLETELY_OUT_AND_PARTIALLY_DOWN:
@@ -420,11 +439,12 @@ public class JewelArm {
                 elbowServoComplete = elbowServo.updateMoveBySteps();
                 if (elbowServoComplete) {
                     // movement is complete setup the next movement
-                    upDownServo.setupMoveBySteps(.47, .01, 5);
+                    upDownServo.setupMoveBySteps(.47, .01, 100);
                     // start the servo moving
                     upDownServoComplete = upDownServo.updateMoveBySteps();
                     // transition to the next state
                     currentGoAboveBallState = GoAboveBallStates.ARM_OUT_AND_COMPLETELY_DOWN;
+                    delay(1000);
                 }
                 break;
             case ARM_OUT_AND_COMPLETELY_DOWN:
@@ -434,6 +454,7 @@ public class JewelArm {
                     // movement is complete and this overall movement is also complete
                     // transition to the next state
                     currentGoAboveBallState = GoAboveBallStates.COMPLETE;
+                    delay(1000);
                 }
                 break;
             case COMPLETE:
@@ -444,7 +465,7 @@ public class JewelArm {
         return completed;
     }
 
-    private boolean updateGoBetweenBall() {
+    public boolean updateGoBetweenBall() {
         boolean completed = false;
         boolean elbowServoComplete = false;
         boolean frontBackServoComplete = false;
