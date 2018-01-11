@@ -572,14 +572,21 @@ public class Servo8863 {
      *                                       conversion to int as part of the setup.
      */
     public void setupMoveBySteps(double endPosition, double positionStepSize, double timeBetweenStepsInMilliseconds) {
-        telemetry.addData("Starting position = ", "%3.2f", teamServo.getPosition());
-        telemetry.addData("Ending position = ", "%3.2f", endPosition);
+        //telemetry.addData("Starting position = ", "%3.2f", teamServo.getPosition());
+        //telemetry.addData("Ending position = ", "%3.2f", endPosition);
+
+        // set the variables - note the conversion to int from double
         servoStepStartPosition = convertDoubleToInt(teamServo.getPosition());
         servoStepEndPosition = convertDoubleToInt(endPosition);
         servoStepPositionIncrement = convertDoubleToInt(positionStepSize);
         servoStepTimeBetweenSteps = timeBetweenStepsInMilliseconds;
+
+        // create an timer to measure the time between steps
         servoStepTimer = new ElapsedTime();
         servoStepCurrentPosition = servoStepStartPosition;
+
+        // setup the incement to be either positive (increases the servo position) or negative
+        // (decreases the servo position) based on the direction of travel
         if (servoStepStartPosition > servoStepEndPosition) {
             servoMovementDirection = ServoMovementDirection.DECREASING;
             // since the commands will be decreasing make sure the increment is negative
@@ -615,14 +622,15 @@ public class Servo8863 {
         // In order to maintain a level of resolution I am taking 3 decimal places for the positions.
         // I.E x1000 before I turn them into an int.
 
-        telemetry.addData("current position = ", "%d", servoStepStartPosition);
-        telemetry.addData("end position     = ", "%d", servoStepEndPosition);
+        //telemetry.addData("current position = ", "%d", servoStepCurrentPosition);
+        //telemetry.addData("end position     = ", "%d", servoStepEndPosition);
 
         // the start and end positions are the same so the movement is effectively already complete
         if (servoMovementDirection == ServoMovementDirection.NOT_MOVING) {
             isComplete = true;
             return isComplete;
         }
+        // If we made it here we are actually stepping.
         // Are there more steps to be done in the series?
         if (Math.abs(servoStepCurrentPosition - servoStepEndPosition) > 0) {
             // there are still baby steps to be taken
@@ -645,7 +653,7 @@ public class Servo8863 {
             // is the last one in the series of steps.
             isComplete = true;
         }
-        telemetry.addData("isComplete = ", Boolean.toString(isComplete));
+        //telemetry.addData("isComplete = ", Boolean.toString(isComplete));
         return isComplete;
     }
 }
