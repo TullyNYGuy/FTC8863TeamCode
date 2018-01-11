@@ -273,7 +273,7 @@ public class AutonomousMethods extends LinearOpMode {
         return (transformationMatrix != null) ? transformationMatrix.formatAsTransform() : "null";
     }
 
-    public void getAutonomousMovements(StartPosition startPosition, RelicRecoveryVuMark vuMark) {
+    public void doAutonomousMovements(StartPosition startPosition, RelicRecoveryVuMark vuMark) {
         telemetry.addData("Starting Autonomous Movements", "!");
         telemetry.update();
         sleep(2000);
