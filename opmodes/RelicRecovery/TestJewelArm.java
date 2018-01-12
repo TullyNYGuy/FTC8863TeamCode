@@ -48,14 +48,15 @@ public class TestJewelArm extends LinearOpMode {
 
         sleep (1000);
 
-        //leftJewelArm.testServoMotions();
+        leftJewelArm.testServoMotions();
 
         //leftJewelArm.elbowServo.setPosition(0);
       //leftJewelArm.shutdown();
         while (opModeIsActive()) {
 
             // Put your calls that need to run in a loop here
-            leftJewelArm.updateGoAboveBall();
+            //leftJewelArm.updateGoAboveBall();
+            //leftJewelArm.updateGoBetweenBall();
 
             //leftJewelArm.elbowServo.updateServoCalibration();
             //leftJewelArm.frontBackServo.updateServoCalibration();
