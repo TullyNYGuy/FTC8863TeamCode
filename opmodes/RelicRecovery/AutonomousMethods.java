@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.opmodes.RelicRecovery;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
@@ -20,6 +21,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 import org.firstinspires.ftc.teamcode.Lib.RelicRecoveryLib.GlyphDumper;
+import org.firstinspires.ftc.teamcode.Lib.RelicRecoveryLib.ReadPictograph;
 import org.firstinspires.ftc.teamcode.Lib.RelicRecoveryLib.RelicRecoveryRobotStJohnFisher;
 import org.firstinspires.ftc.teamcode.opmodes.GenericTest.TestDrivingDistanceUsingIMURunToPosition;
 
@@ -41,21 +43,39 @@ public class AutonomousMethods extends LinearOpMode {
 
     public RelicRecoveryRobotStJohnFisher robot;
 
+
     double correction;
     DriveTrain.Status statusDrive;
     public double actualTurnAngle;
+    ReadPictograph readPictograph;
+    RelicRecoveryVuMark vuMark = RelicRecoveryVuMark.UNKNOWN;
+    ElapsedTime timeToRead;
 
 
     @Override
     public void runOpMode() {
         // Put your initializations here
         createRobot();
+        readPictograph = new ReadPictograph(hardwareMap, telemetry);
+        timeToRead = new ElapsedTime();
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
         telemetry.update();
         waitForStart();
+        readPictograph.runAtStart();
 
+        timeToRead.reset();
+        while (opModeIsActive() && vuMark == RelicRecoveryVuMark.UNKNOWN){
+            vuMark = readPictograph.getvuMark();
+        }
+        telemetry.addData("stopwatch =", "%5.2f", timeToRead.milliseconds());
+        telemetry.addData("vumark =", vuMark.toString());
+        telemetry.update();
+        sleep(4000);
+
+
+        doAutonomousMovements(StartPosition.RED_NO_MAT, vuMark);
         //redNonMatColumn1TestMovements();
 
         // Put your cleanup code here - it runs as the application shuts down
@@ -231,47 +251,6 @@ public class AutonomousMethods extends LinearOpMode {
         }
     }
 
-    /*public RelicRecoveryVuMark getPictograph() {
-
-        final String TAG = "Vuforia VuMark Sample";
-        VuforiaLocalizer vuforia;
-
-        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
-        parameters.vuforiaLicenseKey = "AdFJpV3/////AAAAGfTNpwzHLEWLhTazSUptJDdvoaO1q58UH3Ix0gMjIizeGqeRTy/mHyHpZI3hX3VrQk0S4VJKsiwBIUrTZy57oWoQQGsD/6JXnrC/R2zQ2ruhxmV9JYc6zr5Lhu+aUFdce/WJezBkcUv7fD2y6kmNHAWlYyMx3ZP8YX2bSfTWu4PjiO3N/CFelgIJSz5BCRtYeFb1gKkCYhsqKUNfkWXznEFvX8ppW72yjbfq62QwqGFeuql/3cPce8asiOVo9NLiG9mIuADM+FWLairEHQ4h2euGHa+JNrk36EO0zVAFk9G2RBQJRkwgA7jUOGpCEW0Qqt0XJoM+0T0sOVORrn3Lqp9M4ecaQYsQsR8RPoZRL0Ox";
-        parameters.cameraDirection = VuforiaLocalizer.CameraDirection.FRONT;
-        vuforia = ClassFactory.createVuforiaLocalizer(parameters);
-
-        *//**
-         * See if any of the instances of {@link } are currently visible.
-         * {@link RelicRecoveryVuMark} is an enum which can have the following values:
-         * UNKNOWN, LEFT, CENTER, and RIGHT. When a VuMark is visible, something other than
-         * UNKNOWN will be returned by {@link RelicRecoveryVuMark#from(VuforiaTrackable)}.
-         *//*
-        VuforiaTrackables relicTrackables = vuforia.loadTrackablesFromAsset("RelicVuMark");
-        VuforiaTrackable relicTemplate = relicTrackables.get(0);
-        relicTemplate.setName("relicVuMarkTemplate"); // can help in debugging; otherwise not necessary
-
-        relicTrackables.activate();
-
-//        RelicRecoveryVuMark vuMark = RelicRecoveryVuMark.from(relicTemplate);
-//        if (vuMark != RelicRecoveryVuMark.UNKNOWN) {
-//
-//                *//* Found an instance of the template. In the actual game, you will probably
-//                 * loop until this condition occurs, then move on to act accordingly depending
-//                 * on which VuMark was visible. *//*
-//            telemetry.addData("VuMark", "%s visible", vuMark);
-//
-//        } else {
-//            telemetry.addData("VuMark", "not visible");
-//        }
-//        return vuMark;
-        return RelicRecoveryVuMark.UNKNOWN;
-    }*/
-
-    String format(OpenGLMatrix transformationMatrix) {
-        return (transformationMatrix != null) ? transformationMatrix.formatAsTransform() : "null";
-    }
 
     public void doAutonomousMovements(StartPosition startPosition, RelicRecoveryVuMark vuMark) {
         telemetry.addData("Starting Autonomous Movements", "!");
