@@ -51,6 +51,17 @@ public class JewelArm {
         DOWN_AND_EXTENDING_OUT, //moves up down servo down between balls and extends elbow servo out more also between balls.
     }
 
+    private enum GetBallColorStates {
+        START,
+        COMPLETE,
+        BACK_BALL_RIGHT_POSITION,
+        BACK_BALL_CENTER_POSITION,
+        BACK_BALL_LEFT_POSITION,
+        FRONT_BALL_LEFT_POSITION,
+        FRONT_BALL_CENTER_POSITION,
+        FRONT_BALL_RIGHT_POSITION
+    }
+
     private enum GetBallColorAndKnockBallOffStates {
         START,
         COMPLETE,
@@ -241,8 +252,8 @@ public class JewelArm {
     //change the initposition commands with the ones above so its easier to read
     public void init() {
         upDownServo.goInitPosition();
-        frontBackServo.goInitPosition();
         elbowServo.goInitPosition();
+        frontBackServo.goInitPosition();
         colorSensor.turnLEDOn();
         telemetry.addData("Jewel Arm initialized", "!");
     }
@@ -377,6 +388,9 @@ public class JewelArm {
      * per loop of the robot opmode
      *
      * @return is the overall movement complete
+     * upDownServo - up = .05 down = .50
+     * frontBackServo - front = 0 back = 1
+     * elbowServo - in = 1 out = 0
      */
     public boolean updateGoAboveBall() {
         boolean completed = false;
@@ -432,7 +446,7 @@ public class JewelArm {
                 elbowServoComplete = elbowServo.updateMoveBySteps();
                 if (elbowServoComplete) {
                     // movement is complete setup the next movement
-                    upDownServo.setupMoveBySteps(.47, .01, 5);
+                    upDownServo.setupMoveBySteps(.47, .01, 10);
                     // transition to the next state
                     currentGoAboveBallState = GoAboveBallStates.ARM_OUT_AND_COMPLETELY_DOWN;
                     //delay(1000);
