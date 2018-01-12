@@ -33,7 +33,7 @@ import org.firstinspires.ftc.teamcode.Lib.RelicRecoveryLib.ReadPictograph;
 public class AutonomousRedNonMat extends AutonomousMethods {
 
     // Put your variable declarations here
-    StartPosition startPosition = StartPosition.RED_NO_MAT;
+    //StartPosition startPosition = StartPosition.RED_NO_MAT;
     AllianceColor.TeamColor teamColor = AllianceColor.TeamColor.RED;
     ReadPictograph readPictograph;
     RelicRecoveryVuMark vuMark;
@@ -54,7 +54,7 @@ public class AutonomousRedNonMat extends AutonomousMethods {
         readPictograph.runAtStart();
 
         vuMark = readPictograph.getvuMark();
-        doAutonomousMovements(startPosition, vuMark);
+        //doAutonomousMovements(startPosition, vuMark);
 
         while(opModeIsActive()) {
             //robot.jewelArm.knockOffBall(teamColor);

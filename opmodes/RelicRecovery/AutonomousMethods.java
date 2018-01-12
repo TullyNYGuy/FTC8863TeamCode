@@ -18,6 +18,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 import org.firstinspires.ftc.teamcode.Lib.RelicRecoveryLib.GlyphDumper;
@@ -35,14 +36,14 @@ public class AutonomousMethods extends LinearOpMode {
     // Put your variable declarations here
 
     public enum StartPosition {
-        BLUE_MAT,
-        BLUE_NO_MAT,
-        RED_MAT,
-        RED_NO_MAT
+        AWAY_FROM_MAT,
+        NEAR_MAT
     }
 
     public RelicRecoveryRobotStJohnFisher robot;
 
+    StartPosition startPosition;
+    AllianceColor.TeamColor teamColor;
 
     double correction;
     DriveTrain.Status statusDrive;
@@ -60,13 +61,17 @@ public class AutonomousMethods extends LinearOpMode {
         timeToRead = new ElapsedTime();
 
         // Wait for the start button
+        telemetry.addData("Alliance = ", teamColor.toString());
+        telemetry.addData("Position = ", startPosition.toString());
         telemetry.addData(">", "Press Start to run");
         telemetry.update();
+
         waitForStart();
+
         readPictograph.runAtStart();
 
         timeToRead.reset();
-        while (opModeIsActive() && vuMark == RelicRecoveryVuMark.UNKNOWN){
+        while (opModeIsActive() && vuMark == RelicRecoveryVuMark.UNKNOWN) {
             vuMark = readPictograph.getvuMark();
         }
         telemetry.addData("stopwatch =", "%5.2f", timeToRead.milliseconds());
@@ -75,8 +80,7 @@ public class AutonomousMethods extends LinearOpMode {
         sleep(4000);
 
 
-        doAutonomousMovements(StartPosition.RED_NO_MAT, vuMark);
-        //redNonMatColumn1TestMovements();
+        doAutonomousMovements(startPosition, teamColor, vuMark);
 
         // Put your cleanup code here - it runs as the application shuts down
         telemetry.addData("actual turn angle was ", "%3.2f", actualTurnAngle);
@@ -93,6 +97,10 @@ public class AutonomousMethods extends LinearOpMode {
         telemetry.update();
         robot = robot.createRobotForAutonomous(hardwareMap, telemetry);
     }
+
+    //**********************************************************************************************
+    // AUTONOMOUS MOVEMENTS - BLUE
+    //**********************************************************************************************
 
     /**
      * Movements from blue side toward cryptobox that is farthest away from relic zone mats
@@ -133,22 +141,11 @@ public class AutonomousMethods extends LinearOpMode {
         telemetry.addData("Aiming for column 3 ", "BLUE");
     }
 
-//    public void redNonMatColumn1Movements() {
-//        //turn on block
-//        //spinTurn(-9.0, 0.1, AdafruitIMU8863.AngleMode.ABSOLUTE);
-//        spinTurn(4.3, 0.1, AdafruitIMU8863.AngleMode.ABSOLUTE);
-//        actualTurnAngle = robot.driveTrain.imu.getHeading();
-//        //drive straight
-//        driveStraight(-65, 0.1);
-//        robot.glyphDumper.dump();
-//        sleep(1000);
-//        robot.glyphDumper.goHome();
-//        driveStraight(-10, 0.1);
-//        sleep(1500);
-//        driveStraight(15, 0.1);
-//    }
+    //**********************************************************************************************
+    // AUTONOMOUS MOVEMENTS - RED
+    //**********************************************************************************************
 
-    public void redNonMatColumn1TestMovements() {
+    public void redNonMatColumn1Movements() {
         telemetry.addData("Aiming for column 1 ", "RED");
         telemetry.update();
         //sleep(2000);
@@ -164,7 +161,7 @@ public class AutonomousMethods extends LinearOpMode {
         telemetry.addData("Aiming for column 1 ", "RED");
     }
 
-    public void redNonMatColumnTest2Movements() {
+    public void redNonMatColumn2Movements() {
         telemetry.addData("Aiming for column 2 ", "RED");
         telemetry.update();
         //sleep(2000);
@@ -180,7 +177,7 @@ public class AutonomousMethods extends LinearOpMode {
         telemetry.addData("Aiming for column 2 ", "RED");
     }
 
-    public void redNonMatColumnTest3Movements() {
+    public void redNonMatColumn3Movements() {
         telemetry.addData("Aiming for column 3 ", "RED");
         telemetry.update();
         //sleep(2000);
@@ -196,6 +193,9 @@ public class AutonomousMethods extends LinearOpMode {
         telemetry.addData("Aiming for column 3 ", "RED");
     }
 
+    //**********************************************************************************************
+    // AUTONOMOUS MOVEMENTS - GENERIC METHODS
+    //**********************************************************************************************
 
     public void driveStraight(double distance, double power) {
         robot.driveTrain.setupDriveDistance(power, distance, DcMotor8863.FinishBehavior.FLOAT);
@@ -251,80 +251,169 @@ public class AutonomousMethods extends LinearOpMode {
         }
     }
 
+    //**********************************************************************************************
+    // AUTONOMOUS MOVEMENTS - CONTROL AND SWITCHING
+    //**********************************************************************************************
 
-    public void doAutonomousMovements(StartPosition startPosition, RelicRecoveryVuMark vuMark) {
+    public void doAutonomousMovements(StartPosition startPosition, AllianceColor.TeamColor teamColor, RelicRecoveryVuMark vuMark) {
         telemetry.addData("Starting Autonomous Movements", "!");
         telemetry.update();
-        sleep(2000);
-        //RelicRecoveryVuMark vuMark = getPictograph();
-        switch (vuMark) {
-            case LEFT:
+        switch (teamColor){
+            case RED:
                 switch (startPosition) {
-                    case RED_MAT:
-                        //do nothing
+                    case NEAR_MAT:
+                        switch (vuMark) {
+                            case LEFT:
+                                break;
+                            case CENTER: case UNKNOWN:
+                                break;
+                            case RIGHT:
+                                break;
+                        }
                         break;
-                    case BLUE_MAT:
-                        //do nothing
-                        break;
-                    case RED_NO_MAT:
-                        redNonMatColumnTest3Movements();
-                        break;
-                    case BLUE_NO_MAT:
-                        blueNonMatColumn1Movements();
+                    case AWAY_FROM_MAT:
+                        switch (vuMark) {
+                            case LEFT:
+                                redNonMatColumn1Movements();
+                                break;
+                            case CENTER: case UNKNOWN:
+                                redNonMatColumn2Movements();
+                                break;
+                            case RIGHT:
+                                redNonMatColumn3Movements();
+                                break;
+                        }
                         break;
                 }
                 break;
-            case RIGHT:
+            case BLUE:
                 switch (startPosition) {
-                    case RED_MAT:
-                        //do nothing
+                    case NEAR_MAT:
+                        switch (vuMark) {
+                            case LEFT:
+                                break;
+                            case CENTER: case UNKNOWN:
+                                break;
+                            case RIGHT:
+                                break;
+                        }
                         break;
-                    case BLUE_MAT:
-                        //do nothing
-                        break;
-                    case RED_NO_MAT:
-                        redNonMatColumn1TestMovements();
-                        break;
-                    case BLUE_NO_MAT:
-                        blueNonMatColumn3Movements();
-                        break;
-                }
-                break;
-            case CENTER:
-                switch (startPosition) {
-                    case RED_MAT:
-                        //do nothing
-                        break;
-                    case BLUE_MAT:
-                        //do nothing
-                        break;
-                    case RED_NO_MAT:
-                        redNonMatColumnTest2Movements();
-                        break;
-                    case BLUE_NO_MAT:
-                        blueNonMatColumn2Movements();
-                        break;
-                }
-                break;
-            case UNKNOWN:
-                switch (startPosition) {
-                    case RED_MAT:
-                        //do nothing
-                        break;
-                    case BLUE_MAT:
-                        //do nothing
-                        break;
-                    case RED_NO_MAT:
-                        redNonMatColumnTest2Movements();
-                        break;
-                    case BLUE_NO_MAT:
-                        blueNonMatColumn2Movements();
+                    case AWAY_FROM_MAT:
+                        switch (vuMark) {
+                            case LEFT:
+                                blueNonMatColumn3Movements();
+                                break;
+                            case CENTER: case UNKNOWN:
+                                blueNonMatColumn2Movements();
+                                break;
+                            case RIGHT:
+                                blueNonMatColumn1Movements();
+                                break;
+                        }
                         break;
                 }
                 break;
         }
-        telemetry.addData("Ending Switch statements", "!");
-        telemetry.update();
-        sleep(2000);
+
+//        switch (vuMark) {
+//            case LEFT:
+//                switch (teamColor) {
+//                    case RED:
+//                        switch (startPosition) {
+//                            case AWAY_FROM_MAT:
+//                                redNonMatColum3Movements();
+//                                break;
+//                            case NEAR_MAT:
+//
+//                                break;
+//                        }
+//                        break;
+//                    case BLUE:
+//                        switch (startPosition) {
+//                            case AWAY_FROM_MAT:
+//                                break;
+//                            case NEAR_MAT:
+//                                break;
+//                        }
+//                        break;
+//                }
+//                switch (startPosition) {
+//                    case RED_MAT:
+//                        //do nothing
+//                        break;
+//                    case BLUE_MAT:
+//                        //do nothing
+//                        break;
+//                    case RED_NO_MAT:
+//                        redNonMatColumnTest3Movements();
+//                        break;
+//                    case BLUE_NO_MAT:
+//                        blueNonMatColumn1Movements();
+//                        break;
+//                }
+//                break;
+//            case RIGHT:
+//                switch (startPosition) {
+//                    case RED_MAT:
+//                        //do nothing
+//                        break;
+//                    case BLUE_MAT:
+//                        //do nothing
+//                        break;
+//                    case RED_NO_MAT:
+//                        redNonMatColumn1TestMovements();
+//                        break;
+//                    case BLUE_NO_MAT:
+//                        blueNonMatColumn3Movements();
+//                        break;
+//                }
+//                break;
+//            case CENTER:
+//                switch (startPosition) {
+//                    case RED_MAT:
+//                        //do nothing
+//                        break;
+//                    case BLUE_MAT:
+//                        //do nothing
+//                        break;
+//                    case RED_NO_MAT:
+//                        redNonMatColumnTest2Movements();
+//                        break;
+//                    case BLUE_NO_MAT:
+//                        blueNonMatColumn2Movements();
+//                        break;
+//                }
+//                break;
+//            case UNKNOWN:
+//                switch (startPosition) {
+//                    case RED_MAT:
+//                        //do nothing
+//                        break;
+//                    case BLUE_MAT:
+//                        //do nothing
+//                        break;
+//                    case RED_NO_MAT:
+//                        redNonMatColumnTest2Movements();
+//                        break;
+//                    case BLUE_NO_MAT:
+//                        blueNonMatColumn2Movements();
+//                        break;
+//                }
+//                break;
+//        }
+//        telemetry.addData("Ending Switch statements", "!");
+//        telemetry.update();
+//        sleep(2000);
+    }
+
+    /**
+     * Pass in the start position and teamcolor from an autonomous picker opmode
+     *
+     * @param startPosition
+     * @param teamColor
+     */
+    public void setPositionsAndColor(StartPosition startPosition, AllianceColor.TeamColor teamColor) {
+        this.startPosition = startPosition;
+        this.teamColor = teamColor;
     }
 }
