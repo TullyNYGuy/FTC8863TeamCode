@@ -195,6 +195,7 @@ public class RelicRecoveryTeleop extends LinearOpMode {
             if (gamepad1RightBumper.buttonPress(gamepad1.right_bumper)) {
                 // this was a new button press, not a button held down for a while
                 // put the command to be executed here
+                telemetry.addData("relic alignment started", "!");
                 relicAlignment();
             }
 
