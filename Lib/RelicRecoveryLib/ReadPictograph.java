@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.Lib.RelicRecoveryLib;
 
-
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
@@ -15,14 +14,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 public class ReadPictograph {
 
     //*********************************************************************************************
-    //          ENUMERATED TYPES
-    //
-    // user defined types
-    //
-    //*********************************************************************************************
-
-
-    //*********************************************************************************************
     //          PRIVATE DATA FIELDS
     //
     // can be accessed only by this class, or by using the public
@@ -30,10 +21,7 @@ public class ReadPictograph {
     //*********************************************************************************************
     public static final String TAG = "Vuforia VuMark Sample";
     OpenGLMatrix lastLocation = null;
-    /**
-     * {@link #vuforia} is the variable we will use to store our instance of the Vuforia
-     * localization engine.
-     */
+
     private VuforiaLocalizer vuforia;
     private HardwareMap hardwareMap;
     private Telemetry telemetry;
@@ -59,6 +47,7 @@ public class ReadPictograph {
     // from it
     //*********************************************************************************************
     public ReadPictograph(HardwareMap hardwareMap, Telemetry telemetry) {
+        this.telemetry = telemetry;
         init(hardwareMap);
         // MATT and JARED - this method is not supposed to run until after play is pressed - so
         // I commented it out
@@ -97,13 +86,6 @@ public class ReadPictograph {
 
     public RelicRecoveryVuMark getvuMark() {
         RelicRecoveryVuMark vuMark = RelicRecoveryVuMark.from(relicTemplate);
-            if (vuMark != RelicRecoveryVuMark.UNKNOWN) {
-                telemetry.addData("VuMark", "%s visible", vuMark);
-            } else {
-                telemetry.addData("VuMark", "not visible");
-            }
-        telemetry.update();
-
         return vuMark;
     }
 }
