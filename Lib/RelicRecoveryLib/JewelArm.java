@@ -9,6 +9,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitColorSensor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitColorSensor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
 import org.firstinspires.ftc.teamcode.opmodes.RelicRecovery.TestJewelArm;
 
@@ -109,6 +110,8 @@ public class JewelArm {
     private AdafruitColorSensor8863 colorSensor;
     private Telemetry telemetry;
 
+    private DataLogging dataLog = null;
+
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -123,6 +126,12 @@ public class JewelArm {
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
+
+    public JewelArm(RobotSide robotSide, HardwareMap hardwareMap, Telemetry telemetry, DataLogging dataLog){
+        // this says to run the constructor below
+        this(robotSide, hardwareMap, telemetry);
+        this.dataLog = dataLog;
+    }
     public JewelArm(RobotSide robotSide, HardwareMap hardwareMap, Telemetry telemetry) {
         this.telemetry = telemetry;
         if (robotSide == RobotSide.LEFT) {
@@ -256,6 +265,9 @@ public class JewelArm {
         frontBackServo.goInitPosition();
         colorSensor.turnLEDOn();
         telemetry.addData("Jewel Arm initialized", "!");
+        if(dataLog != null) {
+            dataLog.logData("Jewel Arm initialized");
+        }
     }
 
     public void testServoMotions() {
@@ -294,6 +306,9 @@ public class JewelArm {
     public AdafruitColorSensor8863.ColorFromSensor getBallColor() {
         AdafruitColorSensor8863.ColorFromSensor colorFromSensor;
         colorFromSensor = colorSensor.getSimpleColor();
+        if (dataLog != null) {
+            dataLog.logData("Jewel color = " + colorFromSensor.toString());
+        }
         return colorFromSensor;
     }
 
@@ -465,6 +480,9 @@ public class JewelArm {
             case COMPLETE:
                 telemetry.addData("state = ", currentGoAboveBallState.toString());
                 completed = true;
+                if (dataLog != null) {
+                    dataLog.logData("Completed moving to above ball");
+                }
                 break;
         }
         return completed;
@@ -508,6 +526,10 @@ public class JewelArm {
                 }
                 break;
             case COMPLETE:
+                if (dataLog != null) {
+                    dataLog.logData("Completed moving between balls");
+                }
+                completed = true;
                 break;
         }
         return completed;

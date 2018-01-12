@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.RelicRecovery;
 
+import android.provider.ContactsContract;
+
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -7,6 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitColorSensor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitColorSensor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.RelicRecoveryLib.JewelArm;
 
 /**
@@ -18,11 +21,13 @@ public class TestJewelArm extends LinearOpMode {
 
     JewelArm leftJewelArm;
     public AdafruitColorSensor8863.ColorFromSensor ballColor;
+    DataLogging dataLog;
 
     public void runOpMode() {
 
         // Put your initializations here
-        leftJewelArm = new JewelArm(JewelArm.RobotSide.LEFT, hardwareMap, telemetry);
+        dataLog = new DataLogging("jewelArmTest", telemetry);
+        leftJewelArm = new JewelArm(JewelArm.RobotSide.LEFT, hardwareMap, telemetry, dataLog);
         leftJewelArm.init();
 
         // Wait for the start button
