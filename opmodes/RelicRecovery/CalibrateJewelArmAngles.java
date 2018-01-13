@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitColorSensor8863;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.GamepadButtonMultiPush;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.JoyStick;
 import org.firstinspires.ftc.teamcode.Lib.RelicRecoveryLib.JewelArm;
@@ -14,7 +15,10 @@ import org.firstinspires.ftc.teamcode.Lib.RelicRecoveryLib.JewelArm;
 @TeleOp(name = "Calibrate Jewel Arm Angles", group = "Test")
 //@Disabled
 public class CalibrateJewelArmAngles extends LinearOpMode {
-
+    public AdafruitIMU8863 imu;
+    double heading = 0;
+    double pitch = 0;
+    double roll = 0;
     // GAMEPAD 1
 
     // declare the buttons on the gamepad as multi push button objects
@@ -81,6 +85,8 @@ public class CalibrateJewelArmAngles extends LinearOpMode {
         // create the robot
         telemetry.addData("Initializing ...", "Wait for it ...");
         telemetry.update();
+        imu = new AdafruitIMU8863(hardwareMap);
+        telemetry.addData("IMU Initialized", "!");
 
         // create the gamepad 1 buttons and tell each button how many commands it has
         gamepad1RightBumper = new GamepadButtonMultiPush(1);
@@ -122,7 +128,8 @@ public class CalibrateJewelArmAngles extends LinearOpMode {
         gamepad2LeftJoyStickY = new JoyStick(JoyStick.JoyStickMode.SQUARE, JOYSTICK_DEADBAND_VALUE, JoyStick.InvertSign.INVERT_SIGN);
 
         gamepad2RightJoyStickX = new JoyStick(JoyStick.JoyStickMode.SQUARE, JOYSTICK_DEADBAND_VALUE, JoyStick.InvertSign.NO_INVERT_SIGN);
-        gamepad2RightJoyStickY = new JoyStick(JoyStick.JoyStickMode.SQUARE, JOYSTICK_DEADBAND_VALUE, JoyStick.InvertSign.INVERT_SIGN);;
+        gamepad2RightJoyStickY = new JoyStick(JoyStick.JoyStickMode.SQUARE, JOYSTICK_DEADBAND_VALUE, JoyStick.InvertSign.INVERT_SIGN);
+        ;
 
         leftJewelArm = new JewelArm(JewelArm.RobotSide.LEFT, hardwareMap, telemetry);
 
@@ -137,7 +144,7 @@ public class CalibrateJewelArmAngles extends LinearOpMode {
                 // this was a new button press, not a button held down for a while
                 // put the command to be executed here
                 // center 0 degrees
-                leftJewelArm.elbowServo.setupMoveBySteps(0, .01,50);
+                leftJewelArm.elbowServo.setupMoveBySteps(0, .01, 50);
                 leftJewelArm.upDownServo.setupMoveBySteps(.5, .01, 50);
                 leftJewelArm.frontBackServo.setupMoveBySteps(.48, .01, 50);
             }
@@ -146,7 +153,7 @@ public class CalibrateJewelArmAngles extends LinearOpMode {
                 // this was a new button press, not a button held down for a while
                 // put the command to be executed here
                 // front 45 degrees
-                leftJewelArm.elbowServo.setupMoveBySteps(0, .01,50);
+                leftJewelArm.elbowServo.setupMoveBySteps(0, .01, 50);
                 leftJewelArm.upDownServo.setupMoveBySteps(.5, .01, 50);
                 leftJewelArm.frontBackServo.setupMoveBySteps(.25, .01, 50);
             }
@@ -160,7 +167,7 @@ public class CalibrateJewelArmAngles extends LinearOpMode {
                 // this was a new button press, not a button held down for a while
                 // put the command to be executed here
                 // back 45 degrees
-                leftJewelArm.elbowServo.setupMoveBySteps(0, .01,50);
+                leftJewelArm.elbowServo.setupMoveBySteps(0, .01, 50);
                 leftJewelArm.upDownServo.setupMoveBySteps(.5, .01, 50);
                 leftJewelArm.frontBackServo.setupMoveBySteps(.70, .01, 50);
             }
@@ -169,9 +176,9 @@ public class CalibrateJewelArmAngles extends LinearOpMode {
                 // this was a new button press, not a button held down for a while
                 // put the command to be executed here
                 // up 0 degrees
-                leftJewelArm.elbowServo.setupMoveBySteps(0, .01,50);
-                leftJewelArm.upDownServo.setPosition(.05);
-                leftJewelArm.upDownServo.setupMoveBySteps(.05, .01, 50);
+                leftJewelArm.elbowServo.setupMoveBySteps(0, .01, 50);
+                //leftJewelArm.upDownServo.setPosition(.05);
+                leftJewelArm.upDownServo.setupMoveBySteps(.044, .01, 50);
                 leftJewelArm.frontBackServo.setupMoveBySteps(.48, .01, 50);
             }
 
@@ -179,7 +186,7 @@ public class CalibrateJewelArmAngles extends LinearOpMode {
                 // this was a new button press, not a button held down for a while
                 // put the command to be executed here
                 // down
-                leftJewelArm.upDownServo.setPosition(.75);
+                leftJewelArm.upDownServo.setPosition(.5);
             }
 
             if (gamepad1DpadLeft.buttonPress(gamepad1.dpad_left)) {
@@ -191,15 +198,23 @@ public class CalibrateJewelArmAngles extends LinearOpMode {
                 // this was a new button press, not a button held down for a while
                 // put the command to be executed here
                 // center 90 degrees
-                leftJewelArm.elbowServo.setupMoveBySteps(0, .01,50);
-                leftJewelArm.upDownServo.setupMoveBySteps(.4, .01, 50);
+                leftJewelArm.elbowServo.setupMoveBySteps(0, .01, 50);
+                leftJewelArm.upDownServo.setupMoveBySteps(.47, .01, 50);
                 leftJewelArm.frontBackServo.setupMoveBySteps(.48, .01, 50);
             }
 
             leftJewelArm.elbowServo.updateMoveBySteps();
             leftJewelArm.upDownServo.updateMoveBySteps();
             leftJewelArm.frontBackServo.updateMoveBySteps();
+            heading = imu.getHeading();
+            pitch = imu.getPitch();
+            roll = imu.getRoll();
 
+            // Display the current value
+            telemetry.addData("IMU mode = ", imu.getAngleMode().toString());
+            telemetry.addData("Heading = ", "%5.2f", heading);
+            telemetry.addData("Pitch = ", "%5.2f", pitch);
+            telemetry.addData("Roll = ", "%5.2f", roll);
             telemetry.addData(">", "Press Stop to end test.");
             telemetry.update();
 
