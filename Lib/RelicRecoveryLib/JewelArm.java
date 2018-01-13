@@ -63,6 +63,16 @@ public class JewelArm {
         FRONT_BALL_RIGHT_POSITION
     }
 
+    private enum UpdateStates {
+        START,
+        COMPLETE,
+        MOVING_ABOVE_BALL,
+        GET_BALL_COLOR,
+        BALL_BLUE,
+        GO_BETWEEN_BALLS,
+        KNOCK_BALL,
+    }
+
 
     AllianceColor.TeamColor teamColor;
 
@@ -79,11 +89,16 @@ public class JewelArm {
      * When the movement is complete it will equal COMPLETE.
      */
 
+
+    private UpdateStates currentUpdateState = UpdateStates.START;
+
     private GoAboveBallStates currentGoAboveBallState = GoAboveBallStates.START;
 
     private GoBetweenBallStates currentGoBetweenBallState = GoBetweenBallStates.START;
 
     private GetBallColorStates currentGetBallColorStates = GetBallColorStates.START;
+
+    private AdafruitColorSensor8863.ColorFromSensor ballColor = AdafruitColorSensor8863.ColorFromSensor.RED;
 
     private double servoArmUpPosition;
     private double servoArmDownPosition;
@@ -118,14 +133,15 @@ public class JewelArm {
     // from it
     //*********************************************************************************************
 
-    public JewelArm(RobotSide robotSide, HardwareMap hardwareMap, Telemetry telemetry, DataLogging dataLog) {
+    public JewelArm(RobotSide robotSide, HardwareMap hardwareMap, Telemetry telemetry, AllianceColor.TeamColor teamColor, DataLogging dataLog) {
         // this says to run the constructor below
-        this(robotSide, hardwareMap, telemetry);
+        this(robotSide, hardwareMap, telemetry, teamColor);
         this.dataLog = dataLog;
     }
 
-    public JewelArm(RobotSide robotSide, HardwareMap hardwareMap, Telemetry telemetry) {
+    public JewelArm(RobotSide robotSide, HardwareMap hardwareMap, Telemetry telemetry, AllianceColor.TeamColor teamColor) {
         this.telemetry = telemetry;
+        this.teamColor = teamColor;
         if (robotSide == RobotSide.LEFT) {
             servoArmUpPosition = 0.05;
             servoArmDownPosition = 0.55;
@@ -276,17 +292,53 @@ public class JewelArm {
         frontBackServo.goPositionTwo();
     }
 
-    public void update() {
-        boolean isUpdateGoAboveBallComplete = false;
-        AdafruitColorSensor8863.ColorFromSensor ballColor;
-        // this calls state machines that control the movements of the servos.
-        // It could be one big state machine but it is easier to debug if we keep the movements
-        // separate.
-        isUpdateGoAboveBallComplete = updateGoAboveBall();
-        if (isUpdateGoAboveBallComplete) {
-            ballColor = getBallColor();
-        }
-        // one update for each movement will go here
+    public boolean update() {
+        //boolean isUpdateGoAboveBallComplete = false;
+//        AdafruitColorSensor8863.ColorFromSensor ballColor;
+//        // this calls state machines that control the movements of the servos.
+//        // It could be one big state machine but it is easier to debug if we keep the movements
+//        // separate.
+//        isUpdateGoAboveBallComplete = updateGoAboveBall();
+//        if (isUpdateGoAboveBallComplete) {
+//            ballColor = getBallColor();
+//        }
+            boolean completed = false;
+            switch (currentUpdateState){
+                case START:
+                    updateGoAboveBall();
+                    currentUpdateState = UpdateStates.MOVING_ABOVE_BALL;
+                    break;
+                case MOVING_ABOVE_BALL:
+                    if (updateGoAboveBall()) {
+                        currentUpdateState = UpdateStates.GET_BALL_COLOR;
+                    }
+                    break;
+                case GET_BALL_COLOR:
+                    if (updateGetBallColor()) {
+                        if (ballColor  == AdafruitColorSensor8863.ColorFromSensor.RED) {
+                            currentUpdateState = UpdateStates.COMPLETE;
+                        }
+                        else {
+                            currentUpdateState = UpdateStates.BALL_BLUE;
+                        }
+                    }
+                    break;
+                case BALL_BLUE:
+                    if (updateGoBetweenBall()) {
+                        currentUpdateState = UpdateStates.KNOCK_BALL;
+                    }
+                    break;
+                case KNOCK_BALL:
+                    knockOffBall2(teamColor, ballColor);
+                    currentUpdateState = UpdateStates.COMPLETE;
+                    break;
+                case COMPLETE:
+                    completed = true;
+                    goHome();
+                    break;
+
+            }
+            return completed;
     }
 
     public void shutdown() {
@@ -480,15 +532,14 @@ public class JewelArm {
         return completed;
     }
 
-    public AdafruitColorSensor8863.ColorFromSensor updateGetBallColorStates() {
+    public boolean updateGetBallColor() {
         boolean completed = false;
         boolean frontBackServoComplete = false;
-        AdafruitColorSensor8863.ColorFromSensor ballColor = AdafruitColorSensor8863.ColorFromSensor.RED;
         double nextPosition;
 
         switch (currentGetBallColorStates) {
             case BACK_BALL_CENTER_POSITION:
-                getBallColor();
+               ballColor = getBallColor();
                 if (ballColor == AdafruitColorSensor8863.ColorFromSensor.BLUE) {
                     currentGetBallColorStates = currentGetBallColorStates.COMPLETE;
                 }
@@ -498,7 +549,7 @@ public class JewelArm {
                 currentGetBallColorStates = currentGetBallColorStates.BACK_BALL_RIGHT_POSITION;
                 break;
             case BACK_BALL_RIGHT_POSITION:
-                getBallColor();
+                 ballColor = getBallColor();
                 if (ballColor == AdafruitColorSensor8863.ColorFromSensor.BLUE) {
                     currentGetBallColorStates = currentGetBallColorStates.COMPLETE;
                 }
@@ -508,7 +559,7 @@ public class JewelArm {
                 currentGetBallColorStates = currentGetBallColorStates.BACK_BALL_LEFT_POSITION;
                 break;
             case BACK_BALL_LEFT_POSITION:
-                getBallColor();
+                ballColor = getBallColor();
                 if (ballColor == AdafruitColorSensor8863.ColorFromSensor.BLUE) {
                     currentGetBallColorStates = currentGetBallColorStates.COMPLETE;
                 }
@@ -518,7 +569,7 @@ public class JewelArm {
                 currentGetBallColorStates = currentGetBallColorStates.FRONT_BALL_RIGHT_POSITION;
                 break;
             case FRONT_BALL_RIGHT_POSITION:
-                getBallColor();
+                ballColor = getBallColor();
                 if (ballColor == AdafruitColorSensor8863.ColorFromSensor.BLUE) {
                     currentGetBallColorStates = currentGetBallColorStates.COMPLETE;
                 }
@@ -528,7 +579,7 @@ public class JewelArm {
                 currentGetBallColorStates = currentGetBallColorStates.FRONT_BALL_CENTER_POSITION;
                 break;
             case FRONT_BALL_CENTER_POSITION:
-                getBallColor();
+                ballColor = getBallColor();
                 if (ballColor == AdafruitColorSensor8863.ColorFromSensor.BLUE) {
                     currentGetBallColorStates = currentGetBallColorStates.COMPLETE;
                 }
@@ -539,7 +590,7 @@ public class JewelArm {
                 break;
 
             case FRONT_BALL_LEFT_POSITION:
-                getBallColor();
+                ballColor = getBallColor();
                 if (ballColor == AdafruitColorSensor8863.ColorFromSensor.BLUE) {
                     currentGetBallColorStates = currentGetBallColorStates.COMPLETE;
                 }
@@ -553,8 +604,7 @@ public class JewelArm {
                 break;
 
         }
-
-        return ballColor;
+        return completed;
     }
 
     public boolean updateGoBetweenBall() {
@@ -649,17 +699,17 @@ public class JewelArm {
         delay(1000);
     }
 
-    public AdafruitColorSensor8863.ColorFromSensor getBallColorAndKnockOffBall(AllianceColor.TeamColor teamColor) {
-        AdafruitColorSensor8863.ColorFromSensor ballColor;
-
-        goAboveBall2();
-        ballColor = getBallColor();
-        moveBetweenBalls();
-        knockOffBall2(teamColor, ballColor);
-        goInit();
-        delay(250);
-        return ballColor;
-    }
+//    public AdafruitColorSensor8863.ColorFromSensor getBallColorAndKnockOffBall(AllianceColor.TeamColor teamColor) {
+//        AdafruitColorSensor8863.ColorFromSensor ballColor;
+//
+//        goAboveBall2();
+//        ballColor = getBallColor();
+//        moveBetweenBalls();
+//        knockOffBall2(teamColor, ballColor);
+//        goInit();
+//        delay(250);
+//        return ballColor;
+//    }
 
     private double distanceFromTopOfBallToWall = 4; //cm
     private double distanceFromSensorToServo = -1.2; //cm
@@ -682,7 +732,7 @@ public class JewelArm {
 
     public double calculateServoToBallDistance(double distanceToBallStraight) {
         double armServoToBallDistance = 0; // b on math sheet
-        armServoToBallDistance = Math.sqrt(distanceToBallStraight * distanceToBallStraight + (armServoToFloorDistance - heightToTopOfBall));
+        armServoToBallDistance = Math.sqrt(distanceToBallStraight * distanceToBallStraight + Math.pow((armServoToFloorDistance - heightToTopOfBall), 2));
         return armServoToBallDistance;
     }
 

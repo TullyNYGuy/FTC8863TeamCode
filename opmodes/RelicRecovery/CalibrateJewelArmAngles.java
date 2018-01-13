@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitColorSensor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.GamepadButtonMultiPush;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.JoyStick;
 import org.firstinspires.ftc.teamcode.Lib.RelicRecoveryLib.JewelArm;
@@ -131,7 +132,7 @@ public class CalibrateJewelArmAngles extends LinearOpMode {
         gamepad2RightJoyStickY = new JoyStick(JoyStick.JoyStickMode.SQUARE, JOYSTICK_DEADBAND_VALUE, JoyStick.InvertSign.INVERT_SIGN);
         ;
 
-        leftJewelArm = new JewelArm(JewelArm.RobotSide.LEFT, hardwareMap, telemetry);
+        leftJewelArm = new JewelArm(JewelArm.RobotSide.LEFT, hardwareMap, telemetry, AllianceColor.TeamColor.RED);
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
@@ -176,10 +177,12 @@ public class CalibrateJewelArmAngles extends LinearOpMode {
                 // this was a new button press, not a button held down for a while
                 // put the command to be executed here
                 // up 0 degrees
-                leftJewelArm.elbowServo.setupMoveBySteps(0, .01, 50);
-                //leftJewelArm.upDownServo.setPosition(.05);
-                leftJewelArm.upDownServo.setupMoveBySteps(.044, .01, 50);
-                leftJewelArm.frontBackServo.setupMoveBySteps(.48, .01, 50);
+                leftJewelArm.elbowServo.setPosition(0);
+                //leftJewelArm.elbowServo.setupMoveBySteps(0, .01, 50);
+                leftJewelArm.upDownServo.setPosition(.044);
+                //leftJewelArm.upDownServo.setupMoveBySteps(.044, .01, 50);
+                //leftJewelArm.frontBackServo.setupMoveBySteps(.48, .01, 50);
+                leftJewelArm.frontBackServo.setPosition(48);
             }
 
             if (gamepad1DpadDown.buttonPress(gamepad1.dpad_down)) {
@@ -192,6 +195,7 @@ public class CalibrateJewelArmAngles extends LinearOpMode {
             if (gamepad1DpadLeft.buttonPress(gamepad1.dpad_left)) {
                 // this was a new button press, not a button held down for a while
                 // put the command to be executed here
+                imu.resetAngleReferences();
             }
 
             if (gamepad1DpadRight.buttonPress(gamepad1.dpad_right)) {

@@ -11,21 +11,21 @@ import org.firstinspires.ftc.teamcode.Lib.RelicRecoveryLib.JewelArm;
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Test Jewel Arm Servo Angle Calculations", group = "Test")
+@TeleOp(name = "Test Jewel Arm Go Above Ball", group = "Test")
 //@Disabled
-public class TestServoAngleCalculations extends LinearOpMode {
+public class TestJewelArmGoAboveBall extends LinearOpMode {
 
-    JewelArm jewelArm;
+    JewelArm leftJewelArm;
+    public AdafruitColorSensor8863.ColorFromSensor ballColor;
     DataLogging dataLog;
+    AllianceColor.TeamColor teamColor = AllianceColor.TeamColor.RED;
 
     public void runOpMode() {
 
         // Put your initializations here
-        dataLog = new DataLogging("jewelArmServoAngleCalcTest", telemetry);
-        jewelArm = new JewelArm(JewelArm.RobotSide.LEFT, hardwareMap, telemetry, AllianceColor.TeamColor.RED, dataLog);
-        jewelArm.init();
-
-        jewelArm.getServoAngles(41.5);
+        dataLog = new DataLogging("jewelArmTest", telemetry);
+        leftJewelArm = new JewelArm(JewelArm.RobotSide.LEFT, hardwareMap, telemetry, teamColor, dataLog );
+        leftJewelArm.init();
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
@@ -34,12 +34,20 @@ public class TestServoAngleCalculations extends LinearOpMode {
 
         while (opModeIsActive()) {
 
+            leftJewelArm.update();
+
+
             telemetry.addData(">", "Press Stop to end test.");
             telemetry.update();
 
             idle();
         }
 
-        dataLog.closeDataLog();
+        // Put your cleanup code here - it runs as the application shuts down
+        //telemetry.addData("Ball color = ", printBallColor.toString());
+        //telemetry.addData(">", "Done");
+       // telemetry.update();
+
+
     }
 }

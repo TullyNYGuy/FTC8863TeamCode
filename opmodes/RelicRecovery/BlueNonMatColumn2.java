@@ -50,7 +50,7 @@ public class BlueNonMatColumn2 extends LinearOpMode {
         telemetry.update();
         waitForStart();
 
-        ballColor = robot.jewelArm.getBallColorAndKnockOffBall(AllianceColor.TeamColor.BLUE);
+       // ballColor = robot.jewelArm.getBallColorAndKnockOffBall(AllianceColor.TeamColor.BLUE);
         telemetry.addData("Ball color = ", ballColor.toString());
         telemetry.update();
         //sleep(500);

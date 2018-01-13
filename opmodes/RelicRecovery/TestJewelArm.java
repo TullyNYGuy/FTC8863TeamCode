@@ -22,12 +22,13 @@ public class TestJewelArm extends LinearOpMode {
     JewelArm leftJewelArm;
     public AdafruitColorSensor8863.ColorFromSensor ballColor;
     DataLogging dataLog;
+    AllianceColor.TeamColor teamColor = AllianceColor.TeamColor.RED;
 
     public void runOpMode() {
 
         // Put your initializations here
         dataLog = new DataLogging("jewelArmTest", telemetry);
-        leftJewelArm = new JewelArm(JewelArm.RobotSide.LEFT, hardwareMap, telemetry, dataLog);
+        leftJewelArm = new JewelArm(JewelArm.RobotSide.LEFT, hardwareMap, telemetry, teamColor, dataLog );
         leftJewelArm.init();
 
         // Wait for the start button
@@ -53,7 +54,7 @@ public class TestJewelArm extends LinearOpMode {
 
         sleep (1000);
 
-        leftJewelArm.testServoMotions();
+        //leftJewelArm.testServoMotions();
 
         //leftJewelArm.elbowServo.setPosition(0);
       //leftJewelArm.shutdown();
