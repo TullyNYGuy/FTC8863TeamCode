@@ -668,7 +668,9 @@ public class JewelArm {
     private double elbowArmLength = 23.75; //cm
     private double armLength = 18.89; //cm
     // due to the difference in location between the arm and elbow pieces - they dont form a perfect triangle
-    private double armServoAngleOffset = 7.5; // degrees -
+    private double armServoAngleOffset = 7.5; // degrees
+    // due the color sensor not being in line with the elbow we have to subtract that angle
+    private double elbowServoAngleToColorSensor = 12.3; // degrees
     public double elbowServoAngle;
     public double armServoAngle;
 
@@ -716,7 +718,7 @@ public class JewelArm {
         double armServoAngle = 0;
         double distanceToBallStraight = calculateDistanceToBallStraight(distanceSensorToWallInCM);
         double armServoToBallDistance = calculateServoToBallDistance(distanceToBallStraight);
-        this.elbowServoAngle = calculateElbowAngle(armServoToBallDistance);
+        this.elbowServoAngle = calculateElbowAngle(armServoToBallDistance) - elbowServoAngleToColorSensor;
         double armAngleInTriangle = calculateArmAngleInTriangle(armServoToBallDistance);
         double angleZ = calculateZ(distanceToBallStraight);
         this.armServoAngle = calculateArmServoAngle(angleZ, armAngleInTriangle) - armServoAngleOffset;
