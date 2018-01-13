@@ -1,9 +1,10 @@
 package org.firstinspires.ftc.teamcode.opmodes.RelicRecovery;
 
+import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
@@ -11,6 +12,7 @@ import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.RelicRecoveryVuMark;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
@@ -18,9 +20,11 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 import org.firstinspires.ftc.teamcode.Lib.RelicRecoveryLib.GlyphDumper;
+import org.firstinspires.ftc.teamcode.Lib.RelicRecoveryLib.ReadPictograph;
 import org.firstinspires.ftc.teamcode.Lib.RelicRecoveryLib.RelicRecoveryRobotStJohnFisher;
 import org.firstinspires.ftc.teamcode.opmodes.GenericTest.TestDrivingDistanceUsingIMURunToPosition;
 
@@ -34,30 +38,61 @@ public class AutonomousMethods extends LinearOpMode {
     // Put your variable declarations here
 
     public enum StartPosition {
-        BLUE_MAT,
-        BLUE_NO_MAT,
-        RED_MAT,
-        RED_NO_MAT
+        AWAY_FROM_MAT,
+        NEAR_MAT
+    }
+
+    public enum ExeJewel {
+        JEWEL,
+        NO_JEWEL
     }
 
     public RelicRecoveryRobotStJohnFisher robot;
 
+    StartPosition startPosition;
+    AllianceColor.TeamColor teamColor;
+    ExeJewel exeJewel;
+
     double correction;
     DriveTrain.Status statusDrive;
     public double actualTurnAngle;
+    ReadPictograph readPictograph;
+    RelicRecoveryVuMark vuMark = RelicRecoveryVuMark.UNKNOWN;
+    ElapsedTime timeToRead;
 
+    ModernRoboticsI2cRangeSensor rangeSensor;
 
     @Override
     public void runOpMode() {
         // Put your initializations here
         createRobot();
+        readPictograph = new ReadPictograph(hardwareMap, telemetry);
+        timeToRead = new ElapsedTime();
+        rangeSensor = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "distanceSensor");
 
         // Wait for the start button
+        telemetry.addData("Alliance = ", teamColor.toString());
+        telemetry.addData("Position = ", startPosition.toString());
         telemetry.addData(">", "Press Start to run");
         telemetry.update();
+
         waitForStart();
 
-        blueMatColumn2Movements();
+        readPictograph.runAtStart();
+
+        telemetry.addData("cm", "%.2f cm", getAverageDistance());
+
+        timeToRead.reset();
+        while (opModeIsActive() && vuMark == RelicRecoveryVuMark.UNKNOWN && timeToRead.milliseconds() < 1500) {
+            vuMark = readPictograph.getvuMark();
+        }
+        telemetry.addData("stopwatch =", "%5.2f", timeToRead.milliseconds());
+        telemetry.addData("vumark =", vuMark.toString());
+        telemetry.update();
+        sleep(4000);
+
+
+        doAutonomousMovements(startPosition, teamColor, vuMark);
 
         // Put your cleanup code here - it runs as the application shuts down
         telemetry.addData("actual turn angle was ", "%3.2f", actualTurnAngle);
@@ -75,21 +110,13 @@ public class AutonomousMethods extends LinearOpMode {
         robot = robot.createRobotForAutonomous(hardwareMap, telemetry);
     }
 
+    //**********************************************************************************************
+    // AUTONOMOUS MOVEMENTS - BLUE
+    //**********************************************************************************************
+
     /**
      * Movements from blue side toward cryptobox that is farthest away from relic zone mats
      */
-
-    public void blueMatColumn2Movements() {
-        driveStraight(-61.0, 0.1);
-        spinTurn(53.0, 0.1, AdafruitIMU8863.AngleMode.ABSOLUTE);
-        actualTurnAngle = robot.driveTrain.imu.getHeading();
-        driveStraight(-15.5, 0.1);
-        robot.glyphDumper.goHome();
-        driveStraight(-8, 0.1);
-        driveStraight(10, 0.1);
-        telemetry.addData("Aiming for column 2 ", "BLUE");
-    }
-
     public void blueNonMatColumn1Movements() {
         driveStraight(-67, 0.1);
         spinTurn(-22.5, 0.1, AdafruitIMU8863.AngleMode.ABSOLUTE);
@@ -126,22 +153,11 @@ public class AutonomousMethods extends LinearOpMode {
         telemetry.addData("Aiming for column 3 ", "BLUE");
     }
 
-//    public void redNonMatColumn1Movements() {
-//        //turn on block
-//        //spinTurn(-9.0, 0.1, AdafruitIMU8863.AngleMode.ABSOLUTE);
-//        spinTurn(4.3, 0.1, AdafruitIMU8863.AngleMode.ABSOLUTE);
-//        actualTurnAngle = robot.driveTrain.imu.getHeading();
-//        //drive straight
-//        driveStraight(-65, 0.1);
-//        robot.glyphDumper.dump();
-//        sleep(1000);
-//        robot.glyphDumper.goHome();
-//        driveStraight(-10, 0.1);
-//        sleep(1500);
-//        driveStraight(15, 0.1);
-//    }
+    //**********************************************************************************************
+    // AUTONOMOUS MOVEMENTS - RED
+    //**********************************************************************************************
 
-    public void redNonMatColumn1TestMovements() {
+    public void redNonMatColumn1Movements() {
         telemetry.addData("Aiming for column 1 ", "RED");
         telemetry.update();
         //sleep(2000);
@@ -157,7 +173,7 @@ public class AutonomousMethods extends LinearOpMode {
         telemetry.addData("Aiming for column 1 ", "RED");
     }
 
-    public void redNonMatColumnTest2Movements() {
+    public void redNonMatColumn2Movements() {
         telemetry.addData("Aiming for column 2 ", "RED");
         telemetry.update();
         //sleep(2000);
@@ -173,7 +189,7 @@ public class AutonomousMethods extends LinearOpMode {
         telemetry.addData("Aiming for column 2 ", "RED");
     }
 
-    public void redNonMatColumnTest3Movements() {
+    public void redNonMatColumn3Movements() {
         telemetry.addData("Aiming for column 3 ", "RED");
         telemetry.update();
         //sleep(2000);
@@ -189,17 +205,9 @@ public class AutonomousMethods extends LinearOpMode {
         telemetry.addData("Aiming for column 3 ", "RED");
     }
 
-    public void redMatColumn2Movements() {
-        driveStraight(61.0, 0.1);
-        spinTurn(127.00, 0.1, AdafruitIMU8863.AngleMode.ABSOLUTE);
-        actualTurnAngle = robot.driveTrain.imu.getHeading();
-        driveStraight(-15.5, 0.1);
-        robot.glyphDumper.goHome();
-        driveStraight(-8, 0.1);
-        driveStraight(10, 0.1);
-        telemetry.addData("Aiming for column 2 ", "RED");
-    }
-
+    //**********************************************************************************************
+    // AUTONOMOUS MOVEMENTS - GENERIC METHODS
+    //**********************************************************************************************
 
     public void driveStraight(double distance, double power) {
         robot.driveTrain.setupDriveDistance(power, distance, DcMotor8863.FinishBehavior.FLOAT);
@@ -255,121 +263,183 @@ public class AutonomousMethods extends LinearOpMode {
         }
     }
 
-    public RelicRecoveryVuMark getPictograph() {
+    //**********************************************************************************************
+    // AUTONOMOUS MOVEMENTS - CONTROL AND SWITCHING
+    //**********************************************************************************************
 
-        final String TAG = "Vuforia VuMark Sample";
-        VuforiaLocalizer vuforia;
-
-        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
-        parameters.vuforiaLicenseKey = "AdFJpV3/////AAAAGfTNpwzHLEWLhTazSUptJDdvoaO1q58UH3Ix0gMjIizeGqeRTy/mHyHpZI3hX3VrQk0S4VJKsiwBIUrTZy57oWoQQGsD/6JXnrC/R2zQ2ruhxmV9JYc6zr5Lhu+aUFdce/WJezBkcUv7fD2y6kmNHAWlYyMx3ZP8YX2bSfTWu4PjiO3N/CFelgIJSz5BCRtYeFb1gKkCYhsqKUNfkWXznEFvX8ppW72yjbfq62QwqGFeuql/3cPce8asiOVo9NLiG9mIuADM+FWLairEHQ4h2euGHa+JNrk36EO0zVAFk9G2RBQJRkwgA7jUOGpCEW0Qqt0XJoM+0T0sOVORrn3Lqp9M4ecaQYsQsR8RPoZRL0Ox";
-        parameters.cameraDirection = VuforiaLocalizer.CameraDirection.FRONT;
-        vuforia = ClassFactory.createVuforiaLocalizer(parameters);
-
-        /**
-         * See if any of the instances of {@link relicTemplate} are currently visible.
-         * {@link RelicRecoveryVuMark} is an enum which can have the following values:
-         * UNKNOWN, LEFT, CENTER, and RIGHT. When a VuMark is visible, something other than
-         * UNKNOWN will be returned by {@link RelicRecoveryVuMark#from(VuforiaTrackable)}.
-         */
-        VuforiaTrackables relicTrackables = vuforia.loadTrackablesFromAsset("RelicVuMark");
-        VuforiaTrackable relicTemplate = relicTrackables.get(0);
-        relicTemplate.setName("relicVuMarkTemplate"); // can help in debugging; otherwise not necessary
-
-        relicTrackables.activate();
-
-//        RelicRecoveryVuMark vuMark = RelicRecoveryVuMark.from(relicTemplate);
-//        if (vuMark != RelicRecoveryVuMark.UNKNOWN) {
-//
-//                /* Found an instance of the template. In the actual game, you will probably
-//                 * loop until this condition occurs, then move on to act accordingly depending
-//                 * on which VuMark was visible. */
-//            telemetry.addData("VuMark", "%s visible", vuMark);
-//
-//        } else {
-//            telemetry.addData("VuMark", "not visible");
-//        }
-//        return vuMark;
-        return RelicRecoveryVuMark.UNKNOWN;
-    }
-
-    String format(OpenGLMatrix transformationMatrix) {
-        return (transformationMatrix != null) ? transformationMatrix.formatAsTransform() : "null";
-    }
-
-    public void getAutonomousMovements(StartPosition startPosition, RelicRecoveryVuMark vuMark) {
+    public void doAutonomousMovements(StartPosition startPosition, AllianceColor.TeamColor teamColor, RelicRecoveryVuMark vuMark) {
         telemetry.addData("Starting Autonomous Movements", "!");
         telemetry.update();
-        sleep(2000);
-        //RelicRecoveryVuMark vuMark = getPictograph();
-        switch (vuMark) {
-            case LEFT:
+        switch (teamColor){
+            case RED:
                 switch (startPosition) {
-                    case RED_MAT:
-                        //do nothing
+                    case NEAR_MAT:
+                        switch (vuMark) {
+                            case LEFT:
+                                break;
+                            case CENTER: case UNKNOWN:
+                                break;
+                            case RIGHT:
+                                break;
+                        }
                         break;
-                    case BLUE_MAT:
-                        //do nothing
-                        break;
-                    case RED_NO_MAT:
-                        redNonMatColumnTest3Movements();
-                        break;
-                    case BLUE_NO_MAT:
-                        blueNonMatColumn1Movements();
+                    case AWAY_FROM_MAT:
+                        switch (vuMark) {
+                            case LEFT:
+                                redNonMatColumn1Movements();
+                                break;
+                            case CENTER: case UNKNOWN:
+                                redNonMatColumn2Movements();
+                                break;
+                            case RIGHT:
+                                redNonMatColumn3Movements();
+                                break;
+                        }
                         break;
                 }
                 break;
-            case RIGHT:
+            case BLUE:
                 switch (startPosition) {
-                    case RED_MAT:
-                        //do nothing
+                    case NEAR_MAT:
+                        switch (vuMark) {
+                            case LEFT:
+                                break;
+                            case CENTER: case UNKNOWN:
+                                break;
+                            case RIGHT:
+                                break;
+                        }
                         break;
-                    case BLUE_MAT:
-                        //do nothing
-                        break;
-                    case RED_NO_MAT:
-                        redNonMatColumn1TestMovements();
-                        break;
-                    case BLUE_NO_MAT:
-                        blueNonMatColumn3Movements();
-                        break;
-                }
-                break;
-            case CENTER:
-                switch (startPosition) {
-                    case RED_MAT:
-                        //do nothing
-                        break;
-                    case BLUE_MAT:
-                        //do nothing
-                        break;
-                    case RED_NO_MAT:
-                        redNonMatColumnTest2Movements();
-                        break;
-                    case BLUE_NO_MAT:
-                        blueNonMatColumn2Movements();
-                        break;
-                }
-                break;
-            case UNKNOWN:
-                switch (startPosition) {
-                    case RED_MAT:
-                        //do nothing
-                        break;
-                    case BLUE_MAT:
-                        //do nothing
-                        break;
-                    case RED_NO_MAT:
-                        redNonMatColumnTest2Movements();
-                        break;
-                    case BLUE_NO_MAT:
-                        blueNonMatColumn2Movements();
+                    case AWAY_FROM_MAT:
+                        switch (vuMark) {
+                            case LEFT:
+                                blueNonMatColumn3Movements();
+                                break;
+                            case CENTER: case UNKNOWN:
+                                blueNonMatColumn2Movements();
+                                break;
+                            case RIGHT:
+                                blueNonMatColumn1Movements();
+                                break;
+                        }
                         break;
                 }
                 break;
         }
-        telemetry.addData("Ending Switch statements", "!");
-        telemetry.update();
-        sleep(2000);
+
+//        switch (vuMark) {
+//            case LEFT:
+//                switch (teamColor) {
+//                    case RED:
+//                        switch (startPosition) {
+//                            case AWAY_FROM_MAT:
+//                                redNonMatColum3Movements();
+//                                break;
+//                            case NEAR_MAT:
+//
+//                                break;
+//                        }
+//                        break;
+//                    case BLUE:
+//                        switch (startPosition) {
+//                            case AWAY_FROM_MAT:
+//                                break;
+//                            case NEAR_MAT:
+//                                break;
+//                        }
+//                        break;
+//                }
+//                switch (startPosition) {
+//                    case RED_MAT:
+//                        //do nothing
+//                        break;
+//                    case BLUE_MAT:
+//                        //do nothing
+//                        break;
+//                    case RED_NO_MAT:
+//                        redNonMatColumnTest3Movements();
+//                        break;
+//                    case BLUE_NO_MAT:
+//                        blueNonMatColumn1Movements();
+//                        break;
+//                }
+//                break;
+//            case RIGHT:
+//                switch (startPosition) {
+//                    case RED_MAT:
+//                        //do nothing
+//                        break;
+//                    case BLUE_MAT:
+//                        //do nothing
+//                        break;
+//                    case RED_NO_MAT:
+//                        redNonMatColumn1TestMovements();
+//                        break;
+//                    case BLUE_NO_MAT:
+//                        blueNonMatColumn3Movements();
+//                        break;
+//                }
+//                break;
+//            case CENTER:
+//                switch (startPosition) {
+//                    case RED_MAT:
+//                        //do nothing
+//                        break;
+//                    case BLUE_MAT:
+//                        //do nothing
+//                        break;
+//                    case RED_NO_MAT:
+//                        redNonMatColumnTest2Movements();
+//                        break;
+//                    case BLUE_NO_MAT:
+//                        blueNonMatColumn2Movements();
+//                        break;
+//                }
+//                break;
+//            case UNKNOWN:
+//                switch (startPosition) {
+//                    case RED_MAT:
+//                        //do nothing
+//                        break;
+//                    case BLUE_MAT:
+//                        //do nothing
+//                        break;
+//                    case RED_NO_MAT:
+//                        redNonMatColumnTest2Movements();
+//                        break;
+//                    case BLUE_NO_MAT:
+//                        blueNonMatColumn2Movements();
+//                        break;
+//                }
+//                break;
+//        }
+//        telemetry.addData("Ending Switch statements", "!");
+//        telemetry.update();
+//        sleep(2000);
+    }
+
+    /**
+     * Pass in the start position and teamcolor from an autonomous picker opmode
+     *
+     * @param startPosition
+     * @param teamColor
+     */
+    public void  setPositionsAndColorAndJewel(StartPosition startPosition, AllianceColor.TeamColor teamColor, ExeJewel exeJewel) {
+        this.startPosition = startPosition;
+        this.teamColor = teamColor;
+        this.exeJewel = exeJewel;
+    }
+    public double getAverageDistance(){
+        double distanceOne;
+        double distanceTwo;
+        double distanceThree;
+        double average;
+        distanceOne = rangeSensor.getDistance(DistanceUnit.CM);
+        sleep(100);
+        distanceTwo = rangeSensor.getDistance(DistanceUnit.CM);
+        sleep(100);
+        distanceThree = rangeSensor.getDistance(DistanceUnit.CM);
+        average = (distanceOne+distanceTwo+distanceThree)/3;
+        return average;
     }
 }

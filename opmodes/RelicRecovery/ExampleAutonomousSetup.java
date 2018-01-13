@@ -18,14 +18,15 @@ public class ExampleAutonomousSetup extends AutonomousMethods {
     // Put your variable declarations here
     StartPosition startPosition = StartPosition.AWAY_FROM_MAT;
     AllianceColor.TeamColor teamColor = AllianceColor.TeamColor.RED;
+    ExeJewel exeJewel = ExeJewel.JEWEL;
 
-    public void passPositionsAndColor(StartPosition startPosition, AllianceColor.TeamColor teamColor) {
-        super.setPositionsAndColor(startPosition, teamColor);
+    public void passPositionsAndColorAndJewel(StartPosition startPosition, AllianceColor.TeamColor teamColor, ExeJewel exeJewel) {
+        super.setPositionsAndColorAndJewel(startPosition, teamColor, exeJewel);
     }
 
     @Override
     public void runOpMode() {
-        passPositionsAndColor(startPosition, teamColor);
+        passPositionsAndColorAndJewel(startPosition, teamColor, exeJewel);
         super.runOpMode();
     }
 }
