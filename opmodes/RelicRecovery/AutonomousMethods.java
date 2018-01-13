@@ -118,7 +118,7 @@ public class AutonomousMethods extends LinearOpMode {
      * Movements from blue side toward cryptobox that is farthest away from relic zone mats
      */
     public void blueNonMatColumn1Movements() {
-        driveStraight(-67, 0.1);
+        driveStraight(-67, 0.2);
         spinTurn(-22.5, 0.1, AdafruitIMU8863.AngleMode.ABSOLUTE);
         actualTurnAngle = robot.driveTrain.imu.getHeading();
         robot.glyphDumper.dump();
@@ -130,7 +130,7 @@ public class AutonomousMethods extends LinearOpMode {
     }
 
     public void blueNonMatColumn2Movements() {
-        driveStraight(-67, 0.1);
+        driveStraight(-67, 0.2);
         spinTurn(-40, 0.1, AdafruitIMU8863.AngleMode.ABSOLUTE);
         actualTurnAngle = robot.driveTrain.imu.getHeading();
         robot.glyphDumper.dump();
@@ -142,7 +142,7 @@ public class AutonomousMethods extends LinearOpMode {
     }
 
     public void blueNonMatColumn3Movements() {
-        driveStraight(-67, 0.1);
+        driveStraight(-67, 0.2);
         spinTurn(-56, 0.1, AdafruitIMU8863.AngleMode.ABSOLUTE);
         actualTurnAngle = robot.driveTrain.imu.getHeading();
         robot.glyphDumper.dump();
@@ -153,6 +153,45 @@ public class AutonomousMethods extends LinearOpMode {
         telemetry.addData("Aiming for column 3 ", "BLUE");
     }
 
+    public void blueMatColumn1Movements() {
+        driveStraight(-61.0, 0.2);
+        spinTurn(73.75, 0.2, AdafruitIMU8863.AngleMode.ABSOLUTE);
+        actualTurnAngle = robot.driveTrain.imu.getHeading();
+        driveStraight(-8.00, 0.2);
+        robot.glyphDumper.dump();
+        sleep(1000);
+        robot.glyphDumper.goHome();
+        driveStraight(-9, 0.1);
+        driveStraight(5, 0.1);
+        telemetry.addData("Aiming for column 1 ", "RED");
+    }
+
+    public void blueMatColumn2Movements() {
+        driveStraight(-61.0, 0.2);
+        spinTurn(57, 0.2, AdafruitIMU8863.AngleMode.ABSOLUTE);
+        actualTurnAngle = robot.driveTrain.imu.getHeading();
+        driveStraight(-19.5, 0.2);
+        robot.glyphDumper.dump();
+        sleep(1000);
+        robot.glyphDumper.goHome();
+        driveStraight(-8, 0.1);
+        driveStraight(10, 0.1);
+        telemetry.addData("Aiming for column 2 ", "RED");
+    }
+
+    public void blueMatColumn3Movements() {
+        driveStraight(-61.0, 0.2);
+        spinTurn(42, 0.2, AdafruitIMU8863.AngleMode.ABSOLUTE);
+        actualTurnAngle = robot.driveTrain.imu.getHeading();
+        driveStraight(-33, 0.2);
+        robot.glyphDumper.dump();
+        sleep(1000);
+        robot.glyphDumper.goHome();
+        driveStraight(-8, 0.1);
+        driveStraight(8, 0.1);
+        telemetry.addData("Aiming for column 1 ", "RED");
+    }
+
     //**********************************************************************************************
     // AUTONOMOUS MOVEMENTS - RED
     //**********************************************************************************************
@@ -161,14 +200,14 @@ public class AutonomousMethods extends LinearOpMode {
         telemetry.addData("Aiming for column 1 ", "RED");
         telemetry.update();
         //sleep(2000);
-        driveStraight(67, 0.1);
+        driveStraight(67, 0.2);
         spinTurn(-162.7, 0.2, AdafruitIMU8863.AngleMode.ABSOLUTE);
         actualTurnAngle = robot.driveTrain.imu.getHeading();
         //driveStraight(-15,0.1);
         robot.glyphDumper.dump();
         sleep(1000);
         robot.glyphDumper.goHome();
-        driveStraight(-10, 0.1);
+        driveStraight(-10, 0.2);
         driveStraight(10, 0.1);
         telemetry.addData("Aiming for column 1 ", "RED");
     }
@@ -177,7 +216,7 @@ public class AutonomousMethods extends LinearOpMode {
         telemetry.addData("Aiming for column 2 ", "RED");
         telemetry.update();
         //sleep(2000);
-        driveStraight(67, 0.1);
+        driveStraight(67, 0.2);
         spinTurn(-140, 0.2, AdafruitIMU8863.AngleMode.ABSOLUTE);
         actualTurnAngle = robot.driveTrain.imu.getHeading();
         driveStraight(-10, 0.1);
@@ -193,16 +232,55 @@ public class AutonomousMethods extends LinearOpMode {
         telemetry.addData("Aiming for column 3 ", "RED");
         telemetry.update();
         //sleep(2000);
-        driveStraight(60, 0.1);
+        driveStraight(60, 0.2);
         spinTurn(-130.6, 0.2, AdafruitIMU8863.AngleMode.ABSOLUTE);
         actualTurnAngle = robot.driveTrain.imu.getHeading();
         driveStraight(-30, 0.2);
         robot.glyphDumper.dump();
         sleep(1000);
         robot.glyphDumper.goHome();
-        driveStraight(-5, 0.1);
+        driveStraight(-5, 0.2);
         driveStraight(10, 0.1);
         telemetry.addData("Aiming for column 3 ", "RED");
+    }
+
+    public void redMatColumn1Movements() {
+        driveStraight(61.0, 0.2);
+        spinTurn(106.25, 0.2, AdafruitIMU8863.AngleMode.ABSOLUTE);
+        actualTurnAngle = robot.driveTrain.imu.getHeading();
+        driveStraight(-8.00, 0.2);
+        robot.glyphDumper.dump();
+        sleep(1000);
+        robot.glyphDumper.goHome();
+        driveStraight(-9, 0.1);
+        driveStraight(5, 0.1);
+        telemetry.addData("Aiming for column 1 ", "RED");
+    }
+
+    public void redMatColumn2Movements() {
+        driveStraight(61.0, 0.2);
+        spinTurn(123.00, 0.2, AdafruitIMU8863.AngleMode.ABSOLUTE);
+        actualTurnAngle = robot.driveTrain.imu.getHeading();
+        driveStraight(-19.5, 0.2);
+        robot.glyphDumper.dump();
+        sleep(1000);
+        robot.glyphDumper.goHome();
+        driveStraight(-8, 0.1);
+        driveStraight(10, 0.1);
+        telemetry.addData("Aiming for column 2 ", "RED");
+    }
+
+    public void redMatColumn3Movements() {
+        driveStraight(61.0, 0.2);
+        spinTurn(138, 0.2, AdafruitIMU8863.AngleMode.ABSOLUTE);
+        actualTurnAngle = robot.driveTrain.imu.getHeading();
+        driveStraight(-33, 0.2);
+        robot.glyphDumper.dump();
+        sleep(1000);
+        robot.glyphDumper.goHome();
+        driveStraight(-8, 0.1);
+        driveStraight(8, 0.1);
+        telemetry.addData("Aiming for column 1 ", "RED");
     }
 
     //**********************************************************************************************
@@ -276,10 +354,13 @@ public class AutonomousMethods extends LinearOpMode {
                     case NEAR_MAT:
                         switch (vuMark) {
                             case LEFT:
+                                redMatColumn3Movements();
                                 break;
                             case CENTER: case UNKNOWN:
+                                redMatColumn2Movements();
                                 break;
                             case RIGHT:
+                                redMatColumn1Movements();
                                 break;
                         }
                         break;
@@ -303,10 +384,13 @@ public class AutonomousMethods extends LinearOpMode {
                     case NEAR_MAT:
                         switch (vuMark) {
                             case LEFT:
+                                blueMatColumn1Movements();
                                 break;
                             case CENTER: case UNKNOWN:
+                                blueMatColumn2Movements();
                                 break;
                             case RIGHT:
+                                blueMatColumn3Movements();
                                 break;
                         }
                         break;
