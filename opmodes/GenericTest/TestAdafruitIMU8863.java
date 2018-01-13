@@ -29,7 +29,7 @@ import java.util.Locale;
  * I2C device name: IMU
  */
 @TeleOp(name = "Test Adafruit IMU 8863", group = "Test")
-@Disabled
+//@Disabled
 public class TestAdafruitIMU8863 extends LinearOpMode {
 
     // Put your variable declarations here
