@@ -37,12 +37,12 @@ public class TestJewelArm extends LinearOpMode {
 
 
         // Put your calls here - they will not run in a loop
-//        leftJewelArm.goAboveBall2();
+        leftJewelArm.goAboveBall2();
 //        ballColor = leftJewelArm.getBallColor();
 //        telemetry.addData("Ball color = ", ballColor.toString());
 //        leftJewelArm.moveBetweenBalls();
 //        leftJewelArm.knockOffBall2(AllianceColor.TeamColor.RED, ballColor);
-        ballColor = leftJewelArm.getBallColorAndKnockOffBall(AllianceColor.TeamColor.BLUE);
+        //ballColor = leftJewelArm.getBallColorAndKnockOffBall(AllianceColor.TeamColor.BLUE);
         telemetry.addData("Ball color = ", ballColor.toString());
         telemetry.update();
 

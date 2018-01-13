@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.RelicRecovery;
 
+import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -11,6 +12,7 @@ import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.RelicRecoveryVuMark;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
@@ -40,10 +42,16 @@ public class AutonomousMethods extends LinearOpMode {
         NEAR_MAT
     }
 
+    public enum ExeJewel {
+        JEWEL,
+        NO_JEWEL
+    }
+
     public RelicRecoveryRobotStJohnFisher robot;
 
     StartPosition startPosition;
     AllianceColor.TeamColor teamColor;
+    ExeJewel exeJewel;
 
     double correction;
     DriveTrain.Status statusDrive;
@@ -52,6 +60,7 @@ public class AutonomousMethods extends LinearOpMode {
     RelicRecoveryVuMark vuMark = RelicRecoveryVuMark.UNKNOWN;
     ElapsedTime timeToRead;
 
+    ModernRoboticsI2cRangeSensor rangeSensor;
 
     @Override
     public void runOpMode() {
@@ -59,6 +68,7 @@ public class AutonomousMethods extends LinearOpMode {
         createRobot();
         readPictograph = new ReadPictograph(hardwareMap, telemetry);
         timeToRead = new ElapsedTime();
+        rangeSensor = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "distanceSensor");
 
         // Wait for the start button
         telemetry.addData("Alliance = ", teamColor.toString());
@@ -70,8 +80,10 @@ public class AutonomousMethods extends LinearOpMode {
 
         readPictograph.runAtStart();
 
+        telemetry.addData("cm", "%.2f cm", getAverageDistance());
+
         timeToRead.reset();
-        while (opModeIsActive() && vuMark == RelicRecoveryVuMark.UNKNOWN) {
+        while (opModeIsActive() && vuMark == RelicRecoveryVuMark.UNKNOWN && timeToRead.milliseconds() < 1500) {
             vuMark = readPictograph.getvuMark();
         }
         telemetry.addData("stopwatch =", "%5.2f", timeToRead.milliseconds());
@@ -412,8 +424,22 @@ public class AutonomousMethods extends LinearOpMode {
      * @param startPosition
      * @param teamColor
      */
-    public void setPositionsAndColor(StartPosition startPosition, AllianceColor.TeamColor teamColor) {
+    public void  setPositionsAndColorAndJewel(StartPosition startPosition, AllianceColor.TeamColor teamColor, ExeJewel exeJewel) {
         this.startPosition = startPosition;
         this.teamColor = teamColor;
+        this.exeJewel = exeJewel;
+    }
+    public double getAverageDistance(){
+        double distanceOne;
+        double distanceTwo;
+        double distanceThree;
+        double average;
+        distanceOne = rangeSensor.getDistance(DistanceUnit.CM);
+        sleep(100);
+        distanceTwo = rangeSensor.getDistance(DistanceUnit.CM);
+        sleep(100);
+        distanceThree = rangeSensor.getDistance(DistanceUnit.CM);
+        average = (distanceOne+distanceTwo+distanceThree)/3;
+        return average;
     }
 }
