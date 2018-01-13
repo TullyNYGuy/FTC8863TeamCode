@@ -318,7 +318,8 @@ public class JewelArm {
             if (ballColor == AdafruitColorSensor8863.ColorFromSensor.RED) {
                 knockFrontBall();
             } else {
-                knockBackBall();;
+                knockBackBall();
+                ;
             }
         }
         delay(1000);
@@ -334,6 +335,29 @@ public class JewelArm {
         goInit();
         delay(250);
         return ballColor;
+    }
+
+    public double calculateDistanceToBall(double distanceFromSensorToWallInCm) {
+        double distanceToBall = 0;
+        double distanceFromTopOfBallToWall = 9.84; //cm
+        double distanceFromSensorToServo = 5; //cm
+        distanceToBall = distanceFromSensorToWallInCm - distanceFromTopOfBallToWall - distanceFromSensorToServo;
+        return distanceToBall;
+    }
+
+    public double calculateServoToBallDistance (double distanceToBall){
+        double servoToBallDistance=0;
+        double servoToFloorDistance=44.0; //cm
+        double heightToTopOfBall=9.84; //cm
+        servoToBallDistance=Math.sqrt(distanceToBall*distanceToBall+(servoToFloorDistance-heightToTopOfBall));
+        return servoToBallDistance;
+    }
+
+    public double calculateElbowAngle (double servoToBallDistance){
+        double elbowAngle=0;
+        double elbowLength=23.75; //cm
+        double armLength=18.89; //cm
+        return 0;
     }
 
 }
