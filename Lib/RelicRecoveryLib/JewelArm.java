@@ -661,26 +661,72 @@ public class JewelArm {
         return ballColor;
     }
 
-    public double calculateDistanceToBall(double distanceFromSensorToWallInCm) {
-        double distanceToBall = 0;
-        double distanceFromTopOfBallToWall = 9.84; //cm
-        double distanceFromSensorToServo = 5; //cm
-        distanceToBall = distanceFromSensorToWallInCm - distanceFromTopOfBallToWall - distanceFromSensorToServo;
-        return distanceToBall;
+    private double distanceFromTopOfBallToWall = 4; //cm
+    private double distanceFromSensorToServo = -1.2; //cm
+    private double armServoToFloorDistance = 25.4; //cm (10 inches)
+    private double heightToTopOfBall = 15.0; //cm
+    private double elbowArmLength = 23.75; //cm
+    private double armLength = 18.89; //cm
+    // due to the difference in location between the arm and elbow pieces - they dont form a perfect triangle
+    private double armServoAngleOffset = 7.5; // degrees -
+    public double elbowServoAngle;
+    public double armServoAngle;
+
+    public double calculateDistanceToBallStraight(double distanceFromSensorToWallInCm) {
+        double distanceToBallStraight = 0; // D on math sheet
+        distanceToBallStraight = distanceFromSensorToWallInCm - distanceFromTopOfBallToWall - distanceFromSensorToServo;
+        return distanceToBallStraight;
     }
 
-    public double calculateServoToBallDistance(double distanceToBall) {
-        double servoToBallDistance = 0;
-        double servoToFloorDistance = 44.0; //cm
-        double heightToTopOfBall = 9.84; //cm
-        servoToBallDistance = Math.sqrt(distanceToBall * distanceToBall + (servoToFloorDistance - heightToTopOfBall));
-        return servoToBallDistance;
+    public double calculateServoToBallDistance(double distanceToBallStraight) {
+        double armServoToBallDistance = 0; // b on math sheet
+        armServoToBallDistance = Math.sqrt(distanceToBallStraight * distanceToBallStraight + (armServoToFloorDistance - heightToTopOfBall));
+        return armServoToBallDistance;
     }
 
-    public double calculateElbowAngle(double servoToBallDistance) {
-        double elbowAngle = 0;
-        double elbowLength = 23.75; //cm
-        double armLength = 18.89; //cm
-        return 0;
+    public double calculateElbowAngle(double armServoToBallDistance) {
+        double elbowAngle = 0; // B on math sheet
+        elbowAngle = Math.acos((armLength * armLength + elbowArmLength * elbowArmLength - armServoToBallDistance * armServoToBallDistance) / (2 * armLength * elbowArmLength));
+        return elbowAngle;
+    }
+
+    public double calculateArmAngleInTriangle(double armServoToBallDistance) {
+        double armAngleInTriangle = 0; // A on math sheet
+        armAngleInTriangle = Math.acos((armServoToBallDistance * armServoToBallDistance + armLength * armLength - elbowArmLength * elbowArmLength) / (2 * armServoToBallDistance * armLength));
+        return armAngleInTriangle;
+    }
+
+    public double calculateZ(double distanceToBallStraight) {
+        double angleZ = 0 ; // Z on math sheet
+        angleZ = Math.atan(distanceToBallStraight/(armServoToFloorDistance - heightToTopOfBall));
+        return angleZ;
+    }
+
+    public double calculateArmServoAngle(double angleZ, double armAngleInTriangle) {
+        double armServoAngle = 0; // Y on math sheet
+        armServoAngle = 180.0-angleZ-armAngleInTriangle;
+        return armServoAngle;
+    }
+
+    /**
+     * This is the angle to set the elbow servo to
+     * @return Angle B on the math sheet
+     */
+    public void getServoAngles(double distanceSensorToWallInCM) {
+        double armServoAngle = 0;
+        double distanceToBallStraight = calculateDistanceToBallStraight(distanceSensorToWallInCM);
+        double armServoToBallDistance = calculateServoToBallDistance(distanceToBallStraight);
+        this.elbowServoAngle = calculateElbowAngle(armServoToBallDistance);
+        double armAngleInTriangle = calculateArmAngleInTriangle(armServoToBallDistance);
+        double angleZ = calculateZ(distanceToBallStraight);
+        this.armServoAngle = calculateArmServoAngle(angleZ, armAngleInTriangle) - armServoAngleOffset;
+        if (dataLog != null) {
+            dataLog.logData("Distance from sensor to wall (in) = " + Double.toString(distanceSensorToWallInCM/2.54));
+            dataLog.logData("Elbow servo angle = " + Double.toString(this.elbowServoAngle));
+            dataLog.logData("Arm servo angle = " + Double.toString(this.armServoAngle));
+        }
+        telemetry.addData("Distance from sensor to wall (in) = ", "%5.2f", distanceSensorToWallInCM);
+        telemetry.addData("Elbow servo angle = ", "%3.2f", this.elbowServoAngle);
+        telemetry.addData("Arm servo angle = ", "%3.2f", this.armServoAngle);
     }
 }
