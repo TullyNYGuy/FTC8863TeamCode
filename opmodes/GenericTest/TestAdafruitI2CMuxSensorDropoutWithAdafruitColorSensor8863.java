@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.GenericTest;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -27,7 +28,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitI2CMux;
  * and make sure that the code detects that the sensor has gone away.
  */
 @TeleOp(name = "Test Adafruit I2C Mux Sensor dropout", group = "Test")
-//@Disabled
+@Disabled
 public class TestAdafruitI2CMuxSensorDropoutWithAdafruitColorSensor8863 extends LinearOpMode {
 
     // Put your variable declarations here

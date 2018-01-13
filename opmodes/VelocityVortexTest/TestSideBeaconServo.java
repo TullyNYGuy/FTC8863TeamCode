@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.opmodes.GenericTest.RobotConfigMappingForG
  *
  */
 @TeleOp(name = "Test Side Beacon Servo", group = "Test")
-//@Disabled
+@Disabled
 public class TestSideBeaconServo extends LinearOpMode {
 
     // Put your variable declarations here

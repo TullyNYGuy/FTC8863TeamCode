@@ -1,35 +1,27 @@
 package org.firstinspires.ftc.teamcode.opmodes.RelicRecovery;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
-import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
-import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.RelicRecoveryVuMark;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
-import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitColorSensor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
-import org.firstinspires.ftc.teamcode.Lib.RelicRecoveryLib.GlyphDumper;
 import org.firstinspires.ftc.teamcode.Lib.RelicRecoveryLib.RelicRecoveryRobotStJohnFisher;
-import org.firstinspires.ftc.teamcode.opmodes.GenericTest.TestDrivingDistanceUsingIMURunToPosition;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@Autonomous(name = "Test Autonomous Movements", group = "Test")
+@Autonomous(name = "Blue Mat Column 2", group = "Run")
 //@Disabled
-public class AutonomousMethods extends LinearOpMode {
+public class BlueMatColumn2 extends LinearOpMode {
 
     // Put your variable declarations here
 
@@ -46,6 +38,7 @@ public class AutonomousMethods extends LinearOpMode {
     DriveTrain.Status statusDrive;
     public double actualTurnAngle;
 
+    public AdafruitColorSensor8863.ColorFromSensor ballColor;
 
     @Override
     public void runOpMode() {
@@ -57,6 +50,10 @@ public class AutonomousMethods extends LinearOpMode {
         telemetry.update();
         waitForStart();
 
+        //ballColor = robot.jewelArm.getBallColorAndKnockOffBall(AllianceColor.TeamColor.BLUE);
+        //telemetry.addData("Ball color = ", ballColor.toString());
+        telemetry.update();
+        //sleep(500);
         blueMatColumn2Movements();
 
         // Put your cleanup code here - it runs as the application shuts down
@@ -78,18 +75,6 @@ public class AutonomousMethods extends LinearOpMode {
     /**
      * Movements from blue side toward cryptobox that is farthest away from relic zone mats
      */
-
-    public void blueMatColumn2Movements() {
-        driveStraight(-61.0, 0.1);
-        spinTurn(53.0, 0.1, AdafruitIMU8863.AngleMode.ABSOLUTE);
-        actualTurnAngle = robot.driveTrain.imu.getHeading();
-        driveStraight(-15.5, 0.1);
-        robot.glyphDumper.goHome();
-        driveStraight(-8, 0.1);
-        driveStraight(10, 0.1);
-        telemetry.addData("Aiming for column 2 ", "BLUE");
-    }
-
     public void blueNonMatColumn1Movements() {
         driveStraight(-67, 0.1);
         spinTurn(-22.5, 0.1, AdafruitIMU8863.AngleMode.ABSOLUTE);
@@ -144,7 +129,7 @@ public class AutonomousMethods extends LinearOpMode {
     public void redNonMatColumn1TestMovements() {
         telemetry.addData("Aiming for column 1 ", "RED");
         telemetry.update();
-        //sleep(2000);
+        sleep(2000);
         driveStraight(67, 0.1);
         spinTurn(-162.7, 0.2, AdafruitIMU8863.AngleMode.ABSOLUTE);
         actualTurnAngle = robot.driveTrain.imu.getHeading();
@@ -160,7 +145,7 @@ public class AutonomousMethods extends LinearOpMode {
     public void redNonMatColumnTest2Movements() {
         telemetry.addData("Aiming for column 2 ", "RED");
         telemetry.update();
-        //sleep(2000);
+        sleep(2000);
         driveStraight(67, 0.1);
         spinTurn(-140, 0.2, AdafruitIMU8863.AngleMode.ABSOLUTE);
         actualTurnAngle = robot.driveTrain.imu.getHeading();
@@ -176,7 +161,7 @@ public class AutonomousMethods extends LinearOpMode {
     public void redNonMatColumnTest3Movements() {
         telemetry.addData("Aiming for column 3 ", "RED");
         telemetry.update();
-        //sleep(2000);
+        sleep(2000);
         driveStraight(60, 0.1);
         spinTurn(-130.6, 0.2, AdafruitIMU8863.AngleMode.ABSOLUTE);
         actualTurnAngle = robot.driveTrain.imu.getHeading();
@@ -189,15 +174,17 @@ public class AutonomousMethods extends LinearOpMode {
         telemetry.addData("Aiming for column 3 ", "RED");
     }
 
-    public void redMatColumn2Movements() {
-        driveStraight(61.0, 0.1);
-        spinTurn(127.00, 0.1, AdafruitIMU8863.AngleMode.ABSOLUTE);
+    public void blueMatColumn2Movements() {
+        driveStraight(-61.0, 0.1);
+        spinTurn(57.0, 0.2, AdafruitIMU8863.AngleMode.ABSOLUTE);
         actualTurnAngle = robot.driveTrain.imu.getHeading();
-        driveStraight(-15.5, 0.1);
+        driveStraight(-19.5, 0.2);
+        robot.glyphDumper.dump();
+        sleep(1000);
         robot.glyphDumper.goHome();
         driveStraight(-8, 0.1);
         driveStraight(10, 0.1);
-        telemetry.addData("Aiming for column 2 ", "RED");
+        telemetry.addData("Aiming for column 2 ", "BLUE");
     }
 
 

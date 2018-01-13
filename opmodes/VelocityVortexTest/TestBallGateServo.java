@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.VelocityVortexTest;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -12,7 +13,7 @@ import org.firstinspires.ftc.teamcode.opmodes.GenericTest.RobotConfigMappingForG
  *
  */
 @TeleOp(name = "Test Ball Gate Servo", group = "Test")
-//@Disabled
+@Disabled
 public class TestBallGateServo extends LinearOpMode {
 
     // Put your variable declarations here

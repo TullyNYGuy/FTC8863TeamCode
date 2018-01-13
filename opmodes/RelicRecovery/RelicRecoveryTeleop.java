@@ -233,10 +233,10 @@ public class RelicRecoveryTeleop extends LinearOpMode {
             if (gamepad1DpadDown.buttonPress(gamepad1.dpad_down)) {
                 // this was a new button press, not a button held down for a while
                 // put the command to be executed here
-                gamepad1LeftJoyStickX.setQuarterPower();
-                gamepad1LeftJoyStickY.setQuarterPower();
-                gamepad1RightJoyStickX.setQuarterPower();
-                gamepad1RightJoyStickY.setQuarterPower();
+                gamepad1LeftJoyStickX.set30PercentPower();
+                gamepad1LeftJoyStickY.set30PercentPower();
+                gamepad1RightJoyStickX.set30PercentPower();
+                gamepad1RightJoyStickY.set30PercentPower();
             }
 
             if (gamepad1DpadLeft.buttonPress(gamepad1.dpad_left)) {
@@ -251,10 +251,10 @@ public class RelicRecoveryTeleop extends LinearOpMode {
             if (gamepad1DpadRight.buttonPress(gamepad1.dpad_right)) {
                 // this was a new button press, not a button held down for a while
                 // put the command to be executed here
-                gamepad1LeftJoyStickX.set10PercentPower();
-                gamepad1LeftJoyStickY.set10PercentPower();
-                gamepad1RightJoyStickX.set10PercentPower();
-                gamepad1RightJoyStickY.set10PercentPower();
+                gamepad1LeftJoyStickX.set20PercentPower();
+                gamepad1LeftJoyStickY.set20PercentPower();
+                gamepad1RightJoyStickX.set20PercentPower();
+                gamepad1RightJoyStickY.set20PercentPower();
             }
 
             if (gamepad1LeftStickButton.buttonPress(gamepad1.left_stick_button)) {

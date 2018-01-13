@@ -29,7 +29,7 @@ import org.firstinspires.ftc.teamcode.Lib.RelicRecoveryLib.ReadPictograph;
  *
  */
 @Autonomous(name = "Red No Mat", group = "Run")
-//@Disabled
+@Disabled
 public class AutonomousRedNonMat extends AutonomousMethods {
 
     // Put your variable declarations here

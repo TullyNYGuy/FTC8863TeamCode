@@ -223,7 +223,7 @@ public class ExtensionArm {
     public void goToZone3() {
 
         armMotor.setStallDetectionEnabled(true);
-        goToPosition(zone3Position, .6);
+        goToPosition(zone3Position, .8);
     }
 
     /**
