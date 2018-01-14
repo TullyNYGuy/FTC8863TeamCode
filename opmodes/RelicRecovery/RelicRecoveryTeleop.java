@@ -456,5 +456,46 @@ public class RelicRecoveryTeleop extends LinearOpMode {
         } else
             driveTrainMode = RelicRecoveryTeleop.DriveTrainMode.DIFFERENTIAL_DRIVE;
     }
+    public double actualTurnAngle;
+
+    public void relicAlignment() {
+        driveStraight(-30.5, 0.1);
+        spinTurn(-45, 0.1, AdafruitIMU8863.AngleMode.ABSOLUTE);
+        actualTurnAngle = robot.driveTrain.imu.getHeading();
+        sleep(1000);
+    }
+
+    public void driveStraight(double distance, double power) {
+        DriveTrain.Status statusDrive = DriveTrain.Status.COMPLETE;
+        robot.driveTrain.setupDriveDistance(power, distance, DcMotor8863.FinishBehavior.FLOAT);
+
+        while (opModeIsActive()) {
+            statusDrive = robot.driveTrain.updateDriveDistance();
+            if (statusDrive == DriveTrain.Status.COMPLETE) {
+                break;
+            }
+            telemetry.addData(">", "Press Stop to end test.");
+            telemetry.addData("Status = ", statusDrive.toString());
+            telemetry.update();
+            idle();
+        }
+        telemetry.addData(">", "Press Stop to end test.");
+        telemetry.addData("Status = ", statusDrive.toString());
+        telemetry.update();
+    }
+
+    public void spinTurn(double angle, double power, AdafruitIMU8863.AngleMode angleMode) {
+        robot.driveTrain.setupTurn(angle, power, angleMode);
+
+        while (opModeIsActive() && !robot.driveTrain.updateTurn()) {
+            telemetry.addData(">", "Press Stop to end test.");
+            telemetry.addData("Angle = ", "%3.1f", robot.driveTrain.imu.getHeading());
+            telemetry.update();
+            idle();
+        }
+        robot.driveTrain.stopTurn();
+        telemetry.addData("Turn Angle = ", "%3.1f", robot.driveTrain.imu.getHeading());
+        telemetry.update();
+    }
 }
 
