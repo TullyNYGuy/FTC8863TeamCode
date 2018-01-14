@@ -4,6 +4,7 @@ package org.firstinspires.ftc.teamcode.Lib.RelicRecoveryLib;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.AllianceColorSwitch;
 import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.FrontBeaconPusher;
@@ -78,7 +79,7 @@ public class RelicRecoveryRobotStJohnFisher {
         extensionArm = new ExtensionArm(hardwareMap, telemetry);
         glyphDumper = new GlyphDumper(hardwareMap, telemetry);
         //NEED A NEW CLASS to DEFINE ALLICANCE COLOR
-        jewelArm = new JewelArm(JewelArm.RobotSide.LEFT, hardwareMap, telemetry);
+        jewelArm = new JewelArm(JewelArm.RobotSide.LEFT, hardwareMap, telemetry, AllianceColor.TeamColor.RED);
         init(telemetry);
     }
 

@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.RelicRecovery;
 
+import android.provider.ContactsContract;
+
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -7,6 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitColorSensor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitColorSensor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.RelicRecoveryLib.JewelArm;
 
 /**
@@ -18,11 +21,14 @@ public class TestJewelArm extends LinearOpMode {
 
     JewelArm leftJewelArm;
     public AdafruitColorSensor8863.ColorFromSensor ballColor;
+    DataLogging dataLog;
+    AllianceColor.TeamColor teamColor = AllianceColor.TeamColor.RED;
 
     public void runOpMode() {
 
         // Put your initializations here
-        leftJewelArm = new JewelArm(JewelArm.RobotSide.LEFT, hardwareMap, telemetry);
+        dataLog = new DataLogging("jewelArmTest", telemetry);
+        leftJewelArm = new JewelArm(JewelArm.RobotSide.LEFT, hardwareMap, telemetry, teamColor, dataLog );
         leftJewelArm.init();
 
         // Wait for the start button
@@ -32,7 +38,7 @@ public class TestJewelArm extends LinearOpMode {
 
         //leftJewelArm.elbowServo.setUpServoCalibration(0, 1, 0.05, 1000);
        //leftJewelArm.frontBackServo.setUpServoCalibration(.5, 6, 0.01, 2000);
-        leftJewelArm.upDownServo.setUpServoCalibration(.05, .55,0.01, 5);
+        //leftJewelArm.upDownServo.setUpServoCalibration(.05, .55,0.01, 5);
 
 
 
@@ -46,17 +52,21 @@ public class TestJewelArm extends LinearOpMode {
         //telemetry.addData("Ball color = ", ballColor.toString());
         //telemetry.update();
 
-        sleep (6000);
+        sleep (1000);
 
-        leftJewelArm.elbowServo.setPosition(0);
+        //leftJewelArm.testServoMotions();
+
+        //leftJewelArm.elbowServo.setPosition(0);
       //leftJewelArm.shutdown();
         while (opModeIsActive()) {
 
             // Put your calls that need to run in a loop here
+            //leftJewelArm.updateGoAboveBall();
+            //leftJewelArm.updateGoBetweenBall();
 
             //leftJewelArm.elbowServo.updateServoCalibration();
             //leftJewelArm.frontBackServo.updateServoCalibration();
-            leftJewelArm.upDownServo.updateServoCalibration();
+            //leftJewelArm.upDownServo.updateServoCalibration();
 
             //ballColor = leftJewelArm.getBallColor();
             //telemetry.addData("Ball color = ", ballColor.toString());
