@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.RelicRecovery;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -12,7 +13,7 @@ import org.firstinspires.ftc.teamcode.Lib.RelicRecoveryLib.JewelArm;
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
 @TeleOp(name = "Test Jewel Arm Angle Calculation", group = "Test")
-//@Disabled
+@Disabled
 public class TestAngleCalculation extends LinearOpMode {
 
     JewelArm jewelArm;
@@ -53,7 +54,7 @@ public class TestAngleCalculation extends LinearOpMode {
         armAngleInTriangle = jewelArm.calculateArmAngleInTriangle(servoToBallDistance);
         telemetry.addData("angle A = ", "%5.3f", armAngleInTriangle);
 
-        Z = jewelArm.calculateZ(distanceToBallStraight);
+        Z = jewelArm.calculateZ(servoToBallDistance);
         telemetry.addData("angle Z = ", "%5.3f", Z);
 
         armServoAngle = jewelArm.calculateArmServoAngle(Z, armAngleInTriangle);
@@ -66,6 +67,9 @@ public class TestAngleCalculation extends LinearOpMode {
         telemetry.addData("combined UpDown angle = ", "%5.3f", upDownServoAngle);
         telemetry.update();
 
+        while(opModeIsActive()){
+            idle();
+        }
         // Put your cleanup code here - it runs as the application shuts down
         //telemetry.addData("Ball color = ", printBallColor.toString());
         //telemetry.addData(">", "Done");

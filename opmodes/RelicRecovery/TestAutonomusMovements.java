@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.RelicRecoveryVuMark;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.RelicRecoveryLib.ReadPictograph;
 
 /**
@@ -13,7 +14,7 @@ import org.firstinspires.ftc.teamcode.Lib.RelicRecoveryLib.ReadPictograph;
  *
  *
  */
-@Autonomous(name = "1Test Autonomous Movements-real", group = "Run")
+@Autonomous(name = "Test Autonomous Movements-real", group = "Test")
 //@Disabled
 public class TestAutonomusMovements extends AutonomousMethods {
 
@@ -22,6 +23,8 @@ public class TestAutonomusMovements extends AutonomousMethods {
     AllianceColor.TeamColor teamColor = AllianceColor.TeamColor.RED;
     ExeJewel exeJewel = ExeJewel.JEWEL;
 
+    DataLogging dataLog = null;
+
     public void passPositionsAndColorAndJewel(StartPosition startPosition, AllianceColor.TeamColor teamColor, ExeJewel exeJewel) {
         super.setPositionsAndColorAndJewel(startPosition, teamColor, exeJewel);
     }
@@ -29,7 +32,7 @@ public class TestAutonomusMovements extends AutonomousMethods {
     @Override
     public void runOpMode() {
         // Put your initializations here
-        createRobot();
+        createRobot(AllianceColor.TeamColor.RED, dataLog);
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");

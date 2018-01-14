@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.AllianceColorSwitch;
 import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.FrontBeaconPusher;
@@ -62,7 +63,7 @@ public class RelicRecoveryRobotStJohnFisher {
     // from it
     //*********************************************************************************************
 
-    private RelicRecoveryRobotStJohnFisher(HardwareMap hardwareMap, RobotMode robotMode, Telemetry telemetry) {
+    private RelicRecoveryRobotStJohnFisher(HardwareMap hardwareMap, RobotMode robotMode, Telemetry telemetry, AllianceColor.TeamColor teamColor, DataLogging dataLog) {
         this.telemetry = telemetry;
         if (robotMode == RobotMode.AUTONOMOUS) {
             // create the robot for autonomous
@@ -79,17 +80,17 @@ public class RelicRecoveryRobotStJohnFisher {
         extensionArm = new ExtensionArm(hardwareMap, telemetry);
         glyphDumper = new GlyphDumper(hardwareMap, telemetry);
         //NEED A NEW CLASS to DEFINE ALLICANCE COLOR
-        jewelArm = new JewelArm(JewelArm.RobotSide.LEFT, hardwareMap, telemetry, AllianceColor.TeamColor.RED);
+        jewelArm = new JewelArm(JewelArm.RobotSide.LEFT, hardwareMap, telemetry, teamColor, dataLog);
         init(telemetry);
     }
 
-    public static RelicRecoveryRobotStJohnFisher createRobotForAutonomous(HardwareMap hardwareMap, Telemetry telemetry) {
-        RelicRecoveryRobotStJohnFisher robot = new RelicRecoveryRobotStJohnFisher(hardwareMap, RobotMode.AUTONOMOUS, telemetry);
+    public static RelicRecoveryRobotStJohnFisher createRobotForAutonomous(HardwareMap hardwareMap, Telemetry telemetry, AllianceColor.TeamColor teamColor, DataLogging dataLog) {
+        RelicRecoveryRobotStJohnFisher robot = new RelicRecoveryRobotStJohnFisher(hardwareMap, RobotMode.AUTONOMOUS, telemetry, teamColor, dataLog);
         return robot;
     }
 
-    public static RelicRecoveryRobotStJohnFisher createRobotForTeleop(HardwareMap hardwareMap, Telemetry telemetry) {
-        RelicRecoveryRobotStJohnFisher robot = new RelicRecoveryRobotStJohnFisher(hardwareMap, RobotMode.TELEOP, telemetry);
+    public static RelicRecoveryRobotStJohnFisher createRobotForTeleop(HardwareMap hardwareMap, Telemetry telemetry, AllianceColor.TeamColor teamColor, DataLogging dataLog) {
+        RelicRecoveryRobotStJohnFisher robot = new RelicRecoveryRobotStJohnFisher(hardwareMap, RobotMode.TELEOP, telemetry, teamColor, dataLog);
         return robot;
     }
 

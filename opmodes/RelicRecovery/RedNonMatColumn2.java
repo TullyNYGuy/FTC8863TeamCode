@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.RelicRecovery;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
@@ -12,6 +13,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitColorSensor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 import org.firstinspires.ftc.teamcode.Lib.RelicRecoveryLib.RelicRecoveryRobotStJohnFisher;
@@ -20,7 +22,7 @@ import org.firstinspires.ftc.teamcode.Lib.RelicRecoveryLib.RelicRecoveryRobotStJ
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
 @Autonomous(name = "Red No Mat Column 2", group = "Run")
-//@Disabled
+@Disabled
 public class RedNonMatColumn2 extends LinearOpMode {
 
     // Put your variable declarations here
@@ -39,6 +41,8 @@ public class RedNonMatColumn2 extends LinearOpMode {
     public double actualTurnAngle;
 
     public AdafruitColorSensor8863.ColorFromSensor ballColor;
+
+    DataLogging dataLog = null;
 
     @Override
     public void runOpMode() {
@@ -69,7 +73,7 @@ public class RedNonMatColumn2 extends LinearOpMode {
         // create the robot
         telemetry.addData("Initializing ...", "Wait for it ...");
         telemetry.update();
-        robot = robot.createRobotForAutonomous(hardwareMap, telemetry);
+        robot = robot.createRobotForAutonomous(hardwareMap, telemetry, AllianceColor.TeamColor.RED,dataLog );
     }
 
     /**

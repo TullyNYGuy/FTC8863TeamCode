@@ -21,6 +21,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.RelicRecoveryLib.ReadPictograph;
 
 /**
@@ -37,11 +38,13 @@ public class AutonomousRedNonMat extends AutonomousMethods {
     AllianceColor.TeamColor teamColor = AllianceColor.TeamColor.RED;
     ReadPictograph readPictograph;
     RelicRecoveryVuMark vuMark;
+    DataLogging dataLog;
 
     @Override
     public void runOpMode() {
         // Put your initializations here
-        createRobot();
+        dataLog = null;
+        createRobot(teamColor, dataLog);
 
         readPictograph = new ReadPictograph(hardwareMap, telemetry);
 

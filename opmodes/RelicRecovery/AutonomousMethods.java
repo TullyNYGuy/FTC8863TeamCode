@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.RelicRecovery;
 
+import android.provider.ContactsContract;
+
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -21,6 +23,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefau
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 import org.firstinspires.ftc.teamcode.Lib.RelicRecoveryLib.GlyphDumper;
@@ -53,6 +56,8 @@ public class AutonomousMethods extends LinearOpMode {
     AllianceColor.TeamColor teamColor;
     ExeJewel exeJewel;
 
+    DataLogging dataLog;
+
     double correction;
     DriveTrain.Status statusDrive;
     public double actualTurnAngle;
@@ -65,7 +70,10 @@ public class AutonomousMethods extends LinearOpMode {
     @Override
     public void runOpMode() {
         // Put your initializations here
-        createRobot();
+        dataLog = new DataLogging("Autonomous", telemetry);
+
+        createRobot(teamColor, dataLog);
+
         readPictograph = new ReadPictograph(hardwareMap, telemetry);
         timeToRead = new ElapsedTime();
         rangeSensor = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "distanceSensor");
@@ -86,11 +94,19 @@ public class AutonomousMethods extends LinearOpMode {
         while (opModeIsActive() && vuMark == RelicRecoveryVuMark.UNKNOWN && timeToRead.milliseconds() < 1500) {
             vuMark = readPictograph.getvuMark();
         }
-        telemetry.addData("stopwatch =", "%5.2f", timeToRead.milliseconds());
+        //telemetry.addData("stopwatch =", "%5.2f", timeToRead.milliseconds());
         telemetry.addData("vumark =", vuMark.toString());
         telemetry.update();
-        sleep(4000);
+        sleep(2000);
 
+        if (exeJewel == ExeJewel.JEWEL) {
+            telemetry.addData("running jewel", "!");
+            telemetry.update();
+            sleep(2000);
+            while(opModeIsActive() && !robot.jewelArm.update()) {
+                idle();
+            }
+        }
 
         doAutonomousMovements(startPosition, teamColor, vuMark);
 
@@ -99,15 +115,16 @@ public class AutonomousMethods extends LinearOpMode {
         telemetry.addData(">", "Done");
         telemetry.addData("final Angle = ", "%3.1f", robot.driveTrain.imu.getHeading());
         telemetry.update();
+        dataLog.closeDataLog();
         robot.shutdown();
-        sleep(3000);
+        //sleep(3000);
     }
 
-    public void createRobot() {
+    public void createRobot(AllianceColor.TeamColor teamColor, DataLogging dataLog) {
         // create the robot
         telemetry.addData("Initializing ...", "Wait for it ...");
         telemetry.update();
-        robot = robot.createRobotForAutonomous(hardwareMap, telemetry);
+        robot = robot.createRobotForAutonomous(hardwareMap, telemetry, teamColor, dataLog);
     }
 
     //**********************************************************************************************

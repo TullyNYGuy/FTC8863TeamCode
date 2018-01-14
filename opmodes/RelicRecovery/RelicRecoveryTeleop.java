@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.opmodes.RelicRecovery;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.GamepadButtonMultiPush;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.JoyStick;
 import org.firstinspires.ftc.teamcode.Lib.RelicRecoveryLib.NathanMagicRobot;
@@ -29,6 +31,8 @@ public class RelicRecoveryTeleop extends LinearOpMode {
     DriveTrainMode driveTrainMode = RelicRecoveryTeleop.DriveTrainMode.TANK_DRIVE;
 
     RelicRecoveryRobotStJohnFisher robot;
+
+    DataLogging dataLog;
 
     // GAMEPAD 1
 
@@ -106,7 +110,9 @@ public class RelicRecoveryTeleop extends LinearOpMode {
         // create the robot
         telemetry.addData("Initializing ...", "Wait for it ...");
         telemetry.update();
-        robot = robot.createRobotForTeleop(hardwareMap, telemetry);
+
+        dataLog = new DataLogging("Teleop", telemetry);
+        robot = robot.createRobotForTeleop(hardwareMap, telemetry, AllianceColor.TeamColor.RED, dataLog);
 
         // create the gamepad 1 buttons and tell each button how many commands it has
         gamepad1RightBumper = new GamepadButtonMultiPush(1);
@@ -431,6 +437,7 @@ public class RelicRecoveryTeleop extends LinearOpMode {
         // ************************************************************************************
 
         // Stop has been hit, shutdown everything
+        dataLog.closeDataLog();
         robot.shutdown();
         telemetry.addData(">", "Done");
         telemetry.update();
