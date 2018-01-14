@@ -103,7 +103,7 @@ public class AutonomousMethods extends LinearOpMode {
             telemetry.addData("running jewel", "!");
             telemetry.update();
             sleep(2000);
-            while(opModeIsActive() && !robot.jewelArm.update()) {
+            while(opModeIsActive() && !robot.jewelArm.updateKnockJewelOff()) {
                 idle();
             }
         }

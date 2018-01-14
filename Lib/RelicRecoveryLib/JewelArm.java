@@ -302,6 +302,9 @@ public class JewelArm {
         frontBackServo.goPositionTwo();
     }
 
+    public void update() {
+    }
+
     public void shutdown() {
         upDownServo.goInitPosition();
         frontBackServo.goInitPosition();
@@ -387,7 +390,7 @@ public class JewelArm {
 //        //delay(500);
 //    }
 
-    public boolean update() {
+    public boolean updateKnockJewelOff() {
         boolean completed = false;
 
         switch (currentUpdateState) {

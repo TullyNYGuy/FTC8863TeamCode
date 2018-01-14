@@ -34,7 +34,7 @@ public class TestJewelArmKnockOffBall extends LinearOpMode {
 
         while (opModeIsActive()) {
 
-            leftJewelArm.update();
+            leftJewelArm.updateKnockJewelOff();
 
 
             telemetry.addData(">", "Press Stop to end test.");

@@ -32,7 +32,7 @@ public class RelicRecoveryTeleop extends LinearOpMode {
 
     RelicRecoveryRobotStJohnFisher robot;
 
-    DataLogging dataLog;
+    DataLogging dataLog = null;
 
     // GAMEPAD 1
 
