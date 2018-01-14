@@ -722,7 +722,7 @@ public class JewelArm {
     // due the color sensor not being in line with the elbow we have to subtract that angle
     private double elbowServoAngleToColorSensor = 12.3; // degrees
     public double elbowServoAngle;
-    public double armServoAngle;
+    public double upDownServoAngle;
 
     public double calculateDistanceToBallStraight(double distanceFromSensorToWallInCm) {
         double distanceToBallStraight = 0; // D on math sheet
@@ -771,14 +771,33 @@ public class JewelArm {
         this.elbowServoAngle = calculateElbowAngle(armServoToBallDistance) - elbowServoAngleToColorSensor;
         double armAngleInTriangle = calculateArmAngleInTriangle(armServoToBallDistance);
         double angleZ = calculateZ(distanceToBallStraight);
-        this.armServoAngle = calculateArmServoAngle(angleZ, armAngleInTriangle) - armServoAngleOffset;
+        this.upDownServoAngle = calculateArmServoAngle(angleZ, armAngleInTriangle) - armServoAngleOffset;
         if (dataLog != null) {
             dataLog.logData("Distance from sensor to wall (in) = " + Double.toString(distanceSensorToWallInCM/2.54));
             dataLog.logData("Elbow servo angle = " + Double.toString(this.elbowServoAngle));
-            dataLog.logData("Arm servo angle = " + Double.toString(this.armServoAngle));
+            dataLog.logData("Arm servo angle = " + Double.toString(this.upDownServoAngle));
         }
         telemetry.addData("Distance from sensor to wall (in) = ", "%5.2f", distanceSensorToWallInCM);
         telemetry.addData("Elbow servo angle = ", "%3.2f", this.elbowServoAngle);
-        telemetry.addData("Arm servo angle = ", "%3.2f", this.armServoAngle);
+        telemetry.addData("Arm servo angle = ", "%3.2f", this.upDownServoAngle);
+    }
+
+    //**********************************************************************************************
+    // CONVERT ANGLES TO SERVO COMMANDS
+    //**********************************************************************************************
+
+    public double getUpDownServoCommandFromAngle(double angle) {
+        double command = .00472 * angle + .04432;
+        return command;
+    }
+
+    public double getElbowServoCommandFromAngle(double angle) {
+        double command = -.00475 * angle + .85452;
+        return command;
+    }
+
+    public double getFrontBackServoCommandFromAngle(double angle) {
+        double command = .00489 * angle + .48000;
+        return command;
     }
 }

@@ -20,6 +20,11 @@ public class CalibrateJewelArmAngles extends LinearOpMode {
     double heading = 0;
     double pitch = 0;
     double roll = 0;
+
+    double elbowCommand;
+    double upDownCommand;
+    double frontBackCommand;
+
     // GAMEPAD 1
 
     // declare the buttons on the gamepad as multi push button objects
@@ -162,6 +167,7 @@ public class CalibrateJewelArmAngles extends LinearOpMode {
             if (gamepad1y.buttonPress(gamepad1.y)) {
                 // this was a new button press, not a button held down for a while
                 // put the command to be executed here
+                imu.resetAngleReferences();
             }
 
             if (gamepad1x.buttonPress(gamepad1.x)) {
@@ -177,25 +183,41 @@ public class CalibrateJewelArmAngles extends LinearOpMode {
                 // this was a new button press, not a button held down for a while
                 // put the command to be executed here
                 // up 0 degrees
-                leftJewelArm.elbowServo.setPosition(0);
+                // angle = vertical and straight out
+                elbowCommand = leftJewelArm.getElbowServoCommandFromAngle(180);
+                upDownCommand = leftJewelArm.getUpDownServoCommandFromAngle(0);
+                frontBackCommand = leftJewelArm.getFrontBackServoCommandFromAngle(0);
+                leftJewelArm.elbowServo.setPosition(elbowCommand);
                 //leftJewelArm.elbowServo.setupMoveBySteps(0, .01, 50);
-                leftJewelArm.upDownServo.setPosition(.044);
+                leftJewelArm.upDownServo.setPosition(upDownCommand);
                 //leftJewelArm.upDownServo.setupMoveBySteps(.044, .01, 50);
                 //leftJewelArm.frontBackServo.setupMoveBySteps(.48, .01, 50);
-                leftJewelArm.frontBackServo.setPosition(48);
+                leftJewelArm.frontBackServo.setPosition(frontBackCommand);
             }
 
             if (gamepad1DpadDown.buttonPress(gamepad1.dpad_down)) {
                 // this was a new button press, not a button held down for a while
                 // put the command to be executed here
                 // down
-                leftJewelArm.upDownServo.setPosition(.5);
+                // angle = 140
+                //leftJewelArm.elbowServo.setupMoveBySteps(.855, .01, 50);
+                elbowCommand = leftJewelArm.getElbowServoCommandFromAngle(140);
+                upDownCommand = leftJewelArm.getUpDownServoCommandFromAngle(45);
+                frontBackCommand = leftJewelArm.getFrontBackServoCommandFromAngle(10);
+                leftJewelArm.elbowServo.setPosition(elbowCommand);
+                //leftJewelArm.elbowServo.setupMoveBySteps(0, .01, 50);
+                leftJewelArm.upDownServo.setPosition(upDownCommand);
+                //leftJewelArm.upDownServo.setupMoveBySteps(.044, .01, 50);
+                //leftJewelArm.frontBackServo.setupMoveBySteps(.48, .01, 50);
+                leftJewelArm.frontBackServo.setPosition(frontBackCommand);
             }
 
             if (gamepad1DpadLeft.buttonPress(gamepad1.dpad_left)) {
                 // this was a new button press, not a button held down for a while
                 // put the command to be executed here
-                imu.resetAngleReferences();
+                // angle = 90
+                //leftJewelArm.elbowServo.setupMoveBySteps(.427, .01, 50);
+                leftJewelArm.elbowServo.setPosition(.427);
             }
 
             if (gamepad1DpadRight.buttonPress(gamepad1.dpad_right)) {
@@ -219,6 +241,9 @@ public class CalibrateJewelArmAngles extends LinearOpMode {
             telemetry.addData("Heading = ", "%5.2f", heading);
             telemetry.addData("Pitch = ", "%5.2f", pitch);
             telemetry.addData("Roll = ", "%5.2f", roll);
+            telemetry.addData("elbow command     = ", "%5.3f", elbowCommand);
+            telemetry.addData("upDown command    = ", "%5.3f", upDownCommand);
+            telemetry.addData("frontBack command = ", "%5.3f", frontBackCommand);
             telemetry.addData(">", "Press Stop to end test.");
             telemetry.update();
 
