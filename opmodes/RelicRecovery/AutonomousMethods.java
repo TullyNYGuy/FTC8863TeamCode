@@ -384,13 +384,13 @@ public class AutonomousMethods extends LinearOpMode {
                     case AWAY_FROM_MAT:
                         switch (vuMark) {
                             case LEFT:
-                                redNonMatColumn1Movements();
+                                redNonMatColumn3Movements();
                                 break;
                             case CENTER: case UNKNOWN:
                                 redNonMatColumn2Movements();
                                 break;
                             case RIGHT:
-                                redNonMatColumn3Movements();
+                                redNonMatColumn1Movements();
                                 break;
                         }
                         break;
@@ -414,13 +414,13 @@ public class AutonomousMethods extends LinearOpMode {
                     case AWAY_FROM_MAT:
                         switch (vuMark) {
                             case LEFT:
-                                blueNonMatColumn3Movements();
+                                blueNonMatColumn1Movements();
                                 break;
                             case CENTER: case UNKNOWN:
                                 blueNonMatColumn2Movements();
                                 break;
                             case RIGHT:
-                                blueNonMatColumn1Movements();
+                                blueNonMatColumn3Movements();
                                 break;
                         }
                         break;

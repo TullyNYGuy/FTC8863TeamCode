@@ -521,7 +521,7 @@ public class JewelArm {
                 elbowServoComplete = elbowServo.updateMoveBySteps();
                 if (elbowServoComplete) {
                     // movement is complete setup the next movement
-                    upDownServo.setupMoveBySteps(.41, .01, 10);
+                    upDownServo.setupMoveBySteps(.42, .01, 10);
                     // transition to the next state
                     currentGoAboveBallState = GoAboveBallStates.ARM_OUT_AND_COMPLETELY_DOWN;
                     //delay(1000);
@@ -831,9 +831,9 @@ public class JewelArm {
         return armAngleInTriangle;
     }
 
-    public double calculateZ(double armServoToBallDistance) {
+    public double calculateZ(double distanceToBallStraight) {
         double angleZ = 0; // Z on math sheet
-        angleZ = Math.toDegrees(Math.atan(armServoToBallDistance / (armServoToFloorDistance - heightToTopOfBall)));
+        angleZ = Math.toDegrees(Math.atan(distanceToBallStraight / (armServoToFloorDistance - heightToTopOfBall)));
         return angleZ;
     }
 
