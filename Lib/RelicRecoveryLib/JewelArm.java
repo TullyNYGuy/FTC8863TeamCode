@@ -819,29 +819,30 @@ public class JewelArm {
         return armServoToBallDistance;
     }
 
-    public double calculateElbowAngle(double armServoToBallDistance) {
-        double elbowAngle = 0; // B on math sheet
-        elbowAngle = Math.toDegrees(Math.acos((armLength * armLength + elbowArmLength * elbowArmLength - armServoToBallDistance * armServoToBallDistance) / (2 * armLength * elbowArmLength)));
-        return elbowAngle;
+    public double calculateAngleC (double armServoToBallDistance) {
+        double angleC = 0; // B on math sheet
+        angleC = Math.acos((-armServoToBallDistance * armServoToBallDistance + elbowArmLength * elbowArmLength + armLength * armLength)/(2 * armLength * elbowArmLength));
+        return angleC;
     }
 
-    public double calculateArmAngleInTriangle(double armServoToBallDistance) {
-        double armAngleInTriangle = 0; // A on math sheet
-        armAngleInTriangle = Math.toDegrees(Math.acos((armServoToBallDistance * armServoToBallDistance + armLength * armLength - elbowArmLength * elbowArmLength) / (2 * armServoToBallDistance * armLength)));
-        return armAngleInTriangle;
-    }
-
-    public double calculateZ(double distanceToBallStraight) {
+    public double calculateAngleZ (double distanceToBallStraight) {
         double angleZ = 0; // Z on math sheet
-        angleZ = Math.toDegrees(Math.atan(distanceToBallStraight / (armServoToFloorDistance - heightToTopOfBall)));
+        angleZ = Math.atan((distanceToBallStraight)/(armServoToFloorDistance-heightToTopOfBall));
         return angleZ;
     }
 
-    public double calculateArmServoAngle(double angleZ, double armAngleInTriangle) {
-        double armServoAngle = 0; // Y on math sheet
-        armServoAngle = 180.0 - angleZ - armAngleInTriangle;
-        return armServoAngle;
+    public double calculateAngleA (double armServoToBallDistance, double angleC) {
+        double angleA = 0; // A on math sheet
+        angleA = Math.asin((elbowArmLength * Math.sin(angleC))/armServoToBallDistance);
+        return angleA;
     }
+
+    public double calculateAngleY (double angleZ, double angleA) {
+        double angleY = 0; // Y on math sheet
+        angleY = 180-angleZ-angleA;
+        return angleY;
+    }
+
 
     /**
      * This is the angle to set the elbow servo to
