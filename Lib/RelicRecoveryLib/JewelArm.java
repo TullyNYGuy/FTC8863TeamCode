@@ -796,8 +796,8 @@ public class JewelArm {
 
     private double distanceFromTopOfBallToWall = 4; //cm
     private double distanceFromSensorToServo = -1.2; //cm
-    private double armServoToFloorDistance = 25.4; //cm (10 inches)
-    private double heightToTopOfBall = 10.0; //cm
+    private double armServoToFloorDistance = 44.0; //cm (10 inches)
+    private double heightToTopOfBall = 9.8425; //cm
     private double elbowArmLength = 23.75; //cm
     private double armLength = 18.89; //cm
     // due to the difference in location between the arm and elbow pieces - they dont form a perfect triangle
@@ -821,19 +821,19 @@ public class JewelArm {
 
     public double calculateAngleC (double armServoToBallDistance) {
         double angleC = 0; // B on math sheet
-        angleC = Math.acos((-armServoToBallDistance * armServoToBallDistance + elbowArmLength * elbowArmLength + armLength * armLength)/(2 * armLength * elbowArmLength));
+        angleC = Math.toDegrees(Math.acos((-armServoToBallDistance * armServoToBallDistance + elbowArmLength * elbowArmLength + armLength * armLength)/(2 * armLength * elbowArmLength)));
         return angleC;
     }
 
     public double calculateAngleZ (double distanceToBallStraight) {
         double angleZ = 0; // Z on math sheet
-        angleZ = Math.atan((distanceToBallStraight)/(armServoToFloorDistance-heightToTopOfBall));
+        angleZ = Math.toDegrees(Math.atan((distanceToBallStraight)/(armServoToFloorDistance-heightToTopOfBall)));
         return angleZ;
     }
 
     public double calculateAngleA (double armServoToBallDistance, double angleC) {
         double angleA = 0; // A on math sheet
-        angleA = Math.asin((elbowArmLength * Math.sin(angleC))/armServoToBallDistance);
+        angleA = Math.toDegrees(Math.asin((elbowArmLength * Math.sin(angleC))/armServoToBallDistance));
         return angleA;
     }
 
@@ -853,10 +853,10 @@ public class JewelArm {
         double armServoAngle = 0;
         double distanceToBallStraight = calculateDistanceToBallStraight(distanceSensorToWallInCM);
         double armServoToBallDistance = calculateServoToBallDistance(distanceToBallStraight);
-        this.elbowServoAngle = calculateElbowAngle(armServoToBallDistance) - elbowServoAngleToColorSensor;
-        double armAngleInTriangle = calculateArmAngleInTriangle(armServoToBallDistance);
-        double angleZ = calculateZ(distanceToBallStraight);
-        this.upDownServoAngle = calculateArmServoAngle(angleZ, armAngleInTriangle) - armServoAngleOffset;
+        this.elbowServoAngle = calculateAngleC(armServoToBallDistance) - elbowServoAngleToColorSensor;
+        double armAngleInTriangle = calculateAngleA(armServoToBallDistance, this.elbowServoAngle);
+        double angleZ = calculateAngleZ(distanceToBallStraight);
+        this.upDownServoAngle = calculateAngleY(angleZ, armAngleInTriangle) - armServoAngleOffset;
         if (dataLog != null) {
             dataLog.logData("Distance from sensor to wall (in) = " + Double.toString(distanceSensorToWallInCM / 2.54));
             dataLog.logData("Elbow servo angle = " + Double.toString(this.elbowServoAngle));
@@ -865,6 +865,23 @@ public class JewelArm {
         telemetry.addData("Distance from sensor to wall (in) = ", "%5.2f", distanceSensorToWallInCM);
         telemetry.addData("Elbow servo angle = ", "%3.2f", this.elbowServoAngle);
         telemetry.addData("Arm servo angle = ", "%3.2f", this.upDownServoAngle);
+    }
+
+    public double getAngleC(double distanceSensorToWallInCM){
+        double distanceToBallStraight = calculateDistanceToBallStraight(distanceSensorToWallInCM);
+        double armServoToBallDistance = calculateServoToBallDistance(distanceToBallStraight);
+        double angleC = calculateAngleC(armServoToBallDistance);
+        return angleC;
+    }
+
+    public double getAngleY(double distanceSensorToWallInCM) {
+        double distanceToBallStraight = calculateDistanceToBallStraight(distanceSensorToWallInCM);
+        double armServoToBallDistance = calculateServoToBallDistance(distanceToBallStraight);
+        double angleC = calculateAngleC(armServoToBallDistance);
+        double angleA = calculateAngleA(armServoToBallDistance, angleC);
+        double angleZ = calculateAngleZ(distanceToBallStraight);
+        double angleY = calculateAngleY(angleZ, angleA);
+        return angleY;
     }
 
     //**********************************************************************************************
