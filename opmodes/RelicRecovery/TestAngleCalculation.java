@@ -48,16 +48,16 @@ public class TestAngleCalculation extends LinearOpMode {
         servoToBallDistance = jewelArm.calculateServoToBallDistance(distanceToBallStraight);
         telemetry.addData("servo to ball distance = ", "%5.3f", servoToBallDistance);
 
-        elbowAngle  = jewelArm.calculateElbowAngle(servoToBallDistance);
+        elbowAngle  = jewelArm.calculateAngleC(servoToBallDistance);
         telemetry.addData("elbow angle = ", "%5.3f", elbowAngle);
 
-        armAngleInTriangle = jewelArm.calculateArmAngleInTriangle(servoToBallDistance);
+        armAngleInTriangle = jewelArm.calculateAngleA(servoToBallDistance, elbowAngle);
         telemetry.addData("angle A = ", "%5.3f", armAngleInTriangle);
 
-        Z = jewelArm.calculateZ(servoToBallDistance);
+        Z = jewelArm.calculateAngleZ(servoToBallDistance);
         telemetry.addData("angle Z = ", "%5.3f", Z);
 
-        armServoAngle = jewelArm.calculateArmServoAngle(Z, armAngleInTriangle);
+        armServoAngle = jewelArm.calculateAngleY(Z, armAngleInTriangle);
         telemetry.addData("arm servo angle = ", "%5.3f", armServoAngle);
 
         jewelArm.getServoAngles(41.5);
