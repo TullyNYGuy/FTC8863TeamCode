@@ -191,6 +191,12 @@ public class DriveTrain {
         return driveTrain;
     }
 
+    public static DriveTrain DriveTrainTeleOpNoIMU(HardwareMap hardwareMap, Telemetry telemetry) {
+        DriveTrain driveTrain = new DriveTrain(hardwareMap, false, telemetry);
+        driveTrain.teleopInit();
+        return driveTrain;
+    }
+
     /**
      * This method is not part of the DriveTrainTeleOp because it can be called separately to
      * reinitialize teleop after the drive train has been created.
