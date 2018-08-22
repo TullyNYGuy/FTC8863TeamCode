@@ -24,6 +24,14 @@ public class TestJewelArm extends LinearOpMode {
     DataLogging dataLog;
     AllianceColor.TeamColor teamColor = AllianceColor.TeamColor.RED;
 
+    public double answerD;
+    public double answerA;
+    public double answerC;
+    public double answerB;
+    public double answerZ;
+    public double answerY;
+
+
     public void runOpMode() {
 
         // Put your initializations here
@@ -35,6 +43,21 @@ public class TestJewelArm extends LinearOpMode {
         telemetry.addData(">", "Press Start to run");
         telemetry.update();
         waitForStart();
+        answerD = leftJewelArm.calculateDistanceToBallStraight(25);
+        answerB = leftJewelArm.calculateServoToBallDistance(answerD);
+        answerC = leftJewelArm.calculateAngleC(answerB);
+        answerA = leftJewelArm.calculateAngleA(answerB, answerC);
+        answerZ = leftJewelArm.calculateAngleZ(answerB);
+        answerY = leftJewelArm.calculateAngleY(answerZ, answerA);
+
+        telemetry.addData("answerD = ", "%3.2f", answerD);
+        telemetry.addData("answerB = ", "%3.2f", answerB);
+        telemetry.addData("answerC = ", "%3.2f", answerC);
+        telemetry.addData("answerA = ", "%3.2f", answerA);
+        telemetry.addData("answerZ = ", "%3.2f", answerZ);
+        telemetry.addData("answerY = ", "%3.2f", answerY);
+
+        telemetry.update();
 
         //leftJewelArm.elbowServo.setUpServoCalibration(0, 1, 0.05, 1000);
        //leftJewelArm.frontBackServo.setUpServoCalibration(.5, 6, 0.01, 2000);
@@ -70,9 +93,8 @@ public class TestJewelArm extends LinearOpMode {
 
             //ballColor = leftJewelArm.getBallColor();
             //telemetry.addData("Ball color = ", ballColor.toString());
-            //telemetry.addData("Ball color = ", ballColor.toString());
-            telemetry.addData(">", "Press Stop to end test.");
-            telemetry.update();
+            //telemetry.addData("Ball color = ", ballColor.toString());=
+
 
             idle();
         }

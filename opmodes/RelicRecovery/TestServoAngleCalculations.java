@@ -20,7 +20,7 @@ public class TestServoAngleCalculations extends LinearOpMode {
 
     public void runOpMode() {
 
-        // Put your initializations here
+       /* // Put your initializations here
         dataLog = new DataLogging("jewelArmServoAngleCalcTest", telemetry);
         jewelArm = new JewelArm(JewelArm.RobotSide.LEFT, hardwareMap, telemetry, AllianceColor.TeamColor.RED, dataLog);
         jewelArm.init();
@@ -40,6 +40,6 @@ public class TestServoAngleCalculations extends LinearOpMode {
             idle();
         }
 
-        dataLog.closeDataLog();
+        dataLog.closeDataLog();*/
     }
 }

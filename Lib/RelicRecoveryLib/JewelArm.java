@@ -796,8 +796,8 @@ public class JewelArm {
 
     private double distanceFromTopOfBallToWall = 4; //cm
     private double distanceFromSensorToServo = -1.2; //cm
-    private double armServoToFloorDistance = 25.4; //cm (10 inches)
-    private double heightToTopOfBall = 10.0; //cm
+    private double armServoToFloorDistance = 25.0; //cm (10 inches)
+    private double heightToTopOfBall = 9.8425; //cm
     private double elbowArmLength = 23.75; //cm
     private double armLength = 18.89; //cm
     // due to the difference in location between the arm and elbow pieces - they dont form a perfect triangle
@@ -821,19 +821,20 @@ public class JewelArm {
 
     public double calculateAngleC (double armServoToBallDistance) {
         double angleC = 0; // B on math sheet
-        angleC = Math.acos((-armServoToBallDistance * armServoToBallDistance + elbowArmLength * elbowArmLength + armLength * armLength)/(2 * armLength * elbowArmLength));
+        angleC = Math.toDegrees(Math.acos((-armServoToBallDistance * armServoToBallDistance + elbowArmLength * elbowArmLength + armLength * armLength)/(2 * armLength * elbowArmLength)));
+        // angleC = Math.toDegrees(Math.acos (.707)) ;
         return angleC;
     }
 
     public double calculateAngleZ (double distanceToBallStraight) {
         double angleZ = 0; // Z on math sheet
-        angleZ = Math.atan((distanceToBallStraight)/(armServoToFloorDistance-heightToTopOfBall));
+        angleZ = Math.toDegrees(Math.atan((distanceToBallStraight)/(armServoToFloorDistance-heightToTopOfBall)));
         return angleZ;
     }
 
     public double calculateAngleA (double armServoToBallDistance, double angleC) {
         double angleA = 0; // A on math sheet
-        angleA = Math.asin((elbowArmLength * Math.sin(angleC))/armServoToBallDistance);
+        angleA = Math.toDegrees(Math.asin((elbowArmLength * Math.sin(Math.toRadians (angleC)))/armServoToBallDistance));
         return angleA;
     }
 
@@ -849,7 +850,7 @@ public class JewelArm {
      *
      * @return Angle B on the math sheet
      */
-    public void getServoAngles(double distanceSensorToWallInCM) {
+   /* public void getServoAngles(double distanceSensorToWallInCM) {
         double armServoAngle = 0;
         double distanceToBallStraight = calculateDistanceToBallStraight(distanceSensorToWallInCM);
         double armServoToBallDistance = calculateServoToBallDistance(distanceToBallStraight);
@@ -866,13 +867,13 @@ public class JewelArm {
         telemetry.addData("Elbow servo angle = ", "%3.2f", this.elbowServoAngle);
         telemetry.addData("Arm servo angle = ", "%3.2f", this.upDownServoAngle);
     }
-
+*/
     //**********************************************************************************************
     // CONVERT ANGLES TO SERVO COMMANDS
     //**********************************************************************************************
 
     public double getUpDownServoCommandFromAngle(double angle) {
-        double command = .00472 * angle + .04432;
+        double command = .00472 * angle + 0.004432;
         return command;
     }
 
@@ -885,4 +886,27 @@ public class JewelArm {
         double command = .00489 * angle + .48000;
         return command;
     }
+
+    public double setUpMathMovements (double upDownServoAngle, double elbowServoAngle, double frontBackServoAngle){
+        double upDownServoCommand;
+        double elbowServoCommand;
+        double frontBackServoCommand;
+       upDownServoCommand = getUpDownServoCommandFromAngle(upDownServoAngle);
+        elbowServoCommand = getElbowServoCommandFromAngle(elbowServoAngle);
+        frontBackServoCommand = getFrontBackServoCommandFromAngle(frontBackServoAngle);
+        elbowServo.setupMoveBySteps(elbowServoCommand, .01, 5);
+        //upDownServo.setupMoveBySteps(upDownServoCommand, .01, 5);
+      //  frontBackServo.setupMoveBySteps(frontBackServoCommand, .01, 5);
+        return elbowServoCommand;
+    }
+    public boolean updateMathMovements (){
+      // if (frontBackServo.updateMoveBySteps() && upDownServo.updateMoveBySteps() && elbowServo.updateMoveBySteps()){
+           if (elbowServo.updateMoveBySteps()){
+           return true;
+       }
+       else {
+           return false;
+       }
+    }
+
 }

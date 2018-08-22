@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.Lib.RelicRecoveryLib.JewelArm;
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
 @TeleOp(name = "Test Jewel Arm Angle Calculation", group = "Test")
-@Disabled
+//@Disabled
 public class TestAngleCalculation extends LinearOpMode {
 
     JewelArm jewelArm;
@@ -29,6 +29,9 @@ public class TestAngleCalculation extends LinearOpMode {
     double armAngleInTriangle;
     double Z;
     double armServoAngle;
+    double C;
+    double A;
+    double Y;
 
     public void runOpMode() {
 
@@ -42,29 +45,29 @@ public class TestAngleCalculation extends LinearOpMode {
         telemetry.update();
         waitForStart();
 
-        distanceToBallStraight = jewelArm.calculateDistanceToBallStraight(41.5);
+        distanceToBallStraight = jewelArm.calculateDistanceToBallStraight(27.8);
         telemetry.addData("distance to ball straight = ", "%5.3f", distanceToBallStraight);
 
         servoToBallDistance = jewelArm.calculateServoToBallDistance(distanceToBallStraight);
         telemetry.addData("servo to ball distance = ", "%5.3f", servoToBallDistance);
 
-        elbowAngle  = jewelArm.calculateElbowAngle(servoToBallDistance);
-        telemetry.addData("elbow angle = ", "%5.3f", elbowAngle);
+        C = jewelArm.calculateAngleC (servoToBallDistance);
+        telemetry.addData("angle C = ", "%5.3f", C);
 
-        armAngleInTriangle = jewelArm.calculateArmAngleInTriangle(servoToBallDistance);
-        telemetry.addData("angle A = ", "%5.3f", armAngleInTriangle);
-
-        Z = jewelArm.calculateZ(servoToBallDistance);
+        Z = jewelArm.calculateAngleZ (distanceToBallStraight);
         telemetry.addData("angle Z = ", "%5.3f", Z);
 
-        armServoAngle = jewelArm.calculateArmServoAngle(Z, armAngleInTriangle);
-        telemetry.addData("arm servo angle = ", "%5.3f", armServoAngle);
+        A = jewelArm.calculateAngleA(servoToBallDistance, C);
+        telemetry.addData("angle A = ", "%5.3f", A);
 
-        jewelArm.getServoAngles(41.5);
+        Y = jewelArm.calculateAngleY (Z, A);
+        telemetry.addData("angle Y = ", "%5.3f", Y);
+
+       /* jewelArm.getServoAngles(41.5);
         upDownServoAngle = jewelArm.upDownServoAngle;
         elbowServoAngle = jewelArm.elbowServoAngle;
         telemetry.addData("combined Elbow angle = ", "%5.3f", elbowServoAngle);
-        telemetry.addData("combined UpDown angle = ", "%5.3f", upDownServoAngle);
+        telemetry.addData("combined UpDown angle = ", "%5.3f", upDownServoAngle);*/
         telemetry.update();
 
         while(opModeIsActive()){
@@ -75,6 +78,6 @@ public class TestAngleCalculation extends LinearOpMode {
         //telemetry.addData(">", "Done");
        // telemetry.update();
 
-
     }
+
 }
