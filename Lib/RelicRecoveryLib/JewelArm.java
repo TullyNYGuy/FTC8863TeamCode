@@ -796,11 +796,7 @@ public class JewelArm {
 
     private double distanceFromTopOfBallToWall = 4; //cm
     private double distanceFromSensorToServo = -1.2; //cm
-<<<<<<< HEAD
     private double armServoToFloorDistance = 25.0; //cm (10 inches)
-=======
-    private double armServoToFloorDistance = 44.0; //cm (10 inches)
->>>>>>> 51b2d02ff1489e4545483485dd73019c11cf0a02
     private double heightToTopOfBall = 9.8425; //cm
     private double elbowArmLength = 23.75; //cm
     private double armLength = 18.89; //cm
@@ -826,10 +822,6 @@ public class JewelArm {
     public double calculateAngleC (double armServoToBallDistance) {
         double angleC = 0; // B on math sheet
         angleC = Math.toDegrees(Math.acos((-armServoToBallDistance * armServoToBallDistance + elbowArmLength * elbowArmLength + armLength * armLength)/(2 * armLength * elbowArmLength)));
-<<<<<<< HEAD
-        // angleC = Math.toDegrees(Math.acos (.707)) ;
-=======
->>>>>>> 51b2d02ff1489e4545483485dd73019c11cf0a02
         return angleC;
     }
 
@@ -841,11 +833,7 @@ public class JewelArm {
 
     public double calculateAngleA (double armServoToBallDistance, double angleC) {
         double angleA = 0; // A on math sheet
-<<<<<<< HEAD
         angleA = Math.toDegrees(Math.asin((elbowArmLength * Math.sin(Math.toRadians (angleC)))/armServoToBallDistance));
-=======
-        angleA = Math.toDegrees(Math.asin((elbowArmLength * Math.sin(angleC))/armServoToBallDistance));
->>>>>>> 51b2d02ff1489e4545483485dd73019c11cf0a02
         return angleA;
     }
 
@@ -878,10 +866,7 @@ public class JewelArm {
         telemetry.addData("Elbow servo angle = ", "%3.2f", this.elbowServoAngle);
         telemetry.addData("Arm servo angle = ", "%3.2f", this.upDownServoAngle);
     }
-<<<<<<< HEAD
 */
-=======
-
     public double getAngleC(double distanceSensorToWallInCM){
         double distanceToBallStraight = calculateDistanceToBallStraight(distanceSensorToWallInCM);
         double armServoToBallDistance = calculateServoToBallDistance(distanceToBallStraight);
@@ -899,7 +884,6 @@ public class JewelArm {
         return angleY;
     }
 
->>>>>>> 51b2d02ff1489e4545483485dd73019c11cf0a02
     //**********************************************************************************************
     // CONVERT ANGLES TO SERVO COMMANDS
     //**********************************************************************************************
