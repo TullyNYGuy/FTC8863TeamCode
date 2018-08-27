@@ -5,13 +5,9 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
-import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.AllianceColorSwitch;
 
-public class WonderWorkDemoRobot {
+public class UpDownServo {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -20,10 +16,6 @@ public class WonderWorkDemoRobot {
     //
     //*********************************************************************************************
 
-    private enum RobotMode {
-        AUTONOMOUS,
-        TELEOP
-    }
 
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS
@@ -31,14 +23,11 @@ public class WonderWorkDemoRobot {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
-
-    // Here are all of the objects that make up the entire robot
-    // note that the IMU is an object in the drive train
-    public RobotMode robotMode;
-    public DriveTrain driveTrain;
-    public UpDownServo upDownServo;
-    public ClampServo clampServo;
+    private Servo8863 upDownServo;
     private Telemetry telemetry;
+    private double homePosition = 1;
+    private double initPosition = 1;
+    private double positionOne = .70;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -54,24 +43,13 @@ public class WonderWorkDemoRobot {
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
-
-    private WonderWorkDemoRobot(HardwareMap hardwareMap, RobotMode robotMode, Telemetry telemetry, AllianceColor.TeamColor teamColor, DataLogging dataLog) {
+    public UpDownServo(HardwareMap hardwareMap, Telemetry telemetry) {
+        upDownServo = new Servo8863("upDownServo", hardwareMap, telemetry);
         this.telemetry = telemetry;
-        // create the robot for teleop
-        driveTrain = DriveTrain.DriveTrainTeleOpNoIMU(hardwareMap, telemetry);
-        upDownServo = new UpDownServo(hardwareMap,telemetry);
-        clampServo = new ClampServo(hardwareMap,telemetry);
-        init(telemetry);
-    }
-
-    public static WonderWorkDemoRobot createRobotForAutonomous(HardwareMap hardwareMap, Telemetry telemetry, AllianceColor.TeamColor teamColor, DataLogging dataLog) {
-        WonderWorkDemoRobot robot = new WonderWorkDemoRobot(hardwareMap, RobotMode.AUTONOMOUS, telemetry, teamColor, dataLog);
-        return robot;
-    }
-
-    public static WonderWorkDemoRobot createRobotForTeleop(HardwareMap hardwareMap, Telemetry telemetry, AllianceColor.TeamColor teamColor, DataLogging dataLog) {
-        WonderWorkDemoRobot robot = new WonderWorkDemoRobot(hardwareMap, RobotMode.TELEOP, telemetry, teamColor, dataLog);
-        return robot;
+        upDownServo.setDirection(Servo.Direction.REVERSE);
+        upDownServo.setHomePosition(homePosition);
+        upDownServo.setInitPosition(initPosition);
+        upDownServo.setPositionOne(positionOne);
     }
 
     //*********************************************************************************************
@@ -87,18 +65,21 @@ public class WonderWorkDemoRobot {
     // public methods that give the class its functionality
     //*********************************************************************************************
 
-    public void init(Telemetry telemetry) {
-        upDownServo.init();
-        clampServo.init();
+    public void init() {
+        upDownServo.goInitPosition();
+        telemetry.addData("Sweeper Servo initialized", "!");
     }
 
-    public void setupForRun() {
+    public void goUp() {
+        upDownServo.goHome();
     }
+
+    public void goDown() { upDownServo.goPositionOne();}
 
     public void update() {
+        // put any update commands here
     }
 
-    public void shutdown() {
-        driveTrain.shutdown();
+    public void shutdown() {goUp();
     }
 }

@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.GamepadButtonMultiPush;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.JoyStick;
 import org.firstinspires.ftc.teamcode.Lib.RelicRecoveryLib.RelicRecoveryRobotStJohnFisher;
-import org.firstinspires.ftc.teamcode.Lib.RelicRecoveryLib.SweeperArm;
+import org.firstinspires.ftc.teamcode.Lib.RelicRecoveryLib.UpDownServo;
 import org.firstinspires.ftc.teamcode.Lib.RelicRecoveryLib.WonderWorkDemoRobot;
 import org.firstinspires.ftc.teamcode.Lib.ResQLib.Sweeper;
 
@@ -122,8 +122,8 @@ public class WonderWorkDemo extends LinearOpMode {
         // create the gamepad 1 buttons and tell each button how many commands it has
         gamepad1RightBumper = new GamepadButtonMultiPush(1);
         gamepad1LeftBumper = new GamepadButtonMultiPush(1);
-        gamepad1a = new GamepadButtonMultiPush(1);
-        gamepad1b = new GamepadButtonMultiPush(1);
+        gamepad1a = new GamepadButtonMultiPush(2);
+        gamepad1b = new GamepadButtonMultiPush(2);
         gamepad1y = new GamepadButtonMultiPush(1);
         gamepad1x = new GamepadButtonMultiPush(1);
         gamepad1DpadUp = new GamepadButtonMultiPush(1);
@@ -210,19 +210,28 @@ public class WonderWorkDemo extends LinearOpMode {
             }
 
             if (gamepad1a.buttonPress(gamepad1.a)) {
-                robot.sweeperarm.goHome();
+                if (gamepad1a.isCommand1()) {
+                    robot.upDownServo.goDown();
+                }
+                if (gamepad1a.isCommand2()) {
+                    robot.upDownServo.goUp();
+                }
                 // this was a new button press, not a button held down for a while
                 // put the command to be executed here
             }
 
             if (gamepad1b.buttonPress(gamepad1.b)) {
-                robot.sweeperarm.goDown();
+                if (gamepad1b.isCommand1()) {
+                    robot.clampServo.clamp();
+                }
+                if (gamepad1b.isCommand2()) {
+                    robot.clampServo.open();
+                }
                 // this was a new button press, not a button held down for a while
                 // put the command to be executed here
             }
 
             if (gamepad1y.buttonPress(gamepad1.y)) {
-                robot.sweeperarm.init();
                 // this was a new button press, not a button held down for a while
                 // put the command to be executed here
             }

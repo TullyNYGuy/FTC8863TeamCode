@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
 
-public class SweeperArm {
+public class ClampServo {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -23,11 +23,11 @@ public class SweeperArm {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
-    private Servo8863 sweeperServo;
+    private Servo8863 clampServo;
     private Telemetry telemetry;
-    private double homePosition = 1;
-    private double initPosition = 1;
-    private double positionOne = .70;
+    private double homePosition = 0.55;
+    private double initPosition = 0.55;
+    private double positionOne = .40;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -43,13 +43,13 @@ public class SweeperArm {
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
-    public SweeperArm(HardwareMap hardwareMap, Telemetry telemetry) {
-        sweeperServo = new Servo8863("sweeperArmServo", hardwareMap, telemetry);
+    public ClampServo(HardwareMap hardwareMap, Telemetry telemetry) {
+        clampServo = new Servo8863("clampServo", hardwareMap, telemetry);
         this.telemetry = telemetry;
-        sweeperServo.setDirection(Servo.Direction.REVERSE);
-        sweeperServo.setHomePosition(homePosition);
-        sweeperServo.setInitPosition(initPosition);
-        sweeperServo.setPositionOne(positionOne);
+        clampServo.setDirection(Servo.Direction.REVERSE);
+        clampServo.setHomePosition(homePosition);
+        clampServo.setInitPosition(initPosition);
+        clampServo.setPositionOne(positionOne);
     }
 
     //*********************************************************************************************
@@ -66,21 +66,20 @@ public class SweeperArm {
     //*********************************************************************************************
 
     public void init() {
-        sweeperServo.goInitPosition();
+        clampServo.goInitPosition();
         telemetry.addData("Sweeper Servo initialized", "!");
     }
 
-    public void goHome() {
-        sweeperServo.goHome();
+    public void open() {
+        clampServo.goHome();
     }
 
-    public void goDown() { sweeperServo.goPositionOne();}
+    public void clamp() { clampServo.goPositionOne();}
 
     public void update() {
         // put any update commands here
     }
 
-    public void shutdown() {
-        goHome();
+    public void shutdown() {open();
     }
 }
