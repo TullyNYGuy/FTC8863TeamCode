@@ -796,7 +796,7 @@ public class JewelArm {
 
     private double distanceFromTopOfBallToWall = 4; //cm
     private double distanceFromSensorToServo = -1.2; //cm
-    private double armServoToFloorDistance = 44.0; //cm (10 inches)
+    private double armServoToFloorDistance = 25.0; //cm (10 inches)
     private double heightToTopOfBall = 9.8425; //cm
     private double elbowArmLength = 23.75; //cm
     private double armLength = 18.89; //cm
@@ -833,7 +833,7 @@ public class JewelArm {
 
     public double calculateAngleA (double armServoToBallDistance, double angleC) {
         double angleA = 0; // A on math sheet
-        angleA = Math.toDegrees(Math.asin((elbowArmLength * Math.sin(angleC))/armServoToBallDistance));
+        angleA = Math.toDegrees(Math.asin((elbowArmLength * Math.sin(Math.toRadians (angleC)))/armServoToBallDistance));
         return angleA;
     }
 
@@ -849,7 +849,7 @@ public class JewelArm {
      *
      * @return Angle B on the math sheet
      */
-    public void getServoAngles(double distanceSensorToWallInCM) {
+   /* public void getServoAngles(double distanceSensorToWallInCM) {
         double armServoAngle = 0;
         double distanceToBallStraight = calculateDistanceToBallStraight(distanceSensorToWallInCM);
         double armServoToBallDistance = calculateServoToBallDistance(distanceToBallStraight);
@@ -866,7 +866,7 @@ public class JewelArm {
         telemetry.addData("Elbow servo angle = ", "%3.2f", this.elbowServoAngle);
         telemetry.addData("Arm servo angle = ", "%3.2f", this.upDownServoAngle);
     }
-
+*/
     public double getAngleC(double distanceSensorToWallInCM){
         double distanceToBallStraight = calculateDistanceToBallStraight(distanceSensorToWallInCM);
         double armServoToBallDistance = calculateServoToBallDistance(distanceToBallStraight);
@@ -889,7 +889,7 @@ public class JewelArm {
     //**********************************************************************************************
 
     public double getUpDownServoCommandFromAngle(double angle) {
-        double command = .00472 * angle + .04432;
+        double command = .00472 * angle + 0.004432;
         return command;
     }
 
@@ -902,4 +902,27 @@ public class JewelArm {
         double command = .00489 * angle + .48000;
         return command;
     }
+
+    public double setUpMathMovements (double upDownServoAngle, double elbowServoAngle, double frontBackServoAngle){
+        double upDownServoCommand;
+        double elbowServoCommand;
+        double frontBackServoCommand;
+       upDownServoCommand = getUpDownServoCommandFromAngle(upDownServoAngle);
+        elbowServoCommand = getElbowServoCommandFromAngle(elbowServoAngle);
+        frontBackServoCommand = getFrontBackServoCommandFromAngle(frontBackServoAngle);
+        elbowServo.setupMoveBySteps(elbowServoCommand, .01, 5);
+        //upDownServo.setupMoveBySteps(upDownServoCommand, .01, 5);
+      //  frontBackServo.setupMoveBySteps(frontBackServoCommand, .01, 5);
+        return elbowServoCommand;
+    }
+    public boolean updateMathMovements (){
+      // if (frontBackServo.updateMoveBySteps() && upDownServo.updateMoveBySteps() && elbowServo.updateMoveBySteps()){
+           if (elbowServo.updateMoveBySteps()){
+           return true;
+       }
+       else {
+           return false;
+       }
+    }
+
 }
