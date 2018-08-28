@@ -27,7 +27,7 @@ public class ClampServo {
     private Telemetry telemetry;
     private double homePosition = 0.55;
     private double initPosition = 0.55;
-    private double positionOne = .40;
+    private double positionOne = .30;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods

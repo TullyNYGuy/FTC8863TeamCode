@@ -27,7 +27,7 @@ public class UpDownServo {
     private Telemetry telemetry;
     private double homePosition = 1;
     private double initPosition = 1;
-    private double positionOne = .70;
+    private double positionOne = .65;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -46,7 +46,7 @@ public class UpDownServo {
     public UpDownServo(HardwareMap hardwareMap, Telemetry telemetry) {
         upDownServo = new Servo8863("upDownServo", hardwareMap, telemetry);
         this.telemetry = telemetry;
-        upDownServo.setDirection(Servo.Direction.REVERSE);
+        upDownServo.setDirection(Servo.Direction.FORWARD);
         upDownServo.setHomePosition(homePosition);
         upDownServo.setInitPosition(initPosition);
         upDownServo.setPositionOne(positionOne);
