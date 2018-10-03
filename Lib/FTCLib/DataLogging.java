@@ -72,13 +72,13 @@ public class DataLogging {
     public DataLogging(String filePrefix, Telemetry telemetry) {
         this.folderPath = "/sdcard/FTC8863/";
         this.filePrefix = filePrefix;
-        dataLoggingSetup();
+//        dataLoggingSetup();
     }
 
     private void dataLoggingSetup() {
         boolean result = true;
         // make sure the folder exists, if not create it, and create the log file itself
-        this.status = openDataLog(folderPath, filePrefix);
+        this.status = openDataLog(this.folderPath, this.filePrefix);
         // create a timer for use in time stamping data
         timer = new ElapsedTime();
     }
