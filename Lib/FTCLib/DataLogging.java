@@ -66,13 +66,22 @@ public class DataLogging {
     public DataLogging(String folderPath, String filePrefix, Telemetry telemetry) {
         this.folderPath = folderPath;
         this.filePrefix = filePrefix;
+        // not setting the telemetry variable was the source of a null pointer exception
+        // so now I set it here
+        this.telemetry = telemetry;
         dataLoggingSetup();
     }
     
     public DataLogging(String filePrefix, Telemetry telemetry) {
+        // even though the phone does not have an sd card installed, this path puts the file FTC8863
+        // directory in the root of the file / disk of the phone
         this.folderPath = "/sdcard/FTC8863/";
+        //this.folderPath = "/sdcard/FTC8863/";
         this.filePrefix = filePrefix;
-//        dataLoggingSetup();
+        // not setting the telemetry variable was the source of a null pointer exception
+        // so now I set it here
+        this.telemetry = telemetry;
+        dataLoggingSetup();
     }
 
     private void dataLoggingSetup() {
@@ -131,8 +140,11 @@ public class DataLogging {
             dataLog = null;
             result = false;
         }
-        dataLog.println("Time is in milliseconds!");
-        dataLog.println("Date and Time of log file start = " + dateFormat.format(new Date()));
+        if (result) {
+            // if the log file creation was successful we can write initial data into it
+            dataLog.println("Time is in milliseconds!");
+            dataLog.println("Date and Time of log file start = " + dateFormat.format(new Date()));
+        }
         return result;
     }
 
