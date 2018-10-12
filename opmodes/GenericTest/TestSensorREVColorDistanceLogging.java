@@ -39,6 +39,7 @@ import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 
 import java.util.Locale;
 
@@ -74,6 +75,7 @@ public class TestSensorREVColorDistanceLogging extends LinearOpMode {
      */
     ColorSensor sensorColor;
     DistanceSensor sensorDistance;
+    DataLogging dataLogging;
 
     @Override
     public void runOpMode() {
@@ -83,6 +85,8 @@ public class TestSensorREVColorDistanceLogging extends LinearOpMode {
 
         // get a reference to the distance sensor that shares the same name.
         sensorDistance = hardwareMap.get(DistanceSensor.class, "revColorSensor");
+
+        dataLogging = new DataLogging("colorSensor", telemetry);
 
         // hsvValues is an array that will hold the hue, saturation, and value information.
         float hsvValues[] = {0F, 0F, 0F};
@@ -101,6 +105,7 @@ public class TestSensorREVColorDistanceLogging extends LinearOpMode {
 
         // wait for the start button to be pressed.
         waitForStart();
+        dataLogging.startTimer();
 
         // loop and read the RGB and distance data.
         // Note we use opModeIsActive() as our loop condition because it is an interruptible method.
@@ -122,6 +127,7 @@ public class TestSensorREVColorDistanceLogging extends LinearOpMode {
             telemetry.addData("Blue ", sensorColor.blue());
             telemetry.addData("Hue", hsvValues[0]);
 
+            dataLogging.logData(String.format(Locale.US, "%.02f", sensorDistance.getDistance(DistanceUnit.CM)) + ", " + hsvValues[0]);
             // change the background color to match the color detected by the RGB sensor.
             // pass a reference to the hue, saturation, and value array as an argument
             // to the HSVToColor method.
@@ -140,5 +146,6 @@ public class TestSensorREVColorDistanceLogging extends LinearOpMode {
                 relativeLayout.setBackgroundColor(Color.WHITE);
             }
         });
+        dataLogging.closeDataLog();
     }
 }
