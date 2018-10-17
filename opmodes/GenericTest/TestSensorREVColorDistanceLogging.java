@@ -76,6 +76,7 @@ public class TestSensorREVColorDistanceLogging extends LinearOpMode {
     ColorSensor sensorColor;
     DistanceSensor sensorDistance;
     DataLogging dataLogging;
+    int loopcount;
 
     @Override
     public void runOpMode() {
@@ -109,7 +110,7 @@ public class TestSensorREVColorDistanceLogging extends LinearOpMode {
 
         // loop and read the RGB and distance data.
         // Note we use opModeIsActive() as our loop condition because it is an interruptible method.
-        while (opModeIsActive()) {
+        while (opModeIsActive() && loopcount < 100) {
             // convert the RGB values to HSV values.
             // multiply by the SCALE_FACTOR.
             // then cast it back to int (SCALE_FACTOR is a double)
@@ -127,17 +128,17 @@ public class TestSensorREVColorDistanceLogging extends LinearOpMode {
             telemetry.addData("Blue ", sensorColor.blue());
             telemetry.addData("Hue", hsvValues[0]);
 
-            dataLogging.logData(String.format(Locale.US, "%.02f", sensorDistance.getDistance(DistanceUnit.CM)) + ", " + hsvValues[0]);
+            ////////////dataLogging.logData(String.format(Locale.US, "%.02f", sensorDistance.getDistance(DistanceUnit.CM)) + ", " + hsvValues[0]);
             // change the background color to match the color detected by the RGB sensor.
             // pass a reference to the hue, saturation, and value array as an argument
             // to the HSVToColor method.
-            relativeLayout.post(new Runnable() {
-                public void run() {
-                    relativeLayout.setBackgroundColor(Color.HSVToColor(0xff, values));
-                }
-            });
-
+            ////////////relativeLayout.post(new Runnable() {
+            ////////////    public void run() {
+            ////////////        relativeLayout.setBackgroundColor(Color.HSVToColor(0xff, values));
+            ////////////    }
+            ////////////});
             telemetry.update();
+            loopcount = loopcount + 1;
         }
 
         // Set the panel back to the default color
