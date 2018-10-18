@@ -21,7 +21,7 @@ public class AdafruitBackpackLED {
     // 8 bit registers. I would have defined them as 0:8. But since the datasheet uses 8:15 I'm
     // going to keep the bit numbering scheme so it is easy to match the datasheet to the code
 
-    // The HT16K33 is a bit odd to me. The register address and the command data that go into the
+    // The HT16K33 is a bit odd to me. For some registers, the register address and the command data that go into the
     // register are combined into one 8 bit byte. The most significant 4 bits are the address of the
     // register and the commands are contained in the least significant 4 bits.
 
@@ -32,17 +32,41 @@ public class AdafruitBackpackLED {
      * REGISTER provides symbolic names for device registers
      */
     public enum Register {
-        DISPLAY_DATA(0x00),
-        SYSTEM_SETUP(0x20),
-        KEY_DATA(0x40), // the chip can read a matrix of keys, but this is not implemented on the Adafruit board.
-                        // So this register address is here just for completeness. It is never used.
-        INT_FLAG(0x60), // the chip can generate an interrupt, but this is not implemented on the Adafruit board.
-                        // So this register address is here just for completeness. It is never used.
-        DISPLAY_SETUP(0x80),
-        ROW_INT_SET(0xA0),
+        DISPLAY_DATA(0x00), // The starting address for the LED display data register. There are 16 registers 0x00 to 0x0F.
+                            // Each pair of two registers holds the bits controlling the display of a single ASCII character.
+                            // So the chip can control up to 8 16-segment LEDS.
+                            // However, the Adafruit board only implements 4 14-segment LEDs. These are on addresses:
+                            // 0x00 / 0x01 - left most LED
+                            // 0x02 / 0x03 - left middle LED
+                            // 0x04 / 0x05 - right middle LED
+                            // 0x06 / 0x07 - right most LED
+                            // 0x08 - 0x0F - not used (no LED on these addresses)
+                            // To write a character to the LED, follow this address with 2 8 bit bytes of data that
+                            // turn on the LED segments to make an ASCII character.
 
-        DIMMING_SET(0xE0),
-        TEST_MODE(0xD9); // This register is for HOLTEK (the chip manufacturer) use only. It is
+        SYSTEM_SETUP(0x20), // The most significant 4 bits are the address of the register for controlling the chip.
+                            // The least significant 4 bits are the commands. They are defined in another enum below.
+                            // OR this address with the command to get a full 8 bit piece of data to write.
+
+        //KEY_DATA(0x40), // the chip can read a matrix of keys, but this is not implemented on the Adafruit board.
+                        // So this register address is here just for completeness. It is never used.
+        //INT_FLAG(0x60), // the chip can generate an interrupt, but this is not implemented on the Adafruit board.
+                        // So this register address is here just for completeness. It is never used.
+
+        DISPLAY_SETUP(0x80), // The most significant 4 bits are the address of the register for the controlling the LED display
+                             // The least significant 4 bits are the commands. They are defined in another enum below.
+                             // OR this address with the command to get a full 8 bit piece of data to write.
+
+        //ROW_INT_SET(0xA0), // the chip has a pin that can be configured as an interrupt of a row pin,
+                        // but this is not implemented on the Adafruit board.
+                        // So this register address is here just for completeness. It is never used.
+
+        DIMMING_SET(0xE0); // The most significant 4 bits are the address of the register for the brightness of the LEDs.
+                           // The least significant 4 bits are the dimming commands. The values are not going to be enums.
+                           // Dimmest = 0, Brightest = 15 (0xF)
+                           // OR this address with the command to get a full 8 bit byte to write.
+
+        //TEST_MODE(0xD9); // This register is for HOLTEK (the chip manufacturer) use only. It is
                          // documented here but it is never used.
 
         public final byte byteVal;
@@ -55,17 +79,7 @@ public class AdafruitBackpackLED {
     // Commands for the Display data register
     // The display data commands are full 8 bit commands. They are actually bits that turn on
     // specific LED segments to form a character such as a "5" or "A".
-
-    public enum DisplayDataCommand {
-        SYSTEM_SETUP_OSCILLATOR_OFF(0x00),         // bit 8 = 0 TO TURN THE OSCILLATOR OFF
-        SYSTEM_SETUP_OSCILLATOR_OFn(0x01);         // bit 8 = 1 TO TURN THE OSCILLATOR ON
-
-        public final byte byteVal;
-
-        DisplayDataCommand(int i) {
-            this.byteVal = (byte) i;
-        }
-    }
+    // The mapping of a ASCII character to a command is handled by a method below rather than enums.
 
     // Commands for the System setup register (page 10 of the datasheet)
 
@@ -109,8 +123,10 @@ public class AdafruitBackpackLED {
     }
 
     // Commands for the Row/Int set register (page 10 of the datasheet)
+    // Skipping these because they are not used on the Adafruit board
 
     // Commands for the Dimming setup register (page 15 of the datasheet)
+    // These ccmmands handled by a method not an enum.
 
     // There are no commands for the test mode register.
 
@@ -244,6 +260,8 @@ public class AdafruitBackpackLED {
         Character(int i) {
             this.byteVal = (byte) i;
         }
+
+
     }
 
 }
