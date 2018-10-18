@@ -113,4 +113,137 @@ public class AdafruitBackpackLED {
     // Commands for the Dimming setup register (page 15 of the datasheet)
 
     // There are no commands for the test mode register.
+
+    // Here are the codes for displaying a character on the LED. These codes are specific to the
+    // Adafruit board. The code is the command to write after the display data register address.
+
+    public enum Character {
+        UNUSED1(0b0000000000000001),
+        UNUSED2(0b0000000000000010),
+        UNUSED3(0b0000000000000100),
+        UNUSED4(0b0000000000001000),
+        UNUSED5(0b0000000000010000),
+        UNUSED6(0b0000000000100000),
+        UNUSED7(0b0000000001000000),
+        UNUSED8(0b0000000010000000),
+        UNUSED9(0b0000000100000000),
+        UNUSED10(0b0000001000000000),
+        UNUSED11(0b0000010000000000),
+        UNUSED12(0b0000100000000000),
+        UNUSED13(0b0001000000000000),
+        UNUSED14(0b0010000000000000),
+        UNUSED15(0b0100000000000000),
+        UNUSED16(0b1000000000000000),
+        UNUSED17(0b0001001011001001),
+        UNUSED18(0b0001010111000000),
+        UNUSED19(0b0001001011111001),
+        UNUSED20(0b0000000011100011),
+        UNUSED21(0b0000010100110000),
+        UNUSED22(0b0001001011001000),
+        UNUSED23(0b0011101000000000),
+        UNUSED24(0b0001011100000000),
+        BLANK(0b0000000000000000),                  //
+        EXCLAMATION(0b0000000000000110),            // !
+        DOUBLE_QUOTE(0b0000001000100000),           // "
+        NUMBER(0b0001001011001110),                 // #
+        DOLLAR(0b0001001011101101),                 // $
+        PERCENT(0b0000110000100100),                // %
+        AMPERSAND(0b0010001101011101),              // &
+        SINGLE_QUOTE(0b0000010000000000),           // '
+        OPEN_PAREN(0b0010010000000000),             // (
+        CLOSE_PAREN(0b0000100100000000),            // )
+        ASTERISK(0b0011111111000000),               // *
+        PLUS(0b0001001011000000),                   // +
+        COMMA(0b0000100000000000),                  // ),
+        MINUS(0b0000000011000000),                  // -
+        PERIOD(0b0000000000000000),                 // .
+        FORWARD_SLASH(0b0000110000000000),          // /
+        ZERO(0b0000110000111111),                   // 0
+        ONE(0b0000000000000110),                    // 1
+        TWO(0b0000000011011011),                    // 2
+        THREE(0b0000000010001111),                  // 3
+        FOUR(0b0000000011100110),                   // 4
+        FIVE(0b0010000001101001),                   // 5
+        SIX(0b0000000011111101),                    // 6
+        SEVEN(0b0000000000000111),                  // 7
+        EIGHT(0b0000000011111111),                  // 8
+        NINE(0b0000000011101111),                   // 9
+        COLON(0b0001001000000000),                  // :
+        SEMICOLON(0b0000101000000000),              // ;
+        LESS_THAN(0b0010010000000000),              // <
+        EQUALS(0b0000000011001000),                 // =
+        GREATER_THAN(0b0000100100000000),           // >
+        QUESTION(0b0001000010000011),               // ?
+        AT(0b0000001010111011),                     // @
+        A_UPPERCASE(0b0000000011110111),            // A
+        B_UPPERCASE(0b0001001010001111),            // B
+        C_UPPERCASE(0b0000000000111001),            // C
+        D_UPPERCASE(0b0001001000001111),            // D
+        E_UPPERCASE(0b0000000011111001),            // E
+        F_UPPERCASE(0b0000000001110001),            // F
+        G_UPPERCASE(0b0000000010111101),            // G
+        H_UPPERCASE(0b0000000011110110),            // H
+        I_UPPERCASE(0b0001001000000000),            // I
+        J_UPPERCASE(0b0000000000011110),            // J
+        K_UPPERCASE(0b0010010001110000),            // K
+        L_UPPERCASE(0b0000000000111000),            // L
+        M_UPPERCASE(0b0000010100110110),            // M
+        N_UPPERCASE(0b0010000100110110),            // N
+        O_UPPERCASE(0b0000000000111111),            // O
+        P_UPPERCASE(0b0000000011110011),            // P
+        Q_UPPERCASE(0b0010000000111111),            // Q
+        R_UPPERCASE(0b0010000011110011),            // R
+        S_UPPERCASE(0b0000000011101101),            // S
+        T_UPPERCASE(0b0001001000000001),            // T
+        U_UPPERCASE(0b0000000000111110),            // U
+        V_UPPERCASE(0b0000110000110000),            // V
+        W_UPPERCASE(0b0010100000110110),            // W
+        X_UPPERCASE(0b0010110100000000),            // X
+        Y_UPPERCASE(0b0001010100000000),            // Y
+        Z_UPPERCASE(0b0000110000001001),            // Z
+        OPEN_SQUARE_BRACKET(0b0000000000111001),    // [
+        UNUSED25(0b0010000100000000),               //
+        CLOSE_SQUARE_BRACKET(0b0000000000001111),   // ]
+        CARROT(0b0000110000000011),                 // ^
+        UNDERSCORE(0b0000000000001000),             // _
+        REVERSE_SINGLE_QUOTE(0b0000000100000000),   // `
+        A_LOWERCASE(0b0001000001011000),            // a
+        B_LOWERCASE(0b0010000001111000),            // b
+        C_LOWERCASE(0b0000000011011000),            // c
+        D_LOWERCASE(0b0000100010001110),            // d
+        E_LOWERCASE(0b0000100001011000),            // e
+        F_LOWERCASE(0b0000000001110001),            // f
+        G_LOWERCASE(0b0000010010001110),            // g
+        H_LOWERCASE(0b0001000001110000),            // h
+        I_LOWERCASE(0b0001000000000000),            // i
+        J_LOWERCASE(0b0000000000001110),            // j
+        K_LOWERCASE(0b0011011000000000),            // k
+        L_LOWERCASE(0b0000000000110000),            // l
+        M_LOWERCASE(0b0001000011010100),            // m
+        N_LOWERCASE(0b0001000001010000),            // n
+        O_LOWERCASE(0b0000000011011100),            // o
+        P_LOWERCASE(0b0000000101110000),            // p
+        Q_LOWERCASE(0b0000010010000110),            // q
+        R_LOWERCASE(0b0000000001010000),            // r
+        S_LOWERCASE(0b0010000010001000),            // s
+        T_LOWERCASE(0b0000000001111000),            // t
+        U_LOWERCASE(0b0000000000011100),            // u
+        V_LOWERCASE(0b0010000000000100),            // v
+        W_LOWERCASE(0b0010100000010100),            // w
+        X_LOWERCASE(0b0010100011000000),            // x
+        Y_LOWERCASE(0b0010000000001100),            // y
+        Z_LOWERCASE(0b0000100001001000),            // z
+        OPEN_SQUIRRLY_BRACKET(0b0000100101001001),  // {
+        VERTICAL_BAR(0b0001001000000000),           // |
+        CLOSE_SQUIRRLY_BRACKET(0b0010010010001001), // }
+        TILDE(0b0000010100100000),                  // ~
+        UNUSED26(0b0011111111111111);
+        
+        public final byte byteVal;
+
+        Character(int i) {
+            this.byteVal = (byte) i;
+        }
+    }
+
 }
