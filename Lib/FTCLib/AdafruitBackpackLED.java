@@ -4,6 +4,7 @@ package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 // printed circuit board that Adafruit sells. So the control is specific to this board can't be
 // used with any other board that uses the HT16K33 LED Controller.
 
+import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.LED;
 
 import java.util.HashMap;
@@ -37,7 +38,7 @@ public class AdafruitBackpackLED {
     /**
      * REGISTER provides symbolic names for device registers
      */
-    public enum Register {
+    private enum Register {
         DISPLAY_DATA(0x00), // The starting address for the LED display data register. There are 16 registers 0x00 to 0x0F.
         // Each pair of two registers holds the bits controlling the display of a single ASCII character.
         // So the chip can control up to 8 16-segment LEDS.
@@ -89,7 +90,7 @@ public class AdafruitBackpackLED {
 
     // Commands for the System setup register (page 10 of the datasheet)
 
-    public enum SystemSetupCommand {
+    private enum SystemSetupCommand {
         SYSTEM_SETUP_OSCILLATOR_OFF(0x00),         // bit 8 = 0 TO TURN THE OSCILLATOR OFF
         SYSTEM_SETUP_OSCILLATOR_OFn(0x01);         // bit 8 = 1 TO TURN THE OSCILLATOR ON
 
@@ -113,7 +114,7 @@ public class AdafruitBackpackLED {
     // bit is 0 and you turn the display off and set it to blink once per second. This is not very
     // useful :-)
 
-    public enum DisplaySetupCommand {
+    private enum DisplaySetupCommand {
         BLINKING_OFF(0b0000),         // Turn LED blinking off (ie they are on steadily)
         BLINKING_2_HZ(0b0010),        // Set LED blinking to 2 times per second
         BLINKING_1_HZ(0b0100),        // Set LED blinking to 1 times per second
@@ -126,6 +127,18 @@ public class AdafruitBackpackLED {
         DisplaySetupCommand(int i) {
             this.byteVal = (byte) i;
         }
+    }
+
+    public enum LEDStatus {
+        ON,
+        OFF,
+    }
+
+    public enum LEDBlinkRate {
+        ONCE_PER_SECOND,
+        TWICE_PER_SECOND,
+        ONCE_PER_TWO_SECONDS,
+        NO_BLINK
     }
 
     // Commands for the Row/Int set register (page 10 of the datasheet)
@@ -187,7 +200,7 @@ public class AdafruitBackpackLED {
             stringToLEDCode.put(")", (short) 0b0000100100000000);            // )
             stringToLEDCode.put("*", (short) 0b0011111111000000);            // *
             stringToLEDCode.put("+", (short) 0b0001001011000000);            // +
-            stringToLEDCode.put(");", (short) 0b0000100000000000);           // );
+            stringToLEDCode.put(",", (short) 0b0000100000000000);            // ,
             stringToLEDCode.put("-", (short) 0b0000000011000000);            // -
             stringToLEDCode.put(".", (short) 0b0000000000000000);            // .
             stringToLEDCode.put("/", (short) 0b0000110000000000);            // /
@@ -290,4 +303,43 @@ public class AdafruitBackpackLED {
         }
     }
 
+    private I2cAddr muxAddress;
+
+    public I2cAddr getMuxAddress() {
+        return muxAddress;
+    }
+
+    public void setMuxAddress(I2cAddr muxAddress) {
+        this.muxAddress = muxAddress;
+    }
+
+    private byte brightnessLevel = 7;
+
+    public byte getBrightnessLevel() {
+        return brightnessLevel;
+    }
+
+    public void setBrightnessLevel(byte brightnessLevel) {
+        this.brightnessLevel = brightnessLevel;
+    }
+
+    private LEDStatus ledOnOrOff = LEDStatus.OFF;
+
+    public LEDStatus isLedOn() {
+        return ledOnOrOff;
+    }
+
+    public void setLedOnOrOff(LEDStatus ledCommand) {
+        this.ledOnOrOff = ledCommand;
+    }
+
+    private LEDBlinkRate ledBlinkRate = LEDBlinkRate.NO_BLINK;
+
+    public LEDBlinkRate getLedBlinkRate() {
+        return ledBlinkRate;
+    }
+
+    public void setLedBlinkRate(LEDBlinkRate ledBlinkRate) {
+        this.ledBlinkRate = ledBlinkRate;
+    }
 }
