@@ -4,7 +4,11 @@ package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 // printed circuit board that Adafruit sells. So the control is specific to this board can't be
 // used with any other board that uses the HT16K33 LED Controller.
 
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.I2cAddr;
+import com.qualcomm.robotcore.hardware.I2cDevice;
+import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
+import com.qualcomm.robotcore.hardware.I2cDeviceSynchImpl;
 import com.qualcomm.robotcore.hardware.LED;
 
 import java.util.HashMap;
@@ -127,18 +131,6 @@ public class AdafruitBackpackLED {
         DisplaySetupCommand(int i) {
             this.byteVal = (byte) i;
         }
-    }
-
-    public enum LEDStatus {
-        ON,
-        OFF,
-    }
-
-    public enum LEDBlinkRate {
-        ONCE_PER_SECOND,
-        TWICE_PER_SECOND,
-        ONCE_PER_TWO_SECONDS,
-        NO_BLINK
     }
 
     // Commands for the Row/Int set register (page 10 of the datasheet)
@@ -303,14 +295,49 @@ public class AdafruitBackpackLED {
         }
     }
 
-    private I2cAddr muxAddress;
-
-    public I2cAddr getMuxAddress() {
-        return muxAddress;
+    public enum LEDStatus {
+        ON,
+        OFF,
     }
 
-    public void setMuxAddress(I2cAddr muxAddress) {
-        this.muxAddress = muxAddress;
+    public enum ChipStatus {
+        ON,
+        OFF
+    }
+
+    public enum LEDBlinkRate {
+        ONCE_PER_SECOND,
+        TWICE_PER_SECOND,
+        ONCE_PER_TWO_SECONDS,
+        NO_BLINK
+    }
+
+
+    //*********************************************************************************************
+    //          PRIVATE DATA FIELDS  and GETTERS and SETTERS
+    //
+    // data fields can be accessed only by this class, or by using the public
+    // getter and setter methods
+    //*********************************************************************************************
+
+    private I2cAddr ledControllerAddress;
+
+    public I2cAddr getMuxAddress() {
+        return ledControllerAddress;
+    }
+
+    public void setMuxAddress(I2cAddr ledControllerAddress) {
+        this.ledControllerAddress = ledControllerAddress;
+    }
+
+    private ChipStatus chipStatus;
+
+    public ChipStatus getChipStatus() {
+        return chipStatus;
+    }
+
+    public void setChipStatus(ChipStatus chipStatus) {
+        this.chipStatus = chipStatus;
     }
 
     private byte brightnessLevel = 7;
@@ -342,4 +369,87 @@ public class AdafruitBackpackLED {
     public void setLedBlinkRate(LEDBlinkRate ledBlinkRate) {
         this.ledBlinkRate = ledBlinkRate;
     }
+
+    private I2cAddr i2cAddr;
+
+    public I2cAddr getI2cAddr() {
+        return i2cAddr;
+    }
+
+    public void setI2cAddr(I2cAddr i2cAddr) {
+        this.i2cAddr = i2cAddr;
+    }
+
+    public void setI2cAddr(int i2cAddr) {
+         this.i2cAddr = I2cAddr.create7bit(i2cAddr);
+    }
+
+    private I2cDevice backpack;
+
+    private I2cDeviceSynch backpackClient;
+
+    boolean isOwned = false;
+
+
+
+    //*********************************************************************************************
+    //          Constructors
+    //
+    // the function that builds the class when an object is created
+    // from it
+    //*********************************************************************************************
+
+    public AdafruitBackpackLED(I2cAddr ledControllerAddress, HardwareMap hardwareMap, String backpackName) {
+        setI2cAddr(ledControllerAddress);
+        initialize(hardwareMap, backpackName);
+    }
+
+    public AdafruitBackpackLED(int ledControllerAddress, HardwareMap hardwareMap, String backpackName) {
+        setI2cAddr(ledControllerAddress);
+        initialize(hardwareMap, backpackName);
+    }
+
+    public AdafruitBackpackLED(HardwareMap hardwareMap, String backpackName) {
+        // default address
+        setI2cAddr(0x70);
+        initialize(hardwareMap, backpackName);
+    }
+
+    private void initialize(HardwareMap hardwareMap, String backpackName) {
+        // create the client to talk over I2C to the controller chip
+        createClient(hardwareMap, backpackName);
+
+        // turn the system oscillator on
+        // check to make sure the led controller is at this address
+        // turn the display off
+        // turn the blinking off
+        // clear the characters from the display
+        // set the brightness
+    }
+
+    //*********************************************************************************************
+    //          Control methods
+    //
+    // these methods send commands to the controller
+    //*********************************************************************************************
+
+    private void createClient(HardwareMap hardwareMap, String backpackName) {
+        backpack = hardwareMap.get(I2cDevice.class, backpackName);
+        backpackClient = new I2cDeviceSynchImpl(backpack, i2cAddr, isOwned);
+        backpackClient.engage();
+    }
+
+    //*********************************************************************************************
+    //          Control methods
+    //
+    // these methods send commands to the controller
+    //*********************************************************************************************
+
+
+    //*********************************************************************************************
+    //          I2C read / write methods
+    //
+    // the methods generically read and write to the controller
+    //*********************************************************************************************
+
 }
