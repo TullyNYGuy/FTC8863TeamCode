@@ -146,7 +146,7 @@ public class CollectionTest extends LinearOpMode {
         gamepad2RightJoyStickY = new JoyStick(JoyStick.JoyStickMode.SQUARE, JOYSTICK_DEADBAND_VALUE, JoyStick.InvertSign.INVERT_SIGN);
 
         collectionServoLeft = new CRServo("collectionServoLeft", hardwareMap, .50, .50, .1, Servo.Direction.FORWARD, telemetry);
-        collectionServoRight = new CRServo("collectionServoLeft", hardwareMap, .50, .50, .1, Servo.Direction.REVERSE, telemetry);
+        collectionServoRight = new CRServo("collectionServoRight", hardwareMap, .50, .50, .1, Servo.Direction.REVERSE, telemetry);
 
         // Wait for the start button
         telemetry.addData(">", "Press start to run Test");
@@ -197,8 +197,12 @@ public class CollectionTest extends LinearOpMode {
 
             if (gamepad1a.buttonPress(gamepad1.a)) {
                 if (gamepad1a.isCommand1()) {
+                    collectionServoLeft.setSpeed(1);
+                    collectionServoRight.setSpeed(1);
                 }
                 if (gamepad1a.isCommand2()) {
+                    collectionServoLeft.setSpeed(0);
+                    collectionServoRight.setSpeed(0);
                 }
                 // this was a new button press, not a button held down for a while
                 // put the command to be executed here

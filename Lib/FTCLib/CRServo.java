@@ -229,6 +229,7 @@ public class CRServo {
     private void initialize(String servoName, HardwareMap hardwareMap, double centerValueForward,
                             double centerValueReverse, double deadBandRange,
                             Servo.Direction direction, Telemetry telemetry) {
+        //crServo = hardwareMap.get(CRServo.class, servoName);
         crServo = hardwareMap.servo.get(servoName);
         this.telemetry = telemetry;
         this.centerValueReverse = centerValueReverse;
