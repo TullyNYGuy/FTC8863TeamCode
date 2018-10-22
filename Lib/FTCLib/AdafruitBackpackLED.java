@@ -5,6 +5,7 @@ package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 // used with any other board that uses the HT16K33 LED Controller.
 
 import android.view.Display;
+import android.widget.DialerFilter;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.I2cAddr;
@@ -287,6 +288,7 @@ public class AdafruitBackpackLED {
 
         /**
          * Get the 16 bit LED code for a single character
+         *
          * @param character
          * @return 16 bit led code that will light up that character on the LED display
          */
@@ -301,6 +303,7 @@ public class AdafruitBackpackLED {
 
         /**
          * Get the set of LED codes for a string
+         *
          * @param string
          * @return an array of 16 bit LED codes that will light up the string on the LED display
          */
@@ -318,9 +321,10 @@ public class AdafruitBackpackLED {
          * Given a string, get an array of 8 bit LED codes that can be sent out via I2C to light up
          * that string on the LED display. Although the LED codes are 16 bits, they have to be sent
          * as 2 8 bit bytes per code.
+         *
          * @param string
          * @return an array of 8 bit LED codes, 2 bytes for LED, that will display the string on
-         *         the LED
+         * the LED
          */
         public byte[] getLEDCodesAsBytes(String string) {
             short[] LEDCodes;
@@ -469,13 +473,13 @@ public class AdafruitBackpackLED {
     /**
      * Variable mirroring the brightness level on the controller
      */
-    private byte brightnessLevel = 7;
+    private int brightnessLevel = 7;
 
-    public byte getBrightnessLevel() {
+    public int getBrightnessLevel() {
         return brightnessLevel;
     }
 
-    public void setBrightnessLevel(byte brightnessLevel) {
+    public void setBrightnessLevel(int brightnessLevel) {
         // the brightness level is a integer between 0 and 15
         // so make sure the requested level falls into that range
         if (brightnessLevel < 0) brightnessLevel = 0;
@@ -484,7 +488,11 @@ public class AdafruitBackpackLED {
         this.brightnessLevel = brightnessLevel;
 
         // now actually set the brightness level on the controller
-        setBrightnessLevel(this.brightnessLevel);
+        byte byteToWrite;
+        // create the single byte address/command
+        byteToWrite = (byte) (Register.DIMMING_SET.byteVal | brightnessLevel);
+        // write the address/command via I2C
+        writeSingleByte(byteToWrite);
     }
 
     private LEDSwitch ledSwitch = LEDSwitch.OFF;
@@ -497,6 +505,15 @@ public class AdafruitBackpackLED {
 
     public LEDBlinkRate getLedBlinkRate() {
         return ledBlinkRate;
+    }
+
+    public void setLedBlinkRate(LEDBlinkRate ledBlinkRate) {
+        DisplaySetupCommand blinkCommand;
+        // get the Display setup command given the requested blink rate
+        blinkCommand = getBlinkSetupCommand(ledBlinkRate);
+        // set the tracking variable
+        this.ledBlinkRate = ledBlinkRate;
+        writeBlinkRate(blinkCommand);
     }
 
     /**
@@ -606,17 +623,41 @@ public class AdafruitBackpackLED {
         // create the LED code mapping object
         this.ledCode = new LEDCode();
         // turn the system oscillator on
+        turnOscillatorOn();
         // check to make sure the led controller is at this address
         // turn the display off
-        // turn the blinking off
+        turnLEDsOff();
+        // turn the blinking off;
+        setLedBlinkRate(LEDBlinkRate.NO_BLINK);
         // clear the characters from the display
+        setDisplayString("    ");
         // set the brightness
+        setBrightnessLevel(15);
     }
 
     private void createClient(HardwareMap hardwareMap, String backpackName) {
         backpack = hardwareMap.get(I2cDevice.class, backpackName);
         backpackClient = new I2cDeviceSynchImpl(backpack, i2cAddr, isOwned);
         backpackClient.engage();
+    }
+
+    private DisplaySetupCommand getBlinkSetupCommand(LEDBlinkRate ledBlinkRate) {
+        DisplaySetupCommand blinkCommand = DisplaySetupCommand.BLINKING_OFF;
+        switch (ledBlinkRate) {
+            case NO_BLINK:
+                blinkCommand = DisplaySetupCommand.BLINKING_OFF;
+                break;
+            case ONCE_PER_SECOND:
+                blinkCommand = DisplaySetupCommand.BLINKING_1_HZ;
+                break;
+            case TWICE_PER_SECOND:
+                blinkCommand = DisplaySetupCommand.BLINKING_2_HZ;
+                break;
+            case ONCE_PER_TWO_SECONDS:
+                blinkCommand = DisplaySetupCommand.BLINKING_HALF_HZ;
+                break;
+        }
+        return blinkCommand;
     }
 
     //*********************************************************************************************
@@ -639,9 +680,9 @@ public class AdafruitBackpackLED {
     public void turnLEDsOff() {
         // for the controller chip, the data to write is a single byte containing both the address and command
         // I want to keep the current led blink rate so I have to create a command that gets the current rate too
-        int blinkCommand = getBlinkSetupCommandFromBlinkRateEnum();
+        DisplaySetupCommand blinkCommand = getBlinkSetupCommand(this.ledBlinkRate);
         // create the address / command byte
-        byte byteToWrite = (byte) (Register.DISPLAY_SETUP.byteVal | blinkCommand | DisplaySetupCommand.DISPLAY_OFF.byteVal);
+        byte byteToWrite = (byte) (Register.DISPLAY_SETUP.byteVal | blinkCommand.byteVal | DisplaySetupCommand.DISPLAY_OFF.byteVal);
 
         // write the address/command via I2C
         writeSingleByte(byteToWrite);
@@ -653,9 +694,9 @@ public class AdafruitBackpackLED {
     public void turnLEDsOn() {
         // for the controller chip, the data to write is a single byte containing both the address and command
         // I want to keep the current led blink rate so I have to create a command that gets the current rate too
-        int blinkCommand = getBlinkSetupCommandFromBlinkRateEnum();
+        DisplaySetupCommand blinkCommand = getBlinkSetupCommand(this.ledBlinkRate);
         // create the address / command byte
-        byte byteToWrite = (byte) (Register.DISPLAY_SETUP.byteVal | blinkCommand | DisplaySetupCommand.DISPLAY_ON.byteVal);
+        byte byteToWrite = (byte) (Register.DISPLAY_SETUP.byteVal | blinkCommand.byteVal | DisplaySetupCommand.DISPLAY_ON.byteVal);
 
         // write the address/command via I2C
         writeSingleByte(byteToWrite);
@@ -664,66 +705,46 @@ public class AdafruitBackpackLED {
         this.ledSwitch = LEDSwitch.ON;
     }
 
-    private int getBlinkSetupCommandFromBlinkRateEnum() {
-        int blinkCommand = DisplaySetupCommand.BLINKING_OFF.byteVal;
-        switch (this.ledBlinkRate) {
-            case NO_BLINK:
-                blinkCommand = DisplaySetupCommand.BLINKING_OFF.byteVal;
-                break;
-            case ONCE_PER_SECOND:
-                blinkCommand = DisplaySetupCommand.BLINKING_1_HZ.byteVal;
-                break;
-            case TWICE_PER_SECOND:
-                blinkCommand = DisplaySetupCommand.BLINKING_2_HZ.byteVal;
-                break;
-            case ONCE_PER_TWO_SECONDS:
-                blinkCommand = DisplaySetupCommand.BLINKING_HALF_HZ.byteVal;
-                break;
-        }
-        return blinkCommand;
-    }
+//    public void setLEDBlinkOncePerSecond() {
+//        setBlinkingRate(DisplaySetupCommand.BLINKING_1_HZ);
+//        this.ledBlinkRate = LEDBlinkRate.ONCE_PER_SECOND;
+//    }
+//
+//    public void setLEDBlinkTwicePerSecond() {
+//        setBlinkingRate(DisplaySetupCommand.BLINKING_2_HZ);
+//        this.ledBlinkRate = LEDBlinkRate.TWICE_PER_SECOND;
+//    }
+//
+//    public void setLEDBlinkOncePerTwoSeconds() {
+//        setBlinkingRate(DisplaySetupCommand.BLINKING_HALF_HZ);
+//        this.ledBlinkRate = LEDBlinkRate.ONCE_PER_TWO_SECONDS;
+//    }
+//
+//    public void setLEDBlinkOFF() {
+//        setBlinkingRate(DisplaySetupCommand.BLINKING_OFF);
+//        this.ledBlinkRate = LEDBlinkRate.NO_BLINK;
+//    }
 
-
-    public void setLEDBlinkOncePerSecond() {
-        setBlinkingRate(DisplaySetupCommand.BLINKING_1_HZ);
-        this.ledBlinkRate = LEDBlinkRate.ONCE_PER_SECOND;
-    }
-
-    public void setLEDBlinkTwicePerSecond() {
-        setBlinkingRate(DisplaySetupCommand.BLINKING_2_HZ);
-        this.ledBlinkRate = LEDBlinkRate.TWICE_PER_SECOND;
-    }
-
-    public void setLEDBlinkOncePerTwoSeconds() {
-        setBlinkingRate(DisplaySetupCommand.BLINKING_HALF_HZ);
-        this.ledBlinkRate = LEDBlinkRate.ONCE_PER_TWO_SECONDS;
-    }
-
-    public void setLEDBlinkOFF() {
-        setBlinkingRate(DisplaySetupCommand.BLINKING_OFF);
-        this.ledBlinkRate = LEDBlinkRate.NO_BLINK;
-    }
-
-    private void setBlinkingRate(DisplaySetupCommand blinkRate) {
+    private void writeBlinkRate(DisplaySetupCommand blinkCommand) {
         byte byteToWrite;
         // for the controller chip, the data to write is a single byte containing both the address and command
         // I want to keep the current LED display on or off so I have to create a command that does not change that
         if (getLedSwitch() == LEDSwitch.OFF) {
-            byteToWrite = (byte) (Register.DISPLAY_SETUP.byteVal | blinkRate.byteVal | DisplaySetupCommand.DISPLAY_OFF.byteVal);
+            byteToWrite = (byte) (Register.DISPLAY_SETUP.byteVal | blinkCommand.byteVal | DisplaySetupCommand.DISPLAY_OFF.byteVal);
         } else {
-            byteToWrite = (byte) (Register.DISPLAY_SETUP.byteVal | blinkRate.byteVal | DisplaySetupCommand.DISPLAY_ON.byteVal);
+            byteToWrite = (byte) (Register.DISPLAY_SETUP.byteVal | blinkCommand.byteVal | DisplaySetupCommand.DISPLAY_ON.byteVal);
         }
         // write the address/command via I2C
         writeSingleByte(byteToWrite);
     }
 
-    private void setBrightnessLevel(int brightnessLevel) {
-        byte byteToWrite;
-        // create the single byte address/command
-        byteToWrite = (byte) (Register.DIMMING_SET.byteVal | brightnessLevel);
-        // write the address/command via I2C
-        writeSingleByte(byteToWrite);
-    }
+//    private void setBrightnessLevel(int brightnessLevel) {
+//        byte byteToWrite;
+//        // create the single byte address/command
+//        byteToWrite = (byte) (Register.DIMMING_SET.byteVal | brightnessLevel);
+//        // write the address/command via I2C
+//        writeSingleByte(byteToWrite);
+//    }
 
     private void displayLEDString(String stringToDisplay) {
         byte[] displayCodeBuffer;
