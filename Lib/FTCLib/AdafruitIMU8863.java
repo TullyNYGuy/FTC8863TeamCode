@@ -352,7 +352,7 @@ public class AdafruitIMU8863 {
     }
 
     /**
-     * Get the roll of the robot. This is the tilt front or back. This can be RELATIVE, ABSOLUTE or
+     * Get the pitch of the robot. This is the tilt front or back. This can be RELATIVE, ABSOLUTE or
      * RAW. See class documentation for definition of those modes.
      *
      * @return pitch in degrees
