@@ -18,7 +18,7 @@ public class DcMotor8863 {
      * Defines the type of motor.
      */
     public enum MotorType {
-        NXT, ANDYMARK_20, ANDYMARK_40, ANDYMARK_60, TETRIX, ANDYMARK_20_ORBITAL
+        NXT, ANDYMARK_20, ANDYMARK_40, ANDYMARK_60, TETRIX, ANDYMARK_20_ORBITAL, ANDYMARK_3_7_ORBITAL
     }
 
     /**
@@ -272,6 +272,9 @@ public class DcMotor8863 {
             case ANDYMARK_20_ORBITAL:
                 this.countsPerRev = 537;
                 break;
+            case ANDYMARK_3_7_ORBITAL:
+                this.countsPerRev = 103;
+                break;
             default:
                 this.countsPerRev = 0;
                 break;
@@ -316,6 +319,9 @@ public class DcMotor8863 {
                 break;
             case ANDYMARK_20_ORBITAL:
                 noLoadRPM = 340;
+                break;
+            case ANDYMARK_3_7_ORBITAL:
+                noLoadRPM = 1784;
                 break;
             default:
                 noLoadRPM = 0;

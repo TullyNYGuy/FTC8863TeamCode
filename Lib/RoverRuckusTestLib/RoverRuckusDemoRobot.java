@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 import org.firstinspires.ftc.teamcode.Lib.RelicRecoveryLib.ClampServo;
 import org.firstinspires.ftc.teamcode.Lib.RelicRecoveryLib.UpDownServo;
@@ -37,6 +38,7 @@ public class RoverRuckusDemoRobot {
     public DriveTrain driveTrain;
     private Telemetry telemetry;
 
+    public DcMotor8863 liftMotor;
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -57,6 +59,12 @@ public class RoverRuckusDemoRobot {
         // create the robot for teleop
         driveTrain = DriveTrain.DriveTrainTeleOpNoIMU(hardwareMap, telemetry);
         init(telemetry);
+
+        // create the lift motor object and setup the motor
+        liftMotor = new DcMotor8863("liftMotor", hardwareMap, telemetry);
+        liftMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_3_7_ORBITAL);
+        // the lift moves 8mm per revolution or .315" per revolution
+        liftMotor.setMovementPerRev(.315);
     }
 
     public static RoverRuckusDemoRobot createRobotForAutonomous(HardwareMap hardwareMap, Telemetry telemetry, AllianceColor.TeamColor teamColor, DataLogging dataLog) {

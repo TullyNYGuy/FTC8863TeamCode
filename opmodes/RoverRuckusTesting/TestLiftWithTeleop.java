@@ -17,7 +17,7 @@ import org.firstinspires.ftc.teamcode.Lib.RoverRuckusTestLib.RoverRuckusDemoRobo
  * Created by ball on 10/7/2017.
  */
 
-@TeleOp(name = "Test Drive Lift", group = "Run")
+@TeleOp(name = "Test Drive + Lift", group = "Run")
 //@Disabled
 
 public class TestLiftWithTeleop extends LinearOpMode {
