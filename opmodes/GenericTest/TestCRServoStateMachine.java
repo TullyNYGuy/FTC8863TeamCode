@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.CRServo;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.CRServo8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.CRServoGB;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Switch;
 import org.firstinspires.ftc.teamcode.Lib.ResQLib.RobotConfigMapping;
@@ -22,8 +22,8 @@ public class TestCRServoStateMachine extends LinearOpMode {
     double noMovePositionReverse = .48;
     double noMovePositionForward = .51;
     double deadZone = .1;
-    CRServo testServo;
-    CRServo.CRServoState currentState = CRServo.CRServoState.FORWARD_AT_SWITCH;
+    CRServo8863 testServo;
+    CRServo8863.CRServoState currentState = CRServo8863.CRServoState.FORWARD_AT_SWITCH;
 
     ElapsedTime timer;
 
@@ -42,7 +42,7 @@ public class TestCRServoStateMachine extends LinearOpMode {
 
 
         // Put your initializations here
-        testServo = new CRServo(RobotConfigMappingForGenericTest.getcrServoName(), hardwareMap,
+        testServo = new CRServo8863(RobotConfigMappingForGenericTest.getcrServoName(), hardwareMap,
                 noMovePositionForward, noMovePositionReverse, deadZone, Servo.Direction.FORWARD,
                 RobotConfigMappingForGenericTest.getRightFrontLimitSwitchName(), Switch.SwitchType.NORMALLY_OPEN,
                 RobotConfigMappingForGenericTest.getRightBackLimitSwitchName(), Switch.SwitchType.NORMALLY_OPEN,
@@ -60,8 +60,8 @@ public class TestCRServoStateMachine extends LinearOpMode {
 
         // Put your calls here - they will not run in a loop
         timer.reset();
-        testServo.moveUntilLimitSwitch(CRServo.CRServoDirection.FORWARD);
-        while (opModeIsActive() && currentState != CRServo.CRServoState.FORWARD_AT_SWITCH) {
+        testServo.moveUntilLimitSwitch(CRServo8863.CRServoDirection.FORWARD);
+        while (opModeIsActive() && currentState != CRServo8863.CRServoState.FORWARD_AT_SWITCH) {
             currentState = testServo.update();
             telemetry.addData("current state", currentState.toString());
             telemetry.addData("back switch ", testServo.backSwitch.isPressed());
@@ -71,8 +71,8 @@ public class TestCRServoStateMachine extends LinearOpMode {
         }
         sleep(4000);
 
-        testServo.moveUntilLimitSwitch(CRServo.CRServoDirection.BACKWARD);
-        while (opModeIsActive() && currentState != CRServo.CRServoState.BACK_AT_SWITCH) {
+        testServo.moveUntilLimitSwitch(CRServo8863.CRServoDirection.BACKWARD);
+        while (opModeIsActive() && currentState != CRServo8863.CRServoState.BACK_AT_SWITCH) {
             currentState = testServo.update();
             telemetry.addData("current state", currentState.toString());
             telemetry.addData("back switch ", testServo.backSwitch.isPressed());
@@ -82,8 +82,8 @@ public class TestCRServoStateMachine extends LinearOpMode {
         }
         sleep(4000);
 
-        testServo.startMoveDistance(4, CRServo.CRServoDirection.FORWARD);
-        while (opModeIsActive() && currentState != CRServo.CRServoState.FORWARD_AT_POSITION) {
+        testServo.startMoveDistance(4, CRServo8863.CRServoDirection.FORWARD);
+        while (opModeIsActive() && currentState != CRServo8863.CRServoState.FORWARD_AT_POSITION) {
             currentState = testServo.update();
             telemetry.addData("current state", currentState.toString());
             telemetry.addData("back switch ", testServo.backSwitch.isPressed());
@@ -93,8 +93,8 @@ public class TestCRServoStateMachine extends LinearOpMode {
         }
         sleep(4000);
 
-        testServo.startMoveDistance(3, CRServo.CRServoDirection.BACKWARD);
-        while (opModeIsActive() && currentState != CRServo.CRServoState.BACK_AT_POSITION) {
+        testServo.startMoveDistance(3, CRServo8863.CRServoDirection.BACKWARD);
+        while (opModeIsActive() && currentState != CRServo8863.CRServoState.BACK_AT_POSITION) {
             currentState = testServo.update();
             telemetry.addData("current state", currentState.toString());
             telemetry.addData("back switch ", testServo.backSwitch.isPressed());

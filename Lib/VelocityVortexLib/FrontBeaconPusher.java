@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitColorSensor8863;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.CRServo;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.CRServo8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Switch;
 import org.firstinspires.ftc.teamcode.Lib.VelocityVortexLib.MuxPlusColorSensors;
 import org.firstinspires.ftc.teamcode.opmodes.GenericTest.RobotConfigMappingForGenericTest;
@@ -58,8 +58,8 @@ public class FrontBeaconPusher {
     private BeaconPusherState beaconPusherState = BeaconPusherState.BOTH_BACK;
     private BeaconPusherState lastBeaconPusherState = BeaconPusherState.BOTH_BACK;
 
-    public CRServo leftCRServo;
-    private CRServo rightCRServo;
+    public CRServo8863 leftCRServo;
+    private CRServo8863 rightCRServo;
 
     private MuxPlusColorSensors muxPlusColorSensors;
 
@@ -87,13 +87,13 @@ public class FrontBeaconPusher {
     //*********************************************************************************************
 
     public FrontBeaconPusher(HardwareMap hardwareMap, Telemetry telemetry, MuxPlusColorSensors muxPlusColorSensors) {
-        leftCRServo = new CRServo(RobotConfigMappingForGenericTest.getFrontLeftBeaconServoName(),
+        leftCRServo = new CRServo8863(RobotConfigMappingForGenericTest.getFrontLeftBeaconServoName(),
                 hardwareMap, frontLeftServoNoMovePositionForward, frontLeftServoNoMovePositionReverse,
                 deadband, Servo.Direction.REVERSE,
                 RobotConfigMappingForGenericTest.getLeftFrontLimitSwitchName(), Switch.SwitchType.NORMALLY_OPEN,
                 RobotConfigMappingForGenericTest.getLeftBackLimitSwitchName(), Switch.SwitchType.NORMALLY_OPEN,
                 telemetry);
-        rightCRServo = new CRServo(RobotConfigMappingForGenericTest.getFrontRightBeaconServoName(),
+        rightCRServo = new CRServo8863(RobotConfigMappingForGenericTest.getFrontRightBeaconServoName(),
                 hardwareMap, frontRightServoNoMovePositionForward, frontRightServoNoMovePositionReverse,
                 deadband, Servo.Direction.FORWARD,
                 RobotConfigMappingForGenericTest.getRightFrontLimitSwitchName(), Switch.SwitchType.NORMALLY_OPEN,
@@ -223,31 +223,31 @@ public class FrontBeaconPusher {
      */
     // NEED TO CHANGE BACK TO PRIVATE
     public BeaconPusherState findBeaconPusherState() {
-        CRServo.CRServoState leftCRServoState = leftCRServo.findCRServoState();
-        CRServo.CRServoState rightCRServoState = rightCRServo.findCRServoState();
+        CRServo8863.CRServoState leftCRServoState = leftCRServo.findCRServoState();
+        CRServo8863.CRServoState rightCRServoState = rightCRServo.findCRServoState();
         // check the limit switches first
-        if (leftCRServoState == CRServo.CRServoState.FORWARD_AT_SWITCH &&
-                rightCRServoState == CRServo.CRServoState.FORWARD_AT_SWITCH) {
+        if (leftCRServoState == CRServo8863.CRServoState.FORWARD_AT_SWITCH &&
+                rightCRServoState == CRServo8863.CRServoState.FORWARD_AT_SWITCH) {
             return BeaconPusherState.BOTH_FORWARD;
         }
-        if (leftCRServoState == CRServo.CRServoState.BACK_AT_SWITCH &&
-                rightCRServoState == CRServo.CRServoState.BACK_AT_SWITCH) {
+        if (leftCRServoState == CRServo8863.CRServoState.BACK_AT_SWITCH &&
+                rightCRServoState == CRServo8863.CRServoState.BACK_AT_SWITCH) {
             return BeaconPusherState.BOTH_BACK;
         }
-        if (leftCRServoState == CRServo.CRServoState.FORWARD_AT_SWITCH &&
-                rightCRServoState == CRServo.CRServoState.BACK_AT_SWITCH) {
+        if (leftCRServoState == CRServo8863.CRServoState.FORWARD_AT_SWITCH &&
+                rightCRServoState == CRServo8863.CRServoState.BACK_AT_SWITCH) {
             return BeaconPusherState.LEFT_FORWARD_RIGHT_BACK;
         }
-        if (leftCRServoState == CRServo.CRServoState.BACK_AT_SWITCH &&
-                rightCRServoState == CRServo.CRServoState.FORWARD_AT_SWITCH) {
+        if (leftCRServoState == CRServo8863.CRServoState.BACK_AT_SWITCH &&
+                rightCRServoState == CRServo8863.CRServoState.FORWARD_AT_SWITCH) {
             return BeaconPusherState.LEFT_BACK_RIGHT_FORWARD;
         }
         // if both servos are at a position between the limit switches, assume that they are at
         // the middle
-        if ((leftCRServoState == CRServo.CRServoState.FORWARD_AT_POSITION ||
-                leftCRServoState == CRServo.CRServoState.BACK_AT_POSITION) &&
-                (rightCRServoState == CRServo.CRServoState.FORWARD_AT_POSITION ||
-                rightCRServoState == CRServo.CRServoState.BACK_AT_POSITION)) {
+        if ((leftCRServoState == CRServo8863.CRServoState.FORWARD_AT_POSITION ||
+                leftCRServoState == CRServo8863.CRServoState.BACK_AT_POSITION) &&
+                (rightCRServoState == CRServo8863.CRServoState.FORWARD_AT_POSITION ||
+                rightCRServoState == CRServo8863.CRServoState.BACK_AT_POSITION)) {
             return BeaconPusherState.BOTH_MIDDLE;
         }
         // if the states are any of these, then they are not really valid
@@ -320,8 +320,8 @@ public class FrontBeaconPusher {
 
     // NEED TO HANLDE UNKNOWN STATE IN EACH STATE SO THE PUSHERS CAN BE PUT INTO KNOWN STATES
     public BeaconPusherState updateState() {
-        CRServo.CRServoState leftCRServoState;
-        CRServo.CRServoState rightCRServoState;
+        CRServo8863.CRServoState leftCRServoState;
+        CRServo8863.CRServoState rightCRServoState;
         leftCRServoState = leftCRServo.update();
         rightCRServoState = rightCRServo.update();
         switch (beaconPusherState) {
@@ -330,21 +330,21 @@ public class FrontBeaconPusher {
                 break;
             case MOVING_TO_BOTH_BACK:
                 // if both servos are at the back now then change state to BOTH_BACK
-                if (leftCRServoState == CRServo.CRServoState.BACK_AT_SWITCH &&
-                        rightCRServoState == CRServo.CRServoState.BACK_AT_SWITCH) {
+                if (leftCRServoState == CRServo8863.CRServoState.BACK_AT_SWITCH &&
+                        rightCRServoState == CRServo8863.CRServoState.BACK_AT_SWITCH) {
                     beaconPusherState = BeaconPusherState.BOTH_BACK;
                 } else {
                     // if the left servo is not at the back and is not moving to the back already
                     // then start it moving
-                    if (leftCRServoState != CRServo.CRServoState.MOVING_BACK_TO_SWITCH &&
-                            leftCRServoState != CRServo.CRServoState.BACK_AT_SWITCH) {
-                        leftCRServo.moveUntilLimitSwitch(CRServo.CRServoDirection.BACKWARD);
+                    if (leftCRServoState != CRServo8863.CRServoState.MOVING_BACK_TO_SWITCH &&
+                            leftCRServoState != CRServo8863.CRServoState.BACK_AT_SWITCH) {
+                        leftCRServo.moveUntilLimitSwitch(CRServo8863.CRServoDirection.BACKWARD);
                     }
                     // if the right servo is not at the back and is not moving to the back already
                     // then start it moving
-                    if (rightCRServoState != CRServo.CRServoState.MOVING_BACK_TO_SWITCH &&
-                            rightCRServoState != CRServo.CRServoState.BACK_AT_SWITCH) {
-                        rightCRServo.moveUntilLimitSwitch(CRServo.CRServoDirection.BACKWARD);
+                    if (rightCRServoState != CRServo8863.CRServoState.MOVING_BACK_TO_SWITCH &&
+                            rightCRServoState != CRServo8863.CRServoState.BACK_AT_SWITCH) {
+                        rightCRServo.moveUntilLimitSwitch(CRServo8863.CRServoDirection.BACKWARD);
                     }
                     // the only other possibility is that the servos are moving. IN that case just
                     // do nothing until they finish moving. Could put a timer here to check to see
@@ -361,19 +361,19 @@ public class FrontBeaconPusher {
                 } else {
                     // if the left servo is not at the middle and is not moving already then start it
                     // moving.
-                    if (leftCRServoState == CRServo.CRServoState.BACK_AT_SWITCH) {
-                        leftCRServo.startMoveDistance(pusherMidPoint, CRServo.CRServoDirection.FORWARD);
+                    if (leftCRServoState == CRServo8863.CRServoState.BACK_AT_SWITCH) {
+                        leftCRServo.startMoveDistance(pusherMidPoint, CRServo8863.CRServoDirection.FORWARD);
                     }
-                    if (leftCRServoState == CRServo.CRServoState.FORWARD_AT_SWITCH) {
-                        leftCRServo.startMoveDistance(pusherMidPoint, CRServo.CRServoDirection.BACKWARD);
+                    if (leftCRServoState == CRServo8863.CRServoState.FORWARD_AT_SWITCH) {
+                        leftCRServo.startMoveDistance(pusherMidPoint, CRServo8863.CRServoDirection.BACKWARD);
                     }
                     // if the right servo is not at the middle and is not moving already the start it
                     // moving.
-                    if (rightCRServoState == CRServo.CRServoState.BACK_AT_SWITCH) {
-                        rightCRServo.startMoveDistance(pusherMidPoint, CRServo.CRServoDirection.FORWARD);
+                    if (rightCRServoState == CRServo8863.CRServoState.BACK_AT_SWITCH) {
+                        rightCRServo.startMoveDistance(pusherMidPoint, CRServo8863.CRServoDirection.FORWARD);
                     }
-                    if (rightCRServoState == CRServo.CRServoState.FORWARD_AT_SWITCH) {
-                        rightCRServo.startMoveDistance(pusherMidPoint, CRServo.CRServoDirection.BACKWARD);
+                    if (rightCRServoState == CRServo8863.CRServoState.FORWARD_AT_SWITCH) {
+                        rightCRServo.startMoveDistance(pusherMidPoint, CRServo8863.CRServoDirection.BACKWARD);
                     }
                 }
                 // the only other possibility is that the servos are moving. IN that case just
@@ -385,21 +385,21 @@ public class FrontBeaconPusher {
                 break;
             case MOVING_TO_LEFT_BACK_RIGHT_FORWARD:
                 // if both servos are at the destination then change the state
-                if (leftCRServoState == CRServo.CRServoState.BACK_AT_SWITCH &&
-                        rightCRServoState == CRServo.CRServoState.FORWARD_AT_SWITCH) {
+                if (leftCRServoState == CRServo8863.CRServoState.BACK_AT_SWITCH &&
+                        rightCRServoState == CRServo8863.CRServoState.FORWARD_AT_SWITCH) {
                     beaconPusherState = BeaconPusherState.LEFT_BACK_RIGHT_FORWARD;
                 } else {
                     // if the left servo is not at the back and is not moving to the back already
                     // then start it moving
-                    if (leftCRServoState != CRServo.CRServoState.MOVING_BACK_TO_SWITCH &&
-                            leftCRServoState != CRServo.CRServoState.BACK_AT_SWITCH) {
-                        leftCRServo.moveUntilLimitSwitch(CRServo.CRServoDirection.BACKWARD);
+                    if (leftCRServoState != CRServo8863.CRServoState.MOVING_BACK_TO_SWITCH &&
+                            leftCRServoState != CRServo8863.CRServoState.BACK_AT_SWITCH) {
+                        leftCRServo.moveUntilLimitSwitch(CRServo8863.CRServoDirection.BACKWARD);
                     }
                     // if the right servo is not at the front and is not moving to the front already
                     // then start it moving
-                    if (rightCRServoState != CRServo.CRServoState.MOVING_FORWARD_TO_SWITCH &&
-                            rightCRServoState != CRServo.CRServoState.FORWARD_AT_SWITCH) {
-                        rightCRServo.moveUntilLimitSwitch(CRServo.CRServoDirection.FORWARD);
+                    if (rightCRServoState != CRServo8863.CRServoState.MOVING_FORWARD_TO_SWITCH &&
+                            rightCRServoState != CRServo8863.CRServoState.FORWARD_AT_SWITCH) {
+                        rightCRServo.moveUntilLimitSwitch(CRServo8863.CRServoDirection.FORWARD);
                     }
                     // the only other possibility is that the servos are moving. IN that case just
                     // do nothing until they finish moving. Could put a timer here to check to see
@@ -411,21 +411,21 @@ public class FrontBeaconPusher {
                 break;
             case MOVING_TO_LEFT_FORWARD_RIGHT_BACK:
                 // if both servos are at the destination then change the state
-                if (leftCRServoState == CRServo.CRServoState.FORWARD_AT_SWITCH &&
-                        rightCRServoState == CRServo.CRServoState.BACK_AT_SWITCH) {
+                if (leftCRServoState == CRServo8863.CRServoState.FORWARD_AT_SWITCH &&
+                        rightCRServoState == CRServo8863.CRServoState.BACK_AT_SWITCH) {
                     beaconPusherState = BeaconPusherState.LEFT_FORWARD_RIGHT_BACK;
                 } else {
                     // if the left servo is not at the front and is not moving to the front already
                     // then start it moving
-                    if (leftCRServoState != CRServo.CRServoState.MOVING_FORWARD_TO_SWITCH &&
-                            leftCRServoState != CRServo.CRServoState.FORWARD_AT_SWITCH) {
-                        leftCRServo.moveUntilLimitSwitch(CRServo.CRServoDirection.FORWARD);
+                    if (leftCRServoState != CRServo8863.CRServoState.MOVING_FORWARD_TO_SWITCH &&
+                            leftCRServoState != CRServo8863.CRServoState.FORWARD_AT_SWITCH) {
+                        leftCRServo.moveUntilLimitSwitch(CRServo8863.CRServoDirection.FORWARD);
                     }
                     // if the right servo is not at the back and is not moving to the back already
                     // then start it moving
-                    if (rightCRServoState != CRServo.CRServoState.MOVING_BACK_TO_SWITCH &&
-                            rightCRServoState != CRServo.CRServoState.BACK_AT_SWITCH) {
-                        rightCRServo.moveUntilLimitSwitch(CRServo.CRServoDirection.BACKWARD);
+                    if (rightCRServoState != CRServo8863.CRServoState.MOVING_BACK_TO_SWITCH &&
+                            rightCRServoState != CRServo8863.CRServoState.BACK_AT_SWITCH) {
+                        rightCRServo.moveUntilLimitSwitch(CRServo8863.CRServoDirection.BACKWARD);
                     }
                     // the only other possibility is that the servos are moving. IN that case just
                     // do nothing until they finish moving. Could put a timer here to check to see
@@ -437,21 +437,21 @@ public class FrontBeaconPusher {
                 break;
             case MOVING_TO_BOTH_FORWARD:
                 // if both servos are at the back now then change state to BOTH_BACK
-                if (leftCRServoState == CRServo.CRServoState.FORWARD_AT_SWITCH &&
-                        rightCRServoState == CRServo.CRServoState.FORWARD_AT_SWITCH) {
+                if (leftCRServoState == CRServo8863.CRServoState.FORWARD_AT_SWITCH &&
+                        rightCRServoState == CRServo8863.CRServoState.FORWARD_AT_SWITCH) {
                     beaconPusherState = BeaconPusherState.BOTH_FORWARD;
                 } else {
                     // if the left servo is not forward and is not moving to forward already
                     // then start it moving
-                    if (leftCRServoState != CRServo.CRServoState.MOVING_FORWARD_TO_SWITCH &&
-                            leftCRServoState != CRServo.CRServoState.FORWARD_AT_SWITCH) {
-                        leftCRServo.moveUntilLimitSwitch(CRServo.CRServoDirection.FORWARD);
+                    if (leftCRServoState != CRServo8863.CRServoState.MOVING_FORWARD_TO_SWITCH &&
+                            leftCRServoState != CRServo8863.CRServoState.FORWARD_AT_SWITCH) {
+                        leftCRServo.moveUntilLimitSwitch(CRServo8863.CRServoDirection.FORWARD);
                     }
                     // if the right servo is not at the back and is not moving to the back already
                     // then start it moving
-                    if (rightCRServoState != CRServo.CRServoState.MOVING_FORWARD_TO_SWITCH &&
-                            rightCRServoState != CRServo.CRServoState.FORWARD_AT_SWITCH) {
-                        rightCRServo.moveUntilLimitSwitch(CRServo.CRServoDirection.FORWARD);
+                    if (rightCRServoState != CRServo8863.CRServoState.MOVING_FORWARD_TO_SWITCH &&
+                            rightCRServoState != CRServo8863.CRServoState.FORWARD_AT_SWITCH) {
+                        rightCRServo.moveUntilLimitSwitch(CRServo8863.CRServoDirection.FORWARD);
                     }
                     // the only other possibility is that the servos are moving. IN that case just
                     // do nothing until they finish moving. Could put a timer here to check to see
@@ -470,21 +470,21 @@ public class FrontBeaconPusher {
                 // from there they can be moved to the middle.
 
                 // if both servos are at the back now then move them to the middle
-                if (leftCRServoState == CRServo.CRServoState.BACK_AT_SWITCH &&
-                        rightCRServoState == CRServo.CRServoState.BACK_AT_SWITCH) {
+                if (leftCRServoState == CRServo8863.CRServoState.BACK_AT_SWITCH &&
+                        rightCRServoState == CRServo8863.CRServoState.BACK_AT_SWITCH) {
                     beaconPusherState = BeaconPusherState.MOVING_TO_BOTH_MIDDLE;
                 } else {
                     // if the left servo is not at the back and is not moving to the back already
                     // then start it moving
-                    if (leftCRServoState != CRServo.CRServoState.MOVING_BACK_TO_SWITCH &&
-                            leftCRServoState != CRServo.CRServoState.BACK_AT_SWITCH) {
-                        leftCRServo.moveUntilLimitSwitch(CRServo.CRServoDirection.BACKWARD);
+                    if (leftCRServoState != CRServo8863.CRServoState.MOVING_BACK_TO_SWITCH &&
+                            leftCRServoState != CRServo8863.CRServoState.BACK_AT_SWITCH) {
+                        leftCRServo.moveUntilLimitSwitch(CRServo8863.CRServoDirection.BACKWARD);
                     }
                     // if the right servo is not at the back and is not moving to the back already
                     // then start it moving
-                    if (rightCRServoState != CRServo.CRServoState.MOVING_BACK_TO_SWITCH &&
-                            rightCRServoState != CRServo.CRServoState.BACK_AT_SWITCH) {
-                        rightCRServo.moveUntilLimitSwitch(CRServo.CRServoDirection.BACKWARD);
+                    if (rightCRServoState != CRServo8863.CRServoState.MOVING_BACK_TO_SWITCH &&
+                            rightCRServoState != CRServo8863.CRServoState.BACK_AT_SWITCH) {
+                        rightCRServo.moveUntilLimitSwitch(CRServo8863.CRServoDirection.BACKWARD);
                     }
                     // the only other possibility is that the servos are moving. IN that case just
                     // do nothing until they finish moving. Could put a timer here to check to see

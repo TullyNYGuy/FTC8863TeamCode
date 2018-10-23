@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.CRServo;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.CRServo8863;
 
 /**
  * This opmode shows how to operate a CR Servo
@@ -19,7 +19,7 @@ public class TestCRServoFindRate extends LinearOpMode {
     double noMovePositionReverse = .48;
     double noMovePositionForward = .51;
     double deadZone = .1;
-    CRServo testServo;
+    CRServo8863 testServo;
 
     ElapsedTime timer;
 
@@ -38,7 +38,7 @@ public class TestCRServoFindRate extends LinearOpMode {
 
 
         // Put your initializations here
-        testServo = new CRServo(RobotConfigMappingForGenericTest.getcrServoName(), hardwareMap,
+        testServo = new CRServo8863(RobotConfigMappingForGenericTest.getcrServoName(), hardwareMap,
                 noMovePositionForward, noMovePositionReverse, deadZone, Servo.Direction.FORWARD,
                 telemetry);
         timer = new ElapsedTime();

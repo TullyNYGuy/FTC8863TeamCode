@@ -3,10 +3,11 @@ package org.firstinspires.ftc.teamcode.opmodes.RoverRuckus;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.CRServo;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.CRServo;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.CRServo8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
@@ -145,8 +146,9 @@ public class CollectionTest extends LinearOpMode {
         gamepad2RightJoyStickX = new JoyStick(JoyStick.JoyStickMode.SQUARE, JOYSTICK_DEADBAND_VALUE, JoyStick.InvertSign.NO_INVERT_SIGN);
         gamepad2RightJoyStickY = new JoyStick(JoyStick.JoyStickMode.SQUARE, JOYSTICK_DEADBAND_VALUE, JoyStick.InvertSign.INVERT_SIGN);
 
-        collectionServoLeft = new CRServo("collectionServoLeft", hardwareMap, .50, .50, .1, Servo.Direction.FORWARD, telemetry);
-        collectionServoRight = new CRServo("collectionServoRight", hardwareMap, .50, .50, .1, Servo.Direction.REVERSE, telemetry);
+        collectionServoLeft = hardwareMap.get(CRServo.class, "collectionServoLeft");
+        collectionServoRight = hardwareMap.get(CRServo.class, "collectionServoRight");
+        //collectionServoRight = new CRServo8863("collectionServoRight", hardwareMap, .50, .50, .1, Servo.Direction.REVERSE, telemetry);
 
         // Wait for the start button
         telemetry.addData(">", "Press start to run Test");
@@ -197,12 +199,12 @@ public class CollectionTest extends LinearOpMode {
 
             if (gamepad1a.buttonPress(gamepad1.a)) {
                 if (gamepad1a.isCommand1()) {
-                    collectionServoLeft.setSpeed(1);
-                    collectionServoRight.setSpeed(1);
+                    collectionServoLeft.setPower(1);
+                    collectionServoRight.setPower(.75);
                 }
                 if (gamepad1a.isCommand2()) {
-                    collectionServoLeft.setSpeed(0);
-                    collectionServoRight.setSpeed(0);
+                    collectionServoLeft.setPower(0);
+                    collectionServoRight.setPower(0);
                 }
                 // this was a new button press, not a button held down for a while
                 // put the command to be executed here

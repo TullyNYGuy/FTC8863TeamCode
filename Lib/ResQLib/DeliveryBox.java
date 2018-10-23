@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.CRServo;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.CRServo8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
 
 public class DeliveryBox {
@@ -25,7 +25,7 @@ public class DeliveryBox {
     // getter and setter methods
     //*********************************************************************************************
 
-    CRServo slideServo;
+    CRServo8863 slideServo;
     Servo8863 rampServo;
 
     private double dumpHomePosition = 1;

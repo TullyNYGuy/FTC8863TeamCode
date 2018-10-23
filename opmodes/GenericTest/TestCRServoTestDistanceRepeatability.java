@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.CRServo;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.CRServo8863;
 
 /**
  * This opmode shows how to operate a CR Servo
@@ -19,7 +19,7 @@ public class TestCRServoTestDistanceRepeatability extends LinearOpMode {
     double noMovePositionReverse = .48;
     double noMovePositionForward = .51;
     double deadZone = .1;
-    CRServo testServo;
+    CRServo8863 testServo;
 
     ElapsedTime timer;
 
@@ -34,7 +34,7 @@ public class TestCRServoTestDistanceRepeatability extends LinearOpMode {
 
 
         // Put your initializations here
-        testServo = new CRServo(RobotConfigMappingForGenericTest.getcrServoName(), hardwareMap,
+        testServo = new CRServo8863(RobotConfigMappingForGenericTest.getcrServoName(), hardwareMap,
                 noMovePositionForward, noMovePositionReverse, deadZone, Servo.Direction.FORWARD,
                 telemetry);
         testServo.setDirection(Servo.Direction.REVERSE);
@@ -53,23 +53,23 @@ public class TestCRServoTestDistanceRepeatability extends LinearOpMode {
 
         double distance = 4.0; // in cm
 
-        moveDistance(distance, CRServo.CRServoDirection.FORWARD);
+        moveDistance(distance, CRServo8863.CRServoDirection.FORWARD);
         telemetry.addData("Moved Distance = ", "%1.2f", distance);
         telemetry.update();
         sleep(2000);
-        moveDistance(distance, CRServo.CRServoDirection.BACKWARD);
+        moveDistance(distance, CRServo8863.CRServoDirection.BACKWARD);
         telemetry.addData("Moved Distance = ", "%1.2f", distance);
         telemetry.update();
         sleep(2000);
 
-        moveDistance(4.0, CRServo.CRServoDirection.FORWARD);
+        moveDistance(4.0, CRServo8863.CRServoDirection.FORWARD);
         sleep(2000);
-        moveDistance(4.0, CRServo.CRServoDirection.BACKWARD);
+        moveDistance(4.0, CRServo8863.CRServoDirection.BACKWARD);
         sleep(2000);
 
-        moveDistance(4.0, CRServo.CRServoDirection.FORWARD);
+        moveDistance(4.0, CRServo8863.CRServoDirection.FORWARD);
         sleep(2000);
-        moveDistance(4.0, CRServo.CRServoDirection.BACKWARD);
+        moveDistance(4.0, CRServo8863.CRServoDirection.BACKWARD);
         sleep(2000);
 
 
@@ -84,7 +84,7 @@ public class TestCRServoTestDistanceRepeatability extends LinearOpMode {
      * @param distance distance to move in cm
      * @param direction direction to move
      */
-    private void moveDistance(double distance, CRServo.CRServoDirection direction) {
+    private void moveDistance(double distance, CRServo8863.CRServoDirection direction) {
         testServo.startMoveDistance(distance, direction);
         while (opModeIsActive() && !testServo.updateMoveDistance()) {
             idle();

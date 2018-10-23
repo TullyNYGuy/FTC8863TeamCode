@@ -37,7 +37,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.CRServo;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.CRServo8863;
 import org.firstinspires.ftc.teamcode.Lib.ResQLib.RobotConfigMapping;
 
 import static org.firstinspires.ftc.teamcode.opmodes.GenericTest.RobotConfigMappingForGenericTest.getcrServoName;
@@ -52,7 +52,7 @@ public class TestCRServo extends OpMode {
     double noMovePositionReverse = .46;
     double noMovePositionForward = .50;
     double deadZone = .1;
-    CRServo testServo;
+    CRServo8863 testServo;
 
 	ElapsedTime timer;
 
@@ -78,7 +78,7 @@ public class TestCRServo extends OpMode {
 	@Override
 	public void init() {
 
-        testServo = new CRServo(RobotConfigMappingForGenericTest.getgenericServoName(),hardwareMap,
+        testServo = new CRServo8863(RobotConfigMappingForGenericTest.getgenericServoName(),hardwareMap,
                 noMovePositionForward, noMovePositionReverse, deadZone, Servo.Direction.REVERSE,
                 telemetry);
         timer = new ElapsedTime();

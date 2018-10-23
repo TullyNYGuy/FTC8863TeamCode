@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
 import com.qualcomm.robotcore.hardware.*;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -13,6 +14,9 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 // check the state diagram to see if it all covered
 
 /**
+ * THE SDK HAS CHANGED AND THIS CLASS NO LONGER WORKS. IT WILL TAKE SOME DEBUGGING TO MAKE IT WORK
+ * AGAIN - GB 10/22/2018
+ *
  * A continuous rotation servo is a servo that can turn around and around like a motor but does not
  * have any position feedback like a normal servo does.
  * This class turns a continous rotation servo into a motor that can move a distance. It is not
@@ -36,7 +40,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
  * +1 is full power forward
  * So I am choosing to make the input range -1 to +1.
  */
-public class CRServo {
+public class CRServo8863 {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -205,7 +209,7 @@ public class CRServo {
     // from it
     //*********************************************************************************************
 
-    public CRServo(String servoName, HardwareMap hardwareMap, double centerValueForward,
+    public CRServo8863(String servoName, HardwareMap hardwareMap, double centerValueForward,
                    double centerValueReverse, double deadBandRange, Servo.Direction direction,
                    Telemetry telemetry) {
         initialize(servoName, hardwareMap, centerValueForward, centerValueReverse, deadBandRange,
@@ -213,7 +217,7 @@ public class CRServo {
         // initialize the CRServo State ????
     }
 
-    public CRServo(String servoName, HardwareMap hardwareMap, double centerValueForward,
+    public CRServo8863(String servoName, HardwareMap hardwareMap, double centerValueForward,
                    double centerValueReverse, double deadBandRange, Servo.Direction direction,
                    String frontSwitchName, Switch.SwitchType frontSwitchType,
                    String backSwitchName, Switch.SwitchType backSwitchType,
@@ -229,8 +233,8 @@ public class CRServo {
     private void initialize(String servoName, HardwareMap hardwareMap, double centerValueForward,
                             double centerValueReverse, double deadBandRange,
                             Servo.Direction direction, Telemetry telemetry) {
-        //crServo = hardwareMap.get(CRServo.class, servoName);
-        crServo = hardwareMap.servo.get(servoName);
+        crServo = hardwareMap.get(Servo.class, servoName);
+        //crServo = hardwareMap.servo.get(servoName);
         this.telemetry = telemetry;
         this.centerValueReverse = centerValueReverse;
         this.centerValueForward = centerValueForward;

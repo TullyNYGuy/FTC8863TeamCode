@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.CRServo;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.CRServo8863;
 
 /**
  * This opmode shows how to operate a CR Servo
@@ -19,7 +19,7 @@ public class TestCRServoFindNoMovementPosition extends LinearOpMode {
     double noMovePositionReverse = .48;
     double noMovePositionForward = .51;
     double deadZone = .1;
-    CRServo testServo;
+    CRServo8863 testServo;
 
     ElapsedTime timer;
 
@@ -38,7 +38,7 @@ public class TestCRServoFindNoMovementPosition extends LinearOpMode {
 
 
         // Put your initializations here
-        testServo = new CRServo(RobotConfigMappingForGenericTest.getcrServoName(), hardwareMap,
+        testServo = new CRServo8863(RobotConfigMappingForGenericTest.getcrServoName(), hardwareMap,
                 noMovePositionForward, noMovePositionReverse, deadZone, Servo.Direction.FORWARD,
                 telemetry);
         //testServo.setDirection(Servo.Direction.REVERSE);
@@ -66,7 +66,7 @@ public class TestCRServoFindNoMovementPosition extends LinearOpMode {
 //        sleep(1000);
         // first test the forward direction of the servo
         testServo.setDirection(Servo.Direction.FORWARD);
-        testServo.setupFindNoMovementCommand(CRServo.CRServoStep.FINE);
+        testServo.setupFindNoMovementCommand(CRServo8863.CRServoStep.FINE);
         while (opModeIsActive() && !testServo.updateFindNoMovementCommand("Forward")) {
             idle();
         }
@@ -76,7 +76,7 @@ public class TestCRServoFindNoMovementPosition extends LinearOpMode {
 //        telemetry.update();
 //        sleep(1000);
         testServo.setDirection(Servo.Direction.REVERSE);
-        testServo.setupFindNoMovementCommand(CRServo.CRServoStep.FINE);
+        testServo.setupFindNoMovementCommand(CRServo8863.CRServoStep.FINE);
         while (opModeIsActive() && !testServo.updateFindNoMovementCommand("Reverse")) {
             idle();
         }
