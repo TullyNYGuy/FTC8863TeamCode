@@ -624,7 +624,7 @@ public class AdafruitBackpackLED {
         this.ledCode = new LEDCode();
         // turn the system oscillator on
         turnOscillatorOn();
-        // check to make sure the led controller is at this address
+        // check to make sure there is an led controller at this address
         // turn the display off
         turnLEDsOff();
         // turn the blinking off;
@@ -754,13 +754,6 @@ public class AdafruitBackpackLED {
         write(Register.DISPLAY_DATA.byteVal, displayCodeBuffer);
     }
 
-
-    //*********************************************************************************************
-    //          I2C read / write methods
-    //
-    // the methods generically read and write to the controller
-    //*********************************************************************************************
-
     //*********************************************************************************************
     //          I2C low level read and write methods
     //*********************************************************************************************
@@ -790,4 +783,12 @@ public class AdafruitBackpackLED {
     private synchronized void write(byte register, byte[] data) {
         backpackClient.write(register, data, I2cWaitControl.WRITTEN);
     }
+
+    //*********************************************************************************************
+    //          test and demo methods
+    //*********************************************************************************************
+
+    // method to walk through each character in the display
+    // method to demo the blinking
+    // method to demo the brightness levels
 }
