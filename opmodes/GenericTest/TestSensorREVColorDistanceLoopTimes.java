@@ -37,6 +37,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
+import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -54,9 +55,9 @@ import java.util.Locale;
  * Use Android Studio to Copy this Class, and Paste it into your team's code folder with a new name.
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list.
  */
-@TeleOp(name = "Sensor: TestREVColorDistanceLogging gb", group = "Sensor")
+@TeleOp(name = "Sensor: TestREVColorDistance Loop Times", group = "Sensor")
 //@Disabled                            // Comment this out to add to the opmode list
-public class TestSensorREVColorDistanceLoggingGB extends LinearOpMode {
+public class TestSensorREVColorDistanceLoopTimes extends LinearOpMode {
 
     /**
      * Note that the REV Robotics Color-Distance incorporates two sensors into one device.
@@ -89,9 +90,17 @@ public class TestSensorREVColorDistanceLoggingGB extends LinearOpMode {
     double elapsedTime = 0;
     // the average loop time
 
+    double loopTimeDoingNothing = 0;
     double averageLoopTimeDoingNothing = 0;
+
+    double loopTimeReadingColor =0;
     double averageLoopTimeReadingColor = 0;
+
+    double loopTimeConvertingColor = 0;
     double averageLoopTimeConvertingColor = 0;
+
+    double loopTimeWritingLogFilemSec = 0;
+    double loopTimeWritingLogFileSec = 0;
     double averageLoopTimeWritingLogFile = 0;
 
     @Override
@@ -106,7 +115,7 @@ public class TestSensorREVColorDistanceLoggingGB extends LinearOpMode {
         dataLogging = new DataLogging("colorSensor", telemetry);
 
         // create a timer with resolution in mSec
-        timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
+        timer = new ElapsedTime();
 
         // hsvValues is an array that will hold the hue, saturation, and value information.
         float hsvValues[] = {0F, 0F, 0F};
@@ -130,22 +139,28 @@ public class TestSensorREVColorDistanceLoggingGB extends LinearOpMode {
         // loop and do not do anything real
         // reset the timer to 0 (like re-setting the stopwatch
         timer.reset();
-        // run the loop 100 times for a good average
-        while (opModeIsActive() && loopcount < 100) {
+        // run the loop 1000 times for a good average
+        while (opModeIsActive() && loopcount < 1000) {
             loopcount++; // same as loopcount = loopcount + 1
             // you need an idle() method call to allow the other parts of the robot code to run
             idle();
         }
         // calculate the average loop time in milliseconds timer.milliseconds() get the elapsed time
         // (like a stopwatch)
-        averageLoopTimeDoingNothing = timer.milliseconds() / 100;
+        loopTimeDoingNothing = timer.milliseconds();
+        averageLoopTimeDoingNothing = loopTimeDoingNothing / 1000;
+        telemetry.addData("wait for it, this will take about 25 sec","...");
+        telemetry.update();
         //******************************************************************************************
 
 
         //******************************************************************************************
         // loop and only read the color sensor
         timer.reset();
-        while (opModeIsActive() && loopcount < 100) {
+        // I have not reset the loopcount since it is already at 1001 from the previous loop.
+        // If I don't reset it then the next loop gets skipped right over! DUH!
+        loopcount = 0;
+        while (opModeIsActive() && loopcount < 1000) {
             loopcount++; // same as loopcount = loopcount + 1
 
             // read the color sensor - I'm not doing anything with the values - just reading to see
@@ -156,7 +171,8 @@ public class TestSensorREVColorDistanceLoggingGB extends LinearOpMode {
 
             idle();
         }
-        averageLoopTimeReadingColor = timer.milliseconds() / 100;
+        loopTimeReadingColor = timer.milliseconds();
+        averageLoopTimeReadingColor = loopTimeReadingColor / 1000;
         //******************************************************************************************
 
 
@@ -165,7 +181,8 @@ public class TestSensorREVColorDistanceLoggingGB extends LinearOpMode {
         // the last color readings and just running the calculation 100 time. I want to see how much
         // time running the calculation itself takes.
         timer.reset();
-        while (opModeIsActive() && loopcount < 100) {
+        loopcount = 0;
+        while (opModeIsActive() && loopcount < 1000) {
             loopcount++; // same as loopcount = loopcount + 1
 
             // run the conversion calculation - not doing anything with the result - just doing it
@@ -177,17 +194,19 @@ public class TestSensorREVColorDistanceLoggingGB extends LinearOpMode {
 
             idle();
         }
-        averageLoopTimeConvertingColor = timer.milliseconds() / 100;
+        loopTimeConvertingColor = timer.milliseconds();
+        averageLoopTimeConvertingColor = loopTimeConvertingColor / 1000;
         //******************************************************************************************
 
 
         //******************************************************************************************
         // loop and only write to the log file
         timer.reset();
+        loopcount = 0;
         // start the log timer so you can compare the answers between the log file timer and the
         // elapsed timer
         dataLogging.startTimer();
-        while (opModeIsActive() && loopcount < 100) {
+        while (opModeIsActive() && loopcount < 1000) {
             loopcount++; // same as loopcount = loopcount + 1
 
             // write a data line into the log file - just doing it to see how long it takes
@@ -195,16 +214,21 @@ public class TestSensorREVColorDistanceLoggingGB extends LinearOpMode {
 
             idle();
         }
-        averageLoopTimeWritingLogFile = timer.milliseconds() / 100;
+        loopTimeWritingLogFilemSec = timer.milliseconds();
+        averageLoopTimeWritingLogFile = loopTimeWritingLogFilemSec / 1000;
         //******************************************************************************************
 
 
         // now create the data lines to send the averages back to the driver station phone
         // the format string says to format the floating point number (f) as 5 digits . no digits (5.0f)
-        telemetry.addData("Average loop time doing nothing (mSec):     ", String.format("%5.0f", averageLoopTimeDoingNothing));
-        telemetry.addData("Average loop time reading color (mSec):     ", String.format("%5.0f", averageLoopTimeReadingColor));
-        telemetry.addData("Average loop time converting to hue (mSec): ", String.format("%5.0f", averageLoopTimeConvertingColor));
-        telemetry.addData("Average loop time writing to log (mSec):    ", String.format("%5.0f", averageLoopTimeWritingLogFile));
+//        telemetry.addData("Total loop time doing nothing (mSec):       ", String.format("%5.3f", loopTimeDoingNothing));
+        telemetry.addData("Ave loop time doing nothing (mSec):     ", String.format("%5.3f", averageLoopTimeDoingNothing));
+//        telemetry.addData("Total loop time reading color (mSec):       ", String.format("%5.3f", loopTimeReadingColor));
+        telemetry.addData("Ave loop time reading color (mSec):     ", String.format("%5.3f", averageLoopTimeReadingColor));
+//        telemetry.addData("Total loop time converting to hue (mSec):   ", String.format("%5.3f", loopTimeConvertingColor));
+        telemetry.addData("Ave loop time converting to hue (mSec): ", String.format("%5.3f", averageLoopTimeConvertingColor));
+//        telemetry.addData("Total loop time writing to log (mSec):      ", String.format("%5.3f", loopTimeWritingLogFilemSec));
+        telemetry.addData("Ave loop time writing to log (mSec):    ", String.format("%5.3f", averageLoopTimeWritingLogFile));
 
         // actually display the lines on the driver station phone
         telemetry.update();
@@ -213,6 +237,6 @@ public class TestSensorREVColorDistanceLoggingGB extends LinearOpMode {
         dataLogging.closeDataLog();
 
         // give the person time to read the driver phone before shutting the program down
-        sleep(10000);
+        sleep(20000);
     }
 }
