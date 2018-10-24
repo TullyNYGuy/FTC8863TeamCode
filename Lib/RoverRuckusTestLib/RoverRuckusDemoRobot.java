@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Lib.RoverRuckusTestLib;
 
 
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -65,6 +66,7 @@ public class RoverRuckusDemoRobot {
         liftMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_3_7_ORBITAL);
         // the lift moves 8mm per revolution or .315" per revolution
         liftMotor.setMovementPerRev(.315);
+        liftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
     public static RoverRuckusDemoRobot createRobotForAutonomous(HardwareMap hardwareMap, Telemetry telemetry, AllianceColor.TeamColor teamColor, DataLogging dataLog) {
