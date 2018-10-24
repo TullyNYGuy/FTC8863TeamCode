@@ -47,13 +47,8 @@ import java.lang.annotation.ElementType;
 import java.util.Locale;
 
 /*
- * This is an example LinearOpMode that shows how to use
- * the REV Robotics Color-Distance Sensor.
- *
- * It assumes the sensor is configured with the name "sensor_color_distance".
- *
- * Use Android Studio to Copy this Class, and Paste it into your team's code folder with a new name.
- * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list.
+this code runs several loops with different operations in each one. The results show that reading the
+color sensor is time consuming compared to most other operations.
  */
 @TeleOp(name = "Sensor: TestREVColorDistance Loop Times", group = "Sensor")
 //@Disabled                            // Comment this out to add to the opmode list
@@ -136,7 +131,7 @@ public class TestSensorREVColorDistanceLoopTimes extends LinearOpMode {
         waitForStart();
 
         //******************************************************************************************
-        // loop and do not do anything real
+        // loop and do not do anything real - average loop time is about 0.025 mSec
         // reset the timer to 0 (like re-setting the stopwatch
         timer.reset();
         // run the loop 1000 times for a good average
@@ -155,7 +150,7 @@ public class TestSensorREVColorDistanceLoopTimes extends LinearOpMode {
 
 
         //******************************************************************************************
-        // loop and only read the color sensor
+        // loop and only read the color sensor - average loop time is about 24 mSec
         timer.reset();
         // I have not reset the loopcount since it is already at 1001 from the previous loop.
         // If I don't reset it then the next loop gets skipped right over! DUH!
@@ -180,6 +175,7 @@ public class TestSensorREVColorDistanceLoopTimes extends LinearOpMode {
         // loop and only read convert to hue - I'm not reading the color sensor. Instead I'm using
         // the last color readings and just running the calculation 100 time. I want to see how much
         // time running the calculation itself takes.
+        // average loop time is about 0.017 mSec
         timer.reset();
         loopcount = 0;
         while (opModeIsActive() && loopcount < 1000) {
@@ -200,7 +196,7 @@ public class TestSensorREVColorDistanceLoopTimes extends LinearOpMode {
 
 
         //******************************************************************************************
-        // loop and only write to the log file
+        // loop and only write to the log file - average loop time is about 0.68 mSec
         timer.reset();
         loopcount = 0;
         // start the log timer so you can compare the answers between the log file timer and the
