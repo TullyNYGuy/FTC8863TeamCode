@@ -14,6 +14,7 @@ import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynchImpl;
 import com.qualcomm.robotcore.hardware.I2cWaitControl;
 import com.qualcomm.robotcore.hardware.LED;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.TypeConversion;
 
 import org.firstinspires.ftc.teamcode.opmodes.GenericTest.DifferentialDrive;
@@ -450,15 +451,9 @@ public class AdafruitBackpackLED {
     // getter and setter methods
     //*********************************************************************************************
 
-    private I2cAddr ledControllerAddress;
-
-    public I2cAddr getMuxAddress() {
-        return ledControllerAddress;
-    }
-
-    public void setMuxAddress(I2cAddr ledControllerAddress) {
-        this.ledControllerAddress = ledControllerAddress;
-    }
+    //
+    // controller status
+    //
 
     private ChipStatus chipStatus;
 
@@ -466,9 +461,9 @@ public class AdafruitBackpackLED {
         return chipStatus;
     }
 
-    public void setChipStatus(ChipStatus chipStatus) {
-        this.chipStatus = chipStatus;
-    }
+    //
+    // BRIGHTNESS LEVEL
+    //
 
     /**
      * Variable mirroring the brightness level on the controller
@@ -495,6 +490,10 @@ public class AdafruitBackpackLED {
         writeSingleByte(byteToWrite);
     }
 
+    //
+    // ON AND OFF
+    //
+
     private LEDSwitch ledSwitch = LEDSwitch.OFF;
 
     public LEDSwitch getLedSwitch() {
@@ -502,6 +501,10 @@ public class AdafruitBackpackLED {
     }
 
     private LEDBlinkRate ledBlinkRate = LEDBlinkRate.NO_BLINK;
+
+    //
+    // BLINK RATE
+    //
 
     public LEDBlinkRate getLedBlinkRate() {
         return ledBlinkRate;
@@ -515,6 +518,10 @@ public class AdafruitBackpackLED {
         this.ledBlinkRate = ledBlinkRate;
         writeBlinkRate(blinkCommand);
     }
+
+    //
+    // DISPLAY
+    //
 
     /**
      * The display is 4 characters. I'm keeping a variable that mirrors the display characters. So
@@ -567,6 +574,10 @@ public class AdafruitBackpackLED {
         setDisplayString(builder.toString());
     }
 
+    //
+    // I2C ADDRESS
+    //
+
     private I2cAddr i2cAddr;
 
     public I2cAddr getI2cAddr() {
@@ -580,6 +591,10 @@ public class AdafruitBackpackLED {
     public void setI2cAddr(int i2cAddr) {
         this.i2cAddr = I2cAddr.create7bit(i2cAddr);
     }
+
+    //
+    // I2C DEVICE
+    //
 
     private I2cDevice backpack;
 
@@ -788,7 +803,323 @@ public class AdafruitBackpackLED {
     //          test and demo methods
     //*********************************************************************************************
 
-    // method to walk through each character in the display
-    // method to demo the blinking
-    // method to demo the brightness levels
+    /**
+     * Test or demo the ability to turn the LED display on and off
+     *
+     * @return true when the test is complete
+     */
+    public boolean testOnOff() {
+        setDisplayString("ON!");
+        turnLEDsOff();
+        delay(1000);
+        turnLEDsOn();
+        delay(1000);
+        turnLEDsOff();
+        return true;
+    }
+
+    private void delay(int mSec) {
+        try {
+            Thread.sleep((int) (mSec));
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    // Variables for the blink rate test/demo that have to be visible for both the methods of the
+    // test/demo. This means they have to be outside the scope of each method.
+    private LEDBlinkRate state;
+    private double timeInterval;
+    private ElapsedTime timer;
+    private boolean testComplete = false;
+
+    /**
+     * Call this method once to setup a demo of the blinking capabilities of the display.
+     * After this is called, then you call the update inside a loop in the opmode.
+     */
+    public void testBlinkingSetup() {
+        // 5 seconds between changes in blink rate
+        timeInterval = 5000;
+        // set initial state
+        state = LEDBlinkRate.NO_BLINK;
+        // create the timer and set it to 0
+        ElapsedTime timer = new ElapsedTime();
+        timer.reset();
+        // display a string
+        setDisplayString("NoBl");
+        // start with no blinking
+        setLedBlinkRate(LEDBlinkRate.NO_BLINK);
+        testComplete = false;
+    }
+
+    /**
+     * Demo the blinking capabilities of the display.
+     * Call this method after calling testBlinkingSetup. Call it inside a loop in the opmode so it
+     * gets called repeatedly. This method implements a state machine and each call runs the machine
+     * one time.
+     *
+     * @return true when the test has completed all phases
+     */
+    public boolean testBlinkingUpdate() {
+        switch (state) {
+            case NO_BLINK:
+                // after time interval has passed move to blink once per 2 seconds
+                if (timer.milliseconds() > timeInterval) {
+                    state = LEDBlinkRate.ONCE_PER_TWO_SECONDS;
+                    setDisplayString("2Sec");
+                    setLedBlinkRate(state);
+                    timer.reset();
+                    testComplete = false;
+                }
+                break;
+            case ONCE_PER_TWO_SECONDS:
+                // after time interval has passed move to blink once per second
+                if (timer.milliseconds() > timeInterval) {
+                    state = LEDBlinkRate.ONCE_PER_SECOND;
+                    setDisplayString("1Sec");
+                    setLedBlinkRate(state);
+                    timer.reset();
+                    testComplete = false;
+                }
+                break;
+            case ONCE_PER_SECOND:
+                // after time interval has passed move to blink twice per second
+                if (timer.milliseconds() > timeInterval) {
+                    state = LEDBlinkRate.TWICE_PER_SECOND;
+                    setDisplayString("Half");
+                    setLedBlinkRate(state);
+                    timer.reset();
+                    testComplete = false;
+                }
+                break;
+            case TWICE_PER_SECOND:
+                // after time interval has passed repeat the whole cycle
+                if (timer.milliseconds() > timeInterval) {
+                    state = LEDBlinkRate.NO_BLINK;
+                    setDisplayString("NoBl");
+                    setLedBlinkRate(state);
+                    timer.reset();
+                    testComplete = true;
+                }
+                break;
+        }
+
+        return testComplete;
+    }
+
+    // BRIGHTNESS LEVELS
+
+    /**
+     * States for the brightness level demo. Each one corresponds to a brightness level (1-15)
+     */
+    private enum BrightnessStates {
+        ONE(1),
+        TWO(2),
+        THREE(3),
+        FOUR(4),
+        FIVE(5),
+        SIX(6),
+        SEVEN(7),
+        EIGHT(8),
+        NINE(9),
+        TEN(10),
+        ELEVEN(11),
+        TWELVE(12),
+        THIRTEEN(13),
+        FOURTEEN(14),
+        FIFTEEN(15);
+
+
+        public final int intVal;
+
+        BrightnessStates(int i) {
+            this.intVal = i;
+        }
+    }
+
+    // Variables for the brightness level state machine
+    private BrightnessStates brightnessState;
+
+    /**
+     * Brightness level test / demo.
+     * Call this setup method one time. Then call the update method in a loop in the opmode.
+     */
+    public void setupBrightnessLevelTest() {
+        // 2 seconds between changes in blink rate
+        timeInterval = 2000;
+        // set initial state
+        brightnessState = BrightnessStates.FIFTEEN;
+        // create the timer and set it to 0
+        ElapsedTime timer = new ElapsedTime();
+        timer.reset();
+        // display a string
+        setDisplayString("15");
+        // no blinking
+        setLedBlinkRate(LEDBlinkRate.NO_BLINK);
+        setBrightnessLevel(15);
+        testComplete = false;
+    }
+
+    /**
+     * Brightness level test / demo.
+     * Call this setup method one time. Then call the update method in a loop in the opmode.
+     *
+     * @return true when all phases of the test are complete
+     */
+    public boolean brightnessLevelTestUpdate() {
+        switch (brightnessState) {
+            case FIFTEEN:
+                // after time interval has passed move to lower brightness level
+                if (timer.milliseconds() > timeInterval) {
+                    brightnessState = BrightnessStates.FOURTEEN;
+                    setDisplayString("14");
+                    setBrightnessLevel(brightnessState.intVal);
+                    timer.reset();
+                    testComplete = false;
+                }
+                break;
+            case FOURTEEN:
+                // after time interval has passed move to lower brightness level
+                if (timer.milliseconds() > timeInterval) {
+                    brightnessState = BrightnessStates.THIRTEEN;
+                    setDisplayString("13");
+                    setBrightnessLevel(brightnessState.intVal);
+                    timer.reset();
+                    testComplete = false;
+                }
+                break;
+            case THIRTEEN:
+                // after time interval has passed move to lower brightness level
+                if (timer.milliseconds() > timeInterval) {
+                    brightnessState = BrightnessStates.TWELVE;
+                    setDisplayString("12");
+                    setBrightnessLevel(brightnessState.intVal);
+                    timer.reset();
+                    testComplete = false;
+                }
+                break;
+            case TWELVE:
+                // after time interval has passed move to lower brightness level
+                if (timer.milliseconds() > timeInterval) {
+                    brightnessState = BrightnessStates.ELEVEN;
+                    setDisplayString("11");
+                    setBrightnessLevel(brightnessState.intVal);
+                    timer.reset();
+                    testComplete = false;
+                }
+                break;
+            case ELEVEN:
+                // after time interval has passed move to lower brightness level
+                if (timer.milliseconds() > timeInterval) {
+                    brightnessState = BrightnessStates.TEN;
+                    setDisplayString("10");
+                    setBrightnessLevel(brightnessState.intVal);
+                    timer.reset();
+                    testComplete = false;
+                }
+                break;
+            case TEN:
+                // after time interval has passed move to lower brightness level
+                if (timer.milliseconds() > timeInterval) {
+                    brightnessState = BrightnessStates.NINE;
+                    setDisplayString("9");
+                    setBrightnessLevel(brightnessState.intVal);
+                    timer.reset();
+                    testComplete = false;
+                }
+                break;
+            case NINE:
+                // after time interval has passed move to lower brightness level
+                if (timer.milliseconds() > timeInterval) {
+                    brightnessState = BrightnessStates.EIGHT;
+                    setDisplayString("8");
+                    setBrightnessLevel(brightnessState.intVal);
+                    timer.reset();
+                    testComplete = false;
+                }
+                break;
+            case EIGHT:
+                // after time interval has passed move to lower brightness level
+                if (timer.milliseconds() > timeInterval) {
+                    brightnessState = BrightnessStates.SEVEN;
+                    setDisplayString("7");
+                    setBrightnessLevel(brightnessState.intVal);
+                    timer.reset();
+                    testComplete = false;
+                }
+                break;
+            case SEVEN:
+                // after time interval has passed move to lower brightness level
+                if (timer.milliseconds() > timeInterval) {
+                    brightnessState = BrightnessStates.SIX;
+                    setDisplayString("6");
+                    setBrightnessLevel(brightnessState.intVal);
+                    timer.reset();
+                    testComplete = false;
+                }
+                break;
+            case SIX:
+                // after time interval has passed move to lower brightness level
+                if (timer.milliseconds() > timeInterval) {
+                    brightnessState = BrightnessStates.FIVE;
+                    setDisplayString("5");
+                    setBrightnessLevel(brightnessState.intVal);
+                    timer.reset();
+                    testComplete = false;
+                }
+                break;
+            case FIVE:
+                // after time interval has passed move to lower brightness level
+                if (timer.milliseconds() > timeInterval) {
+                    brightnessState = BrightnessStates.FOUR;
+                    setDisplayString("4");
+                    setBrightnessLevel(brightnessState.intVal);
+                    timer.reset();
+                    testComplete = false;
+                }
+                break;
+            case FOUR:
+                // after time interval has passed move to lower brightness level
+                if (timer.milliseconds() > timeInterval) {
+                    brightnessState = BrightnessStates.THREE;
+                    setDisplayString("3");
+                    setBrightnessLevel(brightnessState.intVal);
+                    timer.reset();
+                    testComplete = false;
+                }
+                break;
+            case THREE:
+                // after time interval has passed move to lower brightness level
+                if (timer.milliseconds() > timeInterval) {
+                    brightnessState = BrightnessStates.TWO;
+                    setDisplayString("2");
+                    setBrightnessLevel(brightnessState.intVal);
+                    timer.reset();
+                    testComplete = false;
+                }
+                break;
+            case TWO:
+                // after time interval has passed move to lower brightness level
+                if (timer.milliseconds() > timeInterval) {
+                    brightnessState = BrightnessStates.ONE;
+                    setDisplayString("1");
+                    setBrightnessLevel(brightnessState.intVal);
+                    timer.reset();
+                    testComplete = false;
+                }
+                break;
+            case ONE:
+                // after time interval has passed move to lower brightness level
+                if (timer.milliseconds() > timeInterval) {
+                    brightnessState = BrightnessStates.FIFTEEN;
+                    setDisplayString("15");
+                    setBrightnessLevel(brightnessState.intVal);
+                    timer.reset();
+                    testComplete = true;
+                }
+                break;
+        }
+        return testComplete;
+    }
+
 }
