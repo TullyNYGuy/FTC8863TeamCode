@@ -1122,4 +1122,6 @@ public class AdafruitBackpackLED {
         return testComplete;
     }
 
+    // get a list of all of the characters in the LEDCode map
+    // iterate across them and display each one in turn
 }
