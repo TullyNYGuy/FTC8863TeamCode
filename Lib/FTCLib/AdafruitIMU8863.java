@@ -178,51 +178,37 @@ public class AdafruitIMU8863 {
     // implemented right now. The IMUName is gotten from the RobotConfigMapping and therefore it
     // can't be different for different IMUs. So right now there can only be one IMU on the robot.
 
-    public AdafruitIMU8863(HardwareMap hardwareMap, String calibrationFile, String loggingTag) {
+    public AdafruitIMU8863(String imuName, HardwareMap hardwareMap, String calibrationFile, String loggingTag) {
+        initializeIMU(imuName, hardwareMap, calibrationFile, loggingTag);
+    }
+
+    public AdafruitIMU8863(String imuName, HardwareMap hardwareMap, String calibrationFile) {
+        loggingTag = "IMU";
+        initializeIMU(imuName, hardwareMap, calibrationFile, loggingTag);
+    }
+
+    public AdafruitIMU8863(String imuName, HardwareMap hardwareMap) {
+        loggingTag = "IMU";
+        calibrationFile = null;
+        initializeIMU(imuName, hardwareMap, calibrationFile, loggingTag);
+    }
+
+    public AdafruitIMU8863(HardwareMap hardwareMap) {
+        loggingTag = "IMU";
+        // No calibration file is used
+        calibrationFile = null;
+        String imuName = "IMU";
+        initializeIMU(imuName, hardwareMap, calibrationFile, loggingTag);
+    }
+
+    private void initializeIMU(String imuName, HardwareMap hardwareMap, String calibrationFile, String loggingTag) {
         this.loggingTag = loggingTag;
         this.calibrationFile = calibrationFile;
         parameters = setupParameters();
         // Retrieve and initialize the IMU. We expect the IMU to be attached to an I2C port
         // on a Core Device Interface Module, configured to be a sensor of type "AdaFruit IMU",
         // and named "imu".
-        imu = hardwareMap.get(BNO055IMU.class, RobotConfigMappingForGenericTest.getIMUName());
-        imu.initialize(parameters);
-        // The resetAngleReferences() does not seem to be getting correct data. I'm guessing that
-        // the IMU has not finished initializing yet. Delay the execution of resetAngleReferences()
-        // so that initialization of the BNO055IMU can complete.
-        delay(100);
-        // At initialization both absolute and relative references need to be setup
-        resetAngleReferences(AngleMode.ABSOLUTE);
-        resetAngleReferences(AngleMode.RELATIVE);
-    }
-
-    public AdafruitIMU8863(HardwareMap hardwareMap, String calibrationFile) {
-        this.loggingTag = "IMU";
-        this.calibrationFile = calibrationFile;
-        parameters = setupParameters();
-        // Retrieve and initialize the IMU. We expect the IMU to be attached to an I2C port
-        // on a Core Device Interface Module, configured to be a sensor of type "AdaFruit IMU",
-        // and named "imu".
-        imu = hardwareMap.get(BNO055IMU.class, RobotConfigMappingForGenericTest.getIMUName());
-        imu.initialize(parameters);
-        // The resetAngleReferences() does not seem to be getting correct data. I'm guessing that
-        // the IMU has not finished initializing yet. Delay the execution of resetAngleReferences()
-        // so that initialization of the BNO055IMU can complete.
-        delay(100);
-        // At initialization both absolute and relative references need to be setup
-        resetAngleReferences(AngleMode.ABSOLUTE);
-        resetAngleReferences(AngleMode.RELATIVE);
-    }
-
-    public AdafruitIMU8863(HardwareMap hardwareMap) {
-        this.loggingTag = "IMU";
-        // No calibration file is used
-        this.calibrationFile = null;
-        parameters = setupParameters();
-        // Retrieve and initialize the IMU. We expect the IMU to be attached to an I2C port
-        // on a Core Device Interface Module, configured to be a sensor of type "AdaFruit IMU",
-        // and named "IMU"
-        imu = hardwareMap.get(BNO055IMU.class, "IMU");
+        imu = hardwareMap.get(BNO055IMU.class, imuName);
         imu.initialize(parameters);
         // The resetAngleReferences() does not seem to be getting correct data. I'm guessing that
         // the IMU has not finished initializing yet. Delay the execution of resetAngleReferences()
@@ -291,7 +277,7 @@ public class AdafruitIMU8863 {
                 break;
         }
 
-        // Extract the poper angle from thh data
+        // Extract the proper angle from thh data
         switch (whichAngle) {
             case HEADING:
                 angleReference = angleReferences.firstAngle;
