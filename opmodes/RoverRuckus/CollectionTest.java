@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmodes.RoverRuckus;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.CRServo;
 
@@ -148,6 +149,7 @@ public class CollectionTest extends LinearOpMode {
 
         collectionServoLeft = hardwareMap.get(CRServo.class, "collectionServoLeft");
         collectionServoRight = hardwareMap.get(CRServo.class, "collectionServoRight");
+        collectionServoRight.setDirection(CRServo.Direction.REVERSE);
         //collectionServoRight = new CRServo8863("collectionServoRight", hardwareMap, .50, .50, .1, Servo.Direction.REVERSE, telemetry);
 
         // Wait for the start button
@@ -200,7 +202,7 @@ public class CollectionTest extends LinearOpMode {
             if (gamepad1a.buttonPress(gamepad1.a)) {
                 if (gamepad1a.isCommand1()) {
                     collectionServoLeft.setPower(1);
-                    collectionServoRight.setPower(.75);
+                    collectionServoRight.setPower(1);
                 }
                 if (gamepad1a.isCommand2()) {
                     collectionServoLeft.setPower(0);
