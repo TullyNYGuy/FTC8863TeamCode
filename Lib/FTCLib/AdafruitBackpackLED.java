@@ -2,7 +2,9 @@ package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
 // The implementation of the LED circuit to the Adafruit Backpack driver is specific to the
 // printed circuit board that Adafruit sells. So the control is specific to this board can't be
-// used with any other board that uses the HT16K33 LED Controller.
+// used with any other board that uses the HT16K33 LED Controller. The Adafruit Backpack LED display
+// is available in several different LED colors. Here is the yellow version:
+// https://www.adafruit.com/product/2158
 
 import android.view.Display;
 import android.widget.DialerFilter;
@@ -851,7 +853,7 @@ public class AdafruitBackpackLED {
      * Call this method once to setup a demo of the blinking capabilities of the display.
      * After this is called, then you call the update inside a loop in the opmode.
      */
-    public void testBlinkingSetup() {
+    public void setupBlinkingTest() {
         // 5 seconds between changes in blink rate
         timeInterval = 5000;
         // set initial state
@@ -874,7 +876,7 @@ public class AdafruitBackpackLED {
      *
      * @return true when the test has completed all phases
      */
-    public boolean testBlinkingUpdate() {
+    public boolean updateBlinkingTest() {
         switch (state) {
             case NO_BLINK:
                 // after time interval has passed move to blink once per 2 seconds
@@ -982,7 +984,7 @@ public class AdafruitBackpackLED {
      *
      * @return true when all phases of the test are complete
      */
-    public boolean brightnessLevelTestUpdate() {
+    public boolean updateBrightnessLevelTest() {
         switch (brightnessState) {
             case FIFTEEN:
                 // after time interval has passed move to lower brightness level
