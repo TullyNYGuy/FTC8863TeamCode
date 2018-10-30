@@ -33,28 +33,27 @@ import android.app.Activity;
 import android.graphics.Color;
 import android.view.View;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 
 import java.util.Locale;
 
 /*
- * This is an example LinearOpMode that shows how to use
- * the REV Robotics Color-Distance Sensor.
- *
- * It assumes the sensor is configured with the name "sensor_color_distance".
- *
- * Use Android Studio to Copy this Class, and Paste it into your team's code folder with a new name.
- * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list.
+This opmode shows the inefficiency of reading the color sensor multiple times. Reading the color
+sensor takes a lot of time - about 8 mSec per value read. So it is best to minimize the number of
+reads by using variables to store the values that get read. The first loop is not efficient because
+it does not use variables. The second loop is better because it uses variables to minimize the number
+of reads.
  */
-@TeleOp(name = "Sensor: TestREVColorDistance", group = "Sensor")
+@TeleOp(name = "Sensor: TestREVColorDistanceEfficient", group = "Sensor")
 //@Disabled                            // Comment this out to add to the opmode list
-public class TestSensorREVColorDistance extends LinearOpMode {
+public class TestSensorREVColorDistanceEfficient extends LinearOpMode {
 
     /**
      * Note that the REV Robotics Color-Distance incorporates two sensors into one device.
@@ -81,9 +80,18 @@ public class TestSensorREVColorDistance extends LinearOpMode {
 
         // get a reference to the color sensor.
         sensorColor = hardwareMap.get(ColorSensor.class, "revColorSensor");
+        double red = 0;
+        double blue = 0;
+        double green = 0;
+        double argb = 0;
+        double distance =0;
 
         // get a reference to the distance sensor that shares the same name.
         sensorDistance = hardwareMap.get(DistanceSensor.class, "revColorSensor");
+
+        ElapsedTime timer;
+        double averageLoopCountForMultiReads = 0;
+        double averageLoopCountForMinimumReads = 0;
 
         // hsvValues is an array that will hold the hue, saturation, and value information.
         float hsvValues[] = {0F, 0F, 0F};
@@ -100,38 +108,38 @@ public class TestSensorREVColorDistance extends LinearOpMode {
         int relativeLayoutId = hardwareMap.appContext.getResources().getIdentifier("RelativeLayout", "id", hardwareMap.appContext.getPackageName());
         final View relativeLayout = ((Activity) hardwareMap.appContext).findViewById(relativeLayoutId);
 
+        timer = new ElapsedTime();
         // wait for the start button to be pressed.
         waitForStart();
 
         // loop and read the RGB and distance data.
-        // Note we use opModeIsActive() as our loop condition because it is an interruptible method.
+        // this loop is very inefficient since it constantly reads the color sensor
+        timer.reset();
+
+        timer.reset();
+        // this loop is more efficient. The color sensor is only read once and the values are stored
+        // in variables red, green, blue and distance for use later on. This is instead of reading
+        // the color sensor again later on.
         while (opModeIsActive()) {
+            red = sensorColor.red();
+            green = sensorColor.green();
+            blue = sensorColor.blue();
+            distance = sensorDistance.getDistance(DistanceUnit.CM);
+
             // convert the RGB values to HSV values.
             // multiply by the SCALE_FACTOR.
             // then cast it back to int (SCALE_FACTOR is a double)
-            Color.RGBToHSV((int) (sensorColor.red() * SCALE_FACTOR),
-                    (int) (sensorColor.green() * SCALE_FACTOR),
-                    (int) (sensorColor.blue() * SCALE_FACTOR),
+            Color.RGBToHSV((int) (red * SCALE_FACTOR),
+                    (int) (green * SCALE_FACTOR),
+                    (int) (blue * SCALE_FACTOR),
                     hsvValues);
 
             // send the info back to driver station using telemetry function.
-            telemetry.addData("Distance (cm)",
-                    String.format(Locale.US, "%.02f", sensorDistance.getDistance(DistanceUnit.CM)));
-            telemetry.addData("Alpha", sensorColor.alpha());
-            telemetry.addData("Red  ", sensorColor.red());
-            telemetry.addData("Green", sensorColor.green());
-            telemetry.addData("Blue ", sensorColor.blue());
+            telemetry.addData("Distance (cm)", distance);
+            telemetry.addData("Red  ", red);
+            telemetry.addData("Green", green);
+            telemetry.addData("Blue ", blue);
             telemetry.addData("Hue", hsvValues[0]);
-
-            // change the background color to match the color detected by the RGB sensor.
-            // pass a reference to the hue, saturation, and value array as an argument
-            // to the HSVToColor method.
-            relativeLayout.post(new Runnable() {
-                public void run() {
-                    relativeLayout.setBackgroundColor(Color.HSVToColor(0xff, values));
-                }
-            });
-
             telemetry.update();
             idle();
         }
