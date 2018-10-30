@@ -1157,6 +1157,7 @@ public class AdafruitBackpackLED {
     private Set<Character> characters;
     private Iterator<Character> iterator;
     private char characterToDisplay;
+    private StringBuilder displayChars;
 
     // get a list of all of the characters in the LEDCode map
     // iterate across them and display each one in turn
@@ -1181,6 +1182,7 @@ public class AdafruitBackpackLED {
         // get the list of characters and an iterator to move across the characters in the set
         characters = ledCode.getCharacterSet();
         iterator = characters.iterator();
+        StringBuilder displayChars = new StringBuilder("   ");
         testComplete = false;
     }
 
@@ -1208,7 +1210,7 @@ public class AdafruitBackpackLED {
                     // yes there is, get it
                     characterToDisplay = iterator.next();
                     // create a string of 4 of the characters and send the string to the display
-                    setDisplayString(new StringBuilder().append(characterToDisplay).append(characterToDisplay).append(characterToDisplay).append(characterToDisplay).toString());
+                    setDisplayString(displayChars.append(characterToDisplay).append(characterToDisplay).append(characterToDisplay).append(characterToDisplay).toString());
                     timer.reset();
                     characterDisplayState = CharacterDisplayStates.CONTINUE;
                 } else {
