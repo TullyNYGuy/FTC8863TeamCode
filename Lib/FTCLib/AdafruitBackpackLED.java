@@ -22,7 +22,9 @@ import org.firstinspires.ftc.teamcode.opmodes.GenericTest.DifferentialDrive;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 public class AdafruitBackpackLED {
 
@@ -368,6 +370,10 @@ public class AdafruitBackpackLED {
                 byteCodesFromLEDCodes[i + 1] = byteCodesFromLEDCode[1];
             }
             return byteCodesFromLEDCodes;
+        }
+
+        private Set<Character> getCharacterSet() {
+            return stringToLEDCode.keySet();
         }
     }
 
@@ -803,6 +809,10 @@ public class AdafruitBackpackLED {
     //          test and demo methods
     //*********************************************************************************************
 
+    //**********************************************************************************************
+    //* Display on/off test / demo
+    //**********************************************************************************************
+
     /**
      * Test or demo the ability to turn the LED display on and off
      *
@@ -825,6 +835,10 @@ public class AdafruitBackpackLED {
             Thread.currentThread().interrupt();
         }
     }
+
+    //**********************************************************************************************
+    //* Display blinking test / demo
+    //**********************************************************************************************
 
     // Variables for the blink rate test/demo that have to be visible for both the methods of the
     // test/demo. This means they have to be outside the scope of each method.
@@ -907,7 +921,9 @@ public class AdafruitBackpackLED {
         return testComplete;
     }
 
-    // BRIGHTNESS LEVELS
+    //**********************************************************************************************
+    //* Display brighness test / demo
+    //**********************************************************************************************
 
     /**
      * States for the brightness level demo. Each one corresponds to a brightness level (1-15)
@@ -962,7 +978,7 @@ public class AdafruitBackpackLED {
 
     /**
      * Brightness level test / demo.
-     * Call this setup method one time. Then call the update method in a loop in the opmode.
+     * Call the setup method above one time. Then call this update method in a loop in the opmode.
      *
      * @return true when all phases of the test are complete
      */
@@ -1122,6 +1138,89 @@ public class AdafruitBackpackLED {
         return testComplete;
     }
 
+    //**********************************************************************************************
+    //* Character display test / demo
+    //**********************************************************************************************
+
+    /**
+     * Enum for the list of states in a state machine used to run through all of the characters
+     * that can be displayed and display each one.
+     */
+    private enum CharacterDisplayStates {
+        START,
+        CONTINUE,
+        NEXT,
+        DONE
+    }
+
+    private CharacterDisplayStates characterDisplayState;
+    private Set<Character> characters;
+    private Iterator<Character> iterator;
+    private char characterToDisplay;
+
     // get a list of all of the characters in the LEDCode map
     // iterate across them and display each one in turn
+
+    /**
+     * Character mapping test / demo display of characters. Call this setup once in your opmode.
+     * Then call the associated update in a loop to display each character.
+     */
+    public void setupCharacterTest() {
+        // 2 seconds between changes in character
+        timeInterval = 2000;
+        // create the timer and set it to 0
+        ElapsedTime timer = new ElapsedTime();
+        timer.reset();
+        // set the initial state
+        characterDisplayState = CharacterDisplayStates.START;
+        // display nothing
+        setDisplayString("    ");
+        // no blinking
+        setLedBlinkRate(LEDBlinkRate.NO_BLINK);
+        setBrightnessLevel(15);
+        // get the list of characters and an iterator to move across the characters in the set
+        characters = ledCode.getCharacterSet();
+        iterator = characters.iterator();
+        testComplete = false;
+    }
+
+    /**
+     * Display each character on the display, wait a bit, then display the next one.
+     * Make sure to call the setup above first. Then call this method in a loop to display each
+     * character. Once it returns true you can stop your loop. (It is a state machine.)
+     *
+     * @return true if all characters have been displayed
+     */
+    public boolean updateCharacterTest() {
+        switch (characterDisplayState) {
+            case START:
+                characterDisplayState = CharacterDisplayStates.NEXT;
+                break;
+            case CONTINUE:
+                // if the time has elapsed move on to the next character
+                if (timer.milliseconds() > timeInterval) {
+                    characterDisplayState = CharacterDisplayStates.NEXT;
+                }
+                break;
+            case NEXT:
+                // is there a next character in the set?
+                if (iterator.hasNext()) {
+                    // yes there is, get it
+                    characterToDisplay = iterator.next();
+                    // create a string of 4 of the characters and send the string to the display
+                    setDisplayString(new StringBuilder().append(characterToDisplay).append(characterToDisplay).append(characterToDisplay).append(characterToDisplay).toString());
+                    timer.reset();
+                    characterDisplayState = CharacterDisplayStates.CONTINUE;
+                } else {
+                    // no more characters, done
+                    setDisplayString("Done");
+                    characterDisplayState = CharacterDisplayStates.DONE;
+                    testComplete = true;
+                }
+                break;
+            case DONE:
+                break;
+        }
+        return testComplete;
+    }
 }
