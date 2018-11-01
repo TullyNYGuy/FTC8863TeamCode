@@ -1,29 +1,44 @@
 package org.firstinspires.ftc.teamcode.opmodes.GenericTest;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.PidUdpReceiver ;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 
+@TeleOp(name = "Test UPD Receiver - WON'T RUN", group = "Test")
+@Disabled
 public class UdpReceiverTest {
 
-    @TeleOp(name="PID test 2", group="utils")
+    // THE OPMODE IS SITTING INSIDE OF ANOTHER CLASS - IT WILL NEVER GET SEEN AND NEVER WILL RUN!
     public class PIDtest2 extends LinearOpMode
     {
         private double p, i, d;
         private PidUdpReceiver pidUdpReceiver;
 
         @Override
-        public void runOpMode() throws InterruptedException
+        public void runOpMode()
         {
             /*
              * Initialize the network receiver
              */
             pidUdpReceiver = new PidUdpReceiver();
+            telemetry.addLine("receiver created");
+            telemetry.update();
+
             pidUdpReceiver.beginListening();
+            telemetry.addLine("receiver created");
+            telemetry.addLine("receiver listening");
+            telemetry.update();
 
             telemetry.setMsTransmissionInterval(50);
+            telemetry.addLine("receiver created");
+            telemetry.addLine("receiver listening");
+            telemetry.addLine("transmission interval set");
+            telemetry.addLine("wait for start ...");
+            telemetry.update();
+
             waitForStart();
 
             /*
