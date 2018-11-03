@@ -42,6 +42,8 @@ public class DriveTrain {
     double distanceAtMovingUntilComplete = 0;
     double distanceAtComplete = 0;
 
+    DataLogging dataLogging;
+
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS
     //
@@ -161,6 +163,8 @@ public class DriveTrain {
 
         pidControl = new PIDControl();
         pidControl.setKp(0.01);
+
+        dataLogging = new DataLogging("IMU_Test", telemetry);
 
         this.imuPresent = imuPresent;
 
@@ -978,6 +982,7 @@ public class DriveTrain {
             pidControl.setKp(0.0125);
             pidControl.setKi(0.00000000025);
             pidControl.reset();
+            dataLogging.startTimer();
 
             imu.setAngleMode(angleMode);
             if (angleMode == AdafruitIMU8863.AngleMode.RELATIVE) {
@@ -996,7 +1001,14 @@ public class DriveTrain {
             double correction = -pidControl.getCorrection(currentHeading);
             differentialDrive(0, correction);
             //return correction;
-            return pidControl.isFinished();
+            dataLogging.logData(currentHeading + " " + correction);
+            if (pidControl.isFinished()){
+                dataLogging.closeDataLog();
+                return true;
+            }
+            else {
+                return false;
+            }
         } else {
             shutdown();
             throw new IllegalArgumentException("No Imu found");
