@@ -6,29 +6,26 @@ package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 // is available in several different LED colors. Here is the yellow version:
 // https://www.adafruit.com/product/2158
 
-import android.view.Display;
-import android.widget.DialerFilter;
-
+import com.qualcomm.robotcore.hardware.HardwareDevice;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynchImpl;
 import com.qualcomm.robotcore.hardware.I2cWaitControl;
-import com.qualcomm.robotcore.hardware.LED;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
+import com.qualcomm.robotcore.hardware.I2cDeviceSynchDevice;
+import com.qualcomm.robotcore.hardware.configuration.I2cSensor;
 import com.qualcomm.robotcore.util.TypeConversion;
 
-import org.firstinspires.ftc.teamcode.opmodes.GenericTest.DifferentialDrive;
-
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-public class AdafruitBackpackLED {
+@SuppressWarnings({"WeakerAccess", "unused"}) // Ignore access and unused warnings
+@I2cSensor(name = "Adafruit Backpack LED Display", description = "dafruit Backpack LED Display", xmlTag = "BackpackLED")
+public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -566,30 +563,43 @@ public class AdafruitBackpackLED {
     // from it
     //*********************************************************************************************
 
-    public AdafruitBackpackLED(I2cAddr ledControllerAddress, HardwareMap hardwareMap, String backpackName) {
-        setI2cAddr(ledControllerAddress);
-        initialize(hardwareMap, backpackName);
-    }
-
-    public AdafruitBackpackLED(int ledControllerAddress, HardwareMap hardwareMap, String backpackName) {
-        setI2cAddr(ledControllerAddress);
-        initialize(hardwareMap, backpackName);
-    }
-
-    public AdafruitBackpackLED(HardwareMap hardwareMap, String backpackName) {
-        // default address
+    //    public AdafruitBackpackLED(I2cAddr ledControllerAddress, HardwareMap hardwareMap, String backpackName) {
+    public AdafruitBackpackLED(I2cDeviceSynch deviceClient) {
+        super(deviceClient, true);
+        // set the default address in this instance of the class
         setI2cAddr(0x70);
-        initialize(hardwareMap, backpackName);
+        // set the I2C address for the deviceClient
+        this.deviceClient.setI2cAddress(getI2cAddr());
+
+        super.registerArmingStateCallback(false); // Deals with USB cables getting unplugged
+        // Sensor starts off disengaged so we can change things like I2C address. Need to engage
+        this.deviceClient.engage();
+        initializeAdafruitBackpackLED();
     }
+
+//    public AdafruitBackpackLED(int ledControllerAddress, HardwareMap hardwareMap, String backpackName) {
+//        setI2cAddr(ledControllerAddress);
+//        initialize(hardwareMap, backpackName);
+//    }
+//
+//    public AdafruitBackpackLED(HardwareMap hardwareMap, String backpackName) {
+//        // default address
+//        setI2cAddr(0x70);
+//        initialize(hardwareMap, backpackName);
+//    }
 
     //*********************************************************************************************
     //          helper methods
     //
     //*********************************************************************************************
 
-    private void initialize(HardwareMap hardwareMap, String backpackName) {
-        // create the client to talk over I2C to the controller chip
-        createClient(hardwareMap, backpackName);
+    @Override
+    protected synchronized boolean doInitialize() {
+        initialize();
+        return true;
+    }
+
+    private void initializeAdafruitBackpackLED() {
         // create the LED code mapping object
         this.ledCode = new LEDCode();
         // turn the system oscillator on
@@ -722,6 +732,16 @@ public class AdafruitBackpackLED {
         displayCodeBuffer = this.ledCode.getLEDCodesAsBytes(stringToDisplay);
         // write the codes
         write(Register.DISPLAY_DATA.byteVal, displayCodeBuffer);
+    }
+
+    @Override
+    public Manufacturer getManufacturer() {
+        return Manufacturer.Adafruit;
+    }
+
+    @Override
+    public String getDeviceName() {
+        return "Adafruit Alphanumeric Display";
     }
 
     //*********************************************************************************************
