@@ -2,10 +2,13 @@ package org.firstinspires.ftc.teamcode.opmodes.RoverRuckus;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.CRServo;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.CRServo8863;
@@ -15,6 +18,8 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.GamepadButtonMultiPush;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.JoyStick;
 import org.firstinspires.ftc.teamcode.Lib.RelicRecoveryLib.WonderWorkDemoRobot;
+
+import android.graphics.Color;
 
 /**
  * Created by ball on 10/7/2017.
@@ -91,6 +96,27 @@ public class CollectionTest extends LinearOpMode {
 
     public CRServo collectionServoLeft;
     public CRServo collectionServoRight;
+    // get a reference to the color sensor.
+    ColorSensor sensorColor;
+    DistanceSensor sensorDistance;
+
+
+    double red = 0;
+    double blue = 0;
+    double green = 0;
+    double argb = 0;
+    double distance = 0;
+
+    float hsvValues[] = {0F, 0F, 0F};
+
+    // values is a reference to the hsvValues array.
+    final float values[] = hsvValues;
+
+    // sometimes it helps to multiply the raw RGB values with a scale factor
+// to amplify/attentuate the measured values.
+    final double SCALE_FACTOR = 255;
+    DataLogging dataLogging;
+
 
     @Override
     public void runOpMode() {
@@ -151,12 +177,15 @@ public class CollectionTest extends LinearOpMode {
         collectionServoRight = hardwareMap.get(CRServo.class, "collectionServoRight");
         collectionServoRight.setDirection(CRServo.Direction.REVERSE);
         //collectionServoRight = new CRServo8863("collectionServoRight", hardwareMap, .50, .50, .1, Servo.Direction.REVERSE, telemetry);
+        sensorColor = hardwareMap.get(ColorSensor.class, "revColorSensor");
+        sensorDistance = hardwareMap.get(DistanceSensor.class, "revColorSensor");
+        dataLogging = new DataLogging("revColorDistanceSensorReadings", telemetry);
 
         // Wait for the start button
         telemetry.addData(">", "Press start to run Test");
         telemetry.update();
         waitForStart();
-
+        dataLogging.startTimer();
         //*********************************************************************************************
         //             Robot Running after the user hits play on the driver phone
         //*********************************************************************************************
@@ -164,6 +193,26 @@ public class CollectionTest extends LinearOpMode {
         // set the positions that the various systems need to be in when the robot is running
 
         while (opModeIsActive()) {
+            red = sensorColor.red();
+            green = sensorColor.green();
+            blue = sensorColor.blue();
+            distance = sensorDistance.getDistance(DistanceUnit.CM);
+
+            // convert the RGB values to HSV values.
+            // multiply by the SCALE_FACTOR.
+            // then cast it back to int (SCALE_FACTOR is a double)
+            Color.RGBToHSV((int) (red * SCALE_FACTOR),
+                    (int) (green * SCALE_FACTOR),
+                    (int) (blue * SCALE_FACTOR),
+                    hsvValues);
+            dataLogging.logData(distance + " " + hsvValues[0]);
+            // send the info back to driver station using telemetry function.
+            telemetry.addData("Distance (cm)", distance);
+            //telemetry.addData("Red  ", red);
+            //telemetry.addData("Green", green);
+            //telemetry.addData("Blue ", blue);
+            telemetry.addData("Hue", hsvValues[0]);
+
 
             //*************************************************************************************
             // Gamepad 1 buttons
@@ -402,4 +451,5 @@ public class CollectionTest extends LinearOpMode {
     //*********************************************************************************************
 
 }
+
 
