@@ -163,27 +163,6 @@ public class AdafruitBackpackLED {
     // the LED from getLEDCodeMostSignificantByte and getLEDCodeLeastSignificantByte.
 
     private class LEDCode {
-//
-//        private String stringToDisplay;
-//
-//        public void setStringToDisplay(String stringToDisplay) {
-//            this.stringToDisplay = stringToDisplay;
-//            byte[] LEDCodeAsBytes = getBytesForLEDCode(getLEDCode(stringToDisplay));
-//            this.LEDCodeLeastSignificantByte = LEDCodeAsBytes[1];
-//            this.LEDCodeMostSignificantByte = LEDCodeAsBytes[0];
-//        }
-//
-//        private byte LEDCodeMostSignificantByte;
-//
-//        public byte getLEDCodeMostSignificantByte() {
-//            return LEDCodeMostSignificantByte;
-//        }
-//
-//        private byte LEDCodeLeastSignificantByte;
-//
-//        public byte getLEDCodeLeastSignificantByte() {
-//            return LEDCodeLeastSignificantByte;
-//        }
 
         // define a lookup table to map a string to an LED code that will display the character on
         // the display
@@ -331,7 +310,7 @@ public class AdafruitBackpackLED {
          * @return an array of 8 bit LED codes, 2 bytes for LED, that will display the string on
          * the LED
          */
-        public byte[] getLEDCodesAsBytes(String string) {
+        private byte[] getLEDCodesAsBytes(String string) {
             short[] LEDCodes;
             LEDCodes = getLEDCodes(string);
             return getBytesForLEDCodes(LEDCodes);
@@ -379,11 +358,19 @@ public class AdafruitBackpackLED {
         }
     }
 
+    /**
+     * An enum specifying whether to turn the LED display on or off.
+     */
     public enum LEDSwitch {
         ON,
         OFF,
     }
 
+    /**
+     * An enum specifying whether to turn the controller chip for the display on or off. This is
+     * different than the display itself. The display can be off but the controller can be on.
+     * Practically, to be useful, the controller has to be on.
+     */
     public enum ChipStatus {
         ON,
         OFF
@@ -401,49 +388,9 @@ public class AdafruitBackpackLED {
         NO_BLINK
     }
 
-//    /**
-//     * This class maps the publicly exposed LEDBlinkRate enum to the private DisplaySetupCommand enum.
-//     * This is done for the reasons described above in the commenst for the LEDBlinkRate enum.
-//     */
-//    private class BlinkCodeMap {
-//
-//        // create a lookup table for mapping one to the other
-//        private Map<LEDBlinkRate, DisplaySetupCommand> LEDBlinkMap;
-//
-//        /**
-//         * use the constructor to populate the lookup table
-//         */
-//        private BlinkCodeMap() {
-//            LEDBlinkMap.put(LEDBlinkRate.NO_BLINK, DisplaySetupCommand.DISPLAY_OFF);
-//            LEDBlinkMap.put(LEDBlinkRate.ONCE_PER_SECOND, DisplaySetupCommand.BLINKING_1_HZ);
-//            LEDBlinkMap.put(LEDBlinkRate.TWICE_PER_SECOND, DisplaySetupCommand.BLINKING_2_HZ);
-//            LEDBlinkMap.put(LEDBlinkRate.ONCE_PER_TWO_SECONDS, DisplaySetupCommand.BLINKING_HALF_HZ);
-//        }
-//
-//        /**
-//         * Return the DisplaySetupCommand enum associated with the given LEDBlinkRate enum
-//         *
-//         * @param ledBlinkRate
-//         * @return The DisplaySetupCommand enum.
-//         */
-//        private DisplaySetupCommand getDisplaySetupCommandEnum(LEDBlinkRate ledBlinkRate) {
-//            return LEDBlinkMap.get(ledBlinkRate);
-//        }
-//
-//        /**
-//         * Get the command bits from the DisplaySetupCommand that can be used to set the display to
-//         * the requested blink rate
-//         * LEDBlinkRate enum
-//         *
-//         * @param ledBlinkRate the requested blink rate
-//         * @return command bits for setting the LED Display to the given blink rate
-//         */
-//        private int getDisplaySetupCommandInt(LEDBlinkRate ledBlinkRate) {
-//            return LEDBlinkMap.get(ledBlinkRate).byteVal;
-//        }
-//    }
-
-
+    /**
+     * An enum for specifying which of the four characters on the display to operate on.
+     */
     public enum DisplayPosition {
         LEFT,
         MIDDLE_LEFT,
