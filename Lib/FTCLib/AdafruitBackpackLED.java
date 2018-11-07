@@ -68,6 +68,10 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
         // 0x08 - 0x0F - not used (no LED on these addresses)
         // To write a character to the LED, follow this address with 2 8 bit bytes of data that
         // turn on the LED segments to make an ASCII character.
+        LEFT_LED_CHARACTER(0x00),
+        LEFT_MIDDLE_LED_CHARACTER(0x02),
+        RIGHT_MIDDLE_LED_CHARACTER(0x04),
+        RIGHT_LED_CHARACTER(0x06),
 
         SYSTEM_SETUP(0x20), // The most significant 4 bits are the address of the register for controlling the chip.
         // The least significant 4 bits are the commands. They are defined in another enum below.
@@ -509,24 +513,36 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
      * @param displayCharacter character to insert
      * @param displayPosition  position to insert the character
      */
-    public void setDisplayString(char displayCharacter, DisplayPosition displayPosition) {
+    public void setDisplayCharacter(char displayCharacter, DisplayPosition displayPosition) {
+        byte register = 0x0;
         // Note that a char cannot be empty so I don't check for that
+        // insert the character to be displayed into the current display string
         StringBuilder builder = new StringBuilder(this.displayString);
         switch (displayPosition) {
             case LEFT:
                 builder.setCharAt(3, displayCharacter);
+                register = Register.LEFT_LED_CHARACTER.byteVal;
                 break;
             case MIDDLE_LEFT:
                 builder.setCharAt(2, displayCharacter);
+                register = Register.LEFT_MIDDLE_LED_CHARACTER.byteVal;
                 break;
             case MIDDLE_RIGHT:
                 builder.setCharAt(1, displayCharacter);
+                register = Register.RIGHT_MIDDLE_LED_CHARACTER.byteVal;
                 break;
             case RIGHT:
                 builder.setCharAt(0, displayCharacter);
+                register = Register.RIGHT_LED_CHARACTER.byteVal;
                 break;
         }
-        setDisplayString(builder.toString());
+        this.displayString = builder.toString();
+
+        //now that the display string is created, I could just sent all 4 characters to the display.
+        // But that takes up I2C bandwidth with 8 bytes of data and I'm really only changing
+        // 2 bytes. So it is worth it to make the code more complex and send only the single
+        // character that is changing.
+        displayLEDCharacter(displayCharacter, register);
     }
 
     //
@@ -729,12 +745,45 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
 //        writeSingleByte(byteToWrite);
 //    }
 
+    /**
+     * This method accepts a string of up to 4 characters in length, converts the string into the
+     * LED codes that turn on the individual LED segments in the display for each character, breaks
+     * the LED codes, which are 16 bits long, into 2 8 bit bytes and then writes them to the
+     * starting register of the LEDs in the controller.
+     * @param stringToDisplay
+     */
     private void displayLEDString(String stringToDisplay) {
+        // did someone ask me to display more than 4 characters?
+        if (stringToDisplay.length() > 4) {
+            // truncate the string to 4 characters only (the display is only 4 characters)
+            stringToDisplay = stringToDisplay.substring(0, 3);
+        }
+
         byte[] displayCodeBuffer;
-        // get an array of LED codes for the string in this.displayString. Codes are bytes
+        // get an array of LED codes for the string in this.displayString. Codes are initially 16
+        // bits long, but since I2C only can send 8 bits per transaction, the 16 bits have to be
+        // broken into two 8 bit bytes
         displayCodeBuffer = this.ledCode.getLEDCodesAsBytes(stringToDisplay);
         // write the codes
         write(Register.DISPLAY_DATA.byteVal, displayCodeBuffer);
+    }
+
+    /**
+     * This method is different than displayLEDString in that it will only change one character in
+     * the 4 character display. The other 3 characters remain as they were. The character is
+     * written to the specified address. First the 16 bit LED code is obtained and then broken into
+     * two 8 bit bytes to be transmitted via I2C to the controller register specified. The
+     * controller auto increments the address for the second byte so no need to handle that. I
+     * strongly recommend you do not use this method directly. Use setDisplayCharacter instead.
+     * @param displayCharacter character to display
+     * @param register the address of the register to use for the display
+     */
+    private void displayLEDCharacter(char displayCharacter, byte register) {
+        byte[] displayCodeBuffer;
+        // get an array of LED codes for the string in this.displayString. Codes are bytes
+        displayCodeBuffer = this.ledCode.getLEDCodesAsBytes(Character.toString(displayCharacter));
+        // write the codes
+        write(register, displayCodeBuffer);
     }
 
     @Override
