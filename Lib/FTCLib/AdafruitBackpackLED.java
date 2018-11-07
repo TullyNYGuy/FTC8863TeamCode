@@ -19,6 +19,9 @@ import com.qualcomm.robotcore.hardware.I2cDeviceSynchDevice;
 import com.qualcomm.robotcore.hardware.configuration.I2cSensor;
 import com.qualcomm.robotcore.util.TypeConversion;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -163,7 +166,7 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
 
         // define a lookup table to map a string to an LED code that will display the character on
         // the display
-        private Map<Character, Short> stringToLEDCode;
+        private Map<Character, Short> stringToLEDCode = new HashMap<>();
 
         // constructor
         // populate the lookup table - this comes from the Adafruit C++ library code located at
@@ -548,11 +551,11 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
     // I2C DEVICE
     //
 
-    private I2cDevice backpack;
-
-    private I2cDeviceSynch backpackClient;
-
-    boolean isOwned = false;
+//    private I2cDevice backpack;
+//
+//    private I2cDeviceSynch backpackClient;
+//
+//    boolean isOwned = false;
 
     LEDCode ledCode;
 
@@ -749,11 +752,11 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
     //*********************************************************************************************
 
     private synchronized byte read8(int register) {
-        return backpackClient.read8(register);
+        return deviceClient.read8(register);
     }
 
     private synchronized byte[] read(int register, int numberReadLocations) {
-        return backpackClient.read(register, numberReadLocations);
+        return deviceClient.read(register, numberReadLocations);
     }
 
     /**
@@ -763,15 +766,15 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
      * @param addressCommandData
      */
     private synchronized void writeSingleByte(byte addressCommandData) {
-        backpackClient.write8(addressCommandData, addressCommandData, I2cWaitControl.WRITTEN);
+        deviceClient.write8(addressCommandData, addressCommandData, I2cWaitControl.WRITTEN);
     }
 
     private synchronized void write8(byte register, int data) {
-        backpackClient.write8(register, data, I2cWaitControl.WRITTEN);
+        deviceClient.write8(register, data, I2cWaitControl.WRITTEN);
     }
 
     private synchronized void write(byte register, byte[] data) {
-        backpackClient.write(register, data, I2cWaitControl.WRITTEN);
+        deviceClient.write(register, data, I2cWaitControl.WRITTEN);
     }
 
     //*********************************************************************************************
@@ -826,10 +829,12 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
         // set initial state
         state = LEDBlinkRate.NO_BLINK;
         // create the timer and set it to 0
-        ElapsedTime timer = new ElapsedTime();
+        timer = new ElapsedTime();
         timer.reset();
         // display a string
         setDisplayString("NoBl");
+        setBrightnessLevel(7);
+        turnLEDsOn();
         // start with no blinking
         setLedBlinkRate(LEDBlinkRate.NO_BLINK);
         testComplete = false;
@@ -935,10 +940,11 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
         // set initial state
         brightnessState = BrightnessStates.FIFTEEN;
         // create the timer and set it to 0
-        ElapsedTime timer = new ElapsedTime();
+        timer = new ElapsedTime();
         timer.reset();
         // display a string
         setDisplayString("15");
+        turnLEDsOn();
         // no blinking
         setLedBlinkRate(LEDBlinkRate.NO_BLINK);
         setBrightnessLevel(15);
@@ -1126,6 +1132,7 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
     private Set<Character> characters;
     private Iterator<Character> iterator;
     private char characterToDisplay;
+    private String charactersToDisplay;
     private StringBuilder displayChars;
 
     // get a list of all of the characters in the LEDCode map
@@ -1139,7 +1146,7 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
         // 2 seconds between changes in character
         timeInterval = 2000;
         // create the timer and set it to 0
-        ElapsedTime timer = new ElapsedTime();
+        timer = new ElapsedTime();
         timer.reset();
         // set the initial state
         characterDisplayState = CharacterDisplayStates.START;
@@ -1147,11 +1154,12 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
         setDisplayString("    ");
         // no blinking
         setLedBlinkRate(LEDBlinkRate.NO_BLINK);
-        setBrightnessLevel(15);
+        setBrightnessLevel(7);
+        turnLEDsOn();
         // get the list of characters and an iterator to move across the characters in the set
         characters = ledCode.getCharacterSet();
         iterator = characters.iterator();
-        StringBuilder displayChars = new StringBuilder("   ");
+        displayChars = new StringBuilder("   ");
         testComplete = false;
     }
 
@@ -1162,7 +1170,7 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
      *
      * @return true if all characters have been displayed
      */
-    public boolean updateCharacterTest() {
+    public boolean updateCharacterTest(Telemetry telemetry) {
         switch (characterDisplayState) {
             case START:
                 characterDisplayState = CharacterDisplayStates.NEXT;
@@ -1179,7 +1187,15 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
                     // yes there is, get it
                     characterToDisplay = iterator.next();
                     // create a string of 4 of the characters and send the string to the display
-                    setDisplayString(displayChars.append(characterToDisplay).append(characterToDisplay).append(characterToDisplay).append(characterToDisplay).toString());
+                    // clear the string first
+                    displayChars.setLength(0);
+                    // then append the character to display 4 times
+                    charactersToDisplay = displayChars.append(characterToDisplay).append(characterToDisplay).append(characterToDisplay).append(characterToDisplay).toString();
+                    // send it to the led display
+                    setDisplayString(charactersToDisplay);
+                    // Driver station feedback
+                    telemetry.addData("Now displaying: ", charactersToDisplay);
+                    telemetry.update();
                     timer.reset();
                     characterDisplayState = CharacterDisplayStates.CONTINUE;
                 } else {
