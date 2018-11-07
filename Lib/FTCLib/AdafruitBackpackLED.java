@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.Set;
 
 @SuppressWarnings({"WeakerAccess", "unused"}) // Ignore access and unused warnings
-@I2cSensor(name = "Adafruit Backpack LED Display", description = "dafruit Backpack LED Display", xmlTag = "BackpackLED")
+@I2cSensor(name = "Adafruit Backpack LED Display", description = "Adafruit Backpack LED Display", xmlTag = "BackpackLED")
 public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
 
     //*********************************************************************************************
@@ -574,7 +574,7 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
         super.registerArmingStateCallback(false); // Deals with USB cables getting unplugged
         // Sensor starts off disengaged so we can change things like I2C address. Need to engage
         this.deviceClient.engage();
-        initializeAdafruitBackpackLED();
+        //initializeAdafruitBackpackLED();
     }
 
 //    public AdafruitBackpackLED(int ledControllerAddress, HardwareMap hardwareMap, String backpackName) {
@@ -595,7 +595,7 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
 
     @Override
     protected synchronized boolean doInitialize() {
-        initialize();
+        initializeAdafruitBackpackLED();
         return true;
     }
 
@@ -614,12 +614,12 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
         // set the brightness
         setBrightnessLevel(15);
     }
-
-    private void createClient(HardwareMap hardwareMap, String backpackName) {
-        backpack = hardwareMap.get(I2cDevice.class, backpackName);
-        backpackClient = new I2cDeviceSynchImpl(backpack, i2cAddr, isOwned);
-        backpackClient.engage();
-    }
+//
+//    private void createClient(HardwareMap hardwareMap, String backpackName) {
+//        backpack = hardwareMap.get(I2cDevice.class, backpackName);
+//        backpackClient = new I2cDeviceSynchImpl(backpack, i2cAddr, isOwned);
+//        backpackClient.engage();
+//    }
 
     private DisplaySetupCommand getBlinkSetupCommand(LEDBlinkRate ledBlinkRate) {
         DisplaySetupCommand blinkCommand = DisplaySetupCommand.BLINKING_OFF;
