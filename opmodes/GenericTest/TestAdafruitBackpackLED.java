@@ -55,6 +55,10 @@ public class TestAdafruitBackpackLED extends LinearOpMode {
         backpackLED.testOnOff();
         backpackLED.testOnOff();
 
+        backpackLED.setDisplayCharacter('a', AdafruitBackpackLED.DisplayPosition.LEFT);
+        backpackLED.turnLEDsOn();
+        sleep(3000);
+
         // the next test demos the blinking modes
         // setup
         backpackLED.setupBlinkingTest();

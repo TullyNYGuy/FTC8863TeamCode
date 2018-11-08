@@ -175,11 +175,14 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
         // constructor
         // populate the lookup table - this comes from the Adafruit C++ library code located at
         // https://github.com/adafruit/Adafruit_LED_Backpack/blob/master/Adafruit_LEDBackpack.cpp
+        // In some cases I felt the adafruit font was not really readable. So I substituted my own.
+        // In those cases I commented out the adafruit font.
 
         private LEDCode() {
             // populate the lookup table that maps a string to an LED Code
             stringToLEDCode.put(' ', (short) 0b0000000000000000);            // (blank)
-            stringToLEDCode.put('!', (short) 0b0000000000000110);            // !
+            stringToLEDCode.put('!', (short) 0b0100000000000110);            // !
+            //stringToLEDCode.put('!', (short) 0b0000000000000110);            // !
             stringToLEDCode.put('"', (short) 0b0000001000100000);           // "
             stringToLEDCode.put('#', (short) 0b0001001011001110);            // #
             stringToLEDCode.put('$', (short) 0b0001001011101101);            // $
@@ -192,7 +195,8 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
             stringToLEDCode.put('+', (short) 0b0001001011000000);            // +
             stringToLEDCode.put(',', (short) 0b0000100000000000);            // ,
             stringToLEDCode.put('-', (short) 0b0000000011000000);            // -
-            stringToLEDCode.put('.', (short) 0b0000000000000000);            // .
+            stringToLEDCode.put('.', (short) 0b0100000000000000);            // .
+            //stringToLEDCode.put('.', (short) 0b0000000000000000);            // .
             stringToLEDCode.put('/', (short) 0b0000110000000000);            // /
             stringToLEDCode.put('0', (short) 0b0000110000111111);            // 0
             stringToLEDCode.put('1', (short) 0b0000000000000110);            // 1
@@ -209,7 +213,8 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
             stringToLEDCode.put('<', (short) 0b0010010000000000);            // <
             stringToLEDCode.put('=', (short) 0b0000000011001000);            // =
             stringToLEDCode.put('>', (short) 0b0000100100000000);            // >
-            stringToLEDCode.put('?', (short) 0b0001000010000011);            // ?
+            stringToLEDCode.put('?', (short) 0b0101000010000011);            // ?
+//            stringToLEDCode.put('?', (short) 0b0001000010000011);            // ?
             stringToLEDCode.put('@', (short) 0b0000001010111011);            // @
             stringToLEDCode.put('A', (short) 0b0000000011110111);            // A
             stringToLEDCode.put('B', (short) 0b0001001010001111);            // B
@@ -239,10 +244,12 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
             stringToLEDCode.put('Z', (short) 0b0000110000001001);            // Z
             stringToLEDCode.put('[', (short) 0b0000000000111001);            // [
             stringToLEDCode.put(']', (short) 0b0000000000001111);            // ]
-            stringToLEDCode.put('^', (short) 0b0000110000000011);            // ^
+            stringToLEDCode.put('^', (short) 0b0010100000000000);            // ^
+            //stringToLEDCode.put('^', (short) 0b0000110000000011);            // ^
             stringToLEDCode.put('_', (short) 0b0000000000001000);            // _
             stringToLEDCode.put('`', (short) 0b0000000100000000);            // `
-            stringToLEDCode.put('a', (short) 0b0001000001011000);            // a
+            stringToLEDCode.put('a', (short) 0b0000000011011111);            // a my version of a
+            //stringToLEDCode.put('a', (short) 0b0001000001011000);            // a Adafruit's a does not look like an a to me.
             stringToLEDCode.put('b', (short) 0b0010000001111000);            // b
             stringToLEDCode.put('c', (short) 0b0000000011011000);            // c
             stringToLEDCode.put('d', (short) 0b0000100010001110);            // d
@@ -265,11 +272,11 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
             stringToLEDCode.put('u', (short) 0b0000000000011100);            // u
             stringToLEDCode.put('v', (short) 0b0010000000000100);            // v
             stringToLEDCode.put('w', (short) 0b0010100000010100);            // w
-            stringToLEDCode.put('x', (short) 0b0010100011000000);            // x
+//            stringToLEDCode.put('x', (short) 0b0010100011000000);            // x
+            stringToLEDCode.put('x', (short) 0b0010110100000000);            // x
             stringToLEDCode.put('y', (short) 0b0010000000001100);            // y
             stringToLEDCode.put('z', (short) 0b0000100001001000);            // z
             stringToLEDCode.put('{', (short) 0b0000100101001001);            // {
-            stringToLEDCode.put('!', (short) 0b0001001000000000);            // |
             stringToLEDCode.put('}', (short) 0b0010010010001001);            // }
             stringToLEDCode.put('~', (short) 0b0000010100100000);            // ~
         }
@@ -351,8 +358,10 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
                 // split the 16 bit code into 2 bytes
                 byteCodesFromLEDCode = getBytesForLEDCode(codes[i]);
                 // add those codes to the array of 8 bit codes
-                byteCodesFromLEDCodes[i] = byteCodesFromLEDCode[0];
-                byteCodesFromLEDCodes[i + 1] = byteCodesFromLEDCode[1];
+                // note that I have to multiply i * 2 since there are 2 byte codes for each led
+                // code
+                byteCodesFromLEDCodes[i * 2] = byteCodesFromLEDCode[0];
+                byteCodesFromLEDCodes[i * 2 + 1] = byteCodesFromLEDCode[1];
             }
             return byteCodesFromLEDCodes;
         }
@@ -520,29 +529,37 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
         StringBuilder builder = new StringBuilder(this.displayString);
         switch (displayPosition) {
             case LEFT:
-                builder.setCharAt(3, displayCharacter);
+                this.displayString = insertLEDCharAt(this.displayString, 0, displayCharacter);
                 register = Register.LEFT_LED_CHARACTER.byteVal;
                 break;
             case MIDDLE_LEFT:
-                builder.setCharAt(2, displayCharacter);
+                this.displayString = insertLEDCharAt(this.displayString, 1, displayCharacter);
                 register = Register.LEFT_MIDDLE_LED_CHARACTER.byteVal;
                 break;
             case MIDDLE_RIGHT:
-                builder.setCharAt(1, displayCharacter);
+                this.displayString = insertLEDCharAt(this.displayString, 2, displayCharacter);
                 register = Register.RIGHT_MIDDLE_LED_CHARACTER.byteVal;
                 break;
             case RIGHT:
-                builder.setCharAt(0, displayCharacter);
+                this.displayString = insertLEDCharAt(this.displayString, 3, displayCharacter);
                 register = Register.RIGHT_LED_CHARACTER.byteVal;
                 break;
         }
-        this.displayString = builder.toString();
 
         //now that the display string is created, I could just sent all 4 characters to the display.
         // But that takes up I2C bandwidth with 8 bytes of data and I'm really only changing
         // 2 bytes. So it is worth it to make the code more complex and send only the single
         // character that is changing.
         displayLEDCharacter(displayCharacter, register);
+    }
+
+    private String insertLEDCharAt(String displayString, int index, char character) {
+        StringBuilder builder = new StringBuilder(displayString);
+        if (index > displayString.length() - 1) {
+            builder.setLength(index + 1);
+        }
+        builder.setCharAt(index, character);
+        return builder.toString();
     }
 
     //
@@ -704,6 +721,10 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
         this.ledSwitch = LEDSwitch.ON;
     }
 
+    public void clear() {
+        setDisplayString("    ");
+    }
+
 //    public void setLEDBlinkOncePerSecond() {
 //        setBlinkingRate(DisplaySetupCommand.BLINKING_1_HZ);
 //        this.ledBlinkRate = LEDBlinkRate.ONCE_PER_SECOND;
@@ -750,6 +771,7 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
      * LED codes that turn on the individual LED segments in the display for each character, breaks
      * the LED codes, which are 16 bits long, into 2 8 bit bytes and then writes them to the
      * starting register of the LEDs in the controller.
+     *
      * @param stringToDisplay
      */
     private void displayLEDString(String stringToDisplay) {
@@ -775,8 +797,9 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
      * two 8 bit bytes to be transmitted via I2C to the controller register specified. The
      * controller auto increments the address for the second byte so no need to handle that. I
      * strongly recommend you do not use this method directly. Use setDisplayCharacter instead.
+     *
      * @param displayCharacter character to display
-     * @param register the address of the register to use for the display
+     * @param register         the address of the register to use for the display
      */
     private void displayLEDCharacter(char displayCharacter, byte register) {
         byte[] displayCodeBuffer;
