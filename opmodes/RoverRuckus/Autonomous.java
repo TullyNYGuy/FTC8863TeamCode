@@ -23,7 +23,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.StatTracker;
  */
 @TeleOp(name = "Rover Ruckus Autonomous", group = "Test")
 //@Disabled
-public class TestIntialHeadingAdjustment extends LinearOpMode {
+public class Autonomous extends LinearOpMode {
 
     // Put your variable declarations here
     AdafruitIMU8863 imu;
