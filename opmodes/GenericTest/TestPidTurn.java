@@ -120,9 +120,10 @@ public class TestPidTurn extends LinearOpMode {
         while(opModeIsActive() && !driveTrain.updateTurn()) {
             telemetry.addData(">", "Press Stop to end test." );
             telemetry.addData("Angle = ", "%3.1f", driveTrain.imu.getHeading());
-            telemetry.addData("Kp", formatVal(p));
-            telemetry.addData("Ki", formatVal(i));
-            telemetry.addData("Kd", formatVal(d));
+            telemetry.addData("in anyturn loop", "!");
+            //telemetry.addData("Kp", formatVal(p));
+            //telemetry.addData("Ki", formatVal(i));
+            //telemetry.addData("Kd", formatVal(d));
             telemetry.update();
             idle();
         }
