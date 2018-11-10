@@ -17,6 +17,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.GamepadButtonMultiPush;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.JoyStick;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
 import org.firstinspires.ftc.teamcode.Lib.RelicRecoveryLib.WonderWorkDemoRobot;
 
 import android.graphics.Color;
@@ -96,6 +97,8 @@ public class CollectionTest extends LinearOpMode {
 
     public CRServo collectionServoLeft;
     public CRServo collectionServoRight;
+   public Servo8863 gateServo;
+
     // get a reference to the color sensor.
     ColorSensor sensorColor;
     DistanceSensor sensorDistance;
@@ -176,6 +179,7 @@ public class CollectionTest extends LinearOpMode {
         collectionServoLeft = hardwareMap.get(CRServo.class, "collectionServoLeft");
         collectionServoRight = hardwareMap.get(CRServo.class, "collectionServoRight");
         collectionServoRight.setDirection(CRServo.Direction.REVERSE);
+        gateServo = new Servo8863("gateServo",hardwareMap,telemetry,0.52,1,0,0.52 , Servo.Direction.FORWARD);
         //collectionServoRight = new CRServo8863("collectionServoRight", hardwareMap, .50, .50, .1, Servo.Direction.REVERSE, telemetry);
         sensorColor = hardwareMap.get(ColorSensor.class, "revColorSensor");
         sensorDistance = hardwareMap.get(DistanceSensor.class, "revColorSensor");
@@ -240,10 +244,12 @@ public class CollectionTest extends LinearOpMode {
 //            }
 
             if (gamepad1RightBumper.buttonPress(gamepad1.right_bumper)) {
+                gateServo.goUp();
 
             }
 
             if (gamepad1LeftBumper.buttonPress(gamepad1.left_bumper)) {
+                gateServo.goDown();
                 // this was a new button press, not a button held down for a while
                 // put the command to be executed here
             }
@@ -263,8 +269,10 @@ public class CollectionTest extends LinearOpMode {
 
             if (gamepad1b.buttonPress(gamepad1.b)) {
                 if (gamepad1b.isCommand1()) {
+                    gateServo.goHome();
                 }
                 if (gamepad1b.isCommand2()) {
+                    gateServo.goHome();
                 }
                 // this was a new button press, not a button held down for a while
                 // put the command to be executed here
