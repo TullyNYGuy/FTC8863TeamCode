@@ -1,9 +1,7 @@
-package org.firstinspires.ftc.teamcode.opmodes.RoverRucus;
+package org.firstinspires.ftc.teamcode.opmodes.RoverRuckus;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.GamepadButtonMultiPush;
