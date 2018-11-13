@@ -38,7 +38,7 @@ public class DemoACHeatStateMachine extends LinearOpMode {
         waitForStart();
 
         while (opModeIsActive()) {
-            currentState = update();
+            update();
             telemetry.update();
         }
 
