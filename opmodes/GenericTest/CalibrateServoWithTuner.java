@@ -25,7 +25,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
  * name for the servo you want to calibrate. That name will also have to be set in this code. See
  * below.
  */
-@TeleOp(name = "Calibrate Servo Forward", group = "Test")
+@TeleOp(name = "Calibrate Servo With Tuner", group = "Test")
 //@Disabled
 public class CalibrateServoWithTuner extends TunableLinearOpMode {
 

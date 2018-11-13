@@ -15,32 +15,27 @@ import net.frogbots.ftcopmodetunercommon.opmode.TunableLinearOpMode;
 //@Disabled
 public class TestOpModeTuner extends TunableLinearOpMode {
 
-    // Put your variable declarations here
+    // trying to implement a toggle button
+    boolean buttonPress = false;
+    // a test field for a double - this works great
+    double exampleDouble;
 
     @Override
     public void runOpMode() {
 
-
-        // Put your initializations here
-        int exampleInt;
-        
         // Wait for the start button
         telemetry.addData(">", "Press Start to run" );
         telemetry.update();
         waitForStart();
 
-
-
-        // Put your calls here - they will not run in a loop
-
         while(opModeIsActive()) {
 
-            // Put your calls that need to run in a loop here
+            exampleDouble = getDouble("servoPosition");
+            //onButtonPressEvent("toggle");
 
-            exampleInt = getInt("testInt");
-
-            // Display the current value
-            telemetry.addData("Int = ", exampleInt);
+            // Display the current values
+            telemetry.addData("Double = ", exampleDouble);
+            telemetry.addData("button toggle = ", buttonPress);
             telemetry.addData(">", "Press Stop to end test." );
 
             telemetry.update();
@@ -51,6 +46,19 @@ public class TestOpModeTuner extends TunableLinearOpMode {
         // Put your cleanup code here - it runs as the application shuts down
         telemetry.addData(">", "Done");
         telemetry.update();
+
+    }
+    // not sure how this will get called
+    @Override
+    public void onButtonPressEvent(String tag){
+        switch (tag) {
+            case "toggle":
+                if (buttonPress) {
+                    buttonPress = false;
+                } else {
+                    buttonPress = true;
+                }
+        }
 
     }
 }
