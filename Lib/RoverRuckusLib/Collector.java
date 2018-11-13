@@ -20,8 +20,8 @@ public class Collector {
     // user defined types
     //
     //*********************************************************************************************
-public enum MineralColor{
-    YELLOW,
+    public enum MineralColor {
+        YELLOW,
         WHITE,
         NONE
     }
@@ -44,9 +44,9 @@ public enum MineralColor{
     private ColorSensor sensorColor;
     private DistanceSensor sensorDistance;
 
-    private MineralColor mineralColor=MineralColor.NONE;
+    private MineralColor mineralColor = MineralColor.NONE;
 
-   private double red = 0;
+    private double red = 0;
     private double blue = 0;
     private double green = 0;
     private double argb = 0;
@@ -88,16 +88,13 @@ public enum MineralColor{
     //
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
-private MineralColor getMineralColor(){
-    // convert the RGB values to HSV values.
-    // multiply by the SCALE_FACTOR.
-    // then cast it back to int (SCALE_FACTOR is a double)
-    Color.RGBToHSV((int) (red * SCALE_FACTOR),
-            (int) (green * SCALE_FACTOR),
-            (int) (blue * SCALE_FACTOR),
-            hsvValues);
+    private MineralColor getMineralColor() {
+        // convert the RGB values to HSV values.
+        // multiply by the SCALE_FACTOR.
+        // then cast it back to int (SCALE_FACTOR is a double)
+        Color.RGBToHSV((int) (red * SCALE_FACTOR), (int) (green * SCALE_FACTOR), (int) (blue * SCALE_FACTOR), hsvValues);
 
-}
+    }
 
     //*********************************************************************************************
     //          MAJOR METHODS
