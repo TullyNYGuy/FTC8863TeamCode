@@ -8,6 +8,8 @@ import net.frogbots.ftcopmodetunercommon.opmode.TunableLinearOpMode;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
 
+import static java.lang.Boolean.getBoolean;
+
 /**
  * This opmode is used to calibrate a servo so you can find the positions that the servo should
  * be set to when it is actually running on the real robot. You setup a start position and end
@@ -32,7 +34,8 @@ public class CalibrateServoWithTuner extends TunableLinearOpMode {
     // Put your variable declarations here
     Servo8863 servoToCalibrate;
     double servoPosition = 0;
-    Servo.Direction servoDirection = Servo.Direction.FORWARD;
+    boolean servoDirectionForward = true;
+
     String servoName = "Servo"; // name the servo your are calibrating Servo on the phone configuration
 
     //@Override
@@ -40,7 +43,7 @@ public class CalibrateServoWithTuner extends TunableLinearOpMode {
 
         // Put your initializations here
         servoToCalibrate = new Servo8863(servoName, hardwareMap, telemetry);
-        servoToCalibrate.setDirection(servoDirection);
+        servoToCalibrate.setDirection(getServoDirection(servoDirectionForward));
         servoToCalibrate.setPosition(servoPosition);
 
         // Wait for the start button
@@ -53,13 +56,17 @@ public class CalibrateServoWithTuner extends TunableLinearOpMode {
         while (opModeIsActive()) {
 
             // Put your calls that need to run in a loop here
+            // read the values from the opmode tuner app fields
             servoPosition = getDouble("servoPosition");
+            servoDirectionForward = getBoolean("servoDirection");
 
-            // call the method that updates the position of the servo
+            // call the method that updates the position of the servo and the direction
             servoToCalibrate.setPosition(servoPosition);
+            servoToCalibrate.setDirection(getServoDirection(servoDirectionForward));
 
             // send a message to the driver station phone
             telemetry.addData("Servo Position  = ", servoPosition);
+            telemetry.addData("Servo Direction = ", getServoDirection(servoDirectionForward));
             telemetry.addData(">", "Press Stop to end test.");
             telemetry.update();
 
@@ -71,5 +78,20 @@ public class CalibrateServoWithTuner extends TunableLinearOpMode {
         telemetry.addData(">", "Done");
         telemetry.update();
 
+    }
+
+    /**
+     * Using a boolean indicating if the servo direction is to be forward (true) or reverse (false),
+     * return the enum for the corresponding servo direction.
+     * @param servoDirectionForward this boolean is intended to be read from the op mode tuner app
+     *                              on the thrid phone. true = forward is desired. false = reverse.
+     * @return enum of type Servo.Direction
+     */
+    public Servo.Direction getServoDirection(boolean servoDirectionForward) {
+        if (servoDirectionForward) {
+            return Servo.Direction.FORWARD;
+        } else {
+            return Servo.Direction.REVERSE;
+        }
     }
 }
