@@ -42,23 +42,44 @@ public class AdafruitBackpackLEDDemo extends LinearOpMode {
 
         // Put your calls here - the ones you do not want to run in a loop
 
+        // setup
         backpackLED.turnLEDsOn();
         backpackLED.setBrightnessLevel(7);
 
-        backpackLED.setDisplayString("TEAM");
+        // demo the way to set a string on the display
+        backpackLED.setDisplayString("FTC");
         sleep(2000);
-        backpackLED.setDisplayString("8863");
+        backpackLED.setDisplayString("is");
         sleep(2000);
-        backpackLED.setDisplayString("rock");
+        backpackLED.setDisplayString("fun");
         sleep(1000);
-        backpackLED.setDisplayString("ROCK");
+        backpackLED.setDisplayString("FUN");
         sleep(1000);
+
+        // demo the blinking functionality
         backpackLED.setLedBlinkRate(AdafruitBackpackLED.LEDBlinkRate.ONCE_PER_TWO_SECONDS);
         sleep(4000);
         backpackLED.setLedBlinkRate(AdafruitBackpackLED.LEDBlinkRate.ONCE_PER_SECOND);
         sleep(4000);
         backpackLED.setLedBlinkRate(AdafruitBackpackLED.LEDBlinkRate.TWICE_PER_SECOND);
         sleep(4000);
+        backpackLED.setLedBlinkRate(AdafruitBackpackLED.LEDBlinkRate.NO_BLINK);
+
+        // clear the display
+        backpackLED.clear();
+
+        // demo the ability to set a single character while leaving all other characters the same
+        backpackLED.setDisplayCharacter('F', AdafruitBackpackLED.DisplayPosition.LEFT);
+        backpackLED.setDisplayCharacter('U', AdafruitBackpackLED.DisplayPosition.MIDDLE_LEFT);
+        backpackLED.setDisplayCharacter('N', AdafruitBackpackLED.DisplayPosition.MIDDLE_RIGHT);
+        backpackLED.setDisplayCharacter('!', AdafruitBackpackLED.DisplayPosition.RIGHT);
+        sleep(4000);
+
+        // demo the ability to vary the brightness level (1-15)
+        backpackLED.setBrightnessLevel(15);
+        sleep(2000);
+        backpackLED.setBrightnessLevel(1);
+        sleep(2000);
 
         // Put your cleanup code here - it runs as the application shuts down
         telemetry.addData(">", "Done");

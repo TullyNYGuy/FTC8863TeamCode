@@ -15,8 +15,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitBackpackLED;
  *
  * Phone configuration:
  * Backpack display plugged into the I2C bus on a port and that port configured as:
- * I2C port type: I2C DEVICE
- * I2C device name: backpackLEDDisplay
+ * I2C port type: Adafruit Backpack LED Display
  *
  * If you want to make the display brighter, then wire the 5V pin and a second ground wire from the
  * backpack board into the 5V port on the REV expansion hub. Without the extra power, the display

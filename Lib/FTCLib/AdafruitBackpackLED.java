@@ -1,23 +1,33 @@
 package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
+
+/* This I2C driver communicates and controls the Adafruit Backpack LED display.
+This display is a 4 character LED alphanumeric display available from Adafruit.
+The Adafruit Backpack LED display is available in several different LED colors. Here is the
+yellow version: https://www.adafruit.com/product/2158
+
+   Phone configuration:
+   Backpack display plugged into the I2C bus on a port and that port configured as:
+   I2C port type: Adafruit Backpack LED Display
+
+   If you want to make the display brighter, then wire the 5V pin and a second ground wire from the
+   backpack board into the 5V port on the REV expansion hub. Without the extra power, the display
+   will not be as bright.
+*/
+// The LED display is controlled by the HT16K33 LED controller. It has more capability than is used
+// in the Adafruit display.
 // The implementation of the LED circuit to the Adafruit Backpack driver is specific to the
 // printed circuit board that Adafruit sells. So the control is specific to this board can't be
 // used with any other board that uses the HT16K33 LED Controller. The Adafruit Backpack LED display
 // is available in several different LED colors. Here is the yellow version:
 // https://www.adafruit.com/product/2158
 
-import com.qualcomm.robotcore.hardware.HardwareDevice;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.I2cAddr;
-import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
-import com.qualcomm.robotcore.hardware.I2cDeviceSynchImpl;
 import com.qualcomm.robotcore.hardware.I2cWaitControl;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynchDevice;
 import com.qualcomm.robotcore.hardware.configuration.I2cSensor;
-import com.qualcomm.robotcore.util.TypeConversion;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
@@ -27,7 +37,9 @@ import java.util.Map;
 import java.util.Set;
 
 @SuppressWarnings({"WeakerAccess", "unused"}) // Ignore access and unused warnings
+// This line set the name of the display when it shows up in the phone configuration.
 @I2cSensor(name = "Adafruit Backpack LED Display", description = "Adafruit Backpack LED Display", xmlTag = "BackpackLED")
+
 public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
 
     //*********************************************************************************************
@@ -54,7 +66,7 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
     // This is from the chip datasheet, pages 30 and 31.
 
     /**
-     * REGISTER provides symbolic names for device registers
+     * REGISTER provides symbolic names for device registers addresses
      */
     private enum Register {
         DISPLAY_DATA(0x00), // The starting address for the LED display data register. There are 16 registers 0x00 to 0x0F.
@@ -109,9 +121,11 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
     // The display data commands are full 8 bit commands. They are actually bits that turn on
     // specific LED segments to form a character such as a "5" or "A".
     // The mapping of a ASCII character to a command is handled by a method below rather than enums.
+    // So I'm skipping this register
 
-    // Commands for the System setup register (page 10 of the datasheet)
-
+    /**
+     * Commands for the System setup register (page 10 of the datasheet)
+     */
     private enum SystemSetupCommand {
         SYSTEM_SETUP_OSCILLATOR_OFF(0x00),         // bit 8 = 0 TO TURN THE OSCILLATOR OFF
         SYSTEM_SETUP_OSCILLATOR_ON(0x01);         // bit 8 = 1 TO TURN THE OSCILLATOR ON
@@ -127,15 +141,17 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
 
     // I'm skipping the int commands since they are never used.
 
-    // Commands for the Display setup register (page 11 of the datasheet)
-    // NOTE that you have to OR (|) the display off/on bit with the Blinking bits to get a full
-    // command to setup blinking.
-    // example DisplaySetupCommand.BLINKING_1_HZ | DisplaySetupCommand.DISPLAY_ON to turn on the
-    // the display and set it to blink once per second.
-    // If you forget to do the OR, and send DisplaySetupCommand.BLINKING_1_HZ, the display on/off
-    // bit is 0 and you turn the display off and set it to blink once per second. This is not very
-    // useful :-)
 
+    /**
+     * Commands for the Display setup register (page 11 of the datasheet)
+     * NOTE that you have to OR (|) the display off/on bit with the Blinking bits to get a full
+     * command to setup blinking.
+     * example DisplaySetupCommand.BLINKING_1_HZ | DisplaySetupCommand.DISPLAY_ON to turn on the
+     * the display and set it to blink once per second.
+     * If you forget to do the OR, and send DisplaySetupCommand.BLINKING_1_HZ, the display on/off
+     * bit is 0 and you turn the display off and set it to blink once per second. This is not very
+     * useful :-)
+     */
     private enum DisplaySetupCommand {
         BLINKING_OFF(0b0000),         // Turn LED blinking off (ie they are on steadily)
         BLINKING_2_HZ(0b0010),        // Set LED blinking to 2 times per second
@@ -160,12 +176,13 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
 
     // There are no commands for the test mode register.
 
-    // Here are the codes for displaying a character on the LED. These codes are specific to the
-    // Adafruit board. The code is the command to write after the display data register address.
-    // I'm using a class to create and populate a lookup table. You pass in the character to
-    // setStringToDisplay and then get the 2 bytes to write to the register that form the character on
-    // the LED from getLEDCodeMostSignificantByte and getLEDCodeLeastSignificantByte.
-
+    /**
+     * Here are the codes for displaying a character on the LED. These codes are specific to the
+     * Adafruit board. The code is the command to write after the display data register address.
+     * I'm using a class to create and populate a lookup table. You pass in the character to
+     * setStringToDisplay and then get the 2 bytes to write to the register that form the character on
+     * the LED from getLEDCodeMostSignificantByte and getLEDCodeLeastSignificantByte.
+     */
     private class LEDCode {
 
         // define a lookup table to map a string to an LED code that will display the character on
@@ -297,7 +314,7 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
         }
 
         /**
-         * Get the set of LED codes for a string
+         * Get the set of 16 bit LED codes for a string
          *
          * @param string
          * @return an array of 16 bit LED codes that will light up the string on the LED display
@@ -419,10 +436,9 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
     // getter and setter methods
     //*********************************************************************************************
 
-    //
-    // controller status
-    //
-
+    /**
+     * controller status
+     */
     private ChipStatus chipStatus;
 
     public ChipStatus getChipStatus() {
@@ -442,6 +458,10 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
         return brightnessLevel;
     }
 
+    /**
+     * Set the brightness level of the LEDs. 1 is dim. 15 is bright.
+     * @param brightnessLevel 1 to 15 (dim to bright)
+     */
     public void setBrightnessLevel(int brightnessLevel) {
         // the brightness level is a integer between 0 and 15
         // so make sure the requested level falls into that range
@@ -462,8 +482,15 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
     // ON AND OFF
     //
 
+    /**
+     * Variable to indicate whether the LEDS are on or off.
+     */
     private LEDSwitch ledSwitch = LEDSwitch.OFF;
 
+    /**
+     * Get whether the LEDs are on or off.
+     * @return
+     */
     public LEDSwitch getLedSwitch() {
         return ledSwitch;
     }
@@ -472,12 +499,23 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
     // BLINK RATE
     //
 
+    /**
+     * Variable to store the blink rate of the LEDs
+     */
     private LEDBlinkRate ledBlinkRate = LEDBlinkRate.NO_BLINK;
 
+    /**
+     * Get the blink rate of the display.
+     * @return enum indicating the current blink rate
+     */
     public LEDBlinkRate getLedBlinkRate() {
         return ledBlinkRate;
     }
 
+    /**
+     * Set the blink rate of the display.
+     * @param ledBlinkRate enum indicating which blink rate you want
+     */
     public void setLedBlinkRate(LEDBlinkRate ledBlinkRate) {
         DisplaySetupCommand blinkCommand;
         // get the Display setup command given the requested blink rate
@@ -497,6 +535,10 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
      */
     private String displayString = "   ";
 
+    /**
+     * Get the current display string
+     * @return
+     */
     public String getDisplayString() {
         return displayString;
     }
@@ -593,6 +635,10 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
      */
     private I2cAddr i2cAddr;
 
+    /**
+     * Get the I2C address of the display.
+     * @return
+     */
     public I2cAddr getI2cAddr() {
         return i2cAddr;
     }
@@ -627,7 +673,9 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
         // the address. But I have no clue what will happen. So I'm not investing time in this yet.
     }
 
-    // declare a variable to hold the LED code lookup table for mapping characters to the display font
+    /**
+     * declare a variable to hold the LED code lookup table for mapping characters to the display font
+     */
     private LEDCode ledCode;
 
     //*********************************************************************************************
@@ -638,11 +686,11 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
     //*********************************************************************************************
 
     /**
-     *     This constructor is automatically called in the background when the opmode starts up.
-     *     Don't call it yourself unless you know what you are doing. Normal creation of the display
-     *     goes something like this:
-     *     backpackLED = hardwareMap.get(AdafruitBackpackLED.class,"AdafruitBackpackLED");
-     *     Don't forget to change the string to what you configured on your phone.
+     * This constructor is automatically called in the background when the opmode starts up.
+     * Don't call it yourself unless you know what you are doing. Normal creation of the display
+     * goes something like this:
+     * backpackLED = hardwareMap.get(AdafruitBackpackLED.class,"AdafruitBackpackLED");
+     * Don't forget to change the string to what you configured on your phone.
      */
     public AdafruitBackpackLED(I2cDeviceSynch deviceClient) {
         super(deviceClient, true);
@@ -1419,9 +1467,44 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
     //* Misc test / demo
     //**********************************************************************************************
 
-    // Clear the display
-    // Display the manufacturer
-    // Display the description
-    // write a single character
+    public void miscTests(Telemetry telemetry) {
+        // test the clearing of the display
+        // display something
+        setDisplayString("CLR");
+        delay(2000);
+        clear();
+        delay(2000);
 
+        // test the manufacturer and description methods
+        telemetry.addData("Manufacturer = ", getManufacturer().toString());
+        telemetry.addData("Description = ", getDeviceName());
+        telemetry.update();
+        delay(2000);
+
+        // test the single character replacement
+        setDisplayString("9999");
+        telemetry.addData("Display should be = ", "9999");
+        telemetry.update();
+        delay(2000);
+
+        setDisplayCharacter('A', DisplayPosition.LEFT);
+        telemetry.addData("Display should be = ", "A999");
+        telemetry.update();
+        delay(2000);
+
+        setDisplayCharacter('B', DisplayPosition.MIDDLE_LEFT);
+        telemetry.addData("Display should be = ", "AB99");
+        telemetry.update();
+        delay(2000);
+
+        setDisplayCharacter('C', DisplayPosition.MIDDLE_RIGHT);
+        telemetry.addData("Display should be = ", "ABC9");
+        telemetry.update();
+        delay(2000);
+
+        setDisplayCharacter('D', DisplayPosition.RIGHT);
+        telemetry.addData("Display should be = ", "ABCD");
+        telemetry.update();
+        delay(2000);
+    }
 }
