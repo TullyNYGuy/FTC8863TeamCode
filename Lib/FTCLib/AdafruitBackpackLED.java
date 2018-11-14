@@ -468,11 +468,11 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
         return ledSwitch;
     }
 
-    private LEDBlinkRate ledBlinkRate = LEDBlinkRate.NO_BLINK;
-
     //
     // BLINK RATE
     //
+
+    private LEDBlinkRate ledBlinkRate = LEDBlinkRate.NO_BLINK;
 
     public LEDBlinkRate getLedBlinkRate() {
         return ledBlinkRate;
@@ -501,6 +501,15 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
         return displayString;
     }
 
+    /**
+     * Effectively, this method clears the display and then display a string of up to 4 characters.
+     * If your string has less then 4 characters, it puts a blank space in for the missing characters.
+     * The display string is right justified. For sample if you display "15" you get "  15" on the
+     * display, not "15  ".
+     *
+     * @param displayString a string of up to 4 characters. If you provide more than 4 characters,
+     *                      you will only get the 4 rightmost characters displayed.
+     */
     public void setDisplayString(String displayString) {
         // there are only 4 charagters available in the display,truncate any more characters
         if (displayString.length() > 4) this.displayString = displayString.substring(0, 3);
@@ -517,7 +526,8 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
     }
 
     /**
-     * Inserts a character into the display string at the position specified.
+     * Inserts a character into the display string at the position specified. Characters in the
+     * other 3 positions are left unchanged.
      *
      * @param displayCharacter character to insert
      * @param displayPosition  position to insert the character
@@ -553,8 +563,20 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
         displayLEDCharacter(displayCharacter, register);
     }
 
+
+    /**
+     * Inserts a single character into a string. For example, if the string is ABCD and you insert
+     * '6' in position 1, you get AB6D.
+     *
+     * @param displayString usually the currently displayed string, but it could be any string
+     * @param index         location to insert the character into. Note this is 0 indexed.
+     * @param character     the character to insert into the string
+     * @return the new string with the character inserted into it
+     */
     private String insertLEDCharAt(String displayString, int index, char character) {
         StringBuilder builder = new StringBuilder(displayString);
+        // make sure that the display string is long enough to hold the new character. You can't
+        // insert a character into a location (index) that does not exist or you crash.
         if (index > displayString.length() - 1) {
             builder.setLength(index + 1);
         }
@@ -566,31 +588,47 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
     // I2C ADDRESS
     //
 
+    /**
+     * The I2C address of the controller chip.
+     */
     private I2cAddr i2cAddr;
 
     public I2cAddr getI2cAddr() {
         return i2cAddr;
     }
 
+    /**
+     * Set the I2c address of the controller chip. Don't do this unless you have soldered some
+     * shorts onto the Adafruit board to set an address other than the default. This class will
+     * default to the normal address for the board so no need to do anything if you have not altered
+     * the board.
+     *
+     * @param i2cAddr
+     */
     public void setI2cAddr(I2cAddr i2cAddr) {
         this.i2cAddr = i2cAddr;
+        // I wonder what will happen if the I2C address is changed after the deviceClient is created?
+        // I probably should check to see if the deviceClient exists and if so attempt to change
+        // the address. But I have no clue what will happen. So I'm not investing time in this yet.
     }
 
+    /**
+     * Set the I2c address of the controller chip. Don't do this unless you have soldered some
+     * shorts onto the Adafruit board to set an address other than the default. This class will
+     * default to the normal address for the board so no need to do anything if you have not altered
+     * the board.
+     *
+     * @param i2cAddr
+     */
     public void setI2cAddr(int i2cAddr) {
         this.i2cAddr = I2cAddr.create7bit(i2cAddr);
+        // I wonder what will happen if the I2C address is changed after the deviceClient is created?
+        // I probably should check to see if the deviceClient exists and if so attempt to change
+        // the address. But I have no clue what will happen. So I'm not investing time in this yet.
     }
 
-    //
-    // I2C DEVICE
-    //
-
-//    private I2cDevice backpack;
-//
-//    private I2cDeviceSynch backpackClient;
-//
-//    boolean isOwned = false;
-
-    LEDCode ledCode;
+    // declare a variable to hold the LED code lookup table for mapping characters to the display font
+    private LEDCode ledCode;
 
     //*********************************************************************************************
     //          Constructors
@@ -599,7 +637,13 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
     // from it
     //*********************************************************************************************
 
-    //    public AdafruitBackpackLED(I2cAddr ledControllerAddress, HardwareMap hardwareMap, String backpackName) {
+    /**
+     *     This constructor is automatically called in the background when the opmode starts up.
+     *     Don't call it yourself unless you know what you are doing. Normal creation of the display
+     *     goes something like this:
+     *     backpackLED = hardwareMap.get(AdafruitBackpackLED.class,"AdafruitBackpackLED");
+     *     Don't forget to change the string to what you configured on your phone.
+     */
     public AdafruitBackpackLED(I2cDeviceSynch deviceClient) {
         super(deviceClient, true);
         // set the default address in this instance of the class
@@ -610,33 +654,32 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
         super.registerArmingStateCallback(false); // Deals with USB cables getting unplugged
         // Sensor starts off disengaged so we can change things like I2C address. Need to engage
         this.deviceClient.engage();
+        // Since some other piece of code calls doInitialize(), this is not needed anymore.
         //initializeAdafruitBackpackLED();
     }
-
-//    public AdafruitBackpackLED(int ledControllerAddress, HardwareMap hardwareMap, String backpackName) {
-//        setI2cAddr(ledControllerAddress);
-//        initialize(hardwareMap, backpackName);
-//    }
-//
-//    public AdafruitBackpackLED(HardwareMap hardwareMap, String backpackName) {
-//        // default address
-//        setI2cAddr(0x70);
-//        initialize(hardwareMap, backpackName);
-//    }
 
     //*********************************************************************************************
     //          helper methods
     //
     //*********************************************************************************************
 
+    /**
+     * This method is called by the code that creates the deviceClient. It in turn calls the
+     * initialization method for the controller.
+     *
+     * @return true if success, false if not?
+     */
     @Override
     protected synchronized boolean doInitialize() {
         initializeAdafruitBackpackLED();
         return true;
     }
 
+    /**
+     * Initialize the display to a good starting point
+     */
     private void initializeAdafruitBackpackLED() {
-        // create the LED code mapping object
+        // create the LED code mapping object (lookup table for the fonts)
         this.ledCode = new LEDCode();
         // turn the system oscillator on
         turnOscillatorOn();
@@ -646,17 +689,25 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
         // turn the blinking off;
         setLedBlinkRate(LEDBlinkRate.NO_BLINK);
         // clear the characters from the display
-        setDisplayString("    ");
+        clear();
         // set the brightness
-        setBrightnessLevel(15);
+        setBrightnessLevel(7);
     }
-//
-//    private void createClient(HardwareMap hardwareMap, String backpackName) {
-//        backpack = hardwareMap.get(I2cDevice.class, backpackName);
-//        backpackClient = new I2cDeviceSynchImpl(backpack, i2cAddr, isOwned);
-//        backpackClient.engage();
-//    }
 
+    // I need to find a way to check to see if there is a controller actually out on the bus and
+    // write a method for that. There are not many registers that provide read data and none that
+    // identify the controller. I think the only way will be to turn the display off, write a known
+    // bit pattern to one of the display registers and then read it back to see if I get back what
+    // I wrote. At least then I would know something is out there.
+
+    /**
+     * This method maps the blink rate from the more user friendly LEDBlinkRate enum to the less
+     * friendly enum used in the register for the display setup
+     *
+     * @param ledBlinkRate
+     * @return enum value from the DisplaySetupCommand register that corresponds to the LEDBlinkRate
+     * enum.
+     */
     private DisplaySetupCommand getBlinkSetupCommand(LEDBlinkRate ledBlinkRate) {
         DisplaySetupCommand blinkCommand = DisplaySetupCommand.BLINKING_OFF;
         switch (ledBlinkRate) {
@@ -682,17 +733,32 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
     // these methods send commands to the controller
     //*********************************************************************************************
 
+    /**
+     * This method brings the controller chip out of its sleep mode by turning on its oscillator.
+     * In effect it turns the controller on.
+     */
     private void turnOscillatorOn() {
+        this.chipStatus = ChipStatus.ON;
         byte byteToWrite = (byte) (Register.SYSTEM_SETUP.byteVal | SystemSetupCommand.SYSTEM_SETUP_OSCILLATOR_ON.byteVal);
         writeSingleByte(byteToWrite);
     }
 
+    /**
+     * This method puts the controller chip into sleep mode by turning off its oscillator.
+     * In effect it turns the controller off. Normally this is done to save power. But for FTC the
+     * power usage is so small that it is not important. So practically the code does not ever call
+     * this method.
+     */
     private void turnOscillatorOff() {
+        this.chipStatus = ChipStatus.OFF;
         // for the controller chip, the data to write is a single byte containing both the address and command
         byte byteToWrite = (byte) (Register.SYSTEM_SETUP.byteVal | SystemSetupCommand.SYSTEM_SETUP_OSCILLATOR_OFF.byteVal);
         writeSingleByte(byteToWrite);
     }
 
+    /**
+     * Turn the LED display off.
+     */
     public void turnLEDsOff() {
         // for the controller chip, the data to write is a single byte containing both the address and command
         // I want to keep the current led blink rate so I have to create a command that gets the current rate too
@@ -707,6 +773,9 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
         this.ledSwitch = LEDSwitch.OFF;
     }
 
+    /**
+     * Turn the LED display on.
+     */
     public void turnLEDsOn() {
         // for the controller chip, the data to write is a single byte containing both the address and command
         // I want to keep the current led blink rate so I have to create a command that gets the current rate too
@@ -721,9 +790,20 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
         this.ledSwitch = LEDSwitch.ON;
     }
 
+    /**
+     * Clear the display - in other words do not show any characters on the display. Note that the
+     * display can be on or off when you do this. Turning the display on or off is an independent
+     * operation. Even if the display is cleared, it can still be on, ready to display characters
+     * as soon as you want to.
+     */
     public void clear() {
         setDisplayString("    ");
     }
+
+    // I decided that these commands were redundant. I originally put them in because the user
+    // would not have to know anything about the enum for the blinking. They just see a command and
+    // use it. But it creates 4 more methods they have to sort through so I removed them for now.
+    // Use setLedBlinkRate instead.
 
 //    public void setLEDBlinkOncePerSecond() {
 //        setBlinkingRate(DisplaySetupCommand.BLINKING_1_HZ);
@@ -745,9 +825,19 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
 //        this.ledBlinkRate = LEDBlinkRate.NO_BLINK;
 //    }
 
+    /**
+     * Write the blink command out to the controller on the I2C bus. This will not affect whether
+     * the display is on or off. You can set a blink rate even if the display is off. Then when you
+     * turn it on, it immediately starts blinking. Note this is private. The public method for
+     * controlling the blink rate is setLedBlinkRate
+     *
+     * @param blinkCommand the bit code associated with the desired blinking rate. See DisplaySetupCommand
+     *                     enum.
+     */
     private void writeBlinkRate(DisplaySetupCommand blinkCommand) {
         byte byteToWrite;
-        // for the controller chip, the data to write is a single byte containing both the address and command
+        // for this controller chip, the data to write is a single byte containing both the address and command.
+        // The blink rate is contained in the same register as the LED on and off.
         // I want to keep the current LED display on or off so I have to create a command that does not change that
         if (getLedSwitch() == LEDSwitch.OFF) {
             byteToWrite = (byte) (Register.DISPLAY_SETUP.byteVal | blinkCommand.byteVal | DisplaySetupCommand.DISPLAY_OFF.byteVal);
@@ -758,19 +848,12 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
         writeSingleByte(byteToWrite);
     }
 
-//    private void setBrightnessLevel(int brightnessLevel) {
-//        byte byteToWrite;
-//        // create the single byte address/command
-//        byteToWrite = (byte) (Register.DIMMING_SET.byteVal | brightnessLevel);
-//        // write the address/command via I2C
-//        writeSingleByte(byteToWrite);
-//    }
-
     /**
      * This method accepts a string of up to 4 characters in length, converts the string into the
      * LED codes that turn on the individual LED segments in the display for each character, breaks
      * the LED codes, which are 16 bits long, into 2 8 bit bytes and then writes them to the
-     * starting register of the LEDs in the controller.
+     * starting register of the LEDs in the controller. Note this is private. The public method to
+     * display a string is setDisplayString.
      *
      * @param stringToDisplay
      */
@@ -786,7 +869,7 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
         // bits long, but since I2C only can send 8 bits per transaction, the 16 bits have to be
         // broken into two 8 bit bytes
         displayCodeBuffer = this.ledCode.getLEDCodesAsBytes(stringToDisplay);
-        // write the codes
+        // write the codes to the I2C bus
         write(Register.DISPLAY_DATA.byteVal, displayCodeBuffer);
     }
 
@@ -809,11 +892,21 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
         write(register, displayCodeBuffer);
     }
 
+    /**
+     * Get the manufacturer of this display.
+     *
+     * @return
+     */
     @Override
     public Manufacturer getManufacturer() {
         return Manufacturer.Adafruit;
     }
 
+    /**
+     * Get a string that describes the display.
+     *
+     * @return
+     */
     @Override
     public String getDeviceName() {
         return "Adafruit Alphanumeric Display";
@@ -823,17 +916,34 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
     //          I2C low level read and write methods
     //*********************************************************************************************
 
+    /**
+     * Read 8 bits of data from the specified register.
+     *
+     * @param register address to read from
+     * @return data in the register
+     */
     private synchronized byte read8(int register) {
         return deviceClient.read8(register);
     }
 
+    /**
+     * Read bytes from registers starting at the given register address and then reading the next
+     * higher register and so on until you have read the desired number of registers.
+     *
+     * @param register            starting address of the registers to read
+     * @param numberReadLocations how many registers to read
+     * @return an array of byte data contained in each register
+     */
     private synchronized byte[] read(int register, int numberReadLocations) {
         return deviceClient.read(register, numberReadLocations);
     }
 
     /**
-     * The SDK does not have a I2C method to write a single byte address/command. So I'm going to
-     * cob it by writing the byte twice. I think it should work.
+     * The SDK does not have a I2C method to write a single byte address/command. It can only write
+     * an 8 bit address followed by 8 bits of data. So I'm going to
+     * cob it by writing the byte twice. First the byte gets written in the address slot and then
+     * it gets written in the data slot. This works although it creates extra traffic on the I2C
+     * bus.
      *
      * @param addressCommandData
      */
@@ -841,10 +951,23 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
         deviceClient.write8(addressCommandData, addressCommandData, I2cWaitControl.WRITTEN);
     }
 
+    /**
+     * Write a byte of data to the specified I2C register address.
+     *
+     * @param register
+     * @param data
+     */
     private synchronized void write8(byte register, int data) {
         deviceClient.write8(register, data, I2cWaitControl.WRITTEN);
     }
 
+    /**
+     * Write bytes of data starting at the specified register address and then incrementing up one
+     * register at a time until there is no more data to write.
+     *
+     * @param register starting address of the register to write
+     * @param data     an array of bytes of data to write
+     */
     private synchronized void write(byte register, byte[] data) {
         deviceClient.write(register, data, I2cWaitControl.WRITTEN);
     }
@@ -883,6 +1006,8 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
     //**********************************************************************************************
     //* Display blinking test / demo
     //**********************************************************************************************
+
+    // Demo / test the blinking capabilties of the display.
 
     // Variables for the blink rate test/demo that have to be visible for both the methods of the
     // test/demo. This means they have to be outside the scope of each method.
@@ -971,6 +1096,9 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
     //* Display brighness test / demo
     //**********************************************************************************************
 
+    // Brightness level test / demo. Shows how the brightness levels (1-15) work and lets the user
+    //see how bright they are.
+
     /**
      * States for the brightness level demo. Each one corresponds to a brightness level (1-15)
      */
@@ -1024,7 +1152,8 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
     }
 
     /**
-     * Brightness level test / demo.
+     * Brightness level test / demo. Shows how the brightness levels (1-15) work and lets the user
+     * see how bright they are.
      * Call the setup method above one time. Then call this update method in a loop in the opmode.
      *
      * @return true when all phases of the test are complete
@@ -1189,6 +1318,9 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
     //* Character display test / demo
     //**********************************************************************************************
 
+    // Displays each character that can be displayed. Some of them are kind of funky looking because
+    // of the limits of the LED.
+
     /**
      * Enum for the list of states in a state machine used to run through all of the characters
      * that can be displayed and display each one.
@@ -1282,4 +1414,14 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
         }
         return testComplete;
     }
+
+    //**********************************************************************************************
+    //* Misc test / demo
+    //**********************************************************************************************
+
+    // Clear the display
+    // Display the manufacturer
+    // Display the description
+    // write a single character
+
 }
