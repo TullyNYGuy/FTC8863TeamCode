@@ -91,16 +91,20 @@ public class Autonomous extends LinearOpMode {
 
         telemetry.addData("Heading on ground is", headingOnGround);
         telemetry.update();
+        // driveToCraterFromLander();
 
         turnByDegrees(-headingOnGround, .29);
+        driveStraight(10, .3);
+        turnByDegrees(-67, .3);
+        driveStraight(108, .3);
+        turnByDegrees(-61.38, .3);
+        driveStraight(95, .3);
+        driveStraight(-115, .3);
 
-        turnByDegrees(50.5, .3);
-        driveStraight(-107, 0.3);
 
+        // while (opModeIsActive()) {
 
-       // while (opModeIsActive()) {
-
-            //if(systemStatus != BNO055IMU.SystemStatus.UNKNOWN) {
+        //if(systemStatus != BNO055IMU.SystemStatus.UNKNOWN) {
 //            if (isConnected) {
 //                loopTimeTracker.compareValue(loopTimer.milliseconds());
 //                loopTimer.reset();
@@ -177,6 +181,16 @@ public class Autonomous extends LinearOpMode {
         telemetry.update();*/
 
     }
+
+    public void driveToCraterFromLander() {
+        turnByDegrees(-headingOnGround, .29);
+        driveStraight(10, 0.3);
+        turnByDegrees(55.5, .3);
+        driveStraight(107, 0.3);
+        turnByDegrees(-90, 0.3);
+        driveStraight(35, 0.3);
+    }
+
 
     public void driveStraight(double distance, double power) {
         driveTrain.setupDriveDistance(power, distance, DcMotor8863.FinishBehavior.FLOAT);
