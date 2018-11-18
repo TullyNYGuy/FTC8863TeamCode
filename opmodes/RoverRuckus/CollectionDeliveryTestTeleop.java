@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.opmodes.RoverRuckus;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
@@ -31,8 +30,6 @@ public class CollectionDeliveryTestTeleop extends LinearOpMode {
     }
 
     DriveTrainMode driveTrainMode = CollectionDeliveryTestTeleop.DriveTrainMode.TANK_DRIVE;
-
-    public RelicRecoveryRobotStJohnFisher robot;
 
     DataLogging dataLog = null;
 

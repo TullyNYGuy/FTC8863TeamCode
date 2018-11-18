@@ -45,7 +45,7 @@ public class TestDCMotor8863RunConstantSpeed extends LinearOpMode {
         // You need the initializations inside this block
 
         // Instantiate and initialize motors
-        motor = new DcMotor8863(RobotConfigMappingForGenericTest.getleftMotorName(), hardwareMap);
+        motor = new DcMotor8863("testMotor", hardwareMap);
         // set the type of motor you are controlling
         motor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
         // for each revolution of the motor, it moves something. How far does it move it? In this case
