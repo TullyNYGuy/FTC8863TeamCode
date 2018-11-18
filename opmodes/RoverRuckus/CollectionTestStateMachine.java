@@ -184,7 +184,7 @@ public class CollectionTestStateMachine extends LinearOpMode {
         collectionServoLeft = hardwareMap.get(CRServo.class, "collectionServoLeft");
         collectionServoRight = hardwareMap.get(CRServo.class, "collectionServoRight");
         collectionServoRight.setDirection(CRServo.Direction.REVERSE);
-        decisionStar = hardwareMap.get(CRServo.class, "decisionStar");
+        decisionStar = hardwareMap.get(CRServo.class, "storageStarServo");
         gateServo = new Servo8863("gateServo", hardwareMap, telemetry, 0.70, 1, 0, 0.52, Servo.Direction.FORWARD);
         //collectionServoRight = new CRServo8863("collectionServoRight", hardwareMap, .50, .50, .1, Servo.Direction.REVERSE, telemetry);
         sensorColor = hardwareMap.get(ColorSensor.class, "revColorSensor");
