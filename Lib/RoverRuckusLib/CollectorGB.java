@@ -11,11 +11,10 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.sun.tools.javac.comp.Infer;
 
-import org.firstinspires.ftc.robotcontroller.external.samples.SensorLEGOLight;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
-import org.firstinspires.ftc.teamcode.opmodes.ResQTest.TestLeftZipLineServo;
 import org.firstinspires.ftc.teamcode.opmodes.RoverRuckus.CollectionTestStateMachine;
 
 public class CollectorGB {
@@ -74,10 +73,10 @@ public class CollectorGB {
     private CRServo storageStarServo;
 
     private Servo8863 gateServo;
-    private double collectionPositionGateServo = 0.7;
+    private double collectionPositionGateServo = 0.6;
     private double keepPositionGateServo = 0;
     private double ejectPositionGateServo = 1;
-    private double initPositionGateServo = 0.7;
+    private double initPositionGateServo = 0.6;
 
     private ColorSensor sensorColor;
     private DistanceSensor sensorDistance;
@@ -137,6 +136,13 @@ public class CollectorGB {
 // to amplify/attentuate the measured values.
     private final double SCALE_FACTOR = 255;
 
+    private DataLogging logFile = null;
+    private boolean loggingOn = false;
+
+    private boolean debugOn = false;
+
+    private Telemetry telemetry;
+
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -144,6 +150,26 @@ public class CollectorGB {
     // getPositionInTermsOfAttachment
     //*********************************************************************************************
 
+
+    public void setDataLogging(DataLogging dataLogging) {
+        this.logFile = dataLogging;
+    }
+
+    public void setLoggingOn() {
+        this.loggingOn = true;
+    }
+
+    public void setLoggingOff() {
+        this.loggingOn = false;
+    }
+
+    public void setDebugOn(){
+        this.debugOn = true;
+    }
+
+    public void setDebugOff() {
+        this.debugOn = false;
+    }
 
     //*********************************************************************************************
     //          Constructors
@@ -163,6 +189,9 @@ public class CollectorGB {
         sensorColor = hardwareMap.get(ColorSensor.class, "revColorSensor");
         sensorDistance = hardwareMap.get(DistanceSensor.class, "revColorSensor");
 
+        timer = new ElapsedTime();
+
+        this.telemetry = telemetry;
         initialize();
     }
 
@@ -178,7 +207,7 @@ public class CollectorGB {
     }
 
     private void turnIntakeOnSuckIn() {
-        collectionServoLeft.setPower(-1);
+        collectionServoLeft.setPower(-.8);
         collectionServoRight.setPower(-1);
     }
 
@@ -362,6 +391,18 @@ public class CollectorGB {
         return actionToTake;
     }
 
+    private void log(String stringToLog) {
+        if (logFile != null && loggingOn) {
+            logFile.logData(stringToLog);
+        }
+    }
+
+    private void debug(String stringToDisplay) {
+        if (debugOn) {
+            telemetry.addLine(stringToDisplay);
+        }
+    }
+
     //*********************************************************************************************
     //          MAJOR METHODS
     //
@@ -429,98 +470,145 @@ public class CollectorGB {
     }
 
     public CollectorState update() {
+        ActionToTake actionToTake;
         switch (collectorState) {
             case OFF:
-                if (collectorCommand == CollectorCommand.ON) {
+                if (collectorCommand == CollectorCommand.ON && numberOfMineralsStored < 2) {
                     collectorState = CollectorState.NO_MINERAL;
                     turnIntakeOnSuckIn();
+                    log("Turn Collector On");
+                    log("Desired mineral color = " + desiredMineralColor.toString());
+                    debug("Turn Collector On");
+                    debug("Desired mineral color = " + desiredMineralColor.toString());
+                } else {
+                    collectorState = CollectorState.OFF;
                 }
                 break;
             case NO_MINERAL:
                 if (collectorCommand == CollectorCommand.OFF || collectorCommand == CollectorCommand.RESET) {
                     collectorState = CollectorState.OFF;
                     softReset();
-                }
-                if (isMineralDetected()) {
-                    collectorState = CollectorState.MINERAL_DETECTED;
-                    turnIntakeOff();
-                    mineralDetectedCounter = 0;
+                } else {
+                    if (isMineralDetected()) {
+                        collectorState = CollectorState.MINERAL_DETECTED;
+                        turnIntakeOff();
+                        mineralDetectedCounter = 0;
+                        log("Mineral detected");
+                        debug("Mineral detected");
+                    }
                 }
                 break;
             case MINERAL_DETECTED:
                 if (collectorCommand == CollectorCommand.OFF || collectorCommand == CollectorCommand.RESET) {
                     collectorState = CollectorState.OFF;
                     softReset();
-                }
-                actualMineralColor = determineMineralColor();
-                if (actualMineralColor == MineralColor.SILVER || actualMineralColor == MineralColor.GOLD) {
-                    collectorState = CollectorState.MINERAL_COLOR_DETERMINED;
+                } else {
+                    actualMineralColor = determineMineralColor();
+                    if (actualMineralColor == MineralColor.SILVER || actualMineralColor == MineralColor.GOLD) {
+                        collectorState = CollectorState.MINERAL_COLOR_DETERMINED;
+                        log("Mineral Color = " + actualMineralColor.toString());
+                        debug("Mineral Color = " + actualMineralColor.toString());
+                    }
                 }
                 break;
             case MINERAL_COLOR_DETERMINED:
                 if (collectorCommand == CollectorCommand.OFF || collectorCommand == CollectorCommand.RESET) {
                     collectorState = CollectorState.OFF;
                     softReset();
-                }
-                switch (getActionForDetectedMineral(actualMineralColor)) {
-                    case NO_ACTION:
-                        collectorState = CollectorState.NO_MINERAL;
-                        break;
-                    case HOLD:
-                        mineralColorSilverCounter = 0;
-                        mineralColorGoldCounter = 0;
-                        collectorState = CollectorState.HOLD_MINERAL;
-                        turnCollectorSystemsOff();
-                        timer.reset();
-                        break;
-                    case STORE:
-                        mineralColorSilverCounter = 0;
-                        mineralColorGoldCounter = 0;
-                        collectorState = CollectorState.STORE_MINERAL;
-                        turnStorageStarOnStore();
-                        gateServoGoToStorePosition();
-                        timer.reset();
-                        break;
-                    case EJECT:
-                        mineralColorSilverCounter = 0;
-                        mineralColorGoldCounter = 0;
-                        gateServoGoToEjectPosition();
-                        turnIntakeOnEject();
-                        timer.reset();
-                        break;
+                } else {
+                    actionToTake = getActionForDetectedMineral(actualMineralColor);
+                    log("Action taken = " + actionToTake.toString());
+                    debug("Action taken = " + actionToTake.toString());
+                    switch (actionToTake) {
+                        case NO_ACTION:
+                            collectorState = CollectorState.NO_MINERAL;
+                            break;
+                        case HOLD:
+                            collectorState = CollectorState.HOLD_MINERAL;
+                            mineralColorSilverCounter = 0;
+                            mineralColorGoldCounter = 0;
+                            turnCollectorSystemsOff();
+                            numberOfMineralsStored = 2;
+                            timer.reset();
+                            break;
+                        case STORE:
+                            collectorState = CollectorState.STORE_MINERAL;
+                            mineralColorSilverCounter = 0;
+                            mineralColorGoldCounter = 0;
+                            turnStorageStarOnStore();
+                            turnIntakeOnSuckIn();
+                            gateServoGoToStorePosition();
+                            timer.reset();
+                            break;
+                        case EJECT:
+                            collectorState = CollectorState.EJECT_MINERAL;
+                            mineralColorSilverCounter = 0;
+                            mineralColorGoldCounter = 0;
+                            turnIntakeOnSuckIn();
+                            delay(500);
+                            gateServoGoToEjectPosition();
+                            timer.reset();
+                            break;
+                    }
                 }
                 break;
             case HOLD_MINERAL:
+                switch (collectorCommand) {
+                    case OFF: case RESET:
+                        collectorState = CollectorState.OFF;
+                        softReset();
+                        break;
+                    case DELIVER:
+                        collectorState = CollectorState.DELIVER_MINERAL;
+                        turnStorageStarOnStore();
+                        gateServoGoToStorePosition();
+                        timer.reset();
+                        log("Delivery started");
+                        debug("Delivery started");
+                        break;
+                    case NONE: case ON:
+                        if (numberOfMineralsStored < 2){
+                            collectorState = CollectorState.NO_MINERAL;
+                            softReset();
+                            turnIntakeOnSuckIn();
+                        } else {
+                            collectorState = CollectorState.OFF;
+                            softReset();
+                            break;
+                        }
+                }
                 if (collectorCommand == CollectorCommand.OFF || collectorCommand == CollectorCommand.RESET) {
-                    collectorState = CollectorState.OFF;
-                    softReset();
+
                 }
                 if (collectorCommand == CollectorCommand.DELIVER) {
-                    collectorState = CollectorState.DELIVER_MINERAL;
-                    turnStorageStarOnStore();
-                    gateServoGoToStorePosition();
-                    timer.reset();
+
                 }
                 break;
             case STORE_MINERAL:
                 if (collectorCommand == CollectorCommand.OFF || collectorCommand == CollectorCommand.RESET) {
                     collectorState = CollectorState.OFF;
                     softReset();
-                }
-                if (timer.milliseconds() > mineralStorageTimerLimit) {
-                    collectorState = CollectorState.OFF;
-                    numberOfMineralsStored = 1;
-                    turnCollectorSystemsOff();
+                } else {
+                    if (timer.milliseconds() > mineralStorageTimerLimit) {
+                        collectorState = CollectorState.NO_MINERAL;
+                        numberOfMineralsStored = 1;
+                        turnCollectorSystemsOff();
+                        turnIntakeOnSuckIn();
+                        debug("stored");
+                    }
                 }
                 break;
             case EJECT_MINERAL:
                 if (collectorCommand == CollectorCommand.OFF || collectorCommand == CollectorCommand.RESET) {
                     collectorState = CollectorState.OFF;
                     softReset();
-                }
-                if (timer.milliseconds() > mineralEjectTimerLimit) {
-                    collectorState = CollectorState.OFF;
-                    turnCollectorSystemsOff();
+                } else {
+                    if (timer.milliseconds() > mineralEjectTimerLimit) {
+                        collectorState = CollectorState.OFF;
+                        turnCollectorSystemsOff();
+                        log("ejected");
+                        debug("ejected");
+                    }
                 }
                 break;
             case DELIVER_MINERAL:
@@ -532,6 +620,8 @@ public class CollectorGB {
                     collectorState = CollectorState.OFF;
                     softReset();
                     numberOfMineralsStored = 0;
+                    log("Delivery completed");
+                    debug("Delivery completed");
                 }
                 break;
         }
