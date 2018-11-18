@@ -38,7 +38,6 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.CRServo8863;
-import org.firstinspires.ftc.teamcode.Lib.ResQLib.RobotConfigMapping;
 
 import static org.firstinspires.ftc.teamcode.opmodes.GenericTest.RobotConfigMappingForGenericTest.getcrServoName;
 import static org.firstinspires.ftc.teamcode.opmodes.GenericTest.RobotConfigMappingForGenericTest.getleftMotorName;

@@ -9,7 +9,6 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.CRServo8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.CRServoGB;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Switch;
-import org.firstinspires.ftc.teamcode.Lib.ResQLib.RobotConfigMapping;
 
 /**
  * This opmode shows how to operate a CR Servo

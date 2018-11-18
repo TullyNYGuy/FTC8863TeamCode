@@ -37,7 +37,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
-import org.firstinspires.ftc.teamcode.Lib.ResQLib.RobotConfigMapping;
 
 @TeleOp(name = "Test generic servo", group = "Test")
 @Disabled
