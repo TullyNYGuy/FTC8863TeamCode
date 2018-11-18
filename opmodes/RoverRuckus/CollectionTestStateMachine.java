@@ -1,39 +1,43 @@
 package org.firstinspires.ftc.teamcode.opmodes.RoverRuckus;
 
+import android.graphics.Color;
+
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.CRServo8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.GamepadButtonMultiPush;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.JoyStick;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
-import org.firstinspires.ftc.teamcode.Lib.RelicRecoveryLib.WonderWorkDemoRobot;
-
-import android.graphics.Color;
 
 /**
  * Created by ball on 10/7/2017.
  */
 
-@TeleOp(name = "Collection Test", group = "Test")
+@TeleOp(name = "Collection Test+State Machine", group = "Test")
 //@Disabled
 
-public class CollectionTest extends LinearOpMode {
+public class CollectionTestStateMachine extends LinearOpMode {
 
     //*********************************************************************************************
     //             Declarations
     //*********************************************************************************************
+
+    public enum CollectionStates{
+        NO_MINERAL,
+        INTAKE_ON,
+        MINERAL_DETECTED,
+        KEEP,
+        REJECT
+    }
+    public ElapsedTime collectionTimer;
+    public CollectionStates collectionState;
 
     DataLogging dataLog = null;
 
@@ -186,6 +190,8 @@ public class CollectionTest extends LinearOpMode {
         sensorColor = hardwareMap.get(ColorSensor.class, "revColorSensor");
         sensorDistance = hardwareMap.get(DistanceSensor.class, "revColorSensor");
         dataLogging = new DataLogging("revColorDistanceSensorReadings", telemetry);
+        collectionTimer = new ElapsedTime();
+        collectionState = CollectionStates.NO_MINERAL;
 
         // Wait for the start button
         telemetry.addData(">", "Press start to run Test");
@@ -246,24 +252,24 @@ public class CollectionTest extends LinearOpMode {
 //            }
 
             if (gamepad1RightBumper.buttonPress(gamepad1.right_bumper)) {
-                gateServo.goUp();
+                //gateServo.goUp();
 
             }
 
             if (gamepad1LeftBumper.buttonPress(gamepad1.left_bumper)) {
-                gateServo.goDown();
+                //gateServo.goDown();
                 // this was a new button press, not a button held down for a while
                 // put the command to be executed here
             }
 
             if (gamepad1a.buttonPress(gamepad1.a)) {
                 if (gamepad1a.isCommand1()) {
-                    collectionServoLeft.setPower(1);
-                    collectionServoRight.setPower(1);
+                    //collectionServoLeft.setPower(1);
+                    //collectionServoRight.setPower(1);
                 }
                 if (gamepad1a.isCommand2()) {
-                    collectionServoLeft.setPower(0);
-                    collectionServoRight.setPower(0);
+                    //collectionServoLeft.setPower(0);
+                   // collectionServoRight.setPower(0);
                 }
                 // this was a new button press, not a button held down for a while
                 // put the command to be executed here
@@ -271,10 +277,10 @@ public class CollectionTest extends LinearOpMode {
 
             if (gamepad1b.buttonPress(gamepad1.b)) {
                 if (gamepad1b.isCommand1()) {
-                    gateServo.goHome();
+                   // gateServo.goHome();
                 }
                 if (gamepad1b.isCommand2()) {
-                    gateServo.goHome();
+                   // gateServo.goHome();
                 }
                 // this was a new button press, not a button held down for a while
                 // put the command to be executed here
@@ -445,6 +451,7 @@ public class CollectionTest extends LinearOpMode {
             // Display telemetry
             telemetry.addData(">", "Press Stop to end.");
             telemetry.update();
+            update();
 
             idle();
         }
@@ -468,6 +475,69 @@ public class CollectionTest extends LinearOpMode {
         if (distance < 10) {
             collectionServoLeft.setPower(0);
             collectionServoRight.setPower(0);
+        }
+    }
+    public void update(){
+        switch (collectionState){
+            case NO_MINERAL:
+                if (gamepad1.a){
+                    collectionState= CollectionStates.INTAKE_ON;
+                    collectionServoLeft.setPower(1);
+                    collectionServoRight.setPower(1);
+                }
+                 gateServo.goHome();
+                telemetry.addData("state= ",collectionState.toString());
+                break;
+            case INTAKE_ON:
+                if (gamepad1.b){
+                    collectionState= CollectionStates.NO_MINERAL;
+                    collectionServoLeft.setPower(0);
+                    collectionServoRight.setPower(0);
+                }
+                if ( distance < 10){
+                    collectionState= CollectionStates.MINERAL_DETECTED;
+                    collectionServoLeft.setPower(0);
+                    collectionServoRight.setPower(0);
+                }
+                telemetry.addData("state= ",collectionState.toString());
+                break;
+            case MINERAL_DETECTED:
+                if (gamepad1.left_bumper){
+                    gateServo.goDown();
+                    decisionStar.setPower(1);
+                    collectionTimer.reset();
+                    collectionState= CollectionStates.KEEP;
+                }
+                telemetry.addData("state= ",collectionState.toString());
+                if (gamepad1.right_bumper){
+                    gateServo.goUp();
+                    collectionServoLeft.setPower(1);
+                    collectionServoRight.setPower(1);
+                    collectionTimer.reset();
+                    collectionState= CollectionStates.REJECT;
+                }
+                telemetry.addData("state= ",collectionState.toString());
+                break;
+            case KEEP:
+                if (collectionTimer.milliseconds()>1500){
+                    gateServo.goHome();
+                    decisionStar.setPower(0);
+                    collectionServoLeft.setPower(0);
+                    collectionServoRight.setPower(0);
+                    collectionState=CollectionStates.NO_MINERAL;
+                }
+                telemetry.addData("state= ",collectionState.toString());
+                break;
+            case REJECT:
+                if (collectionTimer.milliseconds()>1500){
+                    gateServo.goHome();
+                    decisionStar.setPower(0);
+                    collectionServoLeft.setPower(0);
+                    collectionServoRight.setPower(0);
+                    collectionState=CollectionStates.NO_MINERAL;
+                }
+                telemetry.addData("state= ",collectionState.toString());
+                break;
         }
     }
 }

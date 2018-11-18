@@ -88,7 +88,7 @@ public class Collector {
     //
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
-    private MineralColor getMineralColor() {
+    private void getMineralColor() {
         // convert the RGB values to HSV values.
         // multiply by the SCALE_FACTOR.
         // then cast it back to int (SCALE_FACTOR is a double)
