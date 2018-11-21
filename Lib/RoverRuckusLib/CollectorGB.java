@@ -117,7 +117,7 @@ public class CollectorGB {
 
     private ElapsedTime timer;
     private double mineralDeliverTimerLimit = 1500;
-    private double mineralStorageTimerLimit = 1500;
+    private double mineralStorageTimerLimit = 4000;
     private double mineralEjectTimerLimit = 1500;
 
     private double red = 0;
