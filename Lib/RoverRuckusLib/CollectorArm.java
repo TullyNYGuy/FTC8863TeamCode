@@ -23,7 +23,7 @@ public class CollectorArm {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
-    private DcMotor8863 rotationMotor;
+    public DcMotor8863 rotationMotor;
     private Telemetry telemetry;
 
     private double initPosition = 0;
