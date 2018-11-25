@@ -154,7 +154,8 @@ public class RampUpFlatTopRampDown implements ProfileFunction{
 
     /**
      * Implements a function that ramps up from a starting value to a maximum and then back down
-     * to a finishing value.
+     * to a finishing value. The starting value and finishing value don't have to be the same
+     * although they could be.
      * @param xValue
      * @return the Y value for the function
      */
