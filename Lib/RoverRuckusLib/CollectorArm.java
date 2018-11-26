@@ -103,7 +103,6 @@ public class CollectorArm {
         rotationMotor.moveToPosition(0.2, transferPosition, DcMotor8863.FinishBehavior.HOLD);
     }
 
-
     public void floatArm(){
         rotationMotor.setMotorToFloat();
     }
