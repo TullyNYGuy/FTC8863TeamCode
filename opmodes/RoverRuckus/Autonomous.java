@@ -10,6 +10,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.StatTracker;
@@ -33,6 +34,8 @@ public class Autonomous extends LinearOpMode {
     double headingOnGround;
     DriveTrain driveTrain;
     DriveTrain.Status statusDrive;
+    DataLogging logFile;
+    double headingWhileHanging;
 
 
     Orientation angles;
@@ -56,6 +59,7 @@ public class Autonomous extends LinearOpMode {
         isConnected = imu.isIMUConnected();
         driveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap, telemetry);
         driveTrain.setCmPerRotation(31.9); // cm
+        logFile = new DataLogging("Autonomous", telemetry);
 
         // 12/10/2017 for some reason this line is causing the robot controller app to crash
         //systemStatus = imu.getSystemStatus();
@@ -72,12 +76,14 @@ public class Autonomous extends LinearOpMode {
             telemetry.addData("IMU is NOT connected.", " Check the wiring");
         }
         imu.resetAngleReferences();
-        telemetry.addData("Heading while hanging is", imu.getHeading());
+        headingWhileHanging = imu.getHeading();
+        telemetry.addData("Heading while hanging is", headingWhileHanging);
 
         telemetry.addData(">", "Press Start to run");
         telemetry.update();
         waitForStart();
 
+        logFile.startTimer();
         // Start the logging of measured acceleration
         imu.startAccelerationIntegration(new Position(), new Velocity(), 1000);
 
@@ -89,18 +95,28 @@ public class Autonomous extends LinearOpMode {
 
         headingOnGround = imu.getHeading();
 
-        telemetry.addData("Heading on ground is", headingOnGround);
+        telemetry.addData("Heading on ground is ", headingOnGround);
         telemetry.update();
         // driveToCraterFromLander();
 
-        turnByDegrees(-headingOnGround, .29);
-        driveStraight(10, .3);
-        turnByDegrees(-67, .3);
-        driveStraight(108, .3);
-        turnByDegrees(-61.38, .3);
-        driveStraight(95, .3);
-        driveStraight(-115, .3);
+        logFile.logData("headingWhileHanging " + Double.toString(headingWhileHanging));
+        logFile.logData("headingOnGround " + Double.toString(headingOnGround));
 
+        turnByDegrees(-headingOnGround, .29);
+        logFile.logData("headingFirstTurn " + Double.toString(imu.getHeading()));
+        driveStraight(10, .3);
+        logFile.logData("headingFirstStraight " + Double.toString(imu.getHeading()));
+        turnByDegrees(-67, .3);
+        logFile.logData("headingSecondTurn " + Double.toString(imu.getHeading()));
+        driveStraight(108, .3);
+        logFile.logData("headingSecondStraight " + Double.toString(imu.getHeading()));
+        turnByDegrees(-61.38, .3);
+        logFile.logData("headingThirdTurn " + Double.toString(imu.getHeading()));
+        driveStraight(95, .3);
+        sleep(2000);
+        logFile.logData("headingThirdStraight " + Double.toString(imu.getHeading()));
+        driveStraight(-115, .3);
+        logFile.logData("headingFourthTurn " + Double.toString(imu.getHeading()));
 
         // while (opModeIsActive()) {
 
