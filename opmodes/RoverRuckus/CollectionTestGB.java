@@ -30,6 +30,8 @@ public class CollectionTestGB extends LinearOpMode {
         collector = new CollectorGB(hardwareMap, telemetry);
         collector.initialize();
         collector.setDataLogging(logfile);
+        collector.setLoggingOn();
+        collector.setDebugOn();
         collector.setDesiredMineralColorToSilver();
         
         // Wait for the start button
