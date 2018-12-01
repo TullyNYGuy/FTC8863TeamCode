@@ -117,7 +117,7 @@ public class CollectorGB {
 
     private ElapsedTime timer;
     private double mineralDeliverTimerLimit = 1500;
-    private double mineralStorageTimerLimit = 1500;
+    private double mineralStorageTimerLimit = 4000;
     private double mineralEjectTimerLimit = 1500;
 
     private double red = 0;
@@ -221,15 +221,15 @@ public class CollectorGB {
         collectionServoRight.setPower(1);
     }
 
-    private void turnStorageStarOff() {
+    public void turnStorageStarOff() {
         storageStarServo.setPower(0);
     }
 
-    private void turnStorageStarOnStore() {
-        storageStarServo.setPower(1);
+    public void turnStorageStarOnStore() {
+        storageStarServo.setPower(0.5);
     }
 
-    private void turnStorageStarOnUnstore() {
+    public void turnStorageStarOnUnstore() {
         storageStarServo.setPower(-1);
     }
 

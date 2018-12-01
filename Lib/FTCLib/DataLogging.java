@@ -178,13 +178,55 @@ public class DataLogging {
     }
 
     /**
+     * Write a header line into the log file. You can use this to give a column label to each data
+     * field. The time header will automatically be inserted into the line.
+     * @param headerLine
+     */
+    public void headerLine (String headerLine) {
+        dataLog.println("time (mSec), " + headerLine);
+    }
+
+    /**
+     * Write a series of header strings into the log file. You can use this to give a column label
+     * to each data field. The time header will automatically be inserted into the line.
+     * @param args
+     */
+    public void headerStrings (String... args) {
+        // print the timestamp
+        dataLog.print(" time (mSec), ");
+        // print each argument
+        for (String arg: args) {
+            dataLog.print(arg + ", ");
+        }
+        // print a newline
+        dataLog.println();
+    }
+
+    /**
      * Write a piece of data or a debug message into the log file. It will get time stamped.
      * @param dataToLog
      */
     public void logData(String dataToLog) {
         double timeStamp = timer.milliseconds();
-        String stringToWrite = "Time = " + String.format( "%.2f", timeStamp) + " " + dataToLog;
+        String stringToWrite = String.format( "%.2f", timeStamp) + " " + dataToLog;
         dataLog.println(stringToWrite);
+    }
+
+    /**
+     * Write a series of strings into the data log. Each string will be followed by a comma and
+     * a space. The beginning of the line will have a timestamp.
+     * @param args a variable number of strings to write into the file in this line
+     */
+    public void logData(String... args) {
+        // print the timestamp
+        double timeStamp = timer.milliseconds();
+        dataLog.print( String.format( "%.2f", timeStamp) + ", ");
+        // print each argument
+        for (String arg: args) {
+            dataLog.print(arg + ", ");
+        }
+        // print a newline
+        dataLog.println();
     }
 
     /**

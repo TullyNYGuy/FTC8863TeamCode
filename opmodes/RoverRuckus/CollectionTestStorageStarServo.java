@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.opmodes.RoverRuckus;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -12,9 +11,9 @@ import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.CollectorGB;
  *
  *
  */
-@TeleOp(name = "Collection test GB", group = "Test")
+@TeleOp(name = "Collection test storage star", group = "Test")
 //@Disabled
-public class CollectionTestGB extends LinearOpMode {
+public class CollectionTestStorageStarServo extends LinearOpMode {
 
     // Put your variable declarations here
     public CollectorGB collector;
@@ -33,6 +32,13 @@ public class CollectionTestGB extends LinearOpMode {
         collector.setLoggingOn();
         collector.setDebugOn();
         collector.setDesiredMineralColorToGold();
+
+        collector.turnStorageStarOnStore();
+        sleep(4000);
+        collector.turnStorageStarOnUnstore();
+        sleep(4000);
+        collector.turnStorageStarOff();
+        sleep(4000);
         
         // Wait for the start button
         telemetry.addData(">", "Press Start to run" );
@@ -43,7 +49,7 @@ public class CollectionTestGB extends LinearOpMode {
         //collector.testSetup();
         //collector.testMovements(telemetry);
 
-        collector.turnCollectorOn();
+        //collector.turnCollectorOn();
 
         while(opModeIsActive()) {
 
@@ -53,7 +59,7 @@ public class CollectionTestGB extends LinearOpMode {
             //collector.testMineralColorDetection(telemetry);
             //testActions();
 
-            collectorState = collector.update();
+            //collectorState = collector.update();
 
             telemetry.addData(">", "Press Stop to end test." );
             telemetry.addData("Collector State = ", collectorState.toString());
