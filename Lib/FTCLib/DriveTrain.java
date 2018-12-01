@@ -4,7 +4,6 @@ import com.qualcomm.robotcore.hardware.*;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.opmodes.GenericTest.RobotConfigMappingForGenericTest;
 
 public class DriveTrain {
 
@@ -132,8 +131,8 @@ public class DriveTrain {
      * @param hardwareMap
      */
     private DriveTrain(HardwareMap hardwareMap, boolean imuPresent, Telemetry telemetry) {
-        leftDriveMotor = new DcMotor8863(RobotConfigMappingForGenericTest.getleftMotorName(), hardwareMap);
-        rightDriveMotor = new DcMotor8863(RobotConfigMappingForGenericTest.getrightMotorName(), hardwareMap);
+        leftDriveMotor = new DcMotor8863("leftMotor", hardwareMap);
+        rightDriveMotor = new DcMotor8863("rightMotor", hardwareMap);
 
         // for the competition robot
         this.setCmPerRotation(cmPerRotationCompetitionRobot);
