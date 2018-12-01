@@ -221,15 +221,15 @@ public class CollectorGB {
         collectionServoRight.setPower(1);
     }
 
-    private void turnStorageStarOff() {
+    public void turnStorageStarOff() {
         storageStarServo.setPower(0);
     }
 
-    private void turnStorageStarOnStore() {
-        storageStarServo.setPower(1);
+    public void turnStorageStarOnStore() {
+        storageStarServo.setPower(0.5);
     }
 
-    private void turnStorageStarOnUnstore() {
+    public void turnStorageStarOnUnstore() {
         storageStarServo.setPower(-1);
     }
 
