@@ -15,13 +15,6 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.StatTracker;
 
-/**
- * This Opmode tests the IMU.
- * <p>
- * Phone configuration:
- * I2C port type: Adafruit IMU
- * I2C device name: IMU
- */
 @TeleOp(name = "Rover Ruckus Autonomous", group = "Test")
 //@Disabled
 public class Autonomous extends LinearOpMode {
