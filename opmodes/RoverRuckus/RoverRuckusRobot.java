@@ -1,10 +1,12 @@
 package org.firstinspires.ftc.teamcode.opmodes.RoverRuckus;
 
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -12,7 +14,9 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.Collector;
+import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.CollectorArm;
 import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.CollectorGB;
+import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.DeliveryLiftSystem;
 
 public class RoverRuckusRobot {
 
@@ -40,7 +44,9 @@ public class RoverRuckusRobot {
     public RobotMode robotMode;
     public DriveTrain driveTrain;
     public CollectorGB collector;
-    private Telemetry telemetry;
+    public Telemetry telemetry;
+    public DeliveryLiftSystem deliveryLiftSystem;
+   public CollectorArm collectorArm;
 
     
     //*********************************************************************************************
@@ -63,7 +69,15 @@ public class RoverRuckusRobot {
         if (robotMode == RobotMode.AUTONOMOUS) {
             // create the robot for autonomous
             driveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap, telemetry);
+
             collector = new CollectorGB(hardwareMap, telemetry);
+
+            collectorArm = new CollectorArm(hardwareMap, telemetry);
+
+            deliveryLiftSystem = new DeliveryLiftSystem(hardwareMap, telemetry);
+
+
+
             //allianceColorSwitch = new AllianceColorSwitch(hardwareMap, telemetry);
             //allianceColor = allianceColorSwitch.getAllianceColor();
         } else {
@@ -98,6 +112,7 @@ public class RoverRuckusRobot {
 
     public void init(Telemetry telemetry) {
         collector.initialize();
+        deliveryLiftSystem.init();
     }
 
     public void setupForRun() {
@@ -105,10 +120,27 @@ public class RoverRuckusRobot {
 
     public void update() {
         collector.update();
+        deliveryLiftSystem.update();
+        collectorArm.update();
+    }
+
+    public void dehangRobot (){
+        collectorArm.goToDehang();
+        delay(2000);
+        deliveryLiftSystem.dehangTheRobot();
+    }
+
+    private void delay(int ms) {
+        try {
+            Thread.sleep(ms);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     public void shutdown() {
         driveTrain.shutdown();
         collector.shutdown();
     }
+
 }

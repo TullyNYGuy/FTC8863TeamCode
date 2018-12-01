@@ -9,13 +9,11 @@ import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.sun.tools.javac.comp.Infer;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
-import org.firstinspires.ftc.teamcode.opmodes.RoverRuckus.CollectionTestStateMachine;
 
 public class CollectorGB {
 
@@ -221,16 +219,16 @@ public class CollectorGB {
         collectionServoRight.setPower(1);
     }
 
-    public void turnStorageStarOff() {
+    private void turnStorageStarOff() {
         storageStarServo.setPower(0);
     }
 
-    public void turnStorageStarOnStore() {
+    private void turnStorageStarOnStore() {
         storageStarServo.setPower(0.5);
     }
 
-    public void turnStorageStarOnUnstore() {
-        storageStarServo.setPower(-1);
+    private void turnStorageStarOnUnstore() {
+        storageStarServo.setPower(-0.5);
     }
 
     private void gateServoGoToCollectionPosition() {

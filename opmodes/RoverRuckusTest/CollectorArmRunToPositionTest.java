@@ -28,7 +28,7 @@ public class CollectorArmRunToPositionTest extends LinearOpMode {
         logFile = new DataLogging("CollectorArm", telemetry);
 
         //collectorArmRotationMotor = hardwareMap.get(DcMotor.class,"collectorArmRotatorMotor");
-        collectorArmRotationMotor = new DcMotor8863("collectorArmRotatorMotor", hardwareMap, telemetry);
+        collectorArmRotationMotor = new DcMotor8863("collectorArmRotationMotor", hardwareMap, telemetry);
         collectorArmRotationMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
         collectorArmRotationMotor.setMovementPerRev(360 * 48 / 128);
         collectorArmRotationMotor.setMotorToHold();

@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.opmodes.RoverRuckus;
+package org.firstinspires.ftc.teamcode.opmodes.RoverRuckusTest;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -33,11 +33,11 @@ public class CollectionTestStorageStarServo extends LinearOpMode {
         collector.setDebugOn();
         collector.setDesiredMineralColorToGold();
 
-        collector.turnStorageStarOnStore();
+        //collector.turnStorageStarOnStore();
         sleep(4000);
-        collector.turnStorageStarOnUnstore();
+        //collector.turnStorageStarOnUnstore();
         sleep(4000);
-        collector.turnStorageStarOff();
+        //collector.turnStorageStarOff();
         sleep(4000);
         
         // Wait for the start button

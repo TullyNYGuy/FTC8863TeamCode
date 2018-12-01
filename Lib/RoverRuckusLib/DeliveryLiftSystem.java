@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Lib.RoverRuckus;
+package org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib;
 
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -27,10 +27,12 @@ public class DeliveryLiftSystem {
     private DcMotor8863 liftMotor;
 
     private Servo8863 dumpServo;
-    private double dumpServoHomePosition = 0.8;
+    private double dumpServoHomePosition = 1.0;
     private double dumpServoDumpPosition = 0.1;
-    private double dumpServoInitPosition = 0.8;
+    private double dumpServoInitPosition = 1.0;
     private double dumpServoTransferPosition = 0.4;
+
+    private Telemetry telemetry;
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -48,10 +50,13 @@ public class DeliveryLiftSystem {
     public DeliveryLiftSystem(HardwareMap hardwareMap, Telemetry telemetry) {
         dumpServo = new Servo8863("dumpServo", hardwareMap, telemetry, dumpServoHomePosition, dumpServoDumpPosition, dumpServoInitPosition, dumpServoInitPosition, Servo.Direction.FORWARD);
         dumpServo.setPositionOne(dumpServoTransferPosition);
+
         liftMotor = new DcMotor8863("liftMotor",hardwareMap,telemetry);
         liftMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_3_7_ORBITAL);
-        //gear ratio big gear: 76 teeth small is 48
-        liftMotor.setMovementPerRev(8*48/76*1/25.4);
+        //gear ratio big gear: 80 teeth small is 48
+        liftMotor.setMovementPerRev(0.45);
+
+        this.telemetry=telemetry;
     }
 
     //*********************************************************************************************
@@ -76,6 +81,45 @@ public class DeliveryLiftSystem {
         dumpServo.goPositionOne();
     }
     public void init(){dumpServo.goHome();}
-    public void update(){}
+    public DcMotor8863.MotorState update(){
+       return liftMotor.update();
+    }
     public void shutdown(){dumpServo.goHome();}
+
+    public void testLiftMotorEncoder(){
+       int encoderValue = liftMotor.getCurrentPosition();
+       telemetry.addData("Encoder= ",encoderValue);
+    }
+
+    /**
+     * Move to a position based on zero which is set when the lift is all the way down, must run
+     * update rotuine in a loop after that.
+     * @param heightInInches how high the lift will go up relative to all the way down
+     */
+    public void moveToPosition(double heightInInches){
+        liftMotor.moveToPosition(.5,heightInInches, DcMotor8863.FinishBehavior.FLOAT);
+    }
+    public void dehangTheRobot(){
+        moveToPosition(12.125);
+    }
+    public double getLiftPosition(){
+        return liftMotor.getPositionInTermsOfAttachment();
+    }
+    public void testSystem(){
+        deliveryBoxToDump();
+        delay(2000);
+        deliveryBoxToHome();
+        delay(2000);
+        moveToPosition(4);
+        delay(2000);
+        moveToPosition(0);
+    }
+    private void delay(int ms) {
+        try {
+            Thread.sleep(ms);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
 }

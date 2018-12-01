@@ -30,6 +30,7 @@ public class CollectorArm {
     private double homePosition = -25;
     private double collectPosition = -140;
     private double transferPosition = -80;
+    private double dehangPosition = -42;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -51,6 +52,8 @@ public class CollectorArm {
         rotationMotor.setMovementPerRev(360*48/128);
         rotationMotor.setMotorToHold();
         rotationMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rotationMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
 
         this.telemetry = telemetry;
     }
@@ -101,6 +104,10 @@ public class CollectorArm {
 
     public void goToTransfer(){
         rotationMotor.moveToPosition(0.2, transferPosition, DcMotor8863.FinishBehavior.HOLD);
+    }
+
+    public void goToDehang(){
+        rotationMotor.moveToPosition(0.2, dehangPosition, DcMotor8863.FinishBehavior.HOLD);
     }
 
     public void floatArm(){

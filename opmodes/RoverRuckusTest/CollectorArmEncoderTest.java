@@ -25,7 +25,7 @@ public class CollectorArmEncoderTest extends LinearOpMode {
 
         // Put your initializations here
         //collectorArmRotationMotor = hardwareMap.get(DcMotor.class,"collectorArmRotatorMotor");
-        collectorArmRotationMotor = new DcMotor8863("collectorArmRotatorMotor", hardwareMap, telemetry);
+        collectorArmRotationMotor = new DcMotor8863("collectorArmRotationMotor", hardwareMap, telemetry);
         collectorArmRotationMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
         collectorArmRotationMotor.setMovementPerRev(360 * 48/128);
         collectorArmRotationMotor.setMotorToHold();
