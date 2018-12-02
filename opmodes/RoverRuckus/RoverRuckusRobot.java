@@ -66,18 +66,14 @@ public class RoverRuckusRobot {
 
     private RoverRuckusRobot(HardwareMap hardwareMap, RobotMode robotMode, Telemetry telemetry, AllianceColor.TeamColor teamColor, DataLogging dataLog) {
         this.telemetry = telemetry;
+
+        collector = new CollectorGB(hardwareMap, telemetry);
+        collectorArm = new CollectorArm(hardwareMap, telemetry);
+        deliveryLiftSystem = new DeliveryLiftSystem(hardwareMap, telemetry);
+
         if (robotMode == RobotMode.AUTONOMOUS) {
             // create the robot for autonomous
             driveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap, telemetry);
-
-            collector = new CollectorGB(hardwareMap, telemetry);
-
-            collectorArm = new CollectorArm(hardwareMap, telemetry);
-
-            deliveryLiftSystem = new DeliveryLiftSystem(hardwareMap, telemetry);
-
-
-
             //allianceColorSwitch = new AllianceColorSwitch(hardwareMap, telemetry);
             //allianceColor = allianceColorSwitch.getAllianceColor();
         } else {
@@ -124,10 +120,33 @@ public class RoverRuckusRobot {
         collectorArm.update();
     }
 
-    public void dehangRobot (){
+    public void dehang (){
         collectorArm.goToDehang();
+        while (collectorArm.update() != DcMotor8863.MotorState.COMPLETE_HOLD) {
+        }
+        //delay(2000);
+        //collectorArm.update();
+        deliveryLiftSystem.dehang();
+        while (deliveryLiftSystem.update() != DcMotor8863.MotorState.COMPLETE_FLOAT){
+        }
+        //delay(5000);
+        //deliveryLiftSystem.update();
+        collectorArm.goToClearStar();
+        while (collectorArm.update() != DcMotor8863.MotorState.COMPLETE_HOLD) {
+        }
+        //collectorArm.update();
+        //delay (1000);
+        deliveryLiftSystem.deliveryBoxToTransfer();
+        delay(500);
+        collectorArm.goToHome();
+        while (collectorArm.update() != DcMotor8863.MotorState.COMPLETE_HOLD) {
+        }
+        //collectorArm.update();
+    }
+
+    public void undehang() {
+        deliveryLiftSystem.undehang();
         delay(2000);
-        deliveryLiftSystem.dehangTheRobot();
     }
 
     private void delay(int ms) {

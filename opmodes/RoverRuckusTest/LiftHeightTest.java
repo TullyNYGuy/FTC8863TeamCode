@@ -30,7 +30,7 @@ public class LiftHeightTest extends LinearOpMode {
 
         // Put your calls here - they will not run in a loop
         //deliveryLiftSystem.moveToPosition(5);
-        deliveryLiftSystem.dehangTheRobot();
+        deliveryLiftSystem.dehang();
         while (opModeIsActive()&& deliveryLiftSystem.update()!= DcMotor8863.MotorState.COMPLETE_FLOAT) {
 
             // Put your calls that need to run in a loop here

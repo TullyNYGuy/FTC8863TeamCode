@@ -30,7 +30,7 @@ public class DeliveryLiftSystem {
     private double dumpServoHomePosition = 1.0;
     private double dumpServoDumpPosition = 0.1;
     private double dumpServoInitPosition = 1.0;
-    private double dumpServoTransferPosition = 0.4;
+    private double dumpServoTransferPosition = 0.7;
 
     private Telemetry telemetry;
     //*********************************************************************************************
@@ -81,6 +81,7 @@ public class DeliveryLiftSystem {
         dumpServo.goPositionOne();
     }
     public void init(){dumpServo.goHome();}
+
     public DcMotor8863.MotorState update(){
        return liftMotor.update();
     }
@@ -99,9 +100,14 @@ public class DeliveryLiftSystem {
     public void moveToPosition(double heightInInches){
         liftMotor.moveToPosition(.5,heightInInches, DcMotor8863.FinishBehavior.FLOAT);
     }
-    public void dehangTheRobot(){
-        moveToPosition(12.125);
+    public void dehang(){
+        moveToPosition(12.25);
     }
+
+    public void undehang(){
+        moveToPosition(.25);
+    }
+
     public double getLiftPosition(){
         return liftMotor.getPositionInTermsOfAttachment();
     }

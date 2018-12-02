@@ -31,6 +31,7 @@ public class CollectorArm {
     private double collectPosition = -140;
     private double transferPosition = -80;
     private double dehangPosition = -42;
+    private double clearStarPosition = -55;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -102,12 +103,20 @@ public class CollectorArm {
         rotationMotor.moveToPosition(0.2, collectPosition, DcMotor8863.FinishBehavior.HOLD);
     }
 
+    public void goToPark() {
+        rotationMotor.moveToPosition(0.2, -130, DcMotor8863.FinishBehavior.HOLD);
+    }
+
     public void goToTransfer(){
         rotationMotor.moveToPosition(0.2, transferPosition, DcMotor8863.FinishBehavior.HOLD);
     }
 
     public void goToDehang(){
         rotationMotor.moveToPosition(0.2, dehangPosition, DcMotor8863.FinishBehavior.HOLD);
+    }
+
+    public void goToClearStar(){
+        rotationMotor.moveToPosition(0.2, clearStarPosition, DcMotor8863.FinishBehavior.HOLD);
     }
 
     public void floatArm(){
