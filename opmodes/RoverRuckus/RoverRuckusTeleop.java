@@ -34,6 +34,19 @@ public class RoverRuckusTeleop extends LinearOpMode {
 
     // GAMEPAD 1
 
+    boolean gamepad1RightBumperIsReleased = true;
+    boolean gamepad1LeftBumperIsReleased = true;
+    boolean gamepad1aButtonIsReleased = true;
+    boolean gamepad1bButtonIsReleased = true;
+    boolean gamepad1yButtonIsReleased = true;
+    boolean gamepad1xButtonIsReleased = true;
+    boolean gamepad1DpadUpIsReleased = true;
+    boolean gamepad1DpadDownIsReleased = true;
+    boolean gamepad1DpadLeftIsReleased = true;
+    boolean gamepad1DpadRightIsReleased = true;
+    boolean gamepad1LeftStickButtonIsReleased = true;
+    boolean gamepad1RightStickButtonIsReleased = true;
+
     // declare the buttons on the gamepad as multi push button objects
     public GamepadButtonMultiPush gamepad1RightBumper;
     public GamepadButtonMultiPush gamepad1LeftBumper;
