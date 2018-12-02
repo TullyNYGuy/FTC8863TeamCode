@@ -121,9 +121,9 @@ public class RoverRuckusRobot {
     }
 
     public void dehang (){
-        collectorArm.goToDehang();
-        while (collectorArm.update() != DcMotor8863.MotorState.COMPLETE_HOLD) {
-        }
+//        collectorArm.goToDehang();
+//        while (collectorArm.update() != DcMotor8863.MotorState.COMPLETE_HOLD) {
+//        }
         //delay(2000);
         //collectorArm.update();
         deliveryLiftSystem.dehang();
@@ -131,16 +131,16 @@ public class RoverRuckusRobot {
         }
         //delay(5000);
         //deliveryLiftSystem.update();
-        collectorArm.goToClearStar();
-        while (collectorArm.update() != DcMotor8863.MotorState.COMPLETE_HOLD) {
-        }
+//        collectorArm.goToClearStar();
+//        while (collectorArm.update() != DcMotor8863.MotorState.COMPLETE_HOLD) {
+//        }
         //collectorArm.update();
         //delay (1000);
         deliveryLiftSystem.deliveryBoxToTransfer();
-        delay(500);
-        collectorArm.goToHome();
-        while (collectorArm.update() != DcMotor8863.MotorState.COMPLETE_HOLD) {
-        }
+//        delay(500);
+//        collectorArm.goToHome();
+//        while (collectorArm.update() != DcMotor8863.MotorState.COMPLETE_HOLD) {
+//        }
         //collectorArm.update();
     }
 
@@ -159,7 +159,7 @@ public class RoverRuckusRobot {
 
     public void shutdown() {
         driveTrain.shutdown();
-        collector.shutdown();
+       // collector.shutdown();
     }
 
 }
