@@ -34,19 +34,6 @@ public class RoverRuckusTeleop extends LinearOpMode {
 
     // GAMEPAD 1
 
-    boolean gamepad1RightBumperIsReleased = true;
-    boolean gamepad1LeftBumperIsReleased = true;
-    boolean gamepad1aButtonIsReleased = true;
-    boolean gamepad1bButtonIsReleased = true;
-    boolean gamepad1yButtonIsReleased = true;
-    boolean gamepad1xButtonIsReleased = true;
-    boolean gamepad1DpadUpIsReleased = true;
-    boolean gamepad1DpadDownIsReleased = true;
-    boolean gamepad1DpadLeftIsReleased = true;
-    boolean gamepad1DpadRightIsReleased = true;
-    boolean gamepad1LeftStickButtonIsReleased = true;
-    boolean gamepad1RightStickButtonIsReleased = true;
-
     // declare the buttons on the gamepad as multi push button objects
     public GamepadButtonMultiPush gamepad1RightBumper;
     public GamepadButtonMultiPush gamepad1LeftBumper;
@@ -228,52 +215,40 @@ public class RoverRuckusTeleop extends LinearOpMode {
             if (gamepad1x.buttonPress(gamepad1.x)) {
             }
 
-            if (gamepad1.dpad_up) {
-                if (gamepad1DpadUpIsReleased) {
-                    gamepad1LeftJoyStickX.setFullPower();
-                    gamepad1LeftJoyStickY.setFullPower();
-                    gamepad1RightJoyStickX.setFullPower();
-                    gamepad1RightJoyStickY.setFullPower();
-                    gamepad1DpadUpIsReleased = false;
-                }
-            } else {
-                gamepad1DpadUpIsReleased = true;
+            if (gamepad1DpadUp.buttonPress(gamepad1.dpad_up)) {
+                // this was a new button press, not a button held down for a while
+                // put the command to be executed here
+                gamepad1LeftJoyStickX.setFullPower();
+                gamepad1LeftJoyStickY.setFullPower();
+                gamepad1RightJoyStickX.setFullPower();
+                gamepad1RightJoyStickY.setFullPower();
             }
 
-            if (gamepad1.dpad_down) {
-                if (gamepad1DpadDownIsReleased) {
-                    gamepad1LeftJoyStickX.setQuarterPower();
-                    gamepad1LeftJoyStickY.setQuarterPower();
-                    gamepad1RightJoyStickX.setQuarterPower();
-                    gamepad1RightJoyStickY.setQuarterPower();
-                    gamepad1DpadDownIsReleased = false;
-                }
-            } else {
-                gamepad1DpadDownIsReleased = true;
+            if (gamepad1DpadDown.buttonPress(gamepad1.dpad_down)) {
+                // this was a new button press, not a button held down for a while
+                // put the command to be executed here
+                gamepad1LeftJoyStickX.set30PercentPower();
+                gamepad1LeftJoyStickY.set30PercentPower();
+                gamepad1RightJoyStickX.set30PercentPower();
+                gamepad1RightJoyStickY.set30PercentPower();
             }
 
-            if (gamepad1.dpad_left) {
-                if (gamepad1DpadLeftIsReleased) {
-                    gamepad1LeftJoyStickX.setHalfPower();
-                    gamepad1LeftJoyStickY.setHalfPower();
-                    gamepad1RightJoyStickX.setHalfPower();
-                    gamepad1RightJoyStickY.setHalfPower();
-                    gamepad1DpadLeftIsReleased = false;
-                }
-            } else {
-                gamepad1DpadLeftIsReleased = true;
+            if (gamepad1DpadLeft.buttonPress(gamepad1.dpad_left)) {
+                // this was a new button press, not a button held down for a while
+                // put the command to be executed here
+                gamepad1LeftJoyStickX.setHalfPower();
+                gamepad1LeftJoyStickY.setHalfPower();
+                gamepad1RightJoyStickX.setHalfPower();
+                gamepad1RightJoyStickY.setHalfPower();
             }
 
-            if (gamepad1.dpad_right) {
-                if (gamepad1DpadRightIsReleased) {
-                    gamepad1LeftJoyStickX.set10PercentPower();
-                    gamepad1LeftJoyStickY.set10PercentPower();
-                    gamepad1RightJoyStickX.set10PercentPower();
-                    gamepad1RightJoyStickY.set10PercentPower();
-                    gamepad1DpadRightIsReleased = false;
-                }
-            } else {
-                gamepad1DpadRightIsReleased = true;
+            if (gamepad1DpadRight.buttonPress(gamepad1.dpad_right)) {
+                // this was a new button press, not a button held down for a while
+                // put the command to be executed here
+                gamepad1LeftJoyStickX.set20PercentPower();
+                gamepad1LeftJoyStickY.set20PercentPower();
+                gamepad1RightJoyStickX.set20PercentPower();
+                gamepad1RightJoyStickY.set20PercentPower();
             }
 
             if (gamepad1LeftStickButton.buttonPress(gamepad1.left_stick_button)) {
@@ -350,16 +325,16 @@ public class RoverRuckusTeleop extends LinearOpMode {
             }
 
             if (gamepad2DpadUp.buttonPress(gamepad2.dpad_up)) {
-                // this was a new button press, not a button held down for a while
-                // put the command to be executed here
+                    robot.deliveryLiftSystem.moveToPosition(4);
             }
 
             if (gamepad2DpadDown.buttonPress(gamepad2.dpad_down)) {
-                // this was a new button press, not a button held down for a while
-                // put the command to be executed here
+                robot.deliveryLiftSystem.moveToPosition(1);
+
             }
 
             if (gamepad2DpadLeft.buttonPress(gamepad2.dpad_left)) {
+                robot.deliveryLiftSystem.moveToPosition(12.25);
                 // this was a new button press, not a button held down for a while
                 // put the command to be executed here
             }
