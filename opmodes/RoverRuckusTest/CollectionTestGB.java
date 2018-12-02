@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.CollectorGB;
  *
  *
  */
-@TeleOp(name = "Collection test GB", group = "Test")
+@TeleOp(name = "AAA Collection Demo", group = "Test")
 //@Disabled
 public class CollectionTestGB extends LinearOpMode {
 
@@ -32,7 +32,7 @@ public class CollectionTestGB extends LinearOpMode {
         collector.setDataLogging(logfile);
         collector.setLoggingOn();
         collector.setDebugOn();
-        collector.setDesiredMineralColorToGold();
+        collector.setDesiredMineralColorToSilver();
         
         // Wait for the start button
         telemetry.addData(">", "Press Start to run" );
