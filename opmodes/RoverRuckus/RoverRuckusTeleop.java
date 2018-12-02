@@ -215,16 +215,52 @@ public class RoverRuckusTeleop extends LinearOpMode {
             if (gamepad1x.buttonPress(gamepad1.x)) {
             }
 
-            if (gamepad1DpadUp.buttonPress(gamepad1.dpad_up)) {
+            if (gamepad1.dpad_up) {
+                if (gamepad1DpadUpIsReleased) {
+                    gamepad1LeftJoyStickX.setFullPower();
+                    gamepad1LeftJoyStickY.setFullPower();
+                    gamepad1RightJoyStickX.setFullPower();
+                    gamepad1RightJoyStickY.setFullPower();
+                    gamepad1DpadUpIsReleased = false;
+                }
+            } else {
+                gamepad1DpadUpIsReleased = true;
             }
 
-            if (gamepad1DpadDown.buttonPress(gamepad1.dpad_down)) {
+            if (gamepad1.dpad_down) {
+                if (gamepad1DpadDownIsReleased) {
+                    gamepad1LeftJoyStickX.setQuarterPower();
+                    gamepad1LeftJoyStickY.setQuarterPower();
+                    gamepad1RightJoyStickX.setQuarterPower();
+                    gamepad1RightJoyStickY.setQuarterPower();
+                    gamepad1DpadDownIsReleased = false;
+                }
+            } else {
+                gamepad1DpadDownIsReleased = true;
             }
 
-            if (gamepad1DpadLeft.buttonPress(gamepad1.dpad_left)) {
+            if (gamepad1.dpad_left) {
+                if (gamepad1DpadLeftIsReleased) {
+                    gamepad1LeftJoyStickX.setHalfPower();
+                    gamepad1LeftJoyStickY.setHalfPower();
+                    gamepad1RightJoyStickX.setHalfPower();
+                    gamepad1RightJoyStickY.setHalfPower();
+                    gamepad1DpadLeftIsReleased = false;
+                }
+            } else {
+                gamepad1DpadLeftIsReleased = true;
             }
 
-            if (gamepad1DpadRight.buttonPress(gamepad1.dpad_right)) {
+            if (gamepad1.dpad_right) {
+                if (gamepad1DpadRightIsReleased) {
+                    gamepad1LeftJoyStickX.set10PercentPower();
+                    gamepad1LeftJoyStickY.set10PercentPower();
+                    gamepad1RightJoyStickX.set10PercentPower();
+                    gamepad1RightJoyStickY.set10PercentPower();
+                    gamepad1DpadRightIsReleased = false;
+                }
+            } else {
+                gamepad1DpadRightIsReleased = true;
             }
 
             if (gamepad1LeftStickButton.buttonPress(gamepad1.left_stick_button)) {
