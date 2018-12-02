@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.opmodes.GenericTest;
+package org.firstinspires.ftc.teamcode.opmodes.RoverRuckus;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -10,18 +10,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.GamepadButtonMultiPush;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.JoyStick;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.GamepadButtonMultiPush;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.JoyStick;
-import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.Collector;
 import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.CollectorGB;
-import org.firstinspires.ftc.teamcode.opmodes.RoverRuckus.RoverRuckusRobot;
 
 @TeleOp(name = "Rover Ruckus Teleop", group = "Run")
 //@Disabled
@@ -42,8 +31,6 @@ public class RoverRuckusTeleop extends LinearOpMode {
     public RoverRuckusRobot robot;
 
     DataLogging dataLog = null;
-
-    CollectorGB collector;
 
     // GAMEPAD 1
 
@@ -209,7 +196,6 @@ public class RoverRuckusTeleop extends LinearOpMode {
             if (gamepad1RightBumper.buttonPress(gamepad1.right_bumper)) {
                 // this was a new button press, not a button held down for a while
                 // put the command to be executed here
-                relicAlignment();
             }
 
             if (gamepad1LeftBumper.buttonPress(gamepad1.left_bumper)) {
@@ -297,19 +283,20 @@ public class RoverRuckusTeleop extends LinearOpMode {
             }
 
             if (gamepad2a.buttonPress(gamepad2.a)) {
+                robot.collector.turnCollectorOn();
             }
 
             if (gamepad2b.buttonPress(gamepad2.b)) {
-                    collector.turnCollectorOff();
+                    robot.collector.turnCollectorOff();
             }
 
             if (gamepad2y.buttonPress(gamepad2.y)) {
-                collector.turnCollectorOn();
+                robot.collector.setDesiredMineralColorToGold();
                 //gold
             }
 
             if (gamepad2x.buttonPress(gamepad2.x)) {
-                collector.turnCollectorOn();
+                robot.collector.setDesiredMineralColorToSilver();
                 //silver
             }
 
@@ -416,12 +403,12 @@ public class RoverRuckusTeleop extends LinearOpMode {
 
     public double actualTurnAngle;
 
-    public void relicAlignment() {
-        driveStraight(-30.5, 0.1);
-        spinTurn(-45, 0.1, AdafruitIMU8863.AngleMode.ABSOLUTE);
-        actualTurnAngle = robot.driveTrain.imu.getHeading();
-        sleep(1000);
-    }
+//    public void relicAlignment() {
+//        driveStraight(-30.5, 0.1);
+//        spinTurn(-45, 0.1, AdafruitIMU8863.AngleMode.ABSOLUTE);
+//        actualTurnAngle = robot.driveTrain.imu.getHeading();
+//        sleep(1000);
+//    }
 
     public void driveStraight(double distance, double power) {
         DriveTrain.Status statusDrive = DriveTrain.Status.COMPLETE;
