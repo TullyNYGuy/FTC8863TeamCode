@@ -27,7 +27,7 @@ public class DeliveryLiftSystem {
     private DcMotor8863 liftMotor;
 
     private Servo8863 dumpServo;
-    private double dumpServoHomePosition = 0.5;
+    private double dumpServoHomePosition = 0.9;
     private double dumpServoDumpPosition = 0.1;
     private double dumpServoInitPosition = 0.5;
     private double dumpServoTransferPosition = 0.7;
@@ -101,7 +101,7 @@ public class DeliveryLiftSystem {
         liftMotor.moveToPosition(1,heightInInches, DcMotor8863.FinishBehavior.FLOAT);
     }
     public void dehang(){
-        moveToPosition(12.25);
+        moveToPosition(11.25);
     }
 
     public void undehang(){

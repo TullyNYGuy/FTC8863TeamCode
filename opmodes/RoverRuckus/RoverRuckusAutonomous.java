@@ -89,7 +89,7 @@ public class RoverRuckusAutonomous extends LinearOpMode {
         loopTimer.reset();
 
         //dehang the robot
-       // robot.dehang();
+        robot.dehang();
 
         driveToDepotDumpThenCrater();
         // driveToCraterFromLander();
@@ -141,8 +141,8 @@ public class RoverRuckusAutonomous extends LinearOpMode {
         logFile.logData("headingFirstStraight " + Double.toString( robot.driveTrain.imu.getHeading()));
         //turnByDegrees(-headingOnGround, .3);
         //logFile.logData("headingFirstTurn " + Double.toString( robot.driveTrain.imu.getHeading()));
-        headingForTurn = -67-headingOnGround;
-        desiredHeading = -67;
+        headingForTurn = 67-headingOnGround;
+        desiredHeading = 67;
         turnByDegrees(headingForTurn, .3);
 
         // head toward wall
@@ -153,29 +153,34 @@ public class RoverRuckusAutonomous extends LinearOpMode {
 
         // turn toward crater
         //turnByDegrees(-61.38, .3);
-        headingForTurn = 118.6;
+        headingForTurn = -118.6;
         turnByDegrees(headingForTurn-compensatedHeading, .3);
         logFile.logData("headingThirdTurn " + Double.toString( robot.driveTrain.imu.getHeading()));
 
         // drive to depot backwards
         headingAfterDrive = driveStraight(-95, .3);
-        sleep(2000);
+
 
         //dump the marker
         robot.deliveryLiftSystem.deliveryBoxToDump();
         logFile.logData("headingThirdStraight " + Double.toString( robot.driveTrain.imu.getHeading()));
-
+        sleep(1000);
         // drive to the crater
-        headingAfterDrive = driveStraight(115, .3);
+        headingAfterDrive = driveStraight(120, .3);
         logFile.logData("headingFourthTurn " + Double.toString( robot.driveTrain.imu.getHeading()));
 
         //lower the arm
         //robot.collectorArm.goToPark();
         //sleep(1000);
         //robot.collectorArm.floatArm();
-        headingForTurn = 180.0;
+        headingForTurn = 160.0;
         turnByDegrees(headingForTurn, .3);
         logFile.logData("headingFifthTurn " + Double.toString( robot.driveTrain.imu.getHeading()));
+
+        headingForTurn = 20;
+        turnByDegrees(headingForTurn, .3);
+        logFile.logData("headingSixthTurn " + Double.toString(robot.driveTrain.imu.getHeading()));
+        driveStraight(-35, .3);
 
     }
 
