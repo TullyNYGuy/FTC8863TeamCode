@@ -114,9 +114,6 @@ public class CollectorGB {
     private int numberOfMineralsStored = 0;
 
     private ElapsedTime timer;
-    private double mineralDeliverTimerLimit = 1500;
-    private double mineralStorageTimerLimit = 4000;
-    private double mineralEjectTimerLimit = 1500;
 
     private double red = 0;
     private double blue = 0;
@@ -161,7 +158,7 @@ public class CollectorGB {
         this.loggingOn = false;
     }
 
-    public void setDebugOn(){
+    public void setDebugOn() {
         this.debugOn = true;
     }
 
@@ -469,6 +466,9 @@ public class CollectorGB {
 
     public CollectorState update() {
         ActionToTake actionToTake;
+         double mineralDeliverTimerLimit = 1500;
+         double mineralStorageTimerLimit = 4000;
+         double mineralEjectTimerLimit = 1500;
         switch (collectorState) {
             case OFF:
                 if (collectorCommand == CollectorCommand.ON && numberOfMineralsStored < 2) {
@@ -490,6 +490,7 @@ public class CollectorGB {
                     if (isMineralDetected()) {
                         collectorState = CollectorState.MINERAL_DETECTED;
                         turnIntakeOff();
+                        timer.reset();
                         mineralDetectedCounter = 0;
                         log("Mineral detected");
                         debug("Mineral detected");
@@ -507,6 +508,10 @@ public class CollectorGB {
                         log("Mineral Color = " + actualMineralColor.toString());
                         debug("Mineral Color = " + actualMineralColor.toString());
                     }
+                    if (actualMineralColor == MineralColor.NONE){
+                        // we really need to move it in just a little, not to the store position
+                        gateServoGoToStorePosition();
+                    }
                 }
                 break;
             case MINERAL_COLOR_DETERMINED:
@@ -517,6 +522,7 @@ public class CollectorGB {
                     actionToTake = getActionForDetectedMineral(actualMineralColor);
                     log("Action taken = " + actionToTake.toString());
                     debug("Action taken = " + actionToTake.toString());
+                    log("Number of minerals stored = " + numberOfMineralsStored);
                     switch (actionToTake) {
                         case NO_ACTION:
                             collectorState = CollectorState.NO_MINERAL;
@@ -552,7 +558,8 @@ public class CollectorGB {
                 break;
             case HOLD_MINERAL:
                 switch (collectorCommand) {
-                    case OFF: case RESET:
+                    case OFF:
+                    case RESET:
                         collectorState = CollectorState.OFF;
                         softReset();
                         break;
@@ -564,13 +571,15 @@ public class CollectorGB {
                         log("Delivery started");
                         debug("Delivery started");
                         break;
-                    case NONE: case ON:
-                        if (numberOfMineralsStored < 2){
+                    case NONE:
+                    case ON:
+                        if (numberOfMineralsStored < 2) {
                             collectorState = CollectorState.NO_MINERAL;
                             softReset();
                             turnIntakeOnSuckIn();
                         } else {
                             collectorState = CollectorState.OFF;
+                            collectorCommand = CollectorCommand.OFF;
                             softReset();
                             break;
                         }
@@ -602,8 +611,9 @@ public class CollectorGB {
                     softReset();
                 } else {
                     if (timer.milliseconds() > mineralEjectTimerLimit) {
-                        collectorState = CollectorState.OFF;
+                        collectorState = CollectorState.NO_MINERAL;
                         turnCollectorSystemsOff();
+                        turnIntakeOnSuckIn();
                         log("ejected");
                         debug("ejected");
                     }
