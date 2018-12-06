@@ -56,6 +56,15 @@ public class AdafruitIMU8863 {
     }
 
     /**
+     * The IMU returns angles in a range from -180 to + 180 normally. But sometimes you may want
+     * angles in the range of 0 to 360 instead. This enum allow you to pick one or the other.
+     */
+    public enum AngleRange {
+        PLUS_TO_MINUS_180,
+        ZERO_TO_360
+    }
+
+    /**
      * Enum to define which angle is being referenced.
      */
     private enum WhichAngle {
@@ -334,6 +343,20 @@ public class AdafruitIMU8863 {
         }
     }
 
+
+    /**
+     * Angles are normally reported in a range from -180 to +180. You may want your angles in a range
+     * from 0 to 360. This method converts from -180 to +180 to 0 to 360.
+     * @param angle in a range from -180 to 180
+     * @return angle in a range from 0 to 360
+     */
+    public double convertAngleTo360(double angle){
+        if(angle < 0) {
+            angle = angle + 360;
+        }
+        return angle;
+    }
+
     //*********************************************************************************************
     //          MAJOR METHODS
     //
@@ -385,6 +408,22 @@ public class AdafruitIMU8863 {
     public double getHeading() {
         angles = getAngularOrientation();
         return (getAngleUsingReference(angles, WhichAngle.HEADING));
+    }
+
+    /**
+     * Get the heading of the robot. This is the left or right direction. This can be RELATIVE,
+     * ABSOLUTE or RAW. See class documentation for definition of those modes. You can choose to
+     * get the angle in a range from -180 to 180 or 0 to 360.
+     * @param range
+     * @return
+     */
+    public double getHeading(AngleRange range) {
+        double angle180ToMinus180 = getHeading();
+        if (range == AngleRange.ZERO_TO_360) {
+            return convertAngleTo360(angle180ToMinus180);
+        } else {
+            return angle180ToMinus180;
+        }
     }
 
     /**

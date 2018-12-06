@@ -962,13 +962,22 @@ public class DriveTrain {
     // Autonomous Methods - turns
     //*********************************************************************************************
 
+    /**
+     *
+     * @param turnAngle in a range from -180 to 180. Negative angles run clockwise from 0 to -180.
+     *                  Positive angles run counter clockwise from 0 to 180.
+     * @param maxPower max power you want for the turn
+     * @param angleMode Is the starting point for this turn going to be 0 degrees? (relative)? OR is
+     *                  it going to be so that 0 degrees is whatever was set in the beginning when
+     *                  the robot was first turned on (absolute)?
+     */
     public void setupTurn(double turnAngle, double maxPower, AdafruitIMU8863.AngleMode angleMode) {
 
         if (imuPresent) {
             // set the mode for the motors during the turn. Without this they may not move.
             rightDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             leftDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            pidControl.setSetpoint(convertAngleTo360(turnAngle));
+            pidControl.setSetpoint(imu.convertAngleTo360(turnAngle));
             pidControl.setMaxCorrection(maxPower);
             pidControl.setThreshold(.5 );
             //pidControl.setKp(0.025);
@@ -991,7 +1000,7 @@ public class DriveTrain {
     public boolean updateTurn() {
 
         if (imuPresent) {
-            double currentHeading = convertAngleTo360(imu.getHeading());
+            double currentHeading = imu.convertAngleTo360(imu.getHeading());
             double correction = -pidControl.getCorrection(currentHeading);
             differentialDrive(0, correction);
             //return correction;
@@ -1149,13 +1158,6 @@ public class DriveTrain {
     public void shutdown() {
         rightDriveMotor.shutDown();
         leftDriveMotor.shutDown();
-    }
-
-    private double convertAngleTo360(double angle){
-        if(angle < 0) {
-            angle = angle + 360;
-        }
-        return angle;
     }
 
    public void getEncoderCounts() {
