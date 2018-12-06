@@ -173,14 +173,14 @@ public class RoverRuckusAutonomous extends LinearOpMode {
         //robot.collectorArm.goToPark();
         //sleep(1000);
         //robot.collectorArm.floatArm();
-        headingForTurn = 160.0;
+        headingForTurn = 180.0;
         turnByDegrees(headingForTurn, .3);
         logFile.logData("headingFifthTurn " + Double.toString( robot.driveTrain.imu.getHeading()));
-
-        headingForTurn = 20;
-        turnByDegrees(headingForTurn, .3);
-        logFile.logData("headingSixthTurn " + Double.toString(robot.driveTrain.imu.getHeading()));
-        driveStraight(-35, .3);
+//
+//        headingForTurn = 20;
+//        turnByDegrees(headingForTurn, .3);
+//        logFile.logData("headingSixthTurn " + Double.toString(robot.driveTrain.imu.getHeading()));
+//        driveStraight(-35, .3);
 
     }
 
