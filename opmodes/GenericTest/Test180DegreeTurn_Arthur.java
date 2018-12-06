@@ -31,7 +31,7 @@ public class Test180DegreeTurn_Arthur extends LinearOpMode {
         waitForStart();
 
 
-        driveTrain.setupTurn(270, 0.3, AdafruitIMU8863.AngleMode.RELATIVE);
+        driveTrain.setupTurn(180, 0.3, AdafruitIMU8863.AngleMode.RELATIVE);
         // Put your calls here - they will not run in a loop
 
         while(opModeIsActive()) {
