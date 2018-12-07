@@ -216,7 +216,7 @@ public class RoverRuckusAutonomous extends LinearOpMode {
     }
 
     public void turnByDegrees(double angle, double power) {
-        robot.driveTrain.setupTurn(angle, power, AdafruitIMU8863.AngleMode.RELATIVE);
+        robot.driveTrain.setupTurn(angle, power, AdafruitIMU8863.AngleMode.RELATIVE,1,1);
 
         while (opModeIsActive() && !robot.driveTrain.updateTurn()) {
             telemetry.addData(">", "Press Stop to end test.");

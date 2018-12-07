@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 import com.qualcomm.robotcore.hardware.*;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
+import net.frogbots.ftcopmodetunercommon.opmode.TunableLinearOpMode;
+
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class DriveTrain {
@@ -971,6 +973,32 @@ public class DriveTrain {
      *                  it going to be so that 0 degrees is whatever was set in the beginning when
      *                  the robot was first turned on (absolute)?
      */
+    public void setupTurn(double turnAngle, double maxPower, AdafruitIMU8863.AngleMode angleMode, double kp, double ki) {
+
+        if (imuPresent) {
+            // set the mode for the motors during the turn. Without this they may not move.
+            rightDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            leftDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            pidControl.setSetpoint(imu.convertAngleTo360(turnAngle));
+            pidControl.setMaxCorrection(maxPower);
+            pidControl.setThreshold(.5 );
+            //pidControl.setKp(0.025);
+            //pidControl.setKi(0.0000000015);
+            pidControl.setKp(kp);
+            pidControl.setKi(ki);
+            pidControl.reset();
+
+            imu.setAngleMode(angleMode);
+            if (angleMode == AdafruitIMU8863.AngleMode.RELATIVE) {
+
+                imu.resetAngleReferences();
+            }
+        } else {
+            shutdown();
+            throw new IllegalArgumentException("No Imu found");
+        }
+    }
+
     public void setupTurn(double turnAngle, double maxPower, AdafruitIMU8863.AngleMode angleMode) {
 
         if (imuPresent) {
@@ -983,7 +1011,7 @@ public class DriveTrain {
             //pidControl.setKp(0.025);
             //pidControl.setKi(0.0000000015);
             pidControl.setKp(0.0125);
-            pidControl.setKi(0.00000000025);
+            pidControl.setKi(0.00015);
             pidControl.reset();
 
             imu.setAngleMode(angleMode);
