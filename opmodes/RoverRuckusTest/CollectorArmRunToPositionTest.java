@@ -29,7 +29,7 @@ public class CollectorArmRunToPositionTest extends LinearOpMode {
 
         //collectorArmRotationMotor = hardwareMap.get(DcMotor.class,"collectorArmRotatorMotor");
         collectorArmRotationMotor = new DcMotor8863("collectorArmRotationMotor", hardwareMap, telemetry);
-        collectorArmRotationMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
+        collectorArmRotationMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_60);
         collectorArmRotationMotor.setMovementPerRev(360 * 48 / 128);
         collectorArmRotationMotor.setMotorToHold();
 
@@ -44,11 +44,11 @@ public class CollectorArmRunToPositionTest extends LinearOpMode {
 
         // Put your calls here - they will not run in a loop
         collectorArmRotationMotor.setTargetEncoderTolerance(10);
-        collectorArmRotationMotor.moveToPosition(.1, -120, DcMotor8863.FinishBehavior.HOLD);
+        collectorArmRotationMotor.moveToPosition(.25, -120, DcMotor8863.FinishBehavior.HOLD);
         logFile.headerStrings("Encoder Count", "Motor State");
         logFile.startTimer();
 
-        while (opModeIsActive()) {
+        while (opModeIsActive()&& collectorArmRotationMotor.update()!= DcMotor8863.MotorState.COMPLETE_HOLD) {
 
             // Put your calls that need to run in a loop here
             collectorArmRotationMotorState = collectorArmRotationMotor.update();
@@ -63,7 +63,23 @@ public class CollectorArmRunToPositionTest extends LinearOpMode {
 
             idle();
         }
+        sleep(1000);
+        collectorArmRotationMotor.moveToPosition(.25, 10 , DcMotor8863.FinishBehavior.HOLD);
+        while (opModeIsActive()&& collectorArmRotationMotor.update()!= DcMotor8863.MotorState.COMPLETE_HOLD) {
 
+            // Put your calls that need to run in a loop here
+            collectorArmRotationMotorState = collectorArmRotationMotor.update();
+            collectorArmEncoderCount = collectorArmRotationMotor.getCurrentPosition();
+            telemetry.addData("Encoder count = ", collectorArmEncoderCount);
+            telemetry.addData("Position (degrees) = ", collectorArmRotationMotor.getPositionInTermsOfAttachment());
+            telemetry.addData("Motor state = ", collectorArmRotationMotorState.toString());
+            logFile.logData(String.format("%d", collectorArmRotationMotor.getCurrentPosition()), collectorArmRotationMotorState.toString());
+            telemetry.addData(">", "Press Stop to end test.");
+
+            telemetry.update();
+
+            idle();
+        }
         // Put your cleanup code here - it runs as the application shuts down
         logFile.closeDataLog();
         telemetry.addData(">", "Done");
