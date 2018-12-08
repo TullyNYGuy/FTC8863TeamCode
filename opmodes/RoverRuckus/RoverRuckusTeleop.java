@@ -325,7 +325,8 @@ public class RoverRuckusTeleop extends LinearOpMode {
             }
 
             if (gamepad2DpadUp.buttonPress(gamepad2.dpad_up)) {
-                    robot.deliveryLiftSystem.moveToPosition(4);
+                    //robot.deliveryLiftSystem.moveToPosition(4);
+                robot.collector.deliverMinerals();
             }
 
             if (gamepad2DpadDown.buttonPress(gamepad2.dpad_down)) {
@@ -394,6 +395,7 @@ public class RoverRuckusTeleop extends LinearOpMode {
             telemetry.addData("Drive train mode = ", driveTrainMode.toString());
             telemetry.addData("Drive Forward / Reverse = ", robot.driveTrain.getDriveDirection().toString());
             telemetry.addData("Power Reduction = ", "%1.2f", gamepad1LeftJoyStickY.getReductionFactor());
+            telemetry.addData("Collector State = ", robot.collector.update().toString());
             telemetry.addData(">", "Press Stop to end.");
             telemetry.update();
 
