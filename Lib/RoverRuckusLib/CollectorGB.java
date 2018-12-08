@@ -620,18 +620,28 @@ public class CollectorGB {
                 }
                 break;
             case DELIVER_MINERAL:
-                if (collectorCommand == CollectorCommand.OFF) {
-                    collectorState = CollectorState.OFF;
-                    softReset();
+                switch (collectorCommand ) {
+                    case OFF:
+                        collectorState = CollectorState.OFF;
+                        softReset();
+                        break;
+                    case RESET:
+                        collectorState = CollectorState.OFF;
+                        softReset();
+                        numberOfMineralsStored = 0;
+                        log("Delivery completed");
+                        debug("Delivery completed");
+                        break;
+                    case NONE:
+                    case ON:
+                    case DELIVER:
+                        if (timer.milliseconds() > 6000) {
+                            collectorState = CollectorState.NO_MINERAL;
+                            turnStorageStarOff();
+                            gateServoGoToCollectionPosition();
+                            break;
+                        }
                 }
-                if (collectorCommand == CollectorCommand.RESET) {
-                    collectorState = CollectorState.OFF;
-                    softReset();
-                    numberOfMineralsStored = 0;
-                    log("Delivery completed");
-                    debug("Delivery completed");
-                }
-                break;
         }
         return collectorState;
     }
