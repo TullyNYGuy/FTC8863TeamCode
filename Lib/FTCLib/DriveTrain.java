@@ -42,6 +42,8 @@ public class DriveTrain {
     double distanceAtMovingUntilComplete = 0;
     double distanceAtComplete = 0;
 
+    private DataLogging dataLogging;
+
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS
     //
@@ -116,6 +118,14 @@ public class DriveTrain {
 
     public void setDebug(boolean debug) {
         this.debug = debug;
+    }
+
+    public DataLogging getDataLogging() {
+        return dataLogging;
+    }
+
+    public void setDataLogging(DataLogging dataLogging) {
+        this.dataLogging = dataLogging;
     }
 
     //*********************************************************************************************
@@ -1031,6 +1041,9 @@ public class DriveTrain {
             double currentHeading = imu.convertAngleTo360(imu.getHeading());
             double correction = -pidControl.getCorrection(currentHeading);
             differentialDrive(0, correction);
+            if (dataLogging != null){
+            dataLogging.logData(Double.toString(currentHeading),Double.toString(correction));
+            }
             //return correction;
             return pidControl.isFinished();
         } else {
