@@ -46,7 +46,8 @@ public class TunableLinearOpModeTest extends TunableLinearOpMode {
         dataLogging.logData("kp ="+kp);
         dataLogging.logData("ki ="+ki);
         // Put your calls here - they will not run in a loop
-        while(opModeIsActive() && driveTrain.updateTurn() == false) {
+        while(opModeIsActive()) {
+            driveTrain.updateTurn();
 
             telemetry.addData("kp = ", getDouble("kp"));
             telemetry.addData("ki = ", getDouble("ki"));
