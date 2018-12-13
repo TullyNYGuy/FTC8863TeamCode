@@ -70,7 +70,7 @@ public class TestTensorFlowObjectDetection extends LinearOpMode {
      * Once you've obtained a license key, copy the string from the Vuforia web site
      * and paste it in to your code on the next line, between the double quotes.
      */
-    private static final String VUFORIA_KEY = " -- YOUR NEW VUFORIA KEY GOES HERE  --- ";
+    private static final String VUFORIA_KEY = "AdFJpV3/////AAAAGfTNpwzHLEWLhTazSUptJDdvoaO1q58UH3Ix0gMjIizeGqeRTy/mHyHpZI3hX3VrQk0S4VJKsiwBIUrTZy57oWoQQGsD/6JXnrC/R2zQ2ruhxmV9JYc6zr5Lhu+aUFdce/WJezBkcUv7fD2y6kmNHAWlYyMx3ZP8YX2bSfTWu4PjiO3N/CFelgIJSz5BCRtYeFb1gKkCYhsqKUNfkWXznEFvX8ppW72yjbfq62QwqGFeuql/3cPce8asiOVo9NLiG9mIuADM+FWLairEHQ4h2euGHa+JNrk36EO0zVAFk9G2RBQJRkwgA7jUOGpCEW0Qqt0XJoM+0T0sOVORrn3Lqp9M4ecaQYsQsR8RPoZRL0Ox";
 
     /**
      * {@link #vuforia} is the variable we will use to store our instance of the Vuforia
@@ -93,7 +93,7 @@ public class TestTensorFlowObjectDetection extends LinearOpMode {
         if (ClassFactory.getInstance().canCreateTFObjectDetector()) {
             initTfod();
         } else {
-            telemetry.addData("Sorry!", "This device is not compatible with TFOD");
+            telemetry.addData("Sorry!", "This device is not compatible with TFOD :'(");
         }
 
         /** Wait for the game to begin */
