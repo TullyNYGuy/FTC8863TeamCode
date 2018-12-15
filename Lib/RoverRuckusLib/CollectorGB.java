@@ -72,7 +72,7 @@ public class CollectorGB {
 
     private Servo8863 gateServo;
     private double collectionPositionGateServo = 0.6;
-    private double keepPositionGateServo = 0;
+    private double keepPositionGateServo = 0.1;
     private double ejectPositionGateServo = 1;
     private double initPositionGateServo = 0.6;
 
@@ -98,7 +98,7 @@ public class CollectorGB {
      */
     private int mineralColorCounterLimit = 5;
     private double mineralGoldLimit = 60;
-    private double mineralSilverLimit = 100;
+    private double mineralSilverLimit = 70;
 
     /**
      * The number of times in a row that a mineral has been detected.
@@ -467,7 +467,7 @@ public class CollectorGB {
     public CollectorState update() {
         ActionToTake actionToTake;
          double mineralDeliverTimerLimit = 1500;
-         double mineralStorageTimerLimit = 4000;
+         double mineralStorageTimerLimit = 2000;
          double mineralEjectTimerLimit = 1500;
         switch (collectorState) {
             case OFF:

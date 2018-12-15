@@ -165,6 +165,7 @@ public class RoverRuckusTeleop extends LinearOpMode {
 
         // set the positions that the various systems need to be in when the robot is running
         robot.setupForRun();
+        robot.collector.setLoggingOn();
 
         while (opModeIsActive()) {
 
