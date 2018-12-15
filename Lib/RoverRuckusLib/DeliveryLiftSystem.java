@@ -1,12 +1,14 @@
 package org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib;
 
 
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Switch;
 
 public class DeliveryLiftSystem {
 
@@ -16,7 +18,18 @@ public class DeliveryLiftSystem {
     // user defined types
     //
     //*********************************************************************************************
-
+    private enum Commands{
+        GO_TO_BOTTOM,
+        GO_TO_TOP,
+        GO_TO_POSITION,
+        RESET
+    }
+    private enum States{
+        UNKOWN,
+        BOTTOM,
+        IN_BETWEEN,
+        TOP
+    }
 
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS
@@ -31,8 +44,11 @@ public class DeliveryLiftSystem {
     private double dumpServoDumpPosition = 0.1;
     private double dumpServoInitPosition = 0.5;
     private double dumpServoTransferPosition = 0.7;
-
+    private Switch bottomLimitSwitch;
+    private Switch topLimitSwitch;
+    private Commands commands;
     private Telemetry telemetry;
+    private States state;
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -57,7 +73,12 @@ public class DeliveryLiftSystem {
         liftMotor.setMovementPerRev(0.45);
 
         this.telemetry=telemetry;
+
+        bottomLimitSwitch = new Switch(hardwareMap, "bottomLiftSwitch", Switch.SwitchType.NORMALLY_OPEN);
+        topLimitSwitch = new Switch(hardwareMap,"topLiftSwitch", Switch.SwitchType.NORMALLY_OPEN);
+        state =  States.UNKOWN;
     }
+
 
     //*********************************************************************************************
     //          Helper Methods
@@ -82,14 +103,30 @@ public class DeliveryLiftSystem {
     }
     public void init(){dumpServo.goHome();}
 
-    public DcMotor8863.MotorState update(){
-       return liftMotor.update();
-    }
     public void shutdown(){dumpServo.goHome();}
 
     public void testLiftMotorEncoder(){
        int encoderValue = liftMotor.getCurrentPosition();
        telemetry.addData("Encoder= ",encoderValue);
+    }
+    public void goToBottom(){
+        commands = Commands.GO_TO_BOTTOM;
+    }
+    public void goToTop(){
+        commands = Commands.GO_TO_TOP;
+    }
+    public void reset(){
+        commands = Commands.RESET;
+    }
+
+    private void sendToBottom(){
+        liftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        liftMotor.setPower(-1);
+    }
+
+    private void sendToTop(){
+        liftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        liftMotor.setPower(1);
     }
 
     /**
@@ -98,7 +135,8 @@ public class DeliveryLiftSystem {
      * @param heightInInches how high the lift will go up relative to all the way down
      */
     public void moveToPosition(double heightInInches){
-        liftMotor.moveToPosition(1,heightInInches, DcMotor8863.FinishBehavior.FLOAT);
+       commands = Commands.GO_TO_POSITION;
+       liftMotor.moveToPosition(1,heightInInches, DcMotor8863.FinishBehavior.FLOAT);
     }
     public void dehang(){
         moveToPosition(11.25);
@@ -111,6 +149,7 @@ public class DeliveryLiftSystem {
     public double getLiftPosition(){
         return liftMotor.getPositionInTermsOfAttachment();
     }
+
     public void testSystem(){
         deliveryBoxToDump();
         delay(2000);
@@ -120,6 +159,7 @@ public class DeliveryLiftSystem {
         delay(2000);
         moveToPosition(0);
     }
+
     private void delay(int ms) {
         try {
             Thread.sleep(ms);
@@ -127,5 +167,67 @@ public class DeliveryLiftSystem {
             Thread.currentThread().interrupt();
         }
     }
+
+    public void update(){
+        DcMotor8863.MotorState motorState = liftMotor.update();
+        switch (state){
+            case UNKOWN:
+                switch (commands){
+                    case RESET:
+                        sendToBottom();
+                        break;
+                    case GO_TO_BOTTOM:
+                        sendToBottom();
+                        break;
+                    case GO_TO_TOP:
+                        break;
+                    case GO_TO_POSITION:
+                        break;
+                }
+                break;
+            case BOTTOM:
+                switch (commands){
+                    case RESET:
+                        break;
+                    case GO_TO_BOTTOM:
+                        break;
+                    case GO_TO_TOP:
+                        sendToTop();
+                        break;
+                    case GO_TO_POSITION:
+                        break;
+                }
+                break;
+            case IN_BETWEEN:
+                switch (commands){
+                    case RESET:
+                        break;
+                    case GO_TO_BOTTOM:
+                        sendToBottom();
+                        break;
+                    case GO_TO_TOP:
+                        sendToTop();
+                        break;
+                    case GO_TO_POSITION:
+                        break;
+                }
+                break;
+            case TOP:
+                switch (commands){
+                    case RESET:
+                        break;
+                    case GO_TO_BOTTOM:
+                        sendToBottom();
+                        break;
+                    case GO_TO_TOP:
+                        break;
+                    case GO_TO_POSITION:
+                        break;
+                }
+                break;
+        }
+    }
+
+
 
 }
