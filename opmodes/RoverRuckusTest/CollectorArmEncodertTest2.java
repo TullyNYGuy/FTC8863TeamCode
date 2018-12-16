@@ -42,7 +42,7 @@ public class CollectorArmEncodertTest2 extends LinearOpMode {
         waitForStart();
 
         // Put your calls here - they will not run in a loop
-        collectorArm.goToHome();
+        collectorArm.rotationGoToHome();
         while(opModeIsActive() && collectorArm.update()!= DcMotor8863.MotorState.COMPLETE_HOLD) {
 
             // Put your calls that need to run in a loop here
@@ -58,7 +58,7 @@ public class CollectorArmEncodertTest2 extends LinearOpMode {
 
             idle();
         }
-        collectorArm.goToCollect();
+        collectorArm.rotationGoToCollect();
         while(opModeIsActive() && collectorArm.update()!= DcMotor8863.MotorState.COMPLETE_HOLD) {
 
             // Put your calls that need to run in a loop here
@@ -75,7 +75,7 @@ public class CollectorArmEncodertTest2 extends LinearOpMode {
             idle();
         }
         collectorArm.floatArm();
-        collectorArm.goToTransfer();
+        collectorArm.rotationGoToTransfer();
         while(opModeIsActive() && collectorArm.update()!= DcMotor8863.MotorState.COMPLETE_HOLD) {
 
             // Put your calls that need to run in a loop here
@@ -91,7 +91,7 @@ public class CollectorArmEncodertTest2 extends LinearOpMode {
 
             idle();
         }
-        collectorArm.goToHome();
+        collectorArm.rotationGoToHome();
         while(opModeIsActive() && collectorArm.update()!= DcMotor8863.MotorState.COMPLETE_HOLD) {
 
             // Put your calls that need to run in a loop here

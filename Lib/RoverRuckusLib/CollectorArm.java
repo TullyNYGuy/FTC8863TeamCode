@@ -33,6 +33,7 @@ public class CollectorArm {
     private double dehangPosition = -42;
     private double clearStarPosition = -55;
 
+    private DcMotor8863 extensionArmMotor;
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -55,6 +56,13 @@ public class CollectorArm {
         rotationMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rotationMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
+        extensionArmMotor =new DcMotor8863("extensionArmMotor", hardwareMap, telemetry);
+        extensionArmMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_3_7_ORBITAL);
+        //72tooth gear on motor and 56tooth gear on lead screw and lead screw moves 8mm per rev
+        extensionArmMotor.setMovementPerRev((72/56)*(8/25.4));
+        extensionArmMotor.setMotorToHold();
+        extensionArmMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        extensionArmMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         this.telemetry = telemetry;
     }
@@ -84,42 +92,47 @@ public class CollectorArm {
         telemetry.addData("arm angle ", rotationMotor.getPositionInTermsOfAttachment());
     }
 
-    public void runMotorUsingEncoder(){
+    public void rotationRunMotorUsingEncoder(){
         rotationMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rotationMotor.setPower(0.2);
     }
 
-    public void runMotorUsingPosition(){
+    public void rotationRunMotorUsingPosition(){
         rotationMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         rotationMotor.moveToPosition(0.2,-100, DcMotor8863.FinishBehavior.HOLD);
     }
 
 
-    public void goToHome(){
+    public void rotationGoToHome(){
         rotationMotor.moveToPosition(0.2, homePosition, DcMotor8863.FinishBehavior.HOLD);
     }
 
-    public void goToCollect(){
+    public void rotationGoToCollect(){
         rotationMotor.moveToPosition(0.2, collectPosition, DcMotor8863.FinishBehavior.HOLD);
     }
 
-    public void goToPark() {
+    public void rotationGoToPark() {
         rotationMotor.moveToPosition(0.2, -130, DcMotor8863.FinishBehavior.HOLD);
     }
 
-    public void goToTransfer(){
+    public void rotationGoToTransfer(){
         rotationMotor.moveToPosition(0.2, transferPosition, DcMotor8863.FinishBehavior.HOLD);
     }
 
-    public void goToDehang(){
+    public void rotationGoToDehang(){
         rotationMotor.moveToPosition(0.2, dehangPosition, DcMotor8863.FinishBehavior.HOLD);
     }
 
-    public void goToClearStar(){
+    public void rotationGoToClearStar(){
         rotationMotor.moveToPosition(0.2, clearStarPosition, DcMotor8863.FinishBehavior.HOLD);
     }
 
-    public void floatArm(){
+    public void rotationFloatArm(){
         rotationMotor.setMotorToFloat();
+    }
+    
+    private void extensionMoveToPosition(double positionInInches){
+        extensionArmMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        extensionArmMotor.moveToPosition(.1,positionInInches, DcMotor8863.FinishBehavior.HOLD);
     }
 }
