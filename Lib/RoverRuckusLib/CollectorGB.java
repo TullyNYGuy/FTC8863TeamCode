@@ -510,7 +510,7 @@ public class CollectorGB {
                     }
                     if (actualMineralColor == MineralColor.NONE){
                         // we really need to move it in just a little, not to the store position
-                        gateServoGoToStorePosition();
+                       // gateServoGoToStorePosition();
                     }
                 }
                 break;
@@ -643,6 +643,7 @@ public class CollectorGB {
                         }
                 }
         }
+        log(collectorState.toString());
         return collectorState;
     }
 
@@ -792,5 +793,15 @@ public class CollectorGB {
 
         actionToTake = getActionForDetectedMineral(actualMineralColor);
         telemetry.addLine("Desired Color = " + desiredMineralColor.toString() + " Actual Color = " + actualMineralColor.toString() + " Number stored = " + numberOfMineralsStored + " Action - " + actionToTake.toString());
+    }
+    public void testGateServo(){
+        gateServoGoToInitPosition();
+        delay(1000);
+        gateServoGoToEjectPosition();
+        delay(1000);
+        gateServoGoToInitPosition();
+        delay(1000);
+        gateServoGoToStorePosition();
+        delay(1000);
     }
 }
