@@ -29,7 +29,6 @@
 
 package org.firstinspires.ftc.teamcode.opmodes.RoverRuckusTest;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -53,7 +52,7 @@ import java.util.List;
  */
 @TeleOp(name = "Concept: TensorFlow Object Detection", group = "Concept")
 //@Disabled
-public class TestTensorFlowObjectDetection extends LinearOpMode {
+public class TestTensorFlowObjectDetectionFor2Objects extends LinearOpMode {
     private static final String TFOD_MODEL_ASSET = "RoverRuckus.tflite";
     private static final String LABEL_GOLD_MINERAL = "Gold Mineral";
     private static final String LABEL_SILVER_MINERAL = "Silver Mineral";
@@ -114,7 +113,7 @@ public class TestTensorFlowObjectDetection extends LinearOpMode {
                     List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
                     if (updatedRecognitions != null) {
                       telemetry.addData("# Object Detected", updatedRecognitions.size());
-                      if (updatedRecognitions.size() == 3) {
+                      if (updatedRecognitions.size() == 2) {
                         int goldMineralX = -1;
                         int silverMineral1X = -1;
                         int silverMineral2X = -1;
