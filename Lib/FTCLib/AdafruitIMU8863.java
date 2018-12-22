@@ -52,7 +52,9 @@ public class AdafruitIMU8863 {
     public enum AngleMode {
         RAW,
         ABSOLUTE,
-        RELATIVE;
+        RELATIVE,
+        POSITIVE,
+        NEGATIVE;
     }
 
     /**
@@ -299,7 +301,7 @@ public class AdafruitIMU8863 {
                 break;
         }
 
-        // Extract the poper angle from thh data
+        // Extract the proper angle from thh data
         switch (whichAngle) {
             case HEADING:
                 angleReference = angleReferences.firstAngle;
@@ -323,6 +325,17 @@ public class AdafruitIMU8863 {
                 // +1
                 angle = AngleUnit.normalizeDegrees(angle - angleReference);
                 break;
+//            case NEGATIVE:
+//                if (angle >0){
+//                angle = angle - 360;
+//            }
+//
+//                break;
+//            case POSITIVE:
+//                if (angle <0){
+//                    angle = angle +360;
+//                }
+//                break;
             // Return the actual reading from the IMU - no adjustments
             case RAW:
                 break;

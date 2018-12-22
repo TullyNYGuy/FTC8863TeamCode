@@ -988,7 +988,12 @@ public class DriveTrain {
 
             imu.setAngleMode(angleMode);
             if (angleMode == AdafruitIMU8863.AngleMode.RELATIVE) {
-
+                if (turnAngle >90){
+                    imu.setAngleMode(AdafruitIMU8863.AngleMode.POSITIVE);
+                }
+                if (turnAngle<-90){
+                    imu.setAngleMode(AdafruitIMU8863.AngleMode.NEGATIVE);
+                }
                 imu.resetAngleReferences();
             }
         } else {
@@ -1000,7 +1005,7 @@ public class DriveTrain {
     public boolean updateTurn() {
 
         if (imuPresent) {
-            double currentHeading = imu.convertAngleTo360(imu.getHeading());
+            double currentHeading = imu.getHeading();
             double correction = -pidControl.getCorrection(currentHeading);
             differentialDrive(0, correction);
             //return correction;
