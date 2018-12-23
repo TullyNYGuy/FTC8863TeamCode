@@ -39,6 +39,10 @@ public class MeasureAngles extends LinearOpMode {
     boolean xButtonIsReleased = true;
     boolean aButtonIsReleased = true;
     boolean bButtonIsReleased = true;
+    boolean dpadUpIsReleased = true;
+    boolean dpadDownIsReleased = true;
+    boolean dpadLeftIsReleased = true;
+    boolean dpadRightIsReleased = true;
 
     StatTracker loopTimeTracker;
     ElapsedTime loopTimer;
@@ -79,54 +83,84 @@ public class MeasureAngles extends LinearOpMode {
 
             //if(systemStatus != BNO055IMU.SystemStatus.UNKNOWN) {
             if (isConnected){
-//               loopTimeTracker.compareValue(loopTimer.milliseconds());
-//                loopTimer.reset();
-//
-//                // Y BUTTON IS RELATIVE ANGLES, RELATIVE TO THE LAST TIME THE REFERENCE WAS RESET AND
-//                // THEN NORMALIZED TO -180 (RIGHT TURN) TO +180 (LEFT TURN)
-//                if (gamepad1.y) {
-//                    if (yButtonIsReleased) {
-//                        imu.setAngleMode(AdafruitIMU8863.AngleMode.RELATIVE);
-//                        yButtonIsReleased = false;
-//                    }
-//                } else {
-//                    yButtonIsReleased = true;
-//                }
-//
-//                // B BUTTON IS ABSOLUTE ANGLES READ FROM IMU, RELATIVE TO THE POSITION OF THE IMU
-//                // WHEN IT WAS INITIALIZED, AND THEN NORMALIZED TO -180 (RIGHT TURN) TO +180 (LEFT TURN)
-//                if (gamepad1.b) {
-//                    if (bButtonIsReleased) {
-//                        imu.setAngleMode(AdafruitIMU8863.AngleMode.ABSOLUTE);
-//                        bButtonIsReleased = false;
-//                    }
-//                } else {
-//                    bButtonIsReleased = true;
-//                }
-//
-//                // A BUTTON IS RAW ANGLES AS READ FROM THE IMU
-//                if (gamepad1.a) {
-//                    if (aButtonIsReleased) {
-//                        imu.setAngleMode(AdafruitIMU8863.AngleMode.RAW);
-//                        aButtonIsReleased = false;
-//                    }
-//                } else {
-//                    aButtonIsReleased = true;
-//                }
-//
-//                // X button resets the reference angles
-//                if (gamepad1.x) {
-//                    if (xButtonIsReleased) {
-//                        // toggle the mode
-//                        imu.resetAngleReferences();
-//                        xButtonIsReleased = false;
-//                    }
-//                } else {
-//                    xButtonIsReleased = true;
-//                }
+               loopTimeTracker.compareValue(loopTimer.milliseconds());
+                loopTimer.reset();
+
+                // Y BUTTON IS RELATIVE ANGLES, RELATIVE TO THE LAST TIME THE REFERENCE WAS RESET AND
+                // THEN NORMALIZED TO -180 (RIGHT TURN) TO +180 (LEFT TURN)
+                if (gamepad1.y) {
+                    if (yButtonIsReleased) {
+                        imu.setAngleMode(AdafruitIMU8863.AngleMode.RELATIVE);
+                        yButtonIsReleased = false;
+                    }
+                } else {
+                    yButtonIsReleased = true;
+                }
+
+                // B BUTTON IS ABSOLUTE ANGLES READ FROM IMU, RELATIVE TO THE POSITION OF THE IMU
+                // WHEN IT WAS INITIALIZED, AND THEN NORMALIZED TO -180 (RIGHT TURN) TO +180 (LEFT TURN)
+                if (gamepad1.b) {
+                    if (bButtonIsReleased) {
+                        imu.setAngleMode(AdafruitIMU8863.AngleMode.ABSOLUTE);
+                        bButtonIsReleased = false;
+                    }
+                } else {
+                    bButtonIsReleased = true;
+                }
+
+                // A BUTTON IS RAW ANGLES AS READ FROM THE IMU
+                if (gamepad1.a) {
+                    if (aButtonIsReleased) {
+                        imu.setAngleMode(AdafruitIMU8863.AngleMode.RAW);
+                        aButtonIsReleased = false;
+                    }
+                } else {
+                    aButtonIsReleased = true;
+                }
+
+                // X button resets the reference angles
+                if (gamepad1.x) {
+                    if (xButtonIsReleased) {
+                        // toggle the mode
+                        imu.resetAngleReferences();
+                        xButtonIsReleased = false;
+                    }
+                } else {
+                    xButtonIsReleased = true;
+                }
+
+                // Dpad up reads angles from -180 to +180
+                if (gamepad1.dpad_up) {
+                    if (dpadUpIsReleased) {
+                        imu.setAngleRange(AdafruitIMU8863.AngleRange.PLUS_TO_MINUS_180);
+                        dpadUpIsReleased = false;
+                    }
+                } else {
+                    dpadUpIsReleased = true;
+                }
+
+                // Dpad Left reads angles from 0 to -360
+                if (gamepad1.dpad_left) {
+                    if (dpadUpIsReleased) {
+                        imu.setAngleRange(AdafruitIMU8863.AngleRange.ZERO_TO_MINUS_360);
+                        dpadLeftIsReleased = false;
+                    }
+                } else {
+                    dpadLeftIsReleased = true;
+                }
+
+                // Dpad Right reads angles from 0 to +360
+                if (gamepad1.dpad_right) {
+                    if (dpadUpIsReleased) {
+                        imu.setAngleRange(AdafruitIMU8863.AngleRange.ZERO_TO_PLUS_360);
+                        dpadRightIsReleased = false;
+                    }
+                } else {
+                    dpadRightIsReleased = true;
+                }
 
                 // Put your calls that need to run in a loop here
-                heading = convertAngleTo360(imu.getHeading());
+                heading = imu.getHeading();
                 pitch = imu.getPitch();
                 roll = imu.getRoll();
 

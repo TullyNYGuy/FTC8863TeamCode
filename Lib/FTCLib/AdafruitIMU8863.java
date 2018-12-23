@@ -47,7 +47,8 @@ public class AdafruitIMU8863 {
      * robot position since the start of some time or motion. For example, tracking a turn.
      * The start of the turn is 0. A resetAngleReferences() would be issued then. The instant after
      * the turn started would read heading = 0. As the turn proceeded the heading would
-     * incrase.
+     * increase.
+     * POSITIVE -
      */
     public enum AngleMode {
         RAW,
@@ -59,11 +60,12 @@ public class AdafruitIMU8863 {
 
     /**
      * The IMU returns angles in a range from -180 to + 180 normally. But sometimes you may want
-     * angles in the range of 0 to 360 instead. This enum allow you to pick one or the other.
+     * angles in the range of 0 to 360  or 0 to -360 instead. This enum allow you to pick one.
      */
     public enum AngleRange {
         PLUS_TO_MINUS_180,
-        ZERO_TO_360
+        ZERO_TO_PLUS_360,
+        ZERO_TO_MINUS_360
     }
 
     /**
@@ -140,6 +142,8 @@ public class AdafruitIMU8863 {
 
     private AngleMode angleMode = AngleMode.RELATIVE;
 
+    private AngleRange angleRange = AngleRange.PLUS_TO_MINUS_180;
+
     /**
      * This is the order of the angles read from the IMU. If this is changed, the WhichAngle enum
      * must be changed to correspond.
@@ -173,6 +177,26 @@ public class AdafruitIMU8863 {
         this.angleMode = angleMode;
     }
 
+    /**
+     * Get the Angle range currently set for the IMU
+     *
+     * @return
+     */
+    public AngleRange getAngleRange() {
+        return angleRange;
+    }
+
+    /**
+     * Set the angle range reported by the IMU.
+     *
+     * @param angleRange is one of 3 values
+     *                   PLUS_TO_MINUS_180
+     *                   ZERO_TO_PLUS_360
+     *                   ZERO_TO_MINUS_360
+     */
+    public void setAngleRange(AngleRange angleRange) {
+        this.angleRange = angleRange;
+    }
 
     //*********************************************************************************************
     //          Constructors
@@ -204,6 +228,9 @@ public class AdafruitIMU8863 {
         // At initialization both absolute and relative references need to be setup
         resetAngleReferences(AngleMode.ABSOLUTE);
         resetAngleReferences(AngleMode.RELATIVE);
+
+        // default to reporting angles from -180 to + 180
+        setAngleRange(AngleRange.PLUS_TO_MINUS_180);
     }
 
     public AdafruitIMU8863(HardwareMap hardwareMap, String calibrationFile) {
@@ -222,6 +249,9 @@ public class AdafruitIMU8863 {
         // At initialization both absolute and relative references need to be setup
         resetAngleReferences(AngleMode.ABSOLUTE);
         resetAngleReferences(AngleMode.RELATIVE);
+
+        // default to reporting angles from -180 to + 180
+        setAngleRange(AngleRange.PLUS_TO_MINUS_180);
     }
 
     public AdafruitIMU8863(HardwareMap hardwareMap) {
@@ -241,6 +271,9 @@ public class AdafruitIMU8863 {
         // At initialization both absolute and relative references need to be setup
         resetAngleReferences(AngleMode.ABSOLUTE);
         resetAngleReferences(AngleMode.RELATIVE);
+
+        // default to reporting angles from -180 to + 180
+        setAngleRange(AngleRange.PLUS_TO_MINUS_180);
     }
 
     /**
@@ -325,21 +358,29 @@ public class AdafruitIMU8863 {
                 // +1
                 angle = AngleUnit.normalizeDegrees(angle - angleReference);
                 break;
-//            case NEGATIVE:
-//                if (angle >0){
-//                angle = angle - 360;
-//            }
-//
-//                break;
-//            case POSITIVE:
-//                if (angle <0){
-//                    angle = angle +360;
-//                }
-//                break;
             // Return the actual reading from the IMU - no adjustments
             case RAW:
                 break;
         }
+
+        // report the angle in the range that has been setup previously
+        switch (angleRange) {
+            case PLUS_TO_MINUS_180:
+                // angle is already +180 to -180
+                break;
+            case ZERO_TO_MINUS_360:
+                if (angle > 0) {
+                    angle = angle - 360;
+                }
+
+                break;
+            case ZERO_TO_PLUS_360:
+                if (angle < 0) {
+                    angle = angle + 360;
+                }
+                break;
+        }
+
         return angle;
     }
 
@@ -360,11 +401,12 @@ public class AdafruitIMU8863 {
     /**
      * Angles are normally reported in a range from -180 to +180. You may want your angles in a range
      * from 0 to 360. This method converts from -180 to +180 to 0 to 360.
+     *
      * @param angle in a range from -180 to 180
      * @return angle in a range from 0 to 360
      */
-    public double convertAngleTo360(double angle){
-        if(angle < 0) {
+    public double convertAngleTo360(double angle) {
+        if (angle < 0) {
             angle = angle + 360;
         }
         return angle;
@@ -427,12 +469,13 @@ public class AdafruitIMU8863 {
      * Get the heading of the robot. This is the left or right direction. This can be RELATIVE,
      * ABSOLUTE or RAW. See class documentation for definition of those modes. You can choose to
      * get the angle in a range from -180 to 180 or 0 to 360.
+     *
      * @param range
      * @return
      */
     public double getHeading(AngleRange range) {
         double angle180ToMinus180 = getHeading();
-        if (range == AngleRange.ZERO_TO_360) {
+        if (range == AngleRange.ZERO_TO_PLUS_360) {
             return convertAngleTo360(angle180ToMinus180);
         } else {
             return angle180ToMinus180;
@@ -522,6 +565,7 @@ public class AdafruitIMU8863 {
      * Checks to see if the chip id can be read from the IMU. If it can then the IMU is connected to
      * the core device interface module correctly. If it cannot be read something is wrong, most
      * likely the wiring.
+     *
      * @return true if connected
      */
     public boolean isIMUConnected() {
@@ -543,6 +587,7 @@ public class AdafruitIMU8863 {
 
     /**
      * A method to implement a delay.
+     *
      * @param ms
      */
     protected void delayExtra(int ms) {
