@@ -53,9 +53,7 @@ public class AdafruitIMU8863 {
     public enum AngleMode {
         RAW,
         ABSOLUTE,
-        RELATIVE,
-        POSITIVE,
-        NEGATIVE;
+        RELATIVE
     }
 
     /**

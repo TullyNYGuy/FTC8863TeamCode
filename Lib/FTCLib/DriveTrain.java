@@ -79,6 +79,8 @@ public class DriveTrain {
     private DrivingState drivingState;
     private boolean debug = false;
     private double rampDownStartOffset = 0;
+    private boolean logTurns = false;
+    private DataLogging dataLog = null;
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -114,6 +116,24 @@ public class DriveTrain {
 
     public void setDebug(boolean debug) {
         this.debug = debug;
+    }
+
+    public void setDataLog(DataLogging dataLog) {
+        this.dataLog = dataLog;
+    }
+
+    public boolean isLogTurns() {
+        return logTurns;
+    }
+
+    public void enableLogTurns() {
+        if (this.dataLog != null) {
+            this.logTurns = true;
+        }
+    }
+
+    public void disableLogTurns() {
+        this.logTurns = false;
     }
 
     //*********************************************************************************************
@@ -264,6 +284,7 @@ public class DriveTrain {
 
     /**
      * Implements a delay
+     *
      * @param mSec delay in milli Seconds
      */
     private void delay(int mSec) {
@@ -556,9 +577,9 @@ public class DriveTrain {
      * @param valueAtFinishTime            power at the end of the ramp. Typically you make this equal to the
      *                                     maxPower.
      * @param timeToReachFinishValueInmSec how long to run the ramp up in power (in milliseconds)
-     * @param initialPower start the ramp down at this power
-     * @param finalPower finish the ramp down at this power
-     * @param distanceToRampDownOver ramp down the power over this distance
+     * @param initialPower                 start the ramp down at this power
+     * @param finalPower                   finish the ramp down at this power
+     * @param distanceToRampDownOver       ramp down the power over this distance
      */
     public void setupDriveDistanceUsingIMU(double heading, double maxPower, double distance,
                                            AdafruitIMU8863.AngleMode headingType, double valueAtStartTime,
@@ -814,6 +835,7 @@ public class DriveTrain {
      * Apply a power to the drive motors, using the direction of travel to determine whether to
      * swap the left and right motors. If the direction is backwards, then the left and right
      * get swapped.
+     *
      * @param drivePowers - an array with left, right powers
      */
     private void applyPowersToMotors(double[] drivePowers) {
@@ -830,7 +852,6 @@ public class DriveTrain {
     }
 
 
-
     /**
      * During a ramp down from running at a power, I actually don't want the ramp down to last right
      * until the end of the drive. I would like a little buffer so that if the robot runs past the
@@ -839,6 +860,7 @@ public class DriveTrain {
      * (higher the speed) the robot has the more likely it is to overrun the end of the drive. So
      * start the ramp down a distance before the user wants to so that the robot will glide into
      * the end point and not overrun. The distance before is going to depend on the requested speed.
+     *
      * @param maxPower - power the robot will run at before the ramp down starts
      * @return the number of cm to allow the robot glide into the desired distance
      */
@@ -858,8 +880,10 @@ public class DriveTrain {
         }
         return result;
     }
+
     /**
      * You must run this update in a loop in order for the drive distance to work.
+     *
      * @return true if movement is complete
      */
     public boolean updateDriveDistanceUsingIMU() {
@@ -867,7 +891,7 @@ public class DriveTrain {
         double[] drivePowers;
         if (imuPresent) {
             //If the IMU is present we proceed if not we give the user an error
-            if(!hasLoopRunYet){
+            if (!hasLoopRunYet) {
                 //If we are running the loop for the first time
                 //MATT the ramp start was after the calculatePowerUsingRampAndPID so initial power was 1
                 rampControl.start();
@@ -904,7 +928,7 @@ public class DriveTrain {
             leftDriveMotor.update();
             rightDriveMotor.update();
             // check to see if our desired distance has been met
-            if (leftDriveMotor.isMotorStateComplete() && rightDriveMotor.isMotorStateComplete()){
+            if (leftDriveMotor.isMotorStateComplete() && rightDriveMotor.isMotorStateComplete()) {
                 return true;
             } else {
                 return false;
@@ -963,10 +987,9 @@ public class DriveTrain {
     //*********************************************************************************************
 
     /**
-     *
      * @param turnAngle in a range from -180 to 180. Negative angles run clockwise from 0 to -180.
      *                  Positive angles run counter clockwise from 0 to 180.
-     * @param maxPower max power you want for the turn
+     * @param maxPower  max power you want for the turn
      * @param angleMode Is the starting point for this turn going to be 0 degrees? (relative)? OR is
      *                  it going to be so that 0 degrees is whatever was set in the beginning when
      *                  the robot was first turned on (absolute)?
@@ -977,9 +1000,10 @@ public class DriveTrain {
             // set the mode for the motors during the turn. Without this they may not move.
             rightDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             leftDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            pidControl.setSetpoint(imu.convertAngleTo360(turnAngle));
+            //pidControl.setSetpoint(imu.convertAngleTo360(turnAngle));
+            pidControl.setSetpoint(turnAngle);
             pidControl.setMaxCorrection(maxPower);
-            pidControl.setThreshold(.5 );
+            pidControl.setThreshold(.5);
             //pidControl.setKp(0.025);
             //pidControl.setKi(0.0000000015);
             pidControl.setKp(0.0125);
@@ -988,13 +1012,17 @@ public class DriveTrain {
 
             imu.setAngleMode(angleMode);
             if (angleMode == AdafruitIMU8863.AngleMode.RELATIVE) {
-                if (turnAngle >90){
-                    imu.setAngleMode(AdafruitIMU8863.AngleMode.POSITIVE);
+                if (turnAngle > 90) {
+                    imu.setAngleRange(AdafruitIMU8863.AngleRange.ZERO_TO_PLUS_360);
                 }
-                if (turnAngle<-90){
-                    imu.setAngleMode(AdafruitIMU8863.AngleMode.NEGATIVE);
+                if (turnAngle < -90) {
+                    imu.setAngleRange(AdafruitIMU8863.AngleRange.ZERO_TO_MINUS_360);
                 }
                 imu.resetAngleReferences();
+            }
+            if (logTurns && dataLog != null) {
+                dataLog.logData("Setup for turn = " + turnAngle + " at power = " + maxPower);
+                dataLog.logData("Current Heading, correction");
             }
         } else {
             shutdown();
@@ -1007,6 +1035,9 @@ public class DriveTrain {
         if (imuPresent) {
             double currentHeading = imu.getHeading();
             double correction = -pidControl.getCorrection(currentHeading);
+            if (logTurns && dataLog != null) {
+                dataLog.logData(Double.toString(currentHeading), Double.toString(correction));
+            }
             differentialDrive(0, correction);
             //return correction;
             return pidControl.isFinished();
@@ -1165,8 +1196,8 @@ public class DriveTrain {
         leftDriveMotor.shutDown();
     }
 
-   public void getEncoderCounts() {
+    public void getEncoderCounts() {
         telemetry.addData("left encoder count = ", "%d", leftDriveMotor.getCurrentPosition());
-       telemetry.addData("right encoder count = ", "%d", rightDriveMotor.getCurrentPosition());
-   }
+        telemetry.addData("right encoder count = ", "%d", rightDriveMotor.getCurrentPosition());
+    }
 }
