@@ -5,36 +5,47 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
- *
- *
  */
 @TeleOp(name = "Test 180 Degree Turn", group = "Test")
 //@Disabled
 public class Test180DegreeTurn_Arthur extends LinearOpMode {
 
     // Put your variable declarations here
-   public DriveTrain driveTrain;
+    public DriveTrain driveTrain;
+    public DataLogging turnLog;
+    public double desiredTurnAngle = 45;
 
     @Override
     public void runOpMode() {
 
 
         // Put your initializations here
-       driveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap, telemetry);
+
+        driveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap, telemetry);
+        turnLog = new DataLogging("turn", telemetry);
+        driveTrain.setDataLog(turnLog);
+        driveTrain.enableLogTurns();
+
         // Wait for the start button
-        telemetry.addData(">", "Press Start to run" );
+        telemetry.addData(">", "Press Start to run");
         telemetry.update();
         waitForStart();
 
+        if (gamepad1.dpad_up) desiredTurnAngle = 175;
+        if (gamepad1.dpad_down) desiredTurnAngle = -175;
+        if (gamepad1.dpad_left) desiredTurnAngle = 90;
+        if (gamepad1.dpad_right) desiredTurnAngle = -90;
 
-        driveTrain.setupTurn(45, 0.3, AdafruitIMU8863.AngleMode.RELATIVE);
+
+        driveTrain.setupTurn(desiredTurnAngle, 0.3, AdafruitIMU8863.AngleMode.RELATIVE);
         // Put your calls here - they will not run in a loop
 
-        while(opModeIsActive()) {
+        while (opModeIsActive()) {
 
             // Put your calls that need to run in a loop here
             driveTrain.updateTurn();
@@ -42,10 +53,10 @@ public class Test180DegreeTurn_Arthur extends LinearOpMode {
             // Display the current value
             //telemetry.addData("Motor Speed = ", "%5.2f", powerToRunAt);
             //telemetry.addData("Encoder Count=", "%5d", motor.getCurrentPosition());
-            telemetry.addData(">", "Press Stop to end test." );
+            telemetry.addData(">", "Press Stop to end test.");
 
             telemetry.update();
-            
+
             idle();
         }
 
