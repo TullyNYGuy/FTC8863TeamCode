@@ -166,6 +166,7 @@ public class MeasureAngles extends LinearOpMode {
 
                 // Display the current value
                 telemetry.addData("IMU mode = ", imu.getAngleMode().toString());
+                telemetry.addData("IMU range = ", imu.getAngleRange().toString());
                 telemetry.addData("Heading = ", "%5.2f", heading);
                 telemetry.addData("Pitch = ", "%5.2f", pitch);
                 telemetry.addData("Roll = ", "%5.2f", roll);
