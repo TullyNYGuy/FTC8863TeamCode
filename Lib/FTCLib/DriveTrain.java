@@ -1030,6 +1030,10 @@ public class DriveTrain {
         }
     }
 
+    public void resetTurnTimer() {
+        dataLog.startTimer();
+    }
+
     public boolean updateTurn() {
 
         if (imuPresent) {
