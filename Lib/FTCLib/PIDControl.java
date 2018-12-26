@@ -63,6 +63,10 @@ public class PIDControl {
 
     private double lastIntegral = 0;
 
+    private DataLogging datalog = null;
+
+    private boolean enableDataLogging = false;
+
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -164,6 +168,18 @@ public class PIDControl {
 
     public void setUseRampControl(boolean useRampControl) {
         this.useRampControl = useRampControl;
+    }
+
+    public void setDatalog(DataLogging datalog) {
+        this.datalog = datalog;
+    }
+
+    public void enableDataLogging() {
+        this.enableDataLogging = true;
+    }
+
+    public void disableDataLogging() {
+        this.enableDataLogging = false;
     }
 
     //*********************************************************************************************
@@ -289,8 +305,12 @@ public class PIDControl {
     }
 
     public boolean isFinished(){
-        if (Math.abs(getFeedback() - getSetpoint()) < getThreshold()){
-            if (finishedTimer.milliseconds() > 250) {
+        double error = Math.abs(getFeedback() - getSetpoint());
+        if (enableDataLogging && datalog != null) {
+            datalog.logData(Double.toString(error), Double.toString(finishedTimer.milliseconds()) );
+        }
+        if (error < getThreshold()){
+            if (finishedTimer.milliseconds() > 100) {
                 return true;
             }
             else {
