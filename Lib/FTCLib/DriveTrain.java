@@ -42,7 +42,7 @@ public class DriveTrain {
     double distanceAtMovingUntilComplete = 0;
     double distanceAtComplete = 0;
 
-    private DataLogging dataLogging;
+    private DataLogging dataLog;
 
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS
@@ -83,6 +83,8 @@ public class DriveTrain {
     private DrivingState drivingState;
     private boolean debug = false;
     private double rampDownStartOffset = 0;
+
+    private double turnThreshold = 1.0;
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -120,12 +122,16 @@ public class DriveTrain {
         this.debug = debug;
     }
 
-    public DataLogging getDataLogging() {
-        return dataLogging;
+    public DataLogging getDataLog() {
+        return dataLog;
     }
 
-    public void setDataLogging(DataLogging dataLogging) {
-        this.dataLogging = dataLogging;
+    public void setDataLog(DataLogging dataLog) {
+        this.dataLog = dataLog;
+    }
+
+    public void setTurnThreshold(double turnThreshold) {
+        this.turnThreshold = turnThreshold;
     }
 
     //*********************************************************************************************
@@ -991,7 +997,7 @@ public class DriveTrain {
             leftDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             pidControl.setSetpoint(imu.convertAngleTo360(turnAngle));
             pidControl.setMaxCorrection(maxPower);
-            pidControl.setThreshold(.5 );
+            pidControl.setThreshold(turnThreshold);
             //pidControl.setKp(0.025);
             //pidControl.setKi(0.0000000015);
             pidControl.setKp(kp);
@@ -1017,7 +1023,7 @@ public class DriveTrain {
             leftDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             pidControl.setSetpoint(imu.convertAngleTo360(turnAngle));
             pidControl.setMaxCorrection(maxPower);
-            pidControl.setThreshold(.5 );
+            pidControl.setThreshold(turnThreshold);
             //pidControl.setKp(0.025);
             //pidControl.setKi(0.0000000015);
             pidControl.setKp(0.0125);
@@ -1041,11 +1047,11 @@ public class DriveTrain {
             double currentHeading = imu.convertAngleTo360(imu.getHeading());
             double correction = -pidControl.getCorrection(currentHeading);
             differentialDrive(0, correction);
-            if (dataLogging != null){
-            dataLogging.logData(Double.toString(currentHeading),Double.toString(correction));
+            if (dataLog != null){
+                dataLog.logData(Double.toString(currentHeading),Double.toString(correction));
             }
-            //return correction;
             return pidControl.isFinished();
+            //return correction;
         } else {
             shutdown();
             throw new IllegalArgumentException("No Imu found");
@@ -1053,6 +1059,8 @@ public class DriveTrain {
     }
 
     public void stopTurn() {
+        rightDriveMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
+        leftDriveMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
         shutdown();
     }
 
