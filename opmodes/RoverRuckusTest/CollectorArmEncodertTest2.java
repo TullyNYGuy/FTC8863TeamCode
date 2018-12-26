@@ -74,7 +74,7 @@ public class CollectorArmEncodertTest2 extends LinearOpMode {
 
             idle();
         }
-        collectorArm.floatArm();
+        collectorArm.rotationFloatArm();
         collectorArm.rotationGoToTransfer();
         while(opModeIsActive() && collectorArm.update()!= DcMotor8863.MotorState.COMPLETE_HOLD) {
 
@@ -107,7 +107,7 @@ public class CollectorArmEncodertTest2 extends LinearOpMode {
 
             idle();
         }
-        collectorArm.floatArm();
+        collectorArm.rotationFloatArm();
 
         // Put your cleanup code here - it runs as the application shuts down
         telemetry.addData(">", "Done");

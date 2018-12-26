@@ -131,8 +131,23 @@ public class CollectorArm {
         rotationMotor.setMotorToFloat();
     }
     
-    private void extensionMoveToPosition(double positionInInches){
+    public void extensionMoveToPosition(double positionInInches){
         extensionArmMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         extensionArmMotor.moveToPosition(.1,positionInInches, DcMotor8863.FinishBehavior.HOLD);
+    }
+
+    public void extensionGoToHome(){
+        extensionMoveToPosition(.1);
+    }
+
+    public void extensionGoToTransfer(){
+        extensionMoveToPosition(5);
+    }
+
+    public void extensionGoToFullExtension(){
+        extensionMoveToPosition(11.3);
+    }
+    public int getExtensionEncoderValue(){
+        return extensionArmMotor.getCurrentPosition();
     }
 }
