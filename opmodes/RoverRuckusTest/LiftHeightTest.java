@@ -31,18 +31,18 @@ public class LiftHeightTest extends LinearOpMode {
         // Put your calls here - they will not run in a loop
         //deliveryLiftSystem.moveToPosition(5);
         deliveryLiftSystem.dehang();
-        while (opModeIsActive()&& deliveryLiftSystem.update()!= DcMotor8863.MotorState.COMPLETE_FLOAT) {
-
-            // Put your calls that need to run in a loop here
-
-            // Display the current value
-            telemetry.addData("lift height = ",deliveryLiftSystem.getLiftPosition());
-            telemetry.addData(">", "Press Stop to end test.");
-
-            telemetry.update();
-
-            idle();
-        }
+//        while (opModeIsActive()&& deliveryLiftSystem.update()!= DcMotor8863.MotorState.COMPLETE_FLOAT) {
+//
+//            // Put your calls that need to run in a loop here
+//
+//            // Display the current value
+//            telemetry.addData("lift height = ",deliveryLiftSystem.getLiftPosition());
+//            telemetry.addData(">", "Press Stop to end test.");
+//
+//            telemetry.update();
+//
+//            idle();
+//        }
 
         // Put your cleanup code here - it runs as the application shuts down
         telemetry.addData(">", "Done");
