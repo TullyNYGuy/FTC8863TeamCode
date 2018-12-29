@@ -39,7 +39,9 @@ public class LiftCalibrationMovementTest extends LinearOpMode {
             deliveryLiftSystem.update();
 
             // Display the current value
-           deliveryLiftSystem.getLiftMotorEncoder();
+            deliveryLiftSystem.displayLiftMotorEncoder();
+            deliveryLiftSystem.displayLiftPosition();
+            deliveryLiftSystem.displayLiftState();
             telemetry.addData(">", "Press Stop to end test.");
 
             telemetry.update();
@@ -49,7 +51,11 @@ public class LiftCalibrationMovementTest extends LinearOpMode {
 
         // Put your cleanup code here - it runs as the application shuts down
         telemetry.addData(">", "Done");
+        deliveryLiftSystem.displayLiftMotorEncoder();
+        deliveryLiftSystem.displayLiftPosition();
+        deliveryLiftSystem.displayLiftState();
         telemetry.update();
+        sleep(4000);
 
     }
 }

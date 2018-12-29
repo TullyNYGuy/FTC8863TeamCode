@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Switch;
@@ -56,6 +57,10 @@ public class DeliveryLiftSystem {
 
     private double liftSpeed = .5;
     private boolean debugMode = false;
+
+    private DataLogging dataLog;
+    private boolean logData = false;
+
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -71,11 +76,29 @@ public class DeliveryLiftSystem {
     public void enableDebugMode() {
         this.debugMode = true;
         this.liftSpeed = .2;
+        // normally the lift has to be reset before it will accept any commands.
+        // This forces it to locate its 0 position before any other commands will
+        // run. But when debugging you may not want the lift to have to reset before
+        // running any commands. So if the lift is in debug mode, force the state machine to think
+        // the lift is IN_BETWEEN so any command sent to the lift will run.
+        state = States.IN_BETWEEN;
     }
 
     public void disableDebugMode() {
         this.debugMode = false;
         this.liftSpeed = .5;
+    }
+
+    public void setDataLog(DataLogging dataLog) {
+        this.dataLog = dataLog;
+    }
+
+    public void enableDataLogging() {
+        this.logData = true;
+    }
+
+    public void disableDataLogging() {
+        this.logData = false;
     }
 
     //*********************************************************************************************
@@ -152,13 +175,28 @@ public class DeliveryLiftSystem {
     }
 
     //*********************************************************************************************]
-    // lift motor commands
+    // lift motor position feedback
     //**********************************************************************************************
 
-    public void getLiftMotorEncoder() {
-        int encoderValue = liftMotor.getCurrentPosition();
-        telemetry.addData("Encoder= ", encoderValue);
+    public int getLiftMotorEncoder() {
+        return liftMotor.getCurrentPosition();
     }
+
+    public void displayLiftMotorEncoder() {
+        telemetry.addData("Encoder = ", getLiftMotorEncoder());
+    }
+
+    public double getLiftPosition() {
+        return liftMotor.getPositionInTermsOfAttachment();
+    }
+
+    public void displayLiftPosition() {
+        telemetry.addData("Lift position (inches) = ", getLiftPosition());
+    }
+
+    //*********************************************************************************************]
+    // lift motor commands
+    //**********************************************************************************************
 
     public void liftReset() {
         command = Commands.RESET;
@@ -205,21 +243,21 @@ public class DeliveryLiftSystem {
         liftMotor.setPower(0);
     }
 
-    public double getLiftPosition() {
-        return liftMotor.getPositionInTermsOfAttachment();
-    }
-
     /**
      * Move to a position based on zero which is set when the lift is all the way down, must run
      * update rotuine in a loop after that.
-     *
-     * @param heightInInches how high the lift will go up relative to all the way down
+     * @param heightInInches desired height above the 0 position
+     * @param liftPower max power for the motor
      */
     public void moveToPosition(double heightInInches, double liftPower) {
         command = Commands.GO_TO_POSITION;
         liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         liftMotor.moveToPosition(liftPower, heightInInches, DcMotor8863.FinishBehavior.FLOAT);
     }
+
+    //*********************************************************************************************]
+    // lift motor state machine
+    //**********************************************************************************************
 
     public States update() {
         DcMotor8863.MotorState motorState = liftMotor.update();
@@ -252,6 +290,7 @@ public class DeliveryLiftSystem {
                         if (bottomLimitSwitch.isPressed()) {
                             // the limit switch has been pressed. Stop the motor and reset the
                             // encoder to 0. Clear the command.
+                            stopLift();
                             liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                             command = Commands.NO_COMMAND;
                         }
@@ -316,6 +355,24 @@ public class DeliveryLiftSystem {
                             stopLift();
                             command = Commands.NO_COMMAND;
                         }
+
+                        // check to make sure the top limit switch has not been tripped. If it has
+                        // then something went wrong or someone gave a bad motor command.
+                        if (topLimitSwitch.isPressed()) {
+                            // the limit switch has been pressed. Stop the motor. Clear the command.
+                            stopLift();
+                            command = Commands.NO_COMMAND;
+                            state = States.TOP;
+                        }
+
+                        // check to make sure the bottom limit switch has not been tripped. If it has
+                        // then something went wrong or someone gave a bad motor command.
+                        if (bottomLimitSwitch.isPressed()) {
+                            // the limit switch has been pressed. Stop the motor. Clear the command.
+                            stopLift();
+                            command = Commands.NO_COMMAND;
+                            state = States.BOTTOM;
+                        }
                         break;
                     case NO_COMMAND:
                         // don't do anything, just hang out
@@ -341,8 +398,7 @@ public class DeliveryLiftSystem {
                         // the lift has been sent to the top without using a position command.
                         // It is just moving up until the motor is told to stop.
                         if (topLimitSwitch.isPressed()) {
-                            // the limit switch has been pressed. Stop the motor and reset the
-                            // encoder to 0. Clear the command.
+                            // the limit switch has been pressed. Stop the motor. Clear the command.
                             stopLift();
                             command = Commands.NO_COMMAND;
                         }
@@ -368,6 +424,10 @@ public class DeliveryLiftSystem {
         } else {
             return false;
         }
+    }
+
+    public void displayLiftState() {
+        telemetry.addData("Lift State = ", state.toString());
     }
 
     public void testLiftLimitSwitches() {

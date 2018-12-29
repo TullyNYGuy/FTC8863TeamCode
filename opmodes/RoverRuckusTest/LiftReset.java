@@ -39,7 +39,9 @@ public class LiftReset extends LinearOpMode {
             deliveryLiftSystem.update();
 
             // Display the current value
-            deliveryLiftSystem.getLiftMotorEncoder();
+            deliveryLiftSystem.displayLiftMotorEncoder();
+            deliveryLiftSystem.displayLiftPosition();
+            deliveryLiftSystem.displayLiftState();
             telemetry.addData(">", "Press Stop to end test.");
 
             telemetry.update();
@@ -47,10 +49,14 @@ public class LiftReset extends LinearOpMode {
             idle();
         }
 
-        // Put your cleanup code here - it runs as the application shuts down
+        // after the lift reaches its position, the loop stops and this code runs
         telemetry.addData(">", "Lift has been reset");
-        sleep(4000);
+        deliveryLiftSystem.displayLiftMotorEncoder();
+        deliveryLiftSystem.displayLiftPosition();
+        deliveryLiftSystem.displayLiftState();
         telemetry.update();
+        // give the user time to read the driver station
+        sleep(4000);
 
     }
 }

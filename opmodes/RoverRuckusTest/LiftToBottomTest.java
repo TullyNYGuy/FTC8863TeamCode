@@ -32,13 +32,17 @@ public class LiftToBottomTest extends LinearOpMode {
         // Put your calls here - they will not run in a loop
         deliveryLiftSystem.goToBottom();
 
+        // when the lift reaches its position, the loop will stop running and the next set of code
+        // will run
         while (opModeIsActive() && !deliveryLiftSystem.isLiftMovementComplete()) {
 
             // Put your calls that need to run in a loop here
             deliveryLiftSystem.update();
 
             // Display the current value
-            deliveryLiftSystem.getLiftMotorEncoder();
+            deliveryLiftSystem.displayLiftMotorEncoder();
+            deliveryLiftSystem.displayLiftPosition();
+            deliveryLiftSystem.displayLiftState();
             telemetry.addData(">", "Press Stop to end test.");
 
             telemetry.update();
@@ -46,10 +50,13 @@ public class LiftToBottomTest extends LinearOpMode {
             idle();
         }
 
-        // Put your cleanup code here - it runs as the application shuts down
-        telemetry.addData(">", "Lift has been reset");
-        sleep(4000);
+        // after the lift reaches its position, the loop stops and this code runs
+        telemetry.addData(">", "Lift located at bottom");
+        deliveryLiftSystem.displayLiftMotorEncoder();
+        deliveryLiftSystem.displayLiftPosition();
+        deliveryLiftSystem.displayLiftState();
         telemetry.update();
-
+        // give the user time to read the driver station
+        sleep(4000);
     }
 }
