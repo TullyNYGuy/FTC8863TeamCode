@@ -8,9 +8,9 @@ import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.DeliveryLiftSystem;
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Lift Calibration Movement Test", group = "Test")
+@TeleOp(name = "Lift Raise 2 Inches", group = "Test")
 //@Disabled
-public class LiftCalibrationMovementTest extends LinearOpMode {
+public class LiftRaise2Inches extends LinearOpMode {
 
     // Put your variable declarations here
     public DeliveryLiftSystem deliveryLiftSystem;
