@@ -49,11 +49,13 @@ public class DeliveryLiftSystem {
     private double dumpServoDumpPosition = 0.1;
     private double dumpServoInitPosition = 0.5;
     private double dumpServoTransferPosition = 0.7;
+
     private Switch bottomLimitSwitch;
     private Switch topLimitSwitch;
     private Commands command;
     private Telemetry telemetry;
     private States state;
+    private double desiredPosition = 0;
 
     private double liftSpeed = .5;
     private boolean debugMode = false;
@@ -140,12 +142,16 @@ public class DeliveryLiftSystem {
 
     public void init() {
         //dumpServo.goHome();
-        //liftReset();
+        if (!isDebugMode()) {
+            liftReset();
+        }
     }
 
     public void shutdown() {
         //dumpServo.goHome();
-        //liftReset();
+        if (!isDebugMode()) {
+            liftReset();
+        }
     }
 
     //*********************************************************************************************]
@@ -222,6 +228,20 @@ public class DeliveryLiftSystem {
         moveToPosition(.25, 1);
     }
 
+    /**
+     * For testing a move to position
+     */
+    public void goto5Inches() {
+        moveToPosition(5.0, .2);
+    }
+
+    /**
+     * For testing a move to position
+     */
+    public void goto8Inches() {
+        moveToPosition(8.0, .2);
+    }
+
     public void moveTwoInchesUp() {
         // since the motor starts in RESET state I have to force it into another state in order to
         // get movement
@@ -250,9 +270,21 @@ public class DeliveryLiftSystem {
      * @param liftPower max power for the motor
      */
     public void moveToPosition(double heightInInches, double liftPower) {
+        desiredPosition = heightInInches;
         command = Commands.GO_TO_POSITION;
         liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         liftMotor.moveToPosition(liftPower, heightInInches, DcMotor8863.FinishBehavior.FLOAT);
+    }
+
+    private boolean isLiftMovementUp() {
+        // if the position that we want to move to is greater than the current position of the lift,
+        // then the movement of the lift will be up. For example, desired position is 10. Current
+        // position is 5. So the lift has to move up to get there.
+        if (desiredPosition - getLiftPosition() > 0) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     //*********************************************************************************************]
@@ -267,24 +299,6 @@ public class DeliveryLiftSystem {
                     case RESET:
                         // send the lift moving down
                         moveToBottom();
-                        state = States.BOTTOM;
-                        break;
-                        // all other commands are ignored when a reset is issued
-                    case GO_TO_BOTTOM:
-                        break;
-                    case GO_TO_TOP:
-                        break;
-                    case GO_TO_POSITION:
-                        break;
-                    case NO_COMMAND:
-                        break;
-                }
-                break;
-                // this state does NOT mean that the lift is at the bottom
-            // it means that the lift is moving to the bottom
-            case BOTTOM:
-                switch (command) {
-                    case RESET:
                         // a reset has been requested, wait for the lift to move down and the limit
                         // switch to be pressed.
                         if (bottomLimitSwitch.isPressed()) {
@@ -293,7 +307,31 @@ public class DeliveryLiftSystem {
                             stopLift();
                             liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                             command = Commands.NO_COMMAND;
+                            state = States.BOTTOM;
                         }
+                        break;
+                        // all other commands are ignored when a reset is issued. Basically force
+                    // the command back to a reset
+                    case GO_TO_BOTTOM:
+                        command = Commands.RESET;
+                        break;
+                    case GO_TO_TOP:
+                        command = Commands.RESET;
+                        break;
+                    case GO_TO_POSITION:
+                        command = Commands.RESET;
+                        break;
+                    case NO_COMMAND:
+                        break;
+                }
+                break;
+                // this state does NOT mean that the lift is at the bottom
+            // it means that the lift is moving to the bottom OR at the bottom
+            case BOTTOM:
+                switch (command) {
+                    case RESET:
+                        moveToBottom();
+                        state = States.RESET;
                         break;
                     case GO_TO_BOTTOM:
                         // the lift has been sent to the bottom without using a position command.
@@ -329,7 +367,7 @@ public class DeliveryLiftSystem {
                         // a reset can be requested at any time. Start the motor movement and change
                         // state
                         moveToBottom();
-                        state = States.BOTTOM;
+                        state = States.RESET;
                         break;
                     case GO_TO_BOTTOM:
                         // the lift has been requested to move to the bottom. The motor needs to be
@@ -359,19 +397,32 @@ public class DeliveryLiftSystem {
                         // check to make sure the top limit switch has not been tripped. If it has
                         // then something went wrong or someone gave a bad motor command.
                         if (topLimitSwitch.isPressed()) {
-                            // the limit switch has been pressed. Stop the motor. Clear the command.
-                            stopLift();
-                            command = Commands.NO_COMMAND;
-                            state = States.TOP;
+                            // the limit switch has been pressed. If the movement is supposed to be
+                            // up, then Stop the motor. Clear the command.
+                            if (isLiftMovementUp()) {
+                                stopLift();
+                                command = Commands.NO_COMMAND;
+                                state = States.TOP;
+                            } else {
+                                // the top limit switch is pressed but the movement is supposed to be
+                                // down so do nothing. This allows downward movement.
+                            }
+
                         }
 
                         // check to make sure the bottom limit switch has not been tripped. If it has
                         // then something went wrong or someone gave a bad motor command.
                         if (bottomLimitSwitch.isPressed()) {
-                            // the limit switch has been pressed. Stop the motor. Clear the command.
-                            stopLift();
-                            command = Commands.NO_COMMAND;
-                            state = States.BOTTOM;
+                            // the limit switch has been pressed. If the movement is supposed to be
+                            // down, then Stop the motor. Clear the command.
+                            if (!isLiftMovementUp()) {
+                                stopLift();
+                                command = Commands.NO_COMMAND;
+                                state = States.BOTTOM;
+                            } else {
+                                // the bottom limit switch is pressed but the movement is supposed to be
+                                // up so do nothing. This allows upward movement.
+                            }
                         }
                         break;
                     case NO_COMMAND:
@@ -385,7 +436,7 @@ public class DeliveryLiftSystem {
                         // a reset can be requested at any time. Start the motor movement and change
                         // state
                         moveToBottom();
-                        state = States.BOTTOM;
+                        state = States.RESET;
                         break;
                     case GO_TO_BOTTOM:
                         // the lift has been requested to move to the bottom. The motor needs to be
