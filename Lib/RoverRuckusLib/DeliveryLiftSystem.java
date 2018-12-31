@@ -26,7 +26,8 @@ public class DeliveryLiftSystem {
         GO_TO_BOTTOM,
         GO_TO_TOP,
         GO_TO_POSITION,
-        RESET
+        RESET,
+        JOYSTICK
     }
 
     private enum States {
@@ -62,6 +63,8 @@ public class DeliveryLiftSystem {
 
     private DataLogging dataLog;
     private boolean logData = false;
+
+    private double joystickPower = 0;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -117,7 +120,7 @@ public class DeliveryLiftSystem {
         liftMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_3_7_ORBITAL_OLD);
         //gear ratio big gear on lift: 76 teeth, small is 48 on motor. lead screw moves 8mm per revolution
         // .19" movement per motor revolution. Need decimal points to force floating point math.
-        liftMotor.setMovementPerRev(48.0/76.0*8.0/25.4);
+        liftMotor.setMovementPerRev(48.0 / 76.0 * 8.0 / 25.4);
 
         this.telemetry = telemetry;
 
@@ -144,14 +147,14 @@ public class DeliveryLiftSystem {
         //dumpServo.goHome();
         if (!isDebugMode()) {
             liftReset();
+            while (!isLiftMovementComplete()) {
+                update();
+            }
         }
     }
 
     public void shutdown() {
         //dumpServo.goHome();
-        if (!isDebugMode()) {
-            liftReset();
-        }
     }
 
     //*********************************************************************************************]
@@ -216,6 +219,20 @@ public class DeliveryLiftSystem {
         command = Commands.GO_TO_TOP;
     }
 
+    public void setLiftPowerUsingJoystick(double power) {
+        // if a command has been given to reset the lift, then do not allow the joystick to take
+        // effect and override the reset
+        joystickPower = 0;
+        if (command != Commands.RESET) {
+            // A joystick command is only a real command if it is not 0. If the joystick value is 0
+            // just ignore the stick
+            if (power != 0) {
+                command = Commands.JOYSTICK;
+                joystickPower = power;
+            }
+        }
+    }
+
     public void goToLatch() {
         moveToPosition(10, 1);
     }
@@ -274,8 +291,9 @@ public class DeliveryLiftSystem {
     /**
      * Move to a position based on zero which is set when the lift is all the way down, must run
      * update rotuine in a loop after that.
+     *
      * @param heightInInches desired height above the 0 position
-     * @param liftPower max power for the motor
+     * @param liftPower      max power for the motor
      */
     public void moveToPosition(double heightInInches, double liftPower) {
         desiredPosition = heightInInches;
@@ -318,7 +336,7 @@ public class DeliveryLiftSystem {
                             state = States.BOTTOM;
                         }
                         break;
-                        // all other commands are ignored when a reset is issued. Basically force
+                    // all other commands are ignored when a reset is issued. Basically force
                     // the command back to a reset
                     case GO_TO_BOTTOM:
                         command = Commands.RESET;
@@ -329,11 +347,15 @@ public class DeliveryLiftSystem {
                     case GO_TO_POSITION:
                         command = Commands.RESET;
                         break;
+                    case JOYSTICK:
+                        command = Commands.RESET;
+                        break;
                     case NO_COMMAND:
                         break;
                 }
                 break;
-                // this state does NOT mean that the lift is at the bottom
+
+            // this state does NOT mean that the lift is at the bottom
             // it means that the lift is moving to the bottom OR at the bottom
             case BOTTOM:
                 switch (command) {
@@ -345,8 +367,7 @@ public class DeliveryLiftSystem {
                         // the lift has been sent to the bottom without using a position command.
                         // It is just moving down until the motor is told to stop.
                         if (bottomLimitSwitch.isPressed()) {
-                            // the limit switch has been pressed. Stop the motor and reset the
-                            // encoder to 0. Clear the command.
+                            // the limit switch has been pressed. Stop the motor. Clear the command.
                             stopLift();
                             command = Commands.NO_COMMAND;
                         }
@@ -364,11 +385,17 @@ public class DeliveryLiftSystem {
                         // with the motor. We just need to change state.
                         state = States.IN_BETWEEN;
                         break;
+                    case JOYSTICK:
+                        processJoystick();
+                            break;
                     case NO_COMMAND:
                         // don't do anything, just hang out
                         break;
                 }
                 break;
+
+                // this state is for when the lift is located somewhere in between the top and bottom
+            // and is not moving to the top or moving to the bottom or being reset
             case IN_BETWEEN:
                 switch (command) {
                     case RESET:
@@ -415,7 +442,6 @@ public class DeliveryLiftSystem {
                                 // the top limit switch is pressed but the movement is supposed to be
                                 // down so do nothing. This allows downward movement.
                             }
-
                         }
 
                         // check to make sure the bottom limit switch has not been tripped. If it has
@@ -433,11 +459,17 @@ public class DeliveryLiftSystem {
                             }
                         }
                         break;
+                    case JOYSTICK:
+                        processJoystick();
+                        break;
                     case NO_COMMAND:
                         // don't do anything, just hang out
                         break;
                 }
                 break;
+
+            // this state does NOT mean that the lift is at the top
+            // it means that the lift is moving to the top OR is at the top
             case TOP:
                 switch (command) {
                     case RESET:
@@ -468,6 +500,11 @@ public class DeliveryLiftSystem {
                         // with the motor. We just need to change state.
                         state = States.IN_BETWEEN;
                         break;
+                        // the lift power is being set with a joystick. The lift must have hit the
+                    // upper limit switch to be in this state
+                    case JOYSTICK:
+                        processJoystick();
+                        break;
                     case NO_COMMAND:
                         // don't do anything, just hang out
                         break;
@@ -485,8 +522,96 @@ public class DeliveryLiftSystem {
         }
     }
 
+    private void processJoystick() {
+        if (bottomLimitSwitch.isPressed()) {
+            // if the lift is at the bottom, only allow it to move up
+            if (joystickPower > 0) {
+                liftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                liftMotor.setPower(joystickPower);
+            } else {
+                // the lift power is negative so the driver wants it to move down. But it is already
+                // at the bottom so force the motor power to 0.
+                liftMotor.setPower(0);
+            }
+            state = States.BOTTOM;
+        } else {
+            if (topLimitSwitch.isPressed()) {
+                // if the lift is at the top, only allow it to move down
+                if (joystickPower < 0) {
+                    liftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                    liftMotor.setPower(joystickPower);
+                } else {
+                    // the lift power is positive so the driver wants it to move up. But it is already
+                    // at the top so force the motor power to 0.
+                    liftMotor.setPower(0);
+                }
+                state = States.TOP;
+            } else {
+                // both limit switches are not pressed, allow it to move either way
+                if (joystickPower != 0) {
+                    liftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                    liftMotor.setPower(joystickPower);
+                } else {
+                    // the joystick input is 0 so set the lift power to 0
+                    liftMotor.setPower(0);
+                }
+                state = States.IN_BETWEEN;
+            }
+        }
+    }
+
     public void displayLiftState() {
         telemetry.addData("Lift State = ", state.toString());
+    }
+
+    public void testMotorModeSwitch() {
+        // reset the lift
+        liftReset();
+        while (!isLiftMovementComplete()) {
+            update();
+        }
+
+        // move the lift 2 inches up and display
+        moveTwoInchesUp();
+        while (!isLiftMovementComplete()) {
+            update();
+        }
+        telemetry.addLine("lift reset");
+        displayLiftMotorEncoder();
+        displayLiftPosition();
+        displayLiftState();
+        telemetry.update();
+        delay(4000);
+
+        // switch modes - hopefully the enocder value does not change
+        liftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        telemetry.addLine("lift motor mode switched to run without encoder");
+        displayLiftMotorEncoder();
+        displayLiftPosition();
+        displayLiftState();
+        telemetry.update();
+        delay(4000);
+
+        // switch modes - hopefully the enocder value does not change
+        telemetry.addLine("lift motor mode switched to run to position");
+        liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        displayLiftMotorEncoder();
+        displayLiftPosition();
+        displayLiftState();
+        telemetry.update();
+        delay(4000);
+
+        // move the lift 2 inches up and display
+        goto5Inches();
+        while (!isLiftMovementComplete()) {
+            update();
+        }
+        telemetry.addLine("moved to 5 inches");
+        displayLiftMotorEncoder();
+        displayLiftPosition();
+        displayLiftState();
+        telemetry.update();
+        delay(4000);
     }
 
     public void testLiftLimitSwitches() {
