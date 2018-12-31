@@ -57,6 +57,7 @@ public class DeliveryLiftSystem {
     private Telemetry telemetry;
     private States state;
     private double desiredPosition = 0;
+    private double liftPower = 0;
 
     private double liftSpeed = .5;
     private boolean debugMode = false;
@@ -203,6 +204,17 @@ public class DeliveryLiftSystem {
         telemetry.addData("Lift position (inches) = ", getLiftPosition());
     }
 
+    public void displayRequestedLiftPosition() {
+        telemetry.addData("Lift position requested (inches) = ", desiredPosition);
+    }
+
+    public void displayLiftPower() {
+        telemetry.addData("Lift power (inches) = ", liftPower);
+    }
+
+    public void displayMotorState() {
+        telemetry.addData("Motor state = ", liftMotor.getCurrentMotorState().toString());
+    }
     //*********************************************************************************************]
     // lift motor commands
     //**********************************************************************************************
@@ -234,7 +246,11 @@ public class DeliveryLiftSystem {
     }
 
     public void goToLatch() {
-        moveToPosition(10, 1);
+        moveToPosition(9, 1);
+    }
+
+    public void hang() {
+        moveToPosition(2, 1);
     }
 
     public void dehang() {
@@ -297,6 +313,7 @@ public class DeliveryLiftSystem {
      */
     public void moveToPosition(double heightInInches, double liftPower) {
         desiredPosition = heightInInches;
+        this.liftPower = liftPower;
         command = Commands.GO_TO_POSITION;
         liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         liftMotor.moveToPosition(liftPower, heightInInches, DcMotor8863.FinishBehavior.FLOAT);
@@ -562,6 +579,11 @@ public class DeliveryLiftSystem {
 
     public void displayLiftState() {
         telemetry.addData("Lift State = ", state.toString());
+    }
+
+
+    public void displayLiftCommand() {
+        telemetry.addData("Lift command = ", command.toString());
     }
 
     public void testMotorModeSwitch() {
