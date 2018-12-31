@@ -130,24 +130,36 @@ public class CollectorArm {
     public void rotationFloatArm(){
         rotationMotor.setMotorToFloat();
     }
-    
-    public void extensionMoveToPosition(double positionInInches){
-        extensionArmMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        extensionArmMotor.moveToPosition(.1,positionInInches, DcMotor8863.FinishBehavior.HOLD);
-    }
 
-    public void extensionGoToHome(){
-        extensionMoveToPosition(.1);
-    }
+    //*********************************************************************************************]
+    // lift motor position feedback
+    //**********************************************************************************************
 
-    public void extensionGoToTransfer(){
-        extensionMoveToPosition(5);
-    }
-
-    public void extensionGoToFullExtension(){
-        extensionMoveToPosition(11.3);
-    }
-    public int getExtensionEncoderValue(){
+    public int getExtensionMotorEncoder() {
         return extensionArmMotor.getCurrentPosition();
+    }
+
+    public void displayExtensionMotorEncoder() {
+        telemetry.addData("Encoder = ", getExtensionMotorEncoder());
+    }
+
+    public double getLiftPosition() {
+        return extensionArmMotor.getPositionInTermsOfAttachment();
+    }
+
+    public void displayLiftPosition() {
+        telemetry.addData("Lift position (inches) = ", getLiftPosition());
+    }
+
+//    public void displayRequestedLiftPosition() {
+//        telemetry.addData("Lift position requested (inches) = ", desiredPosition);
+//    }
+
+//    public void displayLiftPower() {
+//        telemetry.addData("Lift power (inches) = ", liftPower);
+//    }
+
+    public void displayMotorState() {
+        telemetry.addData("Motor state = ", extensionArmMotor.getCurrentMotorState().toString());
     }
 }
