@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Switch;
 
 public class CollectorArm {
 
@@ -34,6 +35,10 @@ public class CollectorArm {
     private double clearStarPosition = -55;
 
     private DcMotor8863 extensionArmMotor;
+
+    private Switch extensionLimitSwitch;
+    private Switch retractionLimitSwitch;
+
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -65,6 +70,9 @@ public class CollectorArm {
         extensionArmMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         this.telemetry = telemetry;
+
+        extensionLimitSwitch = new Switch(hardwareMap, "extensionLiftLimitSwitch", Switch.SwitchType.NORMALLY_OPEN);
+        retractionLimitSwitch = new Switch(hardwareMap, "retractionLiftLimitSwitch", Switch.SwitchType.NORMALLY_OPEN);
     }
 
     //*********************************************************************************************
@@ -161,5 +169,23 @@ public class CollectorArm {
 
     public void displayMotorState() {
         telemetry.addData("Motor state = ", extensionArmMotor.getCurrentMotorState().toString());
+    }
+
+    //*********************************************************************************************]
+    // tests for extension arm
+    //**********************************************************************************************
+
+    public void testExtensionArmLimitSwitches() {
+        if (extensionLimitSwitch.isPressed()) {
+            telemetry.addLine("extension limit switch pressed");
+        } else {
+            telemetry.addLine("extension limit switch NOT pressed");
+        }
+
+        if (retractionLimitSwitch.isPressed()) {
+            telemetry.addLine("retraction limit switch pressed");
+        } else {
+            telemetry.addLine("retraction limit switch NOT pressed");
+        }
     }
 }
