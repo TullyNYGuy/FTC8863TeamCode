@@ -21,6 +21,7 @@ public class LiftRaise2Inches extends LinearOpMode {
 
         // Put your initializations here
         deliveryLiftSystem = new DeliveryLiftSystem(hardwareMap, telemetry);
+        deliveryLiftSystem.enableDebugMode();
         deliveryLiftSystem.init();
 
         // Wait for the start button
@@ -33,7 +34,7 @@ public class LiftRaise2Inches extends LinearOpMode {
         deliveryLiftSystem.enableDebugMode();
         deliveryLiftSystem.moveTwoInchesUp();
 
-        while (opModeIsActive()) {
+        while (opModeIsActive() && !deliveryLiftSystem.isLiftMovementComplete()) {
 
             // Put your calls that need to run in a loop here
             deliveryLiftSystem.update();
@@ -55,7 +56,7 @@ public class LiftRaise2Inches extends LinearOpMode {
         deliveryLiftSystem.displayLiftPosition();
         deliveryLiftSystem.displayLiftState();
         telemetry.update();
-        sleep(4000);
+        sleep(2000);
 
     }
 }
