@@ -62,6 +62,7 @@ public class LiftDemo extends LinearOpMode {
         deliveryLiftSystem.displayLiftState();
         telemetry.addData("Time to move 9 inches (mS) = ", timer.milliseconds());
         telemetry.addData(">", "Press Stop to end test.");
+        telemetry.update();
         sleep(1000);
 
         timer.reset();
@@ -92,7 +93,7 @@ public class LiftDemo extends LinearOpMode {
         deliveryLiftSystem.displayLiftPosition();
         deliveryLiftSystem.displayLiftState();
         telemetry.addData("Time to move 9 inches (mS) = ", timer.milliseconds());
-        telemetry.addData(">", "Press Stop to end test.");
+        telemetry.update();
         sleep(4000);
 
         // Put your cleanup code here - it runs as the application shuts down
