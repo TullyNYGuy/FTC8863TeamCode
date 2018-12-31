@@ -22,8 +22,9 @@ public class LiftReset extends LinearOpMode {
 
         // Put your initializations here
         deliveryLiftSystem = new DeliveryLiftSystem(hardwareMap, telemetry);
+        deliveryLiftSystem.enableDebugMode();
         deliveryLiftSystem.init();
-        //deliveryLiftSystem.enableDebugMode();
+
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
@@ -56,7 +57,7 @@ public class LiftReset extends LinearOpMode {
         deliveryLiftSystem.displayLiftState();
         telemetry.update();
         // give the user time to read the driver station
-        sleep(4000);
+        sleep(1000);
 
     }
 }
