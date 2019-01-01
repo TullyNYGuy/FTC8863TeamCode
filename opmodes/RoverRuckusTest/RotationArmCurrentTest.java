@@ -16,9 +16,9 @@ import org.openftc.revextensions2.RevExtensions2;
  *
  *
  */
-@TeleOp(name = "Collector Arm Encoder Test REAL", group = "Test")
+@TeleOp(name = "Collector Arm Current Tests", group = "Test")
 //@Disabled
-public class CollectorArmEncodertTest2 extends LinearOpMode {
+public class RotationArmCurrentTest extends LinearOpMode {
 
     // Put your variable declarations here
     public CollectorArm collectorArm;
@@ -42,13 +42,13 @@ public class CollectorArmEncodertTest2 extends LinearOpMode {
         waitForStart();
 
         // Put your calls here - they will not run in a loop
-        collectorArm.rotationGoToHome();
-        while(opModeIsActive() && collectorArm.update()!= DcMotor8863.MotorState.COMPLETE_HOLD) {
+        collectorArm.rotationArmGoToHome();
+        while(opModeIsActive() && !collectorArm.isExtensionArmMovementComplete()) {
 
             // Put your calls that need to run in a loop here
-            collectorArm.displayEncoder();
+            collectorArm.displayRotationArmEncoder();
             telemetry.addData("M1 current", motor1.getCurrentDraw());
-            dataLogging.logData(String.format("%f5.3",motor1.getCurrentDraw()),String.format("%f5.3",collectorArm.rotationMotor.getPositionInTermsOfAttachment()));
+            dataLogging.logData(String.format("%f5.3",motor1.getCurrentDraw()),String.format("%f5.3",collectorArm.rotationArmMotor.getPositionInTermsOfAttachment()));
             // Display the current value
             //telemetry.addData("Motor Speed = ", "%5.2f", powerToRunAt);
             //telemetry.addData("Encoder Count=", "%5d", motor.getCurrentPosition());
@@ -58,13 +58,13 @@ public class CollectorArmEncodertTest2 extends LinearOpMode {
 
             idle();
         }
-        collectorArm.rotationGoToCollect();
-        while(opModeIsActive() && collectorArm.update()!= DcMotor8863.MotorState.COMPLETE_HOLD) {
+        collectorArm.rotationArmGoToCollect();
+        while(opModeIsActive() && !collectorArm.isExtensionArmMovementComplete()) {
 
             // Put your calls that need to run in a loop here
-            collectorArm.displayEncoder();
+            collectorArm.displayRotationArmEncoder();
             telemetry.addData("M1 current", motor1.getCurrentDraw());
-            dataLogging.logData(String.format("%f5.3",motor1.getCurrentDraw()),String.format("%f5.3",collectorArm.rotationMotor.getPositionInTermsOfAttachment()));
+            dataLogging.logData(String.format("%f5.3",motor1.getCurrentDraw()),String.format("%f5.3",collectorArm.rotationArmMotor.getPositionInTermsOfAttachment()));
             // Display the current value
             //telemetry.addData("Motor Speed = ", "%5.2f", powerToRunAt);
             //telemetry.addData("Encoder Count=", "%5d", motor.getCurrentPosition());
@@ -74,14 +74,14 @@ public class CollectorArmEncodertTest2 extends LinearOpMode {
 
             idle();
         }
-        collectorArm.rotationFloatArm();
-        collectorArm.rotationGoToTransfer();
-        while(opModeIsActive() && collectorArm.update()!= DcMotor8863.MotorState.COMPLETE_HOLD) {
+        collectorArm.rotationArmFloatArm();
+        collectorArm.rotationArmGoToTransfer();
+        while(opModeIsActive() && !collectorArm.isExtensionArmMovementComplete()) {
 
             // Put your calls that need to run in a loop here
-            collectorArm.displayEncoder();
+            collectorArm.displayRotationArmEncoder();
             telemetry.addData("M1 current", motor1.getCurrentDraw());
-            dataLogging.logData(String.format("%f5.3",motor1.getCurrentDraw()),String.format("%f5.3",collectorArm.rotationMotor.getPositionInTermsOfAttachment()));
+            dataLogging.logData(String.format("%f5.3",motor1.getCurrentDraw()),String.format("%f5.3",collectorArm.rotationArmMotor.getPositionInTermsOfAttachment()));
             // Display the current value
             //telemetry.addData("Motor Speed = ", "%5.2f", powerToRunAt);
             //telemetry.addData("Encoder Count=", "%5d", motor.getCurrentPosition());
@@ -91,13 +91,13 @@ public class CollectorArmEncodertTest2 extends LinearOpMode {
 
             idle();
         }
-        collectorArm.rotationGoToHome();
-        while(opModeIsActive() && collectorArm.update()!= DcMotor8863.MotorState.COMPLETE_HOLD) {
+        collectorArm.rotationArmGoToHome();
+        while(opModeIsActive() && !collectorArm.isExtensionArmMovementComplete()) {
 
             // Put your calls that need to run in a loop here
-            collectorArm.displayEncoder();
+            collectorArm.displayRotationArmEncoder();
             telemetry.addData("M1 current", motor1.getCurrentDraw());
-            dataLogging.logData(String.format("%f5.3",motor1.getCurrentDraw()),String.format("%f5.3",collectorArm.rotationMotor.getPositionInTermsOfAttachment()));
+            dataLogging.logData(String.format("%f5.3",motor1.getCurrentDraw()),String.format("%f5.3",collectorArm.rotationArmMotor.getPositionInTermsOfAttachment()));
             // Display the current value
             //telemetry.addData("Motor Speed = ", "%5.2f", powerToRunAt);
             //telemetry.addData("Encoder Count=", "%5d", motor.getCurrentPosition());
@@ -107,7 +107,7 @@ public class CollectorArmEncodertTest2 extends LinearOpMode {
 
             idle();
         }
-        collectorArm.rotationFloatArm();
+        collectorArm.rotationArmFloatArm();
 
         // Put your cleanup code here - it runs as the application shuts down
         telemetry.addData(">", "Done");
