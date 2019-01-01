@@ -39,12 +39,10 @@ public class RotationArmEncoderTest extends LinearOpMode {
         waitForStart();
 
         // Put your calls here - they will not run in a loop
-        collectorArm.dropArm();
 
         while(opModeIsActive()) {
 
             // Put your calls that need to run in a loop here
-            collectorArm.update();
             collectorArm.displayExtensionMotorEncoder();
             telemetry.addData(">", "Press Stop to end test." );
 
