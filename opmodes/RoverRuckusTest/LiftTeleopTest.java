@@ -10,12 +10,13 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.GamepadButtonMultiPush;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.JoyStick;
+import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.DeliveryLiftSystem;
 import org.firstinspires.ftc.teamcode.opmodes.RoverRuckus.RoverRuckusRobot;
 
-@TeleOp(name = "DumpServoLimitTest", group = "Run")
+@TeleOp(name = "Lift Teleop Test", group = "Test")
 //@Disabled
 
-public class DumpServoLimitTest extends LinearOpMode {
+public class LiftTeleopTest extends LinearOpMode {
 
     //*********************************************************************************************
     //             Declarations
@@ -26,9 +27,7 @@ public class DumpServoLimitTest extends LinearOpMode {
         DIFFERENTIAL_DRIVE;
     }
 
-    DriveTrainMode driveTrainMode = DumpServoLimitTest.DriveTrainMode.TANK_DRIVE;
-
-    public RoverRuckusRobot robot;
+    public DeliveryLiftSystem deliveryLiftSystem;
 
     DataLogging dataLog = null;
 
@@ -109,8 +108,9 @@ public class DumpServoLimitTest extends LinearOpMode {
         telemetry.addData("Initializing ...", "Wait for it ...");
         telemetry.update();
 
-        dataLog = new DataLogging("Teleop", telemetry);
-        robot = robot.createRobotForTeleop(hardwareMap, telemetry, AllianceColor.TeamColor.RED, dataLog);
+        deliveryLiftSystem = new DeliveryLiftSystem(hardwareMap, telemetry);
+        // init will reset the lift
+        deliveryLiftSystem.init();
 
         // create the gamepad 1 buttons and tell each button how many commands it has
         gamepad1RightBumper = new GamepadButtonMultiPush(1);
@@ -163,9 +163,6 @@ public class DumpServoLimitTest extends LinearOpMode {
         //             Robot Running after the user hits play on the driver phone
         //*********************************************************************************************
 
-        // set the positions that the various systems need to be in when the robot is running
-        robot.setupForRun();
-
         while (opModeIsActive()) {
 
             //*************************************************************************************
@@ -204,11 +201,9 @@ public class DumpServoLimitTest extends LinearOpMode {
             }
 
             if (gamepad1a.buttonPress(gamepad1.a)) {
-                robot.deliveryLiftSystem.deliveryBoxToHome();
             }
 
             if (gamepad1b.buttonPress(gamepad1.b)) {
-                robot.deliveryLiftSystem.deliveryBoxToDump();
             }
 
             if (gamepad1y.buttonPress(gamepad1.y)) {
@@ -220,37 +215,21 @@ public class DumpServoLimitTest extends LinearOpMode {
             if (gamepad1DpadUp.buttonPress(gamepad1.dpad_up)) {
                 // this was a new button press, not a button held down for a while
                 // put the command to be executed here
-                gamepad1LeftJoyStickX.setFullPower();
-                gamepad1LeftJoyStickY.setFullPower();
-                gamepad1RightJoyStickX.setFullPower();
-                gamepad1RightJoyStickY.setFullPower();
             }
 
             if (gamepad1DpadDown.buttonPress(gamepad1.dpad_down)) {
                 // this was a new button press, not a button held down for a while
                 // put the command to be executed here
-                gamepad1LeftJoyStickX.set30PercentPower();
-                gamepad1LeftJoyStickY.set30PercentPower();
-                gamepad1RightJoyStickX.set30PercentPower();
-                gamepad1RightJoyStickY.set30PercentPower();
             }
 
             if (gamepad1DpadLeft.buttonPress(gamepad1.dpad_left)) {
                 // this was a new button press, not a button held down for a while
                 // put the command to be executed here
-                gamepad1LeftJoyStickX.setHalfPower();
-                gamepad1LeftJoyStickY.setHalfPower();
-                gamepad1RightJoyStickX.setHalfPower();
-                gamepad1RightJoyStickY.setHalfPower();
             }
 
             if (gamepad1DpadRight.buttonPress(gamepad1.dpad_right)) {
                 // this was a new button press, not a button held down for a while
                 // put the command to be executed here
-                gamepad1LeftJoyStickX.set20PercentPower();
-                gamepad1LeftJoyStickY.set20PercentPower();
-                gamepad1RightJoyStickX.set20PercentPower();
-                gamepad1RightJoyStickY.set20PercentPower();
             }
 
             if (gamepad1LeftStickButton.buttonPress(gamepad1.left_stick_button)) {
@@ -306,44 +285,51 @@ public class DumpServoLimitTest extends LinearOpMode {
             if (gamepad2LeftBumper.buttonPress(gamepad2.left_bumper)) {
                 // this was a new button press, not a button held down for a while
                 // put the command to be executed here
+                deliveryLiftSystem.liftReset();
             }
 
             if (gamepad2a.buttonPress(gamepad2.a)) {
-                robot.collector.turnCollectorOn();
+                // this was a new button press, not a button held down for a while
+                // put the command to be executed here
             }
 
             if (gamepad2b.buttonPress(gamepad2.b)) {
-                    robot.collector.turnCollectorOff();
+                // this was a new button press, not a button held down for a while
+                // put the command to be executed here
             }
 
             if (gamepad2y.buttonPress(gamepad2.y)) {
-                robot.collector.setDesiredMineralColorToGold();
-                //gold
+                // this was a new button press, not a button held down for a while
+                // put the command to be executed here
             }
 
             if (gamepad2x.buttonPress(gamepad2.x)) {
-                robot.collector.setDesiredMineralColorToSilver();
-                //silver
+                // this was a new button press, not a button held down for a while
+                // put the command to be executed here
             }
 
             if (gamepad2DpadUp.buttonPress(gamepad2.dpad_up)) {
-                    robot.deliveryLiftSystem.moveToPosition(4, 1);
+                // this was a new button press, not a button held down for a while
+                // put the command to be executed here
+                deliveryLiftSystem.hang();
             }
 
             if (gamepad2DpadDown.buttonPress(gamepad2.dpad_down)) {
-                robot.deliveryLiftSystem.moveToPosition(1, 1);
-
+                // this was a new button press, not a button held down for a while
+                // put the command to be executed here
+                deliveryLiftSystem.goToLatch();
             }
 
             if (gamepad2DpadLeft.buttonPress(gamepad2.dpad_left)) {
-                robot.deliveryLiftSystem.moveToPosition(11.25, 1);
                 // this was a new button press, not a button held down for a while
                 // put the command to be executed here
+                deliveryLiftSystem.goToTop();
             }
 
             if (gamepad2DpadRight.buttonPress(gamepad2.dpad_right)) {
                 // this was a new button press, not a button held down for a while
                 // put the command to be executed here
+                deliveryLiftSystem.goToHome();
             }
 
             if (gamepad2LeftStickButton.buttonPress(gamepad2.left_stick_button)) {
@@ -371,32 +357,22 @@ public class DumpServoLimitTest extends LinearOpMode {
             //  Process joysticks into drive train commands
             // ************************************************************************************
 
-            // joysticks to tank drive
-            leftPower = gamepad1LeftJoyStickYValue;
-            rightPower = gamepad1RightJoyStickYValue;
 
-            // joysticks to differential drive
-            throttle = gamepad1RightJoyStickYValue;
-            direction = gamepad1RightJoyStickXValue;
+            // update the lift with joystick
+            deliveryLiftSystem.setLiftPowerUsingJoystick(gamepad2RightJoyStickYValue);
 
-            // update the drive motors
-            if (driveTrainMode == DumpServoLimitTest.DriveTrainMode.TANK_DRIVE) {
-                robot.driveTrain.tankDrive(leftPower, rightPower);
-            } else {
-                // differential drive
-                robot.driveTrain.differentialDrive(throttle, direction);
-            }
 
             // update the robot
-            robot.update();
+            deliveryLiftSystem.update();
 
             // Display telemetry
-            telemetry.addData("Left Motor Speed = ", "%3.2f", leftPower);
-            telemetry.addData("Right Motor Speed = ", "%3.2f", rightPower);
-            telemetry.addData("Drive train mode = ", driveTrainMode.toString());
-            telemetry.addData("Drive Forward / Reverse = ", robot.driveTrain.getDriveDirection().toString());
-            telemetry.addData("Power Reduction = ", "%1.2f", gamepad1LeftJoyStickY.getReductionFactor());
-            telemetry.addData(">", "Press Stop to end.");
+            deliveryLiftSystem.displayLiftMotorEncoder();
+            deliveryLiftSystem.displayLiftPosition();
+            deliveryLiftSystem.displayRequestedLiftPosition();
+            deliveryLiftSystem.displayLiftPower();
+            deliveryLiftSystem.displayLiftState();
+            deliveryLiftSystem.displayLiftCommand();
+            deliveryLiftSystem.displayMotorState();
             telemetry.update();
 
             idle();
@@ -407,66 +383,11 @@ public class DumpServoLimitTest extends LinearOpMode {
         // ************************************************************************************
 
         // Stop has been hit, shutdown everything
-        dataLog.closeDataLog();
-        robot.shutdown();
         telemetry.addData(">", "Done");
-        telemetry.update();
-    }
-
-    //*********************************************************************************************
-    //             Helper methods
-    //*********************************************************************************************
-
-    /**
-     * Change from differential drive mode to tank drive, or tank drive to differential
-     */
-    private void toggleDriveTrainMode() {
-        if (driveTrainMode == DumpServoLimitTest.DriveTrainMode.DIFFERENTIAL_DRIVE) {
-            driveTrainMode = DumpServoLimitTest.DriveTrainMode.TANK_DRIVE;
-        } else
-            driveTrainMode = DumpServoLimitTest.DriveTrainMode.DIFFERENTIAL_DRIVE;
-    }
-
-    public double actualTurnAngle;
-
-//    public void relicAlignment() {
-//        driveStraight(-30.5, 0.1);
-//        spinTurn(-45, 0.1, AdafruitIMU8863.AngleMode.ABSOLUTE);
-//        actualTurnAngle = robot.driveTrain.imu.getHeading();
-//        sleep(1000);
-//    }
-
-    public void driveStraight(double distance, double power) {
-        DriveTrain.Status statusDrive = DriveTrain.Status.COMPLETE;
-        robot.driveTrain.setupDriveDistance(power, distance, DcMotor8863.FinishBehavior.FLOAT);
-
-        while (opModeIsActive()) {
-            statusDrive = robot.driveTrain.updateDriveDistance();
-            if (statusDrive == DriveTrain.Status.COMPLETE) {
-                break;
-            }
-            telemetry.addData(">", "Press Stop to end test.");
-            telemetry.addData("Status = ", statusDrive.toString());
-            telemetry.update();
-            idle();
-        }
-        telemetry.addData(">", "Press Stop to end test.");
-        telemetry.addData("Status = ", statusDrive.toString());
-        telemetry.update();
-    }
-
-    public void spinTurn(double angle, double power, AdafruitIMU8863.AngleMode angleMode) {
-        robot.driveTrain.setupTurn(angle, power, angleMode);
-
-        while (opModeIsActive() && !robot.driveTrain.updateTurn()) {
-            telemetry.addData(">", "Press Stop to end test.");
-            telemetry.addData("Angle = ", "%3.1f", robot.driveTrain.imu.getHeading());
-            telemetry.update();
-            idle();
-        }
-        robot.driveTrain.stopTurn();
-        telemetry.addData("Turn Angle = ", "%3.1f", robot.driveTrain.imu.getHeading());
         telemetry.update();
     }
 }
 
+    //*********************************************************************************************
+    //             Helper methods
+    //*********************************************************************************************

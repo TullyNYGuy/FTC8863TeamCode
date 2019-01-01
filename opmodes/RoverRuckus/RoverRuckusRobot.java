@@ -127,8 +127,8 @@ public class RoverRuckusRobot {
         //delay(2000);
         //collectorArm.update();
         deliveryLiftSystem.dehang();
-        while (deliveryLiftSystem.update() != DcMotor8863.MotorState.COMPLETE_FLOAT){
-        }
+        //while (deliveryLiftSystem.update() != DcMotor8863.MotorState.COMPLETE_FLOAT){
+        //}
         //delay(5000);
         //deliveryLiftSystem.update();
 //        collectorArm.goToClearStar();
