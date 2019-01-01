@@ -40,6 +40,40 @@ public class RotationExtensionArmTest extends LinearOpMode {
         telemetry.update();
         waitForStart();
 
+        //******************************************************************************************
+        // lower arm and extend
+        //******************************************************************************************
+
+        // Put your calls here - they will not run in a loop
+        timer.reset();
+        collectorArm.dropArm();
+
+        while(opModeIsActive() && !collectorArm.isRotationExtensionComplete()) {
+
+            // Put your calls that need to run in a loop here
+            collectorArm.update();
+            collectorArm.displayExtensionMotorEncoder();
+            collectorArm.displayState();
+            collectorArm.displayRotationArmCompletion();
+            telemetry.addData(">", "Press Stop to end test." );
+
+            telemetry.update();
+
+            idle();
+        }
+        telemetry.addData("Timer = ", timer.milliseconds());
+
+        // Put your cleanup code here - it runs as the application shuts down
+        collectorArm.displayExtensionMotorEncoder();
+        telemetry.addData(">", "Done");
+        telemetry.update();
+        sleep(4000);
+
+
+        //******************************************************************************************
+        // retract and raise arm
+        //******************************************************************************************
+
         // Put your calls here - they will not run in a loop
         timer.reset();
         collectorArm.raiseArm();
