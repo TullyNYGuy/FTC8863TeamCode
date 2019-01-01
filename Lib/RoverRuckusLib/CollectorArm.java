@@ -60,7 +60,7 @@ public class CollectorArm {
     private double desiredExtensionArmPosition = 0;
     private double extensionArmPower = 0;
 
-    private double extensionArmSpeed = .5;
+    private double extensionArmSpeed = .7;
     private boolean debugMode = false;
 
     private DataLogging dataLog;
@@ -81,7 +81,7 @@ public class CollectorArm {
 
     public void enableDebugMode() {
         this.debugMode = true;
-        this.extensionArmSpeed = .2;
+        this.extensionArmSpeed = .3;
         // normally the extension arm has to be reset before it will accept any commands.
         // This forces it to locate its 0 position before any other commands will
         // run. But when debugging you may not want the extension arm to have to reset before
@@ -115,7 +115,7 @@ public class CollectorArm {
     //*********************************************************************************************
     public CollectorArm(HardwareMap hardwareMap, Telemetry telemetry){
         rotationArmMotor = new DcMotor8863("collectorArmRotationMotor", hardwareMap, telemetry);
-        rotationArmMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
+        rotationArmMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_60);
         rotationArmMotor.setMovementPerRev(360*48/128);
         rotationArmMotor.setMotorToHold();
         rotationArmMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -124,15 +124,17 @@ public class CollectorArm {
         extensionArmMotor =new DcMotor8863("extensionArmMotor", hardwareMap, telemetry);
         extensionArmMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_3_7_ORBITAL);
         //72tooth gear on motor and 56tooth gear on lead screw and lead screw moves 8mm per rev
-        extensionArmMotor.setMovementPerRev((72/56)*(8/25.4));
+        extensionArmMotor.setMovementPerRev((72/56)*(8/25.4)*1/.78);
         extensionArmMotor.setMotorToHold();
         extensionArmMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         extensionArmMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         this.telemetry = telemetry;
 
-        extensionLimitSwitch = new Switch(hardwareMap, "extensionLiftLimitSwitch", Switch.SwitchType.NORMALLY_OPEN);
-        retractionLimitSwitch = new Switch(hardwareMap, "retractionLiftLimitSwitch", Switch.SwitchType.NORMALLY_OPEN);
+        extensionLimitSwitch = new Switch(hardwareMap, "extensionArmExtendLimitSwitch", Switch.SwitchType.NORMALLY_OPEN);
+        retractionLimitSwitch = new Switch(hardwareMap, "extensionArmRetractLimitSwitch", Switch.SwitchType.NORMALLY_OPEN);
+
+        state = ExtensionArmStates.RESET;
     }
 
     //*********************************************************************************************
@@ -309,8 +311,8 @@ public class CollectorArm {
         moveToExtensionArmPosition(0.5, 1);
     }
 
-    public void goToExtensionArm9Inches() {
-        moveToExtensionArmPosition(9.0, 1);
+    public void goToExtensionArm10Inches() {
+        moveToExtensionArmPosition(10.0, 1);
     }
 
     public void moveExtensionArmTwoInchesOut() {
