@@ -331,12 +331,12 @@ public class RoverRuckusTeleop extends LinearOpMode {
             }
 
             if (gamepad2DpadDown.buttonPress(gamepad2.dpad_down)) {
-                robot.deliveryLiftSystem.moveToPosition(1);
+                robot.deliveryLiftSystem.moveToPosition(1, 1);
 
             }
 
             if (gamepad2DpadLeft.buttonPress(gamepad2.dpad_left)) {
-                robot.deliveryLiftSystem.moveToPosition(10);
+                robot.deliveryLiftSystem.moveToPosition(10, 1);
                 // this was a new button press, not a button held down for a while
                 // put the command to be executed here
             }
