@@ -1,11 +1,9 @@
 package org.firstinspires.ftc.teamcode.opmodes.RoverRuckusTest;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.CollectorArm;
 
 /**
@@ -13,12 +11,13 @@ import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.CollectorArm;
  *
  *
  */
-@TeleOp(name = "Rotation Arm Encoder Test", group = "Test")
+@TeleOp(name = "Rotation Extension Arm Test", group = "Test")
 //@Disabled
-public class RotationArmEncoderTest extends LinearOpMode {
+public class RotationExtensionArmTest extends LinearOpMode {
 
     // Put your variable declarations here
     public CollectorArm collectorArm;
+    public ElapsedTime timer;
 
     @Override
     public void runOpMode() {
@@ -32,6 +31,9 @@ public class RotationArmEncoderTest extends LinearOpMode {
 //        collectorArmRotationMotor.setMotorToHold();
 
         collectorArm = new CollectorArm(hardwareMap, telemetry);
+        collectorArm.init();
+
+        timer = new ElapsedTime();
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run" );
@@ -39,19 +41,23 @@ public class RotationArmEncoderTest extends LinearOpMode {
         waitForStart();
 
         // Put your calls here - they will not run in a loop
-        collectorArm.dropArm();
+        timer.reset();
+        collectorArm.raiseArm();
 
-        while(opModeIsActive()) {
+        while(opModeIsActive() && !collectorArm.isRotationExtensionComplete()) {
 
             // Put your calls that need to run in a loop here
             collectorArm.update();
             collectorArm.displayExtensionMotorEncoder();
+            collectorArm.displayState();
+            collectorArm.displayRotationArmCompletion();
             telemetry.addData(">", "Press Stop to end test." );
 
             telemetry.update();
             
             idle();
         }
+        telemetry.addData("Timer = ", timer.milliseconds());
 
         // Put your cleanup code here - it runs as the application shuts down
         collectorArm.displayExtensionMotorEncoder();
