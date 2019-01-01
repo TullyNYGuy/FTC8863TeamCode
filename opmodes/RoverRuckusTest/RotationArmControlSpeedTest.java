@@ -11,9 +11,9 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
  *
  *
  */
-@TeleOp(name = "Collector Arm Speed Test", group = "Test")
+@TeleOp(name = "Rotation Arm Speed Test", group = "Test")
 //@Disabled
-public class CollectorArmControlSpeedTest extends LinearOpMode {
+public class RotationArmControlSpeedTest extends LinearOpMode {
 
     // Put your variable declarations here
     public DcMotor8863 collectorArmRotationMotor;
