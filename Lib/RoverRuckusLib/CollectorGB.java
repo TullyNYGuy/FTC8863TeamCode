@@ -190,11 +190,8 @@ public class CollectorGB {
         this.telemetry = telemetry;
         initialize();
     }
-
     //*********************************************************************************************
-    //          Helper Methods
-    //
-    // methods that aid or support the major functions in the class
+    // PRIVATE COMMANDS
     //*********************************************************************************************
 
     private void turnIntakeOff() {
@@ -250,6 +247,12 @@ public class CollectorGB {
         turnStorageStarOff();
         gateServoGoToInitPosition();
     }
+
+    //*********************************************************************************************
+    //          Helper Methods
+    //
+    // methods that aid or support the major functions in the class
+    //*********************************************************************************************
 
     private double readDistanceToMineral() {
         return sensorDistance.getDistance(DistanceUnit.CM);
@@ -435,6 +438,10 @@ public class CollectorGB {
         hardReset();
     }
 
+    //*********************************************************************************************
+    // PUBLIC COMMANDS
+    //*********************************************************************************************
+
     public void setDesiredMineralColorToGold() {
         desiredMineralColor = MineralColor.GOLD;
     }
@@ -468,6 +475,10 @@ public class CollectorGB {
     public void resetCollector() {
         collectorCommand = CollectorCommand.RESET;
     }
+
+    //*********************************************************************************************
+    // STATE MACHINE
+    //*********************************************************************************************
 
     public CollectorState update() {
         ActionToTake actionToTake;
@@ -655,7 +666,9 @@ public class CollectorGB {
         return collectorState;
     }
 
+    //*********************************************************************************************
     // TESTS
+    //*********************************************************************************************
 
     public void testMovements(Telemetry telemetry) {
         turnIntakeOnSuckIn();
