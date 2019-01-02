@@ -329,7 +329,7 @@ public class RoverRuckusTeleop extends LinearOpMode {
 
             if (gamepad2DpadUp.buttonPress(gamepad2.dpad_up)) {
                     //robot.deliveryLiftSystem.moveToPosition(4);
-                robot.collector.deliverMinerals();
+                robot.collector.deliverMineralsOn();
             }
 
             if (gamepad2DpadDown.buttonPress(gamepad2.dpad_down)) {
