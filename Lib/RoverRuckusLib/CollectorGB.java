@@ -469,6 +469,8 @@ public class CollectorGB {
         collectorCommand = CollectorCommand.RESET;
     }
 
+    public void fixTransferJam(){}
+
     public CollectorState update() {
         ActionToTake actionToTake;
          double mineralDeliverTimerLimit = 1500;
