@@ -283,6 +283,8 @@ public class DeliveryLiftSystem {
         moveToPosition(9.0, 1);
     }
 
+    public void goToScoringPosition() {moveToPosition(10.5, 1);}
+
     public void moveTwoInchesUp() {
         // since the motor starts in RESET state I have to force it into another state in order to
         // get movement
