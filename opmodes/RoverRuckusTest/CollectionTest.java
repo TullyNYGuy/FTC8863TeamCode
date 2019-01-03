@@ -28,19 +28,11 @@ public class CollectionTest extends LinearOpMode {
         DIFFERENTIAL_DRIVE;
     }
 
-    enum CollectionMode {
-        NORMAL,
-        EJECT_ONLY,
-        STORE_ONLY
-    }
-
     DriveTrainMode driveTrainMode = CollectionTest.DriveTrainMode.TANK_DRIVE;
 
     public RoverRuckusRobot robot;
 
     DataLogging dataLog = null;
-
-    public CollectionMode collectionMode = CollectionMode.NORMAL;
 
     // GAMEPAD 1
 
@@ -338,7 +330,7 @@ public class CollectionTest extends LinearOpMode {
             }
 
             if (gamepad2DpadUp.buttonPress(gamepad2.dpad_up)) {
-                collectionMode = CollectionMode.NORMAL;
+                robot.collector.forceNormalOperation();
             }
 
             if (gamepad2DpadDown.buttonPress(gamepad2.dpad_down)) {
@@ -346,13 +338,13 @@ public class CollectionTest extends LinearOpMode {
             }
 
             if (gamepad2DpadLeft.buttonPress(gamepad2.dpad_left)) {
-                collectionMode = CollectionMode.EJECT_ONLY;
+                robot.collector.forceEjectOnly();
                 // this was a new button press, not a button held down for a while
                 // put the command to be executed here
             }
 
             if (gamepad2DpadRight.buttonPress(gamepad2.dpad_right)) {
-                collectionMode = CollectionMode.STORE_ONLY;
+                robot.collector.forceStoreOnly();
                 // this was a new button press, not a button held down for a while
                 // put the command to be executed here
             }
@@ -398,25 +390,8 @@ public class CollectionTest extends LinearOpMode {
                 robot.driveTrain.differentialDrive(throttle, direction);
             }
 
-            // update the robot
-            switch (collectionMode) {
-                case NORMAL:
-                    robot.update();
-                    break;
-                case EJECT_ONLY:
-                    robot.collector.testEjections();
-                    break;
-                case STORE_ONLY:
-                    robot.collector.testStores();
-                    break;
-            }
-
             // Display telemetry
-            telemetry.addData("Left Motor Speed = ", "%3.2f", leftPower);
-            telemetry.addData("Right Motor Speed = ", "%3.2f", rightPower);
-            telemetry.addData("Drive train mode = ", driveTrainMode.toString());
-            telemetry.addData("Drive Forward / Reverse = ", robot.driveTrain.getDriveDirection().toString());
-            telemetry.addData("Power Reduction = ", "%1.2f", gamepad1LeftJoyStickY.getReductionFactor());
+
             telemetry.addData("Collector State = ", robot.collector.update().toString());
             telemetry.addData(">", "Press Stop to end.");
             telemetry.update();
