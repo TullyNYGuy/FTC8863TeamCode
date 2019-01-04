@@ -235,7 +235,7 @@ public class RoverRuckusRobot {
             case COLLECTOR_OFF:
                 switch (scoringCommand){
                     case TRANSFER:
-                        deliveryLiftSystem.goToTop();
+                        deliveryLiftSystem.goToBottom();
                         scoringState = TransferScoringStates.LIFT_HEIGHT;
                         break;
                     case CONFIRM_TRANSFER:

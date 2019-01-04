@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.GamepadButtonMultiPush;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.JoyStick;
 import org.firstinspires.ftc.teamcode.opmodes.RoverRuckus.RoverRuckusRobot;
 
-@TeleOp(name = "DumpServoLimitTest", group = "Run")
+@TeleOp(name = "Dump Servo Limit Test", group = "Test")
 //@Disabled
 
 public class DumpServoLimitTest extends LinearOpMode {

@@ -8,7 +8,7 @@ import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.DeliveryLiftSystem;
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Delivery Arm Test", group = "Test")
+@TeleOp(name = "Delivery Arm Position Test", group = "Test")
 //@Disabled
 public class DeliveryArmTest extends LinearOpMode {
 
@@ -29,9 +29,9 @@ public class DeliveryArmTest extends LinearOpMode {
 
         // Put your calls here - they will not run in a loop
         deliveryLiftSystem.deliveryBoxToDump();
-        sleep(1000);
+        sleep(3000);
         deliveryLiftSystem.deliveryBoxToTransfer();
-        sleep(1000);
+        sleep(3000);
         deliveryLiftSystem.deliveryBoxToHome();
         while (opModeIsActive()) {
 

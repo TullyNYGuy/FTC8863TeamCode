@@ -43,7 +43,7 @@ public class RotationArmEncoderTest extends LinearOpMode {
         while(opModeIsActive()) {
 
             // Put your calls that need to run in a loop here
-            collectorArm.displayExtensionMotorEncoder();
+            collectorArm.displayRotationArmEncoder();
             telemetry.addData(">", "Press Stop to end test." );
 
             telemetry.update();
@@ -52,7 +52,7 @@ public class RotationArmEncoderTest extends LinearOpMode {
         }
 
         // Put your cleanup code here - it runs as the application shuts down
-        collectorArm.displayExtensionMotorEncoder();
+        collectorArm.displayRotationArmEncoder();
         telemetry.addData(">", "Done");
         telemetry.update();
         sleep(4000);

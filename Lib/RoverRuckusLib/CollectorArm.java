@@ -218,7 +218,7 @@ public class CollectorArm {
     }
 
     public void rotationArmGoToTransfer(){
-        rotationArmMotor.moveToPosition(0.2, 60, DcMotor8863.FinishBehavior.HOLD);
+        rotationArmMotor.moveToPosition(0.2, -40, DcMotor8863.FinishBehavior.HOLD);
     }
 
     public void rotationArmGoToDehang(){
@@ -264,6 +264,7 @@ public class CollectorArm {
 
     public void displayExtensionMotorEncoder() {
         telemetry.addData("Encoder = ", getExtensionArmMotorEncoder());
+        telemetry.addData("Inches = ", extensionArmMotor.getPositionInTermsOfAttachment());
     }
 
     public double getExtensionArmPosition() {
@@ -332,6 +333,9 @@ public class CollectorArm {
 
     public void goToExtensionArmHome() {
         moveToExtensionArmPosition(0.5, 1);
+    }
+    public void goToExtensionArmTransfer() {
+        moveToExtensionArmPosition(5.5, 1);
     }
 
     public void goToExtensionArm10Inches() {
@@ -715,7 +719,7 @@ public class CollectorArm {
                     case TRANSFER:
                         break;
                     case RAISE_ARM:
-                        goToExtensionArmHome();
+                        goToExtensionArmTransfer();
                         collectorExtensionArmState = CollectorExtensionArmStates.EXTEND_RETRACT_ARM;
                         break;
                 }
