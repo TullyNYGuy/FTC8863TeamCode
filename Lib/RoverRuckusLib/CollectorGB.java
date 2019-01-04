@@ -1005,6 +1005,14 @@ public class CollectorGB {
         return collectorState;
     }
 
+    public void displayCollectorState(){
+        telemetry.addData("Collector State = ", collectorState.toString());
+    }
+
+    public void displayCollectorCommand() {
+        telemetry.addData("Collector Command = ", collectorCommand.toString());
+    }
+
     //*********************************************************************************************
     // TESTS
     //*********************************************************************************************

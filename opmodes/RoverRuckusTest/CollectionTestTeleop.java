@@ -10,14 +10,12 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.GamepadButtonMultiPush;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.JoyStick;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.ProfileFunction;
-import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.CollectorGB;
 import org.firstinspires.ftc.teamcode.opmodes.RoverRuckus.RoverRuckusRobot;
 
-@TeleOp(name = "Collection Test", group = "Run")
+@TeleOp(name = "Collection Test Teleop", group = "Test")
 //@Disabled
 
-public class CollectionTest extends LinearOpMode {
+public class CollectionTestTeleop extends LinearOpMode {
 
     //*********************************************************************************************
     //             Declarations
@@ -28,7 +26,7 @@ public class CollectionTest extends LinearOpMode {
         DIFFERENTIAL_DRIVE;
     }
 
-    DriveTrainMode driveTrainMode = CollectionTest.DriveTrainMode.TANK_DRIVE;
+    DriveTrainMode driveTrainMode = CollectionTestTeleop.DriveTrainMode.TANK_DRIVE;
 
     public RoverRuckusRobot robot;
 
@@ -383,7 +381,7 @@ public class CollectionTest extends LinearOpMode {
             direction = gamepad1RightJoyStickXValue;
 
             // update the drive motors
-            if (driveTrainMode == CollectionTest.DriveTrainMode.TANK_DRIVE) {
+            if (driveTrainMode == CollectionTestTeleop.DriveTrainMode.TANK_DRIVE) {
                 robot.driveTrain.tankDrive(leftPower, rightPower);
             } else {
                 // differential drive
@@ -418,10 +416,10 @@ public class CollectionTest extends LinearOpMode {
      * Change from differential drive mode to tank drive, or tank drive to differential
      */
     private void toggleDriveTrainMode() {
-        if (driveTrainMode == CollectionTest.DriveTrainMode.DIFFERENTIAL_DRIVE) {
-            driveTrainMode = CollectionTest.DriveTrainMode.TANK_DRIVE;
+        if (driveTrainMode == CollectionTestTeleop.DriveTrainMode.DIFFERENTIAL_DRIVE) {
+            driveTrainMode = CollectionTestTeleop.DriveTrainMode.TANK_DRIVE;
         } else
-            driveTrainMode = CollectionTest.DriveTrainMode.DIFFERENTIAL_DRIVE;
+            driveTrainMode = CollectionTestTeleop.DriveTrainMode.DIFFERENTIAL_DRIVE;
     }
 
     public double actualTurnAngle;
