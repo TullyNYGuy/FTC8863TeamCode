@@ -9,6 +9,8 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
@@ -47,6 +49,7 @@ public class RoverRuckusRobot {
     public Telemetry telemetry;
     public DeliveryLiftSystem deliveryLiftSystem;
    public CollectorArm collectorArm;
+   private ElapsedTime timer;
 
     
     //*********************************************************************************************
@@ -70,6 +73,7 @@ public class RoverRuckusRobot {
         collector = new CollectorGB(hardwareMap, telemetry);
         collectorArm = new CollectorArm(hardwareMap, telemetry);
         deliveryLiftSystem = new DeliveryLiftSystem(hardwareMap, telemetry);
+        timer = new ElapsedTime();
 
         if (robotMode == RobotMode.AUTONOMOUS) {
             // create the robot for autonomous
@@ -108,7 +112,9 @@ public class RoverRuckusRobot {
 
     public void init(Telemetry telemetry) {
         collector.initialize();
+        collectorArm.init();
         deliveryLiftSystem.init();
+        transferScoringInit();
     }
 
     public void setupForRun() {
@@ -118,6 +124,7 @@ public class RoverRuckusRobot {
         collector.update();
         deliveryLiftSystem.update();
         collectorArm.update();
+        transferScoringStateMachine();
     }
 
     public void dehang (){
@@ -160,6 +167,176 @@ public class RoverRuckusRobot {
     public void shutdown() {
         driveTrain.shutdown();
        // collector.shutdown();
+    }
+
+    //transfer & scoring state machine
+
+    public enum TransferScoringStates{
+        START,
+        COLLECTOR_OFF,
+        LIFT_HEIGHT,
+        COLLECTOR_ARM,
+        TRANSFER_READY,
+        TRANSFER,
+        SETUP_FOR_SCORE,
+        SCORED,
+        RESET;
+    }
+
+    public enum TransferScoringCommands{
+        TRANSFER,
+        CONFIRM_TRANSFER,
+        FIX_JAM,
+        SCORE,
+        EMPTY;
+    }
+
+    private TransferScoringCommands scoringCommand;
+    private TransferScoringStates scoringState;
+
+    public void transferMinerals(){
+        scoringCommand = TransferScoringCommands.TRANSFER;
+    }
+
+    public void confirmTransfer(){
+        scoringCommand = TransferScoringCommands.CONFIRM_TRANSFER;
+    }
+
+    public void clearTransferJam(){
+        scoringCommand = TransferScoringCommands.FIX_JAM;
+    }
+
+    public void score(){
+        scoringCommand = TransferScoringCommands.SCORE;
+    }
+
+    public void transferScoringInit(){
+        scoringState = TransferScoringStates.START;
+        scoringCommand = TransferScoringCommands.EMPTY;
+    }
+
+    public void transferScoringStateMachine(){
+        telemetry.addData("Current State Of Transfer = ",scoringState.toString());
+        telemetry.addData("Current Command Of Transfer = ",scoringCommand.toString());
+        switch(scoringState){
+            case START:
+                switch(scoringCommand){
+                    case TRANSFER:
+                        collector.turnCollectorOff();
+                        scoringState = TransferScoringStates.COLLECTOR_OFF;
+                        break;
+                    case CONFIRM_TRANSFER:
+                    case EMPTY:
+                    case FIX_JAM:
+                    case SCORE:
+                        break;
+                }
+                break;
+            case COLLECTOR_OFF:
+                switch (scoringCommand){
+                    case TRANSFER:
+                        deliveryLiftSystem.goToTop();
+                        scoringState = TransferScoringStates.LIFT_HEIGHT;
+                        break;
+                    case CONFIRM_TRANSFER:
+                    case EMPTY:
+                    case FIX_JAM:
+                    case SCORE:
+                        scoringCommand = TransferScoringCommands.TRANSFER;
+                        break;
+                }
+                break;
+            case LIFT_HEIGHT:
+                switch(scoringCommand){
+                    case TRANSFER:
+                        collectorArm.raiseArm();
+                        scoringState = TransferScoringStates.COLLECTOR_ARM;
+                        break;
+                    case CONFIRM_TRANSFER:
+                    case EMPTY:
+                    case FIX_JAM:
+                    case SCORE:
+                        scoringCommand = TransferScoringCommands.TRANSFER;
+                        break;
+                }
+                break;
+            case COLLECTOR_ARM:
+                switch (scoringCommand){
+                    case TRANSFER:
+                        if (deliveryLiftSystem.isLiftMovementComplete() && collectorArm.isRotationExtensionComplete()){
+                            timer.reset();
+                            deliveryLiftSystem.deliveryBoxToTransfer();
+                            scoringState = TransferScoringStates.TRANSFER_READY;
+                        }
+                    case CONFIRM_TRANSFER:
+                    case EMPTY:
+                    case FIX_JAM:
+                    case SCORE:
+                        scoringCommand = TransferScoringCommands.TRANSFER;
+                        break;
+                }
+                break;
+            case TRANSFER_READY:
+                switch (scoringCommand){
+                    case TRANSFER:
+                        if (timer.milliseconds() > 1000){
+                            collector.deliverMineralsOn();
+                            scoringState = TransferScoringStates.TRANSFER;
+                        }
+                    case CONFIRM_TRANSFER:
+                    case EMPTY:
+                    case FIX_JAM:
+                    case SCORE:
+                        scoringCommand = TransferScoringCommands.TRANSFER;
+                        break;
+                }
+                break;
+            case TRANSFER:
+                switch (scoringCommand){
+                    case CONFIRM_TRANSFER:
+                        collector.deliverMineralsOff();
+                        deliveryLiftSystem.goToScoringPosition();
+                        scoringState = TransferScoringStates.SETUP_FOR_SCORE;
+                        break;
+                    case FIX_JAM:
+                        collector.fixTransferJam();
+                        scoringState = TransferScoringStates.TRANSFER_READY;
+                        scoringCommand = TransferScoringCommands.TRANSFER;
+                        break;
+                    case TRANSFER:
+                    case EMPTY:
+                    case SCORE:
+                        break;
+                }
+                break;
+            case SETUP_FOR_SCORE:
+                switch (scoringCommand){
+                    case SCORE:
+                        if (deliveryLiftSystem.isLiftMovementComplete()){
+                            timer.reset();
+                            deliveryLiftSystem.deliveryBoxToDump();
+                            scoringState = TransferScoringStates.SCORED;
+                        }
+                        break;
+                    case FIX_JAM:
+                    case TRANSFER:
+                    case EMPTY:
+                    case CONFIRM_TRANSFER:
+                        break;
+
+                }
+                break;
+            case SCORED:
+                if(timer.milliseconds() > 1500){
+                    deliveryLiftSystem.deliveryBoxToHome();
+                    scoringState = TransferScoringStates.RESET;
+                }
+                break;
+            case RESET:
+                scoringState = TransferScoringStates.START;
+                break;
+
+        }
     }
 
 }
