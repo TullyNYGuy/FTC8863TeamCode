@@ -88,7 +88,7 @@ public class CollectorGB {
     private double keepPositionGateServo = 0.1;
     private double ejectPositionGateServo = 1;
     private double initPositionGateServo = 0.6;
-
+    private double preEjectPositionGateServo = insert value;
     private ColorSensor sensorColor;
     private DistanceSensor sensorDistance;
 
@@ -193,7 +193,7 @@ public class CollectorGB {
         storageStarServo = hardwareMap.get(CRServo.class, "storageStarServo");
 
         gateServo = new Servo8863("gateServo", hardwareMap, telemetry, collectionPositionGateServo, keepPositionGateServo, ejectPositionGateServo, initPositionGateServo, Servo.Direction.FORWARD);
-
+        gateServo.setPositionTwo(preEjectPositionGateServo);
         sensorColor = hardwareMap.get(ColorSensor.class, "revColorSensor");
         sensorDistance = hardwareMap.get(DistanceSensor.class, "revColorSensor");
 
@@ -249,7 +249,9 @@ public class CollectorGB {
     private void gateServoGoToEjectPosition() {
         gateServo.goDown();
     }
-
+    private void gateServoGoToPreEjectPosition() {
+        gateServo.goPositionTwo();
+    }
     private void gateServoGoToInitPosition() {
         gateServo.goInitPosition();
     }
@@ -725,6 +727,8 @@ public class CollectorGB {
                                 mineralColorSilverCounter = 0;
                                 mineralColorGoldCounter = 0;
                                 turnIntakeOnSuckIn();
+                                delay(500);
+                                gateServoGoToPreEjectPosition();
                                 delay(500);
                                 gateServoGoToEjectPosition();
                                 timer.reset();
