@@ -290,7 +290,7 @@ public class PIDControl {
 
     public boolean isFinished(){
         if (Math.abs(getFeedback() - getSetpoint()) < getThreshold()){
-            if (finishedTimer.milliseconds() > 250) {
+            if (finishedTimer.milliseconds() > 100) {
                 return true;
             }
             else {
