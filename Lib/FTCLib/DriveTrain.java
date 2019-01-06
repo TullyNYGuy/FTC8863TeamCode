@@ -979,13 +979,13 @@ public class DriveTrain {
             leftDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             pidControl.setSetpoint(imu.convertAngleTo360(turnAngle));
             pidControl.setMaxCorrection(maxPower);
-            pidControl.setThreshold(.5 );
+            pidControl.setThreshold(1.0);
             //pidControl.setKp(0.025);
             //pidControl.setKi(0.0000000015);
 //            pidControl.setKp(0.0125);
 //////            pidControl.setKi(0.00000000025);
             pidControl.setKp(0.009);
-            pidControl.setKi(0.05/100000);
+            pidControl.setKi(0.05/1000000);
             pidControl.reset();
 
             imu.setAngleMode(angleMode);
