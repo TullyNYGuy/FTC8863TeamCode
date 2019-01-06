@@ -990,7 +990,12 @@ public class DriveTrain {
 
             imu.setAngleMode(angleMode);
             if (angleMode == AdafruitIMU8863.AngleMode.RELATIVE) {
-
+                if (turnAngle > 90) {
+                    imu.setAngleRange(AdafruitIMU8863.AngleRange.ZERO_TO_PLUS_360);
+                }
+                if (turnAngle < -90) {
+                    imu.setAngleRange(AdafruitIMU8863.AngleRange.ZERO_TO_MINUS_360);
+                }
                 imu.resetAngleReferences();
             }
         } else {
