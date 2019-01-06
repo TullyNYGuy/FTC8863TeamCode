@@ -247,14 +247,16 @@ public class DeliveryLiftSystem {
 
     public void goToLatch() { moveToPosition(10, 1); }
 
-    public void goToHang() {
-        moveToPosition(2.5, 1);
+    public void goToHang() { moveToPosition(2.5, 1); }
+
+
+    public void goToSetupHang(){
+        moveToPosition(5.9, 1);
+
     }
 
-    public void goToSetupHang(){moveToPosition(5.9, 1);}
-
     public void dehang() {
-        moveToPosition(11.25, 1);
+        goToTop();
     }
 
     public void undehang() {
@@ -344,6 +346,7 @@ public class DeliveryLiftSystem {
                     case RESET:
                         // send the lift moving down
                         moveToBottom();
+                        deliveryBoxToTransfer();
                         // a reset has been requested, wait for the lift to move down and the limit
                         // switch to be pressed.
                         if (bottomLimitSwitch.isPressed()) {

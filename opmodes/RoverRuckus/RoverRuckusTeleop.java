@@ -225,6 +225,10 @@ public class RoverRuckusTeleop extends LinearOpMode {
             if (gamepad1y.buttonPress(gamepad1.y)) {
                 if (gamepad1y.isCommand1()) {
                     robot.deliveryLiftSystem.goToSetupHang();
+                    robot.collector.gateServoToResetPosition();
+                    robot.collectorArm.extensionArmReset();
+                    sleep(2000);
+                    robot.collectorArm.rotationArmGoToHome();
                 }
                 if (gamepad1y.isCommand2()) {
                     robot.deliveryLiftSystem.goToLatch();

@@ -87,8 +87,8 @@ public class CollectorGB {
     private double collectionPositionGateServo = 0.6;
     private double keepPositionGateServo = 0.1;
     private double ejectPositionGateServo = 1;
-    private double initPositionGateServo = 0.25;
-
+    private double initPositionGateServo = 0.6;
+    private double resetPositionGateServo = 0.25;
     private ColorSensor sensorColor;
     private DistanceSensor sensorDistance;
 
@@ -193,6 +193,7 @@ public class CollectorGB {
         storageStarServo = hardwareMap.get(CRServo.class, "storageStarServo");
 
         gateServo = new Servo8863("gateServo", hardwareMap, telemetry, collectionPositionGateServo, keepPositionGateServo, ejectPositionGateServo, initPositionGateServo, Servo.Direction.FORWARD);
+        gateServo.setPositionTwo(resetPositionGateServo);
 
         sensorColor = hardwareMap.get(ColorSensor.class, "revColorSensor");
         sensorDistance = hardwareMap.get(DistanceSensor.class, "revColorSensor");
@@ -252,6 +253,10 @@ public class CollectorGB {
 
     private void gateServoGoToInitPosition() {
         gateServo.goInitPosition();
+    }
+
+    public void gateServoToResetPosition() { gateServo.goPositionTwo();
+
     }
 
     private void turnCollectorSystemsOff() {
@@ -431,6 +436,7 @@ public class CollectorGB {
         collectorState = CollectorState.OFF;
         collectorCommand = CollectorCommand.NONE;
         collectorMode = CollectorMode.NORMAL;
+        gateServoToResetPosition();
     }
 
     private void reset() {
@@ -533,6 +539,7 @@ public class CollectorGB {
                     case ON:
                         // turn the collector on, but only if there are less than 2 minerals in it.
                         // 2 is the limit allowed according to the rules
+                        gateServoGoToCollectionPosition();
                         if (numberOfMineralsStored < 2) {
                             collectorState = CollectorState.NO_MINERAL;
                             turnIntakeOnSuckIn();
