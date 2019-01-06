@@ -115,6 +115,7 @@ public class RoverRuckusRobot {
         collectorArm.init();
         deliveryLiftSystem.init();
         transferScoringInit();
+        resetScoringInit();
     }
 
     public void setupForRun() {
@@ -125,6 +126,7 @@ public class RoverRuckusRobot {
         deliveryLiftSystem.update();
         collectorArm.update();
         transferScoringStateMachine();
+        resetScoringStateMachine();
     }
 
     public void dehang (){
@@ -339,4 +341,68 @@ public class RoverRuckusRobot {
         }
     }
 
+    //reset state machine
+
+    private enum ResetScoringStates{
+        START,
+        LOWER_LIFT,
+        READY_TO_COLLECT,
+        DONE;
+    }
+
+    private enum ResetScoringCommands{
+        RESET_LIFT,
+        RESET_DELIVERY_BOX,
+        LOWER_COLLECTION_SYSTEM,
+        EMPTY;
+    }
+
+    private void resetScoringInit(){
+        resetScoringCommand = ResetScoringCommands.EMPTY;
+        resetScoringState = ResetScoringStates.START;
+    }
+
+    private void resetScoring(){
+        resetScoringCommand = ResetScoringCommands.RESET_LIFT;
+    }
+
+    public void lowerCollectorArmToCollect(){
+        resetScoringCommand = ResetScoringCommands.LOWER_COLLECTION_SYSTEM;
+    }
+
+    private ResetScoringStates resetScoringState;
+    private ResetScoringCommands resetScoringCommand;
+
+    private void resetScoringStateMachine(){
+        switch(resetScoringState){
+            case START:
+                switch (resetScoringCommand){
+                    case LOWER_COLLECTION_SYSTEM:
+                        deliveryLiftSystem.goToHome();
+                        deliveryLiftSystem.deliveryBoxToTransfer();
+                        resetScoringState = ResetScoringStates.LOWER_LIFT;
+                        break;
+                }
+            case LOWER_LIFT:
+                switch (resetScoringCommand){
+                    case LOWER_COLLECTION_SYSTEM:
+                        collectorArm.dropArm();
+                        resetScoringState = ResetScoringStates.READY_TO_COLLECT;
+                        break;
+                }
+            case READY_TO_COLLECT:
+                switch (resetScoringCommand){
+                    case LOWER_COLLECTION_SYSTEM:
+                        if (collectorArm.isRotationExtensionComplete()){
+                            resetScoringState = ResetScoringStates.DONE;
+                            collectorArm.rotationArmFloatArm();
+                        }
+                        break;
+                }
+            case DONE:
+                resetScoringState = ResetScoringStates.START;
+                resetScoringCommand = ResetScoringCommands.EMPTY;
+                break;
+        }
+    }
 }

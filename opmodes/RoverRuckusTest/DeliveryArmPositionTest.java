@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.DeliveryLiftSystem;
  */
 @TeleOp(name = "Delivery Arm Position Test", group = "Test")
 //@Disabled
-public class DeliveryArmTest extends LinearOpMode {
+public class DeliveryArmPositionTest extends LinearOpMode {
 
     // Put your variable declarations here
     public DeliveryLiftSystem deliveryLiftSystem;

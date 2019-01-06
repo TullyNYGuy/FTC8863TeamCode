@@ -87,7 +87,7 @@ public class CollectorGB {
     private double collectionPositionGateServo = 0.6;
     private double keepPositionGateServo = 0.1;
     private double ejectPositionGateServo = 1;
-    private double initPositionGateServo = 0.6;
+    private double initPositionGateServo = 0.25;
 
     private ColorSensor sensorColor;
     private DistanceSensor sensorDistance;
@@ -422,6 +422,7 @@ public class CollectorGB {
 
 
     public void initialize() {
+        setDesiredMineralColorToSilver();
         mineralDetectedCounter = 0;
         mineralColorSilverCounter = 0;
         mineralColorGoldCounter = 0;
@@ -432,7 +433,7 @@ public class CollectorGB {
         collectorMode = CollectorMode.NORMAL;
     }
 
-    public void reset() {
+    private void reset() {
         softReset();
     }
 

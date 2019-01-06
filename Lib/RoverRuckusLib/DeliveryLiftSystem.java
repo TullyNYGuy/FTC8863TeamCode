@@ -49,7 +49,7 @@ public class DeliveryLiftSystem {
     private double dumpServoHomePosition = 0.9;
     private double dumpServoDumpPosition = 0.1;
     private double dumpServoInitPosition = 0.5;
-    private double dumpServoTransferPosition = 0.84;
+    private double dumpServoTransferPosition = 0.88;
 
     private Switch bottomLimitSwitch;
     private Switch topLimitSwitch;
@@ -245,13 +245,13 @@ public class DeliveryLiftSystem {
         }
     }
 
-    public void goToLatch() {
-        moveToPosition(9, 1);
+    public void goToLatch() { moveToPosition(10, 1); }
+
+    public void goToHang() {
+        moveToPosition(2.5, 1);
     }
 
-    public void hang() {
-        moveToPosition(2, 1);
-    }
+    public void goToSetupHang(){moveToPosition(5.9, 1);}
 
     public void dehang() {
         moveToPosition(11.25, 1);

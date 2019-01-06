@@ -115,9 +115,9 @@ public class RoverRuckusTeleop extends LinearOpMode {
         // create the gamepad 1 buttons and tell each button how many commands it has
         gamepad1RightBumper = new GamepadButtonMultiPush(1);
         gamepad1LeftBumper = new GamepadButtonMultiPush(1);
-        gamepad1a = new GamepadButtonMultiPush(1);
+        gamepad1a = new GamepadButtonMultiPush(2);
         gamepad1b = new GamepadButtonMultiPush(1);
-        gamepad1y = new GamepadButtonMultiPush(1);
+        gamepad1y = new GamepadButtonMultiPush(3);
         gamepad1x = new GamepadButtonMultiPush(1);
         gamepad1DpadUp = new GamepadButtonMultiPush(1);
         gamepad1DpadDown = new GamepadButtonMultiPush(1);
@@ -136,11 +136,11 @@ public class RoverRuckusTeleop extends LinearOpMode {
         // create the gamepad 2 buttons and tell each button how many commands it has
         gamepad2RightBumper = new GamepadButtonMultiPush(1);
         gamepad2LeftBumper = new GamepadButtonMultiPush(1);
-        gamepad2a = new GamepadButtonMultiPush(1);
+        gamepad2a = new GamepadButtonMultiPush(2);
         gamepad2b = new GamepadButtonMultiPush(1);
         gamepad2y = new GamepadButtonMultiPush(1);
         gamepad2x = new GamepadButtonMultiPush(1);
-        gamepad2DpadUp = new GamepadButtonMultiPush(1);
+        gamepad2DpadUp = new GamepadButtonMultiPush(2);
         gamepad2DpadDown = new GamepadButtonMultiPush(1);
         gamepad2DpadLeft = new GamepadButtonMultiPush(1);
         gamepad2DpadRight = new GamepadButtonMultiPush(1);
@@ -153,6 +153,7 @@ public class RoverRuckusTeleop extends LinearOpMode {
 
         gamepad2RightJoyStickX = new JoyStick(JoyStick.JoyStickMode.SQUARE, JOYSTICK_DEADBAND_VALUE, JoyStick.InvertSign.NO_INVERT_SIGN);
         gamepad2RightJoyStickY = new JoyStick(JoyStick.JoyStickMode.SQUARE, JOYSTICK_DEADBAND_VALUE, JoyStick.InvertSign.INVERT_SIGN);
+        gamepad2RightJoyStickY.setHalfPower();
 
         // Wait for the start button
         telemetry.addData(">", "Press start to run Teleop");
@@ -196,29 +197,44 @@ public class RoverRuckusTeleop extends LinearOpMode {
 //            }
 
             if (gamepad1RightBumper.buttonPress(gamepad1.right_bumper)) {
-                // this was a new button press, not a button held down for a while
-                // put the command to be executed here
+                robot.collector.resetCollector();
             }
 
             if (gamepad1LeftBumper.buttonPress(gamepad1.left_bumper)) {
-                // this was a new button press, not a button held down for a while
-                // put the command to be executed here
+                robot.deliveryLiftSystem.liftReset();
             }
 
             if (gamepad1a.buttonPress(gamepad1.a)) {
-                robot.transferMinerals();
+                if (gamepad1a.isCommand1()) {
+                    robot.collector.turnCollectorOn();
+               }
+                if (gamepad1a.isCommand2()) {
+                    robot.collector.turnCollectorOff();
+                }
             }
 
             if (gamepad1b.buttonPress(gamepad1.b)) {
-                robot.confirmTransfer();
+                if (gamepad1b.isCommand1()) {
+                    robot.collector.setDesiredMineralColorToGold();
+                }
+                if (gamepad1b.isCommand2()) {
+                    robot.collector.setDesiredMineralColorToSilver();
+                }
             }
 
             if (gamepad1y.buttonPress(gamepad1.y)) {
-                robot.clearTransferJam();
+                if (gamepad1y.isCommand1()) {
+                    robot.deliveryLiftSystem.goToSetupHang();
+                }
+                if (gamepad1y.isCommand2()) {
+                    robot.deliveryLiftSystem.goToLatch();
+                }
+                if (gamepad1y.isCommand3()) {
+                    robot.deliveryLiftSystem.goToHang();
+                }
             }
 
             if (gamepad1x.buttonPress(gamepad1.x)) {
-                robot.score();
             }
 
             if (gamepad1DpadUp.buttonPress(gamepad1.dpad_up)) {
@@ -303,54 +319,52 @@ public class RoverRuckusTeleop extends LinearOpMode {
 //            }
 
             if (gamepad2RightBumper.buttonPress(gamepad2.right_bumper)) {
-                // this was a new button press, not a button held down for a while
-                // put the command to be executed here
-                robot.collector.testGateServo();
+                robot.collectorArm.extensionArmReset();
             }
 
             if (gamepad2LeftBumper.buttonPress(gamepad2.left_bumper)) {
-                // this was a new button press, not a button held down for a while
-                // put the command to be executed here
+
             }
 
             if (gamepad2a.buttonPress(gamepad2.a)) {
-                robot.collector.turnCollectorOn();
+                if (gamepad2a.isCommand1()) {
+                    robot.transferMinerals();
+                }
+                if (gamepad2a.isCommand2()) {
+                    robot.confirmTransfer();
+                }
             }
 
             if (gamepad2b.buttonPress(gamepad2.b)) {
-                    robot.collector.turnCollectorOff();
+                robot.clearTransferJam();
             }
 
             if (gamepad2y.buttonPress(gamepad2.y)) {
-                robot.collector.setDesiredMineralColorToGold();
-                //gold
+                robot.score();
             }
 
             if (gamepad2x.buttonPress(gamepad2.x)) {
-                robot.collector.setDesiredMineralColorToSilver();
-                //silver
             }
 
             if (gamepad2DpadUp.buttonPress(gamepad2.dpad_up)) {
-                    //robot.deliveryLiftSystem.moveToPosition(4);
-                robot.collector.deliverMineralsOn();
+                if (gamepad2DpadUp.isCommand1()) {
+                    robot.collectorArm.raiseOffGround();
+                }
+                if (gamepad2DpadUp.isCommand2()) {
+                    robot.collectorArm.rotationArmFloatArm();
+                }
             }
 
             if (gamepad2DpadDown.buttonPress(gamepad2.dpad_down)) {
-                robot.deliveryLiftSystem.moveToPosition(1, 1);
-
+                robot.lowerCollectorArmToCollect();
             }
 
             if (gamepad2DpadLeft.buttonPress(gamepad2.dpad_left)) {
-                robot.deliveryLiftSystem.moveToPosition(10, 1);
-                // this was a new button press, not a button held down for a while
-                // put the command to be executed here
+
             }
 
             if (gamepad2DpadRight.buttonPress(gamepad2.dpad_right)) {
-                robot.deliveryLiftSystem.moveToPosition(10.0, 1);
-                // this was a new button press, not a button held down for a while
-                // put the command to be executed here
+
             }
 
             if (gamepad2LeftStickButton.buttonPress(gamepad2.left_stick_button)) {
@@ -393,6 +407,8 @@ public class RoverRuckusTeleop extends LinearOpMode {
                 // differential drive
                 robot.driveTrain.differentialDrive(throttle, direction);
             }
+
+            robot.collectorArm.setExtensionArmPowerUsingJoystick(gamepad2RightJoyStickYValue);
 
             // update the robot
             robot.update();

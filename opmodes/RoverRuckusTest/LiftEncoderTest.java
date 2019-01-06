@@ -22,6 +22,7 @@ public class LiftEncoderTest extends LinearOpMode {
 
         // Put your initializations here
         deliveryLiftSystem = new DeliveryLiftSystem(hardwareMap, telemetry);
+        deliveryLiftSystem.enableDebugMode();
         deliveryLiftSystem.init();
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
@@ -32,10 +33,10 @@ public class LiftEncoderTest extends LinearOpMode {
 
         while (opModeIsActive()) {
 
-            // Put your calls that need to run in a loop here
+            //            //            // Put your calls that need to run in a loop here
 
             // Display the current value
-           deliveryLiftSystem.getLiftMotorEncoder();
+           deliveryLiftSystem.displayLiftMotorEncoder();
            deliveryLiftSystem.testLiftLimitSwitches();
             telemetry.addData(">", "Press Stop to end test.");
 

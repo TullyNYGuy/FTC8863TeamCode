@@ -210,7 +210,7 @@ public class CollectorArm {
     }
 
     public void rotationArmGoToCollect(){
-        rotationArmMotor.moveToPosition(0.2, -120.00, DcMotor8863.FinishBehavior.HOLD);
+        rotationArmMotor.moveToPosition(0.2, -135.00, DcMotor8863.FinishBehavior.HOLD);
     }
 
     public void rotationArmGoToPark() {
@@ -227,6 +227,10 @@ public class CollectorArm {
 
     public void rotationArmGoToClearStar(){
         rotationArmMotor.moveToPosition(0.2, clearStarPosition, DcMotor8863.FinishBehavior.HOLD);
+    }
+
+    public void raiseOffGround(){
+        rotationArmMotor.moveToPosition(0.2, -130.00, DcMotor8863.FinishBehavior.HOLD);
     }
 
     public void rotationArmFloatArm(){
@@ -699,7 +703,6 @@ public class CollectorArm {
     public void raiseArm(){
         collectorExtensionArmCommand = CollectorExtensionArmCommands.RAISE_ARM;
     }
-
     //*********************************************************************************************]
     // extension and rotation Commands
     //**********************************************************************************************
