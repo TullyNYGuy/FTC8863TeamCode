@@ -230,7 +230,7 @@ public class CollectorArm {
     }
 
     public void raiseOffGround(){
-        rotationArmMotor.moveToPosition(0.2, -130.00, DcMotor8863.FinishBehavior.HOLD);
+        rotationArmMotor.moveToPosition(0.2, -115.00, DcMotor8863.FinishBehavior.HOLD);
     }
 
     public void rotationArmFloatArm(){

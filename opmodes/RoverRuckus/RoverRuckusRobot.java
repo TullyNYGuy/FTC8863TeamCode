@@ -296,7 +296,7 @@ public class RoverRuckusRobot {
             case TRANSFER:
                 switch (scoringCommand){
                     case CONFIRM_TRANSFER:
-                        collector.deliverMineralsOff();
+                        collector.deliverMineralsComplete();
                         deliveryLiftSystem.goToScoringPosition();
                         scoringState = TransferScoringStates.SETUP_FOR_SCORE;
                         break;

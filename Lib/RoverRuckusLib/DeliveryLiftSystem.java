@@ -147,6 +147,7 @@ public class DeliveryLiftSystem {
     public void init() {
         //dumpServo.goHome();
         if (!isDebugMode()) {
+            deliveryBoxToTransfer();
             liftReset();
             while (!isLiftMovementComplete()) {
                 update();

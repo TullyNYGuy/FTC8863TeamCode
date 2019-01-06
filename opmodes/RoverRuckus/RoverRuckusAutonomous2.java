@@ -3,11 +3,8 @@ package org.firstinspires.ftc.teamcode.opmodes.RoverRuckus;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
@@ -19,9 +16,9 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.StatTracker;
 
-@Autonomous(name = "Rover Ruckus Autonomous dehang", group = "Test")
+@Autonomous(name = "Rover Ruckus Autonomous", group = "Test")
 //@Disabled
-public class RoverRuckusAutonomous extends LinearOpMode {
+public class RoverRuckusAutonomous2 extends LinearOpMode {
 
     // Put your variable declarations here
     AdafruitIMU8863 imu;
@@ -101,7 +98,7 @@ public class RoverRuckusAutonomous extends LinearOpMode {
             idle();
         }
 
-       // driveToDepotDumpThenCrater();
+        driveToDepotDumpThenCrater();
         // driveToCraterFromLander();
 
         logFile.logData("headingWhileHanging " + Double.toString(headingWhileHanging));

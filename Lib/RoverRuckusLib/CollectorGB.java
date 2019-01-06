@@ -939,12 +939,12 @@ public class CollectorGB {
                     case ON:
                         break;
                     case DELIVER_ON:
-                        if (timer.milliseconds() > 6000) {
-                            collectorState = CollectorState.NO_MINERAL;
-                            turnStorageStarOff();
-                            gateServoGoToCollectionPosition();
-                            break;
-                        }
+                       // if (timer.milliseconds() > 6000) {
+                           // collectorState = CollectorState.NO_MINERAL;
+                          //  turnStorageStarOff();
+                          //  gateServoGoToCollectionPosition();
+
+                       // }
                         break;
                     case DELIVER_OFF:
                         // turn off the delivery. But it is not complete yet so stay in this state
