@@ -217,10 +217,12 @@ public class CollectorArm {
 
 
     public void rotationArmGoToHome(){
+        log("Commanded rotation arm to home position");
         rotationArmMotor.moveToPosition(0.2, homePosition, DcMotor8863.FinishBehavior.HOLD);
     }
 
     public void rotationArmGoToCollect(){
+        log("Commanded rotation arm to collect position");
         rotationArmMotor.moveToPosition(0.2, -135.00, DcMotor8863.FinishBehavior.HOLD);
     }
 
@@ -229,6 +231,7 @@ public class CollectorArm {
     }
 
     public void rotationArmGoToTransfer(){
+        log("Commanded rotation arm to transfer position");
         rotationArmMotor.moveToPosition(0.2, -40, DcMotor8863.FinishBehavior.HOLD);
     }
 
@@ -241,10 +244,12 @@ public class CollectorArm {
     }
 
     public void raiseOffGround(){
+        log("Commanded rotation arm to raise off ground position");
         rotationArmMotor.moveToPosition(0.2, -115.00, DcMotor8863.FinishBehavior.HOLD);
     }
 
     public void rotationArmFloatArm(){
+        log("Commanded rotation arm to float");
         rotationArmMotor.setMotorToFloat();
     }
 
@@ -307,14 +312,17 @@ public class CollectorArm {
     //**********************************************************************************************
 
     public void extensionArmReset() {
+        log("Commanded extension arm to reset");
         command = ExtensionArmCommands.RESET;
     }
 
     public void goToRetract() {
+        log("Commanded extension arm to retract position");
         command = ExtensionArmCommands.GO_TO_RETRACT;
     }
 
     public void goToExtend() {
+        log("Commanded extension arm to extend position");
         command = ExtensionArmCommands.GO_TO_EXTEND;
     }
 
@@ -347,9 +355,12 @@ public class CollectorArm {
     }
 
     public void goToExtensionArmHome() {
+        log("Commanded extension arm to home position");
         moveToExtensionArmPosition(0.5, 1);
     }
+
     public void goToExtensionArmTransfer() {
+        log("Commanded extension arm to transfer position");
         moveToExtensionArmPosition(5.5, 1);
     }
 
@@ -375,6 +386,7 @@ public class CollectorArm {
     }
 
     private void stopExtensionArm() {
+        log("Extension arm arrived at destination");
         extensionArmMotor.setPower(0);
     }
 
@@ -386,6 +398,7 @@ public class CollectorArm {
      * @param extensionArmPower      max power for the motor
      */
     public void moveToExtensionArmPosition(double heightInInches, double extensionArmPower) {
+        log("moving extension arm to position = " + heightInInches);
         desiredExtensionArmPosition = heightInInches;
         this.extensionArmPower = extensionArmPower;
         command = ExtensionArmCommands.GO_TO_POSITION;
@@ -416,6 +429,7 @@ public class CollectorArm {
             case RESET:
                 switch (command) {
                     case RESET:
+                        log("Resetting extension arm");
                         // send the extension arm moving down
                         moveToRetract();
                         // a reset has been requested, wait for the extension arm to move down and the limit
