@@ -735,9 +735,11 @@ public class CollectorArm {
     //**********************************************************************************************
 
     public void dropArm(){
+        log("Commanded to lower collector arm");
         collectorExtensionArmCommand = CollectorExtensionArmCommands.DROP_ARM;
     }
     public void raiseArm(){
+        log("Commanded to raise collector arm");
         collectorExtensionArmCommand = CollectorExtensionArmCommands.RAISE_ARM;
     }
     //*********************************************************************************************]
@@ -816,6 +818,7 @@ public class CollectorArm {
 
     public boolean isRotationExtensionComplete(){
         if (collectorExtensionArmCommand == CollectorExtensionArmCommands.EMPTY){
+            log("Collector arm movement complete");
             return true;
         }
         else return false;
