@@ -151,6 +151,8 @@ public class CollectorGB {
 
     private Telemetry telemetry;
 
+    private CollectorState previousCollectorState;
+    private CollectorCommand previousCollectorCommand;
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -410,6 +412,16 @@ public class CollectorGB {
     private void log(String stringToLog) {
         if (logFile != null && loggingOn) {
             logFile.logData(stringToLog);
+
+        }
+    }
+    private void logState(CollectorState collectorState,CollectorCommand collectorCommand) {
+        if (logFile != null && loggingOn) {
+            if(collectorState != previousCollectorState ||collectorCommand != previousCollectorCommand) {
+                logFile.logData("Collector",collectorState.toString(), collectorCommand.toString());
+                previousCollectorState = collectorState;
+                previousCollectorCommand = collectorCommand;
+            }
         }
     }
 
@@ -1009,7 +1021,7 @@ public class CollectorGB {
             case COMPLETE_DELIVERY:
                 break;
         }
-        log(collectorState.toString());
+        logState(collectorState, collectorCommand);
         return collectorState;
     }
 

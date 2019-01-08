@@ -62,10 +62,13 @@ public class DeliveryLiftSystem {
     private double liftSpeed = .5;
     private boolean debugMode = false;
 
-    private DataLogging dataLog;
-    private boolean logData = false;
+    private DataLogging logFile;
+    private boolean loggingOn = false;
 
     private double joystickPower = 0;
+
+    private States previousState;
+    private Commands previousCommand;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -95,16 +98,16 @@ public class DeliveryLiftSystem {
         this.liftSpeed = .5;
     }
 
-    public void setDataLog(DataLogging dataLog) {
-        this.dataLog = dataLog;
+    public void setDataLog(DataLogging logFile) {
+        this.logFile = logFile;
     }
 
     public void enableDataLogging() {
-        this.logData = true;
+        this.loggingOn = true;
     }
 
     public void disableDataLogging() {
-        this.logData = false;
+        this.loggingOn = false;
     }
 
     //*********************************************************************************************
@@ -534,7 +537,17 @@ public class DeliveryLiftSystem {
                 }
                 break;
         }
+        logState(state, command);
         return state;
+    }
+    private void logState(States state,Commands command) {
+        if (logFile != null && loggingOn) {
+            if(state != previousState ||command != previousCommand) {
+                logFile.logData("Delivery Lift System",state.toString(), command.toString());
+                previousState = state;
+                previousCommand = command;
+            }
+        }
     }
 
     public boolean isLiftMovementComplete() {

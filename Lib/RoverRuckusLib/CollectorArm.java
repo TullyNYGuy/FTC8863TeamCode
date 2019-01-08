@@ -63,10 +63,14 @@ public class CollectorArm {
     private double extensionArmSpeed = .7;
     private boolean debugMode = false;
 
-    private DataLogging dataLog;
-    private boolean logData = false;
+    private DataLogging logFile;
+    private boolean loggingOn = false;
 
     private double extensionArmJoystickPower = 0;
+
+    private ExtensionArmStates previousExtensionArmState;
+    private ExtensionArmCommands previousExtensionCommand;
+
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -95,16 +99,16 @@ public class CollectorArm {
         this.extensionArmSpeed = .5;
     }
 
-    public void setDataLog(DataLogging dataLog) {
-        this.dataLog = dataLog;
+    public void setDataLog(DataLogging logFile) {
+        this.logFile = logFile;
     }
 
     public void enableDataLogging() {
-        this.logData = true;
+        this.loggingOn = true;
     }
 
     public void disableDataLogging() {
-        this.logData = false;
+        this.loggingOn = false;
     }
 
     //*********************************************************************************************
@@ -591,7 +595,17 @@ public class CollectorArm {
                 }
                 break;
         }
+        logState(state, command);
         return state;
+    }
+    private void logState(ExtensionArmStates state, ExtensionArmCommands command) {
+        if (logFile != null && loggingOn) {
+            if(state != previousExtensionArmState ||command != previousExtensionCommand) {
+                logFile.logData("Collector Arm",state.toString(), command.toString());
+                previousExtensionArmState = state;
+                previousExtensionCommand = command;
+            }
+        }
     }
 
     public boolean isExtensionArmMovementComplete() {
