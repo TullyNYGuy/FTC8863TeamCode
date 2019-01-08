@@ -199,10 +199,10 @@ public class RoverRuckusRobot {
         //collectorArm.update();
     }
 
-    public void undehang() {
-        deliveryLiftSystem.undehang();
-        delay(2000);
-    }
+//    public void undehang() {
+//        deliveryLiftSystem.undehang();
+//        delay(2000);
+//    }
 
     private void delay(int ms) {
         try {
