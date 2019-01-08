@@ -410,6 +410,8 @@ public class CollectorArm {
 
     public ExtensionArmStates updateExtensionArm() {
         DcMotor8863.MotorState motorState = extensionArmMotor.update();
+        logState(state, command);
+
         switch (state) {
             case RESET:
                 switch (command) {
@@ -602,7 +604,6 @@ public class CollectorArm {
                 }
                 break;
         }
-        logState(state, command);
         return state;
     }
 

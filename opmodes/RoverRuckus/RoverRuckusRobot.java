@@ -268,6 +268,7 @@ public class RoverRuckusRobot {
     public void transferScoringStateMachine() {
         telemetry.addData("Current State Of Transfer = ", transferScoringState.toString());
         telemetry.addData("Current Command Of Transfer = ", transferScoringCommand.toString());
+        logTransferScoringState(transferScoringState, transferScoringCommand);
         switch (transferScoringState) {
             case START:
                 switch (transferScoringCommand) {
@@ -386,7 +387,6 @@ public class RoverRuckusRobot {
                 transferScoringState = TransferScoringStates.START;
                 break;
         }
-        logTransferScoringState(transferScoringState, transferScoringCommand);
     }
 
     private void logTransferScoringState(TransferScoringStates transferScoringState, TransferScoringCommands transferScoringCommand) {
@@ -434,6 +434,7 @@ public class RoverRuckusRobot {
     private ToCollectCommands toCollectCommand;
 
     private void toCollectStateMachine() {
+        logToCollectState(toCollectState, toCollectCommand);
         switch (toCollectState) {
             case START:
                 switch (toCollectCommand) {
@@ -464,7 +465,6 @@ public class RoverRuckusRobot {
                 toCollectCommand = ToCollectCommands.EMPTY;
                 break;
         }
-        logToCollectState(toCollectState, toCollectCommand);
     }
 
     private void logToCollectState(ToCollectStates toCollectState, ToCollectCommands toCollectCommand) {

@@ -351,6 +351,8 @@ public class DeliveryLiftSystem {
 
     public States update() {
         DcMotor8863.MotorState motorState = liftMotor.update();
+        logState(state, command);
+
         switch (state) {
             case RESET:
                 switch (command) {
@@ -544,7 +546,6 @@ public class DeliveryLiftSystem {
                 }
                 break;
         }
-        logState(state, command);
         return state;
     }
     private void logState(States state,Commands command) {

@@ -537,6 +537,8 @@ public class CollectorGB {
          double mineralStorageTimerLimit = 2000;
          double mineralEjectTimerLimit = 1500;
 
+        logState(collectorState, collectorCommand);
+
         switch (collectorState) {
             // the collector is off
             case OFF:
@@ -1023,7 +1025,6 @@ public class CollectorGB {
             case COMPLETE_DELIVERY:
                 break;
         }
-        logState(collectorState, collectorCommand);
         return collectorState;
     }
 
