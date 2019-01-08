@@ -31,9 +31,9 @@ public class CollectionTestDeliverCommands extends LinearOpMode {
         timer = new ElapsedTime();
         logfile = new DataLogging("collectorTest", telemetry);
         collector = new CollectorGB(hardwareMap, telemetry);
-        collector.initialize();
-        collector.setDataLogging(logfile);
-        collector.setLoggingOn();
+        collector.init();
+        collector.setDataLog(logfile);
+        collector.enableDataLogging();
         collector.setDebugOn();
         collector.setDesiredMineralColorToGold();
 

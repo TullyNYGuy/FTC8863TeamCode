@@ -111,6 +111,7 @@ public class RoverRuckusTeleop extends LinearOpMode {
 
         dataLog = new DataLogging("Teleop", telemetry);
         robot = robot.createRobotForTeleop(hardwareMap, telemetry, AllianceColor.TeamColor.RED, dataLog);
+        robot.enableDataLogging();
 
         // create the gamepad 1 buttons and tell each button how many commands it has
         gamepad1RightBumper = new GamepadButtonMultiPush(1);
@@ -166,8 +167,6 @@ public class RoverRuckusTeleop extends LinearOpMode {
 
         // set the positions that the various systems need to be in when the robot is running
         robot.setupForRun();
-        robot.collector.setLoggingOn();
-        robot.collector.setDataLogging(dataLog);
 
         while (opModeIsActive()) {
 
