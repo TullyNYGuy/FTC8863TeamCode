@@ -148,6 +148,12 @@ public class CollectorArm {
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
 
+    private void log(String stringToLog) {
+        if (logFile != null && loggingOn) {
+            logFile.logData(stringToLog);
+
+        }
+    }
 
     //*********************************************************************************************
     //          MAJOR METHODS
@@ -155,6 +161,7 @@ public class CollectorArm {
     // public methods that give the class its functionality
     //*********************************************************************************************
     public void init() {
+        log("Collector Arm system initializing");
         if (!isDebugMode()) {
             extensionArmReset();
             while (!isExtensionArmMovementComplete()) {
@@ -598,6 +605,7 @@ public class CollectorArm {
         logState(state, command);
         return state;
     }
+
     private void logState(ExtensionArmStates state, ExtensionArmCommands command) {
         if (logFile != null && loggingOn) {
             if(state != previousExtensionArmState ||command != previousExtensionCommand) {

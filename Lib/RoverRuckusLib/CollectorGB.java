@@ -161,15 +161,15 @@ public class CollectorGB {
     //*********************************************************************************************
 
 
-    public void setDataLogging(DataLogging dataLogging) {
-        this.logFile = dataLogging;
+    public void setDataLog(DataLogging logFile) {
+        this.logFile = logFile;
     }
 
-    public void setLoggingOn() {
+    public void enableDataLogging() {
         this.loggingOn = true;
     }
 
-    public void setLoggingOff() {
+    public void disableDataLogging() {
         this.loggingOn = false;
     }
 
@@ -203,7 +203,7 @@ public class CollectorGB {
         timer = new ElapsedTime();
 
         this.telemetry = telemetry;
-        initialize();
+        init();
     }
     //*********************************************************************************************
     // PRIVATE COMMANDS
@@ -415,6 +415,7 @@ public class CollectorGB {
 
         }
     }
+
     private void logState(CollectorState collectorState,CollectorCommand collectorCommand) {
         if (logFile != null && loggingOn) {
             if(collectorState != previousCollectorState ||collectorCommand != previousCollectorCommand) {
@@ -438,7 +439,8 @@ public class CollectorGB {
     //*********************************************************************************************
 
 
-    public void initialize() {
+    public void init() {
+        log("Collector system initializing");
         setDesiredMineralColorToSilver();
         mineralDetectedCounter = 0;
         mineralColorSilverCounter = 0;
@@ -456,13 +458,13 @@ public class CollectorGB {
     }
 
     private void hardReset() {
-        initialize();
+        init();
     }
 
     private void softReset() {
         // initialize except keep the numberOfMineralsStored value
         int temp = numberOfMineralsStored;
-        initialize();
+        init();
         numberOfMineralsStored = temp;
     }
 

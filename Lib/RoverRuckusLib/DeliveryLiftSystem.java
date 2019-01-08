@@ -148,6 +148,7 @@ public class DeliveryLiftSystem {
     //*********************************************************************************************
 
     public void init() {
+        log("Delivery Lift system initializing");
         //dumpServo.goHome();
         if (!isDebugMode()) {
             deliveryBoxToTransfer();
@@ -160,6 +161,12 @@ public class DeliveryLiftSystem {
 
     public void shutdown() {
         //dumpServo.goHome();
+    }
+
+    private void log(String stringToLog) {
+        if (logFile != null && loggingOn) {
+            logFile.logData(stringToLog);
+        }
     }
 
     //*********************************************************************************************]
