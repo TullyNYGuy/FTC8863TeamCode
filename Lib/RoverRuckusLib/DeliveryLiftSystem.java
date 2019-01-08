@@ -236,17 +236,17 @@ public class DeliveryLiftSystem {
     //**********************************************************************************************
 
     public void liftReset() {
-        log("Commanded to reset lift");
+        log("Commanded lift toreset lift");
         liftCommand = LiftCommands.RESET;
     }
 
     public void goToBottom() {
-        log("Commanded to bottom position");
+        log("Commanded lift tobottom position");
         liftCommand = LiftCommands.GO_TO_BOTTOM;
     }
 
     public void goToTop() {
-        log("Commanded to top position");
+        log("Commanded lift totop position");
         liftCommand = LiftCommands.GO_TO_TOP;
     }
 
@@ -265,23 +265,23 @@ public class DeliveryLiftSystem {
     }
 
     public void goToLatch() {
-        log("Commanded to latch position");
+        log("Commanded lift tolatch position");
         moveToPosition(10, 1);
     }
 
     public void goToHang() {
-        log("Commanded to hanging position");
+        log("Commanded lift tohanging position");
         moveToPosition(2.5, 1);
     }
 
 
     public void goToSetupHang(){
-        log("Commanded to setup hang position");
+        log("Commanded lift tosetup hang position");
         moveToPosition(5.9, 1);
     }
 
     public void dehang() {
-        log("Commanded to De-hang");
+        log("Commanded lift toDe-hang");
         goToTop();
     }
 
