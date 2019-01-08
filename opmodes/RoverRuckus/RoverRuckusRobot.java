@@ -8,6 +8,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
+
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -48,10 +49,19 @@ public class RoverRuckusRobot {
     public CollectorGB collector;
     public Telemetry telemetry;
     public DeliveryLiftSystem deliveryLiftSystem;
-   public CollectorArm collectorArm;
-   private ElapsedTime timer;
+    public CollectorArm collectorArm;
 
-    
+    private ElapsedTime timer;
+    private DataLogging logFile;
+
+    private TransferScoringCommands previousTransferScoringCommand;
+    private TransferScoringStates previousTransferScoringState;
+
+    private ToCollectStates previousToCollectState;
+    private ToCollectCommands previousToCollectCommand;
+
+    private boolean loggingOn = false;
+
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -59,6 +69,26 @@ public class RoverRuckusRobot {
     // getPositionInTermsOfAttachment
     //*********************************************************************************************
 
+    public void setDataLog(DataLogging logFile) {
+        this.logFile = logFile;
+    }
+
+    public void enableDataLogging() {
+        this.loggingOn = true;
+        collectorArm.setDataLog(logFile);
+        collectorArm.enableDataLogging();
+        collector.setDataLog(logFile);
+        collector.enableDataLogging();
+        deliveryLiftSystem.setDataLog(logFile);
+        deliveryLiftSystem.enableDataLogging();
+    }
+
+    public void disableDataLogging() {
+        this.loggingOn = false;
+        collectorArm.disableDataLogging();
+        collector.disableDataLogging();
+        deliveryLiftSystem.disableDataLogging();
+    }
 
     //*********************************************************************************************
     //          Constructors
@@ -67,13 +97,18 @@ public class RoverRuckusRobot {
     // from it
     //*********************************************************************************************
 
-    private RoverRuckusRobot(HardwareMap hardwareMap, RobotMode robotMode, Telemetry telemetry, AllianceColor.TeamColor teamColor, DataLogging dataLog) {
+    private RoverRuckusRobot(HardwareMap hardwareMap, RobotMode robotMode, Telemetry telemetry, AllianceColor.TeamColor teamColor, DataLogging logFile) {
         this.telemetry = telemetry;
 
         collector = new CollectorGB(hardwareMap, telemetry);
         collectorArm = new CollectorArm(hardwareMap, telemetry);
         deliveryLiftSystem = new DeliveryLiftSystem(hardwareMap, telemetry);
+
         timer = new ElapsedTime();
+
+        // note that we are ignoring the logFile that is passed as an argument. Decided to set that up
+        // here
+        this.logFile = new DataLogging("Teleop", telemetry);
 
         if (robotMode == RobotMode.AUTONOMOUS) {
             // create the robot for autonomous
@@ -111,9 +146,16 @@ public class RoverRuckusRobot {
     //*********************************************************************************************
 
     public void init(Telemetry telemetry) {
-        collector.initialize();
+        enableDataLogging();
+        collector.setDataLog(logFile);
+        collector.init();
+
+        collectorArm.setDataLog(logFile);
         collectorArm.init();
+
+        deliveryLiftSystem.setDataLog(logFile);
         deliveryLiftSystem.init();
+
         transferScoringInit();
         resetScoringInit();
     }
@@ -126,10 +168,14 @@ public class RoverRuckusRobot {
         deliveryLiftSystem.update();
         collectorArm.update();
         transferScoringStateMachine();
-        resetScoringStateMachine();
+        toCollectStateMachine();
     }
 
-    public void dehang (){
+    //*********************************************************************************************
+    // robot commands
+    //*********************************************************************************************
+
+    public void dehang() {
 //        collectorArm.goToDehang();
 //        while (collectorArm.update() != DcMotor8863.MotorState.COMPLETE_HOLD) {
 //        }
@@ -168,12 +214,14 @@ public class RoverRuckusRobot {
 
     public void shutdown() {
         driveTrain.shutdown();
-       // collector.shutdown();
+        // collector.shutdown();
     }
 
+    //*********************************************************************************************
     //transfer & scoring state machine
+    //*********************************************************************************************
 
-    public enum TransferScoringStates{
+    public enum TransferScoringStates {
         START,
         COLLECTOR_OFF,
         LIFT_HEIGHT,
@@ -185,7 +233,7 @@ public class RoverRuckusRobot {
         RESET;
     }
 
-    public enum TransferScoringCommands{
+    public enum TransferScoringCommands {
         TRANSFER,
         CONFIRM_TRANSFER,
         FIX_JAM,
@@ -193,39 +241,39 @@ public class RoverRuckusRobot {
         EMPTY;
     }
 
-    private TransferScoringCommands scoringCommand;
-    private TransferScoringStates scoringState;
+    private TransferScoringCommands transferScoringCommand;
+    private TransferScoringStates transferScoringState;
 
-    public void transferMinerals(){
-        scoringCommand = TransferScoringCommands.TRANSFER;
+    public void transferMinerals() {
+        transferScoringCommand = TransferScoringCommands.TRANSFER;
     }
 
-    public void confirmTransfer(){
-        scoringCommand = TransferScoringCommands.CONFIRM_TRANSFER;
+    public void confirmTransfer() {
+        transferScoringCommand = TransferScoringCommands.CONFIRM_TRANSFER;
     }
 
-    public void clearTransferJam(){
-        scoringCommand = TransferScoringCommands.FIX_JAM;
+    public void clearTransferJam() {
+        transferScoringCommand = TransferScoringCommands.FIX_JAM;
     }
 
-    public void score(){
-        scoringCommand = TransferScoringCommands.SCORE;
+    public void score() {
+        transferScoringCommand = TransferScoringCommands.SCORE;
     }
 
-    public void transferScoringInit(){
-        scoringState = TransferScoringStates.START;
-        scoringCommand = TransferScoringCommands.EMPTY;
+    public void transferScoringInit() {
+        transferScoringState = TransferScoringStates.START;
+        transferScoringCommand = TransferScoringCommands.EMPTY;
     }
 
-    public void transferScoringStateMachine(){
-        telemetry.addData("Current State Of Transfer = ",scoringState.toString());
-        telemetry.addData("Current Command Of Transfer = ",scoringCommand.toString());
-        switch(scoringState){
+    public void transferScoringStateMachine() {
+        telemetry.addData("Current State Of Transfer = ", transferScoringState.toString());
+        telemetry.addData("Current Command Of Transfer = ", transferScoringCommand.toString());
+        switch (transferScoringState) {
             case START:
-                switch(scoringCommand){
+                switch (transferScoringCommand) {
                     case TRANSFER:
                         collector.turnCollectorOff();
-                        scoringState = TransferScoringStates.COLLECTOR_OFF;
+                        transferScoringState = TransferScoringStates.COLLECTOR_OFF;
                         break;
                     case CONFIRM_TRANSFER:
                     case EMPTY:
@@ -235,75 +283,75 @@ public class RoverRuckusRobot {
                 }
                 break;
             case COLLECTOR_OFF:
-                switch (scoringCommand){
+                switch (transferScoringCommand) {
                     case TRANSFER:
                         deliveryLiftSystem.goToBottom();
-                        scoringState = TransferScoringStates.LIFT_HEIGHT;
+                        transferScoringState = TransferScoringStates.LIFT_HEIGHT;
                         break;
                     case CONFIRM_TRANSFER:
                     case EMPTY:
                     case FIX_JAM:
                     case SCORE:
-                        scoringCommand = TransferScoringCommands.TRANSFER;
+                        transferScoringCommand = TransferScoringCommands.TRANSFER;
                         break;
                 }
                 break;
             case LIFT_HEIGHT:
-                switch(scoringCommand){
+                switch (transferScoringCommand) {
                     case TRANSFER:
                         collectorArm.raiseArm();
-                        scoringState = TransferScoringStates.COLLECTOR_ARM;
+                        transferScoringState = TransferScoringStates.COLLECTOR_ARM;
                         break;
                     case CONFIRM_TRANSFER:
                     case EMPTY:
                     case FIX_JAM:
                     case SCORE:
-                        scoringCommand = TransferScoringCommands.TRANSFER;
+                        transferScoringCommand = TransferScoringCommands.TRANSFER;
                         break;
                 }
                 break;
             case COLLECTOR_ARM:
-                switch (scoringCommand){
+                switch (transferScoringCommand) {
                     case TRANSFER:
-                        if (deliveryLiftSystem.isLiftMovementComplete() && collectorArm.isRotationExtensionComplete()){
+                        if (deliveryLiftSystem.isLiftMovementComplete() && collectorArm.isRotationExtensionComplete()) {
                             timer.reset();
                             deliveryLiftSystem.deliveryBoxToTransfer();
-                            scoringState = TransferScoringStates.TRANSFER_READY;
+                            transferScoringState = TransferScoringStates.TRANSFER_READY;
                         }
                     case CONFIRM_TRANSFER:
                     case EMPTY:
                     case FIX_JAM:
                     case SCORE:
-                        scoringCommand = TransferScoringCommands.TRANSFER;
+                        transferScoringCommand = TransferScoringCommands.TRANSFER;
                         break;
                 }
                 break;
             case TRANSFER_READY:
-                switch (scoringCommand){
+                switch (transferScoringCommand) {
                     case TRANSFER:
-                        if (timer.milliseconds() > 1000){
+                        if (timer.milliseconds() > 1000) {
                             collector.deliverMineralsOn();
-                            scoringState = TransferScoringStates.TRANSFER;
+                            transferScoringState = TransferScoringStates.TRANSFER;
                         }
                     case CONFIRM_TRANSFER:
                     case EMPTY:
                     case FIX_JAM:
                     case SCORE:
-                        scoringCommand = TransferScoringCommands.TRANSFER;
+                        transferScoringCommand = TransferScoringCommands.TRANSFER;
                         break;
                 }
                 break;
             case TRANSFER:
-                switch (scoringCommand){
+                switch (transferScoringCommand) {
                     case CONFIRM_TRANSFER:
                         collector.deliverMineralsComplete();
                         deliveryLiftSystem.goToScoringPosition();
-                        scoringState = TransferScoringStates.SETUP_FOR_SCORE;
+                        transferScoringState = TransferScoringStates.SETUP_FOR_SCORE;
                         break;
                     case FIX_JAM:
                         collector.fixTransferJam();
-                        scoringState = TransferScoringStates.TRANSFER_READY;
-                        scoringCommand = TransferScoringCommands.TRANSFER;
+                        transferScoringState = TransferScoringStates.TRANSFER_READY;
+                        transferScoringCommand = TransferScoringCommands.TRANSFER;
                         break;
                     case TRANSFER:
                     case EMPTY:
@@ -312,12 +360,12 @@ public class RoverRuckusRobot {
                 }
                 break;
             case SETUP_FOR_SCORE:
-                switch (scoringCommand){
+                switch (transferScoringCommand) {
                     case SCORE:
-                        if (deliveryLiftSystem.isLiftMovementComplete()){
+                        if (deliveryLiftSystem.isLiftMovementComplete()) {
                             timer.reset();
                             deliveryLiftSystem.deliveryBoxToDump();
-                            scoringState = TransferScoringStates.SCORED;
+                            transferScoringState = TransferScoringStates.SCORED;
                         }
                         break;
                     case FIX_JAM:
@@ -329,80 +377,103 @@ public class RoverRuckusRobot {
                 }
                 break;
             case SCORED:
-                if(timer.milliseconds() > 1500){
+                if (timer.milliseconds() > 1500) {
                     deliveryLiftSystem.deliveryBoxToHome();
-                    scoringState = TransferScoringStates.RESET;
+                    transferScoringState = TransferScoringStates.RESET;
                 }
                 break;
             case RESET:
-                scoringState = TransferScoringStates.START;
+                transferScoringState = TransferScoringStates.START;
                 break;
+        }
+        logTransferScoringState(transferScoringState, transferScoringCommand);
+    }
 
+    private void logTransferScoringState(TransferScoringStates transferScoringState, TransferScoringCommands transferScoringCommand) {
+        if (logFile != null && loggingOn) {
+            if(transferScoringState != previousTransferScoringState ||transferScoringCommand != previousTransferScoringCommand) {
+                logFile.logData("Transfer Scoring Control ",transferScoringState.toString(), transferScoringCommand.toString());
+                previousTransferScoringState = transferScoringState;
+                previousTransferScoringCommand = transferScoringCommand;
+            }
         }
     }
 
-    //reset state machine
+    //*********************************************************************************************
+    //to collect state machine
+    //*********************************************************************************************
 
-    private enum ResetScoringStates{
+    private enum ToCollectStates {
         START,
         LOWER_LIFT,
         READY_TO_COLLECT,
         DONE;
     }
 
-    private enum ResetScoringCommands{
+    private enum ToCollectCommands {
         RESET_LIFT,
         RESET_DELIVERY_BOX,
         LOWER_COLLECTION_SYSTEM,
         EMPTY;
     }
 
-    private void resetScoringInit(){
-        resetScoringCommand = ResetScoringCommands.EMPTY;
-        resetScoringState = ResetScoringStates.START;
+    private void resetScoringInit() {
+        toCollectCommand = ToCollectCommands.EMPTY;
+        toCollectState = ToCollectStates.START;
     }
 
-    private void resetScoring(){
-        resetScoringCommand = ResetScoringCommands.RESET_LIFT;
+    private void resetScoring() {
+        toCollectCommand = ToCollectCommands.RESET_LIFT;
     }
 
-    public void lowerCollectorArmToCollect(){
-        resetScoringCommand = ResetScoringCommands.LOWER_COLLECTION_SYSTEM;
+    public void lowerCollectorArmToCollect() {
+        toCollectCommand = ToCollectCommands.LOWER_COLLECTION_SYSTEM;
     }
 
-    private ResetScoringStates resetScoringState;
-    private ResetScoringCommands resetScoringCommand;
+    private ToCollectStates toCollectState;
+    private ToCollectCommands toCollectCommand;
 
-    private void resetScoringStateMachine(){
-        switch(resetScoringState){
+    private void toCollectStateMachine() {
+        switch (toCollectState) {
             case START:
-                switch (resetScoringCommand){
+                switch (toCollectCommand) {
                     case LOWER_COLLECTION_SYSTEM:
                         deliveryLiftSystem.goToHome();
                         deliveryLiftSystem.deliveryBoxToTransfer();
-                        resetScoringState = ResetScoringStates.LOWER_LIFT;
+                        toCollectState = ToCollectStates.LOWER_LIFT;
                         break;
                 }
             case LOWER_LIFT:
-                switch (resetScoringCommand){
+                switch (toCollectCommand) {
                     case LOWER_COLLECTION_SYSTEM:
                         collectorArm.dropArm();
-                        resetScoringState = ResetScoringStates.READY_TO_COLLECT;
+                        toCollectState = ToCollectStates.READY_TO_COLLECT;
                         break;
                 }
             case READY_TO_COLLECT:
-                switch (resetScoringCommand){
+                switch (toCollectCommand) {
                     case LOWER_COLLECTION_SYSTEM:
-                        if (collectorArm.isRotationExtensionComplete()){
-                            resetScoringState = ResetScoringStates.DONE;
+                        if (collectorArm.isRotationExtensionComplete()) {
+                            toCollectState = ToCollectStates.DONE;
                             collectorArm.rotationArmFloatArm();
                         }
                         break;
                 }
             case DONE:
-                resetScoringState = ResetScoringStates.START;
-                resetScoringCommand = ResetScoringCommands.EMPTY;
+                toCollectState = ToCollectStates.START;
+                toCollectCommand = ToCollectCommands.EMPTY;
                 break;
+        }
+        logToCollectState(toCollectState, toCollectCommand);
+    }
+
+    private void logToCollectState(ToCollectStates toCollectState, ToCollectCommands toCollectCommand) {
+        if (logFile != null && loggingOn) {
+            if(toCollectState != previousToCollectState || toCollectCommand != previousToCollectCommand) {
+                logFile.logData("To Collection Control ",toCollectState.toString(), toCollectCommand.toString());
+                previousToCollectState = toCollectState;
+                previousToCollectCommand = toCollectCommand;
+            }
         }
     }
 }
