@@ -221,6 +221,13 @@ public class RoverRuckusRobot {
     //transfer & scoring state machine
     //*********************************************************************************************
 
+    private void log(String stringToLog) {
+        if (logFile != null && loggingOn) {
+            logFile.logData(stringToLog);
+
+        }
+    }
+
     public enum TransferScoringStates {
         START,
         COLLECTOR_OFF,
@@ -245,18 +252,22 @@ public class RoverRuckusRobot {
     private TransferScoringStates transferScoringState;
 
     public void transferMinerals() {
+        log("Commanded to transfer minerals");
         transferScoringCommand = TransferScoringCommands.TRANSFER;
     }
 
     public void confirmTransfer() {
+        log("Transfer minerals confirmed complete by driver");
         transferScoringCommand = TransferScoringCommands.CONFIRM_TRANSFER;
     }
 
     public void clearTransferJam() {
+        log("Commanded to fix transfer jam");
         transferScoringCommand = TransferScoringCommands.FIX_JAM;
     }
 
     public void score() {
+        log("Commanded to score minerals");
         transferScoringCommand = TransferScoringCommands.SCORE;
     }
 
@@ -269,6 +280,7 @@ public class RoverRuckusRobot {
         telemetry.addData("Current State Of Transfer = ", transferScoringState.toString());
         telemetry.addData("Current Command Of Transfer = ", transferScoringCommand.toString());
         logTransferScoringState(transferScoringState, transferScoringCommand);
+
         switch (transferScoringState) {
             case START:
                 switch (transferScoringCommand) {
@@ -427,6 +439,7 @@ public class RoverRuckusRobot {
     }
 
     public void lowerCollectorArmToCollect() {
+        log("Commanded to lower collector arm to collect position");
         toCollectCommand = ToCollectCommands.LOWER_COLLECTION_SYSTEM;
     }
 
