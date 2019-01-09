@@ -306,11 +306,17 @@ public class RoverRuckusRobot {
                         break;
                     case CONFIRM_TRANSFER:
                         // command is not relevant. Don't do anything.
+                        logDoNothingCommand(TransferScoringCommands.CONFIRM_TRANSFER);
+                        break;
                     case EMPTY:
+                        break;
                     case FIX_JAM:
                         // command is not relevant. Don't do anything.
+                        logDoNothingCommand(TransferScoringCommands.FIX_JAM);
+                        break;
                     case SCORE:
                         // command is not relevant. Don't do anything.
+                        logDoNothingCommand(TransferScoringCommands.SCORE);
                         break;
                 }
                 break;
@@ -323,13 +329,16 @@ public class RoverRuckusRobot {
                         break;
                     case CONFIRM_TRANSFER:
                         // another command cannot interrupt the transfer, reset the command
+                        logIgnoreCommand(TransferScoringCommands.CONFIRM_TRANSFER);
                         transferScoringCommand = TransferScoringCommands.TRANSFER;
                     case EMPTY:
                     case FIX_JAM:
                         // another command cannot interrupt the transfer, reset the command
+                        logIgnoreCommand(TransferScoringCommands.FIX_JAM);
                         transferScoringCommand = TransferScoringCommands.TRANSFER;
                     case SCORE:
                         // another command cannot interrupt the transfer, reset the command
+                        logIgnoreCommand(TransferScoringCommands.SCORE);
                         transferScoringCommand = TransferScoringCommands.TRANSFER;
                         break;
                 }
@@ -343,13 +352,16 @@ public class RoverRuckusRobot {
                         break;
                     case CONFIRM_TRANSFER:
                         // another command cannot interrupt the transfer, reset the command
+                        logIgnoreCommand(TransferScoringCommands.CONFIRM_TRANSFER);
                         transferScoringCommand = TransferScoringCommands.TRANSFER;
                     case EMPTY:
                     case FIX_JAM:
                         // another command cannot interrupt the transfer, reset the command
+                        logIgnoreCommand(TransferScoringCommands.FIX_JAM);
                         transferScoringCommand = TransferScoringCommands.TRANSFER;
                     case SCORE:
                         // another command cannot interrupt the transfer, reset the command
+                        logIgnoreCommand(TransferScoringCommands.SCORE);
                         transferScoringCommand = TransferScoringCommands.TRANSFER;
                         break;
                 }
@@ -365,13 +377,16 @@ public class RoverRuckusRobot {
                         }
                     case CONFIRM_TRANSFER:
                         // another command cannot interrupt the transfer, reset the command
+                        logIgnoreCommand(TransferScoringCommands.CONFIRM_TRANSFER);
                         transferScoringCommand = TransferScoringCommands.TRANSFER;
                     case EMPTY:
                     case FIX_JAM:
                         // another command cannot interrupt the transfer, reset the command
+                        logIgnoreCommand(TransferScoringCommands.FIX_JAM);
                         transferScoringCommand = TransferScoringCommands.TRANSFER;
                     case SCORE:
                         // another command cannot interrupt the transfer, reset the command
+                        logIgnoreCommand(TransferScoringCommands.SCORE);
                         transferScoringCommand = TransferScoringCommands.TRANSFER;
                         break;
                 }
@@ -388,13 +403,16 @@ public class RoverRuckusRobot {
                         }
                     case CONFIRM_TRANSFER:
                         // another command cannot interrupt the transfer, reset the command
+                        logIgnoreCommand(TransferScoringCommands.CONFIRM_TRANSFER);
                         transferScoringCommand = TransferScoringCommands.TRANSFER;
                     case EMPTY:
                     case FIX_JAM:
                         // another command cannot interrupt the transfer, reset the command
+                        logIgnoreCommand(TransferScoringCommands.FIX_JAM);
                         transferScoringCommand = TransferScoringCommands.TRANSFER;
                     case SCORE:
                         // another command cannot interrupt the transfer, reset the command
+                        logIgnoreCommand(TransferScoringCommands.SCORE);
                         transferScoringCommand = TransferScoringCommands.TRANSFER;
                         break;
                 }
@@ -414,11 +432,13 @@ public class RoverRuckusRobot {
                         break;
                     case TRANSFER:
                         // if the driver hits transfer again, assume they mean to confirm the transfer
+                        logIgnoreCommand(TransferScoringCommands.TRANSFER);
                         transferScoringCommand = TransferScoringCommands.CONFIRM_TRANSFER;
                     case EMPTY:
                     case SCORE:
                         // can't score yet, the transfer has not been confirmed. Wait for the confirm
                         // transfer or fix jam commands
+                        logDoNothingCommand(TransferScoringCommands.SCORE);
                         break;
                 }
                 break;
@@ -445,6 +465,7 @@ public class RoverRuckusRobot {
                     case CONFIRM_TRANSFER:
                         // Confirm transfer got us into this state. So this command is not relevant.
                         // Do noting but wait for a score command.
+                        logDoNothingCommand(TransferScoringCommands.CONFIRM_TRANSFER);
                         break;
 
                 }
@@ -471,6 +492,18 @@ public class RoverRuckusRobot {
                 previousTransferScoringState = transferScoringState;
                 previousTransferScoringCommand = transferScoringCommand;
             }
+        }
+    }
+
+    private void logIgnoreCommand(TransferScoringCommands transferScoringCommand){
+        if (logFile != null && loggingOn) {
+            logFile.logData("Ignoring command = ", transferScoringCommand.toString());
+        }
+    }
+
+    private void logDoNothingCommand(TransferScoringCommands transferScoringCommand){
+        if (logFile != null && loggingOn) {
+            logFile.logData("Doing nothing about command = ", transferScoringCommand.toString());
         }
     }
 
@@ -566,6 +599,12 @@ public class RoverRuckusRobot {
                 previousToCollectState = toCollectState;
                 previousToCollectCommand = toCollectCommand;
             }
+        }
+    }
+
+    private void logIgnoreCommand(ToCollectCommands toCollectCommand){
+        if (logFile != null && loggingOn) {
+            logFile.logData("Ignoring command = ", toCollectCommand.toString());
         }
     }
 }
