@@ -117,7 +117,7 @@ public class RoverRuckusTeleop extends LinearOpMode {
         gamepad1RightBumper = new GamepadButtonMultiPush(1);
         gamepad1LeftBumper = new GamepadButtonMultiPush(1);
         gamepad1a = new GamepadButtonMultiPush(2);
-        gamepad1b = new GamepadButtonMultiPush(1);
+        gamepad1b = new GamepadButtonMultiPush(2);
         gamepad1y = new GamepadButtonMultiPush(3);
         gamepad1x = new GamepadButtonMultiPush(1);
         gamepad1DpadUp = new GamepadButtonMultiPush(1);

@@ -265,23 +265,23 @@ public class DeliveryLiftSystem {
     }
 
     public void goToLatch() {
-        log("Commanded lift tolatch position");
+        log("Commanded lift to latch position");
         moveToPosition(10, 1);
     }
 
     public void goToHang() {
-        log("Commanded lift tohanging position");
+        log("Commanded lift to hanging position");
         moveToPosition(2.5, 1);
     }
 
 
     public void goToSetupHang(){
-        log("Commanded lift tosetup hang position");
+        log("Commanded lift to setup hang position");
         moveToPosition(5.9, 1);
     }
 
     public void dehang() {
-        log("Commanded lift toDe-hang");
+        log("Commanded lift to De-hang");
         goToTop();
     }
 
@@ -304,6 +304,7 @@ public class DeliveryLiftSystem {
     }
 
     public void goToHome() {
+        log("Commanded lift to go to home");
         moveToPosition(0.5, 1);
     }
 
@@ -346,12 +347,19 @@ public class DeliveryLiftSystem {
      * @param liftPower      max power for the motor
      */
     public void moveToPosition(double heightInInches, double liftPower) {
-        log("Moving lift to a position = " + heightInInches );
-        desiredPosition = heightInInches;
-        this.liftPower = liftPower;
-        liftCommand = LiftCommands.GO_TO_POSITION;
-        liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        liftMotor.moveToPosition(liftPower, heightInInches, DcMotor8863.FinishBehavior.FLOAT);
+        if (isLiftMovementComplete()) {
+            log("Moving lift to a position = " + heightInInches );
+            desiredPosition = heightInInches;
+            this.liftPower = liftPower;
+            liftCommand = LiftCommands.GO_TO_POSITION;
+            liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            liftMotor.moveToPosition(liftPower, heightInInches, DcMotor8863.FinishBehavior.FLOAT);
+        } else {
+            // lift movement is not complete, ignore command
+            log("Asked lift to move to position but it is already moving, ignore command");
+            liftCommand = LiftCommands.NO_COMMAND;
+        }
+
     }
 
     private boolean isLiftMovementUp() {

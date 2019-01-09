@@ -477,52 +477,69 @@ public class CollectorGB {
     //*********************************************************************************************
 
     public void setDesiredMineralColorToGold() {
+        log("Commanded desired mineral = gold");
+        telemetry.addLine("Collecting Gold");
         desiredMineralColor = MineralColor.GOLD;
     }
 
     public void setDesiredMineralColorToSilver() {
+        log("Commanded desired mineral = silver");
+        telemetry.addLine("Collecting Silver");
         desiredMineralColor = MineralColor.SILVER;
     }
 
     public void setDesiredMineralColorToEither() {
+        log("Commanded desired mineral = either");
         desiredMineralColor = MineralColor.EITHER;
     }
 
     // Commands to control collector
 
     public void turnCollectorOn() {
+        log("Collector commanded turn on");
         collectorCommand = CollectorCommand.ON;
     }
 
     public void turnCollectorOff() {
+        log("Collector commanded turn off");
         collectorCommand = CollectorCommand.OFF;
     }
 
     public void deliverMineralsOn() {
+        log("Collector commanded deliver minerals on");
         collectorCommand = CollectorCommand.DELIVER_ON;
     }
 
     public void deliverMineralsOff() {
+        log("Collector commanded deliver minerals off");
         collectorCommand = CollectorCommand.DELIVER_OFF;
     }
 
-    public void fixTransferJam(){ collectorCommand = CollectorCommand.FIX_TRANSFER_JAM;}
+    public void fixTransferJam(){
+        log("Collector commanded fix transfer jam");
+        collectorCommand = CollectorCommand.FIX_TRANSFER_JAM;}
 
     public void deliverMineralsComplete() {
+        log("Collector deliver minerals complete");
         collectorCommand = CollectorCommand.COMPLETE_DELIVERY;
     }
 
     public void resetCollector() {
+        log("Collector commanded reset collector");
         collectorCommand = CollectorCommand.RESET;
     }
 
-    public void forceEjectOnly() {collectorMode = CollectorMode.EJECT_ONLY;}
+    public void forceEjectOnly() {
+        log("Collector commanded force eject only");
+        collectorMode = CollectorMode.EJECT_ONLY;}
 
     public void forceStoreOnly() {
+        log("Collector commanded force store");
         collectorMode = CollectorMode.STORE_ONLY;
     }
 
     public void forceNormalOperation() {
+        log("Collector commanded force normal operation");
         collectorMode = CollectorMode.NORMAL;
     }
 

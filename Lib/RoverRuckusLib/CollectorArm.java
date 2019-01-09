@@ -71,6 +71,9 @@ public class CollectorArm {
     private ExtensionArmStates previousExtensionArmState;
     private ExtensionArmCommands previousExtensionCommand;
 
+    private CollectorExtensionArmStates previousCollectorExtensionArmState;
+    private CollectorExtensionArmCommands previousCollectorExtensionArmCommand;
+
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -263,7 +266,12 @@ public class CollectorArm {
     }
 
     public boolean isRotationArmMovementComplete() {
-        return rotationArmMotor.isMotorStateComplete();
+        if (rotationArmMotor.isMotorStateComplete()) {
+            log("rotation arm arrived at destination");
+            return true;
+        } else {
+            return false;
+        }
     }
 
     //**********************************************************************************************
@@ -747,6 +755,8 @@ public class CollectorArm {
     //**********************************************************************************************
 
     public void rotationExtensionArmUpdate(){
+        logRotationExtensionState(collectorExtensionArmState, collectorExtensionArmCommand);
+
         switch (collectorExtensionArmState){
             case START:
                 switch (collectorExtensionArmCommand){
@@ -809,6 +819,16 @@ public class CollectorArm {
                         break;
                 }
                 break;
+        }
+    }
+
+    private void logRotationExtensionState(CollectorExtensionArmStates collectorExtensionArmState, CollectorExtensionArmCommands collectorExtensionArmCommand) {
+        if (logFile != null && loggingOn) {
+            if(collectorExtensionArmState != previousCollectorExtensionArmState ||collectorExtensionArmCommand != previousCollectorExtensionArmCommand) {
+                logFile.logData("Collector Arm",collectorExtensionArmState.toString(), collectorExtensionArmCommand.toString());
+                previousCollectorExtensionArmState = collectorExtensionArmState;
+                previousCollectorExtensionArmCommand = collectorExtensionArmCommand;
+            }
         }
     }
 

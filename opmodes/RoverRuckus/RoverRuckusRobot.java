@@ -302,8 +302,10 @@ public class RoverRuckusRobot {
                         transferScoringState = TransferScoringStates.LIFT_HEIGHT;
                         break;
                     case CONFIRM_TRANSFER:
+                        transferScoringCommand = TransferScoringCommands.TRANSFER;
                     case EMPTY:
                     case FIX_JAM:
+                        transferScoringCommand = TransferScoringCommands.TRANSFER;
                     case SCORE:
                         transferScoringCommand = TransferScoringCommands.TRANSFER;
                         break;
@@ -316,8 +318,10 @@ public class RoverRuckusRobot {
                         transferScoringState = TransferScoringStates.COLLECTOR_ARM;
                         break;
                     case CONFIRM_TRANSFER:
+                        transferScoringCommand = TransferScoringCommands.TRANSFER;
                     case EMPTY:
                     case FIX_JAM:
+                        transferScoringCommand = TransferScoringCommands.TRANSFER;
                     case SCORE:
                         transferScoringCommand = TransferScoringCommands.TRANSFER;
                         break;
@@ -332,8 +336,10 @@ public class RoverRuckusRobot {
                             transferScoringState = TransferScoringStates.TRANSFER_READY;
                         }
                     case CONFIRM_TRANSFER:
+                        transferScoringCommand = TransferScoringCommands.TRANSFER;
                     case EMPTY:
                     case FIX_JAM:
+                        transferScoringCommand = TransferScoringCommands.TRANSFER;
                     case SCORE:
                         transferScoringCommand = TransferScoringCommands.TRANSFER;
                         break;
@@ -347,8 +353,10 @@ public class RoverRuckusRobot {
                             transferScoringState = TransferScoringStates.TRANSFER;
                         }
                     case CONFIRM_TRANSFER:
+                        transferScoringCommand = TransferScoringCommands.TRANSFER;
                     case EMPTY:
                     case FIX_JAM:
+                        transferScoringCommand = TransferScoringCommands.TRANSFER;
                     case SCORE:
                         transferScoringCommand = TransferScoringCommands.TRANSFER;
                         break;
@@ -367,6 +375,7 @@ public class RoverRuckusRobot {
                         transferScoringCommand = TransferScoringCommands.TRANSFER;
                         break;
                     case TRANSFER:
+                        transferScoringCommand = TransferScoringCommands.CONFIRM_TRANSFER;
                     case EMPTY:
                     case SCORE:
                         break;
@@ -441,6 +450,7 @@ public class RoverRuckusRobot {
     public void lowerCollectorArmToCollect() {
         log("Commanded to lower collector arm to collect position");
         toCollectCommand = ToCollectCommands.LOWER_COLLECTION_SYSTEM;
+        toCollectState = ToCollectStates.START;
     }
 
     private ToCollectStates toCollectState;
