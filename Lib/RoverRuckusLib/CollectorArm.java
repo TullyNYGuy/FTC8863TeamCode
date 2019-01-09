@@ -29,6 +29,7 @@ public class CollectorArm {
 
     private enum ExtensionArmStates {
         RESET,
+        RESET_MOVING_TO_RETRACT,
         RETRACT,
         IN_BETWEEN,
         EXTEND
@@ -373,6 +374,7 @@ public class CollectorArm {
     }
 
     public void goToExtensionArm10Inches() {
+        log("Commanded extension arm to 10 inches");
         moveToExtensionArmPosition(10.0, 1);
     }
 
@@ -440,8 +442,35 @@ public class CollectorArm {
                         log("Resetting extension arm");
                         // send the extension arm moving down
                         moveToRetract();
-                        // a reset has been requested, wait for the extension arm to move down and the limit
-                        // switch to be pressed.
+                        state = ExtensionArmStates.RESET_MOVING_TO_RETRACT;
+                        break;
+                    // all other commands are ignored when a reset is issued. Basically force
+                    // the command back to a reset
+                    case GO_TO_RETRACT:
+                        command = ExtensionArmCommands.RESET;
+                        break;
+                    case GO_TO_EXTEND:
+                        command = ExtensionArmCommands.RESET;
+                        break;
+                    case GO_TO_POSITION:
+                        command = ExtensionArmCommands.RESET;
+                        break;
+                    case JOYSTICK:
+                        command = ExtensionArmCommands.RESET;
+                        break;
+                    case NO_COMMAND:
+                        break;
+                }
+                break;
+
+            // This state means that a reset was requested and the extension arm has already started
+            // retracting. It is here so that a moveToRetract() is not repeatedly called.
+            case RESET_MOVING_TO_RETRACT:
+                switch (command) {
+                    case RESET:
+                        // the extension arm has been sent to retract from a reset command.
+                        // It is just retracting until the limit switch is pressed and the motor
+                        // is told to stop.
                         if (retractionLimitSwitch.isPressed()) {
                             // the limit switch has been pressed. Stop the motor and reset the
                             // encoder to 0. Clear the command.
@@ -470,13 +499,13 @@ public class CollectorArm {
                 }
                 break;
 
-            // this state does NOT mean that the extension arm is at retract
+                // this state does NOT mean that the extension arm is at retract
             // it means that the extension arm is moving to retract OR at retract
             case RETRACT:
                 switch (command) {
                     case RESET:
                         moveToRetract();
-                        state = ExtensionArmStates.RESET;
+                        state = ExtensionArmStates.RESET_MOVING_TO_RETRACT;
                         break;
                     case GO_TO_RETRACT:
                         // the extension arm has been sent to retract without using a position command.
@@ -517,7 +546,7 @@ public class CollectorArm {
                         // a reset can be requested at any time. Start the motor movement and change
                         // state
                         moveToRetract();
-                        state = ExtensionArmStates.RESET;
+                        state = ExtensionArmStates.RESET_MOVING_TO_RETRACT;
                         break;
                     case GO_TO_RETRACT:
                         // the extension arm has been requested to move to retract. The motor needs to be
@@ -591,7 +620,7 @@ public class CollectorArm {
                         // a reset can be requested at any time. Start the motor movement and change
                         // state
                         moveToRetract();
-                        state = ExtensionArmStates.RESET;
+                        state = ExtensionArmStates.RESET_MOVING_TO_RETRACT;
                         break;
                     case GO_TO_RETRACT:
                         // the extension arm has been requested to move to retract. The motor needs to be
