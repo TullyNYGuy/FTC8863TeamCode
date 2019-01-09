@@ -477,55 +477,55 @@ public class CollectorGB {
     //*********************************************************************************************
 
     public void setDesiredMineralColorToGold() {
-        log("Commanded desired mineral = gold");
+        log("COMMANDED DESIRED MINERAL = GOLD");
         telemetry.addLine("Collecting Gold");
         desiredMineralColor = MineralColor.GOLD;
     }
 
     public void setDesiredMineralColorToSilver() {
-        log("Commanded desired mineral = silver");
+        log("COMMANDED DESIRED MINERAL = SILVER");
         telemetry.addLine("Collecting Silver");
         desiredMineralColor = MineralColor.SILVER;
     }
 
     public void setDesiredMineralColorToEither() {
-        log("Commanded desired mineral = either");
+        log("COMMANDED DESIRED MINERAL = EITHER");
         desiredMineralColor = MineralColor.EITHER;
     }
 
     // Commands to control collector
 
     public void turnCollectorOn() {
-        log("Collector commanded turn on");
+        log("COLLECTOR COMMANDED TURN ON");
         collectorCommand = CollectorCommand.ON;
     }
 
     public void turnCollectorOff() {
-        log("Collector commanded turn off");
+        log("COLLECTOR COMMANDED TURN OFF");
         collectorCommand = CollectorCommand.OFF;
     }
 
     public void deliverMineralsOn() {
-        log("Collector commanded deliver minerals on");
+        log("COLLECTOR COMMANDED DELIVER MINERALS ON");
         collectorCommand = CollectorCommand.DELIVER_ON;
     }
 
     public void deliverMineralsOff() {
-        log("Collector commanded deliver minerals off");
+        log("COLLECTOR COMMANDED DELIVER MINERALS OFF");
         collectorCommand = CollectorCommand.DELIVER_OFF;
     }
 
     public void fixTransferJam(){
-        log("Collector commanded fix transfer jam");
+        log("COLLECTOR COMMANDED FIX TRANSFER JAM");
         collectorCommand = CollectorCommand.FIX_TRANSFER_JAM;}
 
     public void deliverMineralsComplete() {
-        log("Collector deliver minerals complete");
+        log("COLLECTOR DELIVER MINERALS COMPLETE");
         collectorCommand = CollectorCommand.COMPLETE_DELIVERY;
     }
 
     public void resetCollector() {
-        log("Collector commanded reset collector");
+        log("COLLECTOR COMMANDED RESET COLLECTOR");
         collectorCommand = CollectorCommand.RESET;
     }
 
@@ -602,14 +602,17 @@ public class CollectorGB {
                         break;
                     case DELIVER_OFF:
                         // the collector is already off so this command is not relevant
+                        logIgnoreCommand(CollectorCommand.DELIVER_OFF);
                         collectorCommand = CollectorCommand.OFF;
                         break;
                     case FIX_TRANSFER_JAM:
                         // the collector is already off so this command is not relevant
+                        logIgnoreCommand(CollectorCommand.FIX_TRANSFER_JAM);
                         collectorCommand = CollectorCommand.OFF;
                         break;
                     case COMPLETE_DELIVERY:
                         // the collector is already off so this command is not relevant
+                        logIgnoreCommand(CollectorCommand.COMPLETE_DELIVERY);
                         collectorCommand = CollectorCommand.OFF;
                         break;
                         // no command, do nothing
@@ -632,7 +635,8 @@ public class CollectorGB {
                             collectorState = CollectorState.MINERAL_DETECTED;
                             turnIntakeOff();
                             timer.reset();
-                            mineralDetectedCounter = mineralDetectedCounter + 1;
+                            // reset the mineral detected counter for next detection run
+                            mineralDetectedCounter = 0;
                             log("Mineral detected");
                             debug("Mineral detected");
                         }
@@ -648,14 +652,17 @@ public class CollectorGB {
                         break;
                     case DELIVER_OFF:
                         // this command is not relevant
+                        logIgnoreCommand(CollectorCommand.DELIVER_OFF);
                         collectorCommand = CollectorCommand.ON;
                         break;
                     case FIX_TRANSFER_JAM:
+                        logIgnoreCommand(CollectorCommand.FIX_TRANSFER_JAM);
                         // this command is not relevant
                         collectorCommand = CollectorCommand.ON;
                         break;
                     case COMPLETE_DELIVERY:
                         // this command is not relevant
+                        logIgnoreCommand(CollectorCommand.COMPLETE_DELIVERY);
                         collectorCommand = CollectorCommand.ON;
                         break;
                     case NONE:
@@ -688,17 +695,21 @@ public class CollectorGB {
                         break;
                     case DELIVER_ON:
                         // this command is not relevant
+                        logIgnoreCommand(CollectorCommand.DELIVER_ON);
                         collectorCommand = CollectorCommand.ON;
                         break;
                     case DELIVER_OFF:
                         // this command is not relevant
+                        logIgnoreCommand(CollectorCommand.DELIVER_OFF);
                         collectorCommand = CollectorCommand.ON;
                         break;
                     case FIX_TRANSFER_JAM:
                         // this command is not relevant
+                        logIgnoreCommand(CollectorCommand.FIX_TRANSFER_JAM);
                         collectorCommand = CollectorCommand.ON;
                         break;
                     case COMPLETE_DELIVERY:
+                        logIgnoreCommand(CollectorCommand.COMPLETE_DELIVERY);
                         // this command is not relevant
                         collectorCommand = CollectorCommand.ON;
                         break;
@@ -770,18 +781,22 @@ public class CollectorGB {
                         break;
                     case DELIVER_ON:
                         // this command is not relevant
+                        logIgnoreCommand(CollectorCommand.DELIVER_ON);
                         collectorCommand = CollectorCommand.ON;
                         break;
                     case DELIVER_OFF:
                         // this command is not relevant
+                        logIgnoreCommand(CollectorCommand.DELIVER_OFF);
                         collectorCommand = CollectorCommand.ON;
                         break;
                     case FIX_TRANSFER_JAM:
                         // this command is not relevant
+                        logIgnoreCommand(CollectorCommand.FIX_TRANSFER_JAM);
                         collectorCommand = CollectorCommand.ON;
                         break;
                     case COMPLETE_DELIVERY:
                         // this command is not relevant
+                        logIgnoreCommand(CollectorCommand.COMPLETE_DELIVERY);
                         collectorCommand = CollectorCommand.ON;
                         break;
                     case NONE:
@@ -823,14 +838,17 @@ public class CollectorGB {
                         break;
                     case DELIVER_OFF:
                         // this command is not relevant
+                        logIgnoreCommand(CollectorCommand.DELIVER_OFF);
                         collectorCommand = CollectorCommand.ON;
                         break;
                     case FIX_TRANSFER_JAM:
                         // this command is not relevant
+                        logIgnoreCommand(CollectorCommand.FIX_TRANSFER_JAM);
                         collectorCommand = CollectorCommand.ON;
                         break;
                     case COMPLETE_DELIVERY:
                         // this command is not relevant
+                        logIgnoreCommand(CollectorCommand.COMPLETE_DELIVERY);
                         collectorCommand = CollectorCommand.ON;
                         break;
                     case NONE:
@@ -860,18 +878,22 @@ public class CollectorGB {
                         break;
                     case DELIVER_ON:
                         // this command is not relevant
+                        logIgnoreCommand(CollectorCommand.DELIVER_ON);
                         collectorCommand = CollectorCommand.ON;
                         break;
                     case DELIVER_OFF:
                         // this command is not relevant
+                        logIgnoreCommand(CollectorCommand.DELIVER_OFF);
                         collectorCommand = CollectorCommand.ON;
                         break;
                     case FIX_TRANSFER_JAM:
                         // this command is not relevant
+                        logIgnoreCommand(CollectorCommand.FIX_TRANSFER_JAM);
                         collectorCommand = CollectorCommand.ON;
                         break;
                     case COMPLETE_DELIVERY:
                         // this command is not relevant
+                        logIgnoreCommand(CollectorCommand.COMPLETE_DELIVERY);
                         collectorCommand = CollectorCommand.ON;
                         break;
                     case NONE:
@@ -901,18 +923,22 @@ public class CollectorGB {
                         break;
                     case DELIVER_ON:
                         // this command is not relevant
+                        logIgnoreCommand(CollectorCommand.DELIVER_ON);
                         collectorCommand = CollectorCommand.ON;
                         break;
                     case DELIVER_OFF:
                         // this command is not relevant
+                        logIgnoreCommand(CollectorCommand.DELIVER_OFF);
                         collectorCommand = CollectorCommand.ON;
                         break;
                     case FIX_TRANSFER_JAM:
                         // this command is not relevant
+                        logIgnoreCommand(CollectorCommand.FIX_TRANSFER_JAM);
                         collectorCommand = CollectorCommand.ON;
                         break;
                     case COMPLETE_DELIVERY:
                         // this command is not relevant
+                        logIgnoreCommand(CollectorCommand.COMPLETE_DELIVERY);
                         collectorCommand = CollectorCommand.ON;
                         break;
                     case NONE:
@@ -1028,6 +1054,11 @@ public class CollectorGB {
         return collectorState;
     }
 
+    private void logIgnoreCommand(CollectorCommand collectorCommand){
+        if (logFile != null && loggingOn) {
+            logFile.logData("Ignoring command = ", collectorCommand.toString());
+        }
+    }
     public void displayCollectorState(){
         telemetry.addData("Collector State = ", collectorState.toString());
     }
