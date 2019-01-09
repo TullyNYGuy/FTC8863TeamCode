@@ -396,7 +396,7 @@ public class CollectorArm {
     }
 
     private void stopExtensionArm() {
-        log("Extension arm arrived at destination");
+        log("EXTENSION ARM ARRIVED AT DESTINATION");
         extensionArmMotor.setPower(0);
     }
 
@@ -404,16 +404,16 @@ public class CollectorArm {
      * Move to a position based on zero which is set when the extension arm is all the way down, must run
      * update rotuine in a loop after that.
      *
-     * @param heightInInches desired height above the 0 position
+     * @param extensionInInches desired height above the 0 position
      * @param extensionArmPower      max power for the motor
      */
-    public void moveToExtensionArmPosition(double heightInInches, double extensionArmPower) {
-        log("moving extension arm to position = " + heightInInches);
-        desiredExtensionArmPosition = heightInInches;
+    public void moveToExtensionArmPosition(double extensionInInches, double extensionArmPower) {
+        log("moving extension arm to position = " + extensionInInches);
+        desiredExtensionArmPosition = extensionInInches;
         this.extensionArmPower = extensionArmPower;
         command = ExtensionArmCommands.GO_TO_POSITION;
         extensionArmMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        extensionArmMotor.moveToPosition(extensionArmPower, heightInInches, DcMotor8863.FinishBehavior.FLOAT);
+        extensionArmMotor.moveToPosition(extensionArmPower, extensionInInches, DcMotor8863.FinishBehavior.FLOAT);
     }
 
     private boolean isExtensionArmMovementExtend() {
@@ -447,15 +447,19 @@ public class CollectorArm {
                     // all other commands are ignored when a reset is issued. Basically force
                     // the command back to a reset
                     case GO_TO_RETRACT:
+                        logIgnoreCommand(ExtensionArmCommands.GO_TO_RETRACT);
                         command = ExtensionArmCommands.RESET;
                         break;
                     case GO_TO_EXTEND:
+                        logIgnoreCommand(ExtensionArmCommands.GO_TO_EXTEND);
                         command = ExtensionArmCommands.RESET;
                         break;
                     case GO_TO_POSITION:
+                        logIgnoreCommand(ExtensionArmCommands.GO_TO_POSITION);
                         command = ExtensionArmCommands.RESET;
                         break;
                     case JOYSTICK:
+                        logIgnoreCommand(ExtensionArmCommands.JOYSTICK);
                         command = ExtensionArmCommands.RESET;
                         break;
                     case NO_COMMAND:
@@ -483,15 +487,19 @@ public class CollectorArm {
                     // all other commands are ignored when a reset is issued. Basically force
                     // the command back to a reset
                     case GO_TO_RETRACT:
+                        logIgnoreCommand(ExtensionArmCommands.GO_TO_RETRACT);
                         command = ExtensionArmCommands.RESET;
                         break;
                     case GO_TO_EXTEND:
+                        logIgnoreCommand(ExtensionArmCommands.GO_TO_EXTEND);
                         command = ExtensionArmCommands.RESET;
                         break;
                     case GO_TO_POSITION:
+                        logIgnoreCommand(ExtensionArmCommands.GO_TO_POSITION);
                         command = ExtensionArmCommands.RESET;
                         break;
                     case JOYSTICK:
+                        logIgnoreCommand(ExtensionArmCommands.JOYSTICK);
                         command = ExtensionArmCommands.RESET;
                         break;
                     case NO_COMMAND:
@@ -665,6 +673,12 @@ public class CollectorArm {
                 previousExtensionArmState = state;
                 previousExtensionCommand = command;
             }
+        }
+    }
+
+    private void logIgnoreCommand(ExtensionArmCommands extensionArmCommand){
+        if (logFile != null && loggingOn) {
+            logFile.logData("Ignoring command = ", extensionArmCommand.toString());
         }
     }
 
