@@ -568,6 +568,8 @@ public class CollectorGB {
                         // collector is off
                         collectorState = CollectorState.OFF;
                         softReset();
+                        // only need to do the reset once
+                        collectorCommand = CollectorCommand.OFF;
                         break;
                     case ON:
                         // turn the collector on, but only if there are less than 2 minerals in it.
@@ -599,11 +601,16 @@ public class CollectorGB {
                         debug("Delivery started");
                         break;
                     case DELIVER_OFF:
-                        // the collector is already off so do nothing
+                        // the collector is already off so this command is not relevant
+                        collectorCommand = CollectorCommand.OFF;
                         break;
                     case FIX_TRANSFER_JAM:
+                        // the collector is already off so this command is not relevant
+                        collectorCommand = CollectorCommand.OFF;
                         break;
                     case COMPLETE_DELIVERY:
+                        // the collector is already off so this command is not relevant
+                        collectorCommand = CollectorCommand.OFF;
                         break;
                         // no command, do nothing
                     case NONE:
@@ -625,7 +632,7 @@ public class CollectorGB {
                             collectorState = CollectorState.MINERAL_DETECTED;
                             turnIntakeOff();
                             timer.reset();
-                            mineralDetectedCounter = 0;
+                            mineralDetectedCounter = mineralDetectedCounter + 1;
                             log("Mineral detected");
                             debug("Mineral detected");
                         }
@@ -640,29 +647,23 @@ public class CollectorGB {
                         debug("Delivery started");
                         break;
                     case DELIVER_OFF:
+                        // this command is not relevant
+                        collectorCommand = CollectorCommand.ON;
                         break;
                     case FIX_TRANSFER_JAM:
+                        // this command is not relevant
+                        collectorCommand = CollectorCommand.ON;
                         break;
                     case COMPLETE_DELIVERY:
+                        // this command is not relevant
+                        collectorCommand = CollectorCommand.ON;
                         break;
                     case NONE:
                         // no command, do nothing
                         break;
                 }
-//                if (collectorCommand == CollectorCommand.OFF || collectorCommand == CollectorCommand.RESET) {
-//                    collectorState = CollectorState.OFF;
-//                    softReset();
-//                } else {
-//                    if (isMineralDetected()) {
-//                        collectorState = CollectorState.MINERAL_DETECTED;
-//                        turnIntakeOff();
-//                        timer.reset();
-//                        mineralDetectedCounter = 0;
-//                        log("Mineral detected");
-//                        debug("Mineral detected");
-//                    }
-//                }
                 break;
+
             case MINERAL_DETECTED:
                 switch (collectorCommand) {
                     case OFF:
@@ -686,33 +687,27 @@ public class CollectorGB {
                         }
                         break;
                     case DELIVER_ON:
+                        // this command is not relevant
+                        collectorCommand = CollectorCommand.ON;
                         break;
                     case DELIVER_OFF:
+                        // this command is not relevant
+                        collectorCommand = CollectorCommand.ON;
                         break;
                     case FIX_TRANSFER_JAM:
+                        // this command is not relevant
+                        collectorCommand = CollectorCommand.ON;
                         break;
                     case COMPLETE_DELIVERY:
+                        // this command is not relevant
+                        collectorCommand = CollectorCommand.ON;
                         break;
                     case NONE:
                         // no command, do nothing
                         break;
                 }
-//                if (collectorCommand == CollectorCommand.OFF || collectorCommand == CollectorCommand.RESET) {
-//                    collectorState = CollectorState.OFF;
-//                    softReset();
-//                } else {
-//                    actualMineralColor = determineMineralColor();
-//                    if (actualMineralColor == MineralColor.SILVER || actualMineralColor == MineralColor.GOLD) {
-//                        collectorState = CollectorState.MINERAL_COLOR_DETERMINED;
-//                        log("Mineral Color = " + actualMineralColor.toString());
-//                        debug("Mineral Color = " + actualMineralColor.toString());
-//                    }
-//                    if (actualMineralColor == MineralColor.NONE){
-//                        // we really need to move it in just a little, not to the store position
-//                       // gateServoGoToStorePosition();
-//                    }
-//                }
                 break;
+
             case MINERAL_COLOR_DETERMINED:
                 switch (collectorCommand) {
                     case OFF:
@@ -774,58 +769,27 @@ public class CollectorGB {
 
                         break;
                     case DELIVER_ON:
+                        // this command is not relevant
+                        collectorCommand = CollectorCommand.ON;
                         break;
                     case DELIVER_OFF:
+                        // this command is not relevant
+                        collectorCommand = CollectorCommand.ON;
                         break;
                     case FIX_TRANSFER_JAM:
+                        // this command is not relevant
+                        collectorCommand = CollectorCommand.ON;
                         break;
                     case COMPLETE_DELIVERY:
+                        // this command is not relevant
+                        collectorCommand = CollectorCommand.ON;
                         break;
                     case NONE:
                         // no command, do nothing
                         break;
                 }
-//                if (collectorCommand == CollectorCommand.OFF || collectorCommand == CollectorCommand.RESET) {
-//                    collectorState = CollectorState.OFF;
-//                    softReset();
-//                } else {
-//                    actionToTake = getActionForDetectedMineral(actualMineralColor);
-//                    log("Action taken = " + actionToTake.toString());
-//                    debug("Action taken = " + actionToTake.toString());
-//                    log("Number of minerals stored = " + numberOfMineralsStored);
-//                    switch (actionToTake) {
-//                        case NO_ACTION:
-//                            collectorState = CollectorState.NO_MINERAL;
-//                            break;
-//                        case HOLD:
-//                            collectorState = CollectorState.HOLD_MINERAL;
-//                            mineralColorSilverCounter = 0;
-//                            mineralColorGoldCounter = 0;
-//                            turnCollectorSystemsOff();
-//                            numberOfMineralsStored = 2;
-//                            timer.reset();
-//                            break;
-//                        case STORE:
-//                            collectorState = CollectorState.STORE_MINERAL;
-//                            mineralColorSilverCounter = 0;
-//                            mineralColorGoldCounter = 0;
-//                            turnStorageStarOnStore();
-//                            turnIntakeOnSuckIn();
-//                            gateServoGoToStorePosition();
-//                            timer.reset();
-//                            break;
-//                        case EJECT:
-//                            collectorState = CollectorState.EJECT_MINERAL;
-//                            mineralColorSilverCounter = 0;
-//                            mineralColorGoldCounter = 0;
-//                            turnIntakeOnSuckIn();
-//                            delay(500);
-//                            gateServoGoToEjectPosition();
-//                            timer.reset();
-//                            break;
-//                    }
-//                }
                 break;
+
             case HOLD_MINERAL:
                 switch (collectorCommand) {
                     case OFF:
@@ -858,16 +822,23 @@ public class CollectorGB {
                         debug("Delivery started");
                         break;
                     case DELIVER_OFF:
+                        // this command is not relevant
+                        collectorCommand = CollectorCommand.ON;
                         break;
                     case FIX_TRANSFER_JAM:
+                        // this command is not relevant
+                        collectorCommand = CollectorCommand.ON;
                         break;
                     case COMPLETE_DELIVERY:
+                        // this command is not relevant
+                        collectorCommand = CollectorCommand.ON;
                         break;
                     case NONE:
                         // no command, do nothing
                         break;
                 }
                 break;
+
             case STORE_MINERAL:
                 switch (collectorCommand) {
                     case OFF:
@@ -888,30 +859,27 @@ public class CollectorGB {
                         }
                         break;
                     case DELIVER_ON:
+                        // this command is not relevant
+                        collectorCommand = CollectorCommand.ON;
                         break;
                     case DELIVER_OFF:
+                        // this command is not relevant
+                        collectorCommand = CollectorCommand.ON;
                         break;
                     case FIX_TRANSFER_JAM:
+                        // this command is not relevant
+                        collectorCommand = CollectorCommand.ON;
                         break;
                     case COMPLETE_DELIVERY:
+                        // this command is not relevant
+                        collectorCommand = CollectorCommand.ON;
                         break;
                     case NONE:
                         // no command, do nothing
                         break;
                 }
-//                if (collectorCommand == CollectorCommand.OFF || collectorCommand == CollectorCommand.RESET) {
-//                    collectorState = CollectorState.OFF;
-//                    softReset();
-//                } else {
-//                    if (timer.milliseconds() > mineralStorageTimerLimit) {
-//                        collectorState = CollectorState.NO_MINERAL;
-//                        numberOfMineralsStored = 1;
-//                        turnCollectorSystemsOff();
-//                        turnIntakeOnSuckIn();
-//                        debug("stored");
-//                    }
-//                }
                 break;
+
             case EJECT_MINERAL:
                 switch (collectorCommand) {
                     case OFF:
@@ -932,30 +900,27 @@ public class CollectorGB {
                         }
                         break;
                     case DELIVER_ON:
+                        // this command is not relevant
+                        collectorCommand = CollectorCommand.ON;
                         break;
                     case DELIVER_OFF:
+                        // this command is not relevant
+                        collectorCommand = CollectorCommand.ON;
                         break;
                     case FIX_TRANSFER_JAM:
+                        // this command is not relevant
+                        collectorCommand = CollectorCommand.ON;
                         break;
                     case COMPLETE_DELIVERY:
+                        // this command is not relevant
+                        collectorCommand = CollectorCommand.ON;
                         break;
                     case NONE:
                         // no command, do nothing
                         break;
                 }
-//                if (collectorCommand == CollectorCommand.OFF || collectorCommand == CollectorCommand.RESET) {
-//                    collectorState = CollectorState.OFF;
-//                    softReset();
-//                } else {
-//                    if (timer.milliseconds() > mineralEjectTimerLimit) {
-//                        collectorState = CollectorState.NO_MINERAL;
-//                        turnCollectorSystemsOff();
-//                        turnIntakeOnSuckIn();
-//                        log("ejected");
-//                        debug("ejected");
-//                    }
-//                }
                 break;
+
             case DELIVER_MINERAL:
                 switch (collectorCommand ) {
                     case OFF:
@@ -970,14 +935,13 @@ public class CollectorGB {
                         debug("Delivery completed");
                         break;
                     case ON:
+                        // there should never be an ON command by the time we get to this state
+                        // If there is, force it to DELIVERY_ON
+                        collectorCommand = CollectorCommand.DELIVER_ON;
                         break;
                     case DELIVER_ON:
-                       // if (timer.milliseconds() > 6000) {
-                           // collectorState = CollectorState.NO_MINERAL;
-                          //  turnStorageStarOff();
-                          //  gateServoGoToCollectionPosition();
-
-                       // }
+                       // delivery has already been started. So just sit in this state and wait for
+                        // the driver to tell us the delivery is complete or to fix a transfer jam.
                         break;
                     case DELIVER_OFF:
                         // turn off the delivery. But it is not complete yet so stay in this state
@@ -994,6 +958,7 @@ public class CollectorGB {
                         break;
                     case COMPLETE_DELIVERY:
                         collectorState = CollectorState.OFF;
+                        collectorCommand = CollectorCommand.OFF;
                         softReset();
                         numberOfMineralsStored = 0;
                         log("Delivery completed");
@@ -1003,6 +968,7 @@ public class CollectorGB {
                         // no command, do nothing
                         break;
                 }
+
             case FIX_TRANSFER_JAM:
                 switch (collectorCommand ) {
                     case OFF:
@@ -1019,8 +985,19 @@ public class CollectorGB {
                     case ON:
                         break;
                     case DELIVER_ON:
+                        collectorState = CollectorState.DELIVER_MINERAL;
+                        turnStorageStarOnStore();
+                        gateServoGoToStorePosition();
+                        timer.reset();
+                        log("Delivery started");
+                        debug("Delivery started");
                         break;
                     case DELIVER_OFF:
+                        // turn off the delivery. But it is not complete yet so move to the DELIVER_MINERAL state
+                        turnStorageStarOff();
+                        gateServoGoToCollectionPosition();
+                        collectorCommand = CollectorCommand.NONE;
+                        collectorState = CollectorState.DELIVER_MINERAL;
                         break;
                     case FIX_TRANSFER_JAM:
                         // after a period of time running the storage star backwards, run it forwards
@@ -1033,14 +1010,20 @@ public class CollectorGB {
                         }
                         break;
                     case COMPLETE_DELIVERY:
+                        collectorState = CollectorState.OFF;
+                        collectorCommand = CollectorCommand.OFF;
+                        softReset();
+                        numberOfMineralsStored = 0;
+                        log("Delivery completed");
+                        debug("Delivery completed");
                         break;
                     case NONE:
                         // no command, do nothing
                         break;
                 }
                 break;
-            case COMPLETE_DELIVERY:
-                break;
+//            case COMPLETE_DELIVERY:
+//                break;
         }
         return collectorState;
     }
