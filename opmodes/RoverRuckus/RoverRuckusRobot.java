@@ -21,6 +21,8 @@ import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.CollectorArm;
 import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.CollectorGB;
 import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.DeliveryLiftSystem;
 
+import java.util.EmptyStackException;
+
 public class RoverRuckusRobot {
 
     //*********************************************************************************************
@@ -157,7 +159,7 @@ public class RoverRuckusRobot {
         deliveryLiftSystem.init();
 
         transferScoringInit();
-        resetScoringInit();
+        toCollectionPositionInit();
     }
 
     public void setupForRun() {
@@ -218,7 +220,9 @@ public class RoverRuckusRobot {
     }
 
     //*********************************************************************************************
-    //transfer & scoring state machine
+    //*********************************************************************************************
+    //transfer & scoring control
+    //*********************************************************************************************
     //*********************************************************************************************
 
     private void log(String stringToLog) {
@@ -251,6 +255,10 @@ public class RoverRuckusRobot {
     private TransferScoringCommands transferScoringCommand;
     private TransferScoringStates transferScoringState;
 
+    //*********************************************************************************************
+    //transfer & scoring commands
+    //*********************************************************************************************
+
     public void transferMinerals() {
         log("Commanded to transfer minerals");
         transferScoringCommand = TransferScoringCommands.TRANSFER;
@@ -271,12 +279,20 @@ public class RoverRuckusRobot {
         transferScoringCommand = TransferScoringCommands.SCORE;
     }
 
-    public void transferScoringInit() {
+    public void resetTransferScoringControl() {
+        transferScoringInit();
+    }
+
+    //*********************************************************************************************
+    //transfer & scoring state machine
+    //*********************************************************************************************
+
+    private void transferScoringInit() {
         transferScoringState = TransferScoringStates.START;
         transferScoringCommand = TransferScoringCommands.EMPTY;
     }
 
-    public void transferScoringStateMachine() {
+    private void transferScoringStateMachine() {
         telemetry.addData("Current State Of Transfer = ", transferScoringState.toString());
         telemetry.addData("Current Command Of Transfer = ", transferScoringCommand.toString());
         logTransferScoringState(transferScoringState, transferScoringCommand);
@@ -289,12 +305,16 @@ public class RoverRuckusRobot {
                         transferScoringState = TransferScoringStates.COLLECTOR_OFF;
                         break;
                     case CONFIRM_TRANSFER:
+                        // command is not relevant. Don't do anything.
                     case EMPTY:
                     case FIX_JAM:
+                        // command is not relevant. Don't do anything.
                     case SCORE:
+                        // command is not relevant. Don't do anything.
                         break;
                 }
                 break;
+
             case COLLECTOR_OFF:
                 switch (transferScoringCommand) {
                     case TRANSFER:
@@ -302,15 +322,19 @@ public class RoverRuckusRobot {
                         transferScoringState = TransferScoringStates.LIFT_HEIGHT;
                         break;
                     case CONFIRM_TRANSFER:
+                        // another command cannot interrupt the transfer, reset the command
                         transferScoringCommand = TransferScoringCommands.TRANSFER;
                     case EMPTY:
                     case FIX_JAM:
+                        // another command cannot interrupt the transfer, reset the command
                         transferScoringCommand = TransferScoringCommands.TRANSFER;
                     case SCORE:
+                        // another command cannot interrupt the transfer, reset the command
                         transferScoringCommand = TransferScoringCommands.TRANSFER;
                         break;
                 }
                 break;
+
             case LIFT_HEIGHT:
                 switch (transferScoringCommand) {
                     case TRANSFER:
@@ -318,15 +342,19 @@ public class RoverRuckusRobot {
                         transferScoringState = TransferScoringStates.COLLECTOR_ARM;
                         break;
                     case CONFIRM_TRANSFER:
+                        // another command cannot interrupt the transfer, reset the command
                         transferScoringCommand = TransferScoringCommands.TRANSFER;
                     case EMPTY:
                     case FIX_JAM:
+                        // another command cannot interrupt the transfer, reset the command
                         transferScoringCommand = TransferScoringCommands.TRANSFER;
                     case SCORE:
+                        // another command cannot interrupt the transfer, reset the command
                         transferScoringCommand = TransferScoringCommands.TRANSFER;
                         break;
                 }
                 break;
+
             case COLLECTOR_ARM:
                 switch (transferScoringCommand) {
                     case TRANSFER:
@@ -336,32 +364,42 @@ public class RoverRuckusRobot {
                             transferScoringState = TransferScoringStates.TRANSFER_READY;
                         }
                     case CONFIRM_TRANSFER:
+                        // another command cannot interrupt the transfer, reset the command
                         transferScoringCommand = TransferScoringCommands.TRANSFER;
                     case EMPTY:
                     case FIX_JAM:
+                        // another command cannot interrupt the transfer, reset the command
                         transferScoringCommand = TransferScoringCommands.TRANSFER;
                     case SCORE:
+                        // another command cannot interrupt the transfer, reset the command
                         transferScoringCommand = TransferScoringCommands.TRANSFER;
                         break;
                 }
                 break;
+
             case TRANSFER_READY:
                 switch (transferScoringCommand) {
                     case TRANSFER:
+                        // When enough time has passed so that delivery box has moved into position,
+                        // tell the collector to deliver the minerals
                         if (timer.milliseconds() > 1000) {
                             collector.deliverMineralsOn();
                             transferScoringState = TransferScoringStates.TRANSFER;
                         }
                     case CONFIRM_TRANSFER:
+                        // another command cannot interrupt the transfer, reset the command
                         transferScoringCommand = TransferScoringCommands.TRANSFER;
                     case EMPTY:
                     case FIX_JAM:
+                        // another command cannot interrupt the transfer, reset the command
                         transferScoringCommand = TransferScoringCommands.TRANSFER;
                     case SCORE:
+                        // another command cannot interrupt the transfer, reset the command
                         transferScoringCommand = TransferScoringCommands.TRANSFER;
                         break;
                 }
                 break;
+
             case TRANSFER:
                 switch (transferScoringCommand) {
                     case CONFIRM_TRANSFER:
@@ -375,12 +413,16 @@ public class RoverRuckusRobot {
                         transferScoringCommand = TransferScoringCommands.TRANSFER;
                         break;
                     case TRANSFER:
+                        // if the driver hits transfer again, assume they mean to confirm the transfer
                         transferScoringCommand = TransferScoringCommands.CONFIRM_TRANSFER;
                     case EMPTY:
                     case SCORE:
+                        // can't score yet, the transfer has not been confirmed. Wait for the confirm
+                        // transfer or fix jam commands
                         break;
                 }
                 break;
+
             case SETUP_FOR_SCORE:
                 switch (transferScoringCommand) {
                     case SCORE:
@@ -391,21 +433,33 @@ public class RoverRuckusRobot {
                         }
                         break;
                     case FIX_JAM:
+                        // Can't fix a jam, the transfer has already been finished. Do nothing but
+                        // wait for a score command.
                     case TRANSFER:
+                        // driver is asking to transfer again. I guess it is possible this is valid.
+                        // Maybe they did not see a mineral that stayed in the collector. Start the
+                        // the process over again.
+                        transferScoringCommand = TransferScoringCommands.TRANSFER;
+                        transferScoringState = TransferScoringStates.START;
                     case EMPTY:
                     case CONFIRM_TRANSFER:
+                        // Confirm transfer got us into this state. So this command is not relevant.
+                        // Do noting but wait for a score command.
                         break;
 
                 }
                 break;
+
             case SCORED:
                 if (timer.milliseconds() > 1500) {
                     deliveryLiftSystem.deliveryBoxToHome();
                     transferScoringState = TransferScoringStates.RESET;
                 }
                 break;
+
             case RESET:
                 transferScoringState = TransferScoringStates.START;
+                transferScoringCommand = TransferScoringCommands.EMPTY;
                 break;
         }
     }
@@ -421,7 +475,9 @@ public class RoverRuckusRobot {
     }
 
     //*********************************************************************************************
-    //to collect state machine
+    //*********************************************************************************************
+    //to collection position control
+    //*********************************************************************************************
     //*********************************************************************************************
 
     private enum ToCollectStates {
@@ -432,20 +488,22 @@ public class RoverRuckusRobot {
     }
 
     private enum ToCollectCommands {
-        RESET_LIFT,
-        RESET_DELIVERY_BOX,
         LOWER_COLLECTION_SYSTEM,
         EMPTY;
     }
 
-    private void resetScoringInit() {
+
+    private ToCollectStates toCollectState;
+    private ToCollectCommands toCollectCommand;
+
+    private void toCollectionPositionInit() {
         toCollectCommand = ToCollectCommands.EMPTY;
         toCollectState = ToCollectStates.START;
     }
 
-    private void resetScoring() {
-        toCollectCommand = ToCollectCommands.RESET_LIFT;
-    }
+    //*********************************************************************************************
+    //to collection position commands
+    //*********************************************************************************************
 
     public void lowerCollectorArmToCollect() {
         log("Commanded to lower collector arm to collect position");
@@ -453,8 +511,13 @@ public class RoverRuckusRobot {
         toCollectState = ToCollectStates.START;
     }
 
-    private ToCollectStates toCollectState;
-    private ToCollectCommands toCollectCommand;
+    public void resetToColletionPositionControl() {
+        toCollectionPositionInit();
+    }
+
+    //*********************************************************************************************
+    //to collection position state machine
+    //*********************************************************************************************
 
     private void toCollectStateMachine() {
         logToCollectState(toCollectState, toCollectCommand);
@@ -463,8 +526,10 @@ public class RoverRuckusRobot {
                 switch (toCollectCommand) {
                     case LOWER_COLLECTION_SYSTEM:
                         deliveryLiftSystem.goToHome();
-                        deliveryLiftSystem.deliveryBoxToTransfer();
+                        deliveryLiftSystem.deliveryBoxToHome();
                         toCollectState = ToCollectStates.LOWER_LIFT;
+                        break;
+                    case EMPTY:
                         break;
                 }
             case LOWER_LIFT:
@@ -472,6 +537,8 @@ public class RoverRuckusRobot {
                     case LOWER_COLLECTION_SYSTEM:
                         collectorArm.dropArm();
                         toCollectState = ToCollectStates.READY_TO_COLLECT;
+                        break;
+                    case EMPTY:
                         break;
                 }
             case READY_TO_COLLECT:
@@ -481,6 +548,8 @@ public class RoverRuckusRobot {
                             toCollectState = ToCollectStates.DONE;
                             collectorArm.rotationArmFloatArm();
                         }
+                        break;
+                    case EMPTY:
                         break;
                 }
             case DONE:
