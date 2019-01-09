@@ -179,27 +179,27 @@ public class DeliveryLiftSystem {
     //**********************************************************************************************
 
     public void deliveryBoxToDump() {
-        log("Delivery Box to Dump Position");
+        log("DELIVERY BOX TO DUMP POSITION");
         dumpServo.goUp();
     }
 
     public void deliveryBoxToHome() {
-        log("Delivery box to home position");
+        log("DELIVERY BOX TO HOME POSITION");
         dumpServo.goHome();
     }
 
     public void deliveryBoxToTransfer() {
-        log("Delivery box to transfer position");
+        log("DELIVERY BOX TO TRANSFER POSITION");
         dumpServo.goPositionOne();
     }
 
     public void deliveryBoxToOutOfWay() {
-        log("Delivery box to out of way position");
+        log("DELIVERY BOX TO OUT OF WAY POSITION");
         dumpServo.goPositionTwo();
     }
 
     public void deliveryBoxToInit() {
-        log("Delivery box to init position");
+        log("DELIVERY BOX TO INIT POSITION");
         dumpServo.goInitPosition();
     }
 
@@ -261,17 +261,17 @@ public class DeliveryLiftSystem {
     //**********************************************************************************************
 
     public void liftReset() {
-        log("Commanded lift to reset lift");
+        log("COMMANDED LIFT TO RESET LIFT");
         liftCommand = LiftCommands.RESET;
     }
 
     public void goToBottom() {
-        log("Commanded lift to bottom position");
+        log("COMMANDED LIFT TO BOTTOM POSITION");
         liftCommand = LiftCommands.GO_TO_BOTTOM;
     }
 
     public void goToTop() {
-        log("Commanded lift to top position");
+        log("COMMANDED LIFT TO TOP POSITION");
         liftCommand = LiftCommands.GO_TO_TOP;
     }
 
@@ -290,23 +290,23 @@ public class DeliveryLiftSystem {
     }
 
     public void goToLatch() {
-        log("Commanded lift to latch position");
+        log("COMMANDED LIFT TO LATCH POSITION");
         moveToPosition(10, 1);
     }
 
     public void goToHang() {
-        log("Commanded lift to hanging position");
+        log("COMMANDED LIFT TO HANGING POSITION");
         moveToPosition(2.5, 1);
     }
 
 
     public void goToSetupHang(){
-        log("Commanded lift to setup hang position");
+        log("COMMANDED LIFT TO SETUP HANG POSITION");
         moveToPosition(5.9, 1);
     }
 
     public void dehang() {
-        log("Commanded lift to De-hang");
+        log("COMMANDED LIFT TO DE-HANG");
         goToTop();
     }
 
@@ -329,7 +329,7 @@ public class DeliveryLiftSystem {
     }
 
     public void goToHome() {
-        log("Commanded lift to go to home");
+        log("COMMANDED LIFT TO GO TO HOME");
         moveToPosition(0.5, 1);
     }
 
@@ -338,7 +338,7 @@ public class DeliveryLiftSystem {
     }
 
     public void goToScoringPosition() {
-        log("Commanded lift to go to scoring position");
+        log("COMMANDED LIFT TO GO TO SCORING POSITION");
         moveToPosition(10.5, 1);
     }
 
@@ -363,7 +363,7 @@ public class DeliveryLiftSystem {
     }
 
     private void stopLift() {
-        log("Lift arrived at destination");
+        log("LIFT ARRIVED AT DESTINATION");
         liftMotor.setPower(0);
     }
 
@@ -421,15 +421,19 @@ public class DeliveryLiftSystem {
                     // all other commands are ignored when a reset is issued. Basically force
                     // the command back to a reset
                     case GO_TO_BOTTOM:
+                        logIgnoreCommand(LiftCommands.GO_TO_BOTTOM);
                         liftCommand = LiftCommands.RESET;
                         break;
                     case GO_TO_TOP:
+                        logIgnoreCommand(LiftCommands.GO_TO_TOP);
                         liftCommand = LiftCommands.RESET;
                         break;
                     case GO_TO_POSITION:
+                        logIgnoreCommand(LiftCommands.GO_TO_POSITION);
                         liftCommand = LiftCommands.RESET;
                         break;
                     case JOYSTICK:
+                        logIgnoreCommand(LiftCommands.JOYSTICK);
                         liftCommand = LiftCommands.RESET;
                         break;
                     case NO_COMMAND:
@@ -457,15 +461,19 @@ public class DeliveryLiftSystem {
                     // all other commands are ignored when a reset is issued. Basically force
                     // the command back to a reset
                     case GO_TO_BOTTOM:
+                        logIgnoreCommand(LiftCommands.GO_TO_BOTTOM);
                         liftCommand = LiftCommands.RESET;
                         break;
                     case GO_TO_TOP:
+                        logIgnoreCommand(LiftCommands.GO_TO_TOP);
                         liftCommand = LiftCommands.RESET;
                         break;
                     case GO_TO_POSITION:
+                        logIgnoreCommand(LiftCommands.GO_TO_POSITION);
                         liftCommand = LiftCommands.RESET;
                         break;
                     case JOYSTICK:
+                        logIgnoreCommand(LiftCommands.JOYSTICK);
                         liftCommand = LiftCommands.RESET;
                         break;
                     case NO_COMMAND:
@@ -640,6 +648,12 @@ public class DeliveryLiftSystem {
                 previousLiftState = liftState;
                 previousLiftCommand = liftCommand;
             }
+        }
+    }
+
+    private void logIgnoreCommand(LiftCommands liftCommand){
+        if (logFile != null && loggingOn) {
+            logFile.logData("Ignoring command = ", liftCommand.toString());
         }
     }
 
