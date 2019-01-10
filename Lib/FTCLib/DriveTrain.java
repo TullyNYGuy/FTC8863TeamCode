@@ -79,6 +79,11 @@ public class DriveTrain {
     private DrivingState drivingState;
     private boolean debug = false;
     private double rampDownStartOffset = 0;
+
+    private DataLogging logFile = null;
+
+    private boolean logTurns = false;
+
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -114,6 +119,18 @@ public class DriveTrain {
 
     public void setDebug(boolean debug) {
         this.debug = debug;
+    }
+
+    public void enableLogTurns() {
+        logTurns = true;
+    }
+
+    public void disableLogTurns() {
+        logTurns = false;
+    }
+
+    public void setTurnLog(DataLogging logFile) {
+        this.logFile = logFile;
     }
 
     //*********************************************************************************************
@@ -998,17 +1015,28 @@ public class DriveTrain {
                 }
                 imu.resetAngleReferences();
             }
+            if (logTurns && logFile != null) {
+                logFile.logData("Setup for turn = " + turnAngle + " at power = " + maxPower);
+                logFile.logData("Current Heading, correction");
+            }
         } else {
             shutdown();
             throw new IllegalArgumentException("No Imu found");
         }
     }
 
+    public void resetTurnTimer() {
+        logFile.startTimer();
+    }
+
     public boolean updateTurn() {
 
         if (imuPresent) {
-            double currentHeading = imu.convertAngleTo360(imu.getHeading());
+            double currentHeading = imu.getHeading();
             double correction = -pidControl.getCorrection(currentHeading);
+            if (logTurns && logFile != null) {
+                logFile.logData(Double.toString(currentHeading), Double.toString(correction));
+            }
             differentialDrive(0, correction);
             //return correction;
             return pidControl.isFinished();
