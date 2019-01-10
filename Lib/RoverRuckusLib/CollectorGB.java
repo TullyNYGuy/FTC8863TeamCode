@@ -478,13 +478,13 @@ public class CollectorGB {
 
     public void setDesiredMineralColorToGold() {
         log("COMMANDED DESIRED MINERAL = GOLD");
-        telemetry.addLine("Collecting Gold");
+        //telemetry.addLine("Collecting Gold");
         desiredMineralColor = MineralColor.GOLD;
     }
 
     public void setDesiredMineralColorToSilver() {
         log("COMMANDED DESIRED MINERAL = SILVER");
-        telemetry.addLine("Collecting Silver");
+        //telemetry.addLine("Collecting Silver");
         desiredMineralColor = MineralColor.SILVER;
     }
 

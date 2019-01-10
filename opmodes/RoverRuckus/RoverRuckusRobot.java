@@ -276,8 +276,8 @@ public class RoverRuckusRobot {
     }
 
     private void transferScoringStateMachine() {
-        telemetry.addData("Current State Of Transfer = ", transferScoringState.toString());
-        telemetry.addData("Current Command Of Transfer = ", transferScoringCommand.toString());
+        //telemetry.addData("Current State Of Transfer = ", transferScoringState.toString());
+        //telemetry.addData("Current Command Of Transfer = ", transferScoringCommand.toString());
         logTransferScoringState(transferScoringState, transferScoringCommand);
 
         switch (transferScoringState) {
