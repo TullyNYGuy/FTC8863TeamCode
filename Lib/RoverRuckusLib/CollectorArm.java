@@ -201,6 +201,10 @@ public class CollectorArm {
         telemetry.addData("arm angle ", rotationArmMotor.getPositionInTermsOfAttachment());
     }
 
+    public double getRotationArmAngle() {
+        return rotationArmMotor.getPositionInTermsOfAttachment();
+    }
+
     public void displayRotationArmCompletion(){
         telemetry.addData("Rotation Arm Motor State = ", rotationArmMotor.getCurrentMotorState().toString());
     }
@@ -221,12 +225,12 @@ public class CollectorArm {
 
 
     public void rotationArmGoToHome(){
-        log("Commanded rotation arm to home position");
+        log("COMMANDED ROTATION ARM TO HOME POSITION (-25)");
         rotationArmMotor.moveToPosition(0.2, homePosition, DcMotor8863.FinishBehavior.HOLD);
     }
 
     public void rotationArmGoToCollect(){
-        log("Commanded rotation arm to collect position");
+        log("COMMANDED ROTATION ARM TO COLLECT POSITION (-135)");
         rotationArmMotor.moveToPosition(0.2, -135.00, DcMotor8863.FinishBehavior.HOLD);
     }
 
@@ -235,8 +239,8 @@ public class CollectorArm {
     }
 
     public void rotationArmGoToTransfer(){
-        log("Commanded rotation arm to transfer position");
-        rotationArmMotor.moveToPosition(0.2, -40, DcMotor8863.FinishBehavior.HOLD);
+        log("COMMANDED ROTATION ARM TO TRANSFER POSITION (-47)");
+        rotationArmMotor.moveToPosition(0.2, -47, DcMotor8863.FinishBehavior.HOLD);
     }
 
     public void rotationArmGoToDehang(){
@@ -248,12 +252,12 @@ public class CollectorArm {
     }
 
     public void raiseOffGround(){
-        log("Commanded rotation arm to raise off ground position");
+        log("COMMANDED ROTATION ARM TO RAISE OFF GROUND POSITION (-115)");
         rotationArmMotor.moveToPosition(0.2, -115.00, DcMotor8863.FinishBehavior.HOLD);
     }
 
     public void rotationArmFloatArm(){
-        log("Commanded rotation arm to float");
+        log("COMMANDED ROTATION ARM TO FLOAT");
         rotationArmMotor.setMotorToFloat();
     }
 
@@ -268,7 +272,8 @@ public class CollectorArm {
 
     public boolean isRotationArmMovementComplete() {
         if (rotationArmMotor.isMotorStateComplete()) {
-            log("rotation arm arrived at destination");
+            log("ROTATION ARM ARRIVED AT DESTINATION");
+            log("Rotation arm angle = " + Double.toString(getRotationArmAngle()));
             return true;
         } else {
             return false;
@@ -321,17 +326,17 @@ public class CollectorArm {
     //**********************************************************************************************
 
     public void extensionArmReset() {
-        log("Commanded extension arm to reset");
+        log("COMMANDED EXTENSION ARM TO RESET");
         command = ExtensionArmCommands.RESET;
     }
 
     public void goToRetract() {
-        log("Commanded extension arm to retract position");
+        log("COMMANDED EXTENSION ARM TO RETRACT POSITION");
         command = ExtensionArmCommands.GO_TO_RETRACT;
     }
 
     public void goToExtend() {
-        log("Commanded extension arm to extend position");
+        log("COMMANDED EXTENSION ARM TO EXTEND POSITION");
         command = ExtensionArmCommands.GO_TO_EXTEND;
     }
 
@@ -364,17 +369,17 @@ public class CollectorArm {
     }
 
     public void goToExtensionArmHome() {
-        log("Commanded extension arm to home position");
+        log("COMMANDED EXTENSION ARM TO HOME POSITION");
         moveToExtensionArmPosition(0.5, 1);
     }
 
     public void goToExtensionArmTransfer() {
-        log("Commanded extension arm to transfer position");
+        log("COMMANDED EXTENSION ARM TO TRANSFER POSITION");
         moveToExtensionArmPosition(5.5, 1);
     }
 
     public void goToExtensionArm10Inches() {
-        log("Commanded extension arm to 10 inches");
+        log("COMMANDED EXTENSION ARM TO 10 INCHES");
         moveToExtensionArmPosition(10.0, 1);
     }
 
@@ -669,7 +674,7 @@ public class CollectorArm {
     private void logState(ExtensionArmStates state, ExtensionArmCommands command) {
         if (logFile != null && loggingOn) {
             if(state != previousExtensionArmState ||command != previousExtensionCommand) {
-                logFile.logData("Collector Arm",state.toString(), command.toString());
+                logFile.logData("Extension Arm",state.toString(), command.toString());
                 previousExtensionArmState = state;
                 previousExtensionCommand = command;
             }

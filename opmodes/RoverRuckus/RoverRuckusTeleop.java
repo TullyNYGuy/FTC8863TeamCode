@@ -156,6 +156,12 @@ public class RoverRuckusTeleop extends LinearOpMode {
         gamepad2RightJoyStickY = new JoyStick(JoyStick.JoyStickMode.SQUARE, JOYSTICK_DEADBAND_VALUE, JoyStick.InvertSign.INVERT_SIGN);
         gamepad2RightJoyStickY.setHalfPower();
 
+        // default the wheels to 30% power
+        gamepad1LeftJoyStickX.set30PercentPower();
+        gamepad1LeftJoyStickY.set30PercentPower();
+        gamepad1RightJoyStickX.set30PercentPower();
+        gamepad1RightJoyStickY.set30PercentPower();
+
         // Wait for the start button
         telemetry.addData(">", "Press start to run Teleop");
         telemetry.update();
@@ -417,12 +423,13 @@ public class RoverRuckusTeleop extends LinearOpMode {
             robot.update();
 
             // Display telemetry
+            robot.collector.displayWhichMineralCollecting();
             telemetry.addData("Left Motor Speed = ", "%3.2f", leftPower);
             telemetry.addData("Right Motor Speed = ", "%3.2f", rightPower);
             telemetry.addData("Drive train mode = ", driveTrainMode.toString());
             telemetry.addData("Drive Forward / Reverse = ", robot.driveTrain.getDriveDirection().toString());
             telemetry.addData("Power Reduction = ", "%1.2f", gamepad1LeftJoyStickY.getReductionFactor());
-            telemetry.addData("Collector State = ", robot.collector.update().toString());
+            //telemetry.addData("Collector State = ", robot.collector.update().toString());
             telemetry.addData(">", "Press Stop to end.");
             telemetry.update();
 

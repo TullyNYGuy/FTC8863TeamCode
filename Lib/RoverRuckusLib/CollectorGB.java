@@ -1067,6 +1067,10 @@ public class CollectorGB {
         telemetry.addData("Collector Command = ", collectorCommand.toString());
     }
 
+    public void displayWhichMineralCollecting() {
+        telemetry.addData("Collecting ", desiredMineralColor.toString());
+    }
+
     //*********************************************************************************************
     // TESTS
     //*********************************************************************************************

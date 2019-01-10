@@ -111,6 +111,7 @@ public class RoverRuckusRobot {
         // note that we are ignoring the logFile that is passed as an argument. Decided to set that up
         // here
         this.logFile = new DataLogging("Teleop", telemetry);
+        logFile.logData("****ROBOT INTIALIZING!****");
 
         if (robotMode == RobotMode.AUTONOMOUS) {
             // create the robot for autonomous
@@ -163,6 +164,7 @@ public class RoverRuckusRobot {
     }
 
     public void setupForRun() {
+        logFile.logData("****ROBOT RUNNING!****");
     }
 
     public void update() {
@@ -241,22 +243,22 @@ public class RoverRuckusRobot {
     //*********************************************************************************************
 
     public void transferMinerals() {
-        log("Commanded to transfer minerals");
+        log("COMMANDED TO TRANSFER MINERALS");
         transferScoringCommand = TransferScoringCommands.TRANSFER;
     }
 
     public void confirmTransfer() {
-        log("Transfer minerals confirmed complete by driver");
+        log("TRANSFER MINERALS CONFIRMED COMPLETE BY DRIVER");
         transferScoringCommand = TransferScoringCommands.CONFIRM_TRANSFER;
     }
 
     public void clearTransferJam() {
-        log("Commanded to fix transfer jam");
+        log("COMMANDED TO FIX TRANSFER JAM");
         transferScoringCommand = TransferScoringCommands.FIX_JAM;
     }
 
     public void score() {
-        log("Commanded to score minerals");
+        log("COMMANDED TO SCORE MINERALS");
         transferScoringCommand = TransferScoringCommands.SCORE;
     }
 
@@ -329,6 +331,8 @@ public class RoverRuckusRobot {
                 switch (transferScoringCommand) {
                     case TRANSFER:
                         collectorArm.raiseArm();
+                        timer.reset();
+                        deliveryLiftSystem.deliveryBoxToTransfer();
                         transferScoringState = TransferScoringStates.COLLECTOR_ARM;
                         break;
                     case CONFIRM_TRANSFER:
@@ -352,19 +356,21 @@ public class RoverRuckusRobot {
                 switch (transferScoringCommand) {
                     case TRANSFER:
                         if (deliveryLiftSystem.isLiftMovementComplete() && collectorArm.isRotationExtensionComplete()) {
-                            timer.reset();
-                            deliveryLiftSystem.deliveryBoxToTransfer();
                             transferScoringState = TransferScoringStates.TRANSFER_READY;
                         }
+                        break;
                     case CONFIRM_TRANSFER:
                         // another command cannot interrupt the transfer, reset the command
                         logIgnoreCommand(TransferScoringCommands.CONFIRM_TRANSFER);
                         transferScoringCommand = TransferScoringCommands.TRANSFER;
+                        break;
                     case EMPTY:
+                        break;
                     case FIX_JAM:
                         // another command cannot interrupt the transfer, reset the command
                         logIgnoreCommand(TransferScoringCommands.FIX_JAM);
                         transferScoringCommand = TransferScoringCommands.TRANSFER;
+                        break;
                     case SCORE:
                         // another command cannot interrupt the transfer, reset the command
                         logIgnoreCommand(TransferScoringCommands.SCORE);
@@ -382,15 +388,19 @@ public class RoverRuckusRobot {
                             collector.deliverMineralsOn();
                             transferScoringState = TransferScoringStates.TRANSFER;
                         }
+                        break;
                     case CONFIRM_TRANSFER:
                         // another command cannot interrupt the transfer, reset the command
                         logIgnoreCommand(TransferScoringCommands.CONFIRM_TRANSFER);
                         transferScoringCommand = TransferScoringCommands.TRANSFER;
+                        break;
                     case EMPTY:
+                        break;
                     case FIX_JAM:
                         // another command cannot interrupt the transfer, reset the command
                         logIgnoreCommand(TransferScoringCommands.FIX_JAM);
                         transferScoringCommand = TransferScoringCommands.TRANSFER;
+                        break;
                     case SCORE:
                         // another command cannot interrupt the transfer, reset the command
                         logIgnoreCommand(TransferScoringCommands.SCORE);
@@ -401,6 +411,11 @@ public class RoverRuckusRobot {
 
             case TRANSFER:
                 switch (transferScoringCommand) {
+                    case TRANSFER:
+                        // hang out and wait for the driver to confirm transfer complete or to fix a
+                        // a jam
+                        //logIgnoreCommand(TransferScoringCommands.TRANSFER);
+                        break;
                     case CONFIRM_TRANSFER:
                         collector.deliverMineralsComplete();
                         deliveryLiftSystem.goToScoringPosition();
@@ -411,11 +426,8 @@ public class RoverRuckusRobot {
                         transferScoringState = TransferScoringStates.TRANSFER_READY;
                         transferScoringCommand = TransferScoringCommands.TRANSFER;
                         break;
-                    case TRANSFER:
-                        // if the driver hits transfer again, assume they mean to confirm the transfer
-                        logIgnoreCommand(TransferScoringCommands.TRANSFER);
-                        transferScoringCommand = TransferScoringCommands.CONFIRM_TRANSFER;
                     case EMPTY:
+                        break;
                     case SCORE:
                         // can't score yet, the transfer has not been confirmed. Wait for the confirm
                         // transfer or fix jam commands
@@ -436,19 +448,23 @@ public class RoverRuckusRobot {
                     case FIX_JAM:
                         // Can't fix a jam, the transfer has already been finished. Do nothing but
                         // wait for a score command.
+                        logDoNothingCommand(TransferScoringCommands.FIX_JAM);
+                        break;
                     case TRANSFER:
                         // driver is asking to transfer again. I guess it is possible this is valid.
                         // Maybe they did not see a mineral that stayed in the collector. Start the
                         // the process over again.
                         transferScoringCommand = TransferScoringCommands.TRANSFER;
                         transferScoringState = TransferScoringStates.START;
+                        break;
                     case EMPTY:
+                        break;
                     case CONFIRM_TRANSFER:
                         // Confirm transfer got us into this state. So this command is not relevant.
                         // Do noting but wait for a score command.
-                        logDoNothingCommand(TransferScoringCommands.CONFIRM_TRANSFER);
+                        // Don't log since this state runs over and over
+                        //logDoNothingCommand(TransferScoringCommands.CONFIRM_TRANSFER);
                         break;
-
                 }
                 break;
 
