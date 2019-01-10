@@ -126,7 +126,7 @@ public class MeasureAngles extends LinearOpMode {
 //                }
 
                 // Put your calls that need to run in a loop here
-                heading = convertAngleTo360(imu.getHeading());
+                heading = imu.getHeading();
                 pitch = imu.getPitch();
                 roll = imu.getRoll();
 
