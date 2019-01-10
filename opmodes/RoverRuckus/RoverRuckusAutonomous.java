@@ -133,12 +133,12 @@ public class RoverRuckusAutonomous extends LinearOpMode {
         // head toward wall
         logFile.logData("headingSecondTurn " + Double.toString(robot.driveTrain.imu.getHeading()));
         headingAfterDrive = driveStraight(60, .3);
-        compensatedHeading = headingAfterDrive - desiredHeading;
+        //compensatedHeading = headingAfterDrive - desiredHeading;
         logFile.logData("headingSecondStraight " + Double.toString(robot.driveTrain.imu.getHeading()));
 
         // turn toward crater
         headingForTurn = -99;
-        turnByDegrees(headingForTurn - compensatedHeading, .7);
+        turnByDegrees(headingForTurn, .7);
         logFile.logData("headingThirdTurn " + Double.toString(robot.driveTrain.imu.getHeading()));
 
         // drive to depot backwards
@@ -152,7 +152,7 @@ public class RoverRuckusAutonomous extends LinearOpMode {
 
         //turn to get to crater
         headingForTurn = 18;
-        turnByDegrees(headingForTurn - compensatedHeading, .7);
+        turnByDegrees(headingForTurn, .7);
         logFile.logData("headingFourthTurn " + Double.toString(robot.driveTrain.imu.getHeading()));
 
         // drive to the crater
@@ -178,12 +178,12 @@ public class RoverRuckusAutonomous extends LinearOpMode {
         // head toward wall
         logFile.logData("headingSecondTurn " + Double.toString(robot.driveTrain.imu.getHeading()));
         headingAfterDrive = driveStraight(-85, .3);
-        compensatedHeading = headingAfterDrive - desiredHeading;
+        //compensatedHeading = headingAfterDrive - desiredHeading;
         logFile.logData("headingSecondStraight " + Double.toString(robot.driveTrain.imu.getHeading()));
 
         // turn toward crater
         headingForTurn = 15;
-        turnByDegrees(headingForTurn - compensatedHeading, .7);
+        turnByDegrees(headingForTurn, .7);
         logFile.logData("headingThirdTurn " + Double.toString(robot.driveTrain.imu.getHeading()));
 
         // drive to depot backwards
@@ -198,7 +198,7 @@ public class RoverRuckusAutonomous extends LinearOpMode {
 
         //turn to get to crater
         headingForTurn = 15;
-        turnByDegrees(headingForTurn - compensatedHeading, .7);
+        turnByDegrees(headingForTurn, .7);
         logFile.logData("headingFourthTurn " + Double.toString(robot.driveTrain.imu.getHeading()));
 
         // drive to the crater
@@ -224,24 +224,24 @@ public class RoverRuckusAutonomous extends LinearOpMode {
         // head toward wall
         logFile.logData("headingSecondTurn " + Double.toString(robot.driveTrain.imu.getHeading()));
         headingAfterDrive = driveStraight(65, .3);
-        compensatedHeading = headingAfterDrive - desiredHeading;
+        //compensatedHeading = headingAfterDrive - desiredHeading;
         logFile.logData("headingSecondStraight " + Double.toString(robot.driveTrain.imu.getHeading()));
 
         logFile.logData("headingThirdTurn " + Double.toString(robot.driveTrain.imu.getHeading()));
         headingAfterDrive = driveStraight(50, .3);
-        compensatedHeading = headingAfterDrive - desiredHeading;
+        //compensatedHeading = headingAfterDrive - desiredHeading;
         logFile.logData("headingThirdStraight " + Double.toString(robot.driveTrain.imu.getHeading()));
 
         // turn toward crater
         headingForTurn = -75;
-        turnByDegrees(headingForTurn - compensatedHeading, .7);
+        turnByDegrees(headingForTurn, .7);
         logFile.logData("headingFourthTurn " + Double.toString(robot.driveTrain.imu.getHeading()));
 
         // drive to depot backwards
         headingAfterDrive = driveStraight(-105, .3);
 
         headingForTurn = 54;
-        turnByDegrees(headingForTurn - compensatedHeading, .7);
+        turnByDegrees(headingForTurn, .7);
         logFile.logData("headingFourthTurn " + Double.toString(robot.driveTrain.imu.getHeading()));
 
         headingAfterDrive = driveStraight(-120, .3);
