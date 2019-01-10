@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.RoverRuckus;
 
+import android.text.LoginFilter;
+
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -18,6 +20,8 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.StatTracker;
+
+import java.nio.ReadOnlyBufferException;
 
 @Autonomous(name = "Rover Ruckus Autonomous", group = "Test")
 //@Disabled
@@ -145,19 +149,21 @@ public class RoverRuckusAutonomous extends LinearOpMode {
         headingAfterDrive = driveStraight(-160, .3);
 
         //dump the marker
-        robot.deliveryLiftSystem.deliveryBoxToDump();
-        logFile.logData("headingThirdStraight " + Double.toString(robot.driveTrain.imu.getHeading()));
-        sleep(1000);
-        robot.deliveryLiftSystem.deliveryBoxToTransfer();
+        dumpMarker();
 
         //turn to get to crater
         headingForTurn = 18;
         turnByDegrees(headingForTurn, .7);
         logFile.logData("headingFourthTurn " + Double.toString(robot.driveTrain.imu.getHeading()));
 
+        returnDeliveryBox();
+
         // drive to the crater
         headingAfterDrive = driveStraight(200, .3);
         logFile.logData("headingFourthStraight " + Double.toString(robot.driveTrain.imu.getHeading()));
+
+        // lower the lift
+        lowerLift();
     }
 
     public void facingCraterMiddleMineral() {
@@ -189,21 +195,22 @@ public class RoverRuckusAutonomous extends LinearOpMode {
         // drive to depot backwards
         headingAfterDrive = driveStraight(-120, .3);
 
-
         //dump the marker
-        robot.deliveryLiftSystem.deliveryBoxToDump();
-        logFile.logData("headingThirdStraight " + Double.toString(robot.driveTrain.imu.getHeading()));
-        sleep(1000);
-        robot.deliveryLiftSystem.deliveryBoxToTransfer();
+        dumpMarker();
 
         //turn to get to crater
         headingForTurn = 15;
         turnByDegrees(headingForTurn, .7);
         logFile.logData("headingFourthTurn " + Double.toString(robot.driveTrain.imu.getHeading()));
 
+        returnDeliveryBox();
+
         // drive to the crater
         headingAfterDrive = driveStraight(165, .3);
         logFile.logData("headingFourthStraight " + Double.toString(robot.driveTrain.imu.getHeading()));
+
+        // lower the lift
+        lowerLift();
     }
 
     public void facingCraterRightMineral() {
@@ -248,14 +255,16 @@ public class RoverRuckusAutonomous extends LinearOpMode {
         logFile.logData("headingFifthStraight " + Double.toString(robot.driveTrain.imu.getHeading()));
 
         //dump the marker
-        robot.deliveryLiftSystem.deliveryBoxToDump();
-        logFile.logData("headingFourthStraight " + Double.toString(robot.driveTrain.imu.getHeading()));
+        dumpMarker();
         sleep(1000);
-        robot.deliveryLiftSystem.deliveryBoxToTransfer();
+        returnDeliveryBox();
 
         // drive to the crater
         headingAfterDrive = driveStraight(160, .3);
         logFile.logData("headingFifthStraight " + Double.toString(robot.driveTrain.imu.getHeading()));
+
+        // lower the lift
+        lowerLift();
     }
 
     public void driveToDepotDumpThenCrater() {
@@ -298,6 +307,9 @@ public class RoverRuckusAutonomous extends LinearOpMode {
         logFile.logData("headingFourthTurn " + Double.toString( robot.driveTrain.imu.getHeading()));
 
         logFile.logData("headingFifthTurn " + Double.toString( robot.driveTrain.imu.getHeading()));
+
+        // lower the lift
+        lowerLift();
     }
 
     public void driveToCraterFromLander() {
@@ -311,6 +323,7 @@ public class RoverRuckusAutonomous extends LinearOpMode {
 
     public double driveStraight(double distance, double power) {
         robot.driveTrain.setupDriveDistance(power, distance, DcMotor8863.FinishBehavior.FLOAT);
+        logFile.logData("STARTING DRIVE STRAIGHT, DESIRED DISTANCE (cm) = " + distance);
 
         while (opModeIsActive()) {
             statusDrive = robot.driveTrain.updateDriveDistance();
@@ -325,12 +338,16 @@ public class RoverRuckusAutonomous extends LinearOpMode {
         telemetry.addData(">", "Press Stop to end test.");
         telemetry.addData("Status = ", statusDrive.toString());
         telemetry.update();
+        // SHOULD WE ELMINATE THIS SLEEP?
         sleep(1000);
+        logFile.logData("FINISHED DRIVE STRAIGHT, DISTANCE DRIVEN (cm) = " + robot.driveTrain.getDistanceDriven());
         return robot.driveTrain.imu.getHeading();
     }
 
     public void turnByDegrees(double angle, double power) {
         robot.driveTrain.setupTurn(angle, power, AdafruitIMU8863.AngleMode.RELATIVE);
+        logFile.logData("STARTING TURN FROM HEADING = " + robot.driveTrain.imu.getHeading());
+        logFile.logData("DESIRED TURN = " + angle);
 
         while (opModeIsActive() && !robot.driveTrain.updateTurn()) {
             telemetry.addData(">", "Press Stop to end test.");
@@ -338,6 +355,26 @@ public class RoverRuckusAutonomous extends LinearOpMode {
             telemetry.update();
             idle();
         }
+        logFile.logData("FINISHED TURN AT HEADING = " + robot.driveTrain.imu.getHeading());
+    }
+
+    public void lowerLift() {
+        robot.deliveryLiftSystem.goToHome();
+
+        while (opModeIsActive() && !robot.deliveryLiftSystem.isLiftMovementComplete()) {
+            // Put your calls that need to run in a loop here
+            robot.deliveryLiftSystem.update();
+            idle();
+        }
+    }
+
+    public void dumpMarker() {
+        robot.deliveryLiftSystem.deliveryBoxToDump();
+        logFile.logData("Dumped marker");
+    }
+
+    public void returnDeliveryBox() {
+        robot.deliveryLiftSystem.deliveryBoxToHome();
     }
 
 }
