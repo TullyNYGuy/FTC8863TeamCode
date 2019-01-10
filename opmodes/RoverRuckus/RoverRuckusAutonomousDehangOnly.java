@@ -16,9 +16,9 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.StatTracker;
 
-@Autonomous(name = "Rover Ruckus Autonomous", group = "Test")
+@Autonomous(name = "Rover Ruckus Dehang", group = "Test")
 //@Disabled
-public class RoverRuckusAutonomous2 extends LinearOpMode {
+public class RoverRuckusAutonomousDehangOnly extends LinearOpMode {
 
     // Put your variable declarations here
     AdafruitIMU8863 imu;
@@ -88,52 +88,23 @@ public class RoverRuckusAutonomous2 extends LinearOpMode {
         //dehang the robot
         robot.dehang();
 
-
         while (opModeIsActive() && !robot.deliveryLiftSystem.isLiftMovementComplete()) {
-
             // Put your calls that need to run in a loop here
             robot.deliveryLiftSystem.update();
-
-
             idle();
         }
 
-        driveToDepotDumpThenCrater();
+        //driveToDepotDumpThenCrater();
         // driveToCraterFromLander();
 
         logFile.logData("headingWhileHanging " + Double.toString(headingWhileHanging));
         logFile.logData("headingOnGround " + Double.toString(headingOnGround));
-
-
-//         while (opModeIsActive()) {
-//
-//                // Put your calls that need to run in a loop here
-//                heading = imu.getHeading();
-//                pitch = imu.getPitch();
-//                roll = imu.getRoll();
-//
-//                // Display the current value
-////                telemetry.addData("IMU mode = ", imu.getAngleMode().toString());
-////                telemetry.addData("Heading = ", "%5.2f", heading);
-////                telemetry.addData("Pitch = ", "%5.2f", pitch);
-////                telemetry.addData("Roll = ", "%5.2f", roll);
-////                telemetry.addData("Min loop time (mS) = ", "%3.3f", loopTimeTracker.getMinimum());
-////                telemetry.addData("Max loop time (mS) = ", "%3.3f", loopTimeTracker.getMaximum());
-////                telemetry.addData("Ave loop time (mS) = ", "%3.3f", loopTimeTracker.getAverage());
-////                telemetry.addData(">", "Press Stop to end test.");
-//
-//
-//            telemetry.update();
-//
-//            idle();
-//        }
 
         // Put your cleanup code here - it runs as the application shuts down
         robot.deliveryLiftSystem.deliveryBoxToHome();
         robot.shutdown();
         telemetry.addData(">", "Done");
         telemetry.update();
-
     }
 
     public void driveToDepotDumpThenCrater() {
@@ -168,7 +139,6 @@ public class RoverRuckusAutonomous2 extends LinearOpMode {
         // drive to depot backwards
         headingAfterDrive = driveStraight(-95, .3);
 
-
         //dump the marker
         robot.deliveryLiftSystem.deliveryBoxToDump();
         logFile.logData("headingThirdStraight " + Double.toString( robot.driveTrain.imu.getHeading()));
@@ -179,20 +149,8 @@ public class RoverRuckusAutonomous2 extends LinearOpMode {
         logFile.logData("headingFourthTurn " + Double.toString( robot.driveTrain.imu.getHeading()));
 
         //lower the arm
-        //robot.collectorArm.goToPark();
-        //sleep(1000);
-        //robot.collectorArm.floatArm();
-//        headingForTurn = 180.0;
-//        turnByDegrees(headingForTurn, .7);
         logFile.logData("headingFifthTurn " + Double.toString( robot.driveTrain.imu.getHeading()));
-//
-//        headingForTurn = 20;
-//        turnByDegrees(headingForTurn, .3);
-//        logFile.logData("headingSixthTurn " + Double.toString(robot.driveTrain.imu.getHeading()));
-//        driveStraight(-35, .3);
-
     }
-
 
     public void driveToCraterFromLander() {
         turnByDegrees(-headingOnGround, .29);
@@ -202,7 +160,6 @@ public class RoverRuckusAutonomous2 extends LinearOpMode {
         turnByDegrees(-90, 0.3);
         driveStraight(35, 0.3);
     }
-
 
     public double driveStraight(double distance, double power) {
         robot.driveTrain.setupDriveDistance(power, distance, DcMotor8863.FinishBehavior.FLOAT);

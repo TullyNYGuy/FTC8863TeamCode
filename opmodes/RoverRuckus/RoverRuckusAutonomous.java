@@ -19,7 +19,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.StatTracker;
 
-@Autonomous(name = "Rover Ruckus Autonomous dehang", group = "Test")
+@Autonomous(name = "Rover Ruckus Autonomous", group = "Test")
 //@Disabled
 public class RoverRuckusAutonomous extends LinearOpMode {
 
@@ -93,43 +93,19 @@ public class RoverRuckusAutonomous extends LinearOpMode {
 
 
         while (opModeIsActive() && !robot.deliveryLiftSystem.isLiftMovementComplete()) {
-
             // Put your calls that need to run in a loop here
             robot.deliveryLiftSystem.update();
-
-
             idle();
         }
 
-       // driveToDepotDumpThenCrater();
-        // driveToCraterFromLander();
+        facingCraterLeftMineral();
+        //facingCraterMiddleMineral();
+        //facingCraterRightMineral();
+        //driveToDepotDumpThenCrater();
+        //driveToCraterFromLander();
 
         logFile.logData("headingWhileHanging " + Double.toString(headingWhileHanging));
         logFile.logData("headingOnGround " + Double.toString(headingOnGround));
-
-
-//         while (opModeIsActive()) {
-//
-//                // Put your calls that need to run in a loop here
-//                heading = imu.getHeading();
-//                pitch = imu.getPitch();
-//                roll = imu.getRoll();
-//
-//                // Display the current value
-////                telemetry.addData("IMU mode = ", imu.getAngleMode().toString());
-////                telemetry.addData("Heading = ", "%5.2f", heading);
-////                telemetry.addData("Pitch = ", "%5.2f", pitch);
-////                telemetry.addData("Roll = ", "%5.2f", roll);
-////                telemetry.addData("Min loop time (mS) = ", "%3.3f", loopTimeTracker.getMinimum());
-////                telemetry.addData("Max loop time (mS) = ", "%3.3f", loopTimeTracker.getMaximum());
-////                telemetry.addData("Ave loop time (mS) = ", "%3.3f", loopTimeTracker.getAverage());
-////                telemetry.addData(">", "Press Stop to end test.");
-//
-//
-//            telemetry.update();
-//
-//            idle();
-//        }
 
         // Put your cleanup code here - it runs as the application shuts down
         robot.deliveryLiftSystem.deliveryBoxToHome();
@@ -137,6 +113,149 @@ public class RoverRuckusAutonomous extends LinearOpMode {
         telemetry.addData(">", "Done");
         telemetry.update();
 
+    }
+
+    public void facingCraterLeftMineral() {
+
+        double headingAfterDrive = 0;
+        double headingForTurn = 0;
+        double compensatedHeading = 0;
+        double desiredHeading = 0;
+
+        driveStraight(5, .3);
+        headingOnGround = robot.driveTrain.imu.getHeading();
+
+        logFile.logData("headingFirstStraight " + Double.toString(robot.driveTrain.imu.getHeading()));
+        headingForTurn = 42 - headingOnGround;
+        desiredHeading = 42;
+        turnByDegrees(headingForTurn, .7);
+
+        // head toward wall
+        logFile.logData("headingSecondTurn " + Double.toString(robot.driveTrain.imu.getHeading()));
+        headingAfterDrive = driveStraight(60, .3);
+        compensatedHeading = headingAfterDrive - desiredHeading;
+        logFile.logData("headingSecondStraight " + Double.toString(robot.driveTrain.imu.getHeading()));
+
+        // turn toward crater
+        headingForTurn = -99;
+        turnByDegrees(headingForTurn - compensatedHeading, .7);
+        logFile.logData("headingThirdTurn " + Double.toString(robot.driveTrain.imu.getHeading()));
+
+        // drive to depot backwards
+        headingAfterDrive = driveStraight(-160, .3);
+
+        //dump the marker
+        robot.deliveryLiftSystem.deliveryBoxToDump();
+        logFile.logData("headingThirdStraight " + Double.toString(robot.driveTrain.imu.getHeading()));
+        sleep(1000);
+        robot.deliveryLiftSystem.deliveryBoxToTransfer();
+
+        //turn to get to crater
+        headingForTurn = 18;
+        turnByDegrees(headingForTurn - compensatedHeading, .7);
+        logFile.logData("headingFourthTurn " + Double.toString(robot.driveTrain.imu.getHeading()));
+
+        // drive to the crater
+        headingAfterDrive = driveStraight(200, .3);
+        logFile.logData("headingFourthStraight " + Double.toString(robot.driveTrain.imu.getHeading()));
+    }
+
+    public void facingCraterMiddleMineral() {
+
+        double headingAfterDrive = 0;
+        double headingForTurn = 0;
+        double compensatedHeading = 0;
+        double desiredHeading = 0;
+
+        driveStraight(61, .3);
+        headingOnGround = robot.driveTrain.imu.getHeading();
+
+        logFile.logData("headingFirstStraight " + Double.toString(robot.driveTrain.imu.getHeading()));
+        headingForTurn = -70 - headingOnGround;
+        desiredHeading = 70;
+        turnByDegrees(headingForTurn, .7);
+
+        // head toward wall
+        logFile.logData("headingSecondTurn " + Double.toString(robot.driveTrain.imu.getHeading()));
+        headingAfterDrive = driveStraight(-85, .3);
+        compensatedHeading = headingAfterDrive - desiredHeading;
+        logFile.logData("headingSecondStraight " + Double.toString(robot.driveTrain.imu.getHeading()));
+
+        // turn toward crater
+        headingForTurn = 15;
+        turnByDegrees(headingForTurn - compensatedHeading, .7);
+        logFile.logData("headingThirdTurn " + Double.toString(robot.driveTrain.imu.getHeading()));
+
+        // drive to depot backwards
+        headingAfterDrive = driveStraight(-120, .3);
+
+
+        //dump the marker
+        robot.deliveryLiftSystem.deliveryBoxToDump();
+        logFile.logData("headingThirdStraight " + Double.toString(robot.driveTrain.imu.getHeading()));
+        sleep(1000);
+        robot.deliveryLiftSystem.deliveryBoxToTransfer();
+
+        //turn to get to crater
+        headingForTurn = 15;
+        turnByDegrees(headingForTurn - compensatedHeading, .7);
+        logFile.logData("headingFourthTurn " + Double.toString(robot.driveTrain.imu.getHeading()));
+
+        // drive to the crater
+        headingAfterDrive = driveStraight(165, .3);
+        logFile.logData("headingFourthStraight " + Double.toString(robot.driveTrain.imu.getHeading()));
+    }
+
+    public void facingCraterRightMineral() {
+
+        double headingAfterDrive = 0;
+        double headingForTurn = 0;
+        double compensatedHeading = 0;
+        double desiredHeading = 0;
+
+        driveStraight(5, .3);
+        headingOnGround = robot.driveTrain.imu.getHeading();
+
+        logFile.logData("headingFirstStraight " + Double.toString(robot.driveTrain.imu.getHeading()));
+        headingForTurn = -30 - headingOnGround;
+        desiredHeading = -30;
+        turnByDegrees(headingForTurn, .7);
+
+        // head toward wall
+        logFile.logData("headingSecondTurn " + Double.toString(robot.driveTrain.imu.getHeading()));
+        headingAfterDrive = driveStraight(65, .3);
+        compensatedHeading = headingAfterDrive - desiredHeading;
+        logFile.logData("headingSecondStraight " + Double.toString(robot.driveTrain.imu.getHeading()));
+
+        logFile.logData("headingThirdTurn " + Double.toString(robot.driveTrain.imu.getHeading()));
+        headingAfterDrive = driveStraight(50, .3);
+        compensatedHeading = headingAfterDrive - desiredHeading;
+        logFile.logData("headingThirdStraight " + Double.toString(robot.driveTrain.imu.getHeading()));
+
+        // turn toward crater
+        headingForTurn = -75;
+        turnByDegrees(headingForTurn - compensatedHeading, .7);
+        logFile.logData("headingFourthTurn " + Double.toString(robot.driveTrain.imu.getHeading()));
+
+        // drive to depot backwards
+        headingAfterDrive = driveStraight(-105, .3);
+
+        headingForTurn = 54;
+        turnByDegrees(headingForTurn - compensatedHeading, .7);
+        logFile.logData("headingFourthTurn " + Double.toString(robot.driveTrain.imu.getHeading()));
+
+        headingAfterDrive = driveStraight(-120, .3);
+        logFile.logData("headingFifthStraight " + Double.toString(robot.driveTrain.imu.getHeading()));
+
+        //dump the marker
+        robot.deliveryLiftSystem.deliveryBoxToDump();
+        logFile.logData("headingFourthStraight " + Double.toString(robot.driveTrain.imu.getHeading()));
+        sleep(1000);
+        robot.deliveryLiftSystem.deliveryBoxToTransfer();
+
+        // drive to the crater
+        headingAfterDrive = driveStraight(160, .3);
+        logFile.logData("headingFifthStraight " + Double.toString(robot.driveTrain.imu.getHeading()));
     }
 
     public void driveToDepotDumpThenCrater() {
@@ -150,8 +269,6 @@ public class RoverRuckusAutonomous extends LinearOpMode {
         headingOnGround = robot.driveTrain.imu.getHeading();
 
         logFile.logData("headingFirstStraight " + Double.toString( robot.driveTrain.imu.getHeading()));
-        //turnByDegrees(-headingOnGround, .3);
-        //logFile.logData("headingFirstTurn " + Double.toString( robot.driveTrain.imu.getHeading()));
         headingForTurn = 63-headingOnGround;
         desiredHeading = 63;
         turnByDegrees(headingForTurn, .7);
@@ -163,7 +280,6 @@ public class RoverRuckusAutonomous extends LinearOpMode {
         logFile.logData("headingSecondStraight " + Double.toString( robot.driveTrain.imu.getHeading()));
 
         // turn toward crater
-        //turnByDegrees(-61.38, .3);
         headingForTurn = -122.6;
         turnByDegrees(headingForTurn-compensatedHeading, .7);
         logFile.logData("headingThirdTurn " + Double.toString( robot.driveTrain.imu.getHeading()));
@@ -171,31 +287,18 @@ public class RoverRuckusAutonomous extends LinearOpMode {
         // drive to depot backwards
         headingAfterDrive = driveStraight(-95, .3);
 
-
         //dump the marker
         robot.deliveryLiftSystem.deliveryBoxToDump();
         logFile.logData("headingThirdStraight " + Double.toString( robot.driveTrain.imu.getHeading()));
         sleep(1000);
         robot.deliveryLiftSystem.deliveryBoxToTransfer();
+
         // drive to the crater
         headingAfterDrive = driveStraight(150, .3);
         logFile.logData("headingFourthTurn " + Double.toString( robot.driveTrain.imu.getHeading()));
 
-        //lower the arm
-        //robot.collectorArm.goToPark();
-        //sleep(1000);
-        //robot.collectorArm.floatArm();
-//        headingForTurn = 180.0;
-//        turnByDegrees(headingForTurn, .7);
         logFile.logData("headingFifthTurn " + Double.toString( robot.driveTrain.imu.getHeading()));
-//
-//        headingForTurn = 20;
-//        turnByDegrees(headingForTurn, .3);
-//        logFile.logData("headingSixthTurn " + Double.toString(robot.driveTrain.imu.getHeading()));
-//        driveStraight(-35, .3);
-
     }
-
 
     public void driveToCraterFromLander() {
         turnByDegrees(-headingOnGround, .29);
@@ -205,7 +308,6 @@ public class RoverRuckusAutonomous extends LinearOpMode {
         turnByDegrees(-90, 0.3);
         driveStraight(35, 0.3);
     }
-
 
     public double driveStraight(double distance, double power) {
         robot.driveTrain.setupDriveDistance(power, distance, DcMotor8863.FinishBehavior.FLOAT);
