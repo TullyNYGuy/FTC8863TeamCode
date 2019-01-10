@@ -178,27 +178,8 @@ public class RoverRuckusRobot {
     //*********************************************************************************************
 
     public void dehang() {
-//        collectorArm.goToDehang();
-//        while (collectorArm.update() != DcMotor8863.MotorState.COMPLETE_HOLD) {
-//        }
-        //delay(2000);
-        //collectorArm.update();
-        deliveryLiftSystem.dehang();
-        //while (deliveryLiftSystem.update() != DcMotor8863.MotorState.COMPLETE_FLOAT){
-        //}
-        //delay(5000);
-        //deliveryLiftSystem.update();
-//        collectorArm.goToClearStar();
-//        while (collectorArm.update() != DcMotor8863.MotorState.COMPLETE_HOLD) {
-//        }
-        //collectorArm.update();
-        //delay (1000);
-        deliveryLiftSystem.deliveryBoxToTransfer();
-//        delay(500);
-//        collectorArm.goToHome();
-//        while (collectorArm.update() != DcMotor8863.MotorState.COMPLETE_HOLD) {
-//        }
-        //collectorArm.update();
+        deliveryLiftSystem.deliveryBoxToHome();
+        deliveryLiftSystem.dehang();;
     }
 
 //    public void undehang() {
