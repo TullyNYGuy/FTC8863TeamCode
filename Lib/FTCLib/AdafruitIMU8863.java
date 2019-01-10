@@ -471,6 +471,8 @@ public class AdafruitIMU8863 {
      * @param range
      * @return
      */
+    // I STRONGLY SUSPECT THIS METHOD IS NOT CORRECT. IT SHOULD NOT USE THE CONVERTANGLETO360 CALL
+    // AND SHOULD HANDLE ALL 3 ANGLE RANGES - GB - 1/10/2019
     public double getHeading(AngleRange range) {
         double angle180ToMinus180 = getHeading();
         if (range == AngleRange.ZERO_TO_PLUS_360) {
