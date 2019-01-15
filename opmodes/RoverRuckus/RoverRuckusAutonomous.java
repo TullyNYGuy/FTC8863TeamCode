@@ -102,6 +102,7 @@ public class RoverRuckusAutonomous extends LinearOpMode {
             idle();
         }
 
+
         facingCraterLeftMineral();
         //facingCraterMiddleMineral();
         //facingCraterRightMineral();
@@ -290,7 +291,7 @@ public class RoverRuckusAutonomous extends LinearOpMode {
 
         // turn toward crater
         headingForTurn = -122.6;
-        turnByDegrees(headingForTurn-compensatedHeading, .7);
+        turnByDegrees(headingForTurn, .7);
         logFile.logData("headingThirdTurn " + Double.toString( robot.driveTrain.imu.getHeading()));
 
         // drive to depot backwards
