@@ -16,7 +16,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.StatTracker;
 
-@Autonomous(name = "Rover Ruckus Dehang", group = "Test")
+@Autonomous(name = "Rover Ruckus Dehang Only", group = "Test")
 //@Disabled
 public class RoverRuckusAutonomousDehangOnly extends LinearOpMode {
 
