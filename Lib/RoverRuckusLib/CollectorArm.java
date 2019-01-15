@@ -72,10 +72,6 @@ public class CollectorArm {
     private ExtensionArmStates previousExtensionArmState;
     private ExtensionArmCommands previousExtensionCommand;
 
-    private CollectorExtensionArmStates previousCollectorExtensionArmState;
-    private CollectorExtensionArmCommands previousCollectorExtensionArmCommand;
-
-
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -414,10 +410,10 @@ public class CollectorArm {
      */
     public void moveToExtensionArmPosition(double extensionInInches, double extensionArmPower) {
         log("moving extension arm to position = " + extensionInInches);
+        extensionArmMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         desiredExtensionArmPosition = extensionInInches;
         this.extensionArmPower = extensionArmPower;
         command = ExtensionArmCommands.GO_TO_POSITION;
-        extensionArmMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         extensionArmMotor.moveToPosition(extensionArmPower, extensionInInches, DcMotor8863.FinishBehavior.FLOAT);
     }
 
@@ -784,13 +780,13 @@ public class CollectorArm {
     //**********************************************************************************************
     //**********************************************************************************************
 
-    private enum CollectorExtensionArmStates{
+    private enum RotationExtensionArmStates{
         START,
         EXTEND_RETRACT_ARM,
         RAISE_LOWER_ARM;
     }
 
-    private enum CollectorExtensionArmCommands{
+    private enum RotationExtensionArmCommands{
         DROP_ARM,
         RETURN_ARM_HOME,
         RAISE_ARM,
@@ -798,8 +794,11 @@ public class CollectorArm {
         EMPTY;
     }
 
-    private CollectorExtensionArmStates collectorExtensionArmState = CollectorExtensionArmStates.START;
-    private CollectorExtensionArmCommands collectorExtensionArmCommand = CollectorExtensionArmCommands.EMPTY;
+    private RotationExtensionArmStates rotationExtensionArmState = RotationExtensionArmStates.START;
+    private RotationExtensionArmCommands rotationExtensionArmCommand = RotationExtensionArmCommands.EMPTY;
+
+    private RotationExtensionArmStates previousRotationExtensionArmState;
+    private RotationExtensionArmCommands previousRotationExtensionArmCommand;
 
     //*********************************************************************************************]
     // extension and rotation Commands
@@ -807,25 +806,25 @@ public class CollectorArm {
 
     public void dropArm(){
         log("COMMANDED TO LOWER COLLECTOR ARM");
-        collectorExtensionArmCommand = CollectorExtensionArmCommands.DROP_ARM;
+        rotationExtensionArmCommand = RotationExtensionArmCommands.DROP_ARM;
     }
     public void raiseArm(){
         log("COMMANDED TO RAISE COLLECTOR ARM");
-        collectorExtensionArmCommand = CollectorExtensionArmCommands.RAISE_ARM;
+        rotationExtensionArmCommand = RotationExtensionArmCommands.RAISE_ARM;
     }
     //*********************************************************************************************]
     // extension and rotation Commands
     //**********************************************************************************************
 
     public void rotationExtensionArmUpdate(){
-        logRotationExtensionState(collectorExtensionArmState, collectorExtensionArmCommand);
+        logRotationExtensionState(rotationExtensionArmState, rotationExtensionArmCommand);
 
-        switch (collectorExtensionArmState){
+        switch (rotationExtensionArmState){
             case START:
-                switch (collectorExtensionArmCommand){
+                switch (rotationExtensionArmCommand){
                     case DROP_ARM:
                         rotationArmGoToCollect();
-                        collectorExtensionArmState = CollectorExtensionArmStates.RAISE_LOWER_ARM;
+                        rotationExtensionArmState = RotationExtensionArmStates.RAISE_LOWER_ARM;
                         break;
                     case RETURN_ARM_HOME:
                         break;
@@ -835,16 +834,16 @@ public class CollectorArm {
                         break;
                     case RAISE_ARM:
                         goToExtensionArmTransfer();
-                        collectorExtensionArmState = CollectorExtensionArmStates.EXTEND_RETRACT_ARM;
+                        rotationExtensionArmState = RotationExtensionArmStates.EXTEND_RETRACT_ARM;
                         break;
                 }
                 break;
             case RAISE_LOWER_ARM:
-                switch (collectorExtensionArmCommand){
+                switch (rotationExtensionArmCommand){
                     case DROP_ARM:
                         if (isRotationArmMovementComplete()){
                             gotoExtensionArm5Inches();
-                            collectorExtensionArmState = CollectorExtensionArmStates.EXTEND_RETRACT_ARM;
+                            rotationExtensionArmState = RotationExtensionArmStates.EXTEND_RETRACT_ARM;
                             }
                         break;
                     case RETURN_ARM_HOME:
@@ -855,17 +854,21 @@ public class CollectorArm {
                         break;
                     case RAISE_ARM:
                         if (isRotationArmMovementComplete()){
-                            collectorExtensionArmCommand = CollectorExtensionArmCommands.EMPTY;
+                            // setting the state to start was not here and resulted in a bug in which
+                            // a drop arm command started from this state and a new position was never
+                            // commanded to drop the arm to the floor
+                            rotationExtensionArmState = RotationExtensionArmStates.START;
+                            rotationExtensionArmCommand = RotationExtensionArmCommands.EMPTY;
                         }
                         break;
                 }
                 break;
             case EXTEND_RETRACT_ARM:
-                switch (collectorExtensionArmCommand){
+                switch (rotationExtensionArmCommand){
                     case DROP_ARM:
                         if (isExtensionArmMovementComplete()){
-                            collectorExtensionArmState = CollectorExtensionArmStates.START;
-                            collectorExtensionArmCommand = CollectorExtensionArmCommands.EMPTY;
+                            rotationExtensionArmState = RotationExtensionArmStates.START;
+                            rotationExtensionArmCommand = RotationExtensionArmCommands.EMPTY;
                         }
                         break;
                     case RETURN_ARM_HOME:
@@ -877,7 +880,7 @@ public class CollectorArm {
                     case RAISE_ARM:
                         if (isExtensionArmMovementComplete()){
                             rotationArmGoToTransfer();
-                            collectorExtensionArmState = CollectorExtensionArmStates.RAISE_LOWER_ARM;
+                            rotationExtensionArmState = RotationExtensionArmStates.RAISE_LOWER_ARM;
                         }
                         break;
                 }
@@ -885,23 +888,23 @@ public class CollectorArm {
         }
     }
 
-    private void logRotationExtensionState(CollectorExtensionArmStates collectorExtensionArmState, CollectorExtensionArmCommands collectorExtensionArmCommand) {
+    private void logRotationExtensionState(RotationExtensionArmStates rotationExtensionArmState, RotationExtensionArmCommands rotationExtensionArmCommand) {
         if (logFile != null && loggingOn) {
-            if(collectorExtensionArmState != previousCollectorExtensionArmState ||collectorExtensionArmCommand != previousCollectorExtensionArmCommand) {
-                logFile.logData("Collector Arm",collectorExtensionArmState.toString(), collectorExtensionArmCommand.toString());
-                previousCollectorExtensionArmState = collectorExtensionArmState;
-                previousCollectorExtensionArmCommand = collectorExtensionArmCommand;
+            if(rotationExtensionArmState != previousRotationExtensionArmState ||rotationExtensionArmCommand != previousRotationExtensionArmCommand) {
+                logFile.logData("Rotation Extension Arm",rotationExtensionArmState.toString(), rotationExtensionArmCommand.toString());
+                previousRotationExtensionArmState = rotationExtensionArmState;
+                previousRotationExtensionArmCommand = rotationExtensionArmCommand;
             }
         }
     }
 
     public void displayState(){
-        telemetry.addData("State = ", collectorExtensionArmState.toString());
+        telemetry.addData("State = ", rotationExtensionArmState.toString());
     }
 
     public boolean isRotationExtensionComplete(){
-        if (collectorExtensionArmCommand == CollectorExtensionArmCommands.EMPTY){
-            log("Collector arm movement complete");
+        if (rotationExtensionArmCommand == RotationExtensionArmCommands.EMPTY){
+            log("Collector arm rotation and extension movement complete");
             return true;
         }
         else return false;
