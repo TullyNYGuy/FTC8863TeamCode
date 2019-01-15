@@ -289,6 +289,11 @@ public class DeliveryLiftSystem {
         }
     }
 
+    public void goToTransfer() {
+        log("COMMANDED LIFT TO TRANSFER POSITION");
+        moveToPosition(0.2, 1);
+    }
+
     public void goToLatch() {
         log("COMMANDED LIFT TO LATCH POSITION");
         moveToPosition(10, 1);
@@ -354,7 +359,9 @@ public class DeliveryLiftSystem {
         // box does not get crushed
         deliveryBoxToHome();
         liftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        liftMotor.setPower(-liftSpeed);
+        // need to speed this up at the expense of smashing into the limit switch harder
+        //liftMotor.setPower(-liftSpeed);
+        liftMotor.setPower(-1.0);
     }
 
     private void moveToTop() {

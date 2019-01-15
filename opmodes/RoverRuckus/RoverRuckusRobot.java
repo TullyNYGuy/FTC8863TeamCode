@@ -319,7 +319,7 @@ public class RoverRuckusRobot {
             case COLLECTOR_OFF:
                 switch (transferScoringCommand) {
                     case TRANSFER:
-                        deliveryLiftSystem.goToBottom();
+                        deliveryLiftSystem.goToTransfer();
                         transferScoringState = TransferScoringStates.LIFT_HEIGHT;
                         break;
                     case CONFIRM_TRANSFER_SUCCESS:
@@ -524,9 +524,9 @@ public class RoverRuckusRobot {
                 if (timer.milliseconds() > 1500) {
                     // return the delivery box to home from scoring position
                     deliveryLiftSystem.deliveryBoxToHome();
-                    // lower lift to home position - added to save time in prepping for lowering the arm to collect
+                    // lower lift to transfer position - added to save time in prepping for lowering the arm to collect
                     // does waste time if the next move is to setup for hang.
-                    deliveryLiftSystem.goToHome();
+                    deliveryLiftSystem.goToTransfer();
                     transferScoringState = TransferScoringStates.RESET;
                 }
                 break;
@@ -611,7 +611,9 @@ public class RoverRuckusRobot {
             case START:
                 switch (toCollectCommand) {
                     case LOWER_COLLECTION_SYSTEM:
-                        deliveryLiftSystem.goToHome();
+                        // move the lift to transfer, which is almost the bottom. This avoids moving
+                        // it later when the transfer is started.
+                        deliveryLiftSystem.goToTransfer();
                         deliveryLiftSystem.deliveryBoxToHome();
                         toCollectState = ToCollectStates.LOWER_LIFT;
                         break;
