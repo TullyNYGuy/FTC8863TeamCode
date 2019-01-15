@@ -118,7 +118,7 @@ public class RoverRuckusTeleop extends LinearOpMode {
         gamepad1LeftBumper = new GamepadButtonMultiPush(1);
         gamepad1a = new GamepadButtonMultiPush(2);
         gamepad1b = new GamepadButtonMultiPush(2);
-        gamepad1y = new GamepadButtonMultiPush(3);
+        gamepad1y = new GamepadButtonMultiPush(2);
         gamepad1x = new GamepadButtonMultiPush(1);
         gamepad1DpadUp = new GamepadButtonMultiPush(1);
         gamepad1DpadDown = new GamepadButtonMultiPush(1);
@@ -238,12 +238,10 @@ public class RoverRuckusTeleop extends LinearOpMode {
                 if (gamepad1y.isCommand2()) {
                     robot.deliveryLiftSystem.goToLatch();
                 }
-                if (gamepad1y.isCommand3()) {
-                    robot.deliveryLiftSystem.goToHang();
-                }
             }
 
             if (gamepad1x.buttonPress(gamepad1.x)) {
+                robot.deliveryLiftSystem.goToHang();
             }
 
             if (gamepad1DpadUp.buttonPress(gamepad1.dpad_up)) {
@@ -332,7 +330,8 @@ public class RoverRuckusTeleop extends LinearOpMode {
             }
 
             if (gamepad2LeftBumper.buttonPress(gamepad2.left_bumper)) {
-
+                robot.resetToColletionPositionControl();
+                robot.resetTransferScoringControl();
             }
 
             if (gamepad2a.buttonPress(gamepad2.a)) {
@@ -353,6 +352,9 @@ public class RoverRuckusTeleop extends LinearOpMode {
             }
 
             if (gamepad2x.buttonPress(gamepad2.x)) {
+                robot.deliveryLiftSystem.deliveryBoxToDump();
+                sleep(1000);
+                robot.deliveryLiftSystem.deliveryBoxToHome();
             }
 
             if (gamepad2DpadUp.buttonPress(gamepad2.dpad_up)) {
@@ -369,11 +371,11 @@ public class RoverRuckusTeleop extends LinearOpMode {
             }
 
             if (gamepad2DpadLeft.buttonPress(gamepad2.dpad_left)) {
-
+                robot.collector.turnIntakeOnSpitOut();
             }
 
             if (gamepad2DpadRight.buttonPress(gamepad2.dpad_right)) {
-
+                robot.collector.turnIntakeOnSuckIn();
             }
 
             if (gamepad2LeftStickButton.buttonPress(gamepad2.left_stick_button)) {

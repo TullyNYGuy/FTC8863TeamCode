@@ -214,12 +214,12 @@ public class CollectorGB {
         collectionServoRight.setPower(0);
     }
 
-    private void turnIntakeOnSuckIn() {
+    public void turnIntakeOnSuckIn() {
         collectionServoLeft.setPower(-.8);
         collectionServoRight.setPower(-1);
     }
 
-    private void turnIntakeOnSpitOut() {
+    public void turnIntakeOnSpitOut() {
         collectionServoLeft.setPower(1);
         collectionServoRight.setPower(1);
     }
@@ -868,10 +868,13 @@ public class CollectorGB {
                         softReset();
                         break;
                     case ON:
-                        if (timer.milliseconds() > mineralStorageTimerLimit) {
+                        delay(500);
+                        turnIntakeOff();
+                        if (timer.milliseconds() > mineralStorageTimerLimit - 500) {
                             collectorState = CollectorState.NO_MINERAL;
                             numberOfMineralsStored = 1;
                             turnCollectorSystemsOff();
+                            delay(500);
                             turnIntakeOnSuckIn();
                             debug("stored");
                         }
