@@ -48,7 +48,7 @@ public class DeliveryLiftSystem {
 
     private Servo8863 dumpServo;
     private double dumpServoHomePosition = 0.7;
-    private double dumpServoDumpPosition = 0.1;
+    private double dumpServoDumpPosition = 0.0;
     private double dumpServoInitPosition = 0.8;
     private double dumpServoTransferPosition = 0.8;
     private double dumpServoOutOfWayPosition = 0.7;
@@ -672,9 +672,13 @@ public class DeliveryLiftSystem {
                 liftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                 liftMotor.setPower(joystickPower);
             } else {
-                // the lift power is negative so the driver wants it to move down. But it is already
-                // at the bottom so force the motor power to 0.
+                // the joystick power is either:
+                // negative so the driver wants it to lower. But it is already at bottom so we cannot lower more.
+                // OR the joystick power is 0.
+                // For both of these situations the motor power should be set to 0.
                 liftMotor.setPower(0);
+                // and the command should be set to NO_COMMAND to indicate that the extension arm is not moving
+                liftCommand = LiftCommands.NO_COMMAND;
             }
             liftState = LiftStates.BOTTOM;
         } else {
@@ -684,9 +688,13 @@ public class DeliveryLiftSystem {
                     liftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                     liftMotor.setPower(joystickPower);
                 } else {
-                    // the lift power is positive so the driver wants it to move up. But it is already
-                    // at the top so force the motor power to 0.
+                    // the joystick power is either:
+                    // positive so the driver wants it to raise. But it is already at full height so we cannot raise more.
+                    // OR the joystick power is 0.
+                    // For both of these situations the motor power should be set to 0.
                     liftMotor.setPower(0);
+                    // and the command should be set to NO_COMMAND to indicate that the extension arm is not moving
+                    liftCommand = LiftCommands.NO_COMMAND;
                 }
                 liftState = LiftStates.TOP;
             } else {
@@ -697,6 +705,13 @@ public class DeliveryLiftSystem {
                 } else {
                     // the joystick input is 0 so set the lift power to 0
                     liftMotor.setPower(0);
+                    // this fixes a bug: without resetting the command to NO_COMMAND, the command
+                    // remains JOYSTICK. A call to isExtensionArmMovementComplete returns false even
+                    // though the arm is not moving anymore (joystick command is 0). So any other
+                    // code that checks for completion of the extension arm movement just sits and
+                    // waits for isExtensionArmMovementComplete to return true. It never will. So
+                    // we have to do this when the joystick power is 0:
+                    liftCommand = LiftCommands.NO_COMMAND;
                 }
                 liftState = LiftStates.IN_BETWEEN;
             }
