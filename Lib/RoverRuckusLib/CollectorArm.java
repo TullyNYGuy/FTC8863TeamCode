@@ -702,9 +702,13 @@ public class CollectorArm {
                 extensionArmMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                 extensionArmMotor.setPower(extensionArmJoystickPower);
             } else {
-                // the extension arm power is negative so the driver wants it to move down. But it is already
-                // at retract so force the motor power to 0.
+                // the extension arm power is either:
+                // negative so the driver wants it to retract. But it is already at full retraction so we cannot retract more.
+                // OR the joystick power is 0.
+                // For both of these situations the motor power should be set to 0.
                 extensionArmMotor.setPower(0);
+                // and the command should be set to NO_COMMAND to indicate that the extension arm is not moving
+                command = ExtensionArmCommands.NO_COMMAND;
             }
             state = ExtensionArmStates.RETRACT;
         } else {
@@ -714,9 +718,13 @@ public class CollectorArm {
                     extensionArmMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                     extensionArmMotor.setPower(extensionArmJoystickPower);
                 } else {
-                    // the extension arm power is positive so the driver wants it to move up. But it is already
-                    // at extend so force the motor power to 0.
+                    // the extension arm power is either:
+                    // positive so the driver wants it to extend. But it is already at full extensions so we cannot extend more.
+                    // OR the joystick power is 0.
+                    // For both of these situations the motor power should be set to 0.
                     extensionArmMotor.setPower(0);
+                    // and the command should be set to NO_COMMAND to indicate that the extension arm is not moving
+                    command = ExtensionArmCommands.NO_COMMAND;
                 }
                 state = ExtensionArmStates.EXTEND;
             } else {
@@ -727,6 +735,13 @@ public class CollectorArm {
                 } else {
                     // the joystick input is 0 so set the extension arm power to 0
                     extensionArmMotor.setPower(0);
+                    // this fixes a bug: without resetting the command to NO_COMMAND, the command
+                    // remains JOYSTICK. A call to isExtensionArmMovementComplete returns false even
+                    // though the arm is not moving anymore (joystick command is 0). So any other
+                    // code that checks for completion of the extension arm movement just sits and
+                    // waits for isExtensionArmMovementComplete to return true. It never will. So
+                    // we have to do this when the joystick power is 0:
+                    command = ExtensionArmCommands.NO_COMMAND;
                 }
                 state = ExtensionArmStates.IN_BETWEEN;
             }
@@ -791,11 +806,11 @@ public class CollectorArm {
     //**********************************************************************************************
 
     public void dropArm(){
-        log("Commanded to lower collector arm");
+        log("COMMANDED TO LOWER COLLECTOR ARM");
         collectorExtensionArmCommand = CollectorExtensionArmCommands.DROP_ARM;
     }
     public void raiseArm(){
-        log("Commanded to raise collector arm");
+        log("COMMANDED TO RAISE COLLECTOR ARM");
         collectorExtensionArmCommand = CollectorExtensionArmCommands.RAISE_ARM;
     }
     //*********************************************************************************************]
