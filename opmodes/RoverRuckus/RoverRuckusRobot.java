@@ -463,9 +463,8 @@ public class RoverRuckusRobot {
                         break;
                     case CONFIRM_TRANSFER:
                         // Confirm transfer got us into this state. So this command is not relevant.
-                        // Do noting but wait for a score command.
-                        // Don't log since this state runs over and over
-                        //logDoNothingCommand(TransferScoringCommands.CONFIRM_TRANSFER);
+                        // wait for a real command
+                        transferScoringCommand = TransferScoringCommands.EMPTY;
                         break;
                 }
                 break;
