@@ -339,7 +339,7 @@ public class RoverRuckusTeleop extends LinearOpMode {
                     robot.transferMinerals();
                 }
                 if (gamepad2a.isCommand2()) {
-                    robot.confirmTransfer();
+                    robot.confirmTransferSuccess();
                 }
             }
 
