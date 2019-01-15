@@ -994,7 +994,7 @@ public class DriveTrain {
             // set the mode for the motors during the turn. Without this they may not move.
             rightDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             leftDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            pidControl.setSetpoint(imu.convertAngleTo360(turnAngle));
+            pidControl.setSetpoint(turnAngle);
             pidControl.setMaxCorrection(maxPower);
             pidControl.setThreshold(1.0);
             //pidControl.setKp(0.025);
