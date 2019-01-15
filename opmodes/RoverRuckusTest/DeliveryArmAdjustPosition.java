@@ -8,9 +8,9 @@ import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.DeliveryLiftSystem;
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Delivery Arm Position Test", group = "Test")
+@TeleOp(name = "Delivery Arm Adjust Position", group = "Test")
 //@Disabled
-public class DeliveryArmTest extends LinearOpMode {
+public class DeliveryArmAdjustPosition extends LinearOpMode {
 
     // Put your variable declarations here
     public DeliveryLiftSystem deliveryLiftSystem;
@@ -28,18 +28,11 @@ public class DeliveryArmTest extends LinearOpMode {
         waitForStart();
 
         // Put your calls here - they will not run in a loop
-        deliveryLiftSystem.deliveryBoxToDump();
-        sleep(3000);
-        deliveryLiftSystem.deliveryBoxToTransfer();
-        sleep(3000);
-        deliveryLiftSystem.deliveryBoxToHome();
+        deliveryLiftSystem.deliveryBoxToInit();
         while (opModeIsActive()) {
 
             // Put your calls that need to run in a loop here
-
-            // Display the current value
-            //telemetry.addData("Motor Speed = ", "%5.2f", powerToRunAt);
-            //telemetry.addData("Encoder Count=", "%5d", motor.getCurrentPosition());
+            telemetry.addLine("Adjust the delivery arm servo by loosening clamping hubs and then tightening");
             telemetry.addData(">", "Press Stop to end test.");
 
             telemetry.update();

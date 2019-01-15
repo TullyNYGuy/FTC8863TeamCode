@@ -21,7 +21,7 @@ public class DeliveryLiftSystem {
     // user defined types
     //
     //*********************************************************************************************
-    private enum Commands {
+    private enum LiftCommands {
         NO_COMMAND,
         GO_TO_BOTTOM,
         GO_TO_TOP,
@@ -30,8 +30,9 @@ public class DeliveryLiftSystem {
         JOYSTICK
     }
 
-    private enum States {
+    private enum LiftStates {
         RESET,
+        RESET_MOVING_TO_BOTTOM,
         BOTTOM,
         IN_BETWEEN,
         TOP
@@ -46,24 +47,30 @@ public class DeliveryLiftSystem {
     private DcMotor8863 liftMotor;
 
     private Servo8863 dumpServo;
-    private double dumpServoHomePosition = 0.9;
-    private double dumpServoDumpPosition = 0.1;
-    private double dumpServoInitPosition = 0.5;
-    private double dumpServoTransferPosition = 0.84;
+    private double dumpServoHomePosition = 0.7;
+    private double dumpServoDumpPosition = 0.0;
+    private double dumpServoInitPosition = 0.8;
+    private double dumpServoTransferPosition = 0.8;
+    private double dumpServoOutOfWayPosition = 0.7;
 
     private Switch bottomLimitSwitch;
     private Switch topLimitSwitch;
-    private Commands command;
+
+    private LiftCommands liftCommand;
+    private LiftStates previousLiftState;
+    private LiftStates liftState;
+    private LiftCommands previousLiftCommand;
+
     private Telemetry telemetry;
-    private States state;
+
     private double desiredPosition = 0;
     private double liftPower = 0;
 
     private double liftSpeed = .5;
     private boolean debugMode = false;
 
-    private DataLogging dataLog;
-    private boolean logData = false;
+    private DataLogging logFile;
+    private boolean loggingOn = false;
 
     private double joystickPower = 0;
 
@@ -87,7 +94,7 @@ public class DeliveryLiftSystem {
         // run. But when debugging you may not want the lift to have to reset before
         // running any commands. So if the lift is in debug mode, force the state machine to think
         // the lift is IN_BETWEEN so any command sent to the lift will run.
-        state = States.IN_BETWEEN;
+        liftState = LiftStates.IN_BETWEEN;
     }
 
     public void disableDebugMode() {
@@ -95,16 +102,16 @@ public class DeliveryLiftSystem {
         this.liftSpeed = .5;
     }
 
-    public void setDataLog(DataLogging dataLog) {
-        this.dataLog = dataLog;
+    public void setDataLog(DataLogging logFile) {
+        this.logFile = logFile;
     }
 
     public void enableDataLogging() {
-        this.logData = true;
+        this.loggingOn = true;
     }
 
     public void disableDataLogging() {
-        this.logData = false;
+        this.loggingOn = false;
     }
 
     //*********************************************************************************************
@@ -116,6 +123,7 @@ public class DeliveryLiftSystem {
     public DeliveryLiftSystem(HardwareMap hardwareMap, Telemetry telemetry) {
         dumpServo = new Servo8863("dumpServo", hardwareMap, telemetry, dumpServoHomePosition, dumpServoDumpPosition, dumpServoInitPosition, dumpServoInitPosition, Servo.Direction.FORWARD);
         dumpServo.setPositionOne(dumpServoTransferPosition);
+        dumpServo.setPositionTwo(dumpServoOutOfWayPosition);
 
         liftMotor = new DcMotor8863("liftMotor", hardwareMap, telemetry);
         liftMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_3_7_ORBITAL_OLD);
@@ -127,7 +135,7 @@ public class DeliveryLiftSystem {
 
         bottomLimitSwitch = new Switch(hardwareMap, "bottomLiftLimitSwitch", Switch.SwitchType.NORMALLY_OPEN);
         topLimitSwitch = new Switch(hardwareMap, "topLiftLimitSwitch", Switch.SwitchType.NORMALLY_OPEN);
-        state = States.RESET;
+        liftState = LiftStates.RESET;
     }
 
 
@@ -145,8 +153,10 @@ public class DeliveryLiftSystem {
     //*********************************************************************************************
 
     public void init() {
+        log("Delivery Lift system initializing");
         //dumpServo.goHome();
         if (!isDebugMode()) {
+            deliveryBoxToOutOfWay();
             liftReset();
             while (!isLiftMovementComplete()) {
                 update();
@@ -158,30 +168,61 @@ public class DeliveryLiftSystem {
         //dumpServo.goHome();
     }
 
+    private void log(String stringToLog) {
+        if (logFile != null && loggingOn) {
+            logFile.logData(stringToLog);
+        }
+    }
+
     //*********************************************************************************************]
     // dump servo commands
     //**********************************************************************************************
 
     public void deliveryBoxToDump() {
+        log("DELIVERY BOX TO DUMP POSITION");
         dumpServo.goUp();
     }
 
     public void deliveryBoxToHome() {
+        log("DELIVERY BOX TO HOME POSITION");
         dumpServo.goHome();
     }
 
     public void deliveryBoxToTransfer() {
+        log("DELIVERY BOX TO TRANSFER POSITION");
         dumpServo.goPositionOne();
     }
 
-    public void testSystem() {
+    public void deliveryBoxToOutOfWay() {
+        log("DELIVERY BOX TO OUT OF WAY POSITION");
+        dumpServo.goPositionTwo();
+    }
+
+    public void deliveryBoxToInit() {
+        log("DELIVERY BOX TO INIT POSITION");
+        dumpServo.goInitPosition();
+    }
+
+    public void testDumpServoPositions() {
+        deliveryBoxToHome();
+        telemetry.addLine("Deliver Box at home position");
+        telemetry.update();
+        delay(2000);
+        deliveryBoxToTransfer();
+        telemetry.addLine("Deliver Box at transfer position");
+        telemetry.update();
+        delay(2000);
+        deliveryBoxToOutOfWay();
+        telemetry.addLine("Deliver Box at out of way position");
+        telemetry.update();
+        delay(2000);
         deliveryBoxToDump();
+        telemetry.addLine("Deliver Box at dump position");
+        telemetry.update();
         delay(2000);
         deliveryBoxToHome();
-        delay(2000);
-        moveToPosition(4, .5);
-        delay(2000);
-        moveToPosition(0, .5);
+        telemetry.addLine("Deliver Box at home position");
+        telemetry.update();
     }
 
     //*********************************************************************************************]
@@ -220,46 +261,58 @@ public class DeliveryLiftSystem {
     //**********************************************************************************************
 
     public void liftReset() {
-        command = Commands.RESET;
+        log("COMMANDED LIFT TO RESET LIFT");
+        liftCommand = LiftCommands.RESET;
     }
 
     public void goToBottom() {
-        command = Commands.GO_TO_BOTTOM;
+        log("COMMANDED LIFT TO BOTTOM POSITION");
+        liftCommand = LiftCommands.GO_TO_BOTTOM;
     }
 
     public void goToTop() {
-        command = Commands.GO_TO_TOP;
+        log("COMMANDED LIFT TO TOP POSITION");
+        liftCommand = LiftCommands.GO_TO_TOP;
     }
 
     public void setLiftPowerUsingJoystick(double power) {
         // if a command has been given to reset the lift, then do not allow the joystick to take
         // effect and override the reset
         joystickPower = 0;
-        if (command != Commands.RESET) {
+        if (liftCommand != LiftCommands.RESET) {
             // A joystick command is only a real command if it is not 0. If the joystick value is 0
             // just ignore the stick
             if (power != 0) {
-                command = Commands.JOYSTICK;
+                liftCommand = LiftCommands.JOYSTICK;
                 joystickPower = power;
             }
         }
     }
 
     public void goToLatch() {
-        moveToPosition(9, 1);
+        log("COMMANDED LIFT TO LATCH POSITION");
+        moveToPosition(10, 1);
     }
 
-    public void hang() {
-        moveToPosition(2, 1);
+    public void goToHang() {
+        log("COMMANDED LIFT TO HANGING POSITION");
+        moveToPosition(2.5, 1);
+    }
+
+
+    public void goToSetupHang(){
+        log("COMMANDED LIFT TO SETUP HANG POSITION");
+        moveToPosition(5.9, 1);
     }
 
     public void dehang() {
-        moveToPosition(11.25, 1);
+        log("COMMANDED LIFT TO DE-HANG");
+        goToTop();
     }
 
-    public void undehang() {
-        moveToPosition(.25, 1);
-    }
+//    public void undehang() {
+//        moveToPosition(.25, 1);
+//    }
 
     /**
      * For testing a move to position
@@ -276,6 +329,7 @@ public class DeliveryLiftSystem {
     }
 
     public void goToHome() {
+        log("COMMANDED LIFT TO GO TO HOME");
         moveToPosition(0.5, 1);
     }
 
@@ -283,16 +337,22 @@ public class DeliveryLiftSystem {
         moveToPosition(9.0, 1);
     }
 
-    public void goToScoringPosition() {moveToPosition(10.5, 1);}
+    public void goToScoringPosition() {
+        log("COMMANDED LIFT TO GO TO SCORING POSITION");
+        moveToPosition(10.5, 1);
+    }
 
     public void moveTwoInchesUp() {
         // since the motor starts in RESET state I have to force it into another state in order to
         // get movement
-        state = States.IN_BETWEEN;
+        liftState = LiftStates.IN_BETWEEN;
         moveToPosition(2, .5);
     }
 
     private void moveToBottom() {
+        // when the lift goes down the transfer box must be put into transfer position so the
+        // box does not get crushed
+        deliveryBoxToHome();
         liftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         liftMotor.setPower(-liftSpeed);
     }
@@ -303,6 +363,7 @@ public class DeliveryLiftSystem {
     }
 
     private void stopLift() {
+        log("LIFT ARRIVED AT DESTINATION");
         liftMotor.setPower(0);
     }
 
@@ -314,11 +375,19 @@ public class DeliveryLiftSystem {
      * @param liftPower      max power for the motor
      */
     public void moveToPosition(double heightInInches, double liftPower) {
-        desiredPosition = heightInInches;
-        this.liftPower = liftPower;
-        command = Commands.GO_TO_POSITION;
-        liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        liftMotor.moveToPosition(liftPower, heightInInches, DcMotor8863.FinishBehavior.FLOAT);
+        if (isLiftMovementComplete()) {
+            log("Moving lift to a position = " + heightInInches );
+            desiredPosition = heightInInches;
+            this.liftPower = liftPower;
+            liftCommand = LiftCommands.GO_TO_POSITION;
+            liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            liftMotor.moveToPosition(liftPower, heightInInches, DcMotor8863.FinishBehavior.FLOAT);
+        } else {
+            // previous lift movement is not complete, ignore command
+            log("Asked lift to move to position but it is already moving, ignore command");
+            liftCommand = LiftCommands.NO_COMMAND;
+        }
+
     }
 
     private boolean isLiftMovementUp() {
@@ -336,51 +405,90 @@ public class DeliveryLiftSystem {
     // lift motor state machine
     //**********************************************************************************************
 
-    public States update() {
+    public LiftStates update() {
         DcMotor8863.MotorState motorState = liftMotor.update();
-        switch (state) {
+        logState(liftState, liftCommand);
+
+        switch (liftState) {
             case RESET:
-                switch (command) {
+                switch (liftCommand) {
                     case RESET:
+                        log("Resetting lift");
                         // send the lift moving down
                         moveToBottom();
-                        // a reset has been requested, wait for the lift to move down and the limit
-                        // switch to be pressed.
-                        if (bottomLimitSwitch.isPressed()) {
-                            // the limit switch has been pressed. Stop the motor and reset the
-                            // encoder to 0. Clear the command.
-                            stopLift();
-                            liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                            command = Commands.NO_COMMAND;
-                            state = States.BOTTOM;
-                        }
+                        liftState = LiftStates.RESET_MOVING_TO_BOTTOM;
                         break;
                     // all other commands are ignored when a reset is issued. Basically force
                     // the command back to a reset
                     case GO_TO_BOTTOM:
-                        command = Commands.RESET;
+                        logIgnoreCommand(LiftCommands.GO_TO_BOTTOM);
+                        liftCommand = LiftCommands.RESET;
                         break;
                     case GO_TO_TOP:
-                        command = Commands.RESET;
+                        logIgnoreCommand(LiftCommands.GO_TO_TOP);
+                        liftCommand = LiftCommands.RESET;
                         break;
                     case GO_TO_POSITION:
-                        command = Commands.RESET;
+                        logIgnoreCommand(LiftCommands.GO_TO_POSITION);
+                        liftCommand = LiftCommands.RESET;
                         break;
                     case JOYSTICK:
-                        command = Commands.RESET;
+                        logIgnoreCommand(LiftCommands.JOYSTICK);
+                        liftCommand = LiftCommands.RESET;
                         break;
                     case NO_COMMAND:
                         break;
                 }
                 break;
 
+                // This state means that a reset was requested and the lift has already started
+            // moving to the bottom. It is here so that a moveToBottom() is not repeatedly called.
+            case RESET_MOVING_TO_BOTTOM:
+                switch (liftCommand) {
+                    case RESET:
+                        // the lift has been sent to the bottom from a reset command.
+                        // It is just moving down until the limit switch is pressed and the motor
+                        // is told to stop.
+                        if (bottomLimitSwitch.isPressed()) {
+                            // the limit switch has been pressed. Stop the motor. Clear the command.
+                            stopLift();
+                            // reset the encoder
+                            liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                            liftCommand = LiftCommands.NO_COMMAND;
+                            liftState = LiftStates.BOTTOM;
+                        }
+                        break;
+                    // all other commands are ignored when a reset is issued. Basically force
+                    // the command back to a reset
+                    case GO_TO_BOTTOM:
+                        logIgnoreCommand(LiftCommands.GO_TO_BOTTOM);
+                        liftCommand = LiftCommands.RESET;
+                        break;
+                    case GO_TO_TOP:
+                        logIgnoreCommand(LiftCommands.GO_TO_TOP);
+                        liftCommand = LiftCommands.RESET;
+                        break;
+                    case GO_TO_POSITION:
+                        logIgnoreCommand(LiftCommands.GO_TO_POSITION);
+                        liftCommand = LiftCommands.RESET;
+                        break;
+                    case JOYSTICK:
+                        logIgnoreCommand(LiftCommands.JOYSTICK);
+                        liftCommand = LiftCommands.RESET;
+                        break;
+                    case NO_COMMAND:
+                        break;
+                }
+                break;
             // this state does NOT mean that the lift is at the bottom
             // it means that the lift is moving to the bottom OR at the bottom
             case BOTTOM:
-                switch (command) {
+                switch (liftCommand) {
                     case RESET:
+                        // a reset can be requested at any time. Start the motor movement and change
+                        // state
                         moveToBottom();
-                        state = States.RESET;
+                        liftState = LiftStates.RESET_MOVING_TO_BOTTOM;
                         break;
                     case GO_TO_BOTTOM:
                         // the lift has been sent to the bottom without using a position command.
@@ -388,7 +496,7 @@ public class DeliveryLiftSystem {
                         if (bottomLimitSwitch.isPressed()) {
                             // the limit switch has been pressed. Stop the motor. Clear the command.
                             stopLift();
-                            command = Commands.NO_COMMAND;
+                            liftCommand = LiftCommands.NO_COMMAND;
                         }
                         break;
                     case GO_TO_TOP:
@@ -396,13 +504,13 @@ public class DeliveryLiftSystem {
                         // turned on and will run towards the top with just speed control, no position
                         // control
                         moveToTop();
-                        state = States.TOP;
+                        liftState = LiftStates.TOP;
                         break;
                     case GO_TO_POSITION:
                         // the lift has been requested to move to a position. The motor has already
                         // been started in position control mode so we don't need to do anything
                         // with the motor. We just need to change state.
-                        state = States.IN_BETWEEN;
+                        liftState = LiftStates.IN_BETWEEN;
                         break;
                     case JOYSTICK:
                         processJoystick();
@@ -416,26 +524,26 @@ public class DeliveryLiftSystem {
                 // this state is for when the lift is located somewhere in between the top and bottom
             // and is not moving to the top or moving to the bottom or being reset
             case IN_BETWEEN:
-                switch (command) {
+                switch (liftCommand) {
                     case RESET:
                         // a reset can be requested at any time. Start the motor movement and change
                         // state
                         moveToBottom();
-                        state = States.RESET;
+                        liftState = LiftStates.RESET_MOVING_TO_BOTTOM;
                         break;
                     case GO_TO_BOTTOM:
                         // the lift has been requested to move to the bottom. The motor needs to be
                         // turned on and will run towards the bottom with just speed control, no position
                         // control
                         moveToBottom();
-                        state = States.BOTTOM;
+                        liftState = LiftStates.BOTTOM;
                         break;
                     case GO_TO_TOP:
                         // the lift has been requested to move to the top. The motor needs to be
                         // turned on and will run towards the top with just speed control, no position
                         // control
                         moveToTop();
-                        state = States.TOP;
+                        liftState = LiftStates.TOP;
                         break;
                     case GO_TO_POSITION:
                         // the lift has been requested to move to a position. The motor has already
@@ -445,7 +553,7 @@ public class DeliveryLiftSystem {
                             // the movement is finished and the motor stopped in the position, but
                             // it still has power applied to it. Stop the motor.
                             stopLift();
-                            command = Commands.NO_COMMAND;
+                            liftCommand = LiftCommands.NO_COMMAND;
                         }
 
                         // check to make sure the top limit switch has not been tripped. If it has
@@ -455,8 +563,8 @@ public class DeliveryLiftSystem {
                             // up, then Stop the motor. Clear the command.
                             if (isLiftMovementUp()) {
                                 stopLift();
-                                command = Commands.NO_COMMAND;
-                                state = States.TOP;
+                                liftCommand = LiftCommands.NO_COMMAND;
+                                liftState = LiftStates.TOP;
                             } else {
                                 // the top limit switch is pressed but the movement is supposed to be
                                 // down so do nothing. This allows downward movement.
@@ -470,8 +578,8 @@ public class DeliveryLiftSystem {
                             // down, then Stop the motor. Clear the command.
                             if (!isLiftMovementUp()) {
                                 stopLift();
-                                command = Commands.NO_COMMAND;
-                                state = States.BOTTOM;
+                                liftCommand = LiftCommands.NO_COMMAND;
+                                liftState = LiftStates.BOTTOM;
                             } else {
                                 // the bottom limit switch is pressed but the movement is supposed to be
                                 // up so do nothing. This allows upward movement.
@@ -490,19 +598,19 @@ public class DeliveryLiftSystem {
             // this state does NOT mean that the lift is at the top
             // it means that the lift is moving to the top OR is at the top
             case TOP:
-                switch (command) {
+                switch (liftCommand) {
                     case RESET:
                         // a reset can be requested at any time. Start the motor movement and change
                         // state
                         moveToBottom();
-                        state = States.RESET;
+                        liftState = LiftStates.RESET_MOVING_TO_BOTTOM;
                         break;
                     case GO_TO_BOTTOM:
                         // the lift has been requested to move to the bottom. The motor needs to be
                         // turned on and will run towards the bottom with just speed control, no position
                         // control
                         moveToBottom();
-                        state = States.BOTTOM;
+                        liftState = LiftStates.BOTTOM;
                         break;
                     case GO_TO_TOP:
                         // the lift has been sent to the top without using a position command.
@@ -510,14 +618,14 @@ public class DeliveryLiftSystem {
                         if (topLimitSwitch.isPressed()) {
                             // the limit switch has been pressed. Stop the motor. Clear the command.
                             stopLift();
-                            command = Commands.NO_COMMAND;
+                            liftCommand = LiftCommands.NO_COMMAND;
                         }
                         break;
                     case GO_TO_POSITION:
                         // the lift has been requested to move to a position. The motor has already
                         // been started in position control mode so we don't need to do anything
-                        // with the motor. We just need to change state.
-                        state = States.IN_BETWEEN;
+                        // with the motor. We just need to change liftState.
+                        liftState = LiftStates.IN_BETWEEN;
                         break;
                         // the lift power is being set with a joystick. The lift must have hit the
                     // upper limit switch to be in this state
@@ -530,11 +638,27 @@ public class DeliveryLiftSystem {
                 }
                 break;
         }
-        return state;
+        return liftState;
+    }
+
+    private void logState(LiftStates liftState,LiftCommands liftCommand) {
+        if (logFile != null && loggingOn) {
+            if(liftState != previousLiftState ||liftCommand != previousLiftCommand) {
+                logFile.logData("Delivery Lift System",liftState.toString(), liftCommand.toString());
+                previousLiftState = liftState;
+                previousLiftCommand = liftCommand;
+            }
+        }
+    }
+
+    private void logIgnoreCommand(LiftCommands liftCommand){
+        if (logFile != null && loggingOn) {
+            logFile.logData("Ignoring command = ", liftCommand.toString());
+        }
     }
 
     public boolean isLiftMovementComplete() {
-        if (command == Commands.NO_COMMAND) {
+        if (liftCommand == LiftCommands.NO_COMMAND) {
             return true;
         } else {
             return false;
@@ -548,11 +672,15 @@ public class DeliveryLiftSystem {
                 liftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                 liftMotor.setPower(joystickPower);
             } else {
-                // the lift power is negative so the driver wants it to move down. But it is already
-                // at the bottom so force the motor power to 0.
+                // the joystick power is either:
+                // negative so the driver wants it to lower. But it is already at bottom so we cannot lower more.
+                // OR the joystick power is 0.
+                // For both of these situations the motor power should be set to 0.
                 liftMotor.setPower(0);
+                // and the command should be set to NO_COMMAND to indicate that the extension arm is not moving
+                liftCommand = LiftCommands.NO_COMMAND;
             }
-            state = States.BOTTOM;
+            liftState = LiftStates.BOTTOM;
         } else {
             if (topLimitSwitch.isPressed()) {
                 // if the lift is at the top, only allow it to move down
@@ -560,11 +688,15 @@ public class DeliveryLiftSystem {
                     liftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                     liftMotor.setPower(joystickPower);
                 } else {
-                    // the lift power is positive so the driver wants it to move up. But it is already
-                    // at the top so force the motor power to 0.
+                    // the joystick power is either:
+                    // positive so the driver wants it to raise. But it is already at full height so we cannot raise more.
+                    // OR the joystick power is 0.
+                    // For both of these situations the motor power should be set to 0.
                     liftMotor.setPower(0);
+                    // and the command should be set to NO_COMMAND to indicate that the extension arm is not moving
+                    liftCommand = LiftCommands.NO_COMMAND;
                 }
-                state = States.TOP;
+                liftState = LiftStates.TOP;
             } else {
                 // both limit switches are not pressed, allow it to move either way
                 if (joystickPower != 0) {
@@ -573,20 +705,32 @@ public class DeliveryLiftSystem {
                 } else {
                     // the joystick input is 0 so set the lift power to 0
                     liftMotor.setPower(0);
+                    // this fixes a bug: without resetting the command to NO_COMMAND, the command
+                    // remains JOYSTICK. A call to isExtensionArmMovementComplete returns false even
+                    // though the arm is not moving anymore (joystick command is 0). So any other
+                    // code that checks for completion of the extension arm movement just sits and
+                    // waits for isExtensionArmMovementComplete to return true. It never will. So
+                    // we have to do this when the joystick power is 0:
+                    liftCommand = LiftCommands.NO_COMMAND;
                 }
-                state = States.IN_BETWEEN;
+                liftState = LiftStates.IN_BETWEEN;
             }
         }
     }
 
     public void displayLiftState() {
-        telemetry.addData("Lift State = ", state.toString());
+        telemetry.addData("Lift State = ", liftState.toString());
     }
 
 
     public void displayLiftCommand() {
-        telemetry.addData("Lift command = ", command.toString());
+        telemetry.addData("Lift command = ", liftCommand.toString());
     }
+
+
+    //*********************************************************************************************]
+    // tests for lift
+    //**********************************************************************************************
 
     public void testMotorModeSwitch() {
         // reset the lift

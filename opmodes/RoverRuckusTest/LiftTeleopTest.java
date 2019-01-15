@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.RoverRuckusTest;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -14,7 +15,7 @@ import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.DeliveryLiftSystem;
 import org.firstinspires.ftc.teamcode.opmodes.RoverRuckus.RoverRuckusRobot;
 
 @TeleOp(name = "Lift Teleop Test", group = "Test")
-//@Disabled
+@Disabled
 
 public class LiftTeleopTest extends LinearOpMode {
 
@@ -311,7 +312,7 @@ public class LiftTeleopTest extends LinearOpMode {
             if (gamepad2DpadUp.buttonPress(gamepad2.dpad_up)) {
                 // this was a new button press, not a button held down for a while
                 // put the command to be executed here
-                deliveryLiftSystem.hang();
+                //deliveryLiftSystem.hang();
             }
 
             if (gamepad2DpadDown.buttonPress(gamepad2.dpad_down)) {

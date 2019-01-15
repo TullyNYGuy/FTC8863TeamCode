@@ -165,8 +165,8 @@ public class CollectionTestTeleop extends LinearOpMode {
 
         // set the positions that the various systems need to be in when the robot is running
         robot.setupForRun();
-        robot.collector.setLoggingOn();
-        robot.collector.setDataLogging(dataLog);
+        robot.collector.enableDataLogging();
+        robot.collector.setDataLog(dataLog);
 
         while (opModeIsActive()) {
 

@@ -79,6 +79,11 @@ public class DriveTrain {
     private DrivingState drivingState;
     private boolean debug = false;
     private double rampDownStartOffset = 0;
+
+    private DataLogging logFile = null;
+
+    private boolean logTurns = false;
+
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -114,6 +119,18 @@ public class DriveTrain {
 
     public void setDebug(boolean debug) {
         this.debug = debug;
+    }
+
+    public void enableLogTurns() {
+        logTurns = true;
+    }
+
+    public void disableLogTurns() {
+        logTurns = false;
+    }
+
+    public void setTurnLog(DataLogging logFile) {
+        this.logFile = logFile;
     }
 
     //*********************************************************************************************
@@ -977,19 +994,30 @@ public class DriveTrain {
             // set the mode for the motors during the turn. Without this they may not move.
             rightDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             leftDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            pidControl.setSetpoint(imu.convertAngleTo360(turnAngle));
+            pidControl.setSetpoint(turnAngle);
             pidControl.setMaxCorrection(maxPower);
-            pidControl.setThreshold(.5 );
+            pidControl.setThreshold(1.0);
             //pidControl.setKp(0.025);
             //pidControl.setKi(0.0000000015);
-            pidControl.setKp(0.0125);
-            pidControl.setKi(0.00000000025);
+//            pidControl.setKp(0.0125);
+//////            pidControl.setKi(0.00000000025);
+            pidControl.setKp(0.009);
+            pidControl.setKi(0.05/1000000);
             pidControl.reset();
 
             imu.setAngleMode(angleMode);
             if (angleMode == AdafruitIMU8863.AngleMode.RELATIVE) {
-
+                if (turnAngle > 90) {
+                    imu.setAngleRange(AdafruitIMU8863.AngleRange.ZERO_TO_PLUS_360);
+                }
+                if (turnAngle < -90) {
+                    imu.setAngleRange(AdafruitIMU8863.AngleRange.ZERO_TO_MINUS_360);
+                }
                 imu.resetAngleReferences();
+            }
+            if (logTurns && logFile != null) {
+                logFile.logData("Setup for turn = " + turnAngle + " at power = " + maxPower);
+                logFile.logData("Current Heading, correction");
             }
         } else {
             shutdown();
@@ -997,11 +1025,18 @@ public class DriveTrain {
         }
     }
 
+    public void resetTurnTimer() {
+        logFile.startTimer();
+    }
+
     public boolean updateTurn() {
 
         if (imuPresent) {
-            double currentHeading = imu.convertAngleTo360(imu.getHeading());
+            double currentHeading = imu.getHeading();
             double correction = -pidControl.getCorrection(currentHeading);
+            if (logTurns && logFile != null) {
+                logFile.logData(Double.toString(currentHeading), Double.toString(correction));
+            }
             differentialDrive(0, correction);
             //return correction;
             return pidControl.isFinished();

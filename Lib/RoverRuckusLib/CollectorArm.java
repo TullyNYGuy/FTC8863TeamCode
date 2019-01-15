@@ -29,6 +29,7 @@ public class CollectorArm {
 
     private enum ExtensionArmStates {
         RESET,
+        RESET_MOVING_TO_RETRACT,
         RETRACT,
         IN_BETWEEN,
         EXTEND
@@ -63,10 +64,17 @@ public class CollectorArm {
     private double extensionArmSpeed = .7;
     private boolean debugMode = false;
 
-    private DataLogging dataLog;
-    private boolean logData = false;
+    private DataLogging logFile;
+    private boolean loggingOn = false;
 
     private double extensionArmJoystickPower = 0;
+
+    private ExtensionArmStates previousExtensionArmState;
+    private ExtensionArmCommands previousExtensionCommand;
+
+    private CollectorExtensionArmStates previousCollectorExtensionArmState;
+    private CollectorExtensionArmCommands previousCollectorExtensionArmCommand;
+
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -95,16 +103,16 @@ public class CollectorArm {
         this.extensionArmSpeed = .5;
     }
 
-    public void setDataLog(DataLogging dataLog) {
-        this.dataLog = dataLog;
+    public void setDataLog(DataLogging logFile) {
+        this.logFile = logFile;
     }
 
     public void enableDataLogging() {
-        this.logData = true;
+        this.loggingOn = true;
     }
 
     public void disableDataLogging() {
-        this.logData = false;
+        this.loggingOn = false;
     }
 
     //*********************************************************************************************
@@ -144,6 +152,12 @@ public class CollectorArm {
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
 
+    private void log(String stringToLog) {
+        if (logFile != null && loggingOn) {
+            logFile.logData(stringToLog);
+
+        }
+    }
 
     //*********************************************************************************************
     //          MAJOR METHODS
@@ -151,6 +165,7 @@ public class CollectorArm {
     // public methods that give the class its functionality
     //*********************************************************************************************
     public void init() {
+        log("Collector Arm system initializing");
         if (!isDebugMode()) {
             extensionArmReset();
             while (!isExtensionArmMovementComplete()) {
@@ -186,6 +201,10 @@ public class CollectorArm {
         telemetry.addData("arm angle ", rotationArmMotor.getPositionInTermsOfAttachment());
     }
 
+    public double getRotationArmAngle() {
+        return rotationArmMotor.getPositionInTermsOfAttachment();
+    }
+
     public void displayRotationArmCompletion(){
         telemetry.addData("Rotation Arm Motor State = ", rotationArmMotor.getCurrentMotorState().toString());
     }
@@ -206,11 +225,13 @@ public class CollectorArm {
 
 
     public void rotationArmGoToHome(){
+        log("COMMANDED ROTATION ARM TO HOME POSITION (-25)");
         rotationArmMotor.moveToPosition(0.2, homePosition, DcMotor8863.FinishBehavior.HOLD);
     }
 
     public void rotationArmGoToCollect(){
-        rotationArmMotor.moveToPosition(0.2, -120.00, DcMotor8863.FinishBehavior.HOLD);
+        log("COMMANDED ROTATION ARM TO COLLECT POSITION (-135)");
+        rotationArmMotor.moveToPosition(0.2, -135.00, DcMotor8863.FinishBehavior.HOLD);
     }
 
     public void rotationArmGoToPark() {
@@ -218,7 +239,8 @@ public class CollectorArm {
     }
 
     public void rotationArmGoToTransfer(){
-        rotationArmMotor.moveToPosition(0.2, -40, DcMotor8863.FinishBehavior.HOLD);
+        log("COMMANDED ROTATION ARM TO TRANSFER POSITION (-47)");
+        rotationArmMotor.moveToPosition(0.2, -47, DcMotor8863.FinishBehavior.HOLD);
     }
 
     public void rotationArmGoToDehang(){
@@ -229,7 +251,13 @@ public class CollectorArm {
         rotationArmMotor.moveToPosition(0.2, clearStarPosition, DcMotor8863.FinishBehavior.HOLD);
     }
 
+    public void raiseOffGround(){
+        log("COMMANDED ROTATION ARM TO RAISE OFF GROUND POSITION (-115)");
+        rotationArmMotor.moveToPosition(0.2, -115.00, DcMotor8863.FinishBehavior.HOLD);
+    }
+
     public void rotationArmFloatArm(){
+        log("COMMANDED ROTATION ARM TO FLOAT");
         rotationArmMotor.setMotorToFloat();
     }
 
@@ -243,7 +271,13 @@ public class CollectorArm {
     }
 
     public boolean isRotationArmMovementComplete() {
-        return rotationArmMotor.isMotorStateComplete();
+        if (rotationArmMotor.isMotorStateComplete()) {
+            log("ROTATION ARM ARRIVED AT DESTINATION");
+            log("Rotation arm angle = " + Double.toString(getRotationArmAngle()));
+            return true;
+        } else {
+            return false;
+        }
     }
 
     //**********************************************************************************************
@@ -292,14 +326,17 @@ public class CollectorArm {
     //**********************************************************************************************
 
     public void extensionArmReset() {
+        log("COMMANDED EXTENSION ARM TO RESET");
         command = ExtensionArmCommands.RESET;
     }
 
     public void goToRetract() {
+        log("COMMANDED EXTENSION ARM TO RETRACT POSITION");
         command = ExtensionArmCommands.GO_TO_RETRACT;
     }
 
     public void goToExtend() {
+        log("COMMANDED EXTENSION ARM TO EXTEND POSITION");
         command = ExtensionArmCommands.GO_TO_EXTEND;
     }
 
@@ -332,13 +369,17 @@ public class CollectorArm {
     }
 
     public void goToExtensionArmHome() {
+        log("COMMANDED EXTENSION ARM TO HOME POSITION");
         moveToExtensionArmPosition(0.5, 1);
     }
+
     public void goToExtensionArmTransfer() {
+        log("COMMANDED EXTENSION ARM TO TRANSFER POSITION");
         moveToExtensionArmPosition(5.5, 1);
     }
 
     public void goToExtensionArm10Inches() {
+        log("COMMANDED EXTENSION ARM TO 10 INCHES");
         moveToExtensionArmPosition(10.0, 1);
     }
 
@@ -360,6 +401,7 @@ public class CollectorArm {
     }
 
     private void stopExtensionArm() {
+        log("EXTENSION ARM ARRIVED AT DESTINATION");
         extensionArmMotor.setPower(0);
     }
 
@@ -367,15 +409,16 @@ public class CollectorArm {
      * Move to a position based on zero which is set when the extension arm is all the way down, must run
      * update rotuine in a loop after that.
      *
-     * @param heightInInches desired height above the 0 position
+     * @param extensionInInches desired height above the 0 position
      * @param extensionArmPower      max power for the motor
      */
-    public void moveToExtensionArmPosition(double heightInInches, double extensionArmPower) {
-        desiredExtensionArmPosition = heightInInches;
+    public void moveToExtensionArmPosition(double extensionInInches, double extensionArmPower) {
+        log("moving extension arm to position = " + extensionInInches);
+        desiredExtensionArmPosition = extensionInInches;
         this.extensionArmPower = extensionArmPower;
         command = ExtensionArmCommands.GO_TO_POSITION;
         extensionArmMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        extensionArmMotor.moveToPosition(extensionArmPower, heightInInches, DcMotor8863.FinishBehavior.FLOAT);
+        extensionArmMotor.moveToPosition(extensionArmPower, extensionInInches, DcMotor8863.FinishBehavior.FLOAT);
     }
 
     private boolean isExtensionArmMovementExtend() {
@@ -395,14 +438,48 @@ public class CollectorArm {
 
     public ExtensionArmStates updateExtensionArm() {
         DcMotor8863.MotorState motorState = extensionArmMotor.update();
+        logState(state, command);
+
         switch (state) {
             case RESET:
                 switch (command) {
                     case RESET:
+                        log("Resetting extension arm");
                         // send the extension arm moving down
                         moveToRetract();
-                        // a reset has been requested, wait for the extension arm to move down and the limit
-                        // switch to be pressed.
+                        state = ExtensionArmStates.RESET_MOVING_TO_RETRACT;
+                        break;
+                    // all other commands are ignored when a reset is issued. Basically force
+                    // the command back to a reset
+                    case GO_TO_RETRACT:
+                        logIgnoreCommand(ExtensionArmCommands.GO_TO_RETRACT);
+                        command = ExtensionArmCommands.RESET;
+                        break;
+                    case GO_TO_EXTEND:
+                        logIgnoreCommand(ExtensionArmCommands.GO_TO_EXTEND);
+                        command = ExtensionArmCommands.RESET;
+                        break;
+                    case GO_TO_POSITION:
+                        logIgnoreCommand(ExtensionArmCommands.GO_TO_POSITION);
+                        command = ExtensionArmCommands.RESET;
+                        break;
+                    case JOYSTICK:
+                        logIgnoreCommand(ExtensionArmCommands.JOYSTICK);
+                        command = ExtensionArmCommands.RESET;
+                        break;
+                    case NO_COMMAND:
+                        break;
+                }
+                break;
+
+            // This state means that a reset was requested and the extension arm has already started
+            // retracting. It is here so that a moveToRetract() is not repeatedly called.
+            case RESET_MOVING_TO_RETRACT:
+                switch (command) {
+                    case RESET:
+                        // the extension arm has been sent to retract from a reset command.
+                        // It is just retracting until the limit switch is pressed and the motor
+                        // is told to stop.
                         if (retractionLimitSwitch.isPressed()) {
                             // the limit switch has been pressed. Stop the motor and reset the
                             // encoder to 0. Clear the command.
@@ -415,15 +492,19 @@ public class CollectorArm {
                     // all other commands are ignored when a reset is issued. Basically force
                     // the command back to a reset
                     case GO_TO_RETRACT:
+                        logIgnoreCommand(ExtensionArmCommands.GO_TO_RETRACT);
                         command = ExtensionArmCommands.RESET;
                         break;
                     case GO_TO_EXTEND:
+                        logIgnoreCommand(ExtensionArmCommands.GO_TO_EXTEND);
                         command = ExtensionArmCommands.RESET;
                         break;
                     case GO_TO_POSITION:
+                        logIgnoreCommand(ExtensionArmCommands.GO_TO_POSITION);
                         command = ExtensionArmCommands.RESET;
                         break;
                     case JOYSTICK:
+                        logIgnoreCommand(ExtensionArmCommands.JOYSTICK);
                         command = ExtensionArmCommands.RESET;
                         break;
                     case NO_COMMAND:
@@ -431,13 +512,13 @@ public class CollectorArm {
                 }
                 break;
 
-            // this state does NOT mean that the extension arm is at retract
+                // this state does NOT mean that the extension arm is at retract
             // it means that the extension arm is moving to retract OR at retract
             case RETRACT:
                 switch (command) {
                     case RESET:
                         moveToRetract();
-                        state = ExtensionArmStates.RESET;
+                        state = ExtensionArmStates.RESET_MOVING_TO_RETRACT;
                         break;
                     case GO_TO_RETRACT:
                         // the extension arm has been sent to retract without using a position command.
@@ -478,7 +559,7 @@ public class CollectorArm {
                         // a reset can be requested at any time. Start the motor movement and change
                         // state
                         moveToRetract();
-                        state = ExtensionArmStates.RESET;
+                        state = ExtensionArmStates.RESET_MOVING_TO_RETRACT;
                         break;
                     case GO_TO_RETRACT:
                         // the extension arm has been requested to move to retract. The motor needs to be
@@ -552,7 +633,7 @@ public class CollectorArm {
                         // a reset can be requested at any time. Start the motor movement and change
                         // state
                         moveToRetract();
-                        state = ExtensionArmStates.RESET;
+                        state = ExtensionArmStates.RESET_MOVING_TO_RETRACT;
                         break;
                     case GO_TO_RETRACT:
                         // the extension arm has been requested to move to retract. The motor needs to be
@@ -590,6 +671,22 @@ public class CollectorArm {
         return state;
     }
 
+    private void logState(ExtensionArmStates state, ExtensionArmCommands command) {
+        if (logFile != null && loggingOn) {
+            if(state != previousExtensionArmState ||command != previousExtensionCommand) {
+                logFile.logData("Extension Arm",state.toString(), command.toString());
+                previousExtensionArmState = state;
+                previousExtensionCommand = command;
+            }
+        }
+    }
+
+    private void logIgnoreCommand(ExtensionArmCommands extensionArmCommand){
+        if (logFile != null && loggingOn) {
+            logFile.logData("Ignoring command = ", extensionArmCommand.toString());
+        }
+    }
+
     public boolean isExtensionArmMovementComplete() {
         if (command == ExtensionArmCommands.NO_COMMAND) {
             return true;
@@ -605,9 +702,13 @@ public class CollectorArm {
                 extensionArmMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                 extensionArmMotor.setPower(extensionArmJoystickPower);
             } else {
-                // the extension arm power is negative so the driver wants it to move down. But it is already
-                // at retract so force the motor power to 0.
+                // the extension arm power is either:
+                // negative so the driver wants it to retract. But it is already at full retraction so we cannot retract more.
+                // OR the joystick power is 0.
+                // For both of these situations the motor power should be set to 0.
                 extensionArmMotor.setPower(0);
+                // and the command should be set to NO_COMMAND to indicate that the extension arm is not moving
+                command = ExtensionArmCommands.NO_COMMAND;
             }
             state = ExtensionArmStates.RETRACT;
         } else {
@@ -617,9 +718,13 @@ public class CollectorArm {
                     extensionArmMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                     extensionArmMotor.setPower(extensionArmJoystickPower);
                 } else {
-                    // the extension arm power is positive so the driver wants it to move up. But it is already
-                    // at extend so force the motor power to 0.
+                    // the extension arm power is either:
+                    // positive so the driver wants it to extend. But it is already at full extensions so we cannot extend more.
+                    // OR the joystick power is 0.
+                    // For both of these situations the motor power should be set to 0.
                     extensionArmMotor.setPower(0);
+                    // and the command should be set to NO_COMMAND to indicate that the extension arm is not moving
+                    command = ExtensionArmCommands.NO_COMMAND;
                 }
                 state = ExtensionArmStates.EXTEND;
             } else {
@@ -630,6 +735,13 @@ public class CollectorArm {
                 } else {
                     // the joystick input is 0 so set the extension arm power to 0
                     extensionArmMotor.setPower(0);
+                    // this fixes a bug: without resetting the command to NO_COMMAND, the command
+                    // remains JOYSTICK. A call to isExtensionArmMovementComplete returns false even
+                    // though the arm is not moving anymore (joystick command is 0). So any other
+                    // code that checks for completion of the extension arm movement just sits and
+                    // waits for isExtensionArmMovementComplete to return true. It never will. So
+                    // we have to do this when the joystick power is 0:
+                    command = ExtensionArmCommands.NO_COMMAND;
                 }
                 state = ExtensionArmStates.IN_BETWEEN;
             }
@@ -694,17 +806,20 @@ public class CollectorArm {
     //**********************************************************************************************
 
     public void dropArm(){
+        log("COMMANDED TO LOWER COLLECTOR ARM");
         collectorExtensionArmCommand = CollectorExtensionArmCommands.DROP_ARM;
     }
     public void raiseArm(){
+        log("COMMANDED TO RAISE COLLECTOR ARM");
         collectorExtensionArmCommand = CollectorExtensionArmCommands.RAISE_ARM;
     }
-
     //*********************************************************************************************]
     // extension and rotation Commands
     //**********************************************************************************************
 
     public void rotationExtensionArmUpdate(){
+        logRotationExtensionState(collectorExtensionArmState, collectorExtensionArmCommand);
+
         switch (collectorExtensionArmState){
             case START:
                 switch (collectorExtensionArmCommand){
@@ -770,12 +885,23 @@ public class CollectorArm {
         }
     }
 
+    private void logRotationExtensionState(CollectorExtensionArmStates collectorExtensionArmState, CollectorExtensionArmCommands collectorExtensionArmCommand) {
+        if (logFile != null && loggingOn) {
+            if(collectorExtensionArmState != previousCollectorExtensionArmState ||collectorExtensionArmCommand != previousCollectorExtensionArmCommand) {
+                logFile.logData("Collector Arm",collectorExtensionArmState.toString(), collectorExtensionArmCommand.toString());
+                previousCollectorExtensionArmState = collectorExtensionArmState;
+                previousCollectorExtensionArmCommand = collectorExtensionArmCommand;
+            }
+        }
+    }
+
     public void displayState(){
         telemetry.addData("State = ", collectorExtensionArmState.toString());
     }
 
     public boolean isRotationExtensionComplete(){
         if (collectorExtensionArmCommand == CollectorExtensionArmCommands.EMPTY){
+            log("Collector arm movement complete");
             return true;
         }
         else return false;
