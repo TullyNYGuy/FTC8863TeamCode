@@ -337,10 +337,16 @@ public class CollectorArm {
     }
 
     public void setExtensionArmPowerUsingJoystick(double power) {
+        extensionArmJoystickPower = 0;
         // if a command has been given to reset the extension arm, then do not allow the joystick to take
         // effect and override the reset
-        extensionArmJoystickPower = 0;
-        if (command != ExtensionArmCommands.RESET) {
+        // There is some kind of bug that occurs when the extension arm is in the middle of a move to
+        // position and then a joystick command interrupts it. The motor seems to be put into a state
+        // in which it will not move in RUN_TO_POSITION MODE. So lock out any joystick commands when
+        // the extension arm is in the middle of a move to position, or any other command actually.
+        //if (command != ExtensionArmCommands.RESET) {
+        // only allow a joystick command when the there is no other command active
+        if (command == ExtensionArmCommands.NO_COMMAND)  {
             // A joystick command is only a real command if it is not 0. If the joystick value is 0
             // just ignore the stick
             if (power != 0) {
@@ -367,6 +373,13 @@ public class CollectorArm {
     public void goToExtensionArmHome() {
         log("COMMANDED EXTENSION ARM TO HOME POSITION");
         moveToExtensionArmPosition(0.5, 1);
+    }
+
+    public void goToExtensionArmCollect() {
+        log("COMMANDED EXTENSION ARM TO COLLECT POSITION");
+        // 2 inches puts the arm support in the mineral transfer path and not in the collection
+        // chamber. If it is in the collection chamber the blocks get stuck on the support.
+        moveToExtensionArmPosition(2.0, 1);
     }
 
     public void goToExtensionArmTransfer() {
@@ -824,6 +837,12 @@ public class CollectorArm {
                 switch (rotationExtensionArmCommand){
                     case DROP_ARM:
                         rotationArmGoToCollect();
+                        log("rotation arm angle = " + getRotationArmAngle());
+                        if (getRotationArmAngle() < -25) {
+                            // changing the rotation and extension to happen in parallel as long as
+                            // the arm is not sitting on its stop
+                            goToExtensionArmCollect();
+                        }
                         rotationExtensionArmState = RotationExtensionArmStates.RAISE_LOWER_ARM;
                         break;
                     case RETURN_ARM_HOME:
@@ -842,7 +861,8 @@ public class CollectorArm {
                 switch (rotationExtensionArmCommand){
                     case DROP_ARM:
                         if (isRotationArmMovementComplete()){
-                            gotoExtensionArm5Inches();
+                            // this may have already happened in parallel but that is ok, do it again
+                            goToExtensionArmCollect();
                             rotationExtensionArmState = RotationExtensionArmStates.EXTEND_RETRACT_ARM;
                             }
                         break;
