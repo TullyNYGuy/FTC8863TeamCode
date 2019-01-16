@@ -36,11 +36,16 @@ public class CollectorGB {
         MINERAL_DETECTED,
         MINERAL_COLOR_DETERMINED,
         HOLD_MINERAL,
-        STORE_MINERAL,
+        STORE_INTAKE_ON,
+        STORE_GATE_SERVO_TO_STORE,
+        STORE_STORAGE_STAR_RUNNING,
+        STORE_WAIT_FOR_GATE,
+        HALF_EJECT_POSITION,
         EJECT_MINERAL,
         DELIVER_MINERAL,
         FIX_TRANSFER_JAM,
-        COMPLETE_DELIVERY
+        COMPLETE_DELIVERY,
+        EJECT_WAIT_FOR_GATE
     }
 
     private CollectorState collectorState = CollectorState.OFF;
@@ -63,7 +68,7 @@ public class CollectorGB {
         NONE
     }
 
-    private enum CollectorMode{
+    private enum CollectorMode {
         NORMAL,
         EJECT_ONLY,
         STORE_ONLY
@@ -86,6 +91,7 @@ public class CollectorGB {
     private Servo8863 gateServo;
     private double collectionPositionGateServo = 0.6;
     private double keepPositionGateServo = 0.1;
+    private double halfEjectPositionGateServo = 0.75;
     private double ejectPositionGateServo = 1;
     private double initPositionGateServo = 0.6;
     private double resetPositionGateServo = 0.25;
@@ -127,6 +133,9 @@ public class CollectorGB {
     private int numberOfMineralsStored = 0;
 
     private ElapsedTime timer;
+    private ElapsedTime gateServoTimer;
+    private ElapsedTime storageStarTimer;
+    private ElapsedTime intakeTimer;
 
     private double red = 0;
     private double blue = 0;
@@ -153,6 +162,8 @@ public class CollectorGB {
 
     private CollectorState previousCollectorState;
     private CollectorCommand previousCollectorCommand;
+
+    private double mineralStorageTimerLimit = 1000;
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -196,11 +207,15 @@ public class CollectorGB {
 
         gateServo = new Servo8863("gateServo", hardwareMap, telemetry, collectionPositionGateServo, keepPositionGateServo, ejectPositionGateServo, initPositionGateServo, Servo.Direction.FORWARD);
         gateServo.setPositionTwo(resetPositionGateServo);
+        gateServo.setPositionThree(halfEjectPositionGateServo);
 
         sensorColor = hardwareMap.get(ColorSensor.class, "revColorSensor");
         sensorDistance = hardwareMap.get(DistanceSensor.class, "revColorSensor");
 
         timer = new ElapsedTime();
+        gateServoTimer = new ElapsedTime();
+        storageStarTimer = new ElapsedTime();
+        intakeTimer = new ElapsedTime();
 
         this.telemetry = telemetry;
         init();
@@ -257,8 +272,12 @@ public class CollectorGB {
         gateServo.goInitPosition();
     }
 
-    public void gateServoToResetPosition() { gateServo.goPositionTwo();
+    public void gateServoToResetPosition() {
+        gateServo.goPositionTwo();
+    }
 
+    public void gateServoGoToHalfEjectPosition() {
+        gateServo.goPositionThree();
     }
 
     private void turnCollectorSystemsOff() {
@@ -416,10 +435,10 @@ public class CollectorGB {
         }
     }
 
-    private void logState(CollectorState collectorState,CollectorCommand collectorCommand) {
+    private void logState(CollectorState collectorState, CollectorCommand collectorCommand) {
         if (logFile != null && loggingOn) {
-            if(collectorState != previousCollectorState ||collectorCommand != previousCollectorCommand) {
-                logFile.logData("Collector",collectorState.toString(), collectorCommand.toString());
+            if (collectorState != previousCollectorState || collectorCommand != previousCollectorCommand) {
+                logFile.logData("Collector", collectorState.toString(), collectorCommand.toString());
                 previousCollectorState = collectorState;
                 previousCollectorCommand = collectorCommand;
             }
@@ -478,12 +497,14 @@ public class CollectorGB {
 
     public void setDesiredMineralColorToGold() {
         log("COMMANDED DESIRED MINERAL = GOLD");
+        mineralStorageTimerLimit = 2000;
         //telemetry.addLine("Collecting Gold");
         desiredMineralColor = MineralColor.GOLD;
     }
 
     public void setDesiredMineralColorToSilver() {
         log("COMMANDED DESIRED MINERAL = SILVER");
+        mineralStorageTimerLimit = 1500;
         //telemetry.addLine("Collecting Silver");
         desiredMineralColor = MineralColor.SILVER;
     }
@@ -515,9 +536,10 @@ public class CollectorGB {
         collectorCommand = CollectorCommand.DELIVER_OFF;
     }
 
-    public void fixTransferJam(){
+    public void fixTransferJam() {
         log("COLLECTOR COMMANDED FIX TRANSFER JAM");
-        collectorCommand = CollectorCommand.FIX_TRANSFER_JAM;}
+        collectorCommand = CollectorCommand.FIX_TRANSFER_JAM;
+    }
 
     public void deliverMineralsComplete() {
         log("COLLECTOR DELIVER MINERALS COMPLETE");
@@ -531,7 +553,8 @@ public class CollectorGB {
 
     public void forceEjectOnly() {
         log("Collector commanded force eject only");
-        collectorMode = CollectorMode.EJECT_ONLY;}
+        collectorMode = CollectorMode.EJECT_ONLY;
+    }
 
     public void forceStoreOnly() {
         log("Collector commanded force store");
@@ -550,9 +573,8 @@ public class CollectorGB {
     public CollectorState update() {
 
         ActionToTake actionToTake = ActionToTake.NO_ACTION;
-         double mineralDeliverTimerLimit = 1500;
-         double mineralStorageTimerLimit = 2000;
-         double mineralEjectTimerLimit = 1500;
+        double mineralDeliverTimerLimit = 1500;
+        double mineralEjectTimerLimit = 1500;
 
         logState(collectorState, collectorCommand);
 
@@ -615,7 +637,7 @@ public class CollectorGB {
                         logIgnoreCommand(CollectorCommand.COMPLETE_DELIVERY);
                         collectorCommand = CollectorCommand.OFF;
                         break;
-                        // no command, do nothing
+                    // no command, do nothing
                     case NONE:
                         break;
                 }
@@ -688,7 +710,7 @@ public class CollectorGB {
                             log("Mineral Color = " + actualMineralColor.toString());
                             debug("Mineral Color = " + actualMineralColor.toString());
                         }
-                        if (actualMineralColor == MineralColor.NONE){
+                        if (actualMineralColor == MineralColor.NONE) {
                             // we really need to move it in just a little, not to the store position
                             // gateServoGoToStorePosition();
                         }
@@ -759,22 +781,29 @@ public class CollectorGB {
                                 timer.reset();
                                 break;
                             case STORE:
-                                collectorState = CollectorState.STORE_MINERAL;
+                                collectorState = CollectorState.STORE_INTAKE_ON;
                                 mineralColorSilverCounter = 0;
-                                mineralColorGoldCounter = 0;
+                                mineralColorGoldCounter = 0;;
+                                //turn on the storage star and start its timer
                                 turnStorageStarOnStore();
-                                turnIntakeOnSuckIn();
+                                storageStarTimer.reset();
+                                // turn on the intake for a short time to push the mineral back towards the storage gate
+                                // if the intakes are on then the collector can suck in another mineral so disable this
+                                // and skip to the next state
+                                //turnIntakeOnSuckIn();
+                                collectorState = CollectorState.STORE_GATE_SERVO_TO_STORE;
+                                intakeTimer.reset();
+                                // move gate servo towards back of collector and start its timer
                                 gateServoGoToStorePosition();
+                                gateServoTimer.reset();
                                 timer.reset();
                                 break;
                             case EJECT:
-                                collectorState = CollectorState.EJECT_MINERAL;
+                                collectorState = CollectorState.EJECT_WAIT_FOR_GATE;
                                 mineralColorSilverCounter = 0;
                                 mineralColorGoldCounter = 0;
                                 turnIntakeOnSuckIn();
-                                delay(500);
-                                gateServoGoToEjectPosition();
-                                timer.reset();
+                                gateServoTimer.reset();
                                 break;
                         }
 
@@ -857,7 +886,7 @@ public class CollectorGB {
                 }
                 break;
 
-            case STORE_MINERAL:
+            case STORE_INTAKE_ON:
                 switch (collectorCommand) {
                     case OFF:
                         collectorState = CollectorState.OFF;
@@ -868,15 +897,9 @@ public class CollectorGB {
                         softReset();
                         break;
                     case ON:
-                        delay(500);
-                        turnIntakeOff();
-                        if (timer.milliseconds() > mineralStorageTimerLimit - 500) {
-                            collectorState = CollectorState.NO_MINERAL;
-                            numberOfMineralsStored = 1;
-                            turnCollectorSystemsOff();
-                            delay(500);
-                            turnIntakeOnSuckIn();
-                            debug("stored");
+                        if (intakeTimer.milliseconds() > 500) {
+                            turnIntakeOff();
+                            collectorState = CollectorState.STORE_GATE_SERVO_TO_STORE;
                         }
                         break;
                     case DELIVER_ON:
@@ -905,6 +928,88 @@ public class CollectorGB {
                 }
                 break;
 
+            case STORE_GATE_SERVO_TO_STORE:
+                // send the gate servo back to the collect position while the storage star is
+                // still running. The amount subtracted from the mineralStorageTimerLimit is how
+                // much sooner the gate start to move before the storage star turns off.
+                if (gateServoTimer.milliseconds() > mineralStorageTimerLimit - 500){
+                    gateServoGoToCollectionPosition();
+                    gateServoTimer.reset();
+                    collectorState = CollectorState.STORE_STORAGE_STAR_RUNNING;
+                }
+                break;
+
+            case STORE_STORAGE_STAR_RUNNING:
+                // if the storage star has been running for its allowed time, shut it off
+                if (storageStarTimer.milliseconds() > mineralStorageTimerLimit) {
+                    numberOfMineralsStored = 1;
+                    debug("stored");
+                    turnStorageStarOff();
+                    collectorState = CollectorState.STORE_WAIT_FOR_GATE;
+                }
+                break;
+
+            case STORE_WAIT_FOR_GATE:
+                // give the gate some time to make sure it has returned to the collect position
+                if (gateServoTimer.milliseconds() > 500) {
+                    turnIntakeOnSuckIn();
+                    collectorState = CollectorState.NO_MINERAL;
+                }
+                break;
+
+            case EJECT_WAIT_FOR_GATE:
+                switch (collectorCommand) {
+                    case OFF:
+                        collectorState = CollectorState.OFF;
+                        softReset();
+                        break;
+                    case RESET:
+                        collectorState = CollectorState.OFF;
+                        softReset();
+                        break;
+                    case ON:
+                        if (gateServoTimer.milliseconds() > 500) {
+                            //gateServoGoToEjectPosition();
+                            gateServoGoToHalfEjectPosition();
+                            gateServoTimer.reset();
+                            //collectorState = CollectorState.EJECT_MINERAL;
+                            collectorState = CollectorState.HALF_EJECT_POSITION;
+                        }
+                        break;
+                    case DELIVER_ON:
+                        // this command is not relevant
+                        logIgnoreCommand(CollectorCommand.DELIVER_ON);
+                        collectorCommand = CollectorCommand.ON;
+                        break;
+                    case DELIVER_OFF:
+                        // this command is not relevant
+                        logIgnoreCommand(CollectorCommand.DELIVER_OFF);
+                        collectorCommand = CollectorCommand.ON;
+                        break;
+                    case FIX_TRANSFER_JAM:
+                        // this command is not relevant
+                        logIgnoreCommand(CollectorCommand.FIX_TRANSFER_JAM);
+                        collectorCommand = CollectorCommand.ON;
+                        break;
+                    case COMPLETE_DELIVERY:
+                        // this command is not relevant
+                        logIgnoreCommand(CollectorCommand.COMPLETE_DELIVERY);
+                        collectorCommand = CollectorCommand.ON;
+                        break;
+                    case NONE:
+                        // no command, do nothing
+                        break;
+                }
+
+            case HALF_EJECT_POSITION:
+                if (gateServoTimer.milliseconds() > 500) {
+                    //gateServoGoToEjectPosition();
+                    gateServoGoToEjectPosition();
+                    gateServoTimer.reset();
+                    collectorState = CollectorState.EJECT_MINERAL;
+                }
+                break;
+
             case EJECT_MINERAL:
                 switch (collectorCommand) {
                     case OFF:
@@ -916,7 +1021,7 @@ public class CollectorGB {
                         softReset();
                         break;
                     case ON:
-                        if (timer.milliseconds() > mineralEjectTimerLimit) {
+                        if (gateServoTimer.milliseconds() > mineralEjectTimerLimit) {
                             collectorState = CollectorState.NO_MINERAL;
                             turnCollectorSystemsOff();
                             turnIntakeOnSuckIn();
@@ -951,7 +1056,7 @@ public class CollectorGB {
                 break;
 
             case DELIVER_MINERAL:
-                switch (collectorCommand ) {
+                switch (collectorCommand) {
                     case OFF:
                         collectorState = CollectorState.OFF;
                         softReset();
@@ -969,7 +1074,7 @@ public class CollectorGB {
                         collectorCommand = CollectorCommand.DELIVER_ON;
                         break;
                     case DELIVER_ON:
-                       // delivery has already been started. So just sit in this state and wait for
+                        // delivery has already been started. So just sit in this state and wait for
                         // the driver to tell us the delivery is complete or to fix a transfer jam.
                         break;
                     case DELIVER_OFF:
@@ -999,7 +1104,7 @@ public class CollectorGB {
                 }
 
             case FIX_TRANSFER_JAM:
-                switch (collectorCommand ) {
+                switch (collectorCommand) {
                     case OFF:
                         collectorState = CollectorState.OFF;
                         softReset();
@@ -1057,12 +1162,13 @@ public class CollectorGB {
         return collectorState;
     }
 
-    private void logIgnoreCommand(CollectorCommand collectorCommand){
+    private void logIgnoreCommand(CollectorCommand collectorCommand) {
         if (logFile != null && loggingOn) {
             logFile.logData("Ignoring command = ", collectorCommand.toString());
         }
     }
-    public void displayCollectorState(){
+
+    public void displayCollectorState() {
         telemetry.addData("Collector State = ", collectorState.toString());
     }
 
@@ -1223,7 +1329,8 @@ public class CollectorGB {
         actionToTake = getActionForDetectedMineral(actualMineralColor);
         telemetry.addLine("Desired Color = " + desiredMineralColor.toString() + " Actual Color = " + actualMineralColor.toString() + " Number stored = " + numberOfMineralsStored + " Action - " + actionToTake.toString());
     }
-    public void testGateServo(){
+
+    public void testGateServo() {
         gateServoGoToInitPosition();
         delay(1000);
         gateServoGoToEjectPosition();
