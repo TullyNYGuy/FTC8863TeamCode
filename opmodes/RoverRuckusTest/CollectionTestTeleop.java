@@ -109,7 +109,7 @@ public class CollectionTestTeleop extends LinearOpMode {
         telemetry.addData("Initializing ...", "Wait for it ...");
         telemetry.update();
 
-        dataLog = new DataLogging("Teleop", telemetry);
+        dataLog = new DataLogging("Collector", telemetry);
         robot = robot.createRobotForTeleop(hardwareMap, telemetry, AllianceColor.TeamColor.RED, dataLog);
 
         // create the gamepad 1 buttons and tell each button how many commands it has
