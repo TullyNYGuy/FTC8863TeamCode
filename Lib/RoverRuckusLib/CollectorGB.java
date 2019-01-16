@@ -1102,6 +1102,7 @@ public class CollectorGB {
                         // no command, do nothing
                         break;
                 }
+                break;
 
             case FIX_TRANSFER_JAM:
                 switch (collectorCommand) {
