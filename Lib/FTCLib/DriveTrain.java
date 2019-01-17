@@ -1195,8 +1195,8 @@ public class DriveTrain {
         leftDriveMotor.shutDown();
     }
 
-   public void getEncoderCounts() {
+    public void getEncoderCounts() {
         telemetry.addData("left encoder count = ", "%d", leftDriveMotor.getCurrentPosition());
-       telemetry.addData("right encoder count = ", "%d", rightDriveMotor.getCurrentPosition());
-   }
+        telemetry.addData("right encoder count = ", "%d", rightDriveMotor.getCurrentPosition());
+    }
 }
