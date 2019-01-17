@@ -426,7 +426,7 @@ public class AutonomousMovements {
                 break;
             case SETUP_DRIVE_TO_DEPOT:
                 // setup a drive straight with power and distance (in cm)
-                distanceToDrive = -131.0;
+                distanceToDrive = -145.0;
                 robot.driveTrain.setupDriveDistance(normalDrivePower, distanceToDrive, DcMotor8863.FinishBehavior.FLOAT);
                 actionState = ActionStates.RUN_DRIVE_TO_DEPOT;
                 break;
