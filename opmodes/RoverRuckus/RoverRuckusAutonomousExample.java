@@ -17,7 +17,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.StatTracker;
 import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.AutonomousMovements;
 
-@Autonomous(name = "Rover Ruckus Autonomous Example", group = "Test")
+@Autonomous(name = "Rover Ruckus Autonomous Left", group = "Test")
 //@Disabled
 public class RoverRuckusAutonomousExample extends LinearOpMode {
 
@@ -53,7 +53,7 @@ public class RoverRuckusAutonomousExample extends LinearOpMode {
 
         while (opModeIsActive()) {
             // Put your calls that need to run in a loop here
-            autonomousMovements.FacingCraterToLeftMineralToDepotToCrater();
+            autonomousMovements.FacingCraterToLeftMineralToDepotToCraterAlternate();
             idle();
         }
     }

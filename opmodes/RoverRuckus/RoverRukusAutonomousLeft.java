@@ -16,7 +16,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.StatTracker;
 
-@Autonomous(name = "Rover Ruckus Autonomous Left", group = "Test")
+@Autonomous(name = "Rover Ruckus Autonomous Left old", group = "Test")
 //@Disabled
 public class RoverRukusAutonomousLeft extends LinearOpMode {
 
