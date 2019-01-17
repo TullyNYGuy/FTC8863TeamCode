@@ -83,6 +83,7 @@ public class DriveTrain {
     private DataLogging logFile = null;
 
     private boolean logTurns = false;
+    private boolean logDrive = false;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -127,6 +128,14 @@ public class DriveTrain {
 
     public void disableLogTurns() {
         logTurns = false;
+    }
+
+    public void enableLogDrive() {
+        logDrive = true;
+    }
+
+    public void disableLogDrive() {
+        logDrive = false;
     }
 
     public void setTurnLog(DataLogging logFile) {
@@ -369,6 +378,10 @@ public class DriveTrain {
         this.distanceToDrive = distance;
         // reset the distance traveled
         this.distanceDriven = 0;
+        if (logDrive && logFile != null) {
+            logFile.logData("Setup for drive straight = " + distance + " at power = " + power);
+            logFile.logData("Starting heading = " + imu.getHeading());
+        }
     }
 
     /**
@@ -384,6 +397,10 @@ public class DriveTrain {
         // THERE IS A BUG HERE. THE DISTANCE IS NOT RELATIVE TO THE START. IT IS CUMULATIVE. NEED TO FIX IT
         distanceDriven = (leftDriveMotor.getPositionInTermsOfAttachmentRelativeToLast() + rightDriveMotor.getPositionInTermsOfAttachmentRelativeToLast()) / 2;
         if (this.isDriveTrainComplete()) {
+            if (logDrive && logFile != null) {
+                logFile.logData("Drove distance = " + distanceDriven);
+                logFile.logData("Finish heading = " + imu.getHeading());
+            }
             return Status.COMPLETE;
         } else {
             return Status.MOVING;
@@ -1008,10 +1025,17 @@ public class DriveTrain {
             imu.setAngleMode(angleMode);
             if (angleMode == AdafruitIMU8863.AngleMode.RELATIVE) {
                 if (turnAngle > 90) {
+                    // make the angles reported from the IMU 0 to +360
                     imu.setAngleRange(AdafruitIMU8863.AngleRange.ZERO_TO_PLUS_360);
-                }
-                if (turnAngle < -90) {
-                    imu.setAngleRange(AdafruitIMU8863.AngleRange.ZERO_TO_MINUS_360);
+                } else {
+                    if (turnAngle < -90) {
+                        // make the angles reported from the IMU 0 to -360
+                        imu.setAngleRange(AdafruitIMU8863.AngleRange.ZERO_TO_MINUS_360);
+                    } else {
+                        // turn angle is between -90 and 90 so make the angles reported from the IMU
+                        // -180 to 180
+                        imu.setAngleRange(AdafruitIMU8863.AngleRange.PLUS_TO_MINUS_180);
+                    }
                 }
                 imu.resetAngleReferences();
             }
@@ -1039,6 +1063,11 @@ public class DriveTrain {
             }
             differentialDrive(0, correction);
             //return correction;
+            if(pidControl.isFinished()) {
+                if (logTurns && logFile != null) {
+                    logFile.logData("Finished turn = " + imu.getHeading() );
+                }
+            }
             return pidControl.isFinished();
         } else {
             shutdown();
