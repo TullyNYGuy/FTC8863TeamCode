@@ -118,6 +118,7 @@ public class RoverRuckusRobot {
             driveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap, telemetry);
             driveTrain.setTurnLog(logFile);
             driveTrain.enableLogTurns();
+            driveTrain.enableLogDrive();
             //allianceColorSwitch = new AllianceColorSwitch(hardwareMap, telemetry);
             //allianceColor = allianceColorSwitch.getAllianceColor();
         } else {
