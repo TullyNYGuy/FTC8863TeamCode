@@ -476,7 +476,7 @@ public class AdafruitIMU8863 {
     public double getHeading(AngleRange range) {
         double angle180ToMinus180 = getHeading();
         if (range == AngleRange.ZERO_TO_PLUS_360) {
-            return (angle180ToMinus180);
+            return convertAngleTo360(angle180ToMinus180);
         } else {
             return angle180ToMinus180;
         }
