@@ -112,64 +112,93 @@ public class TestTensorFlowObjectDetection extends LinearOpMode {
 
             while (opModeIsActive()) {
                 if (tfod != null) {
+                    // Give the left edge location of each object some bogus intial value, like -1.
+                    int goldMineralLeftEdgeLocation = -1;
+                    int silverMineral1LeftEdgeLocation = -1;
+                    int silverMineral2LeftEdgeLocation = -1;
+
                     // getUpdatedRecognitions() get the latest set of objects detected
                     // getUpdatedRecognitions() will return null if no new information is available since
                     // the last time that call was made.
                     List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
                     // make sure there are some objects recognized and ready to process
-                    if (updatedRecognitions != null) {
-                        // there are objects. Let's get to work!
-                        telemetry.addData("# Object Detected", updatedRecognitions.size());
-                        // how many objects are there?
-                        if (updatedRecognitions.size() == 3) {
-                            // there are 3 objects. We are going to get the location of the left edge
-                            // of each object in units of camera pixels. Once we have the left edge, we
-                            // can check to see which one has the edge that is farthest to the left and
-                            // which one is farthest to the right. That will tell us where the objects
-                            // are in relationship to each other. We will also figure out which of the
-                            // objects is the gold mineral. With the locations, and which one is gold,
-                            // we can figure out where the gold is located.
-                            // Give the left edge location of each object some bogus intial value, like -1.
-                            int goldMineralX = -1;
-                            int silverMineral1X = -1;
-                            int silverMineral2X = -1;
-                            // for each object, find out if it is the gold and gets its left edge location
-                            for (Recognition recognition : updatedRecognitions) {
-                                // is it the gold mineral?
-                                if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
+                    if (updatedRecognitions != null && updatedRecognitions.size() < 4) {
+                        // there are between 1 and 3 objects. Let's get to work!
+
+                        // We are going to get the location of the left edge
+                        // of each object in units of camera pixels. After we get the left edge 
+                        // values for all of the minerals, we
+                        // can check to see which one has the edge that is farthest to the left and
+                        // which one is farthest to the right. That will tell us where the objects
+                        // are in relationship to each other. We will also figure out which of the
+                        // objects is the gold mineral. With the locations, and which one is gold,
+                        // we can figure out where the gold is located.
+                        
+                        // for each object in the recognitions, see if it is gold or silver, and get
+                        // its left edge value
+                        for (Recognition recognition : updatedRecognitions) {
+                            // is it the gold mineral?
+                            if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
+                                // get its left edge location
+                                goldMineralLeftEdgeLocation = (int) recognition.getLeft();
+                                // if not then it must be one of the silvers
+                            }
+                            // is it a silver mineral?
+                            if (recognition.getLabel().equals(LABEL_SILVER_MINERAL)) {
+                                if (silverMineral1LeftEdgeLocation == -1) {
                                     // get its left edge location
-                                    goldMineralX = (int) recognition.getLeft();
-                                    // if not then it must be one of the silvers
-                                } else if (silverMineral1X == -1) {
-                                    // get its left edge location
-                                    silverMineral1X = (int) recognition.getLeft();
+                                    silverMineral1LeftEdgeLocation = (int) recognition.getLeft();
                                 } else {
-                                    // if it was not the gold or the first silver then it must be the second
-                                    // silver. Get its left edge location.
-                                    silverMineral2X = (int) recognition.getLeft();
+                                    // one silver mineral has already been seen. This is the second
+                                    // silver mineral
+                                    silverMineral2LeftEdgeLocation = (int) recognition.getLeft();
                                 }
                             }
+                        }
+                        telemetry.addData("# Object Detected", updatedRecognitions.size());
 
-                            // Now that we know which one is gold, and the left edge location of each
-                            // object, compare the locations to figure out where the gold is located
-                            // relative to the other objects: left, center, or right.
-                            // First make sure that we have a valid edge location for each mineral
-                            if (goldMineralX != -1 && silverMineral1X != -1 && silverMineral2X != -1) {
-                                // we do so now is the gold left edge location furthest to the left?
-                                // If so then the gold is in the left position.
-                                if (goldMineralX < silverMineral1X && goldMineralX < silverMineral2X) {
-                                    telemetry.addData("Gold Mineral Position", "Left");
-                                } else {
-                                    // if not then is the left edge of the gold farthest to the right?
-                                    if (goldMineralX > silverMineral1X && goldMineralX > silverMineral2X) {
-                                        telemetry.addData("Gold Mineral Position", "Right");
+                        // how many objects are there?
+                        switch (updatedRecognitions.size()) {
+                            case 1:
+                                // not sure what to do here
+                                break;
+                            case 2:
+                                // there are 2 objects. Assume the camera is looking at the left 2 mineral positions.
+                                // for each object, find out if it is the gold and gets its left edge location
+                                // psuedo code:
+                                // if neither of the minerals is gold, then the gold is the right mineral
+                                // if one of the minerals is gold, then check if the left edge of the gold 
+                                // one is less than the left edge of the silver one. If it is then the left mineral 
+                                // is gold. 
+                                // if not, then the gold is the center mineral
+                                break;
+                            case 3:
+                                // Now that we know which one is gold, and the left edge location of each
+                                // object, compare the locations to figure out where the gold is located
+                                // relative to the other objects: left, center, or right.
+                                // First make sure that we have a valid edge location for each mineral
+                                if (goldMineralLeftEdgeLocation != -1 && silverMineral1LeftEdgeLocation != -1 && silverMineral2LeftEdgeLocation != -1) {
+                                    // we do have all the left edges so now is the gold left edge location furthest to the left?
+                                    // If so then the gold is in the left position.
+                                    if (goldMineralLeftEdgeLocation < silverMineral1LeftEdgeLocation && goldMineralLeftEdgeLocation < silverMineral2LeftEdgeLocation) {
+                                        telemetry.addData("Gold Mineral Position", "Left");
                                     } else {
-                                        // since it was not the left or the right, then the gold has to be
-                                        // in the center
-                                        telemetry.addData("Gold Mineral Position", "Center");
+                                        // if not then is the left edge of the gold farthest to the right?
+                                        if (goldMineralLeftEdgeLocation > silverMineral1LeftEdgeLocation && goldMineralLeftEdgeLocation > silverMineral2LeftEdgeLocation) {
+                                            telemetry.addData("Gold Mineral Position", "Right");
+                                        } else {
+                                            // since it was not the left or the right, then the gold has to be
+                                            // in the center
+                                            telemetry.addData("Gold Mineral Position", "Center");
+                                        }
                                     }
                                 }
-                            }
+                                break;
+                                default:
+                                    // what to do if there are more than 3 objects detected?
+                                    // Maybe find the area of each object and pick the 3 largest
+                                    // objects. They are probably the ones we are trying to hit.
+                                    break;
                         }
                         telemetry.update();
                     }
