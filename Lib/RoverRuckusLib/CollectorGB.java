@@ -91,7 +91,8 @@ public class CollectorGB {
     private Servo8863 gateServo;
     private double collectionPositionGateServo = 0.6;
     private double keepPositionGateServo = 0.1;
-    private double halfEjectPositionGateServo = 0.75;
+    private double halfEjectPositionGateServoSilver = 0.7;
+    private double halfEjectPositionGateServoGold = 0.75;
     private double ejectPositionGateServo = 1;
     private double initPositionGateServo = 0.6;
     private double resetPositionGateServo = 0.25;
@@ -164,6 +165,7 @@ public class CollectorGB {
     private CollectorCommand previousCollectorCommand;
 
     private double mineralStorageTimerLimit = 1000;
+    private double preEjectDelay = 500;
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -207,7 +209,8 @@ public class CollectorGB {
 
         gateServo = new Servo8863("gateServo", hardwareMap, telemetry, collectionPositionGateServo, keepPositionGateServo, ejectPositionGateServo, initPositionGateServo, Servo.Direction.FORWARD);
         gateServo.setPositionTwo(resetPositionGateServo);
-        gateServo.setPositionThree(halfEjectPositionGateServo);
+        gateServo.setPositionThree(halfEjectPositionGateServoSilver);
+        gateServo.setPositionFour(halfEjectPositionGateServoGold);
 
         sensorColor = hardwareMap.get(ColorSensor.class, "revColorSensor");
         sensorDistance = hardwareMap.get(DistanceSensor.class, "revColorSensor");
@@ -240,8 +243,7 @@ public class CollectorGB {
     }
 
     private void turnIntakeOnEject() {
-        collectionServoLeft.setPower(-1);
-        collectionServoRight.setPower(1);
+        collectionServoLeft.setPower(-.8);
     }
 
     private void turnStorageStarOff() {
@@ -276,8 +278,11 @@ public class CollectorGB {
         gateServo.goPositionTwo();
     }
 
-    public void gateServoGoToHalfEjectPosition() {
+    public void gateServoGoToHalfEjectPositionSilver() {
         gateServo.goPositionThree();
+    }
+    public void gateServoGoToHalfEjectPositionGold() {
+        gateServo.goPositionFour();
     }
 
     private void turnCollectorSystemsOff() {
@@ -802,8 +807,15 @@ public class CollectorGB {
                                 collectorState = CollectorState.EJECT_WAIT_FOR_GATE;
                                 mineralColorSilverCounter = 0;
                                 mineralColorGoldCounter = 0;
-                                turnIntakeOnSuckIn();
+                                //changed it to run one star not both to stop from intaking during eject
+                                turnIntakeOnEject();
                                 gateServoTimer.reset();
+                                //************************** THIS IS BACKWARDS! We need to think about what color is being ejected, not kept!
+                                if (desiredMineralColor == MineralColor.GOLD){
+                                    preEjectDelay = 100;
+                                } else {
+                                    preEjectDelay = 500;
+                                }
                                 break;
                         }
 
@@ -968,9 +980,15 @@ public class CollectorGB {
                         softReset();
                         break;
                     case ON:
-                        if (gateServoTimer.milliseconds() > 500) {
+                        if (gateServoTimer.milliseconds() > preEjectDelay) {
                             //gateServoGoToEjectPosition();
-                            gateServoGoToHalfEjectPosition();
+                            //************************** THIS IS BACKWARDS! We need to think about what color is being ejected, not kept!
+                            if (desiredMineralColor == MineralColor.GOLD){
+                                gateServoGoToHalfEjectPositionGold();
+                            }
+                            else{
+                                gateServoGoToHalfEjectPositionSilver();
+                            }
                             gateServoTimer.reset();
                             //collectorState = CollectorState.EJECT_MINERAL;
                             collectorState = CollectorState.HALF_EJECT_POSITION;
