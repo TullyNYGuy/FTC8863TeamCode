@@ -430,12 +430,13 @@ public class DriveTrain {
      *                    +180. Note that if you input 180 it will have problems navigating due to the
      *                    sign change at the 180 boundary. If you really need to do that then there will
      *                    have to be some code written to control the range on the IMU.
+     * @param distance    when the movement hits this distance, the update will return true
      * @param maxPower    the max power to apply to the motors. This really corresponds to speed.
      *                    Positive is forwards. Negative is backwards.
      * @param headingType RAW, ABSOLUTE or RELATIVE. See AngleMode for desscription.
      */
     // THIS METHOD HAS A BUG. IT DOES NOT DRIVE BACKWARDS PROPERLY. NEED TO FIX IT
-    public void setupDriveUsingIMU(double heading, double maxPower, AdafruitIMU8863.AngleMode headingType) {
+    public void setupDriveUsingIMU(double heading, double distance, double maxPower, AdafruitIMU8863.AngleMode headingType) {
 
         if (imuPresent) {
             // set the mode for the motors during the turn. Without this they may not move.
@@ -443,7 +444,9 @@ public class DriveTrain {
             leftDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             pidControl.setSetpoint(heading);
             pidControl.setMaxCorrection(maxPower);
-            pidControl.setThreshold(6);
+            // threshold is not meaningful in this movement. It is normally used to say when the
+            // movement is complete but since this movement goes forever, threshold does nothing.
+            pidControl.setThreshold(10);
             pidControl.setKp(0.03);
             driveTrainPower = maxPower;
 
@@ -469,6 +472,9 @@ public class DriveTrain {
                 // driving backwards
                 driveDirection = DriveDirection.REVERSE;
             }
+
+            // set the distance target
+            this.distanceToDrive = distance;
         } else {
             shutdown();
             throw new IllegalArgumentException("No Imu found");
@@ -479,9 +485,10 @@ public class DriveTrain {
      * You must call this method in a loop after you call setupDriveDistance() in order to get the
      * movement to work properly.
      *
-     * @return distance driven
+     * @return true if the distance traveled is greater than the distance desired (ie the distance
+     *         to drive set in the setup.
      */
-    public double updateDriveUsingIMU() {
+    public boolean updateDriveUsingIMU() {
         if (imuPresent) {
             double currentHeading = imu.getHeading();
             // I have to reverse the sign since the differential drive method expects a negative
@@ -495,7 +502,11 @@ public class DriveTrain {
             differentialDrive(driveTrainPower, correction);
             // THERE IS A BUG HERE. THE DISTANCE BEING REPORTED IS CUMULATIVE NOT RELATIVE TO THE START OF THE MOVEMENT
             distanceDriven = (leftDriveMotor.getPositionInTermsOfAttachmentRelativeToLast() + rightDriveMotor.getPositionInTermsOfAttachmentRelativeToLast()) / 2;
-            return distanceDriven;
+            if (distanceDriven > distanceToDrive) {
+                return true;
+            } else {
+                return false;
+            }
         } else {
             shutdown();
             throw new IllegalArgumentException("No Imu found");
