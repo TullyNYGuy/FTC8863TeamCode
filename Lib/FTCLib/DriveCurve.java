@@ -12,7 +12,7 @@ public class DriveCurve {
     //
     //*********************************************************************************************
 
-    public enum Direction{
+    public enum Direction {
         CCW,
         CW
     }
@@ -71,7 +71,7 @@ public class DriveCurve {
 
     private double rightWheelSpeed;
 
-    public double getRightWheelSpeed(){
+    public double getRightWheelSpeed() {
         return rightWheelSpeed;
     }
 
@@ -151,7 +151,7 @@ public class DriveCurve {
 
         curveState = CurveState.NOT_STARTED;
 
-        getWheelSpeeds();
+        calculateWheelSpeeds();
     }
 
 
@@ -161,17 +161,28 @@ public class DriveCurve {
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
 
-    private void getWheelSpeeds() {
-        switch (curveDirection) {
-            case CW:
-                leftWheelSpeed = 1;
-                rightWheelSpeed = 1;
-                break;
-            case CCW:
-                leftWheelSpeed = 1;
-                rightWheelSpeed = 1;
-                break;
+    private void calculateWheelSpeeds() {
+        if (radius == 0) {
+            leftWheelSpeed = speed;
+            rightWheelSpeed = speed;
+        } else {
+            // these are for forward movement
+            switch (curveDirection) {
+                case CW:
+                    // outside wheel is the left
+                    leftWheelSpeed = speed * (1 + wheelBase / (2 * radius));
+                    // inside wheel is the right
+                    rightWheelSpeed = speed * (1 - wheelBase / (2 * radius));
+                    break;
+                case CCW:
+                    // inside wheel is the left
+                    leftWheelSpeed = speed * (1 - wheelBase / (2 * radius));
+                    // outside wheel is the right
+                    rightWheelSpeed = speed * (1 + wheelBase / (2 * radius));
+                    break;
+            }
         }
+
     }
 
     //*********************************************************************************************
@@ -180,13 +191,15 @@ public class DriveCurve {
     // public methods that give the class its functionality
     //*********************************************************************************************
 
-    public CurveState update() {
+    public boolean update() {
+        boolean returnValue = false;
         double currentHeading;
         // The first time this update() is run, the curve will be started and the robot will be
         // turning
         switch (curveState) {
             case NOT_STARTED:
                 curveState = CurveState.TURNING;
+                returnValue = false;
                 break;
             case TURNING:
                 currentHeading = imu.getHeading();
@@ -195,10 +208,12 @@ public class DriveCurve {
                     // curve is complete
                     curveState = CurveState.COMPLETE;
                 }
+                returnValue = false;
                 break;
             case COMPLETE:
+                returnValue = true;
                 break;
         }
-        return curveState;
+        return returnValue;
     }
 }
