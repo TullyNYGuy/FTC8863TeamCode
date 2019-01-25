@@ -51,7 +51,7 @@ import java.util.List;
  * IMPORTANT: In order to use this OpMode, you need to obtain your own Vuforia license key as
  * is explained below.
  */
-@TeleOp(name = "Concept: TensorFlow Object Detection", group = "Concept")
+@TeleOp(name = "Concept: TensorFlow Object Detection Dub", group = "Concept")
 //@Disabled
 public class TestTensorFlowObjectDetection extends LinearOpMode {
     private static final String TFOD_MODEL_ASSET = "RoverRuckus.tflite";
@@ -171,6 +171,18 @@ public class TestTensorFlowObjectDetection extends LinearOpMode {
                                 // one is less than the left edge of the silver one. If it is then the left mineral 
                                 // is gold. 
                                 // if not, then the gold is the center mineral
+                                if(goldMineralLeftEdgeLocation == -1 && silverMineral2LeftEdgeLocation >= 0){
+                                telemetry.addData("Gold Mineral Position", "Right");
+                            }
+                                if(silverMineral2LeftEdgeLocation == -1){
+                                    if(goldMineralLeftEdgeLocation < silverMineral1LeftEdgeLocation){
+                                        telemetry.addData("Gold Mineral Position", "Left");
+                                    }
+                                    else{
+                                        telemetry.addData("Gold Mineral Position", "Center");
+                                    }
+                                }
+
                                 break;
                             case 3:
                                 // Now that we know which one is gold, and the left edge location of each
