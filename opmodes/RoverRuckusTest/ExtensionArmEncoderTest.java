@@ -4,26 +4,27 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.CollectorArm;
 import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.DeliveryLiftSystem;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Lift Encoder Test", group = "Test")
+@TeleOp(name = "Extension Arm Encoder Test", group = "Test")
 //@Disabled
-public class LiftEncoderTest extends LinearOpMode {
+public class ExtensionArmEncoderTest extends LinearOpMode {
 
     // Put your variable declarations here
-    public DeliveryLiftSystem deliveryLiftSystem;
+    public CollectorArm collectorArm;
 
     @Override
     public void runOpMode() {
 
 
         // Put your initializations here
-        deliveryLiftSystem = new DeliveryLiftSystem(hardwareMap, telemetry);
-        deliveryLiftSystem.enableDebugMode();
-        deliveryLiftSystem.init();
+        collectorArm = new CollectorArm(hardwareMap, telemetry);
+        collectorArm.enableDebugMode();
+        collectorArm.init();
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
         telemetry.update();
@@ -33,11 +34,11 @@ public class LiftEncoderTest extends LinearOpMode {
 
         while (opModeIsActive()) {
 
-            //            //            // Put your calls that need to run in a loop here
+            // Put your calls that need to run in a loop here
 
             // Display the current value
-           deliveryLiftSystem.displayLiftMotorEncoder();
-           deliveryLiftSystem.testLiftLimitSwitches();
+            collectorArm.displayExtensionMotorEncoder();
+            collectorArm.testExtensionArmLimitSwitches();
             telemetry.addData(">", "Press Stop to end test.");
 
             telemetry.update();
@@ -51,3 +52,4 @@ public class LiftEncoderTest extends LinearOpMode {
 
     }
 }
+

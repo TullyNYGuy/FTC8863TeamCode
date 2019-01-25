@@ -4,18 +4,17 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
-import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.DeliveryLiftSystem;
+import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.CollectorArm;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "AAA Lift Demo", group = "Test")
+@TeleOp(name = "AAA Extension Arm Demo", group = "Test")
 //@Disabled
-public class LiftDemo extends LinearOpMode {
+public class ExtensionArmDemo extends LinearOpMode {
 
     // Put your variable declarations here
-    public DeliveryLiftSystem deliveryLiftSystem;
+    public CollectorArm collectorArm;
     public ElapsedTime timer;
 
     @Override
@@ -25,8 +24,8 @@ public class LiftDemo extends LinearOpMode {
         // Put your initializations here
         timer = new ElapsedTime();
 
-        deliveryLiftSystem = new DeliveryLiftSystem(hardwareMap, telemetry);
-        deliveryLiftSystem.init();
+        collectorArm = new CollectorArm(hardwareMap, telemetry);
+        collectorArm.init();
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
@@ -34,20 +33,20 @@ public class LiftDemo extends LinearOpMode {
         waitForStart();
 
         timer.reset();
-        deliveryLiftSystem.goTo9Inches();
+        collectorArm.goToExtensionArm10Inches();
 
         // when the lift reaches its position, the loop will stop running and the next set of code
         // will run
-        while (opModeIsActive() && !deliveryLiftSystem.isLiftMovementComplete()) {
+        while (opModeIsActive() && !collectorArm.isExtensionArmMovementComplete()) {
 
             // Put your calls that need to run in a loop here
-            deliveryLiftSystem.update();
+            collectorArm.update();
 
             // Display the current value
-            telemetry.addLine("move to 9 inches");
-            deliveryLiftSystem.displayLiftMotorEncoder();
-            deliveryLiftSystem.displayLiftPosition();
-            deliveryLiftSystem.displayLiftState();
+            telemetry.addLine("move to 10 inches");
+            collectorArm.displayExtensionMotorEncoder();
+            collectorArm.displayExtensionArmPosition();
+            collectorArm.displayExtensionArmState();
             telemetry.addData(">", "Press Stop to end test.");
 
             telemetry.update();
@@ -57,29 +56,29 @@ public class LiftDemo extends LinearOpMode {
 
         // Display the current value
         telemetry.addLine("Done");
-        deliveryLiftSystem.displayLiftMotorEncoder();
-        deliveryLiftSystem.displayLiftPosition();
-        deliveryLiftSystem.displayLiftState();
-        telemetry.addData("Time to move 9 inches (mS) = ", timer.milliseconds());
+        collectorArm.displayExtensionMotorEncoder();
+        collectorArm.displayExtensionArmPosition();
+        collectorArm.displayExtensionArmState();
+        telemetry.addData("Time to move 10 inches (mS) = ", timer.milliseconds());
         telemetry.addData(">", "Press Stop to end test.");
         telemetry.update();
         sleep(1000);
 
         timer.reset();
-        deliveryLiftSystem.goToHome();
+        collectorArm.goToExtensionArmHome();
 
         // when the lift reaches its position, the loop will stop running and the next set of code
         // will run
-        while (opModeIsActive() && !deliveryLiftSystem.isLiftMovementComplete()) {
+        while (opModeIsActive() && !collectorArm.isExtensionArmMovementComplete()) {
 
             // Put your calls that need to run in a loop here
-            deliveryLiftSystem.update();
+            collectorArm.update();
 
             // Display the current value
             telemetry.addLine("move to home");
-            deliveryLiftSystem.displayLiftMotorEncoder();
-            deliveryLiftSystem.displayLiftPosition();
-            deliveryLiftSystem.displayLiftState();
+            collectorArm.displayExtensionMotorEncoder();
+            collectorArm.displayExtensionArmPosition();
+            collectorArm.displayExtensionArmState();
             telemetry.addData(">", "Press Stop to end test.");
 
             telemetry.update();
@@ -89,10 +88,10 @@ public class LiftDemo extends LinearOpMode {
 
         // Display the current value
         telemetry.addLine("Done");
-        deliveryLiftSystem.displayLiftMotorEncoder();
-        deliveryLiftSystem.displayLiftPosition();
-        deliveryLiftSystem.displayLiftState();
-        telemetry.addData("Time to move 9 inches (mS) = ", timer.milliseconds());
+        collectorArm.displayExtensionMotorEncoder();
+        collectorArm.displayExtensionArmPosition();
+        collectorArm.displayExtensionArmState();
+        telemetry.addData("Time to move 9.5 inches (mS) = ", timer.milliseconds());
         telemetry.update();
         sleep(4000);
 

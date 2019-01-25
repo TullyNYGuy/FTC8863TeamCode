@@ -67,7 +67,7 @@ public class MeasureAngles extends LinearOpMode {
         telemetry.addData(">", "Press Start to run");
         telemetry.update();
         waitForStart();
-        imu.setAngleMode(AdafruitIMU8863.AngleMode.ABSOLUTE);
+        imu.setAngleMode(AdafruitIMU8863.AngleMode.RELATIVE);
 
 
         // Start the logging of measured acceleration
@@ -126,7 +126,7 @@ public class MeasureAngles extends LinearOpMode {
 //                }
 
                 // Put your calls that need to run in a loop here
-                heading = convertAngleTo360(imu.getHeading());
+                heading = imu.getHeading();
                 pitch = imu.getPitch();
                 roll = imu.getRoll();
 

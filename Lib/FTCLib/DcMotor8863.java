@@ -18,7 +18,13 @@ public class DcMotor8863 {
      * Defines the type of motor.
      */
     public enum MotorType {
-        NXT, ANDYMARK_20, ANDYMARK_40, ANDYMARK_60, TETRIX, ANDYMARK_20_ORBITAL, ANDYMARK_3_7_ORBITAL
+        NXT, ANDYMARK_20,
+        ANDYMARK_40,
+        ANDYMARK_60,
+        TETRIX,
+        ANDYMARK_20_ORBITAL,
+        ANDYMARK_3_7_ORBITAL,
+        ANDYMARK_3_7_ORBITAL_OLD
     }
 
     /**
@@ -275,6 +281,9 @@ public class DcMotor8863 {
             case ANDYMARK_3_7_ORBITAL:
                 this.countsPerRev = 103;
                 break;
+            case ANDYMARK_3_7_ORBITAL_OLD:
+                this.countsPerRev = 44;
+                break;
             default:
                 this.countsPerRev = 0;
                 break;
@@ -507,7 +516,12 @@ public class DcMotor8863 {
         setStallDetectionTolerance(5);
         setStallTimeLimit(0);
         // reset the encoder and force the motor to be stopped
-        this.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        // 1/15/2019 since the setMode in this class will only set the mode when it changes, to
+        // set an initial value, I am skipping the setMode in this class and sending it straight
+        // to the motor controller
+        //this.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        FTCDcMotor.setMode((DcMotor.RunMode.STOP_AND_RESET_ENCODER));
+        currentRunMode = DcMotor.RunMode.STOP_AND_RESET_ENCODER;
         this.setPower(0);
     }
 
@@ -1526,7 +1540,20 @@ public class DcMotor8863 {
         if (mode == DcMotor.RunMode.STOP_AND_RESET_ENCODER) {
             this.setMotorState(MotorState.IDLE);
         }
-        FTCDcMotor.setMode(mode);
+        // There appears to be a bug that the motor controller gets confused when sending it mode
+        // changes over and over quickly. So this code will detect a change and only send the change.
+        // 1/15/2019
+        if (mode != currentRunMode) {
+            FTCDcMotor.setMode(mode);
+        }
+        // I suspect there is a timing bug and that sometimes the setMode to the motor controller
+        // does not work. So make an attempt to verify it did and if not resent the command once.
+        // This may not work since it looks like they cache the mode anyway and I don't have a way
+        // of directly reading the controller.
+        // 1/15/2019
+        if (FTCDcMotor.getMode() != mode) {
+            FTCDcMotor.setMode(mode);
+        }
         // Save the mode locally so that I don't have to make a call to the controller later and
         // take up bus bandwidth to get the value. I can just look at this variable locally.
         this.currentRunMode = mode;

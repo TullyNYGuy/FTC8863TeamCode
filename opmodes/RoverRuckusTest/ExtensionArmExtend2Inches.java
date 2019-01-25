@@ -3,43 +3,46 @@ package org.firstinspires.ftc.teamcode.opmodes.RoverRuckusTest;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.DeliveryLiftSystem;
+import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.CollectorArm;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Delivery Arm Test", group = "Test")
+@TeleOp(name = "Extension Arm Extend 2 Inches", group = "Test")
 //@Disabled
-public class DeliveryArmTest extends LinearOpMode {
+public class ExtensionArmExtend2Inches extends LinearOpMode {
 
     // Put your variable declarations here
-    public DeliveryLiftSystem deliveryLiftSystem;
+    public CollectorArm collectorArm;
 
     @Override
     public void runOpMode() {
 
 
         // Put your initializations here
-        deliveryLiftSystem = new DeliveryLiftSystem(hardwareMap, telemetry);
-        deliveryLiftSystem.init();
+        collectorArm = new CollectorArm(hardwareMap, telemetry);
+        collectorArm.enableDebugMode();
+        collectorArm.init();
+
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
         telemetry.update();
         waitForStart();
 
         // Put your calls here - they will not run in a loop
-        deliveryLiftSystem.deliveryBoxToDump();
-        sleep(1000);
-        deliveryLiftSystem.deliveryBoxToTransfer();
-        sleep(1000);
-        deliveryLiftSystem.deliveryBoxToHome();
-        while (opModeIsActive()) {
+        // reduces the power applied to the motor
+        collectorArm.enableDebugMode();
+        collectorArm.moveExtensionArmTwoInchesOut();
+
+        while (opModeIsActive() && !collectorArm.isExtensionArmMovementComplete()) {
 
             // Put your calls that need to run in a loop here
+            collectorArm.update();
 
             // Display the current value
-            //telemetry.addData("Motor Speed = ", "%5.2f", powerToRunAt);
-            //telemetry.addData("Encoder Count=", "%5d", motor.getCurrentPosition());
+            collectorArm.displayExtensionMotorEncoder();
+            collectorArm.displayExtensionArmPosition();
+            collectorArm.displayExtensionArmState();
             telemetry.addData(">", "Press Stop to end test.");
 
             telemetry.update();
@@ -49,7 +52,11 @@ public class DeliveryArmTest extends LinearOpMode {
 
         // Put your cleanup code here - it runs as the application shuts down
         telemetry.addData(">", "Done");
+        collectorArm.displayExtensionMotorEncoder();
+        collectorArm.displayExtensionArmPosition();
+        collectorArm.displayExtensionArmState();
         telemetry.update();
+        sleep(2000);
 
     }
 }

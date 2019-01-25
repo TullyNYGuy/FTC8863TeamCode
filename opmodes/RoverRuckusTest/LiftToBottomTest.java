@@ -9,9 +9,9 @@ import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.DeliveryLiftSystem;
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Lift Encoder Test", group = "Test")
-//@Disabled
-public class LiftEncoderTest extends LinearOpMode {
+@TeleOp(name = "Lift To Bottom Test", group = "Test")
+@Disabled
+public class LiftToBottomTest extends LinearOpMode {
 
     // Put your variable declarations here
     public DeliveryLiftSystem deliveryLiftSystem;
@@ -22,22 +22,28 @@ public class LiftEncoderTest extends LinearOpMode {
 
         // Put your initializations here
         deliveryLiftSystem = new DeliveryLiftSystem(hardwareMap, telemetry);
-        deliveryLiftSystem.enableDebugMode();
         deliveryLiftSystem.init();
+        deliveryLiftSystem.enableDebugMode();
+
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
         telemetry.update();
         waitForStart();
 
         // Put your calls here - they will not run in a loop
+        deliveryLiftSystem.goToBottom();
 
-        while (opModeIsActive()) {
+        // when the lift reaches its position, the loop will stop running and the next set of code
+        // will run
+        while (opModeIsActive() && !deliveryLiftSystem.isLiftMovementComplete()) {
 
-            //            //            // Put your calls that need to run in a loop here
+            // Put your calls that need to run in a loop here
+            deliveryLiftSystem.update();
 
             // Display the current value
-           deliveryLiftSystem.displayLiftMotorEncoder();
-           deliveryLiftSystem.testLiftLimitSwitches();
+            deliveryLiftSystem.displayLiftMotorEncoder();
+            deliveryLiftSystem.displayLiftPosition();
+            deliveryLiftSystem.displayLiftState();
             telemetry.addData(">", "Press Stop to end test.");
 
             telemetry.update();
@@ -45,9 +51,13 @@ public class LiftEncoderTest extends LinearOpMode {
             idle();
         }
 
-        // Put your cleanup code here - it runs as the application shuts down
-        telemetry.addData(">", "Done");
+        // after the lift reaches its position, the loop stops and this code runs
+        telemetry.addData(">", "Lift located at bottom");
+        deliveryLiftSystem.displayLiftMotorEncoder();
+        deliveryLiftSystem.displayLiftPosition();
+        deliveryLiftSystem.displayLiftState();
         telemetry.update();
-
+        // give the user time to read the driver station
+        sleep(4000);
     }
 }

@@ -1,15 +1,10 @@
 package org.firstinspires.ftc.teamcode.opmodes.RoverRuckus;
 
-import android.text.LoginFilter;
-
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
@@ -21,11 +16,9 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.StatTracker;
 
-import java.nio.ReadOnlyBufferException;
-
-@Autonomous(name = "Rover Ruckus Autonomous", group = "Test")
+@Autonomous(name = "Rover Ruckus Autonomous Old", group = "Test")
 //@Disabled
-public class RoverRuckusAutonomous extends LinearOpMode {
+public class RoverRukusAutonomousOld extends LinearOpMode {
 
     // Put your variable declarations here
     AdafruitIMU8863 imu;
@@ -103,11 +96,11 @@ public class RoverRuckusAutonomous extends LinearOpMode {
         }
 
 
-        facingCraterLeftMineral();
+        //facingCraterLeftMineral();
         //facingCraterMiddleMineral();
         //facingCraterRightMineral();
-        //driveToDepotDumpThenCrater();
-        //driveToCraterFromLander();
+        driveToDepotDumpThenCrater();
+        driveToCraterFromLander();
 
         logFile.logData("headingWhileHanging " + Double.toString(headingWhileHanging));
         logFile.logData("headingOnGround " + Double.toString(headingOnGround));
@@ -290,8 +283,8 @@ public class RoverRuckusAutonomous extends LinearOpMode {
         logFile.logData("headingSecondStraight " + Double.toString( robot.driveTrain.imu.getHeading()));
 
         // turn toward crater
-        headingForTurn = -122.6;
-        turnByDegrees(headingForTurn, .7);
+        headingForTurn = -118.6;
+        turnByDegrees(headingForTurn-compensatedHeading, .7);
         logFile.logData("headingThirdTurn " + Double.toString( robot.driveTrain.imu.getHeading()));
 
         // drive to depot backwards

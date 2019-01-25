@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.opmodes.RoverRuckusTest;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -12,9 +11,9 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
  *
  *
  */
-@TeleOp(name = "Collector Arm Encoder Test", group = "Test")
+@TeleOp(name = "Rotation Arm Speed Test", group = "Test")
 //@Disabled
-public class CollectorArmEncoderTest extends LinearOpMode {
+public class RotationArmControlSpeedTest extends LinearOpMode {
 
     // Put your variable declarations here
     public DcMotor8863 collectorArmRotationMotor;
@@ -25,12 +24,13 @@ public class CollectorArmEncoderTest extends LinearOpMode {
 
         // Put your initializations here
         //collectorArmRotationMotor = hardwareMap.get(DcMotor.class,"collectorArmRotatorMotor");
-        collectorArmRotationMotor = new DcMotor8863("collectorArmRotationMotor", hardwareMap, telemetry);
+        collectorArmRotationMotor = new DcMotor8863("collectorArmRotatorMotor", hardwareMap, telemetry);
         collectorArmRotationMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
         collectorArmRotationMotor.setMovementPerRev(360 * 48/128);
         collectorArmRotationMotor.setMotorToHold();
 
         collectorArmRotationMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        collectorArmRotationMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         
         // Wait for the start button
@@ -39,6 +39,7 @@ public class CollectorArmEncoderTest extends LinearOpMode {
         waitForStart();
 
         // Put your calls here - they will not run in a loop
+        collectorArmRotationMotor.setPower(.1);
 
         while(opModeIsActive()) {
 

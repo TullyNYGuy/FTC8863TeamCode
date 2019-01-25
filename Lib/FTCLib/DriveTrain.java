@@ -79,6 +79,12 @@ public class DriveTrain {
     private DrivingState drivingState;
     private boolean debug = false;
     private double rampDownStartOffset = 0;
+
+    private DataLogging logFile = null;
+
+    private boolean logTurns = false;
+    private boolean logDrive = false;
+
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -114,6 +120,26 @@ public class DriveTrain {
 
     public void setDebug(boolean debug) {
         this.debug = debug;
+    }
+
+    public void enableLogTurns() {
+        logTurns = true;
+    }
+
+    public void disableLogTurns() {
+        logTurns = false;
+    }
+
+    public void enableLogDrive() {
+        logDrive = true;
+    }
+
+    public void disableLogDrive() {
+        logDrive = false;
+    }
+
+    public void setTurnLog(DataLogging logFile) {
+        this.logFile = logFile;
     }
 
     //*********************************************************************************************
@@ -352,6 +378,10 @@ public class DriveTrain {
         this.distanceToDrive = distance;
         // reset the distance traveled
         this.distanceDriven = 0;
+        if (logDrive && logFile != null) {
+            logFile.logData("Setup for drive straight = " + distance + " at power = " + power);
+            logFile.logData("Starting heading = " + imu.getHeading());
+        }
     }
 
     /**
@@ -367,6 +397,10 @@ public class DriveTrain {
         // THERE IS A BUG HERE. THE DISTANCE IS NOT RELATIVE TO THE START. IT IS CUMULATIVE. NEED TO FIX IT
         distanceDriven = (leftDriveMotor.getPositionInTermsOfAttachmentRelativeToLast() + rightDriveMotor.getPositionInTermsOfAttachmentRelativeToLast()) / 2;
         if (this.isDriveTrainComplete()) {
+            if (logDrive && logFile != null) {
+                logFile.logData("Drove distance = " + distanceDriven);
+                logFile.logData("Finish heading = " + imu.getHeading());
+            }
             return Status.COMPLETE;
         } else {
             return Status.MOVING;
@@ -396,12 +430,13 @@ public class DriveTrain {
      *                    +180. Note that if you input 180 it will have problems navigating due to the
      *                    sign change at the 180 boundary. If you really need to do that then there will
      *                    have to be some code written to control the range on the IMU.
+     * @param distance    when the movement hits this distance, the update will return true
      * @param maxPower    the max power to apply to the motors. This really corresponds to speed.
      *                    Positive is forwards. Negative is backwards.
      * @param headingType RAW, ABSOLUTE or RELATIVE. See AngleMode for desscription.
      */
     // THIS METHOD HAS A BUG. IT DOES NOT DRIVE BACKWARDS PROPERLY. NEED TO FIX IT
-    public void setupDriveUsingIMU(double heading, double maxPower, AdafruitIMU8863.AngleMode headingType) {
+    public void setupDriveUsingIMU(double heading, double distance, double maxPower, AdafruitIMU8863.AngleMode headingType) {
 
         if (imuPresent) {
             // set the mode for the motors during the turn. Without this they may not move.
@@ -409,7 +444,9 @@ public class DriveTrain {
             leftDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             pidControl.setSetpoint(heading);
             pidControl.setMaxCorrection(maxPower);
-            pidControl.setThreshold(6);
+            // threshold is not meaningful in this movement. It is normally used to say when the
+            // movement is complete but since this movement goes forever, threshold does nothing.
+            pidControl.setThreshold(10);
             pidControl.setKp(0.03);
             driveTrainPower = maxPower;
 
@@ -435,6 +472,9 @@ public class DriveTrain {
                 // driving backwards
                 driveDirection = DriveDirection.REVERSE;
             }
+
+            // set the distance target
+            this.distanceToDrive = distance;
         } else {
             shutdown();
             throw new IllegalArgumentException("No Imu found");
@@ -445,9 +485,10 @@ public class DriveTrain {
      * You must call this method in a loop after you call setupDriveDistance() in order to get the
      * movement to work properly.
      *
-     * @return distance driven
+     * @return true if the distance traveled is greater than the distance desired (ie the distance
+     *         to drive set in the setup.
      */
-    public double updateDriveUsingIMU() {
+    public boolean updateDriveUsingIMU() {
         if (imuPresent) {
             double currentHeading = imu.getHeading();
             // I have to reverse the sign since the differential drive method expects a negative
@@ -461,7 +502,11 @@ public class DriveTrain {
             differentialDrive(driveTrainPower, correction);
             // THERE IS A BUG HERE. THE DISTANCE BEING REPORTED IS CUMULATIVE NOT RELATIVE TO THE START OF THE MOVEMENT
             distanceDriven = (leftDriveMotor.getPositionInTermsOfAttachmentRelativeToLast() + rightDriveMotor.getPositionInTermsOfAttachmentRelativeToLast()) / 2;
-            return distanceDriven;
+            if (distanceDriven > distanceToDrive) {
+                return true;
+            } else {
+                return false;
+            }
         } else {
             shutdown();
             throw new IllegalArgumentException("No Imu found");
@@ -977,19 +1022,37 @@ public class DriveTrain {
             // set the mode for the motors during the turn. Without this they may not move.
             rightDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             leftDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            pidControl.setSetpoint(imu.convertAngleTo360(turnAngle));
+            pidControl.setSetpoint(turnAngle);
             pidControl.setMaxCorrection(maxPower);
-            pidControl.setThreshold(.5 );
+            pidControl.setThreshold(1.0);
             //pidControl.setKp(0.025);
             //pidControl.setKi(0.0000000015);
-            pidControl.setKp(0.0125);
-            pidControl.setKi(0.00000000025);
+//            pidControl.setKp(0.0125);
+//////            pidControl.setKi(0.00000000025);
+            pidControl.setKp(0.009);
+            pidControl.setKi(0.05/1000000);
             pidControl.reset();
 
             imu.setAngleMode(angleMode);
             if (angleMode == AdafruitIMU8863.AngleMode.RELATIVE) {
-
+                if (turnAngle > 90) {
+                    // make the angles reported from the IMU 0 to +360
+                    imu.setAngleRange(AdafruitIMU8863.AngleRange.ZERO_TO_PLUS_360);
+                } else {
+                    if (turnAngle < -90) {
+                        // make the angles reported from the IMU 0 to -360
+                        imu.setAngleRange(AdafruitIMU8863.AngleRange.ZERO_TO_MINUS_360);
+                    } else {
+                        // turn angle is between -90 and 90 so make the angles reported from the IMU
+                        // -180 to 180
+                        imu.setAngleRange(AdafruitIMU8863.AngleRange.PLUS_TO_MINUS_180);
+                    }
+                }
                 imu.resetAngleReferences();
+            }
+            if (logTurns && logFile != null) {
+                logFile.logData("Setup for turn = " + turnAngle + " at power = " + maxPower);
+                logFile.logData("Current Heading, correction");
             }
         } else {
             shutdown();
@@ -997,13 +1060,25 @@ public class DriveTrain {
         }
     }
 
+    public void resetTurnTimer() {
+        logFile.startTimer();
+    }
+
     public boolean updateTurn() {
 
         if (imuPresent) {
-            double currentHeading = imu.convertAngleTo360(imu.getHeading());
+            double currentHeading = imu.getHeading();
             double correction = -pidControl.getCorrection(currentHeading);
+            if (logTurns && logFile != null) {
+                logFile.logData(Double.toString(currentHeading), Double.toString(correction));
+            }
             differentialDrive(0, correction);
             //return correction;
+            if(pidControl.isFinished()) {
+                if (logTurns && logFile != null) {
+                    logFile.logData("Finished turn = " + imu.getHeading() );
+                }
+            }
             return pidControl.isFinished();
         } else {
             shutdown();
@@ -1160,8 +1235,8 @@ public class DriveTrain {
         leftDriveMotor.shutDown();
     }
 
-   public void getEncoderCounts() {
+    public void getEncoderCounts() {
         telemetry.addData("left encoder count = ", "%d", leftDriveMotor.getCurrentPosition());
-       telemetry.addData("right encoder count = ", "%d", rightDriveMotor.getCurrentPosition());
-   }
+        telemetry.addData("right encoder count = ", "%d", rightDriveMotor.getCurrentPosition());
+    }
 }

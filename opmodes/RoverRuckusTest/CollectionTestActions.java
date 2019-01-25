@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.opmodes.RoverRuckusTest;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -12,9 +11,9 @@ import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.CollectorGB;
  *
  *
  */
-@TeleOp(name = "AAA Collection Demo", group = "Test")
+@TeleOp(name = "Collection Test Actions", group = "Test")
 //@Disabled
-public class CollectionTestGB extends LinearOpMode {
+public class CollectionTestActions extends LinearOpMode {
 
     // Put your variable declarations here
     public CollectorGB collector;
@@ -28,9 +27,9 @@ public class CollectionTestGB extends LinearOpMode {
         // Put your initializations here
         logfile = new DataLogging("collectorTest", telemetry);
         collector = new CollectorGB(hardwareMap, telemetry);
-        collector.initialize();
-        collector.setDataLogging(logfile);
-        collector.setLoggingOn();
+        collector.init();
+        collector.setDataLog(logfile);
+        collector.enableDataLogging();
         collector.setDebugOn();
         collector.setDesiredMineralColorToGold();
         
@@ -40,18 +39,18 @@ public class CollectionTestGB extends LinearOpMode {
         waitForStart();
 
         // Put your calls here - they will not run in a loop
-        //collector.testSetup();
-        //collector.testMovements(telemetry);
+        collector.testSetup();
+        collector.testMovements(telemetry);
 
         collector.turnCollectorOn();
 
         while(opModeIsActive()) {
 
             // Put your calls that need to run in a loop here
-            //collector.testMineralDetection(telemetry);
-            //collector.testReadColorSensor(telemetry);
-            //collector.testMineralColorDetection(telemetry);
-            //testActions();
+            collector.testMineralDetection(telemetry);
+            collector.testReadColorSensor(telemetry);
+            collector.testMineralColorDetection(telemetry);
+            testActions();
 
             collectorState = collector.update();
 

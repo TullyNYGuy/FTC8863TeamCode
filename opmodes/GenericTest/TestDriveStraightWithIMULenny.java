@@ -1,49 +1,54 @@
-package org.firstinspires.ftc.teamcode.opmodes.RoverRuckusTest;
+package org.firstinspires.ftc.teamcode.opmodes.GenericTest;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
-import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.DeliveryLiftSystem;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Lift Height Test", group = "Test")
+@TeleOp(name = "Test Driving Straight With an IMU", group = "Test")
 //@Disabled
-public class LiftHeightTest extends LinearOpMode {
+public class TestDriveStraightWithIMULenny extends LinearOpMode {
 
     // Put your variable declarations here
-    public DeliveryLiftSystem deliveryLiftSystem;
+    public DriveTrain driveTrain;
+    public DataLogging logFile;
 
     @Override
     public void runOpMode() {
 
 
         // Put your initializations here
-        deliveryLiftSystem = new DeliveryLiftSystem(hardwareMap, telemetry);
-        deliveryLiftSystem.init();
+        driveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap, telemetry);
+        logFile = new DataLogging("Test_Driving_Straight_Without_An_IMU", telemetry);
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
         telemetry.update();
         waitForStart();
 
         // Put your calls here - they will not run in a loop
-        //deliveryLiftSystem.moveToPosition(5);
-        deliveryLiftSystem.dehang();
-        while (opModeIsActive()&& deliveryLiftSystem.update()!= DcMotor8863.MotorState.COMPLETE_FLOAT) {
+        driveTrain.setupDriveUsingIMU(0, 182.88, 0.2, AdafruitIMU8863.AngleMode.RELATIVE);
+        driveTrain.imu.resetAngleReferences();
+
+        while (opModeIsActive()&& !driveTrain.updateDriveUsingIMU()) {
+
+            logFile.logData(Double.toString(driveTrain.imu.getHeading()), Double.toString(driveTrain.getDistanceDriven()));
 
             // Put your calls that need to run in a loop here
 
             // Display the current value
-            telemetry.addData("lift height = ",deliveryLiftSystem.getLiftPosition());
             telemetry.addData(">", "Press Stop to end test.");
-
             telemetry.update();
 
             idle();
         }
-
+        logFile.closeDataLog();
+        driveTrain.stopDriveUsingIMU();
         // Put your cleanup code here - it runs as the application shuts down
         telemetry.addData(">", "Done");
         telemetry.update();
