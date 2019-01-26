@@ -67,7 +67,7 @@ public class MeasureAngles extends LinearOpMode {
         telemetry.addData(">", "Press Start to run");
         telemetry.update();
         waitForStart();
-        imu.setAngleMode(AdafruitIMU8863.AngleMode.RELATIVE);
+        imu.setAngleMode(AdafruitIMU8863.AngleMode.ABSOLUTE);
 
 
         // Start the logging of measured acceleration
