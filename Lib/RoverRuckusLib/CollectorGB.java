@@ -810,8 +810,7 @@ public class CollectorGB {
                                 //changed it to run one star not both to stop from intaking during eject
                                 turnIntakeOnEject();
                                 gateServoTimer.reset();
-                                //************************** THIS IS BACKWARDS! We need to think about what color is being ejected, not kept!
-                                if (desiredMineralColor == MineralColor.GOLD){
+                                if (desiredMineralColor == MineralColor.SILVER){
                                     preEjectDelay = 100;
                                 } else {
                                     preEjectDelay = 500;
@@ -984,10 +983,10 @@ public class CollectorGB {
                             //gateServoGoToEjectPosition();
                             //************************** THIS IS BACKWARDS! We need to think about what color is being ejected, not kept!
                             if (desiredMineralColor == MineralColor.GOLD){
-                                gateServoGoToHalfEjectPositionGold();
+                                gateServoGoToHalfEjectPositionSilver();
                             }
                             else{
-                                gateServoGoToHalfEjectPositionSilver();
+                                gateServoGoToHalfEjectPositionGold();
                             }
                             gateServoTimer.reset();
                             //collectorState = CollectorState.EJECT_MINERAL;
