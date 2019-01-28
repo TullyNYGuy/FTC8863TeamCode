@@ -31,7 +31,8 @@ public class CollectionDemo extends LinearOpMode {
         collector.setDataLog(logfile);
         collector.enableDataLogging();
         collector.setDebugOn();
-        collector.setDesiredMineralColorToSilver();
+        collector.setDesiredMineralColorToGold();
+        collector.forceStoreOnly();
         
         // Wait for the start button
         telemetry.addData(">", "Press Start to run" );
