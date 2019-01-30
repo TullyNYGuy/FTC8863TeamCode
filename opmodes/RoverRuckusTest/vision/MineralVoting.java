@@ -12,12 +12,18 @@ public class MineralVoting {
     //
     //*********************************************************************************************
 
+    /**
+     * Specifies the position of a detected mineral
+     */
     public enum MineralPosition {
         LEFT,
         CENTER,
         RIGHT,
     }
 
+    /**
+     * Specifies the most likely position of the gold mineral after the voting has taken place.
+     */
     public enum LikelyPosition {
         LEFT,
         CENTER,
@@ -27,6 +33,7 @@ public class MineralVoting {
         CENTER_RIGHT,
         TIE
     }
+
     public enum MineralType {
         GOLD,
         SILVER
@@ -80,6 +87,15 @@ public class MineralVoting {
     // public methods that give the class its functionality
     //*********************************************************************************************
 
+    /**
+     * Once a set of objects has been detected and the location determined for that snapshot, this
+     * method should be called for each object detected. The method will process those detections into
+     * a vote. The votes from different detection snapshots are added up to determine the most likely
+     * location for the gold mineral. This a way of dealing with data that is is not always reliable
+     * for each snapshot, but over many passes is reliable.
+     * @param mineralType
+     * @param mineralPosition
+     */
     public void addMineralVote(MineralType mineralType, MineralPosition mineralPosition) {
         numberVotes ++;
         switch(mineralPosition) {
@@ -107,6 +123,12 @@ public class MineralVoting {
         }
     }
 
+    /**
+     * Using the votes cast by many detections, determine the most likely location of the gold
+     * mineral. In the case of a tie, there are special returns that indicate a tie occurred. It is
+     * up to the calling code to break the tie.
+     * @return
+     */
     public LikelyPosition getMostLikelyGoldPosition() {
         LikelyPosition mostLikelyMineralPosition = LikelyPosition.TIE;
 
