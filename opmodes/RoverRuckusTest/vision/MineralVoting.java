@@ -93,6 +93,16 @@ public class MineralVoting {
      * a vote. The votes from different detection snapshots are added up to determine the most likely
      * location for the gold mineral. This a way of dealing with data that is is not always reliable
      * for each snapshot, but over many passes is reliable.
+     * A gold mineral in a position adds one vote for that position. A silver mineral in a position
+     * subtracts one vote for that position. In a perfect scenario, a gold mineral will always be
+     * detected in the same position and will add a vote for that position every time. But things
+     * go wrong in the object detection so this method is a way to average out the detection information
+     * across multiple detections passes and finding the most likely location of the gold mineral.
+     * Example:
+     * pass 1 - gold left, silver center, silver right = +1, -1, -1
+     * pass 2 - gold left, nothing center, silver right = +2, -1, -2
+     * pass 3 - silver left, gold center, nothing right = +1, 0, -2
+     * After 3 passes, most likely location = gold on left
      * @param mineralType
      * @param mineralPosition
      */
