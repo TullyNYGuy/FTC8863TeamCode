@@ -447,7 +447,7 @@ public class DriveTrain {
             // threshold is not meaningful in this movement. It is normally used to say when the
             // movement is complete but since this movement goes forever, threshold does nothing.
             pidControl.setThreshold(10);
-            pidControl.setKp(0.03);
+            pidControl.setKp(0.017);
             driveTrainPower = maxPower;
 
             switch (headingType) {
