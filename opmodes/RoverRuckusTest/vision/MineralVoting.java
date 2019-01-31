@@ -1,6 +1,9 @@
 package org.firstinspires.ftc.teamcode.opmodes.RoverRuckusTest.vision;
 
 
+import android.provider.ContactsContract;
+
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.CollectorGB;
 
 public class MineralVoting {
@@ -51,6 +54,7 @@ public class MineralVoting {
     private int centerPositionCount = 0;
     private int rightPositionCount = 0;
     private int numberVotes = 0;
+    private DataLogging dataLogging;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -63,6 +67,18 @@ public class MineralVoting {
         return numberVotes;
     }
 
+    public int getLeftPositionCount() {
+        return leftPositionCount;
+    }
+
+    public int getCenterPositionCount() {
+        return centerPositionCount;
+    }
+
+    public int getRightPositionCount() {
+        return rightPositionCount;
+    }
+
     //*********************************************************************************************
     //          Constructors
     //
@@ -70,8 +86,8 @@ public class MineralVoting {
     // from it
     //*********************************************************************************************
 
-    public MineralVoting() {
-
+    public MineralVoting(DataLogging dataLogging) {
+        this.dataLogging = dataLogging;
     }
 
     //*********************************************************************************************
@@ -108,6 +124,7 @@ public class MineralVoting {
      */
     public void addMineralVote(MineralType mineralType, MineralPosition mineralPosition) {
         numberVotes ++;
+        dataLogging.logData("mineral type = " + mineralType.toString() + " mineral position " + mineralPosition.toString());
         switch(mineralPosition) {
             case LEFT:
                 if (mineralType == MineralType.GOLD) {
@@ -118,16 +135,16 @@ public class MineralVoting {
                 break;
             case CENTER:
                 if (mineralType == MineralType.GOLD) {
-                    leftPositionCount ++;
+                    centerPositionCount ++;
                 } else {
-                    leftPositionCount --;
+                    centerPositionCount --;
                 }
                 break;
             case RIGHT:
                 if (mineralType == MineralType.GOLD) {
-                    leftPositionCount ++;
+                    rightPositionCount ++;
                 } else {
-                    leftPositionCount --;
+                    rightPositionCount --;
                 }
                 break;
         }
