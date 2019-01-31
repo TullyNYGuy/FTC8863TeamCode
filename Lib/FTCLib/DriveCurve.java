@@ -137,6 +137,7 @@ public class DriveCurve {
     public DriveCurve(double curveAngle, double speed, double radius, double wheelBase, AdafruitIMU8863 imu) {
         this.logFile = null;
         enableLogging = false;
+        init(curveAngle, speed, radius, wheelBase, imu);
     }
 
     private void init(double curveAngle, double speed, double radius, double wheelBase, AdafruitIMU8863 imu) {
@@ -170,15 +171,15 @@ public class DriveCurve {
             switch (curveDirection) {
                 case CW:
                     // outside wheel is the left
-                    leftWheelSpeed = speed * (1 + wheelBase / (2 * radius));
+                    leftWheelSpeed = speed *( 1 + wheelBase / 2 * radius);
                     // inside wheel is the right
-                    rightWheelSpeed = speed * (1 - wheelBase / (2 * radius));
+                    rightWheelSpeed = speed *( 1 - wheelBase / 2 * radius);
                     break;
                 case CCW:
                     // inside wheel is the left
-                    leftWheelSpeed = speed * (1 - wheelBase / (2 * radius));
+                    leftWheelSpeed = speed *(1 - wheelBase / 2 * radius);
                     // outside wheel is the right
-                    rightWheelSpeed = speed * (1 + wheelBase / (2 * radius));
+                    rightWheelSpeed = speed *(1 + wheelBase / 2 * radius);
                     break;
             }
         }
