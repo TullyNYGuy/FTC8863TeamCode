@@ -143,7 +143,7 @@ public class TestTensorFlowObjectDetectionSnapshot extends LinearOpMode {
                     if (updatedRecognitions != null) {
                         mattIsDumb.logData("  ");
                         mattIsDumb.logData("# of Objects Detected: " + updatedRecognitions.size());
-                        loopCount++;
+                        //loopCount++;
                         mineralVoting.updateRecognitionCount();
                         // there are between 1 and 3 objects. Let's get to work!
 
