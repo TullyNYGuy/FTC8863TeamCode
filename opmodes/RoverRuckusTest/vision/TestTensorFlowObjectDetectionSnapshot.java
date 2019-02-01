@@ -86,6 +86,8 @@ public class TestTensorFlowObjectDetectionSnapshot extends LinearOpMode {
     private float silverMineral2ConfidenceLevel;
     private int loopCount = 0;
 
+    private List<Recognition> updatedRecognitionsFiltered;
+
 
     /**
      * {@link #tfod} is the variable we will use to store our instance of the Tensor Flow Object
@@ -139,10 +141,11 @@ public class TestTensorFlowObjectDetectionSnapshot extends LinearOpMode {
                     // getUpdatedRecognitions() will return null if no new information is available since
                     // the last time that call was made.
                     updatedRecognitions = tfod.getUpdatedRecognitions();
+                    updatedRecognitionsFiltered = mineralVoting.filterMasterList(updatedRecognitions);
                     // make sure there are some objects recognized and ready to process
-                    if (updatedRecognitions != null) {
+                    if (updatedRecognitionsFiltered != null) {
                         mattIsDumb.logData("  ");
-                        mattIsDumb.logData("# of Objects Detected: " + updatedRecognitions.size());
+                        mattIsDumb.logData("# of Objects Detected: " + updatedRecognitionsFiltered.size());
                         //loopCount++;
                         mineralVoting.updateRecognitionCount();
                         // there are between 1 and 3 objects. Let's get to work!
@@ -158,7 +161,7 @@ public class TestTensorFlowObjectDetectionSnapshot extends LinearOpMode {
 
                         // for each object in the recognitions, see if it is gold or silver, and get
                         // its left edge value
-                        for (Recognition recognition : updatedRecognitions) {
+                        for (Recognition recognition : updatedRecognitionsFiltered) {
                             //determine if mineral is in left right or center area
                             mineralAngle = recognition.estimateAngleToObject(AngleUnit.DEGREES);
                             if (mineralAngle <= -10) {
@@ -179,10 +182,10 @@ public class TestTensorFlowObjectDetectionSnapshot extends LinearOpMode {
                             }
                         }
 
-                        if (updatedRecognitions != null) {
-                            mattIsDumb.logData("Found objects on pass = " + loopCount + ". Object count = " + updatedRecognitions.size());
-                            telemetry.addData("Number of objects detected = ", updatedRecognitions.size());
-                            for (Recognition recognition : updatedRecognitions) {
+                        if (updatedRecognitionsFiltered != null) {
+                            mattIsDumb.logData("Found objects on pass = " + loopCount + ". Object count = " + updatedRecognitionsFiltered.size());
+                            telemetry.addData("Number of objects detected = ", updatedRecognitionsFiltered.size());
+                            for (Recognition recognition : updatedRecognitionsFiltered) {
                                 mattIsDumb.logData(recognition.toString());
                                 mattIsDumb.logData("Angle to object = " + recognition.estimateAngleToObject(AngleUnit.DEGREES));
                             }
@@ -190,7 +193,7 @@ public class TestTensorFlowObjectDetectionSnapshot extends LinearOpMode {
                             telemetry.update();
                         }
 
-                        telemetry.addData("# Object Detected", updatedRecognitions.size());
+                        telemetry.addData("# Object Detected", updatedRecognitionsFiltered.size());
                         telemetry.update();
                     }
                 }

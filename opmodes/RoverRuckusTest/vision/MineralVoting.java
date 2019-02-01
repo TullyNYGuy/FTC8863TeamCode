@@ -3,8 +3,11 @@ package org.firstinspires.ftc.teamcode.opmodes.RoverRuckusTest.vision;
 
 import android.provider.ContactsContract;
 
+import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.CollectorGB;
+
+import java.util.List;
 
 public class MineralVoting {
 
@@ -57,6 +60,9 @@ public class MineralVoting {
     private DataLogging dataLogging;
     private boolean dataLoggingOn = true;
     private int recognitionCount = 0;
+
+    private List<Recognition> updatedRecognitionsMaster = null;
+    private List<Recognition> updatedRecognitionsFiltered = null;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -130,6 +136,15 @@ public class MineralVoting {
         recognitionCount++;
     }
 
+    public List<Recognition> filterMasterList(List<Recognition> updatedRecognitionsMaster){
+        int cutoffPointBottom = 250;
+        for (Recognition recognition : updatedRecognitionsMaster){
+            if (recognition.getBottom() > cutoffPointBottom){
+                updatedRecognitionsFiltered.add(recognition);
+            }
+        }
+        return updatedRecognitionsFiltered;
+    }
     /**
      * Once a set of objects has been detected and the location determined for that snapshot, this
      * method should be called for each object detected. The method will process those detections into
