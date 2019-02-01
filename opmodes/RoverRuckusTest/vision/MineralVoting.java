@@ -55,6 +55,8 @@ public class MineralVoting {
     private int rightPositionCount = 0;
     private int numberVotes = 0;
     private DataLogging dataLogging;
+    private boolean dataLoggingOn = true;
+    private int recognitionCount = 0;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -79,6 +81,22 @@ public class MineralVoting {
         return rightPositionCount;
     }
 
+    public boolean isDataLoggingOn() {
+        return dataLoggingOn;
+    }
+
+    public void enableDataLogging() {
+        if (dataLogging != null) {
+            this.dataLoggingOn = true;
+        } else {
+            this.dataLoggingOn = false;
+        }
+    }
+
+    public void disableDataLogging() {
+        this.dataLoggingOn = false;
+    }
+
     //*********************************************************************************************
     //          Constructors
     //
@@ -88,6 +106,7 @@ public class MineralVoting {
 
     public MineralVoting(DataLogging dataLogging) {
         this.dataLogging = dataLogging;
+        enableDataLogging();
     }
 
     //*********************************************************************************************
@@ -102,6 +121,14 @@ public class MineralVoting {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
+
+    /**
+     * adds one to recognition count every time that we call this method.
+     */
+
+    public void updateRecognitionCount(){
+        recognitionCount++;
+    }
 
     /**
      * Once a set of objects has been detected and the location determined for that snapshot, this
@@ -124,7 +151,10 @@ public class MineralVoting {
      */
     public void addMineralVote(MineralType mineralType, MineralPosition mineralPosition) {
         numberVotes ++;
-        dataLogging.logData("mineral type = " + mineralType.toString() + " mineral position " + mineralPosition.toString());
+        if(dataLoggingOn = true){
+            dataLogging.logData("mineral type = " + mineralType.toString() + " mineral position " + mineralPosition.toString());
+            dataLogging.logData("Mineral Type and Position = ", mineralType.toString() + " " + mineralPosition.toString());
+        }
         switch(mineralPosition) {
             case LEFT:
                 if (mineralType == MineralType.GOLD) {
@@ -180,6 +210,11 @@ public class MineralVoting {
         if (centerPositionCount == rightPositionCount && centerPositionCount > leftPositionCount) {
             mostLikelyMineralPosition = LikelyPosition.CENTER_RIGHT;
         }
+        dataLogging.logData("Voting Results = ", mostLikelyMineralPosition.toString());
+        dataLogging.logData("Right votes", Integer.toString(getRightPositionCount()));
+        dataLogging.logData("Center votes", Integer.toString(getCenterPositionCount()));
+        dataLogging.logData("Left votes", Integer.toString(getLeftPositionCount()));
+        dataLogging.logData("Number of Recognitions",Integer.toString(recognitionCount));
         return mostLikelyMineralPosition;
     }
 }

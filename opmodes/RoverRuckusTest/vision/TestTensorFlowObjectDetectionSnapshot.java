@@ -125,8 +125,7 @@ public class TestTensorFlowObjectDetectionSnapshot extends LinearOpMode {
             List<Recognition> updatedRecognitions = null;
 
             while (opModeIsActive()) {
-                loopCount++;
-                mattIsDumb.logData("Loop Count: " + loopCount);
+                //mattIsDumb.logData("Loop Count: " + loopCount);
                 if (tfod != null) {
                     // Give the left edge location of each object some bogus intial value, like -1.
                     double goldMineralLeftEdgeLocation = -1;
@@ -142,6 +141,10 @@ public class TestTensorFlowObjectDetectionSnapshot extends LinearOpMode {
                     updatedRecognitions = tfod.getUpdatedRecognitions();
                     // make sure there are some objects recognized and ready to process
                     if (updatedRecognitions != null) {
+                        mattIsDumb.logData("  ");
+                        mattIsDumb.logData("# of Objects Detected: " + updatedRecognitions.size());
+                        loopCount++;
+                        mineralVoting.updateRecognitionCount();
                         // there are between 1 and 3 objects. Let's get to work!
 
                         // We are going to get the location of the left edge
@@ -164,26 +167,30 @@ public class TestTensorFlowObjectDetectionSnapshot extends LinearOpMode {
                             if (mineralAngle >= 10) {
                                 mineralPosition = MineralVoting.MineralPosition.RIGHT;
                             }
-                            if (mineralPosition != MineralVoting.MineralPosition.RIGHT && mineralPosition != MineralVoting.MineralPosition.LEFT) {
+                            if (mineralAngle < 10 && mineralAngle > -10) {
                                 mineralPosition = MineralVoting.MineralPosition.CENTER;
                             }
-                            telemetry.addData("Gold Mineral Position", mineralPosition.toString());
-                            mattIsDumb.logData("Gold Mineral Position:" + mineralPosition, toString());
                             if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
                                 mineralVoting.addMineralVote(MineralVoting.MineralType.GOLD, mineralPosition);
+                                telemetry.addData("Gold Mineral Position", mineralPosition.toString());
                             } else {
                                 mineralVoting.addMineralVote(MineralVoting.MineralType.SILVER, mineralPosition);
+                                telemetry.addData("Silver Mineral Position", mineralPosition.toString());
                             }
                         }
 
+                        if (updatedRecognitions != null) {
+                            mattIsDumb.logData("Found objects on pass = " + loopCount + ". Object count = " + updatedRecognitions.size());
+                            telemetry.addData("Number of objects detected = ", updatedRecognitions.size());
+                            for (Recognition recognition : updatedRecognitions) {
+                                mattIsDumb.logData(recognition.toString());
+                                mattIsDumb.logData("Angle to object = " + recognition.estimateAngleToObject(AngleUnit.DEGREES));
+                            }
+
+                            telemetry.update();
+                        }
+
                         telemetry.addData("# Object Detected", updatedRecognitions.size());
-                        mattIsDumb.logData("# of Objects Detected: " + updatedRecognitions.size());
-                        mattIsDumb.logData("Gold Mineral Left Edge = " + goldMineralLeftEdgeLocation);
-                        mattIsDumb.logData("Silver Mineral 1 Left Edge = " + silverMineral1LeftEdgeLocation);
-                        mattIsDumb.logData("Silver Mineral 2 Left Edge = " + silverMineral2LeftEdgeLocation);
-                        mattIsDumb.logData("Gold Mineral Confidence Level: " + goldMineralConfidenceLevel);
-                        mattIsDumb.logData("Silver Mineral 1 Confidence Level: " + silverMineral1ConfidenceLevel);
-                        mattIsDumb.logData("Silver Mineral 2 Confidence Level: " + silverMineral2ConfidenceLevel);
                         telemetry.update();
                     }
                 }
@@ -199,6 +206,7 @@ public class TestTensorFlowObjectDetectionSnapshot extends LinearOpMode {
         telemetry.addData("Right Results", mineralVoting.getRightPositionCount());
         telemetry.addData("Left Results", mineralVoting.getLeftPositionCount());
         telemetry.addData("Center Results", mineralVoting.getCenterPositionCount());
+        telemetry.update();
 
         sleep(20000);
 
