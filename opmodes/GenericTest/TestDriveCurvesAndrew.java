@@ -34,7 +34,7 @@ public class TestDriveCurvesAndrew extends LinearOpMode {
         // Put your initializations here
         driveCurve = new DriveCurve(45, .3, 100, 45.72, imu, logfile);
         driveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap, telemetry);
-        logfile = new DataLogging( "Test Drive Curve Andrew", telemetry);
+        logfile = new DataLogging( "Test Drive Curve", telemetry);
                 // Wait for the start button
         telemetry.addData(">", "Press Start to run" );
         telemetry.update();
@@ -42,9 +42,10 @@ public class TestDriveCurvesAndrew extends LinearOpMode {
 
         // Put your calls here - they will not run in a loop
         // can i please have wheel speeds but only once
-        while(opModeIsActive()) {
+        while(opModeIsActive() && !driveCurve.update()) {
 
             // Put your calls that need to run in a loop here
+
 
             // Display the current value
             //telemetry.addData("Motor Speed = ", "%5.2f", powerToRunAt);

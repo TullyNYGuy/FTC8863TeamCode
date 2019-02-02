@@ -300,6 +300,21 @@ public class DriveTrain {
         }
     }
 
+    public void resetDistanceDriven() {
+        distanceDriven = calculateDistanceDriven();
+    }
+
+    public double calculateDistanceDriven() {
+        return (leftDriveMotor.getPositionInTermsOfAttachment() + rightDriveMotor.getPositionInTermsOfAttachment()) / 2;
+    }
+
+    public double getDistanceDrivenSinceLast() {
+        double currentDistanceDriven = calculateDistanceDriven();
+        double distanceDrivenSinceLast = currentDistanceDriven - distanceDriven;
+        distanceDriven = currentDistanceDriven;
+        return distanceDrivenSinceLast;
+    }
+
     //*********************************************************************************************
     // Autonomous Methods - driving a heading or a straight line
     //*********************************************************************************************
