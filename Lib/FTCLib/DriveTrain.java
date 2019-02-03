@@ -142,7 +142,7 @@ public class DriveTrain {
         logDrive = false;
     }
 
-    public void setTurnLog(DataLogging logFile) {
+    public void setLogFile(DataLogging logFile) {
         this.logFile = logFile;
     }
 

@@ -116,7 +116,7 @@ public class RoverRuckusRobot {
         if (robotMode == RobotMode.AUTONOMOUS) {
             // create the robot for autonomous
             driveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap, telemetry);
-            driveTrain.setTurnLog(logFile);
+            driveTrain.setLogFile(logFile);
             driveTrain.enableLogTurns();
             driveTrain.enableLogDrive();
             //allianceColorSwitch = new AllianceColorSwitch(hardwareMap, telemetry);
