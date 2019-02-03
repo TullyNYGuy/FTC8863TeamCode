@@ -218,12 +218,14 @@ public class DriveCurve {
                 if (Math.abs(currentHeading) > Math.abs(curveAngle) - curveThreshold && Math.abs(currentHeading) < Math.abs(curveAngle) + curveThreshold) {
                     // curve is complete
                     if (logFile != null && enableLogging) {
+                        driveTrain.updateDriveDistance();
                         logFile.logData("final heading = " + Double.toString(currentHeading) + " distance driven = ", Double.toString(driveTrain.getDistanceDriven()));
                         logFile.logData("average rate of turn = " + Double.toString(currentHeading/driveTrain.getDistanceDriven()));
                     }
                     curveState = CurveState.COMPLETE;
                 }
                 if (logFile != null && enableLogging) {
+                    driveTrain.updateDriveDistance();
                     logFile.logData(Double.toString(currentHeading), Double.toString(driveTrain.getDistanceDriven()), Double.toString(getRateOfTurn()));
                 }
                 returnValue = false;
