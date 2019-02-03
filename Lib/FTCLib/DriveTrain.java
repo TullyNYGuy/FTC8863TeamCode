@@ -67,6 +67,7 @@ public class DriveTrain {
     private double driveTrainPower;
     private double distanceToDrive;
     private double distanceDriven;
+    private double totalDistanceDriven;
     private double distanceRemaining;
     private double lastDistanceDriven;
 
@@ -116,6 +117,10 @@ public class DriveTrain {
 
     public DriveDirection getDriveDirection() {
         return driveDirection;
+    }
+
+    public double getTotalDistanceDriven() {
+        return totalDistanceDriven;
     }
 
     public boolean isDebug() {
@@ -430,6 +435,9 @@ public class DriveTrain {
         leftDriveMotor.shutDown();
     }
 
+    private void zeroDistanceDriven() {
+        distanceDriven = 0;
+    }
     /**
      * Calculate the average distance the drivetrain has moved since the motors were commanded to move.
      * @return
@@ -467,6 +475,13 @@ public class DriveTrain {
         return distanceDrivenSinceLast;
     }
 
+    /**
+     * Adds the distance driven in a move to the total distance driven
+     */
+    private void updateTotalDistanceDriven() {
+        totalDistanceDriven = totalDistanceDriven + distanceDriven;
+    }
+
     //*********************************************************************************************
     // Autonomous Methods - driving a straight line
     //*********************************************************************************************
@@ -487,7 +502,7 @@ public class DriveTrain {
         leftDriveMotor.moveByAmount(power, distance, finishBehavior);
         this.distanceToDrive = distance;
         // reset the distance traveled
-        this.distanceDriven = 0;
+        zeroDistanceDriven();
         if (logDrive && logFile != null) {
             logFile.logData("Setup for drive straight = " + distance + " at power = " + power);
             logFile.logData("Starting heading = " + imu.getHeading());
@@ -511,6 +526,7 @@ public class DriveTrain {
                 logFile.logData("Drove distance = " + distanceDriven);
                 logFile.logData("Finish heading = " + imu.getHeading());
             }
+            updateTotalDistanceDriven();
             return Status.COMPLETE;
         } else {
             return Status.MOVING;
@@ -586,6 +602,7 @@ public class DriveTrain {
 
             // set the distance target
             this.distanceToDrive = distance;
+            zeroDistanceDriven();
             if (logFile != null && logDrive) {
                 logFile.blankLine();
                 logFile.logData("Setup drive using IMU. Heading = " + Double.toString(heading) + " Speed = " + Double.toString(maxPower) + " distance = " + Double.toString(distance));
@@ -635,9 +652,18 @@ public class DriveTrain {
     }
 
     /**
+     * Call this after you complete the drive distance using IMU so that the total distance traveled
+     * by the robot is updated.
+     */
+    public void completeDriveUsingIMU() {
+        updateTotalDistanceDriven();
+    }
+
+    /**
      * Stop the movement of the robot
      */
     public void stopDriveUsingIMU() {
+        updateTotalDistanceDriven();
         shutdown();
     }
 
@@ -680,6 +706,7 @@ public class DriveTrain {
             hasLoopRunYet = false;
             //MATT never set the distance so it was 0 when we started the update
             this.distanceToDrive = distance;
+            zeroDistanceDriven();
             //Setting up IMU
             switch (headingType) {
                 case RELATIVE:
@@ -1100,6 +1127,7 @@ public class DriveTrain {
      * Stop driving
      */
     public void stopDriveDistanceUsingIMU() {
+        updateTotalDistanceDriven();
         shutdown();
     }
 
@@ -1132,6 +1160,7 @@ public class DriveTrain {
             pidControl.setKp(0.009);
             pidControl.setKi(0.05/1000000);
             pidControl.reset();
+            zeroDistanceDriven();
 
             imu.setAngleMode(angleMode);
             if (angleMode == AdafruitIMU8863.AngleMode.RELATIVE) {
@@ -1187,6 +1216,7 @@ public class DriveTrain {
     }
 
     public void stopTurn() {
+        updateTotalDistanceDriven();
         shutdown();
     }
 
