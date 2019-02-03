@@ -365,19 +365,6 @@ public class DriveTrain {
         leftDriveMotor.setPower(power);
     }
 
-    public void setRightDriveMotorSpeed( double speed) {
-        this.rightDriveMotorSpeed = speed;
-    }
-
-    public void setLeftDriveMotorSpeed(double speed) {
-        this.leftDriveMotorSpeed = speed;
-    }
-
-    public void applyPowersToMotors() {
-        double[] speeds = new double[]{leftDriveMotorSpeed, rightDriveMotorSpeed};
-        applyPowersToMotors(speeds);
-    }
-
     /**
      * Set the speed for teh drive motor. THIS DOES NOT APPLY THE SPEED TO THE MOTOR SO THE MOTOR
      * WILL NOT START TURNING. Use applyPowersToMotors() to actually apply it.
