@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.hardware.bosch.BNO055IMUImpl;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -148,6 +147,11 @@ public class AdafruitIMU8863 {
      */
     private final static AxesOrder HEADING_ROLL_PITCH = AxesOrder.ZYX;
 
+    /**
+     * The last heading read can be saved and then used to report the heading change
+     */
+    private double lastHeadingRead = 0;
+
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -212,54 +216,26 @@ public class AdafruitIMU8863 {
 
     public AdafruitIMU8863(HardwareMap hardwareMap, String calibrationFile, String loggingTag) {
         this.loggingTag = loggingTag;
-        this.calibrationFile = calibrationFile;
-        parameters = setupParameters();
-        // Retrieve and initialize the IMU. We expect the IMU to be attached to an I2C port
-        // on a Core Device Interface Module, configured to be a sensor of type "AdaFruit IMU",
-        // and named "imu".
-        imu = hardwareMap.get(BNO055IMU.class, "IMU");
-        imu.initialize(parameters);
-        // The resetAngleReferences() does not seem to be getting correct data. I'm guessing that
-        // the IMU has not finished initializing yet. Delay the execution of resetAngleReferences()
-        // so that initialization of the BNO055IMU can complete.
-        delay(100);
-        // At initialization both absolute and relative references need to be setup
-        resetAngleReferences(AngleMode.ABSOLUTE);
-        resetAngleReferences(AngleMode.RELATIVE);
-
-        // default to reporting angles from -180 to + 180
-        setAngleRange(AngleRange.PLUS_TO_MINUS_180);
+        init(hardwareMap, calibrationFile);
     }
 
     public AdafruitIMU8863(HardwareMap hardwareMap, String calibrationFile) {
         this.loggingTag = "IMU";
-        this.calibrationFile = calibrationFile;
-        parameters = setupParameters();
-        // Retrieve and initialize the IMU. We expect the IMU to be attached to an I2C port
-        // on a Core Device Interface Module, configured to be a sensor of type "AdaFruit IMU",
-        // and named "imu".
-        imu = hardwareMap.get(BNO055IMU.class, "IMU");
-        imu.initialize(parameters);
-        // The resetAngleReferences() does not seem to be getting correct data. I'm guessing that
-        // the IMU has not finished initializing yet. Delay the execution of resetAngleReferences()
-        // so that initialization of the BNO055IMU can complete.
-        delay(100);
-        // At initialization both absolute and relative references need to be setup
-        resetAngleReferences(AngleMode.ABSOLUTE);
-        resetAngleReferences(AngleMode.RELATIVE);
-
-        // default to reporting angles from -180 to + 180
-        setAngleRange(AngleRange.PLUS_TO_MINUS_180);
+        init(hardwareMap, calibrationFile);
     }
 
     public AdafruitIMU8863(HardwareMap hardwareMap) {
         this.loggingTag = "IMU";
         // No calibration file is used
-        this.calibrationFile = null;
+        init(hardwareMap, null);
+    }
+
+    private void init(HardwareMap hardwareMap, String calibrationFile) {
+        this.calibrationFile = calibrationFile;
         parameters = setupParameters();
         // Retrieve and initialize the IMU. We expect the IMU to be attached to an I2C port
         // on a Core Device Interface Module, configured to be a sensor of type "AdaFruit IMU",
-        // and named "IMU"
+        // and named "imu".
         imu = hardwareMap.get(BNO055IMU.class, "IMU");
         imu.initialize(parameters);
         // The resetAngleReferences() does not seem to be getting correct data. I'm guessing that
@@ -272,6 +248,10 @@ public class AdafruitIMU8863 {
 
         // default to reporting angles from -180 to + 180
         setAngleRange(AngleRange.PLUS_TO_MINUS_180);
+
+        // set the last heading so that a future request for the heading change returns the correct
+        // value
+        setHeadingChangeRefefence();
     }
 
     /**
@@ -395,7 +375,6 @@ public class AdafruitIMU8863 {
         }
     }
 
-
     /**
      * Angles are normally reported in a range from -180 to +180. You may want your angles in a range
      * from 0 to 360. This method converts from -180 to +180 to 0 to 360.
@@ -512,6 +491,27 @@ public class AdafruitIMU8863 {
      */
     public void resetAngleReferences() {
         resetAngleReferences(AngleMode.RELATIVE);
+    }
+
+    /**
+     * Get the change in heading since the last time the change in heading was requested. If this is
+     * the first time the change in heading is requested, then the change in heading will be measured
+     * from the heading when the imu was first initialized.
+     * @return change in heading
+     */
+    public double getHeadingChange() {
+        double currentHeading = getHeading();
+        double headingChange = currentHeading - lastHeadingRead;
+        lastHeadingRead = currentHeading;
+        return headingChange;
+    }
+
+    /**
+     * Sometimes you may want to know the change in heading from a certain point in time. You need to
+     * establish the point by establishing the heading at that point in time.
+     */
+    public void setHeadingChangeRefefence() {
+        lastHeadingRead = getHeading();
     }
 
     /**
