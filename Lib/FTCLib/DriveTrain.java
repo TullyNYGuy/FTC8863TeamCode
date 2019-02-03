@@ -556,6 +556,7 @@ public class DriveTrain {
             pidControl.setMaxCorrection(maxPower);
             // threshold is not meaningful in this movement. It is normally used to say when the
             // movement is complete but since this movement goes forever, threshold does nothing.
+            // But it has to be set to something!
             pidControl.setThreshold(10);
             pidControl.setKp(0.017);
             driveTrainPower = maxPower;
@@ -585,6 +586,9 @@ public class DriveTrain {
 
             // set the distance target
             this.distanceToDrive = distance;
+            if (logFile != null && logDrive) {
+                logFile.logData("Setup drive using IMU. Heading = " + Double.toString(heading) + " Speed = " + Double.toString(maxPower) + " distance = " + Double.toString(distance));
+            }
         } else {
             shutdown();
             throw new IllegalArgumentException("No Imu found");
@@ -613,8 +617,14 @@ public class DriveTrain {
             // THERE IS A BUG HERE. THE DISTANCE BEING REPORTED IS CUMULATIVE NOT RELATIVE TO THE START OF THE MOVEMENT
             distanceDriven = calculateDistanceDriven();
             if (distanceDriven > distanceToDrive) {
+                if (logFile != null && logDrive) {
+                    logFile.logData("Finished using IMU. Heading = " + Double.toString(currentHeading) + " distance = " + Double.toString(distanceDriven));
+                }
                 return true;
             } else {
+                if (logFile != null && logDrive) {
+                    logFile.logData(currentHeading, distanceDriven);
+                }
                 return false;
             }
         } else {
