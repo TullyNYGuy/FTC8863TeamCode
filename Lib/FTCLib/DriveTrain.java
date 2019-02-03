@@ -602,7 +602,15 @@ public class DriveTrain {
 
             // set the distance target
             this.distanceToDrive = distance;
+            // since this is movement that is relative to its starting point, it has to start from 0
             zeroDistanceDriven();
+            // distance driven is calculated by averaging the encoder counts on the left and
+            // right wheels relative to the last time the encoder count tracker in the motor was set
+            // to 0. That 0 automatically happens when a movement is to a position. But in this case
+            // we are just turning the motors on so the DcMotor8863 does not zero the encoder tracker.
+            // I have to do it manually.
+            rightDriveMotor.setLastEncoderCountToCurrentPostion();
+            leftDriveMotor.setLastEncoderCountToCurrentPostion();
             if (logFile != null && logDrive) {
                 logFile.blankLine();
                 logFile.logData("Setup drive using IMU. Heading = " + Double.toString(heading) + " Speed = " + Double.toString(maxPower) + " distance = " + Double.toString(distance));
