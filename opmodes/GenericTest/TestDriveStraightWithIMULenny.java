@@ -37,15 +37,8 @@ public class TestDriveStraightWithIMULenny extends LinearOpMode {
         driveTrain.imu.resetAngleReferences();
 
         while (opModeIsActive()&& !driveTrain.updateDriveUsingIMU()) {
-
-            logFile.logData(Double.toString(driveTrain.imu.getHeading()), Double.toString(driveTrain.getDistanceDriven()));
-
-            // Put your calls that need to run in a loop here
-
-            // Display the current value
             telemetry.addData(">", "Press Stop to end test.");
             telemetry.update();
-
             idle();
         }
         logFile.closeDataLog();
