@@ -587,6 +587,7 @@ public class DriveTrain {
             // set the distance target
             this.distanceToDrive = distance;
             if (logFile != null && logDrive) {
+                logFile.blankLine();
                 logFile.logData("Setup drive using IMU. Heading = " + Double.toString(heading) + " Speed = " + Double.toString(maxPower) + " distance = " + Double.toString(distance));
             }
         } else {

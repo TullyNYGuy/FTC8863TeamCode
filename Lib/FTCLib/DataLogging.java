@@ -203,6 +203,13 @@ public class DataLogging {
     }
 
     /**
+     * Add a blenk line to the datalog
+     */
+    public void blankLine() {
+        dataLog.println();
+    }
+
+    /**
      * Write a piece of data or a debug message into the log file. It will get time stamped.
      * @param dataToLog
      */
