@@ -68,6 +68,7 @@ public class DriveTrain {
     private double distanceToDrive;
     private double distanceDriven;
     private double distanceRemaining;
+    private double lastDistanceDriven;
 
 
     private boolean hasLoopRunYet = false;
@@ -301,7 +302,7 @@ public class DriveTrain {
     }
 
     //*********************************************************************************************
-    // Autonomous Methods - driving a heading or a straight line
+    // General methods
     //*********************************************************************************************
 
     /**
@@ -362,6 +363,77 @@ public class DriveTrain {
     }
 
     /**
+     * Apply a power to the drive motors, using the direction of travel to determine whether to
+     * swap the left and right motors. If the direction is backwards, then the left and right
+     * get swapped.
+     * @param drivePowers - an array with left, right powers
+     */
+    private void applyPowersToMotors(double[] drivePowers) {
+        //setting new powers to the motors - is the robot going forwards or backwards?
+        if (driveDirection == DriveDirection.FORWARD) {
+            // forwards
+            leftDriveMotor.setPower(drivePowers[0]);
+            rightDriveMotor.setPower(drivePowers[1]);
+        } else {
+            // if driving backwards the left and right drive motors are effectively swapped
+            leftDriveMotor.setPower(drivePowers[1]);
+            rightDriveMotor.setPower(drivePowers[0]);
+        }
+    }
+
+
+    public double getRightPower() {
+        return rightDriveMotor.getCurrentPower();
+    }
+
+    public double getLeftPower() {
+        return leftDriveMotor.getCurrentPower();
+    }
+
+    public void getEncoderCounts() {
+        telemetry.addData("left encoder count = ", "%d", leftDriveMotor.getCurrentPosition());
+        telemetry.addData("right encoder count = ", "%d", rightDriveMotor.getCurrentPosition());
+    }
+
+    public void shutdown() {
+        rightDriveMotor.shutDown();
+        leftDriveMotor.shutDown();
+    }
+
+    /**
+     * Sometimes you may want to know the change in distance from a certain point in time. You need to
+     * establish the point by establishing the distance at that point in time.
+     */
+    public void setDistanceDrivenReference(){
+        lastDistanceDriven = calculateDistanceDriven();
+    }
+
+    /**
+     * Calculate the average distance the drivetrain has moved since the motors were commanded to move.
+     * @return
+     */
+    private double calculateDistanceDriven(){
+        return (leftDriveMotor.getPositionInTermsOfAttachmentRelativeToLast() + rightDriveMotor.getPositionInTermsOfAttachmentRelativeToLast()) / 2;
+    }
+
+    /**
+     * Get the distance driven since the last check on the distance driven. This call can be used
+     * to get the change in distance driven. Typically you would use it over the course of the movement
+     * to follow the change in distance.
+     * @return
+     */
+    public double getDistanceDrivenSinceLast() {
+        double currentDistance = calculateDistanceDriven();
+        double distanceDrivenSinceLast = currentDistance - lastDistanceDriven;
+        lastDistanceDriven = currentDistance;
+        return distanceDrivenSinceLast;
+    }
+
+    //*********************************************************************************************
+    // Autonomous Methods - driving a straight line
+    //*********************************************************************************************
+
+    /**
      * Drives a straight line by applying the same power to both motors
      *
      * @param power          the power to move at. This can only be positive.
@@ -395,7 +467,7 @@ public class DriveTrain {
         leftMotorState = leftDriveMotor.update();
         // the distance driven has to be relative to the start of the movement
         // THERE IS A BUG HERE. THE DISTANCE IS NOT RELATIVE TO THE START. IT IS CUMULATIVE. NEED TO FIX IT
-        distanceDriven = (leftDriveMotor.getPositionInTermsOfAttachmentRelativeToLast() + rightDriveMotor.getPositionInTermsOfAttachmentRelativeToLast()) / 2;
+        distanceDriven = calculateDistanceDriven();
         if (this.isDriveTrainComplete()) {
             if (logDrive && logFile != null) {
                 logFile.logData("Drove distance = " + distanceDriven);
@@ -501,7 +573,7 @@ public class DriveTrain {
 //            }
             differentialDrive(driveTrainPower, correction);
             // THERE IS A BUG HERE. THE DISTANCE BEING REPORTED IS CUMULATIVE NOT RELATIVE TO THE START OF THE MOVEMENT
-            distanceDriven = (leftDriveMotor.getPositionInTermsOfAttachmentRelativeToLast() + rightDriveMotor.getPositionInTermsOfAttachmentRelativeToLast()) / 2;
+            distanceDriven = calculateDistanceDriven();
             if (distanceDriven > distanceToDrive) {
                 return true;
             } else {
@@ -624,7 +696,7 @@ public class DriveTrain {
 
         if (imuPresent) {
             // Figure out where the robot is at now during the drive
-            distanceDriven = (leftDriveMotor.getPositionInTermsOfAttachmentRelativeToLast() + rightDriveMotor.getPositionInTermsOfAttachmentRelativeToLast()) / 2;
+            distanceDriven = calculateDistanceDriven();
             if (debug) {
                 telemetry.addData("distance driven = ", "%3.1f", distanceDriven);
             }
@@ -854,27 +926,6 @@ public class DriveTrain {
 
         return drivingState;
     }
-
-    /**
-     * Apply a power to the drive motors, using the direction of travel to determine whether to
-     * swap the left and right motors. If the direction is backwards, then the left and right
-     * get swapped.
-     * @param drivePowers - an array with left, right powers
-     */
-    private void applyPowersToMotors(double[] drivePowers) {
-        //setting new powers to the motors - is the robot going forwards or backwards?
-        if (driveDirection == DriveDirection.FORWARD) {
-            // forwards
-            leftDriveMotor.setPower(drivePowers[0]);
-            rightDriveMotor.setPower(drivePowers[1]);
-        } else {
-            // if driving backwards the left and right drive motors are effectively swapped
-            leftDriveMotor.setPower(drivePowers[1]);
-            rightDriveMotor.setPower(drivePowers[0]);
-        }
-    }
-
-
 
     /**
      * During a ramp down from running at a power, I actually don't want the ramp down to last right
@@ -1151,7 +1202,7 @@ public class DriveTrain {
             leftDriveMotor.setPower(throttle - direction);
         }
 
-        distanceDriven = (leftDriveMotor.getPositionInTermsOfAttachmentRelativeToLast() + rightDriveMotor.getPositionInTermsOfAttachmentRelativeToLast()) / 2;
+        distanceDriven = calculateDistanceDriven();
 //        if (throttle >= 0) {
 //            //going forwards
 //            leftDriveMotor.setPower(throttle + direction);
@@ -1222,21 +1273,4 @@ public class DriveTrain {
     //          Other methods
     //*********************************************************************************************
 
-    public double getRightPower() {
-        return rightDriveMotor.getCurrentPower();
-    }
-
-    public double getLeftPower() {
-        return leftDriveMotor.getCurrentPower();
-    }
-
-    public void shutdown() {
-        rightDriveMotor.shutDown();
-        leftDriveMotor.shutDown();
-    }
-
-    public void getEncoderCounts() {
-        telemetry.addData("left encoder count = ", "%d", leftDriveMotor.getCurrentPosition());
-        telemetry.addData("right encoder count = ", "%d", rightDriveMotor.getCurrentPosition());
-    }
 }
