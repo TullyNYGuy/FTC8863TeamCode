@@ -601,6 +601,13 @@ public class DcMotor8863 {
     }
 
     /**
+     * Provide a method to manually set the last encoder value to the current position.
+     */
+    public void setLastEncoderCountToCurrentPostion() {
+        lastEncoderValue = getCurrentPosition();
+    }
+
+    /**
      * Get the current motor position in terms of the position of whatever is attached to it. The
      * position can be the number of degrees, the position of a wheel in cm etc.
      *
