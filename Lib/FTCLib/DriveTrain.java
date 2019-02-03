@@ -86,6 +86,9 @@ public class DriveTrain {
     private boolean logTurns = false;
     private boolean logDrive = false;
 
+    private double rightDriveMotorSpeed = 0;
+    private double leftDriveMotorSpeed = 0;
+
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -301,21 +304,6 @@ public class DriveTrain {
         }
     }
 
-    public void resetDistanceDriven() {
-        distanceDriven = calculateDistanceDriven();
-    }
-
-    public double calculateDistanceDriven() {
-        return (leftDriveMotor.getPositionInTermsOfAttachment() + rightDriveMotor.getPositionInTermsOfAttachment()) / 2;
-    }
-
-    public double getDistanceDrivenSinceLast() {
-        double currentDistanceDriven = calculateDistanceDriven();
-        double distanceDrivenSinceLast = currentDistanceDriven - distanceDriven;
-        distanceDriven = currentDistanceDriven;
-        return distanceDrivenSinceLast;
-    }
-
     //*********************************************************************************************
     // General methods
     //*********************************************************************************************
@@ -375,6 +363,19 @@ public class DriveTrain {
     public void setDriveTrainPower(double power) {
         rightDriveMotor.setPower(power);
         leftDriveMotor.setPower(power);
+    }
+
+    public void setRightDriveMotorSpeed( double speed) {
+        this.rightDriveMotorSpeed = speed;
+    }
+
+    public void setLeftDriveMotorSpeed(double speed) {
+        this.leftDriveMotorSpeed = speed;
+    }
+
+    public void applyPowersToMotors() {
+        double[] speeds = new double[]{leftDriveMotorSpeed, rightDriveMotorSpeed};
+        applyPowersToMotors(speeds);
     }
 
     /**
