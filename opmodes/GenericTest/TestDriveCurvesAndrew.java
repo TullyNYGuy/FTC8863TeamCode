@@ -16,7 +16,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
  *
  *
  */
-@TeleOp(name = "Test Drive Curves", group = "Test")
+@TeleOp(name = "Test Drive Curve", group = "Test")
 //@Disabled
 public class TestDriveCurvesAndrew extends LinearOpMode {
 
@@ -34,11 +34,12 @@ public class TestDriveCurvesAndrew extends LinearOpMode {
         logfile = new DataLogging( "Test Drive Curve", telemetry);
         driveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap, telemetry);
 
-        double curveAngle = 45.0;
-        double speed = 0.3;
+        double curveAngle = 90.0;
+        double speed = 0.1;
         double curveRadius = 100; // cm
-        double wheelbase = 45.72; // 18 cm
+        double wheelbase = 36.3; // measured
         driveCurve = new DriveCurve(curveAngle, speed, curveRadius, wheelbase, driveTrain.imu, logfile, driveTrain);
+        driveCurve.enableLogging();
 
                 // Wait for the start button
         telemetry.addData(">", "Press Start to run" );
@@ -57,6 +58,7 @@ public class TestDriveCurvesAndrew extends LinearOpMode {
         }
 
         // Put your cleanup code here - it runs as the application shuts down
+        logfile.closeDataLog();
         telemetry.addData(">", "Done");
         telemetry.update();
 
