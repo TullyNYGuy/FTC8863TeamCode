@@ -1,8 +1,5 @@
 package org.firstinspires.ftc.teamcode.opmodes.GenericTest;
 
-import android.provider.ContactsContract;
-
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -16,9 +13,9 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
  *
  *
  */
-@TeleOp(name = "Test Drive Curve", group = "Test")
+@TeleOp(name = "Test Drive Curve + Straight", group = "Test")
 //@Disabled
-public class TestDriveCurvesAndrew extends LinearOpMode {
+public class TestDriveCurvePlusStraight extends LinearOpMode {
 
     // Put your variable declarations here
     DriveCurve driveCurve;
@@ -31,12 +28,12 @@ public class TestDriveCurvesAndrew extends LinearOpMode {
     public void runOpMode() {
 
         // Put your initializations here
-        logfile = new DataLogging( "Test Drive Curve", telemetry);
+        logfile = new DataLogging( "Test Drive Curve + Straight", telemetry);
         driveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap, telemetry);
 
-        double curveAngle = -359.0;
+        double curveAngle = -90.0;
         double speed = 0.1;
-        double curveRadius = 50; // cm
+        double curveRadius = 100; // cm
         double wheelbase = 37.38; // measured
         driveCurve = new DriveCurve(curveAngle, speed, curveRadius, wheelbase, driveTrain.imu, logfile, driveTrain);
         driveCurve.enableLogging();
@@ -47,16 +44,25 @@ public class TestDriveCurvesAndrew extends LinearOpMode {
         waitForStart();
 
         // Put your calls here - they will not run in a loop
-        driveTrain.setLeftDriveMotorSpeed(driveCurve.getLeftWheelSpeed());
-        driveTrain.setRightDriveMotorSpeed(driveCurve.getRightWheelSpeed());
-        driveTrain.applyPowersToMotors();
+//        driveTrain.setLeftDriveMotorSpeed(driveCurve.getLeftWheelSpeed());
+//        driveTrain.setRightDriveMotorSpeed(driveCurve.getRightWheelSpeed());
+//        driveTrain.applyPowersToMotors();
+//
+//        while(opModeIsActive() && !driveCurve.update()) {
+//            telemetry.addData(">", "Press Stop to end test." );
+//            telemetry.update();
+//            idle();
+//        }
 
-        while(opModeIsActive() && !driveCurve.update()) {
-            telemetry.addData(">", "Press Stop to end test." );
+        driveTrain.setupDriveUsingIMU(0, 25, 0.1, AdafruitIMU8863.AngleMode.RELATIVE);
+        while (opModeIsActive()&& !driveTrain.updateDriveUsingIMU()) {
+            logfile.logData(Double.toString(driveTrain.imu.getHeading()), Double.toString(driveTrain.getDistanceDriven()));
+            // Display the current value
+            telemetry.addData(">", "Press Stop to end test.");
             telemetry.update();
             idle();
         }
-        driveTrain.shutdown();
+        driveTrain.stopDriveUsingIMU();
 
         // Put your cleanup code here - it runs as the application shuts down
         logfile.closeDataLog();
