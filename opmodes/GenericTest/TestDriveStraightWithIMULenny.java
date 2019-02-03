@@ -26,7 +26,7 @@ public class TestDriveStraightWithIMULenny extends LinearOpMode {
         // Put your initializations here
         driveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap, telemetry);
         logFile = new DataLogging("Test_Driving_Straight_With_An_IMU", telemetry);
-        driveTrain.setTurnLog(logFile);
+        driveTrain.setLogFile(logFile);
         driveTrain.enableLogDrive();
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
