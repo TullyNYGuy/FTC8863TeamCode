@@ -133,6 +133,8 @@ public class DriveCurve {
 
     public DriveCurve(double curveAngle, double speed, double radius, double wheelBase, AdafruitIMU8863 imu, DataLogging logFile, DriveTrain driveTrain) {
         this.logFile = logFile;
+        enableLogging();
+        this.driveTrain = driveTrain;
         init(curveAngle, speed, radius, wheelBase, imu);
     }
 
@@ -159,7 +161,7 @@ public class DriveCurve {
 
         if (logFile != null && enableLogging) {
             logFile.logData("Curve radius = " + radius + " speed = " + speed + " angle = " + curveAngle + " left wheel speed = " + leftWheelSpeed + " right wheel speed = " + rightWheelSpeed);
-            logFile.logData("rate of turn should be = " + 360 / 2 * Math.PI * radius);
+            logFile.logData("rate of turn should be = " + 360 / (2 * Math.PI * radius));
         }
     }
 
@@ -179,15 +181,15 @@ public class DriveCurve {
             switch (curveDirection) {
                 case CW:
                     // outside wheel is the left
-                    leftWheelSpeed = speed * (1 + wheelBase / 2 * radius);
+                    leftWheelSpeed = speed * (1 + wheelBase / (2 * radius));
                     // inside wheel is the right
-                    rightWheelSpeed = speed * (1 - wheelBase / 2 * radius);
+                    rightWheelSpeed = speed * (1 - wheelBase / (2 * radius));
                     break;
                 case CCW:
                     // inside wheel is the left
-                    leftWheelSpeed = speed * (1 - wheelBase / 2 * radius);
+                    leftWheelSpeed = speed * (1 - wheelBase / (2 * radius));
                     // outside wheel is the right
-                    rightWheelSpeed = speed * (1 + wheelBase / 2 * radius);
+                    rightWheelSpeed = speed * (1 + wheelBase / (2 * radius));
                     break;
             }
         }
