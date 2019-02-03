@@ -155,7 +155,7 @@ public class DriveCurve {
         curveState = CurveState.NOT_STARTED;
 
         calculateWheelSpeeds();
-        driveTrain.resetDistanceDriven();
+        driveTrain.setDistanceDrivenReference();
 
         if (logFile != null && enableLogging) {
             logFile.logData("Curve radius = " + radius + " speed = " + speed + " angle = " + curveAngle + " left wheel speed = " + leftWheelSpeed + " right wheel speed = " + rightWheelSpeed);
@@ -215,10 +215,14 @@ public class DriveCurve {
                 // if the current heading is close enough to the desired heading indicate the turn is done
                 if (Math.abs(currentHeading) > Math.abs(curveAngle) - curveThreshold && Math.abs(currentHeading) < Math.abs(curveAngle) + curveThreshold) {
                     // curve is complete
+                    if (logFile != null && enableLogging) {
+                        logFile.logData("final heading = " + Double.toString(currentHeading) + " distance driven = ", Double.toString(driveTrain.getDistanceDriven()));
+                        logFile.logData("average rate of turn = " + Double.toString(currentHeading/driveTrain.getDistanceDriven()));
+                    }
                     curveState = CurveState.COMPLETE;
                 }
                 if (logFile != null && enableLogging) {
-                    logFile.logData(Double.toString(imu.getHeading()), Double.toString(driveTrain.getDistanceDriven()), Double.toString(getRateOfTurn()));
+                    logFile.logData(Double.toString(currentHeading), Double.toString(driveTrain.getDistanceDriven()), Double.toString(getRateOfTurn()));
                 }
                 returnValue = false;
                 break;
@@ -230,9 +234,6 @@ public class DriveCurve {
     }
 
     private double getRateOfTurn() {
-        double currentHeading = imu.getHeading();
-        double rateOfTurn = (currentHeading - heading) / driveTrain.getDistanceDrivenSinceLast();
-        heading = currentHeading;
-        return  rateOfTurn;
+        return imu.getHeadingChange() / driveTrain.getDistanceDrivenSinceLast();
     }
 }
