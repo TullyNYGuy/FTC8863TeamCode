@@ -619,7 +619,7 @@ public class DriveTrain {
             distanceDriven = calculateDistanceDriven();
             if (distanceDriven > distanceToDrive) {
                 if (logFile != null && logDrive) {
-                    logFile.logData("Finished using IMU. Heading = " + Double.toString(currentHeading) + " distance = " + Double.toString(distanceDriven));
+                    logFile.logData("Finished drive straight using IMU. Heading = " + Double.toString(currentHeading) + " distance = " + Double.toString(distanceDriven));
                 }
                 return true;
             } else {
