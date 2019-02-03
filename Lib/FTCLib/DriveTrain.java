@@ -86,6 +86,9 @@ public class DriveTrain {
     private boolean logTurns = false;
     private boolean logDrive = false;
 
+    private double rightDriveMotorSpeed = 0;
+    private double leftDriveMotorSpeed = 0;
+
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -363,6 +366,33 @@ public class DriveTrain {
     }
 
     /**
+     * Set the speed for teh drive motor. THIS DOES NOT APPLY THE SPEED TO THE MOTOR SO THE MOTOR
+     * WILL NOT START TURNING. Use applyPowersToMotors() to actually apply it.
+     * @param speed
+     */
+    public void setRightDriveMotorSpeed( double speed) {
+        this.rightDriveMotorSpeed = speed;
+    }
+
+    /**
+     * Set the speed for teh drive motor. THIS DOES NOT APPLY THE SPEED TO THE MOTOR SO THE MOTOR
+     * WILL NOT START TURNING. Use applyPowersToMotors() to actually apply it.
+     * @param speed
+     */
+    public void setLeftDriveMotorSpeed(double speed) {
+        this.leftDriveMotorSpeed = speed;
+    }
+
+    /**
+     * Applies the speeds that have been previously set to the drive motors. Speeds were set with
+     * setRightDriveMotorSpeed(0 and setLeftDriveMotorSpeed()
+     */
+    public void applyPowersToMotors() {
+        double[] speeds = new double[]{leftDriveMotorSpeed, rightDriveMotorSpeed};
+        applyPowersToMotors(speeds);
+    }
+
+    /**
      * Apply a power to the drive motors, using the direction of travel to determine whether to
      * swap the left and right motors. If the direction is backwards, then the left and right
      * get swapped.
@@ -401,19 +431,27 @@ public class DriveTrain {
     }
 
     /**
-     * Sometimes you may want to know the change in distance from a certain point in time. You need to
-     * establish the point by establishing the distance at that point in time.
-     */
-    public void setDistanceDrivenReference(){
-        lastDistanceDriven = calculateDistanceDriven();
-    }
-
-    /**
      * Calculate the average distance the drivetrain has moved since the motors were commanded to move.
      * @return
      */
     private double calculateDistanceDriven(){
         return (leftDriveMotor.getPositionInTermsOfAttachmentRelativeToLast() + rightDriveMotor.getPositionInTermsOfAttachmentRelativeToLast()) / 2;
+    }
+
+    /**
+     * Update the distance driven. This method is typically called from within a loop while a movement
+     * is occurring.
+     */
+    public void updateDistanceDriven() {
+        distanceDriven = calculateDistanceDriven();
+    }
+
+    /**
+     * Sometimes you may want to know the change in distance from a certain point in time. You need to
+     * establish the point by establishing the distance at that point in time.
+     */
+    public void setDistanceDrivenReference(){
+        lastDistanceDriven = calculateDistanceDriven();
     }
 
     /**
