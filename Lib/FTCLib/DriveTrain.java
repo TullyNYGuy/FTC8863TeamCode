@@ -574,7 +574,10 @@ public class DriveTrain {
             // movement is complete but since this movement goes forever, threshold does nothing.
             // But it has to be set to something!
             pidControl.setThreshold(10);
-            pidControl.setKp(0.017);
+            pidControl.setKp(0.009);
+            pidControl.setKi(0.05/1000000);
+            pidControl.reset();
+
             driveTrainPower = maxPower;
 
             switch (headingType) {
