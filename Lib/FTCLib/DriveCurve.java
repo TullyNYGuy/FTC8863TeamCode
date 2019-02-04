@@ -77,6 +77,7 @@ public class DriveCurve {
 
     private double lastDistance = 0;
     private double heading = 0;
+    private double lastHeading = 0;
 
     /**
      * The curve will be called complete when it is between the desired angle (curveAngle) -
@@ -92,6 +93,8 @@ public class DriveCurve {
     public void setCurveThreshold(double curveThreshold) {
         this.curveThreshold = curveThreshold;
     }
+
+    private double rateOfTurn = 0;
 
     private AdafruitIMU8863 imu;
     private DriveTrain driveTrain;
@@ -114,6 +117,18 @@ public class DriveCurve {
 
     public void disableLogging() {
         this.enableLogging = false;
+    }
+
+    private PIDControl pidControl;
+    private boolean usePID = false;
+    private double correctionSign = -1;
+
+    public void enablePID() {
+        usePID = true;
+    }
+
+    public void disablePID() {
+        usePID = false;
     }
 
     //*********************************************************************************************
@@ -156,12 +171,27 @@ public class DriveCurve {
 
         curveState = CurveState.NOT_STARTED;
 
-        calculateWheelSpeeds();
+        rateOfTurn = calculateRateOfTurn(radius);
+
+        pidControl = new PIDControl();
+        pidControl.setSetpoint(rateOfTurn);
+        pidControl.setMaxCorrection(radius * .2);
+        // threshold is not meaningful in this movement. It is normally used to say when the
+        // movement is complete but since this movement goes forever, threshold does nothing.
+        // But it has to be set to something!
+        pidControl.setThreshold(10);
+        //pidControl.setKp(0.011);
+        pidControl.setKp(40.0);
+        //pidControl.setKi(0.05/1000000);
+        pidControl.reset();
+
+        calculateWheelSpeeds(radius);
         driveTrain.setDistanceDrivenReference();
+        lastDistance = imu.getHeading();
 
         if (logFile != null && enableLogging) {
             logFile.logData("Curve radius = " + radius + " speed = " + speed + " angle = " + curveAngle + " left wheel speed = " + leftWheelSpeed + " right wheel speed = " + rightWheelSpeed);
-            logFile.logData("rate of turn should be = " + 360 / (2 * Math.PI * radius));
+            logFile.logData("rate of turn should be = " + Double.toString(calculateRateOfTurn(radius)));
         }
     }
 
@@ -172,7 +202,7 @@ public class DriveCurve {
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
 
-    private void calculateWheelSpeeds() {
+    private void calculateWheelSpeeds(double radius) {
         if (radius == 0) {
             leftWheelSpeed = speed;
             rightWheelSpeed = speed;
@@ -184,16 +214,33 @@ public class DriveCurve {
                     leftWheelSpeed = speed * (1 + wheelBase / (2 * radius));
                     // inside wheel is the right
                     rightWheelSpeed = speed * (1 - wheelBase / (2 * radius));
+                    correctionSign = +1.0;
                     break;
                 case CCW:
                     // inside wheel is the left
                     leftWheelSpeed = speed * (1 - wheelBase / (2 * radius));
                     // outside wheel is the right
                     rightWheelSpeed = speed * (1 + wheelBase / (2 * radius));
+                    correctionSign = +1.0;
                     break;
             }
         }
 
+    }
+
+    private double calculateRateOfTurn(double radius) {
+        double rateOfTurn = 0;
+        switch (curveDirection) {
+            // CCW is a postive change in heading
+            case CCW:
+                rateOfTurn = 360 / (2 * Math.PI * radius);
+                break;
+            // CW is a negitive change in heading
+            case CW:
+                rateOfTurn = -360 / (2 * Math.PI * radius);
+                break;
+        }
+        return rateOfTurn;
     }
 
     //*********************************************************************************************
@@ -205,6 +252,12 @@ public class DriveCurve {
     public boolean update() {
         boolean returnValue = false;
         double currentHeading;
+        double newRadius = this.radius;
+        double newLeftWheelSpeed = leftWheelSpeed;
+        double newRightWheelSpeed = rightWheelSpeed;
+        double currentRateOfTurn = 0;
+        double correction = 0;
+
         // The first time this update() is run, the curve will be started and the robot will be
         // turning
         switch (curveState) {
@@ -214,19 +267,35 @@ public class DriveCurve {
                 break;
             case TURNING:
                 currentHeading = imu.getHeading();
+                currentRateOfTurn = getRateOfTurn(currentHeading);
+                if (usePID) {
+                    if (currentRateOfTurn == 0) {
+                        correction = 0;
+                    } else {
+                        correction = correctionSign * pidControl.getCorrection(currentRateOfTurn);
+                    }
+                    newRadius = radius + correction;
+                    logFile.logData("rate of turn = " + currentRateOfTurn + " correction = " + correction + " new radius = " + newRadius);
+                    calculateWheelSpeeds(newRadius);
+                    driveTrain.setLeftDriveMotorSpeed(leftWheelSpeed);
+                    driveTrain.setRightDriveMotorSpeed(rightWheelSpeed);
+                    logFile.logData(leftWheelSpeed, rightWheelSpeed);
+                    driveTrain.applyPowersToMotors();
+                }
+
+                if (logFile != null && enableLogging) {
+                    driveTrain.updateDriveDistance();
+                    logFile.logData(Double.toString(currentHeading), Double.toString(driveTrain.getDistanceDriven()), Double.toString(currentRateOfTurn));
+                }
                 // if the current heading is close enough to the desired heading indicate the turn is done
                 if (Math.abs(currentHeading) > Math.abs(curveAngle) - curveThreshold && Math.abs(currentHeading) < Math.abs(curveAngle) + curveThreshold) {
                     // curve is complete
                     if (logFile != null && enableLogging) {
                         driveTrain.updateDriveDistance();
                         logFile.logData("final heading = " + Double.toString(currentHeading) + " distance driven = ", Double.toString(driveTrain.getDistanceDriven()));
-                        logFile.logData("average rate of turn = " + Double.toString(currentHeading/driveTrain.getDistanceDriven()));
+                        logFile.logData("average rate of turn = " + Double.toString(currentHeading / driveTrain.getDistanceDriven()));
                     }
                     curveState = CurveState.COMPLETE;
-                }
-                if (logFile != null && enableLogging) {
-                    driveTrain.updateDriveDistance();
-                    logFile.logData(Double.toString(currentHeading), Double.toString(driveTrain.getDistanceDriven()), Double.toString(getRateOfTurn()));
                 }
                 returnValue = false;
                 break;
@@ -237,7 +306,15 @@ public class DriveCurve {
         return returnValue;
     }
 
-    private double getRateOfTurn() {
-        return imu.getHeadingChange() / driveTrain.getDistanceDrivenSinceLast();
+    private double getRateOfTurn(double currentHeading) {
+        double distanceDrivenSinceLast = driveTrain.getDistanceDrivenSinceLast();
+        double headingChange = currentHeading - lastHeading;
+        lastHeading = currentHeading;
+        if (distanceDrivenSinceLast != 0){
+            return headingChange / distanceDrivenSinceLast;
+        } else {
+            return 0;
+        }
+
     }
 }
