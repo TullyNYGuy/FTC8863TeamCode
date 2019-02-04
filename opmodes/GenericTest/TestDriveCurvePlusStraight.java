@@ -33,17 +33,22 @@ public class TestDriveCurvePlusStraight extends LinearOpMode {
         driveTrain.setLogFile(logFile);
         driveTrain.enableLogDrive();
 
-        double curveAngle = -90.0;
-        double speed = 0.1;
+        // at power = .3 remove 1 degree from the turn (found 1 degree per 40ms cycle - .0256 deg/mS rate of turn)
+        // at power = .5 remove 2 degree from the turn (found 1.8 degree per 40ms cycle- .0445 deg/mS rate of turn)
+        double curveAngle = -86.0;
+        double speed = 0.3;
         double curveRadius = 100; // cm
         double wheelbase = 37.38; // measured
         driveCurve = new DriveCurve(curveAngle, speed, curveRadius, wheelbase, driveTrain.imu, logFile, driveTrain);
         driveCurve.enableLogging();
+        driveCurve.enablePID();
 
                 // Wait for the start button
         telemetry.addData(">", "Press Start to run" );
         telemetry.update();
         waitForStart();
+
+        logFile.startTimer();
 
         // Put your calls here - they will not run in a loop
         driveTrain.setLeftDriveMotorSpeed(driveCurve.getLeftWheelSpeed());
@@ -56,7 +61,7 @@ public class TestDriveCurvePlusStraight extends LinearOpMode {
             idle();
         }
 
-        driveTrain.setupDriveUsingIMU(0, 25, 0.1, AdafruitIMU8863.AngleMode.RELATIVE);
+        driveTrain.setupDriveUsingIMU(-90, 150, speed, AdafruitIMU8863.AngleMode.ABSOLUTE);
         while (opModeIsActive()&& !driveTrain.updateDriveUsingIMU()) {
             // Display the current value
             telemetry.addData(">", "Driving straight ...");
@@ -64,6 +69,7 @@ public class TestDriveCurvePlusStraight extends LinearOpMode {
             idle();
         }
         driveTrain.stopDriveUsingIMU();
+        sleep(2000);
 
         // Put your cleanup code here - it runs as the application shuts down
         logFile.closeDataLog();
