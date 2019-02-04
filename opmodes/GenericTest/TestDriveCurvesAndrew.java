@@ -23,7 +23,7 @@ public class TestDriveCurvesAndrew extends LinearOpMode {
     // Put your variable declarations here
     DriveCurve driveCurve;
     AdafruitIMU8863 imu;
-    DataLogging logfile;
+    DataLogging logFile;
     DriveTrain driveTrain;
 
 
@@ -32,9 +32,16 @@ public class TestDriveCurvesAndrew extends LinearOpMode {
 
 
         // Put your initializations here
-        driveCurve = new DriveCurve(45, .3, 100, 45.72, imu, logfile);
+        logFile = new DataLogging( "Test Drive Curve Andrew", telemetry);
         driveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap, telemetry);
-        logfile = new DataLogging( "Test Drive Curve Andrew", telemetry);
+        // at power = .3 remove 1 degree from the turn (found 1 degree per 40ms cycle - .0256 deg/mS rate of turn)
+        // at power = .5 remove 2 degree from the turn (found 1.8 degree per 40ms cycle- .0445 deg/mS rate of turn)
+        double curveAngle = -86.0;
+        double speed = 0.3;
+        double curveRadius = 100; // cm
+        double wheelbase = 37.38; // measured
+        driveCurve = new DriveCurve(curveAngle, speed, curveRadius, wheelbase, driveTrain.imu, logFile);
+
                 // Wait for the start button
         telemetry.addData(">", "Press Start to run" );
         telemetry.update();
@@ -43,16 +50,8 @@ public class TestDriveCurvesAndrew extends LinearOpMode {
         // Put your calls here - they will not run in a loop
         // can i please have wheel speeds but only once
         while(opModeIsActive()) {
-
-            // Put your calls that need to run in a loop here
-
-            // Display the current value
-            //telemetry.addData("Motor Speed = ", "%5.2f", powerToRunAt);
-            //telemetry.addData("Encoder Count=", "%5d", motor.getCurrentPosition());
-            telemetry.addData(">", "Press Stop to end test." );
-
+            telemetry.addData(">", "Curving ..." );
             telemetry.update();
-            
             idle();
         }
 
