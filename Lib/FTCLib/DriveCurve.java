@@ -192,6 +192,7 @@ public class DriveCurve {
         if (logFile != null && enableLogging) {
             logFile.logData("Curve radius = " + radius + " speed = " + speed + " angle = " + curveAngle + " left wheel speed = " + leftWheelSpeed + " right wheel speed = " + rightWheelSpeed);
             logFile.logData("rate of turn should be = " + Double.toString(calculateRateOfTurn(radius)));
+            logFile.logData("distance traveled should be = " + Double.toString(2 * Math.PI * radius * curveAngle / 360));
         }
     }
 
