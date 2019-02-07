@@ -80,6 +80,9 @@ public class DriveCurve {
      * curveThreshold and desired angle + threshold. Default is within a 2 degree range, or +/- 1
      * degree
      */
+
+    private DriveTrain driveTrain;
+
     private double curveThreshold = 1;
 
     public double getCurveThreshold() {
@@ -129,18 +132,19 @@ public class DriveCurve {
     // from it
     //*********************************************************************************************
 
-    public DriveCurve(double curveAngle, double speed, double radius, double wheelBase, AdafruitIMU8863 imu, DataLogging logFile) {
+    public DriveCurve(DriveTrain driveTrain, double curveAngle, double speed, double radius, double wheelBase, AdafruitIMU8863 imu, DataLogging logFile) {
         this.logFile = logFile;
-        init(curveAngle, speed, radius, wheelBase, imu);
+        init(driveTrain, curveAngle, speed, radius, wheelBase, imu);
     }
 
-    public DriveCurve(double curveAngle, double speed, double radius, double wheelBase, AdafruitIMU8863 imu) {
+    public DriveCurve(DriveTrain driveTrain, double curveAngle, double speed, double radius, double wheelBase, AdafruitIMU8863 imu) {
         this.logFile = null;
         enableLogging = false;
-        init(curveAngle, speed, radius, wheelBase, imu);
+        init(driveTrain, curveAngle, speed, radius, wheelBase, imu);
     }
 
-    private void init(double curveAngle, double speed, double radius, double wheelBase, AdafruitIMU8863 imu) {
+    private void init(DriveTrain driveTrain, double curveAngle, double speed, double radius, double wheelBase, AdafruitIMU8863 imu) {
+        this.driveTrain = driveTrain;
         this.imu = imu;
         this.wheelBase = wheelBase;
         setCurveAngle(curveAngle);
@@ -171,15 +175,15 @@ public class DriveCurve {
             switch (curveDirection) {
                 case CW:
                     // outside wheel is the left
-                    leftWheelSpeed = speed *( 1 + wheelBase / 2 * radius);
+                    leftWheelSpeed = speed *( 1 + wheelBase / (2 * radius));
                     // inside wheel is the right
-                    rightWheelSpeed = speed *( 1 - wheelBase / 2 * radius);
+                    rightWheelSpeed = speed *( 1 - wheelBase / (2 * radius));
                     break;
                 case CCW:
                     // inside wheel is the left
-                    leftWheelSpeed = speed *(1 - wheelBase / 2 * radius);
+                    leftWheelSpeed = speed *(1 - wheelBase / (2 * radius));
                     // outside wheel is the right
-                    rightWheelSpeed = speed *(1 + wheelBase / 2 * radius);
+                    rightWheelSpeed = speed *(1 + wheelBase / (2 * radius));
                     break;
             }
         }
@@ -199,6 +203,9 @@ public class DriveCurve {
         // turning
         switch (curveState) {
             case NOT_STARTED:
+                driveTrain.setLeftDriveMotorSpeed(leftWheelSpeed);
+                driveTrain.setRightDriveMotorSpeed(rightWheelSpeed);
+                driveTrain.applyPowersToMotors();
                 curveState = CurveState.TURNING;
                 returnValue = false;
                 break;

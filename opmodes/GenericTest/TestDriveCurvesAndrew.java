@@ -36,11 +36,11 @@ public class TestDriveCurvesAndrew extends LinearOpMode {
         driveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap, telemetry);
         // at power = .3 remove 1 degree from the turn (found 1 degree per 40ms cycle - .0256 deg/mS rate of turn)
         // at power = .5 remove 2 degree from the turn (found 1.8 degree per 40ms cycle- .0445 deg/mS rate of turn)
-        double curveAngle = -86.0;
+        double curveAngle = 86.0;
         double speed = 0.3;
         double curveRadius = 100; // cm
         double wheelbase = 37.38; // measured
-        driveCurve = new DriveCurve(curveAngle, speed, curveRadius, wheelbase, driveTrain.imu, logFile);
+        driveCurve = new DriveCurve(driveTrain, curveAngle, speed, curveRadius, wheelbase, driveTrain.imu, logFile);
 
                 // Wait for the start button
         telemetry.addData(">", "Press Start to run" );
@@ -49,13 +49,16 @@ public class TestDriveCurvesAndrew extends LinearOpMode {
 
         // Put your calls here - they will not run in a loop
         // can i please have wheel speeds but only once
-        while(opModeIsActive()) {
+        while(opModeIsActive() && !driveCurve.update() ) {
+
             telemetry.addData(">", "Curving ..." );
             telemetry.update();
             idle();
         }
 
         // Put your cleanup code here - it runs as the application shuts down
+        driveTrain.shutdown();
+        sleep(2000);
         telemetry.addData(">", "Done");
         telemetry.update();
 
