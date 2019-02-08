@@ -251,6 +251,8 @@ public class CollectorGB {
         collectionServoLeft.setPower(-.8);
     }
 
+    private void turnRightStarOnFixJam () { collectionServoRight.setPower(-1);}
+
     private void turnStorageStarOff() {
         storageStarServo.setPower(0);
     }
@@ -294,6 +296,7 @@ public class CollectorGB {
     public void gateServoGoToHalfEjectPositionGold() {
         gateServo.goPositionFour();
     }
+
 
 
     private void turnCollectorSystemsOff() {
@@ -632,9 +635,14 @@ public class CollectorGB {
                         // to be in the collector. Bascially assume the driver knows what they are
                         // doing
                         collectorState = CollectorState.DELIVER_MINERAL;
-                        turnStorageStarOnStore();
+                        if(desiredMineralColor == MineralColor.GOLD){
+                            turnStorageStarOnUnstore();
+                        }
+                        else{
+                            turnStorageStarOnStore();
+                        }
                         gateServoGoToStorePosition();
-                        timer.reset();
+                        gateServoTimer.reset();
                         log("Delivery started");
                         debug("Delivery started");
                         break;
@@ -687,9 +695,14 @@ public class CollectorGB {
                     case DELIVER_ON:
                         // The driver has asked the collector to deliver minerals so obey them.
                         collectorState = CollectorState.DELIVER_MINERAL;
-                        turnStorageStarOnStore();
+                        if(desiredMineralColor == MineralColor.GOLD){
+                            turnStorageStarOnUnstore();
+                        }
+                        else{
+                            turnStorageStarOnStore();
+                        }
                         gateServoGoToStorePosition();
-                        timer.reset();
+                        gateServoTimer.reset();
                         log("Delivery started");
                         debug("Delivery started");
                         break;
@@ -887,9 +900,14 @@ public class CollectorGB {
                         break;
                     case DELIVER_ON:
                         collectorState = CollectorState.DELIVER_MINERAL;
-                        turnStorageStarOnStore();
+                        if(desiredMineralColor == MineralColor.GOLD){
+                            turnStorageStarOnUnstore();
+                        }
+                        else{
+                            turnStorageStarOnStore();
+                        }
                         gateServoGoToStorePosition();
-                        timer.reset();
+                        gateServoTimer.reset();
                         log("Delivery started");
                         debug("Delivery started");
                         break;
@@ -1004,6 +1022,7 @@ public class CollectorGB {
                 if (isMineralDetected()) {
                     // yup there was a jam, try to clear it.
                     gateServoGoToFixJamPosition();
+                    turnRightStarOnFixJam();
                     gateServoTimer.reset();
                     collectorState = CollectorState.STORE_WAIT_FOR_UNJAM;
                     mineralDetectedCounter = 0;
@@ -1040,6 +1059,7 @@ public class CollectorGB {
                     //forcing actual mineral color to gold
                     actualMineralColor = MineralColor.GOLD;
                     collectorState = CollectorState.MINERAL_COLOR_DETERMINED;
+                    numberOfMineralsStored = 0;
                 }
                 break;
 
@@ -1180,6 +1200,9 @@ public class CollectorGB {
                         collectorCommand = CollectorCommand.DELIVER_ON;
                         break;
                     case DELIVER_ON:
+                        if(gateServoTimer.milliseconds() > 500){
+                            turnStorageStarOnUnstore();
+                        }
                         // delivery has already been started. So just sit in this state and wait for
                         // the driver to tell us the delivery is complete or to fix a transfer jam.
                         break;
