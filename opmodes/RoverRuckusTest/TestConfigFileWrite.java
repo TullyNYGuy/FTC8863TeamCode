@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.opmodes.RoverRuckusTest;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.AutonomousConfigirationFile;
+import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.AutonomousConfigurationFile;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
@@ -13,26 +13,26 @@ import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.AutonomousConfigiration
 public class TestConfigFileWrite extends LinearOpMode {
 
     // Put your variable declarations here
-    public AutonomousConfigirationFile autonomousConfigirationFile;
+    public AutonomousConfigurationFile autonomousConfigurationFile;
 
     @Override
     public void runOpMode() {
 
 
         // Put your initializations here
-        autonomousConfigirationFile = new AutonomousConfigirationFile();
+        autonomousConfigurationFile = new AutonomousConfigurationFile();
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
         telemetry.update();
         waitForStart();
 
-        // Put your calls here - they will not run in a loop
-        autonomousConfigirationFile.setHangLocation(AutonomousConfigirationFile.HangLocation.DEPOT_SIDE);
-        autonomousConfigirationFile.setDelay(45);
-        autonomousConfigirationFile.setSample(AutonomousConfigirationFile.Sample.BOTH);
-        autonomousConfigirationFile.setClaimDepot(true);
-        autonomousConfigirationFile.setParkLocation(AutonomousConfigirationFile.ParkLocation.OUR_CRATER);
-        autonomousConfigirationFile.writeConfigirationFile();
+        // Put your calls here - they will not run in a loopC
+        autonomousConfigurationFile.setHangLocation(AutonomousConfigurationFile.HangLocation.CRATER_SIDE);
+        autonomousConfigurationFile.setDelay(5);
+        autonomousConfigurationFile.setSample(AutonomousConfigurationFile.Sample.CRATER_SIDE);
+        autonomousConfigurationFile.setClaimDepot(false);
+        autonomousConfigurationFile.setParkLocation(AutonomousConfigurationFile.ParkLocation.OUR_CRATER);
+        autonomousConfigurationFile.writeConfigurationFile();
 
 
         // Put your cleanup code here - it runs as the application shuts down

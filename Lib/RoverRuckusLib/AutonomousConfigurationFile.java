@@ -6,7 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
 
-public class AutonomousConfigirationFile {
+public class AutonomousConfigurationFile {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -14,6 +14,7 @@ public class AutonomousConfigirationFile {
     // user defined types
     //
     //*********************************************************************************************
+
     public enum HangLocation {
         CRATER_SIDE,
         DEPOT_SIDE,
@@ -39,13 +40,14 @@ public class AutonomousConfigirationFile {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
+
     private double delay = 0;
     private HangLocation hangLocation = HangLocation.DONT_HANG;
     private Sample sample = Sample.NO_SAMPLE;
     private boolean claimDepot = true;
     private ParkLocation parkLocation = ParkLocation.OUR_CRATER;
     private String folderPath = "/sdcard/FTC8863/";
-    private String filename = "autonomousConfigirationFile.txt";
+    private String filename = "autonomousConfigurationFile.txt";
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -53,6 +55,7 @@ public class AutonomousConfigirationFile {
     // allow access to private data fields for example setMotorPower,
     // getPositionInTermsOfAttachment
     //*********************************************************************************************
+
     public void setDelay(double delay) {
         if (delay > 30) {
             delay = 30;
@@ -102,7 +105,8 @@ public class AutonomousConfigirationFile {
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
-    public AutonomousConfigirationFile() {
+
+    public AutonomousConfigurationFile() {
 
     }
 
@@ -118,18 +122,21 @@ public class AutonomousConfigirationFile {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
-    public void writeConfigirationFile() {
 
+    /**
+     * Write a configuration file for autonomous to a file on the phone
+     */
+    public void writeConfigurationFile() {
 
         File file = new File(folderPath + filename);
         FileWriter fileWriter = null;
         try {
             fileWriter = new FileWriter(file);
-            fileWriter.write("hang " + hangLocation.toString());
-            fileWriter.write("delay " + delay);
-            fileWriter.write("sample " + sample.toString());
-            fileWriter.write("claimDepot " + claimDepot);
-            fileWriter.write("parkLocation " + parkLocation.toString());
+            fileWriter.write("hangLocation " + hangLocation.toString() + System.lineSeparator());
+            fileWriter.write("delay " + delay + System.lineSeparator());
+            fileWriter.write("sample " + sample.toString() + System.lineSeparator());
+            fileWriter.write("claimDepot " + claimDepot + System.lineSeparator());
+            fileWriter.write("parkLocation " + parkLocation.toString() + System.lineSeparator());
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -141,74 +148,79 @@ public class AutonomousConfigirationFile {
             }
         }
     }
+
+    /**
+     * Read a configutation file for autonomous from a file on the phone and place the values read
+     * into the variables in this class. Then they can be read by the program that wants the values.
+     */
     public void readConfigurationFile() {
         File file = new File(folderPath + filename);
-        Scanner scanner=null;
-        try{
+        String key;
+        String value;
+        Scanner scanner = null;
+        try {
             scanner = new Scanner(file);
-            while (scanner.hasNextLine()){
-                String key=scanner.next();
-                switch (key){
-                    case "hang":
-                        String value=scanner.next();
-                        switch(value){
+            while (scanner.hasNext()) {
+                key = scanner.next();
+                switch (key) {
+                    case "hangLocation":
+                        value = scanner.next();
+                        switch (value) {
                             case "CRATER_SIDE":
-                                hangLocation=HangLocation.CRATER_SIDE;
+                                hangLocation = HangLocation.CRATER_SIDE;
                                 break;
                             case "DEPOT_SIDE":
-                                hangLocation=HangLocation.DEPOT_SIDE;
+                                hangLocation = HangLocation.DEPOT_SIDE;
                                 break;
                             case "DONT_HANG":
-                                hangLocation=HangLocation.DONT_HANG;
+                                hangLocation = HangLocation.DONT_HANG;
                                 break;
                         }
                         break;
                     case "delay":
-                        delay=scanner.nextDouble();
+                        delay = scanner.nextDouble();
                         break;
                     case "sample":
-                        switch(scanner.next()){
+                        value = scanner.next();
+                        switch (value) {
                             case "CRATER_SIDE":
-                                sample=Sample.CRATER_SIDE;
+                                sample = Sample.CRATER_SIDE;
                                 break;
                             case "DEPOT_SIDE":
-                                sample=Sample.DEPOT_SIDE;
+                                sample = Sample.DEPOT_SIDE;
                                 break;
                             case "NO_SAMPLE":
-                                sample=Sample.NO_SAMPLE;
+                                sample = Sample.NO_SAMPLE;
                                 break;
                             case "BOTH":
-                                sample=Sample.BOTH;
+                                sample = Sample.BOTH;
                                 break;
                         }
                         break;
                     case "claimDepot":
-                        claimDepot=scanner.nextBoolean();
+                        claimDepot = scanner.nextBoolean();
                         break;
                     case "parkLocation":
-                        switch(scanner.next()){
+                        value = scanner.next();
+                        switch (value) {
                             case "OUR_CRATER":
-                                parkLocation=ParkLocation.OUR_CRATER;
+                                parkLocation = ParkLocation.OUR_CRATER;
                                 break;
                             case "OTHER_CRATER":
-                                parkLocation=ParkLocation.OTHER_CRATER;
+                                parkLocation = ParkLocation.OTHER_CRATER;
                                 break;
                             case "DEPOT":
-                                parkLocation=ParkLocation.DEPOT;
+                                parkLocation = ParkLocation.DEPOT;
                                 break;
                         }
                         break;
+                    case "END":
+                        break;
                 }
             }
-
-        }catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
-        finally {
-            //close resources
-            scanner.close();
-
-            }
     }
 }
 
