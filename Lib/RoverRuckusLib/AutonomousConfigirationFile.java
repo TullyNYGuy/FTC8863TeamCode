@@ -4,6 +4,7 @@ package org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Scanner;
 
 public class AutonomousConfigirationFile {
 
@@ -139,6 +140,75 @@ public class AutonomousConfigirationFile {
                 e.printStackTrace();
             }
         }
+    }
+    public void readConfigurationFile() {
+        File file = new File(folderPath + filename);
+        Scanner scanner=null;
+        try{
+            scanner = new Scanner(file);
+            while (scanner.hasNextLine()){
+                String key=scanner.next();
+                switch (key){
+                    case "hang":
+                        String value=scanner.next();
+                        switch(value){
+                            case "CRATER_SIDE":
+                                hangLocation=HangLocation.CRATER_SIDE;
+                                break;
+                            case "DEPOT_SIDE":
+                                hangLocation=HangLocation.DEPOT_SIDE;
+                                break;
+                            case "DONT_HANG":
+                                hangLocation=HangLocation.DONT_HANG;
+                                break;
+                        }
+                        break;
+                    case "delay":
+                        delay=scanner.nextDouble();
+                        break;
+                    case "sample":
+                        switch(scanner.next()){
+                            case "CRATER_SIDE":
+                                sample=Sample.CRATER_SIDE;
+                                break;
+                            case "DEPOT_SIDE":
+                                sample=Sample.DEPOT_SIDE;
+                                break;
+                            case "NO_SAMPLE":
+                                sample=Sample.NO_SAMPLE;
+                                break;
+                            case "BOTH":
+                                sample=Sample.BOTH;
+                                break;
+                        }
+                        break;
+                    case "claimDepot":
+                        claimDepot=scanner.nextBoolean();
+                        break;
+                    case "parkLocation":
+                        switch(scanner.next()){
+                            case "OUR_CRATER":
+                                parkLocation=ParkLocation.OUR_CRATER;
+                                break;
+                            case "OTHER_CRATER":
+                                parkLocation=ParkLocation.OTHER_CRATER;
+                                break;
+                            case "DEPOT":
+                                parkLocation=ParkLocation.DEPOT;
+                                break;
+                        }
+                        break;
+                }
+            }
+
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+        finally {
+            //close resources
+            scanner.close();
+
+            }
     }
 }
 
