@@ -57,10 +57,10 @@ public class GoldMineralDetection {
      * localization engine.
      */
     private VuforiaLocalizer vuforia;
+
     private DataLogging logFile;
 
     //private List<Recognition> updatedRecognitionsFiltered;
-
 
     /**
      * {@link #tfod} is the variable we will use to store our instance of the Tensor Flow Object
@@ -71,10 +71,8 @@ public class GoldMineralDetection {
     private HardwareMap hardwareMap;
     private Telemetry telemetry;
     private List<Recognition> updatedRecognitions = null;
-    private double mineralAngle = -1;
-    private MineralVoting.MineralPosition mineralPosition = MineralVoting.MineralPosition.CENTER;
-
-
+    private double mineralAngle;
+    private MineralVoting.MineralPosition mineralPosition;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -90,6 +88,7 @@ public class GoldMineralDetection {
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
+
     public GoldMineralDetection(HardwareMap hardwareMap, Telemetry telemetry, DataLogging logFile) {
         this.hardwareMap = hardwareMap;
         this.telemetry = telemetry;
@@ -111,6 +110,7 @@ public class GoldMineralDetection {
     //
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
+
     private void initVuforia() {
         /*
          * Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
@@ -151,6 +151,12 @@ public class GoldMineralDetection {
         return mineralPosition;
     }
 
+    //*********************************************************************************************
+    //          MAJOR METHODS
+    //
+    // public methods that give the class its functionality
+    //*********************************************************************************************
+
     public void getRecognition(){
         if (tfod != null) {
 
@@ -178,13 +184,6 @@ public class GoldMineralDetection {
         }
     }
 
-
-
-    //*********************************************************************************************
-    //          MAJOR METHODS
-    //
-    // public methods that give the class its functionality
-    //*********************************************************************************************
     public void activate() {
         if (tfod != null) {
             tfod.activate();
