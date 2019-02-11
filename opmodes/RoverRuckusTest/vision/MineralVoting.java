@@ -131,20 +131,10 @@ public class MineralVoting {
     /**
      * adds one to recognition count every time that we call this method.
      */
-
-    public void updateRecognitionCount(){
+    public void updateRecognitionCount() {
         recognitionCount++;
     }
 
-    public List<Recognition> filterMasterList(List<Recognition> updatedRecognitionsMaster){
-        int cutoffPointBottom = 250;
-        for (Recognition recognition : updatedRecognitionsMaster){
-            if (recognition.getBottom() > cutoffPointBottom){
-                updatedRecognitionsFiltered.add(recognition);
-            }
-        }
-        return updatedRecognitionsFiltered;
-    }
     /**
      * Once a set of objects has been detected and the location determined for that snapshot, this
      * method should be called for each object detected. The method will process those detections into
@@ -161,35 +151,35 @@ public class MineralVoting {
      * pass 2 - gold left, nothing center, silver right = +2, -1, -2
      * pass 3 - silver left, gold center, nothing right = +1, 0, -2
      * After 3 passes, most likely location = gold on left
+     *
      * @param mineralType
      * @param mineralPosition
      */
     public void addMineralVote(MineralType mineralType, MineralPosition mineralPosition) {
-        numberVotes ++;
-        if(dataLoggingOn = true){
+        numberVotes++;
+        if (dataLoggingOn = true) {
             dataLogging.logData("mineral type = " + mineralType.toString() + " mineral position " + mineralPosition.toString());
-            dataLogging.logData("Mineral Type and Position = ", mineralType.toString() + " " + mineralPosition.toString());
         }
-        switch(mineralPosition) {
+        switch (mineralPosition) {
             case LEFT:
                 if (mineralType == MineralType.GOLD) {
-                    leftPositionCount ++;
+                    leftPositionCount++;
                 } else {
-                    leftPositionCount --;
+                    leftPositionCount--;
                 }
                 break;
             case CENTER:
                 if (mineralType == MineralType.GOLD) {
-                    centerPositionCount ++;
+                    centerPositionCount++;
                 } else {
-                    centerPositionCount --;
+                    centerPositionCount--;
                 }
                 break;
             case RIGHT:
                 if (mineralType == MineralType.GOLD) {
-                    rightPositionCount ++;
+                    rightPositionCount++;
                 } else {
-                    rightPositionCount --;
+                    rightPositionCount--;
                 }
                 break;
         }
@@ -199,6 +189,7 @@ public class MineralVoting {
      * Using the votes cast by many detections, determine the most likely location of the gold
      * mineral. In the case of a tie, there are special returns that indicate a tie occurred. It is
      * up to the calling code to break the tie.
+     *
      * @return
      */
     public LikelyPosition getMostLikelyGoldPosition() {
@@ -216,7 +207,7 @@ public class MineralVoting {
         if (rightPositionCount == centerPositionCount && rightPositionCount == leftPositionCount) {
             mostLikelyMineralPosition = LikelyPosition.TIE;
         }
-        if (leftPositionCount == centerPositionCount && leftPositionCount > leftPositionCount) {
+        if (leftPositionCount == centerPositionCount && leftPositionCount > rightPositionCount) {
             mostLikelyMineralPosition = LikelyPosition.LEFT_CENTER;
         }
         if (leftPositionCount == rightPositionCount && leftPositionCount > centerPositionCount) {
@@ -229,7 +220,7 @@ public class MineralVoting {
         dataLogging.logData("Right votes", Integer.toString(getRightPositionCount()));
         dataLogging.logData("Center votes", Integer.toString(getCenterPositionCount()));
         dataLogging.logData("Left votes", Integer.toString(getLeftPositionCount()));
-        dataLogging.logData("Number of Recognitions",Integer.toString(recognitionCount));
+        dataLogging.logData("Number of Recognitions", Integer.toString(recognitionCount));
         return mostLikelyMineralPosition;
     }
 }

@@ -141,7 +141,7 @@ public class TestTensorFlowObjectDetectionSnapshot extends LinearOpMode {
                     // getUpdatedRecognitions() will return null if no new information is available since
                     // the last time that call was made.
                     updatedRecognitions = tfod.getUpdatedRecognitions();
-                    updatedRecognitionsFiltered = mineralVoting.filterMasterList(updatedRecognitions);
+                    updatedRecognitionsFiltered = filterMasterList(updatedRecognitions);
                     // make sure there are some objects recognized and ready to process
                     if (updatedRecognitionsFiltered != null) {
                         mattIsDumb.logData("  ");
@@ -242,5 +242,15 @@ public class TestTensorFlowObjectDetectionSnapshot extends LinearOpMode {
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
         tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_GOLD_MINERAL, LABEL_SILVER_MINERAL);
+    }
+
+    private List<Recognition> filterMasterList(List<Recognition> updatedRecognitionsMaster) {
+        int cutoffPointBottom = 250;
+        for (Recognition recognition : updatedRecognitionsMaster) {
+            if (recognition.getBottom() > cutoffPointBottom) {
+                updatedRecognitionsFiltered.add(recognition);
+            }
+        }
+        return updatedRecognitionsFiltered;
     }
 }
