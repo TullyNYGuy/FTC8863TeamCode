@@ -550,7 +550,15 @@ public class DriveTrain {
     /**
      * Drive on a heading using the IMU to give heading feedback. This will only stop when you tell
      * it to stop using stopDriveUsingIMU(). The heading can be relative to the robot's heading at
-     * the start, or can be relative to whenever the IMU heading was last set to 0.
+     * the start, or can be relative to whenever the IMU heading was last set to 0. Once the robot
+     * has driven more than the distance specified, the updateDriveUsingIMU() will return true. It
+     * does not actually shut off the motors. The robot just keeps on driving until you tell it to
+     * do something else. That way you can chain together other movements after this one and the
+     * robot just continues to run the movements without stopping.
+     *
+     * This is the setup for the drive. You call this once. Then after this you call
+     * updateDriveUsingIMU() in a loop so that it can update the PID and check on the distance
+     * traveled.
      *
      * @param heading     heading in degrees. Counter clockwise is +. Clockwise is -. Range from -180 to
      *                    +180. Note that if you input 180 it will have problems navigating due to the
@@ -565,9 +573,10 @@ public class DriveTrain {
     public void setupDriveUsingIMU(double heading, double distance, double maxPower, AdafruitIMU8863.AngleMode headingType) {
 
         if (imuPresent) {
-            // set the mode for the motors during the turn. Without this they may not move.
+            // set the mode for the motors so they run using speed control. Without this they may not move.
             rightDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             leftDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            // setup PID control
             pidControl.setSetpoint(heading);
             pidControl.setMaxCorrection(maxPower);
             // threshold is not meaningful in this movement. It is normally used to say when the
@@ -577,17 +586,22 @@ public class DriveTrain {
             //pidControl.setKp(0.011);
             pidControl.setKp(0.009);
             pidControl.setKi(0.05/1000000);
+            // reset the integrator before starting
             pidControl.reset();
             driveTrainPower = maxPower;
 
             switch (headingType) {
+                // since the turn is relative to the current heading, reset the angle references to 0
                 case RELATIVE:
                     imu.setAngleMode(AdafruitIMU8863.AngleMode.RELATIVE);
                     imu.resetAngleReferences();
                     break;
+                    // since the movement is running on an absolute heading, we don't want to reset
+                // the angle references. Just tell the IMU to give us headings in a relative mode
                 case ABSOLUTE:
                     imu.setAngleMode(AdafruitIMU8863.AngleMode.ABSOLUTE);
                     break;
+                    // not sure why you would want to use this mode
                 case RAW:
                     imu.setAngleMode(AdafruitIMU8863.AngleMode.RAW);
                     break;
@@ -625,8 +639,9 @@ public class DriveTrain {
     }
 
     /**
-     * You must call this method in a loop after you call setupDriveDistance() in order to get the
-     * movement to work properly.
+     * You must call this method in a loop after you call setupDriveUsingIMU() in order to get the
+     * movement to work properly. That is because the PID needs to be constantly updated and the
+     * distance driven has to be constantly updated.
      *
      * @return true if the distance traveled is greater than the distance desired (ie the distance
      *         to drive set in the setup.
@@ -637,11 +652,13 @@ public class DriveTrain {
             // I have to reverse the sign since the differential drive method expects a negative
             // joystick input for a left turn (joystick left = negative number, not what you would
             // expect).
+            // get the correction from the PID
             double correction = -pidControl.getCorrection(currentHeading);
 //            if (driveTrainPower < 0) {
 //                // sign on correction has to flip or feedback is wrong direction
 //                correction = correction * -1;
 //            }
+            // apply the correction to the motors
             differentialDrive(driveTrainPower, correction);
             // THERE IS A BUG HERE. THE DISTANCE BEING REPORTED IS CUMULATIVE NOT RELATIVE TO THE START OF THE MOVEMENT
             distanceDriven = calculateDistanceDriven();
