@@ -72,6 +72,10 @@ public class AutonomousMovementSteps {
     public RoverRuckusRobot robot;
     private DataLogging logFile;
     private Telemetry telemetry;
+    private AutonomousDirector autonomousDirector;
+
+    private AutonomousDirector.AutonomousTasks task;
+    private AutonomousDirector.AutonomousTasks previousTask;
 
     private Steps step;
     private Steps previousStep;
@@ -111,8 +115,8 @@ public class AutonomousMovementSteps {
     // from it
     //*********************************************************************************************
 
-    public AutonomousMovementSteps(RoverRuckusRobot robot, DataLogging logFile, Telemetry telemetry) {
-        this.robot = robot;
+    public AutonomousMovementSteps(AutonomousDirector autonomousDirector, DataLogging logFile, Telemetry telemetry) {
+        this.autonomousDirector = autonomousDirector;
         if (logFile != null) {
             enableLogging();
         } else {
@@ -124,6 +128,7 @@ public class AutonomousMovementSteps {
         timer = new ElapsedTime();
 
         step = Steps.START;
+        task = autonomousDirector.getNextTask();
     }
 
 
@@ -139,6 +144,16 @@ public class AutonomousMovementSteps {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
+
+    public void update(){
+        boolean complete = false;
+
+        switch(task) {
+            case LOCATE_GOLD_MINERAL:
+                break;
+
+        }
+    }
 
     public void FacingCraterToLeftMineralToDepotToCrater() {
 
