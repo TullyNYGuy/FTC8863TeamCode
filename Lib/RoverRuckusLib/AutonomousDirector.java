@@ -124,7 +124,7 @@ public class AutonomousDirector {
         return conFigFile.getSample() == AutonomousConfigurationFile.Sample.CRATER_SIDE || conFigFile.getSample() == AutonomousConfigurationFile.Sample.DEPOT_SIDE || conFigFile.getSample() == AutonomousConfigurationFile.Sample.BOTH;
     }
 
-    private void translator() {
+    public void translator() {
         // if we are sampling, find the location of the gold mineral while the robot is hanging
         if (conFigFile.getSample() == AutonomousConfigurationFile.Sample.CRATER_SIDE || conFigFile.getSample() == AutonomousConfigurationFile.Sample.DEPOT_SIDE || conFigFile.getSample() == AutonomousConfigurationFile.Sample.BOTH) {
             taskList.add(AutonomousTasks.LOCATE_GOLD_MINERAL);
