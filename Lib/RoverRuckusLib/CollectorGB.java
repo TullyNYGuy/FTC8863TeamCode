@@ -457,7 +457,7 @@ public class CollectorGB {
     private void logState(CollectorState collectorState, CollectorCommand collectorCommand) {
         if (logFile != null && loggingOn) {
             if (collectorState != previousCollectorState || collectorCommand != previousCollectorCommand) {
-                logFile.logData("Collector", collectorState.toString(), collectorCommand.toString());
+                logFile.logData("Collector about to enter", collectorState.toString(), collectorCommand.toString());
                 previousCollectorState = collectorState;
                 previousCollectorCommand = collectorCommand;
             }
@@ -812,13 +812,13 @@ public class CollectorGB {
                                 mineralColorGoldCounter = 0;
                                 turnCollectorSystemsOff();
                                 numberOfMineralsStored = 2;
+                                log("Number of minerals stored = " + numberOfMineralsStored);
                                 timer.reset();
                                 break;
                             case STORE:
-                                collectorState = CollectorState.STORE_INTAKE_ON;
+                                // collectorState = CollectorState.STORE_INTAKE_ON;
                                 mineralColorSilverCounter = 0;
                                 mineralColorGoldCounter = 0;
-                                ;
                                 //turn on the storage star and start its timer
                                 turnStorageStarOnStore();
                                 storageStarTimer.reset();
@@ -827,7 +827,7 @@ public class CollectorGB {
                                 // and skip to the next state
                                 //turnIntakeOnSuckIn();
                                 collectorState = CollectorState.STORE_GATE_SERVO_TO_STORE;
-                                intakeTimer.reset();
+                                //intakeTimer.reset();
                                 // move gate servo towards back of collector and start its timer
                                 gateServoGoToStorePosition();
                                 gateServoTimer.reset();
@@ -993,6 +993,7 @@ public class CollectorGB {
                 // if the storage star has been running for its allowed time, shut it off
                 if (storageStarTimer.milliseconds() > mineralStorageTimerLimit) {
                     numberOfMineralsStored = 1;
+                    log("Number of minerals stored = " + numberOfMineralsStored);
                     debug("stored");
                     turnStorageStarOff();
                     collectorState = CollectorState.STORE_WAIT_FOR_GATE;
@@ -1060,6 +1061,7 @@ public class CollectorGB {
                     actualMineralColor = MineralColor.GOLD;
                     collectorState = CollectorState.MINERAL_COLOR_DETERMINED;
                     numberOfMineralsStored = 0;
+                    log("Number of minerals stored = " + numberOfMineralsStored);
                 }
                 break;
 
@@ -1191,6 +1193,7 @@ public class CollectorGB {
                         collectorState = CollectorState.OFF;
                         softReset();
                         numberOfMineralsStored = 0;
+                        log("Number of minerals stored = " + numberOfMineralsStored);
                         log("Delivery completed");
                         debug("Delivery completed");
                         break;
@@ -1224,6 +1227,7 @@ public class CollectorGB {
                         collectorCommand = CollectorCommand.OFF;
                         softReset();
                         numberOfMineralsStored = 0;
+                        log("Number of minerals stored = " + numberOfMineralsStored);
                         log("Delivery completed");
                         debug("Delivery completed");
                         break;
@@ -1243,6 +1247,7 @@ public class CollectorGB {
                         collectorState = CollectorState.OFF;
                         softReset();
                         numberOfMineralsStored = 0;
+                        log("Number of minerals stored = " + numberOfMineralsStored);
                         log("Delivery completed");
                         debug("Delivery completed");
                         break;
@@ -1278,6 +1283,7 @@ public class CollectorGB {
                         collectorCommand = CollectorCommand.OFF;
                         softReset();
                         numberOfMineralsStored = 0;
+                        log("Number of minerals stored = " + numberOfMineralsStored);
                         log("Delivery completed");
                         debug("Delivery completed");
                         break;
