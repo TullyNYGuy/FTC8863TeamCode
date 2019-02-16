@@ -27,17 +27,18 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.firstinspires.ftc.teamcode.opmodes.RoverRuckusTest;
+package org.firstinspires.ftc.teamcode.opmodes.RoverRuckusTest.vision;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 
 import java.util.List;
 
@@ -51,12 +52,14 @@ import java.util.List;
  * IMPORTANT: In order to use this OpMode, you need to obtain your own Vuforia license key as
  * is explained below.
  */
-@TeleOp(name = "Concept: TensorFlow Object Detection Dub", group = "Concept")
+@TeleOp(name = "Concept: TensorFlow Object Detection Snapshot", group = "Concept")
 //@Disabled
-public class TestTensorFlowObjectDetection extends LinearOpMode {
+public class TestTensorFlowObjectDetectionSnapshot extends LinearOpMode {
     private static final String TFOD_MODEL_ASSET = "RoverRuckus.tflite";
     private static final String LABEL_GOLD_MINERAL = "Gold Mineral";
     private static final String LABEL_SILVER_MINERAL = "Silver Mineral";
+
+    MineralVoting mineralVoting;
 
     /*
      * IMPORTANT: You need to obtain your own license key to use Vuforia. The string below with which
@@ -77,18 +80,29 @@ public class TestTensorFlowObjectDetection extends LinearOpMode {
      * localization engine.
      */
     private VuforiaLocalizer vuforia;
+    private DataLogging mattIsDumb;
+    private float goldMineralConfidenceLevel;
+    private float silverMineral1ConfidenceLevel;
+    private float silverMineral2ConfidenceLevel;
+    private int loopCount = 0;
+
+    private List<Recognition> updatedRecognitionsFiltered;
+
 
     /**
      * {@link #tfod} is the variable we will use to store our instance of the Tensor Flow Object
      * Detection engine.
      */
     private TFObjectDetector tfod;
+    private boolean flag = false;
 
     @Override
     public void runOpMode() {
         // The TFObjectDetector uses the camera frames from the VuforiaLocalizer, so we create that
         // first.
         initVuforia();
+        mattIsDumb = new DataLogging("Vision", telemetry);
+        mineralVoting = new MineralVoting(mattIsDumb);
 
         // Check if tensor flow object detection (Tfod) can be run on the phone
         if (ClassFactory.getInstance().canCreateTFObjectDetector()) {
@@ -103,26 +117,37 @@ public class TestTensorFlowObjectDetection extends LinearOpMode {
         telemetry.addData(">", "Press Play to start tracking");
         telemetry.update();
         waitForStart();
+        mattIsDumb.startTimer();
 
         if (opModeIsActive()) {
             /** Activate Tensor Flow Object Detection. */
             if (tfod != null) {
                 tfod.activate();
             }
+            List<Recognition> updatedRecognitions = null;
 
             while (opModeIsActive()) {
+                //mattIsDumb.logData("Loop Count: " + loopCount);
                 if (tfod != null) {
                     // Give the left edge location of each object some bogus intial value, like -1.
-                    int goldMineralLeftEdgeLocation = -1;
-                    int silverMineral1LeftEdgeLocation = -1;
-                    int silverMineral2LeftEdgeLocation = -1;
+                    double goldMineralLeftEdgeLocation = -1;
+                    double silverMineral1LeftEdgeLocation = -1;
+                    double silverMineral2LeftEdgeLocation = -1;
+
+                    double mineralAngle = -1;
+                    MineralVoting.MineralPosition mineralPosition = MineralVoting.MineralPosition.CENTER;
 
                     // getUpdatedRecognitions() get the latest set of objects detected
                     // getUpdatedRecognitions() will return null if no new information is available since
                     // the last time that call was made.
-                    List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
+                    updatedRecognitions = tfod.getUpdatedRecognitions();
+                    updatedRecognitionsFiltered = filterMasterList(updatedRecognitions);
                     // make sure there are some objects recognized and ready to process
-                    if (updatedRecognitions != null && updatedRecognitions.size() < 4) {
+                    if (updatedRecognitionsFiltered != null) {
+                        mattIsDumb.logData("  ");
+                        mattIsDumb.logData("# of Objects Detected: " + updatedRecognitionsFiltered.size());
+                        //loopCount++;
+                        mineralVoting.updateRecognitionCount();
                         // there are between 1 and 3 objects. Let's get to work!
 
                         // We are going to get the location of the left edge
@@ -133,94 +158,61 @@ public class TestTensorFlowObjectDetection extends LinearOpMode {
                         // are in relationship to each other. We will also figure out which of the
                         // objects is the gold mineral. With the locations, and which one is gold,
                         // we can figure out where the gold is located.
-                        
+
                         // for each object in the recognitions, see if it is gold or silver, and get
                         // its left edge value
-                        for (Recognition recognition : updatedRecognitions) {
-                            // is it the gold mineral?
+                        for (Recognition recognition : updatedRecognitionsFiltered) {
+                            //determine if mineral is in left right or center area
+                            mineralAngle = recognition.estimateAngleToObject(AngleUnit.DEGREES);
+                            if (mineralAngle <= -10) {
+                                mineralPosition = MineralVoting.MineralPosition.LEFT;
+                            }
+                            if (mineralAngle >= 10) {
+                                mineralPosition = MineralVoting.MineralPosition.RIGHT;
+                            }
+                            if (mineralAngle < 10 && mineralAngle > -10) {
+                                mineralPosition = MineralVoting.MineralPosition.CENTER;
+                            }
                             if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
-                                // get its left edge location
-                                goldMineralLeftEdgeLocation = (int) recognition.getLeft();
-                                // if not then it must be one of the silvers
-                            }
-                            // is it a silver mineral?
-                            if (recognition.getLabel().equals(LABEL_SILVER_MINERAL)) {
-                                if (silverMineral1LeftEdgeLocation == -1) {
-                                    // get its left edge location
-                                    silverMineral1LeftEdgeLocation = (int) recognition.getLeft();
-                                } else {
-                                    // one silver mineral has already been seen. This is the second
-                                    // silver mineral
-                                    silverMineral2LeftEdgeLocation = (int) recognition.getLeft();
-                                }
+                                mineralVoting.addMineralVote(MineralVoting.MineralType.GOLD, mineralPosition);
+                                telemetry.addData("Gold Mineral Position", mineralPosition.toString());
+                            } else {
+                                mineralVoting.addMineralVote(MineralVoting.MineralType.SILVER, mineralPosition);
+                                telemetry.addData("Silver Mineral Position", mineralPosition.toString());
                             }
                         }
-                        telemetry.addData("# Object Detected", updatedRecognitions.size());
 
-                        // how many objects are there?
-                        switch (updatedRecognitions.size()) {
-                            case 1:
-                                // not sure what to do here
-                                break;
-                            case 2:
-                                // there are 2 objects. Assume the camera is looking at the left 2 mineral positions.
-                                // for each object, find out if it is the gold and gets its left edge location
-                                // psuedo code:
-                                // if neither of the minerals is gold, then the gold is the right mineral
-                                // if one of the minerals is gold, then check if the left edge of the gold 
-                                // one is less than the left edge of the silver one. If it is then the left mineral 
-                                // is gold. 
-                                // if not, then the gold is the center mineral
-                                if(goldMineralLeftEdgeLocation == -1 && silverMineral2LeftEdgeLocation >= 0){
-                                telemetry.addData("Gold Mineral Position", "Right");
+                        if (updatedRecognitionsFiltered != null) {
+                            mattIsDumb.logData("Found objects on pass = " + loopCount + ". Object count = " + updatedRecognitionsFiltered.size());
+                            telemetry.addData("Number of objects detected = ", updatedRecognitionsFiltered.size());
+                            for (Recognition recognition : updatedRecognitionsFiltered) {
+                                mattIsDumb.logData(recognition.toString());
+                                mattIsDumb.logData("Angle to object = " + recognition.estimateAngleToObject(AngleUnit.DEGREES));
                             }
-                                if(silverMineral2LeftEdgeLocation == -1){
-                                    if(goldMineralLeftEdgeLocation < silverMineral1LeftEdgeLocation){
-                                        telemetry.addData("Gold Mineral Position", "Left");
-                                    }
-                                    else{
-                                        telemetry.addData("Gold Mineral Position", "Center");
-                                    }
-                                }
 
-                                break;
-                            case 3:
-                                // Now that we know which one is gold, and the left edge location of each
-                                // object, compare the locations to figure out where the gold is located
-                                // relative to the other objects: left, center, or right.
-                                // First make sure that we have a valid edge location for each mineral
-                                if (goldMineralLeftEdgeLocation != -1 && silverMineral1LeftEdgeLocation != -1 && silverMineral2LeftEdgeLocation != -1) {
-                                    // we do have all the left edges so now is the gold left edge location furthest to the left?
-                                    // If so then the gold is in the left position.
-                                    if (goldMineralLeftEdgeLocation < silverMineral1LeftEdgeLocation && goldMineralLeftEdgeLocation < silverMineral2LeftEdgeLocation) {
-                                        telemetry.addData("Gold Mineral Position", "Left");
-                                    } else {
-                                        // if not then is the left edge of the gold farthest to the right?
-                                        if (goldMineralLeftEdgeLocation > silverMineral1LeftEdgeLocation && goldMineralLeftEdgeLocation > silverMineral2LeftEdgeLocation) {
-                                            telemetry.addData("Gold Mineral Position", "Right");
-                                        } else {
-                                            // since it was not the left or the right, then the gold has to be
-                                            // in the center
-                                            telemetry.addData("Gold Mineral Position", "Center");
-                                        }
-                                    }
-                                }
-                                break;
-                                default:
-                                    // what to do if there are more than 3 objects detected?
-                                    // Maybe find the area of each object and pick the 3 largest
-                                    // objects. They are probably the ones we are trying to hit.
-                                    break;
+                            telemetry.update();
                         }
+
+                        telemetry.addData("# Object Detected", updatedRecognitionsFiltered.size());
                         telemetry.update();
                     }
                 }
             }
         }
 
-        if (tfod != null) {
+        if (tfod != null)
+
+        {
             tfod.shutdown();
         }
+        telemetry.addData("Voting Results", mineralVoting.getMostLikelyGoldPosition().toString());
+        telemetry.addData("Right Results", mineralVoting.getRightPositionCount());
+        telemetry.addData("Left Results", mineralVoting.getLeftPositionCount());
+        telemetry.addData("Center Results", mineralVoting.getCenterPositionCount());
+        telemetry.update();
+
+        sleep(20000);
+
     }
 
     /**
@@ -250,5 +242,15 @@ public class TestTensorFlowObjectDetection extends LinearOpMode {
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
         tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_GOLD_MINERAL, LABEL_SILVER_MINERAL);
+    }
+
+    private List<Recognition> filterMasterList(List<Recognition> updatedRecognitionsMaster) {
+        int cutoffPointBottom = 250;
+        for (Recognition recognition : updatedRecognitionsMaster) {
+            if (recognition.getBottom() > cutoffPointBottom) {
+                updatedRecognitionsFiltered.add(recognition);
+            }
+        }
+        return updatedRecognitionsFiltered;
     }
 }
