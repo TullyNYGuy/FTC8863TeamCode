@@ -149,6 +149,14 @@ public class AutonomousConfigurationFile {
         }
     }
 
+    public void testConfigFileRead(){
+        setHangLocation(HangLocation.DEPOT_SIDE);
+        setSample(Sample.DEPOT_SIDE);
+        setClaimDepot(false);
+        setParkLocation(ParkLocation.OUR_CRATER);
+        setDelay(1);
+    }
+
     /**
      * Read a configutation file for autonomous from a file on the phone and place the values read
      * into the variables in this class. Then they can be read by the program that wants the values.

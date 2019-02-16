@@ -1,6 +1,9 @@
 package org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib;
 
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -35,7 +38,9 @@ public class AutonomousDirector {
         PARK_FROM_CRATERSIDE_MINERALS,
         PARK_IN_OUR_CRATER_FROM_DEPOTSIDE_MINERALS,
         PARK_IN_FAR_CRATER_FROM_DEPOTSIDE_MINERALS,
-        PARK_IN_OUR_CRATER_FROM_CRATERSIDE_MINERALS
+        PARK_IN_OUR_CRATER_FROM_CRATERSIDE_MINERALS,
+        PARK_IN_FAR_CRATER_FROM_DEPOT,
+        PARK_IN_OUR_CRATER_FROM_DEPOT
     }
 
     //*********************************************************************************************
@@ -48,6 +53,7 @@ public class AutonomousDirector {
     private Iterator<AutonomousTasks> iterator;
     private AutonomousConfigurationFile conFigFile;
     private double delay = 0;
+    private DataLogging logFile;
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -65,7 +71,6 @@ public class AutonomousDirector {
     public AutonomousDirector(AutonomousConfigurationFile conFigFile) {
         this.conFigFile = conFigFile;
         taskList = new ArrayList<AutonomousTasks>();
-        iterator = taskList.iterator();
     }
 
     //*********************************************************************************************
@@ -73,6 +78,10 @@ public class AutonomousDirector {
     //
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
+
+    private void clearTaskList() {
+        taskList.clear();
+    }
 
 
     //*********************************************************************************************
@@ -86,6 +95,29 @@ public class AutonomousDirector {
         } else {
             return AutonomousTasks.STOP;
         }
+    }
+
+    public boolean hasNextTask() {
+        return iterator.hasNext();
+    }
+
+    public void testDirector(Telemetry telemetry) {
+        if (logFile == null) {
+            logFile = new DataLogging("Director", telemetry);
+        }
+        AutonomousTasks task;
+        translator();
+        logFile.logData("Hang Location = ",conFigFile.getHangLocation().toString());
+        logFile.logData("Delay = ",Double.toString(conFigFile.getDelay()));
+        logFile.logData("Sampling = ",conFigFile.getSample().toString());
+        logFile.logData("Claim Depot = ",Boolean.toString(conFigFile.isClaimDepot()));
+        logFile.logData("Park Location = ",conFigFile.getParkLocation().toString());
+        while (hasNextTask()) {
+            task = getNextTask();
+            logFile.logData(task.toString());
+        }
+        logFile.logData("");
+        clearTaskList();
     }
 
     private boolean isSampling() {
@@ -138,6 +170,20 @@ public class AutonomousDirector {
                             taskList.add(AutonomousTasks.PARK_IN_OTHER_CRATER_FROM_CRATER_SIDE_MINERALS);
                         }
                     }
+                } else {
+                    if (conFigFile.getHangLocation() == AutonomousConfigurationFile.HangLocation.CRATER_SIDE) {
+                        if (conFigFile.getParkLocation() == AutonomousConfigurationFile.ParkLocation.OUR_CRATER) {
+                            taskList.add(AutonomousTasks.PARK_IN_OUR_CRATER_FROM_DEPOT);
+                        } else {
+                            taskList.add(AutonomousTasks.PARK_IN_FAR_CRATER_FROM_DEPOT);
+                        }
+                    } else {
+                        if (conFigFile.getParkLocation() == AutonomousConfigurationFile.ParkLocation.OUR_CRATER) {
+                            taskList.add(AutonomousTasks.PARK_IN_OUR_CRATER_FROM_CRATERSIDE_MINERALS);
+                        } else {
+                            taskList.add(AutonomousTasks.PARK_IN_OTHER_CRATER_FROM_CRATER_SIDE_MINERALS);
+                        }
+                    }
                 }
                 // now that the robot has claimed the depot, what are we supposed to do next? Possibilities:
                 // claim the other side of the lander's minerals
@@ -151,28 +197,28 @@ public class AutonomousDirector {
                 //    in our crater
                 //    in the depot
                 // not claiming depot and just parking from the location of the minerals
-                if (!conFigFile.isClaimDepot()) {
-                    // are we on the crater side?
-                    if (conFigFile.getHangLocation() == AutonomousConfigurationFile.HangLocation.CRATER_SIDE) {
-                        // park in our crater from the crater side minerals
-                        if (conFigFile.getParkLocation() == AutonomousConfigurationFile.ParkLocation.OUR_CRATER) {
-                            taskList.add(AutonomousTasks.PARK_IN_OUR_CRATER_FROM_CRATER_SIDE_MINERALS);
-                        }
-                        // part in the other crater from the cater side minerals
-                        if (conFigFile.getParkLocation() == AutonomousConfigurationFile.ParkLocation.OTHER_CRATER) {
-                            taskList.add(AutonomousTasks.PARK_IN_OTHER_CRATER_FROM_CRATER_SIDE_MINERALS);
-                        }
+            }
+            if (!conFigFile.isClaimDepot()) {
+                // are we on the crater side?
+                if (conFigFile.getHangLocation() == AutonomousConfigurationFile.HangLocation.CRATER_SIDE) {
+                    // park in our crater from the crater side minerals
+                    if (conFigFile.getParkLocation() == AutonomousConfigurationFile.ParkLocation.OUR_CRATER) {
+                        taskList.add(AutonomousTasks.PARK_IN_OUR_CRATER_FROM_CRATER_SIDE_MINERALS);
                     }
-                    // are we on the depot side?
-                    if (conFigFile.getHangLocation() == AutonomousConfigurationFile.HangLocation.DEPOT_SIDE) {
-                        // part in our crater from the depot side minerals
-                        if (conFigFile.getParkLocation() == AutonomousConfigurationFile.ParkLocation.OUR_CRATER) {
-                            taskList.add(AutonomousTasks.PARK_IN_OUR_CRATER_FROM_DEPOT_SIDE_MINERALS);
-                        }
-                        // part in the other crater from the depot side minerals
-                        if (conFigFile.getParkLocation() == AutonomousConfigurationFile.ParkLocation.OTHER_CRATER) {
-                            taskList.add(AutonomousTasks.PARK_IN_OTHER_CRATER_FROM_DEPOT_SIDE_MINERALS);
-                        }
+                    // part in the other crater from the cater side minerals
+                    if (conFigFile.getParkLocation() == AutonomousConfigurationFile.ParkLocation.OTHER_CRATER) {
+                        taskList.add(AutonomousTasks.PARK_IN_OTHER_CRATER_FROM_CRATER_SIDE_MINERALS);
+                    }
+                }
+                // are we on the depot side?
+                if (conFigFile.getHangLocation() == AutonomousConfigurationFile.HangLocation.DEPOT_SIDE) {
+                    // part in our crater from the depot side minerals
+                    if (conFigFile.getParkLocation() == AutonomousConfigurationFile.ParkLocation.OUR_CRATER) {
+                        taskList.add(AutonomousTasks.PARK_IN_OUR_CRATER_FROM_DEPOT_SIDE_MINERALS);
+                    }
+                    // part in the other crater from the depot side minerals
+                    if (conFigFile.getParkLocation() == AutonomousConfigurationFile.ParkLocation.OTHER_CRATER) {
+                        taskList.add(AutonomousTasks.PARK_IN_OTHER_CRATER_FROM_DEPOT_SIDE_MINERALS);
                     }
                 }
             }
@@ -242,6 +288,7 @@ public class AutonomousDirector {
 
             }
         }
+        iterator = taskList.iterator();
     }
 }
 
