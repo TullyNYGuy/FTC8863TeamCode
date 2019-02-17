@@ -12,7 +12,7 @@ public class DriveCurve {
     //
     //*********************************************************************************************
 
-    public enum Direction {
+    public enum CurveDirection {
         CCW,
         CW
     }
@@ -21,6 +21,11 @@ public class DriveCurve {
         NOT_STARTED,
         TURNING,
         COMPLETE
+    }
+
+    public enum  DriveDirection{
+        FORWARD,
+        BACKWARD
     }
 
     //*********************************************************************************************
@@ -36,7 +41,25 @@ public class DriveCurve {
         return curveState;
     }
 
-    private Direction curveDirection;
+    private CurveDirection curveDirection;
+
+    public CurveDirection getCurveDirection() {
+        return curveDirection;
+    }
+
+    public void setCurveDirection(CurveDirection curveDirection) {
+        this.curveDirection = curveDirection;
+    }
+
+    private DriveDirection driveDirection;
+
+    public DriveDirection getDriveDirection() {
+        return driveDirection;
+    }
+
+    public void setDriveDirection(DriveDirection driveDirection) {
+        this.driveDirection = driveDirection;
+    }
 
     private double curveAngle;
 
@@ -46,11 +69,11 @@ public class DriveCurve {
 
     public void setCurveAngle(double curveAngle) {
         if (curveAngle >= 0) {
-            curveDirection = Direction.CCW;
+            curveDirection = CurveDirection.CCW;
             // limit the curve to less than 360
             curveAngle = Range.clip(curveAngle, 0, 360);
         } else {
-            curveDirection = Direction.CW;
+            curveDirection = CurveDirection.CW;
             // limit the curve to 360 degrees or less
             curveAngle = Range.clip(curveAngle, -360, 0);
         }
@@ -58,6 +81,24 @@ public class DriveCurve {
     }
 
     private double speed;
+
+    /**
+     * Forwards speed is a positive motor value. Backwards speed is a negative motor value. This
+     * method makes sure that the speed has the correct sign based on the direction the robot is
+     * supposed to move.
+     * @param speed
+     */
+    private void setSpeed(Double speed) {
+        speed = Math.abs(speed);
+        switch (driveDirection) {
+            case FORWARD:
+                this.speed = speed;
+                break;
+            case BACKWARD:
+                this.speed = -speed;
+                break;
+        }
+    }
 
     private double radius;
 
@@ -146,32 +187,34 @@ public class DriveCurve {
     // from it
     //*********************************************************************************************
 
-    public DriveCurve(double curveAngle, double speed, double radius, double wheelBase, AdafruitIMU8863 imu, DataLogging logFile, DriveTrain driveTrain) {
+    public DriveCurve(double curveAngle, double speed, double radius, CurveDirection curveDirection, DriveDirection driveDirection, Double wheelBase, AdafruitIMU8863 imu, DataLogging logFile, DriveTrain driveTrain) {
         this.logFile = logFile;
         enableLogging();
         this.driveTrain = driveTrain;
-        init(curveAngle, speed, radius, wheelBase, imu);
+        init(curveAngle, speed, radius, curveDirection, driveDirection, wheelBase, imu);
     }
 
-    public DriveCurve(double curveAngle, double speed, double radius, double wheelBase, AdafruitIMU8863 imu) {
+    public DriveCurve(double curveAngle, double speed, double radius, CurveDirection curveDirection, DriveDirection driveDirection, double wheelBase, AdafruitIMU8863 imu) {
         this.logFile = null;
         enableLogging = false;
-        init(curveAngle, speed, radius, wheelBase, imu);
+        init(curveAngle, speed, radius, curveDirection, driveDirection, wheelBase, imu);
     }
 
-    private void init(double curveAngle, double speed, double radius, double wheelBase, AdafruitIMU8863 imu) {
-        this.imu = imu;
-        this.wheelBase = wheelBase;
+    private void init(double curveAngle, double speed, double radius, CurveDirection curveDirection, DriveDirection driveDirection, double wheelBase, AdafruitIMU8863 imu) {
         setCurveAngle(curveAngle);
-        this.speed = speed;
+        setSpeed(speed);
         this.radius = radius;
+        this.curveDirection = curveDirection;
+        this.driveDirection = driveDirection;
+        this.wheelBase = wheelBase;
+        this.imu = imu;
 
         timer = new ElapsedTime();
         timer.reset();
 
         curveState = CurveState.NOT_STARTED;
 
-        rateOfTurn = calculateRateOfTurn(radius);
+        rateOfTurn = calculateRateOfTurnShouldBe(radius);
 
         pidControl = new PIDControl();
         pidControl.setSetpoint(rateOfTurn);
@@ -191,7 +234,7 @@ public class DriveCurve {
 
         if (logFile != null && enableLogging) {
             logFile.logData("Curve radius = " + radius + " speed = " + speed + " angle = " + curveAngle + " left wheel speed = " + leftWheelSpeed + " right wheel speed = " + rightWheelSpeed);
-            logFile.logData("rate of turn should be = " + Double.toString(calculateRateOfTurn(radius)));
+            logFile.logData("rate of turn should be = " + Double.toString(calculateRateOfTurnShouldBe(radius)));
             logFile.logData("distance traveled should be = " + Double.toString(2 * Math.PI * radius * curveAngle / 360));
         }
     }
@@ -208,40 +251,114 @@ public class DriveCurve {
             leftWheelSpeed = speed;
             rightWheelSpeed = speed;
         } else {
-            // these are for forward movement
-            switch (curveDirection) {
-                case CW:
-                    // outside wheel is the left
-                    leftWheelSpeed = speed * (1 + wheelBase / (2 * radius));
-                    // inside wheel is the right
-                    rightWheelSpeed = speed * (1 - wheelBase / (2 * radius));
-                    correctionSign = +1.0;
+            switch(driveDirection) {
+                case FORWARD:
+                    // these are for forward movement
+                    switch (curveDirection) {
+                        case CW:
+                            // outside wheel is the left
+                            leftWheelSpeed = calculateFasterWheelSpeed(radius);
+                            // inside wheel is the right
+                            rightWheelSpeed = calculateSlowerWheelSpeed(radius);
+                            correctionSign = +1.0;
+                            break;
+                        case CCW:
+                            // inside wheel is the left
+                            leftWheelSpeed = calculateSlowerWheelSpeed(radius);
+                            // outside wheel is the right
+                            rightWheelSpeed = calculateFasterWheelSpeed(radius);
+                            correctionSign = +1.0;
+                            break;
+                    }
                     break;
-                case CCW:
-                    // inside wheel is the left
-                    leftWheelSpeed = speed * (1 - wheelBase / (2 * radius));
-                    // outside wheel is the right
-                    rightWheelSpeed = speed * (1 + wheelBase / (2 * radius));
-                    correctionSign = +1.0;
+                case BACKWARD:
+                    // these are for backward movement
+                    switch (curveDirection) {
+                        case CW:
+                            // inside wheel is the left
+                            leftWheelSpeed = calculateSlowerWheelSpeed(radius);
+                            // outside wheel is the right
+                            rightWheelSpeed = calculateFasterWheelSpeed(radius);
+                            correctionSign = +1.0;
+                            break;
+                        case CCW:
+                            // outside wheel is the left
+                            leftWheelSpeed = calculateFasterWheelSpeed(radius);
+                            // inside wheel is the right
+                            rightWheelSpeed = calculateSlowerWheelSpeed(radius);
+                            correctionSign = +1.0;
+                            break;
+                    }
                     break;
             }
+
         }
 
     }
 
-    private double calculateRateOfTurn(double radius) {
-        double rateOfTurn = 0;
+    /**
+     * Calculate the wheel speed for the wheel that follows the inner radius - the shorter lane
+     * around the race track. This is the wheel the must turn more slowly.
+     * @param radius
+     * @return
+     */
+    private double calculateSlowerWheelSpeed(Double radius) {
+        double wheelSpeed = speed * (1 - wheelBase / (2 * radius));
+        return wheelSpeed;
+    }
+
+    /**
+     * Calculate the wheel speed for the wheel that follows the outer radius - the longer lane
+     * around the race track. This is the wheel the must turn more quickly.
+     * @param radius
+     * @return
+     */
+    private double calculateFasterWheelSpeed(Double radius) {
+        double wheelSpeed = speed * (1 + wheelBase / (2 * radius));
+        return wheelSpeed;
+    }
+
+    /**
+     * Calculate the rate of turn. This is the change in heading / change in distance traveled
+     * around the circle. This should be a value that does not change since the radius of the
+     * circle does not change.
+     * @param radius
+     * @return
+     */
+    private double calculateRateOfTurnShouldBe(double radius) {
+        double rateOfTurn = 360 / (2 * Math.PI * radius);
         switch (curveDirection) {
             // CCW is a postive change in heading
             case CCW:
-                rateOfTurn = 360 / (2 * Math.PI * radius);
+                rateOfTurn = +rateOfTurn;
                 break;
             // CW is a negitive change in heading
             case CW:
-                rateOfTurn = -360 / (2 * Math.PI * radius);
+                rateOfTurn = -rateOfTurn;
                 break;
         }
         return rateOfTurn;
+    }
+
+    /**
+     * Calculate the actual rate of turn. This is the change in heading since the last time the
+     * heading was read / the change in distance traveled since the last distance was read. This
+     * value should be equal to the calculateRateOfTurnShouldBe() but it won't because stuff
+     * happens.
+     * @param currentHeading
+     * @return the rate of turn in the last little instant of time
+     */
+    private double getActualRateOfTurn(double currentHeading) {
+        double distanceDrivenSinceLast = driveTrain.getDistanceDrivenSinceLast();
+        double headingChange = currentHeading - lastHeading;
+        // setup for the next time this calculation is made
+        lastHeading = currentHeading;
+        // make sure there is not a divide by 0
+        if (distanceDrivenSinceLast != 0){
+            return headingChange / distanceDrivenSinceLast;
+        } else {
+            return 0;
+        }
     }
 
     //*********************************************************************************************
@@ -268,7 +385,9 @@ public class DriveCurve {
                 break;
             case TURNING:
                 currentHeading = imu.getHeading();
-                currentRateOfTurn = getRateOfTurn(currentHeading);
+                currentRateOfTurn = getActualRateOfTurn(currentHeading);
+                // the PID control uses the rate of turn per distance traveled. This should be a constant
+                // since the robot is traveling around a circle of a certain radius.
                 if (usePID) {
                     if (currentRateOfTurn == 0) {
                         correction = 0;
@@ -284,18 +403,20 @@ public class DriveCurve {
                     driveTrain.applyPowersToMotors();
                 }
 
+                // log the distance driven
                 if (logFile != null && enableLogging) {
                     driveTrain.updateDriveDistance();
                     logFile.logData(Double.toString(currentHeading), Double.toString(driveTrain.getDistanceDriven()), Double.toString(currentRateOfTurn));
                 }
                 // if the current heading is close enough to the desired heading indicate the turn is done
                 if (Math.abs(currentHeading) > Math.abs(curveAngle) - curveThreshold && Math.abs(currentHeading) < Math.abs(curveAngle) + curveThreshold) {
-                    // curve is complete
+                    // curve is complete, log the results
                     if (logFile != null && enableLogging) {
                         driveTrain.updateDriveDistance();
                         logFile.logData("final heading = " + Double.toString(currentHeading) + " distance driven = ", Double.toString(driveTrain.getDistanceDriven()));
                         logFile.logData("average rate of turn = " + Double.toString(currentHeading / driveTrain.getDistanceDriven()));
                     }
+                    // set the next state to complete
                     curveState = CurveState.COMPLETE;
                 }
                 returnValue = false;
@@ -307,15 +428,11 @@ public class DriveCurve {
         return returnValue;
     }
 
-    private double getRateOfTurn(double currentHeading) {
-        double distanceDrivenSinceLast = driveTrain.getDistanceDrivenSinceLast();
-        double headingChange = currentHeading - lastHeading;
-        lastHeading = currentHeading;
-        if (distanceDrivenSinceLast != 0){
-            return headingChange / distanceDrivenSinceLast;
+    public boolean isCurveComplete(){
+        if (curveState == CurveState.COMPLETE) {
+            return true;
         } else {
-            return 0;
+            return false;
         }
-
     }
 }
