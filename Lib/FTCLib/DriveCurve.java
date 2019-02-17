@@ -246,6 +246,12 @@ public class DriveCurve {
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
 
+    /**
+     * Figure out what the right and left wheel speeds should be in order to follow a curve with a
+     * certain radius. This must be run before a new curve is started. It is automatically run when
+     * the constructor is run.
+     * @param radius
+     */
     private void calculateWheelSpeeds(double radius) {
         if (radius == 0) {
             leftWheelSpeed = speed;
@@ -386,8 +392,10 @@ public class DriveCurve {
             case TURNING:
                 currentHeading = imu.getHeading();
                 currentRateOfTurn = getActualRateOfTurn(currentHeading);
+
                 // the PID control uses the rate of turn per distance traveled. This should be a constant
-                // since the robot is traveling around a circle of a certain radius.
+                // since the robot is traveling around a circle of a certain radius. But it might not
+                // be since stuff happens and the PID is supposed to fix that.
                 if (usePID) {
                     if (currentRateOfTurn == 0) {
                         correction = 0;
