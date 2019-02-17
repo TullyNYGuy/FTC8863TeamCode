@@ -37,10 +37,14 @@ public class AutonomousDirector {
         PARK_FROM_DEPOTSIDE_MINERALS,
         PARK_FROM_CRATERSIDE_MINERALS,
         PARK_IN_OUR_CRATER_FROM_DEPOTSIDE_MINERALS,
-        PARK_IN_FAR_CRATER_FROM_DEPOTSIDE_MINERALS,
+        PARK_IN_OTHER_CRATER_FROM_DEPOTSIDE_MINERALS,
         PARK_IN_OUR_CRATER_FROM_CRATERSIDE_MINERALS,
-        PARK_IN_FAR_CRATER_FROM_DEPOT,
-        PARK_IN_OUR_CRATER_FROM_DEPOT
+        PARK_IN_OUR_CRATER_FROM_DEPOT,
+        PARK_IN_OTHER_CRATER_FROM_DEPOT,
+        PARK_IN_OTHER_CRATER_FROM_CRATER_SIDE_LANDER,
+        PARK_IN_OTHER_CRATER_FROM_DEPOT_SIDE_LANDER,
+        SAMPLE_DEPOT_MINERALS_FROM_CRATER_MINERALS,
+        SAMPLE_CRATER_MINERALS_FROM_DEPOT_MINERALS
     }
 
     //*********************************************************************************************
@@ -107,11 +111,11 @@ public class AutonomousDirector {
         }
         AutonomousTasks task;
         translator();
-        logFile.logData("Hang Location = ",conFigFile.getHangLocation().toString());
-        logFile.logData("Delay = ",Double.toString(conFigFile.getDelay()));
-        logFile.logData("Sampling = ",conFigFile.getSample().toString());
-        logFile.logData("Claim Depot = ",Boolean.toString(conFigFile.isClaimDepot()));
-        logFile.logData("Park Location = ",conFigFile.getParkLocation().toString());
+        logFile.logData("Hang Location = ", conFigFile.getHangLocation().toString());
+        logFile.logData("Delay = ", Double.toString(conFigFile.getDelay()));
+        logFile.logData("Sampling = ", conFigFile.getSample().toString());
+        logFile.logData("Claim Depot = ", Boolean.toString(conFigFile.isClaimDepot()));
+        logFile.logData("Park Location = ", conFigFile.getParkLocation().toString());
         while (hasNextTask()) {
             task = getNextTask();
             logFile.logData(task.toString());
@@ -160,7 +164,7 @@ public class AutonomousDirector {
                         if (conFigFile.getParkLocation() == AutonomousConfigurationFile.ParkLocation.OUR_CRATER) {
                             taskList.add(AutonomousTasks.PARK_IN_OUR_CRATER_FROM_DEPOTSIDE_MINERALS);
                         } else {
-                            taskList.add(AutonomousTasks.PARK_IN_FAR_CRATER_FROM_DEPOTSIDE_MINERALS);
+                            taskList.add(AutonomousTasks.PARK_IN_OTHER_CRATER_FROM_DEPOTSIDE_MINERALS);
                         }
                     } else {
                         taskList.add(AutonomousTasks.SAMPLE_CRATER_MINERALS_FROM_DEPOT);
@@ -175,7 +179,7 @@ public class AutonomousDirector {
                         if (conFigFile.getParkLocation() == AutonomousConfigurationFile.ParkLocation.OUR_CRATER) {
                             taskList.add(AutonomousTasks.PARK_IN_OUR_CRATER_FROM_DEPOT);
                         } else {
-                            taskList.add(AutonomousTasks.PARK_IN_FAR_CRATER_FROM_DEPOT);
+                            taskList.add(AutonomousTasks.PARK_IN_OTHER_CRATER_FROM_DEPOT);
                         }
                     } else {
                         if (conFigFile.getParkLocation() == AutonomousConfigurationFile.ParkLocation.OUR_CRATER) {
@@ -201,92 +205,111 @@ public class AutonomousDirector {
             if (!conFigFile.isClaimDepot()) {
                 // are we on the crater side?
                 if (conFigFile.getHangLocation() == AutonomousConfigurationFile.HangLocation.CRATER_SIDE) {
+                    if (conFigFile.getSample() == AutonomousConfigurationFile.Sample.BOTH) {
+                        taskList.add(AutonomousTasks.SAMPLE_DEPOT_MINERALS_FROM_CRATER_MINERALS);
+                        if (conFigFile.getParkLocation() == AutonomousConfigurationFile.ParkLocation.OTHER_CRATER) {
+                            taskList.add(AutonomousTasks.PARK_IN_OTHER_CRATER_FROM_DEPOTSIDE_MINERALS);
+                        }
+                        if (conFigFile.getParkLocation() == AutonomousConfigurationFile.ParkLocation.OUR_CRATER) {
+                            taskList.add(AutonomousTasks.PARK_IN_OUR_CRATER_FROM_DEPOT_SIDE_MINERALS);
+                        }
+                    }
+                }
+                if (conFigFile.getHangLocation() == AutonomousConfigurationFile.HangLocation.DEPOT_SIDE) {
+                    if (conFigFile.getSample() == AutonomousConfigurationFile.Sample.BOTH) {
+                        taskList.add(AutonomousTasks.SAMPLE_CRATER_MINERALS_FROM_DEPOT_MINERALS);
+                        if (conFigFile.getParkLocation() == AutonomousConfigurationFile.ParkLocation.OTHER_CRATER) {
+                            taskList.add(AutonomousTasks.PARK_IN_OTHER_CRATER_FROM_CRATER_SIDE_MINERALS);
+                        }
+                        if (conFigFile.getParkLocation() == AutonomousConfigurationFile.ParkLocation.OUR_CRATER) {
+                            taskList.add(AutonomousTasks.PARK_IN_OUR_CRATER_FROM_CRATER_SIDE_MINERALS);
+                        }
+                    }
+                }
+                // park in our crater from the crater side minerals
+                // if (conFigFile.getParkLocation() == AutonomousConfigurationFile.ParkLocation.OUR_CRATER) {
+                //   taskList.add(AutonomousTasks.PARK_IN_OUR_CRATER_FROM_CRATER_SIDE_MINERALS);
+                //}
+                // part in the other crater from the cater side minerals
+                //if (conFigFile.getParkLocation() == AutonomousConfigurationFile.ParkLocation.OTHER_CRATER) {
+                //  taskList.add(AutonomousTasks.PARK_IN_OTHER_CRATER_FROM_CRATER_SIDE_MINERALS);
+                //}
+                //}
+                // are we on the depot side?
+//                if (conFigFile.getHangLocation() == AutonomousConfigurationFile.HangLocation.DEPOT_SIDE) {
+//                    // part in our crater from the depot side minerals
+//                    if (conFigFile.getParkLocation() == AutonomousConfigurationFile.ParkLocation.OUR_CRATER) {
+//                        taskList.add(AutonomousTasks.PARK_IN_OUR_CRATER_FROM_DEPOT_SIDE_MINERALS);
+//                    }
+//                    // part in the other crater from the depot side minerals
+//                    if (conFigFile.getParkLocation() == AutonomousConfigurationFile.ParkLocation.OTHER_CRATER) {
+//                        taskList.add(AutonomousTasks.PARK_IN_OTHER_CRATER_FROM_DEPOT_SIDE_MINERALS);
+//                    }
+//                }
+            }
+        }
+        // not sampling
+        // this needs to be like the sampling logic. The logic works down the possibilities in order.
+        if (!isSampling()) {
+            if (conFigFile.isClaimDepot()) {
+                // The robot is supposed to claim the depot. The movements depend on which side of the lander the robot is located on.
+                if (conFigFile.getHangLocation() == AutonomousConfigurationFile.HangLocation.DEPOT_SIDE) {
+                    taskList.add(AutonomousTasks.CLAIM_DEPOT_FROM_DEPOT_SIDE_LANDER);
+                }
+                if (conFigFile.getHangLocation() == AutonomousConfigurationFile.HangLocation.CRATER_SIDE) {
+                    taskList.add(AutonomousTasks.CLAIM_DEPOT_FROM_CRATER_SIDE_LANDER);
+                }
+                if (conFigFile.getHangLocation() == AutonomousConfigurationFile.HangLocation.CRATER_SIDE) {
+                    if (conFigFile.getParkLocation() == AutonomousConfigurationFile.ParkLocation.OUR_CRATER) {
+                        taskList.add(AutonomousTasks.PARK_IN_OUR_CRATER_FROM_DEPOT);
+                    } else {
+                        taskList.add(AutonomousTasks.PARK_IN_OTHER_CRATER_FROM_DEPOT);
+                    }
+                } else {
+                    if (conFigFile.getParkLocation() == AutonomousConfigurationFile.ParkLocation.OUR_CRATER) {
+                        taskList.add(AutonomousTasks.PARK_IN_OUR_CRATER_FROM_DEPOT);
+                    } else {
+                        taskList.add(AutonomousTasks.PARK_IN_OTHER_CRATER_FROM_DEPOT);
+                    }
+                }
+            }
+            // now that the robot has claimed the depot, what are we supposed to do next? Possibilities:
+            // claim the other side of the lander's minerals
+            //    crater side of the lander minerals from the depot side
+            //    depot side of the lander minerals from the crater side
+            //        now that the robot has claimed the second gold mineral, is it supposed to park?
+            //        If yes, then the parking depends on where the robot current is located, and where
+            //        it is supposed to park
+            // just park
+            //    in other crater
+            //    in our crater
+            //    in the depot
+            // not claiming depot and just parking from the location of the minerals
+            if (!conFigFile.isClaimDepot()) {
+                // are we on the crater side?
+                if (conFigFile.getHangLocation() == AutonomousConfigurationFile.HangLocation.CRATER_SIDE) {
                     // park in our crater from the crater side minerals
                     if (conFigFile.getParkLocation() == AutonomousConfigurationFile.ParkLocation.OUR_CRATER) {
-                        taskList.add(AutonomousTasks.PARK_IN_OUR_CRATER_FROM_CRATER_SIDE_MINERALS);
+                        taskList.add(AutonomousTasks.PARK_IN_OUR_CRATER_FROM_CRATER_SIDE_LANDER);
                     }
                     // part in the other crater from the cater side minerals
                     if (conFigFile.getParkLocation() == AutonomousConfigurationFile.ParkLocation.OTHER_CRATER) {
-                        taskList.add(AutonomousTasks.PARK_IN_OTHER_CRATER_FROM_CRATER_SIDE_MINERALS);
+                        taskList.add(AutonomousTasks.PARK_IN_OTHER_CRATER_FROM_CRATER_SIDE_LANDER);
                     }
                 }
                 // are we on the depot side?
                 if (conFigFile.getHangLocation() == AutonomousConfigurationFile.HangLocation.DEPOT_SIDE) {
                     // part in our crater from the depot side minerals
                     if (conFigFile.getParkLocation() == AutonomousConfigurationFile.ParkLocation.OUR_CRATER) {
-                        taskList.add(AutonomousTasks.PARK_IN_OUR_CRATER_FROM_DEPOT_SIDE_MINERALS);
+                        taskList.add(AutonomousTasks.PARK_IN_OUR_CRATER_FROM_DEPOT_SIDE_LANDER);
                     }
                     // part in the other crater from the depot side minerals
                     if (conFigFile.getParkLocation() == AutonomousConfigurationFile.ParkLocation.OTHER_CRATER) {
-                        taskList.add(AutonomousTasks.PARK_IN_OTHER_CRATER_FROM_DEPOT_SIDE_MINERALS);
+                        taskList.add(AutonomousTasks.PARK_IN_OTHER_CRATER_FROM_DEPOT_SIDE_LANDER);
                     }
                 }
             }
-            // not sampling
-            // this needs to be like the sampling logic. The logic works down the possibilities in order.
-            if (!isSampling()) {
-                if (conFigFile.isClaimDepot()) {
-                    // The robot is supposed to claim the depot. The movements depend on which side of the lander the robot is located on.
-                    if (conFigFile.getHangLocation() == AutonomousConfigurationFile.HangLocation.DEPOT_SIDE) {
-                        taskList.add(AutonomousTasks.CLAIM_DEPOT_FROM_DEPOT_SIDE_MINERALS);
-                    }
-                    if (conFigFile.getHangLocation() == AutonomousConfigurationFile.HangLocation.CRATER_SIDE) {
-                        taskList.add(AutonomousTasks.CLAIM_DEPOT_FROM_CRATER_SIDE_MINERALS);
-                    }
-                    if (conFigFile.getHangLocation() == AutonomousConfigurationFile.HangLocation.CRATER_SIDE) {
-                        taskList.add(AutonomousTasks.SAMPLE_DEPOT_MINERALS_FROM_DEPOT);
-                        if (conFigFile.getParkLocation() == AutonomousConfigurationFile.ParkLocation.OUR_CRATER) {
-                            taskList.add(AutonomousTasks.PARK_IN_OUR_CRATER_FROM_DEPOTSIDE_MINERALS);
-                        } else {
-                            taskList.add(AutonomousTasks.PARK_IN_FAR_CRATER_FROM_DEPOTSIDE_MINERALS);
-                        }
-                    } else {
-                        taskList.add(AutonomousTasks.SAMPLE_CRATER_MINERALS_FROM_DEPOT);
-                        if (conFigFile.getParkLocation() == AutonomousConfigurationFile.ParkLocation.OUR_CRATER) {
-                            taskList.add(AutonomousTasks.PARK_IN_OUR_CRATER_FROM_CRATERSIDE_MINERALS);
-                        } else {
-                            taskList.add(AutonomousTasks.PARK_IN_OTHER_CRATER_FROM_CRATER_SIDE_MINERALS);
-                        }
-                    }
-                    // now that the robot has claimed the depot, what are we supposed to do next? Possibilities:
-                    // claim the other side of the lander's minerals
-                    //    crater side of the lander minerals from the depot side
-                    //    depot side of the lander minerals from the crater side
-                    //        now that the robot has claimed the second gold mineral, is it supposed to park?
-                    //        If yes, then the parking depends on where the robot current is located, and where
-                    //        it is supposed to park
-                    // just park
-                    //    in other crater
-                    //    in our crater
-                    //    in the depot
-                    // not claiming depot and just parking from the location of the minerals
-                    if (!conFigFile.isClaimDepot()) {
-                        // are we on the crater side?
-                        if (conFigFile.getHangLocation() == AutonomousConfigurationFile.HangLocation.CRATER_SIDE) {
-                            // park in our crater from the crater side minerals
-                            if (conFigFile.getParkLocation() == AutonomousConfigurationFile.ParkLocation.OUR_CRATER) {
-                                taskList.add(AutonomousTasks.PARK_IN_OUR_CRATER_FROM_CRATER_SIDE_MINERALS);
-                            }
-                            // part in the other crater from the cater side minerals
-                            if (conFigFile.getParkLocation() == AutonomousConfigurationFile.ParkLocation.OTHER_CRATER) {
-                                taskList.add(AutonomousTasks.PARK_IN_OTHER_CRATER_FROM_CRATER_SIDE_MINERALS);
-                            }
-                        }
-                        // are we on the depot side?
-                        if (conFigFile.getHangLocation() == AutonomousConfigurationFile.HangLocation.DEPOT_SIDE) {
-                            // part in our crater from the depot side minerals
-                            if (conFigFile.getParkLocation() == AutonomousConfigurationFile.ParkLocation.OUR_CRATER) {
-                                taskList.add(AutonomousTasks.PARK_IN_OUR_CRATER_FROM_DEPOT_SIDE_MINERALS);
-                            }
-                            // part in the other crater from the depot side minerals
-                            if (conFigFile.getParkLocation() == AutonomousConfigurationFile.ParkLocation.OTHER_CRATER) {
-                                taskList.add(AutonomousTasks.PARK_IN_OTHER_CRATER_FROM_DEPOT_SIDE_MINERALS);
-                            }
-                        }
-                    }
-                }
 
-            }
         }
         iterator = taskList.iterator();
     }
