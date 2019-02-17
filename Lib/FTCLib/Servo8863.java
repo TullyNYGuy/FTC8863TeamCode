@@ -72,10 +72,20 @@ public class Servo8863 {
      */
     private double positionTwo;
 
+
     /**
      * A generic position for the servo
      */
     private double positionThree;
+
+    /**
+     * A generic position for the servo
+     */
+    private double positionFour;
+    /**
+     * A generic position for the servo
+     */
+    private double positionFive;
 
     /**
      * The position that the servo initially gets set to
@@ -267,9 +277,20 @@ public class Servo8863 {
     public double getPositionThree() {
         return positionThree;
     }
-
+    public double getPositionFour() {
+        return positionFour;
+    }
+    public double getPositionFive() {
+        return positionFive;
+    }
     public void setPositionThree(double positionThree) {
         this.positionThree = positionThree;
+    }
+    public void setPositionFour(double positionFour) {
+        this.positionFour = positionFour;
+    }
+    public void setPositionFive(double positionFive) {
+        this.positionFive = positionFive;
     }
 
     public double getInitPosition() {
@@ -373,7 +394,12 @@ public class Servo8863 {
     public void goPositionThree() {
         teamServo.setPosition(getPositionThree());
     }
-
+    public void goPositionFour() {
+        teamServo.setPosition(getPositionFour());
+    }
+    public void goPositionFive() {
+        teamServo.setPosition(getPositionFive());
+    }
     public void goInitPosition() {
         teamServo.setPosition(getInitPosition());
     }

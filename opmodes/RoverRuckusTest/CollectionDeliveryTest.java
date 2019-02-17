@@ -1,10 +1,10 @@
 package org.firstinspires.ftc.teamcode.opmodes.RoverRuckusTest;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.GamepadButtonMultiPush;
 import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.CollectorGB;
 
 /**
@@ -12,14 +12,18 @@ import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.CollectorGB;
  *
  *
  */
-@TeleOp(name = "AAA Collection Demo", group = "Test")
+@TeleOp(name = "AAA Collection Delivery Demo", group = "Test")
 //@Disabled
-public class CollectionDemo extends LinearOpMode {
+public class CollectionDeliveryTest extends LinearOpMode {
 
     // Put your variable declarations here
     public CollectorGB collector;
     public DataLogging logfile;
     public CollectorGB.CollectorState collectorState;
+    public GamepadButtonMultiPush gamepad1a;
+    public GamepadButtonMultiPush gamepad1b;
+    public GamepadButtonMultiPush gamepad1y;
+    public GamepadButtonMultiPush gamepad1x;
 
     @Override
     public void runOpMode() {
@@ -32,8 +36,14 @@ public class CollectionDemo extends LinearOpMode {
         collector.enableDataLogging();
         collector.setDebugOn();
         collector.setDesiredMineralColorToGold();
-        collector.forceStoreOnly();
-        
+       // collector.forceStoreOnly();
+
+        gamepad1a = new GamepadButtonMultiPush(1);
+        gamepad1b = new GamepadButtonMultiPush(1);
+        gamepad1y = new GamepadButtonMultiPush(1);
+        gamepad1x = new GamepadButtonMultiPush(1);
+
+
         // Wait for the start button
         telemetry.addData(">", "Press Start to run" );
         telemetry.update();
@@ -46,6 +56,19 @@ public class CollectionDemo extends LinearOpMode {
         collector.turnCollectorOn();
 
         while(opModeIsActive()) {
+            if (gamepad1a.buttonPress(gamepad1.a)) {
+                collector.deliverMineralsOn();
+            }
+
+            if (gamepad1b.buttonPress(gamepad1.b)) {
+                collector.deliverMineralsComplete();
+            }
+
+            if (gamepad1y.buttonPress(gamepad1.y)) {
+            }
+
+            if (gamepad1x.buttonPress(gamepad1.x)) {
+            }
 
             // Put your calls that need to run in a loop here
 

@@ -301,10 +301,12 @@ public class CollectionTestTeleop extends LinearOpMode {
             if (gamepad2RightBumper.buttonPress(gamepad2.right_bumper)) {
                 // this was a new button press, not a button held down for a while
                 // put the command to be executed here
-                robot.collector.testGateServo();
+                //robot.collector.testGateServo();
+                robot.collector.deliverMineralsOn();
             }
 
             if (gamepad2LeftBumper.buttonPress(gamepad2.left_bumper)) {
+                robot.collector.deliverMineralsComplete();
                 // this was a new button press, not a button held down for a while
                 // put the command to be executed here
             }
