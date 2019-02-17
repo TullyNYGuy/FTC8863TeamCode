@@ -37,14 +37,16 @@ public class RoverRuckusAutonomousCraterSideDehangDelay0GoldCraterSideDepotParkC
 
         configurationFile = new AutonomousConfigurationFile();
         autonomousDirector = new AutonomousDirector(configurationFile);
-        autonomousMovementSteps = new AutonomousMovementSteps(autonomousDirector, logFile, telemetry);
+        autonomousMovementSteps = new AutonomousMovementSteps(autonomousDirector, logFile, hardwareMap, telemetry);
 
+        // force the config file values since we are not actually reading a config file
         configurationFile.setHangLocation(AutonomousConfigurationFile.HangLocation.CRATER_SIDE);
         configurationFile.setSample(AutonomousConfigurationFile.Sample.CRATER_SIDE);
         configurationFile.setClaimDepot(true);
         configurationFile.setParkLocation(AutonomousConfigurationFile.ParkLocation.OUR_CRATER);
         configurationFile.setDelay(0);
 
+        // translate the config file goals to robot tasks
         autonomousDirector.translator();
 
         // Wait for the start button
