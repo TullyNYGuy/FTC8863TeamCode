@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib;
 
 
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -35,6 +36,7 @@ public class AutonomousMovementSteps {
         RESET_ROBOT,
 
         // steps for minerals
+        WAIT_FOR_GOLD_MINERAL_LOCATION,
         SETUP_TURN_TOWARDS_MINERAL,
         RUN_TURN_TOWARDS_MINERAL,
         SETUP_DRIVE_TO_MINERAL,
@@ -77,6 +79,9 @@ public class AutonomousMovementSteps {
     private AutonomousDirector.AutonomousTasks task;
     private AutonomousDirector.AutonomousTasks previousTask;
 
+    private GoldMineralDetection goldMineralDetection;
+    private MineralVoting.LikelyPosition goldPosition;
+
     private Steps step;
     private Steps previousStep;
 
@@ -115,7 +120,7 @@ public class AutonomousMovementSteps {
     // from it
     //*********************************************************************************************
 
-    public AutonomousMovementSteps(AutonomousDirector autonomousDirector, DataLogging logFile, Telemetry telemetry) {
+    public AutonomousMovementSteps(AutonomousDirector autonomousDirector, DataLogging logFile, HardwareMap hardwareMap, Telemetry telemetry) {
         this.autonomousDirector = autonomousDirector;
         if (logFile != null) {
             enableLogging();
@@ -129,6 +134,8 @@ public class AutonomousMovementSteps {
 
         step = Steps.START;
         task = autonomousDirector.getNextTask();
+
+        goldMineralDetection = new GoldMineralDetection(hardwareMap, telemetry, logFile);
     }
 
 
@@ -150,6 +157,23 @@ public class AutonomousMovementSteps {
 
         switch(task) {
             case LOCATE_GOLD_MINERAL:
+                switch(step) {
+                    case START:
+                        goldMineralDetection.activate(1500);
+                        step = Steps.WAIT_FOR_GOLD_MINERAL_LOCATION;
+                        break;
+                    case WAIT_FOR_GOLD_MINERAL_LOCATION:
+                        if (goldMineralDetection.isRecognitionComplete()){
+                            goldPosition = goldMineralDetection.getMostLikelyGoldPosition();
+                            goldMineralDetection.shutdown();
+                            task = autonomousDirector.getNextTask();
+                            // setup to start the next task
+                            step = Steps.START;
+                        } else {
+                            goldMineralDetection.getRecognition();
+                        }
+                        break;
+                }
                 break;
 
         }
