@@ -1256,7 +1256,7 @@ public class CollectorGB {
             case WAIT_FOR_GOLD_MINERAL_UNSTICK:
                 switch (collectorCommand){
                     case DELIVER_ON:
-                        if(storageStarTimer.milliseconds() > 500){
+                        if(storageStarTimer.milliseconds() > 1000){
 
                             turnStorageStarOnStore();
                             gateServoGoToStorePosition();
