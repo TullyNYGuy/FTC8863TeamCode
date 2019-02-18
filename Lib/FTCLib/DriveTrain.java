@@ -90,6 +90,8 @@ public class DriveTrain {
     private double rightDriveMotorSpeed = 0;
     private double leftDriveMotorSpeed = 0;
 
+    private DcMotor8863.FinishBehavior finishBehavior;
+
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -149,6 +151,16 @@ public class DriveTrain {
 
     public void setLogFile(DataLogging logFile) {
         this.logFile = logFile;
+    }
+
+    public DcMotor8863.FinishBehavior getFinishBehavior() {
+        return finishBehavior;
+    }
+
+    public void setFinishBehavior(DcMotor8863.FinishBehavior finishBehavior) {
+        this.finishBehavior = finishBehavior;
+        leftDriveMotor.setFinishBehavior(finishBehavior);
+        rightDriveMotor.setFinishBehavior(finishBehavior);
     }
 
     //*********************************************************************************************
