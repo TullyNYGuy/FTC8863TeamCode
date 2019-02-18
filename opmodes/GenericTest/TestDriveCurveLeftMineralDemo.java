@@ -39,7 +39,7 @@ public class TestDriveCurveLeftMineralDemo extends LinearOpMode {
         double speed = 0.3;
         double curveRadius = 28*2.54; // cm
         double wheelbase = 37.38; // measured
-        driveCurve = new DriveCurve(curveAngle, speed, curveRadius, wheelbase, driveTrain.imu, logFile, driveTrain);
+        driveCurve = new DriveCurve(curveAngle, speed, curveRadius, DriveCurve.CurveDirection.CCW, DriveCurve.DriveDirection.FORWARD, wheelbase, driveTrain.imu, logFile, driveTrain);
         driveCurve.enableLogging();
         driveCurve.enablePID();
 

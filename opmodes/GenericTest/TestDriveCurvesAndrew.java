@@ -38,7 +38,7 @@ public class TestDriveCurvesAndrew extends LinearOpMode {
         double speed = 0.1;
         double curveRadius = 50; // cm
         double wheelbase = 37.38; // measured
-        driveCurve = new DriveCurve(curveAngle, speed, curveRadius, wheelbase, driveTrain.imu, logfile, driveTrain);
+        driveCurve = new DriveCurve(curveAngle, speed, curveRadius, DriveCurve.CurveDirection.CCW, DriveCurve.DriveDirection.FORWARD, wheelbase, driveTrain.imu, logfile, driveTrain);
         driveCurve.enableLogging();
 
                 // Wait for the start button
