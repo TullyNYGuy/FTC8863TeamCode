@@ -373,6 +373,23 @@ public class DriveCurve {
     // public methods that give the class its functionality
     //*********************************************************************************************
 
+
+    /**
+     * Once a curve has been created, use this method to actually start the curve. After this, you
+     * need to call the update() in a loop so that the angle can be looked at as the curve proceeds.
+     */
+    public void startCurve() {
+        driveTrain.setLeftDriveMotorSpeed(getLeftWheelSpeed());
+        driveTrain.setRightDriveMotorSpeed(getRightWheelSpeed());
+        driveTrain.applyPowersToMotors();
+        update();
+    }
+
+    /**
+     * After the curve has been started with startCurve(), this method must be called until
+     * isCurveComplete() returns true.
+     * @return alternate method of telling when the curve is complete (true)
+     */
     public boolean update() {
         boolean returnValue = false;
         double currentHeading;
@@ -395,7 +412,7 @@ public class DriveCurve {
 
                 // the PID control uses the rate of turn per distance traveled. This should be a constant
                 // since the robot is traveling around a circle of a certain radius. But it might not
-                // be since stuff happens and the PID is supposed to fix that.
+                // be since stuff happens. The PID is supposed to fix that.
                 if (usePID) {
                     if (currentRateOfTurn == 0) {
                         correction = 0;
@@ -436,11 +453,25 @@ public class DriveCurve {
         return returnValue;
     }
 
+    /**
+     * When the curve is complete, this method returns true.
+     * @return
+     */
     public boolean isCurveComplete(){
         if (curveState == CurveState.COMPLETE) {
             return true;
         } else {
             return false;
         }
+    }
+
+    /**
+     * Stop the curve and set the motor to either float or hold. Most of the time I think you will
+     * want to float.
+     * @param finishBehavior
+     */
+    public void stopCurve(DcMotor8863.FinishBehavior finishBehavior) {
+        driveTrain.setFinishBehavior(finishBehavior);
+        driveTrain.shutdown();
     }
 }
