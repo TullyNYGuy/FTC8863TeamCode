@@ -458,6 +458,7 @@ public class RoverRuckusRobot {
                         // tell the collector to stop the delivery process
                         collector.deliverMineralsComplete();
                         // raise the lift to scoring position
+                        deliveryLiftSystem.deliveryBoxToOutOfWay();
                         deliveryLiftSystem.goToScoringPosition();
                         transferScoringState = TransferScoringStates.SETUP_FOR_SCORE;
                         break;
