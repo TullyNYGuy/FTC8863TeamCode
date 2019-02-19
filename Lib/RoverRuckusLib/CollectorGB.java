@@ -48,7 +48,8 @@ public class CollectorGB {
         DELIVER_MINERAL,
         FIX_TRANSFER_JAM,
         COMPLETE_DELIVERY,
-        WAIT_FOR_GOLD_MINERAL_UNSTICK
+        WAIT_FOR_GOLD_MINERAL_UNSTICK,
+        UNSTORE_SECOND_GOLD_MINERAL
     }
 
     private CollectorState collectorState = CollectorState.OFF;
@@ -1260,7 +1261,37 @@ public class CollectorGB {
 
                             turnStorageStarOnStore();
                             gateServoGoToStorePosition();
+                            if(desiredMineralColor == MineralColor.GOLD){
+                                collectorState = CollectorState.UNSTORE_SECOND_GOLD_MINERAL;
+                                storageStarTimer.reset();
+                            }
                         }
+
+                        break;
+                    case COMPLETE_DELIVERY:
+                        collectorState = CollectorState.OFF;
+                        collectorCommand = CollectorCommand.OFF;
+                        softReset();
+                        numberOfMineralsStored = 0;
+                        log("Number of minerals stored = " + numberOfMineralsStored);
+                        log("Delivery completed");
+                        debug("Delivery completed");
+                        break;
+                }
+                break;
+            case UNSTORE_SECOND_GOLD_MINERAL:
+                switch (collectorCommand){
+                    case DELIVER_ON:
+                        if(storageStarTimer.milliseconds() > 1000){
+
+                            turnStorageStarOnUnstore();
+                            gateServoGoToInitPosition();
+                            if(desiredMineralColor == MineralColor.GOLD){
+                                collectorState = CollectorState.WAIT_FOR_GOLD_MINERAL_UNSTICK;
+                                storageStarTimer.reset();
+                            }
+                        }
+
                         break;
                     case COMPLETE_DELIVERY:
                         collectorState = CollectorState.OFF;
