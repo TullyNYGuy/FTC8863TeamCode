@@ -384,7 +384,7 @@ public class CollectorArm {
 
     public void goToExtensionArmTransfer() {
         log("COMMANDED EXTENSION ARM TO TRANSFER POSITION");
-        moveToExtensionArmPosition(6.75, 1);
+        moveToExtensionArmPosition(5.75, 1);
     }
 
     public void goToExtensionArm10Inches() {
