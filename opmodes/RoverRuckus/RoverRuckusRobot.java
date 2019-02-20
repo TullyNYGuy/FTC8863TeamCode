@@ -224,13 +224,17 @@ public class RoverRuckusRobot {
         COLLECTOR_ARM,
         TRANSFER_READY,
         TRANSFER,
+        TRANSFER_ADJUST,
         SETUP_FOR_SCORE,
         SCORED,
         RESET;
     }
 
     public enum TransferScoringCommands {
-        TRANSFER,
+        START_TRANSFER,
+        ADJUST_TRANSFER_ANGLE_TOWARDS_STOP,
+        ADJUST_TRANSFER_ANGLE_TOWARDS_FLOOR,
+        FINISH_TRANSFER,
         CONFIRM_TRANSFER_SUCCESS,
         CONFIRM_TRANSFER_FAILED,
         FIX_JAM,
@@ -245,9 +249,24 @@ public class RoverRuckusRobot {
     //transfer & scoring commands
     //*********************************************************************************************
 
-    public void transferMinerals() {
-        log("COMMANDED TO TRANSFER MINERALS");
-        transferScoringCommand = TransferScoringCommands.TRANSFER;
+    public void startTransferMinerals() {
+        log("COMMANDED TO START TRANSFER MINERALS");
+        transferScoringCommand = TransferScoringCommands.START_TRANSFER;
+    }
+
+    public void adjustCollectorArmTranferAngleTowardsStop() {
+        log("COMMANDED TO ADJUST TRANFER ANGLE");
+        transferScoringCommand = TransferScoringCommands.ADJUST_TRANSFER_ANGLE_TOWARDS_STOP;
+    }
+
+    public void adjustCollectorArmTranferAngleTowardsFloor() {
+        log("COMMANDED TO ADJUST TRANFER ANGLE");
+        transferScoringCommand = TransferScoringCommands.ADJUST_TRANSFER_ANGLE_TOWARDS_FLOOR;
+    }
+
+    public void finishTransferMinerals() {
+        log("COMMANDED TO FINISH TRANSFER MINERALS");
+        transferScoringCommand = TransferScoringCommands.FINISH_TRANSFER;
     }
 
     public void confirmTransferSuccess() {
@@ -291,9 +310,21 @@ public class RoverRuckusRobot {
         switch (transferScoringState) {
             case START:
                 switch (transferScoringCommand) {
-                    case TRANSFER:
+                    case START_TRANSFER:
                         collector.turnCollectorOff();
                         transferScoringState = TransferScoringStates.COLLECTOR_OFF;
+                        break;
+                    case ADJUST_TRANSFER_ANGLE_TOWARDS_STOP:
+                        // command is not relevant. Don't do anything.
+                        logDoNothingCommand(TransferScoringCommands.ADJUST_TRANSFER_ANGLE_TOWARDS_STOP);
+                        break;
+                    case ADJUST_TRANSFER_ANGLE_TOWARDS_FLOOR:
+                        // command is not relevant. Don't do anything.
+                        logDoNothingCommand(TransferScoringCommands.ADJUST_TRANSFER_ANGLE_TOWARDS_FLOOR);
+                        break;
+                    case FINISH_TRANSFER:
+                        // command is not relevant. Don't do anything.
+                        logDoNothingCommand(TransferScoringCommands.FINISH_TRANSFER);
                         break;
                     case CONFIRM_TRANSFER_SUCCESS:
                         // command is not relevant. Don't do anything.
@@ -318,71 +349,157 @@ public class RoverRuckusRobot {
 
             case COLLECTOR_OFF:
                 switch (transferScoringCommand) {
-                    case TRANSFER:
+                    case START_TRANSFER:
                         deliveryLiftSystem.goToTransfer();
                         transferScoringState = TransferScoringStates.LIFT_HEIGHT;
+                        break;
+                    case ADJUST_TRANSFER_ANGLE_TOWARDS_STOP:
+                        // command is not relevant. Don't do anything.
+                        logDoNothingCommand(TransferScoringCommands.ADJUST_TRANSFER_ANGLE_TOWARDS_STOP);
+                        break;
+                    case ADJUST_TRANSFER_ANGLE_TOWARDS_FLOOR:
+                        // command is not relevant. Don't do anything.
+                        logDoNothingCommand(TransferScoringCommands.ADJUST_TRANSFER_ANGLE_TOWARDS_FLOOR);
+                        break;
+                    case FINISH_TRANSFER:
+                        // command is not relevant. Don't do anything.
+                        logDoNothingCommand(TransferScoringCommands.FINISH_TRANSFER);
                         break;
                     case CONFIRM_TRANSFER_SUCCESS:
                         // another command cannot interrupt the transfer, reset the command
                         logIgnoreCommand(TransferScoringCommands.CONFIRM_TRANSFER_SUCCESS);
-                        transferScoringCommand = TransferScoringCommands.TRANSFER;
+                        transferScoringCommand = TransferScoringCommands.START_TRANSFER;
                         break;
                     case CONFIRM_TRANSFER_FAILED:
                         // command is not relevant. Don't do anything.
                         logDoNothingCommand(TransferScoringCommands.CONFIRM_TRANSFER_FAILED);
-                        transferScoringCommand = TransferScoringCommands.TRANSFER;
+                        transferScoringCommand = TransferScoringCommands.START_TRANSFER;
                         break;
                     case EMPTY:
                         break;
                     case FIX_JAM:
                         // another command cannot interrupt the transfer, reset the command
                         logIgnoreCommand(TransferScoringCommands.FIX_JAM);
-                        transferScoringCommand = TransferScoringCommands.TRANSFER;
+                        transferScoringCommand = TransferScoringCommands.START_TRANSFER;
                         break;
                     case SCORE:
                         // another command cannot interrupt the transfer, reset the command
                         logIgnoreCommand(TransferScoringCommands.SCORE);
-                        transferScoringCommand = TransferScoringCommands.TRANSFER;
+                        transferScoringCommand = TransferScoringCommands.START_TRANSFER;
                         break;
                 }
                 break;
 
             case LIFT_HEIGHT:
                 switch (transferScoringCommand) {
-                    case TRANSFER:
+                    case START_TRANSFER:
                         collectorArm.raiseArm();
                         timer.reset();
                         deliveryLiftSystem.deliveryBoxToTransfer();
                         transferScoringState = TransferScoringStates.COLLECTOR_ARM;
                         break;
+                    case ADJUST_TRANSFER_ANGLE_TOWARDS_STOP:
+                        // command is not relevant. Don't do anything.
+                        logDoNothingCommand(TransferScoringCommands.ADJUST_TRANSFER_ANGLE_TOWARDS_STOP);
+                        break;
+                    case ADJUST_TRANSFER_ANGLE_TOWARDS_FLOOR:
+                        // command is not relevant. Don't do anything.
+                        logDoNothingCommand(TransferScoringCommands.ADJUST_TRANSFER_ANGLE_TOWARDS_FLOOR);
+                        break;
+                    case FINISH_TRANSFER:
+                        // another command cannot interrupt the transfer, reset the command
+                        logIgnoreCommand(TransferScoringCommands.FINISH_TRANSFER);
+                        transferScoringCommand = TransferScoringCommands.START_TRANSFER;
+                        break;
                     case CONFIRM_TRANSFER_SUCCESS:
                         // another command cannot interrupt the transfer, reset the command
                         logIgnoreCommand(TransferScoringCommands.CONFIRM_TRANSFER_SUCCESS);
-                        transferScoringCommand = TransferScoringCommands.TRANSFER;
+                        transferScoringCommand = TransferScoringCommands.START_TRANSFER;
                         break;
                     case CONFIRM_TRANSFER_FAILED:
                         // command is not relevant. Don't do anything.
                         logDoNothingCommand(TransferScoringCommands.CONFIRM_TRANSFER_FAILED);
-                        transferScoringCommand = TransferScoringCommands.TRANSFER;
+                        transferScoringCommand = TransferScoringCommands.START_TRANSFER;
                         break;
                     case EMPTY:
                         break;
                     case FIX_JAM:
                         // another command cannot interrupt the transfer, reset the command
                         logIgnoreCommand(TransferScoringCommands.FIX_JAM);
-                        transferScoringCommand = TransferScoringCommands.TRANSFER;
+                        transferScoringCommand = TransferScoringCommands.START_TRANSFER;
                         break;
                     case SCORE:
                         // another command cannot interrupt the transfer, reset the command
                         logIgnoreCommand(TransferScoringCommands.SCORE);
-                        transferScoringCommand = TransferScoringCommands.TRANSFER;
+                        transferScoringCommand = TransferScoringCommands.START_TRANSFER;
                         break;
                 }
                 break;
 
             case COLLECTOR_ARM:
                 switch (transferScoringCommand) {
-                    case TRANSFER:
+                    case START_TRANSFER:
+                        if (deliveryLiftSystem.isLiftMovementComplete() && collectorArm.isRotationExtensionComplete()) {
+                            transferScoringState = TransferScoringStates.TRANSFER_ADJUST;
+                        }
+                        break;
+                    case ADJUST_TRANSFER_ANGLE_TOWARDS_STOP:
+                        // command is not relevant. Don't do anything.
+                        logDoNothingCommand(TransferScoringCommands.ADJUST_TRANSFER_ANGLE_TOWARDS_STOP);
+                        break;
+                    case ADJUST_TRANSFER_ANGLE_TOWARDS_FLOOR:
+                        // command is not relevant. Don't do anything.
+                        logDoNothingCommand(TransferScoringCommands.ADJUST_TRANSFER_ANGLE_TOWARDS_FLOOR);
+                        break;
+                    case FINISH_TRANSFER:
+                        // another command cannot interrupt the transfer, reset the command
+                        logIgnoreCommand(TransferScoringCommands.FINISH_TRANSFER);
+                        transferScoringCommand = TransferScoringCommands.START_TRANSFER;
+                        break;
+                    case CONFIRM_TRANSFER_SUCCESS:
+                        // another command cannot interrupt the transfer, reset the command
+                        logIgnoreCommand(TransferScoringCommands.CONFIRM_TRANSFER_SUCCESS);
+                        transferScoringCommand = TransferScoringCommands.START_TRANSFER;
+                        break;
+                    case CONFIRM_TRANSFER_FAILED:
+                        // command is not relevant. Don't do anything.
+                        logDoNothingCommand(TransferScoringCommands.CONFIRM_TRANSFER_FAILED);
+                        transferScoringCommand = TransferScoringCommands.START_TRANSFER;
+                        break;
+                    case EMPTY:
+                        break;
+                    case FIX_JAM:
+                        // another command cannot interrupt the transfer, reset the command
+                        logIgnoreCommand(TransferScoringCommands.FIX_JAM);
+                        transferScoringCommand = TransferScoringCommands.START_TRANSFER;
+                        break;
+                    case SCORE:
+                        // another command cannot interrupt the transfer, reset the command
+                        logIgnoreCommand(TransferScoringCommands.SCORE);
+                        transferScoringCommand = TransferScoringCommands.START_TRANSFER;
+                        break;
+                }
+                break;
+
+                // once the rotation arm is in position, give the driver the opportunity to adjust
+            // its position
+            case TRANSFER_ADJUST:
+                switch (transferScoringCommand) {
+                    case START_TRANSFER:
+                        // sit and wait for one of 3 commands:
+                        //    ADJUST_TRANSFER_ANGLE_TOWARDS_STOP
+                        //    ADJUST_TRANSFER_ANGLE_TOWARDS_FLOOR
+                        //    FINISH_TRANSFER
+                        break;
+                    case ADJUST_TRANSFER_ANGLE_TOWARDS_STOP:
+                        collectorArm.rotationArmTransferAngleTowardsStop();
+                        transferScoringCommand = TransferScoringCommands.START_TRANSFER;
+                        break;
+                    case ADJUST_TRANSFER_ANGLE_TOWARDS_FLOOR:
+                        collectorArm.rotationArmTransferAngleTowardsFloor();
+                        transferScoringCommand = TransferScoringCommands.START_TRANSFER;
+                        break;
+                    case FINISH_TRANSFER:
                         if (deliveryLiftSystem.isLiftMovementComplete() && collectorArm.isRotationExtensionComplete()) {
                             transferScoringState = TransferScoringStates.TRANSFER_READY;
                         }
@@ -390,31 +507,43 @@ public class RoverRuckusRobot {
                     case CONFIRM_TRANSFER_SUCCESS:
                         // another command cannot interrupt the transfer, reset the command
                         logIgnoreCommand(TransferScoringCommands.CONFIRM_TRANSFER_SUCCESS);
-                        transferScoringCommand = TransferScoringCommands.TRANSFER;
+                        transferScoringCommand = TransferScoringCommands.START_TRANSFER;
                         break;
                     case CONFIRM_TRANSFER_FAILED:
                         // command is not relevant. Don't do anything.
                         logDoNothingCommand(TransferScoringCommands.CONFIRM_TRANSFER_FAILED);
-                        transferScoringCommand = TransferScoringCommands.TRANSFER;
+                        transferScoringCommand = TransferScoringCommands.START_TRANSFER;
                         break;
                     case EMPTY:
                         break;
                     case FIX_JAM:
                         // another command cannot interrupt the transfer, reset the command
                         logIgnoreCommand(TransferScoringCommands.FIX_JAM);
-                        transferScoringCommand = TransferScoringCommands.TRANSFER;
+                        transferScoringCommand = TransferScoringCommands.START_TRANSFER;
                         break;
                     case SCORE:
                         // another command cannot interrupt the transfer, reset the command
                         logIgnoreCommand(TransferScoringCommands.SCORE);
-                        transferScoringCommand = TransferScoringCommands.TRANSFER;
+                        transferScoringCommand = TransferScoringCommands.START_TRANSFER;
                         break;
                 }
                 break;
 
             case TRANSFER_READY:
                 switch (transferScoringCommand) {
-                    case TRANSFER:
+                    case START_TRANSFER:
+                        // command is not relevant. Don't do anything.
+                        logDoNothingCommand(TransferScoringCommands.START_TRANSFER);
+                        break;
+                    case ADJUST_TRANSFER_ANGLE_TOWARDS_STOP:
+                        // command is not relevant. Don't do anything.
+                        logDoNothingCommand(TransferScoringCommands.ADJUST_TRANSFER_ANGLE_TOWARDS_STOP);
+                        break;
+                    case ADJUST_TRANSFER_ANGLE_TOWARDS_FLOOR:
+                        // command is not relevant. Don't do anything.
+                        logDoNothingCommand(TransferScoringCommands.ADJUST_TRANSFER_ANGLE_TOWARDS_FLOOR);
+                        break;
+                    case FINISH_TRANSFER:
                         // When enough time has passed so that delivery box has moved into position,
                         // tell the collector to deliver the minerals
                         if (timer.milliseconds() > 1000) {
@@ -425,31 +554,43 @@ public class RoverRuckusRobot {
                     case CONFIRM_TRANSFER_SUCCESS:
                         // another command cannot interrupt the transfer, reset the command
                         logIgnoreCommand(TransferScoringCommands.CONFIRM_TRANSFER_SUCCESS);
-                        transferScoringCommand = TransferScoringCommands.TRANSFER;
+                        transferScoringCommand = TransferScoringCommands.START_TRANSFER;
                         break;
                     case CONFIRM_TRANSFER_FAILED:
                         // command is not relevant. Don't do anything.
                         logDoNothingCommand(TransferScoringCommands.CONFIRM_TRANSFER_FAILED);
-                        transferScoringCommand = TransferScoringCommands.TRANSFER;
+                        transferScoringCommand = TransferScoringCommands.START_TRANSFER;
                         break;
                     case EMPTY:
                         break;
                     case FIX_JAM:
                         // another command cannot interrupt the transfer, reset the command
                         logIgnoreCommand(TransferScoringCommands.FIX_JAM);
-                        transferScoringCommand = TransferScoringCommands.TRANSFER;
+                        transferScoringCommand = TransferScoringCommands.START_TRANSFER;
                         break;
                     case SCORE:
                         // another command cannot interrupt the transfer, reset the command
                         logIgnoreCommand(TransferScoringCommands.SCORE);
-                        transferScoringCommand = TransferScoringCommands.TRANSFER;
+                        transferScoringCommand = TransferScoringCommands.START_TRANSFER;
                         break;
                 }
                 break;
 
             case TRANSFER:
                 switch (transferScoringCommand) {
-                    case TRANSFER:
+                    case START_TRANSFER:
+                        // command is not relevant. Don't do anything.
+                        logDoNothingCommand(TransferScoringCommands.START_TRANSFER);
+                        break;
+                    case ADJUST_TRANSFER_ANGLE_TOWARDS_STOP:
+                        // command is not relevant. Don't do anything.
+                        logDoNothingCommand(TransferScoringCommands.ADJUST_TRANSFER_ANGLE_TOWARDS_STOP);
+                        break;
+                    case ADJUST_TRANSFER_ANGLE_TOWARDS_FLOOR:
+                        // command is not relevant. Don't do anything.
+                        logDoNothingCommand(TransferScoringCommands.ADJUST_TRANSFER_ANGLE_TOWARDS_FLOOR);
+                        break;
+                    case FINISH_TRANSFER:
                         // hang out and wait for the driver to confirm transfer complete or to fix a
                         // a jam
                         //logIgnoreCommand(TransferScoringCommands.TRANSFER);
@@ -473,7 +614,7 @@ public class RoverRuckusRobot {
                     case FIX_JAM:
                         collector.fixTransferJam();
                         transferScoringState = TransferScoringStates.TRANSFER_READY;
-                        transferScoringCommand = TransferScoringCommands.TRANSFER;
+                        transferScoringCommand = TransferScoringCommands.START_TRANSFER;
                         break;
                     case EMPTY:
                         break;
@@ -499,12 +640,20 @@ public class RoverRuckusRobot {
                         // wait for a score command.
                         logDoNothingCommand(TransferScoringCommands.FIX_JAM);
                         break;
-                    case TRANSFER:
+                    case START_TRANSFER:
                         // driver is asking to transfer again. I guess it is possible this is valid.
                         // Maybe they did not see a mineral that stayed in the collector. Start the
                         // the process over again.
-                        transferScoringCommand = TransferScoringCommands.TRANSFER;
+                        transferScoringCommand = TransferScoringCommands.START_TRANSFER;
                         transferScoringState = TransferScoringStates.START;
+                        break;
+                    case ADJUST_TRANSFER_ANGLE_TOWARDS_STOP:
+                        // command is not relevant. Don't do anything.
+                        logDoNothingCommand(TransferScoringCommands.ADJUST_TRANSFER_ANGLE_TOWARDS_STOP);
+                        break;
+                    case ADJUST_TRANSFER_ANGLE_TOWARDS_FLOOR:
+                        // command is not relevant. Don't do anything.
+                        logDoNothingCommand(TransferScoringCommands.ADJUST_TRANSFER_ANGLE_TOWARDS_FLOOR);
                         break;
                     case CONFIRM_TRANSFER_FAILED:
                         // command is not relevant. Don't do anything.

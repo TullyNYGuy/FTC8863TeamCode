@@ -137,7 +137,7 @@ public class RoverRuckusTeleop extends LinearOpMode {
         // create the gamepad 2 buttons and tell each button how many commands it has
         gamepad2RightBumper = new GamepadButtonMultiPush(1);
         gamepad2LeftBumper = new GamepadButtonMultiPush(1);
-        gamepad2a = new GamepadButtonMultiPush(2);
+        gamepad2a = new GamepadButtonMultiPush(3);
         gamepad2b = new GamepadButtonMultiPush(1);
         gamepad2y = new GamepadButtonMultiPush(1);
         gamepad2x = new GamepadButtonMultiPush(1);
@@ -336,9 +336,12 @@ public class RoverRuckusTeleop extends LinearOpMode {
 
             if (gamepad2a.buttonPress(gamepad2.a)) {
                 if (gamepad2a.isCommand1()) {
-                    robot.transferMinerals();
+                    robot.startTransferMinerals();
                 }
                 if (gamepad2a.isCommand2()) {
+                    robot.finishTransferMinerals();
+                }
+                if (gamepad2a.isCommand3()) {
                     robot.confirmTransferSuccess();
                 }
             }
@@ -381,11 +384,13 @@ public class RoverRuckusTeleop extends LinearOpMode {
             if (gamepad2LeftStickButton.buttonPress(gamepad2.left_stick_button)) {
                 // this was a new button press, not a button held down for a while
                 // put the command to be executed here
+                robot.adjustCollectorArmTranferAngleTowardsStop();
             }
 
             if (gamepad2RightStickButton.buttonPress(gamepad2.right_stick_button)) {
                 // this was a new button press, not a button held down for a while
                 // put the command to be executed here
+                robot.adjustCollectorArmTranferAngleTowardsFloor();
             }
 
             //**************************************************************************************

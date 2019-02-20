@@ -47,7 +47,7 @@ public class CollectorArm {
     private double initPosition = 0;
     private double homePosition = -25;
     private double collectPosition = -140;
-    private double transferPosition = -80;
+    private double rotationArmTransferAngle = -47;
     private double dehangPosition = -42;
     private double clearStarPosition = -55;
 
@@ -235,8 +235,32 @@ public class CollectorArm {
     }
 
     public void rotationArmGoToTransfer(){
-        log("COMMANDED ROTATION ARM TO TRANSFER POSITION (-47)");
-        rotationArmMotor.moveToPosition(0.2, -47, DcMotor8863.FinishBehavior.HOLD);
+        // rotation arm transfer angle can be tweaked by the driver
+        log("COMMANDED ROTATION ARM TO TRANSFER POSITION " + rotationArmTransferAngle);
+        rotationArmMotor.moveToPosition(0.2, rotationArmTransferAngle, DcMotor8863.FinishBehavior.HOLD);
+    }
+
+    // the amount to change the rotation arm angle by when the driver asks for an adjustment
+    double rotationArmTranferAngleIncrement = 1;
+
+    /**
+     * Change the rotation arm transfer angle by a little increment - towards the stop. Remember
+     * the rotation arm angle is more positive as it moves toward the stop.
+     */
+    public void rotationArmTransferAngleTowardsStop() {
+        rotationArmTransferAngle = rotationArmTransferAngle + rotationArmTranferAngleIncrement;
+        log("TWEAKED TRANSFER POSITION TO " + rotationArmTransferAngle);
+        rotationArmGoToTransfer();
+    }
+
+    /**
+     * Change the rotation arm transfer angle by a little increment - towards the floor. Remember
+     * the rotation arm angle is more negative as it moves toward the floor.
+     */
+    public void rotationArmTransferAngleTowardsFloor() {
+        rotationArmTransferAngle = rotationArmTransferAngle - rotationArmTranferAngleIncrement;
+        log("TWEAKED TRANSFER POSITION TO " + rotationArmTransferAngle);
+        rotationArmGoToTransfer();
     }
 
     public void rotationArmGoToDehang(){
