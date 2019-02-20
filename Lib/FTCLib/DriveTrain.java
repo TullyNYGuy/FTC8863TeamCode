@@ -596,7 +596,7 @@ public class DriveTrain {
             // But it has to be set to something!
             pidControl.setThreshold(10);
             //pidControl.setKp(0.011);
-            pidControl.setKp(0.009);
+            pidControl.setKp(0.012);
             pidControl.setKi(0.05/1000000);
             // reset the integrator before starting
             pidControl.reset();
