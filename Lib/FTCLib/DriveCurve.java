@@ -202,10 +202,10 @@ public class DriveCurve {
 
     private void init(double curveAngle, double speed, double radius, CurveDirection curveDirection, DriveDirection driveDirection, double wheelBase, AdafruitIMU8863 imu) {
         setCurveAngle(curveAngle);
-        setSpeed(speed);
-        this.radius = radius;
         this.curveDirection = curveDirection;
         this.driveDirection = driveDirection;
+        setSpeed(speed);
+        this.radius = radius;
         this.wheelBase = wheelBase;
         this.imu = imu;
 
