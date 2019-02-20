@@ -48,7 +48,11 @@ public class MeasureAngles extends LinearOpMode {
 
         // Put your initializations here
         imu = new AdafruitIMU8863(hardwareMap);
+        // check if the imu is connected to the system
         isConnected = imu.isIMUConnected();
+        // reset the angles to 0 as the robot currently sits. All future readings will be relative
+        // to the current position of the robot
+        imu.resetAngleReferences();
 
         // 12/10/2017 for some reason this line is causing the robot controller app to crash
         //systemStatus = imu.getSystemStatus();
@@ -71,6 +75,7 @@ public class MeasureAngles extends LinearOpMode {
 
 
         // Start the logging of measured acceleration
+        // we don't use this at this time
         imu.startAccelerationIntegration(new Position(), new Velocity(), 1000);
 
         loopTimer.reset();
@@ -152,12 +157,6 @@ public class MeasureAngles extends LinearOpMode {
         telemetry.addData(">", "Done");
         telemetry.update();
 
-    }
-    public double convertAngleTo360(double angle){
-        if(angle < 0) {
-            angle = angle + 360;
-        }
-        return angle;
     }
 }
 
