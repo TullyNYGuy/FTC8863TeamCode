@@ -55,7 +55,8 @@ public class TestDriveCurvePlusStraight extends LinearOpMode {
         driveTrain.setRightDriveMotorSpeed(driveCurve.getRightWheelSpeed());
         driveTrain.applyPowersToMotors();
 
-        while(opModeIsActive() && !driveCurve.update()) {
+        while(opModeIsActive() && !driveCurve.isCurveComplete()) {
+            driveCurve.update();
             telemetry.addData(">", "Curving ..." );
             telemetry.update();
             idle();

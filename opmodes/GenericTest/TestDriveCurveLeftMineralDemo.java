@@ -51,9 +51,7 @@ public class TestDriveCurveLeftMineralDemo extends LinearOpMode {
         logFile.startTimer();
 
         // Put your calls here - they will not run in a loop
-        driveTrain.setLeftDriveMotorSpeed(driveCurve.getLeftWheelSpeed());
-        driveTrain.setRightDriveMotorSpeed(driveCurve.getRightWheelSpeed());
-        driveTrain.applyPowersToMotors();
+        driveCurve.startCurve();
 
         while(opModeIsActive() && !driveCurve.update()) {
             telemetry.addData(">", "Curving ..." );
