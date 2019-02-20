@@ -18,7 +18,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
  * This class simplifies the interface to the Adafruit IMU. It allows the user to get heading, roll,
  * and pitch angles that are either
  * RAW - as read from the IMU. 0 position is the position of the robot when the IMU was
- * initialized. Kindof. It seems like the IMU does not initialize with pitch and roll not equal
+ * initialized. Kindof. It seems like the IMU does not initialize with pitch and roll equal
  * to 0. Angles reported can be from -360 to +360.
  * ABSOLUTE - uses 0 position as the position of the robot when the IMU was initialized but adjusts
  * the angles so that they are between -180 and +180. This modes uses code to force the angles
@@ -27,6 +27,11 @@ import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
  * The angles are adjusted so that they are between -180 and +180.
  * <p>
  * This class wraps AdafruitBNO055IMU.
+ *
+ * We expect the IMU to be attached to an I2C port
+ * on a Modern Robotics Core Device Interface Module, configured to be a sensor of type "AdaFruit IMU",
+ * and named "IMU". Or with the new REV Expansion Hub, the IMU is on I2C Bus 0 (port 0),
+ * configured to be of type "REV Expansion Hub IMU" and named "IMU".
  */
 public class AdafruitIMU8863 {
 
@@ -207,8 +212,7 @@ public class AdafruitIMU8863 {
     // The reason for configurable loggingTag and calibrationFile is to allow multiple IMUs. Each
     // one can have its own loggingTag and calibrationFile.
     // NOTE: There needs to be a way to set the IMUName differently for each IMU. That is not
-    // implemented right now. The IMUName is gotten from the RobotConfigMapping and therefore it
-    // can't be different for different IMUs. So right now there can only be one IMU on the robot.
+    // implemented right now.  So right now there can only be one IMU on the robot.
 
     public AdafruitIMU8863(HardwareMap hardwareMap, String calibrationFile, String loggingTag) {
         this.loggingTag = loggingTag;
@@ -216,7 +220,8 @@ public class AdafruitIMU8863 {
         parameters = setupParameters();
         // Retrieve and initialize the IMU. We expect the IMU to be attached to an I2C port
         // on a Core Device Interface Module, configured to be a sensor of type "AdaFruit IMU",
-        // and named "imu".
+        // and named "IMU". Or with the new REV Expansion Hub, the IMU is on I2C Bus 0 (port 0),
+        // configured to be of type "REV Expansion Hub IMU" and named "IMU".
         imu = hardwareMap.get(BNO055IMU.class, "IMU");
         imu.initialize(parameters);
         // The resetAngleReferences() does not seem to be getting correct data. I'm guessing that
