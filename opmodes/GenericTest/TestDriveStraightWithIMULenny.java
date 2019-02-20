@@ -34,7 +34,7 @@ public class TestDriveStraightWithIMULenny extends LinearOpMode {
         waitForStart();
 
         // Put your calls here - they will not run in a loop
-        driveTrain.setupDriveUsingIMU(0, 182.88, 0.2, AdafruitIMU8863.AngleMode.RELATIVE);
+        driveTrain.setupDriveUsingIMU(0, 182.88, 0.3, AdafruitIMU8863.AngleMode.RELATIVE);
         driveTrain.imu.resetAngleReferences();
         logFile.startTimer();
 
