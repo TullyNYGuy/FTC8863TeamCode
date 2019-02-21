@@ -241,7 +241,7 @@ public class CollectorArm {
     }
 
     // the amount to change the rotation arm angle by when the driver asks for an adjustment
-    double rotationArmTranferAngleIncrement = 1;
+    double rotationArmTranferAngleIncrement = 2;
 
     /**
      * Change the rotation arm transfer angle by a little increment - towards the stop. Remember
@@ -408,7 +408,7 @@ public class CollectorArm {
 
     public void goToExtensionArmTransfer() {
         log("COMMANDED EXTENSION ARM TO TRANSFER POSITION");
-        moveToExtensionArmPosition(5.75, 1);
+        moveToExtensionArmPosition(5.25, 1);
     }
 
     public void goToExtensionArm10Inches() {
