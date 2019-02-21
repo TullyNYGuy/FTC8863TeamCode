@@ -336,10 +336,10 @@ public class RoverRuckusTeleop extends LinearOpMode {
 
             if (gamepad2a.buttonPress(gamepad2.a)) {
                 if (gamepad2a.isCommand1()) {
-                    robot.startTransferMinerals();
+                    robot.goToTransferPosition();
                 }
                 if (gamepad2a.isCommand2()) {
-                    robot.finishTransferMinerals();
+                    robot.transferMinerals();
                 }
                 if (gamepad2a.isCommand3()) {
                     robot.confirmTransferSuccess();
@@ -374,23 +374,21 @@ public class RoverRuckusTeleop extends LinearOpMode {
             }
 
             if (gamepad2DpadLeft.buttonPress(gamepad2.dpad_left)) {
-                robot.collector.turnIntakeOnSpitOut();
+                robot.adjustCollectorArmTranferAngleTowardsStop();
             }
 
             if (gamepad2DpadRight.buttonPress(gamepad2.dpad_right)) {
-                robot.collector.turnIntakeOnSuckIn();
+                robot.adjustCollectorArmTranferAngleTowardsFloor();
             }
 
             if (gamepad2LeftStickButton.buttonPress(gamepad2.left_stick_button)) {
                 // this was a new button press, not a button held down for a while
                 // put the command to be executed here
-                robot.adjustCollectorArmTranferAngleTowardsStop();
             }
 
             if (gamepad2RightStickButton.buttonPress(gamepad2.right_stick_button)) {
                 // this was a new button press, not a button held down for a while
                 // put the command to be executed here
-                robot.adjustCollectorArmTranferAngleTowardsFloor();
             }
 
             //**************************************************************************************
