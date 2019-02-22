@@ -34,11 +34,11 @@ public class TestDriveCurvesAndrew extends LinearOpMode {
         logfile = new DataLogging( "Test Drive Curve", telemetry);
         driveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap, telemetry);
 
-        double curveAngle = -359.0;
-        double speed = 0.1;
-        double curveRadius = 50; // cm
+        double curveAngle = -89.0;
+        double speed = 0.3;
+        double curveRadius = 100; // cm
         double wheelbase = 37.38; // measured
-        driveCurve = new DriveCurve(curveAngle, speed, curveRadius, DriveCurve.CurveDirection.CCW, DriveCurve.DriveDirection.FORWARD, wheelbase, driveTrain.imu, logfile, driveTrain);
+        driveCurve = new DriveCurve(curveAngle, speed, curveRadius, DriveCurve.CurveDirection.CW, DriveCurve.DriveDirection.FORWARD, wheelbase, driveTrain.imu, logfile, driveTrain);
         driveCurve.enableLogging();
 
                 // Wait for the start button
@@ -62,6 +62,7 @@ public class TestDriveCurvesAndrew extends LinearOpMode {
         logfile.closeDataLog();
         telemetry.addData(">", "Done");
         telemetry.update();
+        sleep(2000);
 
     }
 }
