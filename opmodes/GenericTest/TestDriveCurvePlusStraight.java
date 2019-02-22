@@ -41,8 +41,7 @@ public class TestDriveCurvePlusStraight extends LinearOpMode {
         double wheelbase = 37.38; // measured
         driveCurve = new DriveCurve(curveAngle, speed, curveRadius, DriveCurve.CurveDirection.CW, DriveCurve.DriveDirection.FORWARD, wheelbase, driveTrain.imu, logFile, driveTrain);
         driveCurve.enableLogging();
-        driveCurve.disablePID();
-        //driveCurve.enablePID();
+        driveCurve.enablePID();
 
                 // Wait for the start button
         telemetry.addData(">", "Press Start to run" );
