@@ -36,7 +36,7 @@ public class TestDriveCurvesAndrew extends LinearOpMode {
         driveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap, telemetry);
         // at power = .3 remove 1 degree from the turn (found 1 degree per 40ms cycle - .0256 deg/mS rate of turn)
         // at power = .5 remove 2 degree from the turn (found 1.8 degree per 40ms cycle- .0445 deg/mS rate of turn)
-        double curveAngle = 86.0;
+        double curveAngle = -86.0;
         double speed = 0.3;
         double curveRadius = 100; // cm
         double wheelbase = 37.38; // measured
