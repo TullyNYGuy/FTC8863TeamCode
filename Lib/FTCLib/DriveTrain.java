@@ -428,6 +428,10 @@ public class DriveTrain {
         }
     }
 
+    public void setDriveMotorMode(DcMotor.RunMode mode) {
+        leftDriveMotor.setMode(mode);
+        rightDriveMotor.setMode(mode);
+    }
 
     public double getRightPower() {
         return rightDriveMotor.getCurrentPower();
