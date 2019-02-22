@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -117,7 +118,7 @@ public class DriveCurve {
     }
 
     private double lastDistance = 0;
-    private double heading = 0;
+    private double initialHeading = 0;
     private double lastHeading = 0;
 
     /**
@@ -219,7 +220,7 @@ public class DriveCurve {
         pidControl = new PIDControl();
         pidControl.setSetpoint(rateOfTurn);
         // was .2
-        pidControl.setMaxCorrection(radius * .5);
+        pidControl.setMaxCorrection(radius * 2);
         // threshold is not meaningful in this movement. It is normally used to say when the
         // movement is complete but since this movement goes forever, threshold does nothing.
         // But it has to be set to something!
@@ -232,7 +233,11 @@ public class DriveCurve {
 
         calculateWheelSpeeds(radius);
         driveTrain.setDistanceDrivenReference();
-        lastDistance = imu.getHeading();
+        initialHeading = imu.getHeading();
+        lastHeading = initialHeading;
+
+        // bug here was that the motor mode did not get set and was taking on whatever it was last set to.
+        driveTrain.setDriveMotorMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         if (logFile != null && enableLogging) {
             logFile.logData("Curve radius = " + radius + " speed = " + speed + " angle = " + curveAngle + " left wheel speed = " + leftWheelSpeed + " right wheel speed = " + rightWheelSpeed);
@@ -369,6 +374,13 @@ public class DriveCurve {
         }
     }
 
+    private double getEffectiveCurveRadius(double finalHeading) {
+        // circumferance = 2 * pi * r
+        // r = circumference / (2 * pi)
+        // circumference = distance driven * 360 / change in heading
+        return driveTrain.getDistanceDriven() * 360 / (finalHeading - initialHeading) * 1 / (2 * Math.PI);
+    }
+
     //*********************************************************************************************
     //          MAJOR METHODS
     //
@@ -442,6 +454,8 @@ public class DriveCurve {
                         driveTrain.updateDriveDistance();
                         logFile.logData("final heading = " + Double.toString(currentHeading) + " distance driven = ", Double.toString(driveTrain.getDistanceDriven()));
                         logFile.logData("average rate of turn = " + Double.toString(currentHeading / driveTrain.getDistanceDriven()));
+                        logFile.logData("effective curve radius = " + Double.toString(getEffectiveCurveRadius(currentHeading)));
+                        logFile.blankLine();
                     }
                     // set the next state to complete
                     curveState = CurveState.COMPLETE;
