@@ -37,7 +37,7 @@ public class TestDriveCurveForwardBackward extends LinearOpMode {
         // at power = .3 remove 1 degree from the turn (found 1 degree per 40ms cycle - .0256 deg/mS rate of turn)
         // at power = .5 remove 2 degree from the turn (found 1.8 degree per 40ms cycle- .0445 deg/mS rate of turn)
         double curveAngle = -89.0;
-        double speed = 0.3;
+        double speed = 0.1;
         double curveRadius = 100; // cm
         double wheelbase = 37.38; // measured
         driveCurve = new DriveCurve(curveAngle, speed, curveRadius, DriveCurve.CurveDirection.CW, DriveCurve.DriveDirection.FORWARD, wheelbase, driveTrain.imu, logFile, driveTrain);
@@ -56,7 +56,7 @@ public class TestDriveCurveForwardBackward extends LinearOpMode {
 
         while(opModeIsActive() && !driveCurve.isCurveComplete()) {
             driveCurve.update();
-            telemetry.addData(">", "Curving ..." );
+            telemetry.addData(">", "Curving Forwards ..." );
             telemetry.update();
             idle();
         }
@@ -68,13 +68,14 @@ public class TestDriveCurveForwardBackward extends LinearOpMode {
         driveCurve = new DriveCurve(curveAngle, speed, curveRadius, DriveCurve.CurveDirection.CCW, DriveCurve.DriveDirection.BACKWARD, wheelbase, driveTrain.imu, logFile, driveTrain);
         driveCurve.enableLogging();
         driveCurve.enablePID();
+        //driveCurve.disablePID();
 
         // Put your calls here - they will not run in a loop
         driveCurve.startCurve();
 
         while(opModeIsActive() && !driveCurve.isCurveComplete()) {
             driveCurve.update();
-            telemetry.addData(">", "Curving ..." );
+            telemetry.addData(">", "Curving Backwards ..." );
             telemetry.update();
             idle();
         }
