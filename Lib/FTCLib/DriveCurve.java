@@ -218,13 +218,15 @@ public class DriveCurve {
 
         pidControl = new PIDControl();
         pidControl.setSetpoint(rateOfTurn);
-        pidControl.setMaxCorrection(radius * .2);
+        // was .2
+        pidControl.setMaxCorrection(radius * .5);
         // threshold is not meaningful in this movement. It is normally used to say when the
         // movement is complete but since this movement goes forever, threshold does nothing.
         // But it has to be set to something!
         pidControl.setThreshold(10);
         //pidControl.setKp(0.011);
-        pidControl.setKp(40.0);
+        // was 40
+        pidControl.setKp(100.0);
         //pidControl.setKi(0.05/1000000);
         pidControl.reset();
 
