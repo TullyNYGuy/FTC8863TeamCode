@@ -41,7 +41,8 @@ public class TestDriveCurvePlusStraight extends LinearOpMode {
         double wheelbase = 37.38; // measured
         driveCurve = new DriveCurve(curveAngle, speed, curveRadius, DriveCurve.CurveDirection.CW, DriveCurve.DriveDirection.FORWARD, wheelbase, driveTrain.imu, logFile, driveTrain);
         driveCurve.enableLogging();
-        driveCurve.enablePID();
+        driveCurve.disablePID();
+        //driveCurve.enablePID();
 
                 // Wait for the start button
         telemetry.addData(">", "Press Start to run" );
@@ -51,9 +52,7 @@ public class TestDriveCurvePlusStraight extends LinearOpMode {
         logFile.startTimer();
 
         // Put your calls here - they will not run in a loop
-        driveTrain.setLeftDriveMotorSpeed(driveCurve.getLeftWheelSpeed());
-        driveTrain.setRightDriveMotorSpeed(driveCurve.getRightWheelSpeed());
-        driveTrain.applyPowersToMotors();
+        driveCurve.startCurve();
 
         while(opModeIsActive() && !driveCurve.isCurveComplete()) {
             driveCurve.update();
