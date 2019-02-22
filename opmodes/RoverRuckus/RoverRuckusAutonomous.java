@@ -4,6 +4,7 @@ import android.text.LoginFilter;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -24,7 +25,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.StatTracker;
 import java.nio.ReadOnlyBufferException;
 
 @Autonomous(name = "Rover Ruckus Autonomous", group = "Test")
-//@Disabled
+@Disabled
 public class RoverRuckusAutonomous extends LinearOpMode {
 
     // Put your variable declarations here

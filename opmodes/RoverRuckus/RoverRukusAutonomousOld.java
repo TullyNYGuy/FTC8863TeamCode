@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmodes.RoverRuckus;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -16,7 +17,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.StatTracker;
 
-@Autonomous(name = "Rover Ruckus Autonomous Old", group = "Test")
+@Autonomous(name = "Rover Ruckus Autonomous", group = "Test")
 //@Disabled
 public class RoverRukusAutonomousOld extends LinearOpMode {
 
