@@ -101,7 +101,7 @@ public class RoverRukusAutonomousOld extends LinearOpMode {
         //facingCraterMiddleMineral();
         //facingCraterRightMineral();
         driveToDepotDumpThenCrater();
-        driveToCraterFromLander();
+        //driveToCraterFromLander();
 
         logFile.logData("headingWhileHanging " + Double.toString(headingWhileHanging));
         logFile.logData("headingOnGround " + Double.toString(headingOnGround));
@@ -298,13 +298,14 @@ public class RoverRukusAutonomousOld extends LinearOpMode {
         robot.deliveryLiftSystem.deliveryBoxToTransfer();
 
         // drive to the crater
-        headingAfterDrive = driveStraight(150, .3);
+        headingAfterDrive = driveStraight(155, .3);
         logFile.logData("headingFourthTurn " + Double.toString( robot.driveTrain.imu.getHeading()));
 
         logFile.logData("headingFifthTurn " + Double.toString( robot.driveTrain.imu.getHeading()));
 
         // lower the lift
         lowerLift();
+
     }
 
     public void driveToCraterFromLander() {
