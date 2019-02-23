@@ -346,7 +346,7 @@ public class DeliveryLiftSystem {
 
     public void goToScoringPosition() {
         log("COMMANDED LIFT TO GO TO SCORING POSITION");
-        moveToPosition(10.5, 1);
+        moveToPosition(8.5, 1);
     }
 
     public void moveTwoInchesUp() {
