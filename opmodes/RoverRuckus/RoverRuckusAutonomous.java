@@ -160,12 +160,12 @@ public class RoverRuckusAutonomous extends LinearOpMode {
 
         returnDeliveryBox();
 
-        // drive to the crater
-        headingAfterDrive = driveStraight(200, .3);
-        logFile.logData("headingFourthStraight " + Double.toString(robot.driveTrain.imu.getHeading()));
-
         // lower the lift
         lowerLift();
+
+        // drive to the crater
+        headingAfterDrive = driveStraight(205, .3);
+        logFile.logData("headingFourthStraight " + Double.toString(robot.driveTrain.imu.getHeading()));
     }
 
     public void facingCraterMiddleMineral() {
