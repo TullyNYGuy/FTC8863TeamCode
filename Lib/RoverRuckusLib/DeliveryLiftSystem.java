@@ -205,25 +205,26 @@ public class DeliveryLiftSystem {
     }
 
     public void testDumpServoPositions() {
-        deliveryBoxToHome();
-        telemetry.addLine("Deliver Box at home position");
-        telemetry.update();
-        delay(2000);
-        deliveryBoxToTransfer();
-        telemetry.addLine("Deliver Box at transfer position");
-        telemetry.update();
-        delay(2000);
-        deliveryBoxToOutOfWay();
-        telemetry.addLine("Deliver Box at out of way position");
-        telemetry.update();
-        delay(2000);
+       goToScoringPosition();
+        //deliveryBoxToHome();
+       // telemetry.addLine("Deliver Box at home position");
+        //telemetry.update();
+       // delay(2000);
+        //deliveryBoxToTransfer();
+      //  telemetry.addLine("Deliver Box at transfer position");
+       // telemetry.update();
+       // delay(2000);
+       // deliveryBoxToOutOfWay();
+       // telemetry.addLine("Deliver Box at out of way position");
+        //telemetry.update();
+       // delay(2000);
         deliveryBoxToDump();
         telemetry.addLine("Deliver Box at dump position");
         telemetry.update();
-        delay(2000);
+        delay(15000);
         deliveryBoxToHome();
-        telemetry.addLine("Deliver Box at home position");
-        telemetry.update();
+        //telemetry.addLine("Deliver Box at home position");
+        //telemetry.update();
     }
 
     //*********************************************************************************************]
