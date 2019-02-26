@@ -51,7 +51,7 @@ public class DeliveryLiftSystem {
     private double dumpServoDumpPosition = 0.0;
     private double dumpServoInitPosition = 0.8;
     private double dumpServoTransferPosition = 0.8;
-    private double dumpServoOutOfWayPosition = 0.7;
+    private double dumpServoOutOfWayPosition = 0.25;
 
     private Switch bottomLimitSwitch;
     private Switch topLimitSwitch;
