@@ -34,6 +34,7 @@ public class AutonomousMovementSteps {
         WAIT_FOR_DUMP,
         RETURN_DUMP_ARM,
         RESET_ROBOT,
+        WAIT_FOR_TIMER,
 
         // steps for minerals
         WAIT_FOR_GOLD_MINERAL_LOCATION,
@@ -97,6 +98,8 @@ public class AutonomousMovementSteps {
 
     private boolean loggingOn = true;
 
+     private double delayTimeToWait = 5000;
+
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -159,12 +162,12 @@ public class AutonomousMovementSteps {
             case LOCATE_GOLD_MINERAL:
                 switch(step) {
                     case START:
+                        robot.deliveryLiftSystem.deliveryBoxToOutOfWay();
                         goldMineralDetection.activate(1500);
                         step = Steps.WAIT_FOR_GOLD_MINERAL_LOCATION;
                         break;
                     case WAIT_FOR_GOLD_MINERAL_LOCATION:
                         if (goldMineralDetection.isRecognitionComplete()){
-                            goldPosition = goldMineralDetection.getMostLikelyGoldPosition();
                             goldMineralDetection.shutdown();
                             task = autonomousDirector.getNextTask();
                             // setup to start the next task
@@ -175,6 +178,41 @@ public class AutonomousMovementSteps {
                         break;
                 }
                 break;
+            case DEHANG:
+                switch(step) {
+                    case START:
+                        robot.dehang();
+                       if(robot.deliveryLiftSystem.isLiftMovementComplete()){
+                           task = autonomousDirector.getNextTask();
+                           // setup to start the next task
+                           step = Steps.START;
+                       }
+                        break;
+
+                }
+                break;
+            case DELAY:
+                switch(step) {
+                    case START:
+                        timer.reset();
+                        step = Steps.WAIT_FOR_TIMER;
+                        break;
+                    case WAIT_FOR_TIMER:
+                        if(timer.milliseconds() > autonomousDirector.getDelay()){
+                            task = autonomousDirector.getNextTask();
+                            // setup to start the next task
+                            step = Steps.START;
+                        }
+                        break;
+
+                }
+                break;
+            case CLAIM_DEPOT_FROM_CRATER_SIDE_LANDER:
+                switch(step){
+                    case START:
+
+                }
+
 
         }
     }
