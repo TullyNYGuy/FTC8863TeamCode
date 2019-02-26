@@ -183,7 +183,7 @@ public class RoverRuckusRobot {
     //*********************************************************************************************
 
     public void dehang() {
-        deliveryLiftSystem.deliveryBoxToHome();
+        deliveryLiftSystem.deliveryBoxToOutOfWay();
         deliveryLiftSystem.dehang();;
     }
 
