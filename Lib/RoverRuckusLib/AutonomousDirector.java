@@ -66,6 +66,10 @@ public class AutonomousDirector {
     //*********************************************************************************************
 
 
+    public double getDelay() {
+        return delay;
+    }
+
     //*********************************************************************************************
     //          Constructors
     //
@@ -93,6 +97,9 @@ public class AutonomousDirector {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
+   public void addTask(AutonomousTasks taskToAdd){
+        taskList.add(taskToAdd);
+   }
     public AutonomousTasks getNextTask() {
         if (iterator.hasNext()) {
             return iterator.next();
