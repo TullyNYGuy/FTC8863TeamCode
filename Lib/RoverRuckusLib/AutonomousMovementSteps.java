@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib;
 
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.robot.Robot;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -35,6 +36,7 @@ public class AutonomousMovementSteps {
         RETURN_DUMP_ARM,
         RESET_ROBOT,
         WAIT_FOR_TIMER,
+        WAIT_FOR_LIFT,
 
         // steps for minerals
         WAIT_FOR_GOLD_MINERAL_LOCATION,
@@ -123,7 +125,8 @@ public class AutonomousMovementSteps {
     // from it
     //*********************************************************************************************
 
-    public AutonomousMovementSteps(AutonomousDirector autonomousDirector, DataLogging logFile, HardwareMap hardwareMap, Telemetry telemetry) {
+    public AutonomousMovementSteps(RoverRuckusRobot robot, AutonomousDirector autonomousDirector, DataLogging logFile, HardwareMap hardwareMap, Telemetry telemetry) {
+        this.robot = robot;
         this.autonomousDirector = autonomousDirector;
         if (logFile != null) {
             enableLogging();
@@ -182,6 +185,9 @@ public class AutonomousMovementSteps {
                 switch(step) {
                     case START:
                         robot.dehang();
+                        step = Steps.WAIT_FOR_LIFT;
+                        break;
+                    case WAIT_FOR_LIFT:
                        if(robot.deliveryLiftSystem.isLiftMovementComplete()){
                            task = autonomousDirector.getNextTask();
                            // setup to start the next task
