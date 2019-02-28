@@ -188,6 +188,24 @@ public class DriveCurve {
     // from it
     //*********************************************************************************************
 
+    /**
+     * Create a drive curve object and setup the curve. You will need to call
+     * Note that you cannot run a curve that has a radius less than 1/2 the wheelbase. That would be
+     * a spin turn in which one wheel turns backwards and one forwards. DriveCurve is meant to move
+     * the robot forwards. So if you try to do that, the drive curve will limit you to a pivot curve
+     * where one wheel is stationary and the other is moving. If the spin turn were allowed the PID
+     * could suddenly make a wheel that is going forwards switch to going backwards. This would not
+     * be good.
+     * @param curveAngle
+     * @param speed
+     * @param radius
+     * @param curveDirection
+     * @param driveDirection
+     * @param wheelBase
+     * @param imu
+     * @param logFile
+     * @param driveTrain
+     */
     public DriveCurve(double curveAngle, double speed, double radius, CurveDirection curveDirection, DriveDirection driveDirection, Double wheelBase, AdafruitIMU8863 imu, DataLogging logFile, DriveTrain driveTrain) {
         this.logFile = logFile;
         enableLogging();
@@ -202,48 +220,18 @@ public class DriveCurve {
     }
 
     private void init(double curveAngle, double speed, double radius, CurveDirection curveDirection, DriveDirection driveDirection, double wheelBase, AdafruitIMU8863 imu) {
-        setCurveAngle(curveAngle);
-        this.curveDirection = curveDirection;
-        this.driveDirection = driveDirection;
-        setSpeed(speed);
-        this.radius = radius;
         this.wheelBase = wheelBase;
         this.imu = imu;
 
-        timer = new ElapsedTime();
-        timer.reset();
-
-        curveState = CurveState.NOT_STARTED;
-
-        rateOfTurn = calculateRateOfTurnShouldBe(radius);
-
         pidControl = new PIDControl();
-        pidControl.setSetpoint(rateOfTurn);
-        // was .2
-        pidControl.setMaxCorrection(radius * 2);
-        // threshold is not meaningful in this movement. It is normally used to say when the
-        // movement is complete but since this movement goes forever, threshold does nothing.
-        // But it has to be set to something!
+        // threshold is not really meaningful when controlling something that continues on and on
+        // but it has to be set to something
         pidControl.setThreshold(10);
-        //pidControl.setKp(0.011);
         // was 40
         pidControl.setKp(100.0);
         //pidControl.setKi(0.05/1000000);
-        pidControl.reset();
 
-        calculateWheelSpeeds(radius);
-        driveTrain.setDistanceDrivenReference();
-        initialHeading = imu.getHeading();
-        lastHeading = initialHeading;
-
-        // bug here was that the motor mode did not get set and was taking on whatever it was last set to.
-        driveTrain.setDriveMotorMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-        if (logFile != null && enableLogging) {
-            logFile.logData("Curve radius = " + radius + " speed = " + speed + " angle = " + curveAngle + " left wheel speed = " + leftWheelSpeed + " right wheel speed = " + rightWheelSpeed);
-            logFile.logData("rate of turn should be = " + Double.toString(calculateRateOfTurnShouldBe(radius)));
-            logFile.logData("distance traveled should be = " + Double.toString(2 * Math.PI * radius * curveAngle / 360));
-        }
+        setupDriveCurve(curveAngle, speed, radius, curveDirection, driveDirection);
     }
 
 
@@ -316,7 +304,15 @@ public class DriveCurve {
      * @return
      */
     private double calculateSlowerWheelSpeed(Double radius) {
-        double wheelSpeed = speed * (1 - wheelBase / (2 * radius));
+        double wheelSpeed;
+        // when the radius of the turn becomes less than 1/2 of the wheelbase the robot starts to do
+        // a spin turn where the slower wheel has to turn backwards. We don't want this because it
+        // stops the forward movement of the robot so limit the wheel speed to 0 and no less.
+        if (radius <= wheelBase / 2) {
+            wheelSpeed = 0;
+        } else {
+            wheelSpeed = speed * (1 - wheelBase / (2 * radius));
+        }
         return wheelSpeed;
     }
 
@@ -327,7 +323,20 @@ public class DriveCurve {
      * @return
      */
     private double calculateFasterWheelSpeed(Double radius) {
-        double wheelSpeed = speed * (1 + wheelBase / (2 * radius));
+        double wheelSpeed;
+        // when the radius of the turn becomes less than 1/2 of the wheelbase the robot starts to do
+        // a spin turn where the slower wheel has to turn backwards while the faster wheel turns
+        // forwards. We don't want this because it
+        // stops the forward movement of the robot. So limit the slower wheel speed to 0. It can't
+        // be negative. At the same time, when the slower wheel = 0, the faster wheel = 2 * speed:
+        /// speed * (1 + wheelbase / (2* radius))
+        // radius = wheelbase / 2;
+        // speed * (1+ wheelbase / (2 * wheelbase / 2)) = speed * (1+ wheelbase / wheelbase) = speed * (1 + 1) = speed * 2
+        if (radius <= wheelBase / 2) {
+            wheelSpeed = 2 * speed;
+        } else {
+            wheelSpeed = speed * (1 + wheelBase / (2 * radius));
+        }
         return wheelSpeed;
     }
 
@@ -381,18 +390,70 @@ public class DriveCurve {
         return driveTrain.getDistanceDriven() * 360 / (finalHeading - initialHeading) * 1 / (2 * Math.PI);
     }
 
+    private double getDistanceToBeTraveled() {
+        double distance = 2 * Math.PI * radius * curveAngle / 360;
+        if (driveDirection == DriveDirection.BACKWARD) {
+            distance = -distance;
+        }
+        return distance;
+    }
+
     //*********************************************************************************************
     //          MAJOR METHODS
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
 
+    /**
+     * You can use the constructor to setup a curve. Once you run that first curve, you can use this
+     * method to setup another curve rather than creating another curve object.
+     * Note that you cannot run a curve that has a radius less than 1/2 the wheelbase. That would be
+     * a spin turn in which one wheel turns backwards and one forwards. DriveCurve is meant to move
+     * the robot forwards. So if you try to do that, the drive curve will limit you to a pivot curve
+     * where one wheel is stationary and the other is moving. If the spin turn were allowed the PID
+     * could suddenly make a wheel that is going forwards switch to going backwards. This would not
+     * be good.
+     * @param curveAngle
+     * @param speed
+     * @param radius
+     * @param curveDirection
+     * @param driveDirection
+     */
+    public void setupDriveCurve(double curveAngle, double speed, double radius, CurveDirection curveDirection, DriveDirection driveDirection) {
+        setCurveAngle(curveAngle);
+        this.curveDirection = curveDirection;
+        this.driveDirection = driveDirection;
+        setSpeed(speed);
+        this.radius = radius;
+
+        curveState = CurveState.NOT_STARTED;
+
+        rateOfTurn = calculateRateOfTurnShouldBe(radius);
+
+        pidControl.setSetpoint(rateOfTurn);
+        pidControl.setMaxCorrection(radius * 2);
+        pidControl.reset();
+
+        calculateWheelSpeeds(radius);
+        driveTrain.setDistanceDrivenReference();
+        initialHeading = imu.getHeading();
+        lastHeading = initialHeading;
+
+        // bug here was that the motor mode did not get set and was taking on whatever it was last set to.
+        driveTrain.setDriveMotorMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        if (logFile != null && enableLogging) {
+            logFile.logData("Curve radius = " + radius + " speed = " + speed + " angle = " + curveAngle + " curve direction = " + curveDirection.toString() + " drive direction = " + driveDirection.toString());
+            logFile.logData("left wheel speed = " + leftWheelSpeed + " right wheel speed = " + rightWheelSpeed + " rate of turn should be = " + Double.toString(calculateRateOfTurnShouldBe(radius)));
+            logFile.logData("distance traveled should be = " + Double.toString(getDistanceToBeTraveled()));
+        }
+    }
 
     /**
      * Once a curve has been created, use this method to actually start the curve. After this, you
      * need to call the update() in a loop so that the angle can be looked at as the curve proceeds.
      */
-    public void startCurve() {
+    public void startDriveCurve() {
         driveTrain.setLeftDriveMotorSpeed(getLeftWheelSpeed());
         driveTrain.setRightDriveMotorSpeed(getRightWheelSpeed());
         driveTrain.applyPowersToMotors();
@@ -428,11 +489,12 @@ public class DriveCurve {
                 // since the robot is traveling around a circle of a certain radius. But it might not
                 // be since stuff happens. The PID is supposed to fix that.
                 if (usePID) {
-                    if (currentRateOfTurn == 0) {
-                        correction = 0;
-                    } else {
-                        correction = correctionSign * pidControl.getCorrection(currentRateOfTurn);
-                    }
+//                    if (currentRateOfTurn == 0) {
+//                        correction = 0;
+//                    } else {
+//                        correction = correctionSign * pidControl.getCorrection(currentRateOfTurn);
+//                    }
+                    correction = correctionSign * pidControl.getCorrection(currentRateOfTurn);
                     newRadius = radius + correction;
                     logFile.logData("rate of turn = " + currentRateOfTurn + " correction = " + correction + " new radius = " + newRadius);
                     calculateWheelSpeeds(newRadius);
@@ -489,5 +551,152 @@ public class DriveCurve {
     public void stopCurve(DcMotor8863.FinishBehavior finishBehavior) {
         driveTrain.setFinishBehavior(finishBehavior);
         driveTrain.shutdown();
+    }
+
+    public void testDriveCurveCalculations() {
+        // wheel speeds should be positive
+        // left wheel speed should be bigger than right wheel speed
+        // imu angle should become more negative / distance drive should become more positive so rate of turn should be negative
+        setupDriveCurve(90, .5, 100, CurveDirection.CW, DriveDirection.FORWARD);
+
+        // wheel speeds should be positive
+        // left wheel speed should be smaller than right wheel speed
+        // imu angle should become more positive / distance drive should become more positive so rate of turn should be positive
+        setupDriveCurve(90, .5, 100, CurveDirection.CCW, DriveDirection.FORWARD);
+
+        // wheel speeds should be negative
+        // left wheel speed should be smaller than right wheel speed
+        // imu angle should become more negative / distance drive should become more positive so rate of turn should be negative
+        setupDriveCurve(90, .5, 100, CurveDirection.CW, DriveDirection.BACKWARD);
+
+        // wheel speeds should be negative
+        // left wheel speed should be bigger than right wheel speed
+        // imu angle should become more positive / distance drive should become more positive so rate of turn should be positive
+        setupDriveCurve(90, .5, 100, CurveDirection.CCW, DriveDirection.BACKWARD);
+    }
+
+    public void testDriveCurvePID() {
+        double currentRateOfTurn;
+        double correction;
+        double newRadius;
+
+        // wheel speeds should be positive
+        // left wheel speed should be bigger than right wheel speed
+        // imu angle should become more negative / distance drive should become more positive so rate of turn should be negative
+        setupDriveCurve(90, .5, 100, CurveDirection.CW, DriveDirection.FORWARD);
+
+        // now simulate a rate of turn that is less than it should be. So robot is not turning fast enough.
+        // PID should increase rate of turn by reducing turn radius.
+        // this means left wheel speed should become faster and right wheel speed should become slower
+        // calculated rate of turn should be -.572
+        currentRateOfTurn = -.3;
+        pidControl.getCorrection(currentRateOfTurn);
+        correction = correctionSign * pidControl.getCorrection(currentRateOfTurn);
+        newRadius = radius + correction;
+        logFile.logData("rate of turn = " + currentRateOfTurn + " correction = " + correction + " new radius = " + newRadius);
+        calculateWheelSpeeds(newRadius);
+        logFile.logData("left wheel speed = " + Double.toString(leftWheelSpeed) + " right wheel speed = " + Double.toString(rightWheelSpeed));
+
+        // now simulate a rate of turn that is more than it should be. So robot is turning too fast.
+        // PID should decrease rate of turn by increasing turn radius.
+        // this means left wheel speed should become slower and right wheel speed should become faster
+        // calculated rate of turn should be -.572
+        currentRateOfTurn = -.7;
+        pidControl.getCorrection(currentRateOfTurn);
+        correction = correctionSign * pidControl.getCorrection(currentRateOfTurn);
+        newRadius = radius + correction;
+        logFile.logData("rate of turn = " + currentRateOfTurn + " correction = " + correction + " new radius = " + newRadius);
+        calculateWheelSpeeds(newRadius);
+        logFile.logData("left wheel speed = " + Double.toString(leftWheelSpeed) + " right wheel speed = " + Double.toString(rightWheelSpeed));
+
+
+        // wheel speeds should be positive
+        // left wheel speed should be smaller than right wheel speed
+        // imu angle should become more positive / distance drive should become more positive so rate of turn should be positive
+        setupDriveCurve(90, .5, 100, CurveDirection.CCW, DriveDirection.FORWARD);
+
+        // now simulate a rate of turn that is less than it should be. So robot is not turning fast enough.
+        // PID should increase rate of turn by reducing turn radius.
+        // this means left wheel speed should become slower and right wheel speed should become faster
+        // calculated rate of turn should be +.572
+        currentRateOfTurn = +.3;
+        pidControl.getCorrection(currentRateOfTurn);
+        correction = correctionSign * pidControl.getCorrection(currentRateOfTurn);
+        newRadius = radius + correction;
+        logFile.logData("rate of turn = " + currentRateOfTurn + " correction = " + correction + " new radius = " + newRadius);
+        calculateWheelSpeeds(newRadius);
+        logFile.logData("left wheel speed = " + Double.toString(leftWheelSpeed) + " right wheel speed = " + Double.toString(rightWheelSpeed));
+
+        // now simulate a rate of turn that is more than it should be. So robot is turning too fast.
+        // PID should decrease rate of turn by increasing turn radius.
+        // this means left wheel speed should become faster and right wheel speed should become slower
+        // calculated rate of turn should be -.572
+        currentRateOfTurn = +.7;
+        pidControl.getCorrection(currentRateOfTurn);
+        correction = correctionSign * pidControl.getCorrection(currentRateOfTurn);
+        newRadius = radius + correction;
+        logFile.logData("rate of turn = " + currentRateOfTurn + " correction = " + correction + " new radius = " + newRadius);
+        calculateWheelSpeeds(newRadius);
+        logFile.logData("left wheel speed = " + Double.toString(leftWheelSpeed) + " right wheel speed = " + Double.toString(rightWheelSpeed));
+
+
+        // wheel speeds should be negative
+        // left wheel speed should be smaller than right wheel speed
+        // imu angle should become more negative / distance drive should become more positive so rate of turn should be negative
+        setupDriveCurve(90, .5, 100, CurveDirection.CW, DriveDirection.BACKWARD);
+
+        // now simulate a rate of turn that is less than it should be. So robot is not turning fast enough.
+        // PID should increase rate of turn by reducing turn radius.
+        // this means left wheel speed should become slower and right wheel speed should become faster
+        // calculated rate of turn should be -.572
+        currentRateOfTurn = -.3;
+        pidControl.getCorrection(currentRateOfTurn);
+        correction = correctionSign * pidControl.getCorrection(currentRateOfTurn);
+        newRadius = radius + correction;
+        logFile.logData("rate of turn = " + currentRateOfTurn + " correction = " + correction + " new radius = " + newRadius);
+        calculateWheelSpeeds(newRadius);
+        logFile.logData("left wheel speed = " + Double.toString(leftWheelSpeed) + " right wheel speed = " + Double.toString(rightWheelSpeed));
+
+        // now simulate a rate of turn that is more than it should be. So robot is turning too fast.
+        // PID should decrease rate of turn by increasing turn radius.
+        // this means left wheel speed should become faster and right wheel speed should become slower
+        // calculated rate of turn should be -.572
+        currentRateOfTurn = -.7;
+        pidControl.getCorrection(currentRateOfTurn);
+        correction = correctionSign * pidControl.getCorrection(currentRateOfTurn);
+        newRadius = radius + correction;
+        logFile.logData("rate of turn = " + currentRateOfTurn + " correction = " + correction + " new radius = " + newRadius);
+        calculateWheelSpeeds(newRadius);
+        logFile.logData("left wheel speed = " + Double.toString(leftWheelSpeed) + " right wheel speed = " + Double.toString(rightWheelSpeed));
+
+
+        // wheel speeds should be negative
+        // left wheel speed should be bigger than right wheel speed
+        // imu angle should become more positive / distance drive should become more positive so rate of turn should be positive
+        setupDriveCurve(90, .5, 100, CurveDirection.CCW, DriveDirection.BACKWARD);
+
+        // now simulate a rate of turn that is less than it should be. So robot is not turning fast enough.
+        // PID should increase rate of turn by reducing turn radius.
+        // this means left wheel speed should become faster and right wheel speed should become slower
+        // calculated rate of turn should be +.572
+        currentRateOfTurn = +.3;
+        pidControl.getCorrection(currentRateOfTurn);
+        correction = correctionSign * pidControl.getCorrection(currentRateOfTurn);
+        newRadius = radius + correction;
+        logFile.logData("rate of turn = " + currentRateOfTurn + " correction = " + correction + " new radius = " + newRadius);
+        calculateWheelSpeeds(newRadius);
+        logFile.logData("left wheel speed = " + Double.toString(leftWheelSpeed) + " right wheel speed = " + Double.toString(rightWheelSpeed));
+
+        // now simulate a rate of turn that is more than it should be. So robot is turning too fast.
+        // PID should decrease rate of turn by increasing turn radius.
+        // this means left wheel speed should become slower and right wheel speed should become faster
+        // calculated rate of turn should be -.572
+        currentRateOfTurn = +.7;
+        pidControl.getCorrection(currentRateOfTurn);
+        correction = correctionSign * pidControl.getCorrection(currentRateOfTurn);
+        newRadius = radius + correction;
+        logFile.logData("rate of turn = " + currentRateOfTurn + " correction = " + correction + " new radius = " + newRadius);
+        calculateWheelSpeeds(newRadius);
+        logFile.logData("left wheel speed = " + Double.toString(leftWheelSpeed) + " right wheel speed = " + Double.toString(rightWheelSpeed));
     }
 }
