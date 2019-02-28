@@ -38,7 +38,7 @@ public class RoverRuckusAutonomusTestTask extends LinearOpMode {
         autonomousDirector = new AutonomousDirector(configurationFile);
 
         autonomousDirector.addTask(AutonomousDirector.AutonomousTasks.LOCATE_GOLD_MINERAL);
-        autonomousMovementSteps = new AutonomousMovementSteps(autonomousDirector, logFile, hardwareMap, telemetry);
+        autonomousMovementSteps = new AutonomousMovementSteps(robot, autonomousDirector, logFile, hardwareMap, telemetry);
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");

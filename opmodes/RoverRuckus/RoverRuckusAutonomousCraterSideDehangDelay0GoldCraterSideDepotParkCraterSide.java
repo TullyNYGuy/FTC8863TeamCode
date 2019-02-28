@@ -37,7 +37,7 @@ public class RoverRuckusAutonomousCraterSideDehangDelay0GoldCraterSideDepotParkC
 
         configurationFile = new AutonomousConfigurationFile();
         autonomousDirector = new AutonomousDirector(configurationFile);
-        autonomousMovementSteps = new AutonomousMovementSteps(autonomousDirector, logFile, hardwareMap, telemetry);
+        autonomousMovementSteps = new AutonomousMovementSteps(robot, autonomousDirector, logFile, hardwareMap, telemetry);
 
         // force the config file values since we are not actually reading a config file
         configurationFile.setHangLocation(AutonomousConfigurationFile.HangLocation.CRATER_SIDE);
