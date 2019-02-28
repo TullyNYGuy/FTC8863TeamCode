@@ -79,6 +79,7 @@ public class AutonomousDirector {
     public AutonomousDirector(AutonomousConfigurationFile conFigFile) {
         this.conFigFile = conFigFile;
         taskList = new ArrayList<AutonomousTasks>();
+        iterator = taskList.iterator();
     }
 
     //*********************************************************************************************
@@ -99,6 +100,7 @@ public class AutonomousDirector {
     //*********************************************************************************************
    public void addTask(AutonomousTasks taskToAdd){
         taskList.add(taskToAdd);
+        iterator = taskList.iterator();
    }
     public AutonomousTasks getNextTask() {
         if (iterator.hasNext()) {
