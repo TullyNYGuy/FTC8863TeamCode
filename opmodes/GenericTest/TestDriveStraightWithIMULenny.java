@@ -25,7 +25,7 @@ public class TestDriveStraightWithIMULenny extends LinearOpMode {
 
         // Put your initializations here
         driveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap, telemetry);
-        logFile = new DataLogging("Test_Driving_Straight_With_An_IMU", telemetry);
+        logFile = new DataLogging("Test Driving Straight With An IMU", telemetry);
         driveTrain.setLogFile(logFile);
         driveTrain.enableLogDrive();
         // Wait for the start button
@@ -34,7 +34,7 @@ public class TestDriveStraightWithIMULenny extends LinearOpMode {
         waitForStart();
 
         // Put your calls here - they will not run in a loop
-        driveTrain.setupDriveUsingIMU(0, 182.88, 0.3, AdafruitIMU8863.AngleMode.RELATIVE);
+        driveTrain.setupDriveUsingIMU(0, -250, 0.3, DriveTrain.DriveDirection.REVERSE, AdafruitIMU8863.AngleMode.ABSOLUTE);
         driveTrain.imu.resetAngleReferences();
         logFile.startTimer();
 
