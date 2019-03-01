@@ -103,7 +103,10 @@ public class DriveCurve {
 
     private double radius;
 
-    private double wheelBase;
+    /**
+     * wheelbase of 6 wheel drive robot in cm
+     */
+    private double wheelBase = 37.38;
 
     private double leftWheelSpeed;
 
@@ -180,6 +183,14 @@ public class DriveCurve {
     // getPositionInTermsOfAttachment
     //*********************************************************************************************
 
+    public double getWheelBase() {
+        return wheelBase;
+    }
+
+    public void setWheelBase(double wheelBase) {
+        this.wheelBase = wheelBase;
+    }
+
 
     //*********************************************************************************************
     //          Constructors
@@ -201,26 +212,24 @@ public class DriveCurve {
      * @param radius
      * @param curveDirection
      * @param driveDirection
-     * @param wheelBase
      * @param imu
      * @param logFile
      * @param driveTrain
      */
-    public DriveCurve(double curveAngle, double speed, double radius, CurveDirection curveDirection, DriveDirection driveDirection, Double wheelBase, AdafruitIMU8863 imu, DataLogging logFile, DriveTrain driveTrain) {
+    public DriveCurve(double curveAngle, double speed, double radius, CurveDirection curveDirection, DriveDirection driveDirection, AdafruitIMU8863 imu, DataLogging logFile, DriveTrain driveTrain) {
         this.logFile = logFile;
         enableLogging();
         this.driveTrain = driveTrain;
-        init(curveAngle, speed, radius, curveDirection, driveDirection, wheelBase, imu);
+        init(curveAngle, speed, radius, curveDirection, driveDirection, imu);
     }
 
-    public DriveCurve(double curveAngle, double speed, double radius, CurveDirection curveDirection, DriveDirection driveDirection, double wheelBase, AdafruitIMU8863 imu) {
+    public DriveCurve(double curveAngle, double speed, double radius, CurveDirection curveDirection, DriveDirection driveDirection, AdafruitIMU8863 imu) {
         this.logFile = null;
         enableLogging = false;
-        init(curveAngle, speed, radius, curveDirection, driveDirection, wheelBase, imu);
+        init(curveAngle, speed, radius, curveDirection, driveDirection, imu);
     }
 
-    private void init(double curveAngle, double speed, double radius, CurveDirection curveDirection, DriveDirection driveDirection, double wheelBase, AdafruitIMU8863 imu) {
-        this.wheelBase = wheelBase;
+    private void init(double curveAngle, double speed, double radius, CurveDirection curveDirection, DriveDirection driveDirection, AdafruitIMU8863 imu) {
         this.imu = imu;
 
         pidControl = new PIDControl();
@@ -268,7 +277,7 @@ public class DriveCurve {
                             leftWheelSpeed = calculateSlowerWheelSpeed(radius);
                             // outside wheel is the right
                             rightWheelSpeed = calculateFasterWheelSpeed(radius);
-                            correctionSign = +1.0;
+                            correctionSign = -1.0;
                             break;
                     }
                     break;
@@ -287,7 +296,7 @@ public class DriveCurve {
                             leftWheelSpeed = calculateFasterWheelSpeed(radius);
                             // inside wheel is the right
                             rightWheelSpeed = calculateSlowerWheelSpeed(radius);
-                            correctionSign = +1.0;
+                            correctionSign = -1.0;
                             break;
                     }
                     break;
