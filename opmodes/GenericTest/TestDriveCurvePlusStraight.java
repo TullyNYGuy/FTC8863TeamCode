@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.GenericTest;
 
+import android.app.backup.BackupAgent;
+
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -22,7 +24,7 @@ public class TestDriveCurvePlusStraight extends LinearOpMode {
     AdafruitIMU8863 imu;
     DataLogging logFile;
     DriveTrain driveTrain;
-
+    double curveAngle;
 
     @Override
     public void runOpMode() {
@@ -35,10 +37,26 @@ public class TestDriveCurvePlusStraight extends LinearOpMode {
 
         // at power = .3 remove 1 degree from the turn (found 1 degree per 40ms cycle - .0256 deg/mS rate of turn)
         // at power = .5 remove 2 degree from the turn (found 1.8 degree per 40ms cycle- .0445 deg/mS rate of turn)
-        double curveAngle = -86.0;
+
         double speed = 0.3;
         double curveRadius = 100; // cm
-        driveCurve = new DriveCurve(curveAngle, speed, curveRadius, DriveCurve.CurveDirection.CW, DriveCurve.DriveDirection.FORWARD, driveTrain.imu, logFile, driveTrain);
+
+        // CW curve forward
+        //curveAngle = -89.0;
+        //driveCurve = new DriveCurve(curveAngle, speed, curveRadius, DriveCurve.CurveDirection.CW, DriveCurve.DriveDirection.FORWARD, driveTrain.imu, logFile, driveTrain);
+
+        // CCW curve forward
+        //curveAngle = 89.0;
+        //driveCurve = new DriveCurve(curveAngle, speed, curveRadius, DriveCurve.CurveDirection.CCW, DriveCurve.DriveDirection.FORWARD, driveTrain.imu, logFile, driveTrain);
+
+        // CW curve backward
+        //curveAngle = -89.0;
+        //driveCurve = new DriveCurve(curveAngle, speed, curveRadius, DriveCurve.CurveDirection.CW, DriveCurve.DriveDirection.BACKWARD, driveTrain.imu, logFile, driveTrain);
+
+        // CW curve backward
+        curveAngle = 89.0;
+        driveCurve = new DriveCurve(curveAngle, speed, curveRadius, DriveCurve.CurveDirection.CCW, DriveCurve.DriveDirection.BACKWARD, driveTrain.imu, logFile, driveTrain);
+
         driveCurve.enableLogging();
         driveCurve.enablePID();
 
@@ -59,7 +77,18 @@ public class TestDriveCurvePlusStraight extends LinearOpMode {
             idle();
         }
 
-        driveTrain.setupDriveUsingIMU(-90, 150, speed, AdafruitIMU8863.AngleMode.ABSOLUTE);
+        // drive straight after CW curve forward
+        //driveTrain.setupDriveUsingIMU(-90, 150, speed, DriveTrain.DriveDirection.FORWARD, AdafruitIMU8863.AngleMode.ABSOLUTE);
+
+        // drive straight after CCW curve forward
+        //driveTrain.setupDriveUsingIMU(90, 50, speed, DriveTrain.DriveDirection.FORWARD, AdafruitIMU8863.AngleMode.ABSOLUTE);
+
+        // drive straight after CW curve backward
+        //driveTrain.setupDriveUsingIMU(-90, -150, speed, DriveTrain.DriveDirection.REVERSE, AdafruitIMU8863.AngleMode.ABSOLUTE);
+
+        // drive straight after CCW curve backward
+        driveTrain.setupDriveUsingIMU(90, -30, speed, DriveTrain.DriveDirection.REVERSE, AdafruitIMU8863.AngleMode.ABSOLUTE);
+
         while (opModeIsActive()&& !driveTrain.updateDriveUsingIMU()) {
             // Display the current value
             telemetry.addData(">", "Driving straight ...");
