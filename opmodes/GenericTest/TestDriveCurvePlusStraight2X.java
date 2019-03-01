@@ -60,7 +60,7 @@ public class TestDriveCurvePlusStraight2X extends LinearOpMode {
             idle();
         }
 
-        driveTrain.setupDriveUsingIMU(-90, 50, speed, AdafruitIMU8863.AngleMode.ABSOLUTE);
+        driveTrain.setupDriveUsingIMU(-90, 50, speed, DriveTrain.DriveDirection.FORWARD, AdafruitIMU8863.AngleMode.ABSOLUTE);
         while (opModeIsActive()&& !driveTrain.updateDriveUsingIMU()) {
             // Display the current value
             telemetry.addData(">", "Driving straight ...");
@@ -87,7 +87,7 @@ public class TestDriveCurvePlusStraight2X extends LinearOpMode {
             idle();
         }
 
-        driveTrain.setupDriveUsingIMU(0, 50, speed, AdafruitIMU8863.AngleMode.ABSOLUTE);
+        driveTrain.setupDriveUsingIMU(0, 50, speed, DriveTrain.DriveDirection.FORWARD, AdafruitIMU8863.AngleMode.ABSOLUTE);
         while (opModeIsActive()&& !driveTrain.updateDriveUsingIMU()) {
             // Display the current value
             telemetry.addData(">", "Driving straight ...");

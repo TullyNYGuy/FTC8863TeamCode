@@ -58,7 +58,7 @@ public class TestDriveCurveLeftMineralDemo extends LinearOpMode {
             idle();
         }
 
-        driveTrain.setupDriveUsingIMU(+135, 39 * 2.54, speed, AdafruitIMU8863.AngleMode.ABSOLUTE);
+        driveTrain.setupDriveUsingIMU(+135, 39 * 2.54, speed, DriveTrain.DriveDirection.FORWARD, AdafruitIMU8863.AngleMode.ABSOLUTE);
         while (opModeIsActive()&& !driveTrain.updateDriveUsingIMU()) {
             // Display the current value
             telemetry.addData(">", "Driving straight ...");

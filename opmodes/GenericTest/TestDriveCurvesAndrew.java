@@ -16,7 +16,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
  *
  *
  */
-@TeleOp(name = "Test Drive Curve", group = "Test")
+@TeleOp(name = "Test Drive Curve Andrew", group = "Test")
 //@Disabled
 public class TestDriveCurvesAndrew extends LinearOpMode {
 
