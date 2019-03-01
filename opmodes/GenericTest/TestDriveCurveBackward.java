@@ -39,8 +39,7 @@ public class TestDriveCurveBackward extends LinearOpMode {
         double curveAngle = -89.0;
         double speed = 0.1;
         double curveRadius = 100; // cm
-        double wheelbase = 37.38; // measured
-        driveCurve = new DriveCurve(curveAngle, speed, curveRadius, DriveCurve.CurveDirection.CW, DriveCurve.DriveDirection.BACKWARD, wheelbase, driveTrain.imu, logFile, driveTrain);
+        driveCurve = new DriveCurve(curveAngle, speed, curveRadius, DriveCurve.CurveDirection.CW, DriveCurve.DriveDirection.BACKWARD, driveTrain.imu, logFile, driveTrain);
         driveCurve.enableLogging();
         driveCurve.enablePID();
 
@@ -63,26 +62,6 @@ public class TestDriveCurveBackward extends LinearOpMode {
 
         driveCurve.stopCurve(DcMotor8863.FinishBehavior.HOLD);
         sleep(2000);
-
-//        curveAngle = 0.0;
-//        driveCurve = new DriveCurve(curveAngle, speed, curveRadius, DriveCurve.CurveDirection.CCW, DriveCurve.DriveDirection.BACKWARD, wheelbase, driveTrain.imu, logFile, driveTrain);
-//        driveCurve.enableLogging();
-//        driveCurve.enablePID();
-//        //driveCurve.disablePID();
-//
-//        // Put your calls here - they will not run in a loop
-//        driveCurve.startCurve();
-//
-//        while(opModeIsActive() && !driveCurve.isCurveComplete()) {
-//            driveCurve.update();
-//            telemetry.addData(">", "Curving Backwards ..." );
-//            telemetry.update();
-//            idle();
-//        }
-//
-//        driveCurve.stopCurve(DcMotor8863.FinishBehavior.HOLD);
-//
-//        sleep(2000);
 
         // Put your cleanup code here - it runs as the application shuts down
         logFile.closeDataLog();

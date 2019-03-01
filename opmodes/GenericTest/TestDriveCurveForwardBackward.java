@@ -39,8 +39,7 @@ public class TestDriveCurveForwardBackward extends LinearOpMode {
         double curveAngle = -89.0;
         double speed = 0.1;
         double curveRadius = 100; // cm
-        double wheelbase = 37.38; // measured
-        driveCurve = new DriveCurve(curveAngle, speed, curveRadius, DriveCurve.CurveDirection.CW, DriveCurve.DriveDirection.FORWARD, wheelbase, driveTrain.imu, logFile, driveTrain);
+        driveCurve = new DriveCurve(curveAngle, speed, curveRadius, DriveCurve.CurveDirection.CW, DriveCurve.DriveDirection.FORWARD, driveTrain.imu, logFile, driveTrain);
         driveCurve.enableLogging();
         driveCurve.enablePID();
 
@@ -65,7 +64,7 @@ public class TestDriveCurveForwardBackward extends LinearOpMode {
         sleep(2000);
 
         curveAngle = 0.0;
-        driveCurve = new DriveCurve(curveAngle, speed, curveRadius, DriveCurve.CurveDirection.CCW, DriveCurve.DriveDirection.BACKWARD, wheelbase, driveTrain.imu, logFile, driveTrain);
+        driveCurve = new DriveCurve(curveAngle, speed, curveRadius, DriveCurve.CurveDirection.CCW, DriveCurve.DriveDirection.BACKWARD, driveTrain.imu, logFile, driveTrain);
         driveCurve.enableLogging();
         driveCurve.enablePID();
         //driveCurve.disablePID();
