@@ -66,37 +66,25 @@ public class AngleAdjuster {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
-    public double adjustAngle(double angle, double threshold, Target target) {
-        double result = 0;
-        if (target == Target.TARGET) {
+    public void setTarget(double angle, double threshold) {
+
             this.threshold = threshold;
             if (angle >= 0) {
                 if (angle < threshold) {
                     angleRange = AngleRange.PLUS_TO_MINUS_180;
-                    result = angle;
-
                 }
                 if (angle >= threshold) {
                     angleRange = AngleRange.ZERO_TO_PLUS_360;
-                    result = angle;
-
                 }
             }
             if (angle < 0) {
                 if (angle < threshold) {
                     angleRange = AngleRange.ZERO_TO_MINUS_360;
-                    result = angle;
-
                 }
                 if (angle >= threshold) {
                     angleRange = AngleRange.PLUS_TO_MINUS_180;
-                    result = angle;
                 }
             }
-
-
-        }
-        return result;
     }
     public double adjustAngle(double angle){
         double result = 0;
