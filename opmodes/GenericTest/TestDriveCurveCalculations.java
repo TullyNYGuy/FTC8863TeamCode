@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.GenericTest;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -15,7 +16,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
  *
  */
 @TeleOp(name = "Test Drive Curve Calculations", group = "Test")
-//@Disabled
+@Disabled
 public class TestDriveCurveCalculations extends LinearOpMode {
 
     // Put your variable declarations here
