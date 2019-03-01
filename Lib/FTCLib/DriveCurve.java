@@ -380,7 +380,7 @@ public class DriveCurve {
      * @return the rate of turn in the last little instant of time
      */
     private double getActualRateOfTurn(double currentHeading) {
-        double distanceDrivenSinceLast = driveTrain.getDistanceDrivenSinceLast();
+        double distanceDrivenSinceLast = Math.abs(driveTrain.getDistanceDrivenSinceLast());
         double headingChange = currentHeading - lastHeading;
         // setup for the next time this calculation is made
         lastHeading = currentHeading;
@@ -423,7 +423,7 @@ public class DriveCurve {
      * could suddenly make a wheel that is going forwards switch to going backwards. This would not
      * be good.
      * @param curveAngle
-     * @param speed
+     * @param speed this should always be positive. The driveDirection takes care of driving backwards.
      * @param radius
      * @param curveDirection
      * @param driveDirection
@@ -523,7 +523,7 @@ public class DriveCurve {
                     // curve is complete, log the results
                     if (logFile != null && enableLogging) {
                         driveTrain.updateDriveDistance();
-                        logFile.logData("final heading = " + Double.toString(currentHeading) + " distance driven = ", Double.toString(driveTrain.getDistanceDriven()));
+                        logFile.logData("heading at curve completion = " + Double.toString(currentHeading) + " distance driven = ", Double.toString(driveTrain.getDistanceDriven()));
                         logFile.logData("average rate of turn = " + Double.toString(currentHeading / driveTrain.getDistanceDriven()));
                         logFile.logData("effective curve radius = " + Double.toString(getEffectiveCurveRadius(currentHeading)));
                         logFile.blankLine();
@@ -613,7 +613,7 @@ public class DriveCurve {
         logFile.logData("PID should increase rate of turn by reducing turn radius.");
         logFile.logData("this means left wheel speed should become faster and right wheel speed should become slower");
         // calculated rate of turn should be -.572
-        currentRateOfTurn = -.3;
+        currentRateOfTurn = -.372;
         pidControl.getCorrection(currentRateOfTurn);
         correction = correctionSign * pidControl.getCorrection(currentRateOfTurn);
         newRadius = radius + correction;
@@ -626,7 +626,7 @@ public class DriveCurve {
         logFile.logData("PID should decrease rate of turn by increasing turn radius.");
         logFile.logData("this means left wheel speed should become slower and right wheel speed should become faster");
         // calculated rate of turn should be -.572
-        currentRateOfTurn = -.7;
+        currentRateOfTurn = -.772;
         pidControl.getCorrection(currentRateOfTurn);
         correction = correctionSign * pidControl.getCorrection(currentRateOfTurn);
         newRadius = radius + correction;
@@ -645,7 +645,7 @@ public class DriveCurve {
         logFile.logData("PID should increase rate of turn by reducing turn radius.");
         logFile.logData("this means left wheel speed should become slower and right wheel speed should become faster");
         // calculated rate of turn should be +.572
-        currentRateOfTurn = +.3;
+        currentRateOfTurn = +.372;
         pidControl.getCorrection(currentRateOfTurn);
         correction = correctionSign * pidControl.getCorrection(currentRateOfTurn);
         newRadius = radius + correction;
@@ -658,7 +658,7 @@ public class DriveCurve {
         logFile.logData("PID should decrease rate of turn by increasing turn radius.");
         logFile.logData("this means left wheel speed should become faster and right wheel speed should become slower");
         // calculated rate of turn should be -.572
-        currentRateOfTurn = +.7;
+        currentRateOfTurn = +.772;
         pidControl.getCorrection(currentRateOfTurn);
         correction = correctionSign * pidControl.getCorrection(currentRateOfTurn);
         newRadius = radius + correction;
@@ -676,7 +676,7 @@ public class DriveCurve {
         logFile.logData("PID should increase rate of turn by reducing turn radius.");
         logFile.logData("this means left wheel speed should become slower and right wheel speed should become faster");
         // calculated rate of turn should be -.572
-        currentRateOfTurn = -.3;
+        currentRateOfTurn = -.372;
         pidControl.getCorrection(currentRateOfTurn);
         correction = correctionSign * pidControl.getCorrection(currentRateOfTurn);
         newRadius = radius + correction;
@@ -689,7 +689,7 @@ public class DriveCurve {
         logFile.logData("PID should decrease rate of turn by increasing turn radius.");
         logFile.logData("this means left wheel speed should become faster and right wheel speed should become slower");
         // calculated rate of turn should be -.572
-        currentRateOfTurn = -.7;
+        currentRateOfTurn = -.772;
         pidControl.getCorrection(currentRateOfTurn);
         correction = correctionSign * pidControl.getCorrection(currentRateOfTurn);
         newRadius = radius + correction;
@@ -708,7 +708,7 @@ public class DriveCurve {
         logFile.logData("PID should increase rate of turn by reducing turn radius.");
         logFile.logData("this means left wheel speed should become faster and right wheel speed should become slower");
         // calculated rate of turn should be +.572
-        currentRateOfTurn = +.3;
+        currentRateOfTurn = +.372;
         pidControl.getCorrection(currentRateOfTurn);
         correction = correctionSign * pidControl.getCorrection(currentRateOfTurn);
         newRadius = radius + correction;
@@ -721,7 +721,7 @@ public class DriveCurve {
         logFile.logData("PID should decrease rate of turn by increasing turn radius.");
         logFile.logData("this means left wheel speed should become slower and right wheel speed should become faster");
         // calculated rate of turn should be -.572
-        currentRateOfTurn = +.7;
+        currentRateOfTurn = +.772;
         pidControl.getCorrection(currentRateOfTurn);
         correction = correctionSign * pidControl.getCorrection(currentRateOfTurn);
         newRadius = radius + correction;
