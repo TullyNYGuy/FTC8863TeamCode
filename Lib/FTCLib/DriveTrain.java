@@ -581,12 +581,14 @@ public class DriveTrain {
      *                    sign change at the 180 boundary. If you really need to do that then there will
      *                    have to be some code written to control the range on the IMU.
      * @param distance    when the movement hits this distance, the update will return true
-     * @param maxPower    the max power to apply to the motors. This really corresponds to speed.
+     * @param speed    the speed to run the motors. This should be a positive number. Drive direction will
+     *                 take care of the sign of the speed.
      *                    Positive is forwards. Negative is backwards.
+     * @param driveDirection
      * @param headingType RAW, ABSOLUTE or RELATIVE. See AngleMode for desscription.
      */
     // THIS METHOD HAS A BUG. IT DOES NOT DRIVE BACKWARDS PROPERLY. NEED TO FIX IT
-    public void setupDriveUsingIMU(double heading, double distance, double maxPower, AdafruitIMU8863.AngleMode headingType) {
+    public void setupDriveUsingIMU(double heading, double distance, double speed, DriveDirection driveDirection, AdafruitIMU8863.AngleMode headingType) {
 
         if (imuPresent) {
             // set the mode for the motors so they run using speed control. Without this they may not move.
@@ -594,7 +596,7 @@ public class DriveTrain {
             leftDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             // setup PID control
             pidControl.setSetpoint(heading);
-            pidControl.setMaxCorrection(maxPower);
+            pidControl.setMaxCorrection(speed);
             // threshold is not meaningful in this movement. It is normally used to say when the
             // movement is complete but since this movement goes forever, threshold does nothing.
             // But it has to be set to something!
@@ -604,7 +606,6 @@ public class DriveTrain {
             pidControl.setKi(0.05/1000000);
             // reset the integrator before starting
             pidControl.reset();
-            driveTrainPower = maxPower;
 
             switch (headingType) {
                 // since the turn is relative to the current heading, reset the angle references to 0
@@ -623,14 +624,11 @@ public class DriveTrain {
                     break;
             }
 
-            // the power determines which direction the robot will drive. If going backwards the
-            // left and right drive motors have to swap and this set the flags to do that
-            if (maxPower > 0) {
-                //going forwards
-                driveDirection = DriveDirection.FORWARD;
+            // set the proper sign on the speed for the motors
+            if (driveDirection == DriveDirection.FORWARD) {
+                driveTrainPower = Math.abs(speed);
             } else {
-                // driving backwards
-                driveDirection = DriveDirection.REVERSE;
+                driveTrainPower = -Math.abs(speed);
             }
 
             // set the distance target
@@ -646,7 +644,7 @@ public class DriveTrain {
             leftDriveMotor.setLastEncoderCountToCurrentPostion();
             if (logFile != null && logDrive) {
                 logFile.blankLine();
-                logFile.logData("Setup drive using IMU. Heading = " + Double.toString(heading) + " Speed = " + Double.toString(maxPower) + " distance = " + Double.toString(distance));
+                logFile.logData("Setup drive using IMU. Heading = " + Double.toString(heading) + " Speed = " + Double.toString(speed) + " distance = " + Double.toString(distance));
             }
         } else {
             shutdown();
@@ -678,7 +676,9 @@ public class DriveTrain {
             differentialDrive(driveTrainPower, correction);
             // THERE IS A BUG HERE. THE DISTANCE BEING REPORTED IS CUMULATIVE NOT RELATIVE TO THE START OF THE MOVEMENT
             distanceDriven = calculateDistanceDriven();
-            if (distanceDriven > distanceToDrive) {
+            // for negative distances (driving backwards) distance driven will start out at 0 and be larger than distance to drive (-150)
+            // so we have to take absolute values
+            if (Math.abs(distanceDriven) > Math.abs(distanceToDrive)) {
                 if (logFile != null && logDrive) {
                     logFile.logData("Finished drive straight using IMU. Heading = " + Double.toString(currentHeading) + " distance = " + Double.toString(distanceDriven));
                 }
