@@ -229,6 +229,7 @@ public class RoverRuckusTeleop extends LinearOpMode {
 
             if (gamepad1y.buttonPress(gamepad1.y)) {
                 if (gamepad1y.isCommand1()) {
+                    robot.deliveryLiftSystem.deliveryBoxToOutOfWay();
                     robot.deliveryLiftSystem.goToSetupHang();
                     robot.collector.gateServoToResetPosition();
                     robot.collectorArm.extensionArmReset();
@@ -236,11 +237,13 @@ public class RoverRuckusTeleop extends LinearOpMode {
                     robot.collectorArm.rotationArmGoToHome();
                 }
                 if (gamepad1y.isCommand2()) {
+                    robot.deliveryLiftSystem.deliveryBoxToOutOfWay();
                     robot.deliveryLiftSystem.goToLatch();
                 }
             }
 
             if (gamepad1x.buttonPress(gamepad1.x)) {
+                robot.deliveryLiftSystem.deliveryBoxToOutOfWay();
                 robot.deliveryLiftSystem.goToHang();
             }
 
