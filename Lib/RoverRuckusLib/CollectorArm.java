@@ -222,12 +222,12 @@ public class CollectorArm {
 
     public void rotationArmGoToHome(){
         log("COMMANDED ROTATION ARM TO HOME POSITION (-25)");
-        rotationArmMotor.moveToPosition(0.2, homePosition, DcMotor8863.FinishBehavior.HOLD);
+        rotationArmMotor.moveToPosition(0.4, homePosition, DcMotor8863.FinishBehavior.HOLD);
     }
 
     public void rotationArmGoToCollect(){
         log("COMMANDED ROTATION ARM TO COLLECT POSITION (-135)");
-        rotationArmMotor.moveToPosition(0.2, -135.00, DcMotor8863.FinishBehavior.HOLD);
+        rotationArmMotor.moveToPosition(0.3, -135.00, DcMotor8863.FinishBehavior.HOLD);
     }
 
     public void rotationArmGoToPark() {
@@ -237,7 +237,7 @@ public class CollectorArm {
     public void rotationArmGoToTransfer(){
         // rotation arm transfer angle can be tweaked by the driver
         log("COMMANDED ROTATION ARM TO TRANSFER POSITION " + rotationArmTransferAngle);
-        rotationArmMotor.moveToPosition(0.2, rotationArmTransferAngle, DcMotor8863.FinishBehavior.HOLD);
+        rotationArmMotor.moveToPosition(0.5, rotationArmTransferAngle, DcMotor8863.FinishBehavior.HOLD);
     }
 
     // the amount to change the rotation arm angle by when the driver asks for an adjustment
