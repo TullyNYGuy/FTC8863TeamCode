@@ -70,6 +70,10 @@ public class AutonomousDirector {
         return delay;
     }
 
+    public void setDelay(double delay) {
+        this.delay = delay;
+    }
+
     //*********************************************************************************************
     //          Constructors
     //

@@ -56,6 +56,7 @@ public class AutonomousMovementSteps {
         RUN_DRIVE_TO_DEPOT,
         SETUP_DRIVE_TO_CRATER,
         RUN_DRIVE_TO_CRATER,
+        CORRECT_HEADING,
 
         // steps specific to one type of run
         SETUP_TURN_FOR_DUMP,
@@ -102,6 +103,10 @@ public class AutonomousMovementSteps {
 
      private double delayTimeToWait = 5000;
 
+     private boolean taskComplete = false;
+
+     private double headingOnGround = 0;
+
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -116,7 +121,13 @@ public class AutonomousMovementSteps {
     public void disableLogging() {
         loggingOn = false;
     }
+    public MineralVoting.LikelyPosition getMostLikelyGoldPosition(){
+        return goldMineralDetection.getMostLikelyGoldPosition();
+    }
 
+    public boolean isTaskComplete(){
+        return taskComplete;
+    }
 
     //*********************************************************************************************
     //          Constructors
@@ -165,6 +176,7 @@ public class AutonomousMovementSteps {
             case LOCATE_GOLD_MINERAL:
                 switch(step) {
                     case START:
+                        taskComplete = false;
                         robot.deliveryLiftSystem.deliveryBoxToOutOfWay();
                         goldMineralDetection.activate(1500);
                         step = Steps.WAIT_FOR_GOLD_MINERAL_LOCATION;
@@ -175,6 +187,7 @@ public class AutonomousMovementSteps {
                             task = autonomousDirector.getNextTask();
                             // setup to start the next task
                             step = Steps.START;
+                            taskComplete = true;
                         } else {
                             goldMineralDetection.getRecognition();
                         }
@@ -184,15 +197,25 @@ public class AutonomousMovementSteps {
             case DEHANG:
                 switch(step) {
                     case START:
+                        taskComplete = false;
                         robot.dehang();
                         step = Steps.WAIT_FOR_LIFT;
                         break;
                     case WAIT_FOR_LIFT:
                        if(robot.deliveryLiftSystem.isLiftMovementComplete()){
-                           task = autonomousDirector.getNextTask();
-                           // setup to start the next task
-                           step = Steps.START;
+                           headingOnGround = robot.driveTrain.imu.getHeading();
+                           robot.driveTrain.setupTurn(-headingOnGround, 0.7, AdafruitIMU8863.AngleMode.RELATIVE);
+                           step = Steps.CORRECT_HEADING;
                        }
+                        break;
+                    case CORRECT_HEADING:
+                        if (robot.driveTrain.updateTurn()){
+                            robot.driveTrain.stopTurn();
+                            task = autonomousDirector.getNextTask();
+                            // setup to start the next task
+                            step = Steps.START;
+                            taskComplete = true;
+                        }
                         break;
 
                 }
@@ -200,6 +223,7 @@ public class AutonomousMovementSteps {
             case DELAY:
                 switch(step) {
                     case START:
+                        taskComplete = false;
                         timer.reset();
                         step = Steps.WAIT_FOR_TIMER;
                         break;
@@ -208,6 +232,7 @@ public class AutonomousMovementSteps {
                             task = autonomousDirector.getNextTask();
                             // setup to start the next task
                             step = Steps.START;
+                            taskComplete = true;
                         }
                         break;
 
