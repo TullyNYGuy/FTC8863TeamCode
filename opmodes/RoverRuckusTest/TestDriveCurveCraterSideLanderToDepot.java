@@ -36,11 +36,11 @@ public class TestDriveCurveCraterSideLanderToDepot extends LinearOpMode {
         // at power = .3 remove 1 degree from the turn (found 1 degree per 40ms cycle - .0256 deg/mS rate of turn)
         // at power = .5 remove 2 degree from the turn (found 1.8 degree per 40ms cycle- .0445 deg/mS rate of turn)
 
-        double speed = 0.3;
+        double speed = 0.1;
 
         // CCW curve forward
         curveAngle = 89.0;
-        driveCurve = new DriveCurve(curveAngle, speed, 14.56 * 25.4, DriveCurve.CurveDirection.CCW, DriveCurve.DriveDirection.FORWARD, driveTrain.imu, logFile, driveTrain);
+        driveCurve = new DriveCurve(curveAngle, speed, 14.56 * 2.54, DriveCurve.CurveDirection.CCW, DriveCurve.DriveDirection.FORWARD, driveTrain.imu, logFile, driveTrain);
 
         driveCurve.enableLogging();
         driveCurve.enablePID();
@@ -61,9 +61,10 @@ public class TestDriveCurveCraterSideLanderToDepot extends LinearOpMode {
             idle();
         }
 
+        speed = .3;
         // drive straight after CCW curve forward
         // drive on lane in front of lander towards wall
-        driveTrain.setupDriveUsingIMU(90, 18.15 * 25.4, speed, DriveTrain.DriveDirection.FORWARD, AdafruitIMU8863.AngleMode.ABSOLUTE);
+        driveTrain.setupDriveUsingIMU(90, 18.15 * 2.54, speed, DriveTrain.DriveDirection.FORWARD, AdafruitIMU8863.AngleMode.ABSOLUTE);
         while (opModeIsActive()&& !driveTrain.updateDriveUsingIMU()) {
             // Display the current value
             telemetry.addData(">", "Driving straight ...");
@@ -74,7 +75,7 @@ public class TestDriveCurveCraterSideLanderToDepot extends LinearOpMode {
         // CCW curve forward
         // curve onto lane near wall heading towards depot
         curveAngle = 135-1;
-        driveCurve.setupDriveCurve(curveAngle, speed, 36.21 * 25.4, DriveCurve.CurveDirection.CCW, DriveCurve.DriveDirection.FORWARD);
+        driveCurve.setupDriveCurve(curveAngle, speed, 36.21 * 2.54, DriveCurve.CurveDirection.CCW, DriveCurve.DriveDirection.FORWARD);
         driveCurve.startDriveCurve();
         while(opModeIsActive() && !driveCurve.isCurveComplete()) {
             driveCurve.update();
@@ -84,7 +85,7 @@ public class TestDriveCurveCraterSideLanderToDepot extends LinearOpMode {
         }
 
         // drive along lane into depot
-        driveTrain.setupDriveUsingIMU(135, 24.6 * 25.4, speed, DriveTrain.DriveDirection.FORWARD, AdafruitIMU8863.AngleMode.ABSOLUTE);
+        driveTrain.setupDriveUsingIMU(135, 24.6 * 2.54, speed, DriveTrain.DriveDirection.FORWARD, AdafruitIMU8863.AngleMode.ABSOLUTE);
         while (opModeIsActive()&& !driveTrain.updateDriveUsingIMU()) {
             // Display the current value
             telemetry.addData(">", "Driving straight ...");
