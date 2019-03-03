@@ -64,7 +64,7 @@ public class TestDriveCurveForwardBackward extends LinearOpMode {
         sleep(2000);
 
         curveAngle = 0.0;
-        driveCurve = new DriveCurve(curveAngle, speed, curveRadius, DriveCurve.CurveDirection.CCW, DriveCurve.DriveDirection.BACKWARD, driveTrain.imu, logFile, driveTrain);
+        driveCurve.setupDriveCurve(curveAngle, speed, curveRadius, DriveCurve.CurveDirection.CCW, DriveCurve.DriveDirection.BACKWARD);
         driveCurve.enableLogging();
         driveCurve.enablePID();
         //driveCurve.disablePID();
