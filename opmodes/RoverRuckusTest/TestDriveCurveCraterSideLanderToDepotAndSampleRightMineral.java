@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveCurve;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 
@@ -13,7 +14,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
  *
  *
  */
-@TeleOp(name = "Test Crater Side Lander to Depot with curves and sampling right side", group = "Test")
+@TeleOp(name = "Test Crater Side Lander to Depot Sample Right Mineral", group = "Test")
 //@Disabled
 public class TestDriveCurveCraterSideLanderToDepotAndSampleRightMineral extends LinearOpMode {
 
@@ -32,7 +33,7 @@ public class TestDriveCurveCraterSideLanderToDepotAndSampleRightMineral extends 
         driveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap, telemetry);
         driveTrain.setLogFile(logFile);
         driveTrain.enableLogDrive();
-
+        driveTrain.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
         // at power = .3 remove 1 degree from the turn (found 1 degree per 40ms cycle - .0256 deg/mS rate of turn)
         // at power = .5 remove 2 degree from the turn (found 1.8 degree per 40ms cycle- .0445 deg/mS rate of turn)
 
@@ -94,7 +95,7 @@ public class TestDriveCurveCraterSideLanderToDepotAndSampleRightMineral extends 
         }
 
         // drive along lane into depot
-        driveTrain.setupDriveUsingIMU(-45, 25.3 * 2.54, speed, DriveTrain.DriveDirection.REVERSE, AdafruitIMU8863.AngleMode.ABSOLUTE);
+        driveTrain.setupDriveUsingIMU(-45, 13 * 2.54, speed, DriveTrain.DriveDirection.REVERSE, AdafruitIMU8863.AngleMode.ABSOLUTE);
         while (opModeIsActive()&& !driveTrain.updateDriveUsingIMU()) {
             // Display the current value
             telemetry.addData(">", "Driving straight ...");
@@ -103,6 +104,7 @@ public class TestDriveCurveCraterSideLanderToDepotAndSampleRightMineral extends 
         }
 
         driveTrain.stopDriveDistanceUsingIMU();
+        sleep(1000);
 
         // Put your cleanup code here - it runs as the application shuts down
         logFile.closeDataLog();
