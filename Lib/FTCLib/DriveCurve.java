@@ -243,6 +243,8 @@ public class DriveCurve {
         pidControl.setKp(100.0);
         //pidControl.setKi(0.05/1000000);
 
+        timer = new ElapsedTime();
+
         setupDriveCurve(curveAngle, speed, radius, curveDirection, driveDirection);
     }
 
@@ -494,7 +496,7 @@ public class DriveCurve {
         // turning
         switch (curveState) {
             case NOT_STARTED:
-                loopCount++;
+                timer.reset();
                 curveState = CurveState.TURNING;
                 returnValue = false;
                 break;
@@ -562,6 +564,54 @@ public class DriveCurve {
         } else {
             return false;
         }
+    }
+
+    /**
+     * After the curve has been started with startCurve(), this method must be called until
+     * isCurveComplete() returns true. It does not use any PID and does not log until end.
+     * @return alternate method of telling when the curve is complete (true)
+     */
+    public boolean updatefastest() {
+        boolean returnValue = false;
+        double currentHeading;
+        double newRadius = this.radius;
+        double currentRateOfTurn = 0;
+        double correction = 0;
+
+        // The first time this update() is run, the curve will be started and the robot will be
+        // turning
+        switch (curveState) {
+            case NOT_STARTED:
+                loopCount++;
+                curveState = CurveState.TURNING;
+                returnValue = false;
+                break;
+            case TURNING:
+                loopCount++;
+                currentHeading = driveTrain.imu.getHeading();
+                // if the current heading is close enough to the desired heading indicate the turn is done
+                if (Math.abs(currentHeading) > Math.abs(curveAngle) - curveThreshold && Math.abs(currentHeading) < Math.abs(curveAngle) + curveThreshold) {
+                    // curve is complete, log the results
+                    if (logFile != null && enableLogging) {
+                        driveTrain.updateDriveDistance();
+                        double distanceDriven = driveTrain.getDistanceDriven()- initialDistance;
+                        double headingChange = currentHeading - initialHeading;
+                        logFile.logData("heading at curve completion = " + Double.toString(currentHeading) + " distance driven = ", Double.toString(distanceDriven));
+                        logFile.logData("average rate of turn = " + Double.toString(headingChange / distanceDriven));
+                        logFile.logData("effective curve radius = " + Double.toString(getEffectiveCurveRadius(headingChange, distanceDriven)));
+                        logFile.logData("Average loop time = " + Double.toString(timer.milliseconds() / loopCount));
+                        logFile.blankLine();
+                    }
+                    // set the next state to complete
+                    curveState = CurveState.COMPLETE;
+                }
+                returnValue = false;
+                break;
+            case COMPLETE:
+                returnValue = true;
+                break;
+        }
+        return returnValue;
     }
 
     /**
