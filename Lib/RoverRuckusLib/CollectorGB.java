@@ -523,33 +523,33 @@ public class CollectorGB {
     //*********************************************************************************************
 
     public void setDesiredMineralColorToGold() {
-        log("COMMANDED DESIRED MINERAL = GOLD");
+        log("DRIVER COMMANDED COLLECTOR DESIRED MINERAL = GOLD");
         mineralStorageTimerLimit = 2000;
         //telemetry.addLine("Collecting Gold");
         desiredMineralColor = MineralColor.GOLD;
     }
 
     public void setDesiredMineralColorToSilver() {
-        log("COMMANDED DESIRED MINERAL = SILVER");
+        log("DRIVER COMMANDED COLLECTOR DESIRED MINERAL = SILVER");
         mineralStorageTimerLimit = 1500;
         //telemetry.addLine("Collecting Silver");
         desiredMineralColor = MineralColor.SILVER;
     }
 
     public void setDesiredMineralColorToEither() {
-        log("COMMANDED DESIRED MINERAL = EITHER");
+        log("DRIVER COMMANDED COLLECTOR DESIRED MINERAL = EITHER");
         desiredMineralColor = MineralColor.EITHER;
     }
 
     // Commands to control collector
 
     public void turnCollectorOn() {
-        log("COLLECTOR COMMANDED TURN ON");
+        log("DRIVER COMMANDED COLLECTOR TURN ON");
         collectorCommand = CollectorCommand.ON;
     }
 
     public void turnCollectorOff() {
-        log("COLLECTOR COMMANDED TURN OFF");
+        log("DRIVER COMMANDED COLLECTOR TURN OFF");
         collectorCommand = CollectorCommand.OFF;
     }
 
@@ -574,7 +574,7 @@ public class CollectorGB {
     }
 
     public void resetCollector() {
-        log("COLLECTOR COMMANDED RESET COLLECTOR");
+        log("DRIVER COLLECTOR COMMANDED RESET COLLECTOR");
         collectorCommand = CollectorCommand.RESET;
     }
 

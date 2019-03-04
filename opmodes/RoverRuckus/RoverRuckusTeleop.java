@@ -229,6 +229,7 @@ public class RoverRuckusTeleop extends LinearOpMode {
 
             if (gamepad1y.buttonPress(gamepad1.y)) {
                 if (gamepad1y.isCommand1()) {
+                    // this should be a state machine in robot to save the time of the 2 second sleep
                     robot.deliveryLiftSystem.deliveryBoxToOutOfWay();
                     robot.deliveryLiftSystem.goToSetupHang();
                     robot.collector.gateServoToResetPosition();
@@ -237,14 +238,12 @@ public class RoverRuckusTeleop extends LinearOpMode {
                     robot.collectorArm.rotationArmGoToHome();
                 }
                 if (gamepad1y.isCommand2()) {
-                    robot.deliveryLiftSystem.deliveryBoxToOutOfWay();
-                    robot.deliveryLiftSystem.goToLatch();
+                    robot.goToLatchPosition();
                 }
             }
 
             if (gamepad1x.buttonPress(gamepad1.x)) {
-                robot.deliveryLiftSystem.deliveryBoxToOutOfWay();
-                robot.deliveryLiftSystem.goToHang();
+                robot.hang();
             }
 
             if (gamepad1DpadUp.buttonPress(gamepad1.dpad_up)) {
@@ -358,6 +357,7 @@ public class RoverRuckusTeleop extends LinearOpMode {
             }
 
             if (gamepad2x.buttonPress(gamepad2.x)) {
+                // THIS SHOULD BE A STATE MACHINE IN ROBOT
                 robot.deliveryLiftSystem.deliveryBoxToDump();
                 sleep(1000);
                 robot.deliveryLiftSystem.deliveryBoxToHome();

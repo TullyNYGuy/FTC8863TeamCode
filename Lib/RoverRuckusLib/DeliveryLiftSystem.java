@@ -263,7 +263,7 @@ public class DeliveryLiftSystem {
     //**********************************************************************************************
 
     public void liftReset() {
-        log("COMMANDED LIFT TO RESET LIFT");
+        log("DRIVER COMMANDED LIFT TO RESET LIFT");
         liftCommand = LiftCommands.RESET;
     }
 

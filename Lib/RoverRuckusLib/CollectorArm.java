@@ -272,12 +272,12 @@ public class CollectorArm {
     }
 
     public void raiseOffGround(){
-        log("COMMANDED ROTATION ARM TO RAISE OFF GROUND POSITION (-115)");
+        log("DRIVER COMMANDED ROTATION ARM TO RAISE OFF GROUND POSITION (-115)");
         rotationArmMotor.moveToPosition(0.2, -115.00, DcMotor8863.FinishBehavior.HOLD);
     }
 
     public void rotationArmFloatArm(){
-        log("COMMANDED ROTATION ARM TO FLOAT");
+        log("DRIVER COMMANDED ROTATION ARM TO FLOAT");
         rotationArmMotor.setMotorToFloat();
     }
 
@@ -346,7 +346,7 @@ public class CollectorArm {
     //**********************************************************************************************
 
     public void extensionArmReset() {
-        log("COMMANDED EXTENSION ARM TO RESET");
+        log("DRIVER COMMANDED EXTENSION ARM TO RESET");
         command = ExtensionArmCommands.RESET;
     }
 
