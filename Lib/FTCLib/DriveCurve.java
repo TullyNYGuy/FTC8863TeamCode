@@ -508,7 +508,8 @@ public class DriveCurve {
                 // the PID control uses the rate of turn per distance traveled. This should be a constant
                 // since the robot is traveling around a circle of a certain radius. But it might not
                 // be since stuff happens. The PID is supposed to fix that.
-                if (usePID) {
+                // commented out to save loop time
+                //if (usePID) {
 //                    if (currentRateOfTurn == 0) {
 //                        correction = 0;
 //                    } else {
@@ -516,24 +517,28 @@ public class DriveCurve {
 //                    }
                     correction = correctionSign * pidControl.getCorrection(currentRateOfTurn);
                     newRadius = radius + correction;
-                    logFile.logData("rate of turn = " + currentRateOfTurn + " correction = " + correction + " new radius = " + newRadius);
+                    // commented out to see if loop time can be improved
+                    //logFile.logData("rate of turn = " + currentRateOfTurn + " correction = " + correction + " new radius = " + newRadius);
                     calculateWheelSpeeds(newRadius);
                     driveTrain.setLeftDriveMotorSpeed(leftWheelSpeed);
                     driveTrain.setRightDriveMotorSpeed(rightWheelSpeed);
-                    logFile.logData(leftWheelSpeed, rightWheelSpeed);
+                    // commented out to see if loop time can be improved
+                    //logFile.logData(leftWheelSpeed, rightWheelSpeed);
                     driveTrain.applyPowersToMotors();
-                }
+                //}
 
                 // log the distance driven
-                if (logFile != null && enableLogging) {
-                    driveTrain.updateDriveDistance();
-                    logFile.logData(Double.toString(currentHeading), Double.toString(driveTrain.getDistanceDriven()), Double.toString(currentRateOfTurn));
-                }
+                // commented out to see if loop time can be improved
+//                if (logFile != null && enableLogging) {
+//                    driveTrain.updateDriveDistance();
+//                    logFile.logData(Double.toString(currentHeading), Double.toString(driveTrain.getDistanceDriven()), Double.toString(currentRateOfTurn));
+//                }
                 // if the current heading is close enough to the desired heading indicate the turn is done
                 if (Math.abs(currentHeading) > Math.abs(curveAngle) - curveThreshold && Math.abs(currentHeading) < Math.abs(curveAngle) + curveThreshold) {
                     // curve is complete, log the results
                     if (logFile != null && enableLogging) {
-                        driveTrain.updateDriveDistance();
+                        // commented out to save loop time since I don't think it is needed
+                        //driveTrain.updateDriveDistance();
                         double distanceDriven = driveTrain.getDistanceDriven()- initialDistance;
                         double headingChange = currentHeading - initialHeading;
                         logFile.logData("heading at curve completion = " + Double.toString(currentHeading) + " distance driven = ", Double.toString(distanceDriven));
@@ -569,6 +574,7 @@ public class DriveCurve {
     /**
      * After the curve has been started with startCurve(), this method must be called until
      * isCurveComplete() returns true. It does not use any PID and does not log until end.
+     * Loop time was 13 mSec.
      * @return alternate method of telling when the curve is complete (true)
      */
     public boolean updatefastest() {
