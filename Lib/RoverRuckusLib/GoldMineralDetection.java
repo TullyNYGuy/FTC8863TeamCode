@@ -163,7 +163,7 @@ public class GoldMineralDetection {
      * @param recognition
      * @return position
      */
-    private MineralVoting.MineralPosition getMineralPosition(Recognition recognition) {
+    private MineralVoting.MineralPosition getMineralPositionThreeInView(Recognition recognition) {
         mineralAngle = recognition.estimateAngleToObject(AngleUnit.DEGREES);
         if (mineralAngle <= -10) {
             mineralPosition = MineralVoting.MineralPosition.LEFT;
@@ -172,6 +172,17 @@ public class GoldMineralDetection {
             mineralPosition = MineralVoting.MineralPosition.RIGHT;
         }
         if (mineralAngle < 10 && mineralAngle > -10) {
+            mineralPosition = MineralVoting.MineralPosition.CENTER;
+        }
+        return mineralPosition;
+    }
+
+    private MineralVoting.MineralPosition getMineralPositionTwoInView(Recognition recognition) {
+        mineralAngle = recognition.estimateAngleToObject(AngleUnit.DEGREES);
+        if (mineralAngle <= -10) {
+            mineralPosition = MineralVoting.MineralPosition.LEFT;
+        }
+        if (mineralAngle >= 10) {
             mineralPosition = MineralVoting.MineralPosition.CENTER;
         }
         return mineralPosition;
@@ -202,7 +213,7 @@ public class GoldMineralDetection {
      * has expired the method will deactivate tfod automatically.
      * Use isRecognitionComplete() to determine if the recognition time has expired.
      */
-    public void getRecognition() {
+    public void getRecognition(int mineralsInViewAmount) {
         switch (tfodState) {
             case IDLE:
                 break;
@@ -222,7 +233,12 @@ public class GoldMineralDetection {
                         // then add to the mineral vote counting
                         for (Recognition recognition : updatedRecognitions) {
                             //determine if mineral is in left right or center area
-                            mineralPosition = getMineralPosition(recognition);
+                            if (mineralsInViewAmount == 3) {
+                                mineralPosition = getMineralPositionThreeInView(recognition);
+                            }
+                            if (mineralsInViewAmount == 2) {
+                                mineralPosition = getMineralPositionTwoInView(recognition);
+                            }
                             if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
                                 mineralVoting.addMineralVote(MineralVoting.MineralType.GOLD, mineralPosition);
                             } else {
@@ -245,6 +261,7 @@ public class GoldMineralDetection {
 
     /**
      * Is the time for recognitions expired and recognition complete?
+     *
      * @return true if yes, false if no
      */
     public boolean isRecognitionComplete() {
@@ -257,6 +274,7 @@ public class GoldMineralDetection {
 
     /**
      * Get the most likely gold mineral position.
+     *
      * @return
      */
     public MineralVoting.LikelyPosition getMostLikelyGoldPosition() {
@@ -265,6 +283,7 @@ public class GoldMineralDetection {
 
     /**
      * Start obtaining mineral recognitions. Do this for the time input (in milliseconds).
+     *
      * @param timeToLookAtMineralsInMSec
      */
     public void activate(double timeToLookAtMineralsInMSec) {

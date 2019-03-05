@@ -189,7 +189,7 @@ public class AutonomousMovementSteps {
                             step = Steps.START;
                             taskComplete = true;
                         } else {
-                            goldMineralDetection.getRecognition();
+                            goldMineralDetection.getRecognition(2);
                         }
                         break;
                 }

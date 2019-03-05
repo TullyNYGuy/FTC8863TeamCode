@@ -39,7 +39,7 @@ public class TestGoldMineralDetection extends LinearOpMode {
         logFile.startTimer();
 
         while(opModeIsActive() && !goldMineralDetection.isRecognitionComplete()) {
-            goldMineralDetection.getRecognition();
+            goldMineralDetection.getRecognition(3);
             idle();
         }
 
