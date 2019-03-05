@@ -36,7 +36,7 @@ public class TestDriveCurveForwardBackward extends LinearOpMode {
 
         // at power = .3 remove 1 degree from the turn (found 1 degree per 40ms cycle - .0256 deg/mS rate of turn)
         // at power = .5 remove 2 degree from the turn (found 1.8 degree per 40ms cycle- .0445 deg/mS rate of turn)
-        double curveAngle = -89.0;
+        double curveAngle = -90.0;
         double speed = 0.1;
         double curveRadius = 100; // cm
         driveCurve = new DriveCurve(curveAngle, speed, curveRadius, DriveCurve.CurveDirection.CW, DriveCurve.DriveDirection.FORWARD, driveTrain.imu, logFile, driveTrain);
