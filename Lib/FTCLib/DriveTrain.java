@@ -466,8 +466,9 @@ public class DriveTrain {
      * Update the distance driven. This method is typically called from within a loop while a movement
      * is occurring.
      */
-    public void updateDistanceDriven() {
+    public double updateDistanceDriven() {
         distanceDriven = calculateDistanceDriven();
+        return distanceDriven;
     }
 
     /**
@@ -485,9 +486,9 @@ public class DriveTrain {
      * @return
      */
     public double getDistanceDrivenSinceLast() {
-        double currentDistance = calculateDistanceDriven();
-        double distanceDrivenSinceLast = currentDistance - lastDistanceDriven;
-        lastDistanceDriven = currentDistance;
+        distanceDriven = calculateDistanceDriven();
+        double distanceDrivenSinceLast = distanceDriven - lastDistanceDriven;
+        lastDistanceDriven = distanceDriven;
         return distanceDrivenSinceLast;
     }
 
