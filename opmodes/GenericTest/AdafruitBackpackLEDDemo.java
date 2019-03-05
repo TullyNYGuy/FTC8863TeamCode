@@ -70,9 +70,22 @@ public class AdafruitBackpackLEDDemo extends LinearOpMode {
 
         // demo the ability to set a single character while leaving all other characters the same
         backpackLED.setDisplayCharacter('F', AdafruitBackpackLED.DisplayPosition.LEFT);
+        sleep(1000);
         backpackLED.setDisplayCharacter('U', AdafruitBackpackLED.DisplayPosition.MIDDLE_LEFT);
+        sleep(1000);
         backpackLED.setDisplayCharacter('N', AdafruitBackpackLED.DisplayPosition.MIDDLE_RIGHT);
+        sleep(1000);
         backpackLED.setDisplayCharacter('!', AdafruitBackpackLED.DisplayPosition.RIGHT);
+        sleep(4000);
+
+        // demo the ability to set a single character while leaving all other characters the same
+        backpackLED.setDisplayCharacter('8', AdafruitBackpackLED.DisplayPosition.LEFT);
+        sleep(1000);
+        backpackLED.setDisplayCharacter('8', AdafruitBackpackLED.DisplayPosition.MIDDLE_LEFT);
+        sleep(1000);
+        backpackLED.setDisplayCharacter('6', AdafruitBackpackLED.DisplayPosition.MIDDLE_RIGHT);
+        sleep(1000);
+        backpackLED.setDisplayCharacter('3', AdafruitBackpackLED.DisplayPosition.RIGHT);
         sleep(4000);
 
         // demo the ability to vary the brightness level (1-15)
@@ -81,9 +94,17 @@ public class AdafruitBackpackLEDDemo extends LinearOpMode {
         backpackLED.setBrightnessLevel(1);
         sleep(2000);
 
+        // clear the display
+        backpackLED.clear();
+        backpackLED.setBrightnessLevel(7);
+        backpackLED.setDisplayString("BYE!");
+        sleep(2000);
+
         // Put your cleanup code here - it runs as the application shuts down
         telemetry.addData(">", "Done");
         telemetry.update();
+
+        // turn the display off
         backpackLED.turnLEDsOff();
     }
 }
