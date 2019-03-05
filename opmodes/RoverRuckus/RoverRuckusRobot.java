@@ -267,14 +267,15 @@ public class RoverRuckusRobot {
     private TransferScoringCommands transferScoringCommand;
     private TransferScoringStates transferScoringState;
 
+
+    // This is for a state machine that handles the button pushes to control the transfer.
     private enum TransferButtonCommands {
-        NO_COMMAND,
-        GO_TO_TRANSFER,
-        START_TRANSFER,
-        CONFIRM_TRANSFER_COMPLETE
+        WAIT_FOR_GO_TO_TRANSFER,
+        WAIT_FOR_START_TRANSFER,
+        WAIT_FOR_CONFIRM_TRANSFER_COMPLETE
     }
 
-    private TransferButtonCommands transferButtonCommand = TransferButtonCommands.NO_COMMAND;
+    private TransferButtonCommands transferButtonCommand = TransferButtonCommands.WAIT_FOR_GO_TO_TRANSFER;
 
     //*********************************************************************************************
     //transfer & scoring commands
@@ -282,14 +283,14 @@ public class RoverRuckusRobot {
 
     public void toggleTransferButtonCommand() {
         switch(transferButtonCommand) {
-            case NO_COMMAND:
+            case WAIT_FOR_GO_TO_TRANSFER:
                 // sit and wait for the A button to be pushed
-                // Only allow the A button to command a go to transfer position if we are in the
-                // START state of the transfer sooring state machine
+                // Only allow the A button to command a go to transfer position if the robot is not already
+                // started into the transfer cycle.
                 if (transferScoringState == TransferScoringStates.START) {
                     goToTransferPosition();
-                    // the next button push will be to start the transfer so wait in the GO_TO_TRANSFER state
-                    transferButtonCommand = TransferButtonCommands.GO_TO_TRANSFER;
+                    // the next button push will be to start the transfer
+                    transferButtonCommand = TransferButtonCommands.WAIT_FOR_START_TRANSFER;
                 }
                 break;
             // sit and wait for the A button to be pushed
@@ -297,23 +298,23 @@ public class RoverRuckusRobot {
             // TRANSFER_ADJUST state of the transfer sooring state machine
             // This means the driver can only start a transfer when the collector arm is in the proper
             // vertical position.
-            case GO_TO_TRANSFER:
+            case WAIT_FOR_START_TRANSFER:
                 if (transferScoringState == TransferScoringStates.TRANSFER_ADJUST) {
                     transferMinerals();
-                    // the next button push will be to confirm the transfer is complete so wait in the START_TRANSFER state
-                    transferButtonCommand = TransferButtonCommands.START_TRANSFER;
+                    // the next button push will be to confirm the transfer is complete
+                    transferButtonCommand = TransferButtonCommands.WAIT_FOR_CONFIRM_TRANSFER_COMPLETE;
                 }
                 break;
             // sit and wait for the A button to be pushed
             // Only allow the A button to command confirm transfer complete if we are in the
             // TRANSFER state of the transfer sooring state machine
-            // This means the driver can only start a transfer when the collector arm is in the proper
-            // vertical position.
-            case START_TRANSFER:
+            // This means the driver can only confirm a transfer is complete after the robot has started
+            // to transfer.
+            case WAIT_FOR_CONFIRM_TRANSFER_COMPLETE:
                 if (transferScoringState == TransferScoringStates.TRANSFER) {
                     confirmTransferSuccess();
                     // the button pushes have gone full cycle. Move to the beginning of the cycle
-                    transferButtonCommand = TransferButtonCommands.NO_COMMAND;
+                    transferButtonCommand = TransferButtonCommands.WAIT_FOR_GO_TO_TRANSFER;
                 }
                 break;
         }
