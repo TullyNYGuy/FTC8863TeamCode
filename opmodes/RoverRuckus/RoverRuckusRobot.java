@@ -267,9 +267,57 @@ public class RoverRuckusRobot {
     private TransferScoringCommands transferScoringCommand;
     private TransferScoringStates transferScoringState;
 
+    private enum TransferButtonCommands {
+        NO_COMMAND,
+        GO_TO_TRANSFER,
+        START_TRANSFER,
+        CONFIRM_TRANSFER_COMPLETE
+    }
+
+    private TransferButtonCommands transferButtonCommand = TransferButtonCommands.NO_COMMAND;
+
     //*********************************************************************************************
     //transfer & scoring commands
     //*********************************************************************************************
+
+    public void toggleTransferButtonCommand() {
+        switch(transferButtonCommand) {
+            case NO_COMMAND:
+                // sit and wait for the A button to be pushed
+                // Only allow the A button to command a go to transfer position if we are in the
+                // START state of the transfer sooring state machine
+                if (transferScoringState == TransferScoringStates.START) {
+                    goToTransferPosition();
+                    // the next button push will be to start the transfer so wait in the GO_TO_TRANSFER state
+                    transferButtonCommand = TransferButtonCommands.GO_TO_TRANSFER;
+                }
+                break;
+            // sit and wait for the A button to be pushed
+            // Only allow the A button to command start transfer if we are in the
+            // TRANSFER_ADJUST state of the transfer sooring state machine
+            // This means the driver can only start a transfer when the collector arm is in the proper
+            // vertical position.
+            case GO_TO_TRANSFER:
+                if (transferScoringState == TransferScoringStates.TRANSFER_ADJUST) {
+                    transferMinerals();
+                    // the next button push will be to confirm the transfer is complete so wait in the START_TRANSFER state
+                    transferButtonCommand = TransferButtonCommands.START_TRANSFER;
+                }
+                break;
+            // sit and wait for the A button to be pushed
+            // Only allow the A button to command confirm transfer complete if we are in the
+            // TRANSFER state of the transfer sooring state machine
+            // This means the driver can only start a transfer when the collector arm is in the proper
+            // vertical position.
+            case START_TRANSFER:
+                if (transferScoringState == TransferScoringStates.TRANSFER) {
+                    confirmTransferSuccess();
+                    // the button pushes have gone full cycle. Move to the beginning of the cycle
+                    transferButtonCommand = TransferButtonCommands.NO_COMMAND;
+                }
+                break;
+        }
+    }
 
     public void goToTransferPosition() {
         log("DRIVER COMMANDED TO GO TO TRANSFER POSITION");
