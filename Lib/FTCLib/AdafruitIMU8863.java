@@ -147,6 +147,7 @@ public class AdafruitIMU8863 {
      * must be changed to correspond.
      */
     private final static AxesOrder HEADING_ROLL_PITCH = AxesOrder.ZYX;
+
     private AngleAdjuster angleAdjuster;
 
     //*********************************************************************************************
@@ -366,23 +367,24 @@ public class AdafruitIMU8863 {
         }
 
         // report the angle in the range that has been setup previously
-//        switch (angleRange) {
-//            case PLUS_TO_MINUS_180:
-//                // angle is already +180 to -180
-//                break;
-//            case ZERO_TO_MINUS_360:
-//                if (angle > 0) {
-//                    angle = angle - 360;
-//                }
-//
-//                break;
-//            case ZERO_TO_PLUS_360:
-//                if (angle < 0) {
-//                    angle = angle + 360;
-//                }
-//                break;
-//        }
-        angle = (float) angleAdjuster.adjustAngle(angle);
+        switch (angleRange) {
+            case PLUS_TO_MINUS_180:
+                // angle is already +180 to -180
+                break;
+            case ZERO_TO_MINUS_360:
+                if (angle > 0) {
+                    angle = angle - 360;
+                }
+
+                break;
+            case ZERO_TO_PLUS_360:
+                if (angle < 0) {
+                    angle = angle + 360;
+                }
+                break;
+        }
+        // this should replace the block of code above but it needs to be tested
+        //angle = (float) angleAdjuster.adjustAngle(angle);
         return angle;
     }
 
