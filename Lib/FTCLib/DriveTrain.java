@@ -645,11 +645,20 @@ public class DriveTrain {
             leftDriveMotor.setLastEncoderCountToCurrentPostion();
             if (logFile != null && logDrive) {
                 logFile.blankLine();
-                logFile.logData("Setup drive using IMU. Heading = " + Double.toString(heading) + " Speed = " + Double.toString(speed) + " distance = " + Double.toString(distance));
+                logFile.logData("DRIVE_STRAIGHT_USING_IMU Heading = " + Double.toString(heading) + " Speed = " + Double.toString(speed) + " distance = " + Double.toString(distance));
             }
         } else {
             shutdown();
             throw new IllegalArgumentException("No Imu found");
+        }
+    }
+
+    /**
+     * Method to log the current heading and position of the robot before starting to drive.
+     */
+    public void startDriveUsingIMU() {
+        if (logFile != null && logDrive) {
+            logFile.logData("Start heading = " + imu.getHeading() + " Start Distance = " + distanceDriven);
         }
     }
 
@@ -662,7 +671,6 @@ public class DriveTrain {
      *         to drive set in the setup.
      */
     public boolean updateDriveUsingIMU() {
-        if (imuPresent) {
             double currentHeading = imu.getHeading();
             // I have to reverse the sign since the differential drive method expects a negative
             // joystick input for a left turn (joystick left = negative number, not what you would
@@ -691,10 +699,6 @@ public class DriveTrain {
                 }
                 return false;
             }
-        } else {
-            shutdown();
-            throw new IllegalArgumentException("No Imu found");
-        }
     }
 
     /**
