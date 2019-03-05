@@ -471,7 +471,9 @@ public class DriveCurve {
     public void startDriveCurve() {
         initialHeading = imu.getHeading();
         initialDistance = driveTrain.updateDistanceDriven();
-        logFile.logData("Start heading = " + initialHeading + " Start Distance = " + initialDistance);
+        if (logFile != null && enableLogging) {
+            logFile.logData("Start heading = " + initialHeading + " Start Distance = " + initialDistance);
+        }
         lastHeading = initialHeading;
         driveTrain.setDistanceDrivenReference();
         driveTrain.setLeftDriveMotorSpeed(getLeftWheelSpeed());
