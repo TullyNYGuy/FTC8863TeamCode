@@ -459,9 +459,8 @@ public class DriveCurve {
         driveTrain.setDriveMotorMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         if (logFile != null && enableLogging) {
-            logFile.logData("Curve radius = " + radius + " speed = " + speed + " angle = " + curveAngle + " curve direction = " + curveDirection.toString() + " drive direction = " + driveDirection.toString());
-            logFile.logData("left wheel speed = " + leftWheelSpeed + " right wheel speed = " + rightWheelSpeed + " rate of turn should be = " + Double.toString(calculateRateOfTurnShouldBe(radius)));
-            logFile.logData("distance traveled should be = " + Double.toString(getDistanceToBeTraveled()));
+            logFile.logData("CURVE radius = " + radius + " speed = " + speed + " angle = " + curveAngle + " curve_direction = " + curveDirection.toString() + " drive_direction = " + driveDirection.toString());
+            logFile.logData("left wheel speed = " + leftWheelSpeed + " right wheel speed = " + rightWheelSpeed + " rate of turn should be = " + Double.toString(calculateRateOfTurnShouldBe(radius)) + " distance traveled should be = " + Double.toString(getDistanceToBeTraveled()));
         }
     }
 
@@ -472,6 +471,7 @@ public class DriveCurve {
     public void startDriveCurve() {
         initialHeading = imu.getHeading();
         initialDistance = driveTrain.updateDistanceDriven();
+        logFile.logData("Start heading = " + initialHeading + " Start Distance = " + initialDistance);
         lastHeading = initialHeading;
         driveTrain.setDistanceDrivenReference();
         driveTrain.setLeftDriveMotorSpeed(getLeftWheelSpeed());
@@ -541,8 +541,7 @@ public class DriveCurve {
                         //driveTrain.updateDriveDistance();
                         double distanceDriven = driveTrain.getDistanceDriven()- initialDistance;
                         double headingChange = currentHeading - initialHeading;
-                        logFile.logData("heading at curve completion = " + Double.toString(currentHeading) + " distance driven = ", Double.toString(distanceDriven));
-                        logFile.logData("average rate of turn = " + Double.toString(headingChange / distanceDriven));
+                        logFile.logData("heading at curve completion = " + Double.toString(currentHeading) + " distance driven = ", Double.toString(distanceDriven) + "average rate of turn = " + Double.toString(headingChange / distanceDriven));
                         logFile.logData("effective curve radius = " + Double.toString(getEffectiveCurveRadius(headingChange, distanceDriven)));
                         logFile.logData("Average loop time = " + Double.toString(timer.milliseconds() / loopCount));
                         logFile.blankLine();
