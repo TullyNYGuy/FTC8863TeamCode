@@ -471,7 +471,7 @@ public class DriveCurve {
      */
     public void startDriveCurve() {
         initialHeading = imu.getHeading();
-        initialDistance = driveTrain.getDistanceDriven();
+        initialDistance = driveTrain.updateDistanceDriven();
         lastHeading = initialHeading;
         driveTrain.setDistanceDrivenReference();
         driveTrain.setLeftDriveMotorSpeed(getLeftWheelSpeed());
@@ -482,7 +482,7 @@ public class DriveCurve {
 
     /**
      * After the curve has been started with startCurve(), this method must be called until
-     * isCurveComplete() returns true.
+     * isCurveComplete() returns true. Loop time on this is about 31 mSec.
      * @return alternate method of telling when the curve is complete (true)
      */
     public boolean update() {
