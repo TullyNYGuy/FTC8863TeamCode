@@ -38,6 +38,7 @@ public class TestDriveCurveCraterSideLanderToDepotAndSampleCenterMineral extends
         // at power = .5 remove 2 degree from the turn (found 1.8 degree per 40ms cycle- .0445 deg/mS rate of turn)
 
         double speed = 0.1;
+        driveCurve = new DriveCurve(curveAngle, speed, 8.488 * 2.54, DriveCurve.CurveDirection.CW, DriveCurve.DriveDirection.BACKWARD, driveTrain.imu, logFile, driveTrain);
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run" );
@@ -48,6 +49,7 @@ public class TestDriveCurveCraterSideLanderToDepotAndSampleCenterMineral extends
 
         speed = 0.3;
         driveTrain.setupDriveUsingIMU(0, 22.96 * 2.54, speed, DriveTrain.DriveDirection.FORWARD, AdafruitIMU8863.AngleMode.ABSOLUTE);
+        driveTrain.startDriveUsingIMU();
         while (opModeIsActive()&& !driveTrain.updateDriveUsingIMU()) {
             // Display the current value
             telemetry.addData(">", "Driving straight ...");
@@ -59,7 +61,7 @@ public class TestDriveCurveCraterSideLanderToDepotAndSampleCenterMineral extends
 
         speed = 0.1;
         curveAngle = -90;
-        driveCurve = new DriveCurve(curveAngle, speed, 8.488 * 2.54, DriveCurve.CurveDirection.CW, DriveCurve.DriveDirection.BACKWARD, driveTrain.imu, logFile, driveTrain);
+        driveCurve.setupDriveCurve(curveAngle, speed, 8.488 * 2.54, DriveCurve.CurveDirection.CW, DriveCurve.DriveDirection.BACKWARD);
         driveCurve.enableLogging();
         driveCurve.enablePID();
 
@@ -74,6 +76,7 @@ public class TestDriveCurveCraterSideLanderToDepotAndSampleCenterMineral extends
 
         speed = 0.3;
         driveTrain.setupDriveUsingIMU(-90, 25.233 * 2.54, speed, DriveTrain.DriveDirection.REVERSE, AdafruitIMU8863.AngleMode.ABSOLUTE);
+        driveTrain.startDriveUsingIMU();
         while (opModeIsActive()&& !driveTrain.updateDriveUsingIMU()) {
             // Display the current value
             telemetry.addData(">", "Driving straight ...");
@@ -94,6 +97,7 @@ public class TestDriveCurveCraterSideLanderToDepotAndSampleCenterMineral extends
 
         // drive along lane into depot
         driveTrain.setupDriveUsingIMU(-45, 13 * 2.54, speed, DriveTrain.DriveDirection.REVERSE, AdafruitIMU8863.AngleMode.ABSOLUTE);
+        driveTrain.startDriveUsingIMU();
         while (opModeIsActive()&& !driveTrain.updateDriveUsingIMU()) {
             // Display the current value
             telemetry.addData(">", "Driving straight ...");

@@ -54,6 +54,7 @@ public class TestDriveCurveCraterSideLanderToDepotAndSampleRightMineral extends 
         logFile.startTimer();
 
         // curve from lander onto lane to hit right mineral
+        driveCurve.setupDriveCurve(curveAngle, speed, 24.69 * 2.54, DriveCurve.CurveDirection.CW, DriveCurve.DriveDirection.FORWARD);
         driveCurve.startDriveCurve();
         while(opModeIsActive() && !driveCurve.isCurveComplete()) {
             driveCurve.update();
@@ -76,6 +77,7 @@ public class TestDriveCurveCraterSideLanderToDepotAndSampleRightMineral extends 
         // drive straight after CCW curve forward
         // drive on lane in front of lander towards wall
         driveTrain.setupDriveUsingIMU(-90, 31.13 * 2.54, speed, DriveTrain.DriveDirection.REVERSE, AdafruitIMU8863.AngleMode.ABSOLUTE);
+        driveTrain.startDriveUsingIMU();
         while (opModeIsActive()&& !driveTrain.updateDriveUsingIMU()) {
             // Display the current value
             telemetry.addData(">", "Driving straight ...");
@@ -96,6 +98,7 @@ public class TestDriveCurveCraterSideLanderToDepotAndSampleRightMineral extends 
 
         // drive along lane into depot
         driveTrain.setupDriveUsingIMU(-45, 13 * 2.54, speed, DriveTrain.DriveDirection.REVERSE, AdafruitIMU8863.AngleMode.ABSOLUTE);
+        driveTrain.startDriveUsingIMU();
         while (opModeIsActive()&& !driveTrain.updateDriveUsingIMU()) {
             // Display the current value
             telemetry.addData(">", "Driving straight ...");
