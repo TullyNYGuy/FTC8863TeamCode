@@ -37,6 +37,7 @@ public class AutonomousMovementSteps {
         RESET_ROBOT,
         WAIT_FOR_TIMER,
         WAIT_FOR_LIFT,
+        WAIT_FOR_STOP,
 
         // steps for minerals
         WAIT_FOR_GOLD_MINERAL_LOCATION,
@@ -46,6 +47,10 @@ public class AutonomousMovementSteps {
         RUN_DRIVE_TO_MINERAL,
 
         // general navigation steps
+        SETUP_CURVE_ONTO_LANDER_LANE,
+        RUN_CURVE_ONTO_LANDER_LANE,
+        SETUP_CURVE_ONTO_DEPOT_LANE,
+        RUN_CURVE_ONTO_DEPOT_LANE,
         SETUP_TURN_TOWARDS_WALL,
         RUN_TURN_TOWARDS_WALL,
         SETUP_DRIVE_TO_WALL,
@@ -101,11 +106,11 @@ public class AutonomousMovementSteps {
 
     private boolean loggingOn = true;
 
-     private double delayTimeToWait = 5000;
+    private double delayTimeToWait = 5000;
 
-     private boolean taskComplete = false;
+    private boolean taskComplete = false;
 
-     private double headingOnGround = 0;
+    private double headingOnGround = 0;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -121,11 +126,12 @@ public class AutonomousMovementSteps {
     public void disableLogging() {
         loggingOn = false;
     }
-    public MineralVoting.LikelyPosition getMostLikelyGoldPosition(){
+
+    public MineralVoting.LikelyPosition getMostLikelyGoldPosition() {
         return goldMineralDetection.getMostLikelyGoldPosition();
     }
 
-    public boolean isTaskComplete(){
+    public boolean isTaskComplete() {
         return taskComplete;
     }
 
@@ -169,12 +175,12 @@ public class AutonomousMovementSteps {
     // public methods that give the class its functionality
     //*********************************************************************************************
 
-    public void update(){
+    public void update() {
         boolean complete = false;
 
-        switch(task) {
+        switch (task) {
             case LOCATE_GOLD_MINERAL:
-                switch(step) {
+                switch (step) {
                     case START:
                         taskComplete = false;
                         robot.deliveryLiftSystem.deliveryBoxToOutOfWay();
@@ -182,7 +188,7 @@ public class AutonomousMovementSteps {
                         step = Steps.WAIT_FOR_GOLD_MINERAL_LOCATION;
                         break;
                     case WAIT_FOR_GOLD_MINERAL_LOCATION:
-                        if (goldMineralDetection.isRecognitionComplete()){
+                        if (goldMineralDetection.isRecognitionComplete()) {
                             goldMineralDetection.shutdown();
                             task = autonomousDirector.getNextTask();
                             // setup to start the next task
@@ -194,22 +200,23 @@ public class AutonomousMovementSteps {
                         break;
                 }
                 break;
+
             case DEHANG:
-                switch(step) {
+                switch (step) {
                     case START:
                         taskComplete = false;
                         robot.dehang();
                         step = Steps.WAIT_FOR_LIFT;
                         break;
                     case WAIT_FOR_LIFT:
-                       if(robot.deliveryLiftSystem.isLiftMovementComplete()){
-                           headingOnGround = robot.driveTrain.imu.getHeading();
-                           robot.driveTrain.setupTurn(-headingOnGround, 0.7, AdafruitIMU8863.AngleMode.RELATIVE);
-                           step = Steps.CORRECT_HEADING;
-                       }
+                        if (robot.deliveryLiftSystem.isLiftMovementComplete()) {
+                            headingOnGround = robot.driveTrain.imu.getHeading();
+                            robot.driveTrain.setupTurn(-headingOnGround, 0.7, AdafruitIMU8863.AngleMode.RELATIVE);
+                            step = Steps.CORRECT_HEADING;
+                        }
                         break;
                     case CORRECT_HEADING:
-                        if (robot.driveTrain.updateTurn()){
+                        if (robot.driveTrain.updateTurn()) {
                             robot.driveTrain.stopTurn();
                             task = autonomousDirector.getNextTask();
                             // setup to start the next task
@@ -220,15 +227,16 @@ public class AutonomousMovementSteps {
 
                 }
                 break;
+
             case DELAY:
-                switch(step) {
+                switch (step) {
                     case START:
                         taskComplete = false;
                         timer.reset();
                         step = Steps.WAIT_FOR_TIMER;
                         break;
                     case WAIT_FOR_TIMER:
-                        if(timer.milliseconds() > autonomousDirector.getDelay()){
+                        if (timer.milliseconds() > autonomousDirector.getDelay()) {
                             task = autonomousDirector.getNextTask();
                             // setup to start the next task
                             step = Steps.START;
@@ -238,13 +246,87 @@ public class AutonomousMovementSteps {
 
                 }
                 break;
-            case CLAIM_DEPOT_FROM_CRATER_SIDE_LANDER:
-                switch(step){
+
+            case HIT_GOLD_MINERAL_FROM_LANDER:
+                switch (step) {
                     case START:
-
+                        // hit center mineral
+                        robot.driveTrain.setupDriveUsingIMU(0, inchesToCM(22.96), .3, AdafruitIMU8863.AngleMode.ABSOLUTE);
+                        //                        robot.driveTrain.startDriveUsingIMU();
+                        step = Steps.RUN_DRIVE_TO_MINERAL;
+                        break;
+                    case RUN_DRIVE_TO_MINERAL:
+                        if (robot.driveTrain.updateDriveUsingIMU()) {
+                            // done with the drive straight
+                            robot.driveTrain.stopDriveDistanceUsingIMU();
+                            timer.reset();
+                            step = Steps.WAIT_FOR_STOP;
+                        }
+                        break;
+                    case WAIT_FOR_STOP:
+                        if (timer.milliseconds() > 500) {
+                            // we have stopped long enough
+                            // this task is done. Get the next task. Reset the step to start.
+                            task = autonomousDirector.getNextTask();
+                            step = Steps.START;
+                            taskComplete = true;
+                        }
+                        break;
                 }
+                break;
 
+            case CLAIM_DEPOT_FROM_CRATER_SIDE_MINERALS:
+                switch (step) {
+                    case START:
+                        // from center mineral
+                        //driveCurve.setupDriveCurve(-90, .1, inchesToCM(8.488), DriveCurve.CurveDirection.CW, DriveCurve.DriveDirection.BACKWARD);
+                        //driveCurve.startDriveCurve();
+                        step = Steps.RUN_CURVE_ONTO_LANDER_LANE;
+                        break;
+                    case RUN_CURVE_ONTO_LANDER_LANE:
+//                        driveCurve.update();
+//                        if (driveCurve.isCurveComplete()) {
+//                            robot.driveTrain.setupDriveUsingIMU(-90, inchesToCM(25.233), .3, AdafruitIMU8863.AngleMode.ABSOLUTE);
+//                            robot.driveTrain.startDriveUsingIMU();
+//                            step = Steps.RUN_DRIVE_TO_WALL;
+//                        }
+                        break;
+                    case RUN_DRIVE_TO_WALL:
+                        if (robot.driveTrain.updateDriveUsingIMU()) {
+                            // done with the drive straight
+                            // setup curve onto depot lane
+                            //driveCurve.setupDriveCurve(-45, .3, inchesToCM(38.84), DriveCurve.CurveDirection.CCW, DriveCurve.DriveDirection.BACKWARD);
+                            //driveCurve.startDriveCurve();
+                            step = Steps.RUN_CURVE_ONTO_DEPOT_LANE;
+                        }
+                        break;
+                    case RUN_CURVE_ONTO_DEPOT_LANE:
+                        //                        driveCurve.update();
+//                        if (driveCurve.isCurveComplete()) {
+//                            // curve is complete. Setup the next move
+//                            robot.driveTrain.setupDriveUsingIMU(0, inchesToCM(22.96), .3, AdafruitIMU8863.AngleMode.ABSOLUTE);
+//                            robot.driveTrain.startDriveUsingIMU();
+//                            step = Steps.RUN_DRIVE_TO_DEPOT;
+//                        }
+                        break;
+                    case RUN_DRIVE_TO_DEPOT:
+                        if (robot.driveTrain.updateDriveUsingIMU()) {
+                            // done with the drive straight
+                            // this task is done. Get the next task. Reset the step to start.
+                            task = autonomousDirector.getNextTask();
+                            step = Steps.START;
+                            taskComplete = true;
+                        }
+                        break;
+                }
+                break;
 
+            case CLAIM_DEPOT_FROM_CRATER_SIDE_LANDER:
+                switch (step) {
+                    case START:
+                        break;
+                }
+                break;
         }
     }
 
@@ -274,7 +356,7 @@ public class AutonomousMovementSteps {
                 break;
             case RUN_CLEAR_LANDER:
                 // drive straight and watch for the drive to complete. When it does run the next action.
-                if(robot.driveTrain.updateDriveDistance() == DriveTrain.Status.COMPLETE) {
+                if (robot.driveTrain.updateDriveDistance() == DriveTrain.Status.COMPLETE) {
                     // Driving straight has finished
                     // get the heading of the robot after it lands on the ground
                     headingAfterDehang = robot.driveTrain.imu.getHeading();
@@ -306,7 +388,7 @@ public class AutonomousMovementSteps {
                 break;
             case RUN_DRIVE_TO_MINERAL:
                 // drive straight and watch for the drive to complete. When it does run the next action.
-                if(robot.driveTrain.updateDriveDistance() == DriveTrain.Status.COMPLETE) {
+                if (robot.driveTrain.updateDriveDistance() == DriveTrain.Status.COMPLETE) {
                     // Driving straight has finished
                     step = Steps.SETUP_TURN_TOWARDS_DEPOT;
                 }
@@ -358,7 +440,7 @@ public class AutonomousMovementSteps {
                 break;
             case RUN_DRIVE_TO_DEPOT:
                 // drive straight and watch for the drive to complete. When it does run the next action.
-                if(robot.driveTrain.updateDriveDistance() == DriveTrain.Status.COMPLETE) {
+                if (robot.driveTrain.updateDriveDistance() == DriveTrain.Status.COMPLETE) {
                     // Driving straight has finished
                     step = Steps.SETUP_TURN_FOR_DUMP;
                 }
@@ -386,7 +468,7 @@ public class AutonomousMovementSteps {
             case WAIT_FOR_DUMP:
                 // wait in milliseconds
                 timeToWait = 1000;
-                if(timer.milliseconds() > timeToWait){
+                if (timer.milliseconds() > timeToWait) {
                     // the wait is over, go to the next action
                     step = Steps.RETURN_DUMP_ARM;
                 }
@@ -405,7 +487,7 @@ public class AutonomousMovementSteps {
                 break;
             case RUN_DRIVE_TO_CRATER:
                 // drive straight and watch for the drive to complete. When it does run the next action.
-                if(robot.driveTrain.updateDriveDistance() == DriveTrain.Status.COMPLETE) {
+                if (robot.driveTrain.updateDriveDistance() == DriveTrain.Status.COMPLETE) {
                     // Driving straight has finished
                     step = Steps.RESET_ROBOT;
                 }
@@ -443,7 +525,7 @@ public class AutonomousMovementSteps {
                 break;
             case RUN_CLEAR_LANDER:
                 // drive straight and watch for the drive to complete. When it does run the next action.
-                if(robot.driveTrain.updateDriveDistance() == DriveTrain.Status.COMPLETE) {
+                if (robot.driveTrain.updateDriveDistance() == DriveTrain.Status.COMPLETE) {
                     // Driving straight has finished
                     // get the heading of the robot after it lands on the ground
                     headingAfterDehang = robot.driveTrain.imu.getHeading();
@@ -475,7 +557,7 @@ public class AutonomousMovementSteps {
                 break;
             case RUN_DRIVE_TOWARDS_CRATER:
                 // drive straight and watch for the drive to complete. When it does run the next action.
-                if(robot.driveTrain.updateDriveDistance() == DriveTrain.Status.COMPLETE) {
+                if (robot.driveTrain.updateDriveDistance() == DriveTrain.Status.COMPLETE) {
                     // Driving straight has finished
                     step = Steps.SETUP_TURN_TOWARDS_MINERAL;
                 }
@@ -501,7 +583,7 @@ public class AutonomousMovementSteps {
                 break;
             case RUN_DRIVE_TO_MINERAL:
                 // drive straight and watch for the drive to complete. When it does run the next action.
-                if(robot.driveTrain.updateDriveDistance() == DriveTrain.Status.COMPLETE) {
+                if (robot.driveTrain.updateDriveDistance() == DriveTrain.Status.COMPLETE) {
                     // Driving straight has finished
                     step = Steps.SETUP_TURN_TOWARDS_DEPOT;
                 }
@@ -553,7 +635,7 @@ public class AutonomousMovementSteps {
                 break;
             case RUN_DRIVE_TO_DEPOT:
                 // drive straight and watch for the drive to complete. When it does run the next action.
-                if(robot.driveTrain.updateDriveDistance() == DriveTrain.Status.COMPLETE) {
+                if (robot.driveTrain.updateDriveDistance() == DriveTrain.Status.COMPLETE) {
                     // Driving straight has finished
                     step = Steps.DUMP_MARKER;
                 }
@@ -581,7 +663,7 @@ public class AutonomousMovementSteps {
             case WAIT_FOR_DUMP:
                 // wait in milliseconds
                 timeToWait = 1000;
-                if(timer.milliseconds() > timeToWait){
+                if (timer.milliseconds() > timeToWait) {
                     // the wait is over, go to the next action
                     step = Steps.RETURN_DUMP_ARM;
                 }
@@ -600,7 +682,7 @@ public class AutonomousMovementSteps {
                 break;
             case RUN_DRIVE_TO_CRATER:
                 // drive straight and watch for the drive to complete. When it does run the next action.
-                if(robot.driveTrain.updateDriveDistance() == DriveTrain.Status.COMPLETE) {
+                if (robot.driveTrain.updateDriveDistance() == DriveTrain.Status.COMPLETE) {
                     // Driving straight has finished
                     step = Steps.RESET_ROBOT;
                 }
@@ -614,15 +696,20 @@ public class AutonomousMovementSteps {
 
     /**
      * Log the step to the log file - but only if it has changed from the last time it was logged.
+     *
      * @param step
      */
     private void logStep(Steps step) {
         if (logFile != null && loggingOn) {
-            if(step != previousStep) {
+            if (step != previousStep) {
                 logFile.logData("Autonomous step = ", step.toString());
                 previousStep = step;
             }
         }
+    }
+
+    private double inchesToCM(double inches) {
+        return inches * 2.54;
     }
 
 }
