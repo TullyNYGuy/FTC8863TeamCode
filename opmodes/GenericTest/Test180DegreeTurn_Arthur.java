@@ -31,13 +31,13 @@ public class Test180DegreeTurn_Arthur extends LinearOpMode {
         waitForStart();
 
 
-        driveTrain.setupTurn(-90, 0.3, AdafruitIMU8863.AngleMode.RELATIVE);
+        driveTrain.setupTurn(-90, 0.3, AdafruitIMU8863.AngleMode.ABSOLUTE);
         // Put your calls here - they will not run in a loop
 
-        while(opModeIsActive()) {
+        while(opModeIsActive()&&driveTrain.updateTurn()!= true) {
 
             // Put your calls that need to run in a loop here
-            driveTrain.updateTurn();
+
 
             // Display the current value
             //telemetry.addData("Motor Speed = ", "%5.2f", powerToRunAt);
@@ -48,10 +48,30 @@ public class Test180DegreeTurn_Arthur extends LinearOpMode {
             
             idle();
         }
+        sleep(1000);
+        driveTrain.setupTurn(-175, 0.3, AdafruitIMU8863.AngleMode.RELATIVE);
+        // Put your calls here - they will not run in a loop
 
+        while(opModeIsActive()&&driveTrain.updateTurn()!= true) {
+
+            // Put your calls that need to run in a loop here
+
+
+            // Display the current value
+            //telemetry.addData("Motor Speed = ", "%5.2f", powerToRunAt);
+            //telemetry.addData("Encoder Count=", "%5d", motor.getCurrentPosition());
+            telemetry.addData(">", "Press Stop to end test." );
+
+            telemetry.update();
+
+            idle();
+        }
         // Put your cleanup code here - it runs as the application shuts down
+        driveTrain.shutdown();
+        telemetry.addData("Angle = ", driveTrain.imu.getHeading());
         telemetry.addData(">", "Done");
         telemetry.update();
+        sleep(10000);
 
     }
 }

@@ -153,6 +153,8 @@ public class AdafruitIMU8863 {
      */
     private final static AxesOrder HEADING_ROLL_PITCH = AxesOrder.ZYX;
 
+    private AngleAdjuster angleAdjuster;
+
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -234,6 +236,7 @@ public class AdafruitIMU8863 {
 
         // default to reporting angles from -180 to + 180
         setAngleRange(AngleRange.PLUS_TO_MINUS_180);
+        angleAdjuster = new AngleAdjuster();
     }
 
     public AdafruitIMU8863(HardwareMap hardwareMap, String calibrationFile) {
@@ -255,6 +258,7 @@ public class AdafruitIMU8863 {
 
         // default to reporting angles from -180 to + 180
         setAngleRange(AngleRange.PLUS_TO_MINUS_180);
+        angleAdjuster = new AngleAdjuster();
     }
 
     public AdafruitIMU8863(HardwareMap hardwareMap) {
@@ -277,6 +281,7 @@ public class AdafruitIMU8863 {
 
         // default to reporting angles from -180 to + 180
         setAngleRange(AngleRange.PLUS_TO_MINUS_180);
+        angleAdjuster = new AngleAdjuster();
     }
 
     /**
@@ -383,7 +388,8 @@ public class AdafruitIMU8863 {
                 }
                 break;
         }
-
+        // this should replace the block of code above but it needs to be tested
+        //angle = (float) angleAdjuster.adjustAngle(angle);
         return angle;
     }
 
@@ -420,6 +426,9 @@ public class AdafruitIMU8863 {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
+    public void setAngleTarget(double angle, double threshold) {
+        angleAdjuster.setTarget(angle, threshold);
+    }
 
     /**
      * Read the angles from the IMU. This method forces a read of the IMU.
