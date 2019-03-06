@@ -162,6 +162,8 @@ public class DeliveryLiftSystem {
             while (!isLiftMovementComplete()) {
                 update();
             }
+            // lift movement is complete so put the delivery box back
+            deliveryBoxToHome();
         }
     }
 
