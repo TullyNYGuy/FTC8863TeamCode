@@ -163,6 +163,8 @@ public class RoverRuckusRobot {
 
         transferScoringInit();
         toCollectionPositionInit();
+        toggleTransferButtonCommandInit();
+        hangingStateMachineInit();
     }
 
     public void setupForRun() {
@@ -175,6 +177,7 @@ public class RoverRuckusRobot {
         collectorArm.update();
         transferScoringStateMachine();
         toCollectStateMachine();
+        updateHangingStateMachine();
     }
 
     //*********************************************************************************************
@@ -183,7 +186,7 @@ public class RoverRuckusRobot {
 
     public void dehang() {
         deliveryLiftSystem.deliveryBoxToHome();
-        deliveryLiftSystem.dehang();;
+        deliveryLiftSystem.dehang();
     }
 
 //    public void undehang() {
@@ -204,15 +207,15 @@ public class RoverRuckusRobot {
         // collector.shutdown();
     }
 
-    public void setupForHang() {
-        log("DRIVER COMMANDED SETUP FOR HANG");
-        deliveryLiftSystem.deliveryBoxToOutOfWay();
-        deliveryLiftSystem.goToSetupHang();
-        collector.gateServoToResetPosition();
-        collectorArm.extensionArmReset();
-        //sleep(2000);
-        collectorArm.rotationArmGoToHome();
-    }
+//    public void setupForHang() {
+//        log("DRIVER COMMANDED SETUP FOR HANG");
+//        deliveryLiftSystem.deliveryBoxToOutOfWay();
+//        deliveryLiftSystem.goToSetupHang();
+//        collector.gateServoToResetPosition();
+//        collectorArm.extensionArmReset();
+//        //sleep(2000);
+//        collectorArm.rotationArmGoToHome();
+//    }
 
     public void goToLatchPosition() {
         log("DRIVER COMMANDED GO TO LATCH POSITION");
@@ -268,7 +271,9 @@ public class RoverRuckusRobot {
     private TransferScoringStates transferScoringState;
 
 
-    // This is for a state machine that handles the button pushes to control the transfer.
+    /**
+     * This is for a state machine that handles the button pushes to control the transfer.
+     */
     private enum TransferButtonCommands {
         WAIT_FOR_GO_TO_TRANSFER,
         WAIT_FOR_START_TRANSFER,
@@ -276,13 +281,24 @@ public class RoverRuckusRobot {
     }
 
     private TransferButtonCommands transferButtonCommand = TransferButtonCommands.WAIT_FOR_GO_TO_TRANSFER;
+    private TransferButtonCommands previousTransferButtonCommand = TransferButtonCommands.WAIT_FOR_GO_TO_TRANSFER;
 
     //*********************************************************************************************
     //transfer & scoring commands
     //*********************************************************************************************
 
+    private void toggleTransferButtonCommandInit() {
+        transferButtonCommand = TransferButtonCommands.WAIT_FOR_GO_TO_TRANSFER;
+        previousTransferButtonCommand = TransferButtonCommands.WAIT_FOR_GO_TO_TRANSFER;
+    }
+    /**
+     * This is a state machine that controls a single button that is meant to control the transfer.
+     * It goes from moving the collector arm to transfer position, starting the transfer, then
+     * confirming the transfer is complete and then back to waiting to move the arm again.
+     */
     public void toggleTransferButtonCommand() {
-        switch(transferButtonCommand) {
+        logTransferButtonCommand(transferButtonCommand);
+        switch (transferButtonCommand) {
             case WAIT_FOR_GO_TO_TRANSFER:
                 // sit and wait for the A button to be pushed
                 // Only allow the A button to command a go to transfer position if the robot is not already
@@ -317,6 +333,15 @@ public class RoverRuckusRobot {
                     transferButtonCommand = TransferButtonCommands.WAIT_FOR_GO_TO_TRANSFER;
                 }
                 break;
+        }
+    }
+
+    private void logTransferButtonCommand(TransferButtonCommands transferButtonCommand) {
+        if (logFile != null && loggingOn) {
+            if (transferButtonCommand != previousTransferButtonCommand) {
+                logFile.logData("Transfer Button command ", transferButtonCommand.toString());
+                previousTransferButtonCommand = transferButtonCommand;
+            }
         }
     }
 
@@ -371,7 +396,9 @@ public class RoverRuckusRobot {
 
     private void transferScoringInit() {
         transferScoringState = TransferScoringStates.START;
+        previousTransferScoringState = transferScoringState;
         transferScoringCommand = TransferScoringCommands.EMPTY;
+        previousTransferScoringCommand = transferScoringCommand;
     }
 
     private void transferScoringStateMachine() {
@@ -567,7 +594,7 @@ public class RoverRuckusRobot {
                 }
                 break;
 
-                // once the rotation arm is in position, give the driver the opportunity to adjust
+            // once the rotation arm is in position, give the driver the opportunity to adjust
             // its position
             case TRANSFER_ADJUST:
                 switch (transferScoringCommand) {
@@ -785,21 +812,21 @@ public class RoverRuckusRobot {
 
     private void logTransferScoringState(TransferScoringStates transferScoringState, TransferScoringCommands transferScoringCommand) {
         if (logFile != null && loggingOn) {
-            if(transferScoringState != previousTransferScoringState ||transferScoringCommand != previousTransferScoringCommand) {
-                logFile.logData("Transfer Scoring Control ",transferScoringState.toString(), transferScoringCommand.toString());
+            if (transferScoringState != previousTransferScoringState || transferScoringCommand != previousTransferScoringCommand) {
+                logFile.logData("Transfer Scoring Control ", transferScoringState.toString(), transferScoringCommand.toString());
                 previousTransferScoringState = transferScoringState;
                 previousTransferScoringCommand = transferScoringCommand;
             }
         }
     }
 
-    private void logIgnoreCommand(TransferScoringCommands transferScoringCommand){
+    private void logIgnoreCommand(TransferScoringCommands transferScoringCommand) {
         if (logFile != null && loggingOn) {
             logFile.logData("Ignoring command = ", transferScoringCommand.toString());
         }
     }
 
-    private void logDoNothingCommand(TransferScoringCommands transferScoringCommand){
+    private void logDoNothingCommand(TransferScoringCommands transferScoringCommand) {
         if (logFile != null && loggingOn) {
             logFile.logData("Doing nothing about command = ", transferScoringCommand.toString());
         }
@@ -828,7 +855,9 @@ public class RoverRuckusRobot {
 
     private void toCollectionPositionInit() {
         toCollectCommand = ToCollectCommands.EMPTY;
+        previousToCollectCommand = toCollectCommand;
         toCollectState = ToCollectStates.START;
+        previousToCollectState = toCollectState;
     }
 
     //*********************************************************************************************
@@ -895,17 +924,81 @@ public class RoverRuckusRobot {
 
     private void logToCollectState(ToCollectStates toCollectState, ToCollectCommands toCollectCommand) {
         if (logFile != null && loggingOn) {
-            if(toCollectState != previousToCollectState || toCollectCommand != previousToCollectCommand) {
-                logFile.logData("To Collection Control ",toCollectState.toString(), toCollectCommand.toString());
+            if (toCollectState != previousToCollectState || toCollectCommand != previousToCollectCommand) {
+                logFile.logData("To Collection Control ", toCollectState.toString(), toCollectCommand.toString());
                 previousToCollectState = toCollectState;
                 previousToCollectCommand = toCollectCommand;
             }
         }
     }
 
-    private void logIgnoreCommand(ToCollectCommands toCollectCommand){
+    private void logIgnoreCommand(ToCollectCommands toCollectCommand) {
         if (logFile != null && loggingOn) {
             logFile.logData("Ignoring command = ", toCollectCommand.toString());
         }
     }
+    //*********************************************************************************************
+    //state machine for hanging
+    //*********************************************************************************************
+
+    /**
+     * Command to be called when button is pressed. Ignores button press when the setup for hang
+     * is already running.
+     */
+    public void setupForHang() {
+        if (hangingSetupState == HangingSetup.IDLE) {
+            hangingSetupState = HangingSetup.START;
+        }
+    }
+
+    private enum HangingSetup {
+        IDLE,
+        START,
+        WAIT_FOR_LIFT,
+        READY_TO_LATCH
+    }
+
+    private HangingSetup hangingSetupState = HangingSetup.START;
+    private HangingSetup previousHangingSetupState = HangingSetup.START;
+
+    private void hangingStateMachineInit() {
+        hangingSetupState = HangingSetup.START;
+        previousHangingSetupState = hangingSetupState;
+    }
+
+    public void updateHangingStateMachine() {
+        logHangingStateMachineState(hangingSetupState);
+        switch (hangingSetupState) {
+            case IDLE:
+                // do nothing until the driver presses the button
+                break;
+            case START:
+                deliveryLiftSystem.deliveryBoxToOutOfWay();
+                deliveryLiftSystem.goToSetupHang();
+                collector.gateServoToResetPosition();
+                collectorArm.extensionArmReset();
+                hangingSetupState = HangingSetup.WAIT_FOR_LIFT;
+                break;
+            case WAIT_FOR_LIFT:
+                if (deliveryLiftSystem.isLiftMovementComplete()) {
+                    collectorArm.rotationArmGoToHome();
+                    hangingSetupState = HangingSetup.READY_TO_LATCH;
+                }
+                break;
+            case READY_TO_LATCH:
+                hangingSetupState = HangingSetup.IDLE;
+                break;
+        }
+    }
+
+    private void logHangingStateMachineState(HangingSetup hangingSetupState) {
+        if (logFile != null && loggingOn) {
+            if (hangingSetupState != previousHangingSetupState) {
+                logFile.logData("Hanging Setup ", hangingSetupState.toString());
+                previousHangingSetupState = hangingSetupState;
+            }
+        }
+    }
+
+
 }

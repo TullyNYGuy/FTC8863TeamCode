@@ -137,7 +137,7 @@ public class RoverRuckusTeleop extends LinearOpMode {
         // create the gamepad 2 buttons and tell each button how many commands it has
         gamepad2RightBumper = new GamepadButtonMultiPush(1);
         gamepad2LeftBumper = new GamepadButtonMultiPush(1);
-        gamepad2a = new GamepadButtonMultiPush(3);
+        gamepad2a = new GamepadButtonMultiPush(1);
         gamepad2b = new GamepadButtonMultiPush(1);
         gamepad2y = new GamepadButtonMultiPush(1);
         gamepad2x = new GamepadButtonMultiPush(1);
@@ -229,13 +229,7 @@ public class RoverRuckusTeleop extends LinearOpMode {
 
             if (gamepad1y.buttonPress(gamepad1.y)) {
                 if (gamepad1y.isCommand1()) {
-                    // this should be a state machine in robot to save the time of the 2 second sleep
-                    robot.deliveryLiftSystem.deliveryBoxToOutOfWay();
-                    robot.deliveryLiftSystem.goToSetupHang();
-                    robot.collector.gateServoToResetPosition();
-                    robot.collectorArm.extensionArmReset();
-                    sleep(2000);
-                    robot.collectorArm.rotationArmGoToHome();
+                    robot.setupForHang();
                 }
                 if (gamepad1y.isCommand2()) {
                     robot.goToLatchPosition();
@@ -247,7 +241,8 @@ public class RoverRuckusTeleop extends LinearOpMode {
             }
 
             if (gamepad1DpadUp.buttonPress(gamepad1.dpad_up)) {
-                // this was a new button press, not a button held down for a while
+                // this was a new button press, not a+
+                //button held down for a while
                 // put the command to be executed here
                 gamepad1LeftJoyStickX.setFullPower();
                 gamepad1LeftJoyStickY.setFullPower();
@@ -337,15 +332,7 @@ public class RoverRuckusTeleop extends LinearOpMode {
             }
 
             if (gamepad2a.buttonPress(gamepad2.a)) {
-                if (gamepad2a.isCommand1()) {
-                    robot.goToTransferPosition();
-                }
-                if (gamepad2a.isCommand2()) {
-                    robot.transferMinerals();
-                }
-                if (gamepad2a.isCommand3()) {
-                    robot.confirmTransferSuccess();
-                }
+                robot.toggleTransferButtonCommand();
             }
 
             if (gamepad2b.buttonPress(gamepad2.b)) {
