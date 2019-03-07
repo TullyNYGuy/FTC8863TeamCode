@@ -963,7 +963,7 @@ public class RoverRuckusRobot {
     private HangingSetup previousHangingSetupState = HangingSetup.START;
 
     private void hangingStateMachineInit() {
-        hangingSetupState = HangingSetup.START;
+        hangingSetupState = HangingSetup.IDLE;
         previousHangingSetupState = hangingSetupState;
     }
 
@@ -981,7 +981,7 @@ public class RoverRuckusRobot {
                 hangingSetupState = HangingSetup.WAIT_FOR_LIFT;
                 break;
             case WAIT_FOR_LIFT:
-                if (deliveryLiftSystem.isLiftMovementComplete()) {
+                if (deliveryLiftSystem.isLiftMovementComplete()&& collectorArm.isExtensionArmMovementComplete()) {
                     collectorArm.rotationArmGoToHome();
                     hangingSetupState = HangingSetup.READY_TO_LATCH;
                 }
