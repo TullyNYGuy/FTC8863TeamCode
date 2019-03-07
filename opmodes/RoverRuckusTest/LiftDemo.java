@@ -34,6 +34,7 @@ public class LiftDemo extends LinearOpMode {
         waitForStart();
 
         timer.reset();
+        deliveryLiftSystem.deliveryBoxToOutOfWay();
         deliveryLiftSystem.goTo9Inches();
 
         // when the lift reaches its position, the loop will stop running and the next set of code
@@ -63,7 +64,7 @@ public class LiftDemo extends LinearOpMode {
         telemetry.addData("Time to move 9 inches (mS) = ", timer.milliseconds());
         telemetry.addData(">", "Press Stop to end test.");
         telemetry.update();
-        sleep(1000);
+        sleep(500);
 
         timer.reset();
         deliveryLiftSystem.goToHome();
@@ -86,6 +87,7 @@ public class LiftDemo extends LinearOpMode {
 
             idle();
         }
+        deliveryLiftSystem.deliveryBoxToHome();
 
         // Display the current value
         telemetry.addLine("Done");
