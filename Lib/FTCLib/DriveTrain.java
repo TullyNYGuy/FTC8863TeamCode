@@ -67,7 +67,9 @@ public class DriveTrain {
     private double driveTrainPower;
     private double distanceToDrive;
     private double distanceDriven;
+    private double totalDistanceDriven;
     private double distanceRemaining;
+    private double lastDistanceDriven;
 
 
     private boolean hasLoopRunYet = false;
@@ -84,6 +86,11 @@ public class DriveTrain {
 
     private boolean logTurns = false;
     private boolean logDrive = false;
+
+    private double rightDriveMotorSpeed = 0;
+    private double leftDriveMotorSpeed = 0;
+
+    private DcMotor8863.FinishBehavior finishBehavior;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -114,6 +121,10 @@ public class DriveTrain {
         return driveDirection;
     }
 
+    public double getTotalDistanceDriven() {
+        return totalDistanceDriven;
+    }
+
     public boolean isDebug() {
         return debug;
     }
@@ -138,8 +149,18 @@ public class DriveTrain {
         logDrive = false;
     }
 
-    public void setTurnLog(DataLogging logFile) {
+    public void setLogFile(DataLogging logFile) {
         this.logFile = logFile;
+    }
+
+    public DcMotor8863.FinishBehavior getFinishBehavior() {
+        return finishBehavior;
+    }
+
+    public void setFinishBehavior(DcMotor8863.FinishBehavior finishBehavior) {
+        this.finishBehavior = finishBehavior;
+        leftDriveMotor.setFinishBehavior(finishBehavior);
+        rightDriveMotor.setFinishBehavior(finishBehavior);
     }
 
     //*********************************************************************************************
@@ -301,7 +322,7 @@ public class DriveTrain {
     }
 
     //*********************************************************************************************
-    // Autonomous Methods - driving a heading or a straight line
+    // General methods
     //*********************************************************************************************
 
     /**
@@ -362,6 +383,127 @@ public class DriveTrain {
     }
 
     /**
+     * Set the speed for teh drive motor. THIS DOES NOT APPLY THE SPEED TO THE MOTOR SO THE MOTOR
+     * WILL NOT START TURNING. Use applyPowersToMotors() to actually apply it.
+     * @param speed
+     */
+    public void setRightDriveMotorSpeed( double speed) {
+        this.rightDriveMotorSpeed = speed;
+    }
+
+    /**
+     * Set the speed for teh drive motor. THIS DOES NOT APPLY THE SPEED TO THE MOTOR SO THE MOTOR
+     * WILL NOT START TURNING. Use applyPowersToMotors() to actually apply it.
+     * @param speed
+     */
+    public void setLeftDriveMotorSpeed(double speed) {
+        this.leftDriveMotorSpeed = speed;
+    }
+
+    /**
+     * Applies the speeds that have been previously set to the drive motors. Speeds were set with
+     * setRightDriveMotorSpeed(0 and setLeftDriveMotorSpeed()
+     */
+    public void applyPowersToMotors() {
+        double[] speeds = new double[]{leftDriveMotorSpeed, rightDriveMotorSpeed};
+        applyPowersToMotors(speeds);
+    }
+
+    /**
+     * Apply a power to the drive motors, using the direction of travel to determine whether to
+     * swap the left and right motors. If the direction is backwards, then the left and right
+     * get swapped.
+     * @param drivePowers - an array with left, right powers
+     */
+    private void applyPowersToMotors(double[] drivePowers) {
+        //setting new powers to the motors - is the robot going forwards or backwards?
+        if (driveDirection == DriveDirection.FORWARD) {
+            // forwards
+            leftDriveMotor.setPower(drivePowers[0]);
+            rightDriveMotor.setPower(drivePowers[1]);
+        } else {
+            // if driving backwards the left and right drive motors are effectively swapped
+            leftDriveMotor.setPower(drivePowers[1]);
+            rightDriveMotor.setPower(drivePowers[0]);
+        }
+    }
+
+    public void setDriveMotorMode(DcMotor.RunMode mode) {
+        leftDriveMotor.setMode(mode);
+        rightDriveMotor.setMode(mode);
+    }
+
+    public double getRightPower() {
+        return rightDriveMotor.getCurrentPower();
+    }
+
+    public double getLeftPower() {
+        return leftDriveMotor.getCurrentPower();
+    }
+
+    public void getEncoderCounts() {
+        telemetry.addData("left encoder count = ", "%d", leftDriveMotor.getCurrentPosition());
+        telemetry.addData("right encoder count = ", "%d", rightDriveMotor.getCurrentPosition());
+    }
+
+    public void shutdown() {
+        rightDriveMotor.shutDown();
+        leftDriveMotor.shutDown();
+    }
+
+    private void zeroDistanceDriven() {
+        distanceDriven = 0;
+    }
+    /**
+     * Calculate the average distance the drivetrain has moved since the motors were commanded to move.
+     * @return
+     */
+    private double calculateDistanceDriven(){
+        return (leftDriveMotor.getPositionInTermsOfAttachmentRelativeToLast() + rightDriveMotor.getPositionInTermsOfAttachmentRelativeToLast()) / 2;
+    }
+
+    /**
+     * Update the distance driven. This method is typically called from within a loop while a movement
+     * is occurring.
+     */
+    public double updateDistanceDriven() {
+        distanceDriven = calculateDistanceDriven();
+        return distanceDriven;
+    }
+
+    /**
+     * Sometimes you may want to know the change in distance from a certain point in time. You need to
+     * establish the point by establishing the distance at that point in time.
+     */
+    public void setDistanceDrivenReference(){
+        lastDistanceDriven = calculateDistanceDriven();
+    }
+
+    /**
+     * Get the distance driven since the last check on the distance driven. This call can be used
+     * to get the change in distance driven. Typically you would use it over the course of the movement
+     * to follow the change in distance.
+     * @return
+     */
+    public double getDistanceDrivenSinceLast() {
+        distanceDriven = calculateDistanceDriven();
+        double distanceDrivenSinceLast = distanceDriven - lastDistanceDriven;
+        lastDistanceDriven = distanceDriven;
+        return distanceDrivenSinceLast;
+    }
+
+    /**
+     * Adds the distance driven in a move to the total distance driven
+     */
+    private void updateTotalDistanceDriven() {
+        totalDistanceDriven = totalDistanceDriven + distanceDriven;
+    }
+
+    //*********************************************************************************************
+    // Autonomous Methods - driving a straight line
+    //*********************************************************************************************
+
+    /**
      * Drives a straight line by applying the same power to both motors
      *
      * @param power          the power to move at. This can only be positive.
@@ -377,7 +519,7 @@ public class DriveTrain {
         leftDriveMotor.moveByAmount(power, distance, finishBehavior);
         this.distanceToDrive = distance;
         // reset the distance traveled
-        this.distanceDriven = 0;
+        zeroDistanceDriven();
         if (logDrive && logFile != null) {
             logFile.logData("Setup for drive straight = " + distance + " at power = " + power);
             logFile.logData("Starting heading = " + imu.getHeading());
@@ -395,12 +537,13 @@ public class DriveTrain {
         leftMotorState = leftDriveMotor.update();
         // the distance driven has to be relative to the start of the movement
         // THERE IS A BUG HERE. THE DISTANCE IS NOT RELATIVE TO THE START. IT IS CUMULATIVE. NEED TO FIX IT
-        distanceDriven = (leftDriveMotor.getPositionInTermsOfAttachmentRelativeToLast() + rightDriveMotor.getPositionInTermsOfAttachmentRelativeToLast()) / 2;
+        distanceDriven = calculateDistanceDriven();
         if (this.isDriveTrainComplete()) {
             if (logDrive && logFile != null) {
                 logFile.logData("Drove distance = " + distanceDriven);
                 logFile.logData("Finish heading = " + imu.getHeading());
             }
+            updateTotalDistanceDriven();
             return Status.COMPLETE;
         } else {
             return Status.MOVING;
@@ -424,57 +567,86 @@ public class DriveTrain {
     /**
      * Drive on a heading using the IMU to give heading feedback. This will only stop when you tell
      * it to stop using stopDriveUsingIMU(). The heading can be relative to the robot's heading at
-     * the start, or can be relative to whenever the IMU heading was last set to 0.
+     * the start, or can be relative to whenever the IMU heading was last set to 0. Once the robot
+     * has driven more than the distance specified, the updateDriveUsingIMU() will return true. It
+     * does not actually shut off the motors. The robot just keeps on driving until you tell it to
+     * do something else. That way you can chain together other movements after this one and the
+     * robot just continues to run the movements without stopping.
+     *
+     * This is the setup for the drive. You call this once. Then after this you call
+     * updateDriveUsingIMU() in a loop so that it can update the PID and check on the distance
+     * traveled.
      *
      * @param heading     heading in degrees. Counter clockwise is +. Clockwise is -. Range from -180 to
      *                    +180. Note that if you input 180 it will have problems navigating due to the
      *                    sign change at the 180 boundary. If you really need to do that then there will
      *                    have to be some code written to control the range on the IMU.
      * @param distance    when the movement hits this distance, the update will return true
-     * @param maxPower    the max power to apply to the motors. This really corresponds to speed.
+     * @param speed    the speed to run the motors. This should be a positive number. Drive direction will
+     *                 take care of the sign of the speed.
      *                    Positive is forwards. Negative is backwards.
+     * @param driveDirection
      * @param headingType RAW, ABSOLUTE or RELATIVE. See AngleMode for desscription.
      */
     // THIS METHOD HAS A BUG. IT DOES NOT DRIVE BACKWARDS PROPERLY. NEED TO FIX IT
-    public void setupDriveUsingIMU(double heading, double distance, double maxPower, AdafruitIMU8863.AngleMode headingType) {
+    public void setupDriveUsingIMU(double heading, double distance, double speed, DriveDirection driveDirection, AdafruitIMU8863.AngleMode headingType) {
 
         if (imuPresent) {
-            // set the mode for the motors during the turn. Without this they may not move.
+            // set the mode for the motors so they run using speed control. Without this they may not move.
             rightDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             leftDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            // setup PID control
             pidControl.setSetpoint(heading);
-            pidControl.setMaxCorrection(maxPower);
+            pidControl.setMaxCorrection(speed);
             // threshold is not meaningful in this movement. It is normally used to say when the
             // movement is complete but since this movement goes forever, threshold does nothing.
+            // But it has to be set to something!
             pidControl.setThreshold(10);
-            pidControl.setKp(0.017);
-            driveTrainPower = maxPower;
+            //pidControl.setKp(0.011);
+            pidControl.setKp(0.012);
+            pidControl.setKi(0.05/1000000);
+            // reset the integrator before starting
+            pidControl.reset();
 
             switch (headingType) {
+                // since the turn is relative to the current heading, reset the angle references to 0
                 case RELATIVE:
                     imu.setAngleMode(AdafruitIMU8863.AngleMode.RELATIVE);
                     imu.resetAngleReferences();
                     break;
+                    // since the movement is running on an absolute heading, we don't want to reset
+                // the angle references. Just tell the IMU to give us headings in a relative mode
                 case ABSOLUTE:
                     imu.setAngleMode(AdafruitIMU8863.AngleMode.ABSOLUTE);
                     break;
+                    // not sure why you would want to use this mode
                 case RAW:
                     imu.setAngleMode(AdafruitIMU8863.AngleMode.RAW);
                     break;
             }
 
-            // the power determines which direction the robot will drive. If going backwards the
-            // left and right drive motors have to swap and this set the flags to do that
-            if (maxPower > 0) {
-                //going forwards
-                driveDirection = DriveDirection.FORWARD;
+            // set the proper sign on the speed for the motors
+            if (driveDirection == DriveDirection.FORWARD) {
+                driveTrainPower = Math.abs(speed);
             } else {
-                // driving backwards
-                driveDirection = DriveDirection.REVERSE;
+                driveTrainPower = -Math.abs(speed);
             }
 
             // set the distance target
             this.distanceToDrive = distance;
+            // since this is movement that is relative to its starting point, it has to start from 0
+            zeroDistanceDriven();
+            // distance driven is calculated by averaging the encoder counts on the left and
+            // right wheels relative to the last time the encoder count tracker in the motor was set
+            // to 0. That 0 automatically happens when a movement is to a position. But in this case
+            // we are just turning the motors on so the DcMotor8863 does not zero the encoder tracker.
+            // I have to do it manually.
+            rightDriveMotor.setLastEncoderCountToCurrentPostion();
+            leftDriveMotor.setLastEncoderCountToCurrentPostion();
+            if (logFile != null && logDrive) {
+                logFile.blankLine();
+                logFile.logData("DRIVE_STRAIGHT_USING_IMU Heading = " + Double.toString(heading) + " Speed = " + Double.toString(speed) + " distance = " + Double.toString(distance));
+            }
         } else {
             shutdown();
             throw new IllegalArgumentException("No Imu found");
@@ -482,41 +654,66 @@ public class DriveTrain {
     }
 
     /**
-     * You must call this method in a loop after you call setupDriveDistance() in order to get the
-     * movement to work properly.
+     * Method to log the current heading and position of the robot before starting to drive.
+     */
+    public void startDriveUsingIMU() {
+        if (logFile != null && logDrive) {
+            logFile.logData("Start heading = " + imu.getHeading() + " Start Distance = " + distanceDriven);
+        }
+    }
+
+    /**
+     * You must call this method in a loop after you call setupDriveUsingIMU() in order to get the
+     * movement to work properly. That is because the PID needs to be constantly updated and the
+     * distance driven has to be constantly updated.
      *
      * @return true if the distance traveled is greater than the distance desired (ie the distance
      *         to drive set in the setup.
      */
     public boolean updateDriveUsingIMU() {
-        if (imuPresent) {
             double currentHeading = imu.getHeading();
             // I have to reverse the sign since the differential drive method expects a negative
             // joystick input for a left turn (joystick left = negative number, not what you would
             // expect).
+            // get the correction from the PID
             double correction = -pidControl.getCorrection(currentHeading);
 //            if (driveTrainPower < 0) {
 //                // sign on correction has to flip or feedback is wrong direction
 //                correction = correction * -1;
 //            }
+            // apply the correction to the motors
             differentialDrive(driveTrainPower, correction);
             // THERE IS A BUG HERE. THE DISTANCE BEING REPORTED IS CUMULATIVE NOT RELATIVE TO THE START OF THE MOVEMENT
-            distanceDriven = (leftDriveMotor.getPositionInTermsOfAttachmentRelativeToLast() + rightDriveMotor.getPositionInTermsOfAttachmentRelativeToLast()) / 2;
-            if (distanceDriven > distanceToDrive) {
+            distanceDriven = calculateDistanceDriven();
+            // for negative distances (driving backwards) distance driven will start out at 0 and be larger than distance to drive (-150)
+            // so we have to take absolute values
+            if (Math.abs(distanceDriven) > Math.abs(distanceToDrive)) {
+                if (logFile != null && logDrive) {
+                    logFile.logData("Finished drive straight using IMU. Heading = " + Double.toString(currentHeading) + " distance = " + Double.toString(distanceDriven));
+                    logFile.blankLine();
+                }
                 return true;
             } else {
+                if (logFile != null && logDrive) {
+                    logFile.logData(currentHeading, distanceDriven);
+                }
                 return false;
             }
-        } else {
-            shutdown();
-            throw new IllegalArgumentException("No Imu found");
-        }
+    }
+
+    /**
+     * Call this after you complete the drive distance using IMU so that the total distance traveled
+     * by the robot is updated.
+     */
+    public void completeDriveUsingIMU() {
+        updateTotalDistanceDriven();
     }
 
     /**
      * Stop the movement of the robot
      */
     public void stopDriveUsingIMU() {
+        updateTotalDistanceDriven();
         shutdown();
     }
 
@@ -559,6 +756,7 @@ public class DriveTrain {
             hasLoopRunYet = false;
             //MATT never set the distance so it was 0 when we started the update
             this.distanceToDrive = distance;
+            zeroDistanceDriven();
             //Setting up IMU
             switch (headingType) {
                 case RELATIVE:
@@ -624,7 +822,7 @@ public class DriveTrain {
 
         if (imuPresent) {
             // Figure out where the robot is at now during the drive
-            distanceDriven = (leftDriveMotor.getPositionInTermsOfAttachmentRelativeToLast() + rightDriveMotor.getPositionInTermsOfAttachmentRelativeToLast()) / 2;
+            distanceDriven = calculateDistanceDriven();
             if (debug) {
                 telemetry.addData("distance driven = ", "%3.1f", distanceDriven);
             }
@@ -856,27 +1054,6 @@ public class DriveTrain {
     }
 
     /**
-     * Apply a power to the drive motors, using the direction of travel to determine whether to
-     * swap the left and right motors. If the direction is backwards, then the left and right
-     * get swapped.
-     * @param drivePowers - an array with left, right powers
-     */
-    private void applyPowersToMotors(double[] drivePowers) {
-        //setting new powers to the motors - is the robot going forwards or backwards?
-        if (driveDirection == DriveDirection.FORWARD) {
-            // forwards
-            leftDriveMotor.setPower(drivePowers[0]);
-            rightDriveMotor.setPower(drivePowers[1]);
-        } else {
-            // if driving backwards the left and right drive motors are effectively swapped
-            leftDriveMotor.setPower(drivePowers[1]);
-            rightDriveMotor.setPower(drivePowers[0]);
-        }
-    }
-
-
-
-    /**
      * During a ramp down from running at a power, I actually don't want the ramp down to last right
      * until the end of the drive. I would like a little buffer so that if the robot runs past the
      * end of the drive it does not have to back up to reach the final position. The robot can
@@ -1000,6 +1177,7 @@ public class DriveTrain {
      * Stop driving
      */
     public void stopDriveDistanceUsingIMU() {
+        updateTotalDistanceDriven();
         shutdown();
     }
 
@@ -1032,6 +1210,7 @@ public class DriveTrain {
             pidControl.setKp(0.009);
             pidControl.setKi(0.05/1000000);
             pidControl.reset();
+            zeroDistanceDriven();
 
             imu.setAngleMode(angleMode);
             if (angleMode == AdafruitIMU8863.AngleMode.RELATIVE) {
@@ -1087,6 +1266,7 @@ public class DriveTrain {
     }
 
     public void stopTurn() {
+        updateTotalDistanceDriven();
         shutdown();
     }
 
@@ -1151,7 +1331,7 @@ public class DriveTrain {
             leftDriveMotor.setPower(throttle - direction);
         }
 
-        distanceDriven = (leftDriveMotor.getPositionInTermsOfAttachmentRelativeToLast() + rightDriveMotor.getPositionInTermsOfAttachmentRelativeToLast()) / 2;
+        distanceDriven = calculateDistanceDriven();
 //        if (throttle >= 0) {
 //            //going forwards
 //            leftDriveMotor.setPower(throttle + direction);
@@ -1222,21 +1402,4 @@ public class DriveTrain {
     //          Other methods
     //*********************************************************************************************
 
-    public double getRightPower() {
-        return rightDriveMotor.getCurrentPower();
-    }
-
-    public double getLeftPower() {
-        return leftDriveMotor.getCurrentPower();
-    }
-
-    public void shutdown() {
-        rightDriveMotor.shutDown();
-        leftDriveMotor.shutDown();
-    }
-
-    public void getEncoderCounts() {
-        telemetry.addData("left encoder count = ", "%d", leftDriveMotor.getCurrentPosition());
-        telemetry.addData("right encoder count = ", "%d", rightDriveMotor.getCurrentPosition());
-    }
 }

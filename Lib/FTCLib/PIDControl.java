@@ -174,7 +174,7 @@ public class PIDControl {
     //*********************************************************************************************
 
     /**
-     * Constructor. Integral and Derivivtive not implemented at this time.
+     * Constructor. Derivivtive not implemented at this time but here for the future.
      * @param kp Proportionality constant for PIDControl
      * @param ki Integral Constant for PIDControl
      * @param kd Derivitive constant for PIDControl
@@ -196,6 +196,10 @@ public class PIDControl {
         lastFinishedTime = elapsedTime.milliseconds();
     }
 
+    /**
+     * Constructor without setting any gains at all. You should set them later or you will get 0
+     * back for the correction.
+     */
     public PIDControl() {
         this.Kp = 0;
         this.Ki = 0;
@@ -246,11 +250,22 @@ public class PIDControl {
     // public methods that give the class its functionality
     //*********************************************************************************************
 
+    /**
+     * The PID can have a ramp up that slowly applies a correction to the thing being controlled.
+     * If you don't use this you can get a big step in the correction applied to the thing.
+     * @param valueAtStartTime
+     * @param valueAtFinishTime
+     * @param timeToReachFinishValueInmSec
+     */
     public void setupRamp (double valueAtStartTime, double valueAtFinishTime, double timeToReachFinishValueInmSec) {
         rampControl.setup(valueAtStartTime,valueAtFinishTime,timeToReachFinishValueInmSec);
         setUseRampControl(true);
     }
 
+    /**
+     * Reset the integral value and the PID timer used to calculate the integral. You must call this
+     * as part of the setup of the PID control.
+     */
     public void reset(){
         integral = 0;
         lastIntegral = 0;
@@ -266,12 +281,13 @@ public class PIDControl {
         // set the feedback property so it can be retrieved later
         setFeedback(feedback);
         double error = (getSetpoint() - feedback);
+        // figure out the integral part of the correction
         double timeDifference  = elapsedTime.milliseconds()- lastTime;
         integral = error * timeDifference *getKi();
         integral = integral + lastIntegral;
         double correction = error * getKp() + integral;
         // if the correction that is calculated is above the limit of what is of what can be physically
-        // controlled (ie motor power is 110%), then we have to limit the integral portion or it will
+        // controlled (like motor power is 110%), then we have to limit the integral portion or it will
         // windup.
         // if the correction is larger than limit
         // clamp the integral term to the last one OR
@@ -288,6 +304,12 @@ public class PIDControl {
         return correction;
     }
 
+    /**
+     * If the thing being controlled has reached the setpoint, within the tolerance/threshold,
+     * return true. It has to remain at the setpoint for a certain time in order to be called
+     * finished.
+     * @return
+     */
     public boolean isFinished(){
         if (Math.abs(getFeedback() - getSetpoint()) < getThreshold()){
             if (finishedTimer.milliseconds() > 100) {

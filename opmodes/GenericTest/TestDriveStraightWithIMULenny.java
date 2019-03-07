@@ -25,7 +25,8 @@ public class TestDriveStraightWithIMULenny extends LinearOpMode {
 
         // Put your initializations here
         driveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap, telemetry);
-        logFile = new DataLogging("Test_Driving_Straight_With_An_IMU", telemetry);
+        logFile = new DataLogging("Test Driving Straight With An IMU", telemetry);
+        driveTrain.setLogFile(logFile);
         driveTrain.enableLogDrive();
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
@@ -33,26 +34,23 @@ public class TestDriveStraightWithIMULenny extends LinearOpMode {
         waitForStart();
 
         // Put your calls here - they will not run in a loop
-        driveTrain.setupDriveUsingIMU(0, 182.88, 0.2, AdafruitIMU8863.AngleMode.RELATIVE);
+        driveTrain.setupDriveUsingIMU(0, -250, 0.3, DriveTrain.DriveDirection.REVERSE, AdafruitIMU8863.AngleMode.ABSOLUTE);
         driveTrain.imu.resetAngleReferences();
+        logFile.startTimer();
 
         while (opModeIsActive()&& !driveTrain.updateDriveUsingIMU()) {
-
-            logFile.logData(Double.toString(driveTrain.imu.getHeading()), Double.toString(driveTrain.getDistanceDriven()));
-
-            // Put your calls that need to run in a loop here
-
-            // Display the current value
             telemetry.addData(">", "Press Stop to end test.");
             telemetry.update();
-
             idle();
         }
-        logFile.closeDataLog();
+
         driveTrain.stopDriveUsingIMU();
         // Put your cleanup code here - it runs as the application shuts down
         telemetry.addData(">", "Done");
         telemetry.update();
-
+        sleep(2000);
+        driveTrain.updateDriveDistance();
+        logFile.logData("Final postion afer stop: Heading = " + Double.toString(driveTrain.imu.getHeading()) + " distance = " + Double.toString(driveTrain.getDistanceDriven()));
+        logFile.closeDataLog();
     }
 }
