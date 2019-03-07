@@ -319,6 +319,8 @@ public class AutonomousMovementSteps {
                                 if (driveCurve.isCurveComplete()) {
                                     robot.driveTrain.setupDriveUsingIMU(-90, inchesToCM(25.233), .3, DriveTrain.DriveDirection.REVERSE, AdafruitIMU8863.AngleMode.ABSOLUTE);
                                     robot.driveTrain.startDriveUsingIMU();
+                                    // lower the lift
+                                    robot.deliveryLiftSystem.goToHome();
                                     step = Steps.RUN_DRIVE_TO_WALL;
                                 }
                                 break;
@@ -342,12 +344,34 @@ public class AutonomousMovementSteps {
                                 break;
                             case RUN_DRIVE_TO_DEPOT:
                                 if (robot.driveTrain.updateDriveUsingIMU()) {
-                                    // done with the drive straight
-                                    // this task is done. Get the next task. Reset the step to start.
-                                    task = autonomousDirector.getNextTask();
-                                    step = Steps.START;
-                                    taskComplete = true;
+                                    // done with the drive straight stop the robot
+                                    robot.driveTrain.stopDriveDistanceUsingIMU();
+                                    step = Steps.DUMP_MARKER;
                                 }
+                                break;
+                            case DUMP_MARKER:
+                                robot.deliveryLiftSystem.deliveryBoxToDump();
+                                logFile.logData("Dumped marker");
+                                // reset the timer to 0 and then wait for it to expire
+                                timer.reset();
+                                step = Steps.WAIT_FOR_DUMP;
+                                break;
+                            case WAIT_FOR_DUMP:
+                                // wait in milliseconds
+                                timeToWait = 1000;
+                                if (timer.milliseconds() > timeToWait) {
+                                    // the wait is over, go to the next action
+                                    step = Steps.RETURN_DUMP_ARM;
+                                }
+                                break;
+                            case RETURN_DUMP_ARM:
+                                // return the delivery box to its normal position and go to the next action
+                                robot.deliveryLiftSystem.deliveryBoxToHome();
+                                logFile.logData("Returned delivery box to normal position");
+                                // this task is done. Get the next task. Reset the step to start.
+                                task = autonomousDirector.getNextTask();
+                                step = Steps.START;
+                                taskComplete = true;
                                 break;
                         }
                         break;
@@ -368,6 +392,9 @@ public class AutonomousMovementSteps {
                     case START:
                         break;
                 }
+                break;
+
+            case PARK_IN_OUR_CRATER_FROM_DEPOT:
                 break;
         }
     }
