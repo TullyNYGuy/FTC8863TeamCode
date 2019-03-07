@@ -9,6 +9,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveCurve;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 import org.firstinspires.ftc.teamcode.opmodes.RoverRuckus.RoverRuckusRobot;
 
@@ -112,6 +113,8 @@ public class AutonomousMovementSteps {
 
     private double headingOnGround = 0;
 
+    private DriveCurve driveCurve;
+
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -132,7 +135,7 @@ public class AutonomousMovementSteps {
     }
 
     public boolean isTaskComplete() {
-        if(task == AutonomousDirector.AutonomousTasks.STOP) {
+        if (task == AutonomousDirector.AutonomousTasks.STOP) {
             return true;
         } else {
             return false;
@@ -158,6 +161,9 @@ public class AutonomousMovementSteps {
         this.telemetry = telemetry;
 
         timer = new ElapsedTime();
+
+        double speed = 0.1;
+        driveCurve = new DriveCurve(90, speed, 8.488 * 2.54, DriveCurve.CurveDirection.CW, DriveCurve.DriveDirection.BACKWARD, robot.driveTrain.imu, logFile, robot.driveTrain);
 
         step = Steps.START;
         task = autonomousDirector.getNextTask();
@@ -253,15 +259,15 @@ public class AutonomousMovementSteps {
 
             case HIT_GOLD_MINERAL_FROM_LANDER:
                 // the movements depend on where the gold mineral is located
-                switch(goldMineralDetection.getMostLikelyGoldPosition()){
+                switch (goldMineralDetection.getMostLikelyGoldPosition()) {
                     case LEFT:
                         break;
                     case CENTER:
                         switch (step) {
                             case START:
                                 // hit center mineral
-                                robot.driveTrain.setupDriveUsingIMU(0, inchesToCM(22.96), .3, AdafruitIMU8863.AngleMode.ABSOLUTE);
-                                //                        robot.driveTrain.startDriveUsingIMU();
+                                robot.driveTrain.setupDriveUsingIMU(0, inchesToCM(22.96), .3, DriveTrain.DriveDirection.FORWARD, AdafruitIMU8863.AngleMode.ABSOLUTE);
+                                robot.driveTrain.startDriveUsingIMU();
                                 step = Steps.RUN_DRIVE_TO_MINERAL;
                                 break;
                             case RUN_DRIVE_TO_MINERAL:
@@ -295,45 +301,44 @@ public class AutonomousMovementSteps {
                         break;
                 }
 
-
             case CLAIM_DEPOT_FROM_CRATER_SIDE_MINERALS:
                 // the route to the depot depends on which spot the gold mineral was in
-                switch(goldMineralDetection.getMostLikelyGoldPosition()){
+                switch (goldMineralDetection.getMostLikelyGoldPosition()) {
                     case LEFT:
                         break;
                     case CENTER:
                         switch (step) {
                             case START:
                                 // from center mineral
-                                //driveCurve.setupDriveCurve(-90, .1, inchesToCM(8.488), DriveCurve.CurveDirection.CW, DriveCurve.DriveDirection.BACKWARD);
-                                //driveCurve.startDriveCurve();
+                                driveCurve.setupDriveCurve(-90, .1, inchesToCM(8.488), DriveCurve.CurveDirection.CW, DriveCurve.DriveDirection.BACKWARD);
+                                driveCurve.startDriveCurve();
                                 step = Steps.RUN_CURVE_ONTO_LANDER_LANE;
                                 break;
                             case RUN_CURVE_ONTO_LANDER_LANE:
-//                        driveCurve.update();
-//                        if (driveCurve.isCurveComplete()) {
-//                            robot.driveTrain.setupDriveUsingIMU(-90, inchesToCM(25.233), .3, AdafruitIMU8863.AngleMode.ABSOLUTE);
-//                            robot.driveTrain.startDriveUsingIMU();
-//                            step = Steps.RUN_DRIVE_TO_WALL;
-//                        }
+                                driveCurve.update();
+                                if (driveCurve.isCurveComplete()) {
+                                    robot.driveTrain.setupDriveUsingIMU(-90, inchesToCM(25.233), .3, DriveTrain.DriveDirection.REVERSE, AdafruitIMU8863.AngleMode.ABSOLUTE);
+                                    robot.driveTrain.startDriveUsingIMU();
+                                    step = Steps.RUN_DRIVE_TO_WALL;
+                                }
                                 break;
                             case RUN_DRIVE_TO_WALL:
                                 if (robot.driveTrain.updateDriveUsingIMU()) {
                                     // done with the drive straight
                                     // setup curve onto depot lane
-                                    //driveCurve.setupDriveCurve(-45, .3, inchesToCM(38.84), DriveCurve.CurveDirection.CCW, DriveCurve.DriveDirection.BACKWARD);
-                                    //driveCurve.startDriveCurve();
+                                    driveCurve.setupDriveCurve(-45, .3, inchesToCM(38.84), DriveCurve.CurveDirection.CCW, DriveCurve.DriveDirection.BACKWARD);
+                                    driveCurve.startDriveCurve();
                                     step = Steps.RUN_CURVE_ONTO_DEPOT_LANE;
                                 }
                                 break;
                             case RUN_CURVE_ONTO_DEPOT_LANE:
                                 //                        driveCurve.update();
-//                        if (driveCurve.isCurveComplete()) {
-//                            // curve is complete. Setup the next move
-//                            robot.driveTrain.setupDriveUsingIMU(0, inchesToCM(22.96), .3, AdafruitIMU8863.AngleMode.ABSOLUTE);
-//                            robot.driveTrain.startDriveUsingIMU();
-//                            step = Steps.RUN_DRIVE_TO_DEPOT;
-//                        }
+                                if (driveCurve.isCurveComplete()) {
+                                    // curve is complete. Setup the next move
+                                    robot.driveTrain.setupDriveUsingIMU(0, inchesToCM(22.96), .3, DriveTrain.DriveDirection.REVERSE, AdafruitIMU8863.AngleMode.ABSOLUTE);
+                                    robot.driveTrain.startDriveUsingIMU();
+                                    step = Steps.RUN_DRIVE_TO_DEPOT;
+                                }
                                 break;
                             case RUN_DRIVE_TO_DEPOT:
                                 if (robot.driveTrain.updateDriveUsingIMU()) {
@@ -367,6 +372,7 @@ public class AutonomousMovementSteps {
         }
     }
 
+    /*
     public void FacingCraterToLeftMineralToDepotToCrater() {
 
         // update all of the systems on the robot
@@ -730,6 +736,7 @@ public class AutonomousMovementSteps {
                 break;
         }
     }
+    */
 
     /**
      * Log the step to the log file - but only if it has changed from the last time it was logged.
