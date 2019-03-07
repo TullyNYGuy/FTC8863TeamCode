@@ -174,6 +174,7 @@ public class GoldMineralDetection {
         if (mineralAngle < 10 && mineralAngle > -10) {
             mineralPosition = MineralVoting.MineralPosition.CENTER;
         }
+        logFile.logData("mineral located at " + Double.toString(mineralAngle) + " degrees so position = " + mineralPosition.toString());
         return mineralPosition;
     }
 
@@ -185,6 +186,7 @@ public class GoldMineralDetection {
         if (mineralAngle >= -1) {
             mineralPosition = MineralVoting.MineralPosition.CENTER;
         }
+        logFile.logData("mineral located at " + Double.toString(mineralAngle) + " degrees so position = " + mineralPosition.toString());
         return mineralPosition;
     }
 
@@ -241,8 +243,10 @@ public class GoldMineralDetection {
                             }
                             if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
                                 mineralVoting.addMineralVote(MineralVoting.MineralType.GOLD, mineralPosition);
+                                logFile.logData("mineral is Gold");
                             } else {
                                 mineralVoting.addMineralVote(MineralVoting.MineralType.SILVER, mineralPosition);
+                                logFile.logData("mineral is silver");
                             }
                         }
                     }
