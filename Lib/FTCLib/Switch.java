@@ -115,8 +115,17 @@ public class Switch {
         switchInput = hardwareMap.get(DigitalChannel.class, switchName);
         switchInput.setMode(DigitalChannelController.Mode.INPUT);
         timer = new ElapsedTime();
+        timer.reset();
         this.switchType = switchType;
         currentState = SwitchState.RELEASED;
+
+        // force the switch to go thorugh one debounce cycle so that it returns a proper value the
+        // first time it is read.
+        updateSwitch();
+        while(timer.milliseconds() < debounceLengthInMs) {
+            // do nothing
+        }
+        updateSwitch();
     }
 
 
