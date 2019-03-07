@@ -179,10 +179,10 @@ public class GoldMineralDetection {
 
     private MineralVoting.MineralPosition getMineralPositionTwoInView(Recognition recognition) {
         mineralAngle = recognition.estimateAngleToObject(AngleUnit.DEGREES);
-        if (mineralAngle <= -10) {
+        if (mineralAngle <= -1) {
             mineralPosition = MineralVoting.MineralPosition.LEFT;
         }
-        if (mineralAngle >= 10) {
+        if (mineralAngle >= -1) {
             mineralPosition = MineralVoting.MineralPosition.CENTER;
         }
         return mineralPosition;
