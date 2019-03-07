@@ -376,7 +376,9 @@ public class DeliveryLiftSystem {
 
     private void moveToTop() {
         liftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        liftMotor.setPower(+liftSpeed);
+        //liftMotor.setPower(+liftSpeed);
+        // make the dehang as fast as possible
+        liftMotor.setPower(+1);
     }
 
     private void stopLift() {
