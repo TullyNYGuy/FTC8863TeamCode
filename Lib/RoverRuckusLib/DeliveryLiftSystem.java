@@ -366,8 +366,10 @@ public class DeliveryLiftSystem {
 
     private void moveToBottom() {
         // when the lift goes down the transfer box must be put into out of way position so it does
-        // not collide with the phone mount
-        deliveryBoxToOutOfWay();
+        // not collide with the phone mount. But only if the lift is not already down.
+        if(!bottomLimitSwitch.isPressed()) {
+            deliveryBoxToOutOfWay();
+        }
         liftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         // need to speed this up at the expense of smashing into the limit switch harder
         //liftMotor.setPower(-liftSpeed);
