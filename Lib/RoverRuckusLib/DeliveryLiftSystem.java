@@ -4,6 +4,7 @@ package org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
@@ -157,7 +158,12 @@ public class DeliveryLiftSystem {
         log("Delivery Lift system initializing");
         //dumpServo.goHome();
         if (!isDebugMode()) {
-            deliveryBoxToOutOfWay();
+            // if the lift is not already at the bottom then the delivery box can collide with the
+            // phone mount when the lift is coming down. So raise the delivery box while the lift
+            // is coming down.
+            if(!bottomLimitSwitch.isPressed()){
+                deliveryBoxToOutOfWay();
+            }
             liftReset();
             while (!isLiftMovementComplete()) {
                 update();
@@ -359,9 +365,9 @@ public class DeliveryLiftSystem {
     }
 
     private void moveToBottom() {
-        // when the lift goes down the transfer box must be put into transfer position so the
-        // box does not get crushed
-        deliveryBoxToHome();
+        // when the lift goes down the transfer box must be put into out of way position so it does
+        // not collide with the phone mount
+        deliveryBoxToOutOfWay();
         liftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         // need to speed this up at the expense of smashing into the limit switch harder
         //liftMotor.setPower(-liftSpeed);
