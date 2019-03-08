@@ -18,7 +18,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.StatTracker;
 
 @Autonomous(name = "Rover Ruckus Autonomous", group = "Test")
-//@Disabled
+@Disabled
 public class RoverRukusAutonomousOld extends LinearOpMode {
 
     // Put your variable declarations here

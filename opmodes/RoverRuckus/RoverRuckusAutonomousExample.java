@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmodes.RoverRuckus;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -18,7 +19,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.StatTracker;
 import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.AutonomousMovements;
 
 @Autonomous(name = "Rover Ruckus Autonomous Left", group = "Test")
-//@Disabled
+@Disabled
 public class RoverRuckusAutonomousExample extends LinearOpMode {
 
     // Put your variable declarations here
