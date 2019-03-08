@@ -57,10 +57,11 @@ public class RoverRuckusAutonomous extends LinearOpMode {
     public void runOpMode() {
 
         // Put your initializations here
-//        imu = new AdafruitIMU8863(hardwareMap);
-//        isConnected = imu.isIMUConnected();
-//        driveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap, telemetry);
-//        driveTrain.setCmPerRotation(31.9); // cm
+
+        // create the robot
+        telemetry.addData("Initializing ...", "Wait for it ...");
+        telemetry.update();
+
         logFile = new DataLogging("Autonomous", telemetry);
         robot = RoverRuckusRobot.createRobotForAutonomous(hardwareMap, telemetry, AllianceColor.TeamColor.RED, logFile);
 
