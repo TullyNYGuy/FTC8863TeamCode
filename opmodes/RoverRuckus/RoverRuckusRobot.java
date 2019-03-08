@@ -697,17 +697,17 @@ public class RoverRuckusRobot {
                     case GO_TO_TRANSFER_POSITION:
                         // command is not relevant. Don't do anything.
                         logDoNothingCommand(TransferScoringCommands.GO_TO_TRANSFER_POSITION);
-                        logDoNothingCommand(TransferScoringCommands.TRANSFER_MINERALS);
+                        transferScoringCommand = TransferScoringCommands.TRANSFER_MINERALS;
                         break;
                     case ADJUST_TRANSFER_ANGLE_TOWARDS_STOP:
                         // command is not relevant. Don't do anything.
                         logDoNothingCommand(TransferScoringCommands.ADJUST_TRANSFER_ANGLE_TOWARDS_STOP);
-                        logDoNothingCommand(TransferScoringCommands.TRANSFER_MINERALS);
+                        transferScoringCommand = TransferScoringCommands.TRANSFER_MINERALS;
                         break;
                     case ADJUST_TRANSFER_ANGLE_TOWARDS_FLOOR:
                         // command is not relevant. Don't do anything.
                         logDoNothingCommand(TransferScoringCommands.ADJUST_TRANSFER_ANGLE_TOWARDS_FLOOR);
-                        logDoNothingCommand(TransferScoringCommands.TRANSFER_MINERALS);
+                        transferScoringCommand = TransferScoringCommands.TRANSFER_MINERALS;
                         break;
                     case TRANSFER_MINERALS:
                         // hang out and wait for the driver to confirm transfer complete or to fix a
