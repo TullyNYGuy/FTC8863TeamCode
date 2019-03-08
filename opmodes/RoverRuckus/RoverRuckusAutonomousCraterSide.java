@@ -12,9 +12,9 @@ import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.AutonomousConfiguration
 import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.AutonomousDirector;
 import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.AutonomousMovementSteps;
 
-@TeleOp(name = "Test Autonomous Task", group = "Test")
+@Autonomous(name = "Autonomous Crater Side Sample Claim Park", group = "Test")
 //@Disabled
-public class RoverRuckusAutonomusTestTask extends LinearOpMode {
+public class RoverRuckusAutonomousCraterSide extends LinearOpMode {
 
     // Put your variable declarations here
     RoverRuckusRobot robot;
@@ -39,10 +39,12 @@ public class RoverRuckusAutonomusTestTask extends LinearOpMode {
         configurationFile = new AutonomousConfigurationFile();
         autonomousDirector = new AutonomousDirector(configurationFile);
 
-       autonomousDirector.addTask(AutonomousDirector.AutonomousTasks.LOCATE_GOLD_MINERAL);
-       autonomousDirector.addTask(AutonomousDirector.AutonomousTasks.DEHANG);
-       autonomousDirector.addTask(AutonomousDirector.AutonomousTasks.HIT_GOLD_MINERAL_FROM_LANDER);
-       // autonomousDirector.setDelay(10000);
+        autonomousDirector.addTask(AutonomousDirector.AutonomousTasks.LOCATE_GOLD_MINERAL);
+        autonomousDirector.addTask(AutonomousDirector.AutonomousTasks.DEHANG);
+        autonomousDirector.addTask(AutonomousDirector.AutonomousTasks.HIT_GOLD_MINERAL_FROM_LANDER);
+        autonomousDirector.addTask(AutonomousDirector.AutonomousTasks.CLAIM_DEPOT_FROM_CRATER_SIDE_MINERALS);
+        autonomousDirector.addTask(AutonomousDirector.AutonomousTasks.PARK_IN_OUR_CRATER_FROM_DEPOT);
+        // autonomousDirector.setDelay(10000);
         //autonomousDirector.addTask(AutonomousDirector.AutonomousTasks.DELAY);
         autonomousMovementSteps = new AutonomousMovementSteps(robot, autonomousDirector, logFile, hardwareMap, telemetry);
 
@@ -51,19 +53,21 @@ public class RoverRuckusAutonomusTestTask extends LinearOpMode {
         telemetry.update();
         waitForStart();
 
+        robot.setupForRun();
+
         // driver has pressed play - run the autonomous
 
         logFile.startTimer();
         // Start the logging of measured acceleration
         robot.driveTrain.imu.startAccelerationIntegration(new Position(), new Velocity(), 1000);
 
-        while (opModeIsActive()&& !autonomousMovementSteps.isTaskComplete()) {
+        while (opModeIsActive() && !autonomousMovementSteps.isTaskComplete()) {
             // Put your calls that need to run in a loop here
             robot.update();
             autonomousMovementSteps.update();
             idle();
         }
-        telemetry.addData("Most Likely Gold Position = ",autonomousMovementSteps.getMostLikelyGoldPosition().toString() );
+        telemetry.addData("Most Likely Gold Position = ", autonomousMovementSteps.getMostLikelyGoldPosition().toString());
         telemetry.update();
         sleep(3000);
     }
