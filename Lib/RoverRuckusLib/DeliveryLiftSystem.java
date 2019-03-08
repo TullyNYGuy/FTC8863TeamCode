@@ -54,6 +54,7 @@ public class DeliveryLiftSystem {
     // was 0.8
     private double dumpServoTransferPosition = 0.75;
     private double dumpServoOutOfWayPosition = 0.35;
+    private double dumpServoSetupHangPosition = 0.2;
 
     private Switch bottomLimitSwitch;
     private Switch topLimitSwitch;
@@ -126,6 +127,7 @@ public class DeliveryLiftSystem {
         dumpServo = new Servo8863("dumpServo", hardwareMap, telemetry, dumpServoHomePosition, dumpServoDumpPosition, dumpServoInitPosition, dumpServoInitPosition, Servo.Direction.FORWARD);
         dumpServo.setPositionOne(dumpServoTransferPosition);
         dumpServo.setPositionTwo(dumpServoOutOfWayPosition);
+        dumpServo.setPositionThree(dumpServoSetupHangPosition);
 
         liftMotor = new DcMotor8863("liftMotor", hardwareMap, telemetry);
         liftMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_3_7_ORBITAL_OLD);
@@ -211,6 +213,12 @@ public class DeliveryLiftSystem {
         log("DELIVERY BOX TO INIT POSITION");
         dumpServo.goInitPosition();
     }
+
+    public void deliveryBoxToSetupHangPosition() {
+        log("DELIVERY BOX TO SETUP HANG POSITION");
+        dumpServo.goPositionTwo();
+    }
+
 
     public void testDumpServoPositions() {
        goToScoringPosition();
@@ -680,6 +688,7 @@ public class DeliveryLiftSystem {
 
     public boolean isLiftMovementComplete() {
         if (liftCommand == LiftCommands.NO_COMMAND) {
+            logFile.logData("LIFT ARRIVED AT DESTINATION");
             return true;
         } else {
             return false;

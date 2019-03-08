@@ -795,11 +795,16 @@ public class RoverRuckusRobot {
 
             case SCORED:
                 if (timer.milliseconds() > 1500) {
-                    // return the delivery box to home from scoring position
-                    deliveryLiftSystem.deliveryBoxToHome();
+                    // return the delivery box to home from scoring position - NOT ANYMORE
+                    //deliveryLiftSystem.deliveryBoxToHome();
+                    // put the delivery box at setup hang position - out of line of sight of drivers
+                    // in case they want to hang next
+                    deliveryLiftSystem.deliveryBoxToSetupHangPosition();
                     // lower lift to transfer position - added to save time in prepping for lowering the arm to collect
-                    // does waste time if the next move is to setup for hang.
-                    deliveryLiftSystem.goToTransfer();
+                    // does waste time if the next move is to setup for hang. NOT ANYMORE
+                    // deliveryLiftSystem.goToTransfer();
+                    // put the lift at the setup hang height in case they want ot hang next
+                    deliveryLiftSystem.goToSetupHang();
                     transferScoringState = TransferScoringStates.RESET;
                 }
                 break;
@@ -949,6 +954,7 @@ public class RoverRuckusRobot {
     public void setupForHang() {
         if (hangingSetupState == HangingSetup.IDLE) {
             hangingSetupState = HangingSetup.START;
+            logFile.logData("DRIVER COMMANDED SETUP FOR HANG");
         }
     }
 
@@ -974,7 +980,7 @@ public class RoverRuckusRobot {
                 // do nothing until the driver presses the button
                 break;
             case START:
-                deliveryLiftSystem.deliveryBoxToOutOfWay();
+                deliveryLiftSystem.deliveryBoxToSetupHangPosition();
                 deliveryLiftSystem.goToSetupHang();
                 collector.gateServoToResetPosition();
                 collectorArm.extensionArmReset();
