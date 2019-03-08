@@ -110,7 +110,9 @@ public class RoverRuckusRobot {
 
         // note that we are ignoring the logFile that is passed as an argument. Decided to set that up
         // here
-        this.logFile = new DataLogging("Teleop", telemetry);
+        // What? Why? No way.
+        //this.logFile = new DataLogging("Teleop", telemetry);
+        this.logFile = logFile;
         logFile.logData("****ROBOT INTIALIZING!****");
 
         if (robotMode == RobotMode.AUTONOMOUS) {
@@ -119,8 +121,6 @@ public class RoverRuckusRobot {
             driveTrain.setLogFile(logFile);
             driveTrain.enableLogTurns();
             driveTrain.enableLogDrive();
-            //allianceColorSwitch = new AllianceColorSwitch(hardwareMap, telemetry);
-            //allianceColor = allianceColorSwitch.getAllianceColor();
         } else {
             // create the robot for teleop
             driveTrain = DriveTrain.DriveTrainTeleOp(hardwareMap, telemetry);
