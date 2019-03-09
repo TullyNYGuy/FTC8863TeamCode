@@ -270,6 +270,46 @@ public class AutonomousMovementSteps {
                 // the movements depend on where the gold mineral is located
                 switch (goldMineralPosition) {
                     case LEFT:
+                        switch(step) {
+                            case START:
+                                driveCurve.setupDriveCurve(-90, .1,  inchesToCM(14.468), DriveCurve.CurveDirection.CW, DriveCurve.DriveDirection.FORWARD);
+                                driveCurve.startDriveCurve();
+                               step = Steps.RUN_CURVE_ONTO_LANDER_LANE;
+                                break;
+                            case RUN_CURVE_ONTO_LANDER_LANE:
+                                driveCurve.update();
+                                if (driveCurve.isCurveComplete()) {
+                                    robot.deliveryLiftSystem.goToHome();
+                                    robot.driveTrain.setupDriveUsingIMU(-90, inchesToCM(42.124), 0.25, DriveTrain.DriveDirection.REVERSE,  AdafruitIMU8863.AngleMode.ABSOLUTE);
+                                    robot.driveTrain.startDriveUsingIMU();
+                                    step = Steps.RUN_DRIVE_TO_MINERAL;
+                                }
+                                break;
+                            case RUN_DRIVE_TO_MINERAL:
+                                if (robot.driveTrain.updateDriveUsingIMU()) {
+                                    // done with the drive straight
+                                    driveCurve.setupDriveCurve(0, 0.1,  inchesToCM(8.5), DriveCurve.CurveDirection.CCW, DriveCurve.DriveDirection.FORWARD);
+                                    driveCurve.startDriveCurve();
+                                    step = Steps.RUN_CURVE_TO_MINERAL;
+                                }
+                                break;
+                            case RUN_CURVE_TO_MINERAL:
+                                driveCurve.update();
+                                if (driveCurve.isCurveComplete()) {
+                                    driveCurve.setupDriveCurve(-90, 0.1, inchesToCM(8.5), DriveCurve.CurveDirection.CW, DriveCurve.DriveDirection.BACKWARD);
+                                    driveCurve.startDriveCurve();
+                                    step = Steps.RUN_CURVE_ONTO_DEPOT_LANE;
+                                }
+                                break;
+                            case RUN_CURVE_ONTO_DEPOT_LANE:
+                                driveCurve.update();
+                                if (driveCurve.isCurveComplete()) {
+                                    task = autonomousDirector.getNextTask();
+                                    step = Steps.START;
+                                }
+                                break;
+
+                        }
                         break;
                     case CENTER:
                     case LEFT_CENTER:
@@ -334,6 +374,59 @@ public class AutonomousMovementSteps {
                 // the route to the depot depends on which spot the gold mineral was in
                 switch (goldMineralPosition) {
                     case LEFT:
+                        switch (step){
+                            case START:
+                                robot.driveTrain.setupDriveUsingIMU(-90, inchesToCM(4), 0.25, DriveTrain.DriveDirection.REVERSE, AdafruitIMU8863.AngleMode.ABSOLUTE);
+                                robot.driveTrain.startDriveUsingIMU();
+                                step = Steps.RUN_DRIVE_TO_WALL;
+                                break;
+                            case RUN_DRIVE_TO_WALL:
+                                if (robot.driveTrain.updateDriveUsingIMU()) {
+                                    driveCurve.setupDriveCurve(-45, .3, inchesToCM(38.84), DriveCurve.CurveDirection.CCW, DriveCurve.DriveDirection.BACKWARD);
+                                    driveCurve.startDriveCurve();
+                                    step = Steps.RUN_CURVE_ONTO_DEPOT_LANE;
+                                }
+                                break;
+                            case RUN_CURVE_ONTO_DEPOT_LANE:
+                                driveCurve.update();
+                                if (driveCurve.isCurveComplete()) {
+                                    // curve is complete. Setup the next move
+                                    robot.driveTrain.setupDriveUsingIMU(-45, inchesToCM(13), .3, DriveTrain.DriveDirection.REVERSE, AdafruitIMU8863.AngleMode.ABSOLUTE);
+                                    robot.driveTrain.startDriveUsingIMU();
+                                    step = Steps.RUN_DRIVE_TO_DEPOT;
+                                }
+                                break;
+                            case RUN_DRIVE_TO_DEPOT:
+                                if (robot.driveTrain.updateDriveUsingIMU()) {
+                                    // done with the drive straight stop the robot
+                                    robot.driveTrain.stopDriveDistanceUsingIMU();
+                                    step = Steps.DUMP_MARKER;
+                                }
+                                break;
+                            case DUMP_MARKER:
+                                robot.deliveryLiftSystem.deliveryBoxToDump();
+                                logFile.logData("Dumped marker");
+                                // reset the timer to 0 and then wait for it to expire
+                                timer.reset();
+                                step = Steps.WAIT_FOR_DUMP;
+                                break;
+                            case WAIT_FOR_DUMP:
+                                // wait in milliseconds
+                                timeToWait = 1000;
+                                if (timer.milliseconds() > timeToWait) {
+                                    // the wait is over, go to the next action
+                                    step = Steps.RETURN_DUMP_ARM;
+                                }
+                                break;
+                            case RETURN_DUMP_ARM:
+                                // return the delivery box to its normal position and go to the next action
+                                robot.deliveryLiftSystem.deliveryBoxToHome();
+                                logFile.logData("Returned delivery box to normal position");
+                                // this task is done. Get the next task. Reset the step to start.
+                                task = autonomousDirector.getNextTask();
+                                step = Steps.START;
+                                break;
+                        }
                         break;
                     case CENTER:
                     case LEFT_CENTER:
