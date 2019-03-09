@@ -270,7 +270,7 @@ public class AutonomousMovementSteps {
                 // the movements depend on where the gold mineral is located
                 switch (goldMineralPosition) {
                     case LEFT:
-                        break;
+
                     case CENTER:
                     case LEFT_CENTER:
                     case CENTER_RIGHT:
@@ -334,7 +334,6 @@ public class AutonomousMovementSteps {
                 // the route to the depot depends on which spot the gold mineral was in
                 switch (goldMineralPosition) {
                     case LEFT:
-                        break;
                     case CENTER:
                     case LEFT_CENTER:
                     case CENTER_RIGHT:
