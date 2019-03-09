@@ -346,7 +346,7 @@ public class RoverRuckusTeleop extends LinearOpMode {
             if (gamepad2x.buttonPress(gamepad2.x)) {
                 // THIS SHOULD BE A STATE MACHINE IN ROBOT
                 robot.deliveryLiftSystem.deliveryBoxToDump();
-                sleep(1000);
+                sleep(2000);
                 robot.deliveryLiftSystem.deliveryBoxToHome();
             }
 
