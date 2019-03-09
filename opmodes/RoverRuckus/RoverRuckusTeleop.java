@@ -364,11 +364,11 @@ public class RoverRuckusTeleop extends LinearOpMode {
             }
 
             if (gamepad2DpadLeft.buttonPress(gamepad2.dpad_left)) {
-                robot.adjustCollectorArmTranferAngleTowardsStop();
+                robot.adjustCollectorArmTranferAngleTowardsFloor();
             }
 
             if (gamepad2DpadRight.buttonPress(gamepad2.dpad_right)) {
-                robot.adjustCollectorArmTranferAngleTowardsFloor();
+                robot.adjustCollectorArmTranferAngleTowardsStop();
             }
 
             if (gamepad2LeftStickButton.buttonPress(gamepad2.left_stick_button)) {
