@@ -54,7 +54,7 @@ public class TestDriveCurveCraterSideLanderToDepotAndSampleLeftMineral extends L
         logFile.startTimer();
 
         //
-        driveCurve.setupDriveCurve(70, speed, 23 * 2.54, DriveCurve.CurveDirection.CCW, DriveCurve.DriveDirection.FORWARD);
+        driveCurve.setupDriveCurve(70, .1, 23 * 2.54, DriveCurve.CurveDirection.CCW, DriveCurve.DriveDirection.FORWARD);
         driveCurve.startDriveCurve();
         while(opModeIsActive() && !driveCurve.isCurveComplete()) {
             driveCurve.update();
@@ -63,15 +63,54 @@ public class TestDriveCurveCraterSideLanderToDepotAndSampleLeftMineral extends L
             idle();
         }
 
-//        driveTrain.setupTurn(-65, .7, AdafruitIMU8863.AngleMode.ABSOLUTE);
-//        while(opModeIsActive() && !driveTrain.updateTurn()) {
-//            telemetry.addData(">", "Turning ..." );
-//            telemetry.update();
-//            idle();
-//        }
-//        //
-//        curveAngle = -90;
-//        driveCurve.setupDriveCurve(-90, speed, 47.897 * 2.54, DriveCurve.CurveDirection.CW, DriveCurve.DriveDirection.BACKWARD);
+        driveTrain.setupTurn(-65, .7, AdafruitIMU8863.AngleMode.ABSOLUTE);
+        while(opModeIsActive() && !driveTrain.updateTurn()) {
+            telemetry.addData(">", "Turning ..." );
+            telemetry.update();
+            idle();
+        }
+
+        // drive straight after CCW curve forward
+        // drive on lane in front of lander towards wall
+        driveTrain.setupDriveUsingIMU(-65, 2.25 * 2.54, speed, DriveTrain.DriveDirection.REVERSE, AdafruitIMU8863.AngleMode.ABSOLUTE);
+        driveTrain.startDriveUsingIMU();
+        while (opModeIsActive()&& !driveTrain.updateDriveUsingIMU()) {
+            // Display the current value
+            telemetry.addData(">", "Driving straight ...");
+            telemetry.update();
+            idle();
+        }
+        //
+        driveCurve.setupDriveCurve(-90, speed, 47.897 * 2.54, DriveCurve.CurveDirection.CW, DriveCurve.DriveDirection.BACKWARD);
+        driveCurve.startDriveCurve();
+        while(opModeIsActive() && !driveCurve.isCurveComplete()) {
+            driveCurve.update();
+            telemetry.addData(">", "Curving ..." );
+            telemetry.update();
+            idle();
+        }
+        driveCurve.setupDriveCurve(-45, speed, 38.841 * 2.54, DriveCurve.CurveDirection.CCW, DriveCurve.DriveDirection.BACKWARD);
+        driveCurve.startDriveCurve();
+        while(opModeIsActive() && !driveCurve.isCurveComplete()) {
+            driveCurve.update();
+            telemetry.addData(">", "Curving ...");
+            telemetry.update();
+            idle();
+        }
+        // drive straight after CCW curve forward
+        // drive on lane in front of lander towards wall
+        driveTrain.setupDriveUsingIMU(-45, (16.3)* 2.54, speed, DriveTrain.DriveDirection.REVERSE, AdafruitIMU8863.AngleMode.ABSOLUTE);
+        driveTrain.startDriveUsingIMU();
+        while (opModeIsActive()&& !driveTrain.updateDriveUsingIMU()) {
+            // Display the current value
+            telemetry.addData(">", "Driving straight ...");
+            telemetry.update();
+            idle();
+        }
+
+//        // curve onto lane near wall heading towards depot
+//        curveAngle = -45;
+//        driveCurve.setupDriveCurve(curveAngle, speed, 38.84 * 2.54, DriveCurve.CurveDirection.CCW, DriveCurve.DriveDirection.BACKWARD);
 //        driveCurve.startDriveCurve();
 //        while(opModeIsActive() && !driveCurve.isCurveComplete()) {
 //            driveCurve.update();
@@ -79,18 +118,9 @@ public class TestDriveCurveCraterSideLanderToDepotAndSampleLeftMineral extends L
 //            telemetry.update();
 //            idle();
 //        }
-//        curveAngle = -90;
-//        driveCurve.setupDriveCurve(-45, speed, 38.841 * 2.54, DriveCurve.CurveDirection.CCW, DriveCurve.DriveDirection.BACKWARD);
-//        driveCurve.startDriveCurve();
-//        while(opModeIsActive() && !driveCurve.isCurveComplete()) {
-//            driveCurve.update();
-//            telemetry.addData(">", "Curving ...");
-//            telemetry.update();
-//            idle();
-//        }
-//        // drive straight after CCW curve forward
-//        // drive on lane in front of lander towards wall
-//        driveTrain.setupDriveUsingIMU(-45, 16.3 * 2.54, speed, DriveTrain.DriveDirection.REVERSE, AdafruitIMU8863.AngleMode.ABSOLUTE);
+//
+//        // drive along lane into depot
+//        driveTrain.setupDriveUsingIMU(-45, 13 * 2.54, speed, DriveTrain.DriveDirection.FORWARD, AdafruitIMU8863.AngleMode.ABSOLUTE);
 //        driveTrain.startDriveUsingIMU();
 //        while (opModeIsActive()&& !driveTrain.updateDriveUsingIMU()) {
 //            // Display the current value
@@ -98,30 +128,9 @@ public class TestDriveCurveCraterSideLanderToDepotAndSampleLeftMineral extends L
 //            telemetry.update();
 //            idle();
 //        }
-//
-////        // curve onto lane near wall heading towards depot
-////        curveAngle = -45;
-////        driveCurve.setupDriveCurve(curveAngle, speed, 38.84 * 2.54, DriveCurve.CurveDirection.CCW, DriveCurve.DriveDirection.BACKWARD);
-////        driveCurve.startDriveCurve();
-////        while(opModeIsActive() && !driveCurve.isCurveComplete()) {
-////            driveCurve.update();
-////            telemetry.addData(">", "Curving ..." );
-////            telemetry.update();
-////            idle();
-////        }
-////
-////        // drive along lane into depot
-////        driveTrain.setupDriveUsingIMU(-45, 13 * 2.54, speed, DriveTrain.DriveDirection.FORWARD, AdafruitIMU8863.AngleMode.ABSOLUTE);
-////        driveTrain.startDriveUsingIMU();
-////        while (opModeIsActive()&& !driveTrain.updateDriveUsingIMU()) {
-////            // Display the current value
-////            telemetry.addData(">", "Driving straight ...");
-////            telemetry.update();
-////            idle();
-////        }
-//
-//        driveTrain.stopDriveDistanceUsingIMU();
-//        sleep(1000);
+
+        driveTrain.stopDriveDistanceUsingIMU();
+        sleep(1000);
 
         // Put your cleanup code here - it runs as the application shuts down
         logFile.closeDataLog();
