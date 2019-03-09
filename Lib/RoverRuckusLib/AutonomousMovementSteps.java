@@ -96,6 +96,8 @@ public class AutonomousMovementSteps {
     private Steps step;
     private Steps previousStep;
 
+    private double adjustment = 0;
+
     private double headingAfterDehang = 0;
     private double headingForTurn = 0;
     private double distanceToDrive = 0;
@@ -228,7 +230,7 @@ public class AutonomousMovementSteps {
                     case WAIT_FOR_LIFT:
                         if (robot.deliveryLiftSystem.isLiftMovementComplete()) {
                             headingOnGround = robot.driveTrain.imu.getHeading();
-                            robot.driveTrain.setupTurn(-headingOnGround, 0.7, AdafruitIMU8863.AngleMode.RELATIVE);
+                            robot.driveTrain.setupTurn(0, 0.7, AdafruitIMU8863.AngleMode.ABSOLUTE);
                             step = Steps.CORRECT_HEADING;
                         }
                         break;
@@ -270,6 +272,9 @@ public class AutonomousMovementSteps {
                     case LEFT:
                         break;
                     case CENTER:
+                    case LEFT_CENTER:
+                    case CENTER_RIGHT:
+                    case TIE:
                         switch (step) {
                             case START:
                                 // hit center mineral
@@ -297,10 +302,11 @@ public class AutonomousMovementSteps {
                         }
                         break;
                     case RIGHT:
+                    case LEFT_RIGHT:
                         switch (step) {
                             case START:
                                 //hit right mineral
-                                driveCurve.setupDriveCurve(-55, .1, 24.69 * 2.54, DriveCurve.CurveDirection.CW, DriveCurve.DriveDirection.FORWARD);
+                                driveCurve.setupDriveCurve(-55, .3, 24.69 * 2.54, DriveCurve.CurveDirection.CW, DriveCurve.DriveDirection.FORWARD);
                                 driveCurve.startDriveCurve();
                                 step = Steps.RUN_CURVE_TO_MINERAL;
                                 break;
@@ -322,15 +328,6 @@ public class AutonomousMovementSteps {
                                 }
                                 break;
                         }
-                        break;
-                    case LEFT_RIGHT:
-                        break;
-                    case LEFT_CENTER:
-                        break;
-                    case CENTER_RIGHT:
-                        break;
-                    case TIE:
-                        break;
                 }
 
             case CLAIM_DEPOT_FROM_CRATER_SIDE_MINERALS:
@@ -339,6 +336,9 @@ public class AutonomousMovementSteps {
                     case LEFT:
                         break;
                     case CENTER:
+                    case LEFT_CENTER:
+                    case CENTER_RIGHT:
+                    case TIE:
                         switch (step) {
                             case START:
                                 // from center mineral
@@ -348,8 +348,9 @@ public class AutonomousMovementSteps {
                                 break;
                             case RUN_CURVE_ONTO_LANDER_LANE:
                                 driveCurve.update();
+                                adjustment = 2.8;
                                 if (driveCurve.isCurveComplete()) {
-                                    robot.driveTrain.setupDriveUsingIMU(-90, inchesToCM(25.233), .3, DriveTrain.DriveDirection.REVERSE, AdafruitIMU8863.AngleMode.ABSOLUTE);
+                                    robot.driveTrain.setupDriveUsingIMU(-90, inchesToCM(25.233 - adjustment), .3, DriveTrain.DriveDirection.REVERSE, AdafruitIMU8863.AngleMode.ABSOLUTE);
                                     robot.driveTrain.startDriveUsingIMU();
                                     // lower the lift
                                     robot.deliveryLiftSystem.goToHome();
@@ -369,7 +370,7 @@ public class AutonomousMovementSteps {
                                 driveCurve.update();
                                 if (driveCurve.isCurveComplete()) {
                                     // curve is complete. Setup the next move
-                                    robot.driveTrain.setupDriveUsingIMU(0, inchesToCM(22.96), .3, DriveTrain.DriveDirection.REVERSE, AdafruitIMU8863.AngleMode.ABSOLUTE);
+                                    robot.driveTrain.setupDriveUsingIMU(-45, inchesToCM(13), .3, DriveTrain.DriveDirection.REVERSE, AdafruitIMU8863.AngleMode.ABSOLUTE);
                                     robot.driveTrain.startDriveUsingIMU();
                                     step = Steps.RUN_DRIVE_TO_DEPOT;
                                 }
@@ -403,11 +404,11 @@ public class AutonomousMovementSteps {
                                 // this task is done. Get the next task. Reset the step to start.
                                 task = autonomousDirector.getNextTask();
                                 step = Steps.START;
-                                taskComplete = true;
                                 break;
                         }
                         break;
                     case RIGHT:
+                    case LEFT_RIGHT:
                         switch (step) {
                             case START:
                                 driveCurve.setupDriveCurve(-90, .3, 31.15 * 2.54, DriveCurve.CurveDirection.CW, DriveCurve.DriveDirection.BACKWARD);
@@ -416,8 +417,9 @@ public class AutonomousMovementSteps {
                                 break;
                             case RUN_CURVE_ONTO_LANDER_LANE:
                                 driveCurve.update();
+                                adjustment = 2.8;
                                 if (driveCurve.isCurveComplete()) {
-                                    robot.driveTrain.setupDriveUsingIMU(-90, 31.13 * 2.54, speed, DriveTrain.DriveDirection.REVERSE, AdafruitIMU8863.AngleMode.ABSOLUTE);
+                                    robot.driveTrain.setupDriveUsingIMU(-90, inchesToCM(31.13 - adjustment), speed, DriveTrain.DriveDirection.REVERSE, AdafruitIMU8863.AngleMode.ABSOLUTE);
                                     robot.driveTrain.startDriveUsingIMU();
                                     step = Steps.RUN_DRIVE_TO_WALL;
                                 }
@@ -473,14 +475,6 @@ public class AutonomousMovementSteps {
                                 step = Steps.START;
                                 break;
                         }
-                    case LEFT_RIGHT:
-                        break;
-                    case LEFT_CENTER:
-                        break;
-                    case CENTER_RIGHT:
-                        break;
-                    case TIE:
-                        break;
                 }
 
             case CLAIM_DEPOT_FROM_CRATER_SIDE_LANDER:
