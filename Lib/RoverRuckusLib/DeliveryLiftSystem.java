@@ -688,7 +688,9 @@ public class DeliveryLiftSystem {
 
     public boolean isLiftMovementComplete() {
         if (liftCommand == LiftCommands.NO_COMMAND) {
-            logFile.logData("LIFT ARRIVED AT DESTINATION");
+            if (logFile != null && loggingOn) {
+                logFile.logData("LIFT ARRIVED AT DESTINATION");
+            }
             return true;
         } else {
             return false;
