@@ -630,7 +630,7 @@ public class AutonomousMovementSteps {
     private void logTask(AutonomousDirector.AutonomousTasks task) {
         if (logFile != null && loggingOn) {
             if (task != previousTask) {
-                logFile.logData("Hanging Setup ", task.toString());
+                logFile.logData("Task = ", task.toString());
                 previousTask = task;
             }
         }
