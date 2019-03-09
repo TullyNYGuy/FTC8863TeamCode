@@ -1258,7 +1258,6 @@ public class CollectorGB {
                 switch (collectorCommand){
                     case DELIVER_ON:
                         if(storageStarTimer.milliseconds() > 1000){
-
                             turnStorageStarOnStore();
                             gateServoGoToStorePosition();
                             if(desiredMineralColor == MineralColor.GOLD){
@@ -1266,7 +1265,6 @@ public class CollectorGB {
                                 storageStarTimer.reset();
                             }
                         }
-
                         break;
                     case COMPLETE_DELIVERY:
                         collectorState = CollectorState.OFF;
