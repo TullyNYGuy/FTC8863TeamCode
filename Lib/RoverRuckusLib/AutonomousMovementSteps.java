@@ -12,6 +12,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveCurve;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 import org.firstinspires.ftc.teamcode.opmodes.RoverRuckus.RoverRuckusRobot;
+import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.AutonomousDirector;
 
 public class AutonomousMovementSteps {
 
@@ -47,6 +48,7 @@ public class AutonomousMovementSteps {
         SETUP_DRIVE_TO_MINERAL,
         RUN_DRIVE_TO_MINERAL,
         RUN_CURVE_TO_MINERAL,
+        MOVE_BACKWARDS,
 
         // general navigation steps
         SETUP_CURVE_ONTO_LANDER_LANE,
@@ -123,6 +125,7 @@ public class AutonomousMovementSteps {
 
     private MineralVoting.LikelyPosition goldMineralPosition;
 
+
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -187,6 +190,43 @@ public class AutonomousMovementSteps {
     //*********************************************************************************************
 
 
+    /**
+     * Log the task to the log file - but only if it has changed from the last time it was logged.
+     *
+     * @param task
+     */
+    private void logTask(AutonomousDirector.AutonomousTasks task) {
+        if (logFile != null && loggingOn) {
+            if (task != previousTask) {
+                logFile.logData("Task = ", task.toString());
+                previousTask = task;
+            }
+        }
+    }
+
+    /**
+     * Log the step to the log file - but only if it has changed from the last time it was logged.
+     *
+     * @param step
+     */
+    private void logStep(Steps step) {
+        if (logFile != null && loggingOn) {
+            if (step != previousStep) {
+                logFile.logData("Autonomous step = ", step.toString());
+                previousStep = step;
+            }
+        }
+    }
+
+    /**
+     * Convert inches to cm
+     * @param inches
+     * @return cm
+     */
+    private double inchesToCM(double inches) {
+        return inches * 2.54;
+    }
+
     //*********************************************************************************************
     //          MAJOR METHODS
     //
@@ -195,9 +235,10 @@ public class AutonomousMovementSteps {
 
     public void update() {
 //        boolean complete = false;
-
+        logTask(task);
         switch (task) {
             case LOCATE_GOLD_MINERAL:
+                logStep(step);
                 switch (step) {
                     case START:
 //                        taskComplete = false;
@@ -221,6 +262,7 @@ public class AutonomousMovementSteps {
                 break;
 
             case DEHANG:
+                logStep(step);
                 switch (step) {
                     case START:
                         //taskComplete = false;
@@ -248,6 +290,7 @@ public class AutonomousMovementSteps {
                 break;
 
             case DELAY:
+                logStep(step);
                 switch (step) {
                     case START:
 //                        taskComplete = false;
@@ -270,11 +313,53 @@ public class AutonomousMovementSteps {
                 // the movements depend on where the gold mineral is located
                 switch (goldMineralPosition) {
                     case LEFT:
+                        logStep(step);
+                        switch(step) {
+                            case START:
+                                driveCurve.setupDriveCurve(-90, .1,  inchesToCM(14.468), DriveCurve.CurveDirection.CW, DriveCurve.DriveDirection.FORWARD);
+                                driveCurve.startDriveCurve();
+                               step = Steps.RUN_CURVE_ONTO_LANDER_LANE;
+                                break;
+                            case RUN_CURVE_ONTO_LANDER_LANE:
+                                driveCurve.update();
+                                if (driveCurve.isCurveComplete()) {
+                                    robot.deliveryLiftSystem.goToHome();
+                                    robot.driveTrain.setupDriveUsingIMU(-90, inchesToCM(42.124), 0.25, DriveTrain.DriveDirection.REVERSE,  AdafruitIMU8863.AngleMode.ABSOLUTE);
+                                    robot.driveTrain.startDriveUsingIMU();
+                                    step = Steps.RUN_DRIVE_TO_MINERAL;
+                                }
+                                break;
+                            case RUN_DRIVE_TO_MINERAL:
+                                if (robot.driveTrain.updateDriveUsingIMU()) {
+                                    // done with the drive straight
+                                    driveCurve.setupDriveCurve(0, 0.1,  inchesToCM(8.5), DriveCurve.CurveDirection.CCW, DriveCurve.DriveDirection.FORWARD);
+                                    driveCurve.startDriveCurve();
+                                    step = Steps.RUN_CURVE_TO_MINERAL;
+                                }
+                                break;
+                            case RUN_CURVE_TO_MINERAL:
+                                driveCurve.update();
+                                if (driveCurve.isCurveComplete()) {
+                                    driveCurve.setupDriveCurve(-90, 0.1, inchesToCM(8.5), DriveCurve.CurveDirection.CW, DriveCurve.DriveDirection.BACKWARD);
+                                    driveCurve.startDriveCurve();
+                                    step = Steps.RUN_CURVE_ONTO_DEPOT_LANE;
+                                }
+                                break;
+                            case RUN_CURVE_ONTO_DEPOT_LANE:
+                                driveCurve.update();
+                                if (driveCurve.isCurveComplete()) {
+                                    task = autonomousDirector.getNextTask();
+                                    step = Steps.START;
+                                }
+                                break;
 
+                        }
+                        break;
                     case CENTER:
                     case LEFT_CENTER:
                     case CENTER_RIGHT:
                     case TIE:
+                        logStep(step);
                         switch (step) {
                             case START:
                                 // hit center mineral
@@ -303,6 +388,7 @@ public class AutonomousMovementSteps {
                         break;
                     case RIGHT:
                     case LEFT_RIGHT:
+                        logStep(step);
                         switch (step) {
                             case START:
                                 //hit right mineral
@@ -313,9 +399,24 @@ public class AutonomousMovementSteps {
                             case RUN_CURVE_TO_MINERAL:
                                 driveCurve.update();
                                 if (driveCurve.isCurveComplete()) {
-                                    driveCurve.stopCurve(DcMotor8863.FinishBehavior.HOLD);
-                                    timer.reset();
-                                    step = Steps.WAIT_FOR_STOP;
+                                    //driveCurve.stopCurve(DcMotor8863.FinishBehavior.HOLD);
+                                    robot.driveTrain.setupDriveUsingIMU(-55, inchesToCM(2), .3, DriveTrain.DriveDirection.FORWARD, AdafruitIMU8863.AngleMode.ABSOLUTE);
+                                    robot.driveTrain.startDriveUsingIMU();
+                                    //timer.reset();
+                                    step = Steps.RUN_DRIVE_TO_MINERAL;
+                                }
+                                break;
+                            case RUN_DRIVE_TO_MINERAL:
+                                if (robot.driveTrain.updateDriveUsingIMU()) {
+                                    robot.driveTrain.setupDriveUsingIMU(-55, inchesToCM(2), .3, DriveTrain.DriveDirection.REVERSE, AdafruitIMU8863.AngleMode.ABSOLUTE);
+                                    robot.driveTrain.startDriveUsingIMU();
+                                    step = Steps.MOVE_BACKWARDS;
+                                }
+                                break;
+                            case MOVE_BACKWARDS:
+                                if (robot.driveTrain.updateDriveUsingIMU()) {
+                                    step = Steps.START;
+                                    task = autonomousDirector.getNextTask();
                                 }
                                 break;
                             case WAIT_FOR_STOP:
@@ -334,10 +435,66 @@ public class AutonomousMovementSteps {
                 // the route to the depot depends on which spot the gold mineral was in
                 switch (goldMineralPosition) {
                     case LEFT:
+                        logStep(step);
+                        switch (step){
+                            case START:
+                                robot.driveTrain.setupDriveUsingIMU(-90, inchesToCM(4), 0.25, DriveTrain.DriveDirection.REVERSE, AdafruitIMU8863.AngleMode.ABSOLUTE);
+                                robot.driveTrain.startDriveUsingIMU();
+                                step = Steps.RUN_DRIVE_TO_WALL;
+                                break;
+                            case RUN_DRIVE_TO_WALL:
+                                if (robot.driveTrain.updateDriveUsingIMU()) {
+                                    driveCurve.setupDriveCurve(-45, .3, inchesToCM(38.84), DriveCurve.CurveDirection.CCW, DriveCurve.DriveDirection.BACKWARD);
+                                    driveCurve.startDriveCurve();
+                                    step = Steps.RUN_CURVE_ONTO_DEPOT_LANE;
+                                }
+                                break;
+                            case RUN_CURVE_ONTO_DEPOT_LANE:
+                                driveCurve.update();
+                                if (driveCurve.isCurveComplete()) {
+                                    // curve is complete. Setup the next move
+                                    robot.driveTrain.setupDriveUsingIMU(-45, inchesToCM(13), .3, DriveTrain.DriveDirection.REVERSE, AdafruitIMU8863.AngleMode.ABSOLUTE);
+                                    robot.driveTrain.startDriveUsingIMU();
+                                    step = Steps.RUN_DRIVE_TO_DEPOT;
+                                }
+                                break;
+                            case RUN_DRIVE_TO_DEPOT:
+                                if (robot.driveTrain.updateDriveUsingIMU()) {
+                                    // done with the drive straight stop the robot
+                                    robot.driveTrain.stopDriveDistanceUsingIMU();
+                                    step = Steps.DUMP_MARKER;
+                                }
+                                break;
+                            case DUMP_MARKER:
+                                robot.deliveryLiftSystem.deliveryBoxToDump();
+                                logFile.logData("Dumped marker");
+                                // reset the timer to 0 and then wait for it to expire
+                                timer.reset();
+                                step = Steps.WAIT_FOR_DUMP;
+                                break;
+                            case WAIT_FOR_DUMP:
+                                // wait in milliseconds
+                                timeToWait = 1000;
+                                if (timer.milliseconds() > timeToWait) {
+                                    // the wait is over, go to the next action
+                                    step = Steps.RETURN_DUMP_ARM;
+                                }
+                                break;
+                            case RETURN_DUMP_ARM:
+                                // return the delivery box to its normal position and go to the next action
+                                robot.deliveryLiftSystem.deliveryBoxToHome();
+                                logFile.logData("Returned delivery box to normal position");
+                                // this task is done. Get the next task. Reset the step to start.
+                                task = autonomousDirector.getNextTask();
+                                step = Steps.START;
+                                break;
+                        }
+                        break;
                     case CENTER:
                     case LEFT_CENTER:
                     case CENTER_RIGHT:
                     case TIE:
+                        logStep(step);
                         switch (step) {
                             case START:
                                 // from center mineral
@@ -408,6 +565,7 @@ public class AutonomousMovementSteps {
                         break;
                     case RIGHT:
                     case LEFT_RIGHT:
+                        logStep(step);
                         switch (step) {
                             case START:
                                 driveCurve.setupDriveCurve(-90, .3, 31.15 * 2.54, DriveCurve.CurveDirection.CW, DriveCurve.DriveDirection.BACKWARD);
@@ -477,6 +635,7 @@ public class AutonomousMovementSteps {
                 }
 
             case CLAIM_DEPOT_FROM_CRATER_SIDE_LANDER:
+                logStep(step);
                 switch (step) {
                     case START:
                         break;
@@ -484,6 +643,7 @@ public class AutonomousMovementSteps {
                 break;
 
             case PARK_IN_OUR_CRATER_FROM_DEPOT:
+                logStep(step);
                 switch (step) {
                     case START:
                         robot.driveTrain.setupDriveUsingIMU(-45, inchesToCM(82), .3, DriveTrain.DriveDirection.FORWARD, AdafruitIMU8863.AngleMode.ABSOLUTE);
@@ -503,389 +663,4 @@ public class AutonomousMovementSteps {
                 break;
         }
     }
-
-    /*
-    public void FacingCraterToLeftMineralToDepotToCrater() {
-
-        // update all of the systems on the robot
-        robot.update();
-        // log the step
-        logStep(step);
-
-        switch (step) {
-            case START:
-                robot.dehang();
-                step = Steps.DEHANG;
-                break;
-            case DEHANG:
-                // wait for the robot to finish dehanging, when it does run the next action
-                if (robot.deliveryLiftSystem.isLiftMovementComplete()) {
-                    step = Steps.SETUP_CLEAR_LANDER;
-                }
-                break;
-            case SETUP_CLEAR_LANDER:
-                // setup a drive straight with power and distance (in cm)  and then run it
-                distanceToDrive = 5.0;
-                robot.driveTrain.setupDriveDistance(normalDrivePower, distanceToDrive, DcMotor8863.FinishBehavior.FLOAT);
-                step = Steps.RUN_CLEAR_LANDER;
-                break;
-            case RUN_CLEAR_LANDER:
-                // drive straight and watch for the drive to complete. When it does run the next action.
-                if (robot.driveTrain.updateDriveDistance() == DriveTrain.Status.COMPLETE) {
-                    // Driving straight has finished
-                    // get the heading of the robot after it lands on the ground
-                    headingAfterDehang = robot.driveTrain.imu.getHeading();
-                    step = Steps.LOWER_LIFT;
-                }
-                break;
-            case LOWER_LIFT:
-                robot.deliveryLiftSystem.goToHome();
-                step = Steps.SETUP_TURN_TOWARDS_MINERAL;
-                break;
-            case SETUP_TURN_TOWARDS_MINERAL:
-                // setup for a turn and then run it
-                headingForTurn = 42 - headingAfterDehang;
-                robot.driveTrain.setupTurn(headingForTurn, normalTurnPower, AdafruitIMU8863.AngleMode.RELATIVE);
-                step = Steps.RUN_TURN_TOWARDS_MINERAL;
-                break;
-            case RUN_TURN_TOWARDS_MINERAL:
-                // run the turn, watch for it to complete and when it does move to the next action
-                if (robot.driveTrain.updateTurn()) {
-                    // the turn has finished, move to the next action
-                    step = Steps.SETUP_DRIVE_TO_MINERAL;
-                }
-                break;
-            case SETUP_DRIVE_TO_MINERAL:
-                // setup a drive straight with power and distance (in cm)  and then run it
-                distanceToDrive = 95.0;
-                robot.driveTrain.setupDriveDistance(normalDrivePower, distanceToDrive, DcMotor8863.FinishBehavior.FLOAT);
-                step = Steps.RUN_DRIVE_TO_MINERAL;
-                break;
-            case RUN_DRIVE_TO_MINERAL:
-                // drive straight and watch for the drive to complete. When it does run the next action.
-                if (robot.driveTrain.updateDriveDistance() == DriveTrain.Status.COMPLETE) {
-                    // Driving straight has finished
-                    step = Steps.SETUP_TURN_TOWARDS_DEPOT;
-                }
-                break;
-//            case SETUP_TURN_TOWARDS_WALL:
-//                // setup for a turn and then run it
-//                headingForTurn = -96;
-//                robot.driveTrain.setupTurn(headingForTurn, normalTurnPower, AdafruitIMU8863.AngleMode.RELATIVE);
-//                step = Steps.RUN_TURN_TOWARDS_WALL;
-//                break;
-//            case RUN_TURN_TOWARDS_WALL:
-//                // run the turn, watch for it to complete and when it does move to the next action
-//                if (robot.driveTrain.updateTurn()) {
-//                    // the turn has finished, move to the next action
-//                    step = Steps.SETUP_DRIVE_TO_WALL;
-//                }
-//                break;
-//            case SETUP_DRIVE_TO_WALL:
-//                // setup a drive straight with power and distance (in cm) and then run it
-//                distanceToDrive = -16 0.0;
-//                robot.driveTrain.setupDriveDistance(normalDrivePower, distanceToDrive, DcMotor8863.FinishBehavior.FLOAT);;
-//                step = Steps.RUN_DRIVE_TO_WALL;
-//                break;
-//            case RUN_DRIVE_TO_WALL:
-//                // drive straight and watch for the drive to complete. When it does run the next action.
-//                if(robot.driveTrain.updateDriveDistance() == DriveTrain.Status.COMPLETE) {
-//                    // Driving straight has finished
-//                    step = Steps.SETUP_TURN_TOWARDS_DEPOT;
-//                }
-//                break;
-            case SETUP_TURN_TOWARDS_DEPOT:
-                // setup for a turn and then run it
-                headingForTurn = -95;
-                robot.driveTrain.setupTurn(headingForTurn, normalTurnPower, AdafruitIMU8863.AngleMode.RELATIVE);
-                step = Steps.RUN_TURN_TOWARDS_DEPOT;
-                break;
-            case RUN_TURN_TOWARDS_DEPOT:
-                // run the turn, watch for it to complete and when it does move to the next action
-                if (robot.driveTrain.updateTurn()) {
-                    // the turn has finished, move to the next action
-                    step = Steps.SETUP_DRIVE_TO_DEPOT;
-                }
-                break;
-            case SETUP_DRIVE_TO_DEPOT:
-                // setup a drive straight with power and distance (in cm)
-                distanceToDrive = -155.0;
-                robot.driveTrain.setupDriveDistance(normalDrivePower, distanceToDrive, DcMotor8863.FinishBehavior.FLOAT);
-                step = Steps.RUN_DRIVE_TO_DEPOT;
-                break;
-            case RUN_DRIVE_TO_DEPOT:
-                // drive straight and watch for the drive to complete. When it does run the next action.
-                if (robot.driveTrain.updateDriveDistance() == DriveTrain.Status.COMPLETE) {
-                    // Driving straight has finished
-                    step = Steps.SETUP_TURN_FOR_DUMP;
-                }
-                break;
-            case SETUP_TURN_FOR_DUMP:
-                // setup for a turn and then run it
-                headingForTurn = 10;
-                robot.driveTrain.setupTurn(headingForTurn, normalTurnPower, AdafruitIMU8863.AngleMode.RELATIVE);
-                step = Steps.RUN_TURN_TOWARDS_DUMP;
-                break;
-            case RUN_TURN_TOWARDS_DUMP:
-                // run the turn, watch for it to complete and when it does move to the next action
-                if (robot.driveTrain.updateTurn()) {
-                    // the turn has finished, move to the next action
-                    step = Steps.DUMP_MARKER;
-                }
-                break;
-            case DUMP_MARKER:
-                robot.deliveryLiftSystem.deliveryBoxToDump();
-                logFile.logData("Dumped marker");
-                // reset the timer to 0 and then wait for it to expire
-                timer.reset();
-                step = Steps.WAIT_FOR_DUMP;
-                break;
-            case WAIT_FOR_DUMP:
-                // wait in milliseconds
-                timeToWait = 1000;
-                if (timer.milliseconds() > timeToWait) {
-                    // the wait is over, go to the next action
-                    step = Steps.RETURN_DUMP_ARM;
-                }
-                break;
-            case RETURN_DUMP_ARM:
-                // return the delivery box to its normal position and go to the next action
-                robot.deliveryLiftSystem.deliveryBoxToHome();
-                logFile.logData("Returned delivery box to normal position");
-                step = Steps.SETUP_DRIVE_TO_CRATER;
-                break;
-            case SETUP_DRIVE_TO_CRATER:
-                // setup a drive straight with power and distance (in cm)
-                distanceToDrive = 195.0;
-                robot.driveTrain.setupDriveDistance(normalDrivePower, distanceToDrive, DcMotor8863.FinishBehavior.FLOAT);
-                step = Steps.RUN_DRIVE_TO_CRATER;
-                break;
-            case RUN_DRIVE_TO_CRATER:
-                // drive straight and watch for the drive to complete. When it does run the next action.
-                if (robot.driveTrain.updateDriveDistance() == DriveTrain.Status.COMPLETE) {
-                    // Driving straight has finished
-                    step = Steps.RESET_ROBOT;
-                }
-                break;
-            case RESET_ROBOT:
-                logFile.logData("Done with autonomous");
-                // can't think of anything to do yet - robot is already reset
-                break;
-        }
-    }
-
-    public void FacingCraterToLeftMineralToDepotToCraterAlternate() {
-
-        // update all of the systems on the robot
-        robot.update();
-        // log the step
-        logStep(step);
-
-        switch (step) {
-            case START:
-                robot.dehang();
-                step = Steps.DEHANG;
-                break;
-            case DEHANG:
-                // wait for the robot to finish dehanging, when it does run the next action
-                if (robot.deliveryLiftSystem.isLiftMovementComplete()) {
-                    step = Steps.SETUP_CLEAR_LANDER;
-                }
-                break;
-            case SETUP_CLEAR_LANDER:
-                // setup a drive straight with power and distance (in cm)  and then run it
-                distanceToDrive = 5.0;
-                robot.driveTrain.setupDriveDistance(normalDrivePower, distanceToDrive, DcMotor8863.FinishBehavior.FLOAT);
-                step = Steps.RUN_CLEAR_LANDER;
-                break;
-            case RUN_CLEAR_LANDER:
-                // drive straight and watch for the drive to complete. When it does run the next action.
-                if (robot.driveTrain.updateDriveDistance() == DriveTrain.Status.COMPLETE) {
-                    // Driving straight has finished
-                    // get the heading of the robot after it lands on the ground
-                    headingAfterDehang = robot.driveTrain.imu.getHeading();
-                    step = Steps.LOWER_LIFT;
-                }
-                break;
-            case LOWER_LIFT:
-                robot.deliveryLiftSystem.goToHome();
-                step = Steps.SETUP_TURN_FOR_COMPENSATION;
-                break;
-            case SETUP_TURN_FOR_COMPENSATION:
-                // setup for a turn and then run it
-                headingForTurn = -headingAfterDehang;
-                robot.driveTrain.setupTurn(headingForTurn, normalTurnPower, AdafruitIMU8863.AngleMode.RELATIVE);
-                step = Steps.RUN_TURN_FOR_COMPENSATION;
-                break;
-            case RUN_TURN_FOR_COMPENSATION:
-                // run the turn, watch for it to complete and when it does move to the next action
-                if (robot.driveTrain.updateTurn()) {
-                    // the turn has finished, move to the next action
-                    step = Steps.SETUP_DRIVE_TOWARDS_CRATER;
-                }
-                break;
-            case SETUP_DRIVE_TOWARDS_CRATER:
-                // setup a drive straight with power and distance (in cm)  and then run it
-                distanceToDrive = 34.0;
-                robot.driveTrain.setupDriveDistance(normalDrivePower, distanceToDrive, DcMotor8863.FinishBehavior.FLOAT);
-                step = Steps.RUN_DRIVE_TOWARDS_CRATER;
-                break;
-            case RUN_DRIVE_TOWARDS_CRATER:
-                // drive straight and watch for the drive to complete. When it does run the next action.
-                if (robot.driveTrain.updateDriveDistance() == DriveTrain.Status.COMPLETE) {
-                    // Driving straight has finished
-                    step = Steps.SETUP_TURN_TOWARDS_MINERAL;
-                }
-                break;
-            case SETUP_TURN_TOWARDS_MINERAL:
-                // setup for a turn and then run it
-                headingForTurn = 62;
-                robot.driveTrain.setupTurn(headingForTurn, normalTurnPower, AdafruitIMU8863.AngleMode.RELATIVE);
-                step = Steps.RUN_TURN_TOWARDS_MINERAL;
-                break;
-            case RUN_TURN_TOWARDS_MINERAL:
-                // run the turn, watch for it to complete and when it does move to the next action
-                if (robot.driveTrain.updateTurn()) {
-                    // the turn has finished, move to the next action
-                    step = Steps.SETUP_DRIVE_TO_MINERAL;
-                }
-                break;
-            case SETUP_DRIVE_TO_MINERAL:
-                // setup a drive straight with power and distance (in cm)  and then run it
-                distanceToDrive = 90.0;
-                robot.driveTrain.setupDriveDistance(normalDrivePower, distanceToDrive, DcMotor8863.FinishBehavior.FLOAT);
-                step = Steps.RUN_DRIVE_TO_MINERAL;
-                break;
-            case RUN_DRIVE_TO_MINERAL:
-                // drive straight and watch for the drive to complete. When it does run the next action.
-                if (robot.driveTrain.updateDriveDistance() == DriveTrain.Status.COMPLETE) {
-                    // Driving straight has finished
-                    step = Steps.SETUP_TURN_TOWARDS_DEPOT;
-                }
-                break;
-//            case SETUP_TURN_TOWARDS_WALL:
-//                // setup for a turn and then run it
-//                headingForTurn = -96;
-//                robot.driveTrain.setupTurn(headingForTurn, normalTurnPower, AdafruitIMU8863.AngleMode.RELATIVE);
-//                step = Steps.RUN_TURN_TOWARDS_WALL;
-//                break;
-//            case RUN_TURN_TOWARDS_WALL:
-//                // run the turn, watch for it to complete and when it does move to the next action
-//                if (robot.driveTrain.updateTurn()) {
-//                    // the turn has finished, move to the next action
-//                    step = Steps.SETUP_DRIVE_TO_WALL;
-//                }
-//                break;
-//            case SETUP_DRIVE_TO_WALL:
-//                // setup a drive straight with power and distance (in cm) and then run it
-//                distanceToDrive = -16 0.0;
-//                robot.driveTrain.setupDriveDistance(normalDrivePower, distanceToDrive, DcMotor8863.FinishBehavior.FLOAT);;
-//                step = Steps.RUN_DRIVE_TO_WALL;
-//                break;
-//            case RUN_DRIVE_TO_WALL:
-//                // drive straight and watch for the drive to complete. When it does run the next action.
-//                if(robot.driveTrain.updateDriveDistance() == DriveTrain.Status.COMPLETE) {
-//                    // Driving straight has finished
-//                    step = Steps.SETUP_TURN_TOWARDS_DEPOT;
-//                }
-//                break;
-            case SETUP_TURN_TOWARDS_DEPOT:
-                // setup for a turn and then run it
-                headingForTurn = -109;
-                robot.driveTrain.setupTurn(headingForTurn, normalTurnPower, AdafruitIMU8863.AngleMode.RELATIVE);
-                step = Steps.RUN_TURN_TOWARDS_DEPOT;
-                break;
-            case RUN_TURN_TOWARDS_DEPOT:
-                // run the turn, watch for it to complete and when it does move to the next action
-                if (robot.driveTrain.updateTurn()) {
-                    // the turn has finished, move to the next action
-                    step = Steps.SETUP_DRIVE_TO_DEPOT;
-                }
-                break;
-            case SETUP_DRIVE_TO_DEPOT:
-                // setup a drive straight with power and distance (in cm)
-                distanceToDrive = -145.0;
-                robot.driveTrain.setupDriveDistance(normalDrivePower, distanceToDrive, DcMotor8863.FinishBehavior.FLOAT);
-                step = Steps.RUN_DRIVE_TO_DEPOT;
-                break;
-            case RUN_DRIVE_TO_DEPOT:
-                // drive straight and watch for the drive to complete. When it does run the next action.
-                if (robot.driveTrain.updateDriveDistance() == DriveTrain.Status.COMPLETE) {
-                    // Driving straight has finished
-                    step = Steps.DUMP_MARKER;
-                }
-                break;
-//            case SETUP_TURN_FOR_DUMP:
-//                // setup for a turn and then run it
-//                headingForTurn = 3.0;
-//                robot.driveTrain.setupTurn(headingForTurn, normalTurnPower, AdafruitIMU8863.AngleMode.RELATIVE);
-//                step = Steps.RUN_TURN_TOWARDS_DUMP;
-//                break;
-//            case RUN_TURN_TOWARDS_DUMP:
-//                // run the turn, watch for it to complete and when it does move to the next action
-//                if (robot.driveTrain.updateTurn()) {
-//                    // the turn has finished, move to the next action
-//                    step = Steps.DUMP_MARKER;
-//                }
-//                break;
-            case DUMP_MARKER:
-                robot.deliveryLiftSystem.deliveryBoxToDump();
-                logFile.logData("Dumped marker");
-                // reset the timer to 0 and then wait for it to expire
-                timer.reset();
-                step = Steps.WAIT_FOR_DUMP;
-                break;
-            case WAIT_FOR_DUMP:
-                // wait in milliseconds
-                timeToWait = 1000;
-                if (timer.milliseconds() > timeToWait) {
-                    // the wait is over, go to the next action
-                    step = Steps.RETURN_DUMP_ARM;
-                }
-                break;
-            case RETURN_DUMP_ARM:
-                // return the delivery box to its normal position and go to the next action
-                robot.deliveryLiftSystem.deliveryBoxToHome();
-                logFile.logData("Returned delivery box to normal position");
-                step = Steps.SETUP_DRIVE_TO_CRATER;
-                break;
-            case SETUP_DRIVE_TO_CRATER:
-                // setup a drive straight with power and distance (in cm)
-                distanceToDrive = 195.0;
-                robot.driveTrain.setupDriveDistance(normalDrivePower, distanceToDrive, DcMotor8863.FinishBehavior.FLOAT);
-                step = Steps.RUN_DRIVE_TO_CRATER;
-                break;
-            case RUN_DRIVE_TO_CRATER:
-                // drive straight and watch for the drive to complete. When it does run the next action.
-                if (robot.driveTrain.updateDriveDistance() == DriveTrain.Status.COMPLETE) {
-                    // Driving straight has finished
-                    step = Steps.RESET_ROBOT;
-                }
-                break;
-            case RESET_ROBOT:
-                logFile.logData("Done with autonomous");
-                // can't think of anything to do yet - robot is already reset
-                break;
-        }
-    }
-    */
-
-    /**
-     * Log the step to the log file - but only if it has changed from the last time it was logged.
-     *
-     * @param step
-     */
-    private void logStep(Steps step) {
-        if (logFile != null && loggingOn) {
-            if (step != previousStep) {
-                logFile.logData("Autonomous step = ", step.toString());
-                previousStep = step;
-            }
-        }
-    }
-
-    private double inchesToCM(double inches) {
-        return inches * 2.54;
-    }
-
 }
