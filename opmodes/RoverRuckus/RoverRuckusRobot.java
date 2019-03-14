@@ -1,27 +1,17 @@
 package org.firstinspires.ftc.teamcode.opmodes.RoverRuckus;
 
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 
-import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.Collector;
 import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.CollectorArm;
-import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.CollectorGB;
 import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.DeliveryLiftSystem;
-
-import java.util.EmptyStackException;
 
 public class RoverRuckusRobot {
 
@@ -48,7 +38,7 @@ public class RoverRuckusRobot {
     // note that the IMU is an object in the drive train
     public RobotMode robotMode;
     public DriveTrain driveTrain;
-    public CollectorGB collector;
+    public Collector collector;
     public Telemetry telemetry;
     public DeliveryLiftSystem deliveryLiftSystem;
     public CollectorArm collectorArm;
@@ -102,7 +92,7 @@ public class RoverRuckusRobot {
     private RoverRuckusRobot(HardwareMap hardwareMap, RobotMode robotMode, Telemetry telemetry, AllianceColor.TeamColor teamColor, DataLogging logFile) {
         this.telemetry = telemetry;
 
-        collector = new CollectorGB(hardwareMap, telemetry);
+        collector = new Collector(hardwareMap, telemetry);
         collectorArm = new CollectorArm(hardwareMap, telemetry);
         deliveryLiftSystem = new DeliveryLiftSystem(hardwareMap, telemetry);
 

@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.GamepadButtonMultiPush;
-import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.CollectorGB;
+import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.Collector;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
@@ -17,9 +17,9 @@ import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.CollectorGB;
 public class CollectionDeliveryTest extends LinearOpMode {
 
     // Put your variable declarations here
-    public CollectorGB collector;
+    public Collector collector;
     public DataLogging logfile;
-    public CollectorGB.CollectorState collectorState;
+    public Collector.CollectorState collectorState;
     public GamepadButtonMultiPush gamepad1a;
     public GamepadButtonMultiPush gamepad1b;
     public GamepadButtonMultiPush gamepad1y;
@@ -30,7 +30,7 @@ public class CollectionDeliveryTest extends LinearOpMode {
 
         // Put your initializations here
         logfile = new DataLogging("collectorTest", telemetry);
-        collector = new CollectorGB(hardwareMap, telemetry);
+        collector = new Collector(hardwareMap, telemetry);
         collector.init();
         collector.setDataLog(logfile);
         collector.enableDataLogging();

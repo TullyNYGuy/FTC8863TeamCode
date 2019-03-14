@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
-import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.CollectorGB;
+import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.Collector;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
@@ -16,9 +16,9 @@ import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.CollectorGB;
 public class CollectionTestStorageStarServo extends LinearOpMode {
 
     // Put your variable declarations here
-    public CollectorGB collector;
+    public Collector collector;
     public DataLogging logfile;
-    public CollectorGB.CollectorState collectorState;
+    public Collector.CollectorState collectorState;
 
     @Override
     public void runOpMode() {
@@ -26,7 +26,7 @@ public class CollectionTestStorageStarServo extends LinearOpMode {
 
         // Put your initializations here
         logfile = new DataLogging("collectorTest", telemetry);
-        collector = new CollectorGB(hardwareMap, telemetry);
+        collector = new Collector(hardwareMap, telemetry);
         collector.init();
         collector.setDataLog(logfile);
         collector.enableDataLogging();
@@ -77,20 +77,20 @@ public class CollectionTestStorageStarServo extends LinearOpMode {
 
     public void testActions() {
         // answer should be stored
-        collector.testActionToTake(CollectorGB.MineralColor.GOLD, CollectorGB.MineralColor.GOLD, 0, telemetry);
+        collector.testActionToTake(Collector.MineralColor.GOLD, Collector.MineralColor.GOLD, 0, telemetry);
         // answer should be hold
-        collector.testActionToTake(CollectorGB.MineralColor.GOLD, CollectorGB.MineralColor.GOLD, 1, telemetry);
+        collector.testActionToTake(Collector.MineralColor.GOLD, Collector.MineralColor.GOLD, 1, telemetry);
         // answer should be eject
-        collector.testActionToTake(CollectorGB.MineralColor.GOLD, CollectorGB.MineralColor.SILVER, 0, telemetry);
+        collector.testActionToTake(Collector.MineralColor.GOLD, Collector.MineralColor.SILVER, 0, telemetry);
         // answer should be eject
-        collector.testActionToTake(CollectorGB.MineralColor.GOLD, CollectorGB.MineralColor.SILVER, 1, telemetry);
+        collector.testActionToTake(Collector.MineralColor.GOLD, Collector.MineralColor.SILVER, 1, telemetry);
         // answer should be stored
-        collector.testActionToTake(CollectorGB.MineralColor.SILVER, CollectorGB.MineralColor.SILVER, 0, telemetry);
+        collector.testActionToTake(Collector.MineralColor.SILVER, Collector.MineralColor.SILVER, 0, telemetry);
         // answer should be hold
-        collector.testActionToTake(CollectorGB.MineralColor.SILVER, CollectorGB.MineralColor.SILVER, 1, telemetry);
+        collector.testActionToTake(Collector.MineralColor.SILVER, Collector.MineralColor.SILVER, 1, telemetry);
         // answer should be eject
-        collector.testActionToTake(CollectorGB.MineralColor.SILVER, CollectorGB.MineralColor.GOLD, 0, telemetry);
+        collector.testActionToTake(Collector.MineralColor.SILVER, Collector.MineralColor.GOLD, 0, telemetry);
         // answer should be eject
-        collector.testActionToTake(CollectorGB.MineralColor.SILVER, CollectorGB.MineralColor.GOLD, 1, telemetry);
+        collector.testActionToTake(Collector.MineralColor.SILVER, Collector.MineralColor.GOLD, 1, telemetry);
     }
 }

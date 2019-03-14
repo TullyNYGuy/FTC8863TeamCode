@@ -10,7 +10,6 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.GamepadButtonMultiPush;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.JoyStick;
-import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.CollectorGB;
 
 @TeleOp(name = "Rover Ruckus Teleop", group = "Run")
 //@Disabled
@@ -200,6 +199,9 @@ public class RoverRuckusTeleop extends LinearOpMode {
 //                    // call the 4th command you want to run
 //                }
 //            }
+            if (gamepad1.left_trigger > 0.6){
+                robot.collector.turnCollectorOnSpitOut();
+            }
 
             if (gamepad1RightBumper.buttonPress(gamepad1.right_bumper)) {
                 robot.collector.resetCollector();
