@@ -46,6 +46,7 @@ public class RoverRuckusTeleop extends LinearOpMode {
     public GamepadButtonMultiPush gamepad1DpadRight;
     public GamepadButtonMultiPush gamepad1LeftStickButton;
     public GamepadButtonMultiPush gamepad1RightStickButton;
+    public GamepadButtonMultiPush gamepad1LeftTriggerButton;
 
     // joystick and joystick value declarations - game pad 1
     final static double JOYSTICK_DEADBAND_VALUE = .15;
@@ -125,6 +126,7 @@ public class RoverRuckusTeleop extends LinearOpMode {
         gamepad1DpadRight = new GamepadButtonMultiPush(1);
         gamepad1LeftStickButton = new GamepadButtonMultiPush(1);
         gamepad1RightStickButton = new GamepadButtonMultiPush(1);
+        gamepad1LeftTriggerButton = new GamepadButtonMultiPush(1);
 
         // Game Pad 1 joysticks
         gamepad1LeftJoyStickX = new JoyStick(JoyStick.JoyStickMode.SQUARE, JOYSTICK_DEADBAND_VALUE, JoyStick.InvertSign.NO_INVERT_SIGN);
@@ -199,7 +201,7 @@ public class RoverRuckusTeleop extends LinearOpMode {
 //                    // call the 4th command you want to run
 //                }
 //            }
-            if (gamepad1.left_trigger > 0.6){
+            if (gamepad1LeftTriggerButton.triggerPress(gamepad1.left_trigger)){
                 robot.collector.turnCollectorOnSpitOut();
             }
 

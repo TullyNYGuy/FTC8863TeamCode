@@ -162,6 +162,27 @@ public class GamepadButtonMultiPush {
             return false;
         }
     }
+    public boolean triggerPress(float triggerValue) {
+        boolean isButtonPressed = false;
+        switch (currentButtonState) {
+            case RELEASED:
+                if (triggerValue > 0.6) {
+                    currentButtonState = ButtonState.PRESSED;
+                    isButtonPressed = true;
+                }
+                break;
+            case PRESSED:
+                if (triggerValue < 0.6) {
+                    currentButtonState = ButtonState.RELEASED;
+                    isButtonPressed = false;
+                } else {
+                    currentButtonState = ButtonState.PRESSED;
+                    isButtonPressed = false;
+                }
+                break;
+        }
+        return isButtonPressed;
+    }
 
     /**
      * This is a state machine that keeps track of which command should be run next. Commands are run

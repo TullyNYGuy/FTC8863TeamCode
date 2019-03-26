@@ -49,7 +49,8 @@ public class Collector {
         FIX_TRANSFER_JAM,
         COMPLETE_DELIVERY,
         WAIT_FOR_GOLD_MINERAL_UNSTICK,
-        UNSTORE_SECOND_GOLD_MINERAL
+        UNSTORE_SECOND_GOLD_MINERAL,
+        WAIT_FOR_SPIT_OUT
     }
 
     private CollectorState collectorState = CollectorState.OFF;
@@ -927,6 +928,13 @@ public class Collector {
                             break;
                         }
                         break;
+                    case ON_SPIT_OUT:
+                        gateServoGoToCollectionPosition();
+                        timer.reset();
+                        collectorState = CollectorState.NO_MINERAL;
+                        turnIntakeOnSpitOut();
+                        log("Turn Collector On Spit Out");
+                        break;
                     case DELIVER_ON:
                         collectorState = CollectorState.DELIVER_MINERAL;
                         if (desiredMineralColor == MineralColor.GOLD) {
@@ -957,6 +965,14 @@ public class Collector {
                     case NONE:
                         // no command, do nothing
                         break;
+                }
+                break;
+
+            case WAIT_FOR_SPIT_OUT:
+                if(timer.milliseconds()> 500){
+                    turnIntakeOff();
+                    collectorCommand = CollectorCommand.ON;
+                    collectorState = CollectorState.HOLD_MINERAL;
                 }
                 break;
 
@@ -1237,6 +1253,7 @@ public class Collector {
                             turnStorageStarOnStore();
                         }
                         //gateServoGoToStorePosition();
+                        turnIntakeOnSuckIn();
                         storageStarTimer.reset();
                         collectorState = CollectorState.WAIT_FOR_GOLD_MINERAL_UNSTICK;
 
@@ -1276,6 +1293,7 @@ public class Collector {
                         if (storageStarTimer.milliseconds() > 1000) {
                             turnStorageStarOnStore();
                             gateServoGoToStorePosition();
+                            turnIntakeOff();
                             if (desiredMineralColor == MineralColor.GOLD) {
                                 collectorState = CollectorState.UNSTORE_SECOND_GOLD_MINERAL;
                                 storageStarTimer.reset();
