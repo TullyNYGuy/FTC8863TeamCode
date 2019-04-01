@@ -645,7 +645,7 @@ public class DriveTrain {
             leftDriveMotor.setLastEncoderCountToCurrentPostion();
             if (logFile != null && logDrive) {
                 logFile.blankLine();
-                logFile.logData("DRIVE_STRAIGHT_USING_IMU Heading = " + Double.toString(heading) + " Speed = " + Double.toString(speed) + " distance = " + Double.toString(distance));
+                logFile.logData("DRIVE_STRAIGHT_USING_IMU DESIRED Heading = " + Double.toString(heading) + " Speed = " + Double.toString(speed) + " distance = " + Double.toString(distance));
             }
         } else {
             shutdown();
@@ -658,7 +658,7 @@ public class DriveTrain {
      */
     public void startDriveUsingIMU() {
         if (logFile != null && logDrive) {
-            logFile.logData("INITIAL_HEADING_DISTANCE", imu.getHeading(), distanceDriven);
+            logFile.logData("DRIVE_STRAIGHT_USING_IMU INITIAL_HEADING_DISTANCE", imu.getHeading(), distanceDriven);
         }
     }
 
@@ -689,13 +689,13 @@ public class DriveTrain {
             // so we have to take absolute values
             if (Math.abs(distanceDriven) > Math.abs(distanceToDrive)) {
                 if (logFile != null && logDrive) {
-                    logFile.logData("FINAL_HEADING_DISTANCE", currentHeading, distanceDriven);
+                    logFile.logData("DRIVE_STRAIGHT_USING_IMU FINAL_HEADING_DISTANCE", currentHeading, distanceDriven);
                     logFile.blankLine();
                 }
                 return true;
             } else {
                 if (logFile != null && logDrive) {
-                    logFile.logData("HEADING_DISTANCE", currentHeading, distanceDriven);
+                    logFile.logData("DRIVE_STRAIGHT_USING_IMU HEADING_DISTANCE", currentHeading, distanceDriven);
                 }
                 return false;
             }
@@ -1230,8 +1230,8 @@ public class DriveTrain {
                 imu.resetAngleReferences();
             }
             if (logTurns && logFile != null) {
-                logFile.logData("SPIN_TURN heading = " + turnAngle + " power = " + maxPower);
-                logFile.logData("INITIAL_HEADING", imu.getHeading());
+                logFile.logData("SPIN_TURN DESIRED heading = " + turnAngle + " power = " + maxPower);
+                logFile.logData("SPIN_TURN INITIAL_HEADING", imu.getHeading());
             }
         } else {
             shutdown();
@@ -1249,13 +1249,13 @@ public class DriveTrain {
             double currentHeading = imu.getHeading();
             double correction = -pidControl.getCorrection(currentHeading);
             if (logTurns && logFile != null) {
-                logFile.logData("HEADING_CORRECTION", currentHeading, correction);
+                logFile.logData("SPIN_TURN HEADING_CORRECTION", currentHeading, correction);
             }
             differentialDrive(0, correction);
             //return correction;
             if(pidControl.isFinished()) {
                 if (logTurns && logFile != null) {
-                    logFile.logData("FINAL_HEADING", imu.getHeading() );
+                    logFile.logData("SPIN_TURN FINAL_HEADING", imu.getHeading() );
                 }
             }
             return pidControl.isFinished();

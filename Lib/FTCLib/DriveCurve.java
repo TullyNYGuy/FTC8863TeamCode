@@ -459,7 +459,7 @@ public class DriveCurve {
         driveTrain.setDriveMotorMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         if (logFile != null && enableLogging) {
-            logFile.logData("CURVE radius = " + radius + " speed = " + speed + " angle = " + curveAngle + " curve_direction = " + curveDirection.toString() + " drive_direction = " + driveDirection.toString());
+            logFile.logData("CURVE DESIRED radius = " + radius + " speed = " + speed + " angle = " + curveAngle + " curve_direction = " + curveDirection.toString() + " drive_direction = " + driveDirection.toString());
             logFile.logData("left wheel speed = " + leftWheelSpeed + " right wheel speed = " + rightWheelSpeed + " rate of turn should be = " + Double.toString(calculateRateOfTurnShouldBe(radius)) + " distance traveled should be = " + Double.toString(getDistanceToBeTraveled()));
         }
     }
@@ -472,7 +472,7 @@ public class DriveCurve {
         initialHeading = imu.getHeading();
         initialDistance = driveTrain.updateDistanceDriven();
         if (logFile != null && enableLogging) {
-            logFile.logData("INITIAL_HEADING_DISTANCE", initialHeading, initialDistance);
+            logFile.logData("CURVE INITIAL_HEADING_DISTANCE", initialHeading, initialDistance);
         }
         lastHeading = initialHeading;
         driveTrain.setDistanceDrivenReference();
@@ -533,7 +533,7 @@ public class DriveCurve {
                 // commented out to see if loop time can be improved
 //                if (logFile != null && enableLogging) {
 //                    driveTrain.updateDriveDistance();
-                    logFile.logData("HEADING_DISTANCE_RATE", currentHeading, driveTrain.getDistanceDriven(), currentRateOfTurn);
+                    logFile.logData("CURVE HEADING_DISTANCE_RATE", currentHeading, driveTrain.getDistanceDriven(), currentRateOfTurn);
 //                }
                 // if the current heading is close enough to the desired heading indicate the turn is done
                 if (Math.abs(currentHeading) > Math.abs(curveAngle) - curveThreshold && Math.abs(currentHeading) < Math.abs(curveAngle) + curveThreshold) {
@@ -543,7 +543,7 @@ public class DriveCurve {
                         //driveTrain.updateDriveDistance();
                         double distanceDriven = driveTrain.getDistanceDriven()- initialDistance;
                         double headingChange = currentHeading - initialHeading;
-                        logFile.logData("FINAL_HEADING_DISTANCE", currentHeading, distanceDriven);
+                        logFile.logData("CURVE FINAL_HEADING_DISTANCE", currentHeading, distanceDriven);
                         logFile.logData("average rate of turn = " + Double.toString(headingChange / distanceDriven));
                         logFile.logData("effective curve radius = " + Double.toString(getEffectiveCurveRadius(headingChange, distanceDriven)));
                         logFile.logData("Average loop time = " + Double.toString(timer.milliseconds() / loopCount));
