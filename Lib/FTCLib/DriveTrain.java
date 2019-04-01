@@ -658,7 +658,7 @@ public class DriveTrain {
      */
     public void startDriveUsingIMU() {
         if (logFile != null && logDrive) {
-            logFile.logData("Start heading = " + imu.getHeading() + " Start Distance = " + distanceDriven);
+            logFile.logData("INITIAL_HEADING_DISTANCE", imu.getHeading(), distanceDriven);
         }
     }
 
@@ -689,13 +689,13 @@ public class DriveTrain {
             // so we have to take absolute values
             if (Math.abs(distanceDriven) > Math.abs(distanceToDrive)) {
                 if (logFile != null && logDrive) {
-                    logFile.logData("Finished drive straight using IMU. Heading = " + Double.toString(currentHeading) + " distance = " + Double.toString(distanceDriven));
+                    logFile.logData("FINAL_HEADING_DISTANCE", currentHeading, distanceDriven);
                     logFile.blankLine();
                 }
                 return true;
             } else {
                 if (logFile != null && logDrive) {
-                    logFile.logData(currentHeading, distanceDriven);
+                    logFile.logData("HEADING_DISTANCE", currentHeading, distanceDriven);
                 }
                 return false;
             }
@@ -1230,8 +1230,8 @@ public class DriveTrain {
                 imu.resetAngleReferences();
             }
             if (logTurns && logFile != null) {
-                logFile.logData("Setup for turn = " + turnAngle + " at power = " + maxPower);
-                logFile.logData("Current Heading, correction");
+                logFile.logData("SPIN_TURN heading = " + turnAngle + " power = " + maxPower);
+                logFile.logData("INITIAL_HEADING", imu.getHeading());
             }
         } else {
             shutdown();
@@ -1249,13 +1249,13 @@ public class DriveTrain {
             double currentHeading = imu.getHeading();
             double correction = -pidControl.getCorrection(currentHeading);
             if (logTurns && logFile != null) {
-                logFile.logData(Double.toString(currentHeading), Double.toString(correction));
+                logFile.logData("HEADING_CORRECTION", currentHeading, correction);
             }
             differentialDrive(0, correction);
             //return correction;
             if(pidControl.isFinished()) {
                 if (logTurns && logFile != null) {
-                    logFile.logData("Finished turn = " + imu.getHeading() );
+                    logFile.logData("FINAL_HEADING", imu.getHeading() );
                 }
             }
             return pidControl.isFinished();

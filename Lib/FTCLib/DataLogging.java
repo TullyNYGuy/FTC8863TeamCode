@@ -34,9 +34,9 @@ public class DataLogging {
 
     private ElapsedTime timer;
     private PrintStream dataLog = null;
-    
+
     private String folderPath = null;
-    
+
     private String filePrefix = null;
 
     private Telemetry telemetry;
@@ -68,7 +68,7 @@ public class DataLogging {
         this.filePrefix = filePrefix;
         dataLoggingSetup();
     }
-    
+
     public DataLogging(String filePrefix, Telemetry telemetry) {
         this.folderPath = "/sdcard/FTC8863/";
         this.filePrefix = filePrefix;
@@ -125,8 +125,7 @@ public class DataLogging {
 
         try {
             dataLog = new PrintStream(new File(dataLogFilePath));
-        }
-        catch (FileNotFoundException exception) {
+        } catch (FileNotFoundException exception) {
             telemetry.addData("Could not create log file: ", dataLogFilePath);
             dataLog = null;
             result = false;
@@ -138,6 +137,7 @@ public class DataLogging {
 
     /**
      * If the directory/folder does not exist, create it.
+     *
      * @param folderPath
      * @return
      */
@@ -146,15 +146,14 @@ public class DataLogging {
 
         // see if the folder already exists
         File folder = new File(folderPath);
-        if(folder.exists()) {
+        if (folder.exists()) {
             // the folder exists already so nothing to do
             result = true;
         } else {
             // the folder does not exist so create it
             try {
                 folder.mkdir();
-            }
-            catch (Exception exception) {
+            } catch (Exception exception) {
                 telemetry.addData("Could not make log file directory: ", folderPath);
                 dataLog = null;
                 result = false;
@@ -180,22 +179,24 @@ public class DataLogging {
     /**
      * Write a header line into the log file. You can use this to give a column label to each data
      * field. The time header will automatically be inserted into the line.
+     *
      * @param headerLine
      */
-    public void headerLine (String headerLine) {
+    public void headerLine(String headerLine) {
         dataLog.println("time (mSec), " + headerLine);
     }
 
     /**
      * Write a series of header strings into the log file. You can use this to give a column label
      * to each data field. The time header will automatically be inserted into the line.
+     *
      * @param args
      */
-    public void headerStrings (String... args) {
+    public void headerStrings(String... args) {
         // print the timestamp
         dataLog.print(" time (mSec), ");
         // print each argument
-        for (String arg: args) {
+        for (String arg : args) {
             dataLog.print(arg + ", ");
         }
         // print a newline
@@ -211,25 +212,27 @@ public class DataLogging {
 
     /**
      * Write a piece of data or a debug message into the log file. It will get time stamped.
+     *
      * @param dataToLog
      */
     public void logData(String dataToLog) {
         double timeStamp = timer.milliseconds();
-        String stringToWrite = String.format( "%.2f", timeStamp) + " " + dataToLog;
+        String stringToWrite = String.format("%.2f", timeStamp) + " " + dataToLog;
         dataLog.println(stringToWrite);
     }
 
     /**
      * Write a series of strings into the data log. Each string will be followed by a comma and
      * a space. The beginning of the line will have a timestamp.
+     *
      * @param args a variable number of strings to write into the file in this line
      */
     public void logData(String... args) {
         // print the timestamp
         double timeStamp = timer.milliseconds();
-        dataLog.print( String.format( "%.2f", timeStamp) + ", ");
+        dataLog.print(String.format("%.2f", timeStamp) + ", ");
         // print each argument
-        for (String arg: args) {
+        for (String arg : args) {
             dataLog.print(arg + ", ");
         }
         // print a newline
@@ -240,14 +243,35 @@ public class DataLogging {
     /**
      * Write a series of doubles into the data log. Each double will be followed by a comma and
      * a space. The beginning of the line will have a timestamp.
+     *
      * @param args a variable number of doubles to write into the file in this line
      */
     public void logData(Double... args) {
         // print the timestamp
         double timeStamp = timer.milliseconds();
-        dataLog.print( String.format( "%.2f", timeStamp) + ", ");
+        dataLog.print(String.format("%.2f", timeStamp) + ", ");
         // print each argument
-        for (Double arg: args) {
+        for (Double arg : args) {
+            dataLog.print(Double.toString(arg) + ", ");
+        }
+        // print a newline
+        dataLog.println();
+    }
+
+    /**
+     * Write a string and a series of doubles into the data log. The string and the each double will
+     * be followed by a comma and a space. The beginning of the line will have a timestamp.
+     * @param string
+     * @param args a variable number of doubles to write into the file in this line
+     */
+    public void logData(String string, Double... args) {
+        // print the timestamp
+        double timeStamp = timer.milliseconds();
+        dataLog.print(String.format("%.2f", timeStamp) + ", ");
+        // print the string
+        dataLog.print(string + ", ");
+        // print the doubles
+        for (Double arg : args) {
             dataLog.print(Double.toString(arg) + ", ");
         }
         // print a newline

@@ -472,7 +472,7 @@ public class DriveCurve {
         initialHeading = imu.getHeading();
         initialDistance = driveTrain.updateDistanceDriven();
         if (logFile != null && enableLogging) {
-            logFile.logData("Start heading = " + initialHeading + " Start Distance = " + initialDistance);
+            logFile.logData("INITIAL_HEADING_DISTANCE", initialHeading, initialDistance);
         }
         lastHeading = initialHeading;
         driveTrain.setDistanceDrivenReference();
@@ -533,7 +533,7 @@ public class DriveCurve {
                 // commented out to see if loop time can be improved
 //                if (logFile != null && enableLogging) {
 //                    driveTrain.updateDriveDistance();
-                    logFile.logData(Double.toString(currentHeading), Double.toString(driveTrain.getDistanceDriven()), Double.toString(currentRateOfTurn));
+                    logFile.logData("HEADING_DISTANCE_RATE", currentHeading, driveTrain.getDistanceDriven(), currentRateOfTurn);
 //                }
                 // if the current heading is close enough to the desired heading indicate the turn is done
                 if (Math.abs(currentHeading) > Math.abs(curveAngle) - curveThreshold && Math.abs(currentHeading) < Math.abs(curveAngle) + curveThreshold) {
@@ -543,7 +543,8 @@ public class DriveCurve {
                         //driveTrain.updateDriveDistance();
                         double distanceDriven = driveTrain.getDistanceDriven()- initialDistance;
                         double headingChange = currentHeading - initialHeading;
-                        logFile.logData("heading at curve completion = " + Double.toString(currentHeading) + " distance driven = ", Double.toString(distanceDriven) + "average rate of turn = " + Double.toString(headingChange / distanceDriven));
+                        logFile.logData("FINAL_HEADING_DISTANCE", currentHeading, distanceDriven);
+                        logFile.logData("average rate of turn = " + Double.toString(headingChange / distanceDriven));
                         logFile.logData("effective curve radius = " + Double.toString(getEffectiveCurveRadius(headingChange, distanceDriven)));
                         logFile.logData("Average loop time = " + Double.toString(timer.milliseconds() / loopCount));
                         logFile.blankLine();
