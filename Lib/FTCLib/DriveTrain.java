@@ -70,6 +70,7 @@ public class DriveTrain {
     private double totalDistanceDriven;
     private double distanceRemaining;
     private double lastDistanceDriven;
+    private double initialDistanceDriven;
 
 
     private boolean hasLoopRunYet = false;
@@ -311,6 +312,7 @@ public class DriveTrain {
 
     /**
      * Implements a delay
+     *
      * @param mSec delay in milli Seconds
      */
     private void delay(int mSec) {
@@ -385,15 +387,17 @@ public class DriveTrain {
     /**
      * Set the speed for teh drive motor. THIS DOES NOT APPLY THE SPEED TO THE MOTOR SO THE MOTOR
      * WILL NOT START TURNING. Use applyPowersToMotors() to actually apply it.
+     *
      * @param speed
      */
-    public void setRightDriveMotorSpeed( double speed) {
+    public void setRightDriveMotorSpeed(double speed) {
         this.rightDriveMotorSpeed = speed;
     }
 
     /**
      * Set the speed for teh drive motor. THIS DOES NOT APPLY THE SPEED TO THE MOTOR SO THE MOTOR
      * WILL NOT START TURNING. Use applyPowersToMotors() to actually apply it.
+     *
      * @param speed
      */
     public void setLeftDriveMotorSpeed(double speed) {
@@ -413,6 +417,7 @@ public class DriveTrain {
      * Apply a power to the drive motors, using the direction of travel to determine whether to
      * swap the left and right motors. If the direction is backwards, then the left and right
      * get swapped.
+     *
      * @param drivePowers - an array with left, right powers
      */
     private void applyPowersToMotors(double[] drivePowers) {
@@ -454,11 +459,13 @@ public class DriveTrain {
     private void zeroDistanceDriven() {
         distanceDriven = 0;
     }
+
     /**
      * Calculate the average distance the drivetrain has moved since the motors were commanded to move.
+     *
      * @return
      */
-    private double calculateDistanceDriven(){
+    private double calculateDistanceDriven() {
         return (leftDriveMotor.getPositionInTermsOfAttachmentRelativeToLast() + rightDriveMotor.getPositionInTermsOfAttachmentRelativeToLast()) / 2;
     }
 
@@ -475,7 +482,7 @@ public class DriveTrain {
      * Sometimes you may want to know the change in distance from a certain point in time. You need to
      * establish the point by establishing the distance at that point in time.
      */
-    public void setDistanceDrivenReference(){
+    public void setDistanceDrivenReference() {
         lastDistanceDriven = calculateDistanceDriven();
     }
 
@@ -483,6 +490,7 @@ public class DriveTrain {
      * Get the distance driven since the last check on the distance driven. This call can be used
      * to get the change in distance driven. Typically you would use it over the course of the movement
      * to follow the change in distance.
+     *
      * @return
      */
     public double getDistanceDrivenSinceLast() {
@@ -572,21 +580,21 @@ public class DriveTrain {
      * does not actually shut off the motors. The robot just keeps on driving until you tell it to
      * do something else. That way you can chain together other movements after this one and the
      * robot just continues to run the movements without stopping.
-     *
+     * <p>
      * This is the setup for the drive. You call this once. Then after this you call
      * updateDriveUsingIMU() in a loop so that it can update the PID and check on the distance
      * traveled.
      *
-     * @param heading     heading in degrees. Counter clockwise is +. Clockwise is -. Range from -180 to
-     *                    +180. Note that if you input 180 it will have problems navigating due to the
-     *                    sign change at the 180 boundary. If you really need to do that then there will
-     *                    have to be some code written to control the range on the IMU.
-     * @param distance    when the movement hits this distance, the update will return true
-     * @param speed    the speed to run the motors. This should be a positive number. Drive direction will
-     *                 take care of the sign of the speed.
-     *                    Positive is forwards. Negative is backwards.
+     * @param heading        heading in degrees. Counter clockwise is +. Clockwise is -. Range from -180 to
+     *                       +180. Note that if you input 180 it will have problems navigating due to the
+     *                       sign change at the 180 boundary. If you really need to do that then there will
+     *                       have to be some code written to control the range on the IMU.
+     * @param distance       when the movement hits this distance, the update will return true
+     * @param speed          the speed to run the motors. This should be a positive number. Drive direction will
+     *                       take care of the sign of the speed.
+     *                       Positive is forwards. Negative is backwards.
      * @param driveDirection
-     * @param headingType RAW, ABSOLUTE or RELATIVE. See AngleMode for desscription.
+     * @param headingType    RAW, ABSOLUTE or RELATIVE. See AngleMode for desscription.
      */
     // THIS METHOD HAS A BUG. IT DOES NOT DRIVE BACKWARDS PROPERLY. NEED TO FIX IT
     public void setupDriveUsingIMU(double heading, double distance, double speed, DriveDirection driveDirection, AdafruitIMU8863.AngleMode headingType) {
@@ -604,7 +612,7 @@ public class DriveTrain {
             pidControl.setThreshold(10);
             //pidControl.setKp(0.011);
             pidControl.setKp(0.012);
-            pidControl.setKi(0.05/1000000);
+            pidControl.setKi(0.05 / 1000000);
             // reset the integrator before starting
             pidControl.reset();
 
@@ -614,12 +622,12 @@ public class DriveTrain {
                     imu.setAngleMode(AdafruitIMU8863.AngleMode.RELATIVE);
                     imu.resetAngleReferences();
                     break;
-                    // since the movement is running on an absolute heading, we don't want to reset
+                // since the movement is running on an absolute heading, we don't want to reset
                 // the angle references. Just tell the IMU to give us headings in a relative mode
                 case ABSOLUTE:
                     imu.setAngleMode(AdafruitIMU8863.AngleMode.ABSOLUTE);
                     break;
-                    // not sure why you would want to use this mode
+                // not sure why you would want to use this mode
                 case RAW:
                     imu.setAngleMode(AdafruitIMU8863.AngleMode.RAW);
                     break;
@@ -634,18 +642,18 @@ public class DriveTrain {
 
             // set the distance target
             this.distanceToDrive = distance;
-            // since this is movement that is relative to its starting point, it has to start from 0
-            zeroDistanceDriven();
+            // since this is movement that is relative to its starting point, we have to know the starting point
+            initialDistanceDriven = updateDistanceDriven();
             // distance driven is calculated by averaging the encoder counts on the left and
             // right wheels relative to the last time the encoder count tracker in the motor was set
             // to 0. That 0 automatically happens when a movement is to a position. But in this case
             // we are just turning the motors on so the DcMotor8863 does not zero the encoder tracker.
             // I have to do it manually.
-            rightDriveMotor.setLastEncoderCountToCurrentPostion();
-            leftDriveMotor.setLastEncoderCountToCurrentPostion();
+            //rightDriveMotor.setLastEncoderCountToCurrentPostion();
+            //leftDriveMotor.setLastEncoderCountToCurrentPostion();
             if (logFile != null && logDrive) {
                 logFile.blankLine();
-                logFile.logData("DRIVE_STRAIGHT_USING_IMU DESIRED Heading = " + Double.toString(heading) + " Speed = " + Double.toString(speed) + " distance = " + Double.toString(distance));
+                logFile.logData("DRIVE_STRAIGHT_USING_IMU DESIRED Heading = " + Double.toString(heading) + " Speed = " + Double.toString(speed) + " distance = " + Double.toString(distanceToDrive));
             }
         } else {
             shutdown();
@@ -658,7 +666,7 @@ public class DriveTrain {
      */
     public void startDriveUsingIMU() {
         if (logFile != null && logDrive) {
-            logFile.logData("DRIVE_STRAIGHT_USING_IMU INITIAL_HEADING_DISTANCE", imu.getHeading(), distanceDriven);
+            logFile.logData("DRIVE_STRAIGHT_USING_IMU INITIAL_HEADING_DISTANCE", imu.getHeading(), updateDistanceDriven());
         }
     }
 
@@ -668,37 +676,39 @@ public class DriveTrain {
      * distance driven has to be constantly updated.
      *
      * @return true if the distance traveled is greater than the distance desired (ie the distance
-     *         to drive set in the setup.
+     * to drive set in the setup.
      */
     public boolean updateDriveUsingIMU() {
-            double currentHeading = imu.getHeading();
-            // I have to reverse the sign since the differential drive method expects a negative
-            // joystick input for a left turn (joystick left = negative number, not what you would
-            // expect).
-            // get the correction from the PID
-            double correction = -pidControl.getCorrection(currentHeading);
+        double distanceDrivenSinceStart;
+        double currentHeading = imu.getHeading();
+        // I have to reverse the sign since the differential drive method expects a negative
+        // joystick input for a left turn (joystick left = negative number, not what you would
+        // expect).
+        // get the correction from the PID
+        double correction = -pidControl.getCorrection(currentHeading);
 //            if (driveTrainPower < 0) {
 //                // sign on correction has to flip or feedback is wrong direction
 //                correction = correction * -1;
 //            }
-            // apply the correction to the motors
-            differentialDrive(driveTrainPower, correction);
-            // THERE IS A BUG HERE. THE DISTANCE BEING REPORTED IS CUMULATIVE NOT RELATIVE TO THE START OF THE MOVEMENT
-            distanceDriven = calculateDistanceDriven();
-            // for negative distances (driving backwards) distance driven will start out at 0 and be larger than distance to drive (-150)
-            // so we have to take absolute values
-            if (Math.abs(distanceDriven) > Math.abs(distanceToDrive)) {
-                if (logFile != null && logDrive) {
-                    logFile.logData("DRIVE_STRAIGHT_USING_IMU FINAL_HEADING_DISTANCE", currentHeading, distanceDriven);
-                    logFile.blankLine();
-                }
-                return true;
-            } else {
-                if (logFile != null && logDrive) {
-                    logFile.logData("DRIVE_STRAIGHT_USING_IMU HEADING_DISTANCE", currentHeading, distanceDriven);
-                }
-                return false;
+        // apply the correction to the motors
+        differentialDrive(driveTrainPower, correction);
+        // THERE IS A BUG HERE. THE DISTANCE BEING REPORTED IS CUMULATIVE NOT RELATIVE TO THE START OF THE MOVEMENT
+        distanceDrivenSinceStart = updateDistanceDriven() - initialDistanceDriven;
+        // for negative distances (driving backwards) distance driven will start out at 0 and be larger than distance to drive (-150)
+        // so we have to take absolute values
+        if (Math.abs(distanceDrivenSinceStart) > Math.abs(distanceToDrive)) {
+            if (logFile != null && logDrive) {
+                logFile.logData("DRIVE_STRAIGHT_USING_IMU FINAL_HEADING_DISTANCE", currentHeading, getDistanceDriven());
+                logFile.logData("Distance driven during drive straight = " + Double.toString(distanceDrivenSinceStart));
+                logFile.blankLine();
             }
+            return true;
+        } else {
+            if (logFile != null && logDrive) {
+                logFile.logData("DRIVE_STRAIGHT_USING_IMU HEADING_DISTANCE", currentHeading, getDistanceDriven());
+            }
+            return false;
+        }
     }
 
     /**
@@ -799,9 +809,9 @@ public class DriveTrain {
      * @param valueAtFinishTime            power at the end of the ramp. Typically you make this equal to the
      *                                     maxPower.
      * @param timeToReachFinishValueInmSec how long to run the ramp up in power (in milliseconds)
-     * @param initialPower start the ramp down at this power
-     * @param finalPower finish the ramp down at this power
-     * @param distanceToRampDownOver ramp down the power over this distance
+     * @param initialPower                 start the ramp down at this power
+     * @param finalPower                   finish the ramp down at this power
+     * @param distanceToRampDownOver       ramp down the power over this distance
      */
     public void setupDriveDistanceUsingIMU(double heading, double maxPower, double distance,
                                            AdafruitIMU8863.AngleMode headingType, double valueAtStartTime,
@@ -1061,6 +1071,7 @@ public class DriveTrain {
      * (higher the speed) the robot has the more likely it is to overrun the end of the drive. So
      * start the ramp down a distance before the user wants to so that the robot will glide into
      * the end point and not overrun. The distance before is going to depend on the requested speed.
+     *
      * @param maxPower - power the robot will run at before the ramp down starts
      * @return the number of cm to allow the robot glide into the desired distance
      */
@@ -1080,8 +1091,10 @@ public class DriveTrain {
         }
         return result;
     }
+
     /**
      * You must run this update in a loop in order for the drive distance to work.
+     *
      * @return true if movement is complete
      */
     public boolean updateDriveDistanceUsingIMU() {
@@ -1089,7 +1102,7 @@ public class DriveTrain {
         double[] drivePowers;
         if (imuPresent) {
             //If the IMU is present we proceed if not we give the user an error
-            if(!hasLoopRunYet){
+            if (!hasLoopRunYet) {
                 //If we are running the loop for the first time
                 //MATT the ramp start was after the calculatePowerUsingRampAndPID so initial power was 1
                 rampControl.start();
@@ -1126,7 +1139,7 @@ public class DriveTrain {
             leftDriveMotor.update();
             rightDriveMotor.update();
             // check to see if our desired distance has been met
-            if (leftDriveMotor.isMotorStateComplete() && rightDriveMotor.isMotorStateComplete()){
+            if (leftDriveMotor.isMotorStateComplete() && rightDriveMotor.isMotorStateComplete()) {
                 return true;
             } else {
                 return false;
@@ -1186,10 +1199,9 @@ public class DriveTrain {
     //*********************************************************************************************
 
     /**
-     *
      * @param turnAngle in a range from -180 to 180. Negative angles run clockwise from 0 to -180.
      *                  Positive angles run counter clockwise from 0 to 180.
-     * @param maxPower max power you want for the turn
+     * @param maxPower  max power you want for the turn
      * @param angleMode Is the starting point for this turn going to be 0 degrees? (relative)? OR is
      *                  it going to be so that 0 degrees is whatever was set in the beginning when
      *                  the robot was first turned on (absolute)?
@@ -1208,7 +1220,7 @@ public class DriveTrain {
 //            pidControl.setKp(0.0125);
 //////            pidControl.setKi(0.00000000025);
             pidControl.setKp(0.009);
-            pidControl.setKi(0.05/1000000);
+            pidControl.setKi(0.05 / 1000000);
             pidControl.reset();
             zeroDistanceDriven();
 
@@ -1253,9 +1265,9 @@ public class DriveTrain {
             }
             differentialDrive(0, correction);
             //return correction;
-            if(pidControl.isFinished()) {
+            if (pidControl.isFinished()) {
                 if (logTurns && logFile != null) {
-                    logFile.logData("SPIN_TURN FINAL_HEADING", imu.getHeading() );
+                    logFile.logData("SPIN_TURN FINAL_HEADING", imu.getHeading());
                 }
             }
             return pidControl.isFinished();
