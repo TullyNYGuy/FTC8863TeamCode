@@ -543,7 +543,8 @@ public class DriveCurve {
                         //driveTrain.updateDriveDistance();
                         double distanceDriven = driveTrain.getDistanceDriven()- initialDistance;
                         double headingChange = currentHeading - initialHeading;
-                        logFile.logData("CURVE FINAL_HEADING_DISTANCE", currentHeading, distanceDriven);
+                        logFile.logData("CURVE FINAL_HEADING_DISTANCE", currentHeading, driveTrain.getDistanceDriven());
+                        logFile.logData("distance driven during this movement = " + distanceDriven);
                         logFile.logData("average rate of turn = " + Double.toString(headingChange / distanceDriven));
                         logFile.logData("effective curve radius = " + Double.toString(getEffectiveCurveRadius(headingChange, distanceDriven)));
                         logFile.logData("Average loop time = " + Double.toString(timer.milliseconds() / loopCount));
