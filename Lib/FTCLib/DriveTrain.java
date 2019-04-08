@@ -653,7 +653,7 @@ public class DriveTrain {
             //leftDriveMotor.setLastEncoderCountToCurrentPostion();
             if (logFile != null && logDrive) {
                 logFile.blankLine();
-                logFile.logData("DRIVE_STRAIGHT_USING_IMU DESIRED Heading = " + Double.toString(heading) + " Speed = " + Double.toString(speed) + " distance = " + Double.toString(distanceToDrive));
+                logFile.logData("DRIVE_STRAIGHT_USING_IMU DESIRED Heading = " + Double.toString(heading) + " Speed = " + Double.toString(speed) + " distance = " + Double.toString(distanceToDrive) + " drive_direction = " + driveDirection.toString());
             }
         } else {
             shutdown();
