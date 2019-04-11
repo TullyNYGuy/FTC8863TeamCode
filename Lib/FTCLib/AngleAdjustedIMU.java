@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
 
-public class IMUAngleAdjuster {
+public class AngleAdjustedIMU {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -31,6 +31,8 @@ public class IMUAngleAdjuster {
 
     private AngleRange angleRange = AngleRange.PLUS_TO_MINUS_180;
 
+    private AdafruitIMU8863 imu;
+
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -51,10 +53,6 @@ public class IMUAngleAdjuster {
         return angleRange;
     }
 
-    public void setAngleRange(AngleRange angleRange) {
-        this.angleRange = angleRange;
-    }
-
     //*********************************************************************************************
     //          Constructors
     //
@@ -62,6 +60,11 @@ public class IMUAngleAdjuster {
     // from it
     //*********************************************************************************************
 
+    public AngleAdjustedIMU(AdafruitIMU8863 imu) {
+        this.imu = imu;
+        angleRange = AngleRange.PLUS_TO_MINUS_180;
+        triggerAngle = 170;
+    }
 
     //*********************************************************************************************
     //          Helper Methods
@@ -75,6 +78,47 @@ public class IMUAngleAdjuster {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
+
+    /**
+     * The target angle is the angle that you think will be the final angle. If the target angle is
+     * bigger than the trigger angle, then any angle read from the IMU will get adjusted to the range
+     * determined by this target angle. The target angle is being used to automatically determine
+     * the angle range. You could set it manually but then you have to know something about the
+     * angle adjustement process. This is just an easy way to set it.
+     * @param targetAngle
+     */
+    public void setTargetAngle(double targetAngle) {
+        if (Math.abs(targetAngle) > Math.abs(triggerAngle)) {
+            // the angles coming from the IMU will have to be adjusted since the anticipated target
+            // or final angle is greater than the trigger angle
+            if (targetAngle < 0) {
+                // the anticipated target angle is negative so adjust all the angles so they
+                // read 0 to -360
+                angleRange = AngleRange.ZERO_TO_MINUS_360;
+            }
+            if (targetAngle > 0) {
+                // the anticipated target angle is positive so adjust all the angles so they
+                // read 0 to +360
+                angleRange = AngleRange.ZERO_TO_PLUS_360;
+            }
+        } else {
+            // the target angle is less than the threshold so angles get read as -180 to +180
+            angleRange = AngleRange.PLUS_TO_MINUS_180;
+        }
+    }
+
+    /**
+     * Read the heading from the IMU and adjust it based on the angleRange so that it return an
+     * angle in one of the following ranges:
+     * -180 to +180
+     * 0 to 360
+     * -360 to 0
+     * You will need to set your anticipated target angle before calling this method (setTargetAngle)
+     * @return
+     */
+    public double getHeading() {
+        return getAdjustedAngle(imu.getHeading());
+    }
 
     /**
      * This method takes in an angle that ranges from -180 to +180 and then adjusts that angle to
@@ -115,7 +159,7 @@ public class IMUAngleAdjuster {
                 // the transition point and the angle would suddenly read -360. The robot would reach
                 // the desired angle, but it might go the long way around (-360 -> -270 -> -180 -> -90
                 // instead of (0 -> -90).
-                if (angle < triggerAngle) {
+                if (Math.abs(angle) > Math.abs(triggerAngle)) {
                     // if the input angle is positive, translate it to negative
                     if (angle > 0) {
                         adjustedAngle = angle - 360;
@@ -138,7 +182,7 @@ public class IMUAngleAdjuster {
                 // angles and only when the robot has moved to +90 does the angle get adjusted to
                 //  0 to +360. That means the robot is well away from the 0/+360 transition point
                 // when the angles start to get adjusted.
-                if (angle > triggerAngle) {
+                if (Math.abs(angle) > Math.abs(triggerAngle))  {
                     // if the input angle is negative, translate it to positive
                     if (angle < 0) {
                         adjustedAngle = angle + 360;
