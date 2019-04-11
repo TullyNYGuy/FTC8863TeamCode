@@ -31,7 +31,7 @@ public class AngleAdjustedIMU {
 
     private AngleRange angleRange = AngleRange.PLUS_TO_MINUS_180;
 
-    private AdafruitIMU8863 imu;
+    public AdafruitIMU8863 imu;
 
 
     //*********************************************************************************************
