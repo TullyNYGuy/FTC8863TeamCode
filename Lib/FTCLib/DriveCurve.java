@@ -223,16 +223,18 @@ public class DriveCurve {
         this.logFile = logFile;
         enableLogging();
         this.driveTrain = driveTrain;
-        init(curveAngle, speed, radius, curveDirection, driveDirection, imu);
+        init(imu);
+        setupDriveCurve(curveAngle, speed, radius, curveDirection, driveDirection);
     }
 
-    public DriveCurve(double curveAngle, double speed, double radius, CurveDirection curveDirection, DriveDirection driveDirection, AdafruitIMU8863 imu) {
-        this.logFile = null;
-        enableLogging = false;
-        init(curveAngle, speed, radius, curveDirection, driveDirection, imu);
+    public DriveCurve(AdafruitIMU8863 imu, DataLogging logFile, DriveTrain driveTrain) {
+        this.logFile = logFile;
+        enableLogging();
+        this.driveTrain = driveTrain;
+        init(imu);
     }
 
-    private void init(double curveAngle, double speed, double radius, CurveDirection curveDirection, DriveDirection driveDirection, AdafruitIMU8863 imu) {
+    private void init(AdafruitIMU8863 imu) {
         this.imu = imu;
 
         pidControl = new PIDControl();
@@ -244,8 +246,6 @@ public class DriveCurve {
         //pidControl.setKi(0.05/1000000);
 
         timer = new ElapsedTime();
-
-        setupDriveCurve(curveAngle, speed, radius, curveDirection, driveDirection);
     }
 
 
