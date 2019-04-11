@@ -74,6 +74,10 @@ public class AutonomousDirector {
         this.delay = delay;
     }
 
+    public void setHangLocation(AutonomousConfigurationFile.HangLocation hangLocation){
+        conFigFile.setHangLocation(hangLocation);
+    }
+
     //*********************************************************************************************
     //          Constructors
     //
@@ -135,6 +139,10 @@ public class AutonomousDirector {
         }
         logFile.logData("");
         clearTaskList();
+    }
+
+    public AutonomousConfigurationFile.HangLocation getHangLocation(){
+        return conFigFile.getHangLocation();
     }
 
     private boolean isSampling() {
