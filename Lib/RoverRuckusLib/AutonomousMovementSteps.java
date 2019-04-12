@@ -444,7 +444,7 @@ public class AutonomousMovementSteps {
                                 logStep(step);
                                 switch (step) {
                                     case START:
-                                        driveCurve.setupDriveCurve(90, .1, inchesToCM(14.468), DriveCurve.CurveDirection.CW, DriveCurve.DriveDirection.FORWARD);
+                                        driveCurve.setupDriveCurve(90, .1, inchesToCM(14.468), DriveCurve.CurveDirection.CCW, DriveCurve.DriveDirection.FORWARD);
                                         driveCurve.startDriveCurve();
                                         step = Steps.RUN_CURVE_ONTO_LANDER_LANE;
                                         break;
@@ -452,7 +452,7 @@ public class AutonomousMovementSteps {
                                         driveCurve.update();
                                         if (driveCurve.isCurveComplete()) {
                                             robot.deliveryLiftSystem.goToHome();
-                                            driveCurve.setupDriveCurve(180, .1, inchesToCM(12.465), DriveCurve.CurveDirection.CW, DriveCurve.DriveDirection.BACKWARD);
+                                            driveCurve.setupDriveCurve(180, .1, inchesToCM(12.465), DriveCurve.CurveDirection.CCW, DriveCurve.DriveDirection.BACKWARD);
                                             driveCurve.startDriveCurve();
                                             step = Steps.RUN_DRIVE_TO_MINERAL;
                                         }
