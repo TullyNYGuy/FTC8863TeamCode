@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
 public class AngleAdjustedIMU {
 
     //*********************************************************************************************
@@ -62,6 +64,11 @@ public class AngleAdjustedIMU {
 
     public AngleAdjustedIMU(AdafruitIMU8863 imu) {
         this.imu = imu;
+        angleRange = AngleRange.PLUS_TO_MINUS_180;
+        triggerAngle = 170;
+    }
+
+    public AngleAdjustedIMU() {
         angleRange = AngleRange.PLUS_TO_MINUS_180;
         triggerAngle = 170;
     }
@@ -191,5 +198,29 @@ public class AngleAdjustedIMU {
                 break;
         }
         return adjustedAngle;
+    }
+
+    //*********************************************************************************************
+    //          TEST METHODS
+    //
+    // public methods that give the class its functionality
+    //*********************************************************************************************
+
+    public void testAngleAdjuster(Telemetry telemetry){
+        // expect 45, 175, -45, -175
+        testTargetAngle(telemetry, 90);
+        // expect 45, 175, 315, 185
+        testTargetAngle(telemetry, 175);
+        // expect 45, 175, -45, -175
+        testTargetAngle(telemetry, -90);
+        // expect -315, -185, -45, -175
+        testTargetAngle(telemetry, -175);
+        telemetry.update();
+    }
+
+    private void testTargetAngle(Telemetry telemetry, double targetAngle) {
+        setTargetAngle(targetAngle);
+        telemetry.addData("target = " + targetAngle + "45->" + getAdjustedAngle(45) + "175->" + getAdjustedAngle(175) + "-45->" + getAdjustedAngle(-45) + "-175->", getAdjustedAngle(-175));
+
     }
 }
