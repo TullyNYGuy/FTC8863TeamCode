@@ -63,6 +63,7 @@ public class DriveTrain {
 
     private boolean imuPresent = true;
     public AdafruitIMU8863 imu;
+    private AngleAdjustedIMU angleAdjustedIMU;
 
     private double driveTrainPower;
     private double distanceToDrive;
@@ -213,6 +214,7 @@ public class DriveTrain {
         if (imuPresent) {
             imu = new AdafruitIMU8863(hardwareMap);
             telemetry.addData("IMU Initialized", "!");
+            angleAdjustedIMU = new AngleAdjustedIMU(imu);
         }
         rampControl = new RampControl(0, 0, 0);
 
@@ -603,6 +605,8 @@ public class DriveTrain {
             // set the mode for the motors so they run using speed control. Without this they may not move.
             rightDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             leftDriveMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            // setup the angle adjusted IMU
+            angleAdjustedIMU.setTargetAngle(heading);
             // setup PID control
             pidControl.setSetpoint(heading);
             pidControl.setMaxCorrection(speed);
@@ -619,17 +623,17 @@ public class DriveTrain {
             switch (headingType) {
                 // since the turn is relative to the current heading, reset the angle references to 0
                 case RELATIVE:
-                    imu.setAngleMode(AdafruitIMU8863.AngleMode.RELATIVE);
-                    imu.resetAngleReferences();
+                    angleAdjustedIMU.imu.setAngleMode(AdafruitIMU8863.AngleMode.RELATIVE);
+                    angleAdjustedIMU.imu.resetAngleReferences();
                     break;
                 // since the movement is running on an absolute heading, we don't want to reset
                 // the angle references. Just tell the IMU to give us headings in a relative mode
                 case ABSOLUTE:
-                    imu.setAngleMode(AdafruitIMU8863.AngleMode.ABSOLUTE);
+                    angleAdjustedIMU.imu.setAngleMode(AdafruitIMU8863.AngleMode.ABSOLUTE);
                     break;
                 // not sure why you would want to use this mode
                 case RAW:
-                    imu.setAngleMode(AdafruitIMU8863.AngleMode.RAW);
+                    angleAdjustedIMU.imu.setAngleMode(AdafruitIMU8863.AngleMode.RAW);
                     break;
             }
 
@@ -666,7 +670,7 @@ public class DriveTrain {
      */
     public void startDriveUsingIMU() {
         if (logFile != null && logDrive) {
-            logFile.logData("DRIVE_STRAIGHT_USING_IMU INITIAL_HEADING_DISTANCE", imu.getHeading(), updateDistanceDriven());
+            logFile.logData("DRIVE_STRAIGHT_USING_IMU INITIAL_HEADING_DISTANCE", angleAdjustedIMU.getHeading(), updateDistanceDriven());
         }
     }
 
@@ -680,7 +684,7 @@ public class DriveTrain {
      */
     public boolean updateDriveUsingIMU() {
         double distanceDrivenSinceStart;
-        double currentHeading = imu.getHeading();
+        double currentHeading = angleAdjustedIMU.getHeading();
         // I have to reverse the sign since the differential drive method expects a negative
         // joystick input for a left turn (joystick left = negative number, not what you would
         // expect).
