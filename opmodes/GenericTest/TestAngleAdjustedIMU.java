@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.AngleAdjustedIMU;
  *
  */
 @TeleOp(name = "Test Angle Adjusted IMU", group = "Test")
-@Disabled
+//@Disabled
 public class TestAngleAdjustedIMU extends LinearOpMode {
 
     // Put your variable declarations here
@@ -28,10 +28,10 @@ public class TestAngleAdjustedIMU extends LinearOpMode {
         imu = new AdafruitIMU8863(hardwareMap);
         telemetry.addData("IMU Initialized", "!");
         angleAdjustedIMU = new AngleAdjustedIMU(imu);
-        angleAdjustedIMU.setTargetAngle(90);
+//        angleAdjustedIMU.setTargetAngle(90);
 //        angleAdjustedIMU.setTargetAngle(180);
 //        angleAdjustedIMU.setTargetAngle(-90);
-//        angleAdjustedIMU.setTargetAngle(-180);
+        angleAdjustedIMU.setTargetAngle(-180);
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run" );

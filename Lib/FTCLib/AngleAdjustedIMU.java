@@ -92,6 +92,7 @@ public class AngleAdjustedIMU {
      * determined by this target angle. The target angle is being used to automatically determine
      * the angle range. You could set it manually but then you have to know something about the
      * angle adjustement process. This is just an easy way to set it.
+     *
      * @param targetAngle
      */
     public void setTargetAngle(double targetAngle) {
@@ -121,6 +122,7 @@ public class AngleAdjustedIMU {
      * 0 to 360
      * -360 to 0
      * You will need to set your anticipated target angle before calling this method (setTargetAngle)
+     *
      * @return
      */
     public double getHeading() {
@@ -134,11 +136,12 @@ public class AngleAdjustedIMU {
      * can be made when the input angle exceeds a certain trigger angle to keep the resulting
      * adjusted angle away from a transition point. See comments in code for more details.
      * Note that the trigger angle must be set before hand (setTriggerAngle)
+     *
      * @param angle angle is assumed to range grom -180 to +180
      * @return adjusted angle
      */
     public double getAdjustedAngle(double angle) {
-        double adjustedAngle = 0;
+        double adjustedAngle = angle;
         // check the desired mode (0 to +360, 0 to 360, -180 to 180)
         switch (angleRange) {
             case PLUS_TO_MINUS_180:
@@ -166,7 +169,7 @@ public class AngleAdjustedIMU {
                 // the transition point and the angle would suddenly read -360. The robot would reach
                 // the desired angle, but it might go the long way around (-360 -> -270 -> -180 -> -90
                 // instead of (0 -> -90).
-                if (Math.abs(angle) > Math.abs(triggerAngle)) {
+                if (Math.abs(angle) > Math.abs(triggerAngle) || angle >0) {
                     // if the input angle is positive, translate it to negative
                     if (angle > 0) {
                         adjustedAngle = angle - 360;
@@ -189,7 +192,7 @@ public class AngleAdjustedIMU {
                 // angles and only when the robot has moved to +90 does the angle get adjusted to
                 //  0 to +360. That means the robot is well away from the 0/+360 transition point
                 // when the angles start to get adjusted.
-                if (Math.abs(angle) > Math.abs(triggerAngle))  {
+                if (Math.abs(angle) > Math.abs(triggerAngle) || angle < 0) {
                     // if the input angle is negative, translate it to positive
                     if (angle < 0) {
                         adjustedAngle = angle + 360;
@@ -206,7 +209,7 @@ public class AngleAdjustedIMU {
     // public methods that give the class its functionality
     //*********************************************************************************************
 
-    public void testAngleAdjuster(Telemetry telemetry){
+    public void testAngleAdjuster(Telemetry telemetry) {
         // expect 45, 175, -45, -175
         testTargetAngle(telemetry, 90);
         // expect 45, 175, 315, 185
@@ -220,7 +223,7 @@ public class AngleAdjustedIMU {
 
     private void testTargetAngle(Telemetry telemetry, double targetAngle) {
         setTargetAngle(targetAngle);
-        telemetry.addData("target = " + targetAngle + "45->" + getAdjustedAngle(45) + "175->" + getAdjustedAngle(175) + "-45->" + getAdjustedAngle(-45) + "-175->", getAdjustedAngle(-175));
+        telemetry.addData("target = " + targetAngle + " 45->" + getAdjustedAngle(45) + " 175->" + getAdjustedAngle(175) + " -45->" + getAdjustedAngle(-45) + " -175->", getAdjustedAngle(-175));
 
     }
 }
