@@ -145,6 +145,7 @@ public class DriveCurve {
     private int loopCount = 0;
 
     private AdafruitIMU8863 imu;
+    private AngleAdjustedIMU angleAdjustedIMU;
     private DriveTrain driveTrain;
     private ElapsedTime timer;
     private DataLogging logFile = null;
@@ -223,7 +224,8 @@ public class DriveCurve {
         this.logFile = logFile;
         enableLogging();
         this.driveTrain = driveTrain;
-        init(imu);
+        angleAdjustedIMU = new AngleAdjustedIMU(imu);
+        init(angleAdjustedIMU);
         setupDriveCurve(curveAngle, speed, radius, curveDirection, driveDirection);
     }
 
@@ -231,11 +233,12 @@ public class DriveCurve {
         this.logFile = logFile;
         enableLogging();
         this.driveTrain = driveTrain;
-        init(imu);
+        angleAdjustedIMU = new AngleAdjustedIMU(imu);
+        init(angleAdjustedIMU);
     }
 
-    private void init(AdafruitIMU8863 imu) {
-        this.imu = imu;
+    private void init(AngleAdjustedIMU imu) {
+        this.angleAdjustedIMU = imu;
 
         pidControl = new PIDControl();
         // threshold is not really meaningful when controlling something that continues on and on
@@ -436,6 +439,7 @@ public class DriveCurve {
      */
     public void setupDriveCurve(double curveAngle, double speed, double radius, CurveDirection curveDirection, DriveDirection driveDirection) {
         setCurveAngle(curveAngle);
+        angleAdjustedIMU.setTargetAngle(curveAngle);
         this.curveDirection = curveDirection;
         this.driveDirection = driveDirection;
         setSpeed(speed);
@@ -469,7 +473,7 @@ public class DriveCurve {
      * need to call the update() in a loop so that the angle can be looked at as the curve proceeds.
      */
     public void startDriveCurve() {
-        initialHeading = imu.getHeading();
+        initialHeading = angleAdjustedIMU.getHeading();
         initialDistance = driveTrain.updateDistanceDriven();
         if (logFile != null && enableLogging) {
             logFile.logData("CURVE INITIAL_HEADING_DISTANCE", initialHeading, initialDistance);
@@ -504,7 +508,7 @@ public class DriveCurve {
                 break;
             case TURNING:
                 loopCount++;
-                currentHeading = imu.getHeading();
+                currentHeading = angleAdjustedIMU.getHeading();
                 currentRateOfTurn = getActualRateOfTurn(currentHeading);
 
                 // the PID control uses the rate of turn per distance traveled. This should be a constant
@@ -597,7 +601,7 @@ public class DriveCurve {
                 break;
             case TURNING:
                 loopCount++;
-                currentHeading = driveTrain.imu.getHeading();
+                currentHeading = angleAdjustedIMU.getHeading();
                 // if the current heading is close enough to the desired heading indicate the turn is done
                 if (Math.abs(currentHeading) > Math.abs(curveAngle) - curveThreshold && Math.abs(currentHeading) < Math.abs(curveAngle) + curveThreshold) {
                     // curve is complete, log the results

@@ -66,6 +66,7 @@ public class AutonomousMovementSteps {
         RUN_DRIVE_TO_DEPOT,
         SETUP_DRIVE_TO_CRATER,
         RUN_DRIVE_TO_CRATER,
+        RUN_CURVE_ONTO_CRATER_LANE,
         CORRECT_HEADING,
 
         // steps specific to one type of run
@@ -467,9 +468,11 @@ public class AutonomousMovementSteps {
                                 }
                                 break;
                         }
+                        break;
                     case DONT_HANG:
                         break;
                 }
+                break;
 
             case CLAIM_DEPOT_FROM_CRATER_SIDE_MINERALS:
                 // the route to the depot depends on which spot the gold mineral was in
@@ -672,11 +675,16 @@ public class AutonomousMovementSteps {
                                 step = Steps.START;
                                 break;
                         }
+                        break;
                 }
+                break;
 
             case CLAIM_DEPOT_FROM_DEPOT_SIDE_MINERALS:
                 switch (goldMineralPosition) {
                     case CENTER:
+                    case LEFT_CENTER:
+                    case CENTER_RIGHT:
+                    case TIE:
                         logStep(step);
                         switch (step) {
                             case START:
@@ -688,6 +696,7 @@ public class AutonomousMovementSteps {
                                 if (robot.driveTrain.updateDriveUsingIMU()) {
                                     step = Steps.DUMP_MARKER;
                                 }
+                                break;
                             case DUMP_MARKER:
                                 robot.deliveryLiftSystem.deliveryBoxToDump();
                                 logFile.logData("Dumped marker");
@@ -714,6 +723,7 @@ public class AutonomousMovementSteps {
                         }
                         break;
                 }
+                break;
 
             case PARK_IN_OUR_CRATER_FROM_DEPOT_SIDE_MINERALS:
                 switch (goldMineralPosition) {
@@ -745,7 +755,7 @@ public class AutonomousMovementSteps {
                         }
                         break;
                 }
-
+                break;
 
             case CLAIM_DEPOT_FROM_CRATER_SIDE_LANDER:
                 logStep(step);
@@ -762,6 +772,34 @@ public class AutonomousMovementSteps {
                         robot.driveTrain.setupDriveUsingIMU(-45, inchesToCM(82), .3, DriveTrain.DriveDirection.FORWARD, AdafruitIMU8863.AngleMode.ABSOLUTE);
                         robot.driveTrain.startDriveUsingIMU();
                         step = Steps.RUN_DRIVE_TO_CRATER;
+                        break;
+                    case RUN_DRIVE_TO_CRATER:
+                        if (robot.driveTrain.updateDriveUsingIMU()) {
+                            // done with the drive straight stop the robot
+                            robot.driveTrain.stopDriveDistanceUsingIMU();
+                            task = autonomousDirector.getNextTask();
+                            step = Steps.START;
+                        }
+                        break;
+
+                }
+                break;
+
+            case PARK_IN_OTHER_CRATER_FROM_DEPOT:
+                logStep(step);
+                switch (step) {
+                    case START:
+                        driveCurve.setupDriveCurve(-45, .3, inchesToCM(9.682), DriveCurve.CurveDirection.CCW, DriveCurve.DriveDirection.BACKWARD);
+                        driveCurve.startDriveCurve();
+                        step = Steps.RUN_CURVE_ONTO_CRATER_LANE;
+                    case RUN_CURVE_ONTO_CRATER_LANE:
+                        if (driveCurve.isCurveComplete()) {
+                            //driveCurve.stopCurve(DcMotor8863.FinishBehavior.HOLD);
+                            robot.driveTrain.setupDriveUsingIMU(-45, inchesToCM(82), .3, DriveTrain.DriveDirection.FORWARD, AdafruitIMU8863.AngleMode.ABSOLUTE);
+                            robot.driveTrain.startDriveUsingIMU();
+                            //timer.reset();
+                            step = Steps.RUN_DRIVE_TO_CRATER;
+                        }
                         break;
                     case RUN_DRIVE_TO_CRATER:
                         if (robot.driveTrain.updateDriveUsingIMU()) {
