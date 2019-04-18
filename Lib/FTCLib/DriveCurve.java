@@ -540,7 +540,8 @@ public class DriveCurve {
                     logFile.logData("CURVE HEADING_DISTANCE_RATE", currentHeading, driveTrain.getDistanceDriven(), currentRateOfTurn);
 //                }
                 // if the current heading is close enough to the desired heading indicate the turn is done
-                if (Math.abs(currentHeading) > Math.abs(curveAngle) - curveThreshold && Math.abs(currentHeading) < Math.abs(curveAngle) + curveThreshold) {
+                    //if (Math.abs(currentHeading) > Math.abs(curveAngle) - curveThreshold && Math.abs(currentHeading) < Math.abs(curveAngle) + curveThreshold) {
+                if (currentHeading > curveAngle - curveThreshold && currentHeading < curveAngle + curveThreshold) {
                     // curve is complete, log the results
                     if (logFile != null && enableLogging) {
                         // commented out to save loop time since I don't think it is needed
