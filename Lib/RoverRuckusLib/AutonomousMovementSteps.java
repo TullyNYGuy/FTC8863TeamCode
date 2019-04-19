@@ -251,7 +251,7 @@ public class AutonomousMovementSteps {
                     case START:
 //                        taskComplete = false;
                         robot.deliveryLiftSystem.deliveryBoxToOutOfWay();
-                        goldMineralDetection.activate(2500);
+                        goldMineralDetection.activate(3000);
                         step = Steps.WAIT_FOR_GOLD_MINERAL_LOCATION;
                         break;
                     case WAIT_FOR_GOLD_MINERAL_LOCATION:
@@ -872,13 +872,13 @@ public class AutonomousMovementSteps {
                         logStep(step);
                         switch (step) {
                             case START:
-                                robot.driveTrain.setupDriveUsingIMU(180, inchesToCM(10.98), .2, DriveTrain.DriveDirection.REVERSE, AdafruitIMU8863.AngleMode.ABSOLUTE);
+                                robot.driveTrain.setupDriveUsingIMU(180, inchesToCM(10.98), .1, DriveTrain.DriveDirection.REVERSE, AdafruitIMU8863.AngleMode.ABSOLUTE);
                                 robot.driveTrain.startDriveUsingIMU();
                                 step = Steps.SETUP_CURVE_ONTO_DEPOT_LANE;
                                 break;
                             case SETUP_CURVE_ONTO_DEPOT_LANE:
                                 if (robot.driveTrain.updateDriveUsingIMU()) {
-                                    driveCurve.setupDriveCurve(135, 0.3, inchesToCM(17.17), DriveCurve.CurveDirection.CW, DriveCurve.DriveDirection.BACKWARD);
+                                    driveCurve.setupDriveCurve(135, 0.1, inchesToCM(17.17), DriveCurve.CurveDirection.CW, DriveCurve.DriveDirection.BACKWARD);
                                     driveCurve.startDriveCurve();
                                     step = Steps.RUN_CURVE_ONTO_DEPOT_LANE;
                                 }
@@ -1038,7 +1038,7 @@ public class AutonomousMovementSteps {
                         logStep(step);
                         switch (step) {
                             case START:
-                                robot.driveTrain.setupDriveUsingIMU(+135, inchesToCM(65.1), .5, DriveTrain.DriveDirection.FORWARD, AdafruitIMU8863.AngleMode.ABSOLUTE);
+                                robot.driveTrain.setupDriveUsingIMU(+132, inchesToCM(69), .4, DriveTrain.DriveDirection.FORWARD, AdafruitIMU8863.AngleMode.ABSOLUTE);
                                 robot.driveTrain.startDriveUsingIMU();
                                 step = Steps.RUN_DRIVE_TO_CRATER;
                                 break;
