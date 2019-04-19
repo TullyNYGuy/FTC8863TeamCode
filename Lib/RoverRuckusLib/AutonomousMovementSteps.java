@@ -172,6 +172,7 @@ public class AutonomousMovementSteps {
         this.autonomousDirector = autonomousDirector;
         if (logFile != null) {
             enableLogging();
+            logFile.logData("START_LOCATION " + autonomousDirector.getHangLocation().toString());
         } else {
             disableLogging();
         }
@@ -187,6 +188,7 @@ public class AutonomousMovementSteps {
         task = autonomousDirector.getNextTask();
 
         goldMineralDetection = new GoldMineralDetection(hardwareMap, telemetry, logFile);
+
     }
 
 
@@ -321,6 +323,7 @@ public class AutonomousMovementSteps {
                 // the movements depend on where the gold mineral is located
                 switch (autonomousDirector.getHangLocation()) {
                     case CRATER_SIDE:
+                    case DONT_HANG_CRATER:
                         switch (goldMineralPosition) {
                             case LEFT:
                                 logStep(step);
@@ -443,6 +446,7 @@ public class AutonomousMovementSteps {
                         }
                         break;
                     case DEPOT_SIDE:
+                    case DONT_HANG_DEPOT:
                         switch (goldMineralPosition) {
                             case CENTER:
                             case LEFT_CENTER:
@@ -509,7 +513,7 @@ public class AutonomousMovementSteps {
                                         driveCurve.update();
                                         if (driveCurve.isCurveComplete()) {
                                             robot.deliveryLiftSystem.goToHome();
-                                            robot.driveTrain.setupDriveUsingIMU(+90,inchesToCM(17.44),.2, DriveTrain.DriveDirection.FORWARD, AdafruitIMU8863.AngleMode.ABSOLUTE);
+                                            robot.driveTrain.setupDriveUsingIMU(+90, inchesToCM(17.44), .2, DriveTrain.DriveDirection.FORWARD, AdafruitIMU8863.AngleMode.ABSOLUTE);
                                             robot.driveTrain.startDriveUsingIMU();
                                             step = Steps.RUN_DRIVE_TO_MINERAL;
                                         }
@@ -531,7 +535,6 @@ public class AutonomousMovementSteps {
                                 }
                                 break;
                         }
-                    case DONT_HANG:
                         break;
                 }
                 break;

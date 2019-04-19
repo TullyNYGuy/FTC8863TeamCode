@@ -18,7 +18,8 @@ public class AutonomousConfigurationFile {
     public enum HangLocation {
         CRATER_SIDE,
         DEPOT_SIDE,
-        DONT_HANG
+        DONT_HANG_CRATER,
+        DONT_HANG_DEPOT
     }
 
     public enum Sample {
@@ -34,6 +35,24 @@ public class AutonomousConfigurationFile {
         DEPOT
     }
 
+    public enum AllianceColor {
+        RED,
+        BLUE
+    }
+
+    public enum MatchNumber {
+        PRACTICE,
+        ONE,
+        TWO,
+        THREE,
+        FOUR,
+        FIVE,
+        SIX,
+        SEVEN,
+        EIGHT,
+        NINE
+    }
+
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS
     //
@@ -42,10 +61,12 @@ public class AutonomousConfigurationFile {
     //*********************************************************************************************
 
     private double delay = 0;
-    private HangLocation hangLocation = HangLocation.DONT_HANG;
+    private HangLocation hangLocation = HangLocation.DONT_HANG_CRATER;
     private Sample sample = Sample.NO_SAMPLE;
     private boolean claimDepot = true;
     private ParkLocation parkLocation = ParkLocation.OUR_CRATER;
+    private AllianceColor allianceColor = AllianceColor.RED;
+    private MatchNumber matchNumber = MatchNumber.PRACTICE;
     private String folderPath = "/sdcard/FTC8863/";
     private String filename = "autonomousConfigurationFile.txt";
 
@@ -58,7 +79,7 @@ public class AutonomousConfigurationFile {
 
     public void setDelay(double delay) {
         if (delay > 30) {
-            delay = 30;
+            delay = 0;
         }
         this.delay = delay;
     }
@@ -99,6 +120,22 @@ public class AutonomousConfigurationFile {
         this.parkLocation = parkLocation;
     }
 
+    public AllianceColor getAllianceColor() {
+        return allianceColor;
+    }
+
+    public void setAllianceColor(AllianceColor allianceColor) {
+        this.allianceColor = allianceColor;
+    }
+
+    public MatchNumber getMatchNumber() {
+        return matchNumber;
+    }
+
+    public void setMatchNumber(MatchNumber matchNumber) {
+        this.matchNumber = matchNumber;
+    }
+
     //*********************************************************************************************
     //          Constructors
     //
@@ -137,6 +174,8 @@ public class AutonomousConfigurationFile {
             fileWriter.write("sample " + sample.toString() + System.lineSeparator());
             fileWriter.write("claimDepot " + claimDepot + System.lineSeparator());
             fileWriter.write("parkLocation " + parkLocation.toString() + System.lineSeparator());
+            fileWriter.write("allianceColor " + allianceColor.toString() + System.lineSeparator());
+            fileWriter.write("matchNumber " + matchNumber.toString() + System.lineSeparator());
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -147,14 +186,6 @@ public class AutonomousConfigurationFile {
                 e.printStackTrace();
             }
         }
-    }
-
-    public void testConfigFileRead(){
-        setHangLocation(HangLocation.DEPOT_SIDE);
-        setSample(Sample.DEPOT_SIDE);
-        setClaimDepot(false);
-        setParkLocation(ParkLocation.OUR_CRATER);
-        setDelay(1);
     }
 
     /**
@@ -180,8 +211,11 @@ public class AutonomousConfigurationFile {
                             case "DEPOT_SIDE":
                                 hangLocation = HangLocation.DEPOT_SIDE;
                                 break;
-                            case "DONT_HANG":
-                                hangLocation = HangLocation.DONT_HANG;
+                            case "DONT_HANG_CRATER":
+                                hangLocation = HangLocation.DONT_HANG_CRATER;
+                                break;
+                            case "DONT_HANG_DEPOT":
+                                hangLocation = HangLocation.DONT_HANG_DEPOT;
                                 break;
                         }
                         break;
@@ -219,6 +253,51 @@ public class AutonomousConfigurationFile {
                                 break;
                             case "DEPOT":
                                 parkLocation = ParkLocation.DEPOT;
+                                break;
+                        }
+                        break;
+                    case "allianceColor":
+                        value = scanner.next();
+                        switch (value) {
+                            case "RED":
+                                allianceColor = AllianceColor.RED;
+                                break;
+                            case "BLUE":
+                                allianceColor = AllianceColor.BLUE;
+                                break;
+                        }
+                    case "matchNumber":
+                        value = scanner.next();
+                        switch (value) {
+                            case "PRACTICE":
+                                matchNumber = matchNumber.PRACTICE;
+                                break;
+                            case "ONE":
+                                matchNumber = matchNumber.ONE;
+                                break;
+                            case "TWO":
+                                matchNumber = matchNumber.TWO;
+                                break;
+                            case "THREE":
+                                matchNumber = matchNumber.THREE;
+                                break;
+                            case "FOUR":
+                                matchNumber = matchNumber.FOUR;
+                                break;
+                            case "FIVE":
+                                matchNumber = matchNumber.FIVE;
+                                break;
+                            case "SIX":
+                                matchNumber = matchNumber.SIX;
+                                break;
+                            case "SEVEN":
+                                matchNumber = matchNumber.SEVEN;
+                                break;
+                            case "EIGHT":
+                                matchNumber = matchNumber.EIGHT;
+                                break;
+                            case "NINE":
+                                matchNumber = matchNumber.NINE;
                                 break;
                         }
                         break;

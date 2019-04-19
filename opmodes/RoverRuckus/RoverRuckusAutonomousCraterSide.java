@@ -39,11 +39,13 @@ public class RoverRuckusAutonomousCraterSide extends LinearOpMode {
         configurationFile = new AutonomousConfigurationFile();
         autonomousDirector = new AutonomousDirector(configurationFile);
 
-        autonomousDirector.addTask(AutonomousDirector.AutonomousTasks.LOCATE_GOLD_MINERAL);
-        autonomousDirector.addTask(AutonomousDirector.AutonomousTasks.DEHANG);
-        autonomousDirector.addTask(AutonomousDirector.AutonomousTasks.HIT_GOLD_MINERAL_FROM_LANDER);
-        autonomousDirector.addTask(AutonomousDirector.AutonomousTasks.CLAIM_DEPOT_FROM_CRATER_SIDE_MINERALS);
-        autonomousDirector.addTask(AutonomousDirector.AutonomousTasks.PARK_IN_OUR_CRATER_FROM_DEPOT);
+
+
+//        autonomousDirector.addTask(AutonomousDirector.AutonomousTasks.LOCATE_GOLD_MINERAL);
+//        autonomousDirector.addTask(AutonomousDirector.AutonomousTasks.DEHANG);
+//        autonomousDirector.addTask(AutonomousDirector.AutonomousTasks.HIT_GOLD_MINERAL_FROM_LANDER);
+//        autonomousDirector.addTask(AutonomousDirector.AutonomousTasks.CLAIM_DEPOT_FROM_CRATER_SIDE_MINERALS);
+//        autonomousDirector.addTask(AutonomousDirector.AutonomousTasks.PARK_IN_OUR_CRATER_FROM_DEPOT);
         // autonomousDirector.setDelay(10000);
         //autonomousDirector.addTask(AutonomousDirector.AutonomousTasks.DELAY);
         autonomousMovementSteps = new AutonomousMovementSteps(robot, autonomousDirector, logFile, hardwareMap, telemetry);
