@@ -253,7 +253,7 @@ public class AutonomousMovementSteps {
                     case START:
 //                        taskComplete = false;
                         robot.deliveryLiftSystem.deliveryBoxToOutOfWay();
-                        goldMineralDetection.activate(3000);
+                        goldMineralDetection.activate(2500);
                         step = Steps.WAIT_FOR_GOLD_MINERAL_LOCATION;
                         break;
                     case WAIT_FOR_GOLD_MINERAL_LOCATION:
@@ -993,8 +993,8 @@ public class AutonomousMovementSteps {
                         logStep(step);
                         switch (step) {
                             case START:
-                                adjustment = +4;
-                                driveCurve.setupDriveCurve(-45 + adjustment, .3, inchesToCM(9.682), DriveCurve.CurveDirection.CCW, DriveCurve.DriveDirection.BACKWARD);
+                                adjustment = -4;
+                                driveCurve.setupDriveCurve(-45 + adjustment, .1, inchesToCM(9.682), DriveCurve.CurveDirection.CCW, DriveCurve.DriveDirection.BACKWARD);
                                 driveCurve.startDriveCurve();
                                 step = Steps.RUN_CURVE_ONTO_CRATER_LANE;
                                 break;
