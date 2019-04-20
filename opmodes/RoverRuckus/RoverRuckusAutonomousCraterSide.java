@@ -37,6 +37,7 @@ public class RoverRuckusAutonomousCraterSide extends LinearOpMode {
         robot.driveTrain.enableLogTurns();
 
         configurationFile = new AutonomousConfigurationFile();
+        configurationFile.readConfigurationFile();
         autonomousDirector = new AutonomousDirector(configurationFile);
 
 

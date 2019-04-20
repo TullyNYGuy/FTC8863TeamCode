@@ -88,6 +88,7 @@ public class AutonomousDirector {
         this.conFigFile = conFigFile;
         taskList = new ArrayList<AutonomousTasks>();
         iterator = taskList.iterator();
+        translator();
     }
 
     //*********************************************************************************************
@@ -173,10 +174,10 @@ public class AutonomousDirector {
             // ok now the first sample is completed
             if (conFigFile.isClaimDepot()) {
                 // The robot is supposed to claim the depot. The movements depend on which side of the lander the robot is located on.
-                if (conFigFile.getHangLocation() == AutonomousConfigurationFile.HangLocation.DEPOT_SIDE) {
+                if (conFigFile.getHangLocation() == AutonomousConfigurationFile.HangLocation.DEPOT_SIDE || conFigFile.getHangLocation() == AutonomousConfigurationFile.HangLocation.DONT_HANG_DEPOT) {
                     taskList.add(AutonomousTasks.CLAIM_DEPOT_FROM_DEPOT_SIDE_MINERALS);
                 }
-                if (conFigFile.getHangLocation() == AutonomousConfigurationFile.HangLocation.CRATER_SIDE) {
+                if (conFigFile.getHangLocation() == AutonomousConfigurationFile.HangLocation.CRATER_SIDE || conFigFile.getHangLocation() == AutonomousConfigurationFile.HangLocation.DONT_HANG_CRATER) {
                     taskList.add(AutonomousTasks.CLAIM_DEPOT_FROM_CRATER_SIDE_MINERALS);
                 }
                 if (conFigFile.getSample() == AutonomousConfigurationFile.Sample.BOTH) {
@@ -204,9 +205,9 @@ public class AutonomousDirector {
                         }
                     } else {
                         if (conFigFile.getParkLocation() == AutonomousConfigurationFile.ParkLocation.OUR_CRATER) {
-                            taskList.add(AutonomousTasks.PARK_IN_OUR_CRATER_FROM_CRATERSIDE_MINERALS);
+                            taskList.add(AutonomousTasks.PARK_IN_OUR_CRATER_FROM_DEPOT);
                         } else {
-                            taskList.add(AutonomousTasks.PARK_IN_OTHER_CRATER_FROM_CRATER_SIDE_MINERALS);
+                            taskList.add(AutonomousTasks.PARK_IN_OTHER_CRATER_FROM_DEPOT);
                         }
                     }
                 }
