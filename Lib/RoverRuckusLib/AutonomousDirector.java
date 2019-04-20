@@ -146,6 +146,10 @@ public class AutonomousDirector {
         return conFigFile.getHangLocation();
     }
 
+    public AutonomousConfigurationFile.AllianceColor getAllianceColor(){
+        return conFigFile.getAllianceColor();
+    }
+
     private boolean isSampling() {
         return conFigFile.getSample() == AutonomousConfigurationFile.Sample.CRATER_SIDE || conFigFile.getSample() == AutonomousConfigurationFile.Sample.DEPOT_SIDE || conFigFile.getSample() == AutonomousConfigurationFile.Sample.BOTH;
     }

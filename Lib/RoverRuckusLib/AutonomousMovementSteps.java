@@ -173,6 +173,7 @@ public class AutonomousMovementSteps {
         if (logFile != null) {
             enableLogging();
             logFile.logData("START_LOCATION " + autonomousDirector.getHangLocation().toString());
+            logFile.logData("ALLIANCE_COLOR " + autonomousDirector.getAllianceColor().toString());
         } else {
             disableLogging();
         }
