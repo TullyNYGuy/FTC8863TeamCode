@@ -885,7 +885,10 @@ public class RoverRuckusRobot {
                         // move the lift to transfer, which is almost the bottom. This avoids moving
                         // it later when the transfer is started.
                         deliveryLiftSystem.goToTransfer();
-                        deliveryLiftSystem.deliveryBoxToHome();
+                        // moved dropArm from LOWER_LIFT to START 4/22
+                        collectorArm.dropArm();
+                        // moved deliveryBoxToHome from START to LOWER_LIFT 4/22
+//                        deliveryLiftSystem.deliveryBoxToHome();
                         toCollectState = ToCollectStates.LOWER_LIFT;
                         break;
                     case EMPTY:
@@ -895,8 +898,14 @@ public class RoverRuckusRobot {
             case LOWER_LIFT:
                 switch (toCollectCommand) {
                     case LOWER_COLLECTION_SYSTEM:
-                        collectorArm.dropArm();
-                        toCollectState = ToCollectStates.READY_TO_COLLECT;
+                        // moved deliveryBoxToHome from START. Added check for lift movement complete 4/22
+                        if (deliveryLiftSystem.isLiftMovementComplete()){
+                            deliveryLiftSystem.deliveryBoxToHome();
+                            toCollectState = ToCollectStates.READY_TO_COLLECT;
+                        }
+                        // 4/22 changes
+//                        collectorArm.dropArm();
+//                        toCollectState = ToCollectStates.READY_TO_COLLECT;
                         break;
                     case EMPTY:
                         break;
