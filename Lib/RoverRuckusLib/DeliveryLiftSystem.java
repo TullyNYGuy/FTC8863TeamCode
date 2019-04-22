@@ -74,6 +74,7 @@ public class DeliveryLiftSystem {
 
     private DataLogging logFile;
     private boolean loggingOn = false;
+    private boolean liftArrivedAlreadyLogged = false;
 
     private double joystickPower = 0;
 
@@ -405,6 +406,7 @@ public class DeliveryLiftSystem {
      */
     public void moveToPosition(double heightInInches, double liftPower) {
         if (isLiftMovementComplete()) {
+            liftArrivedAlreadyLogged = false;
             log("Moving lift to a position = " + heightInInches );
             desiredPosition = heightInInches;
             this.liftPower = liftPower;
@@ -688,11 +690,17 @@ public class DeliveryLiftSystem {
 
     public boolean isLiftMovementComplete() {
         if (liftCommand == LiftCommands.NO_COMMAND) {
-            if (logFile != null && loggingOn) {
+            // if the lift arrived message has alredy been logged don't log it again
+            //NOTE if the lift is commanded to move to a position again, but is already at the
+            // position, then the lift arrived may not be logged because liftArrivedAlreadyLogged
+            // may not get set to false prior to the new movement command.
+            if (logFile != null && loggingOn && !liftArrivedAlreadyLogged) {
                 logFile.logData("LIFT ARRIVED AT DESTINATION");
+                liftArrivedAlreadyLogged = true;
             }
             return true;
         } else {
+            liftArrivedAlreadyLogged = false;
             return false;
         }
     }
