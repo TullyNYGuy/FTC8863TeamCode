@@ -891,6 +891,7 @@ public class RoverRuckusRobot {
                     case EMPTY:
                         break;
                 }
+                break;
             case LOWER_LIFT:
                 switch (toCollectCommand) {
                     case LOWER_COLLECTION_SYSTEM:
@@ -900,6 +901,7 @@ public class RoverRuckusRobot {
                     case EMPTY:
                         break;
                 }
+                break;
             case READY_TO_COLLECT:
                 switch (toCollectCommand) {
                     case LOWER_COLLECTION_SYSTEM:
@@ -911,6 +913,7 @@ public class RoverRuckusRobot {
                     case EMPTY:
                         break;
                 }
+                break;
             case DONE:
                 toCollectState = ToCollectStates.START;
                 toCollectCommand = ToCollectCommands.EMPTY;
