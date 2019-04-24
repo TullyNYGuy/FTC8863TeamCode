@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.RoverRuckus;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -13,7 +14,7 @@ import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.AutonomousDirector;
 import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.AutonomousMovementSteps;
 
 @Autonomous(name = "Autonomous Crater Side Sample Claim Park", group = "Test")
-//@Disabled
+@Disabled
 public class RoverRuckusAutonomousCraterSide extends LinearOpMode {
 
     // Put your variable declarations here

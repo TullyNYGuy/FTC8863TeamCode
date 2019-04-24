@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.RoverRuckus;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
@@ -12,7 +13,7 @@ import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.AutonomousDirector;
 import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.AutonomousMovementSteps;
 
 @Autonomous(name = "Depot Side Autonomous Test", group = "Test")
-//@Disabled
+@Disabled
 public class RoverRuckusAutonomousDepotSide extends LinearOpMode {
 
     // Put your variable declarations here
