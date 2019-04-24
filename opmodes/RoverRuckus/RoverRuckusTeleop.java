@@ -155,7 +155,7 @@ public class RoverRuckusTeleop extends LinearOpMode {
 
         gamepad2RightJoyStickX = new JoyStick(JoyStick.JoyStickMode.SQUARE, JOYSTICK_DEADBAND_VALUE, JoyStick.InvertSign.NO_INVERT_SIGN);
         gamepad2RightJoyStickY = new JoyStick(JoyStick.JoyStickMode.SQUARE, JOYSTICK_DEADBAND_VALUE, JoyStick.InvertSign.INVERT_SIGN);
-        gamepad2RightJoyStickY.setHalfPower();
+        //gamepad2RightJoyStickY.setHalfPower();
 
         // default the wheels to 30% power
         gamepad1LeftJoyStickX.set30PercentPower();
