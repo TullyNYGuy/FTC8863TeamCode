@@ -129,7 +129,8 @@ public class CollectorArm {
         extensionArmMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_3_7_ORBITAL);
         //72tooth gear on motor and 56tooth gear on lead screw and lead screw moves 8mm per rev
         //extensionArmMotor.setMovementPerRev((72/56)*(8/25.4)*1/.78);
-        extensionArmMotor.setMovementPerRev(12.8/6*1/2.54);
+        //extensionArmMotor.setMovementPerRev(12.8/6*1/2.54);
+        extensionArmMotor.setMovementPerRev(10.4/10*1/2.54);
         //the new movement per rev is for the new gears
         extensionArmMotor.setMotorToHold();
         extensionArmMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
