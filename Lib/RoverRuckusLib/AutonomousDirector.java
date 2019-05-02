@@ -66,8 +66,8 @@ public class AutonomousDirector {
     //*********************************************************************************************
 
 
-    public double getDelay() {
-        return delay;
+    public double getDelayInMilliseconds() {
+        return delay*1000;
     }
 
     public void setDelay(double delay) {
