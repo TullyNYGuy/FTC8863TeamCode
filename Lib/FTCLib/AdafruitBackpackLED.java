@@ -22,6 +22,24 @@ yellow version: https://www.adafruit.com/product/2158
 // is available in several different LED colors. Here is the yellow version:
 // https://www.adafruit.com/product/2158
 
+// The code is organized into several different sections:
+//
+// The Controller chip has some registers that control the various display functions such as the
+// brightness of the display and whether it is blinking and how fast it is blinking. So there are a
+// bunch of enums that define the registers and the commands they accept.
+
+// The LEDCode class performs mapping of a character you want to display to the 16 bit code that
+// turns on the proper LED segments to actually display that character. You won't ever call any of
+// the methods in this class directly.
+//
+// The next section contains some public methods to make it easy to control the display functions.
+// This section contains the methods you will use.
+// Also in there are the initialization methods.
+//
+// Last are the low level I2C read and write methods. You won't call any of those directly.
+//
+//
+
 import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 import com.qualcomm.robotcore.hardware.I2cWaitControl;
@@ -177,9 +195,30 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
     // There are no commands for the test mode register.
 
     /**
+     * The display has 4 characters. Each character has 14 different LED segments associated with it.
+     * In order to display a character on the LED, you have to turn some of the 14 LED segments on
+     * and turn others off. The ones that are turned on will form the character on the display. For
+     * each different ASCII character (like a "t" for example), there is a code that tells the circuit
+     * board which LED segments to turn on. In other words, I have to map an ASCII character to its
+     * specific code that turns on just the right LED segments to display that character.
+     * This class performs the mapping of a single character to its code. It also can map a multi
+     * character string to a set of codes to display that string.
      * Here are the codes for displaying a character on the LED. These codes are specific to the
-     * Adafruit board. The code is the command to write after the display data register address.
-     * I'm using a class to create and populate a lookup table. You pass in the character to
+     * Adafruit board. To actually get the code written out to the display across the I2C bus, I
+     * first have to know which of the 4 character positions on the display I want to use. The I
+     * send out the register address for the position followed by the LED code for the ASCII
+     * character I want to display in that position. In summary here is what gets written out to the
+     * I2C bus:
+     * <p>
+     * 8 bit address of the display position + 8 upper most bits of the LED code + 8 lower bits of
+     * the LED code.
+     * <p>
+     * Note that the LED code, which is initially 16 bits long (1 bit for each of the 14 LED segments
+     * + 2 bits just to get the code up to 16 bits), has to be broken into 2 8 bit chunks (bytes).
+     * Why? Because I2C cannot write a 16 bit long piece of data. It can only write 8 bits at a time.
+     * <p>
+     * I'm using a class to create and populate a lookup table. The table maps the ASCII character
+     * to the LED code. You pass in the character to the method named
      * setStringToDisplay and then get the 2 bytes to write to the register that form the character on
      * the LED from getLEDCodeMostSignificantByte and getLEDCodeLeastSignificantByte.
      */
@@ -187,7 +226,7 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
 
         // define a lookup table to map a string to an LED code that will display the character on
         // the display
-        private Map<Character, Short> stringToLEDCode = new HashMap<>();
+        private Map<Character, Short> charToLEDCode = new HashMap<>();
 
         // constructor
         // populate the lookup table - this comes from the Adafruit C++ library code located at
@@ -197,105 +236,105 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
 
         private LEDCode() {
             // populate the lookup table that maps a string to an LED Code
-            stringToLEDCode.put(' ', (short) 0b0000000000000000);            // (blank)
-            stringToLEDCode.put('!', (short) 0b0100000000000110);            // !
-            //stringToLEDCode.put('!', (short) 0b0000000000000110);            // !
-            stringToLEDCode.put('"', (short) 0b0000001000100000);           // "
-            stringToLEDCode.put('#', (short) 0b0001001011001110);            // #
-            stringToLEDCode.put('$', (short) 0b0001001011101101);            // $
-            stringToLEDCode.put('%', (short) 0b0000110000100100);            // %
-            stringToLEDCode.put('&', (short) 0b0010001101011101);            // &
-            stringToLEDCode.put('\'', (short) 0b0000010000000000);           // '
-            stringToLEDCode.put('(', (short) 0b0010010000000000);            // (
-            stringToLEDCode.put(')', (short) 0b0000100100000000);            // )
-            stringToLEDCode.put('*', (short) 0b0011111111000000);            // *
-            stringToLEDCode.put('+', (short) 0b0001001011000000);            // +
-            stringToLEDCode.put(',', (short) 0b0000100000000000);            // ,
-            stringToLEDCode.put('-', (short) 0b0000000011000000);            // -
-            stringToLEDCode.put('.', (short) 0b0100000000000000);            // .
-            //stringToLEDCode.put('.', (short) 0b0000000000000000);            // .
-            stringToLEDCode.put('/', (short) 0b0000110000000000);            // /
-            stringToLEDCode.put('0', (short) 0b0000110000111111);            // 0
-            stringToLEDCode.put('1', (short) 0b0000000000000110);            // 1
-            stringToLEDCode.put('2', (short) 0b0000000011011011);            // 2
-            stringToLEDCode.put('3', (short) 0b0000000010001111);            // 3
-            stringToLEDCode.put('4', (short) 0b0000000011100110);            // 4
-            stringToLEDCode.put('5', (short) 0b0010000001101001);            // 5
-            stringToLEDCode.put('6', (short) 0b0000000011111101);            // 6
-            stringToLEDCode.put('7', (short) 0b0000000000000111);            // 7
-            stringToLEDCode.put('8', (short) 0b0000000011111111);            // 8
-            stringToLEDCode.put('9', (short) 0b0000000011101111);            // 9
-            stringToLEDCode.put(':', (short) 0b0001001000000000);            // :
-            stringToLEDCode.put(';', (short) 0b0000101000000000);            // ;
-            stringToLEDCode.put('<', (short) 0b0010010000000000);            // <
-            stringToLEDCode.put('=', (short) 0b0000000011001000);            // =
-            stringToLEDCode.put('>', (short) 0b0000100100000000);            // >
-            stringToLEDCode.put('?', (short) 0b0101000010000011);            // ?
-//            stringToLEDCode.put('?', (short) 0b0001000010000011);            // ?
-            stringToLEDCode.put('@', (short) 0b0000001010111011);            // @
-            stringToLEDCode.put('A', (short) 0b0000000011110111);            // A
-            stringToLEDCode.put('B', (short) 0b0001001010001111);            // B
-            stringToLEDCode.put('C', (short) 0b0000000000111001);            // C
-            stringToLEDCode.put('D', (short) 0b0001001000001111);            // D
-            stringToLEDCode.put('E', (short) 0b0000000011111001);            // E
-            stringToLEDCode.put('F', (short) 0b0000000001110001);            // F
-            stringToLEDCode.put('G', (short) 0b0000000010111101);            // G
-            stringToLEDCode.put('H', (short) 0b0000000011110110);            // H
-            stringToLEDCode.put('I', (short) 0b0001001000000000);            // I
-            stringToLEDCode.put('J', (short) 0b0000000000011110);            // J
-            stringToLEDCode.put('K', (short) 0b0010010001110000);            // K
-            stringToLEDCode.put('L', (short) 0b0000000000111000);            // L
-            stringToLEDCode.put('M', (short) 0b0000010100110110);            // M
-            stringToLEDCode.put('N', (short) 0b0010000100110110);            // N
-            stringToLEDCode.put('O', (short) 0b0000000000111111);            // O
-            stringToLEDCode.put('P', (short) 0b0000000011110011);            // P
-            stringToLEDCode.put('Q', (short) 0b0010000000111111);            // Q
-            stringToLEDCode.put('R', (short) 0b0010000011110011);            // R
-            stringToLEDCode.put('S', (short) 0b0000000011101101);            // S
-            stringToLEDCode.put('T', (short) 0b0001001000000001);            // T
-            stringToLEDCode.put('U', (short) 0b0000000000111110);            // U
-            stringToLEDCode.put('V', (short) 0b0000110000110000);            // V
-            stringToLEDCode.put('W', (short) 0b0010100000110110);            // W
-            stringToLEDCode.put('X', (short) 0b0010110100000000);            // X
-            stringToLEDCode.put('Y', (short) 0b0001010100000000);            // Y
-            stringToLEDCode.put('Z', (short) 0b0000110000001001);            // Z
-            stringToLEDCode.put('[', (short) 0b0000000000111001);            // [
-            stringToLEDCode.put(']', (short) 0b0000000000001111);            // ]
-            stringToLEDCode.put('^', (short) 0b0010100000000000);            // ^
-            //stringToLEDCode.put('^', (short) 0b0000110000000011);            // ^
-            stringToLEDCode.put('_', (short) 0b0000000000001000);            // _
-            stringToLEDCode.put('`', (short) 0b0000000100000000);            // `
-            stringToLEDCode.put('a', (short) 0b0000000011011111);            // a my version of a
-            //stringToLEDCode.put('a', (short) 0b0001000001011000);            // a Adafruit's a does not look like an a to me.
-            stringToLEDCode.put('b', (short) 0b0010000001111000);            // b
-            stringToLEDCode.put('c', (short) 0b0000000011011000);            // c
-            stringToLEDCode.put('d', (short) 0b0000100010001110);            // d
-            stringToLEDCode.put('e', (short) 0b0000100001011000);            // e
-            stringToLEDCode.put('f', (short) 0b0000000001110001);            // f
-            stringToLEDCode.put('g', (short) 0b0000010010001110);            // g
-            stringToLEDCode.put('h', (short) 0b0001000001110000);            // h
-            stringToLEDCode.put('i', (short) 0b0001000000000000);            // i
-            stringToLEDCode.put('j', (short) 0b0000000000001110);            // j
-            stringToLEDCode.put('k', (short) 0b0011011000000000);            // k
-            stringToLEDCode.put('l', (short) 0b0000000000110000);            // l
-            stringToLEDCode.put('m', (short) 0b0001000011010100);            // m
-            stringToLEDCode.put('n', (short) 0b0001000001010000);            // n
-            stringToLEDCode.put('o', (short) 0b0000000011011100);            // o
-            stringToLEDCode.put('p', (short) 0b0000000101110000);            // p
-            stringToLEDCode.put('q', (short) 0b0000010010000110);            // q
-            stringToLEDCode.put('r', (short) 0b0000000001010000);            // r
-            stringToLEDCode.put('s', (short) 0b0010000010001000);            // s
-            stringToLEDCode.put('t', (short) 0b0000000001111000);            // t
-            stringToLEDCode.put('u', (short) 0b0000000000011100);            // u
-            stringToLEDCode.put('v', (short) 0b0010000000000100);            // v
-            stringToLEDCode.put('w', (short) 0b0010100000010100);            // w
-//            stringToLEDCode.put('x', (short) 0b0010100011000000);            // x
-            stringToLEDCode.put('x', (short) 0b0010110100000000);            // x
-            stringToLEDCode.put('y', (short) 0b0010000000001100);            // y
-            stringToLEDCode.put('z', (short) 0b0000100001001000);            // z
-            stringToLEDCode.put('{', (short) 0b0000100101001001);            // {
-            stringToLEDCode.put('}', (short) 0b0010010010001001);            // }
-            stringToLEDCode.put('~', (short) 0b0000010100100000);            // ~
+            charToLEDCode.put(' ', (short) 0b0000000000000000);            // (blank)
+            charToLEDCode.put('!', (short) 0b0100000000000110);            // !
+            //charToLEDCode.put('!', (short) 0b0000000000000110);            // !
+            charToLEDCode.put('"', (short) 0b0000001000100000);           // "
+            charToLEDCode.put('#', (short) 0b0001001011001110);            // #
+            charToLEDCode.put('$', (short) 0b0001001011101101);            // $
+            charToLEDCode.put('%', (short) 0b0000110000100100);            // %
+            charToLEDCode.put('&', (short) 0b0010001101011101);            // &
+            charToLEDCode.put('\'', (short) 0b0000010000000000);           // '
+            charToLEDCode.put('(', (short) 0b0010010000000000);            // (
+            charToLEDCode.put(')', (short) 0b0000100100000000);            // )
+            charToLEDCode.put('*', (short) 0b0011111111000000);            // *
+            charToLEDCode.put('+', (short) 0b0001001011000000);            // +
+            charToLEDCode.put(',', (short) 0b0000100000000000);            // ,
+            charToLEDCode.put('-', (short) 0b0000000011000000);            // -
+            charToLEDCode.put('.', (short) 0b0100000000000000);            // .
+            //charToLEDCode.put('.', (short) 0b0000000000000000);            // .
+            charToLEDCode.put('/', (short) 0b0000110000000000);            // /
+            charToLEDCode.put('0', (short) 0b0000110000111111);            // 0
+            charToLEDCode.put('1', (short) 0b0000000000000110);            // 1
+            charToLEDCode.put('2', (short) 0b0000000011011011);            // 2
+            charToLEDCode.put('3', (short) 0b0000000010001111);            // 3
+            charToLEDCode.put('4', (short) 0b0000000011100110);            // 4
+            charToLEDCode.put('5', (short) 0b0010000001101001);            // 5
+            charToLEDCode.put('6', (short) 0b0000000011111101);            // 6
+            charToLEDCode.put('7', (short) 0b0000000000000111);            // 7
+            charToLEDCode.put('8', (short) 0b0000000011111111);            // 8
+            charToLEDCode.put('9', (short) 0b0000000011101111);            // 9
+            charToLEDCode.put(':', (short) 0b0001001000000000);            // :
+            charToLEDCode.put(';', (short) 0b0000101000000000);            // ;
+            charToLEDCode.put('<', (short) 0b0010010000000000);            // <
+            charToLEDCode.put('=', (short) 0b0000000011001000);            // =
+            charToLEDCode.put('>', (short) 0b0000100100000000);            // >
+            charToLEDCode.put('?', (short) 0b0101000010000011);            // ?
+//            charToLEDCode.put('?', (short) 0b0001000010000011);            // ?
+            charToLEDCode.put('@', (short) 0b0000001010111011);            // @
+            charToLEDCode.put('A', (short) 0b0000000011110111);            // A
+            charToLEDCode.put('B', (short) 0b0001001010001111);            // B
+            charToLEDCode.put('C', (short) 0b0000000000111001);            // C
+            charToLEDCode.put('D', (short) 0b0001001000001111);            // D
+            charToLEDCode.put('E', (short) 0b0000000011111001);            // E
+            charToLEDCode.put('F', (short) 0b0000000001110001);            // F
+            charToLEDCode.put('G', (short) 0b0000000010111101);            // G
+            charToLEDCode.put('H', (short) 0b0000000011110110);            // H
+            charToLEDCode.put('I', (short) 0b0001001000000000);            // I
+            charToLEDCode.put('J', (short) 0b0000000000011110);            // J
+            charToLEDCode.put('K', (short) 0b0010010001110000);            // K
+            charToLEDCode.put('L', (short) 0b0000000000111000);            // L
+            charToLEDCode.put('M', (short) 0b0000010100110110);            // M
+            charToLEDCode.put('N', (short) 0b0010000100110110);            // N
+            charToLEDCode.put('O', (short) 0b0000000000111111);            // O
+            charToLEDCode.put('P', (short) 0b0000000011110011);            // P
+            charToLEDCode.put('Q', (short) 0b0010000000111111);            // Q
+            charToLEDCode.put('R', (short) 0b0010000011110011);            // R
+            charToLEDCode.put('S', (short) 0b0000000011101101);            // S
+            charToLEDCode.put('T', (short) 0b0001001000000001);            // T
+            charToLEDCode.put('U', (short) 0b0000000000111110);            // U
+            charToLEDCode.put('V', (short) 0b0000110000110000);            // V
+            charToLEDCode.put('W', (short) 0b0010100000110110);            // W
+            charToLEDCode.put('X', (short) 0b0010110100000000);            // X
+            charToLEDCode.put('Y', (short) 0b0001010100000000);            // Y
+            charToLEDCode.put('Z', (short) 0b0000110000001001);            // Z
+            charToLEDCode.put('[', (short) 0b0000000000111001);            // [
+            charToLEDCode.put(']', (short) 0b0000000000001111);            // ]
+            charToLEDCode.put('^', (short) 0b0010100000000000);            // ^
+            //charToLEDCode.put('^', (short) 0b0000110000000011);            // ^
+            charToLEDCode.put('_', (short) 0b0000000000001000);            // _
+            charToLEDCode.put('`', (short) 0b0000000100000000);            // `
+            charToLEDCode.put('a', (short) 0b0000000011011111);            // a my version of a
+            //charToLEDCode.put('a', (short) 0b0001000001011000);            // a Adafruit's a does not look like an a to me.
+            charToLEDCode.put('b', (short) 0b0010000001111000);            // b
+            charToLEDCode.put('c', (short) 0b0000000011011000);            // c
+            charToLEDCode.put('d', (short) 0b0000100010001110);            // d
+            charToLEDCode.put('e', (short) 0b0000100001011000);            // e
+            charToLEDCode.put('f', (short) 0b0000000001110001);            // f
+            charToLEDCode.put('g', (short) 0b0000010010001110);            // g
+            charToLEDCode.put('h', (short) 0b0001000001110000);            // h
+            charToLEDCode.put('i', (short) 0b0001000000000000);            // i
+            charToLEDCode.put('j', (short) 0b0000000000001110);            // j
+            charToLEDCode.put('k', (short) 0b0011011000000000);            // k
+            charToLEDCode.put('l', (short) 0b0000000000110000);            // l
+            charToLEDCode.put('m', (short) 0b0001000011010100);            // m
+            charToLEDCode.put('n', (short) 0b0001000001010000);            // n
+            charToLEDCode.put('o', (short) 0b0000000011011100);            // o
+            charToLEDCode.put('p', (short) 0b0000000101110000);            // p
+            charToLEDCode.put('q', (short) 0b0000010010000110);            // q
+            charToLEDCode.put('r', (short) 0b0000000001010000);            // r
+            charToLEDCode.put('s', (short) 0b0010000010001000);            // s
+            charToLEDCode.put('t', (short) 0b0000000001111000);            // t
+            charToLEDCode.put('u', (short) 0b0000000000011100);            // u
+            charToLEDCode.put('v', (short) 0b0010000000000100);            // v
+            charToLEDCode.put('w', (short) 0b0010100000010100);            // w
+//            charToLEDCode.put('x', (short) 0b0010100011000000);            // x
+            charToLEDCode.put('x', (short) 0b0010110100000000);            // x
+            charToLEDCode.put('y', (short) 0b0010000000001100);            // y
+            charToLEDCode.put('z', (short) 0b0000100001001000);            // z
+            charToLEDCode.put('{', (short) 0b0000100101001001);            // {
+            charToLEDCode.put('}', (short) 0b0010010010001001);            // }
+            charToLEDCode.put('~', (short) 0b0000010100100000);            // ~
         }
 
         /**
@@ -305,7 +344,7 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
          * @return 16 bit led code that will light up that character on the LED display
          */
         private short getLEDCode(char character) {
-            Short element = stringToLEDCode.get(character);
+            Short element = charToLEDCode.get(character);
             if (element != null) {
                 return element;
             } else {
@@ -314,7 +353,8 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
         }
 
         /**
-         * Get the set of 16 bit LED codes for a string
+         * You can also get the LED codes for a string (multiple characters).
+         * So Get the set of 16 bit LED codes for a string
          *
          * @param string
          * @return an array of 16 bit LED codes that will light up the string on the LED display
@@ -330,23 +370,8 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
         }
 
         /**
-         * Given a string, get an array of 8 bit LED codes that can be sent out via I2C to light up
-         * that string on the LED display. Although the LED codes are 16 bits, they have to be sent
-         * as 2 8 bit bytes per code.
-         *
-         * @param string
-         * @return an array of 8 bit LED codes, 2 bytes for LED, that will display the string on
-         * the LED
-         */
-        private byte[] getLEDCodesAsBytes(String string) {
-            short[] LEDCodes;
-            LEDCodes = getLEDCodes(string);
-            return getBytesForLEDCodes(LEDCodes);
-        }
-
-        /**
-         * For one 16 bit LED code, split the code into 2 8 bit bytes. This is needed needed
-         * because I can only send 8 bit bytes via I2C.
+         * For ONE 16 bit LED code, split the code into 2 8 bit bytes. This is needed needed
+         * because I can only send 8 bit bytes via I2C. You can't send out 16 bits at a time.
          *
          * @param code a 16 bit LED code
          * @return two 8 bit LED codes; element 0 are LSB bits, element 1 are MSB bits
@@ -361,8 +386,10 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
         }
 
         /**
-         * For an array of 16 bit LED codes, split each LED code into 2 8 bit bytes. This is
+         * For an ARRAY of 16 bit LED codes, split each LED code into 2 8 bit bytes. This is
          * needed because I can only send 8 bit bytes via I2C.
+         * The difference between this and getBytesForLEDCodes(short code) above, is that this
+         * method handles multiple LED codes and the one above only handles 1 LED code.
          *
          * @param codes array of 16 bit LED codes
          * @return array of 8 bit LED codes, 2 for each 16 bit code, ordering is MSB (n), LSB (n-1),
@@ -383,8 +410,28 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
             return byteCodesFromLEDCodes;
         }
 
+        /**
+         * Given a string, get an array of 8 bit LED codes that can be sent out via I2C to light up
+         * that string on the LED display. Although the LED codes are 16 bits, they have to be sent
+         * as 2 8 bit bytes per code. This method gets the LED codes and breaks them into 8 bit bytes.
+         * It uses the methods defined above to do the work.
+         * <p>
+         * This method is the one to call when you want to get the LED codes for a string you want
+         * to display. So don't worry about the rest of the methods in this class. Use this method
+         * and it will do all of the work for you.
+         *
+         * @param string
+         * @return an array of 8 bit LED codes, 2 bytes for LED, that will display the string on
+         * the LED
+         */
+        private byte[] getLEDCodesAsBytes(String string) {
+            short[] LEDCodes;
+            LEDCodes = getLEDCodes(string);
+            return getBytesForLEDCodes(LEDCodes);
+        }
+
         private Set<Character> getCharacterSet() {
-            return stringToLEDCode.keySet();
+            return charToLEDCode.keySet();
         }
     }
 
@@ -409,7 +456,8 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
     /**
      * An enum describing the rate that the LED display blinks at.
      * I'm exposing a public blink rate enum in more kid friendly terms than the DisplaySetupCommand
-     * enum. Also, I do not want public exposure of the DisplaySetupCommand enum.
+     * enum. I figure kids may not know what Hz is. Also, I do not want public exposure of the
+     * DisplaySetupCommand enum.
      */
     public enum LEDBlinkRate {
         ONCE_PER_SECOND,
@@ -460,6 +508,7 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
 
     /**
      * Set the brightness level of the LEDs. 1 is dim. 15 is bright.
+     *
      * @param brightnessLevel 1 to 15 (dim to bright)
      */
     public void setBrightnessLevel(int brightnessLevel) {
@@ -489,6 +538,7 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
 
     /**
      * Get whether the LEDs are on or off.
+     *
      * @return
      */
     public LEDSwitch getLedSwitch() {
@@ -506,6 +556,7 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
 
     /**
      * Get the blink rate of the display.
+     *
      * @return enum indicating the current blink rate
      */
     public LEDBlinkRate getLedBlinkRate() {
@@ -514,6 +565,7 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
 
     /**
      * Set the blink rate of the display.
+     *
      * @param ledBlinkRate enum indicating which blink rate you want
      */
     public void setLedBlinkRate(LEDBlinkRate ledBlinkRate) {
@@ -526,7 +578,9 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
     }
 
     //
-    // DISPLAY
+    // DISPLAY - These next 2 methods are the ones to use to get something to display.
+    // setDisplayString()
+    // setDisplayCharacter()
     //
 
     /**
@@ -537,6 +591,7 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
 
     /**
      * Get the current display string
+     *
      * @return
      */
     public String getDisplayString() {
@@ -544,10 +599,11 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
     }
 
     /**
-     * Effectively, this method clears the display and then display a string of up to 4 characters.
+     * Effectively, this method clears the display and then displays a string of up to 4 characters.
      * If your string has less then 4 characters, it puts a blank space in for the missing characters.
      * The display string is right justified. For sample if you display "15" you get "  15" on the
      * display, not "15  ".
+     * USE THIS METHOD to display a string on the display.
      *
      * @param displayString a string of up to 4 characters. If you provide more than 4 characters,
      *                      you will only get the 4 rightmost characters displayed.
@@ -570,6 +626,7 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
     /**
      * Inserts a character into the display string at the position specified. Characters in the
      * other 3 positions are left unchanged.
+     * USE THIS METHOD to change one character on the display.
      *
      * @param displayCharacter character to insert
      * @param displayPosition  position to insert the character
@@ -598,7 +655,7 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
                 break;
         }
 
-        //now that the display string is created, I could just sent all 4 characters to the display.
+        //now that the display string is created, I could just send all 4 characters to the display.
         // But that takes up I2C bandwidth with 8 bytes of data and I'm really only changing
         // 2 bytes. So it is worth it to make the code more complex and send only the single
         // character that is changing.
@@ -627,7 +684,7 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
     }
 
     //
-    // I2C ADDRESS
+    // I2C ADDRESS - it would be rare to use these methods.
     //
 
     /**
@@ -637,6 +694,7 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
 
     /**
      * Get the I2C address of the display.
+     *
      * @return
      */
     public I2cAddr getI2cAddr() {
@@ -732,6 +790,7 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
         // turn the system oscillator on
         turnOscillatorOn();
         // check to make sure there is an led controller at this address
+        // I have to figure out how to do this. So nothing here as of yet.
         // turn the display off
         turnLEDsOff();
         // turn the blinking off;
@@ -750,7 +809,8 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
 
     /**
      * This method maps the blink rate from the more user friendly LEDBlinkRate enum to the less
-     * friendly enum used in the register for the display setup
+     * friendly enum used in the register for the display setup. The only reason for this is to give
+     * the kids an enum that makes more sense to them. The term Hz may not be familiar to them.
      *
      * @param ledBlinkRate
      * @return enum value from the DisplaySetupCommand register that corresponds to the LEDBlinkRate
@@ -961,7 +1021,8 @@ public class AdafruitBackpackLED extends I2cDeviceSynchDevice<I2cDeviceSynch> {
     }
 
     //*********************************************************************************************
-    //          I2C low level read and write methods
+    //          I2C low level read and write methods - these methods actually write and read the
+    //          I2C bus
     //*********************************************************************************************
 
     /**
