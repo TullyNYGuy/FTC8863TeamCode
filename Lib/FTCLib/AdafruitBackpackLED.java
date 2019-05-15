@@ -34,9 +34,20 @@ yellow version: https://www.adafruit.com/product/2158
 //
 // The next section contains some public methods to make it easy to control the display functions.
 // This section contains the methods you will use.
-// Also in there are the initialization methods.
+// Also in there are the initialization methods but you won't call those directly.
+// ************************************************************************************************
+// HERE ARE THE METHODS YOU WILL WANT TO USE - READ THIS IF YOU DON'T READ ANYTHING ELSE!
+// ************************************************************************************************
+// setBrightnessLevel()
+// setLedBlinkRate()
+// setDisplayString()
+// setDisplayCharacter()
+// turnLEDsOff()
+// turnLEDsOn()
+// clear()
 //
-// Last are the low level I2C read and write methods. You won't call any of those directly.
+//
+// Last section are the low level I2C read and write methods. You won't call any of those directly.
 //
 //
 
