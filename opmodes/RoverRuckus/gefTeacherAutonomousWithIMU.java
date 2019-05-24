@@ -1,13 +1,8 @@
 package org.firstinspires.ftc.teamcode.opmodes.RoverRuckus;
 
-import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
-import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
@@ -15,12 +10,11 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.StatTracker;
 import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.AutonomousMovements;
 
-@Autonomous(name = "Rover Ruckus Autonomous Left", group = "Test")
-@Disabled
-public class RoverRuckusAutonomousExample extends LinearOpMode {
+@Autonomous(name = "Philipa!", group = "Test")
+//@Disabled
+public class gefTeacherAutonomousWithIMU extends LinearOpMode {
 
     // Put your variable declarations here
     RoverRuckusRobot robot;
@@ -40,6 +34,7 @@ public class RoverRuckusAutonomousExample extends LinearOpMode {
         robot.driveTrain.imu.resetAngleReferences();
 
         autonomousMovements = new AutonomousMovements(robot, logFile, telemetry);
+        robot.driveTrain.enableLogDrive();
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
@@ -52,11 +47,15 @@ public class RoverRuckusAutonomousExample extends LinearOpMode {
         // Start the logging of measured acceleration
         robot.driveTrain.imu.startAccelerationIntegration(new Position(), new Velocity(), 1000);
 
-        while (opModeIsActive()) {
+        robot.driveTrain.setupDriveUsingIMU(0,72 *2.45,.5, DriveTrain.DriveDirection.FORWARD, AdafruitIMU8863.AngleMode.ABSOLUTE);
+        robot.driveTrain.startDriveUsingIMU();
+
+        while (opModeIsActive()&& (!robot.driveTrain.updateDriveUsingIMU() )) {
             // Put your calls that need to run in a loop here
-            autonomousMovements.FacingCraterToLeftMineralToDepotToCraterAlternate();
             idle();
+
         }
+        robot.driveTrain.stopDriveDistance();
     }
 }
 
