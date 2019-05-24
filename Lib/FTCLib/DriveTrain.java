@@ -537,6 +537,15 @@ public class DriveTrain {
     }
 
     /**
+     * Method to log the current heading and position of the robot before starting to drive.
+     */
+    public void startDriveDistance() {
+        if (logFile != null && logDrive) {
+            logFile.logData("DRIVE_STRAIGHT_USING_IMU INITIAL_HEADING_DISTANCE", angleAdjustedIMU.getHeading(), updateDistanceDriven());
+        }
+    }
+
+    /**
      * You must call this method in a loop after you call setupDriveDistance() in order to get the
      * movement to work properly.
      *
@@ -547,9 +556,16 @@ public class DriveTrain {
         leftMotorState = leftDriveMotor.update();
         // the distance driven has to be relative to the start of the movement
         // THERE IS A BUG HERE. THE DISTANCE IS NOT RELATIVE TO THE START. IT IS CUMULATIVE. NEED TO FIX IT
+        double currentHeading = angleAdjustedIMU.getHeading();
         distanceDriven = calculateDistanceDriven();
+        if (logFile != null && logDrive) {
+            logFile.logData("DRIVE_STRAIGHT_USING_IMU HEADING_DISTANCE", currentHeading, getDistanceDriven());
+        }
         if (this.isDriveTrainComplete()) {
             if (logDrive && logFile != null) {
+                logFile.logData("DRIVE_STRAIGHT_USING_IMU FINAL_HEADING_DISTANCE", currentHeading, getDistanceDriven());
+                logFile.blankLine();
+
                 logFile.logData("Drove distance = " + distanceDriven);
                 logFile.logData("Finish heading = " + imu.getHeading());
             }
