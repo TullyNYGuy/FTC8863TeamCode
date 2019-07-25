@@ -1,31 +1,26 @@
 package org.firstinspires.ftc.teamcode.opmodes.RoverRuckus;
 
-import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
-import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveCurve;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.StatTracker;
 import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.AutonomousMovements;
 
-@Autonomous(name = "wicked cool test for some teacherz( no Piddazle)", group = "Test")
+@Autonomous(name = "E P I C D E M O", group = "Test")
 //@Disabled
-public class gefTeacherAutonomousWithoutIMU extends LinearOpMode {
+public class EPICAutonomousWithIMU extends LinearOpMode {
 
     // Put your variable declarations here
     RoverRuckusRobot robot;
     DataLogging logFile;
     AutonomousMovements autonomousMovements;
+    DriveCurve driveCurve;
 
     @Override
     public void runOpMode() {
@@ -53,10 +48,11 @@ public class gefTeacherAutonomousWithoutIMU extends LinearOpMode {
         // Start the logging of measured acceleration
         robot.driveTrain.imu.startAccelerationIntegration(new Position(), new Velocity(), 1000);
 
-        robot.driveTrain.setupDriveDistance(.5, 150 * 2.54 , DcMotor8863.FinishBehavior.FLOAT);
-        robot.driveTrain.startDriveDistance();
+        robot.driveTrain.setupDriveUsingIMU(0,4000,0.59, DriveTrain.DriveDirection.FORWARD, AdafruitIMU8863.AngleMode.ABSOLUTE);
+        robot.driveTrain.startDriveUsingIMU();
 
-        while (opModeIsActive()&& (robot.driveTrain.updateDriveDistance() != DriveTrain.Status.COMPLETE)) {
+        //driveCurve.setupDriveCurve(0,0,0,0, DriveCurve.DriveDirection.FORWARD);
+        while (opModeIsActive()&& (!robot.driveTrain.updateDriveUsingIMU() )) {
             // Put your calls that need to run in a loop here
             idle();
 
