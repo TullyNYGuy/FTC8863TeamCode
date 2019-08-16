@@ -234,6 +234,7 @@ public class SimpleOneClassTeleop extends LinearOpMode {
             if (gamepad1a.buttonPress(gamepad1.a)) {
                 // this was a new button press, not a button held down for a while
                 // put the command to be executed here
+
             }
 
             if (gamepad1b.buttonPress(gamepad1.b)) {
