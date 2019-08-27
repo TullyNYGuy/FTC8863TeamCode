@@ -37,7 +37,7 @@ public class TanyaTest extends LinearOpMode {
 
         gamepad1RightJoyStickX = new JoyStick(JoyStick.JoyStickMode.SQUARE, JOYSTICK_DEADBAND_VALUE, JoyStick.InvertSign.NO_INVERT_SIGN);
         gamepad1RightJoyStickY = new JoyStick(JoyStick.JoyStickMode.SQUARE, JOYSTICK_DEADBAND_VALUE, JoyStick.InvertSign.INVERT_SIGN);
-        HaloControls controls = new HaloControls(gamepad1RightJoyStickY, gamepad1RightJoyStickX, gamepad1LeftJoyStickX, this)
+        HaloControls controls = new HaloControls(gamepad1RightJoyStickY, gamepad1RightJoyStickX, gamepad1LeftJoyStickX, this);
         MecanumData data = new MecanumData();
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
@@ -55,7 +55,8 @@ public class TanyaTest extends LinearOpMode {
             //telemetry.addData("Encoder Count=", "%5d", motor.getCurrentPosition());
             telemetry.addData(">", "Press Stop to end test.");
             controls.getMechanumdata(data);
-            telemetry.addData("translation angle: ", data.getAngleOfTranslation());
+            telemetry.addData("translation angle in degrees: ", data.getAngleOfTranslationDegrees());
+            telemetry.addData("translation angle for the gyro: ", data.getAngleOfTranslationGyro());
             telemetry.addData("speed: ", data.getSpeed());
             telemetry.addData("speed of rotation: ", data.getSpeedOfRotation());
             telemetry.update();

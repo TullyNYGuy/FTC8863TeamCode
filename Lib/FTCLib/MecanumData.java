@@ -40,7 +40,16 @@ private double speed;
     public double getAngleOfTranslation() {
         return angleOfTranslation;
     }
-
+    public double getAngleOfTranslationDegrees() {
+        return (angleOfTranslation/Math.PI)*180;
+    }
+    public double getAngleOfTranslationGyro() {
+        double translationAngleGyro = ((angleOfTranslation/Math.PI)*180)-90;
+        if(translationAngleGyro < -180){
+            translationAngleGyro += 360;
+        }
+        return translationAngleGyro;
+    }
     public void setAngleOfTranslation(double angleOfTranslation) {
         this.angleOfTranslation = angleOfTranslation;
     }
