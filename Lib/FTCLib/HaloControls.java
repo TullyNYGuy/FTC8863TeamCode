@@ -58,7 +58,9 @@ private OpMode opmode;
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
-    public MecanumData getMechanumdata() {
+    public void getMechanumdata(MecanumData data) {
+        if(data == null)
+            return;
        double yValue = yjoy.scaleInput(opmode.gamepad1.right_stick_y);
        double xValue = xjoy.scaleInput(opmode.gamepad1.right_stick_x);
        double rValue = speedOfRotationjoy.scaleInput(opmode.gamepad1.left_stick_x);
@@ -67,6 +69,9 @@ private OpMode opmode;
        if (translationSpeed > 1){
            translationSpeed = 1;
        }
-       return new MecanumData(translationSpeed, angleOfTranslation, rValue);
+       //return new MecanumData(translationSpeed, angleOfTranslation, rValue);
+       data.setAngleOfTranslation(angleOfTranslation);
+       data.setSpeed(translationSpeed);
+       data.setSpeedOfRotation(rValue);
     }
 }
