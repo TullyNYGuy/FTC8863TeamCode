@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
 public class Mecanum {
 
     //*********************************************************************************************
@@ -25,10 +27,10 @@ public class Mecanum {
     private double rightStickY;
 
     public class Wheels {
-        private double frontLeft;
-        private double frontRight;
-        private double backLeft;
-        private double backRight;
+        protected double frontLeft;
+        protected double frontRight;
+        protected double backLeft;
+        protected double backRight;
 
         public double getFrontLeft() {
             return frontLeft;
@@ -51,6 +53,32 @@ public class Mecanum {
             frontRight = 0;
             backLeft = 0;
             backRight = 0;
+        }
+
+        private Wheels scale4Numbers(Wheels wheels){
+            double biggerNumber = Math.abs(wheels.frontLeft);
+            if (biggerNumber < Math.abs(wheels.frontRight)){
+                biggerNumber = Math.abs(wheels.frontRight);
+            }
+            if (biggerNumber < Math.abs(wheels.backRight)){
+                biggerNumber = Math.abs(wheels.backRight);
+            }
+            if (biggerNumber < Math.abs(wheels.backLeft)){
+                biggerNumber = Math.abs(wheels.backLeft);
+            }
+            if (biggerNumber != 0){
+                wheels.frontRight = wheels.frontRight / biggerNumber;
+            }
+            if (biggerNumber != 0) {
+                wheels.frontLeft = wheels.frontLeft / biggerNumber;
+            }
+            if (biggerNumber != 0) {
+                wheels.backRight = wheels.backRight / biggerNumber;
+            }
+            if (biggerNumber != 0) {
+                wheels.backLeft = wheels.backLeft / biggerNumber;
+            }
+            return wheels;
         }
     }
 
@@ -108,7 +136,22 @@ public class Mecanum {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
-    public Motion joystickToMotion(double leftStickX, double rightStickX,double leftStickY,double rightStickY){
-
+    public Wheels calculateWheelVelocity (Motion motion){
+        wheels.frontLeft = motion.vd * Math.sin(-motion.theta_d + (Math.PI/4)) - motion.v_theta;
+        wheels.frontRight = motion.vd * Math.cos(-motion.theta_d + (Math.PI/4)) + motion.v_theta;
+        wheels.backLeft = motion.vd * Math.cos(-motion.theta_d + (Math.PI/4)) - motion.v_theta;
+        wheels.backRight = motion.vd * Math.sin(-motion.theta_d + (Math.PI/4)) + motion.v_theta;
+    return wheels.scale4Numbers(wheels);
+    }
+    public void test(Telemetry telemetry){
+        motion = new Motion();
+        motion.v_theta = 0.3;
+        motion.theta_d = Math.PI/2;
+        motion.vd = 0.99;
+        Wheels wheels = calculateWheelVelocity(motion);
+        telemetry.addData("front left = ",wheels.frontLeft);
+        telemetry.addData("front right = ",wheels.frontRight);
+        telemetry.addData("back left = ",wheels.backLeft);
+        telemetry.addData("back right = ",wheels.backRight);
     }
 }
