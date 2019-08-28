@@ -61,9 +61,9 @@ private OpMode opmode;
     public void getMechanumdata(MecanumData data) {
         if(data == null)
             return;
-       double yValue = yjoy.scaleInput(opmode.gamepad1.right_stick_y);
-       double xValue = xjoy.scaleInput(opmode.gamepad1.right_stick_x);
-       double rValue = speedOfRotationjoy.scaleInput(opmode.gamepad1.left_stick_x);
+       double yValue = yjoy.getValue();
+       double xValue = xjoy.getValue();
+       double rValue = speedOfRotationjoy.getValue();
       double translationSpeed =  java.lang.Math.hypot(xValue, yValue);
        double angleOfTranslation = java.lang.Math.atan2(yValue, xValue);
        if (translationSpeed > 1){
