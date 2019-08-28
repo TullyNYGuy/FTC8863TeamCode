@@ -26,6 +26,7 @@ public class TanyaTest extends LinearOpMode {
     double gamepad1RightJoyStickXValue = 0;
     double gamepad1RightJoyStickYValue = 0;
 
+
     @Override
     public void runOpMode() {
 
@@ -63,6 +64,8 @@ public class TanyaTest extends LinearOpMode {
 
             idle();
         }
+
+
 
         // Put your cleanup code here - it runs as the application shuts down
         telemetry.addData(">", "Done");
