@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
+import org.firstinspires.ftc.robotcore.external.android.AndroidGyroscope;
+
 public class HaloControls {
 
     //*********************************************************************************************
@@ -65,7 +67,14 @@ private OpMode opmode;
        double xValue = xjoy.getValue();
        double rValue = speedOfRotationjoy.getValue();
       double translationSpeed =  java.lang.Math.hypot(xValue, yValue);
-       double angleOfTranslation = java.lang.Math.atan2(yValue, xValue);
+      // Divide pi by 2 to shift axis. add pi to get correct range
+       double angleOfTranslation = (java.lang.Math.atan2(yValue, xValue));
+       if (angleOfTranslation > Math.PI/2 && angleOfTranslation <= Math.PI ){
+           angleOfTranslation=angleOfTranslation - (Math.PI/2);
+       }
+      else{
+           angleOfTranslation=angleOfTranslation +3*Math.PI/2;
+       }
        if (translationSpeed > 1){
            translationSpeed = 1;
        }
