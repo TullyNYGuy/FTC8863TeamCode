@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.Range;
 
 /**
@@ -32,6 +33,13 @@ public class JoyStick {
         INVERT_SIGN, NO_INVERT_SIGN
     }
 
+    public enum JoystickSide {
+        LEFT, RIGHT
+    }
+
+    public enum JoystickAxis {
+        X, Y
+    }
     /**
      * An enum defining power reduction states
      */
@@ -42,7 +50,6 @@ public class JoyStick {
         TWENTY_PERCENT_POWER,
         TEN_PERCENT_POWER
     }
-
     //*********************************************************************************************
     // private data fields that can be accessed only by this class, or by using the public
     // getter and setter methods
@@ -71,6 +78,12 @@ public class JoyStick {
     private PowerReduction toggleHalfPower = PowerReduction.FULL_POWER;
     private PowerReduction toggle_20_Power = PowerReduction.FULL_POWER;
     private PowerReduction toggle_10_Power = PowerReduction.FULL_POWER;
+
+    private JoystickSide joystickSide = JoystickSide.LEFT;
+
+    private JoystickAxis joystickAxis = JoystickAxis.Y;
+
+    private Gamepad gamepad = null;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -140,6 +153,30 @@ public class JoyStick {
      */
     public void setReductionFactor(double reductionFactor) {
         this.reductionFactor = reductionFactor;
+    }
+
+    public JoystickSide getJoystickSide() {
+        return joystickSide;
+    }
+
+    public void setJoystickSide(JoystickSide joystickSide) {
+        this.joystickSide = joystickSide;
+    }
+
+    public JoystickAxis getJoystickAxis() {
+        return joystickAxis;
+    }
+
+    public void setJoystickAxis(JoystickAxis joystickAxis) {
+        this.joystickAxis = joystickAxis;
+    }
+
+    public Gamepad getGamepad() {
+        return gamepad;
+    }
+
+    public void setGamepad(Gamepad gamepad) {
+        this.gamepad = gamepad;
     }
 
     //*********************************************************************************************
@@ -226,13 +263,32 @@ public class JoyStick {
      */
     public JoyStick() {
         this.joyStickMode = JoyStickMode.SQUARE;
-        this.deadBand = 0;
+        this.deadBand = 0.15;
         this.invertSign = InvertSign.NO_INVERT_SIGN;
         this.reductionFactor = 1;
         this.toggleHalfPower = PowerReduction.FULL_POWER;
         this.toggleQuarterPower = PowerReduction.FULL_POWER;
         this.toggle_20_Power = PowerReduction.FULL_POWER;
         this.toggle_10_Power = PowerReduction.FULL_POWER;
+    }
+
+    public JoyStick(Gamepad gamepad, JoystickSide joystickSide, JoystickAxis joystickAxis) {
+        this.joyStickMode = JoyStickMode.SQUARE;
+        this.deadBand = 0.15;
+        if (joystickAxis == JoystickAxis.X){
+            this.invertSign = InvertSign.NO_INVERT_SIGN;
+        }
+        else {
+            this.invertSign = InvertSign.INVERT_SIGN;
+        }
+        this.reductionFactor = 1;
+        this.toggleHalfPower = PowerReduction.FULL_POWER;
+        this.toggleQuarterPower = PowerReduction.FULL_POWER;
+        this.toggle_20_Power = PowerReduction.FULL_POWER;
+        this.toggle_10_Power = PowerReduction.FULL_POWER;
+        this.joystickAxis = joystickAxis;
+        this.joystickSide = joystickSide;
+        this.gamepad = gamepad;
     }
     //*********************************************************************************************
     //          UTILITY METHODS
@@ -275,6 +331,31 @@ public class JoyStick {
                 break;
         }
         return output;
+    }
+
+    public double getValue(){
+        double joystickValue = 0;
+        if (joystickAxis == JoystickAxis.X){
+            if (joystickSide == JoystickSide.LEFT){
+                joystickValue = gamepad.left_stick_x;
+            }
+        }
+        if (joystickAxis == JoystickAxis.X){
+            if (joystickSide == JoystickSide.RIGHT){
+                joystickValue = gamepad.right_stick_x;
+            }
+        }
+        if (joystickAxis == JoystickAxis.Y){
+            if (joystickSide == JoystickSide.LEFT){
+                joystickValue = gamepad.left_stick_y;
+            }
+        }
+        if (joystickAxis == JoystickAxis.Y){
+            if (joystickSide == JoystickSide.RIGHT){
+                joystickValue = gamepad.right_stick_y;
+            }
+        }
+       return scaleInput(joystickValue);
     }
 
     //*********************************************************************************************
