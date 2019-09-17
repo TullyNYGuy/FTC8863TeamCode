@@ -19,7 +19,6 @@ public class Mecanum {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
-    private Motion motion;
     private Wheels wheels;
     private double leftStickX;
     private double rightStickX;
@@ -27,10 +26,10 @@ public class Mecanum {
     private double rightStickY;
 
     public class Wheels {
-        protected double frontLeft;
-        protected double frontRight;
-        protected double backLeft;
-        protected double backRight;
+        protected double frontLeft = 0;
+        protected double frontRight = 0;
+        protected double backLeft = 0;
+        protected double backRight = 0;
 
         public double getFrontLeft() {
             return frontLeft;
@@ -66,43 +65,13 @@ public class Mecanum {
             if (biggerNumber < Math.abs(wheels.backLeft)){
                 biggerNumber = Math.abs(wheels.backLeft);
             }
-            if (biggerNumber != 0){
+            if (biggerNumber != 0 && biggerNumber > 1){
                 wheels.frontRight = wheels.frontRight / biggerNumber;
-            }
-            if (biggerNumber != 0) {
                 wheels.frontLeft = wheels.frontLeft / biggerNumber;
-            }
-            if (biggerNumber != 0) {
                 wheels.backRight = wheels.backRight / biggerNumber;
-            }
-            if (biggerNumber != 0) {
                 wheels.backLeft = wheels.backLeft / biggerNumber;
             }
             return wheels;
-        }
-    }
-
-    public class Motion {
-        private double theta_d;
-        private double v_theta;
-        private double vd;
-
-        public double getTheta_d() {
-            return theta_d;
-        }
-
-        public double getV_theta() {
-            return v_theta;
-        }
-
-        public double getVd() {
-            return vd;
-        }
-
-        public Motion(){
-            theta_d = 0;
-            v_theta = 0;
-            vd = 0;
         }
     }
     //*********************************************************************************************
@@ -120,7 +89,6 @@ public class Mecanum {
     // from it
     //*********************************************************************************************
     public Mecanum(){
-        motion = new Motion();
         wheels = new Wheels();
     }
 
@@ -136,19 +104,20 @@ public class Mecanum {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
-    public Wheels calculateWheelVelocity (Motion motion){
-        wheels.frontLeft = motion.vd * Math.sin(-motion.theta_d + (Math.PI/4)) - motion.v_theta;
-        wheels.frontRight = motion.vd * Math.cos(-motion.theta_d + (Math.PI/4)) + motion.v_theta;
-        wheels.backLeft = motion.vd * Math.cos(-motion.theta_d + (Math.PI/4)) - motion.v_theta;
-        wheels.backRight = motion.vd * Math.sin(-motion.theta_d + (Math.PI/4)) + motion.v_theta;
+    //if speed of rotation is = 0 then our max speed is 0.707. We may want to scale up to 1.
+    public Wheels calculateWheelVelocity (MecanumData mecanumData){
+        wheels.frontLeft = mecanumData.getSpeed() * Math.sin(-mecanumData.getAngleOfTranslation() + (Math.PI/4)) - mecanumData.getSpeedOfRotation();
+        wheels.frontRight = mecanumData.getSpeed() * Math.cos(-mecanumData.getAngleOfTranslation() + (Math.PI/4)) + mecanumData.getSpeedOfRotation();
+        wheels.backLeft = mecanumData.getSpeed() * Math.cos(-mecanumData.getAngleOfTranslation() + (Math.PI/4)) - mecanumData.getSpeedOfRotation();
+        wheels.backRight = mecanumData.getSpeed() * Math.sin(-mecanumData.getAngleOfTranslation() + (Math.PI/4)) + mecanumData.getSpeedOfRotation();
     return wheels.scale4Numbers(wheels);
     }
     public void test(Telemetry telemetry){
-        motion = new Motion();
-        motion.v_theta = 0.3;
-        motion.theta_d = Math.PI/2;
-        motion.vd = 0.99;
-        Wheels wheels = calculateWheelVelocity(motion);
+        MecanumData mecanumData = new MecanumData();
+        mecanumData.setSpeedOfRotation(0);
+        mecanumData.setAngleOfTranslation(-Math.PI/2);
+        mecanumData.setSpeed(0.5);
+        Wheels wheels = calculateWheelVelocity(mecanumData);
         telemetry.addData("front left = ",wheels.frontLeft);
         telemetry.addData("front right = ",wheels.frontRight);
         telemetry.addData("back left = ",wheels.backLeft);
