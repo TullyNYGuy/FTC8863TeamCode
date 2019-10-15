@@ -3,8 +3,6 @@ package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.firstinspires.ftc.robotcore.external.android.AndroidGyroscope;
-
 public class HaloControls {
 
     //*********************************************************************************************
@@ -46,7 +44,6 @@ private OpMode opmode;
         this.speedOfRotationjoy = speedOfRotationjoy;
         this.opmode = opmode;
     }
-
 
     //*********************************************************************************************
     //          Helper Methods

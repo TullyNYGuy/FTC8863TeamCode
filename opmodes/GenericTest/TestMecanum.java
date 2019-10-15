@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.opmodes.GenericTest;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -44,10 +43,6 @@ public class TestMecanum extends LinearOpMode {
         gamepad1RightJoyStickY = new JoyStick(gamepad1, JoyStick.JoystickSide.RIGHT, JoyStick.JoystickAxis.Y);
         mecanum = new Mecanum();
         haloControls = new HaloControls(gamepad1RightJoyStickY, gamepad1RightJoyStickX, gamepad1LeftJoyStickX, this);
-        mecanumData = new MecanumData();
-        // Wait for the start button
-        telemetry.addData(">", "Press Start to run" );
-        telemetry.update();
         waitForStart();
 
         // Put your calls here - they will not run in a loop
