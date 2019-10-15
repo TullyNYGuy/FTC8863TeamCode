@@ -9,13 +9,14 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.CollectorArm;
 import org.openftc.revextensions2.ExpansionHubEx;
 import org.openftc.revextensions2.ExpansionHubMotor;
-import org.openftc.revextensions2.RevExtensions2;
+//import org.openftc.revextensions2.RevExtensions2;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  *
  *
  */
+/*
 @TeleOp(name = "Collector Arm Current Tests", group = "Test")
 //@Disabled
 public class RotationArmCurrentTest extends LinearOpMode {
@@ -116,3 +117,4 @@ public class RotationArmCurrentTest extends LinearOpMode {
 
     }
 }
+*/
