@@ -12,28 +12,24 @@ public class ReadOdometryModule extends LinearOpMode {
     //Odometry Wheels
     DcMotor odometryModule;
 
-    //Hardware Map Names for drive motors and odometry wheels. THIS WILL CHANGE ON EACH ROBOT, YOU NEED TO UPDATE THESE VALUES ACCORDINGLY
-    String odometryName = "odometryWheel";
-
-    double odometryValue = 0;
+    double odometryEncoderValue = 0;
 
     @Override
     public void runOpMode() throws InterruptedException {
         //Initialize hardware map values. PLEASE UPDATE THESE VALUES TO MATCH YOUR CONFIGURATION
-        odometryModule = hardwareMap.dcMotor.get(odometryName);
+        odometryModule = hardwareMap.dcMotor.get("odometryWheel");
 
         //Odometry System Calibration Init Complete
         telemetry.addData("Odometry System Calibration Status", "Init Complete");
+        odometryEncoderValue = odometryModule.getCurrentPosition();
+        telemetry.addData("Odometry encoder value = ", odometryEncoderValue);
         telemetry.update();
 
         waitForStart();
 
-        odometryValue = odometryModule.getCurrentPosition();
-
         while (opModeIsActive()) {
-            odometryValue = odometryModule.getCurrentPosition();
-
-            telemetry.addData("Odometry module value = ", odometryValue);
+            odometryEncoderValue = odometryModule.getCurrentPosition();
+            telemetry.addData("Odometry encoder value = ", odometryEncoderValue);
             //Update values
             telemetry.update();
         }
