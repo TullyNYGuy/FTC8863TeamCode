@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.HaloControls;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.JoyStick;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Mecanum;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumData;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
@@ -19,7 +19,7 @@ public class TestMecanumToDriverStation extends LinearOpMode {
     Mecanum mecanum;
     Mecanum.WheelVelocities wheelVelocities;
     HaloControls haloControls;
-    MecanumData mecanumData;
+    MecanumCommands mecanumCommands;
     JoyStick gamepad1LeftJoyStickX;
     JoyStick gamepad1LeftJoyStickY;
     double gamepad1LeftJoyStickXValue = 0;
@@ -51,8 +51,12 @@ public class TestMecanumToDriverStation extends LinearOpMode {
             // Display the current value
             //telemetry.addData("Motor Speed = ", "%5.2f", powerToRunAt);
             //telemetry.addData("Encoder Count=", "%5d", motor.getCurrentPosition());
-            haloControls.getMechanumdata(mecanumData);
-            mecanum.calculateWheelVelocity(mecanumData);
+            haloControls.calculateMecanumCommands(mecanumCommands);
+            // mecanum commands could come from joysticks or from autonomous calculations. That is why HaloControls is not part of Mecanum class
+            //*****************************************************************
+            // Is this any better than mecanum.getFrontLeft() etc?
+            //*****************************************************************
+            mecanum.calculateWheelVelocity(mecanumCommands);
             telemetry.addData("front left = ", wheelVelocities.getFrontLeft());
             telemetry.addData("front right = ", wheelVelocities.getFrontRight());
             telemetry.addData("back left = ", wheelVelocities.getBackLeft());

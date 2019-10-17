@@ -1,19 +1,18 @@
 package org.firstinspires.ftc.teamcode.opmodes.GenericTest;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.HaloControls;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.JoyStick;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumData;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "TanyaTest", group = "Test")
+@TeleOp(name = "TestHaloControls", group = "Test")
 //@Disabled
-public class TanyaTest extends LinearOpMode {
+public class TestHaloControls extends LinearOpMode {
     final static double JOYSTICK_DEADBAND_VALUE = .15;
     // Put your variable declarations here
     JoyStick gamepad1LeftJoyStickX;
@@ -39,7 +38,7 @@ public class TanyaTest extends LinearOpMode {
         gamepad1RightJoyStickX = new JoyStick(gamepad1, JoyStick.JoystickSide.RIGHT, JoyStick.JoystickAxis.X);
         gamepad1RightJoyStickY = new JoyStick(gamepad1, JoyStick.JoystickSide.RIGHT, JoyStick.JoystickAxis.Y);
         HaloControls controls = new HaloControls(gamepad1RightJoyStickY, gamepad1RightJoyStickX, gamepad1LeftJoyStickX, this);
-        MecanumData data = new MecanumData();
+        MecanumCommands commands = new MecanumCommands();
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
         telemetry.update();
@@ -50,16 +49,16 @@ public class TanyaTest extends LinearOpMode {
         while (opModeIsActive()) {
 
             // Put your calls that need to run in a loop here
-            gamepad1RightJoyStickYValue = gamepad1RightJoyStickY.scaleInput(gamepad1.right_stick_y);
+            gamepad1RightJoyStickYValue = gamepad1RightJoyStickY.getValue();
             // Display the current value
             //telemetry.addData("Motor Speed = ", "%5.2f", powerToRunAt);
             //telemetry.addData("Encoder Count=", "%5d", motor.getCurrentPosition());
             telemetry.addData(">", "Press Stop to end test.");
-            controls.getMechanumdata(data);
-            telemetry.addData("translation angle in degrees: ", data.getAngleOfTranslationDegrees());
-            telemetry.addData("translation angle for the gyro: ", data.getAngleOfTranslationGyro());
-            telemetry.addData("speed: ", data.getSpeed());
-            telemetry.addData("speed of rotation: ", data.getSpeedOfRotation());
+            controls.calculateMecanumCommands(commands);
+            telemetry.addData("translation angle in degrees: ", commands.getAngleOfTranslationDegrees());
+            telemetry.addData("translation angle for the gyro: ", commands.getAngleOfTranslationGyro());
+            telemetry.addData("speed: ", commands.getSpeed());
+            telemetry.addData("speed of rotation: ", commands.getSpeedOfRotation());
             telemetry.update();
 
             idle();

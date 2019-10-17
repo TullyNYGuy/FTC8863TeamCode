@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
 
-public class MecanumData {
+public class MecanumCommands {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -73,13 +73,13 @@ public class MecanumData {
     // from it
     //*********************************************************************************************
 
-    public MecanumData(double speed, double angleOfTranslation, double speedOfRotation) {
+    public MecanumCommands(double speed, double angleOfTranslation, double speedOfRotation) {
         this.speed = speed;
         this.angleOfTranslation = angleOfTranslation;
         this.speedOfRotation = speedOfRotation;
     }
 
-    public MecanumData() {
+    public MecanumCommands() {
         this.speed = 0;
         this.angleOfTranslation = 0;
         this.speedOfRotation = 0;

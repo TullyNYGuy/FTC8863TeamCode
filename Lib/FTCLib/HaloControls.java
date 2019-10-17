@@ -22,11 +22,18 @@ public class HaloControls {
     private JoyStick yJoystick;
     private JoyStick xJoystick;
     private JoyStick speedOfRotationJoystick;
+    /**
+     * The opmode is passed in because this class needs access to the joystick values that are part
+     * of the opmode.
+     */
+    //**************************************
+    // Do we need this opmode?
     private OpMode opmode;
+    //*************************************
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
-    // allow access to private data fields for example setMotorPower,
+    // allow access to private commands fields for example setMotorPower,
     // getPositionInTermsOfAttachment
     //*********************************************************************************************
 
@@ -57,8 +64,8 @@ public class HaloControls {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
-    public void getMechanumdata(MecanumData data) {
-        if (data == null)
+    public void calculateMecanumCommands(MecanumCommands commands) {
+        if (commands == null)
             return;
         double yValue = yJoystick.getValue();
         double xValue = xJoystick.getValue();
@@ -74,9 +81,9 @@ public class HaloControls {
         if (translationSpeed > 1) {
             translationSpeed = 1;
         }
-        //return new MecanumData(translationSpeed, angleOfTranslation, rValue);
-        data.setAngleOfTranslation(angleOfTranslation);
-        data.setSpeed(translationSpeed);
-        data.setSpeedOfRotation(rValue);
+        //return new MecanumCommands(translationSpeed, angleOfTranslation, rValue);
+        commands.setAngleOfTranslation(angleOfTranslation);
+        commands.setSpeed(translationSpeed);
+        commands.setSpeedOfRotation(rValue);
     }
 }

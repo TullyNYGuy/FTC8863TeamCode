@@ -25,6 +25,22 @@ public class Mecanum {
     private double leftStickY;
     private double rightStickY;
 
+    public double geFrontLeft() {
+        return wheelVelocities.getFrontLeft();
+    }
+
+    public double getBackLeft() {
+        return wheelVelocities.getBackLeft();
+    }
+
+    public double getFrontRight() {
+        return wheelVelocities.getFrontRight();
+    }
+
+    public double getBackRight() {
+        return wheelVelocities.getBackRight();
+    }
+
     public class WheelVelocities {
         protected double frontLeft = 0;
         protected double frontRight = 0;
@@ -105,20 +121,20 @@ public class Mecanum {
     // public methods that give the class its functionality
     //*********************************************************************************************
     //if speed of rotation is = 0 then our max speed is 0.707. We may want to scale up to 1.
-    public WheelVelocities calculateWheelVelocity(MecanumData mecanumData) {
-        wheelVelocities.frontLeft = mecanumData.getSpeed() * Math.sin(-mecanumData.getAngleOfTranslation() + (Math.PI / 4)) - mecanumData.getSpeedOfRotation();
-        wheelVelocities.frontRight = mecanumData.getSpeed() * Math.cos(-mecanumData.getAngleOfTranslation() + (Math.PI / 4)) + mecanumData.getSpeedOfRotation();
-        wheelVelocities.backLeft = mecanumData.getSpeed() * Math.cos(-mecanumData.getAngleOfTranslation() + (Math.PI / 4)) - mecanumData.getSpeedOfRotation();
-        wheelVelocities.backRight = mecanumData.getSpeed() * Math.sin(-mecanumData.getAngleOfTranslation() + (Math.PI / 4)) + mecanumData.getSpeedOfRotation();
+    public WheelVelocities calculateWheelVelocity(MecanumCommands mecanumCommands) {
+        wheelVelocities.frontLeft = mecanumCommands.getSpeed() * Math.sin(-mecanumCommands.getAngleOfTranslation() + (Math.PI / 4)) - mecanumCommands.getSpeedOfRotation();
+        wheelVelocities.frontRight = mecanumCommands.getSpeed() * Math.cos(-mecanumCommands.getAngleOfTranslation() + (Math.PI / 4)) + mecanumCommands.getSpeedOfRotation();
+        wheelVelocities.backLeft = mecanumCommands.getSpeed() * Math.cos(-mecanumCommands.getAngleOfTranslation() + (Math.PI / 4)) - mecanumCommands.getSpeedOfRotation();
+        wheelVelocities.backRight = mecanumCommands.getSpeed() * Math.sin(-mecanumCommands.getAngleOfTranslation() + (Math.PI / 4)) + mecanumCommands.getSpeedOfRotation();
         return wheelVelocities.scale4Numbers(wheelVelocities);
     }
 
     public void test(Telemetry telemetry) {
-        MecanumData mecanumData = new MecanumData();
-        mecanumData.setSpeedOfRotation(0);
-        mecanumData.setAngleOfTranslation(-Math.PI / 2);
-        mecanumData.setSpeed(0.5);
-        WheelVelocities wheelVelocities = calculateWheelVelocity(mecanumData);
+        MecanumCommands mecanumCommands = new MecanumCommands();
+        mecanumCommands.setSpeedOfRotation(0);
+        mecanumCommands.setAngleOfTranslation(-Math.PI / 2);
+        mecanumCommands.setSpeed(0.5);
+        WheelVelocities wheelVelocities = calculateWheelVelocity(mecanumCommands);
         telemetry.addData("front left = ", wheelVelocities.frontLeft);
         telemetry.addData("front right = ", wheelVelocities.frontRight);
         telemetry.addData("back left = ", wheelVelocities.backLeft);
