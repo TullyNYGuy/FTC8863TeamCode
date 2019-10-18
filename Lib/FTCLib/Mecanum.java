@@ -13,6 +13,7 @@ public class Mecanum {
     //*********************************************************************************************
 
 
+
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS
     //
@@ -25,7 +26,7 @@ public class Mecanum {
     private double leftStickY;
     private double rightStickY;
 
-    public double geFrontLeft() {
+    public double getFrontLeft() {
         return wheelVelocities.getFrontLeft();
     }
 
@@ -41,7 +42,7 @@ public class Mecanum {
         return wheelVelocities.getBackRight();
     }
 
-    public class WheelVelocities {
+    static public class WheelVelocities {
         protected double frontLeft = 0;
         protected double frontRight = 0;
         protected double backLeft = 0;
