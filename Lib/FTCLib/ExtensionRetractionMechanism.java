@@ -139,23 +139,28 @@ public class ExtensionRetractionMechanism {
 
     private double desiredPosition = 0;
     private double extensionRetractionPower = 0;
-
     private double extensionRetractionSpeed = .5;
+
+    /**
+     * There is one predefined position that is available to you other than fully retracted and fully
+     * extended. The home position is the position that the mechanism normally rests at. Call
+     * goToHome() to send the mechanism to the home position.
+     */
+    private double homePosition = 0;
+
+    public double getHomePosition() {
+        return homePosition;
+    }
+
+    public void setHomePosition(double homePosition) {
+        this.homePosition = homePosition;
+    }
+
+    /**
+     * There is a debug mode that allows you to do things to the mechanism that normally would not
+     * be allowed.
+     */
     private boolean debugMode = false;
-
-    private DataLogging logFile;
-    private boolean loggingOn = false;
-    private boolean arrivedAlreadyLogged = false;
-
-    private double joystickPower = 0;
-
-    //*********************************************************************************************
-    //          GETTER and SETTER Methods
-    //
-    // allow access to private data fields for example setMotorPower,
-    // getPositionInTermsOfAttachment
-    //*********************************************************************************************
-
 
     public boolean isDebugMode() {
         return debugMode;
@@ -177,6 +182,12 @@ public class ExtensionRetractionMechanism {
         this.extensionRetractionSpeed = .5;
     }
 
+    /**
+     * The commands sent to the mechanism and the states it passes through can be logged so that
+     * you can review them later. The log is a file stored on the phone.
+     */
+    private DataLogging logFile;
+
     public void setDataLog(DataLogging logFile) {
         this.logFile = logFile;
     }
@@ -189,6 +200,22 @@ public class ExtensionRetractionMechanism {
         this.loggingOn = false;
     }
 
+    private boolean loggingOn = false;
+    private boolean arrivedAlreadyLogged = false;
+
+    /**
+     * The mechanism can be run manually using a joystick as input. The power is stored here.
+     */
+    private double joystickPower = 0;
+
+    //*********************************************************************************************
+    //          GETTER and SETTER Methods
+    //
+    // allow access to private data fields for example setMotorPower,
+    // getPositionInTermsOfAttachment
+    //*********************************************************************************************
+
+
     //*********************************************************************************************
     //          Constructors
     //
@@ -199,7 +226,7 @@ public class ExtensionRetractionMechanism {
                                         String extensionLimitSwitchName, String retractionLimitSwitchName,
                                         DcMotor8863.MotorType motorType, double movementPerRevolution,
                                         String mechanismName) {
-
+        // set all of the private variables using the parameters passed into the constructor
         this.motorName = motorName;
         this.extensionLimitSwitchName = extensionLimitSwitchName;
         this.retractionLimitSwitchName = retractionLimitSwitchName;
@@ -207,14 +234,18 @@ public class ExtensionRetractionMechanism {
         this.movementPerRevolution = movementPerRevolution;
         this.mechanismName = mechanismName;
 
+        this.telemetry = telemetry;
+
+        // create the motor
         extensionRetractionMotor = new DcMotor8863(motorName, hardwareMap, telemetry);
         extensionRetractionMotor.setMotorType(motorType);
         extensionRetractionMotor.setMovementPerRev(movementPerRevolution);
 
-        this.telemetry = telemetry;
-
+        // create the limit switches
         retractedLimitSwitch = new Switch(hardwareMap, retractionLimitSwitchName, Switch.SwitchType.NORMALLY_OPEN);
         extendedLimitSwitch = new Switch(hardwareMap, extensionLimitSwitchName, Switch.SwitchType.NORMALLY_OPEN);
+
+        // set the initial state of the state machine
         extensionRetractionState = ExtensionRetractionStates.RESET;
     }
 
@@ -225,6 +256,15 @@ public class ExtensionRetractionMechanism {
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
 
+    /**
+     * Write a string into the logfile.
+     * @param stringToLog
+     */
+    private void log(String stringToLog) {
+        if (logFile != null && loggingOn) {
+            logFile.logData(stringToLog);
+        }
+    }
 
     //*********************************************************************************************
     //          MAJOR METHODS
@@ -232,44 +272,48 @@ public class ExtensionRetractionMechanism {
     // public methods that give the class its functionality
     //*********************************************************************************************
 
+    /**
+     * This method is meant to be called as the robot initializes. It resets the mechanism upon
+     * initialization.
+     */
     public void init() {
         log(mechanismName + "Extension retraction system initializing");
         if (!isDebugMode()) {
-            // if the mechanism is not already at the retracted then the delivery box can collide with the
-            // phone mount when the mechanism is coming down. So raise the delivery box while the mechanism
-            // is coming down.
-            if(!retractedLimitSwitch.isPressed()){
-                //deliveryBoxToOutOfWay();
+            // if the mechanism is not already at the retracted then there may be something that has
+            // to be done while the mechanism is retracting. For example, suppose there is a delivery
+            // box attached to the mechanism. Maybe the delivery box has
+            // to be raised in order for it to clear an obstacle while the mechanism is retracting.
+            // I need to find a way to pass in a method that can be called before the reset is
+            // started and after the reset is completed.
+            if (!retractedLimitSwitch.isPressed()) {
+                //methodToRunBeforeReset();
             }
             reset();
             while (!isMovementComplete()) {
                 update();
             }
-            // mechanism movement is complete so put the delivery box back
-            //deliveryBoxToHome();
+            // mechanism movement is complete so run the method for after the reset
+            //methodToRunAfterReset();
         }
     }
 
+    /**
+     * This method is called as part of the shutdown sequence of the robot
+     */
     public void shutdown() {
-        //dumpServo.goHome();
-    }
-
-    private void log(String stringToLog) {
-        if (logFile != null && loggingOn) {
-            logFile.logData(stringToLog);
-        }
+        //methodToRunAtShutdown;
     }
 
     //*********************************************************************************************]
     //  motor position feedback
     //**********************************************************************************************
 
-    public int getMotorEncoder() {
+    public int getMotorEncoderValue() {
         return extensionRetractionMotor.getCurrentPosition();
     }
 
-    public void displayMotorEncoder() {
-        telemetry.addData("Encoder = ", getMotorEncoder());
+    public void displayMotorEncoderValue() {
+        telemetry.addData("Encoder = ", getMotorEncoderValue());
     }
 
     public double getPosition() {
@@ -292,24 +336,78 @@ public class ExtensionRetractionMechanism {
         telemetry.addData("Motor state = ", extensionRetractionMotor.getCurrentMotorState().toString());
     }
     //*********************************************************************************************]
-    // motor commands
+    // mechanism commands - these can come at any time. They are not synced to any state. In
+    // engineering terms, they are asynchronous. These commands are publicly accessible.
     //**********************************************************************************************
 
+    /**
+     * Reset the mechanism
+     */
     public void reset() {
         log("DRIVER COMMANDED " + mechanismName.toUpperCase() + "  TO RESET");
+        // the next execution of the state machine will pick up this new command and execute it
         extensionRetractionCommand = ExtensionRetractionCommands.RESET;
     }
 
-    public void goToBottom() {
+    /**
+     * Command the mechanism to fully retract
+     */
+    public void goToFullRetract() {
         log("COMMANDED " + mechanismName.toUpperCase() + " TO RETRACTED POSITION");
+        // the next execution of the state machine will pick up this new command and execute it
         extensionRetractionCommand = ExtensionRetractionCommands.GO_TO_RETRACTED;
     }
 
-    public void goToTop() {
+    /**
+     * Command the mechanism to fully extend
+     */
+    public void goToFullExtend() {
         log("COMMANDED " + mechanismName.toUpperCase() + " TO EXTENDED POSITION");
+        // the next execution of the state machine will pick up this new command and execute it
         extensionRetractionCommand = ExtensionRetractionCommands.GO_TO_EXTENDED;
     }
 
+    /**
+     * Command the mechanism to go to its predefined home position. Use setHomePosition() to set
+     * the home position.
+     */
+    public void goToHome() {
+        log("COMMANDED " + mechanismName.toUpperCase() + " TO GO TO HOME");
+        moveToPosition(homePosition, 1);
+    }
+
+    /**
+     * Move to a position based on zero which is set when the mechanism is all the way retracted,
+     * You must call the update() method in a loop after this.
+     *
+     * @param position           desired position; 0 is the fully retracted position units are
+     *                           whatever you setup the mechanism for initially
+     * @param extensionRetractionPower max power for the motor
+     */
+    public void moveToPosition(double position, double extensionRetractionPower) {
+        if (isMovementComplete()) {
+            arrivedAlreadyLogged = false;
+            log("Moving mechanism to a position = " + position);
+            desiredPosition = position;
+            this.extensionRetractionPower = extensionRetractionPower;
+            // the next execution of the state machine will pick up this new command and execute it
+            extensionRetractionCommand = ExtensionRetractionCommands.GO_TO_POSITION;
+            extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            extensionRetractionMotor.moveToPosition(extensionRetractionPower, position, DcMotor8863.FinishBehavior.FLOAT);
+        } else {
+            // previous mechanism movement is not complete, ignore command
+            log("Asked mechanism to move to position but it is already moving, ignored command");
+            extensionRetractionCommand = ExtensionRetractionCommands.NO_COMMAND;
+        }
+
+    }
+
+    /**
+     * Use the joystick to control the mechanism. This has it's limits though. You can't joystick
+     * control the mechanism during a reset. You can't do stupid things like extend the mechanism
+     * when it is already fully extended. etc.
+     * @param power apply this power to the motor
+     */
     public void setLiftPowerUsingJoystick(double power) {
         // if a command has been given to reset the mechanism, then do not allow the joystick to take
         // effect and override the reset
@@ -324,119 +422,55 @@ public class ExtensionRetractionMechanism {
         }
     }
 
-    public void goToTransfer() {
-        log("COMMANDED LIFT TO TRANSFER POSITION");
-        moveToPosition(0.2, 1);
-    }
-
-    public void goToLatch() {
-        log("COMMANDED LIFT TO LATCH POSITION");
-        moveToPosition(10, 1);
-    }
-
-    public void goToHang() {
-        log("COMMANDED LIFT TO HANGING POSITION");
-        moveToPosition(2.5, 1);
-    }
-
-
-    public void goToSetupHang(){
-        log("COMMANDED LIFT TO SETUP HANG POSITION");
-        moveToPosition(5.9, 1);
-    }
-
-    public void dehang() {
-        log("COMMANDED LIFT TO DE-HANG");
-        goToTop();
-    }
+    //*********************************************************************************************]
+    // mechanism commands - these can come at any time. They are not synced to any state. In
+    // engineering terms, they are asynchronous. These commands are NOT publicly accessible.
+    //**********************************************************************************************
 
     /**
-     * For testing a move to position
+     * This method is only called by the state machine. Cause the mechanism to start to move to a
+     * fully retracted position.
      */
-    public void goto5Inches() {
-        moveToPosition(5.0, .2);
-    }
-
-    /**
-     * For testing a move to position
-     */
-    public void goto8Inches() {
-        moveToPosition(8.0, .2);
-    }
-
-    public void goToHome() {
-        log("COMMANDED " + mechanismName.toUpperCase() + " TO GO TO HOME");
-        moveToPosition(0.5, 1);
-    }
-
-    public void goTo9Inches() {
-        moveToPosition(9.0, 1);
-    }
-
-    public void goToScoringPosition() {
-        log("COMMANDED " + mechanismName.toUpperCase() + " TO GO TO SCORING POSITION");
-        moveToPosition(5.5, 1);
-    }
-
-    public void moveTwoInchesUp() {
-        // since the motor starts in RESET state I have to force it into another state in order to
-        // get movement
-        extensionRetractionState = ExtensionRetractionStates.IN_BETWEEN;
-        moveToPosition(2, .5);
-    }
-
-    private void moveToBottom() {
-        // when the mechanism goes down the transfer box must be put into out of way position so it does
-        // not collide with the phone mount. But only if the mechanism is not already down.
-        if(!retractedLimitSwitch.isPressed()) {
-            //deliveryBoxToOutOfWay();
+    private void moveToFullRetract() {
+        // when the mechanism retracts you may want to do something with whatever is attached to it.
+        if (!retractedLimitSwitch.isPressed()) {
+            //methodToRunBeforeFullRetract;
         }
         extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        // need to speed this up at the expense of smashing into the limit switch harder
-        //extensionRetractionMotor.setPower(-extensionRetractionSpeed);
         extensionRetractionMotor.setPower(-1.0);
     }
 
-    private void moveToTop() {
+    /**
+     * This method is only called by the state machine. Cause the mechanism to start to move to a
+     * fully extended position.
+     */
+    private void moveToFullExtend() {
+        // when the mechanism retracts you may want to do something with whatever is attached to it.
+        if (!extendedLimitSwitch.isPressed()) {
+            //methodToRunBeforeFullExtend;
+        }
         extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        //extensionRetractionMotor.setPower(+extensionRetractionSpeed);
-        // make the dehang as fast as possible
         extensionRetractionMotor.setPower(+1);
     }
 
+    /**
+     * This method is only called by the state machine. Cause the mechanism to start to stop moving.
+     */
     private void stopMechanism() {
         log(mechanismName.toUpperCase() + " ARRIVED AT DESTINATION");
         extensionRetractionMotor.setPower(0);
     }
 
     /**
-     * Move to a position based on zero which is set when the mechanism is all the way down, must run
-     * update rotuine in a loop after that.
-     *
-     * @param heightInInches desired height above the 0 position
-     * @param extensionRetractionPower      max power for the motor
+     * Check if the mechanism needs to extend to get to the target position. This method is used
+     * by the state machine to determine whether to extend or to retract in order to reach the
+     * requested position.
+     * @return
      */
-    public void moveToPosition(double heightInInches, double extensionRetractionPower) {
-        if (isMovementComplete()) {
-            arrivedAlreadyLogged = false;
-            log("Moving mechanism to a position = " + heightInInches );
-            desiredPosition = heightInInches;
-            this.extensionRetractionPower = extensionRetractionPower;
-            extensionRetractionCommand = ExtensionRetractionCommands.GO_TO_POSITION;
-            extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            extensionRetractionMotor.moveToPosition(extensionRetractionPower, heightInInches, DcMotor8863.FinishBehavior.FLOAT);
-        } else {
-            // previous mechanism movement is not complete, ignore command
-            log("Asked mechanism to move to position but it is already moving, ignore command");
-            extensionRetractionCommand = ExtensionRetractionCommands.NO_COMMAND;
-        }
-
-    }
-
-    private boolean isLiftMovementUp() {
+    private boolean isMechanismMovementExtension() {
         // if the position that we want to move to is greater than the current position of the mechanism,
-        // then the movement of the mechanism will be up. For example, desired position is 10. Current
-        // position is 5. So the mechanism has to move up to get there.
+        // then the movement of the mechanism will be to extend. For example, desired position is 10. Current
+        // position is 5. So the mechanism has to extend to get there.
         if (desiredPosition - getPosition() > 0) {
             return true;
         } else {
@@ -445,7 +479,7 @@ public class ExtensionRetractionMechanism {
     }
 
     //*********************************************************************************************]
-    // mechanism motor state machine
+    // mechanism state machine
     //**********************************************************************************************
 
     public ExtensionRetractionStates update() {
@@ -457,8 +491,8 @@ public class ExtensionRetractionMechanism {
                 switch (extensionRetractionCommand) {
                     case RESET:
                         log("Resetting mechanism");
-                        // send the mechanism moving down
-                        moveToBottom();
+                        // send the mechanism to retract
+                        moveToFullRetract();
                         extensionRetractionState = ExtensionRetractionStates.RESET_MOVING_TO_RETRACTED;
                         break;
                     // all other commands are ignored when a reset is issued. Basically force
@@ -484,13 +518,14 @@ public class ExtensionRetractionMechanism {
                 }
                 break;
 
-                // This state means that a reset was requested and the mechanism has already started
-            // moving to the retracted. It is here so that a moveToBottom() is not repeatedly called.
+            // This state means that a reset was requested and the mechanism has already started
+            // moving to the retracted position. It is here so that a moveToFullRetract() is
+            // not repeatedly called.
             case RESET_MOVING_TO_RETRACTED:
                 switch (extensionRetractionCommand) {
                     case RESET:
-                        // the mechanism has been sent to the retracted from a reset command.
-                        // It is just moving down until the limit switch is pressed and the motor
+                        // the mechanism has been sent to the retracted position from a reset command.
+                        // It is just retracting until the limit switch is pressed and the motor
                         // is told to stop.
                         if (retractedLimitSwitch.isPressed()) {
                             // the limit switch has been pressed. Stop the motor. Clear the command.
@@ -523,19 +558,19 @@ public class ExtensionRetractionMechanism {
                         break;
                 }
                 break;
-            // this state does NOT mean that the mechanism is at the retracted
-            // it means that the mechanism is moving to the retracted OR at the retracted
+            // this state does NOT mean that the mechanism is at the retracted position
+            // it means that the mechanism is moving to the retracted OR at the retracted position
             case RETRACTED:
                 switch (extensionRetractionCommand) {
                     case RESET:
                         // a reset can be requested at any time. Start the motor movement and change
                         // state
-                        moveToBottom();
+                        moveToFullRetract();
                         extensionRetractionState = ExtensionRetractionStates.RESET_MOVING_TO_RETRACTED;
                         break;
                     case GO_TO_RETRACTED:
                         // the mechanism has been sent to the retracted without using a position command.
-                        // It is just moving down until the motor is told to stop.
+                        // It is just retracting until the motor is told to stop.
                         if (retractedLimitSwitch.isPressed()) {
                             // the limit switch has been pressed. Stop the motor. Clear the command.
                             stopMechanism();
@@ -546,7 +581,7 @@ public class ExtensionRetractionMechanism {
                         // the mechanism has been requested to move to the extended. The motor needs to be
                         // turned on and will run towards the extended with just speed control, no position
                         // control
-                        moveToTop();
+                        moveToFullExtend();
                         extensionRetractionState = ExtensionRetractionStates.EXTENDED;
                         break;
                     case GO_TO_POSITION:
@@ -557,35 +592,35 @@ public class ExtensionRetractionMechanism {
                         break;
                     case JOYSTICK:
                         processJoystick();
-                            break;
+                        break;
                     case NO_COMMAND:
                         // don't do anything, just hang out
                         break;
                 }
                 break;
 
-                // this state is for when the mechanism is located somewhere in between the extended and retracted
-            // and is not moving to the extended or moving to the retracted or being reset
+            // this state is for when the mechanism is located somewhere in between the extended and retracted
+            // and is not moving to fully extended or moving to fully retracted or being reset
             case IN_BETWEEN:
                 switch (extensionRetractionCommand) {
                     case RESET:
                         // a reset can be requested at any time. Start the motor movement and change
                         // state
-                        moveToBottom();
+                        moveToFullRetract();
                         extensionRetractionState = ExtensionRetractionStates.RESET_MOVING_TO_RETRACTED;
                         break;
                     case GO_TO_RETRACTED:
                         // the mechanism has been requested to move to the retracted. The motor needs to be
                         // turned on and will run towards the retracted with just speed control, no position
                         // control
-                        moveToBottom();
+                        moveToFullRetract();
                         extensionRetractionState = ExtensionRetractionStates.RETRACTED;
                         break;
                     case GO_TO_EXTENDED:
                         // the mechanism has been requested to move to the extended. The motor needs to be
                         // turned on and will run towards the extended with just speed control, no position
                         // control
-                        moveToTop();
+                        moveToFullExtend();
                         extensionRetractionState = ExtensionRetractionStates.EXTENDED;
                         break;
                     case GO_TO_POSITION:
@@ -603,14 +638,16 @@ public class ExtensionRetractionMechanism {
                         // then something went wrong or someone gave a bad motor command.
                         if (extendedLimitSwitch.isPressed()) {
                             // the limit switch has been pressed. If the movement is supposed to be
-                            // up, then Stop the motor. Clear the command.
-                            if (isLiftMovementUp()) {
+                            // extending, then Stop the motor. Clear the command.
+                            if (isMechanismMovementExtension()) {
                                 stopMechanism();
                                 extensionRetractionCommand = ExtensionRetractionCommands.NO_COMMAND;
                                 extensionRetractionState = ExtensionRetractionStates.EXTENDED;
                             } else {
                                 // the extended limit switch is pressed but the movement is supposed to be
-                                // down so do nothing. This allows downward movement.
+                                // retract so do nothing. This allows retraction when the mechanism
+                                // is fully extended. I.E. retraction is allowed when the mechanism
+                                // is fully extended but more extension is not.
                             }
                         }
 
@@ -618,14 +655,16 @@ public class ExtensionRetractionMechanism {
                         // then something went wrong or someone gave a bad motor command.
                         if (retractedLimitSwitch.isPressed()) {
                             // the limit switch has been pressed. If the movement is supposed to be
-                            // down, then Stop the motor. Clear the command.
-                            if (!isLiftMovementUp()) {
+                            // retraction, then Stop the motor. Clear the command.
+                            if (!isMechanismMovementExtension()) {
                                 stopMechanism();
                                 extensionRetractionCommand = ExtensionRetractionCommands.NO_COMMAND;
                                 extensionRetractionState = ExtensionRetractionStates.RETRACTED;
                             } else {
                                 // the retracted limit switch is pressed but the movement is supposed to be
-                                // up so do nothing. This allows upward movement.
+                                // up so do nothing. This allows extension when the mechanism
+                                // is fully retracted. I.E. extension is allowed when the mechanism
+                                // is fully retracted but more retraction is not.
                             }
                         }
                         break;
@@ -638,21 +677,22 @@ public class ExtensionRetractionMechanism {
                 }
                 break;
 
-            // this state does NOT mean that the mechanism is at the extended
-            // it means that the mechanism is moving to the extended OR is at the extended
+            // this state does NOT mean that the mechanism is at the extended position
+            // it means that the mechanism is moving to the extended position OR is at the extended
+            // position
             case EXTENDED:
                 switch (extensionRetractionCommand) {
                     case RESET:
                         // a reset can be requested at any time. Start the motor movement and change
                         // state
-                        moveToBottom();
+                        moveToFullRetract();
                         extensionRetractionState = ExtensionRetractionStates.RESET_MOVING_TO_RETRACTED;
                         break;
                     case GO_TO_RETRACTED:
                         // the mechanism has been requested to move to the retracted. The motor needs to be
                         // turned on and will run towards the retracted with just speed control, no position
                         // control
-                        moveToBottom();
+                        moveToFullRetract();
                         extensionRetractionState = ExtensionRetractionStates.RETRACTED;
                         break;
                     case GO_TO_EXTENDED:
@@ -670,8 +710,8 @@ public class ExtensionRetractionMechanism {
                         // with the motor. We just need to change extensionRetractionState.
                         extensionRetractionState = ExtensionRetractionStates.IN_BETWEEN;
                         break;
-                        // the mechanism power is being set with a joystick. The mechanism must have hit the
-                    // upper limit switch to be in this state
+                    // the mechanism power is being set with a joystick. The mechanism must have hit the
+                    // extension limit switch to be in this state
                     case JOYSTICK:
                         processJoystick();
                         break;
@@ -684,25 +724,39 @@ public class ExtensionRetractionMechanism {
         return extensionRetractionState;
     }
 
-    private void logState(ExtensionRetractionStates extensionRetractionState,ExtensionRetractionCommands extensionRetractionCommand) {
+    /**
+     * Write the state and command into the log file ONLY if the state has changed or the command has changed.
+     * @param extensionRetractionState
+     * @param extensionRetractionCommand
+     */
+    private void logState(ExtensionRetractionStates extensionRetractionState, ExtensionRetractionCommands extensionRetractionCommand) {
         if (logFile != null && loggingOn) {
-            if(extensionRetractionState != previousExtensionRetractionState ||extensionRetractionCommand != previousExtensionRetractionCommand) {
-                logFile.logData("Delivery Lift System",extensionRetractionState.toString(), extensionRetractionCommand.toString());
+            if (extensionRetractionState != previousExtensionRetractionState || extensionRetractionCommand != previousExtensionRetractionCommand) {
+                logFile.logData("Delivery Lift System", extensionRetractionState.toString(), extensionRetractionCommand.toString());
                 previousExtensionRetractionState = extensionRetractionState;
                 previousExtensionRetractionCommand = extensionRetractionCommand;
             }
         }
     }
 
-    private void logIgnoreCommand(ExtensionRetractionCommands extensionRetractionCommand){
+    /**
+     * A command that cannot be executed was received. Write the command to the log file and a
+     * message saying this command has been ignored.
+     * @param extensionRetractionCommand
+     */
+    private void logIgnoreCommand(ExtensionRetractionCommands extensionRetractionCommand) {
         if (logFile != null && loggingOn) {
             logFile.logData("Ignoring command = ", extensionRetractionCommand.toString());
         }
     }
 
+    /**
+     * Has the mechanism arrived at the requested destination? If so log it and return true.
+     * @return
+     */
     public boolean isMovementComplete() {
         if (extensionRetractionCommand == ExtensionRetractionCommands.NO_COMMAND) {
-            // if the mechanism arrived message has alredy been logged don't log it again
+            // if the mechanism arrived message has already been logged don't log it again
             //NOTE if the mechanism is commanded to move to a position again, but is already at the
             // position, then the mechanism arrived may not be logged because arrivedAlreadyLogged
             // may not get set to false prior to the new movement command.
@@ -717,6 +771,9 @@ public class ExtensionRetractionMechanism {
         }
     }
 
+    /**
+     * Process a joystick input.
+     */
     private void processJoystick() {
         if (retractedLimitSwitch.isPressed()) {
             // if the mechanism is at the retracted, only allow it to move up
@@ -725,7 +782,7 @@ public class ExtensionRetractionMechanism {
                 extensionRetractionMotor.setPower(joystickPower);
             } else {
                 // the joystick power is either:
-                // negative so the driver wants it to lower. But it is already at retracted so we cannot lower more.
+                // negative so the driver wants it to retract. But it is already fully retracted so we cannot retract more.
                 // OR the joystick power is 0.
                 // For both of these situations the motor power should be set to 0.
                 extensionRetractionMotor.setPower(0);
@@ -735,13 +792,13 @@ public class ExtensionRetractionMechanism {
             extensionRetractionState = ExtensionRetractionStates.RETRACTED;
         } else {
             if (extendedLimitSwitch.isPressed()) {
-                // if the mechanism is at the extended, only allow it to move down
+                // if the mechanism is at the extended, only allow it to retract
                 if (joystickPower < 0) {
                     extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                     extensionRetractionMotor.setPower(joystickPower);
                 } else {
                     // the joystick power is either:
-                    // positive so the driver wants it to raise. But it is already at full height so we cannot raise more.
+                    // positive so the driver wants it to extend. But it is already fully extended so we cannot extend more.
                     // OR the joystick power is 0.
                     // For both of these situations the motor power should be set to 0.
                     extensionRetractionMotor.setPower(0);
@@ -759,9 +816,9 @@ public class ExtensionRetractionMechanism {
                     extensionRetractionMotor.setPower(0);
                     // this fixes a bug: without resetting the command to NO_COMMAND, the command
                     // remains JOYSTICK. A call to isExtensionArmMovementComplete returns false even
-                    // though the arm is not moving anymore (joystick command is 0). So any other
-                    // code that checks for completion of the extension arm movement just sits and
-                    // waits for isExtensionArmMovementComplete to return true. It never will. So
+                    // though the mechanism is not moving anymore (joystick command is 0). So any other
+                    // code that checks for completion of the mechanism movement just sits and
+                    // waits for isMovementComplete to return true. It never will. So
                     // we have to do this when the joystick power is 0:
                     extensionRetractionCommand = ExtensionRetractionCommands.NO_COMMAND;
                 }
@@ -770,12 +827,17 @@ public class ExtensionRetractionMechanism {
         }
     }
 
+    /**
+     * Add a telemetry command to display the state
+     */
     public void displayState() {
         telemetry.addData(mechanismName.toUpperCase() + " State = ", extensionRetractionState.toString());
     }
 
-
-    public void displayLiftCommand() {
+    /**
+     * Add a telemetry command to display the command to the mechanism
+     */
+    public void displayCommand() {
         telemetry.addData(mechanismName.toUpperCase() + " command = ", extensionRetractionCommand.toString());
     }
 
@@ -791,22 +853,22 @@ public class ExtensionRetractionMechanism {
             update();
         }
 
-        // move the mechanism 2 inches up and display
-        moveTwoInchesUp();
-        while (!isMovementComplete()) {
-            update();
-        }
-        telemetry.addLine("mechanism reset");
-        displayMotorEncoder();
-        displayPosition();
-        displayState();
-        telemetry.update();
-        delay(4000);
+//        // move the mechanism 2 inches up and display
+//        moveTwoInchesUp();
+//        while (!isMovementComplete()) {
+//            update();
+//        }
+//        telemetry.addLine("mechanism reset");
+//        displayMotorEncoderValue();
+//        displayPosition();
+//        displayState();
+//        telemetry.update();
+//        delay(4000);
 
         // switch modes - hopefully the enocder value does not change
         extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         telemetry.addLine("mechanism motor mode switched to run without encoder");
-        displayMotorEncoder();
+        displayMotorEncoderValue();
         displayPosition();
         displayState();
         telemetry.update();
@@ -815,23 +877,23 @@ public class ExtensionRetractionMechanism {
         // switch modes - hopefully the enocder value does not change
         telemetry.addLine("mechanism motor mode switched to run to position");
         extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        displayMotorEncoder();
+        displayMotorEncoderValue();
         displayPosition();
         displayState();
         telemetry.update();
         delay(4000);
 
         // move the mechanism 2 inches up and display
-        goto5Inches();
-        while (!isMovementComplete()) {
-            update();
-        }
-        telemetry.addLine("moved to 5 inches");
-        displayMotorEncoder();
-        displayPosition();
-        displayState();
-        telemetry.update();
-        delay(4000);
+//        goto5Inches();
+//        while (!isMovementComplete()) {
+//            update();
+//        }
+//        telemetry.addLine("moved to 5 inches");
+//        displayMotorEncoderValue();
+//        displayPosition();
+//        displayState();
+//        telemetry.update();
+//        delay(4000);
     }
 
     public void testLimitSwitches() {
