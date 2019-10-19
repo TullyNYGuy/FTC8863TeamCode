@@ -30,7 +30,7 @@ public class TestMecanumToDriverStation extends LinearOpMode {
     JoyStick gamepad1LeftJoyStickY;
     double gamepad1LeftJoyStickXValue = 0;
     double gamepad1LeftJoyStickYValue = 0;
-DcMotor8863 frontLeft;
+    DcMotor8863 frontLeft;
     JoyStick gamepad1RightJoyStickX;
     JoyStick gamepad1RightJoyStickY;
     double gamepad1RightJoyStickXValue = 0;
@@ -50,24 +50,8 @@ DcMotor8863 frontLeft;
         gamepad1RightJoyStickY = new JoyStick(gamepad1, JoyStick.JoystickSide.RIGHT, JoyStick.JoystickAxis.Y);
         mecanum = new Mecanum();
         haloControls = new HaloControls(gamepad1RightJoyStickY, gamepad1RightJoyStickX, gamepad1LeftJoyStickX, this);
-        frontLeft = new DcMotor8863("FrontLeft", hardwareMap );
-        frontLeft.setMotorType(ANDYMARK_20);
-        frontLeft.setMovementPerRev(360);
-        frontLeft.setTargetEncoderTolerance(5);
-        frontLeft.setFinishBehavior(DcMotor8863.FinishBehavior.FLOAT);
 
-       frontLeft.setMinMotorPower(-1);
-
-        frontLeft.setMaxMotorPower(1);
-
-
-        frontLeft.setDirection(DcMotor.Direction.FORWARD);
-
-        double initialPower = 0;
-        double finalPower = 1.0;
-        double rampTime = 1000;
-        frontLeft.setupPowerRamp(initialPower, finalPower, rampTime);
-       // frontLeft.setupPowerRamp(initialPower, finalPower, rampTime);
+        // frontLeft.setupPowerRamp(initialPower, finalPower, rampTime);
         //**************************************************************
         waitForStart();
 
@@ -85,19 +69,15 @@ DcMotor8863 frontLeft;
             //*****************************************************************
             mecanum.calculateWheelVelocity(mecanumCommands);
 
-            frontLeft.runAtConstantSpeed(mecanum.getFrontLeft());
-            frontLeft.update();
-            telemetry.addData("front left = ",  mecanum.getFrontLeft());
-            telemetry.addData("front right = ",  mecanum.getFrontRight());
-            telemetry.addData("back left = ",  mecanum.getBackLeft());
-            telemetry.addData("back right = ",  mecanum.getBackRight());
+            telemetry.addData("front left = ", mecanum.getFrontLeft());
+            telemetry.addData("front right = ", mecanum.getFrontRight());
+            telemetry.addData("back left = ", mecanum.getBackLeft());
+            telemetry.addData("back right = ", mecanum.getBackRight());
             telemetry.addData(">", "Press Stop to end test.");
-this.
             telemetry.update();
 
             idle();
         }
-        frontLeft.stop();
         // Put your cleanup code here - it runs as the application shuts down
         telemetry.addData(">", "Done");
         telemetry.update();
