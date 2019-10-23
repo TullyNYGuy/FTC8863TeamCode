@@ -30,6 +30,9 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
     double gamepad1LeftJoyStickXValue = 0;
     double gamepad1LeftJoyStickYValue = 0;
     DcMotor8863 frontLeft;
+    DcMotor8863 backLeft;
+    DcMotor8863 frontRight;
+    DcMotor8863 backRight;
     JoyStick gamepad1RightJoyStickX;
     JoyStick gamepad1RightJoyStickY;
     double gamepad1RightJoyStickXValue = 0;
@@ -51,13 +54,22 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
         haloControls = new HaloControls(gamepad1RightJoyStickY, gamepad1RightJoyStickX, gamepad1LeftJoyStickX, this);
 
         frontLeft = new DcMotor8863("FrontLeft", hardwareMap);
+        backLeft = new DcMotor8863("BackLeft", hardwareMap);
+        frontRight = new DcMotor8863("FrontRight", hardwareMap);
+        backRight = new DcMotor8863("BackRight", hardwareMap);
         // these motors are orbital (planetary gear) motors. The type of motor sets up the number
         // of encoder ticks per revolution. Since we are not using encoder feedback yet, this is
         // really not important now. But it will be once we hook up the encoders and set a motor
         // mode that uses feedback.
         frontLeft.setMotorType(ANDYMARK_20_ORBITAL);
+        backLeft.setMotorType(ANDYMARK_20_ORBITAL);
+        frontRight.setMotorType(ANDYMARK_20_ORBITAL);
+        backRight.setMotorType(ANDYMARK_20_ORBITAL);
         // This value will get set to some distance traveled per revolution later.
         frontLeft.setMovementPerRev(360);
+        backLeft.setMovementPerRev(360);
+        frontRight.setMovementPerRev(360);
+        backRight.setMovementPerRev(360);
 
         // The encoder tolerance is used when you give the motor a target encoder tick count to rotate to. 5 is
         // probably too tight. 10 is pretty good based on experience. Note that 10 is set as the
@@ -75,6 +87,9 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
         // you give it a positive power. We may have to change this once we see which direction the
         // motor actually moves.
         frontLeft.setDirection(DcMotor.Direction.FORWARD);
+        backLeft.setDirection(DcMotor.Direction.FORWARD);
+        frontRight.setDirection(DcMotor.Direction.FORWARD);
+        backRight.setDirection(DcMotor.Direction.FORWARD);
 
         // set the running mode for the motor. The motor initializes at STOP_AND_RESET_ENCODER which
         // resets the encoder count to zero. After this you have to choose a mode that will allow
@@ -84,6 +99,9 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
         // needed since later I use runAtConstantPower() and that sets the mode too. But since you
         // are coming up to speed on the motors, I put this here for you to see (like my pun?).
         frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        frontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         // The other 2 options would be:
         // RUN_TO_POSITION - run until the targeted encoder count is reached using PID
         // RUN_WITH_ENCODER - run at a velocity controlled by a PID
@@ -94,6 +112,9 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
         // runAtConstantPower(0) below does the same thing. But I put it here so you can see this
         // call exists.
         frontLeft.setPower(0);
+        backLeft.setPower(0);
+        frontRight.setPower(0);
+        backRight.setPower(0);
 
         // The runAtConstantPower() and runAtConstantSpeed() methods setup the motor to do that.
         // They are initialzation methods. So they should not be inside the while loop.
@@ -106,6 +127,9 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
         // Instead we will run the motor open loop (without controlling its speed, just feeding
         // it a power. Initialize the motor power to 0 for now.
         frontLeft.runAtConstantPower(0);
+        backLeft.runAtConstantPower(0);
+        frontRight.runAtConstantPower(0);
+        backRight.runAtConstantPower(0);
         //**************************************************************
         waitForStart();
 
@@ -131,6 +155,9 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
             // set the power to the motor. This is the call to use when changing power after the
             // motor is set up for a mode.
             frontLeft.setPower(mecanum.getFrontLeft());
+            backLeft.setPower(mecanum.getBackLeft());
+            frontRight.setPower(mecanum.getFrontRight());
+            backRight.setPower(mecanum.getBackRight());
 
             // This would also work. Is there a performance advantage to it?
             //frontLeft.setPower(wheelVelocities.getFrontLeft());
@@ -146,6 +173,9 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
             idle();
         }
         frontLeft.stop();
+        backLeft.stop();
+        frontRight.stop();
+        backRight.stop();
         // Put your cleanup code here - it runs as the application shuts down
         telemetry.addData(">", "Done");
         telemetry.update();
