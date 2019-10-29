@@ -339,23 +339,19 @@ public class JoyStick {
             if (joystickSide == JoystickSide.LEFT){
                 joystickValue = gamepad.left_stick_x;
             }
-        }
-        if (joystickAxis == JoystickAxis.X){
-            if (joystickSide == JoystickSide.RIGHT){
+            else{
                 joystickValue = gamepad.right_stick_x;
             }
         }
-        if (joystickAxis == JoystickAxis.Y){
-            if (joystickSide == JoystickSide.LEFT){
+        else {
+            if (joystickSide == JoystickSide.LEFT) {
                 joystickValue = gamepad.left_stick_y;
             }
-        }
-        if (joystickAxis == JoystickAxis.Y){
-            if (joystickSide == JoystickSide.RIGHT){
+           else{
                 joystickValue = gamepad.right_stick_y;
             }
         }
-       return scaleInput(joystickValue);
+        return scaleInput(joystickValue);
     }
 
     //*********************************************************************************************

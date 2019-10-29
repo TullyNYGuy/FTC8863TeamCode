@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.opmodes.GenericTest;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.HaloControls;
@@ -51,7 +52,7 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
         gamepad1RightJoyStickX = new JoyStick(gamepad1, JoyStick.JoystickSide.RIGHT, JoyStick.JoystickAxis.X);
         gamepad1RightJoyStickY = new JoyStick(gamepad1, JoyStick.JoystickSide.RIGHT, JoyStick.JoystickAxis.Y);
         mecanum = new Mecanum();
-        haloControls = new HaloControls(gamepad1RightJoyStickY, gamepad1RightJoyStickX, gamepad1LeftJoyStickX, this);
+        haloControls = new HaloControls(gamepad1LeftJoyStickY, gamepad1LeftJoyStickX, gamepad1RightJoyStickX, this);
 
         frontLeft = new DcMotor8863("FrontLeft", hardwareMap);
         backLeft = new DcMotor8863("BackLeft", hardwareMap);
@@ -88,8 +89,8 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
         // motor actually moves.
         frontLeft.setDirection(DcMotor.Direction.FORWARD);
         backLeft.setDirection(DcMotor.Direction.FORWARD);
-        frontRight.setDirection(DcMotor.Direction.FORWARD);
-        backRight.setDirection(DcMotor.Direction.FORWARD);
+        frontRight.setDirection(DcMotor.Direction.REVERSE);
+        backRight.setDirection(DcMotor.Direction.REVERSE);
 
         // set the running mode for the motor. The motor initializes at STOP_AND_RESET_ENCODER which
         // resets the encoder count to zero. After this you have to choose a mode that will allow
@@ -154,6 +155,7 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
 
             // set the power to the motor. This is the call to use when changing power after the
             // motor is set up for a mode.
+
             frontLeft.setPower(mecanum.getFrontLeft());
             backLeft.setPower(mecanum.getBackLeft());
             frontRight.setPower(mecanum.getFrontRight());
@@ -162,13 +164,23 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
             // This would also work. Is there a performance advantage to it?
             //frontLeft.setPower(wheelVelocities.getFrontLeft());
 
+            telemetry.addData("Mecanum:", mecanumCommands.toString());
             telemetry.addData("front left = ", mecanum.getFrontLeft());
             telemetry.addData("front right = ", mecanum.getFrontRight());
             telemetry.addData("back left = ", mecanum.getBackLeft());
             telemetry.addData("back right = ", mecanum.getBackRight());
             telemetry.addData(">", "Press Stop to end test.");
-            this.
-                    telemetry.update();
+
+
+
+            telemetry.addData("left Y ", gamepad1LeftJoyStickY.getValue());
+            telemetry.addData("left X " , gamepad1LeftJoyStickX.getValue());
+            telemetry.addData("righ Y " , gamepad1RightJoyStickY.getValue());
+            telemetry.addData("right X " , gamepad1RightJoyStickX.getValue());
+
+
+
+            telemetry.update();
 
             idle();
         }

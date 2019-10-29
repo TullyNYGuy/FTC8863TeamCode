@@ -91,6 +91,10 @@ public class MecanumCommands {
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
 
+    @Override
+    public String toString() {
+        return "SP: " + String.valueOf(speed) + " TR: " + getAngleOfTranslationDegrees() + " ROT: " + speedOfRotation;
+    }
 
     //*********************************************************************************************
     //          MAJOR METHODS

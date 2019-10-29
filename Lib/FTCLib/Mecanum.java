@@ -123,10 +123,10 @@ public class Mecanum {
     //*********************************************************************************************
     //if speed of rotation is = 0 then our max speed is 0.707. We may want to scale up to 1.
     public WheelVelocities calculateWheelVelocity(MecanumCommands mecanumCommands) {
-        wheelVelocities.frontLeft = mecanumCommands.getSpeed() * Math.sin(-mecanumCommands.getAngleOfTranslation() + (Math.PI / 4)) - mecanumCommands.getSpeedOfRotation();
-        wheelVelocities.frontRight = mecanumCommands.getSpeed() * Math.cos(-mecanumCommands.getAngleOfTranslation() + (Math.PI / 4)) + mecanumCommands.getSpeedOfRotation();
-        wheelVelocities.backLeft = mecanumCommands.getSpeed() * Math.cos(-mecanumCommands.getAngleOfTranslation() + (Math.PI / 4)) - mecanumCommands.getSpeedOfRotation();
-        wheelVelocities.backRight = mecanumCommands.getSpeed() * Math.sin(-mecanumCommands.getAngleOfTranslation() + (Math.PI / 4)) + mecanumCommands.getSpeedOfRotation();
+        wheelVelocities.frontLeft = mecanumCommands.getSpeed() * Math.sin(-mecanumCommands.getAngleOfTranslation() + (Math.PI / 4)) + mecanumCommands.getSpeedOfRotation();
+        wheelVelocities.frontRight = mecanumCommands.getSpeed() * Math.cos(-mecanumCommands.getAngleOfTranslation() + (Math.PI / 4)) - mecanumCommands.getSpeedOfRotation();
+        wheelVelocities.backLeft = mecanumCommands.getSpeed() * Math.cos(-mecanumCommands.getAngleOfTranslation() + (Math.PI / 4)) + mecanumCommands.getSpeedOfRotation();
+        wheelVelocities.backRight = mecanumCommands.getSpeed() * Math.sin(-mecanumCommands.getAngleOfTranslation() + (Math.PI / 4)) - mecanumCommands.getSpeedOfRotation();
         return wheelVelocities.scale4Numbers(wheelVelocities);
     }
 
