@@ -41,6 +41,8 @@ public class OdometryModule {
 
     private DcMotor odometryModule;
 
+    private int previousEncoderValue = 0;
+
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -88,7 +90,13 @@ public class OdometryModule {
         this.name = name;
     }
 
+    public double getPreviousEncoderValue() {
+        return previousEncoderValue;
+    }
 
+    public void setPreviousEncoderValue(int previousEncoderValue) {
+        this.previousEncoderValue = previousEncoderValue;
+    }
 
     //*********************************************************************************************
     //          Constructors
@@ -96,7 +104,7 @@ public class OdometryModule {
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
-    public OdometryModule(Position position, int countsPerRevolution, double circumference, Units units, String name, HardwareMap hardwareMap) {
+    public OdometryModule(Position position, int countsPerRevolution, double circumference, Units units, String odometryModuleName, HardwareMap hardwareMap) {
         this.position = position;
         this.countsPerRevolution = countsPerRevolution;
         this.circumference = circumference;
@@ -111,7 +119,13 @@ public class OdometryModule {
     //
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
+ private double convertTicksToInches ( int ticks){
+        return ticks / 1440 * 1.5 * Math.PI ;
+    }
 
+    private double convertTicksToCm ( int ticks){
+        return ticks / 1440 * 3.8 * Math.PI;
+    }
 
     //*********************************************************************************************
     //          MAJOR METHODS
@@ -122,7 +136,40 @@ public int getEncoderValue(){
    return odometryModule.getCurrentPosition();
 };
 
+    public void resetEncoderValue (){
+        odometryModule.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    }
 
+    public double getDistanceSinceReset () {
+        if (units == Units.IN){
+            return convertTicksToInches(odometryModule.getCurrentPosition());
+        }
+        else{
+            return convertTicksToCm(odometryModule.getCurrentPosition());
+        }
+
+    }
+    public double getDistanceSinceReset (Units units){
+        if (units == Units.IN){
+            return convertTicksToInches(odometryModule.getCurrentPosition());
+        }
+        else{
+            return convertTicksToCm(odometryModule.getCurrentPosition());
+        }
+    }
+
+
+    public double getDistanceSinceLastChange () {
+        double distanceSinceLastChange = 0;
+        int currentPosition = odometryModule.getCurrentPosition();
+        if (units == Units.IN) {
+            distanceSinceLastChange = convertTicksToInches(currentPosition) - convertTicksToInches(previousEncoderValue);
+        } else {
+            distanceSinceLastChange = convertTicksToCm(currentPosition) - convertTicksToCm(previousEncoderValue);
+        }
+        previousEncoderValue = currentPosition;
+        return distanceSinceLastChange;
+    }
 
 
 }
