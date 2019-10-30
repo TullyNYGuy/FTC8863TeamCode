@@ -11,6 +11,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.HaloControls;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.JoyStick;
@@ -28,7 +29,8 @@ import static org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863.MotorType.AN
 public class TestMecanumToDrivetrain extends LinearOpMode {
 
     // Put your variable declarations here
-    BNO055IMU imu;
+    //BNO055IMU imu;
+    AdafruitIMU8863 imu;
 
 
 
@@ -142,7 +144,10 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
         frontRight.runAtConstantPower(0);
         backRight.runAtConstantPower(0);
 
-
+        // Note from Glenn:
+        // None of the following are needed using the class AdafruitIMU8863. They are handled in the
+        // initialization of the imu as part of the constructor.
+/*
         // State used for updating telemetry
         Orientation angles;
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
@@ -159,7 +164,10 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
         // on a Core Device Interface Module, configured to be a sensor of type "AdaFruit IMU",
         // and named "imu".
         imu = hardwareMap.get(BNO055IMU.class, "imu");
-          imu.initialize(parameters);
+        imu.initialize(parameters);
+
+ */
+        imu = new AdafruitIMU8863(hardwareMap);
 
 
         //**************************************************************
@@ -177,9 +185,11 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
             //*****************************************************************
             // Is this any better than mecanum.getFrontLeft() etc?
             //*****************************************************************
-            angles  = imu.getAngularOrientation(AxesReference.EXTRINSIC , AxesOrder.ZXY , AngleUnit.RADIANS);
 
-            mecanumCommands.setAngleOfTranslation(  mecanumCommands.getAngleOfTranslation() + angles.firstAngle);
+            //angles  = imu.getAngularOrientation(AxesReference.EXTRINSIC , AxesOrder.ZXY , AngleUnit.RADIANS);
+
+            //mecanumCommands.setAngleOfTranslation(  mecanumCommands.getAngleOfTranslation() + angles.firstAngle);
+            mecanumCommands.setAngleOfTranslation(  mecanumCommands.getAngleOfTranslation() + imu.getHeading());
             mecanum.calculateWheelVelocity(mecanumCommands);
 
 
@@ -215,7 +225,8 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
             telemetry.addData("right X " , gamepad1RightJoyStickX.getValue());
 
 
-telemetry.addData("robot angles are " , angles.firstAngle);
+            //telemetry.addData("robot angles are " , angles.firstAngle);
+            telemetry.addData("robot angles are " , imu.getHeading());
 
             telemetry.update();
 
