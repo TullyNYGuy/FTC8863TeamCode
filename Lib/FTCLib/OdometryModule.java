@@ -37,7 +37,7 @@ public class OdometryModule {
 
     private Units units;
 
-    private String name;
+    private String odometryModuleConfigName;
 
     private DcMotor odometryModule;
 
@@ -82,12 +82,12 @@ public class OdometryModule {
         this.units = units;
     }
 
-    public String getName() {
-        return name;
+    public String getOdometryModuleConfigName() {
+        return odometryModuleConfigName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setName(String odometryModuleConfigName) {
+        this.odometryModuleConfigName = odometryModuleConfigName;
     }
 
     public double getPreviousEncoderValue() {
@@ -104,13 +104,17 @@ public class OdometryModule {
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
-    public OdometryModule(Position position, int countsPerRevolution, double circumference, Units units, String odometryModuleName, HardwareMap hardwareMap) {
+    public OdometryModule(Position position, int countsPerRevolution, double circumference, Units units, String odometryModuleConfigName, HardwareMap hardwareMap) {
         this.position = position;
         this.countsPerRevolution = countsPerRevolution;
         this.circumference = circumference;
+        // let's pick a unit to use inside this class and do all storage and calculations in that unit
+        // When someone wants a different unit we just convert to that unit as the last step
         this.units = units;
-        this.name = name;
-        odometryModule = hardwareMap.dcMotor.get(name);
+        this.odometryModuleConfigName = odometryModuleConfigName;
+        //this.name = name;
+        //odometryModule = hardwareMap.dcMotor.get(name);
+        odometryModule = hardwareMap.get(DcMotor.class, odometryModuleConfigName);
         odometryModule.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
@@ -119,11 +123,13 @@ public class OdometryModule {
     //
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
- private double convertTicksToInches ( int ticks){
-        return ticks / 1440 * 1.5 * Math.PI ;
+    private double convertTicksToInches(int ticks) {
+        ///// this should be the circumference
+        return ticks / 1440 * 1.5 * Math.PI;
     }
 
-    private double convertTicksToCm ( int ticks){
+    private double convertTicksToCm(int ticks) {
+        ///// this should be the circumference
         return ticks / 1440 * 3.8 * Math.PI;
     }
 
@@ -132,34 +138,33 @@ public class OdometryModule {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
-public int getEncoderValue(){
-   return odometryModule.getCurrentPosition();
-};
+    public int getEncoderValue() {
+        return odometryModule.getCurrentPosition();
+    }
 
-    public void resetEncoderValue (){
+    public void resetEncoderValue() {
         odometryModule.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
-    public double getDistanceSinceReset () {
-        if (units == Units.IN){
+    public double getDistanceSinceReset() {
+        if (units == Units.IN) {
             return convertTicksToInches(odometryModule.getCurrentPosition());
-        }
-        else{
+        } else {
             return convertTicksToCm(odometryModule.getCurrentPosition());
         }
 
     }
-    public double getDistanceSinceReset (Units units){
-        if (units == Units.IN){
+
+    public double getDistanceSinceReset(Units units) {
+        if (units == Units.IN) {
             return convertTicksToInches(odometryModule.getCurrentPosition());
-        }
-        else{
+        } else {
             return convertTicksToCm(odometryModule.getCurrentPosition());
         }
     }
 
 
-    public double getDistanceSinceLastChange () {
+    public double getDistanceSinceLastChange() {
         double distanceSinceLastChange = 0;
         int currentPosition = odometryModule.getCurrentPosition();
         if (units == Units.IN) {
