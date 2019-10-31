@@ -31,20 +31,25 @@ public class ExtensionRetractionMechanismNew {
      * These are the states for the state machine that runs the mechanism.
      */
     private enum ExtensionRetractionStates {
+        START_RESET_SEQUENCE, //
         PERFORMING_PRE_RESET_ACTIONS, // actions that need to be run before mechanism can be moved to reset position
         MOVING_TO_RESET_POSITION, //
         PERFORMING_POST_RESET_ACTIONS, // actions that need to be run after the movement to the reset positon is complete
         RESET_COMPLETE, // reset movement and post reset actions are complete
+        START_RETRACTION_SEQUENCE, //
         PERFORMING_PRE_RETRACTION_ACTIONS, // actions that need to be run before mechanism can be moved to retracted position
         RETRACTING, // in process of retracting
         PERFORMING_POST_RETRACTION_ACTIONS, // actions that need to be run after the movement to full retraction is complete
         FULLY_RETRACTED, // fully retracted
+        START_EXTENSION_SEQUENCE, //
         PERFORMING_PRE_EXTENSION_ACTIONS, // actions that need to be run before mechanism can be moved extended position
         EXTENDING, // in process of extending
         PERFORMING_POST_EXTENSION_ACTIONS, // actions that need to be run after the movement to full extension is complete
         FULLY_EXTENDED, // fully extended
+        START_GO_TO_POSITION, //
         MOVING_TO_POSITION, // moving to a specified position
         AT_POSITION, // arrived at the specified position
+        START_JOYSTICK, //
         JOYSTICK // under joystick control
     }
 
@@ -984,6 +989,36 @@ public class ExtensionRetractionMechanismNew {
             //   RESET STATES
             //--------------------------
 
+            case START_RESET_SEQUENCE:
+                switch (extensionRetractionCommand) {
+                    case RESET:
+                        if (isAtResetPosition()) {
+                            // the mechanism is already at the reset position so assume it has already
+                            // been reset and the reset is complete.
+                            extensionRetractionState = ExtensionRetractionStates.RESET_COMPLETE;
+                            extensionRetractionCommand = ExtensionRetractionCommands.NO_COMMAND;
+                        } else {
+                            // start the reset sequence
+                            performPreResetActions();
+                            extensionRetractionState = ExtensionRetractionStates.PERFORMING_PRE_RESET_ACTIONS;
+                        }
+                        break;
+
+                    // A command can be issued at any time. Since we want the reset to complete
+                    // before any other commands are recognized, all other commands are ignored
+                    // when a reset is issued. Basically force the command back to a reset command.
+                    case GO_TO_RETRACTED:
+                    case GO_TO_EXTENDED:
+                    case GO_TO_POSITION:
+                    case JOYSTICK:
+                        logIgnoreCommand(extensionRetractionCommand);
+                        extensionRetractionCommand = ExtensionRetractionCommands.RESET;
+                        break;
+                    case NO_COMMAND:
+                        // do nothing. This command should never be active in this state.
+                        break;
+                }
+                break;
             // You can perform actions before the reset movement starts. For example, if you have
             // another mechanism attached to this one, and it has to turn a certain way in order
             // to avoid a collision with part of the robot while this mechanism moves to the reset
@@ -1095,20 +1130,25 @@ public class ExtensionRetractionMechanismNew {
                     // The mechansim is waiting for another command to be received. When one is
                     // received after a reset, the command is processed here.
                     case GO_TO_RETRACTED:
-                        performPreRetractActions();
-                        extensionRetractionState = ExtensionRetractionStates.PERFORMING_PRE_RETRACTION_ACTIONS;
+                        // save the state and command so that if the requested command cannnot be run,
+                        // the mechanism can return to this state and resume where it left off
+                        previousExtensionRetractionState = extensionRetractionState;
+                        previousExtensionRetractionCommand = ExtensionRetractionCommands.RESET;
+                        extensionRetractionState = ExtensionRetractionStates.START_RETRACTION_SEQUENCE;
                         break;
                     case GO_TO_EXTENDED:
-                        performPreExtendActions();
-                        extensionRetractionState = ExtensionRetractionStates.PERFORMING_PRE_EXTENSION_ACTIONS;
+                        previousExtensionRetractionState = extensionRetractionState;
+                        previousExtensionRetractionCommand = ExtensionRetractionCommands.RESET;
+                        extensionRetractionState = ExtensionRetractionStates.START_EXTENSION_SEQUENCE;
                         break;
                     case GO_TO_POSITION:
-                        logIgnoreCommand(ExtensionRetractionCommands.GO_TO_POSITION);
-                        extensionRetractionCommand = ExtensionRetractionCommands.RESET;
-                        break;
+                        previousExtensionRetractionState = extensionRetractionState;
+                        previousExtensionRetractionCommand = ExtensionRetractionCommands.RESET;
+                        extensionRetractionState = ExtensionRetractionStates.START_GO_TO_POSITION;
                     case JOYSTICK:
-                        logIgnoreCommand(ExtensionRetractionCommands.JOYSTICK);
-                        extensionRetractionCommand = ExtensionRetractionCommands.RESET;
+                        previousExtensionRetractionState = extensionRetractionState;
+                        previousExtensionRetractionCommand = ExtensionRetractionCommands.RESET;
+                        extensionRetractionState = ExtensionRetractionStates.START_JOYSTICK;
                         break;
                     case NO_COMMAND:
                         // do nothing, just wait for a new command
@@ -1120,18 +1160,67 @@ public class ExtensionRetractionMechanismNew {
             //   RETRACTION STATES
             //--------------------------
 
-            // You can perform actions before the retraction movement starts. For example, if you have
-            // another mechanism attached to this one, and it has to turn a certain way in order
-            // to avoid a collision with part of the robot while this mechanism moves to the retraction
-            // position, you can perform that turn and then watch for its completion here. This is
-            // optional. If you don't have any actions, just make arePreResetActionsComplete() return
-            // true in all cases.
+            case START_RETRACTION_SEQUENCE:
+                switch (extensionRetractionCommand) {
+                    // The retraction has been interrupted by a reset command. Setup for a reset.
+                    case RESET:
+                        // a reset can be requested at any time.
+                        previousExtensionRetractionState = extensionRetractionState;
+                        previousExtensionRetractionCommand = ExtensionRetractionCommands.GO_TO_RETRACTED;
+                        extensionRetractionState = ExtensionRetractionStates.START_RESET_SEQUENCE;
+                        break;
+                    case GO_TO_RETRACTED:
+                        if (!isRetractionLimitReached()) {
+                            // the mechanism is not retracted yet so it is ok to retract
+                            performPreRetractActions();
+                            extensionRetractionState = ExtensionRetractionStates.PERFORMING_PRE_RETRACTION_ACTIONS;
+                        } else {
+                            // already retracted so can't retract. Ignore command, and move directly
+                            // to the fully retracted state.
+                            logIgnoreCommand(ExtensionRetractionCommands.GO_TO_RETRACTED);
+                            extensionRetractionState = ExtensionRetractionStates.FULLY_RETRACTED;
+                            // the GO_TO_RETRACTED command is complete. Clear the command.
+                            extensionRetractionCommand = ExtensionRetractionCommands.NO_COMMAND;
+                        }
+                        break;
+                    // The retraction command can be interrupted by another command.
+                    // Note that this command is interrupting the retraction. So if there are pre retraction
+                    // actions being run they are interrupted too. Interrupting those actions may put whatever they are
+                    // operating on into an unknown state.
+                    case GO_TO_EXTENDED:
+                        previousExtensionRetractionState = extensionRetractionState;
+                        previousExtensionRetractionCommand = ExtensionRetractionCommands.GO_TO_RETRACTED;
+                        extensionRetractionState = ExtensionRetractionStates.START_EXTENSION_SEQUENCE;
+                        break;
+                    case GO_TO_POSITION:
+                        previousExtensionRetractionState = extensionRetractionState;
+                        previousExtensionRetractionCommand = ExtensionRetractionCommands.GO_TO_RETRACTED;
+                        extensionRetractionState = ExtensionRetractionStates.START_GO_TO_POSITION;
+                        break;
+                    case JOYSTICK:
+                        previousExtensionRetractionState = extensionRetractionState;
+                        previousExtensionRetractionCommand = ExtensionRetractionCommands.GO_TO_RETRACTED;
+                        extensionRetractionState = ExtensionRetractionStates.START_JOYSTICK;
+                        break;
+                    case NO_COMMAND:
+                        // do nothing. This command should never be active in this state.
+                        break;
+                }
+
+                // You can perform actions before the retraction movement starts. For example, if you have
+                // another mechanism attached to this one, and it has to turn a certain way in order
+                // to avoid a collision with part of the robot while this mechanism moves to the retraction
+                // position, you can perform that turn and then watch for its completion here. This is
+                // optional. If you don't have any actions, just make arePreResetActionsComplete() return
+                // true in all cases.
             case PERFORMING_PRE_RETRACTION_ACTIONS:
                 switch (extensionRetractionCommand) {
                     // The retraction has been interrupted by a reset command. Setup for a reset.
                     case RESET:
-                        performPreResetActions();
-                        extensionRetractionState = ExtensionRetractionStates.PERFORMING_PRE_RESET_ACTIONS;
+                        // a reset can be requested at any time.
+                        previousExtensionRetractionState = extensionRetractionState;
+                        previousExtensionRetractionCommand = ExtensionRetractionCommands.GO_TO_RETRACTED;
+                        extensionRetractionState = ExtensionRetractionStates.START_RESET_SEQUENCE;
                         break;
                     case GO_TO_RETRACTED:
                         if (arePreRetractActionsComplete()) {
@@ -1143,18 +1232,23 @@ public class ExtensionRetractionMechanismNew {
                         }
                         break;
                     // The retraction command can be interrupted by another command.
+                    // Note that this command is interrupting the retraction. So if there are pre retraction
+                    // actions being run they are interrupted too. Interrupting those actions may put whatever they are
+                    // operating on into an unknown state.
                     case GO_TO_EXTENDED:
-                        performPreExtendActions();
-                        extensionRetractionState = ExtensionRetractionStates.PERFORMING_PRE_EXTENSION_ACTIONS;
+                        previousExtensionRetractionState = extensionRetractionState;
+                        previousExtensionRetractionCommand = ExtensionRetractionCommands.GO_TO_RETRACTED;
+                        extensionRetractionState = ExtensionRetractionStates.START_EXTENSION_SEQUENCE;
                         break;
                     case GO_TO_POSITION:
-                        // note that this command is interrupting the retraction. So if there are pre retraction
-                        // actions being run they are interrupted too. Those actions may put whatever they are
-                        // operating on into an unkown state
-                        moveToPosition();
-                        extensionRetractionState = ExtensionRetractionStates.MOVING_TO_POSITION;
+                        previousExtensionRetractionState = extensionRetractionState;
+                        previousExtensionRetractionCommand = ExtensionRetractionCommands.GO_TO_RETRACTED;
+                        extensionRetractionState = ExtensionRetractionStates.START_GO_TO_POSITION;
                         break;
                     case JOYSTICK:
+                        previousExtensionRetractionState = extensionRetractionState;
+                        previousExtensionRetractionCommand = ExtensionRetractionCommands.GO_TO_RETRACTED;
+                        extensionRetractionState = ExtensionRetractionStates.START_JOYSTICK;
                         break;
                     case NO_COMMAND:
                         // do nothing. This command should never be active in this state.
@@ -1167,8 +1261,10 @@ public class ExtensionRetractionMechanismNew {
                 switch (extensionRetractionCommand) {
                     // The retraction has been interrupted by a reset command. Setup for a reset.
                     case RESET:
-                        performPreResetActions();
-                        extensionRetractionState = ExtensionRetractionStates.PERFORMING_PRE_RESET_ACTIONS;
+                        // a reset can be requested at any time.
+                        previousExtensionRetractionState = extensionRetractionState;
+                        previousExtensionRetractionCommand = ExtensionRetractionCommands.GO_TO_RETRACTED;
+                        extensionRetractionState = ExtensionRetractionStates.START_RESET_SEQUENCE;
                         break;
                     case GO_TO_RETRACTED:
                         if (isMoveToRetractComplete()) {
@@ -1180,22 +1276,26 @@ public class ExtensionRetractionMechanismNew {
                             // retraction not complete yet, keep watching
                         }
                         break;
+                    // The retraction command can be interrupted by another command.
                     case GO_TO_EXTENDED:
-                        performPreExtendActions();
-                        extensionRetractionState = ExtensionRetractionStates.PERFORMING_PRE_EXTENSION_ACTIONS;
+                        previousExtensionRetractionState = extensionRetractionState;
+                        previousExtensionRetractionCommand = ExtensionRetractionCommands.GO_TO_RETRACTED;
+                        extensionRetractionState = ExtensionRetractionStates.START_EXTENSION_SEQUENCE;
                         break;
                     case GO_TO_POSITION:
-                        // The position and the power for the move to position have already been
-                        // stored in private variables during the processing of the user's method
-                        // call.
-                        moveToPosition();
-                        extensionRetractionState = ExtensionRetractionStates.MOVING_TO_POSITION;
+                        previousExtensionRetractionState = extensionRetractionState;
+                        previousExtensionRetractionCommand = ExtensionRetractionCommands.GO_TO_RETRACTED;
+                        extensionRetractionState = ExtensionRetractionStates.START_GO_TO_POSITION;
                         break;
                     case JOYSTICK:
+                        previousExtensionRetractionState = extensionRetractionState;
+                        previousExtensionRetractionCommand = ExtensionRetractionCommands.GO_TO_RETRACTED;
+                        extensionRetractionState = ExtensionRetractionStates.START_JOYSTICK;
                         break;
                     case NO_COMMAND:
                         // do nothing. This command should never be active in this state.
                         break;
+                    ;
                 }
                 break;
 
@@ -1208,8 +1308,10 @@ public class ExtensionRetractionMechanismNew {
                 switch (extensionRetractionCommand) {
                     // The retraction has been interrupted by a reset command. Setup for a reset.
                     case RESET:
-                        performPreResetActions();
-                        extensionRetractionState = ExtensionRetractionStates.PERFORMING_PRE_RESET_ACTIONS;
+                        // a reset can be requested at any time.
+                        previousExtensionRetractionState = extensionRetractionState;
+                        previousExtensionRetractionCommand = ExtensionRetractionCommands.GO_TO_RETRACTED;
+                        extensionRetractionState = ExtensionRetractionStates.START_RESET_SEQUENCE;
                         break;
                     case GO_TO_RETRACTED:
                         if (arePostRetractActionsComplete()) {
@@ -1221,20 +1323,24 @@ public class ExtensionRetractionMechanismNew {
                             // post retraction action not complete yet, keep watching
                         }
                         break;
+                    // The retraction command can be interrupted by another command.
+                    // Note that this command is interrupting the retraction. So if there are post retraction
+                    // actions being run they are interrupted too. Interrupting those actions may put whatever they are
+                    // operating on into an unknown state.
                     case GO_TO_EXTENDED:
-                        performPreExtendActions();
-                        extensionRetractionState = ExtensionRetractionStates.PERFORMING_PRE_EXTENSION_ACTIONS;
+                        previousExtensionRetractionState = extensionRetractionState;
+                        previousExtensionRetractionCommand = ExtensionRetractionCommands.GO_TO_RETRACTED;
+                        extensionRetractionState = ExtensionRetractionStates.START_EXTENSION_SEQUENCE;
                         break;
                     case GO_TO_POSITION:
-                        // note that this command is interrupting the retraction. So if there are post retraction
-                        // actions being run they are interrupted too. Those actions may put whatever they are
-                        // operating on into an unkown state
-                        // The position and the power for the move to position have already been
-                        // stored in private variables during the processing of the user's method
-                        // call.
-                        moveToPosition();
-                        extensionRetractionState = ExtensionRetractionStates.MOVING_TO_POSITION;
+                        previousExtensionRetractionState = extensionRetractionState;
+                        previousExtensionRetractionCommand = ExtensionRetractionCommands.GO_TO_RETRACTED;
+                        extensionRetractionState = ExtensionRetractionStates.START_GO_TO_POSITION;
+                        break;
                     case JOYSTICK:
+                        previousExtensionRetractionState = extensionRetractionState;
+                        previousExtensionRetractionCommand = ExtensionRetractionCommands.GO_TO_RETRACTED;
+                        extensionRetractionState = ExtensionRetractionStates.START_JOYSTICK;
                         break;
                     case NO_COMMAND:
                         // do nothing. This command should never be active in this state.
@@ -1248,8 +1354,10 @@ public class ExtensionRetractionMechanismNew {
                 switch (extensionRetractionCommand) {
                     // A reset command has been received. Setup for a reset.
                     case RESET:
-                        performPreResetActions();
-                        extensionRetractionState = ExtensionRetractionStates.PERFORMING_PRE_RESET_ACTIONS;
+                        // a reset can be requested at any time.
+                        previousExtensionRetractionState = extensionRetractionState;
+                        previousExtensionRetractionCommand = ExtensionRetractionCommands.GO_TO_RETRACTED;
+                        extensionRetractionState = ExtensionRetractionStates.START_RESET_SEQUENCE;
                         break;
                     case GO_TO_RETRACTED:
                         // The mechanism is already retracted. This command is not relevant. Ignore
@@ -1260,21 +1368,24 @@ public class ExtensionRetractionMechanismNew {
                         extensionRetractionCommand = ExtensionRetractionCommands.NO_COMMAND;
                         break;
                     case GO_TO_EXTENDED:
-                        performPreExtendActions();
-                        extensionRetractionState = ExtensionRetractionStates.PERFORMING_PRE_EXTENSION_ACTIONS;
+                        previousExtensionRetractionState = extensionRetractionState;
+                        previousExtensionRetractionCommand = ExtensionRetractionCommands.GO_TO_RETRACTED;
+                        extensionRetractionState = ExtensionRetractionStates.START_EXTENSION_SEQUENCE;
                         break;
                     case GO_TO_POSITION:
-                        // The position and the power for the move to position have already been
-                        // stored in private variables during the processing of the user's method
-                        // call.
-                        moveToPosition();
-                        extensionRetractionState = ExtensionRetractionStates.MOVING_TO_POSITION;
+                        previousExtensionRetractionState = extensionRetractionState;
+                        previousExtensionRetractionCommand = ExtensionRetractionCommands.GO_TO_RETRACTED;
+                        extensionRetractionState = ExtensionRetractionStates.START_GO_TO_POSITION;
                         break;
                     case JOYSTICK:
+                        previousExtensionRetractionState = extensionRetractionState;
+                        previousExtensionRetractionCommand = ExtensionRetractionCommands.GO_TO_RETRACTED;
+                        extensionRetractionState = ExtensionRetractionStates.START_JOYSTICK;
                         break;
                     case NO_COMMAND:
-                        // do nothing, just wait for a new command
+                        // do nothing. This command should never be active in this state.
                         break;
+                    ;
                 }
                 break;
 
@@ -1286,26 +1397,64 @@ public class ExtensionRetractionMechanismNew {
             //   MOVING TO POSITION STATES
             //--------------------------
 
-            // this state is for when the mechanism is located somewhere in between the extended and retracted
-            // and is in the process of moving to a position
+            // this state checks to see if the mechanism can run a go to position.
+            case START_GO_TO_POSITION:
+                switch (extensionRetractionCommand) {
+                    // The retraction has been interrupted by a reset command. Setup for a reset.
+                    case RESET:
+                        previousExtensionRetractionState = extensionRetractionState;
+                        previousExtensionRetractionCommand = extensionRetractionCommand;
+                        extensionRetractionState = ExtensionRetractionStates.START_RESET_SEQUENCE;
+                        break;
+                    case GO_TO_RETRACTED:
+                        previousExtensionRetractionState = extensionRetractionState;
+                        previousExtensionRetractionCommand = ExtensionRetractionCommands.GO_TO_POSITION;
+                        extensionRetractionState = ExtensionRetractionStates.START_RETRACTION_SEQUENCE;
+                        break;
+                    case GO_TO_EXTENDED:
+                        previousExtensionRetractionState = extensionRetractionState;
+                        previousExtensionRetractionCommand = ExtensionRetractionCommands.GO_TO_POSITION;
+                        extensionRetractionState = ExtensionRetractionStates.START_EXTENSION_SEQUENCE;
+                        break;
+                    case GO_TO_POSITION:
+                        if (isOkToGoToPosition()) {
+                            moveToPosition();
+                            extensionRetractionState = ExtensionRetractionStates.MOVING_TO_POSITION;
+                        } else {
+                            extensionRetractionState = previousExtensionRetractionState;
+                            extensionRetractionCommand = previousExtensionRetractionCommand;
+                        }
+
+                    case JOYSTICK:
+                        previousExtensionRetractionState = extensionRetractionState;
+                        previousExtensionRetractionCommand = ExtensionRetractionCommands.GO_TO_POSITION;
+                        extensionRetractionState = ExtensionRetractionStates.START_JOYSTICK;
+                        break;
+                    case NO_COMMAND:
+                        // do nothing. This command should never be active in this state.
+                        break;
+                    break;
+                }
+                break;
+
             case MOVING_TO_POSITION:
                 switch (extensionRetractionCommand) {
                     case RESET:
                         // a reset can be requested at any time.
-                        // reset the mechanism starts with doing the pre reset actions
-                        performPreResetActions();
-                        // Change to resetting state
-                        extensionRetractionState = ExtensionRetractionStates.PERFORMING_PRE_RESET_ACTIONS;
+                        previousExtensionRetractionState = extensionRetractionState;
+                        previousExtensionRetractionCommand = ExtensionRetractionCommands.GO_TO_POSITION;
+                        extensionRetractionState = ExtensionRetractionStates.START_RESET_SEQUENCE;
                         break;
                     // movement to a position can be interrupted by a command to fully extend or
                     // fully retract
                     case GO_TO_RETRACTED:
-                        performPreRetractActions();
-                        extensionRetractionState = ExtensionRetractionStates.PERFORMING_PRE_RETRACTION_ACTIONS;
-                        break;
+                        previousExtensionRetractionState = extensionRetractionState;
+                        previousExtensionRetractionCommand = ExtensionRetractionCommands.GO_TO_POSITION;
+                        extensionRetractionState = ExtensionRetractionStates.START_RETRACTION_SEQUENCE;
                     case GO_TO_EXTENDED:
-                        performPreExtendActions();
-                        extensionRetractionState = ExtensionRetractionStates.PERFORMING_PRE_EXTENSION_ACTIONS;
+                        previousExtensionRetractionState = extensionRetractionState;
+                        previousExtensionRetractionCommand = ExtensionRetractionCommands.GO_TO_POSITION;
+                        extensionRetractionState = ExtensionRetractionStates.START_EXTENSION_SEQUENCE;
                         break;
                     case GO_TO_POSITION:
                         // the mechanism has been requested to move to a position. The motor has already
@@ -1346,7 +1495,9 @@ public class ExtensionRetractionMechanismNew {
                         }
                         break;
                     case JOYSTICK:
-                        processJoystick();
+                        previousExtensionRetractionState = extensionRetractionState;
+                        previousExtensionRetractionCommand = ExtensionRetractionCommands.GO_TO_POSITION;
+                        extensionRetractionState = ExtensionRetractionStates.START_JOYSTICK;
                         break;
                     case NO_COMMAND:
                         // don't do anything, just hang out
@@ -1359,34 +1510,34 @@ public class ExtensionRetractionMechanismNew {
                 switch (extensionRetractionCommand) {
                     case RESET:
                         // a reset can be requested at any time.
-                        // reset the mechanism starts with doing the pre reset actions
-                        performPreResetActions();
-                        // Change to resetting state
-                        extensionRetractionState = ExtensionRetractionStates.PERFORMING_PRE_RESET_ACTIONS;
+                        previousExtensionRetractionState = extensionRetractionState;
+                        previousExtensionRetractionCommand = extensionRetractionCommand;
+                        extensionRetractionState = ExtensionRetractionStates.START_RESET_SEQUENCE;
                         break;
                     // movement to a position can be interrupted by a command to fully extend or
                     // fully retract
                     case GO_TO_RETRACTED:
-                        performPreResetActions();
-                        extensionRetractionState = ExtensionRetractionStates.PERFORMING_PRE_RETRACTION_ACTIONS;
-                        break;
+                        previousExtensionRetractionState = extensionRetractionState;
+                        previousExtensionRetractionCommand = ExtensionRetractionCommands.GO_TO_POSITION;
+                        extensionRetractionState = ExtensionRetractionStates.START_RETRACTION_SEQUENCE;
                     case GO_TO_EXTENDED:
-                        performPreExtendActions();
-                        extensionRetractionState = ExtensionRetractionStates.PERFORMING_PRE_EXTENSION_ACTIONS;
+                        previousExtensionRetractionState = extensionRetractionState;
+                        previousExtensionRetractionCommand = ExtensionRetractionCommands.GO_TO_POSITION;
+                        extensionRetractionState = ExtensionRetractionStates.START_EXTENSION_SEQUENCE;
                         break;
                     case GO_TO_POSITION:
                         // When the mechanism arrives at the desired position, the command is set to
                         // NO_COMMAND. So if this GO_TO_POSITION command is received, then this is a
                         // new move to position command. I.E. moving to a position from another
                         // position.
-                        // The position and the power for the move to position have already been
-                        // stored in private variables during the processing of the user's method
-                        // call.
-                        moveToPosition();
-                        extensionRetractionState = ExtensionRetractionStates.MOVING_TO_POSITION;
+                        previousExtensionRetractionState = extensionRetractionState;
+                        previousExtensionRetractionCommand = ExtensionRetractionCommands.NO_COMMAND;
+                        extensionRetractionState = ExtensionRetractionStates.START_GO_TO_POSITION;
                         break;
                     case JOYSTICK:
-                        processJoystick();
+                        previousExtensionRetractionState = extensionRetractionState;
+                        previousExtensionRetractionCommand = ExtensionRetractionCommands.GO_TO_POSITION;
+                        extensionRetractionState = ExtensionRetractionStates.START_JOYSTICK;
                         break;
                     case NO_COMMAND:
                         // don't do anything, just hang out
@@ -1398,31 +1549,33 @@ public class ExtensionRetractionMechanismNew {
             //   JOYSTICK CONTROL
             //--------------------------
 
+            case START_JOYSTICK:
+                break;
+
             case JOYSTICK:
                 switch (extensionRetractionCommand) {
                     case RESET:
                         // a reset can be requested at any time.
-                        // reset the mechanism starts with doing the pre reset actions
-                        performPreResetActions();
-                        // Change to resetting state
-                        extensionRetractionState = ExtensionRetractionStates.PERFORMING_PRE_RESET_ACTIONS;
+                        previousExtensionRetractionState = extensionRetractionState;
+                        previousExtensionRetractionCommand = extensionRetractionCommand;
+                        extensionRetractionState = ExtensionRetractionStates.START_RESET_SEQUENCE;
                         break;
                     // movement to a position can be interrupted by a command to fully extend or
                     // fully retract
                     case GO_TO_RETRACTED:
-                        performPreResetActions();
-                        extensionRetractionState = ExtensionRetractionStates.PERFORMING_PRE_RETRACTION_ACTIONS;
+                        previousExtensionRetractionState = extensionRetractionState;
+                        previousExtensionRetractionCommand = ExtensionRetractionCommands.JOYSTICK;
+                        extensionRetractionState = ExtensionRetractionStates.START_RETRACTION_SEQUENCE;
                         break;
                     case GO_TO_EXTENDED:
-                        performPreExtendActions();
-                        extensionRetractionState = ExtensionRetractionStates.PERFORMING_PRE_EXTENSION_ACTIONS;
+                        previousExtensionRetractionState = extensionRetractionState;
+                        previousExtensionRetractionCommand = ExtensionRetractionCommands.JOYSTICK;
+                        extensionRetractionState = ExtensionRetractionStates.START_EXTENSION_SEQUENCE;
                         break;
                     case GO_TO_POSITION:
-                        // The position and the power for the move to position have already been
-                        // stored in private variables during the processing of the user's method
-                        // call.
-                        moveToPosition();
-                        extensionRetractionState = ExtensionRetractionStates.MOVING_TO_POSITION;
+                        previousExtensionRetractionState = extensionRetractionState;
+                        previousExtensionRetractionCommand = ExtensionRetractionCommands.JOYSTICK;
+                        extensionRetractionState = ExtensionRetractionStates.START_GO_TO_POSITION;
                         break;
                     case JOYSTICK:
                         processJoystick();
@@ -1430,58 +1583,58 @@ public class ExtensionRetractionMechanismNew {
                     case NO_COMMAND:
                         // don't do anything, just hang out
                         break;
-                break;
+                    break;
+                }
+                return extensionRetractionState;
         }
-        return extensionRetractionState;
-    }
 
-    /**
-     * Has the mechanism arrived at the requested destination? If so log it and return true.
-     *
-     * @return
-     */
-    public boolean isMovementComplete() {
-        if (extensionRetractionCommand == ExtensionRetractionCommands.NO_COMMAND) {
-            // if the mechanism arrived message has already been logged don't log it again
-            //NOTE if the mechanism is commanded to move to a position again, but is already at the
-            // position, then the mechanism arrived may not be logged because arrivedAlreadyLogged
-            // may not get set to false prior to the new movement command.
-            if (logFile != null && loggingOn && !arrivedAlreadyLogged) {
-                logFile.logData(mechanismName.toUpperCase() + " ARRIVED AT DESTINATION");
-                arrivedAlreadyLogged = true;
+        /**
+         * Has the mechanism arrived at the requested destination? If so log it and return true.
+         *
+         * @return
+         */
+        public boolean isMovementComplete () {
+            if (extensionRetractionCommand == ExtensionRetractionCommands.NO_COMMAND) {
+                // if the mechanism arrived message has already been logged don't log it again
+                //NOTE if the mechanism is commanded to move to a position again, but is already at the
+                // position, then the mechanism arrived may not be logged because arrivedAlreadyLogged
+                // may not get set to false prior to the new movement command.
+                if (logFile != null && loggingOn && !arrivedAlreadyLogged) {
+                    logFile.logData(mechanismName.toUpperCase() + " ARRIVED AT DESTINATION");
+                    arrivedAlreadyLogged = true;
+                }
+                return true;
+            } else {
+                arrivedAlreadyLogged = false;
+                return false;
             }
-            return true;
-        } else {
-            arrivedAlreadyLogged = false;
-            return false;
         }
-    }
 
-    /**
-     * Add a telemetry command to display the state
-     */
-    public void displayState() {
-        telemetry.addData(mechanismName.toUpperCase() + " State = ", extensionRetractionState.toString());
-    }
-
-    /**
-     * Add a telemetry command to display the command to the mechanism
-     */
-    public void displayCommand() {
-        telemetry.addData(mechanismName.toUpperCase() + " command = ", extensionRetractionCommand.toString());
-    }
-
-
-    //*********************************************************************************************]
-    // tests for mechanism
-    //**********************************************************************************************
-
-    public void testMotorModeSwitch() {
-        // reset the mechanism
-        reset();
-        while (!isMovementComplete()) {
-            update();
+        /**
+         * Add a telemetry command to display the state
+         */
+        public void displayState () {
+            telemetry.addData(mechanismName.toUpperCase() + " State = ", extensionRetractionState.toString());
         }
+
+        /**
+         * Add a telemetry command to display the command to the mechanism
+         */
+        public void displayCommand () {
+            telemetry.addData(mechanismName.toUpperCase() + " command = ", extensionRetractionCommand.toString());
+        }
+
+
+        //*********************************************************************************************]
+        // tests for mechanism
+        //**********************************************************************************************
+
+        public void testMotorModeSwitch () {
+            // reset the mechanism
+            reset();
+            while (!isMovementComplete()) {
+                update();
+            }
 
 //        // move the mechanism 2 inches up and display
 //        moveTwoInchesUp();
@@ -1495,25 +1648,25 @@ public class ExtensionRetractionMechanismNew {
 //        telemetry.update();
 //        delay(4000);
 
-        // switch modes - hopefully the enocder value does not change
-        extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        telemetry.addLine("mechanism motor mode switched to run without encoder");
-        displayMotorEncoderValue();
-        displayPosition();
-        displayState();
-        telemetry.update();
-        delay(4000);
+            // switch modes - hopefully the enocder value does not change
+            extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            telemetry.addLine("mechanism motor mode switched to run without encoder");
+            displayMotorEncoderValue();
+            displayPosition();
+            displayState();
+            telemetry.update();
+            delay(4000);
 
-        // switch modes - hopefully the enocder value does not change
-        telemetry.addLine("mechanism motor mode switched to run to position");
-        extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        displayMotorEncoderValue();
-        displayPosition();
-        displayState();
-        telemetry.update();
-        delay(4000);
+            // switch modes - hopefully the enocder value does not change
+            telemetry.addLine("mechanism motor mode switched to run to position");
+            extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            displayMotorEncoderValue();
+            displayPosition();
+            displayState();
+            telemetry.update();
+            delay(4000);
 
-        // move the mechanism 2 inches up and display
+            // move the mechanism 2 inches up and display
 //        goto5Inches();
 //        while (!isMovementComplete()) {
 //            update();
@@ -1524,27 +1677,27 @@ public class ExtensionRetractionMechanismNew {
 //        displayState();
 //        telemetry.update();
 //        delay(4000);
-    }
-
-    public void testLimitSwitches() {
-        if (retractedLimitSwitch.isPressed()) {
-            telemetry.addLine("retracted limit switch pressed");
-        } else {
-            telemetry.addLine("retracted limit switch NOT pressed");
         }
 
-        if (extendedLimitSwitch.isPressed()) {
-            telemetry.addLine("extension limit switch pressed");
-        } else {
-            telemetry.addLine("extension limit switch NOT pressed");
-        }
-    }
+        public void testLimitSwitches () {
+            if (retractedLimitSwitch.isPressed()) {
+                telemetry.addLine("retracted limit switch pressed");
+            } else {
+                telemetry.addLine("retracted limit switch NOT pressed");
+            }
 
-    private void delay(int ms) {
-        try {
-            Thread.sleep(ms);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
+            if (extendedLimitSwitch.isPressed()) {
+                telemetry.addLine("extension limit switch pressed");
+            } else {
+                telemetry.addLine("extension limit switch NOT pressed");
+            }
+        }
+
+        private void delay ( int ms){
+            try {
+                Thread.sleep(ms);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
         }
     }
-}
