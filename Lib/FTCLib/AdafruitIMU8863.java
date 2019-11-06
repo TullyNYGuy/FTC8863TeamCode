@@ -244,7 +244,7 @@ public class AdafruitIMU8863 {
         // and named "IMU". Or with the new REV Expansion Hub, the IMU is on I2C Bus 0 (port 0),
         // configured to be of type "REV Expansion Hub IMU" and named "IMU".
         
-        imu = hardwareMap.get(BNO055IMU.class, "IMU");
+        imu = hardwareMap.get(BNO055IMU.class, "imu");
         imu.initialize(parameters);
         // The resetAngleReferences() does not seem to be getting correct data. I'm guessing that
         // the IMU has not finished initializing yet. Delay the execution of resetAngleReferences()
