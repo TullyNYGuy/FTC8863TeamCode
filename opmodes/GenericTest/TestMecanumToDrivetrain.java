@@ -33,7 +33,6 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
     AdafruitIMU8863 imu;
 
 
-
     Mecanum mecanum;
     Mecanum.WheelVelocities wheelVelocities;
     HaloControls haloControls;
@@ -180,11 +179,14 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
         while (opModeIsActive()) {
             // Put your calls that need to run in a loop here
 
-            if(!bPressed && gamepad1.b)
+            // b button on the gamepad toggles between driver point of view mode (angles are based
+            // on coordinate system relative to field) and robot point of view mode (angles are based
+            // on coordinate system relative to the robot)
+            if (!bPressed && gamepad1.b)
                 driverMode = !driverMode;
-            if(!gamepad1.b)
+            if (!gamepad1.b)
                 bPressed = false;
-           // Display the current value
+            // Display the current value
             //telemetry.addData("Motor Speed = ", "%5.2f", powerToRunAt);
             //telemetry.addData("Encoder Count=", "%5d", motor.getCurrentPosition());
             haloControls.calculateMecanumCommands(mecanumCommands);
@@ -196,14 +198,26 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
             //angles  = imu.getAngularOrientation(AxesReference.EXTRINSIC , AxesOrder.ZXY , AngleUnit.RADIANS);
 
             //mecanumCommands.setAngleOfTranslation(  mecanumCommands.getAngleOfTranslation() + angles.firstAngle);
+            // convert the imu heading, which is in degrees, to radians
             double heading = imu.getHeading() * Math.PI / 180.0;
+            // could also use
+            //double heading = Math.toRadians(imu.getHeading());
 
-            if(gamepad1.y)
+            // y button resets the coordinate system for the driver point of view to the same as the
+            // the robot based coordinate system at the time the y button is pressed. After that
+            // the coordinate system is based off the coordinate system in effect when the y button
+            // was pressed.
+            if (gamepad1.y)
                 adjustAngle = heading;
 
             double adj = 0;
-            if(driverMode)
+
+            if (driverMode)
+                // get the difference in angle between the robot referenced coordinate system and the
+                // driver / field referenced coordinate system
                 adj = heading - adjustAngle;
+
+            // translate between the two coordinate systems using the difference just calculated
             mecanumCommands.setAngleOfTranslation(mecanumCommands.getAngleOfTranslation() - adj);
             mecanum.calculateWheelVelocity(mecanumCommands);
 
@@ -232,15 +246,14 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
             telemetry.addData(">", "Press Stop to end test.");
 
 
-
             telemetry.addData("left Y ", gamepad1LeftJoyStickY.getValue());
-            telemetry.addData("left X " , gamepad1LeftJoyStickX.getValue());
-            telemetry.addData("righ Y " , gamepad1RightJoyStickY.getValue());
-            telemetry.addData("right X " , gamepad1RightJoyStickX.getValue());
+            telemetry.addData("left X ", gamepad1LeftJoyStickX.getValue());
+            telemetry.addData("righ Y ", gamepad1RightJoyStickY.getValue());
+            telemetry.addData("right X ", gamepad1RightJoyStickX.getValue());
 
 
             //telemetry.addData("robot angles are " , angles.firstAngle);
-            telemetry.addData("robot angles are " , heading);
+            telemetry.addData("robot angles are ", heading);
 
             telemetry.update();
 
