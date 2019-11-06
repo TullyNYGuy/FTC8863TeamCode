@@ -170,6 +170,9 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
         imu = new AdafruitIMU8863(hardwareMap);
 
 
+        double adjustAngle = 0;
+        boolean bPressed = false;
+        boolean driverMode = true;
         //**************************************************************
         waitForStart();
 
@@ -177,7 +180,11 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
         while (opModeIsActive()) {
             // Put your calls that need to run in a loop here
 
-            // Display the current value
+            if(!bPressed && gamepad1.b)
+                driverMode = !driverMode;
+            if(!gamepad1.b)
+                bPressed = false;
+           // Display the current value
             //telemetry.addData("Motor Speed = ", "%5.2f", powerToRunAt);
             //telemetry.addData("Encoder Count=", "%5d", motor.getCurrentPosition());
             haloControls.calculateMecanumCommands(mecanumCommands);
@@ -189,7 +196,15 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
             //angles  = imu.getAngularOrientation(AxesReference.EXTRINSIC , AxesOrder.ZXY , AngleUnit.RADIANS);
 
             //mecanumCommands.setAngleOfTranslation(  mecanumCommands.getAngleOfTranslation() + angles.firstAngle);
-            mecanumCommands.setAngleOfTranslation(  mecanumCommands.getAngleOfTranslation() + imu.getHeading());
+            double heading = imu.getHeading() * Math.PI / 180.0;
+
+            if(gamepad1.y)
+                adjustAngle = heading;
+
+            double adj = 0;
+            if(driverMode)
+                adj = heading - adjustAngle;
+            mecanumCommands.setAngleOfTranslation(mecanumCommands.getAngleOfTranslation() - adj);
             mecanum.calculateWheelVelocity(mecanumCommands);
 
 
@@ -204,7 +219,6 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
             backLeft.setPower(mecanum.getBackLeft());
             frontRight.setPower(mecanum.getFrontRight());
             backRight.setPower(mecanum.getBackRight());
-
 
 
             // This would also work. Is there a performance advantage to it?
@@ -226,7 +240,7 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
 
 
             //telemetry.addData("robot angles are " , angles.firstAngle);
-            telemetry.addData("robot angles are " , imu.getHeading());
+            telemetry.addData("robot angles are " , heading);
 
             telemetry.update();
 
