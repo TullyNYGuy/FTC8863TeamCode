@@ -49,7 +49,7 @@ public class TestMecanumToDriverStation extends LinearOpMode {
         gamepad1RightJoyStickX = new JoyStick(gamepad1, JoyStick.JoystickSide.RIGHT, JoyStick.JoystickAxis.X);
         gamepad1RightJoyStickY = new JoyStick(gamepad1, JoyStick.JoystickSide.RIGHT, JoyStick.JoystickAxis.Y);
         mecanum = new Mecanum();
-        haloControls = new HaloControls(gamepad1RightJoyStickY, gamepad1RightJoyStickX, gamepad1LeftJoyStickX, this);
+        haloControls = new HaloControls(gamepad1RightJoyStickY, gamepad1RightJoyStickX, gamepad1LeftJoyStickX);
 
         // frontLeft.setupPowerRamp(initialPower, finalPower, rampTime);
         //**************************************************************

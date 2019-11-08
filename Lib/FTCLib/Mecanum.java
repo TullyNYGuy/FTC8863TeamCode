@@ -11,7 +11,10 @@ public class Mecanum {
     // user defined types
     //
     //*********************************************************************************************
-
+    public enum Mode {
+        DRIVER_MODE,
+        ROBOT_MODE
+    }
 
 
     //*********************************************************************************************
@@ -25,6 +28,35 @@ public class Mecanum {
     private double rightStickX;
     private double leftStickY;
     private double rightStickY;
+    private AdafruitIMU8863 emu;
+    private MecanumCommands mecanumCommands;
+
+    public Mode getMode() {
+        return mode;
+    }
+
+    public void setMode(Mode mode) {
+        if (emu != null) {
+            this.mode = mode;
+        }
+        else{
+            this.mode = Mode.ROBOT_MODE;
+        }
+    }
+
+    public void toggleMode() {
+        if (emu != null) {
+
+
+            if (mode == Mode.DRIVER_MODE) {
+                mode = Mode.ROBOT_MODE;
+            } else {
+                mode = Mode.DRIVER_MODE;
+            }
+        }
+    }
+
+    private Mode mode = Mode.DRIVER_MODE;
 
     public double getFrontLeft() {
         return wheelVelocities.getFrontLeft();
@@ -105,10 +137,17 @@ public class Mecanum {
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
+    public Mecanum(AdafruitIMU8863 imu) {
+        wheelVelocities = new WheelVelocities();
+        this.emu = imu;
+        mecanumCommands = new MecanumCommands();
+
+    }
     public Mecanum() {
         wheelVelocities = new WheelVelocities();
+        mecanumCommands = new MecanumCommands();
+        mode = Mode.ROBOT_MODE;
     }
-
     //*********************************************************************************************
     //          Helper Methods
     //

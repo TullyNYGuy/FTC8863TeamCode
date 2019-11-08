@@ -62,8 +62,8 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
 
         gamepad1RightJoyStickX = new JoyStick(gamepad1, JoyStick.JoystickSide.RIGHT, JoyStick.JoystickAxis.X);
         gamepad1RightJoyStickY = new JoyStick(gamepad1, JoyStick.JoystickSide.RIGHT, JoyStick.JoystickAxis.Y);
-        mecanum = new Mecanum();
-        haloControls = new HaloControls(gamepad1LeftJoyStickY, gamepad1LeftJoyStickX, gamepad1RightJoyStickX, this);
+        mecanum = new Mecanum(imu);
+        haloControls = new HaloControls(gamepad1LeftJoyStickY, gamepad1LeftJoyStickX, gamepad1RightJoyStickX);
 
         frontLeft = new DcMotor8863("FrontLeft", hardwareMap);
         backLeft = new DcMotor8863("BackLeft", hardwareMap);
@@ -170,8 +170,7 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
 
 
         double adjustAngle = 0;
-        boolean bPressed = false;
-        boolean driverMode = true;
+
         //**************************************************************
         waitForStart();
 
@@ -182,10 +181,9 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
             // b button on the gamepad toggles between driver point of view mode (angles are based
             // on coordinate system relative to field) and robot point of view mode (angles are based
             // on coordinate system relative to the robot)
-            if (!bPressed && gamepad1.b)
-                driverMode = !driverMode;
-            if (!gamepad1.b)
-                bPressed = false;
+            if ( gamepad1.b)
+               mecanum.toggleMode();
+
             // Display the current value
             //telemetry.addData("Motor Speed = ", "%5.2f", powerToRunAt);
             //telemetry.addData("Encoder Count=", "%5d", motor.getCurrentPosition());
@@ -212,7 +210,7 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
 
             double adj = 0;
 
-            if (driverMode)
+            if (mecanum.getMode() == Mecanum.Mode.DRIVER_MODE)
                 // get the difference in angle between the robot referenced coordinate system and the
                 // driver / field referenced coordinate system
                 adj = heading - adjustAngle;
