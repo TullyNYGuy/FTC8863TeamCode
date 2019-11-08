@@ -22,14 +22,7 @@ public class HaloControls {
     private JoyStick yJoystick;
     private JoyStick xJoystick;
     private JoyStick speedOfRotationJoystick;
-    /**
-     * The opmode is passed in because this class needs access to the joystick values that are part
-     * of the opmode.
-     */
-    //**************************************
-    // Do we need this opmode?
-    private OpMode opmode;
-    //*************************************
+
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -45,11 +38,11 @@ public class HaloControls {
     // from it
     //*********************************************************************************************
 
-    public HaloControls(JoyStick yJoystick, JoyStick xJoystick, JoyStick speedOfRotationJoystick, OpMode opmode) {
+    public HaloControls(JoyStick yJoystick, JoyStick xJoystick, JoyStick speedOfRotationJoystick) {
         this.yJoystick = yJoystick;
         this.xJoystick = xJoystick;
         this.speedOfRotationJoystick = speedOfRotationJoystick;
-        this.opmode = opmode;
+
     }
 
     //*********************************************************************************************
