@@ -107,7 +107,7 @@ public class OdometryModule {
     public OdometryModule(Position position, int countsPerRevolution, double circumference, Units units, String odometryModuleConfigName, HardwareMap hardwareMap) {
         this.position = position;
         this.countsPerRevolution = countsPerRevolution;
-        if (units == Units.IN){
+        if (units == Units.IN) {
             this.circumference = convertInToCm(circumference);
         }
         this.circumference = circumference;
@@ -128,15 +128,23 @@ public class OdometryModule {
     //*********************************************************************************************
     private double convertTicksToInches(int ticks) {
         ///// this should be the circumference
-        return ticks / 1440 * 1.5 * Math.PI;
+        if (units == Units.IN) {
+            return ticks / 1440.0 * circumference;
+        } else {
+            return ticks / 1440.0 * circumference / 2.54;
+        }
     }
 
     private double convertTicksToCm(int ticks) {
         ///// this should be the circumference
-        return ticks / 1440.0 * 3.8 * Math.PI;
+        if (units == Units.CM) {
+            return ticks / 1440.0 * circumference;
+        } else {
+            return ticks / 1440.0 * circumference * 2.54;
+        }
     }
 
-    private double convertInToCm (double circumference){
+    private double convertInToCm(double circumference) {
         return circumference * 2.54;
     }
 
@@ -154,13 +162,13 @@ public class OdometryModule {
     }
 
     //public double getDistanceSinceReset() {
-        //if (units == Units.IN) {
-            //return convertTicksToInches(odometryModule.getCurrentPosition());
-        //} else {
-           // return convertTicksToCm(odometryModule.getCurrentPosition());
-       // }
+    //if (units == Units.IN) {
+    //return convertTicksToInches(odometryModule.getCurrentPosition());
+    //} else {
+    // return convertTicksToCm(odometryModule.getCurrentPosition());
+    // }
 
-  //  }
+    //  }
 
     public double getDistanceSinceReset(Units units) {
         if (units == Units.IN) {
@@ -175,9 +183,9 @@ public class OdometryModule {
         double distanceSinceLastChange = 0;
         int currentPosition = odometryModule.getCurrentPosition();
         if (units == Units.IN) {
-            distanceSinceLastChange = convertTicksToInches(currentPosition) - convertTicksToInches(previousEncoderValue);
+            distanceSinceLastChange = convertTicksToInches(currentPosition - previousEncoderValue);
         } else {
-            distanceSinceLastChange = convertTicksToCm(currentPosition) - convertTicksToCm(previousEncoderValue);
+            distanceSinceLastChange = convertTicksToCm(currentPosition - previousEncoderValue);
         }
         previousEncoderValue = currentPosition;
         return distanceSinceLastChange;
