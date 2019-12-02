@@ -33,6 +33,9 @@ public class TestExtensionRetractionMechanism extends LinearOpMode {
         logFile = new DataLogging("ExtensionRetractionTest", telemetry);
         extensionRetractionMechanism.setDataLog(logFile);
         extensionRetractionMechanism.enableDataLogging();
+        extensionRetractionMechanism.setResetPower(+0.1);
+        extensionRetractionMechanism.setRetractionPower(+0.1);
+        extensionRetractionMechanism.setExtensionPower(-0.5);
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run" );
@@ -41,6 +44,10 @@ public class TestExtensionRetractionMechanism extends LinearOpMode {
 
         // Put your calls here - they will not run in a loop
         extensionRetractionMechanism.testReset(this);
+        sleep(3000);
+        extensionRetractionMechanism.testExtension(this);
+        sleep(3000);
+        extensionRetractionMechanism.testRetraction(this);
 
 //        while(opModeIsActive()) {
 //
