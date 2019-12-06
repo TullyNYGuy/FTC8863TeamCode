@@ -18,10 +18,6 @@ public class OdometryModule {
         FRONT
     }
 
-    public enum Units {
-        IN,
-        CM
-    }
 
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS
