@@ -4,6 +4,7 @@ package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
@@ -2159,23 +2160,114 @@ public class ExtensionRetractionMechanism {
 
     public void testExtension(LinearOpMode opMode) {
         ExtensionRetractionStates extensionRetractionState;
+        int encoderValue = 0;
+        int encoderValueMax = 0;
         this.goToFullExtend();
         while (opMode.opModeIsActive() && !this.isExtensionComplete()) {
             extensionRetractionState = this.update();
+            encoderValue = extensionRetractionMotor.getCurrentPosition();
+            if (encoderValue > encoderValueMax) {
+                encoderValueMax = encoderValue;
+            }
             opMode.telemetry.addData("state = ", extensionRetractionState.toString());
+            opMode.telemetry.addData( "encoder = ", extensionRetractionMotor.getCurrentPosition());
             opMode.telemetry.update();
             opMode.idle();
         }
+        opMode.telemetry.addData("max encoder value = ", encoderValueMax);
     }
 
     public void testRetraction(LinearOpMode opMode) {
         ExtensionRetractionStates extensionRetractionState;
+        int encoderValue = 0;
+        int encoderValueMin = 1000000;
         this.goToFullRetract();
         while (opMode.opModeIsActive() && !this.isRetractionComplete()) {
             extensionRetractionState = this.update();
+            encoderValue = extensionRetractionMotor.getCurrentPosition();
+            if (encoderValue < encoderValueMin) {
+                encoderValueMin = encoderValue;
+            }
             opMode.telemetry.addData("state = ", extensionRetractionState.toString());
+            opMode.telemetry.addData( "encoder = ", extensionRetractionMotor.getCurrentPosition());
             opMode.telemetry.update();
             opMode.idle();
+        }
+        opMode.telemetry.addData("min encoder value = ", encoderValueMin);
+    }
+
+    public void testCycleFullExtensionRetraction(LinearOpMode opMode, int numberOfCycles) {
+        boolean extending = false;
+        ExtensionRetractionStates extensionRetractionState;
+        double currentCycleNumber = 0;
+        double totalExtensionTime = 0;
+        double totalRetractionTime = 0;
+        boolean errorExists = false;
+        double waitToCheckMovementDelay = 500.0;
+        ElapsedTime overallTimer = new ElapsedTime();
+        ElapsedTime movementTimer = new ElapsedTime();
+
+        testReset(opMode);
+        opMode.sleep(1000);
+        // start off with an extension
+        movementTimer.reset();
+        overallTimer.reset();
+        goToFullExtend();
+        extending = true;
+
+        while (currentCycleNumber < (double) numberOfCycles && !errorExists && opMode.opModeIsActive()) {
+            extensionRetractionState = update();
+            switch (extensionRetractionState) {
+                case FULLY_EXTENDED:
+                    // reached full extension
+                    totalExtensionTime = totalExtensionTime + movementTimer.milliseconds();
+                    opMode.sleep(3000);
+                    // reset the timer
+                    movementTimer.reset();
+                    currentCycleNumber = currentCycleNumber + 0.5;
+                    opMode.telemetry.addData("cycle number = ", currentCycleNumber);
+                    opMode.telemetry.update();
+                    this.goToFullRetract();
+                    extending = false;
+                    break;
+                case FULLY_RETRACTED:
+                    // reached full retraction
+                    totalRetractionTime = totalRetractionTime + movementTimer.milliseconds();
+                    opMode.sleep(3000);
+                    // reset the timer
+                    movementTimer.reset();
+                    currentCycleNumber = currentCycleNumber + 0.5;
+                    opMode.telemetry.addData("cycle number = ", currentCycleNumber);
+                    opMode.telemetry.update();
+                    this.goToFullExtend();
+                    extending = true;
+                    break;
+                default:
+                    if (movementTimer.milliseconds() > waitToCheckMovementDelay) {
+                        if (extending && isRetractionLimitReached()) {
+                            // the mechanism never moved towards extension; it is still on the retraction limit
+                            opMode.telemetry.addData("failed to extend after cycle = ", currentCycleNumber);
+                            opMode.telemetry.addData("failed after cycle time = ", overallTimer);
+                            errorExists = true;
+                        }
+                        if (!extending && isExtensionLimitReached()) {
+                            // the mechanism never moved towards retraction; it is still on the extension limit
+                            opMode.telemetry.addData("failed to retract after cycle = ", currentCycleNumber);
+                            opMode.telemetry.addData("failed after cycle time = ", overallTimer);
+                            errorExists = true;
+                        }
+                    }
+                    break;
+            }
+        }
+        // the cycling is over
+        if (!errorExists) {
+            opMode.telemetry.addData("Mechanism passed at cycles = ", currentCycleNumber);
+            opMode.telemetry.addData("overall time = ", overallTimer);
+            opMode.telemetry.addData("extension  time: total = ", totalExtensionTime);
+            opMode.telemetry.addData("                 ave   = ", "%.2f", totalExtensionTime/numberOfCycles);
+            opMode.telemetry.addData("retraction time: total = ", totalRetractionTime);
+            opMode.telemetry.addData("                 ave   = ", "%.2f", totalRetractionTime/numberOfCycles);
         }
     }
 

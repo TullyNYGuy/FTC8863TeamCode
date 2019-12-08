@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.opmodes.GenericTest;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -14,9 +13,9 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
  *
  *
  */
-@TeleOp(name = "Test Extension Retraction Mechanism", group = "Test")
+@TeleOp(name = "Cycle Extension Retraction Mechanism", group = "Test")
 //@Disabled
-public class TestExtensionRetractionMechanism extends LinearOpMode {
+public class CycleExtensionRetractionMechanism extends LinearOpMode {
 
     // Put your variable declarations here
     public ExtensionRetractionMechanism extensionRetractionMechanism;
@@ -40,8 +39,8 @@ public class TestExtensionRetractionMechanism extends LinearOpMode {
         extensionRetractionMechanism.setDataLog(logFile);
         extensionRetractionMechanism.enableDataLogging();
         extensionRetractionMechanism.setResetPower(+0.1);
-        extensionRetractionMechanism.setRetractionPower(+.1);
-        extensionRetractionMechanism.setExtensionPower(-.1);
+        extensionRetractionMechanism.setRetractionPower(+0.1);
+        extensionRetractionMechanism.setExtensionPower(-0.3);
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run" );
@@ -49,33 +48,12 @@ public class TestExtensionRetractionMechanism extends LinearOpMode {
         waitForStart();
 
         // Put your calls here - they will not run in a loop
-        extensionRetractionMechanism.testReset(this);
-        sleep(3000);
-        timer.reset();
-        extensionRetractionMechanism.testExtension(this);
-        endUpTime = timer.milliseconds();
+        extensionRetractionMechanism.testCycleFullExtensionRetraction(this, 10);
         telemetry.update();
-        sleep(3000);
-        timer.reset();
-        extensionRetractionMechanism.testRetraction(this);
-        endDownTime = timer.milliseconds();
 
-//        while(opModeIsActive()) {
-//
-//            // Put your calls that need to run in a loop here
-//
-//            telemetry.addData(">", "Press Stop to end test." );
-//
-//            telemetry.update();
-//
-//            idle();
-//        }
-
-        // Put your cleanup code here - it runs as the application shuts down
-        telemetry.addData("time up = ", endUpTime);
-        telemetry.addData("time down = ", endDownTime);
-        telemetry.addData(">", "Done");
-        telemetry.update();
-        sleep(5000);
+        // sit and wait for the user to read the results
+        while(opModeIsActive()) {
+            idle();
+        }
     }
 }
