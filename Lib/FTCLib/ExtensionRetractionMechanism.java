@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -105,8 +106,8 @@ public class ExtensionRetractionMechanism {
      * limit switch installed. This value is used by the state machine to see if the mechanism has
      * moved to the retracted position. With no limit switch, this value defines the retracted
      * position. Note that is it of type Double (the class) rather than double (the primitive). This
-     * allows it to be set to null. If the value is null then it is assumed that no retrationPosition
-     * has been set.
+     * allows it to be set to null. If the value is null then it is assumed that no retractionPosition
+     * has been set. The units for this value are encoder counts!
      */
     private Double retractionPosition = null;
 
@@ -121,10 +122,10 @@ public class ExtensionRetractionMechanism {
     /**
      * You can set a position that is the limit for extension. Do this when there is no extension
      * limit switch installed. This value is used by the state machine to see if the mechanism has
-     * moved to the retracted position. With no limit switch, this value defines the retracted
+     * moved to the eztended position. With no limit switch, this value defines the extended
      * position. Note that is it of type Double (the class) rather than double (the primitive). This
      * allows it to be set to null. If the value is null then it is assumed that no retrationPosition
-     * has been set.
+     * has been set. The units for this value are encoder counts!
      */
     private Double extensionPosition = null;
 
@@ -446,6 +447,9 @@ public class ExtensionRetractionMechanism {
         }
     }
 
+    public void reverseMotor() {
+        extensionRetractionMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+    }
     /**
      * This method is called as part of the shutdown sequence of the robot. You will need to fill
      * in your code here. The code that is here is a suggestion. It also blocks any other method
@@ -891,23 +895,24 @@ public class ExtensionRetractionMechanism {
      * or less than the extension position.
      */
     private boolean isRetractionLimitReached() {
-        boolean retractionReached = false;
+        boolean retractionLimitSwitchReached = false;
+        boolean retractionEncoderValueReached = false;
         // if a limit switch is not present, the retractedLimitSwitch object will be null.
         // Only check it if it is present.
         if (retractedLimitSwitch != null) {
             if (retractedLimitSwitch.isPressed()) {
-                retractionReached = true;
+                retractionLimitSwitchReached = true;
             }
         }
         // If a retraction limit position has been set, it will not be null. If none has been set,
         // its value will be null and the check is skipped. Note that the retractionPosition is a
         // Double (class) not a double (primitive).
         if (retractionPosition != null) {
-            if (extensionRetractionMotor.getPositionInTermsOfAttachment() <= retractionPosition) {
-                retractionReached = true;
+            if (extensionRetractionMotor.getCurrentPosition() <= retractionPosition) {
+                retractionEncoderValueReached = true;
             }
         }
-        return retractionReached;
+        return (retractionLimitSwitchReached || retractionEncoderValueReached);
     }
 
     //**********************************************************************************************
@@ -1020,23 +1025,24 @@ public class ExtensionRetractionMechanism {
      * or greater than the extension position.
      */
     private boolean isExtensionLimitReached() {
-        boolean extensionReached = false;
+        boolean extensionLimitSwitchReached = false;
+        boolean extensionEncoderValueReached = false;
         // if a limit switch is not present, the retractedLimitSwitch object will be null.
         // Only check it if it is present.
         if (extendedLimitSwitch != null) {
             if (extendedLimitSwitch.isPressed()) {
-                extensionReached = true;
+                extensionLimitSwitchReached = true;
             }
         }
         // If a extension limit position has been set, it will not be null. If none has been set,
         // its value will be null and the check is skipped. Note that the extensionPosition is a
         // Double (class) not a double (primitive).
         if (extensionPosition != null) {
-            if (extensionRetractionMotor.getPositionInTermsOfAttachment() >= extensionPosition) {
-                extensionReached = true;
+            if (extensionRetractionMotor.getCurrentPosition() >= extensionPosition) {
+                extensionEncoderValueReached = true;
             }
         }
-        return extensionReached;
+        return (extensionLimitSwitchReached || extensionEncoderValueReached);
     }
 
     //**********************************************************************************************
@@ -2158,7 +2164,7 @@ public class ExtensionRetractionMechanism {
 //        }
     }
 
-    public void testExtension(LinearOpMode opMode) {
+    public int testExtension(LinearOpMode opMode) {
         ExtensionRetractionStates extensionRetractionState;
         int encoderValue = 0;
         int encoderValueMax = 0;
@@ -2175,9 +2181,10 @@ public class ExtensionRetractionMechanism {
             opMode.idle();
         }
         opMode.telemetry.addData("max encoder value = ", encoderValueMax);
+        return encoderValueMax;
     }
 
-    public void testRetraction(LinearOpMode opMode) {
+    public int testRetraction(LinearOpMode opMode) {
         ExtensionRetractionStates extensionRetractionState;
         int encoderValue = 0;
         int encoderValueMin = 1000000;
@@ -2194,6 +2201,7 @@ public class ExtensionRetractionMechanism {
             opMode.idle();
         }
         opMode.telemetry.addData("min encoder value = ", encoderValueMin);
+        return encoderValueMin;
     }
 
     public void testCycleFullExtensionRetraction(LinearOpMode opMode, int numberOfCycles) {

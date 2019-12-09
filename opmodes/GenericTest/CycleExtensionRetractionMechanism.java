@@ -34,13 +34,15 @@ public class CycleExtensionRetractionMechanism extends LinearOpMode {
         extensionRetractionMechanism = new ExtensionRetractionMechanism(hardwareMap,telemetry,"extensionRetraction",
                 "extensionLimitSwitch", "retractionLimitSwitch", "extensionRetractionMotor",
                 DcMotor8863.MotorType.ANDYMARK_40, spoolDiameter * Math.PI);
-        logFile = new DataLogging("ExtensionRetractionTest", telemetry);
+        extensionRetractionMechanism.reverseMotor();
+        logFile = new DataLogging("ExtensionRetractionCycle", telemetry);
         timer = new ElapsedTime();
         extensionRetractionMechanism.setDataLog(logFile);
         extensionRetractionMechanism.enableDataLogging();
-        extensionRetractionMechanism.setResetPower(+0.1);
-        extensionRetractionMechanism.setRetractionPower(+0.1);
-        extensionRetractionMechanism.setExtensionPower(-0.3);
+        extensionRetractionMechanism.setResetPower(-0.1);
+        extensionRetractionMechanism.setRetractionPower(-0.1);
+        extensionRetractionMechanism.setExtensionPower(+0.1);
+        extensionRetractionMechanism.setExtensionPosition(2650.0);
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run" );
@@ -48,7 +50,7 @@ public class CycleExtensionRetractionMechanism extends LinearOpMode {
         waitForStart();
 
         // Put your calls here - they will not run in a loop
-        extensionRetractionMechanism.testCycleFullExtensionRetraction(this, 10);
+        extensionRetractionMechanism.testCycleFullExtensionRetraction(this, 100);
         telemetry.update();
 
         // sit and wait for the user to read the results
