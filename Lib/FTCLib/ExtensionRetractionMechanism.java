@@ -841,7 +841,6 @@ public class ExtensionRetractionMechanism {
     private boolean isMoveToRetractComplete() {
         // your method of determining whether the movement to the retract is complete must be
         // coded here. This code is suggested but you can override it if your situation is different.
-        log("Retract movement complete " + mechanismName);
         return isRetractionLimitReached();
     }
 
@@ -902,6 +901,7 @@ public class ExtensionRetractionMechanism {
         if (retractedLimitSwitch != null) {
             if (retractedLimitSwitch.isPressed()) {
                 retractionLimitSwitchReached = true;
+                log("Retract movement complete, limit switch tripped " + mechanismName);
             }
         }
         // If a retraction limit position has been set, it will not be null. If none has been set,
@@ -910,6 +910,7 @@ public class ExtensionRetractionMechanism {
         if (retractionPosition != null) {
             if (extensionRetractionMotor.getCurrentPosition() <= retractionPosition) {
                 retractionEncoderValueReached = true;
+                log("Retract movement complete, encoder limit tripped " + mechanismName);
             }
         }
         return (retractionLimitSwitchReached || retractionEncoderValueReached);
@@ -974,7 +975,6 @@ public class ExtensionRetractionMechanism {
     private boolean isMoveToExtendComplete() {
         // your method of determining whether the movement to the extend is complete must be
         // coded here. This code is suggested but you can override it if your situation is different.
-        log("Extend movement complete " + mechanismName);
         return isExtensionLimitReached();
     }
 
@@ -1032,6 +1032,7 @@ public class ExtensionRetractionMechanism {
         if (extendedLimitSwitch != null) {
             if (extendedLimitSwitch.isPressed()) {
                 extensionLimitSwitchReached = true;
+                log("Extend movement complete, limit switch tripped. " + mechanismName);
             }
         }
         // If a extension limit position has been set, it will not be null. If none has been set,
@@ -1040,6 +1041,7 @@ public class ExtensionRetractionMechanism {
         if (extensionPosition != null) {
             if (extensionRetractionMotor.getCurrentPosition() >= extensionPosition) {
                 extensionEncoderValueReached = true;
+                log("Extend movement complete, encoder limit tripped. " + mechanismName);
             }
         }
         return (extensionLimitSwitchReached || extensionEncoderValueReached);
@@ -1651,7 +1653,7 @@ public class ExtensionRetractionMechanism {
                         break;
                     case GO_TO_EXTENDED:
                         if (isOKToExtend()) {
-                            // the mechanism is not retracted yet so it is ok to retract
+                            // the mechanism is not extended yet so it is ok to extend
                             performPreExtendActions();
                             extensionRetractionState = ExtensionRetractionStates.PERFORMING_PRE_EXTENSION_ACTIONS;
                         } else {
@@ -1855,7 +1857,7 @@ public class ExtensionRetractionMechanism {
                         extensionRetractionState = ExtensionRetractionStates.JOYSTICK;
                         break;
                     case NO_COMMAND:
-                        // do nothing. This command should never be active in this state.
+                        // do nothing.  Wait for a new command
                         break;
                 }
                 break;
