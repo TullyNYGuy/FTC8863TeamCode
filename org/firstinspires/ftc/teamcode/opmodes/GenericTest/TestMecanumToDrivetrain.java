@@ -29,25 +29,13 @@ import static org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863.MotorType.AN
 public class TestMecanumToDrivetrain extends LinearOpMode {
 
     // Put your variable declarations here
-    //BNO055IMU imu;
-    AdafruitIMU8863 imu;
-
-
-    Mecanum mecanum;
-    Mecanum.WheelVelocities wheelVelocities;
-    HaloControls haloControls;
-    MecanumCommands mecanumCommands;
-       double gamepad1LeftJoyStickXValue = 0;
-    double gamepad1LeftJoyStickYValue = 0;
-    double gamepad1RightJoyStickXValue = 0;
-    double gamepad1RightJoyStickYValue = 0;
 
     @Override
     public void runOpMode() {
 
 
         // Put your initializations here
-        mecanumCommands = new MecanumCommands();
+        MecanumCommands mecanumCommands = new MecanumCommands();
 /*
         gamepad1LeftJoyStickX = new JoyStick(gamepad1, JoyStick.JoystickSide.LEFT, JoyStick.JoystickAxis.X);
         gamepad1LeftJoyStickY = new JoyStick(gamepad1, JoyStick.JoystickSide.LEFT, JoyStick.JoystickAxis.Y);
@@ -133,9 +121,9 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
         frontRight.runAtConstantPower(0);
         backRight.runAtConstantPower(0);
 
-        imu = new AdafruitIMU8863(hardwareMap);
-        mecanum = new Mecanum(frontLeft, frontRight, backLeft,backRight);
-        haloControls = new HaloControls(gamepad1, imu);
+        AdafruitIMU8863 imu = new AdafruitIMU8863(hardwareMap);
+        Mecanum mecanum = new Mecanum(frontLeft, frontRight, backLeft,backRight);
+        HaloControls haloControls = new HaloControls(gamepad1, imu);
 
 
         // Note from Glenn:
@@ -159,12 +147,6 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
             // Is this any better than mecanum.getFrontLeft() etc?
             //*****************************************************************
 
-            /*
-             * y button resets the coordinate system for the driver point of view to the same as the
-             * the robot based coordinate system at the time the y button is pressed. After that
-             * the coordinate system is based off the coordinate system in effect when the y button
-             * was pressed.
-             */
 
 
             mecanum.setMotorPower(mecanumCommands);

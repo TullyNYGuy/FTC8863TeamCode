@@ -89,11 +89,19 @@ public class HaloControls {
         commands.setSpeed(translationSpeed);
         commands.setSpeedOfRotation(rValue);
         heading = Math.toRadians(imu.getHeading());
-        // b button on the gamepad toggles between driver point of view mode (angles are based
-        // on coordinate system relative to field) and robot point of view mode (angles are based
-        // on coordinate system relative to the robot)
+        /*
+         * b button on the gamepad toggles between driver point of view mode (angles are based
+         * on coordinate system relative to field) and robot point of view mode (angles are based
+         * on coordinate system relative to the robot)
+         */
         if (gamepad.b)
             toggleMode();
+        /*
+         * y button resets the coordinate system for the driver point of view to the same as the
+         * the robot based coordinate system at the time the y button is pressed. After that
+         * the coordinate system is based off the coordinate system in effect when the y button
+         * was pressed.
+         */
         if (gamepad.y)
             resetHeading();
     }
