@@ -122,7 +122,7 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
         backRight.runAtConstantPower(0);
 
         AdafruitIMU8863 imu = new AdafruitIMU8863(hardwareMap);
-        Mecanum mecanum = new Mecanum(frontLeft, frontRight, backLeft,backRight);
+        Mecanum mecanum = new Mecanum(frontLeft, frontRight, backLeft, backRight);
         HaloControls haloControls = new HaloControls(gamepad1, imu);
 
 
@@ -148,10 +148,7 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
             //*****************************************************************
 
 
-
             mecanum.setMotorPower(mecanumCommands);
-
-
 
 
             // This would also work. Is there a performance advantage to it?
@@ -167,10 +164,7 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
 
             idle();
         }
-        frontLeft.stop();
-        backLeft.stop();
-        frontRight.stop();
-        backRight.stop();
+        mecanum.stopMotor();
         // Put your cleanup code here - it runs as the application shuts down
         telemetry.addData(">", "Done");
         telemetry.update();

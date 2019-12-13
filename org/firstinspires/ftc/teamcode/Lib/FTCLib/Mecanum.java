@@ -46,10 +46,10 @@ public class Mecanum {
     }
 
     static public class WheelVelocities {
-        protected double frontLeft = 0;
-        protected double frontRight = 0;
-        protected double backLeft = 0;
-        protected double backRight = 0;
+        private double frontLeft;
+        private double frontRight;
+        private double backLeft;
+        private double backRight;
 
         public double getFrontLeft() {
             return frontLeft;
@@ -74,24 +74,23 @@ public class Mecanum {
             backRight = 0;
         }
 
-        private WheelVelocities scale4Numbers(WheelVelocities wheelVelocities) {
-            double biggerNumber = Math.abs(wheelVelocities.frontLeft);
-            if (biggerNumber < Math.abs(wheelVelocities.frontRight)) {
-                biggerNumber = Math.abs(wheelVelocities.frontRight);
+        private void scale4Numbers() {
+            double biggerNumber = Math.abs(frontLeft);
+            if (biggerNumber < Math.abs(frontRight)) {
+                biggerNumber = Math.abs(frontRight);
             }
-            if (biggerNumber < Math.abs(wheelVelocities.backRight)) {
-                biggerNumber = Math.abs(wheelVelocities.backRight);
+            if (biggerNumber < Math.abs(backRight)) {
+                biggerNumber = Math.abs(backRight);
             }
-            if (biggerNumber < Math.abs(wheelVelocities.backLeft)) {
-                biggerNumber = Math.abs(wheelVelocities.backLeft);
+            if (biggerNumber < Math.abs(backLeft)) {
+                biggerNumber = Math.abs(backLeft);
             }
             if (biggerNumber > 1) {
-                wheelVelocities.frontRight = wheelVelocities.frontRight / biggerNumber;
-                wheelVelocities.frontLeft = wheelVelocities.frontLeft / biggerNumber;
-                wheelVelocities.backRight = wheelVelocities.backRight / biggerNumber;
-                wheelVelocities.backLeft = wheelVelocities.backLeft / biggerNumber;
+                frontRight = frontRight / biggerNumber;
+                frontLeft = frontLeft / biggerNumber;
+                backRight = backRight / biggerNumber;
+                backLeft = backLeft / biggerNumber;
             }
-            return wheelVelocities;
         }
     }
     //*********************************************************************************************
@@ -133,7 +132,8 @@ public class Mecanum {
         wheelVelocities.frontRight = mecanumCommands.getSpeed() * Math.cos(-mecanumCommands.getAngleOfTranslation() + (Math.PI / 4)) - mecanumCommands.getSpeedOfRotation();
         wheelVelocities.backLeft = mecanumCommands.getSpeed() * Math.cos(-mecanumCommands.getAngleOfTranslation() + (Math.PI / 4)) + mecanumCommands.getSpeedOfRotation();
         wheelVelocities.backRight = mecanumCommands.getSpeed() * Math.sin(-mecanumCommands.getAngleOfTranslation() + (Math.PI / 4)) - mecanumCommands.getSpeedOfRotation();
-        return wheelVelocities.scale4Numbers(wheelVelocities);
+        wheelVelocities.scale4Numbers();
+        return wheelVelocities;
     }
 
     public void setMotorPower(MecanumCommands mecanumCommands) {
@@ -149,6 +149,13 @@ public class Mecanum {
         frontRight.setPower(wheelVelocities.frontRight);
         backLeft.setPower(wheelVelocities.backLeft);
         backRight.setPower((wheelVelocities.backRight));
+    }
+
+    public void stopMotor() {
+        frontLeft.stop();
+        backLeft.stop();
+        frontRight.stop();
+        backRight.stop();
     }
 
     public void test(Telemetry telemetry) {
