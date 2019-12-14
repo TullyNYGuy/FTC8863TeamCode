@@ -37,16 +37,16 @@ public class TestExtensionRetractionMechanism extends LinearOpMode {
         extensionRetractionMechanism = new ExtensionRetractionMechanism(hardwareMap,telemetry,"extensionRetraction",
                 "extensionLimitSwitch", "retractionLimitSwitch", "extensionRetractionMotor",
                 DcMotor8863.MotorType.ANDYMARK_40, spoolDiameter * Math.PI);
-        extensionRetractionMechanism.reverseMotor();
+        //extensionRetractionMechanism.reverseMotor();
         logFile = new DataLogging("ExtensionRetractionTest", telemetry);
         timer = new ElapsedTime();
         extensionRetractionMechanism.setDataLog(logFile);
         extensionRetractionMechanism.enableDataLogging();
         extensionRetractionMechanism.setResetPower(-0.1);
-        extensionRetractionMechanism.setRetractionPower(-.1);
-        extensionRetractionMechanism.setExtensionPower(+.1);
+        extensionRetractionMechanism.setRetractionPower(-1.0);
+        extensionRetractionMechanism.setExtensionPower(+1.0);
 
-        extensionRetractionMechanism.setExtensionPosition(2730.0);
+        extensionRetractionMechanism.setExtensionPosition(2700.0);
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run" );

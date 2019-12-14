@@ -34,7 +34,7 @@ public class CycleExtensionRetractionMechanism extends LinearOpMode {
         extensionRetractionMechanism = new ExtensionRetractionMechanism(hardwareMap,telemetry,"extensionRetraction",
                 "extensionLimitSwitch", "retractionLimitSwitch", "extensionRetractionMotor",
                 DcMotor8863.MotorType.ANDYMARK_40, spoolDiameter * Math.PI);
-        extensionRetractionMechanism.reverseMotor();
+        //extensionRetractionMechanism.reverseMotor();
         logFile = new DataLogging("ExtensionRetractionCycle", telemetry);
         timer = new ElapsedTime();
         extensionRetractionMechanism.setDataLog(logFile);
