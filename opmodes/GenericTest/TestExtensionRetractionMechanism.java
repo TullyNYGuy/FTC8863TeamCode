@@ -46,7 +46,7 @@ public class TestExtensionRetractionMechanism extends LinearOpMode {
         extensionRetractionMechanism.setRetractionPower(-1.0);
         extensionRetractionMechanism.setExtensionPower(+1.0);
 
-        extensionRetractionMechanism.setExtensionPosition(2700.0);
+        extensionRetractionMechanism.setExtensionPosition(2800.0);
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run" );
