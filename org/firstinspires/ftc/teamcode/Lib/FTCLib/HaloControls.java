@@ -50,11 +50,12 @@ public class HaloControls {
     public HaloControls(Gamepad gamepad, AdafruitIMU8863 imu) {
         this.gamepad = gamepad;
         xJoystick = new JoyStick(gamepad, JoyStick.JoystickSide.LEFT, JoyStick.JoystickAxis.X);
-        xJoystick = new JoyStick(gamepad, JoyStick.JoystickSide.LEFT, JoyStick.JoystickAxis.Y);
+        yJoystick = new JoyStick(gamepad, JoyStick.JoystickSide.LEFT, JoyStick.JoystickAxis.Y);
         speedOfRotationJoystick = new JoyStick(gamepad, JoyStick.JoystickSide.RIGHT, JoyStick.JoystickAxis.X);
         this.imu = imu;
 
     }
+
 
     //*********************************************************************************************
     //          Helper Methods
