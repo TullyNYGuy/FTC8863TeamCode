@@ -26,6 +26,8 @@ public class TestLiftBothSides extends LinearOpMode {
     public int encoderValueMaxLeft = 0;
     public int encoderValueRight = 0;
     public int encoderValueMaxRight = 0;
+    public int encoderValueMinLeft = 0;
+    public int encoderValueMinRight = 0;
 
     public DataLogging logFile;
     public double spoolDiameter = 1.25 * 25.4;
@@ -36,10 +38,10 @@ public class TestLiftBothSides extends LinearOpMode {
     public double endUpTimeRight = 0;
     public double endDownTimeLeft = 0;
     public double endDownTimeRight = 0;
-    public int encoderValueMax = 0;
-    public int encoderValueMin = 0;
 
     public String buffer = "";
+
+    public double speed = 0.2;
 
     @Override
     public void runOpMode() {
@@ -56,16 +58,26 @@ public class TestLiftBothSides extends LinearOpMode {
                 DcMotor8863.MotorType.ANDYMARK_40, spoolDiameter * Math.PI);
         extensionRetractionMechanismRight.reverseMotor();
 
-        logFile = new DataLogging("ExtensionRetractionTest", telemetry);
         timerLeft = new ElapsedTime();
         timerRight = new ElapsedTime();
+
+        logFile = new DataLogging("ExtensionRetractionTestBoth", telemetry);
         extensionRetractionMechanismLeft.setDataLog(logFile);
         extensionRetractionMechanismLeft.enableDataLogging();
         extensionRetractionMechanismLeft.setResetPower(-0.1);
-        extensionRetractionMechanismLeft.setRetractionPower(-.7);
-        extensionRetractionMechanismLeft.setExtensionPower(+.7);
+        extensionRetractionMechanismLeft.setRetractionPower(-speed);
+        extensionRetractionMechanismLeft.setExtensionPower(+speed);
 
-        extensionRetractionMechanismLeft.setExtensionPosition(2800.0);
+        extensionRetractionMechanismLeft.setExtensionPosition(2700.0);
+
+        logFile = new DataLogging("ExtensionRetractionTestBoth", telemetry);;
+        extensionRetractionMechanismRight.setDataLog(logFile);
+        extensionRetractionMechanismRight.enableDataLogging();
+        extensionRetractionMechanismRight.setResetPower(-0.1);
+        extensionRetractionMechanismRight.setRetractionPower(-speed);
+        extensionRetractionMechanismRight.setExtensionPower(+speed);
+
+        extensionRetractionMechanismRight.setExtensionPosition(2700.0);
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
@@ -116,7 +128,7 @@ public class TestLiftBothSides extends LinearOpMode {
         timerLeft.reset();
         timerRight.reset();
 
-        while (opModeIsActive() && !(extensionRetractionMechanismLeft.isExtensionComplete() && extensionRetractionMechanismRight.isExtensionComplete())) {
+        while (opModeIsActive() && !(extensionRetractionMechanismLeft.isRetractionComplete() && extensionRetractionMechanismRight.isRetractionComplete())) {
 
             extensionRetractionStateLeft = extensionRetractionMechanismLeft.update();
             extensionRetractionStateRight = extensionRetractionMechanismRight.update();
@@ -124,12 +136,12 @@ public class TestLiftBothSides extends LinearOpMode {
             encoderValueLeft = extensionRetractionMechanismLeft.getCurrentEncoderValue();
             encoderValueRight = extensionRetractionMechanismRight.getCurrentEncoderValue();
 
-            if (encoderValueLeft > encoderValueMaxLeft) {
-                encoderValueMaxLeft = encoderValueLeft;
+            if (encoderValueLeft < encoderValueMinLeft) {
+                encoderValueMinLeft = encoderValueLeft;
             }
 
-            if (encoderValueRight > encoderValueMaxRight) {
-                encoderValueMaxRight = encoderValueRight;
+            if (encoderValueRight < encoderValueMinRight) {
+                encoderValueMinRight = encoderValueRight;
             }
 
             telemetry.addData("Left state = ", extensionRetractionStateLeft.toString());
@@ -143,13 +155,14 @@ public class TestLiftBothSides extends LinearOpMode {
         endDownTimeLeft = timerLeft.seconds();
         endDownTimeRight = timerRight.seconds();
 
-        buffer = String.format("%.2f", endUpTimeLeft) + " " + String.format("%.2d", endUpTimeRight);
+        buffer = String.format("%.2f", endUpTimeLeft) + " " + String.format("%.2f", endUpTimeRight);
         telemetry.addData("time up = ", buffer);
         buffer = String.format("%.2f", endDownTimeLeft) + " " + String.format("%.2f", endDownTimeRight);
         telemetry.addData("time down = ", buffer);
         buffer = String.format("%d", encoderValueMaxLeft) + " " + String.format("%d", encoderValueMaxRight);
         telemetry.addData("max encoder value = ", buffer);
-        telemetry.addData("min encoder value = ", encoderValueMin);
+        buffer = String.format("%d", encoderValueMinLeft) + " " + String.format("%d", encoderValueMinRight);
+        telemetry.addData("min encoder value = ", buffer);
         telemetry.addData(">", "Done");
         telemetry.update();
 
