@@ -1,6 +1,5 @@
-package org.firstinspires.ftc.teamcode.opmodes.GenericTest;
+package org.firstinspires.ftc.teamcode.opmodes.Skystone;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -14,9 +13,9 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
  *
  *
  */
-@TeleOp(name = "Test Extension Retraction Mechanism", group = "Test")
+@TeleOp(name = "Test Lift Left", group = "Test")
 //@Disabled
-public class TestExtensionRetractionMechanism extends LinearOpMode {
+public class TestLiftLeft extends LinearOpMode {
 
     // Put your variable declarations here
     public ExtensionRetractionMechanism extensionRetractionMechanismLeft;
@@ -43,10 +42,10 @@ public class TestExtensionRetractionMechanism extends LinearOpMode {
         extensionRetractionMechanismLeft.setDataLog(logFile);
         extensionRetractionMechanismLeft.enableDataLogging();
         extensionRetractionMechanismLeft.setResetPower(-0.1);
-        extensionRetractionMechanismLeft.setRetractionPower(-.1);
-        extensionRetractionMechanismLeft.setExtensionPower(+.1);
+        extensionRetractionMechanismLeft.setRetractionPower(-.7);
+        extensionRetractionMechanismLeft.setExtensionPower(+.7);
 
-        extensionRetractionMechanismLeft.setExtensionPosition(2600.0);
+        extensionRetractionMechanismLeft.setExtensionPosition(2700.0);
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run" );
@@ -60,7 +59,7 @@ public class TestExtensionRetractionMechanism extends LinearOpMode {
         encoderValueMax = extensionRetractionMechanismLeft.testExtension(this);
         endUpTime = timer.seconds();
         telemetry.update();
-        sleep(3000);
+        sleep(10000);
         timer.reset();
         encoderValueMin =  extensionRetractionMechanismLeft.testRetraction(this);
         endDownTime = timer.seconds();

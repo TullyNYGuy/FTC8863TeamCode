@@ -33,7 +33,7 @@ public class ExtensionRetractionMechanism {
     /**
      * These are the states for the state machine that runs the mechanism.
      */
-    private enum ExtensionRetractionStates {
+    public enum ExtensionRetractionStates {
         START_RESET_SEQUENCE, //
         PERFORMING_PRE_RESET_ACTIONS, // actions that need to be run before mechanism can be moved to reset position
         MOVING_TO_RESET_POSITION, //
@@ -176,6 +176,12 @@ public class ExtensionRetractionMechanism {
 
     public void setMovementPerRevolution(double movementPerRevolution) {
         this.movementPerRevolution = movementPerRevolution;
+    }
+
+    private int currentEncoderValue = 0;
+
+    public int getCurrentEncoderValue() {
+        return currentEncoderValue;
     }
 
     /**
@@ -1240,6 +1246,7 @@ public class ExtensionRetractionMechanism {
 
         // update the state machine for the motor
         DcMotor8863.MotorState motorState = extensionRetractionMotor.update();
+        currentEncoderValue = extensionRetractionMotor.getCurrentPosition();
         logState(extensionRetractionState, extensionRetractionCommand);
 
         switch (extensionRetractionState) {

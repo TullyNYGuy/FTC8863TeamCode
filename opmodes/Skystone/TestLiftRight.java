@@ -1,6 +1,5 @@
-package org.firstinspires.ftc.teamcode.opmodes.GenericTest;
+package org.firstinspires.ftc.teamcode.opmodes.Skystone;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -14,12 +13,12 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
  *
  *
  */
-@TeleOp(name = "Test Extension Retraction Mechanism", group = "Test")
+@TeleOp(name = "Test Lift Right", group = "Test")
 //@Disabled
-public class TestExtensionRetractionMechanism extends LinearOpMode {
+public class TestLiftRight extends LinearOpMode {
 
     // Put your variable declarations here
-    public ExtensionRetractionMechanism extensionRetractionMechanismLeft;
+    public ExtensionRetractionMechanism extensionRetractionMechanismRight;
     public DataLogging logFile;
     public double spoolDiameter = 1.25 *25.4;
     public ElapsedTime timer;
@@ -34,19 +33,19 @@ public class TestExtensionRetractionMechanism extends LinearOpMode {
 
 
         // Put your initializations here
-        extensionRetractionMechanismLeft = new ExtensionRetractionMechanism(hardwareMap,telemetry,"extensionRetractionLeft",
-                "extensionLimitSwitchLeft", "retractionLimitSwitchLeft", "extensionRetractionMotorLeft",
+        extensionRetractionMechanismRight = new ExtensionRetractionMechanism(hardwareMap,telemetry,"extensionRetractionRight",
+                "extensionLimitSwitchRight", "retractionLimitSwitchRight", "extensionRetractionMotorRight",
                 DcMotor8863.MotorType.ANDYMARK_40, spoolDiameter * Math.PI);
-        //extensionRetractionMechanismLeft.reverseMotor();
+        extensionRetractionMechanismRight.reverseMotor();
         logFile = new DataLogging("ExtensionRetractionTest", telemetry);
         timer = new ElapsedTime();
-        extensionRetractionMechanismLeft.setDataLog(logFile);
-        extensionRetractionMechanismLeft.enableDataLogging();
-        extensionRetractionMechanismLeft.setResetPower(-0.1);
-        extensionRetractionMechanismLeft.setRetractionPower(-.1);
-        extensionRetractionMechanismLeft.setExtensionPower(+.1);
+        extensionRetractionMechanismRight.setDataLog(logFile);
+        extensionRetractionMechanismRight.enableDataLogging();
+        extensionRetractionMechanismRight.setResetPower(-0.1);
+        extensionRetractionMechanismRight.setRetractionPower(-.7);
+        extensionRetractionMechanismRight.setExtensionPower(+.7);
 
-        extensionRetractionMechanismLeft.setExtensionPosition(2600.0);
+        extensionRetractionMechanismRight.setExtensionPosition(2700.0);
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run" );
@@ -54,15 +53,15 @@ public class TestExtensionRetractionMechanism extends LinearOpMode {
         waitForStart();
 
         // Put your calls here - they will not run in a loop
-        extensionRetractionMechanismLeft.testReset(this);
+        extensionRetractionMechanismRight.testReset(this);
         sleep(3000);
         timer.reset();
-        encoderValueMax = extensionRetractionMechanismLeft.testExtension(this);
+        encoderValueMax = extensionRetractionMechanismRight.testExtension(this);
         endUpTime = timer.seconds();
         telemetry.update();
-        sleep(3000);
+        sleep(10000);
         timer.reset();
-        encoderValueMin =  extensionRetractionMechanismLeft.testRetraction(this);
+        encoderValueMin =  extensionRetractionMechanismRight.testRetraction(this);
         endDownTime = timer.seconds();
 
         telemetry.addData("time up = ", endUpTime);

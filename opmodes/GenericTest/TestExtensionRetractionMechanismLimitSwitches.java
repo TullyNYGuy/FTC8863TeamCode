@@ -18,7 +18,9 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.Switch;
 public class TestExtensionRetractionMechanismLimitSwitches extends LinearOpMode {
 
     // Put your variable declarations here
-    public ExtensionRetractionMechanism extensionRetractionMechanism;
+    public ExtensionRetractionMechanism extensionRetractionMechanismLeft;
+    public ExtensionRetractionMechanism extensionRetractionMechanismRight;
+    public ExtensionRetractionMechanism extensionRetractionMechanismArm;
     public double spoolDiameter = 1.25 *25.4;
 
     @Override
@@ -26,8 +28,16 @@ public class TestExtensionRetractionMechanismLimitSwitches extends LinearOpMode 
 
 
         // Put your initializations here
-        extensionRetractionMechanism = new ExtensionRetractionMechanism(hardwareMap,telemetry,"extensionRetraction",
-                "extensionLimitSwitch", "retractionLimitSwitch", "extensionRetractionMotor",
+        extensionRetractionMechanismLeft = new ExtensionRetractionMechanism(hardwareMap,telemetry,"extensionRetractionLeft",
+                "extensionLimitSwitchLeft", "retractionLimitSwitchLeft", "extensionRetractionMotorLeft",
+                DcMotor8863.MotorType.ANDYMARK_40, spoolDiameter * Math.PI);
+
+        extensionRetractionMechanismRight = new ExtensionRetractionMechanism(hardwareMap,telemetry,"extensionRetractionRight",
+                "extensionLimitSwitchRight", "retractionLimitSwitchRight", "extensionRetractionMotorRight",
+                DcMotor8863.MotorType.ANDYMARK_40, spoolDiameter * Math.PI);
+
+        extensionRetractionMechanismArm = new ExtensionRetractionMechanism(hardwareMap,telemetry,"extensionRetractionArm",
+                "extensionLimitSwitchArm", "retractionLimitSwitchArm", "extensionRetractionMotorArm",
                 DcMotor8863.MotorType.ANDYMARK_40, spoolDiameter * Math.PI);
         
         // Wait for the start button
@@ -40,7 +50,12 @@ public class TestExtensionRetractionMechanismLimitSwitches extends LinearOpMode 
         while(opModeIsActive()) {
 
             // Put your calls that need to run in a loop here
-            extensionRetractionMechanism.testLimitSwitches();
+            telemetry.addData("left", ":");
+            extensionRetractionMechanismLeft.testLimitSwitches();
+            telemetry.addData("right", ":");
+            extensionRetractionMechanismRight.testLimitSwitches();
+            telemetry.addData("arm", ":");
+            extensionRetractionMechanismArm.testLimitSwitches();
             telemetry.update();
             
             idle();
