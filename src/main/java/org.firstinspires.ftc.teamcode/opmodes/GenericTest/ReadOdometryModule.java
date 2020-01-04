@@ -21,7 +21,7 @@ public class ReadOdometryModule extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-         odometryModule = new OdometryModule(OdometryModule.Position.LEFT, 1440, 3.8, OdometryModule.Units.CM, "odometryModuleLeft", hardwareMap);
+         odometryModule = new OdometryModule(1440, 3.8, OdometryModule.Units.CM, "odometryModuleLeft", hardwareMap);
 
         //Odometry System Calibration Init Complete
         telemetry.addData("Odometry System Calibration Status", "Init Complete");
