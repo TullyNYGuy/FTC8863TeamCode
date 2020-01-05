@@ -319,6 +319,38 @@ public class ExtensionRetractionMechanism {
     private boolean loggingOn = false;
 
     /**
+     * Collect time vs encoder count data for debug purposes
+     */
+    private boolean collectData = false;
+
+    public boolean isCollectData() {
+        return collectData;
+    }
+
+    public void enableCollectData() {
+        this.collectData = true;
+        timeEncoderValues = new PairedList();
+    }
+
+    public void disableCollectData() {
+        this.collectData = false;
+    }
+
+    /**
+     * A list of time and encoder values collected if collectData is true
+     */
+    private PairedList timeEncoderValues;
+
+    public PairedList getTimeEncoderValues() {
+        return timeEncoderValues;
+    }
+
+    /**
+     * A timer that starts when the lift is created and can be used to timestamp data
+     */
+    private ElapsedTime liftTimer;
+
+    /**
      * The mechanism can be run manually using a joystick as input. The power is stored here.
      */
     private double joystickPower = 0;
@@ -408,6 +440,10 @@ public class ExtensionRetractionMechanism {
 
         // set the initial state of the state machine
         extensionRetractionState = ExtensionRetractionStates.START_RESET_SEQUENCE;
+
+        // create the time encoder data list in case it is needed
+        timeEncoderValues = new PairedList();
+        liftTimer = new ElapsedTime();
     }
 
 
@@ -428,6 +464,12 @@ public class ExtensionRetractionMechanism {
         }
     }
 
+    public void writeTimerEncoderDataToCSVFile(CSVDataFile timerEncoderValuesFile) {
+        timerEncoderValuesFile.writeData("time, encoder value for " + mechanismName);
+        timerEncoderValuesFile.headerStrings("time (mS)", "encoder value");
+        timeEncoderValues.writeToCSVFile(timerEncoderValuesFile);
+    }
+
     //*********************************************************************************************
     //          MAJOR METHODS
     //
@@ -441,6 +483,7 @@ public class ExtensionRetractionMechanism {
      */
     public void init() {
         log(mechanismName + "Extension retraction system initializing");
+        liftTimer.reset();
         if (!isDebugMode()) {
             if (!isResetComplete()) {
                 reset();
@@ -1247,6 +1290,9 @@ public class ExtensionRetractionMechanism {
         // update the state machine for the motor
         DcMotor8863.MotorState motorState = extensionRetractionMotor.update();
         currentEncoderValue = extensionRetractionMotor.getCurrentPosition();
+        if (collectData) {
+            timeEncoderValues.add(liftTimer.milliseconds(), currentEncoderValue);
+        }
         logState(extensionRetractionState, extensionRetractionCommand);
 
         switch (extensionRetractionState) {

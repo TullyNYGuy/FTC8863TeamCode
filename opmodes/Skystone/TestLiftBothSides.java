@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.CSVDataFile;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
@@ -30,6 +31,7 @@ public class TestLiftBothSides extends LinearOpMode {
     public int encoderValueMinRight = 0;
 
     public DataLogging logFile;
+    public CSVDataFile timeEncoderValueFile;
     public double spoolDiameter = 1.25 * 25.4;
     public ElapsedTime timerLeft;
     public ElapsedTime timerRight;
@@ -41,7 +43,7 @@ public class TestLiftBothSides extends LinearOpMode {
 
     public String buffer = "";
 
-    public double speed = 0.2;
+    public double speed = 0.7;
 
     @Override
     public void runOpMode() {
@@ -62,8 +64,11 @@ public class TestLiftBothSides extends LinearOpMode {
         timerRight = new ElapsedTime();
 
         logFile = new DataLogging("ExtensionRetractionTestBoth", telemetry);
+        timeEncoderValueFile = new CSVDataFile("LiftTimeEncoderValues", telemetry);
+
         extensionRetractionMechanismLeft.setDataLog(logFile);
         extensionRetractionMechanismLeft.enableDataLogging();
+        extensionRetractionMechanismLeft.enableCollectData();
         extensionRetractionMechanismLeft.setResetPower(-0.1);
         extensionRetractionMechanismLeft.setRetractionPower(-speed);
         extensionRetractionMechanismLeft.setExtensionPower(+speed);
@@ -73,6 +78,7 @@ public class TestLiftBothSides extends LinearOpMode {
         logFile = new DataLogging("ExtensionRetractionTestBoth", telemetry);;
         extensionRetractionMechanismRight.setDataLog(logFile);
         extensionRetractionMechanismRight.enableDataLogging();
+        extensionRetractionMechanismRight.enableCollectData();
         extensionRetractionMechanismRight.setResetPower(-0.1);
         extensionRetractionMechanismRight.setRetractionPower(-speed);
         extensionRetractionMechanismRight.setExtensionPower(+speed);
@@ -154,6 +160,9 @@ public class TestLiftBothSides extends LinearOpMode {
 
         endDownTimeLeft = timerLeft.seconds();
         endDownTimeRight = timerRight.seconds();
+
+        extensionRetractionMechanismLeft.writeTimerEncoderDataToCSVFile(timeEncoderValueFile);
+        extensionRetractionMechanismRight.writeTimerEncoderDataToCSVFile(timeEncoderValueFile);
 
         buffer = String.format("%.2f", endUpTimeLeft) + " " + String.format("%.2f", endUpTimeRight);
         telemetry.addData("time up = ", buffer);
