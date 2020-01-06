@@ -109,14 +109,19 @@ public class ExtensionRetractionMechanism {
      * allows it to be set to null. If the value is null then it is assumed that no retractionPosition
      * has been set. The units for this value are encoder counts!
      */
-    private Double retractionPosition = null;
+    private Double retractionPositionInEncoderCounts = null;
 
-    public Double getRetractionPosition() {
-        return retractionPosition;
+    public Double getRetractionPositionInEncoderCounts() {
+        return retractionPositionInEncoderCounts;
     }
 
-    public void setRetractionPosition(Double retractionPosition) {
-        this.retractionPosition = retractionPosition;
+    public void setRetractionPositionInEncoderCounts(Double retractionPosition) {
+        this.retractionPositionInEncoderCounts = retractionPosition;
+        log("retraction limit in encoder counts = " + retractionPositionInEncoderCounts);
+    }
+
+    public void setRetractionPositionInMechanismUnits(double retractionPosition) {
+        setRetractionPositionInEncoderCounts(convertMechanismUnitsToEncoderCounts(retractionPosition));
     }
 
     /**
@@ -127,14 +132,19 @@ public class ExtensionRetractionMechanism {
      * allows it to be set to null. If the value is null then it is assumed that no retrationPosition
      * has been set. The units for this value are encoder counts!
      */
-    private Double extensionPosition = null;
+    private Double extensionPositionInEncoderCounts = null;
 
-    public Double getExtensionPosition() {
-        return extensionPosition;
+    public Double getExtensionPositionInEncoderCounts() {
+        return extensionPositionInEncoderCounts;
     }
 
-    public void setExtensionPosition(Double extensionPosition) {
-        this.extensionPosition = extensionPosition;
+    public void setExtensionPositionInEncoderCounts(Double extensionPositionInEncoderCounts) {
+        this.extensionPositionInEncoderCounts = extensionPositionInEncoderCounts;
+        log("extension limit in encoder counts = " + extensionPositionInEncoderCounts);
+    }
+
+    public void setExtensionPositionInMechanismUnits(double extensionPosition) {
+        setExtensionPositionInEncoderCounts(convertMechanismUnitsToEncoderCounts(extensionPosition));
     }
 
     /**
@@ -355,6 +365,8 @@ public class ExtensionRetractionMechanism {
      */
     private double joystickPower = 0;
 
+    private boolean directionOfMovementIsExtending = true;
+
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -403,8 +415,8 @@ public class ExtensionRetractionMechanism {
      * @param hardwareMap           the hardware map that is provided in the opmode
      * @param telemetry             the telemetry object this is provided in the opmode
      * @param mechanismName         the name of this mechanism. Will be used in the log file.
-     * @param retractionPosition    the name of the switch you setup in the config of the phone
-     * @param extensionPosition     the name of the switch you setup in the config of the phone
+     * @param retractionPositionInMechanismUnits    the limit for retraction in units of the mechanism (like cm)
+     * @param extensionPositionInMechamismUnits     tthe limit for extension in units of the mechanism (like cm)
      * @param motorName             the name of the motor you setup in the config of the phone
      * @param motorType             the type of motor
      * @param movementPerRevolution the distance this mechanism moves for each revolution of the motor
@@ -412,13 +424,13 @@ public class ExtensionRetractionMechanism {
      *                              the same units when working with the mechanism.
      */
     public ExtensionRetractionMechanism(HardwareMap hardwareMap, Telemetry telemetry, String mechanismName,
-                                        Double retractionPosition, Double extensionPosition,
+                                        Double retractionPositionInMechanismUnits, Double extensionPositionInMechamismUnits,
                                         String motorName, DcMotor8863.MotorType motorType, double movementPerRevolution) {
         // set all of the private variables using the parameters passed into the constructor
         createExtensionRetractionMechanismCommonCommands(hardwareMap, telemetry, mechanismName, motorName, motorType, movementPerRevolution);
 
-        this.retractionPosition = retractionPosition;
-        this.extensionPosition = extensionPosition;
+        setRetractionPositionInMechanismUnits(retractionPositionInMechanismUnits);
+        setExtensionPositionInMechanismUnits(extensionPositionInMechamismUnits);
     }
 
     private void createExtensionRetractionMechanismCommonCommands(HardwareMap hardwareMap, Telemetry telemetry, String mechanismName,
@@ -453,6 +465,10 @@ public class ExtensionRetractionMechanism {
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
 
+    private double convertMechanismUnitsToEncoderCounts(double mechanismUnits) {
+        return (mechanismUnits / movementPerRevolution * extensionRetractionMotor.getCountsPerRev());
+    }
+
     /**
      * Write a string into the logfile.
      *
@@ -464,6 +480,10 @@ public class ExtensionRetractionMechanism {
         }
     }
 
+    /**
+     * Write time/encoder values to a CSV file
+     * @param timerEncoderValuesFile
+     */
     public void writeTimerEncoderDataToCSVFile(CSVDataFile timerEncoderValuesFile) {
         timerEncoderValuesFile.writeData("time, encoder value for " + mechanismName);
         timerEncoderValuesFile.headerStrings("time (mS)", "encoder value");
@@ -591,7 +611,7 @@ public class ExtensionRetractionMechanism {
      * @param moveToPositionPower the power to use during the movement
      */
     public void goToPosition(double position, double moveToPositionPower) {
-        log("COMMANDED " + mechanismName.toUpperCase() + " TO GO TO POSITION " + position);
+        log("COMMANDED " + mechanismName.toUpperCase() + " TO GO TO POSITION " + position + " (encoder counts = " + convertMechanismUnitsToEncoderCounts(position) + ")");
         // set the properties so they can be used later
         this.desiredPosition = position;
         this.moveToPositionPower = moveToPositionPower;
@@ -950,16 +970,16 @@ public class ExtensionRetractionMechanism {
         if (retractedLimitSwitch != null) {
             if (retractedLimitSwitch.isPressed()) {
                 retractionLimitSwitchReached = true;
-                log("Retract movement complete, limit switch tripped " + mechanismName);
+                log("Retraction limit switch tripped " + mechanismName);
             }
         }
         // If a retraction limit position has been set, it will not be null. If none has been set,
-        // its value will be null and the check is skipped. Note that the retractionPosition is a
+        // its value will be null and the check is skipped. Note that the retractionPositionInEncoderCounts is a
         // Double (class) not a double (primitive).
-        if (retractionPosition != null) {
-            if (extensionRetractionMotor.getCurrentPosition() <= retractionPosition) {
+        if (retractionPositionInEncoderCounts != null) {
+            if (extensionRetractionMotor.getCurrentPosition() <= retractionPositionInEncoderCounts) {
                 retractionEncoderValueReached = true;
-                log("Retract movement complete, encoder limit tripped " + mechanismName);
+                log("Retraction encoder limit tripped " + mechanismName);
             }
         }
         return (retractionLimitSwitchReached || retractionEncoderValueReached);
@@ -1081,16 +1101,16 @@ public class ExtensionRetractionMechanism {
         if (extendedLimitSwitch != null) {
             if (extendedLimitSwitch.isPressed()) {
                 extensionLimitSwitchReached = true;
-                log("Extend movement complete, limit switch tripped. " + mechanismName);
+                log("Extention limit switch tripped. " + mechanismName);
             }
         }
         // If a extension limit position has been set, it will not be null. If none has been set,
-        // its value will be null and the check is skipped. Note that the extensionPosition is a
+        // its value will be null and the check is skipped. Note that the extensionPositionInEncoderCounts is a
         // Double (class) not a double (primitive).
-        if (extensionPosition != null) {
-            if (extensionRetractionMotor.getCurrentPosition() >= extensionPosition) {
+        if (extensionPositionInEncoderCounts != null) {
+            if (extensionRetractionMotor.getCurrentPosition() >= extensionPositionInEncoderCounts) {
                 extensionEncoderValueReached = true;
-                log("Extend movement complete, encoder limit tripped. " + mechanismName);
+                log("Extension encoder limit tripped. " + mechanismName);
             }
         }
         return (extensionLimitSwitchReached || extensionEncoderValueReached);
@@ -1113,13 +1133,28 @@ public class ExtensionRetractionMechanism {
      */
     private boolean isOkToGoToPosition() {
         boolean result = true;
-        if (isRetractionLimitReached() && desiredPosition <= getPosition()) {
+        getDirectionOfMovement();
+        if (isRetractionLimitReached() && !directionOfMovementIsExtending) {
+            log("Desired movement is retract but at retraction limit already, can't do it!");
             result = false;
         }
-        if (isExtensionLimitReached() && desiredPosition >= getPosition()) {
+        if (isExtensionLimitReached() && directionOfMovementIsExtending) {
+            log("Desired movement is extend but at extension limit already, can't do it!");
             result = false;
         }
         return result;
+    }
+
+    /**
+     * Set the variable the indicates the desired direction of movement.
+     */
+    private void  getDirectionOfMovement() {
+        if (desiredPosition <= getPosition()){
+            directionOfMovementIsExtending = false;
+        }
+        if (desiredPosition >= getPosition()){
+            directionOfMovementIsExtending = true;
+        }
     }
 
     /**
@@ -1127,8 +1162,8 @@ public class ExtensionRetractionMechanism {
      * finished the mechanism will either actively hold position or will float.
      */
     private void moveToPosition() {
-        extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        extensionRetractionMotor.moveToPosition(moveToPositionPower, desiredPosition, finishBehavior);
+       extensionRetractionMotor.moveToPosition(moveToPositionPower, desiredPosition, finishBehavior);
+       // extensionRetractionMotor.rotateToEncoderCount(moveToPositionPower, 1300, finishBehavior);
     }
 
     /**
@@ -1458,6 +1493,7 @@ public class ExtensionRetractionMechanism {
                         break;
                     case GO_TO_POSITION:
                         extensionRetractionState = ExtensionRetractionStates.START_GO_TO_POSITION;
+                        break;
                     case JOYSTICK:
                         extensionRetractionState = ExtensionRetractionStates.JOYSTICK;
                         break;
@@ -1946,6 +1982,7 @@ public class ExtensionRetractionMechanism {
                             extensionRetractionState = previousExtensionRetractionState;
                             extensionRetractionCommand = previousExtensionRetractionCommand;
                         }
+                        break;
 
                     case JOYSTICK:
                         previousExtensionRetractionState = extensionRetractionState;
@@ -1997,7 +2034,7 @@ public class ExtensionRetractionMechanism {
 
                         // check to make sure the extended limit has not been reached. If it has
                         // then something went wrong or someone gave a bad motor command.
-                        if (isExtensionLimitReached()) {
+                        if (isExtensionLimitReached() && directionOfMovementIsExtending) {
                             // the extension limit has been reached. This is probably not intentional.
                             // But the movement has to be stopped in order to protect the mechanism
                             // from damage. Clear the command.
@@ -2008,7 +2045,7 @@ public class ExtensionRetractionMechanism {
 
                         // check to make sure the retracted limit switch has not been tripped. If it has
                         // then something went wrong or someone gave a bad motor command.
-                        if (isRetractionLimitReached()) {
+                        if (isRetractionLimitReached() && !directionOfMovementIsExtending) {
                             // the retraction limit has been reached. This is probably not intentional.
                             // But the movement has to be stopped in order to protect the mechanism
                             // from damage. Clear the command.

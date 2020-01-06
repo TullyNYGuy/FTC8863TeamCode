@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
  */
 @TeleOp(name = "Test Lift Left & Right", group = "Test")
 //@Disabled
-public class TestLiftBothSides extends LinearOpMode {
+public class TestLiftBothSidesFullExtensionRetraction extends LinearOpMode {
 
     // Put your variable declarations here
     public ExtensionRetractionMechanism extensionRetractionMechanismLeft;
@@ -73,7 +73,7 @@ public class TestLiftBothSides extends LinearOpMode {
         extensionRetractionMechanismLeft.setRetractionPower(-speed);
         extensionRetractionMechanismLeft.setExtensionPower(+speed);
 
-        extensionRetractionMechanismLeft.setExtensionPosition(2700.0);
+        extensionRetractionMechanismLeft.setExtensionPositionInEncoderCounts(2700.0);
 
         logFile = new DataLogging("ExtensionRetractionTestBoth", telemetry);;
         extensionRetractionMechanismRight.setDataLog(logFile);
@@ -83,7 +83,7 @@ public class TestLiftBothSides extends LinearOpMode {
         extensionRetractionMechanismRight.setRetractionPower(-speed);
         extensionRetractionMechanismRight.setExtensionPower(+speed);
 
-        extensionRetractionMechanismRight.setExtensionPosition(2700.0);
+        extensionRetractionMechanismRight.setExtensionPositionInEncoderCounts(2700.0);
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");

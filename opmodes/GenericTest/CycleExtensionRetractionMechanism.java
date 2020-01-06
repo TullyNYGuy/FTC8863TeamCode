@@ -42,7 +42,7 @@ public class CycleExtensionRetractionMechanism extends LinearOpMode {
         extensionRetractionMechanism.setResetPower(-0.1);
         extensionRetractionMechanism.setRetractionPower(-0.1);
         extensionRetractionMechanism.setExtensionPower(+0.1);
-        extensionRetractionMechanism.setExtensionPosition(2650.0);
+        extensionRetractionMechanism.setExtensionPositionInEncoderCounts(2650.0);
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run" );

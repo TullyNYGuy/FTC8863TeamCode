@@ -45,7 +45,7 @@ public class TestLiftRight extends LinearOpMode {
         extensionRetractionMechanismRight.setRetractionPower(-.7);
         extensionRetractionMechanismRight.setExtensionPower(+.7);
 
-        extensionRetractionMechanismRight.setExtensionPosition(2700.0);
+        extensionRetractionMechanismRight.setExtensionPositionInEncoderCounts(2700.0);
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run" );
