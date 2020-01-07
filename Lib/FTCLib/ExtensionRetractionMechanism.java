@@ -766,7 +766,7 @@ public class ExtensionRetractionMechanism {
      *
      * @return
      */
-    private boolean isOKToReset() {
+    protected boolean isOKToReset() {
         return !isRetractionLimitReached();
     }
 
@@ -780,7 +780,7 @@ public class ExtensionRetractionMechanism {
      * This is optional. If you don't have any actions, just leave this method blank and return true
      * in arePreResetActionsComplete() in all cases.
      */
-    private void performPreResetActions() {
+    protected void performPreResetActions() {
         // put your actions that need to be performed here
     }
 
@@ -791,7 +791,7 @@ public class ExtensionRetractionMechanism {
      *
      * @return true when all pre reset actions are complete.
      */
-    private boolean arePreResetActionsComplete() {
+    protected boolean arePreResetActionsComplete() {
         // put your custom code to check whether the actions are complete here
         log("Pre reset actions complete " + mechanismName);
         return true;
@@ -803,7 +803,7 @@ public class ExtensionRetractionMechanism {
         log("Resetting mechanism " + mechanismName);
     }
 
-    private boolean isMoveToResetComplete() {
+    protected boolean isMoveToResetComplete() {
         // your method of determining whether the movement to the reset is complete must be
         // coded here
         if (isRetractionLimitReached()) {
@@ -814,7 +814,7 @@ public class ExtensionRetractionMechanism {
         }
     }
 
-    private void performActionsToCompleteResetMovement() {
+    protected void performActionsToCompleteResetMovement() {
         // your actions to complete the reset movement must be coded here. These are suggested
         // actions.
         // after a reset, there is no reason to keep the motor powered and holding a position of 0
@@ -833,7 +833,7 @@ public class ExtensionRetractionMechanism {
      * This is optional. If you don't have any actions, just leave this method blank and return true
      * in arePostResetActionsComplete() in all cases.
      */
-    private void performPostResetActions() {
+    protected void performPostResetActions() {
         // put your actions that need to be performed here
     }
 
@@ -844,7 +844,7 @@ public class ExtensionRetractionMechanism {
      *
      * @return true when all post reset actions are complete.
      */
-    private boolean arePostResetActionsComplete() {
+    protected boolean arePostResetActionsComplete() {
         // put your custom code to check whether the actions are complete here
         log("Post reset actions complete " + mechanismName);
         return true;
@@ -861,7 +861,7 @@ public class ExtensionRetractionMechanism {
      *
      * @return true if it is ok to retract
      */
-    private boolean isOKToRetract() {
+    protected boolean isOKToRetract() {
         return !isRetractionLimitReached();
     }
 
@@ -875,7 +875,7 @@ public class ExtensionRetractionMechanism {
      * This is optional. If you don't have any actions, just leave this method blank and return true
      * in arePreResetActionsComplete() in all cases.
      */
-    private void performPreRetractActions() {
+    protected void performPreRetractActions() {
         // put your actions that need to be performed here
     }
 
@@ -886,7 +886,7 @@ public class ExtensionRetractionMechanism {
      *
      * @return true when all pre retract actions are complete.
      */
-    private boolean arePreRetractActionsComplete() {
+    protected boolean arePreRetractActionsComplete() {
         // put your custom code to check whether the actions are complete here
         log("Pre retract actions complete " + mechanismName);
         return true;
@@ -907,7 +907,7 @@ public class ExtensionRetractionMechanism {
      *
      * @return true if complete
      */
-    private boolean isMoveToRetractComplete() {
+    protected boolean isMoveToRetractComplete() {
         // your method of determining whether the movement to the retract is complete must be
         // coded here. This code is suggested but you can override it if your situation is different.
         return isRetractionLimitReached();
@@ -917,7 +917,7 @@ public class ExtensionRetractionMechanism {
      * Run the actions that need to be run to complete the retraction movement. The code here is
      * a suggestion. You can override it to fit your specific situation.
      */
-    private void performActionsToCompleteRetractMovement() {
+    protected void performActionsToCompleteRetractMovement() {
         // your actions to complete the retract movement must be coded here. These are suggested
         // actions. You can override these if you need to.
         // Assuming that the full retraction is when the mechanism is at the reset position, there
@@ -937,7 +937,7 @@ public class ExtensionRetractionMechanism {
      * This is optional. If you don't have any actions, just leave this method blank and return true
      * in arePostResetActionsComplete() in all cases.
      */
-    private void performPostRetractActions() {
+    protected void performPostRetractActions() {
         // put your actions that need to be performed here
     }
 
@@ -948,7 +948,7 @@ public class ExtensionRetractionMechanism {
      *
      * @return true when all post retract actions are complete.
      */
-    private boolean arePostRetractActionsComplete() {
+    protected boolean arePostRetractActionsComplete() {
         // put your custom code to check whether the actions are complete here
         log("Post retract actions complete " + mechanismName);
         return true;
@@ -995,7 +995,7 @@ public class ExtensionRetractionMechanism {
      *
      * @return true if it is ok to extend
      */
-    private boolean isOKToExtend() {
+    protected boolean isOKToExtend() {
         return !isExtensionLimitReached();
     }
 
@@ -1009,7 +1009,7 @@ public class ExtensionRetractionMechanism {
      * This is optional. If you don't have any actions, just leave this method blank and return true
      * in arePreResetActionsComplete() in all cases.
      */
-    private void performPreExtendActions() {
+    protected void performPreExtendActions() {
         // put your actions that need to be performed here
     }
 
@@ -1020,7 +1020,7 @@ public class ExtensionRetractionMechanism {
      *
      * @return true when all pre extend actions are complete.
      */
-    private boolean arePreExtendActionsComplete() {
+    protected boolean arePreExtendActionsComplete() {
         // put your custom code to check whether the actions are complete here
         log("Pre extend actions complete " + mechanismName);
         return true;
@@ -1041,7 +1041,7 @@ public class ExtensionRetractionMechanism {
      *
      * @return true if complete
      */
-    private boolean isMoveToExtendComplete() {
+    protected boolean isMoveToExtendComplete() {
         // your method of determining whether the movement to the extend is complete must be
         // coded here. This code is suggested but you can override it if your situation is different.
         return isExtensionLimitReached();
@@ -1051,7 +1051,7 @@ public class ExtensionRetractionMechanism {
      * Run the actions that need to be run to complete the extension movement. The code here is
      * a suggestion. You can override it to fit your specific situation.
      */
-    private void performActionsToCompleteExtendMovement() {
+    protected void performActionsToCompleteExtendMovement() {
         // your actions to complete the extend movement must be coded here. These are suggested
         // actions. You can override these if you need to.
         // set the target position for the motor to be held at to the current position
@@ -1068,7 +1068,7 @@ public class ExtensionRetractionMechanism {
      * This is optional. If you don't have any actions, just leave this method blank and return true
      * in arePostResetActionsComplete() in all cases.
      */
-    private void performPostExtendActions() {
+    protected void performPostExtendActions() {
         // put your actions that need to be performed here
     }
 
@@ -1079,7 +1079,7 @@ public class ExtensionRetractionMechanism {
      *
      * @return true when all post extend actions are complete.
      */
-    private boolean arePostExtendActionsComplete() {
+    protected boolean arePostExtendActionsComplete() {
         // put your custom code to check whether the actions are complete here
         log("Post extend actions complete " + mechanismName);
         return true;
