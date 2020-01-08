@@ -62,10 +62,10 @@ public class ExtensionRetractionMechanism {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
-    private DcMotor8863 extensionRetractionMotor;
+    protected DcMotor8863 extensionRetractionMotor;
 
     // null is shown for emphasis. Any object is null until is it created.
-    private Switch retractedLimitSwitch = null;
+    protected Switch retractedLimitSwitch = null;
     private Switch extendedLimitSwitch = null;
 
     private ExtensionRetractionCommands extensionRetractionCommand;
@@ -109,7 +109,7 @@ public class ExtensionRetractionMechanism {
      * allows it to be set to null. If the value is null then it is assumed that no retractionPosition
      * has been set. The units for this value are encoder counts!
      */
-    private Double retractionPositionInEncoderCounts = null;
+    protected Double retractionPositionInEncoderCounts = null;
 
     public Double getRetractionPositionInEncoderCounts() {
         return retractionPositionInEncoderCounts;
@@ -197,7 +197,7 @@ public class ExtensionRetractionMechanism {
     /**
      * The name of this mechanism. This is used in the log files and in messages to the user.
      */
-    private String mechanismName = "";
+    protected String mechanismName = "";
 
     public String getMechanismName() {
         return mechanismName;
@@ -474,7 +474,7 @@ public class ExtensionRetractionMechanism {
      *
      * @param stringToLog
      */
-    private void log(String stringToLog) {
+    protected void log(String stringToLog) {
         if (logFile != null && loggingOn) {
             logFile.logData(stringToLog);
         }
@@ -962,7 +962,7 @@ public class ExtensionRetractionMechanism {
      * @return true if EITHER extension limit switch is pressed OR if current position is equal to
      * or less than the extension position.
      */
-    private boolean isRetractionLimitReached() {
+    protected boolean isRetractionLimitReached() {
         boolean retractionLimitSwitchReached = false;
         boolean retractionEncoderValueReached = false;
         // if a limit switch is not present, the retractedLimitSwitch object will be null.
