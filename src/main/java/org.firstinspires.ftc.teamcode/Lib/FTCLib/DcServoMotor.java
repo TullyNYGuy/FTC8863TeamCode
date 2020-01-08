@@ -19,13 +19,13 @@ public class DcServoMotor extends DcMotor8863 {
      * The value that causes no movement of the servo when the direction of the servo is set to
      * forwards.
      */
-    private double centerValueForward = 0.51;
+    private double centerValueForward;
 
     /**
      * The value that causes no movement of the servo when the direction of the servo is set to
      * backwards.
      */
-    private double centerValueReverse = 0.46;
+    private double centerValueReverse;
 
     /**
      * Store the current value that causes no movement of the servo
@@ -36,7 +36,7 @@ public class DcServoMotor extends DcMotor8863 {
      * If the speed of the servo is set between -deadBandRange and + deadBandRange then the actual
      * speed of the servo is set to stop
      */
-    private double deadBandRange = 0.1;
+    private double deadBandRange;
 
 
 
@@ -49,6 +49,8 @@ public class DcServoMotor extends DcMotor8863 {
         this.deadBandRange = deadBandRange;
 
     }
+
+    @Override
     public void setPower(double power) {
         power = Range.clip(power, getMinMotorPower(), getMaxMotorPower());
         this.currentPower = power;
@@ -61,8 +63,8 @@ public class DcServoMotor extends DcMotor8863 {
         }
 
     }
+
     private void setServoSpeed(double throttle) {
-        double servoCommand;
         // if the servo command is within the deadband range for the servo, then send out the
         // center value (value that produces no movement) instead. The deadband is a range around 0.
         if (-deadBandRange < throttle && throttle < deadBandRange) {
@@ -74,7 +76,7 @@ public class DcServoMotor extends DcMotor8863 {
             }
         } else {
             // I have to translate the -1 to +1 input range to a 0 to +1 range that a servo can take.
-            servoCommand = 0.5 * throttle + 0.5;
+            double servoCommand = 0.5 * throttle + 0.5;
             servoCommand = Range.clip(servoCommand, 0, 1);
             // only send out a command to the servo if the value has changed from the last value sent
             // this saves some bandwidth on the bus.
@@ -84,12 +86,14 @@ public class DcServoMotor extends DcMotor8863 {
             }
         }
     }
+
     /**
      * Set the direction the motor turns when it is sent a positive command. This method re-defines
      * the meaning of forwards and backwards.
      *
-     * @param direction
+     * @param direction direction of the rotation
      */
+    @Override
     public void setDirection(DcMotor.Direction direction) {
         if (direction == DcMotor.Direction.FORWARD) {
             centerValue = centerValueForward;
@@ -103,21 +107,28 @@ public class DcServoMotor extends DcMotor8863 {
     }
 
     @Deprecated
+    @Override
     public void setPowerFloat() {
     }
 
+    @Override
     public void setZeroPowerBehavior(DcMotor.ZeroPowerBehavior ZeroPowerBehavior) {
 
     }
+
+    @Override
     public void setTargetPosition(int position) {
         // set the field holding the desired rotation
         setTargetEncoderCount(position);
 
     }
+
+    @Override
     public int getCurrentPosition() {
         return (FTCDcMotor.getCurrentPosition()-baseEncoderPosition);
     }
 
+    @Override
     public void setMode(DcMotor.RunMode mode) {
         if (mode != getCurrentRunMode()) {
             switch(mode){
