@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.Lift;
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Test Lift Left & Right Go To Position", group = "Test")
+@TeleOp(name = "Test Lift Left & Right Reset", group = "Test")
 //@Disabled
 public class TestLiftResetCode extends LinearOpMode {
 
