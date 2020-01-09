@@ -60,11 +60,28 @@ private double raiseOffLimitSwitchPower = 0.1;
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
+    // sequence of states
+    // These states are in the parent
+    // MOVING_TO_RESET - when limit switch pressed
+    //    (from parent)
+    //     float the motor
+    //     stop the motor
+    //     stop and reset the encoder
+    // PERFORM_POST_RESET_ACTIONS (override this)
+
+    // These states are in the child
+    // wait for 200 mSec to allow encoder reset to take hold - when time expires ->
+    // move lift up - when limit switch no longer pressed ->
+    // set motor to hold position, set target position to the current position, change motor to RUN_TO_POSITION
+    // now post reset actions are complete
+    //
+
     private void moveOffRetractionLimitSwitch() {
         // when the mechanism extends you may want to do something with whatever is attached to it.
         extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         extensionRetractionMotor.setPower(raiseOffLimitSwitchPower);
     }
+
     /**
      * This method is the default for checking to see if the mechanism is in the retracted position.
      * You can override it if you have a different method. Note that the retraction limit position
@@ -80,11 +97,12 @@ private double raiseOffLimitSwitchPower = 0.1;
         if (retractedLimitSwitch != null) {
             if (retractedLimitSwitch.isPressed()) {
                 retractionLimitSwitchReached = true;
-                log("Retraction limit switch tripped " + mechanismName);
+                log("Retraction limit switch tripped" + mechanismName);
             }
         }
         return (retractionLimitSwitchReached);
     }
+
     /**
      * This method will be executed after a retract movement completes. You need to write custom code
      * for your specific mechanism for the actions you want to perform. This gives you the
@@ -94,11 +112,11 @@ private double raiseOffLimitSwitchPower = 0.1;
      * This is optional. If you don't have any actions, just leave this method blank and return true
      * in arePostResetActionsComplete() in all cases.
      */
-    protected void performPostRetractActions() {
+    protected void performPostResetActions() {
         // put your actions that need to be performed here
         moveOffRetractionLimitSwitch();
+        log("Beginning to move off lift " + mechanismName);
     }
-
 
     /**
      * This method returns true when all the post retract actions have completed. You need to write
@@ -107,12 +125,13 @@ private double raiseOffLimitSwitchPower = 0.1;
      *
      * @return true when all post retract actions are complete.
      */
-    protected boolean arePostRetractActionsComplete() {
+    @Override
+    protected boolean arePostResetActionsComplete() {
         boolean result = false;
         // put your custom code to check whether the actions are complete here
-        if(isRetractionLimitReached()){
+        if(!isRetractionLimitReached()){
             result = true;
-            log("Post retract actions complete " + mechanismName);
+            log("Post reset actions complete" + mechanismName);
         }
         return result;
     }

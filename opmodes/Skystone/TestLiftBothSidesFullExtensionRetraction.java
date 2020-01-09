@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Test Lift Left & Right", group = "Test")
+@TeleOp(name = "Test Lift Left & Right Extension Retraction", group = "Test")
 //@Disabled
 public class TestLiftBothSidesFullExtensionRetraction extends LinearOpMode {
 

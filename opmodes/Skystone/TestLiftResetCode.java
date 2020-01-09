@@ -72,8 +72,8 @@ public class TestLiftResetCode extends LinearOpMode {
         timerRight = new ElapsedTime();
         timerLeft = new ElapsedTime();
 
-        logFileRight = new DataLogging("ExtensionRetractionTestRight", telemetry);
-        logFileLeft = new DataLogging("ExtensionRetractionTestLeft", telemetry);
+        logFileRight = new DataLogging("ResetTestRight", telemetry);
+        logFileLeft = new DataLogging("ResetTestLeft", telemetry);
 
         timeEncoderValueFile = new CSVDataFile("LiftTimeEncoderValues", telemetry);
 
@@ -106,7 +106,7 @@ public class TestLiftResetCode extends LinearOpMode {
         timerRight.reset();
         timerLeft.reset();
 
-        while (opModeIsActive() && !liftRight.isResetComplete() && !liftLeft.isResetComplete()) {
+        while (opModeIsActive() && (!liftRight.isResetComplete() || !liftLeft.isResetComplete())) {
 
             extensionRetractionStateRight = liftRight.update();
             extensionRetractionStateLeft = liftLeft.update();
@@ -125,7 +125,7 @@ public class TestLiftResetCode extends LinearOpMode {
         liftLeft.update();
 
         buffer = String.format(String.format("%.2f", endUpTimeRight));
-        telemetry.addData("time up = ", buffer);
+        telemetry.addData("DONE! time up = ", buffer);
         telemetry.update();
 
         liftRight.writeTimerEncoderDataToCSVFile(timeEncoderValueFile);
