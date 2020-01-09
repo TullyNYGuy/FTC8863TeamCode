@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
+//import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
