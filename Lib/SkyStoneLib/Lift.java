@@ -69,7 +69,7 @@ private double raiseOffLimitSwitchPower = 0.1;
     //     stop and reset the encoder
     // PERFORM_POST_RESET_ACTIONS (override this)
 
-    // These states are in the child
+    // These states are in the child. State machine update is done in arePostResetActionsComplete()
     // wait for 200 mSec to allow encoder reset to take hold - when time expires ->
     // move lift up - when limit switch no longer pressed ->
     // set motor to hold position, set target position to the current position, change motor to RUN_TO_POSITION
