@@ -31,6 +31,7 @@ public class HaloControls {
     private Mode mode = Mode.DRIVER_MODE;
     private AdafruitIMU8863 imu;
     private double heading = 0;
+    private boolean modeButton = false;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -95,8 +96,9 @@ public class HaloControls {
          * on coordinate system relative to field) and robot point of view mode (angles are based
          * on coordinate system relative to the robot)
          */
-        if (gamepad.b)
+        if (gamepad.b && !modeButton)
             toggleMode();
+        modeButton = gamepad.b;
         /*
          * y button resets the coordinate system for the driver point of view to the same as the
          * the robot based coordinate system at the time the y button is pressed. After that
@@ -104,6 +106,7 @@ public class HaloControls {
          * was pressed.
          */
         if (gamepad.y)
+
             resetHeading();
     }
 
