@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
@@ -17,6 +18,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.HaloControls;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.JoyStick;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Mecanum;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
+import org.firstinspires.ftc.teamcode.Lib.SkystoneLib.IntakeWheels;
 
 import static org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863.MotorType.ANDYMARK_20;
 import static org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863.MotorType.ANDYMARK_20_ORBITAL;
@@ -36,7 +38,9 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
 
         // Put your initializations here
         MecanumCommands mecanumCommands = new MecanumCommands();
-/*
+        boolean intakeState = false;
+
+        /*
         gamepad1LeftJoyStickX = new JoyStick(gamepad1, JoyStick.JoystickSide.LEFT, JoyStick.JoystickAxis.X);
         gamepad1LeftJoyStickY = new JoyStick(gamepad1, JoyStick.JoystickSide.LEFT, JoyStick.JoystickAxis.Y);
 
@@ -47,6 +51,9 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
         DcMotor8863 backLeft = new DcMotor8863("BackLeft", hardwareMap);
         DcMotor8863 frontRight = new DcMotor8863("FrontRight", hardwareMap);
         DcMotor8863 backRight = new DcMotor8863("BackRight", hardwareMap);
+        DcMotor8863 rightIntake = new DcMotor8863("Right", hardwareMap);
+        DcMotor8863 leftIntake = new DcMotor8863("Left", hardwareMap);
+        IntakeWheels intakeWheels = new IntakeWheels(rightIntake, leftIntake);
         // these motors are orbital (planetary gear) motors. The type of motor sets up the number
         // of encoder ticks per revolution. Since we are not using encoder feedback yet, this is
         // really not important now. But it will be once we hook up the encoders and set a motor
@@ -55,6 +62,8 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
         backLeft.setMotorType(ANDYMARK_20_ORBITAL);
         frontRight.setMotorType(ANDYMARK_20_ORBITAL);
         backRight.setMotorType(ANDYMARK_20_ORBITAL);
+        rightIntake.setMotorType(ANDYMARK_20_ORBITAL);
+        leftIntake.setMotorType(ANDYMARK_20_ORBITAL);
         // This value will get set to some distance traveled per revolution later.
         frontLeft.setMovementPerRev(360);
         backLeft.setMovementPerRev(360);
@@ -131,6 +140,7 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
         // initialization of the imu as part of the constructor.
 
         //**************************************************************
+
         waitForStart();
 
         // Put your calls here - they will not run in a loop
@@ -150,6 +160,9 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
 
             mecanum.setMotorPower(mecanumCommands);
 
+            if (gamepad1.x && !intakeState)
+                intakeWheels.switchDirection();
+            intakeState = gamepad1.x;
 
             // This would also work. Is there a performance advantage to it?
             //frontLeft.setPower(wheelVelocities.getFrontLeft());
