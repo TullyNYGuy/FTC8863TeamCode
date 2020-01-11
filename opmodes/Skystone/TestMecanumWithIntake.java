@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
@@ -52,8 +53,8 @@ public class TestMecanumWithIntake extends LinearOpMode {
         DcMotor8863 frontRight = new DcMotor8863("FrontRight", hardwareMap);
         DcMotor8863 backRight = new DcMotor8863("BackRight", hardwareMap);
         DcMotor8863 rightIntake = new DcMotor8863("Right", hardwareMap);
-        //  DcMotor8863 leftIntake = new DcMotor8863("Left", hardwareMap);
-        IntakeWheels intakeWheels = new IntakeWheels(rightIntake, null);
+        DcMotor8863 leftIntake = new DcMotor8863("Left", hardwareMap);
+        IntakeWheels intakeWheels = new IntakeWheels(rightIntake, leftIntake);
         // these motors are orbital (planetary gear) motors. The type of motor sets up the number
         // of encoder ticks per revolution. Since we are not using encoder feedback yet, this is
         // really not important now. But it will be once we hook up the encoders and set a motor
@@ -63,7 +64,7 @@ public class TestMecanumWithIntake extends LinearOpMode {
         frontRight.setMotorType(ANDYMARK_20_ORBITAL);
         backRight.setMotorType(ANDYMARK_20_ORBITAL);
         rightIntake.setMotorType(ANDYMARK_20_ORBITAL);
-        // leftIntake.setMotorType(ANDYMARK_20_ORBITAL);
+        leftIntake.setMotorType(ANDYMARK_20_ORBITAL);
         // This value will get set to some distance traveled per revolution later.
         frontLeft.setMovementPerRev(360);
         backLeft.setMovementPerRev(360);
@@ -133,6 +134,10 @@ public class TestMecanumWithIntake extends LinearOpMode {
         AdafruitIMU8863 imu = new AdafruitIMU8863(hardwareMap);
         Mecanum mecanum = new Mecanum(frontLeft, frontRight, backLeft, backRight);
         HaloControls haloControls = new HaloControls(gamepad1, imu);
+        ElapsedTime outtakeTimer = new ElapsedTime();
+        boolean inOuttake = false;
+        final double OUTTAKE_TIME = 2.0;
+
 
 
         // Note from Glenn:
@@ -160,11 +165,19 @@ public class TestMecanumWithIntake extends LinearOpMode {
 
             mecanum.setMotorPower(mecanumCommands);
 
-            if (gamepad1.dpad_up)
+            if (gamepad1.dpad_up) {
                 intakeWheels.outtake();
-            else if (gamepad1.dpad_down)
+                outtakeTimer.reset();
+                inOuttake = true;
+            } else if (gamepad1.dpad_down)
                 intakeWheels.intake();
+            else if(gamepad1.dpad_right)
+                intakeWheels.stop();
 
+            if(inOuttake && outtakeTimer.seconds() >= OUTTAKE_TIME) {
+                inOuttake = false;
+                intakeWheels.intake();
+            }
             // This would also work. Is there a performance advantage to it?
             //frontLeft.setPower(wheelVelocities.getFrontLeft());
 

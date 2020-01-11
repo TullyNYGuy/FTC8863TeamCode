@@ -73,6 +73,7 @@ public class HaloControls {
     public void calculateMecanumCommands(MecanumCommands commands) {
         if (commands == null)
             return;
+        heading = imu.getHeading() * Math.PI / 180.0;
         /*
          * b button on the gamepad toggles between driver point of view mode (angles are based
          * on coordinate system relative to field) and robot point of view mode (angles are based
@@ -103,7 +104,8 @@ public class HaloControls {
             angleOfTranslation = angleOfTranslation + 3 * Math.PI / 2;
         }
         if(mode == Mode.DRIVER_MODE)
-            angleOfTranslation -= adjustAngle;
+            angleOfTranslation -= heading - adjustAngle;
+
         if (translationSpeed > 1) {
             translationSpeed = 1;
         }
