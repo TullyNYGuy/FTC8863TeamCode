@@ -33,6 +33,7 @@ public class Lift extends ExtensionRetractionMechanism {
 
     private LiftResetExtraStates liftResetExtraState = LiftResetExtraStates.WAITING_FOR_TIMER;
     private LiftResetExtraStates previousLiftResetExtraState = liftResetExtraState;
+    private LiftResetExtraStates currentLiftResetExtraState = liftResetExtraState;
 
     private ElapsedTime resetTimer;
 
@@ -201,6 +202,7 @@ public class Lift extends ExtensionRetractionMechanism {
                 // do nothing but sit in this state
                 break;
         }
+        currentLiftResetExtraState = liftResetExtraState;
         return liftResetExtraState;
     }
 }
