@@ -312,7 +312,7 @@ public class ExtensionRetractionMechanism {
      * The commands sent to the mechanism and the states it passes through can be logged so that
      * you can review them later. The log is a file stored on the phone.
      */
-    private DataLogging logFile;
+    protected DataLogging logFile;
 
     public void setDataLog(DataLogging logFile) {
         this.logFile = logFile;
@@ -326,7 +326,7 @@ public class ExtensionRetractionMechanism {
         this.loggingOn = false;
     }
 
-    private boolean loggingOn = false;
+    protected boolean loggingOn = false;
 
     /**
      * Collect time vs encoder count data for debug purposes
@@ -807,7 +807,7 @@ public class ExtensionRetractionMechanism {
         // your method of determining whether the movement to the reset is complete must be
         // coded here
         if (isRetractionLimitReached()) {
-            log("Reset movement complete " + mechanismName);
+            log("Retraction limit switch pressed " + mechanismName);
             return true;
         } else {
             return false;
@@ -1285,7 +1285,7 @@ public class ExtensionRetractionMechanism {
      * @param extensionRetractionState
      * @param extensionRetractionCommand
      */
-    private void logState(ExtensionRetractionStates extensionRetractionState, ExtensionRetractionCommands extensionRetractionCommand) {
+    protected void logState(ExtensionRetractionStates extensionRetractionState, ExtensionRetractionCommands extensionRetractionCommand) {
         if (logFile != null && loggingOn) {
             if (extensionRetractionState != previousExtensionRetractionState || extensionRetractionCommand != previousExtensionRetractionCommand) {
                 logFile.logData(mechanismName, extensionRetractionState.toString(), extensionRetractionCommand.toString());
@@ -1316,9 +1316,11 @@ public class ExtensionRetractionMechanism {
         }
     }
 
-    //*********************************************************************************************]
+    //*********************************************************************************************
+    // *********************************************************************************************
     // mechanism state machine
     //**********************************************************************************************
+    //*********************************************************************************************
 
     public ExtensionRetractionStates update() {
 
