@@ -1,18 +1,17 @@
-package org.firstinspires.ftc.teamcode.opmodes.GenericTest;
+package org.firstinspires.ftc.teamcode.opmodes.Skystone;
 
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  *
  *
  */
-@TeleOp(name = "Linear Op Mode Shell - do not run", group = "Test")
-@Disabled
-public class TemplateLinearOpMode extends LinearOpMode {
+@TeleOp(name = "Skystone Teleop", group = "Test")
+//@Disabled
+public class SkystoneTeleop extends LinearOpMode {
 
     // Put your variable declarations here
 
