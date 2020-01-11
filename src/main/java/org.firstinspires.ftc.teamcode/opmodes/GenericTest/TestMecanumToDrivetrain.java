@@ -26,7 +26,7 @@ import static org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863.MotorType.AN
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Test Mecanum to Drive Train", group = "Test")
+@TeleOp(name = "Mecanum with intake", group = "Run")
 //@Disabled
 public class TestMecanumToDrivetrain extends LinearOpMode {
 
@@ -52,8 +52,8 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
         DcMotor8863 frontRight = new DcMotor8863("FrontRight", hardwareMap);
         DcMotor8863 backRight = new DcMotor8863("BackRight", hardwareMap);
         DcMotor8863 rightIntake = new DcMotor8863("Right", hardwareMap);
-        DcMotor8863 leftIntake = new DcMotor8863("Left", hardwareMap);
-        IntakeWheels intakeWheels = new IntakeWheels(rightIntake, leftIntake);
+        //  DcMotor8863 leftIntake = new DcMotor8863("Left", hardwareMap);
+        IntakeWheels intakeWheels = new IntakeWheels(rightIntake, null);
         // these motors are orbital (planetary gear) motors. The type of motor sets up the number
         // of encoder ticks per revolution. Since we are not using encoder feedback yet, this is
         // really not important now. But it will be once we hook up the encoders and set a motor
@@ -63,7 +63,7 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
         frontRight.setMotorType(ANDYMARK_20_ORBITAL);
         backRight.setMotorType(ANDYMARK_20_ORBITAL);
         rightIntake.setMotorType(ANDYMARK_20_ORBITAL);
-        leftIntake.setMotorType(ANDYMARK_20_ORBITAL);
+        // leftIntake.setMotorType(ANDYMARK_20_ORBITAL);
         // This value will get set to some distance traveled per revolution later.
         frontLeft.setMovementPerRev(360);
         backLeft.setMovementPerRev(360);
@@ -142,7 +142,7 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
         //**************************************************************
 
         waitForStart();
-
+        intakeWheels.init();
         // Put your calls here - they will not run in a loop
         while (opModeIsActive()) {
             // Put your calls that need to run in a loop here
