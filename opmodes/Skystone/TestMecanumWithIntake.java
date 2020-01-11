@@ -19,6 +19,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.HaloControls;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.JoyStick;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Mecanum;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Switch;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.IntakeWheels;
 
 import static org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863.MotorType.ANDYMARK_20;
@@ -135,6 +136,7 @@ public class TestMecanumWithIntake extends LinearOpMode {
         Mecanum mecanum = new Mecanum(frontLeft, frontRight, backLeft, backRight);
         HaloControls haloControls = new HaloControls(gamepad1, imu);
         ElapsedTime outtakeTimer = new ElapsedTime();
+        Switch intakeLimitSwitch = new Switch(hardwareMap, "IntakeSwitch", Switch.SwitchType.NORMALLY_OPEN);;
         boolean inOuttake = false;
         final double OUTTAKE_TIME = 2.0;
 
@@ -178,6 +180,12 @@ public class TestMecanumWithIntake extends LinearOpMode {
                 inOuttake = false;
                 intakeWheels.intake();
             }
+            if (intakeLimitSwitch != null) {
+                if (intakeLimitSwitch.isPressed()) {
+                    intakeWheels.stop();
+                }
+            }
+
             // This would also work. Is there a performance advantage to it?
             //frontLeft.setPower(wheelVelocities.getFrontLeft());
 
