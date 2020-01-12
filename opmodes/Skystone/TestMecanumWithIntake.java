@@ -20,6 +20,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.JoyStick;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Mecanum;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Switch;
+import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.HaloControlsWithIntake;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.IntakeWheels;
 
 import static org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863.MotorType.ANDYMARK_20;
@@ -136,7 +137,7 @@ public class TestMecanumWithIntake extends LinearOpMode {
 
         AdafruitIMU8863 imu = new AdafruitIMU8863(hardwareMap);
         Mecanum mecanum = new Mecanum(frontLeft, frontRight, backLeft, backRight);
-        HaloControls haloControls = new HaloControls(gamepad1, imu);
+        HaloControlsWithIntake haloControls = new HaloControlsWithIntake(gamepad1, imu);
         ElapsedTime outtakeTimer = new ElapsedTime();
 
         Switch intakeLimitSwitchLeft = new Switch(hardwareMap, "IntakeSwitchLeft", Switch.SwitchType.NORMALLY_OPEN);
@@ -172,24 +173,29 @@ public class TestMecanumWithIntake extends LinearOpMode {
 
             mecanum.setMotorPower(mecanumCommands);
 
-            if (gamepad1.dpad_up) {
+            if (haloControls.isIntakeOutPressed()) {
                 intakeWheels.outtake();
                 outtakeTimer.reset();
                 inOuttake = true;
-            } else if (gamepad1.dpad_down)
+            } else if (haloControls.isIntakeInPressed())
                 intakeWheels.intake();
-            else if(gamepad1.dpad_right)
+            else if (haloControls.isIntakeStopPressed())
                 intakeWheels.stop();
 
             if(inOuttake && outtakeTimer.seconds() >= OUTTAKE_TIME) {
                 inOuttake = false;
                 intakeWheels.intake();
             }
-            if (intakeLimitSwitchLeft != null && intakeLimitSwitchRight != null) {
-                if (intakeLimitSwitchLeft.isPressed() || intakeLimitSwitchRight.isPressed()) {
-                    intakeWheels.stop();
-                }
+            boolean intakeSwitchLeftPressed = false;
+            boolean intakeSwitchRightPressed = false;
+            if (intakeLimitSwitchLeft != null && intakeLimitSwitchLeft.isPressed()) {
+                intakeSwitchLeftPressed = true;
             }
+            if (intakeLimitSwitchRight != null && intakeLimitSwitchRight.isPressed()) {
+                intakeSwitchRightPressed = true;
+            }
+            if (intakeSwitchLeftPressed || intakeSwitchRightPressed)
+                intakeWheels.stop();
 
             // This would also work. Is there a performance advantage to it?
             //frontLeft.setPower(wheelVelocities.getFrontLeft());
@@ -200,12 +206,12 @@ public class TestMecanumWithIntake extends LinearOpMode {
            // telemetry.addData("back left = ", mecanum.getBackLeft());
            // telemetry.addData("back right = ", mecanum.getBackRight());
             telemetry.addData("Mode: ", haloControls.getMode() == HaloControls.Mode.DRIVER_MODE?"Driver":"Robot");
-            if (intakeLimitSwitchLeft.isPressed()) {
+            if (intakeSwitchLeftPressed) {
                 telemetry.addLine("left limit switch pressed");
             } else {
                 telemetry.addLine("left limit switch NOT pressed");
             }
-            if (intakeLimitSwitchRight.isPressed()) {
+            if (intakeSwitchRightPressed) {
                 telemetry.addLine("right limit switch pressed");
             } else {
                 telemetry.addLine("right limit switch NOT pressed");

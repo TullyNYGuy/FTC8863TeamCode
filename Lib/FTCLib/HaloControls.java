@@ -26,7 +26,7 @@ public class HaloControls {
     private JoyStick yJoystick;
     private JoyStick xJoystick;
     private JoyStick speedOfRotationJoystick;
-    private Gamepad gamepad;
+    protected Gamepad gamepad;
     private double adjustAngle = 0;
     private Mode mode = Mode.DRIVER_MODE;
     private AdafruitIMU8863 imu;
@@ -79,17 +79,16 @@ public class HaloControls {
          * on coordinate system relative to field) and robot point of view mode (angles are based
          * on coordinate system relative to the robot)
          */
-        if (gamepad.b && !modeButton)
+        if (gamepad.dpad_up && !modeButton)
             toggleMode();
-        modeButton = gamepad.b;
+        modeButton = gamepad.dpad_up;
         /*
          * y button resets the coordinate system for the driver point of view to the same as the
          * the robot based coordinate system at the time the y button is pressed. After that
          * the coordinate system is based off the coordinate system in effect when the y button
          * was pressed.
          */
-        if (gamepad.y)
-
+        if (gamepad.dpad_down)
             resetHeading();
 
         double yValue = yJoystick.getValue();
