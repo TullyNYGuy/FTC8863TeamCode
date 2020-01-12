@@ -137,7 +137,7 @@ public class TestMecanumWithIntake extends LinearOpMode {
 
         AdafruitIMU8863 imu = new AdafruitIMU8863(hardwareMap);
         Mecanum mecanum = new Mecanum(frontLeft, frontRight, backLeft, backRight);
-        HaloControlsWithIntake haloControls = new HaloControlsWithIntake(gamepad1, imu);
+        HaloControlsWithIntake haloControls = new HaloControlsWithIntake(gamepad1, imu, telemetry);
         ElapsedTime outtakeTimer = new ElapsedTime();
 
         Switch intakeLimitSwitchLeft = new Switch(hardwareMap, "IntakeSwitchLeft", Switch.SwitchType.NORMALLY_OPEN);
@@ -200,7 +200,7 @@ public class TestMecanumWithIntake extends LinearOpMode {
             // This would also work. Is there a performance advantage to it?
             //frontLeft.setPower(wheelVelocities.getFrontLeft());
 
-            telemetry.addData("Mecanum:", mecanumCommands.toString());
+            //telemetry.addData("Mecanum:", mecanumCommands.toString());
            // telemetry.addData("front left = ", mecanum.getFrontLeft());
            // telemetry.addData("front right = ", mecanum.getFrontRight());
            // telemetry.addData("back left = ", mecanum.getBackLeft());
