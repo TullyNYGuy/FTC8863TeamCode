@@ -18,7 +18,7 @@ import static org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863.MotorType.AN
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@Autonomous(name = "gather start", group = "Run")
+@Autonomous(name = "right", group = "Run")
 //@Disabled
 public class AutonomousGather extends LinearOpMode {
 
@@ -146,7 +146,7 @@ public class AutonomousGather extends LinearOpMode {
         mecanumCommands.setSpeed(1);
         mecanumCommands.setAngleOfTranslation(0);
         outtakeTimer.reset();
-        while (opModeIsActive() && outtakeTimer.milliseconds() < 10) {
+        while (opModeIsActive() && outtakeTimer.milliseconds() < 80) {
             mecanum.setMotorPower(mecanumCommands);
             telemetry.addData("Mecanum:", mecanumCommands.toString());
             telemetry.update();
@@ -156,6 +156,15 @@ public class AutonomousGather extends LinearOpMode {
         mecanumCommands.setAngleOfTranslation(-Math.PI / 2);
         outtakeTimer.reset();
         while (opModeIsActive() && outtakeTimer.milliseconds() < 1150) {
+            mecanum.setMotorPower(mecanumCommands);
+            telemetry.addData("Mecanum:", mecanumCommands.toString());
+            telemetry.update();
+            idle();
+        }
+        mecanumCommands.setSpeed(1);
+        mecanumCommands.setAngleOfTranslation(Math.PI);
+        outtakeTimer.reset();
+        while (opModeIsActive() && outtakeTimer.milliseconds() < 80) {
             mecanum.setMotorPower(mecanumCommands);
             telemetry.addData("Mecanum:", mecanumCommands.toString());
             telemetry.update();

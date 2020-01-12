@@ -18,7 +18,7 @@ import static org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863.MotorType.AN
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@Autonomous(name = "gather start - forward", group = "Run")
+@Autonomous(name = "right - forward", group = "Run")
 //@Disabled
 public class AutonomousGatherForward extends LinearOpMode {
 
