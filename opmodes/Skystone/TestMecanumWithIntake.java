@@ -64,8 +64,10 @@ public class TestMecanumWithIntake extends LinearOpMode {
         backLeft.setMotorType(ANDYMARK_20_ORBITAL);
         frontRight.setMotorType(ANDYMARK_20_ORBITAL);
         backRight.setMotorType(ANDYMARK_20_ORBITAL);
+
         rightIntake.setMotorType(ANDYMARK_20_ORBITAL);
         leftIntake.setMotorType(ANDYMARK_20_ORBITAL);
+
         // This value will get set to some distance traveled per revolution later.
         frontLeft.setMovementPerRev(360);
         backLeft.setMovementPerRev(360);
@@ -136,7 +138,10 @@ public class TestMecanumWithIntake extends LinearOpMode {
         Mecanum mecanum = new Mecanum(frontLeft, frontRight, backLeft, backRight);
         HaloControls haloControls = new HaloControls(gamepad1, imu);
         ElapsedTime outtakeTimer = new ElapsedTime();
-        Switch intakeLimitSwitch = new Switch(hardwareMap, "IntakeSwitch", Switch.SwitchType.NORMALLY_OPEN);;
+
+        Switch intakeLimitSwitchLeft = new Switch(hardwareMap, "IntakeSwitchLeft", Switch.SwitchType.NORMALLY_OPEN);
+        Switch intakeLimitSwitchRight = new Switch(hardwareMap, "IntakeSwitchRight", Switch.SwitchType.NORMALLY_OPEN);
+
         boolean inOuttake = false;
         final double OUTTAKE_TIME = 2.0;
 
@@ -180,8 +185,8 @@ public class TestMecanumWithIntake extends LinearOpMode {
                 inOuttake = false;
                 intakeWheels.intake();
             }
-            if (intakeLimitSwitch != null) {
-                if (intakeLimitSwitch.isPressed()) {
+            if (intakeLimitSwitchLeft != null && intakeLimitSwitchRight != null) {
+                if (intakeLimitSwitchLeft.isPressed() || intakeLimitSwitchRight.isPressed()) {
                     intakeWheels.stop();
                 }
             }
@@ -195,6 +200,16 @@ public class TestMecanumWithIntake extends LinearOpMode {
            // telemetry.addData("back left = ", mecanum.getBackLeft());
            // telemetry.addData("back right = ", mecanum.getBackRight());
             telemetry.addData("Mode: ", haloControls.getMode() == HaloControls.Mode.DRIVER_MODE?"Driver":"Robot");
+            if (intakeLimitSwitchLeft.isPressed()) {
+                telemetry.addLine("left limit switch pressed");
+            } else {
+                telemetry.addLine("left limit switch NOT pressed");
+            }
+            if (intakeLimitSwitchRight.isPressed()) {
+                telemetry.addLine("right limit switch pressed");
+            } else {
+                telemetry.addLine("right limit switch NOT pressed");
+            }
             telemetry.addData(">", "Press Stop to end test.");
             telemetry.update();
 
