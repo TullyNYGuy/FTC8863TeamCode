@@ -13,16 +13,16 @@ import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.Lift;
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "AAA Dual Lift Demo", group = "RUN")
+@TeleOp(name = "AAA Dual Extension Retraction Demo", group = "RUN")
 //@Disabled
-public class DualLiftDemo extends LinearOpMode {
+public class DualExtensionRetractionMechanismDemo extends LinearOpMode {
 
     // Put your variable declarations here
-    public Lift liftLeft;
-    public Lift liftRight;
+    public ExtensionRetractionMechanism liftLeft;
+    public ExtensionRetractionMechanism liftRight;
 
-    public Lift.ExtensionRetractionStates extensionRetractionStateLeft;
-    public Lift.ExtensionRetractionStates extensionRetractionStateRight;
+    public ExtensionRetractionMechanism.ExtensionRetractionStates extensionRetractionStateLeft;
+    public ExtensionRetractionMechanism.ExtensionRetractionStates extensionRetractionStateRight;
 
     public int encoderValueLeft = 0;
     public int encoderValueMaxLeft = 0;
@@ -54,12 +54,12 @@ public class DualLiftDemo extends LinearOpMode {
 
 
         // Put your initializations here
-        liftLeft = new Lift(hardwareMap, telemetry, "extensionRetractionLeft",
+        liftLeft = new ExtensionRetractionMechanism(hardwareMap, telemetry, "extensionRetractionLeft",
                 "extensionLimitSwitchLeft", "retractionLimitSwitchLeft", "extensionRetractionMotorLeft",
                 DcMotor8863.MotorType.ANDYMARK_40, movementPerRevolution);
         //liftLeft.reverseMotor();
 
-        liftRight = new Lift(hardwareMap, telemetry, "extensionRetractionRight",
+        liftRight = new ExtensionRetractionMechanism(hardwareMap, telemetry, "extensionRetractionRight",
                 "extensionLimitSwitchRight", "retractionLimitSwitchRight", "extensionRetractionMotorRight",
                 DcMotor8863.MotorType.ANDYMARK_40, movementPerRevolution);
         liftRight.reverseMotor();

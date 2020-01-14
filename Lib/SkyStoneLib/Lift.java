@@ -21,7 +21,8 @@ public class Lift extends ExtensionRetractionMechanism {
     private enum LiftResetExtraStates{
         WAITING_FOR_TIMER,
         MOVING_OFF_LIMIT_SWITCH,
-        TENSION_COMPLETE
+        TENSION_COMPLETE,
+        NONE
     }
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS
@@ -32,7 +33,7 @@ public class Lift extends ExtensionRetractionMechanism {
     private double raiseOffLimitSwitchPower = 0.1;
 
     private LiftResetExtraStates liftResetExtraState = LiftResetExtraStates.WAITING_FOR_TIMER;
-    private LiftResetExtraStates previousLiftResetExtraState = liftResetExtraState;
+    private LiftResetExtraStates previousLiftResetExtraState = LiftResetExtraStates.NONE;
     private LiftResetExtraStates currentLiftResetExtraState = liftResetExtraState;
 
     private ElapsedTime resetTimer;
@@ -57,6 +58,7 @@ public class Lift extends ExtensionRetractionMechanism {
                 String motorName, DcMotor8863.MotorType motorType, double movementPerRevolution) {
         super(hardwareMap, telemetry, mechanismName, extensionLimitSwitchName, retractionLimitSwitchName, motorName, motorType, movementPerRevolution);
         resetTimer = new ElapsedTime();
+        liftResetExtraState = LiftResetExtraStates.WAITING_FOR_TIMER;
     }
 
     //*********************************************************************************************
@@ -125,6 +127,7 @@ public class Lift extends ExtensionRetractionMechanism {
         // put your actions that need to be performed here
         log("Beginning to tension string " + mechanismName);
         resetTimer.reset();
+        liftResetExtraState = LiftResetExtraStates.WAITING_FOR_TIMER;
     }
 
     /**
@@ -142,6 +145,7 @@ public class Lift extends ExtensionRetractionMechanism {
             // string tension is completed, let the rest of the reset state machine complete
             result = true;
             log("Lift string tensioned " + mechanismName);
+            updateResetExtraStates();
         }
         return result;
     }
@@ -190,10 +194,10 @@ public class Lift extends ExtensionRetractionMechanism {
                     // the lift is no longer pressing the retraction limit switch. Stop the lift and
                     // make it hold its position
                     // make the target position the current position
-                    extensionRetractionMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
+                    this.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
                     extensionRetractionMotor.setTargetPosition((extensionRetractionMotor.getCurrentPosition()));
                     extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    // power should already be set to raiseOffLimitSwitchPower
+                    extensionRetractionMotor.setPower(raiseOffLimitSwitchPower);
                     liftResetExtraState = LiftResetExtraStates.TENSION_COMPLETE;
                     log("Holding position off limit switch, string tensioned " + mechanismName);
                 }

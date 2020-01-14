@@ -265,6 +265,7 @@ public class ExtensionRetractionMechanism {
 
     public void setFinishBehavior(DcMotor8863.FinishBehavior finishBehavior) {
         this.finishBehavior = finishBehavior;
+        extensionRetractionMotor.setFinishBehavior(finishBehavior);
     }
 
     /**
@@ -449,6 +450,7 @@ public class ExtensionRetractionMechanism {
         extensionRetractionMotor.setMotorType(motorType);
         extensionRetractionMotor.setMovementPerRev(movementPerRevolution);
         extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        extensionRetractionMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
 
         // set the initial state of the state machine
         extensionRetractionState = ExtensionRetractionStates.START_RESET_SEQUENCE;
@@ -718,7 +720,7 @@ public class ExtensionRetractionMechanism {
      * @return true if complete
      */
     public boolean isPositionReached() {
-        if (extensionRetractionState == ExtensionRetractionStates.AT_POSITION) {
+        if (extensionRetractionState == ExtensionRetractionStates.AT_POSITION && extensionRetractionCommand == ExtensionRetractionCommands.NO_COMMAND) {
             return true;
         } else {
             return false;
@@ -1252,9 +1254,11 @@ public class ExtensionRetractionMechanism {
      */
     private void stopMechanism() {
         if (finishBehavior == DcMotor8863.FinishBehavior.FLOAT) {
+            log("Stopping mechanism, motor set to float");
             extensionRetractionMotor.setPower(0);
         } else {
             // the motor is going to have to actively hold position
+            log("Stopping mechanism, attempting to hold position");
             extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             extensionRetractionMotor.setTargetPosition(extensionRetractionMotor.getCurrentPosition());
             extensionRetractionMotor.setPower(1.0);
@@ -2040,6 +2044,7 @@ public class ExtensionRetractionMechanism {
                             // the extension limit has been reached. This is probably not intentional.
                             // But the movement has to be stopped in order to protect the mechanism
                             // from damage. Clear the command.
+                            log("Emergency stop! Tried to extend past extension limit! Stopping!");
                             stopMechanism();
                             extensionRetractionCommand = ExtensionRetractionCommands.NO_COMMAND;
                             extensionRetractionState = ExtensionRetractionStates.FULLY_EXTENDED;
@@ -2051,6 +2056,7 @@ public class ExtensionRetractionMechanism {
                             // the retraction limit has been reached. This is probably not intentional.
                             // But the movement has to be stopped in order to protect the mechanism
                             // from damage. Clear the command.
+                            log("Emergency stop! Tried to retract past retraction limit! Stopping!");
                             stopMechanism();
                             extensionRetractionCommand = ExtensionRetractionCommands.NO_COMMAND;
                             extensionRetractionState = ExtensionRetractionStates.FULLY_RETRACTED;
