@@ -10,8 +10,6 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumData;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
- *
- *
  */
 @TeleOp(name = "Test Mecanum", group = "Test")
 //@Disabled
@@ -31,6 +29,7 @@ public class TestMecanum extends LinearOpMode {
     JoyStick gamepad1RightJoyStickY;
     double gamepad1RightJoyStickXValue = 0;
     double gamepad1RightJoyStickYValue = 0;
+
     @Override
     public void runOpMode() {
 
@@ -46,7 +45,7 @@ public class TestMecanum extends LinearOpMode {
         waitForStart();
 
         // Put your calls here - they will not run in a loop
-        while(opModeIsActive()) {
+        while (opModeIsActive()) {
             // Put your calls that need to run in a loop here
 
             // Display the current value
@@ -54,14 +53,14 @@ public class TestMecanum extends LinearOpMode {
             //telemetry.addData("Encoder Count=", "%5d", motor.getCurrentPosition());
             haloControls.getMechanumdata(mecanumData);
             mecanum.calculateWheelVelocity(mecanumData);
-            telemetry.addData("front left = ",wheels.getFrontLeft());
-            telemetry.addData("front right = ",wheels.getFrontRight());
-            telemetry.addData("back left = ",wheels.getBackLeft());
-            telemetry.addData("back right = ",wheels.getBackRight());
-            telemetry.addData(">", "Press Stop to end test." );
+            telemetry.addData("front left = ", wheels.getFrontLeft());
+            telemetry.addData("front right = ", wheels.getFrontRight());
+            telemetry.addData("back left = ", wheels.getBackLeft());
+            telemetry.addData("back right = ", wheels.getBackRight());
+            telemetry.addData(">", "Press Stop to end test.");
 
             telemetry.update();
-            
+
             idle();
         }
 

@@ -1,24 +1,17 @@
 package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
-import android.icu.math.MathContext;
 
-public class OdometrySystem {
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+
+public class HaloControls {
+
     //*********************************************************************************************
     //          ENUMERATED TYPES
     //
     // user defined types
     //
     //*********************************************************************************************
-    public enum Position {
-        LEFT,
-        RIGHT,
-        FRONT
-    }
 
-    public enum Units {
-        IN,
-        CM
-    }
 
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS
@@ -26,31 +19,16 @@ public class OdometrySystem {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
-        private double leftEncoderValue;
-
-        private double rightEncoderValue;
-
-        private double backEncoderValue;
-
-        private double robotRadius;
-
-        private double angleOfRotation;
-
-        private double leftEncoderValueRevised;
-
-        private double rightEncoderValueRevised;
-
-        private double backEncoderValueRevised;
-
-        private double angleOfTranslation;
-
+    private JoyStick yjoy;
+    private JoyStick xjoy;
+    private JoyStick speedOfRotationjoy;
+    private OpMode opmode;
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
     // allow access to private data fields for example setMotorPower,
     // getPositionInTermsOfAttachment
     //*********************************************************************************************
-
 
 
     //*********************************************************************************************
@@ -60,36 +38,45 @@ public class OdometrySystem {
     // from it
     //*********************************************************************************************
 
+    public HaloControls(JoyStick yjoy, JoyStick xjoy, JoyStick speedOfRotationjoy, OpMode opmode) {
+        this.yjoy = yjoy;
+        this.xjoy = xjoy;
+        this.speedOfRotationjoy = speedOfRotationjoy;
+        this.opmode = opmode;
+    }
 
     //*********************************************************************************************
     //          Helper Methods
     //
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
-     public void findAngleOfRotation(){
-         //this will be used to alter the encoder values to provide info about the straight translation
-        angleOfRotation = 2* robotRadius / ( Math.abs(leftEncoderValue)- Math.abs(rightEncoderValue)) ;
-      }
-    public double findLengthOfTranslation(){
-        return Math.sqrt(leftEncoderValue*leftEncoderValue  + backEncoderValue*backEncoderValue);
-    }
 
-    public void findAngleOfTranslation(){
-         angleOfTranslation = Math.cos(backEncoderValue/leftEncoderValue);
-    }
 
-    public void findArcLength(){
-         arcLength = robotRadius * angleOfRotation;
-    }
-
-    public void cancelOutAngleFromMovement(){
-        leftEncoderValueRevised = leftEncoderValue -
-
-    }
     //*********************************************************************************************
     //          MAJOR METHODS
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
-
+    public void getMechanumdata(MecanumData data) {
+        if (data == null)
+            return;
+        double yValue = yjoy.getValue();
+        double xValue = xjoy.getValue();
+        double rValue = speedOfRotationjoy.getValue();
+        double translationSpeed = java.lang.Math.hypot(xValue, yValue);
+        // Divide pi by 2 to shift axis. add pi to get correct range
+        double angleOfTranslation = (java.lang.Math.atan2(yValue, xValue));
+        if (angleOfTranslation > Math.PI / 2 && angleOfTranslation <= Math.PI) {
+            angleOfTranslation = angleOfTranslation - (Math.PI / 2);
+        } else {
+            angleOfTranslation = angleOfTranslation + 3 * Math.PI / 2;
+        }
+        if (translationSpeed > 1) {
+            translationSpeed = 1;
+        }
+        //return new MecanumData(translationSpeed, angleOfTranslation, rValue);
+        data.setAngleOfTranslation(angleOfTranslation);
+        data.setSpeed(translationSpeed);
+        data.setSpeedOfRotation(rValue);
+    }
 }

@@ -1,8 +1,13 @@
 package org.firstinspires.ftc.teamcode.opmodes.RoverRuckus;
 
+import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
@@ -10,11 +15,12 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.StatTracker;
 import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.AutonomousMovements;
 
-@Autonomous(name = "Philipa!(mucho PIDDDDAZLE)", group = "Test")
+@Autonomous(name = "wicked cool test for some teacherz( no Piddazle)", group = "Test")
 //@Disabled
-public class gefTeacherAutonomousWithIMU extends LinearOpMode {
+public class gefTeacherAutonomousWithoutIMU extends LinearOpMode {
 
     // Put your variable declarations here
     RoverRuckusRobot robot;
@@ -47,10 +53,10 @@ public class gefTeacherAutonomousWithIMU extends LinearOpMode {
         // Start the logging of measured acceleration
         robot.driveTrain.imu.startAccelerationIntegration(new Position(), new Velocity(), 1000);
 
-        robot.driveTrain.setupDriveUsingIMU(0,150 *2.45,.5, DriveTrain.DriveDirection.FORWARD, AdafruitIMU8863.AngleMode.ABSOLUTE);
-        robot.driveTrain.startDriveUsingIMU();
+        robot.driveTrain.setupDriveDistance(.5, 150 * 2.54, DcMotor8863.FinishBehavior.FLOAT);
+        robot.driveTrain.startDriveDistance();
 
-        while (opModeIsActive()&& (!robot.driveTrain.updateDriveUsingIMU() )) {
+        while (opModeIsActive() && (robot.driveTrain.updateDriveDistance() != DriveTrain.Status.COMPLETE)) {
             // Put your calls that need to run in a loop here
             idle();
 

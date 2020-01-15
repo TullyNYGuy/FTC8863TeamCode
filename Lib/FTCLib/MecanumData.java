@@ -17,7 +17,7 @@ public class MecanumData {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
-private double speed;
+    private double speed;
     private double angleOfTranslation;
     private double speedOfRotation;
 
@@ -40,16 +40,19 @@ private double speed;
     public double getAngleOfTranslation() {
         return angleOfTranslation;
     }
+
     public double getAngleOfTranslationDegrees() {
-        return (angleOfTranslation/Math.PI)*180;
+        return (angleOfTranslation / Math.PI) * 180;
     }
+
     public double getAngleOfTranslationGyro() {
-        double translationAngleGyro = ((angleOfTranslation/Math.PI)*180)-90;
-        if(translationAngleGyro < -180){
+        double translationAngleGyro = ((angleOfTranslation / Math.PI) * 180) - 90;
+        if (translationAngleGyro < -180) {
             translationAngleGyro += 360;
         }
         return translationAngleGyro;
     }
+
     public void setAngleOfTranslation(double angleOfTranslation) {
         this.angleOfTranslation = angleOfTranslation;
     }
