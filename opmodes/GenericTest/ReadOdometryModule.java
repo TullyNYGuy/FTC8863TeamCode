@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometryModule;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Units;
 
 import java.io.File;
 
@@ -21,11 +22,11 @@ public class ReadOdometryModule extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        odometryModule = new OdometryModule(1440, 3.8, OdometryModule.Units.CM, "odometryModuleLeft", hardwareMap);
+        odometryModule = new OdometryModule(1440, 3.8, Units.CM, "odometryModuleLeft", hardwareMap);
 
         //Odometry System Calibration Init Complete
         telemetry.addData("Odometry System Calibration Status", "Init Complete");
-        odometryEncoderValue = odometryModule.getDistanceSinceReset(OdometryModule.Units.CM);
+        odometryEncoderValue = odometryModule.getDistanceSinceReset(Units.CM);
         telemetry.addData("Odometry encoder value = ", odometryEncoderValue);
         telemetry.update();
 
@@ -35,9 +36,9 @@ public class ReadOdometryModule extends LinearOpMode {
         while (opModeIsActive()) {
             odometryEncoderValue = odometryModule.getEncoderValue();
             telemetry.addData("Odometry encoder value = ", odometryEncoderValue);
-            telemetry.addData("Odometry Encoder Value (In)", String.format("%.2f", odometryModule.getDistanceSinceReset(OdometryModule.Units.IN)));
-            telemetry.addData("Odometry Encoder Value (cm)", String.format("%.2f", odometryModule.getDistanceSinceReset(OdometryModule.Units.CM)));
-            telemetry.addData("value since last change (cm)", String.format("%.2f", odometryModule.getDistanceSinceLastChange(OdometryModule.Units.CM)));
+            telemetry.addData("Odometry Encoder Value (In)", String.format("%.2f", odometryModule.getDistanceSinceReset(Units.IN)));
+            telemetry.addData("Odometry Encoder Value (cm)", String.format("%.2f", odometryModule.getDistanceSinceReset(Units.CM)));
+            telemetry.addData("value since last change (cm)", String.format("%.2f", odometryModule.getDistanceSinceLastChange(Units.CM)));
             //Update values
             telemetry.update();
         }
