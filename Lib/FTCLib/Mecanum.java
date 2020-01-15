@@ -19,10 +19,6 @@ public class Mecanum {
     // getter and setter methods
     //*********************************************************************************************
     private WheelVelocities wheelVelocities;
-    private double leftStickX;
-    private double rightStickX;
-    private double leftStickY;
-    private double rightStickY;
     private DcMotor8863 frontLeft;
     private DcMotor8863 frontRight;
     private DcMotor8863 backLeft;
@@ -51,23 +47,23 @@ public class Mecanum {
         private double backLeft;
         private double backRight;
 
-        public double getFrontLeft() {
+        private double getFrontLeft() {
             return frontLeft;
         }
 
-        public double getFrontRight() {
+        private double getFrontRight() {
             return frontRight;
         }
 
-        public double getBackLeft() {
+        private double getBackLeft() {
             return backLeft;
         }
 
-        public double getBackRight() {
+        private double getBackRight() {
             return backRight;
         }
 
-        public WheelVelocities() {
+        WheelVelocities() {
             frontLeft = 0;
             frontRight = 0;
             backLeft = 0;
@@ -114,6 +110,7 @@ public class Mecanum {
         this.backLeft = backLeft;
         this.backRight = backRight;
     }
+
     //*********************************************************************************************
     //          Helper Methods
     //
@@ -126,6 +123,7 @@ public class Mecanum {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
+
     //if speed of rotation is = 0 then our max speed is 0.707. We may want to scale up to 1.
     public WheelVelocities calculateWheelVelocity(MecanumCommands mecanumCommands) {
         wheelVelocities.frontLeft = mecanumCommands.getSpeed() * Math.sin(-mecanumCommands.getAngleOfTranslation() + (Math.PI / 4)) + mecanumCommands.getSpeedOfRotation();
