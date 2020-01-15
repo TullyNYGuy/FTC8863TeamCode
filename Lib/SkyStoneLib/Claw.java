@@ -1,7 +1,13 @@
-package org.firstinspires.ftc.teamcode.Lib.FTCLib;
+package org.firstinspires.ftc.teamcode.Lib.SkystoneLib;
 
 
-public class MecanumData {
+import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
+
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
+
+public class Claw {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -17,53 +23,17 @@ public class MecanumData {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
-    private double speed;
-    private double angleOfTranslation;
-    private double speedOfRotation;
-
-
+    private Servo8863 servoRotator;
+    private double initPos = 0.1;
+    private double open = 0.9;
+    private double close = 0.3;
+    private double homePos = 0.5;
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
     // allow access to private data fields for example setMotorPower,
     // getPositionInTermsOfAttachment
     //*********************************************************************************************
-
-    public double getSpeed() {
-        return speed;
-    }
-
-    public void setSpeed(double speed) {
-        this.speed = speed;
-    }
-
-    public double getAngleOfTranslation() {
-        return angleOfTranslation;
-    }
-
-    public double getAngleOfTranslationDegrees() {
-        return (angleOfTranslation / Math.PI) * 180;
-    }
-
-    public double getAngleOfTranslationGyro() {
-        double translationAngleGyro = ((angleOfTranslation / Math.PI) * 180) - 90;
-        if (translationAngleGyro < -180) {
-            translationAngleGyro += 360;
-        }
-        return translationAngleGyro;
-    }
-
-    public void setAngleOfTranslation(double angleOfTranslation) {
-        this.angleOfTranslation = angleOfTranslation;
-    }
-
-    public double getSpeedOfRotation() {
-        return speedOfRotation;
-    }
-
-    public void setSpeedOfRotation(double speedOfRotation) {
-        this.speedOfRotation = speedOfRotation;
-    }
 
 
     //*********************************************************************************************
@@ -72,20 +42,12 @@ public class MecanumData {
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
+    public Claw(String servoName, HardwareMap hardwareMap, Telemetry telemetry) {
+        servoRotator = new Servo8863(servoName, hardwareMap, telemetry, homePos, open, close, initPos, Servo.Direction.FORWARD);
 
-    public MecanumData(double speed, double angleOfTranslation, double speedOfRotation) {
-        this.speed = speed;
-        this.angleOfTranslation = angleOfTranslation;
-        this.speedOfRotation = speedOfRotation;
     }
 
-    public MecanumData() {
-        this.speed = 0;
-        this.angleOfTranslation = 0;
-        this.speedOfRotation = 0;
-    }
-
-//*********************************************************************************************
+    //*********************************************************************************************
     //          Helper Methods
     //
     // methods that aid or support the major functions in the class
@@ -97,4 +59,22 @@ public class MecanumData {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
+    public void openClaw() {
+        servoRotator.goUp();
+
+    }
+
+    public void closeClaw() {
+        servoRotator.goDown();
+
+    }
+
+    public void init() {
+        closeClaw();
+    }
+
+    public void shutdown() {
+        closeClaw();
+    }
+
 }

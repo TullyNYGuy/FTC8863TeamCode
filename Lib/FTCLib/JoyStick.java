@@ -9,10 +9,10 @@ import com.qualcomm.robotcore.util.Range;
 public class JoyStick {
 
     // Constants - should probably be made into private fields to make it more generic
-    final private static double JOYSTICK_MIN = -1;
-    final private static double JOYSTICK_MAX = 1;
-    final static private double OUTPUT_MIN = -1;
-    final private static double OUTPUT_MAX = 1;
+    final static double JOYSTICK_MIN = -1;
+    final static double JOYSTICK_MAX = 1;
+    final static double OUTPUT_MIN = -1;
+    final static double OUTPUT_MAX = 1;
 
     /**
      * An enum defining which type of scaling method to use.
@@ -330,20 +330,13 @@ public class JoyStick {
         if (joystickAxis == JoystickAxis.X) {
             if (joystickSide == JoystickSide.LEFT) {
                 joystickValue = gamepad.left_stick_x;
-            }
-        }
-        if (joystickAxis == JoystickAxis.X) {
-            if (joystickSide == JoystickSide.RIGHT) {
+            } else {
                 joystickValue = gamepad.right_stick_x;
             }
-        }
-        if (joystickAxis == JoystickAxis.Y) {
+        } else {
             if (joystickSide == JoystickSide.LEFT) {
                 joystickValue = gamepad.left_stick_y;
-            }
-        }
-        if (joystickAxis == JoystickAxis.Y) {
-            if (joystickSide == JoystickSide.RIGHT) {
+            } else {
                 joystickValue = gamepad.right_stick_y;
             }
         }
