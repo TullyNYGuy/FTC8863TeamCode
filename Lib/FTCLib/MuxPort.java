@@ -37,7 +37,7 @@ public class MuxPort {
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
-    public <T> MuxPort(int portNumber, T object ) {
+    public <T> MuxPort(int portNumber, T object) {
         // the object has already been created
         this.portNumber = portNumber;
     }

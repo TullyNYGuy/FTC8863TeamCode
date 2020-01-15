@@ -71,7 +71,6 @@ public class PIDControl {
     //*********************************************************************************************
 
     /**
-     *
      * @return Proportionality constant for PIDControl
      */
     public double getKp() {
@@ -79,7 +78,6 @@ public class PIDControl {
     }
 
     /**
-     *
      * @param kp set Proportionality constant for PIDControl
      */
     public void setKp(double kp) {
@@ -87,7 +85,6 @@ public class PIDControl {
     }
 
     /**
-     *
      * @return Integral Constant for PIDControl
      */
     public double getKi() {
@@ -95,7 +92,6 @@ public class PIDControl {
     }
 
     /**
-     *
      * @param ki Set Integral Constant for PIDControl
      */
     public void setKi(double ki) {
@@ -103,7 +99,6 @@ public class PIDControl {
     }
 
     /**
-     *
      * @return Derivitive constant for PIDControl
      */
     public double getKd() {
@@ -111,7 +106,6 @@ public class PIDControl {
     }
 
     /**
-     *
      * @param kd Set Derivitive constant for PIDControl
      */
     public void setKd(double kd) {
@@ -119,7 +113,6 @@ public class PIDControl {
     }
 
     /**
-     *
      * @return Desired Value for PIDControl
      */
     public double getSetpoint() {
@@ -143,7 +136,6 @@ public class PIDControl {
     }
 
     /**
-     *
      * @param setpoint Set Desired Value for PIDControl
      */
     public void setSetpoint(double setpoint) {
@@ -175,18 +167,19 @@ public class PIDControl {
 
     /**
      * Constructor. Derivivtive not implemented at this time but here for the future.
-     * @param kp Proportionality constant for PIDControl
-     * @param ki Integral Constant for PIDControl
-     * @param kd Derivitive constant for PIDControl
+     *
+     * @param kp       Proportionality constant for PIDControl
+     * @param ki       Integral Constant for PIDControl
+     * @param kd       Derivitive constant for PIDControl
      * @param setpoint Set Desired Value for PIDControl
      */
     public PIDControl(double kp, double ki, double kd, double setpoint) {
         this.Kp = kp;
         this.Ki = ki;
         this.Kd = kd;
-        this.maxCorrection =0;
+        this.maxCorrection = 0;
         this.setpoint = setpoint;
-        rampControl = new RampControl(0,0,0);
+        rampControl = new RampControl(0, 0, 0);
         useRampControl = false;
         elapsedTime = new ElapsedTime();
         elapsedTime.reset();
@@ -204,9 +197,9 @@ public class PIDControl {
         this.Kp = 0;
         this.Ki = 0;
         this.Kd = 0;
-        this.maxCorrection =0;
+        this.maxCorrection = 0;
         this.setpoint = 0;
-        rampControl = new RampControl(0,0,0);
+        rampControl = new RampControl(0, 0, 0);
         useRampControl = false;
         elapsedTime = new ElapsedTime();
         elapsedTime.reset();
@@ -218,7 +211,8 @@ public class PIDControl {
 
     /**
      * Constructor Ki=0 Kd=0
-     * @param kp Proportionality constant for PIDControl
+     *
+     * @param kp       Proportionality constant for PIDControl
      * @param setpoint Set Desired Value for PIDControl
      */
     public PIDControl(double kp, double setpoint, double maxCorrection) {
@@ -227,7 +221,7 @@ public class PIDControl {
         this.Kd = 0;
         this.maxCorrection = maxCorrection;
         this.setpoint = setpoint;
-        rampControl = new RampControl(0,0,0);
+        rampControl = new RampControl(0, 0, 0);
         useRampControl = false;
         elapsedTime = new ElapsedTime();
         elapsedTime.reset();
@@ -253,12 +247,13 @@ public class PIDControl {
     /**
      * The PID can have a ramp up that slowly applies a correction to the thing being controlled.
      * If you don't use this you can get a big step in the correction applied to the thing.
+     *
      * @param valueAtStartTime
      * @param valueAtFinishTime
      * @param timeToReachFinishValueInmSec
      */
-    public void setupRamp (double valueAtStartTime, double valueAtFinishTime, double timeToReachFinishValueInmSec) {
-        rampControl.setup(valueAtStartTime,valueAtFinishTime,timeToReachFinishValueInmSec);
+    public void setupRamp(double valueAtStartTime, double valueAtFinishTime, double timeToReachFinishValueInmSec) {
+        rampControl.setup(valueAtStartTime, valueAtFinishTime, timeToReachFinishValueInmSec);
         setUseRampControl(true);
     }
 
@@ -266,7 +261,7 @@ public class PIDControl {
      * Reset the integral value and the PID timer used to calculate the integral. You must call this
      * as part of the setup of the PID control.
      */
-    public void reset(){
+    public void reset() {
         integral = 0;
         lastIntegral = 0;
         elapsedTime.reset();
@@ -274,16 +269,17 @@ public class PIDControl {
 
     /**
      * Returns correction from PIDControl
+     *
      * @param feedback Actual Value from sensor.
      * @return Correction to use in control code.
      */
-    public double getCorrection(double feedback){
+    public double getCorrection(double feedback) {
         // set the feedback property so it can be retrieved later
         setFeedback(feedback);
         double error = (getSetpoint() - feedback);
         // figure out the integral part of the correction
-        double timeDifference  = elapsedTime.milliseconds()- lastTime;
-        integral = error * timeDifference *getKi();
+        double timeDifference = elapsedTime.milliseconds() - lastTime;
+        integral = error * timeDifference * getKi();
         integral = integral + lastIntegral;
         double correction = error * getKp() + integral;
         // if the correction that is calculated is above the limit of what is of what can be physically
@@ -292,11 +288,11 @@ public class PIDControl {
         // if the correction is larger than limit
         // clamp the integral term to the last one OR
         // Kb * (correction - maxCorrection) added back to the integral term
-        if (correction > maxCorrection|| correction < -maxCorrection) {
+        if (correction > maxCorrection || correction < -maxCorrection) {
             integral = lastIntegral;
         }
         lastIntegral = integral;
-        if (useRampControl && !rampControl.isRunning() && !rampControl.isFinished()){
+        if (useRampControl && !rampControl.isRunning() && !rampControl.isFinished()) {
             rampControl.start();
         }
         correction = rampControl.getRampValueLinear(correction);
@@ -308,14 +304,14 @@ public class PIDControl {
      * If the thing being controlled has reached the setpoint, within the tolerance/threshold,
      * return true. It has to remain at the setpoint for a certain time in order to be called
      * finished.
+     *
      * @return
      */
-    public boolean isFinished(){
-        if (Math.abs(getFeedback() - getSetpoint()) < getThreshold()){
+    public boolean isFinished() {
+        if (Math.abs(getFeedback() - getSetpoint()) < getThreshold()) {
             if (finishedTimer.milliseconds() > 100) {
                 return true;
-            }
-            else {
+            } else {
                 return false;
             }
         } else {

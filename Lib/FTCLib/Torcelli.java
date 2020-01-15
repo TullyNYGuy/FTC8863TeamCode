@@ -12,7 +12,6 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
  * a = acceleration
  * deltaX - the distance that the acceleration is to take place over
  * see https://en.wikipedia.org/wiki/Torricelli's_equation
- *
  */
 public class Torcelli {
 
@@ -22,7 +21,6 @@ public class Torcelli {
     // user defined types
     //
     //*********************************************************************************************
-
 
 
     //*********************************************************************************************
@@ -81,6 +79,7 @@ public class Torcelli {
     /**
      * Calculate the acceleration needed to achieve a constant acceleration (linear change in
      * velocity) over the distance specified.
+     *
      * @param initialPower
      * @param finalPower
      * @param deltaX
@@ -90,7 +89,7 @@ public class Torcelli {
         if (deltaX == 0) {
             return 0;
         } else {
-            return (Math.pow(finalPower,2) - Math.pow(initialPower, 2)) / deltaX;
+            return (Math.pow(finalPower, 2) - Math.pow(initialPower, 2)) / deltaX;
         }
     }
 
@@ -102,9 +101,10 @@ public class Torcelli {
 
     /**
      * Setup the torcelli equation for the change in velocity you want over the distance you want.
+     *
      * @param initialPower the power you are starting with
-     * @param finalPower the power you want to end up with
-     * @param deltaX the distance to change the velocity over
+     * @param finalPower   the power you want to end up with
+     * @param deltaX       the distance to change the velocity over
      */
     public void setupTorcelli(double initialPower, double finalPower, double deltaX) {
         this.initialPower = initialPower;
@@ -122,6 +122,7 @@ public class Torcelli {
      * Returns the power needed given the current distance in order to achieve a
      * constant acceleration from the initial velocity to the final velocity.
      * Vf = sqrt( Vi^2 + 2 * a * deltaX)
+     *
      * @param xLocation - distance from the point at which you started the change in velocity
      * @return power to set the motor to get the constant acceleration you wanted. However, the
      * power returned will never be less than the finalPower.

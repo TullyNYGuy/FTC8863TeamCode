@@ -87,8 +87,9 @@ public class AutonomousConfigurationFile {
     public double getDelay() {
         return delay;
     }
+
     public double getDelayInMilliseconds() {
-        return delay*1000;
+        return delay * 1000;
     }
 
     public HangLocation getHangLocation() {

@@ -130,13 +130,14 @@ public class TestCRServoLinearOpMode extends LinearOpMode {
 
         // Display the current value
         // Put your cleanup code here - it runs as the application shuts down
-        telemetry.addData(">","Done");
+        telemetry.addData(">", "Done");
         telemetry.update();
     }
 
     /**
      * Move a distance
-     * @param distance distance to move in cm
+     *
+     * @param distance  distance to move in cm
      * @param direction direction to move
      */
     private void moveDistance(double distance, CRServo8863.CRServoDirection direction) {
@@ -148,6 +149,7 @@ public class TestCRServoLinearOpMode extends LinearOpMode {
 
     /**
      * Run the servo for a period of time
+     *
      * @param power
      */
     private void runForTime(double power) {

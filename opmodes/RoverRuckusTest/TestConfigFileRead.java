@@ -28,11 +28,11 @@ public class TestConfigFileRead extends LinearOpMode {
 
         // Put your calls here - they will not run in a loop
         autonomousConfigurationFile.readConfigurationFile();
-        telemetry.addData("hang location=" , autonomousConfigurationFile.getHangLocation().toString() );
-        telemetry.addData("delay=" , autonomousConfigurationFile.getDelay() );
-        telemetry.addData("sample=" , autonomousConfigurationFile.getSample().toString() );
-        telemetry.addData("claim depot=" , autonomousConfigurationFile.isClaimDepot() );
-        telemetry.addData("park location=" , autonomousConfigurationFile.getParkLocation().toString() );
+        telemetry.addData("hang location=", autonomousConfigurationFile.getHangLocation().toString());
+        telemetry.addData("delay=", autonomousConfigurationFile.getDelay());
+        telemetry.addData("sample=", autonomousConfigurationFile.getSample().toString());
+        telemetry.addData("claim depot=", autonomousConfigurationFile.isClaimDepot());
+        telemetry.addData("park location=", autonomousConfigurationFile.getParkLocation().toString());
 
 
         // Put your cleanup code here - it runs as the application shuts down

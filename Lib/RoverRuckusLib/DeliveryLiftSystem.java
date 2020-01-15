@@ -164,7 +164,7 @@ public class DeliveryLiftSystem {
             // if the lift is not already at the bottom then the delivery box can collide with the
             // phone mount when the lift is coming down. So raise the delivery box while the lift
             // is coming down.
-            if(!bottomLimitSwitch.isPressed()){
+            if (!bottomLimitSwitch.isPressed()) {
                 deliveryBoxToOutOfWay();
             }
             liftReset();
@@ -222,19 +222,19 @@ public class DeliveryLiftSystem {
 
 
     public void testDumpServoPositions() {
-       goToScoringPosition();
+        goToScoringPosition();
         //deliveryBoxToHome();
-       // telemetry.addLine("Deliver Box at home position");
+        // telemetry.addLine("Deliver Box at home position");
         //telemetry.update();
-       // delay(2000);
+        // delay(2000);
         //deliveryBoxToTransfer();
-      //  telemetry.addLine("Deliver Box at transfer position");
-       // telemetry.update();
-       // delay(2000);
-       // deliveryBoxToOutOfWay();
-       // telemetry.addLine("Deliver Box at out of way position");
+        //  telemetry.addLine("Deliver Box at transfer position");
+        // telemetry.update();
+        // delay(2000);
+        // deliveryBoxToOutOfWay();
+        // telemetry.addLine("Deliver Box at out of way position");
         //telemetry.update();
-       // delay(2000);
+        // delay(2000);
         deliveryBoxToDump();
         telemetry.addLine("Deliver Box at dump position");
         telemetry.update();
@@ -324,7 +324,7 @@ public class DeliveryLiftSystem {
     }
 
 
-    public void goToSetupHang(){
+    public void goToSetupHang() {
         log("COMMANDED LIFT TO SETUP HANG POSITION");
         moveToPosition(5.9, 1);
     }
@@ -376,7 +376,7 @@ public class DeliveryLiftSystem {
     private void moveToBottom() {
         // when the lift goes down the transfer box must be put into out of way position so it does
         // not collide with the phone mount. But only if the lift is not already down.
-        if(!bottomLimitSwitch.isPressed()) {
+        if (!bottomLimitSwitch.isPressed()) {
             deliveryBoxToOutOfWay();
         }
         liftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -407,7 +407,7 @@ public class DeliveryLiftSystem {
     public void moveToPosition(double heightInInches, double liftPower) {
         if (isLiftMovementComplete()) {
             liftArrivedAlreadyLogged = false;
-            log("Moving lift to a position = " + heightInInches );
+            log("Moving lift to a position = " + heightInInches);
             desiredPosition = heightInInches;
             this.liftPower = liftPower;
             liftCommand = LiftCommands.GO_TO_POSITION;
@@ -472,7 +472,7 @@ public class DeliveryLiftSystem {
                 }
                 break;
 
-                // This state means that a reset was requested and the lift has already started
+            // This state means that a reset was requested and the lift has already started
             // moving to the bottom. It is here so that a moveToBottom() is not repeatedly called.
             case RESET_MOVING_TO_BOTTOM:
                 switch (liftCommand) {
@@ -545,14 +545,14 @@ public class DeliveryLiftSystem {
                         break;
                     case JOYSTICK:
                         processJoystick();
-                            break;
+                        break;
                     case NO_COMMAND:
                         // don't do anything, just hang out
                         break;
                 }
                 break;
 
-                // this state is for when the lift is located somewhere in between the top and bottom
+            // this state is for when the lift is located somewhere in between the top and bottom
             // and is not moving to the top or moving to the bottom or being reset
             case IN_BETWEEN:
                 switch (liftCommand) {
@@ -658,7 +658,7 @@ public class DeliveryLiftSystem {
                         // with the motor. We just need to change liftState.
                         liftState = LiftStates.IN_BETWEEN;
                         break;
-                        // the lift power is being set with a joystick. The lift must have hit the
+                    // the lift power is being set with a joystick. The lift must have hit the
                     // upper limit switch to be in this state
                     case JOYSTICK:
                         processJoystick();
@@ -672,17 +672,17 @@ public class DeliveryLiftSystem {
         return liftState;
     }
 
-    private void logState(LiftStates liftState,LiftCommands liftCommand) {
+    private void logState(LiftStates liftState, LiftCommands liftCommand) {
         if (logFile != null && loggingOn) {
-            if(liftState != previousLiftState ||liftCommand != previousLiftCommand) {
-                logFile.logData("Delivery Lift System",liftState.toString(), liftCommand.toString());
+            if (liftState != previousLiftState || liftCommand != previousLiftCommand) {
+                logFile.logData("Delivery Lift System", liftState.toString(), liftCommand.toString());
                 previousLiftState = liftState;
                 previousLiftCommand = liftCommand;
             }
         }
     }
 
-    private void logIgnoreCommand(LiftCommands liftCommand){
+    private void logIgnoreCommand(LiftCommands liftCommand) {
         if (logFile != null && loggingOn) {
             logFile.logData("Ignoring command = ", liftCommand.toString());
         }

@@ -26,7 +26,7 @@ public class AdafruitColorSensor {
     // user defined types
     //
     //*********************************************************************************************
-    
+
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS
     //
@@ -102,6 +102,7 @@ public class AdafruitColorSensor {
 
     /**
      * Implements a delay
+     *
      * @param mSec delay in milli Seconds
      */
     private void delay(int mSec) {
@@ -117,12 +118,12 @@ public class AdafruitColorSensor {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
-     public void turnLEDOn() {
-         if (!this.ledOn && controlLED) {
-             this.ledOn = true;
-             coreDIM.setDigitalChannelState(ioChannelForLed, ledOn);
-         }
-     }
+    public void turnLEDOn() {
+        if (!this.ledOn && controlLED) {
+            this.ledOn = true;
+            coreDIM.setDigitalChannelState(ioChannelForLed, ledOn);
+        }
+    }
 
     public void turnLEDOff() {
         if (this.ledOn && controlLED) {
@@ -133,7 +134,7 @@ public class AdafruitColorSensor {
 
     public int alpha() {
         int alpha = colorSensor.alpha();
-        if(alpha != lastAlpha) {
+        if (alpha != lastAlpha) {
             // alpha changed so update the tracker
             updateTimeTracker.compareValue(updateTimer.milliseconds());
             updateTimer.reset();
@@ -157,13 +158,13 @@ public class AdafruitColorSensor {
 
     public float[] hsv(int red, int green, int blue) {
         // hsvValues is an array that will hold the hue, saturation, and value information.
-        float hsvValues[] = {0F,0F,0F};
+        float hsvValues[] = {0F, 0F, 0F};
         // convert the RGB values to HSV values.
         Color.RGBToHSV((colorSensor.red() * 255) / 800, (colorSensor.green() * 255) / 800, (colorSensor.blue() * 255) / 800, hsvValues);
         return hsvValues;
     }
 
-    public int color () {
+    public int color() {
         return Color.HSVToColor(alpha(), hsv(red(), green(), blue()));
     }
 

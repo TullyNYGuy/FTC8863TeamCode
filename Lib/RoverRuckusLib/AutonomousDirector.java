@@ -67,14 +67,14 @@ public class AutonomousDirector {
 
 
     public double getDelayInMilliseconds() {
-        return delay*1000;
+        return delay * 1000;
     }
 
     public void setDelay(double delay) {
         this.delay = delay;
     }
 
-    public void setHangLocation(AutonomousConfigurationFile.HangLocation hangLocation){
+    public void setHangLocation(AutonomousConfigurationFile.HangLocation hangLocation) {
         conFigFile.setHangLocation(hangLocation);
     }
 
@@ -107,10 +107,11 @@ public class AutonomousDirector {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
-   public void addTask(AutonomousTasks taskToAdd){
+    public void addTask(AutonomousTasks taskToAdd) {
         taskList.add(taskToAdd);
         iterator = taskList.iterator();
-   }
+    }
+
     public AutonomousTasks getNextTask() {
         if (iterator.hasNext()) {
             return iterator.next();
@@ -142,11 +143,11 @@ public class AutonomousDirector {
         clearTaskList();
     }
 
-    public AutonomousConfigurationFile.HangLocation getHangLocation(){
+    public AutonomousConfigurationFile.HangLocation getHangLocation() {
         return conFigFile.getHangLocation();
     }
 
-    public AutonomousConfigurationFile.AllianceColor getAllianceColor(){
+    public AutonomousConfigurationFile.AllianceColor getAllianceColor() {
         return conFigFile.getAllianceColor();
     }
 

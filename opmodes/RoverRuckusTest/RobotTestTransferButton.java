@@ -26,7 +26,7 @@ public class RobotTestTransferButton extends LinearOpMode {
         DIFFERENTIAL_DRIVE;
     }
 
-    enum States{
+    enum States {
         START,
         LOWER_ARM_TO_COLLECT,
         TEST_TRANSFER,
@@ -88,7 +88,7 @@ public class RobotTestTransferButton extends LinearOpMode {
             // update the robot
             robot.update();
 
-            switch(state) {
+            switch (state) {
                 case START:
                     break;
                 case LOWER_ARM_TO_COLLECT:
@@ -97,7 +97,7 @@ public class RobotTestTransferButton extends LinearOpMode {
                     state = States.RAISE_ARM_TO_TRANSFER;
                     break;
                 case RAISE_ARM_TO_TRANSFER:
-                    if(timer.milliseconds() > 5000) {
+                    if (timer.milliseconds() > 5000) {
                         // raise the arm to transfer position
                         robot.toggleTransferButtonCommand();
                         timer.reset();
@@ -105,7 +105,7 @@ public class RobotTestTransferButton extends LinearOpMode {
                     }
                     break;
                 case TEST_TRANSFER:
-                    if(timer.milliseconds() > 250) {
+                    if (timer.milliseconds() > 250) {
                         // this should not do anything
                         robot.toggleTransferButtonCommand();
                         timer.reset();
@@ -113,7 +113,7 @@ public class RobotTestTransferButton extends LinearOpMode {
                     }
                     break;
                 case TRANSFER:
-                    if(timer.milliseconds() > 4000) {
+                    if (timer.milliseconds() > 4000) {
                         // start a transfer
                         robot.toggleTransferButtonCommand();
                         timer.reset();
@@ -121,7 +121,7 @@ public class RobotTestTransferButton extends LinearOpMode {
                     }
                     break;
                 case CONFIRM_TRANSFER:
-                    if(timer.milliseconds() > 2000) {
+                    if (timer.milliseconds() > 2000) {
                         // confirm transfer complete
                         robot.toggleTransferButtonCommand();
                         timer.reset();
@@ -129,7 +129,7 @@ public class RobotTestTransferButton extends LinearOpMode {
                     }
                     break;
                 case TEST_BUTTON_ON_SCORE:
-                    if(timer.milliseconds() > 2000){
+                    if (timer.milliseconds() > 2000) {
                         // robot is now ready to score.
                         // this should not do anything
                         robot.toggleTransferButtonCommand();

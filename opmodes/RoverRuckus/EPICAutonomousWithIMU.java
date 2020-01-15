@@ -8,18 +8,19 @@ import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveCurve;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.AutonomousMovements;
 
-@Autonomous(name = "Philipa!(mucho PIDDDDAZLE)", group = "Test")
+@Autonomous(name = "E P I C D E M O", group = "Test")
 //@Disabled
-public class gefTeacherAutonomousWithIMU extends LinearOpMode {
+public class EPICAutonomousWithIMU extends LinearOpMode {
 
     // Put your variable declarations here
     RoverRuckusRobot robot;
     DataLogging logFile;
     AutonomousMovements autonomousMovements;
+    DriveCurve driveCurve;
 
     @Override
     public void runOpMode() {
@@ -47,9 +48,10 @@ public class gefTeacherAutonomousWithIMU extends LinearOpMode {
         // Start the logging of measured acceleration
         robot.driveTrain.imu.startAccelerationIntegration(new Position(), new Velocity(), 1000);
 
-        robot.driveTrain.setupDriveUsingIMU(0, 150 * 2.45, .5, DriveTrain.DriveDirection.FORWARD, AdafruitIMU8863.AngleMode.ABSOLUTE);
+        robot.driveTrain.setupDriveUsingIMU(0, 4000, 0.59, DriveTrain.DriveDirection.FORWARD, AdafruitIMU8863.AngleMode.ABSOLUTE);
         robot.driveTrain.startDriveUsingIMU();
 
+        //driveCurve.setupDriveCurve(0,0,0,0, DriveCurve.DriveDirection.FORWARD);
         while (opModeIsActive() && (!robot.driveTrain.updateDriveUsingIMU())) {
             // Put your calls that need to run in a loop here
             idle();

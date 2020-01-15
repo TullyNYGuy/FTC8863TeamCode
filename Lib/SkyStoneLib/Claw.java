@@ -1,7 +1,13 @@
-package org.firstinspires.ftc.teamcode.Lib.FTCLib;
+package org.firstinspires.ftc.teamcode.Lib.SkystoneLib;
 
 
-public class ToggleSwitch {
+import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
+
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
+
+public class Claw {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -10,13 +16,6 @@ public class ToggleSwitch {
     //
     //*********************************************************************************************
 
-    public enum SwitchState {
-        PRESSED, RELEASED, BUMPED, RESET
-    }
-
-    public enum SwitchCommand {
-        RESET, NORESET
-    }
 
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS
@@ -24,26 +23,17 @@ public class ToggleSwitch {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
-
-    /**
-     * The state of the switch
-     */
-    private SwitchState switchState = SwitchState.RELEASED;
-
+    private Servo8863 servoRotator;
+    private double initPos = 0.1;
+    private double open = 0.9;
+    private double close = 0.3;
+    private double homePos = 0.5;
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
     // allow access to private data fields for example setMotorPower,
     // getPositionInTermsOfAttachment
     //*********************************************************************************************
-
-    public SwitchState getSwitchstate() {
-        return switchState;
-    }
-
-    public void setSwitchstate(SwitchState switchstate) {
-        this.switchState = switchstate;
-    }
 
 
     //*********************************************************************************************
@@ -52,11 +42,10 @@ public class ToggleSwitch {
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
+    public Claw(String servoName, HardwareMap hardwareMap, Telemetry telemetry) {
+        servoRotator = new Servo8863(servoName, hardwareMap, telemetry, homePos, open, close, initPos, Servo.Direction.FORWARD);
 
-    public ToggleSwitch() {
-        setSwitchstate(SwitchState.RELEASED);
     }
-
 
     //*********************************************************************************************
     //          Helper Methods
@@ -70,19 +59,22 @@ public class ToggleSwitch {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
+    public void openClaw() {
+        servoRotator.goUp();
 
-    public SwitchState updateSwitchState(boolean button, SwitchCommand switchCommand) {
-
-        switch (switchState) {
-            case RELEASED:
-                break;
-            case PRESSED:
-                break;
-            case BUMPED:
-                break;
-            case RESET:
-                break;
-        }
-        return SwitchState.RELEASED;
     }
+
+    public void closeClaw() {
+        servoRotator.goDown();
+
+    }
+
+    public void init() {
+        closeClaw();
+    }
+
+    public void shutdown() {
+        closeClaw();
+    }
+
 }

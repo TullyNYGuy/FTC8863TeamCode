@@ -113,7 +113,7 @@ public class TestDCMotor8863RunConstantSpeed extends LinearOpMode {
 
             // display some information on the driver phone
             telemetry.addData(">", "Run at constant speed, use power ramp");
-            telemetry.addData("Motor State = ", motorState.toString() );
+            telemetry.addData("Motor State = ", motorState.toString());
             telemetry.addData("Motor Speed = ", "%5.2f", motor.getCurrentPower());
             telemetry.addData("feedback = ", "%5.2f", motor.getPositionInTermsOfAttachment());
             telemetry.addData("Encoder Count = ", "%5d", motor.getCurrentPosition());

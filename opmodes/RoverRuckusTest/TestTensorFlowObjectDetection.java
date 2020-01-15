@@ -133,7 +133,7 @@ public class TestTensorFlowObjectDetection extends LinearOpMode {
                         // are in relationship to each other. We will also figure out which of the
                         // objects is the gold mineral. With the locations, and which one is gold,
                         // we can figure out where the gold is located.
-                        
+
                         // for each object in the recognitions, see if it is gold or silver, and get
                         // its left edge value
                         for (Recognition recognition : updatedRecognitions) {
@@ -171,14 +171,13 @@ public class TestTensorFlowObjectDetection extends LinearOpMode {
                                 // one is less than the left edge of the silver one. If it is then the left mineral 
                                 // is gold. 
                                 // if not, then the gold is the center mineral
-                                if(goldMineralLeftEdgeLocation == -1 && silverMineral2LeftEdgeLocation >= 0){
-                                telemetry.addData("Gold Mineral Position", "Right");
-                            }
-                                if(silverMineral2LeftEdgeLocation == -1){
-                                    if(goldMineralLeftEdgeLocation < silverMineral1LeftEdgeLocation){
+                                if (goldMineralLeftEdgeLocation == -1 && silverMineral2LeftEdgeLocation >= 0) {
+                                    telemetry.addData("Gold Mineral Position", "Right");
+                                }
+                                if (silverMineral2LeftEdgeLocation == -1) {
+                                    if (goldMineralLeftEdgeLocation < silverMineral1LeftEdgeLocation) {
                                         telemetry.addData("Gold Mineral Position", "Left");
-                                    }
-                                    else{
+                                    } else {
                                         telemetry.addData("Gold Mineral Position", "Center");
                                     }
                                 }
@@ -206,11 +205,11 @@ public class TestTensorFlowObjectDetection extends LinearOpMode {
                                     }
                                 }
                                 break;
-                                default:
-                                    // what to do if there are more than 3 objects detected?
-                                    // Maybe find the area of each object and pick the 3 largest
-                                    // objects. They are probably the ones we are trying to hit.
-                                    break;
+                            default:
+                                // what to do if there are more than 3 objects detected?
+                                // Maybe find the area of each object and pick the 3 largest
+                                // objects. They are probably the ones we are trying to hit.
+                                break;
                         }
                         telemetry.update();
                     }

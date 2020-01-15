@@ -9,11 +9,10 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 
 /**
- * This OpMode runs 2 motors at a given power, one in the opposite direction from the other. 
+ * This OpMode runs 2 motors at a given power, one in the opposite direction from the other.
  * It is meant to be used to test a drive train
- *
+ * <p>
  * This code assumes a DC motor configured with the name "leftMotor"  and "rightMotor"
- *
  */
 @TeleOp(name = "Test Drive Train Teleop", group = "Test")
 //@Disabled
@@ -22,13 +21,11 @@ public class TestDriveTrainTeleop extends LinearOpMode {
     DriveTrain myDriveTrain;
     DriveTrain.Status statusDrive = DriveTrain.Status.COMPLETE;
     double leftPower = 0;
-    double rightPower =0;
+    double rightPower = 0;
     double throttle = 0;
     double direction = 0;
     boolean differentialDrive = false;
     double powerFactor = 1.0;
-
-
 
 
     @Override
@@ -41,11 +38,11 @@ public class TestDriveTrainTeleop extends LinearOpMode {
         myDriveTrain.setCmPerRotation(31.1); // cm
 
         // Wait for the start button
-        telemetry.addData(">", "Press Start to run Motors." );
+        telemetry.addData(">", "Press Start to run Motors.");
         telemetry.update();
         waitForStart();
 
-        while(opModeIsActive()) {
+        while (opModeIsActive()) {
             // Y = differential drive
             if (gamepad1.y) {
                 differentialDrive = true;
@@ -67,14 +64,14 @@ public class TestDriveTrainTeleop extends LinearOpMode {
             }
 
             if (differentialDrive == false) {
-                leftPower = -gamepad1.left_stick_y* powerFactor;
-                rightPower = -gamepad1.right_stick_y* powerFactor;
-                myDriveTrain.tankDrive(leftPower,rightPower);
+                leftPower = -gamepad1.left_stick_y * powerFactor;
+                rightPower = -gamepad1.right_stick_y * powerFactor;
+                myDriveTrain.tankDrive(leftPower, rightPower);
             }
 
             if (differentialDrive == true) {
-                throttle = -gamepad1.right_stick_y* powerFactor;
-                direction = gamepad1.right_stick_x* powerFactor;
+                throttle = -gamepad1.right_stick_y * powerFactor;
+                direction = gamepad1.right_stick_x * powerFactor;
                 //myDriveTrain.differentialDrive(.0,correction);
                 myDriveTrain.differentialDrive(throttle, direction);
             }

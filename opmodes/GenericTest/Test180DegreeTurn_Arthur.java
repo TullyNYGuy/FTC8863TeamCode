@@ -9,24 +9,22 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
- *
- *
  */
 @TeleOp(name = "Test 180 Degree Turn", group = "Test")
 //@Disabled
 public class Test180DegreeTurn_Arthur extends LinearOpMode {
 
     // Put your variable declarations here
-   public DriveTrain driveTrain;
+    public DriveTrain driveTrain;
 
     @Override
     public void runOpMode() {
 
 
         // Put your initializations here
-       driveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap, telemetry);
+        driveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap, telemetry);
         // Wait for the start button
-        telemetry.addData(">", "Press Start to run" );
+        telemetry.addData(">", "Press Start to run");
         telemetry.update();
         waitForStart();
 
@@ -34,7 +32,7 @@ public class Test180DegreeTurn_Arthur extends LinearOpMode {
         driveTrain.setupTurn(-90, 0.3, AdafruitIMU8863.AngleMode.ABSOLUTE);
         // Put your calls here - they will not run in a loop
 
-        while(opModeIsActive()&&driveTrain.updateTurn()!= true) {
+        while (opModeIsActive() && driveTrain.updateTurn() != true) {
 
             // Put your calls that need to run in a loop here
 
@@ -42,17 +40,17 @@ public class Test180DegreeTurn_Arthur extends LinearOpMode {
             // Display the current value
             //telemetry.addData("Motor Speed = ", "%5.2f", powerToRunAt);
             //telemetry.addData("Encoder Count=", "%5d", motor.getCurrentPosition());
-            telemetry.addData(">", "Press Stop to end test." );
+            telemetry.addData(">", "Press Stop to end test.");
 
             telemetry.update();
-            
+
             idle();
         }
         sleep(1000);
         driveTrain.setupTurn(-175, 0.3, AdafruitIMU8863.AngleMode.RELATIVE);
         // Put your calls here - they will not run in a loop
 
-        while(opModeIsActive()&&driveTrain.updateTurn()!= true) {
+        while (opModeIsActive() && driveTrain.updateTurn() != true) {
 
             // Put your calls that need to run in a loop here
 
@@ -60,7 +58,7 @@ public class Test180DegreeTurn_Arthur extends LinearOpMode {
             // Display the current value
             //telemetry.addData("Motor Speed = ", "%5.2f", powerToRunAt);
             //telemetry.addData("Encoder Count=", "%5d", motor.getCurrentPosition());
-            telemetry.addData(">", "Press Stop to end test." );
+            telemetry.addData(">", "Press Stop to end test.");
 
             telemetry.update();
 

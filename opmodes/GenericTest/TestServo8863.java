@@ -52,40 +52,40 @@ public class TestServo8863 extends OpMode {
     double initPosition = homePosition;
     Servo8863 genericServo;
 
-	/**
-	 * Constructor
-	 */
-	public TestServo8863() {
+    /**
+     * Constructor
+     */
+    public TestServo8863() {
 
-	}
+    }
 
-	/*
-	 * Code to run when the op mode is first enabled goes here
-	 * 
-	 * @see com.qualcomm.robotcore.eventloop.opmode.OpMode#start()
-	 */
-	@Override
-	public void init() {
+    /*
+     * Code to run when the op mode is first enabled goes here
+     *
+     * @see com.qualcomm.robotcore.eventloop.opmode.OpMode#start()
+     */
+    @Override
+    public void init() {
         genericServo = new Servo8863("GenericServo", hardwareMap, telemetry, homePosition, upPosition, downPosition, initPosition, Servo.Direction.REVERSE);
 
         genericServo.setPositionOne(lowerRepelPosition);
         genericServo.setPositionTwo(middleRepelPosition);
         genericServo.setPositionThree(upperRepelPosition);
-	}
+    }
 
     @Override
-    public void start(){
+    public void start() {
         genericServo.goHome();
     }
 
-	@Override
-	public void loop() {
+    @Override
+    public void loop() {
 
         genericServo.updateWiggle();
 
         if (gamepad2.a) {
-                genericServo.goPositionOne();
-                telemetry.addData("leftRepel", "is lower");
+            genericServo.goPositionOne();
+            telemetry.addData("leftRepel", "is lower");
         }
 
         if (gamepad2.b) {
@@ -94,13 +94,13 @@ public class TestServo8863 extends OpMode {
         }
 
         if (gamepad2.x) {
-                genericServo.goPositionTwo();
-                telemetry.addData("leftRepel", "is position 2");
+            genericServo.goPositionTwo();
+            telemetry.addData("leftRepel", "is position 2");
         }
 
         if (gamepad2.y) {
-                genericServo.goPositionThree();
-                telemetry.addData("leftRepel", "is position 3");
+            genericServo.goPositionThree();
+            telemetry.addData("leftRepel", "is position 3");
         }
 
         if (gamepad2.left_bumper) {
@@ -115,16 +115,16 @@ public class TestServo8863 extends OpMode {
             genericServo.stopWiggle();
         }
 
-        telemetry.addData("Position",  "Position: " + String.format("%.2f", genericServo.getPosition()));
-	}
+        telemetry.addData("Position", "Position: " + String.format("%.2f", genericServo.getPosition()));
+    }
 
-	/*
-	 * Code to run when the op mode is first disabled goes here
-	 * 
-	 * @see com.qualcomm.robotcore.eventloop.opmode.OpMode#stop()
-	 */
-	@Override
-	public void stop() {
+    /*
+     * Code to run when the op mode is first disabled goes here
+     *
+     * @see com.qualcomm.robotcore.eventloop.opmode.OpMode#stop()
+     */
+    @Override
+    public void stop() {
         genericServo.goHome();
     }
 }

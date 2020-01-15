@@ -9,8 +9,6 @@ import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.Collector;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
- *
- *
  */
 @TeleOp(name = "AAA Collection Delivery Demo", group = "Test")
 //@Disabled
@@ -36,7 +34,7 @@ public class CollectionDeliveryTest extends LinearOpMode {
         collector.enableDataLogging();
         collector.setDebugOn();
         collector.setDesiredMineralColorToGold();
-       // collector.forceStoreOnly();
+        // collector.forceStoreOnly();
 
         gamepad1a = new GamepadButtonMultiPush(1);
         gamepad1b = new GamepadButtonMultiPush(1);
@@ -45,7 +43,7 @@ public class CollectionDeliveryTest extends LinearOpMode {
 
 
         // Wait for the start button
-        telemetry.addData(">", "Press Start to run" );
+        telemetry.addData(">", "Press Start to run");
         telemetry.update();
         waitForStart();
 
@@ -55,7 +53,7 @@ public class CollectionDeliveryTest extends LinearOpMode {
 
         collector.turnCollectorOn();
 
-        while(opModeIsActive()) {
+        while (opModeIsActive()) {
             if (gamepad1a.buttonPress(gamepad1.a)) {
                 collector.deliverMineralsOn();
             }
@@ -75,10 +73,10 @@ public class CollectionDeliveryTest extends LinearOpMode {
             collectorState = collector.update();
 
             telemetry.addLine("Collecting Silver Minerals");
-            telemetry.addData(">", "Press Stop to end test." );
+            telemetry.addData(">", "Press Stop to end test.");
             telemetry.addData("Collector State = ", collectorState.toString());
             telemetry.update();
-            
+
             idle();
         }
 

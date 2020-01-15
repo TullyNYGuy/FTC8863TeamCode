@@ -455,7 +455,7 @@ public class CRServoGB {
                     }
                 }
                 // if not, then has the servo reached the desired position?
-                if(updateMoveDistance()) {
+                if (updateMoveDistance()) {
                     // movement to position has finished
                     crServoState = CRServoState.AT_BACK_POSITION;
                 }
@@ -472,7 +472,7 @@ public class CRServoGB {
                     }
                 }
                 // if not, then has the servo reached the desired position?
-                if(updateMoveDistance()) {
+                if (updateMoveDistance()) {
                     // movement to position has finished
                     crServoState = CRServoState.AT_FRONT_POSITION;
                 }

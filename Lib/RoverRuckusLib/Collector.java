@@ -550,10 +550,12 @@ public class Collector {
         log("DRIVER COMMANDED COLLECTOR TURN ON");
         collectorCommand = CollectorCommand.ON;
     }
+
     public void turnCollectorOnSpitOut() {
         log("DRIVER COMMANDED COLLECTOR TURN ON SPIT OUT");
         collectorCommand = CollectorCommand.ON_SPIT_OUT;
     }
+
     public void turnCollectorOff() {
         log("DRIVER COMMANDED COLLECTOR TURN OFF");
         collectorCommand = CollectorCommand.OFF;
@@ -714,7 +716,7 @@ public class Collector {
                         }
                         break;
                     case ON_SPIT_OUT:
-                        if(timer.milliseconds()> 500){
+                        if (timer.milliseconds() > 500) {
                             turnIntakeOff();
                             collectorCommand = CollectorCommand.OFF;
                             collectorState = CollectorState.OFF;
@@ -969,7 +971,7 @@ public class Collector {
                 break;
 
             case WAIT_FOR_SPIT_OUT:
-                if(timer.milliseconds()> 500){
+                if (timer.milliseconds() > 500) {
                     turnIntakeOff();
                     collectorCommand = CollectorCommand.ON;
                     collectorState = CollectorState.HOLD_MINERAL;

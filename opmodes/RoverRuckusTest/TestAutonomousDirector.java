@@ -9,8 +9,6 @@ import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.AutonomousDirector;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
- *
- *
  */
 @TeleOp(name = "Test Autonomous Director", group = "Test")
 //@Disabled
@@ -19,6 +17,7 @@ public class TestAutonomousDirector extends LinearOpMode {
     // Put your variable declarations here
     AutonomousConfigurationFile configFile;
     AutonomousDirector director;
+
     @Override
     public void runOpMode() {
 
@@ -28,7 +27,7 @@ public class TestAutonomousDirector extends LinearOpMode {
         director = new AutonomousDirector(configFile);
 
         // Wait for the start button
-        telemetry.addData(">", "Press Start to run" );
+        telemetry.addData(">", "Press Start to run");
         telemetry.update();
         waitForStart();
 

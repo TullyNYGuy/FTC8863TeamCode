@@ -26,7 +26,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
  * The angles are adjusted so that they are between -180 and +180.
  * <p>
  * This class wraps AdafruitBNO055IMU.
- *
+ * <p>
  * We expect the IMU to be attached to an I2C port
  * on a Modern Robotics Core Device Interface Module, configured to be a sensor of type "AdaFruit IMU",
  * and named "IMU". Or with the new REV Expansion Hub, the IMU is on I2C Bus 0 (port 0),
@@ -156,7 +156,7 @@ public class AdafruitIMU8863 {
      * The last heading read can be saved and then used to report the heading change
      */
     private double lastHeadingRead = 0;
-    
+
     private AngleAdjuster angleAdjuster;
 
     //*********************************************************************************************
@@ -243,8 +243,8 @@ public class AdafruitIMU8863 {
         // on a Core Device Interface Module, configured to be a sensor of type "AdaFruit IMU",
         // and named "IMU". Or with the new REV Expansion Hub, the IMU is on I2C Bus 0 (port 0),
         // configured to be of type "REV Expansion Hub IMU" and named "IMU".
-        
-        imu = hardwareMap.get(BNO055IMU.class, "IMU");
+
+        imu = hardwareMap.get(BNO055IMU.class, "imu");
         imu.initialize(parameters);
         // The resetAngleReferences() does not seem to be getting correct data. I'm guessing that
         // the IMU has not finished initializing yet. Delay the execution of resetAngleReferences()
@@ -509,6 +509,7 @@ public class AdafruitIMU8863 {
      * Get the change in heading since the last time the change in heading was requested. If this is
      * the first time the change in heading is requested, then the change in heading will be measured
      * from the heading when the imu was first initialized.
+     *
      * @return change in heading
      */
     public double getHeadingChange() {

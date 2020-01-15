@@ -9,7 +9,7 @@ public interface ProfileFunction {
     // user defined types
     //
     //*********************************************************************************************
-    enum ProfileType{
+    enum ProfileType {
         RAMP_UP_DOWN,
         RAMP_UP_DOWN_FLAT_TOP,
         RAMP_UP

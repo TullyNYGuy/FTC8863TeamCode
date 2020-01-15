@@ -68,48 +68,49 @@ public class AngleAdjuster {
     //*********************************************************************************************
     public void setTarget(double angle, double threshold) {
 
-            this.threshold = threshold;
-            if (angle >= 0) {
-                if (angle < threshold) {
-                    angleRange = AngleRange.PLUS_TO_MINUS_180;
-                }
-                if (angle >= threshold) {
-                    angleRange = AngleRange.ZERO_TO_PLUS_360;
-                }
+        this.threshold = threshold;
+        if (angle >= 0) {
+            if (angle < threshold) {
+                angleRange = AngleRange.PLUS_TO_MINUS_180;
             }
-            if (angle < 0) {
-                if (angle < threshold) {
-                    angleRange = AngleRange.ZERO_TO_MINUS_360;
-                }
-                if (angle >= threshold) {
-                    angleRange = AngleRange.PLUS_TO_MINUS_180;
-                }
+            if (angle >= threshold) {
+                angleRange = AngleRange.ZERO_TO_PLUS_360;
             }
+        }
+        if (angle < 0) {
+            if (angle < threshold) {
+                angleRange = AngleRange.ZERO_TO_MINUS_360;
+            }
+            if (angle >= threshold) {
+                angleRange = AngleRange.PLUS_TO_MINUS_180;
+            }
+        }
     }
-    public double adjustAngle(double angle){
+
+    public double adjustAngle(double angle) {
         double result = 0;
-        if (Math.abs(angle) < Math.abs(threshold)){
+        if (Math.abs(angle) < Math.abs(threshold)) {
             result = angle;
 
         }
-        if (Math.abs(angle)>= Math.abs(threshold)){
-            if(angleRange == AngleRange.ZERO_TO_PLUS_360){
-                if (angle < 0){
+        if (Math.abs(angle) >= Math.abs(threshold)) {
+            if (angleRange == AngleRange.ZERO_TO_PLUS_360) {
+                if (angle < 0) {
                     result = 360 + angle;
 
-                } else{
+                } else {
                     result = angle;
                 }
             }
-            if (angleRange == AngleRange.ZERO_TO_MINUS_360){
-                if (angle < 0){
+            if (angleRange == AngleRange.ZERO_TO_MINUS_360) {
+                if (angle < 0) {
                     result = angle;
 
-                } else{
+                } else {
                     result = angle - 360;
                 }
             }
-            if (angleRange == AngleRange.PLUS_TO_MINUS_180){
+            if (angleRange == AngleRange.PLUS_TO_MINUS_180) {
                 result = angle;
             }
         }

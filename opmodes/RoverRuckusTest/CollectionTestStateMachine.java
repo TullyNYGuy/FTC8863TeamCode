@@ -29,13 +29,14 @@ public class CollectionTestStateMachine extends LinearOpMode {
     //             Declarations
     //*********************************************************************************************
 
-    public enum CollectionStates{
+    public enum CollectionStates {
         NO_MINERAL,
         INTAKE_ON,
         MINERAL_DETECTED,
         KEEP,
         REJECT
     }
+
     public ElapsedTime collectionTimer;
     public CollectionStates collectionState;
 
@@ -269,7 +270,7 @@ public class CollectionTestStateMachine extends LinearOpMode {
                 }
                 if (gamepad1a.isCommand2()) {
                     //collectionServoLeft.setPower(0);
-                   // collectionServoRight.setPower(0);
+                    // collectionServoRight.setPower(0);
                 }
                 // this was a new button press, not a button held down for a while
                 // put the command to be executed here
@@ -277,10 +278,10 @@ public class CollectionTestStateMachine extends LinearOpMode {
 
             if (gamepad1b.buttonPress(gamepad1.b)) {
                 if (gamepad1b.isCommand1()) {
-                   // gateServo.goHome();
+                    // gateServo.goHome();
                 }
                 if (gamepad1b.isCommand2()) {
-                   // gateServo.goHome();
+                    // gateServo.goHome();
                 }
                 // this was a new button press, not a button held down for a while
                 // put the command to be executed here
@@ -469,74 +470,73 @@ public class CollectionTestStateMachine extends LinearOpMode {
     //*********************************************************************************************
     //             Helper methods
     //*********************************************************************************************
-    public void automaticStarShutoff()
-
-    {
+    public void automaticStarShutoff() {
         if (distance < 10) {
             collectionServoLeft.setPower(0);
             collectionServoRight.setPower(0);
         }
     }
-    public void update(){
-        switch (collectionState){
+
+    public void update() {
+        switch (collectionState) {
             case NO_MINERAL:
-                if (gamepad1.a){
-                    collectionState= CollectionStates.INTAKE_ON;
+                if (gamepad1.a) {
+                    collectionState = CollectionStates.INTAKE_ON;
                     collectionServoLeft.setPower(1);
                     collectionServoRight.setPower(1);
                 }
-                 gateServo.goHome();
-                telemetry.addData("state= ",collectionState.toString());
+                gateServo.goHome();
+                telemetry.addData("state= ", collectionState.toString());
                 break;
             case INTAKE_ON:
-                if (gamepad1.b){
-                    collectionState= CollectionStates.NO_MINERAL;
+                if (gamepad1.b) {
+                    collectionState = CollectionStates.NO_MINERAL;
                     collectionServoLeft.setPower(0);
                     collectionServoRight.setPower(0);
                 }
-                if ( distance < 10){
-                    collectionState= CollectionStates.MINERAL_DETECTED;
+                if (distance < 10) {
+                    collectionState = CollectionStates.MINERAL_DETECTED;
                     collectionServoLeft.setPower(0);
                     collectionServoRight.setPower(0);
                 }
-                telemetry.addData("state= ",collectionState.toString());
+                telemetry.addData("state= ", collectionState.toString());
                 break;
             case MINERAL_DETECTED:
-                if (gamepad1.left_bumper){
+                if (gamepad1.left_bumper) {
                     gateServo.goDown();
                     decisionStar.setPower(1);
                     collectionTimer.reset();
-                    collectionState= CollectionStates.KEEP;
+                    collectionState = CollectionStates.KEEP;
                 }
-                telemetry.addData("state= ",collectionState.toString());
-                if (gamepad1.right_bumper){
+                telemetry.addData("state= ", collectionState.toString());
+                if (gamepad1.right_bumper) {
                     gateServo.goUp();
                     collectionServoLeft.setPower(1);
                     collectionServoRight.setPower(1);
                     collectionTimer.reset();
-                    collectionState= CollectionStates.REJECT;
+                    collectionState = CollectionStates.REJECT;
                 }
-                telemetry.addData("state= ",collectionState.toString());
+                telemetry.addData("state= ", collectionState.toString());
                 break;
             case KEEP:
-                if (collectionTimer.milliseconds()>1500){
+                if (collectionTimer.milliseconds() > 1500) {
                     gateServo.goHome();
                     decisionStar.setPower(0);
                     collectionServoLeft.setPower(0);
                     collectionServoRight.setPower(0);
-                    collectionState=CollectionStates.NO_MINERAL;
+                    collectionState = CollectionStates.NO_MINERAL;
                 }
-                telemetry.addData("state= ",collectionState.toString());
+                telemetry.addData("state= ", collectionState.toString());
                 break;
             case REJECT:
-                if (collectionTimer.milliseconds()>1500){
+                if (collectionTimer.milliseconds() > 1500) {
                     gateServo.goHome();
                     decisionStar.setPower(0);
                     collectionServoLeft.setPower(0);
                     collectionServoRight.setPower(0);
-                    collectionState=CollectionStates.NO_MINERAL;
+                    collectionState = CollectionStates.NO_MINERAL;
                 }
-                telemetry.addData("state= ",collectionState.toString());
+                telemetry.addData("state= ", collectionState.toString());
                 break;
         }
     }

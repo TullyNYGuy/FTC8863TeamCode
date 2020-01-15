@@ -9,8 +9,6 @@ import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.GoldMineralDetection;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
- *
- *
  */
 @TeleOp(name = "Test Gold Mineral Detection", group = "Test")
 //@Disabled
@@ -26,9 +24,9 @@ public class TestGoldMineralDetection extends LinearOpMode {
         // Put your initializations here
         logFile = new DataLogging("GoldDetection", telemetry);
         goldMineralDetection = new GoldMineralDetection(hardwareMap, telemetry, logFile);
-        
+
         // Wait for the start button
-        telemetry.addData(">", "Press Start to run" );
+        telemetry.addData(">", "Press Start to run");
         telemetry.update();
         waitForStart();
 
@@ -38,7 +36,7 @@ public class TestGoldMineralDetection extends LinearOpMode {
         goldMineralDetection.activate(1500);
         logFile.startTimer();
 
-        while(opModeIsActive() && !goldMineralDetection.isRecognitionComplete()) {
+        while (opModeIsActive() && !goldMineralDetection.isRecognitionComplete()) {
             goldMineralDetection.getRecognition(2);
             idle();
         }

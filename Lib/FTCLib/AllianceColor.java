@@ -9,7 +9,7 @@ public class AllianceColor {
     // user defined types
     //
     //*********************************************************************************************
-    public enum TeamColor{
+    public enum TeamColor {
         RED,
         BLUE
     }

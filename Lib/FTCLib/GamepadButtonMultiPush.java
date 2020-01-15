@@ -11,44 +11,44 @@ import java.net.PortUnreachableException;
  * This class sets up a way of assigning a set of commands to one button. Each press of the button
  * will advance to the next command in the cycle. When the last command in the cycle is run, the
  * cycle starts over again. The class currently handles 4 commands tied to one button.
- *
+ * <p>
  * Example use:
- *
+ * <p>
  * For a normal situation where just one command executes when a game pad button is pushed:
  * declaration
  * public GamepadButtonMultiPush gamepad1x;
- *
+ * <p>
  * initialization
  * gamepad1x = new GamepadButtonMultiPush(1)
- *
- * use
- *  if (gamepad1x.buttonPress(gamepad1.x)) {
- *       //this was a new button press, not a button held down for a while
- *       the command goes on this line;
- *  }
- *
- *  For a button that has mulitple commands tied to it
- *
- *  declaration
- * GamepadButtonMultiPush gamepad1x;
- *
- * initialization
- * gamepad1x = new GamepadButtonMultiPush(4);
- *
+ * <p>
  * use
  * if (gamepad1x.buttonPress(gamepad1.x)) {
- *     if (gamepad1x.isCommand1()) {
- *         // call the first command you want to run
- *     }
- *     if (gamepad1x.isCommand2()) {
- *         // call the 2nd command you want to run
- *     }
- *     if (gamepad1x.isCommand3()) {
- *         // call the 3rd command you want to run
- *     }
- *     if (gamepad1x.isCommand4()) {
- *         // call the 4th command you want to run
- *     }
+ * //this was a new button press, not a button held down for a while
+ * the command goes on this line;
+ * }
+ * <p>
+ * For a button that has mulitple commands tied to it
+ * <p>
+ * declaration
+ * GamepadButtonMultiPush gamepad1x;
+ * <p>
+ * initialization
+ * gamepad1x = new GamepadButtonMultiPush(4);
+ * <p>
+ * use
+ * if (gamepad1x.buttonPress(gamepad1.x)) {
+ * if (gamepad1x.isCommand1()) {
+ * // call the first command you want to run
+ * }
+ * if (gamepad1x.isCommand2()) {
+ * // call the 2nd command you want to run
+ * }
+ * if (gamepad1x.isCommand3()) {
+ * // call the 3rd command you want to run
+ * }
+ * if (gamepad1x.isCommand4()) {
+ * // call the 4th command you want to run
+ * }
  * }
  */
 public class GamepadButtonMultiPush {
@@ -162,6 +162,7 @@ public class GamepadButtonMultiPush {
             return false;
         }
     }
+
     public boolean triggerPress(float triggerValue) {
         boolean isButtonPressed = false;
         switch (currentButtonState) {
@@ -248,6 +249,7 @@ public class GamepadButtonMultiPush {
 
     /**
      * Checks if the next command in the cycle is the 1st command
+     *
      * @return true if the command to be run is the 1st one in the cycle
      */
     public boolean isCommand1() {
@@ -260,6 +262,7 @@ public class GamepadButtonMultiPush {
 
     /**
      * Checks if the next command in the cycle is the 2nd command
+     *
      * @return true if the command to be run is the 2nd one in the cycle
      */
     public boolean isCommand2() {
@@ -272,6 +275,7 @@ public class GamepadButtonMultiPush {
 
     /**
      * Checks if the next command in the cycle is the 3rd command
+     *
      * @return true if the command to be run is the 3rd one in the cycle
      */
     public boolean isCommand3() {
@@ -284,6 +288,7 @@ public class GamepadButtonMultiPush {
 
     /**
      * Checks if the next command in the cycle is the 4th command
+     *
      * @return true if the command to be run is the 4th one in the cycle
      */
     public boolean isCommand4() {
