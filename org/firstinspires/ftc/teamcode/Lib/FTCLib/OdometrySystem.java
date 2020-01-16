@@ -1,7 +1,18 @@
 package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
-import android.icu.math.MathContext;
-
+/*
+ * This Odometry system designed to be used with mecanum drive.
+ * The idea is to split movement of the robot into rotational and translational.
+ * The system is designed to work with three odometer modules with two of them
+ * (left and right) set parallel to each other. The third module (back) is
+ * perpendicular to the first two.
+ * First the system calculates angle of rotation by cancelling translation motion from
+ * the readings of the two parallel odometers. After the angle of rotation is found
+ * the readings are adjusted by the number derived from the angle of rotation.
+ * After that is adjusted parallel readings are averaged and that gives translation
+ * motion along the length of the parallel odometers. The adjusted reading of
+ * the back module gives translation across the length of the parallel odometers.
+ */
 public class OdometrySystem {
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -20,34 +31,103 @@ public class OdometrySystem {
     private OdometryModule left;
     private OdometryModule right;
     private OdometryModule back;
-    private double leftEncoderValue;
 
-    private double rightEncoderValue;
+    /*
+     * Units of measurement for the rest of linear variables
+     */
+    private Units unit;
 
-    private double backEncoderValue;
+    /*
+     * Distance from the center of the robot to the left odometer module
+     * measured along the depth of the robot
+     */
 
-    private double distanceFromCenterToSideOdometryModule;
+    private double leftOffsetDepth = 1.0;
+    /*
+     * Distance from the center of the robot to the left odometer module
+     * measured along the width of the robot
+     */
+    private double leftOffsetWidth = 1.0;
 
-    private double distanceFromCenterToBackOdometryModule;
+    /*
+     * Distance from the center of the robot to the right odometer module
+     * measured along the depth of the robot
+     */
+    private double rightOffsetDepth = 1.0;
 
-    private double angleOfRotation;
+    /*
+     * Distance from the center of the robot to the right odometer module
+     * measured along the width of the robot
+     */
+    private double rightOffsetWidth = 1.0;
 
-    private double leftEncoderValueRevised;
+    /*
+     * Distance from the center of the robot to the back odometer module
+     * measured along the depth of the robot
+     */
 
-    private double rightEncoderValueRevised;
+    private double backOffsetDepth = 1.0;
+    /*
+     * Distance from the center of the robot to the back odometer module
+     * measured along the width of the robot
+     */
+    private double backOffsetWidth = 1.0;
 
-    private double backEncoderValueRevised;
+    /*
+     * Left odometer module distance from the center of the robot.
+     * Equals to sqrt(leftOffsetDepth^2 + leftOffsetWidth^2)
+     */
+    private double leftModuleDistance;
 
-    private double averageLREncoderValue;
+    /*
+     * Right odometer module distance from the center of the robot.
+     * Equals to sqrt(rightOffsetDepth^2 + rightOffsetWidth^2)
+     */
+    private double rightModuleDistance;
 
-    private double angleOfTranslation;
+    /*
+     * Back odometer module distance from the center of the robot.
+     * Equals to sqrt(backOffsetDepth^2 + backOffsetWidth^2)
+     */
+    private double backModuleDistance;
 
-    private double lengthOfTranslation;
+    /*
+     * Left odometer module multiplier. Equals to
+     * leftModuleDistance^2/leftOffsetWidth
+     */
+    private double leftMultiplier;
 
-    private double currentX;
-    private double currentY;
-    private double currentRotation;
-    OdometryModule.Units unit;
+    /*
+     * Right odometer module multiplier. Equals to
+     * rightModuleDistance^2/rightOffsetWidth
+     */
+    private double rightMultiplier;
+
+    /*
+     * Back odometer module multiplier. Equals to
+     * backModuleDistance^2/backOffsetDepth
+     */
+    private double backMultiplier;
+
+    /*
+     * Rotational multiplier. Equals to
+     * 1/(leftModuleDistance^2/leftOffsetWidth + rightModuleDistance^2/rightOffsetWidth)
+     */
+    private double rotationalMultiplier;
+
+    private double angleOfRotation = 0;
+
+    private double translationDepth = 0;
+
+    private double translationWidth = 0;
+
+    private double angleOfTranslation = 0;
+
+    private double lengthOfTranslation = 0;
+
+    private double currentX = 0;
+    private double currentY = 0;
+    private double currentRotation = 0;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -63,7 +143,7 @@ public class OdometrySystem {
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
-    public OdometrySystem(OdometryModule.Units unit, OdometryModule left, OdometryModule right, OdometryModule back) {
+    public OdometrySystem(Units unit, OdometryModule left, OdometryModule right, OdometryModule back) {
         this.left = left;
         this.right = right;
         this.back = back;
@@ -76,29 +156,43 @@ public class OdometrySystem {
     //
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
-    private void findAngleOfRotation() {
-        //this will be used to alter the encoder values to provide info about the straight translation
-        angleOfRotation = (leftEncoderValue - rightEncoderValue) / (2.0 * distanceFromCenterToSideOdometryModule);
+
+    //*********************************************************************************************
+    //          MAJOR METHODS
+    //
+    // public methods that give the class its functionality
+    //*********************************************************************************************
+
+    public void initializeRobotGeometry(
+            double leftOffsetDepth, double leftOffsetWidth,
+            double rightOffsetDepth, double rightOffsetWidth,
+            double backOffsetDepth, double backOffsetWidth) {
+        this.leftOffsetDepth = leftOffsetDepth;
+        this.leftOffsetWidth = leftOffsetWidth;
+        this.rightOffsetDepth = rightOffsetDepth;
+        this.rightOffsetWidth = rightOffsetWidth;
+        this.backOffsetDepth = backOffsetDepth;
+        this.backOffsetWidth = backOffsetWidth;
     }
 
-    public void cancelOutAngleFromMovement() {
-        leftEncoderValueRevised = leftEncoderValue - distanceFromCenterToSideOdometryModule * angleOfRotation / 2.0;
-        rightEncoderValueRevised = rightEncoderValue - distanceFromCenterToSideOdometryModule * angleOfRotation / 2.0;
-        backEncoderValueRevised = backEncoderValue - distanceFromCenterToBackOdometryModule * angleOfRotation / 2.0;
-    }
+    public void calculateMoveDistance() {
+        double leftEncoderValue = left.getDistanceSinceLastChange(unit);
+        double rightEncoderValue = right.getDistanceSinceLastChange(unit);
+        double backEncoderValue = back.getDistanceSinceLastChange(unit);
 
-    public void caluclateMoveDistance() {
-        leftEncoderValue = left.getDistanceSinceLastChange(unit);
-        rightEncoderValue = right.getDistanceSinceLastChange(unit);
-        backEncoderValue = back.getDistanceSinceLastChange(unit);
-        findAngleOfRotation();
-        cancelOutAngleFromMovement();
+        // calculate angle of rotation
+        angleOfRotation = (leftEncoderValue - rightEncoderValue) * rotationalMultiplier;
 
+        // adjust values by cancelling rotation
+        double leftVal = leftEncoderValue + angleOfRotation * leftModuleDistance * leftMultiplier;
+        double rightVal = rightEncoderValue - angleOfRotation * leftModuleDistance * leftMultiplier;
+        double backVal = backEncoderValue - angleOfRotation * leftModuleDistance * leftMultiplier;
 
-        averageLREncoderValue = (leftEncoderValueRevised + rightEncoderValueRevised) / 2;
+        translationDepth = (leftVal + rightVal) / 2.0;
+        translationWidth = backVal;
 
-        lengthOfTranslation = Math.sqrt(averageLREncoderValue * averageLREncoderValue + backEncoderValueRevised * backEncoderValueRevised);
-        angleOfTranslation = Math.atan2(backEncoderValueRevised, averageLREncoderValue);
+        lengthOfTranslation = Math.sqrt(translationDepth * translationDepth + translationWidth * translationWidth);
+        angleOfTranslation = Math.atan2(translationWidth, translationDepth);
     }
 
     public void getMovement(MecanumData data) {
@@ -114,13 +208,6 @@ public class OdometrySystem {
 
     }
 
-    public void setCoordinates() {
-        currentRotation = angleOfRotation;
-        currentX = averageLREncoderValue;
-        currentY = backEncoderValueRevised;
-
-    }
-
     public void setCoordinates(double rotation, double x, double y) {
         currentRotation = rotation;
         currentX = x;
@@ -129,8 +216,8 @@ public class OdometrySystem {
 
     public void updateCoordinates() {
         currentRotation = currentRotation + angleOfRotation;
-        currentY = currentY + backEncoderValueRevised;
-        currentX = currentX + averageLREncoderValue;
+        currentY = currentY + translationWidth;
+        currentX = currentX + translationDepth;
     }
 
     public double getCurrentY() {
@@ -144,10 +231,4 @@ public class OdometrySystem {
     public double getCurrentRotation() {
         return currentRotation;
     }
-    //*********************************************************************************************
-    //          MAJOR METHODS
-    //
-    // public methods that give the class its functionality
-    //*********************************************************************************************
-
 }
