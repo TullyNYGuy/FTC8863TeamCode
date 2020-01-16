@@ -195,7 +195,7 @@ public class OdometrySystem {
         angleOfTranslation = Math.atan2(translationWidth, translationDepth);
     }
 
-    public void getMovement(MecanumData data) {
+    public void getMovement(MecanumCommands data) {
         data.setAngleOfTranslation(angleOfTranslation);
         data.setSpeed(lengthOfTranslation);
         data.setSpeedOfRotation(angleOfRotation);
