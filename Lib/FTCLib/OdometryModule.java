@@ -12,12 +12,6 @@ public class OdometryModule {
     // user defined types
     //
     //*********************************************************************************************
-    public enum Position {
-        LEFT,
-        RIGHT,
-        FRONT
-    }
-
 
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS
@@ -25,8 +19,6 @@ public class OdometryModule {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
-    private Position position;
-
     private int countsPerRevolution;
 
     private double circumference;
@@ -45,14 +37,6 @@ public class OdometryModule {
     // allow access to private data fields for example setMotorPower,
     // getPositionInTermsOfAttachment
     //*********************************************************************************************
-
-    public Position getPosition() {
-        return position;
-    }
-
-    public void setPosition(Position position) {
-        this.position = position;
-    }
 
     public int getCountsPerRevolution() {
         return countsPerRevolution;
@@ -100,8 +84,7 @@ public class OdometryModule {
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
-    public OdometryModule(Position position, int countsPerRevolution, double circumference, Units units, String odometryModuleConfigName, HardwareMap hardwareMap) {
-        this.position = position;
+    public OdometryModule(int countsPerRevolution, double circumference, Units units, String odometryModuleConfigName, HardwareMap hardwareMap) {
         this.countsPerRevolution = countsPerRevolution;
         if (units == Units.IN) {
             this.circumference = convertInToCm(circumference);

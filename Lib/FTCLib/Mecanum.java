@@ -12,66 +12,81 @@ public class Mecanum {
     //
     //*********************************************************************************************
 
-
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS
     //
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
-    private Wheels wheels;
-    private double leftStickX;
-    private double rightStickX;
-    private double leftStickY;
-    private double rightStickY;
+    private WheelVelocities wheelVelocities;
+    private DcMotor8863 frontLeft;
+    private DcMotor8863 frontRight;
+    private DcMotor8863 backLeft;
+    private DcMotor8863 backRight;
 
-    public class Wheels {
-        protected double frontLeft = 0;
-        protected double frontRight = 0;
-        protected double backLeft = 0;
-        protected double backRight = 0;
 
-        public double getFrontLeft() {
+    public double getFrontLeft() {
+        return wheelVelocities.getFrontLeft();
+    }
+
+    public double getBackLeft() {
+        return wheelVelocities.getBackLeft();
+    }
+
+    public double getFrontRight() {
+        return wheelVelocities.getFrontRight();
+    }
+
+    public double getBackRight() {
+        return wheelVelocities.getBackRight();
+    }
+
+    static public class WheelVelocities {
+        private double frontLeft;
+        private double frontRight;
+        private double backLeft;
+        private double backRight;
+
+        private double getFrontLeft() {
             return frontLeft;
         }
 
-        public double getFrontRight() {
+        private double getFrontRight() {
             return frontRight;
         }
 
-        public double getBackLeft() {
+        private double getBackLeft() {
             return backLeft;
         }
 
-        public double getBackRight() {
+        private double getBackRight() {
             return backRight;
         }
 
-        public Wheels() {
+        WheelVelocities() {
             frontLeft = 0;
             frontRight = 0;
             backLeft = 0;
             backRight = 0;
         }
 
-        private Wheels scale4Numbers(Wheels wheels) {
-            double biggerNumber = Math.abs(wheels.frontLeft);
-            if (biggerNumber < Math.abs(wheels.frontRight)) {
-                biggerNumber = Math.abs(wheels.frontRight);
+        private void scale4Numbers() {
+            double biggerNumber = Math.abs(frontLeft);
+            if (biggerNumber < Math.abs(frontRight)) {
+                biggerNumber = Math.abs(frontRight);
             }
-            if (biggerNumber < Math.abs(wheels.backRight)) {
-                biggerNumber = Math.abs(wheels.backRight);
+            if (biggerNumber < Math.abs(backRight)) {
+                biggerNumber = Math.abs(backRight);
             }
-            if (biggerNumber < Math.abs(wheels.backLeft)) {
-                biggerNumber = Math.abs(wheels.backLeft);
+            if (biggerNumber < Math.abs(backLeft)) {
+                biggerNumber = Math.abs(backLeft);
             }
-            if (biggerNumber != 0 && biggerNumber > 1) {
-                wheels.frontRight = wheels.frontRight / biggerNumber;
-                wheels.frontLeft = wheels.frontLeft / biggerNumber;
-                wheels.backRight = wheels.backRight / biggerNumber;
-                wheels.backLeft = wheels.backLeft / biggerNumber;
+            if (biggerNumber > 1) {
+                frontRight = frontRight / biggerNumber;
+                frontLeft = frontLeft / biggerNumber;
+                backRight = backRight / biggerNumber;
+                backLeft = backLeft / biggerNumber;
             }
-            return wheels;
         }
     }
     //*********************************************************************************************
@@ -88,8 +103,12 @@ public class Mecanum {
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
-    public Mecanum() {
-        wheels = new Wheels();
+    public Mecanum(DcMotor8863 frontLeft, DcMotor8863 frontRight, DcMotor8863 backLeft, DcMotor8863 backRight) {
+        wheelVelocities = new WheelVelocities();
+        this.frontLeft = frontLeft;
+        this.frontRight = frontRight;
+        this.backLeft = backLeft;
+        this.backRight = backRight;
     }
 
     //*********************************************************************************************
@@ -104,24 +123,48 @@ public class Mecanum {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
+
     //if speed of rotation is = 0 then our max speed is 0.707. We may want to scale up to 1.
-    public Wheels calculateWheelVelocity(MecanumData mecanumData) {
-        wheels.frontLeft = mecanumData.getSpeed() * Math.sin(-mecanumData.getAngleOfTranslation() + (Math.PI / 4)) - mecanumData.getSpeedOfRotation();
-        wheels.frontRight = mecanumData.getSpeed() * Math.cos(-mecanumData.getAngleOfTranslation() + (Math.PI / 4)) + mecanumData.getSpeedOfRotation();
-        wheels.backLeft = mecanumData.getSpeed() * Math.cos(-mecanumData.getAngleOfTranslation() + (Math.PI / 4)) - mecanumData.getSpeedOfRotation();
-        wheels.backRight = mecanumData.getSpeed() * Math.sin(-mecanumData.getAngleOfTranslation() + (Math.PI / 4)) + mecanumData.getSpeedOfRotation();
-        return wheels.scale4Numbers(wheels);
+    public WheelVelocities calculateWheelVelocity(MecanumCommands mecanumCommands) {
+        wheelVelocities.frontLeft = mecanumCommands.getSpeed() * Math.sin(-mecanumCommands.getAngleOfTranslation() + (Math.PI / 4)) + mecanumCommands.getSpeedOfRotation();
+        wheelVelocities.frontRight = mecanumCommands.getSpeed() * Math.cos(-mecanumCommands.getAngleOfTranslation() + (Math.PI / 4)) - mecanumCommands.getSpeedOfRotation();
+        wheelVelocities.backLeft = mecanumCommands.getSpeed() * Math.cos(-mecanumCommands.getAngleOfTranslation() + (Math.PI / 4)) + mecanumCommands.getSpeedOfRotation();
+        wheelVelocities.backRight = mecanumCommands.getSpeed() * Math.sin(-mecanumCommands.getAngleOfTranslation() + (Math.PI / 4)) - mecanumCommands.getSpeedOfRotation();
+        wheelVelocities.scale4Numbers();
+        return wheelVelocities;
+    }
+
+    public void setMotorPower(MecanumCommands mecanumCommands) {
+        calculateWheelVelocity(mecanumCommands);
+        // update() is a call that runs the state machine for the motor. It is really only needed
+        // when we are running the motor using feedback.
+        //frontLeft.update();
+
+        // set the power to the motor. This is the call to use when changing power after the
+        // motor is set up for a mode.
+
+        frontLeft.setPower(wheelVelocities.frontLeft);
+        frontRight.setPower(wheelVelocities.frontRight);
+        backLeft.setPower(wheelVelocities.backLeft);
+        backRight.setPower((wheelVelocities.backRight));
+    }
+
+    public void stopMotor() {
+        frontLeft.stop();
+        backLeft.stop();
+        frontRight.stop();
+        backRight.stop();
     }
 
     public void test(Telemetry telemetry) {
-        MecanumData mecanumData = new MecanumData();
-        mecanumData.setSpeedOfRotation(0);
-        mecanumData.setAngleOfTranslation(-Math.PI / 2);
-        mecanumData.setSpeed(0.5);
-        Wheels wheels = calculateWheelVelocity(mecanumData);
-        telemetry.addData("front left = ", wheels.frontLeft);
-        telemetry.addData("front right = ", wheels.frontRight);
-        telemetry.addData("back left = ", wheels.backLeft);
-        telemetry.addData("back right = ", wheels.backRight);
+        MecanumCommands mecanumCommands = new MecanumCommands();
+        mecanumCommands.setSpeedOfRotation(0);
+        mecanumCommands.setAngleOfTranslation(-Math.PI / 2);
+        mecanumCommands.setSpeed(0.5);
+        WheelVelocities wheelVelocities = calculateWheelVelocity(mecanumCommands);
+        telemetry.addData("front left = ", wheelVelocities.frontLeft);
+        telemetry.addData("front right = ", wheelVelocities.frontRight);
+        telemetry.addData("back left = ", wheelVelocities.backLeft);
+        telemetry.addData("back right = ", wheelVelocities.backRight);
     }
 }

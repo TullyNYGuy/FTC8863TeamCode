@@ -71,7 +71,7 @@ public class DcMotor8863 {
     /**
      * A DcMotor from the qualcomm code
      */
-    private com.qualcomm.robotcore.hardware.DcMotor FTCDcMotor;
+    protected com.qualcomm.robotcore.hardware.DcMotor FTCDcMotor;
 
     /**
      * Type of motor. Controls the encoder counts per revolution
@@ -144,7 +144,7 @@ public class DcMotor8863 {
     /**
      * motor direction
      */
-    private DcMotor.Direction direction = com.qualcomm.robotcore.hardware.DcMotor.Direction.FORWARD;
+    protected DcMotor.Direction direction = com.qualcomm.robotcore.hardware.DcMotor.Direction.FORWARD;
 
     /**
      * last encoder value
@@ -198,7 +198,7 @@ public class DcMotor8863 {
     /**
      * The current power the motor has been commanded to run at
      */
-    private double currentPower = 0;
+    protected double currentPower = 0;
 
     /**
      * A timer used in the isRotationComplete method
@@ -359,7 +359,7 @@ public class DcMotor8863 {
         return targetEncoderCount;
     }
 
-    private void setTargetEncoderCount(int targetEncoderCount) {
+    protected void setTargetEncoderCount(int targetEncoderCount) {
         this.targetEncoderCount = targetEncoderCount;
     }
 
@@ -379,11 +379,11 @@ public class DcMotor8863 {
         this.currentMotorState = currentMotorState;
     }
 
-    private DcMotor.RunMode getCurrentRunMode() {
+    protected DcMotor.RunMode getCurrentRunMode() {
         return currentRunMode;
     }
 
-    private void setCurrentRunMode(DcMotor.RunMode currentRunMode) {
+    protected void setCurrentRunMode(DcMotor.RunMode currentRunMode) {
         this.currentRunMode = currentRunMode;
     }
 

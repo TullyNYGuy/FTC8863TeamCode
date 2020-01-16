@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.util.Range;
  */
 public class JoyStick {
 
-    // Constants - shguld probably be made into private fields to make it more generic
+    // Constants - should probably be made into private fields to make it more generic
     final static double JOYSTICK_MIN = -1;
     final static double JOYSTICK_MAX = 1;
     final static double OUTPUT_MIN = -1;
@@ -289,7 +289,7 @@ public class JoyStick {
     /**
      * Utility method that checks if the input is to be changed to the opposite sign
      *
-     * @param joyStickValue
+     * @param joyStickValue input value
      * @return If the INVERT_SIGN is set, then returns input * -1
      */
     public double invertJoyStick(double joyStickValue) {
@@ -330,20 +330,13 @@ public class JoyStick {
         if (joystickAxis == JoystickAxis.X) {
             if (joystickSide == JoystickSide.LEFT) {
                 joystickValue = gamepad.left_stick_x;
-            }
-        }
-        if (joystickAxis == JoystickAxis.X) {
-            if (joystickSide == JoystickSide.RIGHT) {
+            } else {
                 joystickValue = gamepad.right_stick_x;
             }
-        }
-        if (joystickAxis == JoystickAxis.Y) {
+        } else {
             if (joystickSide == JoystickSide.LEFT) {
                 joystickValue = gamepad.left_stick_y;
-            }
-        }
-        if (joystickAxis == JoystickAxis.Y) {
-            if (joystickSide == JoystickSide.RIGHT) {
+            } else {
                 joystickValue = gamepad.right_stick_y;
             }
         }
@@ -369,9 +362,9 @@ public class JoyStick {
     // the driver will have less control at the lower joystick inputs.
 
     /**
-     * @param joyStickValue
-     * @param reductionFactor
-     * @return
+     * @param joyStickValue   input value
+     * @param reductionFactor scaling factor
+     * @return scaled joystick value
      */
     public static double scaleInputLinear(double joyStickValue, double reductionFactor) {
         // clip the joystick input to its min and max favlues
