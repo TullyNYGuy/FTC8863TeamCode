@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.opmodes.SkystoneTest;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
@@ -53,7 +54,7 @@ public class OdometryTest extends LinearOpMode {
         TestOdometryModule left= new TestOdometryModule(hardwareMap);
         TestOdometryModule back = new TestOdometryModule(hardwareMap);
         OdometrySystem trial = new OdometrySystem(Units.CM, left, right, back);
-        trial.initializeRobotGeometry(0, 1, 0, 1, 1, 0);
+        trial.initializeRobotGeometry(0, 1, DcMotorSimple.Direction.REVERSE,0, 1, DcMotorSimple.Direction.FORWARD, 1,0, DcMotorSimple.Direction.FORWARD);
 
         left.setData(0);
         right.setData(0);

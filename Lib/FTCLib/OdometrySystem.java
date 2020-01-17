@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+
 /*
  * This Odometry system designed to be used with mecanum drive.
  * The idea is to split movement of the robot into rotational and translational.
@@ -31,6 +34,13 @@ public class OdometrySystem {
     private OdometryModule left;
     private OdometryModule right;
     private OdometryModule back;
+
+    DcMotor.Direction leftDirection;
+    DcMotor.Direction rightDirection;
+    DcMotor.Direction backDirection;
+    private double leftDirectionMultiplier = 1;
+    private double rightDirectionMultiplier = 1;
+    private double backDirectionMultiplier = 1;
 
     /*
      * Units of measurement for the rest of linear variables
@@ -164,11 +174,26 @@ public class OdometrySystem {
     //*********************************************************************************************
 
     public void initializeRobotGeometry(
-            double leftOffsetDepth, double leftOffsetWidth,
-            double rightOffsetDepth, double rightOffsetWidth,
-            double backOffsetDepth, double backOffsetWidth) {
+            double leftOffsetDepth, double leftOffsetWidth, DcMotor.Direction leftDirection,
+            double rightOffsetDepth, double rightOffsetWidth, DcMotor.Direction rightDirection,
+            double backOffsetDepth, double backOffsetWidth, DcMotor.Direction backDirection) {
         this.leftOffsetDepth = leftOffsetDepth;
         this.leftOffsetWidth = leftOffsetWidth;
+        this.leftDirection = leftDirection;
+        this.rightDirection = rightDirection;
+        this.backDirection = backDirection;
+        if(backDirection == DcMotor.Direction.FORWARD)
+            backDirectionMultiplier = 1.0;
+        else
+            backDirectionMultiplier = -1.0;
+        if(rightDirection == DcMotor.Direction.FORWARD)
+            rightDirectionMultiplier = 1.0;
+        else
+            rightDirectionMultiplier = -1.0;
+        if(leftDirection == DcMotor.Direction.FORWARD)
+            leftDirectionMultiplier = 1.0;
+        else
+            leftDirectionMultiplier = -1.0;
         this.rightOffsetDepth = rightOffsetDepth;
         this.rightOffsetWidth = rightOffsetWidth;
         this.backOffsetDepth = backOffsetDepth;
@@ -179,12 +204,13 @@ public class OdometrySystem {
         leftMultiplier = leftModuleDistanceSq/leftOffsetWidth;
         rightMultiplier = rightModuleDistanceSq/rightOffsetWidth;
         backMultiplier = backModuleDistanceSq/backOffsetDepth;
+        rotationalMultiplier =  1.0 / (leftMultiplier + rightMultiplier);
     }
 
     public void calculateMoveDistance() {
-        double leftEncoderValue = left.getDistanceSinceLastChange(unit);
-        double rightEncoderValue = right.getDistanceSinceLastChange(unit);
-        double backEncoderValue = back.getDistanceSinceLastChange(unit);
+        double leftEncoderValue = left.getDistanceSinceReset(unit)*leftDirectionMultiplier;
+        double rightEncoderValue = right.getDistanceSinceReset(unit);
+        double backEncoderValue = back.getDistanceSinceReset(unit);
 
         // calculate angle of rotation
         angleOfRotation = (leftEncoderValue - rightEncoderValue) * rotationalMultiplier;

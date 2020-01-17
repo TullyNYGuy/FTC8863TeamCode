@@ -109,20 +109,12 @@ public class OdometryModule {
     //*********************************************************************************************
     private double convertTicksToInches(int ticks) {
         ///// this should be the circumference
-        if (units == Units.IN) {
-            return ticks / 1440.0 * circumference;
-        } else {
-            return ticks / 1440.0 * circumference / 2.54;
-        }
+        return ticks / 1440.0 * circumference;
     }
 
     private double convertTicksToCm(int ticks) {
         ///// this should be the circumference
-        if (units == Units.CM) {
-            return ticks / 1440.0 * circumference;
-        } else {
-            return ticks / 1440.0 * circumference * 2.54;
-        }
+        return ticks / 1440.0 * circumference * 2.54;
     }
 
     private double convertInToCm(double circumference) {
