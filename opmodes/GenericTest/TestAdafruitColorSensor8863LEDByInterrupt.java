@@ -9,18 +9,17 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitColorSensor8863;
 
 /**
  * This test demonstrates using the interrupt pin to control the led on the color sensor.
- *
+ * <p>
  * Note that if you have more than one color sensor you will have to use an I2C mux since
  * the address for this color sensor is fixed and you can't have two sensors with the same address
  * on the bus
- *
+ * <p>
  * Phone configuration:
  * core device interface module name: coreDIM
  * I2C port type: I2C DEVICE
  * I2C device name: colorSensor
- *
+ * <p>
  * Short the LED and INT pins on the Adafruit color sensor together using a jumper wire.
- *
  */
 @TeleOp(name = "Test Adafruit Color Sensor 8863 LED", group = "Test")
 @Disabled

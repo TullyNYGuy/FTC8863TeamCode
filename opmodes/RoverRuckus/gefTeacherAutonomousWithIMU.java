@@ -47,10 +47,10 @@ public class gefTeacherAutonomousWithIMU extends LinearOpMode {
         // Start the logging of measured acceleration
         robot.driveTrain.imu.startAccelerationIntegration(new Position(), new Velocity(), 1000);
 
-        robot.driveTrain.setupDriveUsingIMU(0,150 *2.45,.5, DriveTrain.DriveDirection.FORWARD, AdafruitIMU8863.AngleMode.ABSOLUTE);
+        robot.driveTrain.setupDriveUsingIMU(0, 150 * 2.45, .5, DriveTrain.DriveDirection.FORWARD, AdafruitIMU8863.AngleMode.ABSOLUTE);
         robot.driveTrain.startDriveUsingIMU();
 
-        while (opModeIsActive()&& (!robot.driveTrain.updateDriveUsingIMU() )) {
+        while (opModeIsActive() && (!robot.driveTrain.updateDriveUsingIMU())) {
             // Put your calls that need to run in a loop here
             idle();
 

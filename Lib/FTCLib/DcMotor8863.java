@@ -71,7 +71,7 @@ public class DcMotor8863 {
     /**
      * A DcMotor from the qualcomm code
      */
-    private com.qualcomm.robotcore.hardware.DcMotor FTCDcMotor;
+    protected com.qualcomm.robotcore.hardware.DcMotor FTCDcMotor;
 
     /**
      * Type of motor. Controls the encoder counts per revolution
@@ -144,7 +144,7 @@ public class DcMotor8863 {
     /**
      * motor direction
      */
-    private DcMotor.Direction direction = com.qualcomm.robotcore.hardware.DcMotor.Direction.FORWARD;
+    protected DcMotor.Direction direction = com.qualcomm.robotcore.hardware.DcMotor.Direction.FORWARD;
 
     /**
      * last encoder value
@@ -198,7 +198,7 @@ public class DcMotor8863 {
     /**
      * The current power the motor has been commanded to run at
      */
-    private double currentPower = 0;
+    protected double currentPower = 0;
 
     /**
      * A timer used in the isRotationComplete method
@@ -359,7 +359,7 @@ public class DcMotor8863 {
         return targetEncoderCount;
     }
 
-    private void setTargetEncoderCount(int targetEncoderCount) {
+    protected void setTargetEncoderCount(int targetEncoderCount) {
         this.targetEncoderCount = targetEncoderCount;
     }
 
@@ -379,11 +379,11 @@ public class DcMotor8863 {
         this.currentMotorState = currentMotorState;
     }
 
-    private DcMotor.RunMode getCurrentRunMode() {
+    protected DcMotor.RunMode getCurrentRunMode() {
         return currentRunMode;
     }
 
-    private void setCurrentRunMode(DcMotor.RunMode currentRunMode) {
+    protected void setCurrentRunMode(DcMotor.RunMode currentRunMode) {
         this.currentRunMode = currentRunMode;
     }
 
@@ -531,6 +531,7 @@ public class DcMotor8863 {
 
     /**
      * Implements a delay
+     *
      * @param mSec delay in milli Seconds
      */
     private void delay(int mSec) {
@@ -617,6 +618,7 @@ public class DcMotor8863 {
     public double getPositionInTermsOfAttachment() {
         return getMovementForEncoderCount(getCurrentPosition());
     }
+
     /**
      * Get the current motor position in terms of the position of whatever is attached to it. The
      * position can be the number of degrees, the position of a wheel in cm etc. The position is
@@ -634,6 +636,7 @@ public class DcMotor8863 {
      * Get the current encoder value relative to the last encoder value. In other words, the
      * position is the current position - the position of the encoder  before the last movement
      * started.
+     *
      * @return encoder value - encoder value before the last movement started
      */
     public int getCurrentPositionRelativeToLast() {
@@ -908,7 +911,7 @@ public class DcMotor8863 {
                 this.setPower(power);
             }
             logFlag = true;
-            if(dataLog != null) {
+            if (dataLog != null) {
                 dataLog.logData("Rotate to encoder count = " + Integer.toString(encoderCount) + " from encoder count = " + Integer.toString(getCurrentPosition()) + " at power " + Double.toString(power) + "in");
             }
             return true;
@@ -1081,8 +1084,9 @@ public class DcMotor8863 {
     /**
      * Setup and start a power ramp. Combines setupPowerRamp() and startPowerRamp() in one
      * method for ease of use.
-     * @param initialPower The power the motor starts out at for time = 0.
-     * @param finalPower The power that corresponds to the end of the ramp time. The ramp will finish
+     *
+     * @param initialPower   The power the motor starts out at for time = 0.
+     * @param finalPower     The power that corresponds to the end of the ramp time. The ramp will finish
      *                       at this power.
      * @param rampTimeInmSec The length of time it takes to ramp up the power.
      */
@@ -1102,6 +1106,7 @@ public class DcMotor8863 {
 
     /**
      * Is there a power ramp enabled but not running yet?
+     *
      * @return true = power ramp enabled
      */
     public boolean isPowerRampEnabled() {
@@ -1111,6 +1116,7 @@ public class DcMotor8863 {
     /**
      * Check to see if there is a power ramp running. Since the motor maintains its own state, this
      * is the only way for a user to tell if there is a power ramp running or if it is finished.
+     *
      * @return true = power ramp is still running
      */
     public boolean isPowerRampRunning() {
@@ -1163,7 +1169,7 @@ public class DcMotor8863 {
     }
 
     public boolean isStalled() {
-        if(telemetry != null) {
+        if (telemetry != null) {
             telemetry.addData("motor is moving = ", isMotorStateMoving());
             telemetry.addData("motor stall detection enabled = ", isStallDetectionEnabled());
             telemetry.addData("stall timer = ", "%5.2f", stallTimer.time());
@@ -1171,28 +1177,28 @@ public class DcMotor8863 {
         }
         int currentEncoderValue = this.getCurrentPosition();
         if (isMotorStateMoving() && isStallDetectionEnabled()) {
-            if(telemetry != null) {
+            if (telemetry != null) {
                 telemetry.addData("checking for a stall", "!");
             }
             // if the motor has not moved since the last time the position was read
             if (Math.abs(currentEncoderValue - lastEncoderValue) < stallDetectionTolerance) {
-                if(telemetry != null) {
+                if (telemetry != null) {
                     telemetry.addData("motor is not moving", "!");
                 }
                 // motor has not moved, checking to see how long the motor has been stalled for
                 if (stallTimer.time() > stallTimeLimit) {
-                    if(telemetry != null){
+                    if (telemetry != null) {
                         telemetry.addData("stall timer has expired", "!");
                     }
                     // it has been stalled for more than the time limit
                     return true;
                 } else {
-                    if(telemetry != null) {
+                    if (telemetry != null) {
                         telemetry.addData("stall time has NOT expired", "!");
                     }
                 }
             } else {
-                if(telemetry != null) {
+                if (telemetry != null) {
                     telemetry.addData("motor is still moving.", " Resetting stall timer.");
                 }
                 // reset the timer because the motor is not stalled
@@ -1367,6 +1373,7 @@ public class DcMotor8863 {
     /**
      * Implement a state machine to track the motor. See enum declarations for a description of each
      * state.
+     *
      * @return the state that the motor is in currently
      */
     public MotorState update() {
@@ -1478,7 +1485,7 @@ public class DcMotor8863 {
             // Stalled state means that a stall was detected. The motor was not moving for a certain
             // period of time due to excessive load being applied.
             case STALLED:
-                if(dataLog != null && logFlag) {
+                if (dataLog != null && logFlag) {
                     dataLog.logData("Motor Stalled!");
                 }
                 break;
@@ -1606,7 +1613,7 @@ public class DcMotor8863 {
     }
 
     // FTC SDK 3.4 removed these calls so I'm commenting out this code
-/*    *//**
+    /*    *//**
      * When the motor is running in one of the <a href="https://en.wikipedia.org/wiki/PID_controller">PID modes</a>
      * the value set using the {@link #setPower(double) setPower()} method is indicative of a
      * desired motor <em>velocity</em> rather than a raw <em>power</em> level. In those modes, the

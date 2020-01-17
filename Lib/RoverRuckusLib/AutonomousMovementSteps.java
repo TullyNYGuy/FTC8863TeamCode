@@ -833,17 +833,17 @@ public class AutonomousMovementSteps {
                                 }
                                 break;
                             case BACKUP_FROM_INSIDE_DEPOT:
-                                    if (robot.driveTrain.updateDriveUsingIMU()) {
-                                        // done with the drive straight stop the robot
-                                        robot.driveTrain.stopDriveDistanceUsingIMU();
-                                        step = Steps.RUN_CURVE_ONTO_DEPOT_LANE;
-                                    }
-                                    break;
+                                if (robot.driveTrain.updateDriveUsingIMU()) {
+                                    // done with the drive straight stop the robot
+                                    robot.driveTrain.stopDriveDistanceUsingIMU();
+                                    step = Steps.RUN_CURVE_ONTO_DEPOT_LANE;
+                                }
+                                break;
                             case RUN_CURVE_ONTO_DEPOT_LANE:
-                                    adjustment = 10;
-                                    driveCurve.setupDriveCurve(+135, .2, inchesToCM(16.1 + adjustment), DriveCurve.CurveDirection.CCW, DriveCurve.DriveDirection.FORWARD);
-                                    driveCurve.startDriveCurve();
-                                    step = Steps.DUMP_MARKER;
+                                adjustment = 10;
+                                driveCurve.setupDriveCurve(+135, .2, inchesToCM(16.1 + adjustment), DriveCurve.CurveDirection.CCW, DriveCurve.DriveDirection.FORWARD);
+                                driveCurve.startDriveCurve();
+                                step = Steps.DUMP_MARKER;
                                 break;
                             case DUMP_MARKER:
                                 driveCurve.update();
@@ -973,8 +973,8 @@ public class AutonomousMovementSteps {
                 logStep(step);
                 switch (step) {
                     case START:
-                        adjustment= -6;
-                        robot.driveTrain.setupDriveUsingIMU(-45, inchesToCM(82 +adjustment), .4, DriveTrain.DriveDirection.FORWARD, AdafruitIMU8863.AngleMode.ABSOLUTE);
+                        adjustment = -6;
+                        robot.driveTrain.setupDriveUsingIMU(-45, inchesToCM(82 + adjustment), .4, DriveTrain.DriveDirection.FORWARD, AdafruitIMU8863.AngleMode.ABSOLUTE);
                         robot.driveTrain.startDriveUsingIMU();
                         step = Steps.RUN_DRIVE_TO_CRATER;
                         break;

@@ -16,7 +16,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 /**
  * THE SDK HAS CHANGED AND THIS CLASS NO LONGER WORKS. IT WILL TAKE SOME DEBUGGING TO MAKE IT WORK
  * AGAIN - GB 10/22/2018
- *
+ * <p>
  * A continuous rotation servo is a servo that can turn around and around like a motor but does not
  * have any position feedback like a normal servo does.
  * This class turns a continous rotation servo into a motor that can move a distance. It is not
@@ -210,18 +210,18 @@ public class CRServo8863 {
     //*********************************************************************************************
 
     public CRServo8863(String servoName, HardwareMap hardwareMap, double centerValueForward,
-                   double centerValueReverse, double deadBandRange, Servo.Direction direction,
-                   Telemetry telemetry) {
+                       double centerValueReverse, double deadBandRange, Servo.Direction direction,
+                       Telemetry telemetry) {
         initialize(servoName, hardwareMap, centerValueForward, centerValueReverse, deadBandRange,
                 direction, telemetry);
         // initialize the CRServo State ????
     }
 
     public CRServo8863(String servoName, HardwareMap hardwareMap, double centerValueForward,
-                   double centerValueReverse, double deadBandRange, Servo.Direction direction,
-                   String frontSwitchName, Switch.SwitchType frontSwitchType,
-                   String backSwitchName, Switch.SwitchType backSwitchType,
-                   Telemetry telemetry) {
+                       double centerValueReverse, double deadBandRange, Servo.Direction direction,
+                       String frontSwitchName, Switch.SwitchType frontSwitchType,
+                       String backSwitchName, Switch.SwitchType backSwitchType,
+                       Telemetry telemetry) {
         // create the switch objects
         frontSwitch = new Switch(hardwareMap, frontSwitchName, frontSwitchType);
         backSwitch = new Switch(hardwareMap, backSwitchName, backSwitchType);
@@ -526,6 +526,7 @@ public class CRServo8863 {
     /**
      * When the state of the CRServo is unknown, like when it is constucted, we need to try to
      * determine the state as best we can. We are assuming that the servo is not moving.
+     *
      * @return
      */
     public CRServoState findCRServoState() {

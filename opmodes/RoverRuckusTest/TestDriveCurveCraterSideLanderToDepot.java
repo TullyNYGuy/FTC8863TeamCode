@@ -10,8 +10,6 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
- *
- *
  */
 @TeleOp(name = "Test Crater Side Lander to Depot with curves", group = "Test")
 //@Disabled
@@ -28,7 +26,7 @@ public class TestDriveCurveCraterSideLanderToDepot extends LinearOpMode {
     public void runOpMode() {
 
         // Put your initializations here
-        logFile = new DataLogging( "Test Drive CraterSide Lander To Depot", telemetry);
+        logFile = new DataLogging("Test Drive CraterSide Lander To Depot", telemetry);
         driveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap, telemetry);
         driveTrain.setLogFile(logFile);
         driveTrain.enableLogDrive();
@@ -45,8 +43,8 @@ public class TestDriveCurveCraterSideLanderToDepot extends LinearOpMode {
         driveCurve.enableLogging();
         driveCurve.enablePID();
 
-                // Wait for the start button
-        telemetry.addData(">", "Press Start to run" );
+        // Wait for the start button
+        telemetry.addData(">", "Press Start to run");
         telemetry.update();
         waitForStart();
 
@@ -54,9 +52,9 @@ public class TestDriveCurveCraterSideLanderToDepot extends LinearOpMode {
 
         // curve from lander onto lane in front of lander headed towards depot
         driveCurve.startDriveCurve();
-        while(opModeIsActive() && !driveCurve.isCurveComplete()) {
+        while (opModeIsActive() && !driveCurve.isCurveComplete()) {
             driveCurve.update();
-            telemetry.addData(">", "Curving ..." );
+            telemetry.addData(">", "Curving ...");
             telemetry.update();
             idle();
         }
@@ -65,7 +63,7 @@ public class TestDriveCurveCraterSideLanderToDepot extends LinearOpMode {
         // drive straight after CCW curve forward
         // drive on lane in front of lander towards wall
         driveTrain.setupDriveUsingIMU(90, 18.15 * 2.54, speed, DriveTrain.DriveDirection.FORWARD, AdafruitIMU8863.AngleMode.ABSOLUTE);
-        while (opModeIsActive()&& !driveTrain.updateDriveUsingIMU()) {
+        while (opModeIsActive() && !driveTrain.updateDriveUsingIMU()) {
             // Display the current value
             telemetry.addData(">", "Driving straight ...");
             telemetry.update();
@@ -74,19 +72,19 @@ public class TestDriveCurveCraterSideLanderToDepot extends LinearOpMode {
 
         // CCW curve forward
         // curve onto lane near wall heading towards depot
-        curveAngle = 135-1;
+        curveAngle = 135 - 1;
         driveCurve.setupDriveCurve(curveAngle, speed, 36.21 * 2.54, DriveCurve.CurveDirection.CCW, DriveCurve.DriveDirection.FORWARD);
         driveCurve.startDriveCurve();
-        while(opModeIsActive() && !driveCurve.isCurveComplete()) {
+        while (opModeIsActive() && !driveCurve.isCurveComplete()) {
             driveCurve.update();
-            telemetry.addData(">", "Curving ..." );
+            telemetry.addData(">", "Curving ...");
             telemetry.update();
             idle();
         }
 
         // drive along lane into depot
         driveTrain.setupDriveUsingIMU(135, 24.6 * 2.54, speed, DriveTrain.DriveDirection.FORWARD, AdafruitIMU8863.AngleMode.ABSOLUTE);
-        while (opModeIsActive()&& !driveTrain.updateDriveUsingIMU()) {
+        while (opModeIsActive() && !driveTrain.updateDriveUsingIMU()) {
             // Display the current value
             telemetry.addData(">", "Driving straight ...");
             telemetry.update();

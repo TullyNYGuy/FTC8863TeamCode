@@ -12,8 +12,6 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
- *
- *
  */
 @TeleOp(name = "Test Drive Curve + Straight", group = "Test")
 //@Disabled
@@ -30,7 +28,7 @@ public class TestDriveCurvePlusStraight extends LinearOpMode {
     public void runOpMode() {
 
         // Put your initializations here
-        logFile = new DataLogging( "Test Drive Curve + Straight", telemetry);
+        logFile = new DataLogging("Test Drive Curve + Straight", telemetry);
         driveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap, telemetry);
         driveTrain.setLogFile(logFile);
         driveTrain.enableLogDrive();
@@ -60,8 +58,8 @@ public class TestDriveCurvePlusStraight extends LinearOpMode {
         driveCurve.enableLogging();
         driveCurve.enablePID();
 
-                // Wait for the start button
-        telemetry.addData(">", "Press Start to run" );
+        // Wait for the start button
+        telemetry.addData(">", "Press Start to run");
         telemetry.update();
         waitForStart();
 
@@ -70,9 +68,9 @@ public class TestDriveCurvePlusStraight extends LinearOpMode {
         // Put your calls here - they will not run in a loop
         driveCurve.startDriveCurve();
 
-        while(opModeIsActive() && !driveCurve.isCurveComplete()) {
+        while (opModeIsActive() && !driveCurve.isCurveComplete()) {
             driveCurve.update();
-            telemetry.addData(">", "Curving ..." );
+            telemetry.addData(">", "Curving ...");
             telemetry.update();
             idle();
         }
@@ -89,7 +87,7 @@ public class TestDriveCurvePlusStraight extends LinearOpMode {
         // drive straight after CCW curve backward
         driveTrain.setupDriveUsingIMU(90, -30, speed, DriveTrain.DriveDirection.REVERSE, AdafruitIMU8863.AngleMode.ABSOLUTE);
 
-        while (opModeIsActive()&& !driveTrain.updateDriveUsingIMU()) {
+        while (opModeIsActive() && !driveTrain.updateDriveUsingIMU()) {
             // Display the current value
             telemetry.addData(">", "Driving straight ...");
             telemetry.update();

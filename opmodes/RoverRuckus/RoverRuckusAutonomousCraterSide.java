@@ -42,7 +42,6 @@ public class RoverRuckusAutonomousCraterSide extends LinearOpMode {
         autonomousDirector = new AutonomousDirector(configurationFile);
 
 
-
 //        autonomousDirector.addTask(AutonomousDirector.AutonomousTasks.LOCATE_GOLD_MINERAL);
 //        autonomousDirector.addTask(AutonomousDirector.AutonomousTasks.DEHANG);
 //        autonomousDirector.addTask(AutonomousDirector.AutonomousTasks.HIT_GOLD_MINERAL_FROM_LANDER);

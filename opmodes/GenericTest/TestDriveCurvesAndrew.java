@@ -13,8 +13,6 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
- *
- *
  */
 @TeleOp(name = "Test Drive Curve Andrew", group = "Test")
 //@Disabled
@@ -31,7 +29,7 @@ public class TestDriveCurvesAndrew extends LinearOpMode {
     public void runOpMode() {
 
         // Put your initializations here
-        logfile = new DataLogging( "Test Drive Curve", telemetry);
+        logfile = new DataLogging("Test Drive Curve", telemetry);
         driveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap, telemetry);
 
         double curveAngle = -89.0;
@@ -40,8 +38,8 @@ public class TestDriveCurvesAndrew extends LinearOpMode {
         driveCurve = new DriveCurve(curveAngle, speed, curveRadius, DriveCurve.CurveDirection.CW, DriveCurve.DriveDirection.FORWARD, driveTrain.imu, logfile, driveTrain);
         driveCurve.enableLogging();
 
-                // Wait for the start button
-        telemetry.addData(">", "Press Start to run" );
+        // Wait for the start button
+        telemetry.addData(">", "Press Start to run");
         telemetry.update();
         waitForStart();
 
@@ -50,8 +48,8 @@ public class TestDriveCurvesAndrew extends LinearOpMode {
         driveTrain.setRightDriveMotorSpeed(driveCurve.getRightWheelSpeed());
         driveTrain.applyPowersToMotors();
 
-        while(opModeIsActive() && !driveCurve.update()) {
-            telemetry.addData(">", "Press Stop to end test." );
+        while (opModeIsActive() && !driveCurve.update()) {
+            telemetry.addData(">", "Press Stop to end test.");
             telemetry.update();
             idle();
         }

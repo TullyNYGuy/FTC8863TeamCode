@@ -158,7 +158,7 @@ public class TestTensorFlowGoldDetection extends LinearOpMode {
                                     break;
                                 default:
                                     // come up with a method of determining which of the gold objects is the target
-                                break;
+                                    break;
                             }
                         } else {
                             logFile.logData("None of the objects were gold minerals.");

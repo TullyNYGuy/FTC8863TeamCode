@@ -48,7 +48,7 @@ public class RotationArmRunToPositionTest extends LinearOpMode {
         logFile.headerStrings("Encoder Count", "Motor State");
         logFile.startTimer();
 
-        while (opModeIsActive()&& collectorArmRotationMotor.update()!= DcMotor8863.MotorState.COMPLETE_HOLD) {
+        while (opModeIsActive() && collectorArmRotationMotor.update() != DcMotor8863.MotorState.COMPLETE_HOLD) {
 
             // Put your calls that need to run in a loop here
             collectorArmRotationMotorState = collectorArmRotationMotor.update();
@@ -64,8 +64,8 @@ public class RotationArmRunToPositionTest extends LinearOpMode {
             idle();
         }
         sleep(1000);
-        collectorArmRotationMotor.moveToPosition(.25, 10 , DcMotor8863.FinishBehavior.HOLD);
-        while (opModeIsActive()&& collectorArmRotationMotor.update()!= DcMotor8863.MotorState.COMPLETE_HOLD) {
+        collectorArmRotationMotor.moveToPosition(.25, 10, DcMotor8863.FinishBehavior.HOLD);
+        while (opModeIsActive() && collectorArmRotationMotor.update() != DcMotor8863.MotorState.COMPLETE_HOLD) {
 
             // Put your calls that need to run in a loop here
             collectorArmRotationMotorState = collectorArmRotationMotor.update();

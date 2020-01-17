@@ -313,7 +313,7 @@ public class DumpServoLimitTest extends LinearOpMode {
             }
 
             if (gamepad2b.buttonPress(gamepad2.b)) {
-                    robot.collector.turnCollectorOff();
+                robot.collector.turnCollectorOff();
             }
 
             if (gamepad2y.buttonPress(gamepad2.y)) {
@@ -327,7 +327,7 @@ public class DumpServoLimitTest extends LinearOpMode {
             }
 
             if (gamepad2DpadUp.buttonPress(gamepad2.dpad_up)) {
-                    robot.deliveryLiftSystem.moveToPosition(4, 1);
+                robot.deliveryLiftSystem.moveToPosition(4, 1);
             }
 
             if (gamepad2DpadDown.buttonPress(gamepad2.dpad_down)) {

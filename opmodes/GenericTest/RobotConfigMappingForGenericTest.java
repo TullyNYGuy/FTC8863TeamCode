@@ -183,7 +183,8 @@ public class RobotConfigMappingForGenericTest {
     }
 
     public static String getLeftSideBeaconColorSensorName() {
-        return leftSideBeaconColorSensorName;}
+        return leftSideBeaconColorSensorName;
+    }
 
     public static String getRightSideBeaconColorSensorName() {
         return rightSideBeaconColorSensorName;
@@ -209,7 +210,7 @@ public class RobotConfigMappingForGenericTest {
         return rightSideBeaconPusherServoName;
     }
 
-    
+
     public static String getFrontLeftBeaconServoName() {
         return frontLeftBeaconServoName;
     }

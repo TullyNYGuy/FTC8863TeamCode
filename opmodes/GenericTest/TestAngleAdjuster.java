@@ -37,13 +37,13 @@ public class TestAngleAdjuster extends LinearOpMode {
         logfile.logData("threshold=90 " + "input angle=45 " + "adjusted angle= " + angleAdjuster.adjustAngle(45));
         logfile.logData("threshold=90 " + "input angle=135 " + "adjusted angle= " + angleAdjuster.adjustAngle(135));
         logfile.logData("threshold=90 " + "input angle=-45 " + "adjusted angle= " + angleAdjuster.adjustAngle(-45));
-        logfile.logData("threshold=90 " + "input angle=-135 "+ "adjusted angle= " + angleAdjuster.adjustAngle(-135));
+        logfile.logData("threshold=90 " + "input angle=-135 " + "adjusted angle= " + angleAdjuster.adjustAngle(-135));
 
         angleAdjuster.setTarget(-135, -90);
         logfile.logData("threshold=90 " + "input angle=45 " + "adjusted angle= " + angleAdjuster.adjustAngle(45));
         logfile.logData("threshold=90 " + "input angle=135 " + "adjusted angle= " + angleAdjuster.adjustAngle(135));
         logfile.logData("threshold=90 " + "input angle=-45 " + "adjusted angle= " + angleAdjuster.adjustAngle(-45));
-        logfile.logData("threshold=90 " + "input angle=-135 "+ "adjusted angle= " + angleAdjuster.adjustAngle(-135));
+        logfile.logData("threshold=90 " + "input angle=-135 " + "adjusted angle= " + angleAdjuster.adjustAngle(-135));
 
         // Put your cleanup code here - it runs as the application shuts down
         telemetry.addData(">", "Done");

@@ -169,7 +169,7 @@ public class AngleAdjustedIMU {
                 // the transition point and the angle would suddenly read -360. The robot would reach
                 // the desired angle, but it might go the long way around (-360 -> -270 -> -180 -> -90
                 // instead of (0 -> -90).
-                if (Math.abs(angle) > Math.abs(triggerAngle) || angle >0) {
+                if (Math.abs(angle) > Math.abs(triggerAngle) || angle > 0) {
                     // if the input angle is positive, translate it to negative
                     if (angle > 0) {
                         adjustedAngle = angle - 360;

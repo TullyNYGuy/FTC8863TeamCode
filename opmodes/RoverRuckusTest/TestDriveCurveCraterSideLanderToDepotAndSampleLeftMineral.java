@@ -11,8 +11,6 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
- *
- *
  */
 @TeleOp(name = "Test Crater Side Lander to Depot Sample Left Mineral", group = "Test")
 //@Disabled
@@ -29,7 +27,7 @@ public class TestDriveCurveCraterSideLanderToDepotAndSampleLeftMineral extends L
     public void runOpMode() {
 
         // Put your initializations here
-        logFile = new DataLogging( "Test Drive CraterSide Lander To left mineral to Depot", telemetry);
+        logFile = new DataLogging("Test Drive CraterSide Lander To left mineral to Depot", telemetry);
         driveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap, telemetry);
         driveTrain.setLogFile(logFile);
         driveTrain.enableLogDrive();
@@ -46,8 +44,8 @@ public class TestDriveCurveCraterSideLanderToDepotAndSampleLeftMineral extends L
         driveCurve.enableLogging();
         driveCurve.enablePID();
 
-                // Wait for the start button
-        telemetry.addData(">", "Press Start to run" );
+        // Wait for the start button
+        telemetry.addData(">", "Press Start to run");
         telemetry.update();
         waitForStart();
 
@@ -56,9 +54,9 @@ public class TestDriveCurveCraterSideLanderToDepotAndSampleLeftMineral extends L
         //
         driveCurve.setupDriveCurve(-90, .1, 14.468 * 2.54, DriveCurve.CurveDirection.CW, DriveCurve.DriveDirection.FORWARD);
         driveCurve.startDriveCurve();
-        while(opModeIsActive() && !driveCurve.isCurveComplete()) {
+        while (opModeIsActive() && !driveCurve.isCurveComplete()) {
             driveCurve.update();
-            telemetry.addData(">", "Curving ..." );
+            telemetry.addData(">", "Curving ...");
             telemetry.update();
             idle();
         }
@@ -81,9 +79,9 @@ public class TestDriveCurveCraterSideLanderToDepotAndSampleLeftMineral extends L
 
         // drive straight after CCW curve forward
         // drive on lane in front of lander towards wall
-        driveTrain.setupDriveUsingIMU(-90, 42.124 * 2.54, 0.25, DriveTrain.DriveDirection.REVERSE,  AdafruitIMU8863.AngleMode.ABSOLUTE);
+        driveTrain.setupDriveUsingIMU(-90, 42.124 * 2.54, 0.25, DriveTrain.DriveDirection.REVERSE, AdafruitIMU8863.AngleMode.ABSOLUTE);
         driveTrain.startDriveUsingIMU();
-        while (opModeIsActive()&& !driveTrain.updateDriveUsingIMU()) {
+        while (opModeIsActive() && !driveTrain.updateDriveUsingIMU()) {
             // Display the current value
             telemetry.addData(">", "Driving straight ...");
             telemetry.update();
@@ -92,25 +90,25 @@ public class TestDriveCurveCraterSideLanderToDepotAndSampleLeftMineral extends L
         //
         driveCurve.setupDriveCurve(0, 0.1, 8.5 * 2.54, DriveCurve.CurveDirection.CCW, DriveCurve.DriveDirection.FORWARD);
         driveCurve.startDriveCurve();
-        while(opModeIsActive() && !driveCurve.isCurveComplete()) {
+        while (opModeIsActive() && !driveCurve.isCurveComplete()) {
             driveCurve.update();
-            telemetry.addData(">", "Curving ..." );
+            telemetry.addData(">", "Curving ...");
             telemetry.update();
             idle();
         }
-       driveCurve.setupDriveCurve(-90, 0.1, 8.5 * 2.54, DriveCurve.CurveDirection.CW, DriveCurve.DriveDirection.BACKWARD);
-       driveCurve.startDriveCurve();
-       while(opModeIsActive() && !driveCurve.isCurveComplete()) {
+        driveCurve.setupDriveCurve(-90, 0.1, 8.5 * 2.54, DriveCurve.CurveDirection.CW, DriveCurve.DriveDirection.BACKWARD);
+        driveCurve.startDriveCurve();
+        while (opModeIsActive() && !driveCurve.isCurveComplete()) {
             driveCurve.update();
-           telemetry.addData(">", "Curving ...");
-          telemetry.update();
+            telemetry.addData(">", "Curving ...");
+            telemetry.update();
             idle();
         }
         // drive straight after CCW curve forward
         // drive on lane in front of lander towards wall
-        driveTrain.setupDriveUsingIMU(-90, 4* 2.54, 0.25, DriveTrain.DriveDirection.REVERSE, AdafruitIMU8863.AngleMode.ABSOLUTE);
+        driveTrain.setupDriveUsingIMU(-90, 4 * 2.54, 0.25, DriveTrain.DriveDirection.REVERSE, AdafruitIMU8863.AngleMode.ABSOLUTE);
         driveTrain.startDriveUsingIMU();
-        while (opModeIsActive()&& !driveTrain.updateDriveUsingIMU()) {
+        while (opModeIsActive() && !driveTrain.updateDriveUsingIMU()) {
             // Display the current value
             telemetry.addData(">", "Driving straight ...");
             telemetry.update();
@@ -121,9 +119,9 @@ public class TestDriveCurveCraterSideLanderToDepotAndSampleLeftMineral extends L
         curveAngle = -45;
         driveCurve.setupDriveCurve(curveAngle, 0.3, 38.84 * 2.54, DriveCurve.CurveDirection.CCW, DriveCurve.DriveDirection.BACKWARD);
         driveCurve.startDriveCurve();
-        while(opModeIsActive() && !driveCurve.isCurveComplete()) {
+        while (opModeIsActive() && !driveCurve.isCurveComplete()) {
             driveCurve.update();
-            telemetry.addData(">", "Curving ..." );
+            telemetry.addData(">", "Curving ...");
             telemetry.update();
             idle();
         }
@@ -131,7 +129,7 @@ public class TestDriveCurveCraterSideLanderToDepotAndSampleLeftMineral extends L
         // drive along lane into depot
         driveTrain.setupDriveUsingIMU(-45, 13 * 2.54, 0.3, DriveTrain.DriveDirection.REVERSE, AdafruitIMU8863.AngleMode.ABSOLUTE);
         driveTrain.startDriveUsingIMU();
-        while (opModeIsActive()&& !driveTrain.updateDriveUsingIMU()) {
+        while (opModeIsActive() && !driveTrain.updateDriveUsingIMU()) {
             // Display the current value
             telemetry.addData(">", "Driving straight ...");
             telemetry.update();

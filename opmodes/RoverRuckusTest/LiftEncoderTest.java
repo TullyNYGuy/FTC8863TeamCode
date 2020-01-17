@@ -36,8 +36,8 @@ public class LiftEncoderTest extends LinearOpMode {
             //            //            // Put your calls that need to run in a loop here
 
             // Display the current value
-           deliveryLiftSystem.displayLiftMotorEncoder();
-           deliveryLiftSystem.testLiftLimitSwitches();
+            deliveryLiftSystem.displayLiftMotorEncoder();
+            deliveryLiftSystem.testLiftLimitSwitches();
             telemetry.addData(">", "Press Stop to end test.");
 
             telemetry.update();

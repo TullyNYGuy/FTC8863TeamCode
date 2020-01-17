@@ -202,9 +202,7 @@ public class TestTensorFlowObjectDetectionSnapshot extends LinearOpMode {
             }
         }
 
-        if (tfod != null)
-
-        {
+        if (tfod != null) {
             tfod.shutdown();
         }
         telemetry.addData("Voting Results", mineralVoting.getMostLikelyGoldPosition().toString());

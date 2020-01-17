@@ -5,20 +5,19 @@ import com.qualcomm.robotcore.util.Range;
 
 /**
  * Class to implement a joystick with scaling and deadband compensation
- *
  */
 public class JoyStick {
 
-    // Constants - shguld probably be made into private fields to make it more generic
+    // Constants - should probably be made into private fields to make it more generic
     final static double JOYSTICK_MIN = -1;
     final static double JOYSTICK_MAX = 1;
     final static double OUTPUT_MIN = -1;
     final static double OUTPUT_MAX = 1;
 
     /**
-     *  An enum defining which type of scaling method to use.
-     *  LINEAR is a straight line
-     *  SQUARE is a f(x) = x^2
+     * An enum defining which type of scaling method to use.
+     * LINEAR is a straight line
+     * SQUARE is a f(x) = x^2
      */
     public enum JoyStickMode {
         LINEAR, SQUARE
@@ -40,6 +39,7 @@ public class JoyStick {
     public enum JoystickAxis {
         X, Y
     }
+
     /**
      * An enum defining power reduction states
      */
@@ -90,7 +90,6 @@ public class JoyStick {
     //*********************************************************************************************
 
     /**
-     *
      * @return The method for scaling the joystick.
      */
     public JoyStickMode getJoyStickMode() {
@@ -98,7 +97,6 @@ public class JoyStick {
     }
 
     /**
-     *
      * @param joyStickMode The method for scaling the joystick.
      */
     public void setJoyStickMode(JoyStickMode joyStickMode) {
@@ -106,7 +104,6 @@ public class JoyStick {
     }
 
     /**
-     *
      * @return The deadband value for the joystick, anything less than this value and the robot
      * does not respond.
      */
@@ -115,16 +112,14 @@ public class JoyStick {
     }
 
     /**
-     *
      * @param deadBand The deadband value for the joystick, anything less than this value and the robot
-     * does not respond.
+     *                 does not respond.
      */
     public void setDeadBand(double deadBand) {
         this.deadBand = deadBand;
     }
 
     /**
-     *
      * @return Whether to invert the sign of the joystick value.
      */
     public InvertSign getInvertSign() {
@@ -132,15 +127,13 @@ public class JoyStick {
     }
 
     /**
-     *
-     * @param invertSign  Whether to invert the sign of the joystick value.
+     * @param invertSign Whether to invert the sign of the joystick value.
      */
     public void setInvertSign(InvertSign invertSign) {
         this.invertSign = invertSign;
     }
 
     /**
-     *
      * @return Reduce output by this factor.
      */
     public double getReductionFactor() {
@@ -148,7 +141,6 @@ public class JoyStick {
     }
 
     /**
-     *
      * @param reductionFactor Reduce output by this factor.
      */
     public void setReductionFactor(double reductionFactor) {
@@ -186,10 +178,10 @@ public class JoyStick {
     /**
      * Constructor
      *
-     * @param joyStickMode The method for scaling the joystick.
-     * @param deadBand The deadband value for the joystick, anything less than this value and the robot
-     * does not respond.
-     * @param invertSign Whether to invert the sign of the joystick value.
+     * @param joyStickMode    The method for scaling the joystick.
+     * @param deadBand        The deadband value for the joystick, anything less than this value and the robot
+     *                        does not respond.
+     * @param invertSign      Whether to invert the sign of the joystick value.
      * @param reductionFactor Reduce output by this factor.
      */
     public JoyStick(JoyStickMode joyStickMode, double deadBand, InvertSign invertSign, double reductionFactor) {
@@ -207,9 +199,9 @@ public class JoyStick {
      * Constructor
      *
      * @param joyStickMode The method for scaling the joystick.
-     * @param deadBand The deadband value for the joystick, anything less than this value and the robot
-     * does not respond.
-     * @param invertSign Whether to invert the sign of the joystick value.
+     * @param deadBand     The deadband value for the joystick, anything less than this value and the robot
+     *                     does not respond.
+     * @param invertSign   Whether to invert the sign of the joystick value.
      */
     public JoyStick(JoyStickMode joyStickMode, double deadBand, InvertSign invertSign) {
         this.joyStickMode = joyStickMode;
@@ -221,12 +213,13 @@ public class JoyStick {
         this.toggle_20_Power = PowerReduction.FULL_POWER;
         this.toggle_10_Power = PowerReduction.FULL_POWER;
     }
+
     /**
      * Constructor
      *
      * @param joyStickMode The method for scaling the joystick.
-     * @param deadBand The deadband value for the joystick, anything less than this value and the robot
-     * does not respond.
+     * @param deadBand     The deadband value for the joystick, anything less than this value and the robot
+     *                     does not respond.
      */
     public JoyStick(JoyStickMode joyStickMode, double deadBand) {
         this.joyStickMode = joyStickMode;
@@ -257,7 +250,7 @@ public class JoyStick {
 
     /**
      * Constructor
-     *
+     * <p>
      * Defaults to Square function for scaling, no deadband compensation, no sign inversion,
      * no output reduction
      */
@@ -275,10 +268,9 @@ public class JoyStick {
     public JoyStick(Gamepad gamepad, JoystickSide joystickSide, JoystickAxis joystickAxis) {
         this.joyStickMode = JoyStickMode.SQUARE;
         this.deadBand = 0.15;
-        if (joystickAxis == JoystickAxis.X){
+        if (joystickAxis == JoystickAxis.X) {
             this.invertSign = InvertSign.NO_INVERT_SIGN;
-        }
-        else {
+        } else {
             this.invertSign = InvertSign.INVERT_SIGN;
         }
         this.reductionFactor = 1;
@@ -297,11 +289,11 @@ public class JoyStick {
     /**
      * Utility method that checks if the input is to be changed to the opposite sign
      *
-     * @param joyStickValue
+     * @param joyStickValue input value
      * @return If the INVERT_SIGN is set, then returns input * -1
      */
     public double invertJoyStick(double joyStickValue) {
-        if(this.invertSign == InvertSign.INVERT_SIGN) {
+        if (this.invertSign == InvertSign.INVERT_SIGN) {
             return -joyStickValue;
         } else {
             return joyStickValue;
@@ -333,29 +325,22 @@ public class JoyStick {
         return output;
     }
 
-    public double getValue(){
+    public double getValue() {
         double joystickValue = 0;
-        if (joystickAxis == JoystickAxis.X){
-            if (joystickSide == JoystickSide.LEFT){
+        if (joystickAxis == JoystickAxis.X) {
+            if (joystickSide == JoystickSide.LEFT) {
                 joystickValue = gamepad.left_stick_x;
-            }
-        }
-        if (joystickAxis == JoystickAxis.X){
-            if (joystickSide == JoystickSide.RIGHT){
+            } else {
                 joystickValue = gamepad.right_stick_x;
             }
-        }
-        if (joystickAxis == JoystickAxis.Y){
-            if (joystickSide == JoystickSide.LEFT){
+        } else {
+            if (joystickSide == JoystickSide.LEFT) {
                 joystickValue = gamepad.left_stick_y;
-            }
-        }
-        if (joystickAxis == JoystickAxis.Y){
-            if (joystickSide == JoystickSide.RIGHT){
+            } else {
                 joystickValue = gamepad.right_stick_y;
             }
         }
-       return scaleInput(joystickValue);
+        return scaleInput(joystickValue);
     }
 
     //*********************************************************************************************
@@ -377,19 +362,18 @@ public class JoyStick {
     // the driver will have less control at the lower joystick inputs.
 
     /**
-     *
-     * @param joyStickValue
-     * @param reductionFactor
-     * @return
+     * @param joyStickValue   input value
+     * @param reductionFactor scaling factor
+     * @return scaled joystick value
      */
     public static double scaleInputLinear(double joyStickValue, double reductionFactor) {
         // clip the joystick input to its min and max favlues
         joyStickValue = Range.clip(joyStickValue, JOYSTICK_MIN, JOYSTICK_MAX);
         // scale the joystick so that its max value maps to the max value of the motor power and
         // then apply the reduction factor
-        joyStickValue = joyStickValue * OUTPUT_MAX/JOYSTICK_MAX * reductionFactor;
+        joyStickValue = joyStickValue * OUTPUT_MAX / JOYSTICK_MAX * reductionFactor;
         // limit the output
-        joyStickValue = Range.clip(joyStickValue,OUTPUT_MIN,OUTPUT_MAX);
+        joyStickValue = Range.clip(joyStickValue, OUTPUT_MIN, OUTPUT_MAX);
         return joyStickValue;
     }
 
@@ -415,13 +399,12 @@ public class JoyStick {
     // see https://ftc-team-3486.wikispaces.com/Joysticks for more details.
 
     /**
-     *
      * @param joyStickValue
      * @param reductionFactor
      * @param deadBand
      * @return
      */
-    public static double scaleInputSquared(double joyStickValue, double reductionFactor, double deadBand){
+    public static double scaleInputSquared(double joyStickValue, double reductionFactor, double deadBand) {
         double outputValue = 0;
         double maxSquaredTerm = 0;
         double deadBandTerm = 0;
@@ -440,7 +423,7 @@ public class JoyStick {
         }
 
         // clip the joystick input to its min and max values
-        joyStickValue = Range.clip(joyStickValue,JOYSTICK_MIN,JOYSTICK_MAX);
+        joyStickValue = Range.clip(joyStickValue, JOYSTICK_MIN, JOYSTICK_MAX);
 
         // square the input and then adjust its sign
         // This results in a factor between -1 and 1.
@@ -478,17 +461,17 @@ public class JoyStick {
         outputValue = outputValue * reductionFactor;
 
         // range clip the output - this should not be needed but just in case
-        outputValue = Range.clip(outputValue,OUTPUT_MIN,OUTPUT_MAX);
+        outputValue = Range.clip(outputValue, OUTPUT_MIN, OUTPUT_MAX);
 
         return outputValue;
     }
 
-    public static double scaleInputSquared(double joyStickValue, double reductionFactor){
+    public static double scaleInputSquared(double joyStickValue, double reductionFactor) {
         // deadband percent = 0
         return scaleInputSquared(joyStickValue, 0, reductionFactor);
     }
 
-    public static double scaleInputSquared(double joyStickValue){
+    public static double scaleInputSquared(double joyStickValue) {
         // deadband percent = 0
         // reduction factor = 1 (no reduction in power)
         return scaleInputSquared(joyStickValue, 0, 1);
@@ -498,7 +481,7 @@ public class JoyStick {
      * A small state machine that allows the reduction factor to toggle between .25 and 1 each time
      * the method is called.
      */
-    public void toggleQuarterPower () {
+    public void toggleQuarterPower() {
         if (toggleQuarterPower == PowerReduction.FULL_POWER) {
             toggleQuarterPower = PowerReduction.QUARTER_POWER;
             reductionFactor = .25;
@@ -512,7 +495,7 @@ public class JoyStick {
      * A small state machine that allows the reduction factor to toggle between .5 and 1 each time
      * the method is called.
      */
-    public void toggleHalfPower () {
+    public void toggleHalfPower() {
         if (toggleHalfPower == PowerReduction.FULL_POWER) {
             toggleHalfPower = PowerReduction.HALF_POWER;
             reductionFactor = .5;
@@ -526,7 +509,7 @@ public class JoyStick {
      * A small state machine that allows the reduction factor to toggle between .2 and 1 each time
      * the method is called.
      */
-    public void toggle20PercentPower () {
+    public void toggle20PercentPower() {
         if (toggle_20_Power == PowerReduction.FULL_POWER) {
             toggle_20_Power = PowerReduction.TWENTY_PERCENT_POWER;
             reductionFactor = .2;
@@ -540,7 +523,7 @@ public class JoyStick {
      * A small state machine that allows the reduction factor to toggle between .1 and 1 each time
      * the method is called.
      */
-    public void toggle10PercentPower () {
+    public void toggle10PercentPower() {
         if (toggle_10_Power == PowerReduction.FULL_POWER) {
             toggle_10_Power = PowerReduction.TEN_PERCENT_POWER;
             reductionFactor = .1;

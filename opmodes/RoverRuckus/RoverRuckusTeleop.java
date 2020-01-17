@@ -201,7 +201,7 @@ public class RoverRuckusTeleop extends LinearOpMode {
 //                    // call the 4th command you want to run
 //                }
 //            }
-            if (gamepad1LeftTriggerButton.triggerPress(gamepad1.left_trigger)){
+            if (gamepad1LeftTriggerButton.triggerPress(gamepad1.left_trigger)) {
                 robot.collector.turnCollectorOnSpitOut();
             }
 
@@ -216,7 +216,7 @@ public class RoverRuckusTeleop extends LinearOpMode {
             if (gamepad1a.buttonPress(gamepad1.a)) {
                 if (gamepad1a.isCommand1()) {
                     robot.collector.turnCollectorOn();
-               }
+                }
                 if (gamepad1a.isCommand2()) {
                     robot.collector.turnCollectorOff();
                 }

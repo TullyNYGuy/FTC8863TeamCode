@@ -22,7 +22,7 @@ public class ReadOdometryModule extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-         odometryModule = new OdometryModule(OdometryModule.Position.LEFT, 1440, 3.8, Units.CM, "odometryModuleLeft", hardwareMap);
+        odometryModule = new OdometryModule(1440, 3.8, Units.CM, "odometryModuleLeft", hardwareMap);
 
         //Odometry System Calibration Init Complete
         telemetry.addData("Odometry System Calibration Status", "Init Complete");
@@ -36,8 +36,9 @@ public class ReadOdometryModule extends LinearOpMode {
         while (opModeIsActive()) {
             odometryEncoderValue = odometryModule.getEncoderValue();
             telemetry.addData("Odometry encoder value = ", odometryEncoderValue);
-            telemetry.addData("Odometry Encoder Value (In)", String.format("%.2f", odometryEncoderValue/ 1440 * 1.5 * Math.PI) );
-            telemetry.addData("Odometry Encoder Value (cm)", String.format("%.2f", odometryModule.getDistanceSinceReset(Units.CM)) );
+            telemetry.addData("Odometry Encoder Value (In)", String.format("%.2f", odometryModule.getDistanceSinceReset(Units.IN)));
+            telemetry.addData("Odometry Encoder Value (cm)", String.format("%.2f", odometryModule.getDistanceSinceReset(Units.CM)));
+            telemetry.addData("value since last change (cm)", String.format("%.2f", odometryModule.getDistanceSinceLastChange(Units.CM)));
             //Update values
             telemetry.update();
         }

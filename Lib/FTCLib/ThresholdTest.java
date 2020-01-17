@@ -78,7 +78,7 @@ public class ThresholdTest {
     // from it
     //*********************************************************************************************
 
-    public ThresholdTest( double targetPosition, double targetDelta, double timeToBeAtThresholdInmS, int numberOfThresholdsToBeMet) {
+    public ThresholdTest(double targetPosition, double targetDelta, double timeToBeAtThresholdInmS, int numberOfThresholdsToBeMet) {
         this.targetPosition = targetPosition;
         this.targetDelta = targetDelta;
         this.timeToBeAtThresholdInmS = timeToBeAtThresholdInmS;
@@ -102,7 +102,7 @@ public class ThresholdTest {
         previousPosition = currentPosition;
     }
 
-    private boolean isWithinRange(){
+    private boolean isWithinRange() {
         return true;
     }
 
@@ -114,7 +114,7 @@ public class ThresholdTest {
         return true;
     }
 
-    private void reset(){
+    private void reset() {
 
     }
 }

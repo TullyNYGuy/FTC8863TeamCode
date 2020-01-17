@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
 
-public class RampUpFlatTopRampDown implements ProfileFunction{
+public class RampUpFlatTopRampDown implements ProfileFunction {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -116,7 +116,7 @@ public class RampUpFlatTopRampDown implements ProfileFunction{
                                  double flatTopValueY,
                                  double rampDownStartValueX, double rampDownStartValueY,
                                  double rampDownFinishValueX, double rampDownFinishValueY) {
-        this.rampUpSlope = (rampUpFinishValueY - rampUpStartValueY)/ (rampUpFinishValueX - rampUpStartValueX);
+        this.rampUpSlope = (rampUpFinishValueY - rampUpStartValueY) / (rampUpFinishValueX - rampUpStartValueX);
         this.rampUpYIntercept = rampUpStartValueY;
         this.rampUpStartValueX = rampUpStartValueX;
         this.rampUpTransitionX = rampUpFinishValueX;
@@ -156,6 +156,7 @@ public class RampUpFlatTopRampDown implements ProfileFunction{
      * Implements a function that ramps up from a starting value to a maximum and then back down
      * to a finishing value. The starting value and finishing value don't have to be the same
      * although they could be.
+     *
      * @param xValue
      * @return the Y value for the function
      */

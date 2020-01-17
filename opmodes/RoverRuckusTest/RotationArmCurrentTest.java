@@ -13,8 +13,6 @@ import org.openftc.revextensions2.ExpansionHubMotor;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
- *
- *
  */
 /*
 @TeleOp(name = "Collector Arm Current Tests", group = "Test")

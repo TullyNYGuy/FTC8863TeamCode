@@ -153,7 +153,7 @@ public class AutonomousMovements {
                 break;
             case RUN_CLEAR_LANDER:
                 // drive straight and watch for the drive to complete. When it does run the next action.
-                if(robot.driveTrain.updateDriveDistance() == DriveTrain.Status.COMPLETE) {
+                if (robot.driveTrain.updateDriveDistance() == DriveTrain.Status.COMPLETE) {
                     // Driving straight has finished
                     // get the heading of the robot after it lands on the ground
                     headingAfterDehang = robot.driveTrain.imu.getHeading();
@@ -185,7 +185,7 @@ public class AutonomousMovements {
                 break;
             case RUN_DRIVE_TO_MINERAL:
                 // drive straight and watch for the drive to complete. When it does run the next action.
-                if(robot.driveTrain.updateDriveDistance() == DriveTrain.Status.COMPLETE) {
+                if (robot.driveTrain.updateDriveDistance() == DriveTrain.Status.COMPLETE) {
                     // Driving straight has finished
                     actionState = ActionStates.SETUP_TURN_TOWARDS_DEPOT;
                 }
@@ -237,7 +237,7 @@ public class AutonomousMovements {
                 break;
             case RUN_DRIVE_TO_DEPOT:
                 // drive straight and watch for the drive to complete. When it does run the next action.
-                if(robot.driveTrain.updateDriveDistance() == DriveTrain.Status.COMPLETE) {
+                if (robot.driveTrain.updateDriveDistance() == DriveTrain.Status.COMPLETE) {
                     // Driving straight has finished
                     actionState = ActionStates.SETUP_TURN_FOR_DUMP;
                 }
@@ -265,7 +265,7 @@ public class AutonomousMovements {
             case WAIT_FOR_DUMP:
                 // wait in milliseconds
                 timeToWait = 1000;
-                if(timer.milliseconds() > timeToWait){
+                if (timer.milliseconds() > timeToWait) {
                     // the wait is over, go to the next action
                     actionState = ActionStates.RETURN_DUMP_ARM;
                 }
@@ -284,7 +284,7 @@ public class AutonomousMovements {
                 break;
             case RUN_DRIVE_TO_CRATER:
                 // drive straight and watch for the drive to complete. When it does run the next action.
-                if(robot.driveTrain.updateDriveDistance() == DriveTrain.Status.COMPLETE) {
+                if (robot.driveTrain.updateDriveDistance() == DriveTrain.Status.COMPLETE) {
                     // Driving straight has finished
                     actionState = ActionStates.RESET_ROBOT;
                 }
@@ -322,7 +322,7 @@ public class AutonomousMovements {
                 break;
             case RUN_CLEAR_LANDER:
                 // drive straight and watch for the drive to complete. When it does run the next action.
-                if(robot.driveTrain.updateDriveDistance() == DriveTrain.Status.COMPLETE) {
+                if (robot.driveTrain.updateDriveDistance() == DriveTrain.Status.COMPLETE) {
                     // Driving straight has finished
                     // get the heading of the robot after it lands on the ground
                     headingAfterDehang = robot.driveTrain.imu.getHeading();
@@ -354,7 +354,7 @@ public class AutonomousMovements {
                 break;
             case RUN_DRIVE_TOWARDS_CRATER:
                 // drive straight and watch for the drive to complete. When it does run the next action.
-                if(robot.driveTrain.updateDriveDistance() == DriveTrain.Status.COMPLETE) {
+                if (robot.driveTrain.updateDriveDistance() == DriveTrain.Status.COMPLETE) {
                     // Driving straight has finished
                     actionState = ActionStates.SETUP_TURN_TOWARDS_MINERAL;
                 }
@@ -380,7 +380,7 @@ public class AutonomousMovements {
                 break;
             case RUN_DRIVE_TO_MINERAL:
                 // drive straight and watch for the drive to complete. When it does run the next action.
-                if(robot.driveTrain.updateDriveDistance() == DriveTrain.Status.COMPLETE) {
+                if (robot.driveTrain.updateDriveDistance() == DriveTrain.Status.COMPLETE) {
                     // Driving straight has finished
                     actionState = ActionStates.SETUP_TURN_TOWARDS_DEPOT;
                 }
@@ -432,7 +432,7 @@ public class AutonomousMovements {
                 break;
             case RUN_DRIVE_TO_DEPOT:
                 // drive straight and watch for the drive to complete. When it does run the next action.
-                if(robot.driveTrain.updateDriveDistance() == DriveTrain.Status.COMPLETE) {
+                if (robot.driveTrain.updateDriveDistance() == DriveTrain.Status.COMPLETE) {
                     // Driving straight has finished
                     actionState = ActionStates.DUMP_MARKER;
                 }
@@ -460,7 +460,7 @@ public class AutonomousMovements {
             case WAIT_FOR_DUMP:
                 // wait in milliseconds
                 timeToWait = 1000;
-                if(timer.milliseconds() > timeToWait){
+                if (timer.milliseconds() > timeToWait) {
                     // the wait is over, go to the next action
                     actionState = ActionStates.RETURN_DUMP_ARM;
                 }
@@ -479,7 +479,7 @@ public class AutonomousMovements {
                 break;
             case RUN_DRIVE_TO_CRATER:
                 // drive straight and watch for the drive to complete. When it does run the next action.
-                if(robot.driveTrain.updateDriveDistance() == DriveTrain.Status.COMPLETE) {
+                if (robot.driveTrain.updateDriveDistance() == DriveTrain.Status.COMPLETE) {
                     // Driving straight has finished
                     actionState = ActionStates.RESET_ROBOT;
                 }
@@ -493,11 +493,12 @@ public class AutonomousMovements {
 
     /**
      * Log the state to the log file - but only if it has changed from the last time it was logged.
+     *
      * @param actionState
      */
     private void logState(ActionStates actionState) {
         if (logFile != null && loggingOn) {
-            if(actionState != previousActionState) {
+            if (actionState != previousActionState) {
                 logFile.logData("Autonomous state = ", actionState.toString());
                 previousActionState = actionState;
             }

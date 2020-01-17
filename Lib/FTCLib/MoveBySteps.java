@@ -68,7 +68,6 @@ public class MoveBySteps {
     private Telemetry telemetry;
 
 
-
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -83,9 +82,9 @@ public class MoveBySteps {
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
-public MoveBySteps(Telemetry telemetry){
-    this.telemetry = telemetry;
-}
+    public MoveBySteps(Telemetry telemetry) {
+        this.telemetry = telemetry;
+    }
 
     //*********************************************************************************************
     //          Helper Methods

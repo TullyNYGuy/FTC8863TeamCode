@@ -45,7 +45,8 @@ public class ExtensionArmToRetractTest extends LinearOpMode {
             // Display the current value
             collectorArm.displayExtensionMotorEncoder();
             collectorArm.displayExtensionArmPosition();
-            collectorArm.displayExtensionArmState();;
+            collectorArm.displayExtensionArmState();
+            ;
             telemetry.addData(">", "Press Stop to end test.");
 
             telemetry.update();

@@ -53,7 +53,7 @@ public class TestCRServo extends OpMode {
     double deadZone = .1;
     CRServo8863 testServo;
 
-	ElapsedTime timer;
+    ElapsedTime timer;
 
     int step = 1;
     double command = 0;
@@ -62,22 +62,22 @@ public class TestCRServo extends OpMode {
     double commandIncrement = .01;
     int stepLength = 1000; // milliseconds
 
-	/**
-	 * Constructor
-	 */
-	public TestCRServo() {
+    /**
+     * Constructor
+     */
+    public TestCRServo() {
 
-	}
+    }
 
-	/*
-	 * Code to run when the op mode is first enabled goes here
-	 * 
-	 * @see com.qualcomm.robotcore.eventloop.opmode.OpMode#start()
-	 */
-	@Override
-	public void init() {
+    /*
+     * Code to run when the op mode is first enabled goes here
+     *
+     * @see com.qualcomm.robotcore.eventloop.opmode.OpMode#start()
+     */
+    @Override
+    public void init() {
 
-        testServo = new CRServo8863(RobotConfigMappingForGenericTest.getgenericServoName(),hardwareMap,
+        testServo = new CRServo8863(RobotConfigMappingForGenericTest.getgenericServoName(), hardwareMap,
                 noMovePositionForward, noMovePositionReverse, deadZone, Servo.Direction.REVERSE,
                 telemetry);
         timer = new ElapsedTime();
@@ -91,14 +91,13 @@ public class TestCRServo extends OpMode {
         command = startCommand;
     }
 
-	@Override
-	public void loop() {
-
+    @Override
+    public void loop() {
 
 
         if (timer.milliseconds() < 2000) {
             testServo.setSpeed(1.0);
-            telemetry.addData("Time = ", "%3.2f", timer.milliseconds()/1000);
+            telemetry.addData("Time = ", "%3.2f", timer.milliseconds() / 1000);
             telemetry.update();
         }
 
@@ -120,15 +119,15 @@ public class TestCRServo extends OpMode {
 //        telemetry.addData("Text", "*** Robot Data***");
 //        telemetry.addData("slide", "position:  " + String.format("%.2f", testServo.getPosition()));
 
-	}
+    }
 
-	/*
-	 * Code to run when the op mode is first disabled goes here
-	 * 
-	 * @see com.qualcomm.robotcore.eventloop.opmode.OpMode#stop()
-	 */
-	@Override
-	public void stop() {
+    /*
+     * Code to run when the op mode is first disabled goes here
+     *
+     * @see com.qualcomm.robotcore.eventloop.opmode.OpMode#stop()
+     */
+    @Override
+    public void stop() {
 
     }
 

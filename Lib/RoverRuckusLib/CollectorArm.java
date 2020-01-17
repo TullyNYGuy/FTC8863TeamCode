@@ -117,20 +117,20 @@ public class CollectorArm {
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
-    public CollectorArm(HardwareMap hardwareMap, Telemetry telemetry){
+    public CollectorArm(HardwareMap hardwareMap, Telemetry telemetry) {
         rotationArmMotor = new DcMotor8863("collectorArmRotationMotor", hardwareMap, telemetry);
         rotationArmMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_60);
-        rotationArmMotor.setMovementPerRev(360*48/128);
+        rotationArmMotor.setMovementPerRev(360 * 48 / 128);
         rotationArmMotor.setMotorToHold();
         rotationArmMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rotationArmMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        extensionArmMotor =new DcMotor8863("extensionArmMotor", hardwareMap, telemetry);
+        extensionArmMotor = new DcMotor8863("extensionArmMotor", hardwareMap, telemetry);
         extensionArmMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_3_7_ORBITAL);
         //72tooth gear on motor and 56tooth gear on lead screw and lead screw moves 8mm per rev
         //extensionArmMotor.setMovementPerRev((72/56)*(8/25.4)*1/.78);
         //extensionArmMotor.setMovementPerRev(12.8/6*1/2.54);
-        extensionArmMotor.setMovementPerRev(10.4/10*1/2.54);
+        extensionArmMotor.setMovementPerRev(10.4 / 10 * 1 / 2.54);
         //the new movement per rev is for the new gears
         extensionArmMotor.setMotorToHold();
         extensionArmMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -195,7 +195,7 @@ public class CollectorArm {
     // rotationArm motor position feedback
     //**********************************************************************************************
 
-    public void displayRotationArmEncoder(){
+    public void displayRotationArmEncoder() {
         telemetry.addData("encoder value ", rotationArmMotor.getCurrentPosition());
         telemetry.addData("arm angle ", rotationArmMotor.getPositionInTermsOfAttachment());
     }
@@ -204,7 +204,7 @@ public class CollectorArm {
         return rotationArmMotor.getPositionInTermsOfAttachment();
     }
 
-    public void displayRotationArmCompletion(){
+    public void displayRotationArmCompletion() {
         telemetry.addData("Rotation Arm Motor State = ", rotationArmMotor.getCurrentMotorState().toString());
     }
 
@@ -212,23 +212,23 @@ public class CollectorArm {
     // rotation arm motor commands
     //**********************************************************************************************
 
-    public void rotationArmRunMotorUsingEncoder(){
+    public void rotationArmRunMotorUsingEncoder() {
         rotationArmMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rotationArmMotor.setPower(0.2);
     }
 
-    public void rotationArmRunMotorUsingPosition(){
+    public void rotationArmRunMotorUsingPosition() {
         rotationArmMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        rotationArmMotor.moveToPosition(0.2,-100, DcMotor8863.FinishBehavior.HOLD);
+        rotationArmMotor.moveToPosition(0.2, -100, DcMotor8863.FinishBehavior.HOLD);
     }
 
 
-    public void rotationArmGoToHome(){
+    public void rotationArmGoToHome() {
         log("COMMANDED ROTATION ARM TO HOME POSITION (-25)");
         rotationArmMotor.moveToPosition(0.4, homePosition, DcMotor8863.FinishBehavior.HOLD);
     }
 
-    public void rotationArmGoToCollect(){
+    public void rotationArmGoToCollect() {
         log("COMMANDED ROTATION ARM TO COLLECT POSITION (-135)");
         rotationArmMotor.moveToPosition(0.3, -135.00, DcMotor8863.FinishBehavior.HOLD);
     }
@@ -237,7 +237,7 @@ public class CollectorArm {
         rotationArmMotor.moveToPosition(0.2, -130, DcMotor8863.FinishBehavior.HOLD);
     }
 
-    public void rotationArmGoToTransfer(){
+    public void rotationArmGoToTransfer() {
         // rotation arm transfer angle can be tweaked by the driver
         log("COMMANDED ROTATION ARM TO TRANSFER POSITION " + rotationArmTransferAngle);
         rotationArmMotor.moveToPosition(0.5, rotationArmTransferAngle, DcMotor8863.FinishBehavior.HOLD);
@@ -266,20 +266,20 @@ public class CollectorArm {
         rotationArmGoToTransfer();
     }
 
-    public void rotationArmGoToDehang(){
+    public void rotationArmGoToDehang() {
         rotationArmMotor.moveToPosition(0.2, dehangPosition, DcMotor8863.FinishBehavior.HOLD);
     }
 
-    public void rotationArmGoToClearStar(){
+    public void rotationArmGoToClearStar() {
         rotationArmMotor.moveToPosition(0.2, clearStarPosition, DcMotor8863.FinishBehavior.HOLD);
     }
 
-    public void raiseOffGround(){
+    public void raiseOffGround() {
         log("DRIVER COMMANDED ROTATION ARM TO RAISE OFF GROUND POSITION (-115)");
         rotationArmMotor.moveToPosition(0.2, -115.00, DcMotor8863.FinishBehavior.HOLD);
     }
 
-    public void rotationArmFloatArm(){
+    public void rotationArmFloatArm() {
         log("DRIVER COMMANDED ROTATION ARM TO FLOAT");
         rotationArmMotor.setMotorToFloat();
     }
@@ -373,7 +373,7 @@ public class CollectorArm {
         // the extension arm is in the middle of a move to position, or any other command actually.
         //if (command != ExtensionArmCommands.RESET) {
         // only allow a joystick command when the there is no other command active
-        if (command == ExtensionArmCommands.NO_COMMAND)  {
+        if (command == ExtensionArmCommands.NO_COMMAND) {
             // A joystick command is only a real command if it is not 0. If the joystick value is 0
             // just ignore the stick
             if (power != 0) {
@@ -446,7 +446,7 @@ public class CollectorArm {
      * update rotuine in a loop after that.
      *
      * @param extensionInInches desired height above the 0 position
-     * @param extensionArmPower      max power for the motor
+     * @param extensionArmPower max power for the motor
      */
     public void moveToExtensionArmPosition(double extensionInInches, double extensionArmPower) {
         log("moving extension arm to position = " + extensionInInches);
@@ -548,7 +548,7 @@ public class CollectorArm {
                 }
                 break;
 
-                // this state does NOT mean that the extension arm is at retract
+            // this state does NOT mean that the extension arm is at retract
             // it means that the extension arm is moving to retract OR at retract
             case RETRACT:
                 switch (command) {
@@ -709,15 +709,15 @@ public class CollectorArm {
 
     private void logState(ExtensionArmStates state, ExtensionArmCommands command) {
         if (logFile != null && loggingOn) {
-            if(state != previousExtensionArmState ||command != previousExtensionCommand) {
-                logFile.logData("Extension Arm",state.toString(), command.toString());
+            if (state != previousExtensionArmState || command != previousExtensionCommand) {
+                logFile.logData("Extension Arm", state.toString(), command.toString());
                 previousExtensionArmState = state;
                 previousExtensionCommand = command;
             }
         }
     }
 
-    private void logIgnoreCommand(ExtensionArmCommands extensionArmCommand){
+    private void logIgnoreCommand(ExtensionArmCommands extensionArmCommand) {
         if (logFile != null && loggingOn) {
             logFile.logData("Ignoring command = ", extensionArmCommand.toString());
         }
@@ -820,13 +820,13 @@ public class CollectorArm {
     //**********************************************************************************************
     //**********************************************************************************************
 
-    private enum RotationExtensionArmStates{
+    private enum RotationExtensionArmStates {
         START,
         EXTEND_RETRACT_ARM,
         RAISE_LOWER_ARM;
     }
 
-    private enum RotationExtensionArmCommands{
+    private enum RotationExtensionArmCommands {
         DROP_ARM,
         RETURN_ARM_HOME,
         RAISE_ARM,
@@ -844,11 +844,12 @@ public class CollectorArm {
     // extension and rotation Commands
     //**********************************************************************************************
 
-    public void dropArm(){
+    public void dropArm() {
         log("COMMANDED TO LOWER COLLECTOR ARM");
         rotationExtensionArmCommand = RotationExtensionArmCommands.DROP_ARM;
     }
-    public void raiseArm(){
+
+    public void raiseArm() {
         log("COMMANDED TO RAISE COLLECTOR ARM");
         rotationExtensionArmCommand = RotationExtensionArmCommands.RAISE_ARM;
     }
@@ -856,12 +857,12 @@ public class CollectorArm {
     // extension and rotation Commands
     //**********************************************************************************************
 
-    public void rotationExtensionArmUpdate(){
+    public void rotationExtensionArmUpdate() {
         logRotationExtensionState(rotationExtensionArmState, rotationExtensionArmCommand);
 
-        switch (rotationExtensionArmState){
+        switch (rotationExtensionArmState) {
             case START:
-                switch (rotationExtensionArmCommand){
+                switch (rotationExtensionArmCommand) {
                     case DROP_ARM:
                         rotationArmGoToCollect();
                         log("rotation arm angle = " + getRotationArmAngle());
@@ -885,13 +886,13 @@ public class CollectorArm {
                 }
                 break;
             case RAISE_LOWER_ARM:
-                switch (rotationExtensionArmCommand){
+                switch (rotationExtensionArmCommand) {
                     case DROP_ARM:
-                        if (isRotationArmMovementComplete()){
+                        if (isRotationArmMovementComplete()) {
                             // this may have already happened in parallel but that is ok, do it again
                             goToExtensionArmCollect();
                             rotationExtensionArmState = RotationExtensionArmStates.EXTEND_RETRACT_ARM;
-                            }
+                        }
                         break;
                     case RETURN_ARM_HOME:
                         break;
@@ -900,7 +901,7 @@ public class CollectorArm {
                     case TRANSFER:
                         break;
                     case RAISE_ARM:
-                        if (isRotationArmMovementComplete()){
+                        if (isRotationArmMovementComplete()) {
                             // setting the state to start was not here and resulted in a bug in which
                             // a drop arm command started from this state and a new position was never
                             // commanded to drop the arm to the floor
@@ -911,9 +912,9 @@ public class CollectorArm {
                 }
                 break;
             case EXTEND_RETRACT_ARM:
-                switch (rotationExtensionArmCommand){
+                switch (rotationExtensionArmCommand) {
                     case DROP_ARM:
-                        if (isExtensionArmMovementComplete()){
+                        if (isExtensionArmMovementComplete()) {
                             rotationExtensionArmState = RotationExtensionArmStates.START;
                             rotationExtensionArmCommand = RotationExtensionArmCommands.EMPTY;
                         }
@@ -925,7 +926,7 @@ public class CollectorArm {
                     case TRANSFER:
                         break;
                     case RAISE_ARM:
-                        if (isExtensionArmMovementComplete()){
+                        if (isExtensionArmMovementComplete()) {
                             rotationArmGoToTransfer();
                             rotationExtensionArmState = RotationExtensionArmStates.RAISE_LOWER_ARM;
                         }
@@ -937,23 +938,22 @@ public class CollectorArm {
 
     private void logRotationExtensionState(RotationExtensionArmStates rotationExtensionArmState, RotationExtensionArmCommands rotationExtensionArmCommand) {
         if (logFile != null && loggingOn) {
-            if(rotationExtensionArmState != previousRotationExtensionArmState ||rotationExtensionArmCommand != previousRotationExtensionArmCommand) {
-                logFile.logData("Rotation Extension Arm",rotationExtensionArmState.toString(), rotationExtensionArmCommand.toString());
+            if (rotationExtensionArmState != previousRotationExtensionArmState || rotationExtensionArmCommand != previousRotationExtensionArmCommand) {
+                logFile.logData("Rotation Extension Arm", rotationExtensionArmState.toString(), rotationExtensionArmCommand.toString());
                 previousRotationExtensionArmState = rotationExtensionArmState;
                 previousRotationExtensionArmCommand = rotationExtensionArmCommand;
             }
         }
     }
 
-    public void displayState(){
+    public void displayState() {
         telemetry.addData("State = ", rotationExtensionArmState.toString());
     }
 
-    public boolean isRotationExtensionComplete(){
-        if (rotationExtensionArmCommand == RotationExtensionArmCommands.EMPTY){
+    public boolean isRotationExtensionComplete() {
+        if (rotationExtensionArmCommand == RotationExtensionArmCommands.EMPTY) {
             log("Collector arm rotation and extension movement complete");
             return true;
-        }
-        else return false;
+        } else return false;
     }
 }
