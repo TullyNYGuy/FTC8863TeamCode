@@ -96,8 +96,10 @@ public class OdometryModule {
         this.odometryModuleConfigName = odometryModuleConfigName;
         //this.name = name;
         //odometryModule = hardwareMap.dcMotor.get(name);
-        odometryModule = hardwareMap.get(DcMotor.class, odometryModuleConfigName);
-        odometryModule.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        if(hardwareMap != null)
+            odometryModule = hardwareMap.get(DcMotor.class, odometryModuleConfigName);
+        if(odometryModule != null)
+            odometryModule.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
     //*********************************************************************************************

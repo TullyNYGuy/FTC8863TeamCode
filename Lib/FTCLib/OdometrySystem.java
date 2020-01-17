@@ -173,6 +173,12 @@ public class OdometrySystem {
         this.rightOffsetWidth = rightOffsetWidth;
         this.backOffsetDepth = backOffsetDepth;
         this.backOffsetWidth = backOffsetWidth;
+        double leftModuleDistanceSq = leftOffsetDepth*leftOffsetDepth + leftOffsetWidth*leftOffsetWidth;
+        double rightModuleDistanceSq = rightOffsetDepth*rightOffsetDepth + rightOffsetWidth*rightOffsetWidth;
+        double backModuleDistanceSq = backOffsetDepth*backOffsetDepth + backOffsetWidth*backOffsetWidth;
+        leftMultiplier = leftModuleDistanceSq/leftOffsetWidth;
+        rightMultiplier = rightModuleDistanceSq/rightOffsetWidth;
+        backMultiplier = backModuleDistanceSq/backOffsetDepth;
     }
 
     public void calculateMoveDistance() {
@@ -183,10 +189,10 @@ public class OdometrySystem {
         // calculate angle of rotation
         angleOfRotation = (leftEncoderValue - rightEncoderValue) * rotationalMultiplier;
 
-        // adjust values by cancelling rotation
-        double leftVal = leftEncoderValue + angleOfRotation * leftModuleDistance * leftMultiplier;
-        double rightVal = rightEncoderValue - angleOfRotation * leftModuleDistance * leftMultiplier;
-        double backVal = backEncoderValue - angleOfRotation * leftModuleDistance * leftMultiplier;
+        // adjust values by canceling rotation
+        double leftVal = leftEncoderValue - angleOfRotation * leftMultiplier;
+        double rightVal = rightEncoderValue + angleOfRotation * leftMultiplier;
+        double backVal = backEncoderValue - angleOfRotation * leftMultiplier;
 
         translationDepth = (leftVal + rightVal) / 2.0;
         translationWidth = backVal;
