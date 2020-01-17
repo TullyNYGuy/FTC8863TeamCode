@@ -39,8 +39,16 @@ public class DualLift {
     private double spoolDiameter = 1.25; //inches
     // spool diameter * pi * 5 stages
     private double movementPerRevolution = spoolDiameter * Math.PI * 5;
-    private double positionPower = .5;
 
+    private int maxBlockNumber = 6;
+
+    public int getMaxBlockNumber() {
+        return maxBlockNumber;
+    }
+
+    public void setMaxBlockNumber(int maxBlockNumber) {
+        this.maxBlockNumber = maxBlockNumber;
+    }
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -56,7 +64,7 @@ public class DualLift {
     // from it
     //*********************************************************************************************
 
-    public DualLift(HardwareMap hardwareMap, Telemetry telemetry){
+    public DualLift(HardwareMap hardwareMap, Telemetry telemetry, Double positionPower) {
         liftRight = new Lift(hardwareMap, telemetry, liftRightName,
                 liftRightExtensionLimitSwitchName, liftRightRetractionLimitSwitch, liftRightMotorName,
                 motorType, movementPerRevolution);
@@ -93,11 +101,18 @@ public class DualLift {
         liftLeft.reset();
     }
 
-    public void goToPosition(double positionInInches) {
+    public void goToPosition(double positionInInches, double positionPower) {
         liftRight.goToPosition(positionInInches, positionPower);
         liftLeft.goToPosition(positionInInches, positionPower);
     }
 
+    public void goToBlockHeights(int blockNumber) {
+        if (blockNumber > maxBlockNumber) {
+            blockNumber = maxBlockNumber;
+        }
+        goToPosition(5, .5);
+
+    }
     public void update() {
         liftRight.update();
         liftLeft.update();
