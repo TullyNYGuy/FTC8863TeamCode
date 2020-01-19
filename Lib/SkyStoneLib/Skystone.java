@@ -21,7 +21,16 @@ public class Skystone {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
+    private static double HeightCM = 10.1;
+    private static double HeightPlusNubCM = 12.5;
+    private static double LengthtCM = 20;
+    private static double WidthCM = 10;
 
+
+    private static double HeightIN = 4;
+    private static double HeightPlusNubIN = 5;
+    private static double LengthIN = 8;
+    private static double WidthIN = 4;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -30,6 +39,38 @@ public class Skystone {
     // getPositionInTermsOfAttachment
     //*********************************************************************************************
 
+
+    public static double getHeightCM() {
+        return HeightCM;
+    }
+
+    public static double getHeightPlusNubCM() {
+        return HeightPlusNubCM;
+    }
+
+    public static double getLengthtCM() {
+        return LengthtCM;
+    }
+
+    public static double getWidthCM() {
+        return WidthCM;
+    }
+
+    public static double getHeightIN() {
+        return HeightIN;
+    }
+
+    public static double getHeightPlusNubIN() {
+        return HeightPlusNubIN;
+    }
+
+    public static double getLengthIN() {
+        return LengthIN;
+    }
+
+    public static double getWidthIN() {
+        return WidthIN;
+    }
 
     //*********************************************************************************************
     //          Constructors

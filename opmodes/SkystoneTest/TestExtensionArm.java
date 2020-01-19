@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.opmodes.Skystone;
+package org.firstinspires.ftc.teamcode.opmodes.SkystoneTest;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -13,14 +13,14 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
  *
  *
  */
-@TeleOp(name = "Test Lift Right", group = "Test")
+@TeleOp(name = "Test extension arm", group = "Test")
 //@Disabled
-public class TestLiftRight extends LinearOpMode {
+public class TestExtensionArm extends LinearOpMode {
 
     // Put your variable declarations here
-    public ExtensionRetractionMechanism extensionRetractionMechanismRight;
+    public ExtensionRetractionMechanism extensionArm;
     public DataLogging logFile;
-    public double spoolDiameter = 1.25 *25.4;
+    public double spoolDiameter = 2.75; // inches
     public ElapsedTime timer;
     public double startTime = 0;
     public double endUpTime = 0;
@@ -31,21 +31,26 @@ public class TestLiftRight extends LinearOpMode {
     @Override
     public void runOpMode() {
 
+        // Glenn here - I believe that we will have to extend ExtensionRetractionMechanism and hide the variable extensionRetractionMotor, making the motor of type DcServoMotor
+        // rather than of type DcMotor8863.
+        // This is because the motor in ExtensionRetractionMechanism is created by new DcMotor8863. That in turn gets the motor in question from the hardware map.
+        // In this case we need to create a DcServoMotor. So we will need to override ExtensionRetractionMechanism.createExtensionRetractionMechanismCommonCommands
+        // and instead of creating DcMotor8863, create DcServoMotor.
 
         // Put your initializations here
-        extensionRetractionMechanismRight = new ExtensionRetractionMechanism(hardwareMap,telemetry,"extensionRetractionRight",
-                "extensionLimitSwitchRight", "retractionLimitSwitchRight", "extensionRetractionMotorRight",
+        extensionArm = new ExtensionRetractionMechanism(hardwareMap,telemetry,"extensionArm",
+                "extensionLimitSwitchLeft", "retractionLimitSwitch", "extensionArmDcServoMotor",
                 DcMotor8863.MotorType.ANDYMARK_40, spoolDiameter * Math.PI);
-        extensionRetractionMechanismRight.reverseMotor();
+        //extensionArm.reverseMotor();
         logFile = new DataLogging("ExtensionRetractionTest", telemetry);
         timer = new ElapsedTime();
-        extensionRetractionMechanismRight.setDataLog(logFile);
-        extensionRetractionMechanismRight.enableDataLogging();
-        extensionRetractionMechanismRight.setResetPower(-0.1);
-        extensionRetractionMechanismRight.setRetractionPower(-.7);
-        extensionRetractionMechanismRight.setExtensionPower(+.7);
+        extensionArm.setDataLog(logFile);
+        extensionArm.enableDataLogging();
+        extensionArm.setResetPower(-0.1);
+        extensionArm.setRetractionPower(-.7);
+        extensionArm.setExtensionPower(+.7);
 
-        extensionRetractionMechanismRight.setExtensionPositionInEncoderCounts(2700.0);
+        extensionArm.setExtensionPositionInEncoderCounts(2700.0);
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run" );
@@ -53,15 +58,15 @@ public class TestLiftRight extends LinearOpMode {
         waitForStart();
 
         // Put your calls here - they will not run in a loop
-        extensionRetractionMechanismRight.testReset(this);
+        extensionArm.testReset(this);
         sleep(3000);
         timer.reset();
-        encoderValueMax = extensionRetractionMechanismRight.testExtension(this);
+        encoderValueMax = extensionArm.testExtension(this);
         endUpTime = timer.seconds();
         telemetry.update();
         sleep(10000);
         timer.reset();
-        encoderValueMin =  extensionRetractionMechanismRight.testRetraction(this);
+        encoderValueMin =  extensionArm.testRetraction(this);
         endDownTime = timer.seconds();
 
         telemetry.addData("time up = ", endUpTime);

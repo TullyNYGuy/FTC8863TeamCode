@@ -25,15 +25,15 @@ public class DualLift {
 
     private Lift liftRight;
     private String liftRightName = "LiftRight";
-    private String liftRightExtensionLimitSwitchName = "LiftRightExtensionLimitSwitch";
-    private String liftRightRetractionLimitSwitch = "LiftRightRetractionLimitSwitch";
-    private String liftRightMotorName = "LiftRightMotor";
+    private String liftRightExtensionLimitSwitchName = "LiftExtensionLimitSwitchRight";
+    private String liftRightRetractionLimitSwitch = "LiftRetractionLimitSwitchRight";
+    private String liftRightMotorName = "LifMotortRight";
 
     private Lift liftLeft;
     private String liftLeftName = "LiftLeft";
-    private String liftLeftExtensionLimitSwitchName = "LiftLeftExtensionLimitSwitch";
-    private String liftLeftRetractionLimitSwitch = "LiftLeftRetractionLimitSwitch";
-    private String liftLeftMotorName = "LiftLeftMotor";
+    private String liftLeftExtensionLimitSwitchName = "LiftExtensionLimitSwitchLeft";
+    private String liftLeftRetractionLimitSwitch = "LiftRetractionLimitSwitchLeft";
+    private String liftLeftMotorName = "LiftMotorLeft";
 
     private DcMotor8863.MotorType motorType = org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863.MotorType.ANDYMARK_40;
     private double spoolDiameter = 1.25; //inches
@@ -41,6 +41,10 @@ public class DualLift {
     private double movementPerRevolution = spoolDiameter * Math.PI * 5;
 
     private int maxBlockNumber = 6;
+
+    private double heightAboveTower = 1;
+
+
 
     public int getMaxBlockNumber() {
         return maxBlockNumber;
@@ -80,7 +84,13 @@ public class DualLift {
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
 
+    public int getCurrentEncoderValueLeft() {
+        return liftLeft.getCurrentEncoderValue();
+    }
 
+    public int getCurrentEncoderValueRight() {
+        return liftRight.getCurrentEncoderValue();
+    }
     //*********************************************************************************************
     //          MAJOR METHODS
     //
@@ -110,9 +120,22 @@ public class DualLift {
         if (blockNumber > maxBlockNumber) {
             blockNumber = maxBlockNumber;
         }
-        goToPosition(5, .5);
+        goToPosition(Skystone.getHeightPlusNubIN() * blockNumber + heightAboveTower, .5);
 
     }
+
+    public void goToBottom() {
+        goToPosition(0.5, 0.5);
+    }
+
+    public void lowerBlockOntoTower() {
+
+    }
+
+    public boolean isPositionReached() {
+        return (liftLeft.isPositionReached() && liftRight.isPositionReached());
+    }
+
     public void update() {
         liftRight.update();
         liftLeft.update();

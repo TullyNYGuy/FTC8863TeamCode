@@ -1,5 +1,6 @@
-package org.firstinspires.ftc.teamcode.opmodes.Skystone;
+package org.firstinspires.ftc.teamcode.opmodes.SkystoneTest;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -8,21 +9,22 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.CSVDataFile;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
-import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.Lift;
 
 /**
- * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
+ * This was for testing to see if the pulsing action of the motor when holding position against
+ * gravity was the PID in the SDK or something in DCMotor8863 class. DcMotor8863 is fine. The SDK
+ * PID is responsible for it.
  */
-@TeleOp(name = "AAA Dual Lift Demo", group = "RUN")
-//@Disabled
-public class DualLiftDemo extends LinearOpMode {
+@TeleOp(name = "AAA Dual Extension Retraction Demo DcMotor", group = "RUN")
+@Disabled
+public class DualExtensionRetractionMechanismDemoDcMotor extends LinearOpMode {
 
     // Put your variable declarations here
-    public Lift liftLeft;
-    public Lift liftRight;
+    public ExtensionRetractionMechanism liftLeft;
+    public ExtensionRetractionMechanism liftRight;
 
-    public Lift.ExtensionRetractionStates extensionRetractionStateLeft;
-    public Lift.ExtensionRetractionStates extensionRetractionStateRight;
+    public ExtensionRetractionMechanism.ExtensionRetractionStates extensionRetractionStateLeft;
+    public ExtensionRetractionMechanism.ExtensionRetractionStates extensionRetractionStateRight;
 
     public int encoderValueLeft = 0;
     public int encoderValueMaxLeft = 0;
@@ -47,19 +49,19 @@ public class DualLiftDemo extends LinearOpMode {
 
     public String buffer = "";
 
-    public double speed = 0.2;
+    public double speed = 0.1;
 
     @Override
     public void runOpMode() {
 
 
         // Put your initializations here
-        liftLeft = new Lift(hardwareMap, telemetry, "extensionRetractionLeft",
+        liftLeft = new ExtensionRetractionMechanism(hardwareMap, telemetry, "extensionRetractionLeft",
                 "extensionLimitSwitchLeft", "retractionLimitSwitchLeft", "extensionRetractionMotorLeft",
                 DcMotor8863.MotorType.ANDYMARK_40, movementPerRevolution);
         //liftLeft.reverseMotor();
 
-        liftRight = new Lift(hardwareMap, telemetry, "extensionRetractionRight",
+        liftRight = new ExtensionRetractionMechanism(hardwareMap, telemetry, "extensionRetractionRight",
                 "extensionLimitSwitchRight", "retractionLimitSwitchRight", "extensionRetractionMotorRight",
                 DcMotor8863.MotorType.ANDYMARK_40, movementPerRevolution);
         liftRight.reverseMotor();
@@ -110,8 +112,8 @@ public class DualLiftDemo extends LinearOpMode {
         sleep(500);
 
 
-        liftLeft.goToPosition(10.0, speed);
-        liftRight.goToPosition(10.0, speed);
+        liftLeft.goToPosition(5.0, speed);
+        liftRight.goToPosition(5.0, speed);
 
         while (opModeIsActive()) {
             //while (opModeIsActive() && !(liftLeft.isPositionReached() && liftRight.isPositionReached())) {

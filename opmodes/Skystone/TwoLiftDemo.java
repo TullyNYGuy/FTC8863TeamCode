@@ -13,16 +13,16 @@ import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.Lift;
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-//@TeleOp(name = "AAA Dual Extension Retraction Demo", group = "RUN")
+//@TeleOp(name = "AAA Two Lift Demo", group = "RUN")
 //@Disabled
-public class DualExtensionRetractionMechanismDemo extends LinearOpMode {
+public class TwoLiftDemo extends LinearOpMode {
 
     // Put your variable declarations here
-    public ExtensionRetractionMechanism liftLeft;
-    public ExtensionRetractionMechanism liftRight;
+    public Lift liftLeft;
+    public Lift liftRight;
 
-    public ExtensionRetractionMechanism.ExtensionRetractionStates extensionRetractionStateLeft;
-    public ExtensionRetractionMechanism.ExtensionRetractionStates extensionRetractionStateRight;
+    public Lift.ExtensionRetractionStates extensionRetractionStateLeft;
+    public Lift.ExtensionRetractionStates extensionRetractionStateRight;
 
     public int encoderValueLeft = 0;
     public int encoderValueMaxLeft = 0;
@@ -54,12 +54,12 @@ public class DualExtensionRetractionMechanismDemo extends LinearOpMode {
 
 
         // Put your initializations here
-        liftLeft = new ExtensionRetractionMechanism(hardwareMap, telemetry, "extensionRetractionLeft",
+        liftLeft = new Lift(hardwareMap, telemetry, "extensionRetractionLeft",
                 "extensionLimitSwitchLeft", "retractionLimitSwitchLeft", "extensionRetractionMotorLeft",
                 DcMotor8863.MotorType.ANDYMARK_40, movementPerRevolution);
         //liftLeft.reverseMotor();
 
-        liftRight = new ExtensionRetractionMechanism(hardwareMap, telemetry, "extensionRetractionRight",
+        liftRight = new Lift(hardwareMap, telemetry, "extensionRetractionRight",
                 "extensionLimitSwitchRight", "retractionLimitSwitchRight", "extensionRetractionMotorRight",
                 DcMotor8863.MotorType.ANDYMARK_40, movementPerRevolution);
         liftRight.reverseMotor();
@@ -67,8 +67,8 @@ public class DualExtensionRetractionMechanismDemo extends LinearOpMode {
         timerLeft = new ElapsedTime();
         timerRight = new ElapsedTime();
 
-        logFileLeft = new DataLogging("ExtensionRetractionTestLeft", telemetry);
-        logFileRight = new DataLogging("ExtensionRetractionTestRight", telemetry);
+        logFileLeft = new DataLogging("LiftTestLeft", telemetry);
+        logFileRight = new DataLogging("LiftTestRight", telemetry);
         timeEncoderValueFile = new CSVDataFile("LiftTimeEncoderValues", telemetry);
 
         liftLeft.setDataLog(logFileLeft);
@@ -113,8 +113,39 @@ public class DualExtensionRetractionMechanismDemo extends LinearOpMode {
         liftLeft.goToPosition(5.0, speed);
         liftRight.goToPosition(5.0, speed);
 
-        while (opModeIsActive()) {
-            //while (opModeIsActive() && !(liftLeft.isPositionReached() && liftRight.isPositionReached())) {
+        while (opModeIsActive() && !(liftLeft.isPositionReached() && liftRight.isPositionReached())) {
+
+            //logFileLeft.logData("in loop for first go to position");
+            //logFileRight.logData("in loop for first go to position");
+
+            extensionRetractionStateLeft = liftLeft.update();
+            extensionRetractionStateRight = liftRight.update();
+
+            encoderValueLeft = liftLeft.getCurrentEncoderValue();
+            encoderValueRight = liftRight.getCurrentEncoderValue();
+
+            if (encoderValueLeft > encoderValueMaxLeft) {
+                encoderValueMaxLeft = encoderValueLeft;
+            }
+
+            if (encoderValueRight > encoderValueMaxRight) {
+                encoderValueMaxRight = encoderValueRight;
+            }
+
+            telemetry.addData("Left state = ", extensionRetractionStateLeft.toString());
+            telemetry.addData("Right state = ", extensionRetractionStateRight.toString());
+            telemetry.addData("Left encoder = ", encoderValueLeft);
+            telemetry.addData("Right encoder = ", encoderValueRight);
+            telemetry.update();
+            idle();
+        }
+
+        sleep(2000);
+
+        liftLeft.goToPosition(10.0, speed);
+        liftRight.goToPosition(10.0, speed);
+
+        while (opModeIsActive() && !(liftLeft.isPositionReached() && liftRight.isPositionReached())) {
 
             //logFileLeft.logData("in loop for first go to position");
             //logFileRight.logData("in loop for first go to position");
@@ -152,11 +183,10 @@ public class DualExtensionRetractionMechanismDemo extends LinearOpMode {
         telemetry.addData("time up = ", buffer);
         telemetry.update();
 
-        sleep(5000);
+        sleep(2000);
 
-        /*
-        liftLeft.goToPosition(5, 0.5);
-        liftRight.goToPosition(5, 0.5);
+        liftLeft.goToPosition(1, speed);
+        liftRight.goToPosition(1, speed);
         timerLeft.reset();
         timerRight.reset();
 
@@ -196,8 +226,8 @@ public class DualExtensionRetractionMechanismDemo extends LinearOpMode {
         endDownTimeRight = timerRight.seconds();
 
         // have to update the state machine in order to generate the last state update
-        liftLeft.update();
-        liftRight.update();
+        //liftLeft.update();
+        //liftRight.update();
 
         buffer = String.format("%.2f", endDownTimeLeft) + " " + String.format("%.2f", endDownTimeRight);
         telemetry.addData("time down = ", buffer);
@@ -221,7 +251,7 @@ public class DualExtensionRetractionMechanismDemo extends LinearOpMode {
         telemetry.update();
         logFileLeft.logData("program done");
         logFileRight.logData("program done");
-        */
+
         while (opModeIsActive()) {
             // hold waiting for the user to terminate the program
         }
