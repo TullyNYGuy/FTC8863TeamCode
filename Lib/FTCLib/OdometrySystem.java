@@ -1,7 +1,14 @@
 package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
+import android.os.Environment;
+
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintStream;
+import java.util.Date;
 
 /*
  * This Odometry system designed to be used with mecanum drive.
@@ -41,6 +48,9 @@ public class OdometrySystem {
     private double leftDirectionMultiplier = 1;
     private double rightDirectionMultiplier = 1;
     private double backDirectionMultiplier = 1;
+
+    final private String ODOMETRY_FILE_DIRECTORY = "FTC8863";
+    final private String ODOMETRY_FILE_NAME = "odometry.data";
 
     /*
      * Units of measurement for the rest of linear variables
@@ -262,5 +272,23 @@ public class OdometrySystem {
 
     public double getCurrentRotation() {
         return currentRotation;
+    }
+
+    private boolean saveRobotGeometry() {
+        String fName = Environment.getExternalStorageDirectory().getPath() + ODOMETRY_FILE_DIRECTORY + "/" + ODOMETRY_FILE_NAME;
+        try {
+            PrintStream data = new PrintStream(new File(fName));
+            data.println("leftDirectionMultiplier = " + leftDirectionMultiplier);
+            data.println("rightDirectionMultiplier = " + rightDirectionMultiplier);
+            data.println("backDirectionMultiplier = " + backDirectionMultiplier);
+            data.println("leftMultiplier = " + leftMultiplier);
+            data.println("rightMultiplier = " + rightMultiplier);
+            data.println("backMultiplier = " + backMultiplier);
+
+            data.close();
+        } catch (FileNotFoundException exception) {
+            return false;
+        }
+        return true;
     }
 }
