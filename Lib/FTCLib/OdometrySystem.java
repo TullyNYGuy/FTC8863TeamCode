@@ -49,9 +49,6 @@ public class OdometrySystem {
     private double rightDirectionMultiplier = 1;
     private double backDirectionMultiplier = 1;
 
-    final private String ODOMETRY_FILE_DIRECTORY = "FTC8863";
-    final private String ODOMETRY_FILE_NAME = "odometry.data";
-
     /*
      * Units of measurement for the rest of linear variables
      */
@@ -182,7 +179,7 @@ public class OdometrySystem {
         angleOfTranslation = Math.atan2(translationWidth, translationDepth);
     }
 
-    public void startCalibration() {
+    void startCalibration() {
         if (left != null)
             leftStartingValue = left.getDistanceSinceReset(unit);
         if (right != null)
@@ -223,7 +220,6 @@ public void finishCalibration(double rotation) {
                     backMultiplier = -backMultiplier;
                 }
             }
-            saveRobotGeometry();
         }
     }
 
@@ -263,23 +259,4 @@ public void finishCalibration(double rotation) {
     public double getCurrentRotation() {
         return currentRotation;
     }
-
-    private boolean saveRobotGeometry() {
-        String fName = Environment.getExternalStorageDirectory().getPath() + ODOMETRY_FILE_DIRECTORY + "/" + ODOMETRY_FILE_NAME;
-        try {
-            PrintStream data = new PrintStream(new File(fName));
-            data.println("leftDirectionMultiplier = " + leftDirectionMultiplier);
-            data.println("rightDirectionMultiplier = " + rightDirectionMultiplier);
-            data.println("backDirectionMultiplier = " + backDirectionMultiplier);
-            data.println("leftMultiplier = " + leftMultiplier);
-            data.println("rightMultiplier = " + rightMultiplier);
-            data.println("backMultiplier = " + backMultiplier);
-
-            data.close();
-        } catch (FileNotFoundException exception) {
-            return false;
-        }
-        return true;
-    }
-
 }
