@@ -182,7 +182,7 @@ public class OdometrySystem {
         angleOfTranslation = Math.atan2(translationWidth, translationDepth);
     }
 
-    void startCalibration() {
+    public void startCalibration() {
         if (left != null)
             leftStartingValue = left.getDistanceSinceReset(unit);
         if (right != null)
@@ -191,7 +191,7 @@ public class OdometrySystem {
             backStartingValue = back.getDistanceSinceReset(unit);
     }
 
-    void finishCalibration(double rotation) {
+public void finishCalibration(double rotation) {
         if (Math.abs(rotation) > 0.0) {
             if (left != null) {
                 double leftEndingValue = left.getDistanceSinceReset(unit);

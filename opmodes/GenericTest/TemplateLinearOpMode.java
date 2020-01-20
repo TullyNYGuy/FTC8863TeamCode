@@ -5,6 +5,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometryModule;
+
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
@@ -12,7 +14,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 @Disabled
 public class TemplateLinearOpMode extends LinearOpMode {
 
-    // Put your variable declarations here
+    // Put your variable declarations her
 
     @Override
     public void runOpMode() {
