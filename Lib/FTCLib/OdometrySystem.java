@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
-import java.util.Date;
+
 
 /*
  * This Odometry system designed to be used with mecanum drive.
@@ -223,6 +223,7 @@ public void finishCalibration(double rotation) {
                     backMultiplier = -backMultiplier;
                 }
             }
+            saveRobotGeometry();
         }
     }
 
@@ -280,4 +281,5 @@ public void finishCalibration(double rotation) {
         }
         return true;
     }
+
 }
