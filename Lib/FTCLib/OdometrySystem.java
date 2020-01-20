@@ -3,6 +3,16 @@ package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Scanner;
+import java.util.regex.MatchResult;
+
 /*
  * This Odometry system designed to be used with mecanum drive.
  * The idea is to split movement of the robot into rotational and translational.
@@ -182,6 +192,13 @@ public class OdometrySystem {
     }
 
     void finishCalibration(double rotation) {
+        leftMultiplier = 0.0;
+        rightMultiplier = 0.0;
+        backMultiplier = 0.0;
+        leftDirectionMultiplier = 1.0;
+        rightDirectionMultiplier = 1.0;
+        backDirectionMultiplier = 1.0;
+
         if (Math.abs(rotation) > 0.0) {
             if (left != null) {
                 double leftEndingValue = left.getDistanceSinceReset(unit);
@@ -214,6 +231,8 @@ public class OdometrySystem {
                 }
             }
         }
+
+        rotationalMultiplier = 1.0 / (leftMultiplier + rightMultiplier);
     }
 
     public void getMovement(MecanumCommands data) {
