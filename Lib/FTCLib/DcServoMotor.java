@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
@@ -44,6 +45,7 @@ public class DcServoMotor extends DcMotor8863 {
         servoMotor = hardwareMap.get(Servo.class, servoName);
         this.centerValueForward = centerValueForward;
         this.centerValueReverse = centerValueReverse;
+        setDirection(DcMotorSimple.Direction.FORWARD);
         this.deadBandRange = deadBandRange;
 
     }
@@ -53,10 +55,11 @@ public class DcServoMotor extends DcMotor8863 {
         this.currentPower = power;
         switch (getCurrentRunMode()) {
             case RUN_WITHOUT_ENCODER:
+            case RUN_USING_ENCODER:
                 setServoSpeed(power);
                 break;
             case RUN_TO_POSITION:
-
+                break;
         }
 
     }
@@ -134,6 +137,10 @@ public class DcServoMotor extends DcMotor8863 {
             }
             setCurrentRunMode(mode);
         }
+    }
+
+    public MotorState update() {
+        return MotorState.COMPLETE_HOLD;
     }
 
 }

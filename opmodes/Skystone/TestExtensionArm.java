@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
+import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.ExtensionRetractionMechanismDCServoMotor;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
@@ -16,7 +17,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
 public class TestExtensionArm extends LinearOpMode {
 
     // Put your variable declarations here
-    public ExtensionRetractionMechanism extensionArm;
+    public ExtensionRetractionMechanismDCServoMotor extensionArm;
     public DataLogging logFile;
     public double spoolDiameter = 2.75; // inches
     public ElapsedTime timer;
@@ -36,10 +37,10 @@ public class TestExtensionArm extends LinearOpMode {
         // and instead of creating DcMotor8863, create DcServoMotor.
 
         // Put your initializations here
-        extensionArm = new ExtensionRetractionMechanism(hardwareMap, telemetry, "extensionArm",
-                "extensionLimitSwitchLeft", "retractionLimitSwitch", "extensionArmDcServoMotor",
+        extensionArm = new ExtensionRetractionMechanismDCServoMotor(hardwareMap, telemetry, "extensionArm",
+                "extensionLimitSwitchArm", "retractionLimitSwitchArm", "extensionArmMotor",
                 DcMotor8863.MotorType.ANDYMARK_40, spoolDiameter * Math.PI);
-        //extensionArm.reverseMotor();
+        extensionArm.reverseMotor();
         logFile = new DataLogging("ExtensionRetractionTest", telemetry);
         timer = new ElapsedTime();
         extensionArm.setDataLog(logFile);

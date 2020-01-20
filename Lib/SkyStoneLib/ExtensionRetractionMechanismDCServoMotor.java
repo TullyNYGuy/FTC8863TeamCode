@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Lib.FTCLib;
+package org.firstinspires.ftc.teamcode.Lib.SkyStoneLib;
 
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -8,8 +8,14 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.CSVDataFile;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcServoMotor;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.PairedList;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Switch;
 
-public class ExtensionRetractionMechanism {
+public class ExtensionRetractionMechanismDCServoMotor {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -62,7 +68,7 @@ public class ExtensionRetractionMechanism {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
-    protected DcMotor8863 extensionRetractionMotor;
+    protected DcServoMotor extensionRetractionMotor;
 
     // null is shown for emphasis. Any object is null until is it created.
     protected Switch retractedLimitSwitch = null;
@@ -396,9 +402,9 @@ public class ExtensionRetractionMechanism {
      *                                  Note that the units can be anything. But you must always use
      *                                  the same units when working with the mechanism.
      */
-    public ExtensionRetractionMechanism(HardwareMap hardwareMap, Telemetry telemetry, String mechanismName,
-                                        String extensionLimitSwitchName, String retractionLimitSwitchName,
-                                        String motorName, DcMotor8863.MotorType motorType, double movementPerRevolution) {
+    public ExtensionRetractionMechanismDCServoMotor(HardwareMap hardwareMap, Telemetry telemetry, String mechanismName,
+                                                    String extensionLimitSwitchName, String retractionLimitSwitchName,
+                                                    String motorName, DcMotor8863.MotorType motorType, double movementPerRevolution) {
         // set all of the private variables using the parameters passed into the constructor
         createExtensionRetractionMechanismCommonCommands(hardwareMap, telemetry, mechanismName, motorName, motorType, movementPerRevolution);
 
@@ -423,9 +429,9 @@ public class ExtensionRetractionMechanism {
      *                                           Note that the units can be anything. But you must always use
      *                                           the same units when working with the mechanism.
      */
-    public ExtensionRetractionMechanism(HardwareMap hardwareMap, Telemetry telemetry, String mechanismName,
-                                        Double retractionPositionInMechanismUnits, Double extensionPositionInMechamismUnits,
-                                        String motorName, DcMotor8863.MotorType motorType, double movementPerRevolution) {
+    public ExtensionRetractionMechanismDCServoMotor(HardwareMap hardwareMap, Telemetry telemetry, String mechanismName,
+                                                    Double retractionPositionInMechanismUnits, Double extensionPositionInMechamismUnits,
+                                                    String motorName, DcMotor8863.MotorType motorType, double movementPerRevolution) {
         // set all of the private variables using the parameters passed into the constructor
         createExtensionRetractionMechanismCommonCommands(hardwareMap, telemetry, mechanismName, motorName, motorType, movementPerRevolution);
 
@@ -445,7 +451,7 @@ public class ExtensionRetractionMechanism {
         this.telemetry = telemetry;
 
         // create the motor
-        extensionRetractionMotor = new DcMotor8863(motorName, hardwareMap, telemetry);
+        extensionRetractionMotor = new DcServoMotor("extensionArmMotor", "extensionArmServoMotor", 0.5, 0.5, .01, hardwareMap, telemetry);
         extensionRetractionMotor.setMotorType(motorType);
         extensionRetractionMotor.setMovementPerRev(movementPerRevolution);
         extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
