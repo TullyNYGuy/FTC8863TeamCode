@@ -209,8 +209,8 @@ public class OdometrySystem {
 
     public void calculateMoveDistance() {
         double leftEncoderValue = left.getDistanceSinceReset(unit)*leftDirectionMultiplier;
-        double rightEncoderValue = right.getDistanceSinceReset(unit);
-        double backEncoderValue = back.getDistanceSinceReset(unit);
+        double rightEncoderValue = right.getDistanceSinceReset(unit) * rightDirectionMultiplier;
+        double backEncoderValue = back.getDistanceSinceReset(unit) * backDirectionMultiplier;
 
         // calculate angle of rotation
         angleOfRotation = (leftEncoderValue - rightEncoderValue) * rotationalMultiplier;
