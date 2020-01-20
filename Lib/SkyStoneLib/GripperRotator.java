@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
 
-public class ClawRotator {
+public class GripperRotator {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -42,7 +42,7 @@ public class ClawRotator {
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
-    public ClawRotator(String servoName, HardwareMap hardwareMap, Telemetry telemetry) {
+    public GripperRotator(String servoName, HardwareMap hardwareMap, Telemetry telemetry) {
         servoRotator = new Servo8863(servoName, hardwareMap, telemetry, homePos, upPos, downPos, initPos, Servo.Direction.FORWARD);
 
     }
