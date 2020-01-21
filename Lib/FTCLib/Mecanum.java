@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 public class Mecanum {
 
@@ -126,10 +127,10 @@ public class Mecanum {
 
     //if speed of rotation is = 0 then our max speed is 0.707. We may want to scale up to 1.
     public WheelVelocities calculateWheelVelocity(MecanumCommands mecanumCommands) {
-        wheelVelocities.frontLeft = mecanumCommands.getSpeed() * Math.sin(-mecanumCommands.getAngleOfTranslation() + (Math.PI / 4)) + mecanumCommands.getSpeedOfRotation();
-        wheelVelocities.frontRight = mecanumCommands.getSpeed() * Math.cos(-mecanumCommands.getAngleOfTranslation() + (Math.PI / 4)) - mecanumCommands.getSpeedOfRotation();
-        wheelVelocities.backLeft = mecanumCommands.getSpeed() * Math.cos(-mecanumCommands.getAngleOfTranslation() + (Math.PI / 4)) + mecanumCommands.getSpeedOfRotation();
-        wheelVelocities.backRight = mecanumCommands.getSpeed() * Math.sin(-mecanumCommands.getAngleOfTranslation() + (Math.PI / 4)) - mecanumCommands.getSpeedOfRotation();
+        wheelVelocities.frontLeft = mecanumCommands.getSpeed() * Math.sin(-mecanumCommands.getAngleOfTranslation(AngleUnit.RADIANS) + (Math.PI / 4)) + mecanumCommands.getSpeedOfRotation();
+        wheelVelocities.frontRight = mecanumCommands.getSpeed() * Math.cos(-mecanumCommands.getAngleOfTranslation(AngleUnit.RADIANS) + (Math.PI / 4)) - mecanumCommands.getSpeedOfRotation();
+        wheelVelocities.backLeft = mecanumCommands.getSpeed() * Math.cos(-mecanumCommands.getAngleOfTranslation(AngleUnit.RADIANS) + (Math.PI / 4)) + mecanumCommands.getSpeedOfRotation();
+        wheelVelocities.backRight = mecanumCommands.getSpeed() * Math.sin(-mecanumCommands.getAngleOfTranslation(AngleUnit.RADIANS) + (Math.PI / 4)) - mecanumCommands.getSpeedOfRotation();
         wheelVelocities.scale4Numbers();
         return wheelVelocities;
     }
@@ -159,7 +160,7 @@ public class Mecanum {
     public void test(Telemetry telemetry) {
         MecanumCommands mecanumCommands = new MecanumCommands();
         mecanumCommands.setSpeedOfRotation(0);
-        mecanumCommands.setAngleOfTranslation(-Math.PI / 2);
+        mecanumCommands.setAngleOfTranslation(AngleUnit.RADIANS, -Math.PI / 2);
         mecanumCommands.setSpeed(0.5);
         WheelVelocities wheelVelocities = calculateWheelVelocity(mecanumCommands);
         telemetry.addData("front left = ", wheelVelocities.frontLeft);

@@ -4,7 +4,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometryModule;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.Units;
 
 public class TestOdometryModule extends OdometryModule {
     public TestOdometryModule(HardwareMap hardwareMap) {

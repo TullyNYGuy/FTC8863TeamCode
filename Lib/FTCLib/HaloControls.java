@@ -4,6 +4,8 @@ package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+
 public class HaloControls {
 
     //*********************************************************************************************
@@ -107,7 +109,7 @@ public class HaloControls {
         if (translationSpeed > 1) {
             translationSpeed = 1;
         }
-        commands.setAngleOfTranslation(angleOfTranslation);
+        commands.setAngleOfTranslation(AngleUnit.RADIANS, angleOfTranslation);
         commands.setSpeed(translationSpeed);
         commands.setSpeedOfRotation(rValue);
         heading = Math.toRadians(imu.getHeading());

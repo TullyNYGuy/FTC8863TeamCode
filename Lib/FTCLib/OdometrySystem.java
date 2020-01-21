@@ -4,7 +4,9 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Position;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -101,10 +103,6 @@ public class OdometrySystem {
 
     private double translationWidth = 0;
 
-    private double angleOfTranslation = 0;
-
-    private double lengthOfTranslation = 0;
-
     private double currentX = 0;
     private double currentY = 0;
     private double currentRotation = 0;
@@ -199,8 +197,6 @@ public class OdometrySystem {
         translationDepth = (leftVal + rightVal) / 2.0;
         translationWidth = backVal;
 
-        lengthOfTranslation = Math.sqrt(translationDepth * translationDepth + translationWidth * translationWidth);
-        angleOfTranslation = Math.atan2(translationWidth, translationDepth);
     }
 
     /*
@@ -312,12 +308,6 @@ public class OdometrySystem {
         return true;
     }
 
-    public void getMovement(MecanumCommands data) {
-        data.setAngleOfTranslation(angleOfTranslation);
-        data.setSpeed(lengthOfTranslation);
-        data.setSpeedOfRotation(angleOfRotation);
-    }
-
     public void resetCoordinates() {
         currentX = 0.0;
         currentY = 0.0;
@@ -325,8 +315,8 @@ public class OdometrySystem {
 
     }
 
-    public void setCoordinates(DistanceUnit unit, double x, double y, double rotation) {
-        currentRotation = rotation;
+    public void setCoordinates(DistanceUnit unit, double x, double y, AngleUnit angleUnit, double rotation) {
+        currentRotation = angleUnit.toRadians(rotation);
         currentX = this.unit.fromUnit(unit, x);
         currentY = this.unit.fromUnit(unit, y);
     }
@@ -337,15 +327,19 @@ public class OdometrySystem {
         currentX = currentX + translationDepth;
     }
 
+    public void getCurrentPosition(Position position) {
+        position.x = position.unit.fromUnit(unit, currentX);
+        position.y = position.unit.fromUnit(unit, currentY);
+    }
     public double getCurrentY(DistanceUnit unit) {
         return unit.fromUnit(this.unit, currentY);
     }
 
-    public double getCurrentX() {
+    public double getCurrentX(DistanceUnit unit) {
         return unit.fromUnit(this.unit, currentX);
     }
 
-    public double getCurrentRotation() {
-        return currentRotation;
+    public double getCurrentRotation(AngleUnit angleUnit) {
+        return angleUnit.fromRadians(currentRotation);
     }
 }

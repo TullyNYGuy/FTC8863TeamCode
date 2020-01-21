@@ -6,7 +6,9 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.HaloControls;
@@ -133,7 +135,7 @@ public class TestMecanumWithOdometry extends LinearOpMode {
         OdometryModule back = new OdometryModule(1440, 3.8, units, "BackLeft", hardwareMap);
         OdometrySystem odometry = new OdometrySystem(units, left, right, back);
         odometry.initializeRobotGeometry(DistanceUnit.CM, 0, 1, DcMotorSimple.Direction.REVERSE, 0, 1, DcMotorSimple.Direction.FORWARD, 1, 0, DcMotorSimple.Direction.FORWARD);
-        MecanumCommands position = new MecanumCommands();
+        Position position = new Position(DistanceUnit.CM, 0.0, 0.0, 0.0, 0);
 
         // Note from Glenn:
         // None of the following are needed using the class AdafruitIMU8863. They are handled in the
@@ -170,10 +172,12 @@ public class TestMecanumWithOdometry extends LinearOpMode {
             // telemetry.addData("back right = ", mecanum.getBackRight());
             odometry.calculateMoveDistance();
             odometry.updateCoordinates();
-            odometry.getMovement(position);
+            odometry.getCurrentPosition(position);
+            double rotation = odometry.getCurrentRotation(AngleUnit.DEGREES);
             telemetry.addData("Mode: ", haloControls.getMode() == HaloControls.Mode.DRIVER_MODE ? "Driver" : "Robot");
             telemetry.addData("Odometry (l/r/b): ", String.format("%.2f %.2f %.2f", left.getDistanceSinceReset(units), right.getDistanceSinceReset(units), back.getDistanceSinceReset(units)));
-            telemetry.addData("Potition: ", position);
+            telemetry.addData("Position: ", String.format("(%.2f %.2f)%s", position.x, position.y, position.unit));
+            telemetry.addData("Rotation: ", rotation);
 //            telemetry.addData("Potition: ", String.format("%.2f %.2f %.2f", odometry.getCurrentX(), odometry.getCurrentY(), odometry.getCurrentRotation()));
             telemetry.addData(">", "Press Stop to end test.");
             telemetry.update();
