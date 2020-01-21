@@ -4,6 +4,8 @@ package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+
 public class OdometryModule {
 
     //*********************************************************************************************
@@ -23,7 +25,7 @@ public class OdometryModule {
 
     private double circumference;
 
-    private Units units;
+    private DistanceUnit units;
 
     private String odometryModuleConfigName;
 
@@ -54,11 +56,11 @@ public class OdometryModule {
         this.circumference = circumference;
     }
 
-    public Units getUnits() {
+    public DistanceUnit getUnits() {
         return units;
     }
 
-    public void setUnits(Units units) {
+    public void setUnits(DistanceUnit units) {
         this.units = units;
     }
 
@@ -84,12 +86,10 @@ public class OdometryModule {
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
-    public OdometryModule(int countsPerRevolution, double circumference, Units units, String odometryModuleConfigName, HardwareMap hardwareMap) {
+    public OdometryModule(int countsPerRevolution, double circumference, DistanceUnit units, String odometryModuleConfigName, HardwareMap hardwareMap) {
         this.countsPerRevolution = countsPerRevolution;
-        if (units == Units.IN) {
-            this.circumference = convertInToCm(circumference);
-        }
         this.circumference = circumference;
+
         // let's pick a unit to use inside this class and do all storage and calculations in that unit
         // When someone wants a different unit we just convert to that unit as the last step
         this.units = units;
@@ -107,18 +107,9 @@ public class OdometryModule {
     //
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
-    private double convertTicksToInches(int ticks) {
+    private double convertTicksToUnit(DistanceUnit units, int ticks) {
         ///// this should be the circumference
-        return ticks / 1440.0 * circumference;
-    }
-
-    private double convertTicksToCm(int ticks) {
-        ///// this should be the circumference
-        return ticks / 1440.0 * circumference * 2.54;
-    }
-
-    private double convertInToCm(double circumference) {
-        return circumference * 2.54;
+        return (double) ticks / 1440.0 * units.fromUnit(this.units, circumference);
     }
 
     //*********************************************************************************************
@@ -143,23 +134,14 @@ public class OdometryModule {
 
     //  }
 
-    public double getDistanceSinceReset(Units units) {
-        if (units == Units.IN) {
-            return convertTicksToInches(odometryModule.getCurrentPosition());
-        } else {
-            return convertTicksToCm(odometryModule.getCurrentPosition());
-        }
+    public double getDistanceSinceReset(DistanceUnit units) {
+        return units.fromUnit(this.units, odometryModule.getCurrentPosition());
     }
 
 
-    public double getDistanceSinceLastChange(Units units) {
-        double distanceSinceLastChange = 0;
+    public double getDistanceSinceLastChange(DistanceUnit units) {
         int currentPosition = odometryModule.getCurrentPosition();
-        if (units == Units.IN) {
-            distanceSinceLastChange = convertTicksToInches(currentPosition - previousEncoderValue);
-        } else {
-            distanceSinceLastChange = convertTicksToCm(currentPosition - previousEncoderValue);
-        }
+        double distanceSinceLastChange = convertTicksToUnit(units, currentPosition - previousEncoderValue);
         previousEncoderValue = currentPosition;
         return distanceSinceLastChange;
     }

@@ -125,4 +125,21 @@ public class Configuration extends Properties {
         }
     }
 
+    public Byte getPropertyByte(String key) {
+        String propVal = getProperty(key);
+        if (propVal != null) {
+            return Byte.valueOf(propVal);
+        }
+        return null;
+    }
+
+    public Byte getPropertyByte(String key, Byte defaultValue) {
+        String propVal = getProperty(key);
+        if (propVal != null) {
+            return Byte.valueOf(propVal);
+        } else {
+            return defaultValue;
+        }
+    }
+
 }

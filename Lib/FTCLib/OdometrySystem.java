@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -52,6 +53,7 @@ public class OdometrySystem {
     private double rightDirectionMultiplier = 1;
     private double backDirectionMultiplier = 1;
 
+    final private String PROP_UNIT = "OdometrySystem.unit";
     final private String PROP_LEFT_MULTIPLIER = "OdometrySystem.leftMultiplier";
     final private String PROP_LEFT_DIRECTION_MULTIPLIER = "OdometrySystem.leftDirectionMultiplier";
     final private String PROP_RIGHT_MULTIPLIER = "OdometrySystem.rightMultiplier";
@@ -62,7 +64,7 @@ public class OdometrySystem {
     /*
      * Units of measurement for the rest of linear variables
      */
-    private Units unit;
+    private DistanceUnit unit;
 
     // Values used for calibration
     private double leftStartingValue = 0.0;
@@ -121,7 +123,7 @@ public class OdometrySystem {
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
-    public OdometrySystem(Units unit, OdometryModule left, OdometryModule right, OdometryModule back) {
+    public OdometrySystem(DistanceUnit unit, OdometryModule left, OdometryModule right, OdometryModule back) {
         this.left = left;
         this.right = right;
         this.back = back;
@@ -142,12 +144,20 @@ public class OdometrySystem {
     //*********************************************************************************************
 
     public void initializeRobotGeometry(
+            DistanceUnit unit,
             double leftOffsetDepth, double leftOffsetWidth, DcMotor.Direction leftDirection,
             double rightOffsetDepth, double rightOffsetWidth, DcMotor.Direction rightDirection,
             double backOffsetDepth, double backOffsetWidth, DcMotor.Direction backDirection) {
         this.leftDirection = leftDirection;
         this.rightDirection = rightDirection;
         this.backDirection = backDirection;
+        // adjust units
+        leftOffsetDepth = this.unit.fromUnit(unit, leftOffsetDepth);
+        leftOffsetWidth = this.unit.fromUnit(unit, leftOffsetWidth);
+        rightOffsetDepth = this.unit.fromUnit(unit, rightOffsetDepth);
+        rightOffsetWidth = this.unit.fromUnit(unit, rightOffsetWidth);
+        backOffsetDepth = this.unit.fromUnit(unit, backOffsetDepth);
+        backOffsetWidth = this.unit.fromUnit(unit, backOffsetWidth);
         if(backDirection == DcMotor.Direction.FORWARD)
             backDirectionMultiplier = 1.0;
         else
@@ -256,6 +266,21 @@ public class OdometrySystem {
     public boolean saveConfiguration(Configuration config) {
         if (config == null)
             return false;
+        String unitStr;
+        switch (unit) {
+            case INCH:
+                unitStr = "in";
+                break;
+            case CM:
+                unitStr = "cm";
+                break;
+            case METER:
+                unitStr = "m";
+                break;
+            default:
+                unitStr = "mm";
+        }
+        config.setProperty(PROP_UNIT, unitStr);
         config.setProperty(PROP_LEFT_MULTIPLIER, String.valueOf(leftMultiplier));
         config.setProperty(PROP_LEFT_DIRECTION_MULTIPLIER, String.valueOf(leftDirectionMultiplier));
         config.setProperty(PROP_RIGHT_MULTIPLIER, String.valueOf(rightMultiplier));
@@ -268,6 +293,15 @@ public class OdometrySystem {
     public boolean loadConfiguration(Configuration config) {
         if (config == null)
             return false;
+        String unitStr = config.getProperty(PROP_UNIT, "mm");
+        if (unitStr.equalsIgnoreCase("in"))
+            unit = DistanceUnit.INCH;
+        else if (unitStr.equalsIgnoreCase("cm"))
+            unit = DistanceUnit.CM;
+        else if (unitStr.equalsIgnoreCase("m"))
+            unit = DistanceUnit.METER;
+        else
+            unit = DistanceUnit.MM;
         leftMultiplier = config.getPropertyDouble(PROP_LEFT_MULTIPLIER, 1.0);
         leftDirectionMultiplier = config.getPropertyDouble(PROP_LEFT_DIRECTION_MULTIPLIER, 1.0);
         rightMultiplier = config.getPropertyDouble(PROP_RIGHT_MULTIPLIER, 1.0);
@@ -291,10 +325,10 @@ public class OdometrySystem {
 
     }
 
-    public void setCoordinates(double rotation, double x, double y) {
+    public void setCoordinates(DistanceUnit unit, double x, double y, double rotation) {
         currentRotation = rotation;
-        currentX = x;
-        currentY = y;
+        currentX = this.unit.fromUnit(unit, x);
+        currentY = this.unit.fromUnit(unit, y);
     }
 
     public void updateCoordinates() {
@@ -303,12 +337,12 @@ public class OdometrySystem {
         currentX = currentX + translationDepth;
     }
 
-    public double getCurrentY() {
-        return currentY;
+    public double getCurrentY(DistanceUnit unit) {
+        return unit.fromUnit(this.unit, currentY);
     }
 
     public double getCurrentX() {
-        return currentX;
+        return unit.fromUnit(this.unit, currentX);
     }
 
     public double getCurrentRotation() {

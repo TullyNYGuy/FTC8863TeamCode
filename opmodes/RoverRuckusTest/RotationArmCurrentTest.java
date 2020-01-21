@@ -7,8 +7,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.CollectorArm;
-import org.openftc.revextensions2.ExpansionHubEx;
-import org.openftc.revextensions2.ExpansionHubMotor;
+//import org.openftc.revextensions2.ExpansionHubEx;
+//import org.openftc.revextensions2.ExpansionHubMotor;
 //import org.openftc.revextensions2.RevExtensions2;
 
 /**

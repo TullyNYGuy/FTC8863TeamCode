@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.HaloControls;
@@ -14,7 +15,6 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometryModule;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometrySystem;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Switch;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.Units;
 
 
 import static org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863.MotorType.ANDYMARK_20_ORBITAL;
@@ -127,12 +127,12 @@ public class TestMecanumWithOdometry extends LinearOpMode {
         AdafruitIMU8863 imu = new AdafruitIMU8863(hardwareMap);
         Mecanum mecanum = new Mecanum(frontLeft, frontRight, backLeft, backRight);
         HaloControls haloControls = new HaloControls(gamepad1, imu);
-        Units units = Units.CM;
+        DistanceUnit units = DistanceUnit.CM;
         OdometryModule left = new OdometryModule(1440, 3.8, units, "BackRight", hardwareMap);
         OdometryModule right = new OdometryModule(1440, 3.8, units, "FrontRight", hardwareMap);
         OdometryModule back = new OdometryModule(1440, 3.8, units, "BackLeft", hardwareMap);
         OdometrySystem odometry = new OdometrySystem(units, left, right, back);
-        odometry.initializeRobotGeometry(0, 1, DcMotorSimple.Direction.REVERSE,0, 1, DcMotorSimple.Direction.FORWARD, 1,0, DcMotorSimple.Direction.FORWARD);
+        odometry.initializeRobotGeometry(DistanceUnit.CM, 0, 1, DcMotorSimple.Direction.REVERSE, 0, 1, DcMotorSimple.Direction.FORWARD, 1, 0, DcMotorSimple.Direction.FORWARD);
         MecanumCommands position = new MecanumCommands();
 
         // Note from Glenn:
