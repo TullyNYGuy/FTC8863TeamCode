@@ -1,5 +1,18 @@
 package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Scanner;
+import java.util.regex.MatchResult;
+
 /*
  * This Odometry system designed to be used with mecanum drive.
  * The idea is to split movement of the robot into rotational and translational.
@@ -32,64 +45,22 @@ public class OdometrySystem {
     private OdometryModule right;
     private OdometryModule back;
 
+    DcMotor.Direction leftDirection;
+    DcMotor.Direction rightDirection;
+    DcMotor.Direction backDirection;
+    private double leftDirectionMultiplier = 1;
+    private double rightDirectionMultiplier = 1;
+    private double backDirectionMultiplier = 1;
+
     /*
      * Units of measurement for the rest of linear variables
      */
     private Units unit;
 
-    /*
-     * Distance from the center of the robot to the left odometer module
-     * measured along the depth of the robot
-     */
-
-    private double leftOffsetDepth = 1.0;
-    /*
-     * Distance from the center of the robot to the left odometer module
-     * measured along the width of the robot
-     */
-    private double leftOffsetWidth = 1.0;
-
-    /*
-     * Distance from the center of the robot to the right odometer module
-     * measured along the depth of the robot
-     */
-    private double rightOffsetDepth = 1.0;
-
-    /*
-     * Distance from the center of the robot to the right odometer module
-     * measured along the width of the robot
-     */
-    private double rightOffsetWidth = 1.0;
-
-    /*
-     * Distance from the center of the robot to the back odometer module
-     * measured along the depth of the robot
-     */
-
-    private double backOffsetDepth = 1.0;
-    /*
-     * Distance from the center of the robot to the back odometer module
-     * measured along the width of the robot
-     */
-    private double backOffsetWidth = 1.0;
-
-    /*
-     * Left odometer module distance from the center of the robot.
-     * Equals to sqrt(leftOffsetDepth^2 + leftOffsetWidth^2)
-     */
-    private double leftModuleDistance;
-
-    /*
-     * Right odometer module distance from the center of the robot.
-     * Equals to sqrt(rightOffsetDepth^2 + rightOffsetWidth^2)
-     */
-    private double rightModuleDistance;
-
-    /*
-     * Back odometer module distance from the center of the robot.
-     * Equals to sqrt(backOffsetDepth^2 + backOffsetWidth^2)
-     */
-    private double backModuleDistance;
+    // Values used for calibration
+    private double leftStartingValue = 0.0;
+    private double rightStartingValue = 0.0;
+    private double backStartingValue = 0.0;
 
     /*
      * Left odometer module multiplier. Equals to
@@ -164,41 +135,104 @@ public class OdometrySystem {
     //*********************************************************************************************
 
     public void initializeRobotGeometry(
-            double leftOffsetDepth, double leftOffsetWidth,
-            double rightOffsetDepth, double rightOffsetWidth,
-            double backOffsetDepth, double backOffsetWidth) {
-        this.leftOffsetDepth = leftOffsetDepth;
-        this.leftOffsetWidth = leftOffsetWidth;
-        this.rightOffsetDepth = rightOffsetDepth;
-        this.rightOffsetWidth = rightOffsetWidth;
-        this.backOffsetDepth = backOffsetDepth;
-        this.backOffsetWidth = backOffsetWidth;
+            double leftOffsetDepth, double leftOffsetWidth, DcMotor.Direction leftDirection,
+            double rightOffsetDepth, double rightOffsetWidth, DcMotor.Direction rightDirection,
+            double backOffsetDepth, double backOffsetWidth, DcMotor.Direction backDirection) {
+        this.leftDirection = leftDirection;
+        this.rightDirection = rightDirection;
+        this.backDirection = backDirection;
+        if(backDirection == DcMotor.Direction.FORWARD)
+            backDirectionMultiplier = 1.0;
+        else
+            backDirectionMultiplier = -1.0;
+        if(rightDirection == DcMotor.Direction.FORWARD)
+            rightDirectionMultiplier = 1.0;
+        else
+            rightDirectionMultiplier = -1.0;
+        if(leftDirection == DcMotor.Direction.FORWARD)
+            leftDirectionMultiplier = 1.0;
+        else
+            leftDirectionMultiplier = -1.0;
         double leftModuleDistanceSq = leftOffsetDepth*leftOffsetDepth + leftOffsetWidth*leftOffsetWidth;
         double rightModuleDistanceSq = rightOffsetDepth*rightOffsetDepth + rightOffsetWidth*rightOffsetWidth;
         double backModuleDistanceSq = backOffsetDepth*backOffsetDepth + backOffsetWidth*backOffsetWidth;
         leftMultiplier = leftModuleDistanceSq/leftOffsetWidth;
         rightMultiplier = rightModuleDistanceSq/rightOffsetWidth;
         backMultiplier = backModuleDistanceSq/backOffsetDepth;
+        rotationalMultiplier =  1.0 / (leftMultiplier + rightMultiplier);
     }
 
     public void calculateMoveDistance() {
-        double leftEncoderValue = left.getDistanceSinceLastChange(unit);
-        double rightEncoderValue = right.getDistanceSinceLastChange(unit);
-        double backEncoderValue = back.getDistanceSinceLastChange(unit);
+        double leftEncoderValue = (left != null) ? left.getDistanceSinceReset(unit) * leftDirectionMultiplier : 0.0;
+        double rightEncoderValue = (right != null) ? right.getDistanceSinceReset(unit) * rightDirectionMultiplier : 0.0;
+        double backEncoderValue = (back != null) ? back.getDistanceSinceReset(unit) * backDirectionMultiplier : 0.0;
 
         // calculate angle of rotation
         angleOfRotation = (leftEncoderValue - rightEncoderValue) * rotationalMultiplier;
 
         // adjust values by canceling rotation
         double leftVal = leftEncoderValue - angleOfRotation * leftMultiplier;
-        double rightVal = rightEncoderValue + angleOfRotation * leftMultiplier;
-        double backVal = backEncoderValue - angleOfRotation * leftMultiplier;
+        double rightVal = rightEncoderValue + angleOfRotation * rightMultiplier;
+        double backVal = backEncoderValue - angleOfRotation * backMultiplier;
 
         translationDepth = (leftVal + rightVal) / 2.0;
         translationWidth = backVal;
 
         lengthOfTranslation = Math.sqrt(translationDepth * translationDepth + translationWidth * translationWidth);
         angleOfTranslation = Math.atan2(translationWidth, translationDepth);
+    }
+
+    void startCalibration() {
+        if (left != null)
+            leftStartingValue = left.getDistanceSinceReset(unit);
+        if (right != null)
+            rightStartingValue = right.getDistanceSinceReset(unit);
+        if (back != null)
+            backStartingValue = back.getDistanceSinceReset(unit);
+    }
+
+    void finishCalibration(double rotation) {
+        leftMultiplier = 0.0;
+        rightMultiplier = 0.0;
+        backMultiplier = 0.0;
+        leftDirectionMultiplier = 1.0;
+        rightDirectionMultiplier = 1.0;
+        backDirectionMultiplier = 1.0;
+
+        if (Math.abs(rotation) > 0.0) {
+            if (left != null) {
+                double leftEndingValue = left.getDistanceSinceReset(unit);
+                leftMultiplier = (leftEndingValue - leftStartingValue) / rotation;
+                if (leftMultiplier > 0.0) {
+                    leftDirectionMultiplier = 1.0;
+                } else {
+                    leftDirectionMultiplier = -1.0;
+                    leftMultiplier = -leftMultiplier;
+                }
+            }
+            if (right != null) {
+                double rightEndingValue = right.getDistanceSinceReset(unit);
+                rightMultiplier = (rightEndingValue - rightStartingValue) / rotation;
+                if (rightMultiplier < 0.0) {
+                    rightDirectionMultiplier = 1.0;
+                } else {
+                    rightDirectionMultiplier = -1.0;
+                    rightMultiplier = -rightMultiplier;
+                }
+            }
+            if (back != null) {
+                double backEndingValue = back.getDistanceSinceReset(unit);
+                backMultiplier = (backEndingValue - backStartingValue) / rotation;
+                if (backMultiplier > 0.0) {
+                    backDirectionMultiplier = 1.0;
+                } else {
+                    backDirectionMultiplier = -1.0;
+                    backMultiplier = -backMultiplier;
+                }
+            }
+        }
+
+        rotationalMultiplier = 1.0 / (leftMultiplier + rightMultiplier);
     }
 
     public void getMovement(MecanumCommands data) {

@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.opmodes.GenericTest;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
@@ -46,8 +47,7 @@ public class TestMecanumWithOdometry extends LinearOpMode {
         DcMotor8863 backLeft = new DcMotor8863("BackLeft", hardwareMap);
         DcMotor8863 frontRight = new DcMotor8863("FrontRight", hardwareMap);
         DcMotor8863 backRight = new DcMotor8863("BackRight", hardwareMap);
-        DcMotor8863 rightIntake = new DcMotor8863("Right", hardwareMap);
-        DcMotor8863 leftIntake = new DcMotor8863("Left", hardwareMap);
+
         // these motors are orbital (planetary gear) motors. The type of motor sets up the number
         // of encoder ticks per revolution. Since we are not using encoder feedback yet, this is
         // really not important now. But it will be once we hook up the encoders and set a motor
@@ -132,6 +132,8 @@ public class TestMecanumWithOdometry extends LinearOpMode {
         OdometryModule right = new OdometryModule(1440, 3.8, units, "FrontRight", hardwareMap);
         OdometryModule back = new OdometryModule(1440, 3.8, units, "BackLeft", hardwareMap);
         OdometrySystem odometry = new OdometrySystem(units, left, right, back);
+        odometry.initializeRobotGeometry(0, 1, DcMotorSimple.Direction.REVERSE,0, 1, DcMotorSimple.Direction.FORWARD, 1,0, DcMotorSimple.Direction.FORWARD);
+        MecanumCommands position = new MecanumCommands();
 
         // Note from Glenn:
         // None of the following are needed using the class AdafruitIMU8863. They are handled in the
@@ -168,10 +170,11 @@ public class TestMecanumWithOdometry extends LinearOpMode {
             // telemetry.addData("back right = ", mecanum.getBackRight());
             odometry.calculateMoveDistance();
             odometry.updateCoordinates();
-
+            odometry.getMovement(position);
             telemetry.addData("Mode: ", haloControls.getMode() == HaloControls.Mode.DRIVER_MODE ? "Driver" : "Robot");
             telemetry.addData("Odometry (l/r/b): ", String.format("%.2f %.2f %.2f", left.getDistanceSinceReset(units), right.getDistanceSinceReset(units), back.getDistanceSinceReset(units)));
-            telemetry.addData("Potition: ", String.format("%.2f %.2f %.2f", odometry.getCurrentX(), odometry.getCurrentY(), odometry.getCurrentRotation()));
+            telemetry.addData("Potition: ", position);
+//            telemetry.addData("Potition: ", String.format("%.2f %.2f %.2f", odometry.getCurrentX(), odometry.getCurrentY(), odometry.getCurrentRotation()));
             telemetry.addData(">", "Press Stop to end test.");
             telemetry.update();
 
