@@ -445,7 +445,7 @@ public class ExtensionRetractionMechanism {
         this.telemetry = telemetry;
 
         // create the motor
-        extensionRetractionMotor = new DcMotor8863(motorName, hardwareMap, telemetry);
+        createExtensionRetractionMotor(hardwareMap, telemetry, motorName);
         extensionRetractionMotor.setMotorType(motorType);
         extensionRetractionMotor.setMovementPerRev(movementPerRevolution);
         extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -456,6 +456,18 @@ public class ExtensionRetractionMechanism {
         // create the time encoder data list in case it is needed
         timeEncoderValues = new PairedList();
         liftTimer = new ElapsedTime();
+    }
+
+    /**
+     * This method is separated out in order to be overridable in a child class. It creates the
+     * extension retraction motor.
+     *
+     * @param hardwareMap
+     * @param telemetry
+     * @param motorName
+     */
+    protected void createExtensionRetractionMotor(HardwareMap hardwareMap, Telemetry telemetry, String motorName) {
+        extensionRetractionMotor = new DcMotor8863(motorName, hardwareMap, telemetry);
     }
 
 

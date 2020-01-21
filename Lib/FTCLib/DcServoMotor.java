@@ -9,7 +9,16 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class DcServoMotor extends DcMotor8863 {
+
+    //*********************************************************************************************
+    //          PRIVATE DATA FIELDS
+    //
+    // can be accessed only by this class, or by using the public
+    // getter and setter methods
+    //*********************************************************************************************
+
     private Servo servoMotor;
+
     private int baseEncoderPosition = 0;
     /**
      * The last command sent to the servo. If the new command = last command then we don't actually
@@ -39,17 +48,36 @@ public class DcServoMotor extends DcMotor8863 {
      */
     private double deadBandRange = 0.1;
 
+    //*********************************************************************************************
+    //          Constructors
+    //
+    // the function that builds the class when an object is created
+    // from it
+    //*********************************************************************************************
 
     public DcServoMotor(String motorName, String servoName, double centerValueForward, double centerValueReverse, double deadBandRange, HardwareMap hardwareMap, Telemetry telemetry) {
+        // the motor is only going to be used for reading the encoder port since the encoder is
+        // plugged into it.
         super(motorName, hardwareMap, telemetry);
+        // program the servo for continuous rotation and config the phone for a normal servo, NOT
+        // a continuous rotation servo
         servoMotor = hardwareMap.get(Servo.class, servoName);
         this.centerValueForward = centerValueForward;
         this.centerValueReverse = centerValueReverse;
-        setDirection(DcMotorSimple.Direction.FORWARD);
         this.deadBandRange = deadBandRange;
-
+        // must set a default direction. This forces the centervalue to be set to centerValueForward
+        setDirection(DcMotorSimple.Direction.FORWARD);
+        // get the encoder position and set that base encoder position to that
+        baseEncoderPosition = getCurrentPosition();
     }
 
+    //*********************************************************************************************
+    //          MAJOR METHODS
+    //
+    // public methods that give the class its functionality
+    //*********************************************************************************************
+
+    @Override
     public void setPower(double power) {
         power = Range.clip(power, getMinMotorPower(), getMaxMotorPower());
         this.currentPower = power;
@@ -94,6 +122,7 @@ public class DcServoMotor extends DcMotor8863 {
      *
      * @param direction
      */
+    @Override
     public void setDirection(DcMotor.Direction direction) {
         if (direction == DcMotor.Direction.FORWARD) {
             centerValue = centerValueForward;
@@ -106,24 +135,22 @@ public class DcServoMotor extends DcMotor8863 {
 
     }
 
-    @Deprecated
-    public void setPowerFloat() {
-    }
-
+    @Override
     public void setZeroPowerBehavior(DcMotor.ZeroPowerBehavior ZeroPowerBehavior) {
-
     }
 
+    @Override
     public void setTargetPosition(int position) {
         // set the field holding the desired rotation
         setTargetEncoderCount(position);
-
     }
 
+    @Override
     public int getCurrentPosition() {
         return (FTCDcMotor.getCurrentPosition() - baseEncoderPosition);
     }
 
+    @Override
     public void setMode(DcMotor.RunMode mode) {
         if (mode != getCurrentRunMode()) {
             switch (mode) {
@@ -139,6 +166,7 @@ public class DcServoMotor extends DcMotor8863 {
         }
     }
 
+    @Override
     public MotorState update() {
         return MotorState.COMPLETE_HOLD;
     }

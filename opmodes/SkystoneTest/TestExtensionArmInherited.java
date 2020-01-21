@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.opmodes.Skystone;
+package org.firstinspires.ftc.teamcode.opmodes.SkystoneTest;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
+import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.ExtensionArm;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.ExtensionRetractionMechanismDCServoMotor;
 
 /**
@@ -14,10 +14,10 @@ import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.ExtensionRetractionMechani
  */
 @TeleOp(name = "Test extension arm", group = "Test")
 //@Disabled
-public class TestExtensionArm extends LinearOpMode {
+public class TestExtensionArmInherited extends LinearOpMode {
 
     // Put your variable declarations here
-    public ExtensionRetractionMechanismDCServoMotor extensionArm;
+    public ExtensionArm extensionArm;
     public DataLogging logFile;
     public double spoolDiameter = 2.75; // inches
     public ElapsedTime timer;
@@ -37,11 +37,11 @@ public class TestExtensionArm extends LinearOpMode {
         // and instead of creating DcMotor8863, create DcServoMotor.
 
         // Put your initializations here
-        extensionArm = new ExtensionRetractionMechanismDCServoMotor(hardwareMap, telemetry, "extensionArm",
+        extensionArm = new ExtensionArm(hardwareMap, telemetry, "extensionArm",
                 "extensionLimitSwitchArm", "retractionLimitSwitchArm", "extensionArmMotor",
                 DcMotor8863.MotorType.ANDYMARK_40, spoolDiameter * Math.PI);
         extensionArm.reverseMotor();
-        logFile = new DataLogging("ExtensionRetractionTest", telemetry);
+        logFile = new DataLogging("ExtensionArmTest", telemetry);
         timer = new ElapsedTime();
         extensionArm.setDataLog(logFile);
         extensionArm.enableDataLogging();
@@ -63,13 +63,13 @@ public class TestExtensionArm extends LinearOpMode {
         encoderValueMax = extensionArm.testExtension(this);
         endUpTime = timer.seconds();
         telemetry.update();
-        sleep(10000);
+        sleep(5000);
         timer.reset();
         encoderValueMin = extensionArm.testRetraction(this);
         endDownTime = timer.seconds();
 
-        telemetry.addData("time up = ", endUpTime);
-        telemetry.addData("time down = ", endDownTime);
+        telemetry.addData("time extend = ", endUpTime);
+        telemetry.addData("time retract = ", endDownTime);
         telemetry.addData("max encoder value = ", encoderValueMax);
         telemetry.addData("min encoder value = ", encoderValueMin);
         telemetry.addData(">", "Done");
@@ -79,9 +79,5 @@ public class TestExtensionArm extends LinearOpMode {
         while (opModeIsActive()) {
             idle();
         }
-
-        // Put your cleanup code here - it runs as the application shuts down
-
-        sleep(5000);
     }
 }
