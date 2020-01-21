@@ -60,20 +60,20 @@ public class TestTwoLiftContinuousUpdate extends LinearOpMode {
 
     public String buffer = "";
 
-    public double speed = 1.0;
+    public double speed = 0.3;
 
     @Override
     public void runOpMode() {
 
 
         // Put your initializations here
-        liftLeft = new Lift(hardwareMap, telemetry, "extensionRetractionLeft",
-                "extensionLimitSwitchLeft", "retractionLimitSwitchLeft", "extensionRetractionMotorLeft",
+        liftLeft = new Lift(hardwareMap, telemetry, "liftLeft",
+                "extensionLimitSwitchLiftLeft", "retractionLimitSwitchLiftLeft", "liftMotorLeft",
                 DcMotor8863.MotorType.ANDYMARK_40, movementPerRevolution);
         //liftLeft.reverseMotor();
 
-        liftRight = new Lift(hardwareMap, telemetry, "extensionRetractionRight",
-                "extensionLimitSwitchRight", "retractionLimitSwitchRight", "extensionRetractionMotorRight",
+        liftRight = new Lift(hardwareMap, telemetry, "liftRight",
+                "extensionLimitSwitchLiftRight", "retractionLimitSwitchLiftRight", "liftMotorRight",
                 DcMotor8863.MotorType.ANDYMARK_40, movementPerRevolution);
         liftRight.reverseMotor();
 

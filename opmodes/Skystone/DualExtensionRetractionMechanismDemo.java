@@ -54,21 +54,21 @@ public class DualExtensionRetractionMechanismDemo extends LinearOpMode {
 
 
         // Put your initializations here
-        liftLeft = new ExtensionRetractionMechanism(hardwareMap, telemetry, "extensionRetractionLeft",
-                "extensionLimitSwitchLeft", "retractionLimitSwitchLeft", "extensionRetractionMotorLeft",
+        liftLeft = new ExtensionRetractionMechanism(hardwareMap, telemetry, "liftLeft",
+                "extensionLimitSwitchLeft", "retractionLimitSwitchLeft", "liftMotorLeft",
                 DcMotor8863.MotorType.ANDYMARK_40, movementPerRevolution);
         //liftLeft.reverseMotor();
 
-        liftRight = new ExtensionRetractionMechanism(hardwareMap, telemetry, "extensionRetractionRight",
-                "extensionLimitSwitchRight", "retractionLimitSwitchRight", "extensionRetractionMotorRight",
+        liftRight = new ExtensionRetractionMechanism(hardwareMap, telemetry, "liftRight",
+                "extensionLimitSwitchRight", "retractionLimitSwitchRight", "liftMotorRight",
                 DcMotor8863.MotorType.ANDYMARK_40, movementPerRevolution);
         liftRight.reverseMotor();
 
         timerLeft = new ElapsedTime();
         timerRight = new ElapsedTime();
 
-        logFileLeft = new DataLogging("ExtensionRetractionTestLeft", telemetry);
-        logFileRight = new DataLogging("ExtensionRetractionTestRight", telemetry);
+        logFileLeft = new DataLogging("LiftTestLeft", telemetry);
+        logFileRight = new DataLogging("LiftTestRight", telemetry);
         timeEncoderValueFile = new CSVDataFile("LiftTimeEncoderValues", telemetry);
 
         liftLeft.setDataLog(logFileLeft);
