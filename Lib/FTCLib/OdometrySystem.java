@@ -202,7 +202,7 @@ public class OdometrySystem {
     /*
      * Used to start calibration process
      */
-    void startCalibration() {
+    public void startCalibration() {
         if (left != null)
             leftStartingValue = left.getDistanceSinceReset(unit);
         if (right != null)
@@ -213,15 +213,18 @@ public class OdometrySystem {
 
     /*
      * Used after calling {@link #startCalibration() startCalibration} and subsequent rotation of the robot by {@link #rotation rotation} radians
+     * @param angleUnit units of measurement for rotation
      * @param rotation rotation of the robot in radians since the call to {@link #startCalibration() startCalibration}
      */
-    void finishCalibration(double rotation) {
+    public void finishCalibration(AngleUnit angleUnit, double rotation) {
         leftMultiplier = 0.0;
         rightMultiplier = 0.0;
         backMultiplier = 0.0;
         leftDirectionMultiplier = 1.0;
         rightDirectionMultiplier = 1.0;
         backDirectionMultiplier = 1.0;
+
+        rotation = angleUnit.toRadians(rotation);
 
         if (Math.abs(rotation) > 0.0) {
             if (left != null) {

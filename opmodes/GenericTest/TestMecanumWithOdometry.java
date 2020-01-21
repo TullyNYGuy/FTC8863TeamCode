@@ -30,6 +30,23 @@ public class TestMecanumWithOdometry extends LinearOpMode {
 
     // Put your variable declarations here
 
+    private void initializeOdometry(OdometrySystem odometry, Mecanum mecanum, AdafruitIMU8863 imu) {
+        MecanumCommands commands = new MecanumCommands();
+        commands.setSpeed(0);
+        commands.setAngleOfTranslation(AngleUnit.RADIANS, 0);
+        commands.setSpeedOfRotation(1);
+        ElapsedTime timer = new ElapsedTime();
+        double originalAngle = imu.getHeading();
+        odometry.startCalibration();
+        timer.reset();
+        mecanum.setMotorPower(commands);
+        while (opModeIsActive() && (timer.milliseconds() < 500)) {
+            idle();
+        }
+        mecanum.stopMotor();
+        odometry.finishCalibration(AngleUnit.DEGREES, imu.getHeading());
+    }
+
     @Override
     public void runOpMode() {
 
@@ -137,13 +154,9 @@ public class TestMecanumWithOdometry extends LinearOpMode {
         odometry.initializeRobotGeometry(DistanceUnit.CM, 0, 1, DcMotorSimple.Direction.REVERSE, 0, 1, DcMotorSimple.Direction.FORWARD, 1, 0, DcMotorSimple.Direction.FORWARD);
         Position position = new Position(DistanceUnit.CM, 0.0, 0.0, 0.0, 0);
 
-        // Note from Glenn:
-        // None of the following are needed using the class AdafruitIMU8863. They are handled in the
-        // initialization of the imu as part of the constructor.
-
-        //**************************************************************
 
         waitForStart();
+        initializeOdometry(odometry, mecanum, imu);
         // Put your calls here - they will not run in a loop
         while (opModeIsActive()) {
             // Put your calls that need to run in a loop here
