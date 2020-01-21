@@ -52,6 +52,13 @@ public class OdometrySystem {
     private double rightDirectionMultiplier = 1;
     private double backDirectionMultiplier = 1;
 
+    final private String PROP_LEFT_MULTIPLIER = "OdometrySystem.leftMultiplier";
+    final private String PROP_LEFT_DIRECTION_MULTIPLIER = "OdometrySystem.leftDirectionMultiplier";
+    final private String PROP_RIGHT_MULTIPLIER = "OdometrySystem.rightMultiplier";
+    final private String PROP_RIGHT_DIRECTION_MULTIPLIER = "OdometrySystem.rightDirectionMultiplier";
+    final private String PROP_BACK_MULTIPLIER = "OdometrySystem.backMultiplier";
+    final private String PROP_BACK_DIRECTION_MULTIPLIER = "OdometrySystem.backDirectionMultiplier";
+
     /*
      * Units of measurement for the rest of linear variables
      */
@@ -159,7 +166,11 @@ public class OdometrySystem {
         leftMultiplier = leftModuleDistanceSq/leftOffsetWidth;
         rightMultiplier = rightModuleDistanceSq/rightOffsetWidth;
         backMultiplier = backModuleDistanceSq/backOffsetDepth;
-        rotationalMultiplier =  1.0 / (leftMultiplier + rightMultiplier);
+        initializeInternal();
+    }
+
+    protected void initializeInternal() {
+        rotationalMultiplier = 1.0 / (leftMultiplier + rightMultiplier);
     }
 
     public void calculateMoveDistance() {
@@ -182,6 +193,9 @@ public class OdometrySystem {
         angleOfTranslation = Math.atan2(translationWidth, translationDepth);
     }
 
+    /*
+     * Used to start calibration process
+     */
     void startCalibration() {
         if (left != null)
             leftStartingValue = left.getDistanceSinceReset(unit);
@@ -191,6 +205,10 @@ public class OdometrySystem {
             backStartingValue = back.getDistanceSinceReset(unit);
     }
 
+    /*
+     * Used after calling {@link #startCalibration() startCalibration} and subsequent rotation of the robot by {@link #rotation rotation} radians
+     * @param rotation rotation of the robot in radians since the call to {@link #startCalibration() startCalibration}
+     */
     void finishCalibration(double rotation) {
         leftMultiplier = 0.0;
         rightMultiplier = 0.0;
@@ -232,7 +250,32 @@ public class OdometrySystem {
             }
         }
 
-        rotationalMultiplier = 1.0 / (leftMultiplier + rightMultiplier);
+        initializeInternal();
+    }
+
+    public boolean saveConfiguration(Configuration config) {
+        if (config == null)
+            return false;
+        config.setProperty(PROP_LEFT_MULTIPLIER, String.valueOf(leftMultiplier));
+        config.setProperty(PROP_LEFT_DIRECTION_MULTIPLIER, String.valueOf(leftDirectionMultiplier));
+        config.setProperty(PROP_RIGHT_MULTIPLIER, String.valueOf(rightMultiplier));
+        config.setProperty(PROP_RIGHT_DIRECTION_MULTIPLIER, String.valueOf(rightDirectionMultiplier));
+        config.setProperty(PROP_BACK_MULTIPLIER, String.valueOf(backMultiplier));
+        config.setProperty(PROP_BACK_DIRECTION_MULTIPLIER, String.valueOf(backDirectionMultiplier));
+        return true;
+    }
+
+    public boolean loadConfiguration(Configuration config) {
+        if (config == null)
+            return false;
+        leftMultiplier = config.getPropertyDouble(PROP_LEFT_MULTIPLIER, 1.0);
+        leftDirectionMultiplier = config.getPropertyDouble(PROP_LEFT_DIRECTION_MULTIPLIER, 1.0);
+        rightMultiplier = config.getPropertyDouble(PROP_RIGHT_MULTIPLIER, 1.0);
+        rightDirectionMultiplier = config.getPropertyDouble(PROP_RIGHT_DIRECTION_MULTIPLIER, 1.0);
+        backMultiplier = config.getPropertyDouble(PROP_BACK_MULTIPLIER, 1.0);
+        backDirectionMultiplier = config.getPropertyDouble(PROP_BACK_DIRECTION_MULTIPLIER, 1.0);
+        initializeInternal();
+        return true;
     }
 
     public void getMovement(MecanumCommands data) {

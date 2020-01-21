@@ -33,4 +33,96 @@ public class Configuration extends Properties {
         super.store(new FileOutputStream(fileName), "Robot Configuration");
     }
 
+    public Double getPropertyDouble(String key) {
+        String propVal = getProperty(key);
+        if (propVal != null) {
+            try {
+                return Double.valueOf(propVal);
+            } catch (NumberFormatException ex) {
+                return null;
+            }
+        }
+        return null;
+    }
+
+    public Double getPropertyDouble(String key, Double defaultValue) {
+        String propVal = getProperty(key);
+        if (propVal != null) {
+            try {
+                return Double.valueOf(propVal);
+            } catch (NumberFormatException ex) {
+                return defaultValue;
+            }
+        } else {
+            return defaultValue;
+        }
+    }
+
+    public Integer getPropertyInteger(String key) {
+        String propVal = getProperty(key);
+        if (propVal != null) {
+            try {
+                return Integer.valueOf(propVal);
+            } catch (NumberFormatException ex) {
+                return null;
+            }
+        }
+        return null;
+    }
+
+    public Integer getPropertyInteger(String key, Integer defaultValue) {
+        String propVal = getProperty(key);
+        if (propVal != null) {
+            try {
+                return Integer.valueOf(propVal);
+            } catch (NumberFormatException ex) {
+                return defaultValue;
+            }
+        } else {
+            return defaultValue;
+        }
+    }
+
+    public Long getPropertyLong(String key) {
+        String propVal = getProperty(key);
+        if (propVal != null) {
+            try {
+                return Long.valueOf(propVal);
+            } catch (NumberFormatException ex) {
+                return null;
+            }
+        }
+        return null;
+    }
+
+    public Long getPropertyInteger(String key, Long defaultValue) {
+        String propVal = getProperty(key);
+        if (propVal != null) {
+            try {
+                return Long.valueOf(propVal);
+            } catch (NumberFormatException ex) {
+                return defaultValue;
+            }
+        } else {
+            return defaultValue;
+        }
+    }
+
+    public Boolean getPropertyBoolean(String key) {
+        String propVal = getProperty(key);
+        if (propVal != null) {
+            return Boolean.valueOf(propVal);
+        }
+        return null;
+    }
+
+    public Boolean getPropertyBoolean(String key, Boolean defaultValue) {
+        String propVal = getProperty(key);
+        if (propVal != null) {
+            return Boolean.valueOf(propVal);
+        } else {
+            return defaultValue;
+        }
+    }
+
 }
