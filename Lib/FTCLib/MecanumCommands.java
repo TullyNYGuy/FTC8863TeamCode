@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+
 public class MecanumCommands {
 
     //*********************************************************************************************
@@ -37,24 +39,20 @@ public class MecanumCommands {
         this.speed = speed;
     }
 
-    public double getAngleOfTranslation() {
-        return angleOfTranslation;
-    }
-
-    public double getAngleOfTranslationDegrees() {
-        return (angleOfTranslation / Math.PI) * 180;
+    public double getAngleOfTranslation(AngleUnit angleUnit) {
+        return angleUnit.fromRadians(angleOfTranslation);
     }
 
     public double getAngleOfTranslationGyro() {
-        double translationAngleGyro = ((angleOfTranslation / Math.PI) * 180) - 90;
+        double translationAngleGyro = AngleUnit.DEGREES.fromRadians(angleOfTranslation) - 90.0;
         if (translationAngleGyro < -180) {
             translationAngleGyro += 360;
         }
         return translationAngleGyro;
     }
 
-    public void setAngleOfTranslation(double angleOfTranslation) {
-        this.angleOfTranslation = angleOfTranslation;
+    public void setAngleOfTranslation(AngleUnit angleUnit, double angleOfTranslation) {
+        this.angleOfTranslation = angleUnit.toRadians(angleOfTranslation);
     }
 
     public double getSpeedOfRotation() {
@@ -93,7 +91,7 @@ public class MecanumCommands {
 
     @Override
     public String toString() {
-        return "SP: " + String.valueOf(speed) + " TR: " + getAngleOfTranslationDegrees() + " ROT: " + speedOfRotation;
+        return String.format("SP: %.2f TR: %.2f ROT: %.2f", speed, AngleUnit.DEGREES.fromRadians(angleOfTranslation), speedOfRotation);
     }
 
     //*********************************************************************************************
