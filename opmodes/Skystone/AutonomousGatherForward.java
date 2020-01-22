@@ -126,7 +126,7 @@ public class AutonomousGatherForward extends LinearOpMode {
         backRight.runAtConstantPower(0);
 
         AdafruitIMU8863 imu = new AdafruitIMU8863(hardwareMap);
-        Mecanum mecanum = new Mecanum(frontLeft, frontRight, backLeft, backRight);
+        Mecanum mecanum = new Mecanum(frontLeft, frontRight, backLeft, backRight, telemetry);
         HaloControlsWithIntake haloControls = new HaloControlsWithIntake(gamepad1, imu, telemetry);
         ElapsedTime outtakeTimer = new ElapsedTime();
 

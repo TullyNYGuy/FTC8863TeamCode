@@ -80,94 +80,52 @@ public class TestRobotCalibration extends LinearOpMode {
         backLeft.runAtConstantPower(0);
         frontRight.runAtConstantPower(0);
         backRight.runAtConstantPower(0);
+        ElapsedTime rotationTime = new ElapsedTime();
 
-        OdometryModule left = new OdometryModule(1440, 3.8, DistanceUnit.CM, "BackRight", hardwareMap);
-        OdometryModule right = new OdometryModule(1440, 3.8, DistanceUnit.CM, "FrontRight", hardwareMap);
-        OdometryModule back = new OdometryModule(1440, 3.8, DistanceUnit.CM, "BackLeft", hardwareMap);
+        OdometryModule left = new OdometryModule(1440, 3.8, DistanceUnit.CM, "BackLeft", hardwareMap);
+        OdometryModule right = new OdometryModule(1440, 3.8, DistanceUnit.CM, "BackRight", hardwareMap);
+        OdometryModule back = new OdometryModule(1440, 3.8, DistanceUnit.CM, "FrontRight", hardwareMap);
         OdometrySystem trial = new OdometrySystem(DistanceUnit.CM, left, right, back);
         trial.initializeRobotGeometry(DistanceUnit.CM, 0, 1, DcMotorSimple.Direction.REVERSE,0, 1, DcMotorSimple.Direction.FORWARD, 1,0, DcMotorSimple.Direction.FORWARD);
         AdafruitIMU8863 imu = new AdafruitIMU8863(hardwareMap);
-        ElapsedTime rotationTime = new ElapsedTime();
 
-        trial.startCalibration();
-        trial.calculateMoveDistance();
-        trial.updateCoordinates();
         MecanumCommands shower = new MecanumCommands();
-        Mecanum mecanum = new Mecanum(frontLeft, frontRight, backLeft, backRight);
+        Mecanum mecanum = new Mecanum(frontLeft, frontRight, backLeft, backRight, telemetry);
         double oldHeading = imu.getHeading();
+
+        waitForStart();
+
         shower.setAngleOfTranslation(AngleUnit.RADIANS, 0);
         shower.setSpeed(0);
         shower.setSpeedOfRotation(0);
-
+        rotationTime.reset();
         trial.startCalibration();
-        rotationTime.startTime();
+        rotationTime.reset();
 
-        while(rotationTime.milliseconds() < 200){
-            shower.setSpeedOfRotation(0.3);
-            mecanum.setMotorPower(shower);
+        shower.setSpeedOfRotation(0.3);
+        mecanum.setMotorPower(shower);
+        telemetry.addData("Mecanum: ", shower);
+        telemetry.update();
+
+        while(opModeIsActive() && (rotationTime.milliseconds() < 2000)){
+            idle();
         }
 
+        mecanum.stopMotor();
         double newHeading = imu.getHeading();
         double heading = newHeading - oldHeading;
         trial.finishCalibration(AngleUnit.DEGREES, heading);
 
-        telemetry.addData("robot moved: ", shower);
         // create the robot. Tell the driver we are creating it since this can take a few seconds
         // and we want the driver to know what is going on.
         // telemetry.addData("Initializing ...", "Wait for it ...");
-        telemetry.update();
 
 
-        waitForStart();
-
-        //*********************************************************************************************
-        //             Robot Running after the user hits play on the driver phone
-        //*********************************************************************************************
-
-        // The user pressed play so we start the robot and then check to make sure he or she has
-        // not pressed stop. If they press stop, then opModeIsActive() will return false. It can
-        // also return false if there is some kind of error in the robot software or hardware.
-
-        while (opModeIsActive()) {
-
-            //*************************************************************************************
-            // Gamepad 1 buttons - look for a button press on gamepad 1 and then do the action
-            // for that button
-            //*************************************************************************************
-
-            // example for a button with multiple commands attached to it:
-            // don't forget to change the new line with the number of commands attached like this:
-            // gamepad1x = new GamepadButtonMultiPush(4);
-            //                                        ^
-            //                                        |
-            //
-//            if (gamepad1x.buttonPress(gamepad1.x)) {
-//                if (gamepad1x.isCommand1()) {
-//                    // call the first command you want to run
-//                }
-//                if (gamepad1x.isCommand2()) {
-//                    // call the 2nd command you want to run
-//                }
-//                if (gamepad1x.isCommand3()) {
-//                    // call the 3rd command you want to run
-//                }
-//                if (gamepad1x.isCommand4()) {
-//                    // call the 4th command you want to run
-//                }
-//            }
-
-
-            // update the drive motors with the new power
-
-
-
-
-            idle();
-        }
 
         //*************************************************************************************
         //  Stop everything after the user hits the stop button on the driver phone
         // ************************************************************************************
+        waitForStart();
 
         // Stop has been hit, shutdown everything
         telemetry.addData(">", "Done");

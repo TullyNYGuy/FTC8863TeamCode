@@ -24,6 +24,7 @@ public class Mecanum {
     private DcMotor8863 frontRight;
     private DcMotor8863 backLeft;
     private DcMotor8863 backRight;
+    private Telemetry telemetry;
 
 
     public double getFrontLeft() {
@@ -104,12 +105,13 @@ public class Mecanum {
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
-    public Mecanum(DcMotor8863 frontLeft, DcMotor8863 frontRight, DcMotor8863 backLeft, DcMotor8863 backRight) {
+    public Mecanum(DcMotor8863 frontLeft, DcMotor8863 frontRight, DcMotor8863 backLeft, DcMotor8863 backRight, Telemetry telemetry) {
         wheelVelocities = new WheelVelocities();
         this.frontLeft = frontLeft;
         this.frontRight = frontRight;
         this.backLeft = backLeft;
         this.backRight = backRight;
+        this.telemetry = telemetry;
     }
 
     //*********************************************************************************************
@@ -144,6 +146,9 @@ public class Mecanum {
         // set the power to the motor. This is the call to use when changing power after the
         // motor is set up for a mode.
 
+        telemetry.addData("wheel (FL, FR, BL, BR): ",
+                String.format("(%.2f, %.2f, %.2f, %.2f)", wheelVelocities.frontLeft, wheelVelocities.frontRight,
+                        wheelVelocities.backLeft, wheelVelocities.backRight));
         frontLeft.setPower(wheelVelocities.frontLeft);
         frontRight.setPower(wheelVelocities.frontRight);
         backLeft.setPower(wheelVelocities.backLeft);

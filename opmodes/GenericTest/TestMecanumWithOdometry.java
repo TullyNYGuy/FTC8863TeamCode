@@ -144,7 +144,7 @@ public class TestMecanumWithOdometry extends LinearOpMode {
         backRight.runAtConstantPower(0);
 
         AdafruitIMU8863 imu = new AdafruitIMU8863(hardwareMap);
-        Mecanum mecanum = new Mecanum(frontLeft, frontRight, backLeft, backRight);
+        Mecanum mecanum = new Mecanum(frontLeft, frontRight, backLeft, backRight, telemetry);
         HaloControls haloControls = new HaloControls(gamepad1, imu);
         DistanceUnit units = DistanceUnit.CM;
         OdometryModule left = new OdometryModule(1440, 3.8, units, "BackRight", hardwareMap);
