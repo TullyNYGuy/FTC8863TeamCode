@@ -1,14 +1,20 @@
 package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
-import android.os.Environment;
-
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Position;
+
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.PrintStream;
-
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Scanner;
+import java.util.regex.MatchResult;
 
 /*
  * This Odometry system designed to be used with mecanum drive.
@@ -49,10 +55,18 @@ public class OdometrySystem {
     private double rightDirectionMultiplier = 1;
     private double backDirectionMultiplier = 1;
 
+    final private String PROP_UNIT = "OdometrySystem.unit";
+    final private String PROP_LEFT_MULTIPLIER = "OdometrySystem.leftMultiplier";
+    final private String PROP_LEFT_DIRECTION_MULTIPLIER = "OdometrySystem.leftDirectionMultiplier";
+    final private String PROP_RIGHT_MULTIPLIER = "OdometrySystem.rightMultiplier";
+    final private String PROP_RIGHT_DIRECTION_MULTIPLIER = "OdometrySystem.rightDirectionMultiplier";
+    final private String PROP_BACK_MULTIPLIER = "OdometrySystem.backMultiplier";
+    final private String PROP_BACK_DIRECTION_MULTIPLIER = "OdometrySystem.backDirectionMultiplier";
+
     /*
      * Units of measurement for the rest of linear variables
      */
-    private Units unit;
+    private DistanceUnit unit;
 
     // Values used for calibration
     private double leftStartingValue = 0.0;
@@ -89,10 +103,6 @@ public class OdometrySystem {
 
     private double translationWidth = 0;
 
-    private double angleOfTranslation = 0;
-
-    private double lengthOfTranslation = 0;
-
     private double currentX = 0;
     private double currentY = 0;
     private double currentRotation = 0;
@@ -111,7 +121,7 @@ public class OdometrySystem {
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
-    public OdometrySystem(Units unit, OdometryModule left, OdometryModule right, OdometryModule back) {
+    public OdometrySystem(DistanceUnit unit, OdometryModule left, OdometryModule right, OdometryModule back) {
         this.left = left;
         this.right = right;
         this.back = back;
@@ -132,12 +142,20 @@ public class OdometrySystem {
     //*********************************************************************************************
 
     public void initializeRobotGeometry(
+            DistanceUnit unit,
             double leftOffsetDepth, double leftOffsetWidth, DcMotor.Direction leftDirection,
             double rightOffsetDepth, double rightOffsetWidth, DcMotor.Direction rightDirection,
             double backOffsetDepth, double backOffsetWidth, DcMotor.Direction backDirection) {
         this.leftDirection = leftDirection;
         this.rightDirection = rightDirection;
         this.backDirection = backDirection;
+        // adjust units
+        leftOffsetDepth = this.unit.fromUnit(unit, leftOffsetDepth);
+        leftOffsetWidth = this.unit.fromUnit(unit, leftOffsetWidth);
+        rightOffsetDepth = this.unit.fromUnit(unit, rightOffsetDepth);
+        rightOffsetWidth = this.unit.fromUnit(unit, rightOffsetWidth);
+        backOffsetDepth = this.unit.fromUnit(unit, backOffsetDepth);
+        backOffsetWidth = this.unit.fromUnit(unit, backOffsetWidth);
         if(backDirection == DcMotor.Direction.FORWARD)
             backDirectionMultiplier = 1.0;
         else
@@ -156,7 +174,11 @@ public class OdometrySystem {
         leftMultiplier = leftModuleDistanceSq/leftOffsetWidth;
         rightMultiplier = rightModuleDistanceSq/rightOffsetWidth;
         backMultiplier = backModuleDistanceSq/backOffsetDepth;
-        rotationalMultiplier =  1.0 / (leftMultiplier + rightMultiplier);
+        initializeInternal();
+    }
+
+    protected void initializeInternal() {
+        rotationalMultiplier = 1.0 / (leftMultiplier + rightMultiplier);
     }
 
     public void calculateMoveDistance() {
@@ -175,11 +197,12 @@ public class OdometrySystem {
         translationDepth = (leftVal + rightVal) / 2.0;
         translationWidth = backVal;
 
-        lengthOfTranslation = Math.sqrt(translationDepth * translationDepth + translationWidth * translationWidth);
-        angleOfTranslation = Math.atan2(translationWidth, translationDepth);
     }
 
-    void startCalibration() {
+    /*
+     * Used to start calibration process
+     */
+    public void startCalibration() {
         if (left != null)
             leftStartingValue = left.getDistanceSinceReset(unit);
         if (right != null)
@@ -188,7 +211,21 @@ public class OdometrySystem {
             backStartingValue = back.getDistanceSinceReset(unit);
     }
 
-public void finishCalibration(double rotation) {
+    /*
+     * Used after calling {@link #startCalibration() startCalibration} and subsequent rotation of the robot by {@link #rotation rotation} radians
+     * @param angleUnit units of measurement for rotation
+     * @param rotation rotation of the robot in radians since the call to {@link #startCalibration() startCalibration}
+     */
+    public void finishCalibration(AngleUnit angleUnit, double rotation) {
+        leftMultiplier = 0.0;
+        rightMultiplier = 0.0;
+        backMultiplier = 0.0;
+        leftDirectionMultiplier = 1.0;
+        rightDirectionMultiplier = 1.0;
+        backDirectionMultiplier = 1.0;
+
+        rotation = angleUnit.toRadians(rotation);
+
         if (Math.abs(rotation) > 0.0) {
             if (left != null) {
                 double leftEndingValue = left.getDistanceSinceReset(unit);
@@ -221,12 +258,57 @@ public void finishCalibration(double rotation) {
                 }
             }
         }
+
+        initializeInternal();
     }
 
-    public void getMovement(MecanumCommands data) {
-        data.setAngleOfTranslation(angleOfTranslation);
-        data.setSpeed(lengthOfTranslation);
-        data.setSpeedOfRotation(angleOfRotation);
+    public boolean saveConfiguration(Configuration config) {
+        if (config == null)
+            return false;
+        String unitStr;
+        switch (unit) {
+            case INCH:
+                unitStr = "in";
+                break;
+            case CM:
+                unitStr = "cm";
+                break;
+            case METER:
+                unitStr = "m";
+                break;
+            default:
+                unitStr = "mm";
+        }
+        config.setProperty(PROP_UNIT, unitStr);
+        config.setProperty(PROP_LEFT_MULTIPLIER, String.valueOf(leftMultiplier));
+        config.setProperty(PROP_LEFT_DIRECTION_MULTIPLIER, String.valueOf(leftDirectionMultiplier));
+        config.setProperty(PROP_RIGHT_MULTIPLIER, String.valueOf(rightMultiplier));
+        config.setProperty(PROP_RIGHT_DIRECTION_MULTIPLIER, String.valueOf(rightDirectionMultiplier));
+        config.setProperty(PROP_BACK_MULTIPLIER, String.valueOf(backMultiplier));
+        config.setProperty(PROP_BACK_DIRECTION_MULTIPLIER, String.valueOf(backDirectionMultiplier));
+        return true;
+    }
+
+    public boolean loadConfiguration(Configuration config) {
+        if (config == null)
+            return false;
+        String unitStr = config.getProperty(PROP_UNIT, "mm");
+        if (unitStr.equalsIgnoreCase("in"))
+            unit = DistanceUnit.INCH;
+        else if (unitStr.equalsIgnoreCase("cm"))
+            unit = DistanceUnit.CM;
+        else if (unitStr.equalsIgnoreCase("m"))
+            unit = DistanceUnit.METER;
+        else
+            unit = DistanceUnit.MM;
+        leftMultiplier = config.getPropertyDouble(PROP_LEFT_MULTIPLIER, 1.0);
+        leftDirectionMultiplier = config.getPropertyDouble(PROP_LEFT_DIRECTION_MULTIPLIER, 1.0);
+        rightMultiplier = config.getPropertyDouble(PROP_RIGHT_MULTIPLIER, 1.0);
+        rightDirectionMultiplier = config.getPropertyDouble(PROP_RIGHT_DIRECTION_MULTIPLIER, 1.0);
+        backMultiplier = config.getPropertyDouble(PROP_BACK_MULTIPLIER, 1.0);
+        backDirectionMultiplier = config.getPropertyDouble(PROP_BACK_DIRECTION_MULTIPLIER, 1.0);
+        initializeInternal();
+        return true;
     }
 
     public void resetCoordinates() {
@@ -236,10 +318,10 @@ public void finishCalibration(double rotation) {
 
     }
 
-    public void setCoordinates(double rotation, double x, double y) {
-        currentRotation = rotation;
-        currentX = x;
-        currentY = y;
+    public void setCoordinates(DistanceUnit unit, double x, double y, AngleUnit angleUnit, double rotation) {
+        currentRotation = angleUnit.toRadians(rotation);
+        currentX = this.unit.fromUnit(unit, x);
+        currentY = this.unit.fromUnit(unit, y);
     }
 
     public void updateCoordinates() {
@@ -248,15 +330,19 @@ public void finishCalibration(double rotation) {
         currentX = currentX + translationDepth;
     }
 
-    public double getCurrentY() {
-        return currentY;
+    public void getCurrentPosition(Position position) {
+        position.x = position.unit.fromUnit(unit, currentX);
+        position.y = position.unit.fromUnit(unit, currentY);
+    }
+    public double getCurrentY(DistanceUnit unit) {
+        return unit.fromUnit(this.unit, currentY);
     }
 
-    public double getCurrentX() {
-        return currentX;
+    public double getCurrentX(DistanceUnit unit) {
+        return unit.fromUnit(this.unit, currentX);
     }
 
-    public double getCurrentRotation() {
-        return currentRotation;
+    public double getCurrentRotation(AngleUnit angleUnit) {
+        return angleUnit.fromRadians(currentRotation);
     }
 }

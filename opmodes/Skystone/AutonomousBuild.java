@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.HaloControls;
@@ -146,7 +147,7 @@ public class AutonomousBuild extends LinearOpMode {
 
         waitForStart();
         mecanumCommands.setSpeed(1);
-        mecanumCommands.setAngleOfTranslation(0);
+        mecanumCommands.setAngleOfTranslation(AngleUnit.RADIANS, 0);
         outtakeTimer.reset();
         while (opModeIsActive() && outtakeTimer.milliseconds() < 80) {
             mecanum.setMotorPower(mecanumCommands);
@@ -155,7 +156,7 @@ public class AutonomousBuild extends LinearOpMode {
             idle();
         }
         mecanumCommands.setSpeed(1);
-        mecanumCommands.setAngleOfTranslation(Math.PI / 2);
+        mecanumCommands.setAngleOfTranslation(AngleUnit.RADIANS, Math.PI / 2);
         outtakeTimer.reset();
         while (opModeIsActive() && outtakeTimer.milliseconds() < 1150) {
             mecanum.setMotorPower(mecanumCommands);
@@ -164,7 +165,7 @@ public class AutonomousBuild extends LinearOpMode {
             idle();
         }
         mecanumCommands.setSpeed(1);
-        mecanumCommands.setAngleOfTranslation(Math.PI);
+        mecanumCommands.setAngleOfTranslation(AngleUnit.RADIANS, Math.PI);
         outtakeTimer.reset();
         while (opModeIsActive() && outtakeTimer.milliseconds() < 80) {
             mecanum.setMotorPower(mecanumCommands);

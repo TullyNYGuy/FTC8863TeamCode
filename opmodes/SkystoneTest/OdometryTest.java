@@ -6,6 +6,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.GamepadButtonMultiPush;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.JoyStick;
@@ -13,7 +15,6 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometryModule;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometrySystem;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.Units;
 
 /**
  * Created by ball on 10/7/2017.
@@ -53,16 +54,17 @@ public class OdometryTest extends LinearOpMode {
         TestOdometryModule right = new TestOdometryModule(hardwareMap);
         TestOdometryModule left= new TestOdometryModule(hardwareMap);
         TestOdometryModule back = new TestOdometryModule(hardwareMap);
-        OdometrySystem trial = new OdometrySystem(Units.CM, left, right, back);
-        trial.initializeRobotGeometry(0, 1, DcMotorSimple.Direction.REVERSE,0, 1, DcMotorSimple.Direction.FORWARD, 1,0, DcMotorSimple.Direction.FORWARD);
+        OdometrySystem trial = new OdometrySystem(DistanceUnit.CM, left, right, back);
+        trial.initializeRobotGeometry(DistanceUnit.CM, 0, 1, DcMotorSimple.Direction.REVERSE, 0, 1, DcMotorSimple.Direction.FORWARD, 1, 0, DcMotorSimple.Direction.FORWARD);
 
         left.setData(0);
         right.setData(0);
         back.setData(1);
         trial.calculateMoveDistance();
         trial.updateCoordinates();
-        MecanumCommands shower = new MecanumCommands();
-                trial.getMovement(shower);
+        Position shower = new Position();
+        shower.unit = DistanceUnit.CM;
+        trial.getCurrentPosition(shower);
         telemetry.addData("robot moved: ", shower);
         // create the robot. Tell the driver we are creating it since this can take a few seconds
         // and we want the driver to know what is going on.
