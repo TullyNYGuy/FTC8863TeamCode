@@ -7,6 +7,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.internal.tfod.Timer;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
@@ -14,8 +16,6 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.Mecanum;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometryModule;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometrySystem;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.Units;
-import org.firstinspires.ftc.teamcode.opmodes.SkystoneTest.TestOdometryModule;
 
 import static org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863.MotorType.ANDYMARK_20_ORBITAL;
 
@@ -81,11 +81,11 @@ public class TestRobotCalibration extends LinearOpMode {
         frontRight.runAtConstantPower(0);
         backRight.runAtConstantPower(0);
 
-        OdometryModule left = new OdometryModule(1440, 3.8, Units.CM, "BackRight", hardwareMap);
-        OdometryModule right = new OdometryModule(1440, 3.8, Units.CM, "FrontRight", hardwareMap);
-        OdometryModule back = new OdometryModule(1440, 3.8, Units.CM, "BackLeft", hardwareMap);
-        OdometrySystem trial = new OdometrySystem(Units.CM, left, right, back);
-        trial.initializeRobotGeometry(0, 1, DcMotorSimple.Direction.REVERSE,0, 1, DcMotorSimple.Direction.FORWARD, 1,0, DcMotorSimple.Direction.FORWARD);
+        OdometryModule left = new OdometryModule(1440, 3.8, DistanceUnit.CM, "BackRight", hardwareMap);
+        OdometryModule right = new OdometryModule(1440, 3.8, DistanceUnit.CM, "FrontRight", hardwareMap);
+        OdometryModule back = new OdometryModule(1440, 3.8, DistanceUnit.CM, "BackLeft", hardwareMap);
+        OdometrySystem trial = new OdometrySystem(DistanceUnit.CM, left, right, back);
+        trial.initializeRobotGeometry(DistanceUnit.CM, 0, 1, DcMotorSimple.Direction.REVERSE,0, 1, DcMotorSimple.Direction.FORWARD, 1,0, DcMotorSimple.Direction.FORWARD);
         AdafruitIMU8863 imu = new AdafruitIMU8863(hardwareMap);
         ElapsedTime rotationTime = new ElapsedTime();
 
@@ -95,7 +95,7 @@ public class TestRobotCalibration extends LinearOpMode {
         MecanumCommands shower = new MecanumCommands();
         Mecanum mecanum = new Mecanum(frontLeft, frontRight, backLeft, backRight);
         double oldHeading = imu.getHeading();
-        shower.setAngleOfTranslation(0);
+        shower.setAngleOfTranslation(AngleUnit.RADIANS, 0);
         shower.setSpeed(0);
         shower.setSpeedOfRotation(0);
 
@@ -109,7 +109,7 @@ public class TestRobotCalibration extends LinearOpMode {
 
         double newHeading = imu.getHeading();
         double heading = newHeading - oldHeading;
-        trial.finishCalibration(heading);
+        trial.finishCalibration(AngleUnit.DEGREES, heading);
 
         telemetry.addData("robot moved: ", shower);
         // create the robot. Tell the driver we are creating it since this can take a few seconds
