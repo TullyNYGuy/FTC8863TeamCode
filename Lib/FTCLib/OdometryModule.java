@@ -33,6 +33,8 @@ public class OdometryModule {
 
     private int previousEncoderValue = 0;
 
+    private int startingEncoderValue = 0;
+
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -98,8 +100,14 @@ public class OdometryModule {
         //odometryModule = hardwareMap.dcMotor.get(name);
         if(hardwareMap != null)
             odometryModule = hardwareMap.get(DcMotor.class, odometryModuleConfigName);
-        if(odometryModule != null)
-            odometryModule.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        if (odometryModule != null) {
+            // BUG
+            // We can't stop and reset the motor. The odometry module can't affect the motor.
+            // Some other code controls that.
+            //odometryModule.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            // instead
+            startingEncoderValue = odometryModule.getCurrentPosition();
+        }
     }
 
     //*********************************************************************************************
@@ -118,11 +126,16 @@ public class OdometryModule {
     // public methods that give the class its functionality
     //*********************************************************************************************
     public int getEncoderValue() {
-        return odometryModule.getCurrentPosition();
+        return odometryModule.getCurrentPosition() - startingEncoderValue;
     }
 
     public void resetEncoderValue() {
-        odometryModule.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        // BUG
+        // We can't stop and reset the motor. The odometry module can't affect the motor.
+        // Some other code controls that.
+        //odometryModule.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        // instead
+        startingEncoderValue = odometryModule.getCurrentPosition();
     }
 
     //public double getDistanceSinceReset() {

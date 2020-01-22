@@ -68,14 +68,6 @@ public class TestRobotCalibration extends LinearOpMode {
         backLeft.setDirection(DcMotor.Direction.FORWARD);
         frontRight.setDirection(DcMotor.Direction.REVERSE);
         backRight.setDirection(DcMotor.Direction.REVERSE);
-        frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        frontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        frontLeft.setPower(0);
-        backLeft.setPower(0);
-        frontRight.setPower(0);
-        backRight.setPower(0);
         frontLeft.runAtConstantPower(0);
         backLeft.runAtConstantPower(0);
         frontRight.runAtConstantPower(0);
@@ -95,10 +87,11 @@ public class TestRobotCalibration extends LinearOpMode {
 
         waitForStart();
 
+        rotationTime.reset();
+
         shower.setAngleOfTranslation(AngleUnit.RADIANS, 0);
         shower.setSpeed(0);
         shower.setSpeedOfRotation(0);
-        rotationTime.reset();
         trial.startCalibration();
         rotationTime.reset();
 
@@ -107,7 +100,8 @@ public class TestRobotCalibration extends LinearOpMode {
         telemetry.addData("Mecanum: ", shower);
         telemetry.update();
 
-        while(opModeIsActive() && (rotationTime.milliseconds() < 2000)){
+        // turn until the robot has rotated 90 degrees
+        while (opModeIsActive() && (imu.getHeading() - oldHeading < 90)) {
             idle();
         }
 
@@ -116,16 +110,9 @@ public class TestRobotCalibration extends LinearOpMode {
         double heading = newHeading - oldHeading;
         trial.finishCalibration(AngleUnit.DEGREES, heading);
 
-        // create the robot. Tell the driver we are creating it since this can take a few seconds
-        // and we want the driver to know what is going on.
-        // telemetry.addData("Initializing ...", "Wait for it ...");
-
-
-
         //*************************************************************************************
         //  Stop everything after the user hits the stop button on the driver phone
         // ************************************************************************************
-        waitForStart();
 
         // Stop has been hit, shutdown everything
         telemetry.addData(">", "Done");
