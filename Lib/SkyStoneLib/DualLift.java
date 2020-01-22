@@ -4,7 +4,9 @@ package org.firstinspires.ftc.teamcode.Lib.SkyStoneLib;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
 
 public class DualLift {
 
@@ -14,7 +16,28 @@ public class DualLift {
     // user defined types
     //
     //*********************************************************************************************
-
+    public enum DualLiftStates {
+        START_RESET_SEQUENCE, //
+        PERFORMING_PRE_RESET_ACTIONS, // actions that need to be run before mechanism can be moved to reset position
+        MOVING_TO_RESET_POSITION, //
+        PERFORMING_POST_RESET_ACTIONS, // actions that need to be run after the movement to the reset positon is complete
+        RESET_COMPLETE, // reset movement and post reset actions are complete
+        START_RETRACTION_SEQUENCE, //
+        PERFORMING_PRE_RETRACTION_ACTIONS, // actions that need to be run before mechanism can be moved to retracted position
+        RETRACTING, // in process of retracting
+        PERFORMING_POST_RETRACTION_ACTIONS, // actions that need to be run after the movement to full retraction is complete
+        FULLY_RETRACTED, // fully retracted
+        START_EXTENSION_SEQUENCE, //
+        PERFORMING_PRE_EXTENSION_ACTIONS, // actions that need to be run before mechanism can be moved extended position
+        EXTENDING, // in process of extending
+        PERFORMING_POST_EXTENSION_ACTIONS, // actions that need to be run after the movement to full extension is complete
+        FULLY_EXTENDED, // fully extended
+        START_GO_TO_POSITION, //
+        MOVING_TO_POSITION, // moving to a specified position
+        AT_POSITION, // arrived at the specified position
+        START_JOYSTICK, //
+        JOYSTICK // under joystick control
+    }
 
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS
@@ -43,6 +66,8 @@ public class DualLift {
     private int maxBlockNumber = 6;
 
     private double heightAboveTower = 1;
+
+    private DataLogging logFileBoth;
 
 
 
@@ -132,13 +157,29 @@ public class DualLift {
 
     }
 
+    public void setRetractionPower(double power){
+        liftRight.setRetractionPower(power);
+        liftLeft.setRetractionPower(power);
+    }
+
+    public void setExtensionPower(double power){
+        liftLeft.setExtensionPower(power);
+        liftRight.setExtensionPower(power);
+    }
+
+    public void setDataLog(DataLogging logFileBoth){
+        liftLeft.setDataLog(log);
+    }
+
     public boolean isPositionReached() {
         return (liftLeft.isPositionReached() && liftRight.isPositionReached());
     }
 
-    public void update() {
+    public ExtensionRetractionMechanism.ExtensionRetractionStates update() {
         liftRight.update();
         liftLeft.update();
+        //this return is temporary fix it later
+        return ExtensionRetractionMechanism.ExtensionRetractionStates.RESET_COMPLETE;
     }
 
     public void shutdown() {
