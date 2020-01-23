@@ -10,6 +10,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.HaloControls;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Mecanum;
@@ -19,18 +20,48 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometrySystem;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Switch;
 
 
+import java.io.IOException;
+
 import static org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863.MotorType.ANDYMARK_20_ORBITAL;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Mecanum with Odometry", group = "Test")
+@TeleOp(name = "Mecanum with Odometry", group = "ATest")
 //@Disabled
 public class TestMecanumWithOdometry extends LinearOpMode {
 
     // Put your variable declarations here
+    private Configuration config = new Configuration();
+    private boolean configLoaded = false;
+    private final double INIT_ODOMETRY_TIMER_MSEC = 1000.0;
+
+    private boolean loadConfiguration() {
+        configLoaded = false;
+        try {
+            config.clear();
+            config.load();
+            configLoaded = true;
+        } catch (IOException e) {
+
+        }
+        return configLoaded;
+    }
+
+    private boolean saveConfiguration() {
+        try {
+            config.store();
+        } catch (IOException e) {
+            return false;
+        }
+        return true;
+    }
 
     private void initializeOdometry(OdometrySystem odometry, Mecanum mecanum, AdafruitIMU8863 imu) {
+        if (configLoaded && odometry.loadConfiguration(config)) {
+            telemetry.addData("init", "Loaded Odometry configuration");
+            return;
+        }
         MecanumCommands commands = new MecanumCommands();
         commands.setSpeed(0);
         commands.setAngleOfTranslation(AngleUnit.RADIANS, 0);
@@ -40,12 +71,13 @@ public class TestMecanumWithOdometry extends LinearOpMode {
         odometry.startCalibration();
         timer.reset();
         mecanum.setMotorPower(commands);
-        while (opModeIsActive() && (timer.milliseconds() < 1000)) {
+        while (opModeIsActive() && (timer.milliseconds() < INIT_ODOMETRY_TIMER_MSEC)) {
             idle();
         }
         commands.setSpeedOfRotation(0);
         mecanum.setMotorPower(commands);
         odometry.finishCalibration(AngleUnit.DEGREES, AngleUnit.DEGREES.normalize(imu.getHeading() - originalAngle));
+        odometry.saveConfiguration(config);
     }
 
     @Override
@@ -53,6 +85,9 @@ public class TestMecanumWithOdometry extends LinearOpMode {
 
 
         // Put your initializations here
+
+        loadConfiguration();
+
         MecanumCommands mecanumCommands = new MecanumCommands();
         boolean intakeState = false;
 
@@ -158,6 +193,8 @@ public class TestMecanumWithOdometry extends LinearOpMode {
 
         waitForStart();
         initializeOdometry(odometry, mecanum, imu);
+        saveConfiguration();
+
         // Put your calls here - they will not run in a loop
         while (opModeIsActive()) {
             // Put your calls that need to run in a loop here
