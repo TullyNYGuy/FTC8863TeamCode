@@ -40,11 +40,12 @@ public class TestMecanumWithOdometry extends LinearOpMode {
         odometry.startCalibration();
         timer.reset();
         mecanum.setMotorPower(commands);
-        while (opModeIsActive() && (timer.milliseconds() < 500)) {
+        while (opModeIsActive() && (timer.milliseconds() < 1000)) {
             idle();
         }
-        mecanum.stopMotor();
-        odometry.finishCalibration(AngleUnit.DEGREES, imu.getHeading());
+        commands.setSpeedOfRotation(0);
+        mecanum.setMotorPower(commands);
+        odometry.finishCalibration(AngleUnit.DEGREES, AngleUnit.DEGREES.normalize(imu.getHeading() - originalAngle));
     }
 
     @Override
@@ -98,10 +99,10 @@ public class TestMecanumWithOdometry extends LinearOpMode {
         // setDirection() is a software control that controls which direction the motor moves when
         // you give it a positive power. We may have to change this once we see which direction the
         // motor actually moves.
-        frontLeft.setDirection(DcMotor.Direction.FORWARD);
-        backLeft.setDirection(DcMotor.Direction.FORWARD);
-        frontRight.setDirection(DcMotor.Direction.REVERSE);
-        backRight.setDirection(DcMotor.Direction.REVERSE);
+        frontLeft.setDirection(DcMotor.Direction.REVERSE);
+        backLeft.setDirection(DcMotor.Direction.REVERSE);
+        frontRight.setDirection(DcMotor.Direction.FORWARD);
+        backRight.setDirection(DcMotor.Direction.FORWARD);
 
         // set the running mode for the motor. The motor initializes at STOP_AND_RESET_ENCODER which
         // resets the encoder count to zero. After this you have to choose a mode that will allow
