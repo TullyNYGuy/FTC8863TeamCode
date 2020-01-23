@@ -292,7 +292,10 @@ public class OdometrySystem {
     public boolean loadConfiguration(Configuration config) {
         if (config == null)
             return false;
-        String unitStr = config.getProperty(PROP_UNIT, "mm");
+        boolean fullConfig = true;
+        Boolean found = new Boolean(true);
+        String unitStr = config.getProperty(PROP_UNIT, "mm", found);
+        fullConfig &= found;
         if (unitStr.equalsIgnoreCase("in"))
             unit = DistanceUnit.INCH;
         else if (unitStr.equalsIgnoreCase("cm"))
@@ -301,14 +304,20 @@ public class OdometrySystem {
             unit = DistanceUnit.METER;
         else
             unit = DistanceUnit.MM;
-        leftMultiplier = config.getPropertyDouble(PROP_LEFT_MULTIPLIER, 1.0);
-        leftDirectionMultiplier = config.getPropertyDouble(PROP_LEFT_DIRECTION_MULTIPLIER, 1.0);
-        rightMultiplier = config.getPropertyDouble(PROP_RIGHT_MULTIPLIER, 1.0);
-        rightDirectionMultiplier = config.getPropertyDouble(PROP_RIGHT_DIRECTION_MULTIPLIER, 1.0);
-        backMultiplier = config.getPropertyDouble(PROP_BACK_MULTIPLIER, 1.0);
-        backDirectionMultiplier = config.getPropertyDouble(PROP_BACK_DIRECTION_MULTIPLIER, 1.0);
+        leftMultiplier = config.getPropertyDouble(PROP_LEFT_MULTIPLIER, 1.0, found);
+        fullConfig &= found;
+        leftDirectionMultiplier = config.getPropertyDouble(PROP_LEFT_DIRECTION_MULTIPLIER, 1.0, found);
+        fullConfig &= found;
+        rightMultiplier = config.getPropertyDouble(PROP_RIGHT_MULTIPLIER, 1.0, found);
+        fullConfig &= found;
+        rightDirectionMultiplier = config.getPropertyDouble(PROP_RIGHT_DIRECTION_MULTIPLIER, 1.0, found);
+        fullConfig &= found;
+        backMultiplier = config.getPropertyDouble(PROP_BACK_MULTIPLIER, 1.0, found);
+        fullConfig &= found;
+        backDirectionMultiplier = config.getPropertyDouble(PROP_BACK_DIRECTION_MULTIPLIER, 1.0, found);
+        fullConfig &= found;
         initializeInternal();
-        return true;
+        return fullConfig;
     }
 
     public void resetCoordinates() {
