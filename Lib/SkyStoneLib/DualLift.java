@@ -145,7 +145,7 @@ public class DualLift {
         if (blockNumber > maxBlockNumber) {
             blockNumber = maxBlockNumber;
         }
-        goToPosition(Skystone.getHeightPlusNubIN() * blockNumber + heightAboveTower, .5);
+        goToPosition(Skystone.getHeightPlusNubIN() * blockNumber + heightAboveTower, .3);
 
     }
 
@@ -168,7 +168,29 @@ public class DualLift {
     }
 
     public void setDataLog(DataLogging logFileBoth){
-        liftLeft.setDataLog(log);
+        this.logFileBoth = logFileBoth;
+        liftLeft.setDataLog(logFileBoth);
+        liftRight.setDataLog(logFileBoth);
+    }
+
+    public void enableDataLogging() {
+        liftLeft.enableDataLogging();
+        liftRight.enableDataLogging();
+    }
+
+    public void enableCollectData() {
+        liftLeft.enableCollectData();
+        liftRight.enableCollectData();
+    }
+
+    public void setResetPower(double resetPower) {
+        liftRight.setResetPower(resetPower);
+        liftLeft.setResetPower(resetPower);
+    }
+
+    public void setExtensionPositionInMechanismUnits(double heightTimesSlides) {
+        liftLeft.setExtensionPositionInMechanismUnits(heightTimesSlides);
+        liftRight.setExtensionPositionInMechanismUnits(heightTimesSlides);
     }
 
     public boolean isPositionReached() {
@@ -181,6 +203,7 @@ public class DualLift {
         //this return is temporary fix it later
         return ExtensionRetractionMechanism.ExtensionRetractionStates.RESET_COMPLETE;
     }
+
 
     public void shutdown() {
         liftRight.shutdown();
