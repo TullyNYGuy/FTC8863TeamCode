@@ -99,10 +99,6 @@ public class OdometrySystem {
 
     private double angleOfRotation = 0;
 
-    private double translationDepth = 0;
-
-    private double translationWidth = 0;
-
     private double currentX = 0;
     private double currentY = 0;
     private double currentRotation = 0;
@@ -194,8 +190,8 @@ public class OdometrySystem {
         double rightVal = rightEncoderValue + angleOfRotation * rightMultiplier;
         double backVal = backEncoderValue - angleOfRotation * backMultiplier;
 
-        translationDepth = (leftVal + rightVal) / 2.0;
-        translationWidth = backVal;
+        currentX = (leftVal + rightVal) / 2.0;
+        currentY = backVal;
 
     }
 
@@ -301,30 +297,34 @@ public class OdometrySystem {
     public boolean loadConfiguration(Configuration config) {
         if (config == null)
             return false;
-        boolean fullConfig = true;
-        Boolean found = new Boolean(true);
-        String unitStr = config.getProperty(PROP_UNIT, "mm", found);
-        fullConfig &= found;
-        if (unitStr.equalsIgnoreCase("in"))
+        Pair<String, Boolean> strVal = config.getPropertyString(PROP_UNIT, "mm");
+        boolean fullConfig = strVal.second;
+        if (strVal.first.equalsIgnoreCase("in"))
             unit = DistanceUnit.INCH;
-        else if (unitStr.equalsIgnoreCase("cm"))
+        else if (strVal.first.equalsIgnoreCase("cm"))
             unit = DistanceUnit.CM;
-        else if (unitStr.equalsIgnoreCase("m"))
+        else if (strVal.first.equalsIgnoreCase("m"))
             unit = DistanceUnit.METER;
         else
             unit = DistanceUnit.MM;
-        leftMultiplier = config.getPropertyDouble(PROP_LEFT_MULTIPLIER, 1.0, found);
-        fullConfig &= found;
-        leftDirectionMultiplier = config.getPropertyDouble(PROP_LEFT_DIRECTION_MULTIPLIER, 1.0, found);
-        fullConfig &= found;
-        rightMultiplier = config.getPropertyDouble(PROP_RIGHT_MULTIPLIER, 1.0, found);
-        fullConfig &= found;
-        rightDirectionMultiplier = config.getPropertyDouble(PROP_RIGHT_DIRECTION_MULTIPLIER, 1.0, found);
-        fullConfig &= found;
-        backMultiplier = config.getPropertyDouble(PROP_BACK_MULTIPLIER, 1.0, found);
-        fullConfig &= found;
-        backDirectionMultiplier = config.getPropertyDouble(PROP_BACK_DIRECTION_MULTIPLIER, 1.0, found);
-        fullConfig &= found;
+        Pair<Double, Boolean> dblVal = config.getPropertyDouble(PROP_LEFT_MULTIPLIER, 1.0);
+        leftMultiplier = dblVal.first;
+        fullConfig &= dblVal.second;
+        dblVal = config.getPropertyDouble(PROP_LEFT_DIRECTION_MULTIPLIER, 1.0);
+        leftDirectionMultiplier = dblVal.first;
+        fullConfig &= dblVal.second;
+        dblVal = config.getPropertyDouble(PROP_RIGHT_MULTIPLIER, 1.0);
+        rightMultiplier = dblVal.first;
+        fullConfig &= dblVal.second;
+        dblVal = config.getPropertyDouble(PROP_RIGHT_DIRECTION_MULTIPLIER, 1.0);
+        rightDirectionMultiplier = dblVal.first;
+        fullConfig &= dblVal.second;
+        dblVal = config.getPropertyDouble(PROP_BACK_MULTIPLIER, 1.0);
+        backMultiplier = dblVal.first;
+        fullConfig &= dblVal.second;
+        dblVal = config.getPropertyDouble(PROP_BACK_DIRECTION_MULTIPLIER, 1.0);
+        backDirectionMultiplier = dblVal.first;
+        fullConfig &= dblVal.second;
         initializeInternal();
         return fullConfig;
     }

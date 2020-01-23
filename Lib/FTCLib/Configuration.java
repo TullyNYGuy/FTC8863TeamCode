@@ -33,16 +33,12 @@ public class Configuration extends Properties {
         super.store(new FileOutputStream(fileName), "Robot Configuration");
     }
 
-    public String getProperty(String key, String defaultValue, Boolean found) {
-        if (found != null)
-            found = Boolean.FALSE;
+    public Pair<String, Boolean> getPropertyString(String key, String defaultValue) {
         String propVal = getProperty(key);
         if (propVal != null) {
-            if (found != null)
-                found = Boolean.TRUE;
-            return propVal;
+            return new Pair<String, Boolean>(propVal, true);
         } else {
-            return defaultValue;
+            return new Pair<String, Boolean>(defaultValue, false);
         }
     }
 
@@ -58,25 +54,16 @@ public class Configuration extends Properties {
         return null;
     }
 
-    public Double getPropertyDouble(String key, Double defaultValue) {
-        return getPropertyDouble(key, defaultValue, null);
-    }
-
-    public Double getPropertyDouble(String key, Double defaultValue, Boolean found) {
-        if (found != null)
-            found = Boolean.FALSE;
+    public Pair<Double, Boolean> getPropertyDouble(String key, Double defaultValue) {
         String propVal = getProperty(key);
         if (propVal != null) {
             try {
-                Double res = Double.valueOf(propVal);
-                if (found != null)
-                    found = Boolean.TRUE;
-                return res;
+                return new Pair<Double, Boolean>(Double.valueOf(propVal), true);
             } catch (NumberFormatException ex) {
-                return defaultValue;
+                return new Pair<Double, Boolean>(defaultValue, false);
             }
         } else {
-            return defaultValue;
+            return new Pair<Double, Boolean>(defaultValue, false);
         }
     }
 
@@ -92,25 +79,16 @@ public class Configuration extends Properties {
         return null;
     }
 
-    public Integer getPropertyInteger(String key, Integer defaultValue) {
-        return getPropertyInteger(key, defaultValue, null);
-    }
-
-    public Integer getPropertyInteger(String key, Integer defaultValue, Boolean found) {
-        if (found != null)
-            found = Boolean.FALSE;
+    public Pair<Integer, Boolean> getPropertyInteger(String key, Integer defaultValue) {
         String propVal = getProperty(key);
         if (propVal != null) {
             try {
-                Integer res = Integer.valueOf(propVal);
-                if (found != null)
-                    found = Boolean.TRUE;
-                return res;
+                return new Pair<Integer, Boolean>(Integer.valueOf(propVal), true);
             } catch (NumberFormatException ex) {
-                return defaultValue;
+                return new Pair<Integer, Boolean>(defaultValue, false);
             }
         } else {
-            return defaultValue;
+            return new Pair<Integer, Boolean>(defaultValue, false);
         }
     }
 
@@ -126,25 +104,16 @@ public class Configuration extends Properties {
         return null;
     }
 
-    public Long getPropertyLong(String key, Long defaultValue) {
-        return getPropertyLong(key, defaultValue, null);
-    }
-
-    public Long getPropertyLong(String key, Long defaultValue, Boolean found) {
-        if (found != null)
-            found = Boolean.FALSE;
+    public Pair<Long, Boolean> getPropertyLong(String key, Long defaultValue) {
         String propVal = getProperty(key);
         if (propVal != null) {
             try {
-                Long res = Long.valueOf(propVal);
-                if (found != null)
-                    found = Boolean.TRUE;
-                return res;
+                return new Pair<Long, Boolean>(Long.valueOf(propVal), true);
             } catch (NumberFormatException ex) {
-                return defaultValue;
+                return new Pair<Long, Boolean>(defaultValue, false);
             }
         } else {
-            return defaultValue;
+            return new Pair<Long, Boolean>(defaultValue, false);
         }
     }
     public Boolean getPropertyBoolean(String key) {
@@ -155,20 +124,12 @@ public class Configuration extends Properties {
         return null;
     }
 
-    public Boolean getPropertyBoolean(String key, Boolean defaultValue) {
-        return getPropertyBoolean(key, defaultValue, null);
-    }
-
-    public Boolean getPropertyBoolean(String key, Boolean defaultValue, Boolean found) {
-        if (found != null)
-            found = Boolean.FALSE;
+    public Pair<Boolean, Boolean> getPropertyBoolean(String key, Boolean defaultValue) {
         String propVal = getProperty(key);
         if (propVal != null) {
-            if (found != null)
-                found = Boolean.TRUE;
-            return Boolean.valueOf(propVal);
+            return new Pair<Boolean, Boolean>(Boolean.valueOf(propVal), true);
         } else {
-            return defaultValue;
+            return new Pair<Boolean, Boolean>(defaultValue, false);
         }
     }
 
@@ -180,20 +141,12 @@ public class Configuration extends Properties {
         return null;
     }
 
-    public Byte getPropertyByte(String key, Byte defaultValue) {
-        return getPropertyByte(key, defaultValue, null);
-    }
-
-    public Byte getPropertyByte(String key, Byte defaultValue, Boolean found) {
-        if (found != null)
-            found = Boolean.FALSE;
+    public Pair<Byte, Boolean> getPropertyByte(String key, Byte defaultValue) {
         String propVal = getProperty(key);
         if (propVal != null) {
-            if (found != null)
-                found = Boolean.TRUE;
-            return Byte.valueOf(propVal);
+            return new Pair<Byte, Boolean>(Byte.valueOf(propVal), true);
         } else {
-            return defaultValue;
+            return new Pair<Byte, Boolean>(defaultValue, false);
         }
     }
 
