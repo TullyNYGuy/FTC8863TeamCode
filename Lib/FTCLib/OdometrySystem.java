@@ -262,6 +262,15 @@ public class OdometrySystem {
         initializeInternal();
     }
 
+    public void reset() {
+        if (left != null)
+            left.resetEncoderValue();
+        if (right != null)
+            right.resetEncoderValue();
+        if (back != null)
+            back.resetEncoderValue();
+    }
+
     public boolean saveConfiguration(Configuration config) {
         if (config == null)
             return false;
@@ -331,12 +340,6 @@ public class OdometrySystem {
         currentRotation = angleUnit.toRadians(rotation);
         currentX = this.unit.fromUnit(unit, x);
         currentY = this.unit.fromUnit(unit, y);
-    }
-
-    public void updateCoordinates() {
-        currentRotation = currentRotation + angleOfRotation;
-        currentY = currentY + translationWidth;
-        currentX = currentX + translationDepth;
     }
 
     public void getCurrentPosition(Position position) {

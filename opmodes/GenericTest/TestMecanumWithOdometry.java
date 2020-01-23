@@ -222,7 +222,6 @@ public class TestMecanumWithOdometry extends LinearOpMode {
             // telemetry.addData("back left = ", mecanum.getBackLeft());
             // telemetry.addData("back right = ", mecanum.getBackRight());
             odometry.calculateMoveDistance();
-            odometry.updateCoordinates();
             odometry.getCurrentPosition(position);
             double rotation = odometry.getCurrentRotation(AngleUnit.DEGREES);
             telemetry.addData("Mode: ", haloControls.getMode() == HaloControls.Mode.DRIVER_MODE ? "Driver" : "Robot");
