@@ -16,6 +16,8 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.regex.MatchResult;
 
+import static java.lang.Math.cos;
+
 /*
  * This Odometry system designed to be used with mecanum drive.
  * The idea is to split movement of the robot into rotational and translational.
@@ -96,8 +98,6 @@ public class OdometrySystem {
      * 1/(leftModuleDistance^2/leftOffsetWidth + rightModuleDistance^2/rightOffsetWidth)
      */
     private double rotationalMultiplier;
-
-    private double angleOfRotation = 0;
 
     private double currentX = 0;
     private double currentY = 0;
@@ -183,16 +183,19 @@ public class OdometrySystem {
         double backEncoderValue = (back != null) ? back.getDistanceSinceReset(unit) * backDirectionMultiplier : 0.0;
 
         // calculate angle of rotation
-        angleOfRotation = (leftEncoderValue - rightEncoderValue) * rotationalMultiplier;
+        double deltaRotation = (leftEncoderValue - rightEncoderValue) * rotationalMultiplier;
 
         // adjust values by canceling rotation
-        double leftVal = leftEncoderValue - angleOfRotation * leftMultiplier;
-        double rightVal = rightEncoderValue + angleOfRotation * rightMultiplier;
-        double backVal = backEncoderValue - angleOfRotation * backMultiplier;
+        double leftVal = leftEncoderValue - deltaRotation * leftMultiplier;
+        double rightVal = rightEncoderValue + deltaRotation * rightMultiplier;
+        double backVal = backEncoderValue - deltaRotation * backMultiplier;
 
-        currentX = (leftVal + rightVal) / 2.0;
-        currentY = backVal;
+        double deltaX = (leftVal + rightVal) / 2.0;
+        double deltaY = backVal;
 
+        currentX += deltaX * Math.cos(deltaRotation);
+        currentY += deltaY * Math.sin(deltaRotation);
+        currentRotation += deltaRotation;
     }
 
     /*
