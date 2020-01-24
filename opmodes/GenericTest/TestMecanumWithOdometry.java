@@ -183,9 +183,9 @@ public class TestMecanumWithOdometry extends LinearOpMode {
         Mecanum mecanum = new Mecanum(frontLeft, frontRight, backLeft, backRight, telemetry);
         HaloControls haloControls = new HaloControls(gamepad1, imu);
         DistanceUnit units = DistanceUnit.CM;
-        OdometryModule left = new OdometryModule(1440, 3.8, units, "BackRight", hardwareMap);
-        OdometryModule right = new OdometryModule(1440, 3.8, units, "FrontRight", hardwareMap);
-        OdometryModule back = new OdometryModule(1440, 3.8, units, "BackLeft", hardwareMap);
+        OdometryModule left = new OdometryModule(1440, 3.8, units, "BackLeft", hardwareMap);
+        OdometryModule right = new OdometryModule(1440, 3.8, units, "BackRight", hardwareMap);
+        OdometryModule back = new OdometryModule(1440, 3.8, units, "FrontRight", hardwareMap);
         OdometrySystem odometry = new OdometrySystem(units, left, right, back);
         odometry.initializeRobotGeometry(DistanceUnit.CM, 0, 1, DcMotorSimple.Direction.REVERSE, 0, 1, DcMotorSimple.Direction.FORWARD, 1, 0, DcMotorSimple.Direction.FORWARD);
         Position position = new Position(DistanceUnit.CM, 0.0, 0.0, 0.0, 0);
