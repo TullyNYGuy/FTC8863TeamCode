@@ -705,7 +705,7 @@ public class DcMotor8863 {
      * After the motor stops moving it will resist any movement or load.
      */
     public void setAfterCompletionToHold() {
-        setFinishBehavior(FinishBehavior.FLOAT);
+        setFinishBehavior(FinishBehavior.HOLD);
     }
 
     //*********************************************************************************************
