@@ -5,7 +5,13 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.Mecanum;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometrySystem;
 
 public class SkystoneRobot {
+    /* TODO: Needs initialization */
     private IntakeWheels intake;
+    private Mecanum mecanum;
+    private DualLift lift;
+    private ExtensionArm extensionArm;
+    private GripperRotator gripper;
+    private OdometrySystem odometry;
 
     public IntakeWheels getIntake() {
         return intake;
@@ -47,12 +53,6 @@ public class SkystoneRobot {
         this.gripper = gripper;
     }
 
-    /* TODO: Needs initialization */
-    Mecanum mecanum;
-    DualLift lift;
-    ExtensionArm extensionArm;
-    GripperRotator gripper;
-    OdometrySystem odometry;
 
     public SkystoneRobot() {
 

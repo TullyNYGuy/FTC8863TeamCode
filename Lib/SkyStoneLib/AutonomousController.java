@@ -41,14 +41,17 @@ public class AutonomousController {
         BLUE, RED
     }
 
-    Color color;
+    private Color color;
 
-    Position currentDestination;
+    private Position currentDestination;
 
-    Map<Areas, Position> places;
+    private Map<Areas, Position> places;
 
-    public AutonomousController() {
+    private SkystoneRobot robot;
+
+    public AutonomousController(SkystoneRobot robot) {
         places = new HashMap<Areas, Position>();
+        this.robot = robot;
     }
 
 
