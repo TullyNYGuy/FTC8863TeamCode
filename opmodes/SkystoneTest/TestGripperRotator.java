@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.opmodes.SkystoneTest;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.GripperRotator;
+
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
@@ -11,14 +13,14 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 public class TestGripperRotator extends LinearOpMode {
 
     // Put your variable declarations here
-    public org.firstinspires.ftc.teamcode.Lib.SkystoneLib.GripperRotator gripperRotator;
+    public org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.GripperRotator gripperRotator;
 
     @Override
     public void runOpMode() {
 
 
         // Put your initializations here
-        gripperRotator = new org.firstinspires.ftc.teamcode.Lib.SkystoneLib.GripperRotator("gripperRotator", hardwareMap, telemetry);
+        gripperRotator = new GripperRotator("gripperRotator", hardwareMap, telemetry);
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
         telemetry.update();
