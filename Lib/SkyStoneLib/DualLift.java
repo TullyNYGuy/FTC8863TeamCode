@@ -168,7 +168,7 @@ public class DualLift {
     }
 
     public void setDataLog(DataLogging logFileBoth){
-        liftLeft.setDataLog(log);
+        liftLeft.setDataLog(logFileBoth);
     }
 
     public boolean isPositionReached() {
