@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.GenericTest;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -24,10 +25,10 @@ import java.io.IOException;
 
 import static org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863.MotorType.ANDYMARK_20_ORBITAL;
 
-/**
+/*
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Mecanum with Odometry", group = "ATest")
+@Autonomous(name = "Mecanum with Odometry", group = "ATest")
 //@Disabled
 public class TestMecanumWithOdometry extends LinearOpMode {
 
@@ -76,8 +77,10 @@ public class TestMecanumWithOdometry extends LinearOpMode {
         }
         commands.setSpeedOfRotation(0);
         mecanum.setMotorPower(commands);
+        sleep(1500);
         odometry.finishCalibration(AngleUnit.DEGREES, AngleUnit.DEGREES.normalize(imu.getHeading() - originalAngle));
         odometry.saveConfiguration(config);
+        odometry.reset();
     }
 
     @Override
@@ -183,9 +186,9 @@ public class TestMecanumWithOdometry extends LinearOpMode {
         Mecanum mecanum = new Mecanum(frontLeft, frontRight, backLeft, backRight, telemetry);
         HaloControls haloControls = new HaloControls(gamepad1, imu);
         DistanceUnit units = DistanceUnit.CM;
-        OdometryModule left = new OdometryModule(1440, 3.8, units, "BackLeft", hardwareMap);
-        OdometryModule right = new OdometryModule(1440, 3.8, units, "BackRight", hardwareMap);
-        OdometryModule back = new OdometryModule(1440, 3.8, units, "FrontRight", hardwareMap);
+        OdometryModule left = new OdometryModule(1440, 3.8 * Math.PI, units, "FrontLeft", hardwareMap);
+        OdometryModule right = new OdometryModule(1440, 3.8 * Math.PI, units, "BackRight", hardwareMap);
+        OdometryModule back = new OdometryModule(1440, 3.8 * Math.PI, units, "FrontRight", hardwareMap);
         OdometrySystem odometry = new OdometrySystem(units, left, right, back);
         odometry.initializeRobotGeometry(DistanceUnit.CM, 0, 1, DcMotorSimple.Direction.REVERSE, 0, 1, DcMotorSimple.Direction.FORWARD, 1, 0, DcMotorSimple.Direction.FORWARD);
         Position position = new Position(DistanceUnit.CM, 0.0, 0.0, 0.0, 0);
@@ -194,23 +197,34 @@ public class TestMecanumWithOdometry extends LinearOpMode {
         waitForStart();
         initializeOdometry(odometry, mecanum, imu);
         saveConfiguration();
-
+        sleep(10000);
+        odometry.reset();
+        ElapsedTime timer = new ElapsedTime();
+        haloControls.calculateMecanumCommands(mecanumCommands);
+        mecanumCommands.setSpeedOfRotation(0);
+        mecanumCommands.setAngleOfTranslation(AngleUnit.DEGREES, 0);
+        mecanumCommands.setSpeed(0.3);
+        mecanum.setMotorPower(mecanumCommands);
+        timer.reset();
         // Put your calls here - they will not run in a loop
-        while (opModeIsActive()) {
+        while (opModeIsActive() && timer.seconds() < 1) {
+            idle();
+        }
+        mecanumCommands.setSpeed(0);
+        mecanum.setMotorPower(mecanumCommands);
+        sleep(1000);
             // Put your calls that need to run in a loop here
 
 
             // Display the current value
             //telemetry.addData("Motor Speed = ", "%5.2f", powerToRunAt);
             //telemetry.addData("Encoder Count=", "%5d", motor.getCurrentPosition());
-            haloControls.calculateMecanumCommands(mecanumCommands);
             // mecanum commands could come from joysticks or from autonomous calculations. That is why HaloControls is not part of Mecanum class
             //*****************************************************************
             // Is this any better than mecanum.getFrontLeft() etc?
             //*****************************************************************
 
 
-            mecanum.setMotorPower(mecanumCommands);
 
 
             // This would also work. Is there a performance advantage to it?
@@ -232,12 +246,7 @@ public class TestMecanumWithOdometry extends LinearOpMode {
             telemetry.addData(">", "Press Stop to end test.");
             telemetry.update();
 
-            idle();
-        }
-        mecanum.stopMotor();
-        // Put your cleanup code here - it runs as the application shuts down
-        telemetry.addData(">", "Done");
-        telemetry.update();
+        sleep(300000);
 
     }
 }
