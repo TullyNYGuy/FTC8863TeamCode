@@ -1,35 +1,93 @@
-package org.firstinspires.ftc.teamcode.opmodes.Skystone;
+package org.firstinspires.ftc.teamcode.opmodes.GenericTest;
 
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.HaloControls;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Mecanum;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometryModule;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometrySystem;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Switch;
-import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.HaloControlsWithIntake;
-import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.IntakeWheels;
+
+
+import java.io.IOException;
 
 import static org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863.MotorType.ANDYMARK_20_ORBITAL;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@Autonomous(name = "right", group = "Run")
+@TeleOp(name = "Mecanum with Odometry", group = "ATest")
 //@Disabled
-public class AutonomousGather extends LinearOpMode {
+public class TestMecanumWithOdometry extends LinearOpMode {
 
     // Put your variable declarations here
+    private Configuration config = new Configuration();
+    private boolean configLoaded = false;
+    private final double INIT_ODOMETRY_TIMER_MSEC = 1000.0;
+
+    private boolean loadConfiguration() {
+        configLoaded = false;
+        try {
+            config.clear();
+            config.load();
+            configLoaded = true;
+        } catch (IOException e) {
+
+        }
+        return configLoaded;
+    }
+
+    private boolean saveConfiguration() {
+        try {
+            config.store();
+        } catch (IOException e) {
+            return false;
+        }
+        return true;
+    }
+
+    private void initializeOdometry(OdometrySystem odometry, Mecanum mecanum, AdafruitIMU8863 imu) {
+        if (configLoaded && odometry.loadConfiguration(config)) {
+            telemetry.addData("init", "Loaded Odometry configuration");
+            return;
+        }
+        MecanumCommands commands = new MecanumCommands();
+        commands.setSpeed(0);
+        commands.setAngleOfTranslation(AngleUnit.RADIANS, 0);
+        commands.setSpeedOfRotation(1);
+        ElapsedTime timer = new ElapsedTime();
+        double originalAngle = imu.getHeading();
+        odometry.startCalibration();
+        timer.reset();
+        mecanum.setMotorPower(commands);
+        while (opModeIsActive() && (timer.milliseconds() < INIT_ODOMETRY_TIMER_MSEC)) {
+            idle();
+        }
+        commands.setSpeedOfRotation(0);
+        mecanum.setMotorPower(commands);
+        odometry.finishCalibration(AngleUnit.DEGREES, AngleUnit.DEGREES.normalize(imu.getHeading() - originalAngle));
+        odometry.saveConfiguration(config);
+    }
 
     @Override
     public void runOpMode() {
 
 
         // Put your initializations here
+
+        loadConfiguration();
+
         MecanumCommands mecanumCommands = new MecanumCommands();
         boolean intakeState = false;
 
@@ -44,9 +102,7 @@ public class AutonomousGather extends LinearOpMode {
         DcMotor8863 backLeft = new DcMotor8863("BackLeft", hardwareMap);
         DcMotor8863 frontRight = new DcMotor8863("FrontRight", hardwareMap);
         DcMotor8863 backRight = new DcMotor8863("BackRight", hardwareMap);
-        DcMotor8863 rightIntake = new DcMotor8863("Right", hardwareMap);
-        DcMotor8863 leftIntake = new DcMotor8863("Left", hardwareMap);
-        IntakeWheels intakeWheels = new IntakeWheels(rightIntake, leftIntake);
+
         // these motors are orbital (planetary gear) motors. The type of motor sets up the number
         // of encoder ticks per revolution. Since we are not using encoder feedback yet, this is
         // really not important now. But it will be once we hook up the encoders and set a motor
@@ -56,8 +112,6 @@ public class AutonomousGather extends LinearOpMode {
         frontRight.setMotorType(ANDYMARK_20_ORBITAL);
         backRight.setMotorType(ANDYMARK_20_ORBITAL);
 
-        rightIntake.setMotorType(ANDYMARK_20_ORBITAL);
-        leftIntake.setMotorType(ANDYMARK_20_ORBITAL);
 
         // This value will get set to some distance traveled per revolution later.
         frontLeft.setMovementPerRev(360);
@@ -80,10 +134,10 @@ public class AutonomousGather extends LinearOpMode {
         // setDirection() is a software control that controls which direction the motor moves when
         // you give it a positive power. We may have to change this once we see which direction the
         // motor actually moves.
-        frontLeft.setDirection(DcMotor.Direction.FORWARD);
-        backLeft.setDirection(DcMotor.Direction.FORWARD);
-        frontRight.setDirection(DcMotor.Direction.REVERSE);
-        backRight.setDirection(DcMotor.Direction.REVERSE);
+        frontLeft.setDirection(DcMotor.Direction.REVERSE);
+        backLeft.setDirection(DcMotor.Direction.REVERSE);
+        frontRight.setDirection(DcMotor.Direction.FORWARD);
+        backRight.setDirection(DcMotor.Direction.FORWARD);
 
         // set the running mode for the motor. The motor initializes at STOP_AND_RESET_ENCODER which
         // resets the encoder count to zero. After this you have to choose a mode that will allow
@@ -127,53 +181,59 @@ public class AutonomousGather extends LinearOpMode {
 
         AdafruitIMU8863 imu = new AdafruitIMU8863(hardwareMap);
         Mecanum mecanum = new Mecanum(frontLeft, frontRight, backLeft, backRight, telemetry);
-        HaloControlsWithIntake haloControls = new HaloControlsWithIntake(gamepad1, imu, telemetry);
-        ElapsedTime outtakeTimer = new ElapsedTime();
+        HaloControls haloControls = new HaloControls(gamepad1, imu);
+        DistanceUnit units = DistanceUnit.CM;
+        OdometryModule left = new OdometryModule(1440, 3.8, units, "BackLeft", hardwareMap);
+        OdometryModule right = new OdometryModule(1440, 3.8, units, "BackRight", hardwareMap);
+        OdometryModule back = new OdometryModule(1440, 3.8, units, "FrontRight", hardwareMap);
+        OdometrySystem odometry = new OdometrySystem(units, left, right, back);
+        odometry.initializeRobotGeometry(DistanceUnit.CM, 0, 1, DcMotorSimple.Direction.REVERSE, 0, 1, DcMotorSimple.Direction.FORWARD, 1, 0, DcMotorSimple.Direction.FORWARD);
+        Position position = new Position(DistanceUnit.CM, 0.0, 0.0, 0.0, 0);
 
-        Switch intakeLimitSwitchLeft = new Switch(hardwareMap, "IntakeSwitchLeft", Switch.SwitchType.NORMALLY_OPEN);
-        Switch intakeLimitSwitchRight = new Switch(hardwareMap, "IntakeSwitchRight", Switch.SwitchType.NORMALLY_OPEN);
-
-        boolean inOuttake = false;
-        final double OUTTAKE_TIME = 2.0;
-
-
-        // Note from Glenn:
-        // None of the following are needed using the class AdafruitIMU8863. They are handled in the
-        // initialization of the imu as part of the constructor.
-
-        //**************************************************************
 
         waitForStart();
-        mecanumCommands.setSpeed(1);
-        mecanumCommands.setAngleOfTranslation(AngleUnit.RADIANS, 0);
-        outtakeTimer.reset();
-        while (opModeIsActive() && outtakeTimer.milliseconds() < 80) {
-            mecanum.setMotorPower(mecanumCommands);
-            telemetry.addData("Mecanum:", mecanumCommands.toString());
-            telemetry.update();
-            idle();
-        }
-        mecanumCommands.setSpeed(1);
-        mecanumCommands.setAngleOfTranslation(AngleUnit.RADIANS, -Math.PI / 2);
-        outtakeTimer.reset();
-        while (opModeIsActive() && outtakeTimer.milliseconds() < 1150) {
-            mecanum.setMotorPower(mecanumCommands);
-            telemetry.addData("Mecanum:", mecanumCommands.toString());
-            telemetry.update();
-            idle();
-        }
-        mecanumCommands.setSpeed(1);
-        mecanumCommands.setAngleOfTranslation(AngleUnit.RADIANS, Math.PI);
-        outtakeTimer.reset();
-        while (opModeIsActive() && outtakeTimer.milliseconds() < 80) {
-            mecanum.setMotorPower(mecanumCommands);
-            telemetry.addData("Mecanum:", mecanumCommands.toString());
-            telemetry.update();
-            idle();
-        }
-        stop();
-        // Put your calls here - they will not run in a loop
+        initializeOdometry(odometry, mecanum, imu);
+        saveConfiguration();
 
+        // Put your calls here - they will not run in a loop
+        while (opModeIsActive()) {
+            // Put your calls that need to run in a loop here
+
+
+            // Display the current value
+            //telemetry.addData("Motor Speed = ", "%5.2f", powerToRunAt);
+            //telemetry.addData("Encoder Count=", "%5d", motor.getCurrentPosition());
+            haloControls.calculateMecanumCommands(mecanumCommands);
+            // mecanum commands could come from joysticks or from autonomous calculations. That is why HaloControls is not part of Mecanum class
+            //*****************************************************************
+            // Is this any better than mecanum.getFrontLeft() etc?
+            //*****************************************************************
+
+
+            mecanum.setMotorPower(mecanumCommands);
+
+
+            // This would also work. Is there a performance advantage to it?
+            //frontLeft.setPower(wheelVelocities.getFrontLeft());
+
+            //telemetry.addData("Mecanum:", mecanumCommands.toString());
+            // telemetry.addData("front left = ", mecanum.getFrontLeft());
+            // telemetry.addData("front right = ", mecanum.getFrontRight());
+            // telemetry.addData("back left = ", mecanum.getBackLeft());
+            // telemetry.addData("back right = ", mecanum.getBackRight());
+            odometry.calculateMoveDistance();
+            odometry.getCurrentPosition(position);
+            double rotation = odometry.getCurrentRotation(AngleUnit.DEGREES);
+            telemetry.addData("Mode: ", haloControls.getMode() == HaloControls.Mode.DRIVER_MODE ? "Driver" : "Robot");
+            telemetry.addData("Odometry (l/r/b): ", String.format("%.2f %.2f %.2f", left.getDistanceSinceReset(units), right.getDistanceSinceReset(units), back.getDistanceSinceReset(units)));
+            telemetry.addData("Position: ", String.format("(%.2f %.2f)%s", position.x, position.y, position.unit));
+            telemetry.addData("Rotation: ", rotation);
+//            telemetry.addData("Potition: ", String.format("%.2f %.2f %.2f", odometry.getCurrentX(), odometry.getCurrentY(), odometry.getCurrentRotation()));
+            telemetry.addData(">", "Press Stop to end test.");
+            telemetry.update();
+
+            idle();
+        }
         mecanum.stopMotor();
         // Put your cleanup code here - it runs as the application shuts down
         telemetry.addData(">", "Done");

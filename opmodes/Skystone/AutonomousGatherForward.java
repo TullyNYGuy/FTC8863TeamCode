@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Mecanum;
@@ -125,7 +126,7 @@ public class AutonomousGatherForward extends LinearOpMode {
         backRight.runAtConstantPower(0);
 
         AdafruitIMU8863 imu = new AdafruitIMU8863(hardwareMap);
-        Mecanum mecanum = new Mecanum(frontLeft, frontRight, backLeft, backRight);
+        Mecanum mecanum = new Mecanum(frontLeft, frontRight, backLeft, backRight, telemetry);
         HaloControlsWithIntake haloControls = new HaloControlsWithIntake(gamepad1, imu, telemetry);
         ElapsedTime outtakeTimer = new ElapsedTime();
 
@@ -144,7 +145,7 @@ public class AutonomousGatherForward extends LinearOpMode {
 
         waitForStart();
         mecanumCommands.setSpeed(1);
-        mecanumCommands.setAngleOfTranslation(0);
+        mecanumCommands.setAngleOfTranslation(AngleUnit.RADIANS, 0);
         outtakeTimer.reset();
         while (opModeIsActive() && outtakeTimer.milliseconds() < 480) {
             mecanum.setMotorPower(mecanumCommands);
@@ -153,7 +154,7 @@ public class AutonomousGatherForward extends LinearOpMode {
             idle();
         }
         mecanumCommands.setSpeed(1);
-        mecanumCommands.setAngleOfTranslation(-Math.PI / 2);
+        mecanumCommands.setAngleOfTranslation(AngleUnit.RADIANS, -Math.PI / 2);
         outtakeTimer.reset();
         while (opModeIsActive() && outtakeTimer.milliseconds() < 1150) {
             mecanum.setMotorPower(mecanumCommands);

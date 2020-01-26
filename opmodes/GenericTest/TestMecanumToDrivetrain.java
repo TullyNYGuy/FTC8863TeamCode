@@ -25,7 +25,7 @@ import static org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863.MotorType.AN
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Mecanum with intake", group = "Run")
+@TeleOp(name = "Test Mecanum To Drivetrain", group = "Test")
 //@Disabled
 public class TestMecanumToDrivetrain extends LinearOpMode {
 
@@ -129,7 +129,7 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
         backRight.runAtConstantPower(0);
 
         AdafruitIMU8863 imu = new AdafruitIMU8863(hardwareMap);
-        Mecanum mecanum = new Mecanum(frontLeft, frontRight, backLeft, backRight);
+        Mecanum mecanum = new Mecanum(frontLeft, frontRight, backLeft, backRight, telemetry);
         HaloControls haloControls = new HaloControls(gamepad1, imu);
 
 
