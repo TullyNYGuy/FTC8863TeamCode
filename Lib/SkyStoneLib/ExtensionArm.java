@@ -7,9 +7,11 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcServoMotor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometryModule;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.PairedList;
 
 public class ExtensionArm extends ExtensionRetractionMechanism {
@@ -30,6 +32,7 @@ public class ExtensionArm extends ExtensionRetractionMechanism {
     //*********************************************************************************************
 
     //protected DcMotor8863 extensionRetractionMotor;
+
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -64,7 +67,7 @@ public class ExtensionArm extends ExtensionRetractionMechanism {
     @Override
     protected void createExtensionRetractionMotor(HardwareMap hardwareMap, Telemetry telemetry, String motorName) {
         // the encoder is plugged into the drive train FrontLeft motor port
-        extensionRetractionMotor = new DcServoMotor("FrontLeft", "extensionArmServoMotor", 0.5, 0.5, .01, hardwareMap, telemetry);
+        extensionRetractionMotor = new DcServoMotor("ExtensionArmEncoder", "extensionArmServoMotor", 0.5, 0.5, .01, hardwareMap, telemetry);
     }
 
     //*********************************************************************************************
