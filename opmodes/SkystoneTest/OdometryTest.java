@@ -61,7 +61,6 @@ public class OdometryTest extends LinearOpMode {
         right.setData(0);
         back.setData(1);
         trial.calculateMoveDistance();
-        trial.updateCoordinates();
         Position shower = new Position();
         shower.unit = DistanceUnit.CM;
         trial.getCurrentPosition(shower);

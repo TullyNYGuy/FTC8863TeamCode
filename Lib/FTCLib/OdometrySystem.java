@@ -16,6 +16,8 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.regex.MatchResult;
 
+import static java.lang.Math.cos;
+
 /*
  * This Odometry system designed to be used with mecanum drive.
  * The idea is to split movement of the robot into rotational and translational.
@@ -96,12 +98,6 @@ public class OdometrySystem {
      * 1/(leftModuleDistance^2/leftOffsetWidth + rightModuleDistance^2/rightOffsetWidth)
      */
     private double rotationalMultiplier;
-
-    private double angleOfRotation = 0;
-
-    private double translationDepth = 0;
-
-    private double translationWidth = 0;
 
     private double currentX = 0;
     private double currentY = 0;
@@ -187,16 +183,19 @@ public class OdometrySystem {
         double backEncoderValue = (back != null) ? back.getDistanceSinceReset(unit) * backDirectionMultiplier : 0.0;
 
         // calculate angle of rotation
-        angleOfRotation = (leftEncoderValue - rightEncoderValue) * rotationalMultiplier;
+        double deltaRotation = (leftEncoderValue - rightEncoderValue) * rotationalMultiplier;
 
         // adjust values by canceling rotation
-        double leftVal = leftEncoderValue - angleOfRotation * leftMultiplier;
-        double rightVal = rightEncoderValue + angleOfRotation * rightMultiplier;
-        double backVal = backEncoderValue - angleOfRotation * backMultiplier;
+        double leftVal = leftEncoderValue - deltaRotation * leftMultiplier;
+        double rightVal = rightEncoderValue + deltaRotation * rightMultiplier;
+        double backVal = backEncoderValue - deltaRotation * backMultiplier;
 
-        translationDepth = (leftVal + rightVal) / 2.0;
-        translationWidth = backVal;
+        double deltaX = (leftVal + rightVal) / 2.0;
+        double deltaY = backVal;
 
+        currentX += deltaX * Math.cos(deltaRotation);
+        currentY += deltaY * Math.sin(deltaRotation);
+        currentRotation += deltaRotation;
     }
 
     /*
@@ -262,6 +261,15 @@ public class OdometrySystem {
         initializeInternal();
     }
 
+    public void reset() {
+        if (left != null)
+            left.resetEncoderValue();
+        if (right != null)
+            right.resetEncoderValue();
+        if (back != null)
+            back.resetEncoderValue();
+    }
+
     public boolean saveConfiguration(Configuration config) {
         if (config == null)
             return false;
@@ -292,23 +300,36 @@ public class OdometrySystem {
     public boolean loadConfiguration(Configuration config) {
         if (config == null)
             return false;
-        String unitStr = config.getProperty(PROP_UNIT, "mm");
-        if (unitStr.equalsIgnoreCase("in"))
+        Pair<String, Boolean> strVal = config.getPropertyString(PROP_UNIT, "mm");
+        boolean fullConfig = strVal.second;
+        if (strVal.first.equalsIgnoreCase("in"))
             unit = DistanceUnit.INCH;
-        else if (unitStr.equalsIgnoreCase("cm"))
+        else if (strVal.first.equalsIgnoreCase("cm"))
             unit = DistanceUnit.CM;
-        else if (unitStr.equalsIgnoreCase("m"))
+        else if (strVal.first.equalsIgnoreCase("m"))
             unit = DistanceUnit.METER;
         else
             unit = DistanceUnit.MM;
-        leftMultiplier = config.getPropertyDouble(PROP_LEFT_MULTIPLIER, 1.0);
-        leftDirectionMultiplier = config.getPropertyDouble(PROP_LEFT_DIRECTION_MULTIPLIER, 1.0);
-        rightMultiplier = config.getPropertyDouble(PROP_RIGHT_MULTIPLIER, 1.0);
-        rightDirectionMultiplier = config.getPropertyDouble(PROP_RIGHT_DIRECTION_MULTIPLIER, 1.0);
-        backMultiplier = config.getPropertyDouble(PROP_BACK_MULTIPLIER, 1.0);
-        backDirectionMultiplier = config.getPropertyDouble(PROP_BACK_DIRECTION_MULTIPLIER, 1.0);
+        Pair<Double, Boolean> dblVal = config.getPropertyDouble(PROP_LEFT_MULTIPLIER, 1.0);
+        leftMultiplier = dblVal.first;
+        fullConfig &= dblVal.second;
+        dblVal = config.getPropertyDouble(PROP_LEFT_DIRECTION_MULTIPLIER, 1.0);
+        leftDirectionMultiplier = dblVal.first;
+        fullConfig &= dblVal.second;
+        dblVal = config.getPropertyDouble(PROP_RIGHT_MULTIPLIER, 1.0);
+        rightMultiplier = dblVal.first;
+        fullConfig &= dblVal.second;
+        dblVal = config.getPropertyDouble(PROP_RIGHT_DIRECTION_MULTIPLIER, 1.0);
+        rightDirectionMultiplier = dblVal.first;
+        fullConfig &= dblVal.second;
+        dblVal = config.getPropertyDouble(PROP_BACK_MULTIPLIER, 1.0);
+        backMultiplier = dblVal.first;
+        fullConfig &= dblVal.second;
+        dblVal = config.getPropertyDouble(PROP_BACK_DIRECTION_MULTIPLIER, 1.0);
+        backDirectionMultiplier = dblVal.first;
+        fullConfig &= dblVal.second;
         initializeInternal();
-        return true;
+        return fullConfig;
     }
 
     public void resetCoordinates() {
@@ -322,12 +343,6 @@ public class OdometrySystem {
         currentRotation = angleUnit.toRadians(rotation);
         currentX = this.unit.fromUnit(unit, x);
         currentY = this.unit.fromUnit(unit, y);
-    }
-
-    public void updateCoordinates() {
-        currentRotation = currentRotation + angleOfRotation;
-        currentY = currentY + translationWidth;
-        currentX = currentX + translationDepth;
     }
 
     public void getCurrentPosition(Position position) {

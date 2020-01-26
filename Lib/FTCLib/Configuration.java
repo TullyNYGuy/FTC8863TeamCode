@@ -33,6 +33,15 @@ public class Configuration extends Properties {
         super.store(new FileOutputStream(fileName), "Robot Configuration");
     }
 
+    public Pair<String, Boolean> getPropertyString(String key, String defaultValue) {
+        String propVal = getProperty(key);
+        if (propVal != null) {
+            return new Pair<String, Boolean>(propVal, true);
+        } else {
+            return new Pair<String, Boolean>(defaultValue, false);
+        }
+    }
+
     public Double getPropertyDouble(String key) {
         String propVal = getProperty(key);
         if (propVal != null) {
@@ -45,16 +54,16 @@ public class Configuration extends Properties {
         return null;
     }
 
-    public Double getPropertyDouble(String key, Double defaultValue) {
+    public Pair<Double, Boolean> getPropertyDouble(String key, Double defaultValue) {
         String propVal = getProperty(key);
         if (propVal != null) {
             try {
-                return Double.valueOf(propVal);
+                return new Pair<Double, Boolean>(Double.valueOf(propVal), true);
             } catch (NumberFormatException ex) {
-                return defaultValue;
+                return new Pair<Double, Boolean>(defaultValue, false);
             }
         } else {
-            return defaultValue;
+            return new Pair<Double, Boolean>(defaultValue, false);
         }
     }
 
@@ -70,16 +79,16 @@ public class Configuration extends Properties {
         return null;
     }
 
-    public Integer getPropertyInteger(String key, Integer defaultValue) {
+    public Pair<Integer, Boolean> getPropertyInteger(String key, Integer defaultValue) {
         String propVal = getProperty(key);
         if (propVal != null) {
             try {
-                return Integer.valueOf(propVal);
+                return new Pair<Integer, Boolean>(Integer.valueOf(propVal), true);
             } catch (NumberFormatException ex) {
-                return defaultValue;
+                return new Pair<Integer, Boolean>(defaultValue, false);
             }
         } else {
-            return defaultValue;
+            return new Pair<Integer, Boolean>(defaultValue, false);
         }
     }
 
@@ -95,19 +104,18 @@ public class Configuration extends Properties {
         return null;
     }
 
-    public Long getPropertyInteger(String key, Long defaultValue) {
+    public Pair<Long, Boolean> getPropertyLong(String key, Long defaultValue) {
         String propVal = getProperty(key);
         if (propVal != null) {
             try {
-                return Long.valueOf(propVal);
+                return new Pair<Long, Boolean>(Long.valueOf(propVal), true);
             } catch (NumberFormatException ex) {
-                return defaultValue;
+                return new Pair<Long, Boolean>(defaultValue, false);
             }
         } else {
-            return defaultValue;
+            return new Pair<Long, Boolean>(defaultValue, false);
         }
     }
-
     public Boolean getPropertyBoolean(String key) {
         String propVal = getProperty(key);
         if (propVal != null) {
@@ -116,12 +124,12 @@ public class Configuration extends Properties {
         return null;
     }
 
-    public Boolean getPropertyBoolean(String key, Boolean defaultValue) {
+    public Pair<Boolean, Boolean> getPropertyBoolean(String key, Boolean defaultValue) {
         String propVal = getProperty(key);
         if (propVal != null) {
-            return Boolean.valueOf(propVal);
+            return new Pair<Boolean, Boolean>(Boolean.valueOf(propVal), true);
         } else {
-            return defaultValue;
+            return new Pair<Boolean, Boolean>(defaultValue, false);
         }
     }
 
@@ -133,12 +141,12 @@ public class Configuration extends Properties {
         return null;
     }
 
-    public Byte getPropertyByte(String key, Byte defaultValue) {
+    public Pair<Byte, Boolean> getPropertyByte(String key, Byte defaultValue) {
         String propVal = getProperty(key);
         if (propVal != null) {
-            return Byte.valueOf(propVal);
+            return new Pair<Byte, Boolean>(Byte.valueOf(propVal), true);
         } else {
-            return defaultValue;
+            return new Pair<Byte, Boolean>(defaultValue, false);
         }
     }
 
