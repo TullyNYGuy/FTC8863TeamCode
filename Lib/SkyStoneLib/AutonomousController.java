@@ -7,6 +7,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometryModule;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometrySystem;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.PIDControl;
 
 import java.util.HashMap;
@@ -34,7 +35,10 @@ public class AutonomousController {
     final private double BLUE_HOME_Y = 10.0;
     final private double RED_HOME_X = 10.0;
     final private double RED_HOME_Y = 10.0;
-
+    final private double RED_NEAR_BRIDGE_X = 10.0;
+    final private double RED_NEAR_BRIDGE_Y = 10.0;
+    final private double BLUE_NEAR_BRIDGE_X = 10.0;
+    final private double BLUE_NEAR_BRIDGE_Y = 10.0;
     final private DistanceUnit distanceUnit = DistanceUnit.CM;
 
     /*
@@ -43,7 +47,7 @@ public class AutonomousController {
     final private long MOVEMENT_THREAD_INTERVAL = 50;
 
     private enum Areas {
-        BUILDSITE, BRIDGE, BLOCK, PLATFORM, HOME
+        BUILDSITE, BRIDGE, BLOCK, PLATFORM, HOME, NEARBRIDGE
     }
 
     public boolean blockState;
@@ -148,8 +152,7 @@ public class AutonomousController {
         this.color = color;
     }
 
-    // these variables are place holders for now. in the furture they will be only the coordinates for the first
-    // block in the line
+
     public void moveTo(DistanceUnit distanceUnit, double x, double y) {
         movementThread.setDestination(distanceUnit, x, y);
     }
@@ -160,11 +163,15 @@ public class AutonomousController {
             places.put(Areas.BRIDGE, new Position(distanceUnit, BLUE_BRIDGE_X, BLUE_BRIDGE_Y, 0, 0));
             places.put(Areas.PLATFORM, new Position(distanceUnit, BLUE_PLATFORM_X, BLUE_PLATFORM_Y, 0, 0));
             places.put(Areas.HOME, new Position(distanceUnit, BLUE_HOME_X, BLUE_HOME_Y, 0, 0));
+            places.put(Areas.NEARBRIDGE, new Position(distanceUnit, BLUE_NEAR_BRIDGE_X, BLUE_NEAR_BRIDGE_Y, 0, 0));
+
         } else {
             places.put(Areas.BUILDSITE, new Position(distanceUnit, RED_BUILDSITE_X, RED_BUILDSITE_Y, 0, 0));
             places.put(Areas.BRIDGE, new Position(distanceUnit, RED_BRIDGE_X, RED_BRIDGE_Y, 0, 0));
             places.put(Areas.PLATFORM, new Position(distanceUnit, RED_PLATFORM_X, RED_PLATFORM_Y, 0, 0));
             places.put(Areas.HOME, new Position(distanceUnit, RED_HOME_X, RED_HOME_Y, 0, 0));
+            places.put(Areas.NEARBRIDGE, new Position(distanceUnit, RED_NEAR_BRIDGE_X, RED_NEAR_BRIDGE_Y, 0, 0));
+
         }
     }
 
@@ -196,39 +203,56 @@ public class AutonomousController {
     }
 
     public void park() {
-        //go to (bridge coordinates)
+        goTo(Areas.BRIDGE);
     }
 
     public void parkWithArm() {
-        //go to (coordinates near bridge)
+        goTo(Areas.NEARBRIDGE);
         //rotate to face bridge
-        //extend arm
+        extendArm();
+
+
     }
 
-    public void moveBase() {
-        //go to base
-        //grab base
-        //move so base is in build area
-        //let go of base
+    private void extendArm() {
     }
 
-    public void moveBaseRotate() {
-        //go to base
-        //grab base
-        //rotate 90 degrees
-        //move so base is in build area
-        //let go of base
+    public void moveBase(double rotation) {
+        goTo(Areas.PLATFORM);
+        grabBase();
+        movementThread.setDestinationRotation(AngleUnit.DEGREES, rotation);
+        goTo(Areas.BUILDSITE);
+        letGoBase();
+
     }
+
+    private void letGoBase() {
+    }
+
+    private void grabBase() {
+    }
+
+
 
     public void putBlockOnBase() {
+        findBlock();
         pickUpBlock();
-        //pick up block with arm
-        //move to base
-        //arm up
-        //extend arm
-        //lower arm
-        //align qrm
-        //drop arm
+        goTo(Areas.PLATFORM);
+        armUp();
+        extendArm();
+        alignBlock();
+        armDown();
+        dropBlock();
+
+    }
+
+    private void alignBlock() {
+    }
+
+    private void armDown() {
+    }
+
+    private void armUp() {
     }
 
 }
