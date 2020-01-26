@@ -117,7 +117,7 @@ public class OdometryModule {
     //*********************************************************************************************
     private double convertTicksToUnit(DistanceUnit units, int ticks) {
         ///// this should be the circumference
-        return (double) ticks / 1440.0 * units.fromUnit(this.units, circumference);
+        return units.fromUnit(this.units, (double) ticks / 1440.0 * circumference);
     }
 
     //*********************************************************************************************
@@ -148,7 +148,7 @@ public class OdometryModule {
     //  }
 
     public double getDistanceSinceReset(DistanceUnit units) {
-        return units.fromUnit(this.units, odometryModule.getCurrentPosition());
+        return convertTicksToUnit(units, getEncoderValue());
     }
 
 

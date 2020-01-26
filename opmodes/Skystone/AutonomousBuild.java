@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.HaloControls;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Mecanum;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Switch;
-import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.HaloControlsWithIntake;
+
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.IntakeWheels;
 
 import static org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863.MotorType.ANDYMARK_20_ORBITAL;
@@ -129,7 +129,7 @@ public class AutonomousBuild extends LinearOpMode {
 
         AdafruitIMU8863 imu = new AdafruitIMU8863(hardwareMap);
         Mecanum mecanum = new Mecanum(frontLeft, frontRight, backLeft, backRight, telemetry);
-        HaloControlsWithIntake haloControls = new HaloControlsWithIntake(gamepad1, imu, telemetry);
+
         ElapsedTime outtakeTimer = new ElapsedTime();
 
         Switch intakeLimitSwitchLeft = new Switch(hardwareMap, "IntakeSwitchLeft", Switch.SwitchType.NORMALLY_OPEN);

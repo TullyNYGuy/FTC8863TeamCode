@@ -152,35 +152,46 @@ public class OdometrySystem {
         rightOffsetWidth = this.unit.fromUnit(unit, rightOffsetWidth);
         backOffsetDepth = this.unit.fromUnit(unit, backOffsetDepth);
         backOffsetWidth = this.unit.fromUnit(unit, backOffsetWidth);
-        if(backDirection == DcMotor.Direction.FORWARD)
+        if (backDirection == DcMotor.Direction.FORWARD)
             backDirectionMultiplier = 1.0;
         else
             backDirectionMultiplier = -1.0;
-        if(rightDirection == DcMotor.Direction.FORWARD)
+        if (rightDirection == DcMotor.Direction.FORWARD)
             rightDirectionMultiplier = 1.0;
         else
             rightDirectionMultiplier = -1.0;
-        if(leftDirection == DcMotor.Direction.FORWARD)
+        if (leftDirection == DcMotor.Direction.FORWARD)
             leftDirectionMultiplier = 1.0;
         else
             leftDirectionMultiplier = -1.0;
-        double leftModuleDistanceSq = leftOffsetDepth*leftOffsetDepth + leftOffsetWidth*leftOffsetWidth;
-        double rightModuleDistanceSq = rightOffsetDepth*rightOffsetDepth + rightOffsetWidth*rightOffsetWidth;
-        double backModuleDistanceSq = backOffsetDepth*backOffsetDepth + backOffsetWidth*backOffsetWidth;
-        leftMultiplier = leftModuleDistanceSq/leftOffsetWidth;
-        rightMultiplier = rightModuleDistanceSq/rightOffsetWidth;
-        backMultiplier = backModuleDistanceSq/backOffsetDepth;
+        double leftModuleDistanceSq = leftOffsetDepth * leftOffsetDepth + leftOffsetWidth * leftOffsetWidth;
+        double rightModuleDistanceSq = rightOffsetDepth * rightOffsetDepth + rightOffsetWidth * rightOffsetWidth;
+        double backModuleDistanceSq = backOffsetDepth * backOffsetDepth + backOffsetWidth * backOffsetWidth;
+        leftMultiplier = leftModuleDistanceSq / leftOffsetWidth;
+        rightMultiplier = rightModuleDistanceSq / rightOffsetWidth;
+        backMultiplier = backModuleDistanceSq / backOffsetDepth;
         initializeInternal();
     }
 
     protected void initializeInternal() {
         rotationalMultiplier = 1.0 / (leftMultiplier + rightMultiplier);
+        reset();
     }
 
+    double leftEncoderOld;
+    double rightEncoderOld;
+    double backEncoderOld;
+
     public void calculateMoveDistance() {
-        double leftEncoderValue = (left != null) ? left.getDistanceSinceReset(unit) * leftDirectionMultiplier : 0.0;
-        double rightEncoderValue = (right != null) ? right.getDistanceSinceReset(unit) * rightDirectionMultiplier : 0.0;
-        double backEncoderValue = (back != null) ? back.getDistanceSinceReset(unit) * backDirectionMultiplier : 0.0;
+
+        double leftEncoderNew = (left != null) ? left.getDistanceSinceReset(unit) : 0.0;
+        double rightEncoderNew = (right != null) ? right.getDistanceSinceReset(unit) : 0.0;
+        double backEncoderNew = (back != null) ? back.getDistanceSinceReset(unit) : 0.0;
+
+        double leftEncoderValue = (leftEncoderNew - leftEncoderOld) * leftDirectionMultiplier;
+        double rightEncoderValue = (rightEncoderNew - rightEncoderOld) * rightDirectionMultiplier;
+        double backEncoderValue = (backEncoderNew - backEncoderOld) * backDirectionMultiplier;
+
 
         // calculate angle of rotation
         double deltaRotation = (leftEncoderValue - rightEncoderValue) * rotationalMultiplier;
@@ -196,12 +207,16 @@ public class OdometrySystem {
         currentX += deltaX * Math.cos(deltaRotation);
         currentY += deltaY * Math.sin(deltaRotation);
         currentRotation += deltaRotation;
+        leftEncoderOld = leftEncoderNew;
+        rightEncoderOld = rightEncoderNew;
+        backEncoderOld = backEncoderNew;
     }
 
     /*
      * Used to start calibration process
      */
     public void startCalibration() {
+        reset();
         if (left != null)
             leftStartingValue = left.getDistanceSinceReset(unit);
         if (right != null)
@@ -262,12 +277,27 @@ public class OdometrySystem {
     }
 
     public void reset() {
-        if (left != null)
+        if (left != null) {
             left.resetEncoderValue();
-        if (right != null)
+            leftEncoderOld = left.getDistanceSinceReset(unit);
+        } else {
+            leftEncoderOld = 0;
+        }
+        if (right != null) {
             right.resetEncoderValue();
-        if (back != null)
+            rightEncoderOld = right.getDistanceSinceReset(unit);
+        } else {
+            rightEncoderOld = 0;
+        }
+        if (back != null) {
             back.resetEncoderValue();
+            backEncoderOld = back.getDistanceSinceReset(unit);
+        } else {
+            backEncoderOld = 0;
+        }
+
+
+        resetCoordinates();
     }
 
     public boolean saveConfiguration(Configuration config) {
@@ -336,7 +366,6 @@ public class OdometrySystem {
         currentX = 0.0;
         currentY = 0.0;
         currentRotation = 0.0;
-
     }
 
     public void setCoordinates(DistanceUnit unit, double x, double y, AngleUnit angleUnit, double rotation) {
@@ -349,6 +378,7 @@ public class OdometrySystem {
         position.x = position.unit.fromUnit(unit, currentX);
         position.y = position.unit.fromUnit(unit, currentY);
     }
+
     public double getCurrentY(DistanceUnit unit) {
         return unit.fromUnit(this.unit, currentY);
     }

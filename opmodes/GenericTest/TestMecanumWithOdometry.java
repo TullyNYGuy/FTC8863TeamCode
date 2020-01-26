@@ -76,8 +76,10 @@ public class TestMecanumWithOdometry extends LinearOpMode {
         }
         commands.setSpeedOfRotation(0);
         mecanum.setMotorPower(commands);
+        sleep(800);
         odometry.finishCalibration(AngleUnit.DEGREES, AngleUnit.DEGREES.normalize(imu.getHeading() - originalAngle));
         odometry.saveConfiguration(config);
+        odometry.reset();
     }
 
     @Override
@@ -183,7 +185,7 @@ public class TestMecanumWithOdometry extends LinearOpMode {
         Mecanum mecanum = new Mecanum(frontLeft, frontRight, backLeft, backRight, telemetry);
         HaloControls haloControls = new HaloControls(gamepad1, imu);
         DistanceUnit units = DistanceUnit.CM;
-        OdometryModule left = new OdometryModule(1440, 3.8, units, "BackLeft", hardwareMap);
+        OdometryModule left = new OdometryModule(1440, 3.8, units, "FrontLeft", hardwareMap);
         OdometryModule right = new OdometryModule(1440, 3.8, units, "BackRight", hardwareMap);
         OdometryModule back = new OdometryModule(1440, 3.8, units, "FrontRight", hardwareMap);
         OdometrySystem odometry = new OdometrySystem(units, left, right, back);
