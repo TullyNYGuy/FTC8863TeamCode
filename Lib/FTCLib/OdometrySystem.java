@@ -256,9 +256,9 @@ public class OdometrySystem {
                 rightMultiplier = (rightEndingValue - rightStartingValue) / rotation;
                 if (rightMultiplier < 0.0) {
                     rightDirectionMultiplier = 1.0;
+                    rightMultiplier = -rightMultiplier;
                 } else {
                     rightDirectionMultiplier = -1.0;
-                    rightMultiplier = -rightMultiplier;
                 }
             }
             if (back != null) {
