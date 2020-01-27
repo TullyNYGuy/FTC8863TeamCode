@@ -142,6 +142,7 @@ public class DcServoMotor extends DcMotor8863 {
     @Override
     public void setTargetPosition(int position) {
         // set the field holding the desired rotation
+        // this does NOT interact with the motor that the encoder is plugged into
         setTargetEncoderCount(position);
     }
 
@@ -169,6 +170,36 @@ public class DcServoMotor extends DcMotor8863 {
     @Override
     public MotorState update() {
         return MotorState.COMPLETE_HOLD;
+    }
+
+    // moveToPosition is needed in order for the servo to move the attachment to a certain position.
+    // Using a normal motor, the movement is controlled by a PID. The normal motor sequence of events
+    // is:
+    // set the target encoder count
+    // set the motor mode to RUN_TO_POSITION
+    // set the power
+    // use isMotorStateComplete to detemine if the attachment has arrived at the desired position.
+
+    // moveToPosition calls rotateToEncoderCount. It in turn calls several methods that have to be
+    // overridden
+    // isMotorStateMoving()
+    // setFinishBehavior()
+    // setTargetPosition()
+    // setMode()
+    // setMotorSate()
+    // setPower()
+
+    // OR just override rotateToEncoderCount
+
+
+    @Override
+    public boolean rotateToEncoderCount() {
+
+    }
+
+    @Override
+    public boolean isMotorStateComplete() {
+
     }
 
 }
