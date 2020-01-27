@@ -159,12 +159,6 @@ public class Lift extends ExtensionRetractionMechanism {
         return result;
     }
 
-    private void moveOffRetractionLimitSwitch() {
-        // when the mechanism extends you may want to do something with whatever is attached to it.
-        extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        extensionRetractionMotor.setPower(raiseOffLimitSwitchPower);
-    }
-
     /**
      * This method is the default for checking to see if the mechanism is in the retracted position.
      * You can override it if you have a different method. Note that the retraction limit position
