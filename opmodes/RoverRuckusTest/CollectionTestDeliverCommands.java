@@ -9,8 +9,6 @@ import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.Collector;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
- *
- *
  */
 @TeleOp(name = "Collection test deliver commands", group = "Test")
 //@Disabled
@@ -38,7 +36,7 @@ public class CollectionTestDeliverCommands extends LinearOpMode {
         collector.setDesiredMineralColorToGold();
 
         // Wait for the start button
-        telemetry.addData(">", "Press Start to run" );
+        telemetry.addData(">", "Press Start to run");
         telemetry.update();
         waitForStart();
 
@@ -59,7 +57,7 @@ public class CollectionTestDeliverCommands extends LinearOpMode {
 
         timer.reset();
         collector.deliverMineralsOff();
-        while (opModeIsActive()&& timer.milliseconds() < 1000) {
+        while (opModeIsActive() && timer.milliseconds() < 1000) {
             collectorState = collector.update();
             telemetry.addData(">", "Press Stop to end test.");
             collector.displayCollectorState();

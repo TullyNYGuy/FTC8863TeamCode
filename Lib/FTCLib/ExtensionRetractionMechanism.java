@@ -70,7 +70,7 @@ public class ExtensionRetractionMechanism {
 
     private ExtensionRetractionCommands extensionRetractionCommand;
     private ExtensionRetractionStates previousExtensionRetractionState;
-    private ExtensionRetractionStates extensionRetractionState;
+    protected ExtensionRetractionStates extensionRetractionState;
     private ExtensionRetractionCommands previousExtensionRetractionCommand;
 
     private Telemetry telemetry;
@@ -78,7 +78,7 @@ public class ExtensionRetractionMechanism {
     /**
      * The name of the retraction limit switch that was set in the configuration on the phone
      */
-    private String retractionLimitSwitchName = "";
+    protected String retractionLimitSwitchName = "";
 
     public String getRetractionLimitSwitchName() {
         return retractionLimitSwitchName;
@@ -91,7 +91,7 @@ public class ExtensionRetractionMechanism {
     /**
      * The name of the extension limit switch that was set in the configuration on the phone
      */
-    private String extensionLimitSwitchName = "";
+    protected String extensionLimitSwitchName = "";
 
     public String getExtensionLimitSwitchName() {
         return extensionLimitSwitchName;
@@ -350,7 +350,7 @@ public class ExtensionRetractionMechanism {
     /**
      * A list of time and encoder values collected if collectData is true
      */
-    private PairedList timeEncoderValues;
+    protected PairedList timeEncoderValues;
 
     public PairedList getTimeEncoderValues() {
         return timeEncoderValues;
@@ -359,7 +359,7 @@ public class ExtensionRetractionMechanism {
     /**
      * A timer that starts when the lift is created and can be used to timestamp data
      */
-    private ElapsedTime liftTimer;
+    protected ElapsedTime liftTimer;
 
     /**
      * The mechanism can be run manually using a joystick as input. The power is stored here.
@@ -434,8 +434,8 @@ public class ExtensionRetractionMechanism {
         setExtensionPositionInMechanismUnits(extensionPositionInMechamismUnits);
     }
 
-    private void createExtensionRetractionMechanismCommonCommands(HardwareMap hardwareMap, Telemetry telemetry, String mechanismName,
-                                                                  String motorName, DcMotor8863.MotorType motorType, double movementPerRevolution) {
+    protected void createExtensionRetractionMechanismCommonCommands(HardwareMap hardwareMap, Telemetry telemetry, String mechanismName,
+                                                                    String motorName, DcMotor8863.MotorType motorType, double movementPerRevolution) {
         // set all of the private variables using the parameters passed into the constructor
         this.motorName = motorName;
         this.motorType = motorType;
@@ -446,7 +446,7 @@ public class ExtensionRetractionMechanism {
         this.telemetry = telemetry;
 
         // create the motor
-        extensionRetractionMotor = new DcMotor8863(motorName, hardwareMap, telemetry);
+        createExtensionRetractionMotor(hardwareMap, telemetry, motorName);
         extensionRetractionMotor.setMotorType(motorType);
         extensionRetractionMotor.setMovementPerRev(movementPerRevolution);
         extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -459,6 +459,18 @@ public class ExtensionRetractionMechanism {
         // create the time encoder data list in case it is needed
         timeEncoderValues = new PairedList();
         liftTimer = new ElapsedTime();
+    }
+
+    /**
+     * This method is separated out in order to be overridable in a child class. It creates the
+     * extension retraction motor.
+     *
+     * @param hardwareMap
+     * @param telemetry
+     * @param motorName
+     */
+    protected void createExtensionRetractionMotor(HardwareMap hardwareMap, Telemetry telemetry, String motorName) {
+        extensionRetractionMotor = new DcMotor8863(motorName, hardwareMap, telemetry);
     }
 
 

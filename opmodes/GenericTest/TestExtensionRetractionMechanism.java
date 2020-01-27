@@ -11,8 +11,6 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
- *
- *
  */
 @TeleOp(name = "Test Extension Retraction Mechanism", group = "Test")
 //@Disabled
@@ -21,7 +19,7 @@ public class TestExtensionRetractionMechanism extends LinearOpMode {
     // Put your variable declarations here
     public ExtensionRetractionMechanism extensionRetractionMechanismLeft;
     public DataLogging logFile;
-    public double spoolDiameter = 1.25 *25.4;
+    public double spoolDiameter = 1.25 * 25.4;
     public ElapsedTime timer;
     public double startTime = 0;
     public double endUpTime = 0;
@@ -34,7 +32,7 @@ public class TestExtensionRetractionMechanism extends LinearOpMode {
 
 
         // Put your initializations here
-        extensionRetractionMechanismLeft = new ExtensionRetractionMechanism(hardwareMap,telemetry,"extensionRetractionLeft",
+        extensionRetractionMechanismLeft = new ExtensionRetractionMechanism(hardwareMap, telemetry, "extensionRetractionLeft",
                 "extensionLimitSwitchLeft", "retractionLimitSwitchLeft", "extensionRetractionMotorLeft",
                 DcMotor8863.MotorType.ANDYMARK_40, spoolDiameter * Math.PI);
         //extensionRetractionMechanismLeft.reverseMotor();
@@ -49,7 +47,7 @@ public class TestExtensionRetractionMechanism extends LinearOpMode {
         extensionRetractionMechanismLeft.setExtensionPositionInEncoderCounts(2600.0);
 
         // Wait for the start button
-        telemetry.addData(">", "Press Start to run" );
+        telemetry.addData(">", "Press Start to run");
         telemetry.update();
         waitForStart();
 
@@ -62,7 +60,7 @@ public class TestExtensionRetractionMechanism extends LinearOpMode {
         telemetry.update();
         sleep(3000);
         timer.reset();
-        encoderValueMin =  extensionRetractionMechanismLeft.testRetraction(this);
+        encoderValueMin = extensionRetractionMechanismLeft.testRetraction(this);
         endDownTime = timer.seconds();
 
         telemetry.addData("time up = ", endUpTime);
@@ -73,7 +71,7 @@ public class TestExtensionRetractionMechanism extends LinearOpMode {
         telemetry.update();
 
         // wait for user to read values and kill routine
-        while(opModeIsActive()) {
+        while (opModeIsActive()) {
             idle();
         }
 

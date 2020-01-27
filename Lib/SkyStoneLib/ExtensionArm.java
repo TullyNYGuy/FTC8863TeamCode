@@ -2,12 +2,17 @@ package org.firstinspires.ftc.teamcode.Lib.SkyStoneLib;
 
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcServoMotor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometryModule;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.PairedList;
 
 public class ExtensionArm extends ExtensionRetractionMechanism {
 
@@ -26,7 +31,8 @@ public class ExtensionArm extends ExtensionRetractionMechanism {
     // getter and setter methods
     //*********************************************************************************************
 
-    protected DcServoMotor ExtensionRetractionMotor;
+    //protected DcMotor8863 extensionRetractionMotor;
+
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -45,9 +51,23 @@ public class ExtensionArm extends ExtensionRetractionMechanism {
 
     public ExtensionArm(HardwareMap hardwareMap, Telemetry telemetry, String mechanismName,
                         String extensionLimitSwitchName, String retractionLimitSwitchName,
-                        String motorName, DcMotor8863.MotorType motorType, double movementPerRevolution ){
+                        String motorName, DcMotor8863.MotorType motorType, double movementPerRevolution) {
         super(hardwareMap, telemetry, mechanismName, extensionLimitSwitchName, retractionLimitSwitchName, motorName, motorType, movementPerRevolution);
+    }
 
+
+    /**
+     * This method overrides the parent method for creating the motor since the extension arm
+     * does not use a real motor. It uses a continuous rotation servo with encoder feedback instead.
+     *
+     * @param hardwareMap
+     * @param telemetry
+     * @param motorName
+     */
+    @Override
+    protected void createExtensionRetractionMotor(HardwareMap hardwareMap, Telemetry telemetry, String motorName) {
+        // the encoder is plugged into the drive train FrontLeft motor port
+        extensionRetractionMotor = new DcServoMotor("ExtensionArmEncoder", "extensionArmServoMotor", 0.5, 0.5, .01, hardwareMap, telemetry);
     }
 
     //*********************************************************************************************

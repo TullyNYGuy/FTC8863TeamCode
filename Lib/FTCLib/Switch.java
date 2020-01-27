@@ -17,26 +17,26 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  * pressed. It makes sure that the switch has been pressed for at least debounceLengthInMs (40
  * milli-seconds by default) before it will tell you the switch is actually pressed. The class
  * can tell you 3 things:
- *    pressed - switch is currently pressed
- *    released - switch is currently not pressed
- *    bumped - switch was pressed and released at some point in the past
+ * pressed - switch is currently pressed
+ * released - switch is currently not pressed
+ * bumped - switch was pressed and released at some point in the past
  * As you can see, bumped has some memory. It remembers the switch pressed and released at some
  * point in the past. This memory is erased if you check for pressed or released though. The
  * assumption is that if you are checking for pressed or released you do not care about bumped at
  * that point in time. Checking for bumped will also erase the memory once you have checked it.
- *
+ * <p>
  * Switches come in 2 flavors:
- *    normally open   - there is not a short between the two contacts when the switch is not pressed
- *                    - the contacts will short when the switch is pressed
- *    normally closed - there is a short between the two contacts when the switch is not pressed
- *                    - there is no short when the switch is pressed
- *
+ * normally open   - there is not a short between the two contacts when the switch is not pressed
+ * - the contacts will short when the switch is pressed
+ * normally closed - there is a short between the two contacts when the switch is not pressed
+ * - there is no short when the switch is pressed
+ * <p>
  * In order to interface a switch with a port on the core device interface module, there needs to be
  * a resistor that pulls one contact on the switch up to +5 volts through a resistor. Our cables
  * include this resistor and all of our switches are normally open (NO), at least as of 12/2016.
  * The class will handle all of the logic as long as you tell the constructor what type of switch
  * you have.
- *
+ * <p>
  * To use a switch you have to connect the switch to one of the digital ports on the core device
  * interface module. Make sure that the dark wire is connected to the ground end. Configure your
  * phone so that there is a digital device on the digital port and give it a name. You will pass
@@ -122,7 +122,7 @@ public class Switch {
         // force the switch to go thorugh one debounce cycle so that it returns a proper value the
         // first time it is read.
         updateSwitch();
-        while(timer.milliseconds() < debounceLengthInMs) {
+        while (timer.milliseconds() < debounceLengthInMs) {
             // do nothing
         }
         updateSwitch();
@@ -141,20 +141,20 @@ public class Switch {
      * we would not need a state machine and it would not have to be called every loop cycle.
      */
     public void updateSwitch() {
-        switch(currentState) {
+        switch (currentState) {
             case RELEASED:
                 // This is the only state where bumped can be true.
                 // We don't know if the switch is bumped or not by just knowing it is released.
                 // It depends on whether it was pressed before this or not. So we can't do anything
                 // about bumped.
-                if(getPressed()) {
+                if (getPressed()) {
                     // The switch read as pressed so start debouncing it. Reset the debounce timer.
                     timer.reset();
                     nextState = SwitchState.DEBOUNCING;
                 }
                 break;
             case PRESSED:
-                if(!getPressed()) {
+                if (!getPressed()) {
                     // If switch has been released, it has now been pressed and released so
                     // bumped is set
                     bumped = true;
@@ -171,18 +171,18 @@ public class Switch {
                 // If the switch is in the middle of being debounced, it can't be bumped
                 bumped = false;
 
-                if(!getPressed()) {
+                if (!getPressed()) {
                     // Switch has gone back to released so back to released state
                     nextState = SwitchState.RELEASED;
                 }
 
-                if(timer.milliseconds() < debounceLengthInMs && getPressed()) {
+                if (timer.milliseconds() < debounceLengthInMs && getPressed()) {
                     // timer has not expired on debounce and switch is still pressed so we are still
                     // debouncing.
                     nextState = SwitchState.DEBOUNCING;
                 }
 
-                if(timer.milliseconds() >= debounceLengthInMs && getPressed()) {
+                if (timer.milliseconds() >= debounceLengthInMs && getPressed()) {
                     // switch is still pressed after timer has expired, so we call it pressed
                     nextState = SwitchState.PRESSED;
                 }
@@ -198,13 +198,14 @@ public class Switch {
      * Normally open: released = 1, pressed = 0
      * Normally closed: released = 0, pressed = 1
      * This method does not need to run the state machine so there is no debouncing.
+     *
      * @return true = pressed
      */
     private boolean getPressed() {
         boolean result = false;
-        if(switchInput.getState()) {
+        if (switchInput.getState()) {
             // The switch is registering a 1 on the port
-            if(switchType == SwitchType.NORMALLY_OPEN) {
+            if (switchType == SwitchType.NORMALLY_OPEN) {
                 // A NO switch will be pulled high when released
                 result = false;
             } else {
@@ -213,7 +214,7 @@ public class Switch {
             }
         } else {
             // The switch is registering a 0 on the port
-            if(switchType == SwitchType.NORMALLY_OPEN) {
+            if (switchType == SwitchType.NORMALLY_OPEN) {
                 // A NO switch will be grounded when pressed
                 result = true;
             } else {
@@ -234,6 +235,7 @@ public class Switch {
      * If the switch is currently pressed return true. If it is not pressed return false. if the
      * switch is in the middle of debouncing the assumption is that it is not pressed so return
      * false.
+     *
      * @return true = switch pressed
      */
     public boolean isPressed() {
@@ -241,11 +243,11 @@ public class Switch {
         updateSwitch();
         boolean result = false;
         // The switch is not pressed if the state is released or in the process of debouncing
-        if(currentState == SwitchState.RELEASED || currentState == SwitchState.DEBOUNCING) {
+        if (currentState == SwitchState.RELEASED || currentState == SwitchState.DEBOUNCING) {
             result = false;
         }
         // the switch is pressed if the state is pressed
-        if(currentState == SwitchState.PRESSED) {
+        if (currentState == SwitchState.PRESSED) {
             result = true;
         }
         return result;
@@ -257,6 +259,7 @@ public class Switch {
      * example is a limit switch on a part that is being initialized at robot startup. If the part
      * is against the limit switch we don't want to debounce the switch. There is no movement that
      * would cause switch bounce.
+     *
      * @param debounce - use NO_DEBOUNCE to not debounce the switch
      * @return true = pressed, false = released
      */
@@ -271,13 +274,14 @@ public class Switch {
     /**
      * If the switch is not pressed return true. If it is pressed return false. If it is currently
      * in the middle of debouncing the assumption is that it is not pressed yet so true is returned.
+     *
      * @return
      */
     public boolean isReleased() {
         // force an update to run so the state is correct
         updateSwitch();
         boolean result = false;
-        if(currentState == SwitchState.RELEASED || currentState == SwitchState.DEBOUNCING) {
+        if (currentState == SwitchState.RELEASED || currentState == SwitchState.DEBOUNCING) {
             result = true;
         }
         // Since the user is checking released, they don't care about bumped so reset it.
@@ -291,6 +295,7 @@ public class Switch {
      * example is a limit switch on a part that is being initialized at robot startup. If the part
      * is against the limit switch we don't want to debounce the switch. There is no movement that
      * would cause switch bounce.
+     *
      * @param debounce - use NO_DEBOUNCE to not debounce the switch
      * @return true = pressed, false = released
      */
@@ -307,6 +312,7 @@ public class Switch {
     /**
      * Returns true if the switch has been pressed and released since the last time it was checked.
      * Calling this will clear bumped after you get your answer.
+     *
      * @return true if pressed and released since the last time you called any method to check
      * the switch
      */

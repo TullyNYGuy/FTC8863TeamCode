@@ -73,7 +73,7 @@ public class ToggleSwitch {
 
     public SwitchState updateSwitchState(boolean button, SwitchCommand switchCommand) {
 
-        switch(switchState) {
+        switch (switchState) {
             case RELEASED:
                 break;
             case PRESSED:

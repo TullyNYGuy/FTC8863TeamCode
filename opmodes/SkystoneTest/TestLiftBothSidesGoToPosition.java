@@ -100,7 +100,7 @@ public class TestLiftBothSidesGoToPosition extends LinearOpMode {
         sleep(3000);
 
         extensionRetractionMechanismLeft.goToPosition(24.0, speed);
-        extensionRetractionMechanismRight.goToPosition(24.0,speed);
+        extensionRetractionMechanismRight.goToPosition(24.0, speed);
         timerLeft.reset();
         timerRight.reset();
 
@@ -139,7 +139,7 @@ public class TestLiftBothSidesGoToPosition extends LinearOpMode {
         telemetry.addData("time up = ", buffer);
         telemetry.update();
 
-        sleep (2000);
+        sleep(2000);
 
         extensionRetractionMechanismLeft.goToPosition(5, speed);
         extensionRetractionMechanismRight.goToPosition(5, speed);
@@ -186,12 +186,12 @@ public class TestLiftBothSidesGoToPosition extends LinearOpMode {
         telemetry.addData("time down = ", buffer);
         telemetry.update();
 
-        sleep (2000);
+        sleep(2000);
 
         //*****************************************************************************************
 
         extensionRetractionMechanismLeft.goToPosition(30.0, speed);
-        extensionRetractionMechanismRight.goToPosition(30.0,speed);
+        extensionRetractionMechanismRight.goToPosition(30.0, speed);
         timerLeft.reset();
         timerRight.reset();
 
@@ -235,7 +235,7 @@ public class TestLiftBothSidesGoToPosition extends LinearOpMode {
         telemetry.addData("time up = ", buffer);
         telemetry.update();
 
-        sleep (2000);
+        sleep(2000);
 
         extensionRetractionMechanismLeft.goToPosition(10, speed);
         extensionRetractionMechanismRight.goToPosition(10, speed);
@@ -281,13 +281,13 @@ public class TestLiftBothSidesGoToPosition extends LinearOpMode {
         telemetry.addData("time down = ", buffer);
         telemetry.update();
 
-        sleep (2000);
+        sleep(2000);
 
         //*******************************************************************************************
         //*****************************************************************************************
 
         extensionRetractionMechanismLeft.goToPosition(20.0, speed);
-        extensionRetractionMechanismRight.goToPosition(20.0,speed);
+        extensionRetractionMechanismRight.goToPosition(20.0, speed);
         timerLeft.reset();
         timerRight.reset();
 
@@ -331,7 +331,7 @@ public class TestLiftBothSidesGoToPosition extends LinearOpMode {
         telemetry.addData("time up = ", buffer);
         telemetry.update();
 
-        sleep (2000);
+        sleep(2000);
 
         extensionRetractionMechanismLeft.goToPosition(5, speed);
         extensionRetractionMechanismRight.goToPosition(5, speed);
@@ -377,13 +377,13 @@ public class TestLiftBothSidesGoToPosition extends LinearOpMode {
         telemetry.addData("time down = ", buffer);
         telemetry.update();
 
-        sleep (2000);
+        sleep(2000);
 
         //*******************************************************************************************
         //*****************************************************************************************
 
         extensionRetractionMechanismLeft.goToPosition(30.0, speed);
-        extensionRetractionMechanismRight.goToPosition(30.0,speed);
+        extensionRetractionMechanismRight.goToPosition(30.0, speed);
         timerLeft.reset();
         timerRight.reset();
 
@@ -427,7 +427,7 @@ public class TestLiftBothSidesGoToPosition extends LinearOpMode {
         telemetry.addData("time up = ", buffer);
         telemetry.update();
 
-        sleep (2000);
+        sleep(2000);
 
         extensionRetractionMechanismLeft.goToPosition(5, speed);
         extensionRetractionMechanismRight.goToPosition(5, speed);
@@ -473,7 +473,7 @@ public class TestLiftBothSidesGoToPosition extends LinearOpMode {
         telemetry.addData("time down = ", buffer);
         telemetry.update();
 
-        sleep (2000);
+        sleep(2000);
 
         //*******************************************************************************************
 

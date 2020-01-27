@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.AutonomousMovements;
 
-@Autonomous(name = "Philipa!", group = "Test")
+@Autonomous(name = "Philipa!(mucho PIDDDDAZLE)", group = "Test")
 //@Disabled
 public class gefTeacherAutonomousWithIMU extends LinearOpMode {
 
@@ -47,10 +47,10 @@ public class gefTeacherAutonomousWithIMU extends LinearOpMode {
         // Start the logging of measured acceleration
         robot.driveTrain.imu.startAccelerationIntegration(new Position(), new Velocity(), 1000);
 
-        robot.driveTrain.setupDriveUsingIMU(0,72 *2.45,.5, DriveTrain.DriveDirection.FORWARD, AdafruitIMU8863.AngleMode.ABSOLUTE);
+        robot.driveTrain.setupDriveUsingIMU(0, 150 * 2.45, .5, DriveTrain.DriveDirection.FORWARD, AdafruitIMU8863.AngleMode.ABSOLUTE);
         robot.driveTrain.startDriveUsingIMU();
 
-        while (opModeIsActive()&& (!robot.driveTrain.updateDriveUsingIMU() )) {
+        while (opModeIsActive() && (!robot.driveTrain.updateDriveUsingIMU())) {
             // Put your calls that need to run in a loop here
             idle();
 

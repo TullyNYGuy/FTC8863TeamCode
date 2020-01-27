@@ -277,18 +277,23 @@ public class Servo8863 {
     public double getPositionThree() {
         return positionThree;
     }
+
     public double getPositionFour() {
         return positionFour;
     }
+
     public double getPositionFive() {
         return positionFive;
     }
+
     public void setPositionThree(double positionThree) {
         this.positionThree = positionThree;
     }
+
     public void setPositionFour(double positionFour) {
         this.positionFour = positionFour;
     }
+
     public void setPositionFive(double positionFive) {
         this.positionFive = positionFive;
     }
@@ -394,12 +399,15 @@ public class Servo8863 {
     public void goPositionThree() {
         teamServo.setPosition(getPositionThree());
     }
+
     public void goPositionFour() {
         teamServo.setPosition(getPositionFour());
     }
+
     public void goPositionFive() {
         teamServo.setPosition(getPositionFive());
     }
+
     public void goInitPosition() {
         teamServo.setPosition(getInitPosition());
     }

@@ -35,7 +35,7 @@ public class TestDriveStraightWithoutIMUIan extends LinearOpMode {
         driveTrain.setupDriveDistance(0.2, 182.88, DcMotor8863.FinishBehavior.HOLD);
         driveTrain.imu.resetAngleReferences();
 
-        while (opModeIsActive()&& driveTrain.updateDriveDistance() != DriveTrain.Status.COMPLETE) {
+        while (opModeIsActive() && driveTrain.updateDriveDistance() != DriveTrain.Status.COMPLETE) {
 
 
             logFile.logData(Double.toString(driveTrain.imu.getHeading()), Double.toString(driveTrain.getDistanceDriven()));

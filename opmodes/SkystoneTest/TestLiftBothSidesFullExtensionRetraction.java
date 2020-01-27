@@ -75,7 +75,8 @@ public class TestLiftBothSidesFullExtensionRetraction extends LinearOpMode {
 
         extensionRetractionMechanismLeft.setExtensionPositionInEncoderCounts(2700.0);
 
-        logFile = new DataLogging("ExtensionRetractionTestBoth", telemetry);;
+        logFile = new DataLogging("ExtensionRetractionTestBoth", telemetry);
+        ;
         extensionRetractionMechanismRight.setDataLog(logFile);
         extensionRetractionMechanismRight.enableDataLogging();
         extensionRetractionMechanismRight.enableCollectData();
@@ -127,7 +128,7 @@ public class TestLiftBothSidesFullExtensionRetraction extends LinearOpMode {
         endUpTimeLeft = timerLeft.seconds();
         endUpTimeRight = timerRight.seconds();
 
-        sleep (10000);
+        sleep(10000);
 
         extensionRetractionMechanismLeft.goToFullRetract();
         extensionRetractionMechanismRight.goToFullRetract();

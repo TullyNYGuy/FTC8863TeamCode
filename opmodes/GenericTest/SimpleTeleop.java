@@ -18,7 +18,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
 @TeleOp(name = "Demo Bot Simple Teleop", group = "Run")
 //@Disabled
 
-public class SimpleTeleop extends LinearOpMode{
+public class SimpleTeleop extends LinearOpMode {
 
     //*********************************************************************************************
     //             Declarations - THESE ARE JUST SETTING UP THE VARIABLES (RESERVING MEMORY FOR THEM)
@@ -141,8 +141,8 @@ public class SimpleTeleop extends LinearOpMode{
         double openPosition = 0.55;
         double upPosition = 0.85;
         double downPosition = 0.40;
-        upDownServo = new Servo8863("upDownServo", hardwareMap, telemetry,0.5,upPosition,downPosition,0.5, Servo.Direction.FORWARD);
-        clampServo = new Servo8863("clampServo",hardwareMap,telemetry,0.6,openPosition,clampPosition,0.6, Servo.Direction.FORWARD);
+        upDownServo = new Servo8863("upDownServo", hardwareMap, telemetry, 0.5, upPosition, downPosition, 0.5, Servo.Direction.FORWARD);
+        clampServo = new Servo8863("clampServo", hardwareMap, telemetry, 0.6, openPosition, clampPosition, 0.6, Servo.Direction.FORWARD);
         upDownServo.setPosition(downPosition);
         clampServo.setPosition(openPosition);
 
@@ -189,7 +189,7 @@ public class SimpleTeleop extends LinearOpMode{
         gamepad2RightJoyStickY = new JoyStick(JoyStick.JoyStickMode.SQUARE, JOYSTICK_DEADBAND_VALUE, JoyStick.InvertSign.INVERT_SIGN);
 
         // The initializing of all of the hardware is done. Tell the driver
-        telemetry.addData("All done! ","Robot is initialized.");
+        telemetry.addData("All done! ", "Robot is initialized.");
 
         // Wait for the play button to be pressed on the driver station phone
         telemetry.addData(">", "Press start to run Teleop");

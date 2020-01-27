@@ -101,10 +101,19 @@ public class Lift extends ExtensionRetractionMechanism {
     // now post reset actions are complete
     //
 
+    private void moveOffRetractionLimitSwitch() {
+        // when the mechanism extends you may want to do something with whatever is attached to it.
+        extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        extensionRetractionMotor.setPower(raiseOffLimitSwitchPower);
+    }
+
     /**
      * This method is called before the start of a reset sequence to check if the mechanism is
      * ok to reset. Put your code for determining that here. The code here is a suggestion. It
      * assumes that the reset fully retracts the mechanism.
+     * This method is the default for checking to see if the mechanism is in the retracted position.
+     * You can override it if you have a different method. Note that the retraction limit position
+     * is assumed to be the least value possible for all of the possible positions of the mechanism.
      *
      * @return
      */

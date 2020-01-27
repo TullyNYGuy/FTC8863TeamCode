@@ -10,8 +10,6 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
- *
- *
  */
 @TeleOp(name = "Cycle Extension Retraction Mechanism", group = "Test")
 //@Disabled
@@ -20,7 +18,7 @@ public class CycleExtensionRetractionMechanism extends LinearOpMode {
     // Put your variable declarations here
     public ExtensionRetractionMechanism extensionRetractionMechanism;
     public DataLogging logFile;
-    public double spoolDiameter = 1.25 *25.4;
+    public double spoolDiameter = 1.25 * 25.4;
     public ElapsedTime timer;
     public double startTime = 0;
     public double endUpTime = 0;
@@ -31,7 +29,7 @@ public class CycleExtensionRetractionMechanism extends LinearOpMode {
 
 
         // Put your initializations here
-        extensionRetractionMechanism = new ExtensionRetractionMechanism(hardwareMap,telemetry,"extensionRetraction",
+        extensionRetractionMechanism = new ExtensionRetractionMechanism(hardwareMap, telemetry, "extensionRetraction",
                 "extensionLimitSwitch", "retractionLimitSwitch", "extensionRetractionMotor",
                 DcMotor8863.MotorType.ANDYMARK_40, spoolDiameter * Math.PI);
         //extensionRetractionMechanism.reverseMotor();
@@ -45,7 +43,7 @@ public class CycleExtensionRetractionMechanism extends LinearOpMode {
         extensionRetractionMechanism.setExtensionPositionInEncoderCounts(2650.0);
 
         // Wait for the start button
-        telemetry.addData(">", "Press Start to run" );
+        telemetry.addData(">", "Press Start to run");
         telemetry.update();
         waitForStart();
 
@@ -54,7 +52,7 @@ public class CycleExtensionRetractionMechanism extends LinearOpMode {
         telemetry.update();
 
         // sit and wait for the user to read the results
-        while(opModeIsActive()) {
+        while (opModeIsActive()) {
             idle();
         }
     }

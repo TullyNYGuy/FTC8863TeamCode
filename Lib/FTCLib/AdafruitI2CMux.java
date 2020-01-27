@@ -43,13 +43,13 @@ import com.qualcomm.robotcore.hardware.I2cWaitControl;
  * to switch between the devices and talk to only one of them at a time (see selectAndEnableAPort())
  * This mux is very simple since it has only one register. So it makes a good learning tool to understand
  * how to read and write an I2C device. The default address for the mux is 0x70.
- *
+ * <p>
  * https://learn.adafruit.com/adafruit-tca9548a-1-to-8-i2c-multiplexer-breakout/wiring-and-test?view=all
- *
+ * <p>
  * You will need to configure your phone with a "I2C Device" on one of the I2C ports.
  * Give the device a name when you configure it on the phone. This will be the muxName you pass
  * into the constructor.
- *
+ * <p>
  * WARNING: if you are using this mux to read multiple adafruit color sensors then be aware of a
  * possible issue. When you switch from one color sensor on one port to another color sensor on
  * another port, there will be a period of time needed before the data will be valid for the new
@@ -74,16 +74,16 @@ public class AdafruitI2CMux {
      * one port enabled at a time. In most cases you will only want one port enabled.
      */
     public enum PortNumber {
-        NOPORT (0x00), // inicates that no port have been selected
-        PORT0 (0x01),
-        PORT1 (0x02),
-        PORT2 (0x04),
-        PORT3 (0x08),
-        PORT4 (0x10),
-        PORT5 (0x20),
-        PORT6 (0x40),
-        PORT7 (0x80),
-        MANYPORT (0xFF); // just a flag that more than 1 port has been selected
+        NOPORT(0x00), // inicates that no port have been selected
+        PORT0(0x01),
+        PORT1(0x02),
+        PORT2(0x04),
+        PORT3(0x08),
+        PORT4(0x10),
+        PORT5(0x20),
+        PORT6(0x40),
+        PORT7(0x80),
+        MANYPORT(0xFF); // just a flag that more than 1 port has been selected
 
         private final byte bVal;
 
@@ -96,12 +96,14 @@ public class AdafruitI2CMux {
      * This device only has one register. So this enum is totally not needed. But I'm doing it anyway
      * to demonstrate how a more complex device with more registers could be implemented.
      */
-    private enum Register
-    {
+    private enum Register {
         CONTROL(0x00);
 
         public final byte byteVal;
-        Register(int i) { this.byteVal = (byte) i; }
+
+        Register(int i) {
+            this.byteVal = (byte) i;
+        }
     }
 
     //*********************************************************************************************
@@ -117,14 +119,14 @@ public class AdafruitI2CMux {
      * accomplished by wiring the header pin to 5V through a 1K or 10K resistor. The address
      * can range from:
      * A2  A1  A0  Address
-     *  L   L   L   0x70 (default)
-     *  L   L   H   0x71
-     *  L   H   L   0x72
-     *  L   H   H   0x73
-     *  H   L   L   0x74
-     *  H   L   H   0x75
-     *  H   H   L   0x76
-     *  H   H   H   0x77
+     * L   L   L   0x70 (default)
+     * L   L   H   0x71
+     * L   H   L   0x72
+     * L   H   H   0x73
+     * H   L   L   0x74
+     * H   L   H   0x75
+     * H   H   L   0x76
+     * H   H   H   0x77
      */
     private I2cAddr muxAddress;
 
@@ -158,6 +160,7 @@ public class AdafruitI2CMux {
 
     /**
      * Allow the user of the class to get read only access to the last control byte written.
+     *
      * @return last control byte written to the mux control register
      */
     public byte getLastControlByte() {
@@ -196,6 +199,7 @@ public class AdafruitI2CMux {
 
     /**
      * Write the control byte to the mux register
+     *
      * @param controlByte the value to write into the control register
      */
     private void writeMux(byte controlByte) {
@@ -216,6 +220,7 @@ public class AdafruitI2CMux {
     /**
      * Read what was last written to the control register. This does not read the control register
      * itself. It returns the value that was written from a property in this class
+     *
      * @return what was written to the control register last
      */
     private byte readMux() {
@@ -246,13 +251,14 @@ public class AdafruitI2CMux {
      * call for each port to be turned on. Follow the last call with enablePorts() to actually turn
      * the ports on. Note that turning on more than one port at a time is unusual. If you want to
      * turn on only one port use selectAndEnableAPort().
+     *
      * @param portNumber the port number to be connected.
      */
     public void selectPort(PortNumber portNumber) {
         // Bitwise or the value associated with the port to the ports that have already been
         // selected. Note that a byte | byte yields an int so I have to cast the result back
         // to a byte
-        controlByte = (byte)(portNumber.bVal | controlByte);
+        controlByte = (byte) (portNumber.bVal | controlByte);
     }
 
     /**
@@ -276,6 +282,7 @@ public class AdafruitI2CMux {
     /**
      * Most often the user will want to connect one, and only one, port to the input I2C bus. This
      * method is a convenient "one call does it all" way to do that.
+     *
      * @param portNumber The port to connect.
      */
     public void selectAndEnableAPort(PortNumber portNumber) {
@@ -285,40 +292,41 @@ public class AdafruitI2CMux {
 
     /**
      * Get the active ports from the mux.
+     *
      * @return active port in the form of PortNumber enum
      */
     public PortNumber getActivePort() {
         PortNumber result;
         // because byte is treated as a signed number in Java, I have to cast the data read from the
         // mux to int in order to compare to 0x80.
-        switch ((int)readMux()) {
+        switch ((int) readMux()) {
             case 0x00:
                 result = PortNumber.NOPORT;
-            break;
+                break;
             case 0x01:
                 result = PortNumber.PORT0;
-            break;
+                break;
             case 0x02:
                 result = PortNumber.PORT1;
-            break;
+                break;
             case 0x04:
                 result = PortNumber.PORT2;
-            break;
+                break;
             case 0x08:
                 result = PortNumber.PORT3;
-            break;
+                break;
             case 0x10:
                 result = PortNumber.PORT4;
-            break;
+                break;
             case 0x20:
                 result = PortNumber.PORT5;
-            break;
+                break;
             case 0x40:
                 result = PortNumber.PORT6;
-            break;
+                break;
             case 0x80:
                 result = PortNumber.PORT7;
-            break;
+                break;
             default:
                 result = PortNumber.MANYPORT;
                 break;
@@ -328,6 +336,7 @@ public class AdafruitI2CMux {
 
     /**
      * Get the active port(s) from the mux.
+     *
      * @return active port in the form of a string
      */
     public String getActivePortAsString() {

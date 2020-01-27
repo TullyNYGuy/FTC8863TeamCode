@@ -10,8 +10,6 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
- *
- *
  */
 @TeleOp(name = "Test Lift Right", group = "Test")
 //@Disabled
@@ -20,7 +18,7 @@ public class TestLiftRight extends LinearOpMode {
     // Put your variable declarations here
     public ExtensionRetractionMechanism extensionRetractionMechanismRight;
     public DataLogging logFile;
-    public double spoolDiameter = 1.25 *25.4;
+    public double spoolDiameter = 1.25 * 25.4;
     public ElapsedTime timer;
     public double startTime = 0;
     public double endUpTime = 0;
@@ -33,7 +31,7 @@ public class TestLiftRight extends LinearOpMode {
 
 
         // Put your initializations here
-        extensionRetractionMechanismRight = new ExtensionRetractionMechanism(hardwareMap,telemetry,"extensionRetractionRight",
+        extensionRetractionMechanismRight = new ExtensionRetractionMechanism(hardwareMap, telemetry, "extensionRetractionRight",
                 "extensionLimitSwitchRight", "retractionLimitSwitchRight", "extensionRetractionMotorRight",
                 DcMotor8863.MotorType.ANDYMARK_40, spoolDiameter * Math.PI);
         extensionRetractionMechanismRight.reverseMotor();
@@ -48,7 +46,7 @@ public class TestLiftRight extends LinearOpMode {
         extensionRetractionMechanismRight.setExtensionPositionInEncoderCounts(2700.0);
 
         // Wait for the start button
-        telemetry.addData(">", "Press Start to run" );
+        telemetry.addData(">", "Press Start to run");
         telemetry.update();
         waitForStart();
 
@@ -61,7 +59,7 @@ public class TestLiftRight extends LinearOpMode {
         telemetry.update();
         sleep(10000);
         timer.reset();
-        encoderValueMin =  extensionRetractionMechanismRight.testRetraction(this);
+        encoderValueMin = extensionRetractionMechanismRight.testRetraction(this);
         endDownTime = timer.seconds();
 
         telemetry.addData("time up = ", endUpTime);
@@ -72,7 +70,7 @@ public class TestLiftRight extends LinearOpMode {
         telemetry.update();
 
         // wait for user to read values and kill routine
-        while(opModeIsActive()) {
+        while (opModeIsActive()) {
             idle();
         }
 

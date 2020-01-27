@@ -530,10 +530,14 @@ public class DriveTrain {
         this.distanceToDrive = distance;
         // reset the distance traveled
         zeroDistanceDriven();
-        if (logDrive && logFile != null) {
-            logFile.logData("Setup for drive straight = " + distance + " at power = " + power);
-            logFile.logData("Starting heading = " + imu.getHeading());
+        if (logFile != null && logDrive) {
+            logFile.blankLine();
+            logFile.logData("DRIVE_STRAIGHT_USING_IMU DESIRED Heading = 0" + " Speed = " + Double.toString(power) + " distance = " + Double.toString(distance) + " drive_direction = FORWARD");
         }
+//        if (logDrive && logFile != null) {
+//            logFile.logData("Setup for drive straight = " + distance + " at power = " + power);
+//            logFile.logData("Starting heading = " + imu.getHeading());
+//        }
     }
 
     /**

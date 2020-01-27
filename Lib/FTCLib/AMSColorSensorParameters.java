@@ -121,6 +121,7 @@ public class AMSColorSensorParameters {
 
     /**
      * A method to return parameters customized for the AdaFruit color sensor
+     *
      * @return parameters
      */
     public static AMSColorSensorParameters createForAdaFruit() {

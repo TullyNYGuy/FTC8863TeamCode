@@ -61,7 +61,8 @@ public class TestExtensionArmFullExtensionRetraction extends LinearOpMode {
 
         extensionArm.setExtensionPositionInEncoderCounts(2700.0);
 
-        logFile = new DataLogging("ExtensionRetractionTestBoth", telemetry);;
+        logFile = new DataLogging("ExtensionRetractionTestBoth", telemetry);
+        ;
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
@@ -93,7 +94,7 @@ public class TestExtensionArmFullExtensionRetraction extends LinearOpMode {
 
         endOutTime = timer.seconds();
 
-        sleep (3000);
+        sleep(3000);
 
         extensionArm.goToFullRetract();
         timer.reset();

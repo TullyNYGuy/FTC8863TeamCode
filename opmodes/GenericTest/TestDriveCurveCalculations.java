@@ -12,8 +12,6 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
- *
- *
  */
 @TeleOp(name = "Test Drive Curve Calculations", group = "Test")
 @Disabled
@@ -30,7 +28,7 @@ public class TestDriveCurveCalculations extends LinearOpMode {
     public void runOpMode() {
 
         // Put your initializations here
-        logFile = new DataLogging( "Test Drive Curve Calculations", telemetry);
+        logFile = new DataLogging("Test Drive Curve Calculations", telemetry);
         driveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap, telemetry);
         driveTrain.setLogFile(logFile);
         driveTrain.enableLogDrive();
@@ -44,8 +42,8 @@ public class TestDriveCurveCalculations extends LinearOpMode {
         driveCurve.enableLogging();
         driveCurve.enablePID();
 
-                // Wait for the start button
-        telemetry.addData(">", "Press Start to run" );
+        // Wait for the start button
+        telemetry.addData(">", "Press Start to run");
         telemetry.update();
         waitForStart();
 

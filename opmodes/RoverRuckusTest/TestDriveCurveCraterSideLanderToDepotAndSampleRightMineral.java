@@ -11,8 +11,6 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
- *
- *
  */
 @TeleOp(name = "Test Crater Side Lander to Depot Sample Right Mineral", group = "Test")
 //@Disabled
@@ -29,7 +27,7 @@ public class TestDriveCurveCraterSideLanderToDepotAndSampleRightMineral extends 
     public void runOpMode() {
 
         // Put your initializations here
-        logFile = new DataLogging( "Test Drive CraterSide Lander To right mineral to Depot", telemetry);
+        logFile = new DataLogging("Test Drive CraterSide Lander To right mineral to Depot", telemetry);
         driveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap, telemetry);
         driveTrain.setLogFile(logFile);
         driveTrain.enableLogDrive();
@@ -46,8 +44,8 @@ public class TestDriveCurveCraterSideLanderToDepotAndSampleRightMineral extends 
         driveCurve.enableLogging();
         driveCurve.enablePID();
 
-                // Wait for the start button
-        telemetry.addData(">", "Press Start to run" );
+        // Wait for the start button
+        telemetry.addData(">", "Press Start to run");
         telemetry.update();
         waitForStart();
 
@@ -56,9 +54,9 @@ public class TestDriveCurveCraterSideLanderToDepotAndSampleRightMineral extends 
         // curve from lander onto lane to hit right mineral
         driveCurve.setupDriveCurve(curveAngle, speed, 24.69 * 2.54, DriveCurve.CurveDirection.CW, DriveCurve.DriveDirection.FORWARD);
         driveCurve.startDriveCurve();
-        while(opModeIsActive() && !driveCurve.isCurveComplete()) {
+        while (opModeIsActive() && !driveCurve.isCurveComplete()) {
             driveCurve.update();
-            telemetry.addData(">", "Curving ..." );
+            telemetry.addData(">", "Curving ...");
             telemetry.update();
             idle();
         }
@@ -67,9 +65,9 @@ public class TestDriveCurveCraterSideLanderToDepotAndSampleRightMineral extends 
         curveAngle = -90;
         driveCurve.setupDriveCurve(curveAngle, speed, 31.15 * 2.54, DriveCurve.CurveDirection.CW, DriveCurve.DriveDirection.BACKWARD);
         driveCurve.startDriveCurve();
-        while(opModeIsActive() && !driveCurve.isCurveComplete()) {
+        while (opModeIsActive() && !driveCurve.isCurveComplete()) {
             driveCurve.update();
-            telemetry.addData(">", "Curving ..." );
+            telemetry.addData(">", "Curving ...");
             telemetry.update();
             idle();
         }
@@ -78,7 +76,7 @@ public class TestDriveCurveCraterSideLanderToDepotAndSampleRightMineral extends 
         // drive on lane in front of lander towards wall
         driveTrain.setupDriveUsingIMU(-90, 31.13 * 2.54, speed, DriveTrain.DriveDirection.REVERSE, AdafruitIMU8863.AngleMode.ABSOLUTE);
         driveTrain.startDriveUsingIMU();
-        while (opModeIsActive()&& !driveTrain.updateDriveUsingIMU()) {
+        while (opModeIsActive() && !driveTrain.updateDriveUsingIMU()) {
             // Display the current value
             telemetry.addData(">", "Driving straight ...");
             telemetry.update();
@@ -89,9 +87,9 @@ public class TestDriveCurveCraterSideLanderToDepotAndSampleRightMineral extends 
         curveAngle = -45;
         driveCurve.setupDriveCurve(curveAngle, speed, 38.84 * 2.54, DriveCurve.CurveDirection.CCW, DriveCurve.DriveDirection.BACKWARD);
         driveCurve.startDriveCurve();
-        while(opModeIsActive() && !driveCurve.isCurveComplete()) {
+        while (opModeIsActive() && !driveCurve.isCurveComplete()) {
             driveCurve.update();
-            telemetry.addData(">", "Curving ..." );
+            telemetry.addData(">", "Curving ...");
             telemetry.update();
             idle();
         }
@@ -99,7 +97,7 @@ public class TestDriveCurveCraterSideLanderToDepotAndSampleRightMineral extends 
         // drive along lane into depot
         driveTrain.setupDriveUsingIMU(-45, 13 * 2.54, speed, DriveTrain.DriveDirection.REVERSE, AdafruitIMU8863.AngleMode.ABSOLUTE);
         driveTrain.startDriveUsingIMU();
-        while (opModeIsActive()&& !driveTrain.updateDriveUsingIMU()) {
+        while (opModeIsActive() && !driveTrain.updateDriveUsingIMU()) {
             // Display the current value
             telemetry.addData(">", "Driving straight ...");
             telemetry.update();

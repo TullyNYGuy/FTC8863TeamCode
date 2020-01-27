@@ -261,8 +261,9 @@ public class DataLogging {
     /**
      * Write a string and a series of doubles into the data log. The string and the each double will
      * be followed by a comma and a space. The beginning of the line will have a timestamp.
+     *
      * @param string
-     * @param args a variable number of doubles to write into the file in this line
+     * @param args   a variable number of doubles to write into the file in this line
      */
     public void logData(String string, Double... args) {
         // print the timestamp

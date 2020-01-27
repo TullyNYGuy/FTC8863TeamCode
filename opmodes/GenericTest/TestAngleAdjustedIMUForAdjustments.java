@@ -8,8 +8,6 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.AngleAdjustedIMU;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
- *
- *
  */
 @TeleOp(name = "Test Angle Adjustments", group = "Test")
 //@Disabled
@@ -24,9 +22,9 @@ public class TestAngleAdjustedIMUForAdjustments extends LinearOpMode {
 
         // Put your initializations here
         angleAdjustedIMU = new AngleAdjustedIMU();
-        
+
         // Wait for the start button
-        telemetry.addData(">", "Press Start to run" );
+        telemetry.addData(">", "Press Start to run");
         telemetry.update();
         waitForStart();
 

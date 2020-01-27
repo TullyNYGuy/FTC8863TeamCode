@@ -24,7 +24,7 @@ public class DriveCurve {
         COMPLETE
     }
 
-    public enum  DriveDirection{
+    public enum DriveDirection {
         FORWARD,
         BACKWARD
     }
@@ -87,6 +87,7 @@ public class DriveCurve {
      * Forwards speed is a positive motor value. Backwards speed is a negative motor value. This
      * method makes sure that the speed has the correct sign based on the direction the robot is
      * supposed to move.
+     *
      * @param speed
      */
     private void setSpeed(Double speed) {
@@ -211,6 +212,7 @@ public class DriveCurve {
      * where one wheel is stationary and the other is moving. If the spin turn were allowed the PID
      * could suddenly make a wheel that is going forwards switch to going backwards. This would not
      * be good.
+     *
      * @param curveAngle
      * @param speed
      * @param radius
@@ -262,6 +264,7 @@ public class DriveCurve {
      * Figure out what the right and left wheel speeds should be in order to follow a curve with a
      * certain radius. This must be run before a new curve is started. It is automatically run when
      * the constructor is run.
+     *
      * @param radius
      */
     private void calculateWheelSpeeds(double radius) {
@@ -269,7 +272,7 @@ public class DriveCurve {
             leftWheelSpeed = speed;
             rightWheelSpeed = speed;
         } else {
-            switch(driveDirection) {
+            switch (driveDirection) {
                 case FORWARD:
                     // these are for forward movement
                     switch (curveDirection) {
@@ -317,6 +320,7 @@ public class DriveCurve {
     /**
      * Calculate the wheel speed for the wheel that follows the inner radius - the shorter lane
      * around the race track. This is the wheel the must turn more slowly.
+     *
      * @param radius
      * @return
      */
@@ -336,6 +340,7 @@ public class DriveCurve {
     /**
      * Calculate the wheel speed for the wheel that follows the outer radius - the longer lane
      * around the race track. This is the wheel the must turn more quickly.
+     *
      * @param radius
      * @return
      */
@@ -361,6 +366,7 @@ public class DriveCurve {
      * Calculate the rate of turn. This is the change in heading / change in distance traveled
      * around the circle. This should be a value that does not change since the radius of the
      * circle does not change.
+     *
      * @param radius
      * @return
      */
@@ -384,6 +390,7 @@ public class DriveCurve {
      * heading was read / the change in distance traveled since the last distance was read. This
      * value should be equal to the calculateRateOfTurnShouldBe() but it won't because stuff
      * happens.
+     *
      * @param currentHeading
      * @return the rate of turn in the last little instant of time
      */
@@ -393,7 +400,7 @@ public class DriveCurve {
         // setup for the next time this calculation is made
         lastHeading = currentHeading;
         // make sure there is not a divide by 0
-        if (distanceDrivenSinceLast != 0){
+        if (distanceDrivenSinceLast != 0) {
             return headingChange / distanceDrivenSinceLast;
         } else {
             return 0;
@@ -431,8 +438,9 @@ public class DriveCurve {
      * where one wheel is stationary and the other is moving. If the spin turn were allowed the PID
      * could suddenly make a wheel that is going forwards switch to going backwards. This would not
      * be good.
+     *
      * @param curveAngle
-     * @param speed this should always be positive. The driveDirection takes care of driving backwards.
+     * @param speed          this should always be positive. The driveDirection takes care of driving backwards.
      * @param radius
      * @param curveDirection
      * @param driveDirection
@@ -489,6 +497,7 @@ public class DriveCurve {
     /**
      * After the curve has been started with startCurve(), this method must be called until
      * isCurveComplete() returns true. Loop time on this is about 31 mSec.
+     *
      * @return alternate method of telling when the curve is complete (true)
      */
     public boolean update() {
@@ -521,32 +530,32 @@ public class DriveCurve {
 //                    } else {
 //                        correction = correctionSign * pidControl.getCorrection(currentRateOfTurn);
 //                    }
-                    correction = correctionSign * pidControl.getCorrection(currentRateOfTurn);
-                    newRadius = radius + correction;
-                    // commented out to see if loop time can be improved
-                    //logFile.logData("rate of turn = " + currentRateOfTurn + " correction = " + correction + " new radius = " + newRadius);
-                    calculateWheelSpeeds(newRadius);
-                    driveTrain.setLeftDriveMotorSpeed(leftWheelSpeed);
-                    driveTrain.setRightDriveMotorSpeed(rightWheelSpeed);
-                    // commented out to see if loop time can be improved
-                    //logFile.logData(leftWheelSpeed, rightWheelSpeed);
-                    driveTrain.applyPowersToMotors();
+                correction = correctionSign * pidControl.getCorrection(currentRateOfTurn);
+                newRadius = radius + correction;
+                // commented out to see if loop time can be improved
+                //logFile.logData("rate of turn = " + currentRateOfTurn + " correction = " + correction + " new radius = " + newRadius);
+                calculateWheelSpeeds(newRadius);
+                driveTrain.setLeftDriveMotorSpeed(leftWheelSpeed);
+                driveTrain.setRightDriveMotorSpeed(rightWheelSpeed);
+                // commented out to see if loop time can be improved
+                //logFile.logData(leftWheelSpeed, rightWheelSpeed);
+                driveTrain.applyPowersToMotors();
                 //}
 
                 // log the distance driven
                 // commented out to see if loop time can be improved
 //                if (logFile != null && enableLogging) {
 //                    driveTrain.updateDriveDistance();
-                    logFile.logData("CURVE HEADING_DISTANCE_RATE", currentHeading, driveTrain.getDistanceDriven(), currentRateOfTurn);
+                logFile.logData("CURVE HEADING_DISTANCE_RATE", currentHeading, driveTrain.getDistanceDriven(), currentRateOfTurn);
 //                }
                 // if the current heading is close enough to the desired heading indicate the turn is done
-                    //if (Math.abs(currentHeading) > Math.abs(curveAngle) - curveThreshold && Math.abs(currentHeading) < Math.abs(curveAngle) + curveThreshold) {
+                //if (Math.abs(currentHeading) > Math.abs(curveAngle) - curveThreshold && Math.abs(currentHeading) < Math.abs(curveAngle) + curveThreshold) {
                 if (currentHeading > curveAngle - curveThreshold && currentHeading < curveAngle + curveThreshold) {
                     // curve is complete, log the results
                     if (logFile != null && enableLogging) {
                         // commented out to save loop time since I don't think it is needed
                         //driveTrain.updateDriveDistance();
-                        double distanceDriven = driveTrain.getDistanceDriven()- initialDistance;
+                        double distanceDriven = driveTrain.getDistanceDriven() - initialDistance;
                         double headingChange = currentHeading - initialHeading;
                         logFile.logData("CURVE FINAL_HEADING_DISTANCE", currentHeading, driveTrain.getDistanceDriven());
                         logFile.logData("distance driven during this movement = " + distanceDriven);
@@ -569,9 +578,10 @@ public class DriveCurve {
 
     /**
      * When the curve is complete, this method returns true.
+     *
      * @return
      */
-    public boolean isCurveComplete(){
+    public boolean isCurveComplete() {
         if (curveState == CurveState.COMPLETE) {
             return true;
         } else {
@@ -583,6 +593,7 @@ public class DriveCurve {
      * After the curve has been started with startCurve(), this method must be called until
      * isCurveComplete() returns true. It does not use any PID and does not log until end.
      * Loop time was 13 mSec.
+     *
      * @return alternate method of telling when the curve is complete (true)
      */
     public boolean updatefastest() {
@@ -608,7 +619,7 @@ public class DriveCurve {
                     // curve is complete, log the results
                     if (logFile != null && enableLogging) {
                         driveTrain.updateDriveDistance();
-                        double distanceDriven = driveTrain.getDistanceDriven()- initialDistance;
+                        double distanceDriven = driveTrain.getDistanceDriven() - initialDistance;
                         double headingChange = currentHeading - initialHeading;
                         logFile.logData("heading at curve completion = " + Double.toString(currentHeading) + " distance driven = ", Double.toString(distanceDriven));
                         logFile.logData("average rate of turn = " + Double.toString(headingChange / distanceDriven));
@@ -631,6 +642,7 @@ public class DriveCurve {
     /**
      * Stop the curve and set the motor to either float or hold. Most of the time I think you will
      * want to float.
+     *
      * @param finishBehavior
      */
     public void stopCurve(DcMotor8863.FinishBehavior finishBehavior) {

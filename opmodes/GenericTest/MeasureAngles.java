@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.StatTracker;
 
 /**
  * This Opmode tests the IMU.
- *
+ * <p>
  * Phone configuration:
  * I2C port type: Adafruit IMU
  * I2C device name: IMU
@@ -83,7 +83,7 @@ public class MeasureAngles extends LinearOpMode {
         while (opModeIsActive()) {
 
             //if(systemStatus != BNO055IMU.SystemStatus.UNKNOWN) {
-            if (isConnected){
+            if (isConnected) {
 //               loopTimeTracker.compareValue(loopTimer.milliseconds());
 //                loopTimer.reset();
 //

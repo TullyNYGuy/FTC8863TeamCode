@@ -18,7 +18,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.StatTracker;
 import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.AutonomousMovements;
 
-@Autonomous(name = "wicked cool test for some teacherz", group = "Test")
+@Autonomous(name = "wicked cool test for some teacherz( no Piddazle)", group = "Test")
 //@Disabled
 public class gefTeacherAutonomousWithoutIMU extends LinearOpMode {
 
@@ -53,10 +53,10 @@ public class gefTeacherAutonomousWithoutIMU extends LinearOpMode {
         // Start the logging of measured acceleration
         robot.driveTrain.imu.startAccelerationIntegration(new Position(), new Velocity(), 1000);
 
-        robot.driveTrain.setupDriveDistance(.5, 72 * 2.54 , DcMotor8863.FinishBehavior.FLOAT);
+        robot.driveTrain.setupDriveDistance(.5, 150 * 2.54, DcMotor8863.FinishBehavior.FLOAT);
         robot.driveTrain.startDriveDistance();
 
-        while (opModeIsActive()&& (robot.driveTrain.updateDriveDistance() != DriveTrain.Status.COMPLETE)) {
+        while (opModeIsActive() && (robot.driveTrain.updateDriveDistance() != DriveTrain.Status.COMPLETE)) {
             // Put your calls that need to run in a loop here
             idle();
 

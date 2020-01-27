@@ -195,6 +195,7 @@ public class StatTrackerGB {
     /**
      * This method does the same thing as updateStats but does not call other methods to do it. It
      * will be interesting to see how much faster this method runs.
+     *
      * @param newValue
      */
     public void updateStatsUnified(double newValue) {

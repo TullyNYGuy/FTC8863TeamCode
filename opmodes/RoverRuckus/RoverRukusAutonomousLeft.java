@@ -272,36 +272,36 @@ public class RoverRukusAutonomousLeft extends LinearOpMode {
         driveStraight(5, .3);
         headingOnGround = robot.driveTrain.imu.getHeading();
 
-        logFile.logData("headingFirstStraight " + Double.toString( robot.driveTrain.imu.getHeading()));
-        headingForTurn = 63-headingOnGround;
+        logFile.logData("headingFirstStraight " + Double.toString(robot.driveTrain.imu.getHeading()));
+        headingForTurn = 63 - headingOnGround;
         desiredHeading = 63;
         turnByDegrees(headingForTurn, .7);
 
         // head toward wall
-        logFile.logData("headingSecondTurn " + Double.toString( robot.driveTrain.imu.getHeading()));
+        logFile.logData("headingSecondTurn " + Double.toString(robot.driveTrain.imu.getHeading()));
         headingAfterDrive = driveStraight(108, .3);
-        compensatedHeading =headingAfterDrive- desiredHeading;
-        logFile.logData("headingSecondStraight " + Double.toString( robot.driveTrain.imu.getHeading()));
+        compensatedHeading = headingAfterDrive - desiredHeading;
+        logFile.logData("headingSecondStraight " + Double.toString(robot.driveTrain.imu.getHeading()));
 
         // turn toward crater
         headingForTurn = -122.6;
-        turnByDegrees(headingForTurn-compensatedHeading, .7);
-        logFile.logData("headingThirdTurn " + Double.toString( robot.driveTrain.imu.getHeading()));
+        turnByDegrees(headingForTurn - compensatedHeading, .7);
+        logFile.logData("headingThirdTurn " + Double.toString(robot.driveTrain.imu.getHeading()));
 
         // drive to depot backwards
         headingAfterDrive = driveStraight(-95, .3);
 
         //dump the marker
         robot.deliveryLiftSystem.deliveryBoxToDump();
-        logFile.logData("headingThirdStraight " + Double.toString( robot.driveTrain.imu.getHeading()));
+        logFile.logData("headingThirdStraight " + Double.toString(robot.driveTrain.imu.getHeading()));
         sleep(1000);
         robot.deliveryLiftSystem.deliveryBoxToTransfer();
 
         // drive to the crater
         headingAfterDrive = driveStraight(150, .3);
-        logFile.logData("headingFourthTurn " + Double.toString( robot.driveTrain.imu.getHeading()));
+        logFile.logData("headingFourthTurn " + Double.toString(robot.driveTrain.imu.getHeading()));
 
-        logFile.logData("headingFifthTurn " + Double.toString( robot.driveTrain.imu.getHeading()));
+        logFile.logData("headingFifthTurn " + Double.toString(robot.driveTrain.imu.getHeading()));
 
         // lower the lift
         lowerLift();

@@ -282,6 +282,7 @@ public class RoverRuckusRobot {
         transferButtonCommand = TransferButtonCommands.WAIT_FOR_GO_TO_TRANSFER;
         previousTransferButtonCommand = TransferButtonCommands.WAIT_FOR_GO_TO_TRANSFER;
     }
+
     /**
      * This is a state machine that controls a single button that is meant to control the transfer.
      * It goes from moving the collector arm to transfer position, starting the transfer, then
@@ -899,7 +900,7 @@ public class RoverRuckusRobot {
                 switch (toCollectCommand) {
                     case LOWER_COLLECTION_SYSTEM:
                         // moved deliveryBoxToHome from START. Added check for lift movement complete 4/22
-                        if (deliveryLiftSystem.isLiftMovementComplete()){
+                        if (deliveryLiftSystem.isLiftMovementComplete()) {
                             deliveryLiftSystem.deliveryBoxToHome();
                             toCollectState = ToCollectStates.READY_TO_COLLECT;
                         }
@@ -989,7 +990,7 @@ public class RoverRuckusRobot {
                 hangingSetupState = HangingSetup.WAIT_FOR_LIFT;
                 break;
             case WAIT_FOR_LIFT:
-                if (deliveryLiftSystem.isLiftMovementComplete()&& collectorArm.isExtensionArmMovementComplete()) {
+                if (deliveryLiftSystem.isLiftMovementComplete() && collectorArm.isExtensionArmMovementComplete()) {
                     collectorArm.rotationArmGoToHome();
                     hangingSetupState = HangingSetup.READY_TO_LATCH;
                 }

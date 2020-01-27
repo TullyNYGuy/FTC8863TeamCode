@@ -85,7 +85,7 @@ import java.util.Map;
  * <p>
  * IF YOU JUST WANT TO GET STARTED USING THE COLOR SENSOR SKIP RIGHT DOWN TO THE SECTION TITLED
  * MAJOR METHODS.
- *
+ * <p>
  * HERE IS HOW TO CONFIGURE THE COLOR SENSOR:
  * CONFIGURE AN I2C PORT ON THE CORE DEVICE INTERFACE MODULE AS AN I2C DEVICE.
  * GIVE THE SENSOR THE NAME THAT YOU WILL USE IN CREATING YOUR OBJECT FROM THIS CLASS; THE NAME
@@ -746,8 +746,8 @@ public class AdafruitColorSensor8863 {
      *
      * @param hardwareMap
      * @param colorSensorName string that was used to setup the color sensor on the phone
-     * @param ledControlMode NONE = no control over LED, INTERRUPT = use interrupt pin to control
-     *                       led. CORE_DIM is not a valid choice for this version of the constructor
+     * @param ledControlMode  NONE = no control over LED, INTERRUPT = use interrupt pin to control
+     *                        led. CORE_DIM is not a valid choice for this version of the constructor
      */
     public AdafruitColorSensor8863(HardwareMap hardwareMap, String colorSensorName, LEDControl ledControlMode) {
 
@@ -777,17 +777,17 @@ public class AdafruitColorSensor8863 {
      * interrupt pin on the circuit board. A 2 pin jumper must be installed on the INT and LED pins.
      * The advantage of this approach is that a core DIM digital input is not taken up to control
      * the LED. The LED is intialized to off.
-     *
+     * <p>
      * The difference between this constructor and the previous one is that this one sets up the core
      * DIM object so you can control the LEDs built into the core DIM.
      *
      * @param hardwareMap
      * @param colorSensorName string that was used to setup the color sensor on the phone
-     * @param coreDIMName the name of the core DIM as configured on the phone. You will be able to
-     *                    control the built in blue and red LEDs if you use this version of the
-     *                    constructor
-     * @param ledControlMode NONE = no control over LED, INTERRUPT = use interrupt pin to control
-     *                       led. CORE_DIM is not a valid choice for this version of the constructor
+     * @param coreDIMName     the name of the core DIM as configured on the phone. You will be able to
+     *                        control the built in blue and red LEDs if you use this version of the
+     *                        constructor
+     * @param ledControlMode  NONE = no control over LED, INTERRUPT = use interrupt pin to control
+     *                        led. CORE_DIM is not a valid choice for this version of the constructor
      */
     public AdafruitColorSensor8863(HardwareMap hardwareMap, String colorSensorName, String coreDIMName, LEDControl ledControlMode) {
         // the constructor is the same as the previous one - except for the core DIM
@@ -1277,7 +1277,7 @@ public class AdafruitColorSensor8863 {
     private void setGain(Gain gain) {
         this.write8(Register.CONTROL, gain.byteVal);
         // save the gain
-        this.gain= gain;
+        this.gain = gain;
     }
 
     // DEVICE ID REGISTER
@@ -1307,9 +1307,9 @@ public class AdafruitColorSensor8863 {
         }
     }
 
-    public boolean isColorSensorAttached(Telemetry telemetry){
+    public boolean isColorSensorAttached(Telemetry telemetry) {
         boolean result;
-        if(checkDeviceId()) {
+        if (checkDeviceId()) {
             telemetry.addData("Color sensor is attached.", "!");
             result = true;
         } else {

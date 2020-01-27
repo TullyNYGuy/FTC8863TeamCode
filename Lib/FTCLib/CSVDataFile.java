@@ -205,12 +205,13 @@ public class CSVDataFile {
 
     /**
      * Write a double and an integer into the file
+     *
      * @param doubleData
      * @param intData
      */
     public void writeData(Double doubleData, Integer intData) {
         // print each argument
-        csvDataFile.print(doubleData.toString() + ", " +intData.toString());
+        csvDataFile.print(doubleData.toString() + ", " + intData.toString());
         // print a newline
         csvDataFile.println();
     }
@@ -248,8 +249,9 @@ public class CSVDataFile {
     /**
      * Write a string and a series of doubles into the data log. The string and the each double will
      * be followed by a comma and a space.
+     *
      * @param string
-     * @param args a variable number of doubles to write into the file in this line
+     * @param args   a variable number of doubles to write into the file in this line
      */
     public void writeData(String string, Double... args) {
         // print the string

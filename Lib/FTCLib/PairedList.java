@@ -55,11 +55,11 @@ public class PairedList {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
-    public void add(double valueA, int valueB){
+    public void add(double valueA, int valueB) {
         doubleIntegerDataList.add(new DoubleIntegerData(valueA, valueB));
     }
 
-    public void writeToCSVFile(CSVDataFile csvDataFile){
+    public void writeToCSVFile(CSVDataFile csvDataFile) {
         for (DoubleIntegerData doubleIntegerDataItem : doubleIntegerDataList) {
             csvDataFile.writeData(doubleIntegerDataItem.toCSVString());
         }
