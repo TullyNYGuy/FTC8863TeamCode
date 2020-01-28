@@ -44,7 +44,7 @@ public class SkystoneRobot {
         this.config = config;
     }
 
-    boolean initialize() {
+    public boolean initialize() {
         DcMotor8863 frontLeft = new DcMotor8863("FrontLeft", hardwareMap);
         DcMotor8863 backLeft = new DcMotor8863("BackLeft", hardwareMap);
         DcMotor8863 frontRight = new DcMotor8863("FrontRight", hardwareMap);
@@ -128,9 +128,9 @@ public class SkystoneRobot {
 
         imu = new AdafruitIMU8863(hardwareMap, null, "IMU", config.getProperty(PROP_IMU_NAME, "IMU"));
         mecanum = new Mecanum(frontLeft, frontRight, backLeft, backRight, telemetry);
-        OdometryModule left = new OdometryModule(1440, 3.8, units, "BackLeft", hardwareMap);
-        OdometryModule right = new OdometryModule(1440, 3.8, units, "BackRight", hardwareMap);
-        OdometryModule back = new OdometryModule(1440, 3.8, units, "FrontRight", hardwareMap);
+        OdometryModule left = new OdometryModule(1440, 3.8 * Math.PI, units, "FrontLeft", hardwareMap);
+        OdometryModule right = new OdometryModule(1440, 3.8 * Math.PI, units, "BackRight", hardwareMap);
+        OdometryModule back = new OdometryModule(1440, 3.8 * Math.PI, units, "FrontRight", hardwareMap);
         odometry = new OdometrySystem(units, left, right, back);
         if (!odometry.loadConfiguration(config)) {
             telemetry.addData("ERROR", "Couldn't initialize Odometry");

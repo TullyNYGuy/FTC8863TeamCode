@@ -20,7 +20,7 @@ public class Configuration extends Properties {
     }
 
     public void load(String configFile) throws IOException {
-        String fileName = Environment.getExternalStorageDirectory() + CONFIG_DIRECTORY + "/" + configFile;
+        String fileName = Environment.getExternalStorageDirectory() + "/" + CONFIG_DIRECTORY + "/" + configFile;
         super.load(new FileInputStream(fileName));
     }
 
@@ -29,7 +29,7 @@ public class Configuration extends Properties {
     }
 
     public void store(String configFile) throws IOException {
-        String fileName = Environment.getExternalStorageDirectory() + CONFIG_DIRECTORY + "/" + configFile;
+        String fileName = Environment.getExternalStorageDirectory() + "/" + CONFIG_DIRECTORY + "/" + configFile;
         super.store(new FileOutputStream(fileName), "Robot Configuration");
     }
 

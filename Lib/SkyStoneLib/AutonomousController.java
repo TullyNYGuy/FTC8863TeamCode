@@ -80,9 +80,9 @@ public class AutonomousController {
         private MecanumCommands zeroMovement;
 
         public MovemenetThread(DistanceUnit distanceUnit) {
-            xControl = new PIDControl(0.2, 20.0, 0);
-            yControl = new PIDControl(0.2, 20.0, 0);
-            rotationControl = new PIDControl(0.2, 20.0, 0);
+            xControl = new PIDControl(0.2, 20.0, 1);
+            yControl = new PIDControl(0.2, 20.0, 1);
+            rotationControl = new PIDControl(0.2, 20.0, 1);
             commands = new MecanumCommands();
             zeroMovement = new MecanumCommands();
             this.distanceUnit = distanceUnit;
@@ -155,6 +155,7 @@ public class AutonomousController {
 
     public void moveTo(DistanceUnit distanceUnit, double x, double y) {
         movementThread.setDestination(distanceUnit, x, y);
+        movementThread.setDestinationRotation(AngleUnit.RADIANS, 0);
     }
 
     public void initPlaces() {
