@@ -79,7 +79,8 @@ public class DcServoMotor extends DcMotor8863 {
 
     @Override
     public void setPower(double power) {
-        power = Range.clip(power, getMinMotorPower(), getMaxMotorPower());
+        // there is no PID here so we don't need to clip the power
+        //power = Range.clip(power, getMinMotorPower(), getMaxMotorPower());
         this.currentPower = power;
         switch (getCurrentRunMode()) {
             case RUN_WITHOUT_ENCODER:
@@ -87,6 +88,7 @@ public class DcServoMotor extends DcMotor8863 {
                 setServoSpeed(power);
                 break;
             case RUN_TO_POSITION:
+                setServoSpeed(power);
                 break;
         }
 
@@ -191,15 +193,33 @@ public class DcServoMotor extends DcMotor8863 {
 
     // OR just override rotateToEncoderCount
 
+    private boolean isEncoderAtTarget(int desiredEncoderCount) {
+        if (Math.abs(desiredEncoderCount - getCurrentPosition()) <= 40) {
+            setPower(0);
+            return true;
+        } else {
+            return false;
+        }
+    }
 
     @Override
-    public boolean rotateToEncoderCount() {
-
+    public boolean rotateToEncoderCount(double power, int encoderCount, FinishBehavior afterCompletion) {
+        setTargetEncoderCount(encoderCount);
+        setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        if (!isEncoderAtTarget(encoderCount)) {
+            if (encoderCount > getCurrentPosition()) {
+                setPower(power);
+            } else {
+                setPower(-power);
+            }
+            return true;
+        }
+        return false;
     }
 
     @Override
     public boolean isMotorStateComplete() {
-
+        return isEncoderAtTarget(getTargetEncoderCount());
     }
 
 }

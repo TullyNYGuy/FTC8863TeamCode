@@ -68,6 +68,7 @@ public class ExtensionArm extends ExtensionRetractionMechanism {
     protected void createExtensionRetractionMotor(HardwareMap hardwareMap, Telemetry telemetry, String motorName) {
         // the encoder is plugged into the drive train FrontLeft motor port
         extensionRetractionMotor = new DcServoMotor("ExtensionArmEncoder", "extensionArmServoMotor", 0.5, 0.5, .01, hardwareMap, telemetry);
+        extensionRetractionMotor.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
     //*********************************************************************************************

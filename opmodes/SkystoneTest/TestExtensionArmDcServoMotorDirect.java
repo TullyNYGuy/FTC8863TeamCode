@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.ExtensionRetractionMechani
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Test extension arm", group = "Test")
+@TeleOp(name = "Test extension arm dc servo motor direct", group = "Test")
 //@Disabled
 public class TestExtensionArmDcServoMotorDirect extends LinearOpMode {
 
