@@ -195,6 +195,7 @@ public class DcServoMotor extends DcMotor8863 {
 
     private boolean isEncoderAtTarget(int desiredEncoderCount) {
         if (Math.abs(desiredEncoderCount - getCurrentPosition()) <= 40) {
+            // stop the servo
             setPower(0);
             return true;
         } else {

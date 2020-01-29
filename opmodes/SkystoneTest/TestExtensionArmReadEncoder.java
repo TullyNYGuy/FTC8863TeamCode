@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometryModule;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.ExtensionArm;
 
 @TeleOp(name = "Extension Arm Encoder Test Read", group = "Test")
-public class ReadExtensionArmEncoder extends LinearOpMode {
+public class TestExtensionArmReadEncoder extends LinearOpMode {
     //Odometry Wheels
 
 

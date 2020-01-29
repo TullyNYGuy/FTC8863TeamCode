@@ -13,14 +13,17 @@ import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.ExtensionArm;
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Test Lift Left & Right", group = "Test")
+@TeleOp(name = "Test extension arm full extend retract", group = "Test")
 //@Disabled
 public class TestExtensionArmFullExtensionRetraction extends LinearOpMode {
 
     // Put your variable declarations here
     public ExtensionArm extensionArm;
 
-    public ExtensionRetractionMechanism.ExtensionRetractionStates extensionRetractionStateLeft;
+    public ExtensionRetractionMechanism.ExtensionRetractionStates extensionRetractionState;
+
+    public double spoolDiameter = 2.75;
+    private double movementPerRevolution = spoolDiameter * Math.PI * 2; // 2 = number of stages
 
     public int encoderValue = 0;
     public int encoderValueMax = 0;
@@ -28,29 +31,26 @@ public class TestExtensionArmFullExtensionRetraction extends LinearOpMode {
 
     public DataLogging logFile;
     public CSVDataFile timeEncoderValueFile;
-    public double spoolDiameter = 2.75;
+
     public ElapsedTime timer;
     public double startTime = 0;
     public double endOutTime = 0;
 
     public String buffer = "";
 
-    public double speed = 0.7;
+    public double speed = 0.1;
 
     @Override
     public void runOpMode() {
 
-
         // Put your initializations here
-        extensionArm = new ExtensionArm(hardwareMap, telemetry, "extensionRetractionLeft",
-                "extensionLimitSwitchLeft", "retractionLimitSwitchLeft", "extensionRetractionMotorLeft",
-                DcMotor8863.MotorType.ANDYMARK_40, spoolDiameter * Math.PI);
-        //extensionArm.reverseMotor();
+        extensionArm = new ExtensionArm(hardwareMap, telemetry, "Extension Arm", "extensionLimitSwitchArm",
+                "retractionLimitSwitchArm", "extensionArmEncoder", DcMotor8863.MotorType.ANDYMARK_40, movementPerRevolution);
 
         timer = new ElapsedTime();
 
-        logFile = new DataLogging("ExtensionRetractionTestBoth", telemetry);
-        timeEncoderValueFile = new CSVDataFile("LiftTimeEncoderValues", telemetry);
+        logFile = new DataLogging("ExtensionArmFullExtRetractTest", telemetry);
+        timeEncoderValueFile = new CSVDataFile("ExtensionArmTimeEncoderValues", telemetry);
 
         extensionArm.setDataLog(logFile);
         extensionArm.enableDataLogging();
@@ -60,9 +60,6 @@ public class TestExtensionArmFullExtensionRetraction extends LinearOpMode {
         extensionArm.setExtensionPower(+speed);
 
         extensionArm.setExtensionPositionInEncoderCounts(2700.0);
-
-        logFile = new DataLogging("ExtensionRetractionTestBoth", telemetry);
-        ;
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
@@ -78,7 +75,7 @@ public class TestExtensionArmFullExtensionRetraction extends LinearOpMode {
 
         while (opModeIsActive() && !(extensionArm.isExtensionComplete())) {
 
-            extensionRetractionStateLeft = extensionArm.update();
+            extensionRetractionState = extensionArm.update();
 
             encoderValue = extensionArm.getCurrentEncoderValue();
 
@@ -86,8 +83,8 @@ public class TestExtensionArmFullExtensionRetraction extends LinearOpMode {
                 encoderValueMax = encoderValue;
             }
 
-            telemetry.addData("Left state = ", extensionRetractionStateLeft.toString());
-            telemetry.addData("Left encoder = ", encoderValue);
+            telemetry.addData("state = ", extensionRetractionState.toString());
+            telemetry.addData("encoder = ", encoderValue);
             telemetry.update();
             idle();
         }
@@ -101,7 +98,7 @@ public class TestExtensionArmFullExtensionRetraction extends LinearOpMode {
 
         while (opModeIsActive() && !(extensionArm.isRetractionComplete())) {
 
-            extensionRetractionStateLeft = extensionArm.update();
+            extensionRetractionState = extensionArm.update();
 
             encoderValue = extensionArm.getCurrentEncoderValue();
 
@@ -109,7 +106,7 @@ public class TestExtensionArmFullExtensionRetraction extends LinearOpMode {
                 encoderValueMin = encoderValue;
             }
 
-            telemetry.addData("Left state = ", extensionRetractionStateLeft.toString());
+            telemetry.addData("Left state = ", extensionRetractionState.toString());
             telemetry.addData("Left encoder = ", encoderValue);
             telemetry.update();
             idle();

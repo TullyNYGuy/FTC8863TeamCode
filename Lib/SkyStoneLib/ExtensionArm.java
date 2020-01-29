@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.Lib.SkyStoneLib;
 
 
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -31,8 +33,23 @@ public class ExtensionArm extends ExtensionRetractionMechanism {
     // getter and setter methods
     //*********************************************************************************************
 
-    //protected DcMotor8863 extensionRetractionMotor;
+    private double movementPerRevolution = 2.75 * Math.PI * 2; // 2 = number of stages
 
+    @Override
+    public double getMovementPerRevolution() {
+        return movementPerRevolution;
+    }
+
+    @Override
+    public void setMovementPerRevolution(double movementPerRevolution) {
+        this.movementPerRevolution = movementPerRevolution;
+    }
+
+    private int encoderCountsPerRevolution = 1140;
+
+    public int getEncoderCountsPerRevolution() {
+        return encoderCountsPerRevolution;
+    }
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -55,7 +72,6 @@ public class ExtensionArm extends ExtensionRetractionMechanism {
         super(hardwareMap, telemetry, mechanismName, extensionLimitSwitchName, retractionLimitSwitchName, motorName, motorType, movementPerRevolution);
     }
 
-
     /**
      * This method overrides the parent method for creating the motor since the extension arm
      * does not use a real motor. It uses a continuous rotation servo with encoder feedback instead.
@@ -69,6 +85,29 @@ public class ExtensionArm extends ExtensionRetractionMechanism {
         // the encoder is plugged into the drive train FrontLeft motor port
         extensionRetractionMotor = new DcServoMotor("ExtensionArmEncoder", "extensionArmServoMotor", 0.5, 0.5, .01, hardwareMap, telemetry);
         extensionRetractionMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+    }
+
+    private void rotateSpool(double degrees, double power) {
+        extensionRetractionMotor.setTargetPosition((int) (degrees / 360 * getEncoderCountsPerRevolution()));
+        extensionRetractionMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        extensionRetractionMotor.rotateToEncoderCount(power, extensionRetractionMotor.getTargetEncoderCount(), DcMotor8863.FinishBehavior.HOLD);
+    }
+
+    public void calibrate(double degrees, double power, LinearOpMode opMode) {
+        rotateSpool(degrees, power);
+        while (opMode.opModeIsActive() && !extensionRetractionMotor.isMotorStateComplete()) {
+            opMode.telemetry.addData("encoder count = ", extensionRetractionMotor.getCurrentPosition());
+            opMode.telemetry.update();
+            opMode.idle();
+        }
+        double numberOfRevolutions = extensionRetractionMotor.getCurrentPosition() / (double) getEncoderCountsPerRevolution();
+        opMode.telemetry.addData("actual number of revolutions = ", numberOfRevolutions);
+        opMode.telemetry.addData("Measure the distance moved. Calculate distance / revolution", "!");
+        opMode.telemetry.update();
+        while (opMode.opModeIsActive()) {
+            // wait for user to get values and then kill the opmode
+            opMode.idle();
+        }
     }
 
     //*********************************************************************************************
