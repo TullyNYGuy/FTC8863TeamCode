@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Lib.SkyStoneLib;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -81,8 +82,8 @@ public class SkystoneRobot {
         // setDirection() is a software control that controls which direction the motor moves when
         // you give it a positive power. We may have to change this once we see which direction the
         // motor actually moves.
-        frontLeft.setDirection(DcMotor.Direction.REVERSE);
-        backLeft.setDirection(DcMotor.Direction.REVERSE);
+        frontLeft.setDirection(DcMotor.Direction.FORWARD);
+        backLeft.setDirection(DcMotor.Direction.FORWARD);
         frontRight.setDirection(DcMotor.Direction.FORWARD);
         backRight.setDirection(DcMotor.Direction.FORWARD);
 
@@ -144,15 +145,15 @@ public class SkystoneRobot {
         return true;
     }
 
-    void getCurrentPosition(Position position) {
+    public void getCurrentPosition(Position position) {
         odometry.getCurrentPosition(position);
     }
 
-    double getCurrentRotation(AngleUnit unit) {
+    public double getCurrentRotation(AngleUnit unit) {
         return odometry.getCurrentRotation(unit);
     }
 
-    void setMovement(MecanumCommands commands) {
+    public void setMovement(MecanumCommands commands) {
         mecanum.setMotorPower(commands);
     }
 }

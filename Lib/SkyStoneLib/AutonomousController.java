@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Lib.SkyStoneLib;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
@@ -64,6 +65,7 @@ public class AutonomousController {
     private Map<Areas, Position> places;
 
     private SkystoneRobot robot;
+    private Telemetry telemetry;
 
     private ScheduledExecutorService scheduler;
     private MovemenetThread movementThread;
@@ -80,9 +82,9 @@ public class AutonomousController {
         private MecanumCommands zeroMovement;
 
         public MovemenetThread(DistanceUnit distanceUnit) {
-            xControl = new PIDControl(0.2, 20.0, 1);
-            yControl = new PIDControl(0.2, 20.0, 1);
-            rotationControl = new PIDControl(0.2, 20.0, 1);
+            xControl = new PIDControl(0.2, 20.0, .3);
+            yControl = new PIDControl(0.2, 20.0, .3);
+            rotationControl = new PIDControl(0.2, 20.0, .3);
             commands = new MecanumCommands();
             zeroMovement = new MecanumCommands();
             this.distanceUnit = distanceUnit;
@@ -114,6 +116,9 @@ public class AutonomousController {
                 valY = yControl.getCorrection(current.y);
                 valRot = rotationControl.getCorrection(currentRotation);
             }
+            telemetry.addData("current X: ", current.x);
+            telemetry.addData("current Y: ", current.y);
+            telemetry.update();
             commands.setSpeed(Math.sqrt(valX * valX + valY * valY));
             commands.setAngleOfTranslation(AngleUnit.RADIANS, Math.atan2(valY, valX));
             commands.setSpeedOfRotation(valRot);
@@ -121,9 +126,10 @@ public class AutonomousController {
         }
     }
 
-    public AutonomousController(SkystoneRobot robot) {
+    public AutonomousController(SkystoneRobot robot, Telemetry telemetry) {
         places = new HashMap<Areas, Position>();
         this.robot = robot;
+        this.telemetry = telemetry;
         movementThread = new MovemenetThread(distanceUnit);
         scheduler = Executors.newScheduledThreadPool(2);
         movementTask = null;
@@ -193,29 +199,33 @@ public class AutonomousController {
     }
 
     private void findBlock() {
+        //use vison
     }
 
+
     private void intakeBlock() {
+        //use intake system
 
     }
 
     private void dropBlock() {
-
+//just let go of the block with the arm
     }
 
     public void park() {
         goTo(Areas.BRIDGE);
     }
 
-    public void parkWithArm() {
+    public void parkWithArm(double rotationToBridge) {
         goTo(Areas.NEARBRIDGE);
-        //rotate to face bridge
+        movementThread.setDestinationRotation(AngleUnit.DEGREES, rotationToBridge);
         extendArm();
 
 
     }
 
     private void extendArm() {
+        //use the arm class
     }
 
     public void moveBase(double rotation) {
@@ -224,13 +234,14 @@ public class AutonomousController {
         movementThread.setDestinationRotation(AngleUnit.DEGREES, rotation);
         goTo(Areas.BUILDSITE);
         letGoBase();
-
     }
 
     private void letGoBase() {
+        //use the new servo we'll be putting on
     }
 
     private void grabBase() {
+        //use then new servo
     }
 
 
@@ -248,12 +259,15 @@ public class AutonomousController {
     }
 
     private void alignBlock() {
+        //use vision and/or arm
     }
 
     private void armDown() {
+        //use arm
     }
 
     private void armUp() {
+        //use arm
     }
 
 }

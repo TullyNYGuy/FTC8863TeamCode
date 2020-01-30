@@ -27,7 +27,7 @@ public class Read3OdometryModules extends LinearOpMode {
 
         odometryModuleRight = new OdometryModule(1440, 3.8 * Math.PI, DistanceUnit.CM, "BackRight", hardwareMap);
         odometryModuleBack = new OdometryModule(1440, 3.8 * Math.PI, DistanceUnit.CM, "FrontRight", hardwareMap);
-        odometryModuleLeft = new OdometryModule(1440, 3.8 * Math.PI, DistanceUnit.CM, "FrontLeft", hardwareMap);
+        odometryModuleLeft = new OdometryModule(1440, 3.8 * Math.PI, DistanceUnit.CM, "BackLeft", hardwareMap);
 
         //Odometry System Calibration Init Complete
         telemetry.addData("Odometry System Calibration Status", "Init Complete");

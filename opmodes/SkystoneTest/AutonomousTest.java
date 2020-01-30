@@ -46,12 +46,18 @@ public class AutonomousTest extends LinearOpMode {
             stop();
             return;
         }
-        AutonomousController controller = new AutonomousController(robot);
+        AutonomousController controller = new AutonomousController(robot, telemetry);
 
 
         waitForStart();
         controller.startController();
         controller.moveTo(DistanceUnit.CM, 100, 0);
+
+        // MecanumCommands commands = new MecanumCommands();
+        // commands.setSpeed(.3);
+        // commands.setAngleOfTranslation(AngleUnit.RADIANS, 0);
+        // commands.setSpeedOfRotation(0);
+        //robot.setMovement(commands);
 
 
         ElapsedTime timer = new ElapsedTime();

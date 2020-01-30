@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.opmodes.GenericTest;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -18,8 +17,6 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.Mecanum;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometryModule;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometrySystem;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.Switch;
-
 
 import java.io.IOException;
 
@@ -28,9 +25,9 @@ import static org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863.MotorType.AN
 /*
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@Autonomous(name = "Mecanum with Odometry", group = "ATest")
+@Autonomous(name = "Re-Calibrate Odometry", group = "ATest")
 //@Disabled
-public class TestMecanumWithOdometry extends LinearOpMode {
+public class CalibrateOdometry extends LinearOpMode {
 
     // Put your variable declarations here
     private Configuration config = new Configuration();
@@ -43,6 +40,17 @@ public class TestMecanumWithOdometry extends LinearOpMode {
             config.clear();
             config.load();
             configLoaded = true;
+        } catch (IOException e) {
+
+        }
+        return configLoaded;
+    }
+
+    private boolean deleteConfiguration() {
+        configLoaded = false;
+        try {
+            config.clear();
+            config.delete();
         } catch (IOException e) {
 
         }
@@ -89,7 +97,8 @@ public class TestMecanumWithOdometry extends LinearOpMode {
 
         // Put your initializations here
 
-        loadConfiguration();
+        deleteConfiguration();
+        //loadConfiguration();
 
         MecanumCommands mecanumCommands = new MecanumCommands();
         boolean intakeState = false;
@@ -213,38 +222,36 @@ public class TestMecanumWithOdometry extends LinearOpMode {
         mecanumCommands.setSpeed(0);
         mecanum.setMotorPower(mecanumCommands);
         sleep(1000);
-            // Put your calls that need to run in a loop here
+        // Put your calls that need to run in a loop here
 
 
-            // Display the current value
-            //telemetry.addData("Motor Speed = ", "%5.2f", powerToRunAt);
-            //telemetry.addData("Encoder Count=", "%5d", motor.getCurrentPosition());
-            // mecanum commands could come from joysticks or from autonomous calculations. That is why HaloControls is not part of Mecanum class
-            //*****************************************************************
-            // Is this any better than mecanum.getFrontLeft() etc?
-            //*****************************************************************
+        // Display the current value
+        //telemetry.addData("Motor Speed = ", "%5.2f", powerToRunAt);
+        //telemetry.addData("Encoder Count=", "%5d", motor.getCurrentPosition());
+        // mecanum commands could come from joysticks or from autonomous calculations. That is why HaloControls is not part of Mecanum class
+        //*****************************************************************
+        // Is this any better than mecanum.getFrontLeft() etc?
+        //*****************************************************************
 
 
+        // This would also work. Is there a performance advantage to it?
+        //frontLeft.setPower(wheelVelocities.getFrontLeft());
 
-
-            // This would also work. Is there a performance advantage to it?
-            //frontLeft.setPower(wheelVelocities.getFrontLeft());
-
-            //telemetry.addData("Mecanum:", mecanumCommands.toString());
-            // telemetry.addData("front left = ", mecanum.getFrontLeft());
-            // telemetry.addData("front right = ", mecanum.getFrontRight());
-            // telemetry.addData("back left = ", mecanum.getBackLeft());
-            // telemetry.addData("back right = ", mecanum.getBackRight());
-            odometry.calculateMoveDistance();
-            odometry.getCurrentPosition(position);
-            double rotation = odometry.getCurrentRotation(AngleUnit.DEGREES);
-            telemetry.addData("Mode: ", haloControls.getMode() == HaloControls.Mode.DRIVER_MODE ? "Driver" : "Robot");
-            telemetry.addData("Odometry (l/r/b): ", String.format("%.2f %.2f %.2f", left.getDistanceSinceReset(units), right.getDistanceSinceReset(units), back.getDistanceSinceReset(units)));
-            telemetry.addData("Position: ", String.format("(%.2f %.2f)%s", position.x, position.y, position.unit));
-            telemetry.addData("Rotation: ", rotation);
+        //telemetry.addData("Mecanum:", mecanumCommands.toString());
+        // telemetry.addData("front left = ", mecanum.getFrontLeft());
+        // telemetry.addData("front right = ", mecanum.getFrontRight());
+        // telemetry.addData("back left = ", mecanum.getBackLeft());
+        // telemetry.addData("back right = ", mecanum.getBackRight());
+        odometry.calculateMoveDistance();
+        odometry.getCurrentPosition(position);
+        double rotation = odometry.getCurrentRotation(AngleUnit.DEGREES);
+        telemetry.addData("Mode: ", haloControls.getMode() == HaloControls.Mode.DRIVER_MODE ? "Driver" : "Robot");
+        telemetry.addData("Odometry (l/r/b): ", String.format("%.2f %.2f %.2f", left.getDistanceSinceReset(units), right.getDistanceSinceReset(units), back.getDistanceSinceReset(units)));
+        telemetry.addData("Position: ", String.format("(%.2f %.2f)%s", position.x, position.y, position.unit));
+        telemetry.addData("Rotation: ", rotation);
 //            telemetry.addData("Potition: ", String.format("%.2f %.2f %.2f", odometry.getCurrentX(), odometry.getCurrentY(), odometry.getCurrentRotation()));
-            telemetry.addData(">", "Press Stop to end test.");
-            telemetry.update();
+        telemetry.addData(">", "Press Stop to end test.");
+        telemetry.update();
 
         sleep(300000);
 

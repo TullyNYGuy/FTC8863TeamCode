@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
 import android.os.Environment;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -31,6 +32,16 @@ public class Configuration extends Properties {
     public void store(String configFile) throws IOException {
         String fileName = Environment.getExternalStorageDirectory() + "/" + CONFIG_DIRECTORY + "/" + configFile;
         super.store(new FileOutputStream(fileName), "Robot Configuration");
+    }
+
+    public void delete() throws IOException {
+        delete(CONFIG_FILE);
+    }
+
+    public void delete(String configFile) throws IOException {
+        String fileName = Environment.getExternalStorageDirectory() + "/" + CONFIG_DIRECTORY + "/" + configFile;
+        File file = new File(fileName);
+        file.delete();
     }
 
     public Pair<String, Boolean> getPropertyString(String key, String defaultValue) {
