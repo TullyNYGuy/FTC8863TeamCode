@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometryModule;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.ExtensionArm;
 
-@TeleOp(name = "Extension Arm Encoder Test Read", group = "Test")
+@TeleOp(name = "Test Extension Arm Read Encoder", group = "Test")
 public class TestExtensionArmReadEncoder extends LinearOpMode {
     //Odometry Wheels
 

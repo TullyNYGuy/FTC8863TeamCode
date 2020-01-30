@@ -24,7 +24,7 @@ public class DcServoMotor extends DcMotor8863 {
      * The last command sent to the servo. If the new command = last command then we don't actually
      * send out the new command.
      */
-    private double lastThrottleCommand = 0;
+    private double lastServoCommand = 0;
     /**
      * The value that causes no movement of the servo when the direction of the servo is set to
      * forwards.
@@ -94,26 +94,26 @@ public class DcServoMotor extends DcMotor8863 {
 
     }
 
-    private void setServoSpeed(double throttle) {
+    private void setServoSpeed(double speed) {
         double servoCommand;
         // if the servo command is within the deadband range for the servo, then send out the
         // center value (value that produces no movement) instead. The deadband is a range around 0.
-        if (-deadBandRange < throttle && throttle < deadBandRange) {
+        if (-deadBandRange < speed && speed < deadBandRange) {
             // only send out a command to the servo if the value has changed from the last value sent
             // this saves some bandwidth on the bus.
-            if (centerValue != lastThrottleCommand) {
+            if (centerValue != lastServoCommand) {
                 servoMotor.setPosition(centerValue);
-                lastThrottleCommand = centerValue;
+                lastServoCommand = centerValue;
             }
         } else {
             // I have to translate the -1 to +1 input range to a 0 to +1 range that a servo can take.
-            servoCommand = 0.5 * throttle + 0.5;
+            servoCommand = 0.5 * speed + 0.5;
             servoCommand = Range.clip(servoCommand, 0, 1);
             // only send out a command to the servo if the value has changed from the last value sent
             // this saves some bandwidth on the bus.
-            if (throttle != lastThrottleCommand) {
+            if (servoCommand != lastServoCommand) {
                 servoMotor.setPosition(servoCommand);
-                lastThrottleCommand = throttle;
+                lastServoCommand = servoCommand;
             }
         }
     }

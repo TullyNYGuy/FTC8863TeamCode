@@ -35,6 +35,6 @@ public class CalibrateExtensionArm extends LinearOpMode {
 
         waitForStart();
 
-        extensionArm.calibrate(720, .5, this);
+        extensionArm.calibrate(360, .5, this);
     }
 }

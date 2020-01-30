@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
  *
  *
  */
-@TeleOp(name = "Test extension arm", group = "Test")
+@TeleOp(name = "Test Extension arm", group = "Test")
 //@Disabled
 public class TestExtensionArm extends LinearOpMode {
 

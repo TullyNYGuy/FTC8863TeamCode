@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.Lift;
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Test EXTENSION ARM GO TO POSITION", group = "Test")
+@TeleOp(name = "Test Extension arm got to position", group = "Test")
 //@Disabled
 public class TestExtensionArmGoToPosition extends LinearOpMode {
 

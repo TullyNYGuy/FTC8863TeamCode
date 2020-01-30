@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.ExtensionArm;
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Test extension arm full extend retract", group = "Test")
+@TeleOp(name = "Test Extension arm full extend retract", group = "Test")
 //@Disabled
 public class TestExtensionArmFullExtensionRetraction extends LinearOpMode {
 
