@@ -38,7 +38,7 @@ public class TestExtensionArmFullExtensionRetraction extends LinearOpMode {
 
     public String buffer = "";
 
-    public double speed = 0.1;
+    public double speed = 1;
 
     @Override
     public void runOpMode() {

@@ -1272,7 +1272,7 @@ public class ExtensionRetractionMechanism {
     /**
      * Cause the mechanism to stop moving.
      */
-    private void stopMechanism() {
+    protected void stopMechanism() {
         if (finishBehavior == DcMotor8863.FinishBehavior.FLOAT) {
             log("Stopping mechanism, motor set to float");
             extensionRetractionMotor.setPower(0);

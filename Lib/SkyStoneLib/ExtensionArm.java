@@ -115,6 +115,9 @@ public class ExtensionArm extends ExtensionRetractionMechanism {
     //
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
+    protected void stopMechanism() {
+        extensionRetractionMotor.setPower(0.0);
+    }
 
 
     //*********************************************************************************************
@@ -122,4 +125,5 @@ public class ExtensionArm extends ExtensionRetractionMechanism {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
+
 }
