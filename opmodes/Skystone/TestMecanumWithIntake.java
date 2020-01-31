@@ -54,8 +54,8 @@ public class TestMecanumWithIntake extends LinearOpMode {
         DcMotor8863 backLeft = new DcMotor8863("BackLeft", hardwareMap);
         DcMotor8863 frontRight = new DcMotor8863("FrontRight", hardwareMap);
         DcMotor8863 backRight = new DcMotor8863("BackRight", hardwareMap);
-        DcMotor8863 rightIntake = new DcMotor8863("Right", hardwareMap);
-        DcMotor8863 leftIntake = new DcMotor8863("Left", hardwareMap);
+        DcMotor8863 rightIntake = new DcMotor8863("intakeMotorRight", hardwareMap);
+        DcMotor8863 leftIntake = new DcMotor8863("intakeMotorLeft", hardwareMap);
         IntakeWheels intakeWheels = new IntakeWheels(rightIntake, leftIntake);
         // these motors are orbital (planetary gear) motors. The type of motor sets up the number
         // of encoder ticks per revolution. Since we are not using encoder feedback yet, this is
@@ -140,8 +140,12 @@ public class TestMecanumWithIntake extends LinearOpMode {
         HaloControlsWithIntake haloControls = new HaloControlsWithIntake(gamepad1, imu, telemetry);
         ElapsedTime outtakeTimer = new ElapsedTime();
 
+/*
         Switch intakeLimitSwitchLeft = new Switch(hardwareMap, "IntakeSwitchLeft", Switch.SwitchType.NORMALLY_OPEN);
         Switch intakeLimitSwitchRight = new Switch(hardwareMap, "IntakeSwitchRight", Switch.SwitchType.NORMALLY_OPEN);
+*/
+        Switch intakeLimitSwitchLeft = null;
+        Switch intakeLimitSwitchRight = null;
 
         boolean inOuttake = false;
         final double OUTTAKE_TIME = 2.0;

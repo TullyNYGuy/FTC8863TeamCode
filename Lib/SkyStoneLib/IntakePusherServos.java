@@ -5,15 +5,21 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
 
-enum State {
-    IN, OUT, MOVINGIN, MOVINGOUT
-}
 
 public class IntakePusherServos {
-    final private double TOLERANCE = 0.05;
+    enum State {
+        OUT, MOVINGIN, MOVINGOUT
+    }
+
+    final private double POSITION_TOLERANCE = 0.05;
+    final public double DEFAULT_LEFT_POSITION_IN = 0.34;
+    final public double DEFAULT_LEFT_POSITION_OUT = 0.05;
+    final public double DEFAULT_RIGHT_POSITION_IN = 0.60;
+    final public double DEFAULT_RIGHT_POSITION_OUT = 0.95;
+
     private Servo left;
-    private boolean pendingPush;
     private Servo right;
+    private boolean pendingPush;
     private Telemetry telemetry;
     private double inRight;
     private double outRight;
@@ -21,6 +27,15 @@ public class IntakePusherServos {
     private double outLeft;
     private State servoState;
 
+    /*
+     * @param right Right servo
+     * @param left Left servo
+     * @param telemetry Telemetry object
+     * @param inLeft Left servo position IN. IntakePusherServos.DEFAULT_LEFT_POSITION_IN can be used here
+     * @param inRight Right servo position IN. IntakePusherServos.DEFAULT_RIGHT_POSITION_IN can be used here
+     * @param outLeft Left servo position OUT. IntakePusherServos.DEFAULT_LEFT_POSITION_OUT can be used here
+     * @param outRight Right servo position OUT. IntakePusherServos.DEFAULT_RIGHT_POSITION_IN can be used here
+     */
     public IntakePusherServos(Servo right, Servo left, Telemetry telemetry, double inLeft, double inRight, double outLeft, double outRight) {
         this.left = left;
         this.right = right;
@@ -56,14 +71,14 @@ public class IntakePusherServos {
                 }
                 break;
             case MOVINGIN:
-                if (Math.abs(left.getPosition() - inLeft) < TOLERANCE && Math.abs(right.getPosition() - inRight) < TOLERANCE) {
+                if (Math.abs(left.getPosition() - inLeft) < POSITION_TOLERANCE && Math.abs(right.getPosition() - inRight) < POSITION_TOLERANCE) {
                     setState(State.MOVINGOUT);
                     right.setPosition(outRight);
                     left.setPosition(outLeft);
                 }
                 break;
             case MOVINGOUT:
-                if (Math.abs(left.getPosition() - outLeft) < TOLERANCE && Math.abs(right.getPosition() - outRight) < TOLERANCE) {
+                if (Math.abs(left.getPosition() - outLeft) < POSITION_TOLERANCE && Math.abs(right.getPosition() - outRight) < POSITION_TOLERANCE) {
                     setState(State.OUT);
                 }
                 break;
