@@ -38,7 +38,7 @@ public class IntakePusherServosGB {
     private ElapsedTime timer;
 
     final public double DEFAULT_LEFT_POSITION_IN = 0.34;
-    final public double DEFAULT_LEFT_POSITION_OUT = 0.05;
+    final public double DEFAULT_LEFT_POSITION_OUT = 0.00;
     final public double DEFAULT_RIGHT_POSITION_IN = 0.60;
     final public double DEFAULT_RIGHT_POSITION_OUT = 0.95;
 

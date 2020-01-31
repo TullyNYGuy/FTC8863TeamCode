@@ -23,13 +23,11 @@ public class IntakeWheels {
         left.setMovementPerRev(360);
 
         right.setDirection(DcMotorSimple.Direction.FORWARD);
-        left.setDirection(DcMotorSimple.Direction.FORWARD);
+        left.setDirection(DcMotorSimple.Direction.REVERSE);
         right.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         left.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        left.runAtConstantPower(motorSpeed);
-        right.runAtConstantPower(motorSpeed);
-        intake();
-
+        left.runAtConstantPower(0);
+        right.runAtConstantPower(0);
     }
 
     public void intake() {
