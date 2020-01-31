@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Lib.SkyStoneLib;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
@@ -16,6 +17,14 @@ public class IntakePusherServosGB {
     //
     //*********************************************************************************************
 
+    private enum ServoState {
+        IDLE,
+        INITTING,
+        MOVING,
+        COMPLETE
+    }
+
+    private ServoState servoState = ServoState.IDLE;
 
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS
@@ -25,6 +34,8 @@ public class IntakePusherServosGB {
     //*********************************************************************************************
     private Servo8863 leftServo;
     private Servo8863 rightServo;
+
+    private ElapsedTime timer;
 
     final public double DEFAULT_LEFT_POSITION_IN = 0.34;
     final public double DEFAULT_LEFT_POSITION_OUT = 0.05;
@@ -61,7 +72,8 @@ public class IntakePusherServosGB {
     public IntakePusherServosGB(String leftServoName, String rightServoName, HardwareMap hardwareMap, Telemetry telemetry) {
         leftServo = new Servo8863(leftServoName, hardwareMap, telemetry, homePositionLeft, upPositionLeft, downPositionLeft, initPositionLeft, Servo.Direction.FORWARD);
         rightServo = new Servo8863(rightServoName, hardwareMap, telemetry, homePositionRight, upPositionRight, downPositionRight, initPositionRight, Servo.Direction.FORWARD);
-        initState = false;
+        timer = new ElapsedTime();
+        servoState = ServoState.IDLE;
     }
 
     //*********************************************************************************************
@@ -79,25 +91,51 @@ public class IntakePusherServosGB {
     public void pushStoneIn() {
         leftServo.goUp();
         rightServo.goUp();
+        timer.reset();
     }
 
     public void home() {
         leftServo.goHome();
         rightServo.goHome();
+        timer.reset();
     }
 
     public void init() {
         leftServo.goInitPosition();
         rightServo.goInitPosition();
-        initState = true;
+        timer.reset();
+        servoState = ServoState.INITTING;
     }
 
     public boolean isInitComplete() {
-        return initState;
+        if (servoState == ServoState.COMPLETE) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public void shutdown() {
         home();
     }
 
+    // ***************************************
+    // STATE MACHINE
+    // ***************************************
+
+    public void update() {
+        switch (servoState) {
+            case IDLE:
+                break;
+            case INITTING:
+                if (timer.milliseconds() > 1000) {
+                    servoState = ServoState.COMPLETE;
+                }
+                break;
+            case MOVING:
+                break;
+            case COMPLETE:
+                break;
+        }
+    }
 }

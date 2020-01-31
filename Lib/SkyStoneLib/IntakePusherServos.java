@@ -58,6 +58,11 @@ public class IntakePusherServos {
 
     }
 
+    // UNFORTUNATELY, there is no real position feedback for a servo. The method getPosition() is
+    // misleading. All it does is to return the last position command you sent to the servo. It does
+    // NOT get the actual position of the servo. So a state machine is not really useful for
+    // controlling position.
+
     public void update() {
         telemetry.addData("servo states: ", servoState);
         switch (servoState) {
