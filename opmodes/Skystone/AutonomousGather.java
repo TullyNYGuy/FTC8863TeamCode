@@ -5,12 +5,12 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Mecanum;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Switch;
-import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.HaloControlsWithIntake;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.IntakeWheels;
 
 import static org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863.MotorType.ANDYMARK_20_ORBITAL;
@@ -125,8 +125,7 @@ public class AutonomousGather extends LinearOpMode {
         backRight.runAtConstantPower(0);
 
         AdafruitIMU8863 imu = new AdafruitIMU8863(hardwareMap);
-        Mecanum mecanum = new Mecanum(frontLeft, frontRight, backLeft, backRight);
-        HaloControlsWithIntake haloControls = new HaloControlsWithIntake(gamepad1, imu, telemetry);
+        Mecanum mecanum = new Mecanum(frontLeft, frontRight, backLeft, backRight, telemetry);
         ElapsedTime outtakeTimer = new ElapsedTime();
 
         Switch intakeLimitSwitchLeft = new Switch(hardwareMap, "IntakeSwitchLeft", Switch.SwitchType.NORMALLY_OPEN);
@@ -144,7 +143,7 @@ public class AutonomousGather extends LinearOpMode {
 
         waitForStart();
         mecanumCommands.setSpeed(1);
-        mecanumCommands.setAngleOfTranslation(0);
+        mecanumCommands.setAngleOfTranslation(AngleUnit.RADIANS, 0);
         outtakeTimer.reset();
         while (opModeIsActive() && outtakeTimer.milliseconds() < 80) {
             mecanum.setMotorPower(mecanumCommands);
@@ -153,7 +152,7 @@ public class AutonomousGather extends LinearOpMode {
             idle();
         }
         mecanumCommands.setSpeed(1);
-        mecanumCommands.setAngleOfTranslation(-Math.PI / 2);
+        mecanumCommands.setAngleOfTranslation(AngleUnit.RADIANS, -Math.PI / 2);
         outtakeTimer.reset();
         while (opModeIsActive() && outtakeTimer.milliseconds() < 1150) {
             mecanum.setMotorPower(mecanumCommands);
@@ -162,7 +161,7 @@ public class AutonomousGather extends LinearOpMode {
             idle();
         }
         mecanumCommands.setSpeed(1);
-        mecanumCommands.setAngleOfTranslation(Math.PI);
+        mecanumCommands.setAngleOfTranslation(AngleUnit.RADIANS, Math.PI);
         outtakeTimer.reset();
         while (opModeIsActive() && outtakeTimer.milliseconds() < 80) {
             mecanum.setMotorPower(mecanumCommands);

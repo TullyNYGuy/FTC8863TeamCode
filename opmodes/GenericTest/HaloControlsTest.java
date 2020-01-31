@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.opmodes.GenericTest;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.HaloControls;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.JoyStick;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
@@ -50,7 +51,7 @@ public class HaloControlsTest extends LinearOpMode {
             //telemetry.addData("Encoder Count=", "%5d", motor.getCurrentPosition());
             telemetry.addData(">", "Press Stop to end test.");
             controls.calculateMecanumCommands(data);
-            telemetry.addData("translation angle in degrees: ", data.getAngleOfTranslationDegrees());
+            telemetry.addData("translation angle in degrees: ", data.getAngleOfTranslation(AngleUnit.DEGREES));
             telemetry.addData("translation angle for the gyro: ", data.getAngleOfTranslationGyro());
             telemetry.addData("speed: ", data.getSpeed());
             telemetry.addData("speed of rotation: ", data.getSpeedOfRotation());

@@ -92,6 +92,8 @@ public class AdafruitIMU8863 {
     // getter and setter methods
     //*********************************************************************************************
 
+    private final String DEFAULT_DEVICE_NAME = "IMU";
+
     /**
      * The IMU
      */
@@ -220,23 +222,28 @@ public class AdafruitIMU8863 {
     // NOTE: There needs to be a way to set the IMUName differently for each IMU. That is not
     // implemented right now.  So right now there can only be one IMU on the robot.
 
+    public AdafruitIMU8863(HardwareMap hardwareMap, String calibrationFile, String loggingTag, String deviceName) {
+        this.loggingTag = loggingTag;
+        init(hardwareMap, deviceName, calibrationFile);
+    }
+
     public AdafruitIMU8863(HardwareMap hardwareMap, String calibrationFile, String loggingTag) {
         this.loggingTag = loggingTag;
-        init(hardwareMap, calibrationFile);
+        init(hardwareMap, DEFAULT_DEVICE_NAME, calibrationFile);
     }
 
     public AdafruitIMU8863(HardwareMap hardwareMap, String calibrationFile) {
         this.loggingTag = "IMU";
-        init(hardwareMap, calibrationFile);
+        init(hardwareMap, DEFAULT_DEVICE_NAME, calibrationFile);
     }
 
     public AdafruitIMU8863(HardwareMap hardwareMap) {
         this.loggingTag = "IMU";
         // No calibration file is used
-        init(hardwareMap, null);
+        init(hardwareMap, DEFAULT_DEVICE_NAME, null);
     }
 
-    private void init(HardwareMap hardwareMap, String calibrationFile) {
+    private void init(HardwareMap hardwareMap, String deviceName, String calibrationFile) {
         this.calibrationFile = calibrationFile;
         parameters = setupParameters();
         // Retrieve and initialize the IMU. We expect the IMU to be attached to an I2C port
@@ -244,7 +251,7 @@ public class AdafruitIMU8863 {
         // and named "IMU". Or with the new REV Expansion Hub, the IMU is on I2C Bus 0 (port 0),
         // configured to be of type "REV Expansion Hub IMU" and named "IMU".
 
-        imu = hardwareMap.get(BNO055IMU.class, "IMU");
+        imu = hardwareMap.get(BNO055IMU.class, deviceName);
         imu.initialize(parameters);
         // The resetAngleReferences() does not seem to be getting correct data. I'm guessing that
         // the IMU has not finished initializing yet. Delay the execution of resetAngleReferences()

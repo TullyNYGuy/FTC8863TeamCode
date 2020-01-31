@@ -4,6 +4,8 @@ package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+
 public class HaloControls {
 
     //*********************************************************************************************
@@ -72,7 +74,7 @@ public class HaloControls {
     public void calculateMecanumCommands(MecanumCommands commands) {
         if (commands == null)
             return;
-        heading = imu.getHeading() * Math.PI / 180.0;
+        heading = Math.toRadians(imu.getHeading());
         /*
          * b button on the gamepad toggles between driver point of view mode (angles are based
          * on coordinate system relative to field) and robot point of view mode (angles are based
@@ -107,7 +109,7 @@ public class HaloControls {
         if (translationSpeed > 1) {
             translationSpeed = 1;
         }
-        commands.setAngleOfTranslation(angleOfTranslation);
+        commands.setAngleOfTranslation(AngleUnit.RADIANS, angleOfTranslation);
         commands.setSpeed(translationSpeed);
         commands.setSpeedOfRotation(rValue);
         heading = Math.toRadians(imu.getHeading());

@@ -1,51 +1,55 @@
-package org.firstinspires.ftc.teamcode.opmodes.Skystone;
+package org.firstinspires.ftc.teamcode.Lib.SkyStoneLib;
 
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Mecanum;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.Switch;
-import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.IntakeWheels;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometryModule;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometrySystem;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.PIDControl;
 
 import static org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863.MotorType.ANDYMARK_20_ORBITAL;
 
-/**
- * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
- */
-@Autonomous(name = "left - forward", group = "Run")
-//@Disabled
-public class AutonomousBuildForward extends LinearOpMode {
+public class SkystoneRobot {
 
-    // Put your variable declarations here
+    final public String PROP_IMU_NAME = "imu.deviceName";
 
-    @Override
-    public void runOpMode() {
+    HardwareMap hardwareMap;
+    Telemetry telemetry;
+    DistanceUnit units;
+    Configuration config;
 
+    private AdafruitIMU8863 imu;
+    private IntakeWheels intake;
+    private Mecanum mecanum;
+    private OdometrySystem odometry;
 
-        // Put your initializations here
-        MecanumCommands mecanumCommands = new MecanumCommands();
-        boolean intakeState = false;
+    /* TODO: Needs initialization */
+    private DualLift lift;
+    private ExtensionArm extensionArm;
+    private GripperRotator gripper;
 
-        /*
-        gamepad1LeftJoyStickX = new JoyStick(gamepad1, JoyStick.JoystickSide.LEFT, JoyStick.JoystickAxis.X);
-        gamepad1LeftJoyStickY = new JoyStick(gamepad1, JoyStick.JoystickSide.LEFT, JoyStick.JoystickAxis.Y);
+    public SkystoneRobot(HardwareMap hardwareMap, Telemetry telemetry, Configuration config, DistanceUnit units) {
+        this.hardwareMap = hardwareMap;
+        this.telemetry = telemetry;
+        this.units = units;
+        this.config = config;
+    }
 
-        gamepad1RightJoyStickX = new JoyStick(gamepad1, JoyStick.JoystickSide.RIGHT, JoyStick.JoystickAxis.X);
-        gamepad1RightJoyStickY = new JoyStick(gamepad1, JoyStick.JoystickSide.RIGHT, JoyStick.JoystickAxis.Y);
-  */
+    boolean initialize() {
         DcMotor8863 frontLeft = new DcMotor8863("FrontLeft", hardwareMap);
         DcMotor8863 backLeft = new DcMotor8863("BackLeft", hardwareMap);
         DcMotor8863 frontRight = new DcMotor8863("FrontRight", hardwareMap);
         DcMotor8863 backRight = new DcMotor8863("BackRight", hardwareMap);
-        DcMotor8863 rightIntake = new DcMotor8863("Right", hardwareMap);
-        DcMotor8863 leftIntake = new DcMotor8863("Left", hardwareMap);
-        IntakeWheels intakeWheels = new IntakeWheels(rightIntake, leftIntake);
+
         // these motors are orbital (planetary gear) motors. The type of motor sets up the number
         // of encoder ticks per revolution. Since we are not using encoder feedback yet, this is
         // really not important now. But it will be once we hook up the encoders and set a motor
@@ -55,8 +59,6 @@ public class AutonomousBuildForward extends LinearOpMode {
         frontRight.setMotorType(ANDYMARK_20_ORBITAL);
         backRight.setMotorType(ANDYMARK_20_ORBITAL);
 
-        rightIntake.setMotorType(ANDYMARK_20_ORBITAL);
-        leftIntake.setMotorType(ANDYMARK_20_ORBITAL);
 
         // This value will get set to some distance traveled per revolution later.
         frontLeft.setMovementPerRev(360);
@@ -79,10 +81,10 @@ public class AutonomousBuildForward extends LinearOpMode {
         // setDirection() is a software control that controls which direction the motor moves when
         // you give it a positive power. We may have to change this once we see which direction the
         // motor actually moves.
-        frontLeft.setDirection(DcMotor.Direction.FORWARD);
-        backLeft.setDirection(DcMotor.Direction.FORWARD);
-        frontRight.setDirection(DcMotor.Direction.REVERSE);
-        backRight.setDirection(DcMotor.Direction.REVERSE);
+        frontLeft.setDirection(DcMotor.Direction.REVERSE);
+        backLeft.setDirection(DcMotor.Direction.REVERSE);
+        frontRight.setDirection(DcMotor.Direction.FORWARD);
+        backRight.setDirection(DcMotor.Direction.FORWARD);
 
         // set the running mode for the motor. The motor initializes at STOP_AND_RESET_ENCODER which
         // resets the encoder count to zero. After this you have to choose a mode that will allow
@@ -124,49 +126,33 @@ public class AutonomousBuildForward extends LinearOpMode {
         frontRight.runAtConstantPower(0);
         backRight.runAtConstantPower(0);
 
-        AdafruitIMU8863 imu = new AdafruitIMU8863(hardwareMap);
-        Mecanum mecanum = new Mecanum(frontLeft, frontRight, backLeft, backRight, telemetry);
-        ElapsedTime outtakeTimer = new ElapsedTime();
-
-        Switch intakeLimitSwitchLeft = new Switch(hardwareMap, "IntakeSwitchLeft", Switch.SwitchType.NORMALLY_OPEN);
-        Switch intakeLimitSwitchRight = new Switch(hardwareMap, "IntakeSwitchRight", Switch.SwitchType.NORMALLY_OPEN);
-
-        boolean inOuttake = false;
-        final double OUTTAKE_TIME = 2.0;
-
-
-        // Note from Glenn:
-        // None of the following are needed using the class AdafruitIMU8863. They are handled in the
-        // initialization of the imu as part of the constructor.
-
-        //**************************************************************
-
-        waitForStart();
-        mecanumCommands.setSpeed(1);
-        mecanumCommands.setAngleOfTranslation(AngleUnit.RADIANS, 0);
-        outtakeTimer.reset();
-        while (opModeIsActive() && outtakeTimer.milliseconds() < 480) {
-            mecanum.setMotorPower(mecanumCommands);
-            telemetry.addData("Mecanum:", mecanumCommands.toString());
-            telemetry.update();
-            idle();
+        imu = new AdafruitIMU8863(hardwareMap, null, "IMU", config.getProperty(PROP_IMU_NAME, "IMU"));
+        mecanum = new Mecanum(frontLeft, frontRight, backLeft, backRight, telemetry);
+        OdometryModule left = new OdometryModule(1440, 3.8, units, "BackLeft", hardwareMap);
+        OdometryModule right = new OdometryModule(1440, 3.8, units, "BackRight", hardwareMap);
+        OdometryModule back = new OdometryModule(1440, 3.8, units, "FrontRight", hardwareMap);
+        odometry = new OdometrySystem(units, left, right, back);
+        if (!odometry.loadConfiguration(config)) {
+            telemetry.addData("ERROR", "Couldn't initialize Odometry");
+            return false;
         }
-        mecanumCommands.setSpeed(1);
-        mecanumCommands.setAngleOfTranslation(AngleUnit.RADIANS, Math.PI / 2);
-        outtakeTimer.reset();
-        while (opModeIsActive() && outtakeTimer.milliseconds() < 1150) {
-            mecanum.setMotorPower(mecanumCommands);
-            telemetry.addData("Mecanum:", mecanumCommands.toString());
-            telemetry.update();
-            idle();
-        }
-        stop();
-        // Put your calls here - they will not run in a loop
+        DcMotor8863 rightIntake = new DcMotor8863("intakeMotorRight", hardwareMap);
+        DcMotor8863 leftIntake = new DcMotor8863("intakeMotorLeft", hardwareMap);
+        rightIntake.setMotorType(ANDYMARK_20_ORBITAL);
+        leftIntake.setMotorType(ANDYMARK_20_ORBITAL);
+        intake = new IntakeWheels(rightIntake, leftIntake);
+        return true;
+    }
 
-        mecanum.stopMotor();
-        // Put your cleanup code here - it runs as the application shuts down
-        telemetry.addData(">", "Done");
-        telemetry.update();
+    void getCurrentPosition(Position position) {
+        odometry.getCurrentPosition(position);
+    }
 
+    double getCurrentRotation(AngleUnit unit) {
+        return odometry.getCurrentRotation(unit);
+    }
+
+    void setMovement(MecanumCommands commands) {
+        mecanum.setMotorPower(commands);
     }
 }
