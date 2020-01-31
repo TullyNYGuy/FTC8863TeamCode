@@ -139,9 +139,12 @@ public class TestMecanumWithIntake extends LinearOpMode {
         Mecanum mecanum = new Mecanum(frontLeft, frontRight, backLeft, backRight, telemetry);
         HaloControlsWithIntake haloControls = new HaloControlsWithIntake(gamepad1, imu, telemetry);
         ElapsedTime outtakeTimer = new ElapsedTime();
-
+/*
         Switch intakeLimitSwitchLeft = new Switch(hardwareMap, "IntakeSwitchLeft", Switch.SwitchType.NORMALLY_OPEN);
         Switch intakeLimitSwitchRight = new Switch(hardwareMap, "IntakeSwitchRight", Switch.SwitchType.NORMALLY_OPEN);
+*/
+        Switch intakeLimitSwitchLeft = null;
+        Switch intakeLimitSwitchRight = null;
 
         boolean inOuttake = false;
         final double OUTTAKE_TIME = 2.0;
