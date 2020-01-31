@@ -127,7 +127,7 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
         leftIntake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         AdafruitIMU8863 imu = new AdafruitIMU8863(hardwareMap);
-        Mecanum mecanum = new Mecanum(frontLeft, frontRight, backLeft, backRight);
+        Mecanum mecanum = new Mecanum(frontLeft, frontRight, backLeft, backRight, telemetry);
         HaloControls haloControls = new HaloControls(gamepad1, imu);
 
 

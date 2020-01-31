@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Lib.SkystoneLib;
+package org.firstinspires.ftc.teamcode.Lib.SkyStoneLib;
 
 
 import com.qualcomm.robotcore.hardware.HardwareMap;

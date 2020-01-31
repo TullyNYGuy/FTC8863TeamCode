@@ -34,7 +34,7 @@ public class TestMecanumToDriverStation extends LinearOpMode {
         // Put your initializations here
         mecanumCommands = new MecanumCommands();
 
-        mecanum = new Mecanum(null, null, null, null);
+        mecanum = new Mecanum(null, null, null, null, telemetry);
         haloControls = new HaloControls(gamepad1, null);
 
 

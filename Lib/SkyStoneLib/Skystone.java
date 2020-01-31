@@ -1,9 +1,11 @@
-package org.firstinspires.ftc.teamcode.Lib.FTCLib;
+package org.firstinspires.ftc.teamcode.Lib.SkyStoneLib;
 
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 
-public class MecanumCommands {
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
+public class Skystone {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -19,10 +21,16 @@ public class MecanumCommands {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
-    private double speed;
-    private double angleOfTranslation;
-    private double speedOfRotation;
+    private static double HeightCM = 10.1;
+    private static double HeightPlusNubCM = 12.5;
+    private static double LengthtCM = 20;
+    private static double WidthCM = 10;
 
+
+    private static double HeightIN = 4;
+    private static double HeightPlusNubIN = 5;
+    private static double LengthIN = 8;
+    private static double WidthIN = 4;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -31,38 +39,38 @@ public class MecanumCommands {
     // getPositionInTermsOfAttachment
     //*********************************************************************************************
 
-    public double getSpeed() {
-        return speed;
+
+    public static double getHeightCM() {
+        return HeightCM;
     }
 
-    public void setSpeed(double speed) {
-        this.speed = speed;
+    public static double getHeightPlusNubCM() {
+        return HeightPlusNubCM;
     }
 
-    public double getAngleOfTranslation(AngleUnit angleUnit) {
-        return angleUnit.fromRadians(angleOfTranslation);
+    public static double getLengthtCM() {
+        return LengthtCM;
     }
 
-    public double getAngleOfTranslationGyro() {
-        double translationAngleGyro = AngleUnit.DEGREES.fromRadians(angleOfTranslation) - 90.0;
-        if (translationAngleGyro < -180) {
-            translationAngleGyro += 360;
-        }
-        return translationAngleGyro;
+    public static double getWidthCM() {
+        return WidthCM;
     }
 
-    public void setAngleOfTranslation(AngleUnit angleUnit, double angleOfTranslation) {
-        this.angleOfTranslation = angleUnit.toRadians(angleOfTranslation);
+    public static double getHeightIN() {
+        return HeightIN;
     }
 
-    public double getSpeedOfRotation() {
-        return speedOfRotation;
+    public static double getHeightPlusNubIN() {
+        return HeightPlusNubIN;
     }
 
-    public void setSpeedOfRotation(double speedOfRotation) {
-        this.speedOfRotation = speedOfRotation;
+    public static double getLengthIN() {
+        return LengthIN;
     }
 
+    public static double getWidthIN() {
+        return WidthIN;
+    }
 
     //*********************************************************************************************
     //          Constructors
@@ -70,29 +78,16 @@ public class MecanumCommands {
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
+    public Skystone() {
 
-    public MecanumCommands(double speed, double angleOfTranslation, double speedOfRotation) {
-        this.speed = speed;
-        this.angleOfTranslation = angleOfTranslation;
-        this.speedOfRotation = speedOfRotation;
     }
 
-    public MecanumCommands() {
-        this.speed = 0;
-        this.angleOfTranslation = 0;
-        this.speedOfRotation = 0;
-    }
-
-//*********************************************************************************************
+    //*********************************************************************************************
     //          Helper Methods
     //
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
 
-    @Override
-    public String toString() {
-        return String.format("SP: %.2f TR: %.2f ROT: %.2f", speed, AngleUnit.DEGREES.fromRadians(angleOfTranslation), speedOfRotation);
-    }
 
     //*********************************************************************************************
     //          MAJOR METHODS

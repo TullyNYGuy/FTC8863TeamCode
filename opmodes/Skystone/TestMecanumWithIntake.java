@@ -55,8 +55,8 @@ public class TestMecanumWithIntake extends LinearOpMode {
         DcMotor8863 backLeft = new DcMotor8863("BackLeft", hardwareMap);
         DcMotor8863 frontRight = new DcMotor8863("FrontRight", hardwareMap);
         DcMotor8863 backRight = new DcMotor8863("BackRight", hardwareMap);
-        DcMotor8863 rightIntake = new DcMotor8863("Right", hardwareMap);
-        DcMotor8863 leftIntake = new DcMotor8863("Left", hardwareMap);
+        DcMotor8863 rightIntake = new DcMotor8863("intakeMotorRight", hardwareMap);
+        DcMotor8863 leftIntake = new DcMotor8863("intakeMotorLeft", hardwareMap);
         IntakeWheels intakeWheels = new IntakeWheels(rightIntake, leftIntake);
         // these motors are orbital (planetary gear) motors. The type of motor sets up the number
         // of encoder ticks per revolution. Since we are not using encoder feedback yet, this is
@@ -137,7 +137,7 @@ public class TestMecanumWithIntake extends LinearOpMode {
         backRight.runAtConstantPower(0);
 
         AdafruitIMU8863 imu = new AdafruitIMU8863(hardwareMap);
-        Mecanum mecanum = new Mecanum(frontLeft, frontRight, backLeft, backRight);
+        Mecanum mecanum = new Mecanum(frontLeft, frontRight, backLeft, backRight, telemetry);
         HaloControlsWithIntake haloControls = new HaloControlsWithIntake(gamepad1, imu, telemetry);
         ElapsedTime outtakeTimer = new ElapsedTime();
 
