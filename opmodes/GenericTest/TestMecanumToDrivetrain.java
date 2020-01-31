@@ -25,7 +25,7 @@ import static org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863.MotorType.AN
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Mecanum with intake", group = "Run")
+@TeleOp(name = "Test Mecanum To Drivetrain", group = "Test")
 //@Disabled
 public class TestMecanumToDrivetrain extends LinearOpMode {
 
