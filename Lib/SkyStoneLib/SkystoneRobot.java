@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Lib.SkyStoneLib;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -15,6 +16,8 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometryModule;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometrySystem;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.PIDControl;
+import org.firstinspires.ftc.teamcode.Lib.SkystoneLib.Claw;
+import org.firstinspires.ftc.teamcode.opmodes.GenericTest.TestMecanumToDrivetrain;
 
 import static org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863.MotorType.ANDYMARK_20_ORBITAL;
 
@@ -28,14 +31,15 @@ public class SkystoneRobot {
     Configuration config;
 
     private AdafruitIMU8863 imu;
-    private IntakeWheels intake;
     private Mecanum mecanum;
     private OdometrySystem odometry;
 
     /* TODO: Needs initialization */
+    private IntakeWheels intake;
     private DualLift lift;
     private ExtensionArm extensionArm;
     private GripperRotator gripper;
+    private Claw claw;
 
     public SkystoneRobot(HardwareMap hardwareMap, Telemetry telemetry, Configuration config, DistanceUnit units) {
         this.hardwareMap = hardwareMap;
@@ -154,5 +158,101 @@ public class SkystoneRobot {
 
     void setMovement(MecanumCommands commands) {
         mecanum.setMotorPower(commands);
+    }
+
+    //********************************************
+    //********************************************
+    //State Machines//
+    //********************************************
+    //********************************************
+
+    //*********************************************
+    //INTAKE//
+    //********************************************
+
+    public enum IntakeStates {
+        IDLE,
+        START,
+        LIFT_MOVING_TO_POSITION,
+        INTAKE_ON,
+        OUTTAKE
+    }
+
+    private IntakeStates intakeState = IntakeStates.IDLE;
+
+    public void intakeBlock() {
+        intakeState = IntakeStates.START;
+    }
+
+    public void intakeBlockUpdate() {
+        switch (intakeState) {
+            case IDLE:
+                break;
+            case START:
+                lift.goToPosition(2, 1);
+                intakeState = IntakeStates.LIFT_MOVING_TO_POSITION;
+                break;
+            case LIFT_MOVING_TO_POSITION:
+                if (lift.isPositionReached()) {
+                    intake.intake();
+                    intakeState = IntakeStates.INTAKE_ON;
+                }
+                break;
+            case INTAKE_ON:
+                //Do nothing
+                break;
+            case OUTTAKE:
+                //Still just hanging out
+                break;
+        }
+    }
+
+    public void intakeOff() {
+        intake.stop();
+        intakeState = IntakeStates.IDLE;
+    }
+
+    public void intakeSpitOut() {
+        intake.outtake();
+        intakeState = IntakeStates.OUTTAKE;
+    }
+    
+    //*********************************************
+    //BLOCK GRABBING//
+    //********************************************
+    private ElapsedTime grabTimer;
+
+    public enum GrabStates{
+        IDLE,
+        START,
+        PUSHER_ARMS_MOVING,
+        GRABBING,
+        COMPLETE
+    }
+
+    private GrabStates grabState = GrabStates.IDLE;
+
+    private double grabTimerLimit;
+
+    public void grabStateUpdate(){
+        switch(grabState){
+            case IDLE:
+                //nothing just chilling
+                break;
+            case START:
+                //servo.move
+                grabTimer.reset();
+                grabState = GrabStates.PUSHER_ARMS_MOVING;
+                break;
+            case PUSHER_ARMS_MOVING:
+                if (grabTimer.milliseconds() > 1000){
+
+                }
+                break;
+            case GRABBING:
+                break;
+            case COMPLETE:
+                break;
+        }
     }
 }
