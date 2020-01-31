@@ -15,7 +15,7 @@ public class IntakeWheels {
 
     public IntakeWheels(String rightIntakeMotorName, String leftIntakeMotorName, HardwareMap hardwareMap) {
         DcMotor8863 rightIntakeMotor = new DcMotor8863(rightIntakeMotorName, hardwareMap);
-        DcMotor8863 leftIntakeMotor = new DcMotor8863("intakeMotorLeft", hardwareMap);
+        DcMotor8863 leftIntakeMotor = new DcMotor8863(leftIntakeMotorName, hardwareMap);
 
         rightIntakeMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
         leftIntakeMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);

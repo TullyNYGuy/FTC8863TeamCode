@@ -10,6 +10,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Mecanum;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
@@ -29,6 +30,13 @@ public class SkystoneRobot {
     Telemetry telemetry;
     DistanceUnit units;
     Configuration config;
+    private DataLogging dataLog;
+
+    private boolean dataLoggingEnabled = true;
+
+    public boolean isDataLoggingEnabled() {
+        return dataLoggingEnabled;
+    }
 
     private AdafruitIMU8863 imu;
     private Mecanum mecanum;
@@ -41,11 +49,12 @@ public class SkystoneRobot {
     private GripperRotator gripper;
     private Claw claw;
 
-    public SkystoneRobot(HardwareMap hardwareMap, Telemetry telemetry, Configuration config, DistanceUnit units) {
+    public SkystoneRobot(HardwareMap hardwareMap, Telemetry telemetry, Configuration config, DataLogging dataLog, DistanceUnit units) {
         this.hardwareMap = hardwareMap;
         this.telemetry = telemetry;
         this.units = units;
         this.config = config;
+        this.dataLog = dataLog;
     }
 
     boolean createRobot() {
@@ -155,6 +164,8 @@ public class SkystoneRobot {
      * Every system has an init. Call it.
      */
     public void init() {
+        dataLog.logData("Init starting");
+        // put the init() method for each subsytem here
         intake.init();
     }
 
@@ -167,8 +178,14 @@ public class SkystoneRobot {
     public boolean isInitComplete() {
         boolean result = true;
 
+        // put the isInitComplete for each subsystem here. In other words repeat this block of code
+        // for each subsystem
         if (!intake.isInitComplete()) {
             result = false;
+        }
+
+        if (dataLoggingEnabled && result == true) {
+            dataLog.logData("Init complete");
         }
 
         return result;
@@ -185,6 +202,21 @@ public class SkystoneRobot {
 
     public void shutdown() {
         intake.shutdown();
+    }
+
+    /**
+     * For each subsystem that supports logging turn it on.
+     */
+    public void enableDataLogging() {
+        dataLoggingEnabled = true;
+    }
+
+    /**
+     * For each subsystem that supports logging, turn it off
+     */
+    public void disableDataLogging() {
+        dataLoggingEnabled = false;
+
     }
 
     void getCurrentPosition(Position position) {
@@ -255,13 +287,13 @@ public class SkystoneRobot {
         intake.outtake();
         intakeState = IntakeStates.OUTTAKE;
     }
-    
+
     //*********************************************
     //BLOCK GRABBING//
     //********************************************
     private ElapsedTime grabTimer;
 
-    public enum GrabStates{
+    public enum GrabStates {
         IDLE,
         START,
         PUSHER_ARMS_MOVING,
@@ -273,8 +305,8 @@ public class SkystoneRobot {
 
     private double grabTimerLimit;
 
-    public void grabStateUpdate(){
-        switch(grabState){
+    public void grabStateUpdate() {
+        switch (grabState) {
             case IDLE:
                 //nothing just chilling
                 break;
@@ -284,7 +316,7 @@ public class SkystoneRobot {
                 grabState = GrabStates.PUSHER_ARMS_MOVING;
                 break;
             case PUSHER_ARMS_MOVING:
-                if (grabTimer.milliseconds() > 1000){
+                if (grabTimer.milliseconds() > 1000) {
 
                 }
                 break;

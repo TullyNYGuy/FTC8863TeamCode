@@ -7,6 +7,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
+import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.Skystone;
 
 public class DualLift {
 
@@ -146,7 +147,6 @@ public class DualLift {
             blockNumber = maxBlockNumber;
         }
         goToPosition(Skystone.getHeightPlusNubIN() * blockNumber + heightAboveTower, .5);
-
     }
 
     public void goToBottom() {
