@@ -48,7 +48,7 @@ public class SkystoneRobot {
         this.config = config;
     }
 
-    boolean initialize() {
+    boolean createRobot() {
         DcMotor8863 frontLeft = new DcMotor8863("FrontLeft", hardwareMap);
         DcMotor8863 backLeft = new DcMotor8863("BackLeft", hardwareMap);
         DcMotor8863 frontRight = new DcMotor8863("FrontRight", hardwareMap);
@@ -140,12 +140,51 @@ public class SkystoneRobot {
             telemetry.addData("ERROR", "Couldn't initialize Odometry");
             return false;
         }
-        DcMotor8863 rightIntake = new DcMotor8863("intakeMotorRight", hardwareMap);
-        DcMotor8863 leftIntake = new DcMotor8863("intakeMotorLeft", hardwareMap);
-        rightIntake.setMotorType(ANDYMARK_20_ORBITAL);
-        leftIntake.setMotorType(ANDYMARK_20_ORBITAL);
-        intake = new IntakeWheels(rightIntake, leftIntake);
+
+        // My preference is to encapsulate as much as possible so that creation code can be reused.
+
+//        DcMotor8863 rightIntake = new DcMotor8863("intakeMotorRight", hardwareMap);
+//        DcMotor8863 leftIntake = new DcMotor8863("intakeMotorLeft", hardwareMap);
+//        rightIntake.setMotorType(ANDYMARK_20_ORBITAL);
+//        leftIntake.setMotorType(ANDYMARK_20_ORBITAL);
+        intake = new IntakeWheels("intakeMotorRight", "intakeMotorLeft", hardwareMap);
         return true;
+    }
+
+    /**
+     * Every system has an init. Call it.
+     */
+    public void init() {
+        intake.init();
+    }
+
+    /**
+     * Every system must tell us when its init is complete. When all of the inits are complete, the
+     * robot init is complete.
+     *
+     * @return
+     */
+    public boolean isInitComplete() {
+        boolean result = true;
+
+        if (!intake.isInitComplete()) {
+            result = false;
+        }
+
+        return result;
+    }
+
+    /**
+     * Every system has an update() method that can be used to run a state machine for that system.
+     * Note that some systems don't have a state machine but the update() method will be there
+     * anyway just in case that changes in the future.
+     */
+    public void update() {
+        intake.update();
+    }
+
+    public void shutdown() {
+        intake.shutdown();
     }
 
     void getCurrentPosition(Position position) {
@@ -162,7 +201,7 @@ public class SkystoneRobot {
 
     //********************************************
     //********************************************
-    //State Machines//
+    //State Machines for robot commands
     //********************************************
     //********************************************
 
