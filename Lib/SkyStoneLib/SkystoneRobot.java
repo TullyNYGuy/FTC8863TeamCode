@@ -16,9 +16,6 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.Mecanum;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometryModule;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometrySystem;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.PIDControl;
-import org.firstinspires.ftc.teamcode.Lib.SkystoneLib.Claw;
-import org.firstinspires.ftc.teamcode.opmodes.GenericTest.TestMecanumToDrivetrain;
 
 import static org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863.MotorType.ANDYMARK_20_ORBITAL;
 
@@ -46,8 +43,8 @@ public class SkystoneRobot {
     private IntakeWheels intake;
     private DualLift lift;
     private ExtensionArm extensionArm;
-    private GripperRotator gripper;
-    private Claw claw;
+    private GripperRotator gripperRotator;
+    private org.firstinspires.ftc.teamcode.Lib.SkystoneLib.Gripper gripper;
 
     public SkystoneRobot(HardwareMap hardwareMap, Telemetry telemetry, Configuration config, DataLogging dataLog, DistanceUnit units) {
         this.hardwareMap = hardwareMap;

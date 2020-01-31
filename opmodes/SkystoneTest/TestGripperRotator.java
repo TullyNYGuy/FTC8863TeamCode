@@ -8,7 +8,7 @@ import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.GripperRotator;
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Claw Rotator Test", group = "Test")
+@TeleOp(name = "Gripper Rotator Test", group = "Test")
 //@Disabled
 public class TestGripperRotator extends LinearOpMode {
 
