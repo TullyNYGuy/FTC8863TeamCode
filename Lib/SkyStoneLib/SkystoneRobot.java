@@ -148,6 +148,8 @@ public class SkystoneRobot {
         }
 
         // My preference is to encapsulate as much as possible so that creation code can be reused.
+        // So move this stuff into the IntakeWheels. It should know how to create itself. I should
+        // not have to know that at the robot level.
 
 //        DcMotor8863 rightIntake = new DcMotor8863("intakeMotorRight", hardwareMap);
 //        DcMotor8863 leftIntake = new DcMotor8863("intakeMotorLeft", hardwareMap);
