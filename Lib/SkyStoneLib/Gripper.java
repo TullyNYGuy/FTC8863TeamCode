@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
 
-public class Claw {
+public class Gripper {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -23,10 +23,10 @@ public class Claw {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
-    private Servo8863 servoRotator;
+    private Servo8863 gripperServo;
     private double initPos = 0.1;
-    private double open = 0.9;
-    private double close = 0.3;
+    private double releasePosition = 0.9;
+    private double gripPosition = 0.3;
     private double homePos = 0.5;
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -42,8 +42,8 @@ public class Claw {
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
-    public Claw(String servoName, HardwareMap hardwareMap, Telemetry telemetry) {
-        servoRotator = new Servo8863(servoName, hardwareMap, telemetry, homePos, open, close, initPos, Servo.Direction.FORWARD);
+    public Gripper(String servoName, HardwareMap hardwareMap, Telemetry telemetry) {
+        gripperServo = new Servo8863(servoName, hardwareMap, telemetry, homePos, releasePosition, gripPosition, initPos, Servo.Direction.FORWARD);
 
     }
 
@@ -59,22 +59,28 @@ public class Claw {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
-    public void openClaw() {
-        servoRotator.goUp();
-
+    public void release() {
+        gripperServo.goUp();
     }
 
-    public void closeClaw() {
-        servoRotator.goDown();
-
+    public void grip() {
+        gripperServo.goDown();
     }
 
     public void init() {
-        closeClaw();
+        release();
+    }
+
+    public boolean isInitComplete() {
+        return true;
+    }
+
+    public void update() {
+
     }
 
     public void shutdown() {
-        closeClaw();
+        release();
     }
 
 }

@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmodes.Skystone;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -30,7 +31,7 @@ import static org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863.MotorType.AN
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
 @TeleOp(name = "Mecanum with intake", group = "Run")
-//@Disabled
+@Disabled
 public class TestMecanumWithIntake extends LinearOpMode {
 
     // Put your variable declarations here
@@ -54,9 +55,8 @@ public class TestMecanumWithIntake extends LinearOpMode {
         DcMotor8863 backLeft = new DcMotor8863("BackLeft", hardwareMap);
         DcMotor8863 frontRight = new DcMotor8863("FrontRight", hardwareMap);
         DcMotor8863 backRight = new DcMotor8863("BackRight", hardwareMap);
-        DcMotor8863 rightIntake = new DcMotor8863("Right", hardwareMap);
-        DcMotor8863 leftIntake = new DcMotor8863("Left", hardwareMap);
-        IntakeWheels intakeWheels = new IntakeWheels(rightIntake, leftIntake);
+
+        IntakeWheels intakeWheels = new IntakeWheels("intakeMotorRight", "intakeMotorLeft", hardwareMap);
         // these motors are orbital (planetary gear) motors. The type of motor sets up the number
         // of encoder ticks per revolution. Since we are not using encoder feedback yet, this is
         // really not important now. But it will be once we hook up the encoders and set a motor
@@ -65,9 +65,6 @@ public class TestMecanumWithIntake extends LinearOpMode {
         backLeft.setMotorType(ANDYMARK_20_ORBITAL);
         frontRight.setMotorType(ANDYMARK_20_ORBITAL);
         backRight.setMotorType(ANDYMARK_20_ORBITAL);
-
-        rightIntake.setMotorType(ANDYMARK_20_ORBITAL);
-        leftIntake.setMotorType(ANDYMARK_20_ORBITAL);
 
         // This value will get set to some distance traveled per revolution later.
         frontLeft.setMovementPerRev(360);
@@ -139,13 +136,17 @@ public class TestMecanumWithIntake extends LinearOpMode {
         Mecanum mecanum = new Mecanum(frontLeft, frontRight, backLeft, backRight, telemetry);
         HaloControlsWithIntake haloControls = new HaloControlsWithIntake(gamepad1, imu, telemetry);
         ElapsedTime outtakeTimer = new ElapsedTime();
-
+/*
         Switch intakeLimitSwitchLeft = new Switch(hardwareMap, "IntakeSwitchLeft", Switch.SwitchType.NORMALLY_OPEN);
         Switch intakeLimitSwitchRight = new Switch(hardwareMap, "IntakeSwitchRight", Switch.SwitchType.NORMALLY_OPEN);
+*/
+        Switch intakeLimitSwitchLeft = null;
+        Switch intakeLimitSwitchRight = null;
 
         boolean inOuttake = false;
         final double OUTTAKE_TIME = 2.0;
 
+        intakeWheels.init();
 
         // Note from Glenn:
         // None of the following are needed using the class AdafruitIMU8863. They are handled in the
@@ -154,7 +155,6 @@ public class TestMecanumWithIntake extends LinearOpMode {
         //**************************************************************
 
         waitForStart();
-        intakeWheels.init();
         // Put your calls here - they will not run in a loop
         while (opModeIsActive()) {
             // Put your calls that need to run in a loop here

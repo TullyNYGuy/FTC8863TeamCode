@@ -2,12 +2,10 @@ package org.firstinspires.ftc.teamcode.Lib.SkyStoneLib;
 
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
 
-public class GripperRotator {
+public class Skystone {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -23,11 +21,17 @@ public class GripperRotator {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
-    private Servo8863 servoRotator;
-    private double initPos = 0.87;
-    private double upPos = 0.00;
-    private double downPos = 0.87;
-    private double homePos = 0.00;
+    private static double HeightCM = 10.1;
+    private static double HeightPlusNubCM = 12.5;
+    private static double LengthtCM = 20;
+    private static double WidthCM = 10;
+
+
+    private static double HeightIN = 4;
+    private static double HeightPlusNubIN = 5;
+    private static double LengthIN = 8;
+    private static double WidthIN = 4;
+
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -36,14 +40,45 @@ public class GripperRotator {
     //*********************************************************************************************
 
 
+    public static double getHeightCM() {
+        return HeightCM;
+    }
+
+    public static double getHeightPlusNubCM() {
+        return HeightPlusNubCM;
+    }
+
+    public static double getLengthtCM() {
+        return LengthtCM;
+    }
+
+    public static double getWidthCM() {
+        return WidthCM;
+    }
+
+    public static double getHeightIN() {
+        return HeightIN;
+    }
+
+    public static double getHeightPlusNubIN() {
+        return HeightPlusNubIN;
+    }
+
+    public static double getLengthIN() {
+        return LengthIN;
+    }
+
+    public static double getWidthIN() {
+        return WidthIN;
+    }
+
     //*********************************************************************************************
     //          Constructors
     //
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
-    public GripperRotator(String servoName, HardwareMap hardwareMap, Telemetry telemetry) {
-        servoRotator = new Servo8863(servoName, hardwareMap, telemetry, homePos, upPos, downPos, initPos, Servo.Direction.FORWARD);
+    public Skystone() {
 
     }
 
@@ -59,22 +94,4 @@ public class GripperRotator {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
-    public void rotateFront() {
-        servoRotator.goUp();
-
-    }
-
-    public void rotateBack() {
-        servoRotator.goDown();
-
-    }
-
-    public void init() {
-        rotateBack();
-    }
-
-    public void shutdown() {
-        rotateBack();
-    }
-
 }

@@ -46,9 +46,8 @@ public class AutonomousBuild extends LinearOpMode {
         DcMotor8863 backLeft = new DcMotor8863("BackLeft", hardwareMap);
         DcMotor8863 frontRight = new DcMotor8863("FrontRight", hardwareMap);
         DcMotor8863 backRight = new DcMotor8863("BackRight", hardwareMap);
-        DcMotor8863 rightIntake = new DcMotor8863("Right", hardwareMap);
-        DcMotor8863 leftIntake = new DcMotor8863("Left", hardwareMap);
-        IntakeWheels intakeWheels = new IntakeWheels(rightIntake, leftIntake);
+
+        IntakeWheels intakeWheels = new IntakeWheels("intakeMotorRight", "intakeMotorLeft", hardwareMap);
         // these motors are orbital (planetary gear) motors. The type of motor sets up the number
         // of encoder ticks per revolution. Since we are not using encoder feedback yet, this is
         // really not important now. But it will be once we hook up the encoders and set a motor
@@ -57,9 +56,6 @@ public class AutonomousBuild extends LinearOpMode {
         backLeft.setMotorType(ANDYMARK_20_ORBITAL);
         frontRight.setMotorType(ANDYMARK_20_ORBITAL);
         backRight.setMotorType(ANDYMARK_20_ORBITAL);
-
-        rightIntake.setMotorType(ANDYMARK_20_ORBITAL);
-        leftIntake.setMotorType(ANDYMARK_20_ORBITAL);
 
         // This value will get set to some distance traveled per revolution later.
         frontLeft.setMovementPerRev(360);
@@ -132,8 +128,8 @@ public class AutonomousBuild extends LinearOpMode {
 
         ElapsedTime outtakeTimer = new ElapsedTime();
 
-        Switch intakeLimitSwitchLeft = new Switch(hardwareMap, "IntakeSwitchLeft", Switch.SwitchType.NORMALLY_OPEN);
-        Switch intakeLimitSwitchRight = new Switch(hardwareMap, "IntakeSwitchRight", Switch.SwitchType.NORMALLY_OPEN);
+        //Switch intakeLimitSwitchLeft = new Switch(hardwareMap, "IntakeSwitchLeft", Switch.SwitchType.NORMALLY_OPEN);
+        //Switch intakeLimitSwitchRight = new Switch(hardwareMap, "IntakeSwitchRight", Switch.SwitchType.NORMALLY_OPEN);
 
         boolean inOuttake = false;
         final double OUTTAKE_TIME = 2.0;

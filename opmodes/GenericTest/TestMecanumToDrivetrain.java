@@ -21,6 +21,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
 
 import static org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863.MotorType.ANDYMARK_20;
 import static org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863.MotorType.ANDYMARK_20_ORBITAL;
+import static org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863.MotorType.ANDYMARK_40;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
@@ -30,6 +31,13 @@ import static org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863.MotorType.AN
 public class TestMecanumToDrivetrain extends LinearOpMode {
 
     // Put your variable declarations here
+    public enum IntakeState {
+        IN,
+        OUT,
+        STOP
+    }
+
+    public IntakeState intakeState;
 
     @Override
     public void runOpMode() {
@@ -50,7 +58,9 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
         DcMotor8863 backLeft = new DcMotor8863("BackLeft", hardwareMap);
         DcMotor8863 frontRight = new DcMotor8863("FrontRight", hardwareMap);
         DcMotor8863 backRight = new DcMotor8863("BackRight", hardwareMap);
-        DcMotor8863 rightIntake = new DcMotor8863("Right", hardwareMap);
+
+        DcMotor8863 rightIntake = new DcMotor8863("intakeMotorRight", hardwareMap);
+        DcMotor8863 leftIntake = new DcMotor8863("intakeMotorLeft", hardwareMap);
 
         // these motors are orbital (planetary gear) motors. The type of motor sets up the number
         // of encoder ticks per revolution. Since we are not using encoder feedback yet, this is
@@ -60,13 +70,18 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
         backLeft.setMotorType(ANDYMARK_20_ORBITAL);
         frontRight.setMotorType(ANDYMARK_20_ORBITAL);
         backRight.setMotorType(ANDYMARK_20_ORBITAL);
-        rightIntake.setMotorType(ANDYMARK_20_ORBITAL);
-        // leftIntake.setMotorType(ANDYMARK_20_ORBITAL);
+
+        rightIntake.setMotorType(ANDYMARK_40);
+        leftIntake.setMotorType(ANDYMARK_40);
+
         // This value will get set to some distance traveled per revolution later.
         frontLeft.setMovementPerRev(360);
         backLeft.setMovementPerRev(360);
         frontRight.setMovementPerRev(360);
         backRight.setMovementPerRev(360);
+
+        rightIntake.setMovementPerRev(360);
+        leftIntake.setMovementPerRev(360);
 
         // The encoder tolerance is used when you give the motor a target encoder tick count to rotate to. 5 is
         // probably too tight. 10 is pretty good based on experience. Note that 10 is set as the
@@ -88,30 +103,8 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
         frontRight.setDirection(DcMotor.Direction.FORWARD);
         backRight.setDirection(DcMotor.Direction.FORWARD);
 
-        // set the running mode for the motor. The motor initializes at STOP_AND_RESET_ENCODER which
-        // resets the encoder count to zero. After this you have to choose a mode that will allow
-        // the motor to run.
-        // In this case, we do not have the encoder connected from the motor. So we only have one
-        // choice. We must run the motor without any feedback (open loop). This call is not really
-        // needed since later I use runAtConstantPower() and that sets the mode too. But since you
-        // are coming up to speed on the motors, I put this here for you to see (like my pun?).
-        frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        frontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        // The other 2 options would be:
-        // RUN_TO_POSITION - run until the targeted encoder count is reached using PID
-        // RUN_WITH_ENCODER - run at a velocity controlled by a PID
-        // For more details, see this page and start reading at Running the motor and continue down
-        // https://ftc-tricks.com/dc-motors/
-
-        // Make sure the motor does not start moving. This is not really needed because
-        // runAtConstantPower(0) below does the same thing. But I put it here so you can see this
-        // call exists.
-        frontLeft.setPower(0);
-        backLeft.setPower(0);
-        frontRight.setPower(0);
-        backRight.setPower(0);
+        rightIntake.setDirection(DcMotorSimple.Direction.FORWARD);
+        leftIntake.setDirection(DcMotorSimple.Direction.REVERSE);
 
         // The runAtConstantPower() and runAtConstantSpeed() methods setup the motor to do that.
         // They are initialzation methods. So they should not be inside the while loop.
@@ -128,6 +121,11 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
         frontRight.runAtConstantPower(0);
         backRight.runAtConstantPower(0);
 
+        rightIntake.runAtConstantPower(0);
+        leftIntake.runAtConstantPower(0);
+        rightIntake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        leftIntake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
         AdafruitIMU8863 imu = new AdafruitIMU8863(hardwareMap);
         Mecanum mecanum = new Mecanum(frontLeft, frontRight, backLeft, backRight, telemetry);
         HaloControls haloControls = new HaloControls(gamepad1, imu);
@@ -141,6 +139,7 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
 
         waitForStart();
         // Put your calls here - they will not run in a loop
+
         while (opModeIsActive()) {
             // Put your calls that need to run in a loop here
 
@@ -156,6 +155,24 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
 
 
             mecanum.setMotorPower(mecanumCommands);
+
+            if (gamepad1.dpad_up) {
+                rightIntake.setPower(1.0);
+                leftIntake.setPower(1.0);
+                telemetry.addData("Intake = ", "IN");
+            }
+
+            if (gamepad1.dpad_left) {
+                rightIntake.setPower(0);
+                leftIntake.setPower(0);
+                telemetry.addData("Intake = ", "STOP");
+            }
+
+            if (gamepad1.dpad_down) {
+                rightIntake.setPower(-1.0);
+                leftIntake.setPower(-1.0);
+                telemetry.addData("Intake = ", "OUT");
+            }
 
             // This would also work. Is there a performance advantage to it?
             //frontLeft.setPower(wheelVelocities.getFrontLeft());

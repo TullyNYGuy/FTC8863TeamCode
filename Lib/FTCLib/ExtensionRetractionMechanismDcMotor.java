@@ -9,7 +9,15 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
-public class ExtensionRetractionMechanism {
+/**
+ * The purpose of this class is to test using the FTC SDK DcMotor class rather than the
+ * FTC8863DcMotor class. When holding position against gravity, the motor pulses up and down. I
+ * needed to see if this was the DcMotor8863 class or the PID within the DcMotor causing this
+ * behavior. Turns out is the PID of the DcMotor class. DCMotor8863 is not responsible for this.
+ * <p>
+ * DO NOT USE THIS CLASS FOR ANYTHING. USE ExtensionRetractionMechanism INSTEAD.
+ */
+public class ExtensionRetractionMechanismDcMotor {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -62,7 +70,7 @@ public class ExtensionRetractionMechanism {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
-    protected DcMotor8863 extensionRetractionMotor;
+    protected DcMotor extensionRetractionMotor;
 
     // null is shown for emphasis. Any object is null until is it created.
     protected Switch retractedLimitSwitch = null;
@@ -265,7 +273,13 @@ public class ExtensionRetractionMechanism {
 
     public void setFinishBehavior(DcMotor8863.FinishBehavior finishBehavior) {
         this.finishBehavior = finishBehavior;
-        extensionRetractionMotor.setFinishBehavior(finishBehavior);
+        if (finishBehavior == DcMotor8863.FinishBehavior.HOLD) {
+            extensionRetractionMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        }
+        if (finishBehavior == DcMotor8863.FinishBehavior.FLOAT) {
+            extensionRetractionMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        }
+
     }
 
     /**
@@ -397,9 +411,9 @@ public class ExtensionRetractionMechanism {
      *                                  Note that the units can be anything. But you must always use
      *                                  the same units when working with the mechanism.
      */
-    public ExtensionRetractionMechanism(HardwareMap hardwareMap, Telemetry telemetry, String mechanismName,
-                                        String extensionLimitSwitchName, String retractionLimitSwitchName,
-                                        String motorName, DcMotor8863.MotorType motorType, double movementPerRevolution) {
+    public ExtensionRetractionMechanismDcMotor(HardwareMap hardwareMap, Telemetry telemetry, String mechanismName,
+                                               String extensionLimitSwitchName, String retractionLimitSwitchName,
+                                               String motorName, DcMotor8863.MotorType motorType, double movementPerRevolution) {
         // set all of the private variables using the parameters passed into the constructor
         createExtensionRetractionMechanismCommonCommands(hardwareMap, telemetry, mechanismName, motorName, motorType, movementPerRevolution);
 
@@ -424,9 +438,9 @@ public class ExtensionRetractionMechanism {
      *                                           Note that the units can be anything. But you must always use
      *                                           the same units when working with the mechanism.
      */
-    public ExtensionRetractionMechanism(HardwareMap hardwareMap, Telemetry telemetry, String mechanismName,
-                                        Double retractionPositionInMechanismUnits, Double extensionPositionInMechamismUnits,
-                                        String motorName, DcMotor8863.MotorType motorType, double movementPerRevolution) {
+    public ExtensionRetractionMechanismDcMotor(HardwareMap hardwareMap, Telemetry telemetry, String mechanismName,
+                                               Double retractionPositionInMechanismUnits, Double extensionPositionInMechamismUnits,
+                                               String motorName, DcMotor8863.MotorType motorType, double movementPerRevolution) {
         // set all of the private variables using the parameters passed into the constructor
         createExtensionRetractionMechanismCommonCommands(hardwareMap, telemetry, mechanismName, motorName, motorType, movementPerRevolution);
 
@@ -446,15 +460,15 @@ public class ExtensionRetractionMechanism {
         this.telemetry = telemetry;
 
         // create the motor
-        extensionRetractionMotor = new DcMotor8863(motorName, hardwareMap, telemetry);
-        extensionRetractionMotor.setMotorType(motorType);
-        extensionRetractionMotor.setMovementPerRev(movementPerRevolution);
+        //extensionRetractionMotor = new DcMotor8863(motorName, hardwareMap, telemetry);
+        extensionRetractionMotor = hardwareMap.get(DcMotor.class, motorName);
+        //extensionRetractionMotor.setMotorType(motorType);
+        //extensionRetractionMotor.setMovementPerRev(movementPerRevolution);
         extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        extensionRetractionMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
+        setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
 
         // set the initial state of the state machine
         extensionRetractionState = ExtensionRetractionStates.START_RESET_SEQUENCE;
-        extensionRetractionCommand = ExtensionRetractionCommands.NO_COMMAND;
 
         // create the time encoder data list in case it is needed
         timeEncoderValues = new PairedList();
@@ -469,7 +483,8 @@ public class ExtensionRetractionMechanism {
     //*********************************************************************************************
 
     private double convertMechanismUnitsToEncoderCounts(double mechanismUnits) {
-        return (mechanismUnits / movementPerRevolution * extensionRetractionMotor.getCountsPerRev());
+        //return (mechanismUnits / movementPerRevolution * extensionRetractionMotor.getCountsPerRev());
+        return mechanismUnits;
     }
 
     /**
@@ -502,21 +517,22 @@ public class ExtensionRetractionMechanism {
 
     /**
      * This method is meant to be called as the robot initializes. It resets the mechanism upon
-     * initialization. The update() method has to be called after this until the isInitComplete()
-     * returns true.
+     * initialization. NOte that this method blocks any other method from running due to the while
+     * loop. If this is a problem, we should look into starting a new thread for it.
      */
     public void init() {
         log(mechanismName + "Extension retraction system initializing");
         liftTimer.reset();
         if (!isDebugMode()) {
-            reset();
+            if (!isResetComplete()) {
+                reset();
+            }
+            while (!isResetComplete()) {
+                update();
+            }
         } else {
             // in debug mode no reset occurs
         }
-    }
-
-    public boolean isInitComplete() {
-        return isResetComplete();
     }
 
     public void reverseMotor() {
@@ -549,7 +565,7 @@ public class ExtensionRetractionMechanism {
     }
 
     public double getPosition() {
-        return extensionRetractionMotor.getPositionInTermsOfAttachment();
+        return extensionRetractionMotor.getCurrentPosition();
     }
 
     public void displayPosition() {
@@ -564,9 +580,12 @@ public class ExtensionRetractionMechanism {
         telemetry.addData(mechanismName + " power (inches) = ", extensionRetractionPower);
     }
 
+    /*
     public void displayMotorState() {
+
         telemetry.addData("Motor state = ", extensionRetractionMotor.getCurrentMotorState().toString());
     }
+    */
     //*********************************************************************************************]
     // mechanism commands - these can come at any time. They are not synced to any state. In
     // engineering terms, they are asynchronous. These commands are publicly accessible.
@@ -1166,13 +1185,11 @@ public class ExtensionRetractionMechanism {
      * finished the mechanism will either actively hold position or will float.
      */
     private void moveToPosition() {
-        // Setting the finish behavior here is to fix a bug. When the mechanism resets, and the
-        // retraction limit switch is not pressed, the state machine runs the full reset sequence
-        // in the state machine. Part of that sets the finish behavior to float. Then when a
-        // goToPosition command is issued by the user, the motor moves to the desired position but
-        // does not hold position because it is still in FLOAT mode. This forces it to HOLD position.
         setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
-        extensionRetractionMotor.moveToPosition(moveToPositionPower, desiredPosition, finishBehavior);
+        extensionRetractionMotor.setTargetPosition((int) desiredPosition);
+        extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        extensionRetractionMotor.setPower(moveToPositionPower);
+        //extensionRetractionMotor.moveToPosition(moveToPositionPower, desiredPosition, finishBehavior);
         // extensionRetractionMotor.rotateToEncoderCount(moveToPositionPower, 1300, finishBehavior);
     }
 
@@ -1182,7 +1199,7 @@ public class ExtensionRetractionMechanism {
      * @return true if complete
      */
     private boolean isMoveToPositionComplete() {
-        return extensionRetractionMotor.isMotorStateComplete();
+        return !extensionRetractionMotor.isBusy();
     }
 
     //**********************************************************************************************
@@ -1337,7 +1354,7 @@ public class ExtensionRetractionMechanism {
     public ExtensionRetractionStates update() {
 
         // update the state machine for the motor
-        DcMotor8863.MotorState motorState = extensionRetractionMotor.update();
+        //DcMotor8863.MotorState motorState = extensionRetractionMotor.update();
         currentEncoderValue = extensionRetractionMotor.getCurrentPosition();
         if (collectData) {
             timeEncoderValues.add(liftTimer.milliseconds(), currentEncoderValue);
