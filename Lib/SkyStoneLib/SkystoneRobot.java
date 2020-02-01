@@ -256,17 +256,14 @@ public class SkystoneRobot implements FTCRobot {
      */
     public boolean isInitComplete() {
         boolean result = true;
-
         // put the isInitComplete for each subsystem here. In other words repeat this block of code
         // for each subsystem
         for (FTCRobotSubsystem subsystem : subsystemMap.values()) {
             result &= subsystem.isInitComplete();
         }
-
         if (dataLoggingEnabled && result == true) {
             dataLog.logData("Init complete");
         }
-
         return result;
     }
 
@@ -556,7 +553,6 @@ public class SkystoneRobot implements FTCRobot {
                 //lift.goToBlockHeights(skyscraperLevel);
                 liftBlockTimer.reset();
                 liftBlockState = LiftBlockStates.BLOCK_LIFTING;
-
                 break;
             case BLOCK_LIFTING:
                 //if (lift.isPositionReached()) {

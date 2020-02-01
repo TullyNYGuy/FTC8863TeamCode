@@ -48,7 +48,7 @@ public class Gripper implements FTCRobotSubsystem {
     // getPositionInTermsOfAttachment
     //*********************************************************************************************
     public void setGripperState(State gripperState) {
-        this.gripperServo = gripperServo;
+        this.gripperState = gripperState;
     }
 
     //*********************************************************************************************
@@ -65,6 +65,7 @@ public class Gripper implements FTCRobotSubsystem {
         timer.reset();
         pendingGrip = false;
         pendingRelease = false;
+        gripperState = State.RELEASED;
     }
 
     //*********************************************************************************************
