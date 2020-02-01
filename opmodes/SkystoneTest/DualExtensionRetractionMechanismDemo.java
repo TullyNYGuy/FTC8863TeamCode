@@ -1,5 +1,6 @@
-package org.firstinspires.ftc.teamcode.opmodes.Skystone;
+package org.firstinspires.ftc.teamcode.opmodes.SkystoneTest;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -13,8 +14,8 @@ import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.Lift;
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-//@TeleOp(name = "AAA Dual Extension Retraction Demo", group = "RUN")
-//@Disabled
+@TeleOp(name = "AAA Dual Extension Retraction Demo", group = "RUN")
+@Disabled
 public class DualExtensionRetractionMechanismDemo extends LinearOpMode {
 
     // Put your variable declarations here
