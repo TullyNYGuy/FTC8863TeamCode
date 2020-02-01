@@ -9,6 +9,9 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
 
 public class IntakeWheels implements FTCRobotSubsystem {
+
+    private final static String SUBSYSTEM_NAME = "IntakeWheels";
+
     private DcMotor8863 rightIntakeMotor;
     private DcMotor8863 leftIntakeMotor;
     final private double motorSpeed = 1.0;
@@ -38,7 +41,7 @@ public class IntakeWheels implements FTCRobotSubsystem {
 
     @Override
     public String getName() {
-        return "IntakeWheels";
+        return SUBSYSTEM_NAME;
     }
 
     @Override
