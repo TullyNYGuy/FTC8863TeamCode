@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Lib.SkyStoneLib;
 
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
@@ -26,7 +27,7 @@ public class IntakePusherServos {
     private double inLeft;
     private double outLeft;
     private State servoState;
-
+    private ElapsedTime timer;
     /*
      * @param right Right servo
      * @param left Left servo
@@ -46,6 +47,7 @@ public class IntakePusherServos {
         this.outRight = outRight;
         servoState = State.OUT;
         pendingPush = false;
+        timer = new ElapsedTime();
     }
 
     private void setState(State servoState) {
@@ -53,9 +55,20 @@ public class IntakePusherServos {
 
     }
 
+    public boolean isInitComplete() {
+        if (servoState == State.OUT) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public void shutdown() {
+        setState(State.OUT);
+    }
+
     public void pushIn() {
         pendingPush = true;
-
     }
 
     // UNFORTUNATELY, there is no real position feedback for a servo. The method getPosition() is
@@ -73,18 +86,21 @@ public class IntakePusherServos {
                     left.setPosition(inLeft);
                     right.setPosition(inRight);
                     setState(State.MOVINGIN);
+                    timer.reset();
                 }
                 break;
             case MOVINGIN:
-                if (Math.abs(left.getPosition() - inLeft) < POSITION_TOLERANCE && Math.abs(right.getPosition() - inRight) < POSITION_TOLERANCE) {
+                if (timer.milliseconds() > 1000) {
                     setState(State.MOVINGOUT);
                     right.setPosition(outRight);
                     left.setPosition(outLeft);
+                    timer.reset();
                 }
                 break;
             case MOVINGOUT:
-                if (Math.abs(left.getPosition() - outLeft) < POSITION_TOLERANCE && Math.abs(right.getPosition() - outRight) < POSITION_TOLERANCE) {
+                if (timer.milliseconds() > 1000) {
                     setState(State.OUT);
+                    timer.reset();
                 }
                 break;
         }
