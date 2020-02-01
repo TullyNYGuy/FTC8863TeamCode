@@ -148,6 +148,8 @@ public class SkystoneRobot {
         }
 
         // My preference is to encapsulate as much as possible so that creation code can be reused.
+        // So move this stuff into the IntakeWheels. It should know how to create itself. I should
+        // not have to know that at the robot level.
 
 //        DcMotor8863 rightIntake = new DcMotor8863("intakeMotorRight", hardwareMap);
 //        DcMotor8863 leftIntake = new DcMotor8863("intakeMotorLeft", hardwareMap);
@@ -286,41 +288,156 @@ public class SkystoneRobot {
     }
 
     //*********************************************
-    //BLOCK GRABBING//
+    //BLOCK GRIPPING//
     //********************************************
-    private ElapsedTime grabTimer;
+    private ElapsedTime gripTimer;
 
-    public enum GrabStates {
+    public enum GripStates {
         IDLE,
         START,
         PUSHER_ARMS_MOVING,
-        GRABBING,
+        GRIPPING,
         COMPLETE
     }
 
-    private GrabStates grabState = GrabStates.IDLE;
+    private GripStates gripState = GripStates.IDLE;
 
-    private double grabTimerLimit;
+    private double gripTimerLimit = 1000;
 
-    public void grabStateUpdate() {
-        switch (grabState) {
+    public void gripBlock() {
+        gripState = GripStates.START;
+    }
+
+    public void gripStateUpdate() {
+        switch (gripState) {
             case IDLE:
                 //nothing just chilling
                 break;
             case START:
                 //servo.move
-                grabTimer.reset();
-                grabState = GrabStates.PUSHER_ARMS_MOVING;
+                gripTimer.reset();
+                gripState = GripStates.PUSHER_ARMS_MOVING;
                 break;
             case PUSHER_ARMS_MOVING:
-                if (grabTimer.milliseconds() > 1000) {
-
+                if (gripTimer.milliseconds() > gripTimerLimit) {
+                    gripper.grip();
+                    gripTimer.reset();
                 }
                 break;
-            case GRABBING:
+            case GRIPPING:
+                if (gripTimer.milliseconds() > 500) {
+                    gripState = GripStates.COMPLETE;
+                }
                 break;
             case COMPLETE:
+                //we chillin'
                 break;
         }
     }
+
+    public boolean isGripComplete() {
+        if (gripState == GripStates.COMPLETE) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+
+    //*********************************************
+    //BLOCK PREPARATION//
+    //********************************************
+    private ElapsedTime prepTimer;
+
+    public enum PrepStates {
+        IDLE,
+        START,
+        ARM_EXTENDING,
+        GRIPPER_ROTATING,
+        LIFT_LOWERING,
+        COMPLETE
+    }
+
+    private PrepStates prepState = PrepStates.IDLE;
+
+    private double prepTimerLimit = 1000;
+
+    public void prepareBlock() {
+        prepState = PrepStates.START;
+    }
+
+
+    public void prepStateUpdate() {
+        switch (prepState) {
+            case IDLE:
+                //nothing just chilling
+                break;
+            case START:
+                prepTimer.reset();
+                prepState = PrepStates.ARM_EXTENDING;
+                extensionArm.goToPosition(21, 1);
+                break;
+            case ARM_EXTENDING:
+                if (prepTimer.milliseconds() > prepTimerLimit) {
+                    gripperRotator.rotateFront();
+                    prepTimer.reset();
+                }
+                break;
+            case GRIPPER_ROTATING:
+                if (prepTimer.milliseconds() > 500) {
+                    prepState = PrepStates.LIFT_LOWERING;
+                    lift.goToBottom();
+                    prepTimer.reset();
+                }
+                break;
+            case LIFT_LOWERING:
+                if (prepTimer.milliseconds() > 500)
+                    break;
+            case COMPLETE:
+                //we chillin'
+                break;
+        }
+    }
+
+    //*********************************************
+    //BLOCK MOVING//
+    //********************************************
+    private ElapsedTime moveBlockTimer;
+
+    public enum MoveBlockStates {
+        IDLE,
+        START,
+        BLOCK_MOVING,
+        COMPLETE
+    }
+
+    private MoveBlockStates moveBlockState = MoveBlockStates.IDLE;
+
+    private double moveBlockTimerLimit;
+
+    public void moveBlock(int skyscraperLevel) {
+        intakeState = IntakeStates.START;
+    }
+
+    public void moveBlockStateUpdate() {
+        switch (moveBlockState) {
+            case IDLE:
+                //nothing just chilling
+                break;
+            case START:
+                moveBlockTimer.reset();
+                moveBlockState = MoveBlockStates.BLOCK_MOVING;
+
+                break;
+            case BLOCK_MOVING:
+                if (moveBlockTimer.milliseconds() > 1000) {
+
+                }
+                break;
+            case COMPLETE:
+                //we chillin'
+                break;
+        }
+    }
+
 }
