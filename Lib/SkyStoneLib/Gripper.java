@@ -135,4 +135,20 @@ public class Gripper {
         }
         telemetry.update();
     }
+
+    public boolean IsGripComplete() {
+        if (gripperState == State.GRIPPED) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean isReleaseComplete() {
+        if (gripperState == State.RELEASED) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }
