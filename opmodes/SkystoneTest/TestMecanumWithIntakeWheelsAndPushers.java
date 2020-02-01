@@ -1,38 +1,28 @@
-package org.firstinspires.ftc.teamcode.opmodes.Skystone;
+package org.firstinspires.ftc.teamcode.opmodes.SkystoneTest;
 
-import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
-import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.HaloControls;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.JoyStick;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Mecanum;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Switch;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.HaloControlsWithIntake;
+import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.IntakePusherServosGB;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.IntakeWheels;
 
-import static org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863.MotorType.ANDYMARK_20;
 import static org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863.MotorType.ANDYMARK_20_ORBITAL;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Mecanum with intake", group = "Run")
-@Disabled
-public class TestMecanumWithIntake extends LinearOpMode {
+@TeleOp(name = "Mecanum with intake wheels and pushers", group = "Run")
+//@Disabled
+public class TestMecanumWithIntakeWheelsAndPushers extends LinearOpMode {
 
     // Put your variable declarations here
 
@@ -56,7 +46,12 @@ public class TestMecanumWithIntake extends LinearOpMode {
         DcMotor8863 frontRight = new DcMotor8863("FrontRight", hardwareMap);
         DcMotor8863 backRight = new DcMotor8863("BackRight", hardwareMap);
 
-        IntakeWheels intakeWheels = new IntakeWheels("intakeMotorRight", "intakeMotorLeft", hardwareMap);
+        DcMotor8863 rightIntake = new DcMotor8863("intakeMotorRight", hardwareMap);
+        DcMotor8863 leftIntake = new DcMotor8863("intakeMotorLeft", hardwareMap);
+        IntakeWheels intakeWheels = new IntakeWheels(rightIntake, leftIntake);
+
+        IntakePusherServosGB intakePusherServos = new IntakePusherServosGB("intakeServoLeft", "intakeServoRight", hardwareMap, telemetry);
+
         // these motors are orbital (planetary gear) motors. The type of motor sets up the number
         // of encoder ticks per revolution. Since we are not using encoder feedback yet, this is
         // really not important now. But it will be once we hook up the encoders and set a motor
@@ -65,6 +60,9 @@ public class TestMecanumWithIntake extends LinearOpMode {
         backLeft.setMotorType(ANDYMARK_20_ORBITAL);
         frontRight.setMotorType(ANDYMARK_20_ORBITAL);
         backRight.setMotorType(ANDYMARK_20_ORBITAL);
+
+        rightIntake.setMotorType(ANDYMARK_20_ORBITAL);
+        leftIntake.setMotorType(ANDYMARK_20_ORBITAL);
 
         // This value will get set to some distance traveled per revolution later.
         frontLeft.setMovementPerRev(360);
@@ -147,13 +145,15 @@ public class TestMecanumWithIntake extends LinearOpMode {
         boolean inOuttake = false;
         final double OUTTAKE_TIME = 2.0;
 
-        intakeWheels.init();
 
         // Note from Glenn:
         // None of the following are needed using the class AdafruitIMU8863. They are handled in the
         // initialization of the imu as part of the constructor.
 
         //**************************************************************
+
+        intakeWheels.init();
+        intakePusherServos.init();
 
         waitForStart();
         // Put your calls here - they will not run in a loop
@@ -173,29 +173,26 @@ public class TestMecanumWithIntake extends LinearOpMode {
 
             mecanum.setMotorPower(mecanumCommands);
 
-            if (haloControls.isIntakeOutPressed()) {
-                intakeWheels.outtake();
-                outtakeTimer.reset();
-                inOuttake = true;
-            } else if (haloControls.isIntakeInPressed())
+            if (gamepad1.dpad_up) {
                 intakeWheels.intake();
-            else if (haloControls.isIntakeStopPressed())
-                intakeWheels.stop();
+            }
 
-            if (inOuttake && outtakeTimer.seconds() >= OUTTAKE_TIME) {
-                inOuttake = false;
-                intakeWheels.intake();
+            if (gamepad1.dpad_down) {
+                intakeWheels.outtake();
             }
-            boolean intakeSwitchLeftPressed = false;
-            boolean intakeSwitchRightPressed = false;
-            if (intakeLimitSwitchLeft != null && intakeLimitSwitchLeft.isPressed()) {
-                intakeSwitchLeftPressed = true;
-            }
-            if (intakeLimitSwitchRight != null && intakeLimitSwitchRight.isPressed()) {
-                intakeSwitchRightPressed = true;
-            }
-            if (intakeSwitchLeftPressed || intakeSwitchRightPressed)
+
+            if (gamepad1.dpad_left || gamepad1.dpad_right) {
                 intakeWheels.stop();
+            }
+
+            if (gamepad1.a) {
+                intakePusherServos.pushStoneIn();
+            }
+
+            if (gamepad1.b) {
+                intakePusherServos.home();
+            }
+
 
             // This would also work. Is there a performance advantage to it?
             //frontLeft.setPower(wheelVelocities.getFrontLeft());
@@ -206,16 +203,7 @@ public class TestMecanumWithIntake extends LinearOpMode {
             // telemetry.addData("back left = ", mecanum.getBackLeft());
             // telemetry.addData("back right = ", mecanum.getBackRight());
             telemetry.addData("Mode: ", haloControls.getMode() == HaloControls.Mode.DRIVER_MODE ? "Driver" : "Robot");
-            if (intakeSwitchLeftPressed) {
-                telemetry.addLine("left limit switch pressed");
-            } else {
-                telemetry.addLine("left limit switch NOT pressed");
-            }
-            if (intakeSwitchRightPressed) {
-                telemetry.addLine("right limit switch pressed");
-            } else {
-                telemetry.addLine("right limit switch NOT pressed");
-            }
+
             telemetry.addData(">", "Press Stop to end test.");
             telemetry.update();
 
