@@ -52,11 +52,19 @@ public class DualLiftGoToHeightDemo extends LinearOpMode {
     public double speed = 0.2;
 
     private DualLift dualLift;
-    private double positionPower = 0.3;
 
     @Override
     public void runOpMode() {
-        dualLift = new DualLift(hardwareMap, telemetry, positionPower);
+        dualLift = new DualLift(hardwareMap,
+                "LiftRight",
+                "LiftMotortRight",
+                "LiftExtensionLimitSwitchRight",
+                "LiftRetractionLimitSwitchRight",
+                "LiftLeft",
+                "LiftMotortLeft",
+                "LiftExtensionLimitSwitchLeft",
+                "LiftRetractionLimitSwitchLeft",
+                telemetry);
 
 
         timerLeft = new ElapsedTime();

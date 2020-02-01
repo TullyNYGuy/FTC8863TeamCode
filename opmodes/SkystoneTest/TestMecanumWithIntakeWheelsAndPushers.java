@@ -66,7 +66,7 @@ public class TestMecanumWithIntakeWheelsAndPushers extends LinearOpMode {
         DcMotor8863 frontRight = new DcMotor8863("FrontRight", hardwareMap);
         DcMotor8863 backRight = new DcMotor8863("BackRight", hardwareMap);
 
-        IntakeWheels intakeWheels = new IntakeWheels("intakeMotorRight", "intakeMotorLeft", hardwareMap);
+        IntakeWheels intakeWheels = new IntakeWheels(hardwareMap, "intakeMotorRight", "intakeMotorLeft");
 
         IntakePusherServosGB intakePusherServos = new IntakePusherServosGB("intakeServoLeft", "intakeServoRight", hardwareMap, telemetry);
 

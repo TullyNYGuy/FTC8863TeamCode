@@ -26,7 +26,34 @@ import static org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863.MotorType.AN
 
 public class SkystoneRobot implements FTCRobot {
 
-    final public String PROP_IMU_NAME = "imu.deviceName";
+    enum HardwareName {
+
+        FRONT_LEFT_MOTOR("FrontLeft"),
+        FRONT_RIGHT_MOTOR("FrontRight"),
+        BACK_LEFT_MOTOR("BackLeft"),
+        BACK_RIGHT_MOTOR("BackRight"),
+        IMU("IMU"),
+        ODOMETRY_MODULE_LEFT("BackLeft"),
+        ODOMETRY_MODULE_RIGHT("BackRight"),
+        ODOMETRY_MODULE_BACK("FrontRight"),
+        LIFT_RIGHT_MOTOR("LiftMotortRight"),
+        LIFT_RIGHT_ENCODER("LiftRight"),
+        LIFT_RIGHT_EXTENSION_SWITCH("LiftExtensionLimitSwitchRight"),
+        LIFT_RIGHT_RETRACTION_SWITCH("LiftRetractionLimitSwitchRight"),
+        LIFT_LEFT_MOTOR("LiftMotortLeft"),
+        LIFT_LEFT_ENCODER("LiftLeft"),
+        LIFT_LEFT_EXTENSION_SWITCH("LiftExtensionLimitSwitchLeft"),
+        LIFT_LEFT_RETRACTION_SWITCH("LiftRetractionLimitSwitchLeft"),
+        INTAKE_RIGHT_MOTOR("intakeMotorRight"),
+        INTAKE_LEFT_MOTOR("intakeMotorLeft"),
+        ;
+
+        public final String hwName;
+
+        HardwareName(String name) {
+            this.hwName = name;
+        }
+    }
 
     HardwareMap hardwareMap;
     Telemetry telemetry;
@@ -44,6 +71,7 @@ public class SkystoneRobot implements FTCRobot {
     private AdafruitIMU8863 imu;
     private Mecanum mecanum;
     private OdometrySystem odometry;
+    private DualLift dualLift;
 
     /* TODO: Needs initialization */
     private IntakeWheels intake;
@@ -62,10 +90,10 @@ public class SkystoneRobot implements FTCRobot {
     }
 
     boolean createRobot() {
-        DcMotor8863 frontLeft = new DcMotor8863("FrontLeft", hardwareMap);
-        DcMotor8863 backLeft = new DcMotor8863("BackLeft", hardwareMap);
-        DcMotor8863 frontRight = new DcMotor8863("FrontRight", hardwareMap);
-        DcMotor8863 backRight = new DcMotor8863("BackRight", hardwareMap);
+        DcMotor8863 frontLeft = new DcMotor8863(HardwareName.FRONT_LEFT_MOTOR.hwName, hardwareMap);
+        DcMotor8863 backLeft = new DcMotor8863(HardwareName.BACK_LEFT_MOTOR.hwName, hardwareMap);
+        DcMotor8863 frontRight = new DcMotor8863(HardwareName.FRONT_RIGHT_MOTOR.hwName, hardwareMap);
+        DcMotor8863 backRight = new DcMotor8863(HardwareName.BACK_RIGHT_MOTOR.hwName, hardwareMap);
 
         // these motors are orbital (planetary gear) motors. The type of motor sets up the number
         // of encoder ticks per revolution. Since we are not using encoder feedback yet, this is
@@ -143,17 +171,13 @@ public class SkystoneRobot implements FTCRobot {
         frontRight.runAtConstantPower(0);
         backRight.runAtConstantPower(0);
 
-        imu = new AdafruitIMU8863(hardwareMap, null, "IMU", config.getProperty(PROP_IMU_NAME, "IMU"));
+        imu = new AdafruitIMU8863(hardwareMap, null, "IMU", HardwareName.IMU.hwName);
         mecanum = new Mecanum(frontLeft, frontRight, backLeft, backRight, telemetry);
-        OdometryModule left = new OdometryModule(1440, 3.8, units, "BackLeft", hardwareMap);
-        OdometryModule right = new OdometryModule(1440, 3.8, units, "BackRight", hardwareMap);
-        OdometryModule back = new OdometryModule(1440, 3.8, units, "FrontRight", hardwareMap);
+        OdometryModule left = new OdometryModule(1440, 3.8, units, HardwareName.ODOMETRY_MODULE_LEFT.hwName, hardwareMap);
+        OdometryModule right = new OdometryModule(1440, 3.8, units, HardwareName.ODOMETRY_MODULE_RIGHT.hwName, hardwareMap);
+        OdometryModule back = new OdometryModule(1440, 3.8, units, HardwareName.ODOMETRY_MODULE_BACK.hwName, hardwareMap);
         odometry = new OdometrySystem(units, left, right, back);
         subsystemMap.put(odometry.getName(), odometry);
-        if (!odometry.loadConfiguration(config)) {
-            telemetry.addData("ERROR", "Couldn't initialize Odometry");
-            return false;
-        }
 
         // My preference is to encapsulate as much as possible so that creation code can be reused.
         // So move this stuff into the IntakeWheels. It should know how to create itself. I should
@@ -163,8 +187,21 @@ public class SkystoneRobot implements FTCRobot {
 //        DcMotor8863 leftIntake = new DcMotor8863("intakeMotorLeft", hardwareMap);
 //        rightIntake.setMotorType(ANDYMARK_20_ORBITAL);
 //        leftIntake.setMotorType(ANDYMARK_20_ORBITAL);
-        intake = new IntakeWheels("intakeMotorRight", "intakeMotorLeft", hardwareMap);
+        intake = new IntakeWheels(hardwareMap, HardwareName.INTAKE_RIGHT_MOTOR.hwName, HardwareName.INTAKE_LEFT_MOTOR.hwName);
         subsystemMap.put(intake.getName(), intake);
+
+        dualLift = new DualLift(hardwareMap,
+                HardwareName.LIFT_RIGHT_ENCODER.hwName,
+                HardwareName.LIFT_RIGHT_MOTOR.hwName,
+                HardwareName.LIFT_RIGHT_EXTENSION_SWITCH.hwName,
+                HardwareName.LIFT_RIGHT_RETRACTION_SWITCH.hwName,
+                HardwareName.LIFT_LEFT_ENCODER.hwName,
+                HardwareName.LIFT_LEFT_MOTOR.hwName,
+                HardwareName.LIFT_LEFT_EXTENSION_SWITCH.hwName,
+                HardwareName.LIFT_LEFT_RETRACTION_SWITCH.hwName,
+                telemetry);
+        subsystemMap.put(dualLift.getName(), dualLift);
+
         return true;
     }
 

@@ -4,12 +4,16 @@ package org.firstinspires.ftc.teamcode.Lib.SkyStoneLib;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.Skystone;
 
-public class DualLift {
+public class DualLift implements FTCRobotSubsystem {
+
+    private final static String SUBSYSTEM_NAME = "DualLift";
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -48,16 +52,7 @@ public class DualLift {
     //*********************************************************************************************
 
     private Lift liftRight;
-    private String liftRightName = "LiftRight";
-    private String liftRightExtensionLimitSwitchName = "LiftExtensionLimitSwitchRight";
-    private String liftRightRetractionLimitSwitch = "LiftRetractionLimitSwitchRight";
-    private String liftRightMotorName = "LifMotortRight";
-
     private Lift liftLeft;
-    private String liftLeftName = "LiftLeft";
-    private String liftLeftExtensionLimitSwitchName = "LiftExtensionLimitSwitchLeft";
-    private String liftLeftRetractionLimitSwitch = "LiftRetractionLimitSwitchLeft";
-    private String liftLeftMotorName = "LiftMotorLeft";
 
     private DcMotor8863.MotorType motorType = org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863.MotorType.ANDYMARK_40;
     private double spoolDiameter = 1.25; //inches
@@ -94,7 +89,16 @@ public class DualLift {
     // from it
     //*********************************************************************************************
 
-    public DualLift(HardwareMap hardwareMap, Telemetry telemetry, Double positionPower) {
+    public DualLift(HardwareMap hardwareMap,
+                    String liftRightName,
+                    String liftRightMotorName,
+                    String liftRightExtensionLimitSwitchName,
+                    String liftRightRetractionLimitSwitch,
+                    String liftLeftName,
+                    String liftLeftMotorName,
+                    String liftLeftExtensionLimitSwitchName,
+                    String liftLeftRetractionLimitSwitch,
+                    Telemetry telemetry) {
         liftRight = new Lift(hardwareMap, telemetry, liftRightName,
                 liftRightExtensionLimitSwitchName, liftRightRetractionLimitSwitch, liftRightMotorName,
                 motorType, movementPerRevolution);
@@ -123,13 +127,21 @@ public class DualLift {
     // public methods that give the class its functionality
     //*********************************************************************************************
 
-    public void init(){
-        liftRight.reset();
-        liftLeft.reset();
+    @Override
+    public String getName() {
+        return SUBSYSTEM_NAME;
     }
 
+    @Override
     public boolean isInitComplete() {
         return (liftRight.isResetComplete() && liftLeft.isResetComplete());
+    }
+
+    @Override
+    public boolean init(Configuration config) {
+        liftRight.reset();
+        liftLeft.reset();
+        return true;
     }
 
     public void reset() {
@@ -197,14 +209,14 @@ public class DualLift {
         return (liftLeft.isPositionReached() && liftRight.isPositionReached());
     }
 
-    public ExtensionRetractionMechanism.ExtensionRetractionStates update() {
+    @Override
+    public void update() {
         liftRight.update();
         liftLeft.update();
-        //this return is temporary fix it later
-        return ExtensionRetractionMechanism.ExtensionRetractionStates.RESET_COMPLETE;
     }
 
 
+    @Override
     public void shutdown() {
         liftRight.shutdown();
         liftLeft.shutdown();

@@ -17,7 +17,7 @@ public class IntakeWheels implements FTCRobotSubsystem {
     final private double motorSpeed = 1.0;
     private boolean direction;
 
-    public IntakeWheels(String rightIntakeMotorName, String leftIntakeMotorName, HardwareMap hardwareMap) {
+    public IntakeWheels(HardwareMap hardwareMap, String rightIntakeMotorName, String leftIntakeMotorName) {
         DcMotor8863 rightIntakeMotor = new DcMotor8863(rightIntakeMotorName, hardwareMap);
         DcMotor8863 leftIntakeMotor = new DcMotor8863(leftIntakeMotorName, hardwareMap);
 
