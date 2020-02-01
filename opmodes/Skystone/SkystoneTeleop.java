@@ -8,7 +8,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.GamepadButtonMultiPush;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.HaloControls;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.JoyStick;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.SmartJoystick;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.SkystoneRobot;
 
 import java.io.IOException;
@@ -80,13 +82,13 @@ public class SkystoneTeleop extends LinearOpMode {
     final static double JOYSTICK_HALF_POWER = .5;
     final static double JOYSTICK_QUARTER_POWER = .25;
 
-    JoyStick gamepad1LeftJoyStickX;
-    JoyStick gamepad1LeftJoyStickY;
+    SmartJoystick gamepad1LeftJoyStickX;
+    SmartJoystick gamepad1LeftJoyStickY;
     double gamepad1LeftJoyStickXValue = 0;
     double gamepad1LeftJoyStickYValue = 0;
 
-    JoyStick gamepad1RightJoyStickX;
-    JoyStick gamepad1RightJoyStickY;
+    SmartJoystick gamepad1RightJoyStickX;
+    SmartJoystick gamepad1RightJoyStickY;
     double gamepad1RightJoyStickXValue = 0;
     double gamepad1RightJoyStickYValue = 0;
 
@@ -163,11 +165,11 @@ public class SkystoneTeleop extends LinearOpMode {
         gamepad1LeftTriggerButton = new GamepadButtonMultiPush(1);
 
         // Game Pad 1 joysticks
-        gamepad1LeftJoyStickX = new JoyStick(JoyStick.JoyStickMode.SQUARE, JOYSTICK_DEADBAND_VALUE, JoyStick.InvertSign.NO_INVERT_SIGN);
-        gamepad1LeftJoyStickY = new JoyStick(JoyStick.JoyStickMode.SQUARE, JOYSTICK_DEADBAND_VALUE, JoyStick.InvertSign.INVERT_SIGN);
+        gamepad1LeftJoyStickX = new SmartJoystick(gamepad1, SmartJoystick.JoystickSide.LEFT, SmartJoystick.JoystickAxis.X);
+        gamepad1LeftJoyStickY = new SmartJoystick(gamepad1, SmartJoystick.JoystickSide.LEFT, SmartJoystick.JoystickAxis.Y);
 
-        gamepad1RightJoyStickX = new JoyStick(JoyStick.JoyStickMode.SQUARE, JOYSTICK_DEADBAND_VALUE, JoyStick.InvertSign.NO_INVERT_SIGN);
-        gamepad1RightJoyStickY = new JoyStick(JoyStick.JoyStickMode.SQUARE, JOYSTICK_DEADBAND_VALUE, JoyStick.InvertSign.INVERT_SIGN);
+        gamepad1RightJoyStickX = new SmartJoystick(gamepad1, SmartJoystick.JoystickSide.RIGHT, SmartJoystick.JoystickAxis.X);
+        gamepad1RightJoyStickY = new SmartJoystick(gamepad1, SmartJoystick.JoystickSide.RIGHT, SmartJoystick.JoystickAxis.Y);
 
         // create the gamepad 2 buttons and tell each button how many commands it has
         gamepad2RightBumper = new GamepadButtonMultiPush(1);
@@ -197,6 +199,8 @@ public class SkystoneTeleop extends LinearOpMode {
         gamepad1RightJoyStickX.set30PercentPower();
         gamepad1RightJoyStickY.set30PercentPower();
 
+        HaloControls haloControls = new HaloControls(gamepad1LeftJoyStickX, gamepad1LeftJoyStickY, gamepad1RightJoyStickX, robot);
+
         // start the inits for the robot subsytems
         robot.init(config);
         timer.reset();
@@ -204,13 +208,14 @@ public class SkystoneTeleop extends LinearOpMode {
         // run the state machines associated with the subsystems to allow the inits to complete
         // NOTE, if a subsystem does not complete the init, it will hang the robot, so that is what
         // the timer is for
-        while (opModeIsActive() && !robot.isInitComplete()) {
+        while (!robot.isInitComplete()) {
             robot.update();
             if (timer.milliseconds() > 5000) {
                 // something went wrong with the inits. They never finished. Proceed anyway
                 dataLog.logData("Init failed to complete on time. Proceeding anyway!");
                 break;
             }
+            idle();
         }
 
         // Wait for the start button
@@ -248,6 +253,18 @@ public class SkystoneTeleop extends LinearOpMode {
 //                    // call the 4th command you want to run
 //                }
 //            }
+            if (gamepad1DpadDown.buttonPress(gamepad1.dpad_down)) {
+                haloControls.resetHeading();
+            }
+            if (gamepad1DpadUp.buttonPress(gamepad1.dpad_up)) {
+                haloControls.toggleMode();
+            }
+            if (gamepad1a.buttonPress(gamepad1.a)) {
+                robot.intakeSpitOut();
+            }
+            if (gamepad1b.buttonPress(gamepad1.b)) {
+                robot.intakeBlock();
+            }
             if (gamepad1LeftTriggerButton.triggerPress(gamepad1.left_trigger)) {
             }
 
