@@ -43,9 +43,9 @@ public class IntakePusherServos implements FTCRobotSubsystem {
      * @param outLeft Left servo position OUT. IntakePusherServos.leftIdlePosition can be used here
      * @param outRight Right servo position OUT. IntakePusherServos.rightPushingPosition can be used here
      */
-    public IntakePusherServos(String rightServoName, String leftServoName, Telemetry telemetry, HardwareMap hardwareMap) {
-        leftPusher = new Servo8863("intakePusherServoLeft", hardwareMap, telemetry, leftIdlePosition, leftPushingPosition, leftIdlePosition, leftIdlePosition, Servo.Direction.FORWARD);
-        rightPusher = new Servo8863("intakePusherServoright", hardwareMap, telemetry, rightIdlePosition, rightPushingPosition, rightIdlePosition, rightIdlePosition, Servo.Direction.FORWARD);
+    public IntakePusherServos(HardwareMap hardwareMap, String rightServoName, String leftServoName, Telemetry telemetry) {
+        leftPusher = new Servo8863(leftServoName, hardwareMap, telemetry, leftIdlePosition, leftPushingPosition, leftIdlePosition, leftIdlePosition, Servo.Direction.FORWARD);
+        rightPusher = new Servo8863(rightServoName, hardwareMap, telemetry, rightIdlePosition, rightPushingPosition, rightIdlePosition, rightIdlePosition, Servo.Direction.FORWARD);
         //this.left = left;
         //this.right = right;
         this.telemetry = telemetry;

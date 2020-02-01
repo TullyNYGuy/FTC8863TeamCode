@@ -208,7 +208,11 @@ public class SkystoneRobot implements FTCRobot {
         subsystemMap.put(dualLift.getName(), dualLift);
 
         //Intake pusher servo
-        intakePusherServos = new IntakePusherServos(HardwareName.INTAKE_PUSHER_RIGHT_SERVO.hwName, HardwareName.INTAKE_PUSHER_RIGHT_SERVO.hwName, telemetry, hardwareMap);
+        intakePusherServos = new IntakePusherServos(
+                hardwareMap,
+                HardwareName.INTAKE_PUSHER_RIGHT_SERVO.hwName,
+                HardwareName.INTAKE_PUSHER_RIGHT_SERVO.hwName,
+                telemetry);
         subsystemMap.put(intakePusherServos.getName(), intakePusherServos);
 
         // Gripper
