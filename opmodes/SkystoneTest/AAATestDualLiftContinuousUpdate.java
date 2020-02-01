@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.CSVDataFile;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
@@ -46,11 +47,6 @@ public class AAATestDualLiftContinuousUpdate extends LinearOpMode {
     // Put your variable declarations here
     public DualLift dualLift;
 
-    public double positionPower;
-
-    public ExtensionRetractionMechanism.ExtensionRetractionStates dualLiftState;
-
-
     public int encoderValueLeft = 0;
 
     public int encoderValueRight = 0;
@@ -75,8 +71,20 @@ public class AAATestDualLiftContinuousUpdate extends LinearOpMode {
     public void runOpMode() {
 
 
+        Configuration config = new Configuration();
+        config.load();
+
         // Put your initializations here
-        dualLift = new DualLift(hardwareMap, telemetry, positionPower);
+        dualLift = new DualLift(hardwareMap,
+                "LiftRight",
+                "LiftMotortRight",
+                "LiftExtensionLimitSwitchRight",
+                "LiftRetractionLimitSwitchRight",
+                "LiftLeft",
+                "LiftMotortLeft",
+                "LiftExtensionLimitSwitchLeft",
+                "LiftRetractionLimitSwitchLeft",
+                telemetry);
 
         timerLeft = new ElapsedTime();
         timerRight = new ElapsedTime();
@@ -105,12 +113,11 @@ public class AAATestDualLiftContinuousUpdate extends LinearOpMode {
         timerRight.reset();
 
         while (opModeIsActive()) {
-            dualLiftState = dualLift.update();
-
+            dualLift.update();
 
             switch (steps) {
                 case ZERO:
-                    dualLift.init();
+                    dualLift.init(config);
                     steps = Steps.ONE;
                 case ONE:
                     if (dualLift.isInitComplete()) {

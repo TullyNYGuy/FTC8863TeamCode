@@ -20,6 +20,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.Position;
  * the back module gives translation across the length of the parallel odometers.
  */
 public class OdometrySystem implements FTCRobotSubsystem {
+
+    private final static String SUBSYSTEM_NAME = "Odometry";
+
     //*********************************************************************************************
     //          ENUMERATED TYPES
     //
@@ -385,7 +388,7 @@ public class OdometrySystem implements FTCRobotSubsystem {
 
     @Override
     public String getName() {
-        return "Odometry";
+        return SUBSYSTEM_NAME;
     }
 
     @Override
