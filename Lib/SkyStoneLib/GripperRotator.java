@@ -25,8 +25,8 @@ public class GripperRotator {
     //*********************************************************************************************
     private Servo8863 servoRotator;
     private double initPos = 0.87;
-    private double upPos = 0.00;
-    private double downPos = 0.87;
+    private double outwardPos = 0.09;
+    private double inwardPos = 0.98;
     private double homePos = 0.00;
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -43,7 +43,7 @@ public class GripperRotator {
     // from it
     //*********************************************************************************************
     public GripperRotator(String servoName, HardwareMap hardwareMap, Telemetry telemetry) {
-        servoRotator = new Servo8863(servoName, hardwareMap, telemetry, homePos, upPos, downPos, initPos, Servo.Direction.FORWARD);
+        servoRotator = new Servo8863(servoName, hardwareMap, telemetry, homePos, outwardPos, inwardPos, initPos, Servo.Direction.FORWARD);
 
     }
 
@@ -59,22 +59,22 @@ public class GripperRotator {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
-    public void rotateFront() {
+    public void rotateOutward() {
         servoRotator.goUp();
 
     }
 
-    public void rotateBack() {
+    public void rotateInward() {
         servoRotator.goDown();
 
     }
 
     public void init() {
-        rotateBack();
+        rotateInward();
     }
 
     public void shutdown() {
-        rotateBack();
+        rotateInward();
     }
 
 }

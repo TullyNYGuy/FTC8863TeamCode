@@ -370,7 +370,7 @@ public class SkystoneRobot implements FTCRobot {
 
 
     //*********************************************
-    //BLOCK PREPARATION//
+    //BLOCK DEPORTATION//
     //********************************************
     private ElapsedTime prepTimer;
 
@@ -404,7 +404,7 @@ public class SkystoneRobot implements FTCRobot {
                 break;
             case ARM_EXTENDING:
                 if (prepTimer.milliseconds() > prepTimerLimit) {
-                    gripperRotator.rotateFront();
+                    gripperRotator.rotateOutward();
                     prepTimer.reset();
                 }
                 break;

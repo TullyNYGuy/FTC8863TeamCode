@@ -29,11 +29,11 @@ public class TestGripperRotator extends LinearOpMode {
         // Put your calls here - they will not run in a loop
         gripperRotator.init();
         sleep(5000);
-        gripperRotator.rotateFront();
+        gripperRotator.rotateOutward();
         sleep(5000);
-        gripperRotator.rotateBack();
+        gripperRotator.rotateInward();
         sleep(5000);
-        gripperRotator.rotateFront();
+        gripperRotator.rotateOutward();
         sleep(5000);
         gripperRotator.shutdown();
         sleep(5000);
