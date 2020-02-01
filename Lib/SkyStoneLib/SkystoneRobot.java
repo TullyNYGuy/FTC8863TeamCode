@@ -44,7 +44,7 @@ public class SkystoneRobot {
     private DualLift lift;
     private ExtensionArm extensionArm;
     private GripperRotator gripperRotator;
-    private org.firstinspires.ftc.teamcode.Lib.SkystoneLib.Gripper gripper;
+    private Gripper gripper;
 
     public SkystoneRobot(HardwareMap hardwareMap, Telemetry telemetry, Configuration config, DataLogging dataLog, DistanceUnit units) {
         this.hardwareMap = hardwareMap;

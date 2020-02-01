@@ -46,9 +46,7 @@ public class TestMecanumWithIntakeWheelsAndPushers extends LinearOpMode {
         DcMotor8863 frontRight = new DcMotor8863("FrontRight", hardwareMap);
         DcMotor8863 backRight = new DcMotor8863("BackRight", hardwareMap);
 
-        DcMotor8863 rightIntake = new DcMotor8863("intakeMotorRight", hardwareMap);
-        DcMotor8863 leftIntake = new DcMotor8863("intakeMotorLeft", hardwareMap);
-        IntakeWheels intakeWheels = new IntakeWheels(rightIntake, leftIntake);
+        IntakeWheels intakeWheels = new IntakeWheels("intakeMotorRight", "intakeMotorLeft", hardwareMap);
 
         IntakePusherServosGB intakePusherServos = new IntakePusherServosGB("intakeServoLeft", "intakeServoRight", hardwareMap, telemetry);
 
@@ -60,9 +58,6 @@ public class TestMecanumWithIntakeWheelsAndPushers extends LinearOpMode {
         backLeft.setMotorType(ANDYMARK_20_ORBITAL);
         frontRight.setMotorType(ANDYMARK_20_ORBITAL);
         backRight.setMotorType(ANDYMARK_20_ORBITAL);
-
-        rightIntake.setMotorType(ANDYMARK_20_ORBITAL);
-        leftIntake.setMotorType(ANDYMARK_20_ORBITAL);
 
         // This value will get set to some distance traveled per revolution later.
         frontLeft.setMovementPerRev(360);
