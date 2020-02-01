@@ -485,10 +485,18 @@ public class SkystoneRobot implements FTCRobot {
                 if (lift.isPositionReached()) {
                     deportState = DeportStates.COMPLETE;
                 }
-                    break;
+                break;
             case COMPLETE:
                 //we chillin'
                 break;
+        }
+    }
+
+    public boolean isDeportBlockComplete() {
+        if (deportState == DeportStates.COMPLETE) {
+            return true;
+        } else {
+            return false;
         }
     }
 
@@ -508,8 +516,18 @@ public class SkystoneRobot implements FTCRobot {
 
     private double liftBlockTimerLimit;
 
+    private int skyscraperLevel = 0;
+
+    public void increaseDesiredHeightForLift() {
+        skyscraperLevel = skyscraperLevel + 1;
+        if (skyscraperLevel > 8) {
+            skyscraperLevel = 0;
+            telemetry.addData("DESIRED HEIGHT =", skyscraperLevel);
+        }
+    }
+
     public void liftBlock(int skyscraperLevel) {
-        intakeState = IntakeStates.START;
+        liftBlockState = LiftBlockStates.START;
     }
 
     public void liftBlockStateUpdate() {
@@ -518,13 +536,14 @@ public class SkystoneRobot implements FTCRobot {
                 //nothing just chilling
                 break;
             case START:
+                lift.goToBlockHeights(skyscraperLevel);
                 liftBlockTimer.reset();
                 liftBlockState = LiftBlockStates.BLOCK_LIFTING;
 
                 break;
             case BLOCK_LIFTING:
-                if (liftBlockTimer.milliseconds() > 1000) {
-
+                if (lift.isPositionReached()) {
+                    liftBlockState = LiftBlockStates.COMPLETE;
                 }
                 break;
             case COMPLETE:
@@ -532,5 +551,112 @@ public class SkystoneRobot implements FTCRobot {
                 break;
         }
     }
+
+    public boolean isLiftBlockComplete() {
+        if (liftBlockState == LiftBlockStates.COMPLETE) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    //*********************************************
+    //BLOCK PLACING//
+    //********************************************
+    private ElapsedTime placeBlockTimer;
+
+    public enum PlaceBlockStates {
+        IDLE,
+        EXTENDING,
+        GRIPPER_RELEASING,
+        COMPLETE
+    }
+
+    private PlaceBlockStates placeBlockState = PlaceBlockStates.IDLE;
+
+    private double placeBlockTimerLimit;
+
+
+    public void placeBlock() {
+        placeBlockState = PlaceBlockStates.EXTENDING;
+    }
+
+
+    public void placeBlockStateUpdate() {
+        switch (placeBlockState) {
+            case IDLE:
+                //The Driver will extend the arm using joystick then call place block
+                break;
+            case EXTENDING:
+                gripper.release();
+                break;
+            case GRIPPER_RELEASING:
+                if (gripper.isReleaseComplete()) {
+                    placeBlockState = PlaceBlockStates.COMPLETE;
+                }
+                break;
+            case COMPLETE:
+                //we chillin'
+                break;
+        }
+    }
+
+    public boolean isPlaceBlockComplete() {
+        if (placeBlockState == PlaceBlockStates.COMPLETE) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    //*********************************************
+    //Prepare to intake//
+    //********************************************
+
+    public enum PrepareIntakeStates {
+        IDLE,
+        START,
+        PREPARING,
+        COMPLETE
+    }
+
+    private PrepareIntakeStates prepareIntakeState = PrepareIntakeStates.IDLE;
+
+
+    public void prepareToIntakeBlock() {
+        prepareIntakeState = PrepareIntakeStates.START;
+    }
+
+
+    public void prepareIntakeUpdate() {
+        switch (prepareIntakeState) {
+            case IDLE:
+                //chillin' like a villain
+                break;
+            case START:
+                extensionArm.goToPosition(0, 1);
+                lift.goToPosition(0, 1);
+                prepareIntakeState = PrepareIntakeStates.PREPARING;
+                break;
+            case PREPARING:
+                if (lift.isPositionReached() && extensionArm.isPositionReached()) {
+                    prepareIntakeState = PrepareIntakeStates.COMPLETE;
+                }
+                break;
+            case COMPLETE:
+                //we chillin'
+                break;
+        }
+    }
+
+    public boolean isPrepareIntakeComplete() {
+        if (prepareIntakeState == PrepareIntakeStates.COMPLETE) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+
 
 }
