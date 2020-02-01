@@ -54,6 +54,7 @@ public class SkystoneRobot implements FTCRobot {
         GRIPPER_SERVO("gripper"),
         INTAKE_PUSHER_RIGHT_SERVO("intakePusherRight"),
         INTAKE_PUSHER_LEFT_SERVO("intakePusherLeft"),
+        GRIPPER_ROTATOR_SERVO("gripperRotator"),
         ;
 
         public final String hwName;
@@ -214,12 +215,20 @@ public class SkystoneRobot implements FTCRobot {
         subsystemMap.put(extensionArm.getName(), extensionArm);
 
         //Intake pusher servo
-        intakePusherServos = new IntakePusherServos(HardwareName.INTAKE_PUSHER_RIGHT_SERVO.hwName, HardwareName.INTAKE_PUSHER_RIGHT_SERVO.hwName, telemetry, hardwareMap);
+        intakePusherServos = new IntakePusherServos(
+                hardwareMap,
+                HardwareName.INTAKE_PUSHER_RIGHT_SERVO.hwName,
+                HardwareName.INTAKE_PUSHER_RIGHT_SERVO.hwName,
+                telemetry);
         subsystemMap.put(intakePusherServos.getName(), intakePusherServos);
 
         // Gripper
         gripper = new Gripper(hardwareMap, HardwareName.GRIPPER_SERVO.hwName, telemetry);
         subsystemMap.put(gripper.getName(), gripper);
+
+        // GripperRotator
+        gripperRotator = new GripperRotator(hardwareMap, HardwareName.GRIPPER_ROTATOR_SERVO.hwName, telemetry);
+        subsystemMap.put(gripperRotator.getName(), gripperRotator);
 
 
         return true;

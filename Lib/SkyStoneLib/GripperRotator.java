@@ -5,9 +5,13 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
 
-public class GripperRotator {
+public class GripperRotator implements FTCRobotSubsystem {
+
+    private final static String SUBSYSTEM_NAME = "GripperRotator";
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -42,7 +46,7 @@ public class GripperRotator {
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
-    public GripperRotator(String servoName, HardwareMap hardwareMap, Telemetry telemetry) {
+    public GripperRotator(HardwareMap hardwareMap, String servoName, Telemetry telemetry) {
         servoRotator = new Servo8863(servoName, hardwareMap, telemetry, homePos, outwardPos, inwardPos, initPos, Servo.Direction.FORWARD);
 
     }
@@ -69,10 +73,28 @@ public class GripperRotator {
 
     }
 
-    public void init() {
-        rotateInward();
+    @Override
+    public String getName() {
+        return SUBSYSTEM_NAME;
     }
 
+    @Override
+    public boolean isInitComplete() {
+        return true;
+    }
+
+    @Override
+    public boolean init(Configuration config) {
+        rotateInward();
+        return true;
+    }
+
+    @Override
+    public void update() {
+
+    }
+
+    @Override
     public void shutdown() {
         rotateInward();
     }
