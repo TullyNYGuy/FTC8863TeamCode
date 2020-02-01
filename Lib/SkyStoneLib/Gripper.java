@@ -6,9 +6,13 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
 
-public class Gripper {
+public class Gripper implements FTCRobotSubsystem {
+
+    private final static String SUBSYSTEM_NAME = "Gripper";
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -54,7 +58,7 @@ public class Gripper {
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
-    public Gripper(String servoName, HardwareMap hardwareMap, Telemetry telemetry) {
+    public Gripper(HardwareMap hardwareMap, String servoName, Telemetry telemetry) {
         gripperServo = new Servo8863(servoName, hardwareMap, telemetry, homePos, releasePosition, gripPosition, initPos, Servo.Direction.FORWARD);
         this.telemetry = telemetry;
         timer.reset();
@@ -83,11 +87,19 @@ public class Gripper {
         gripperServo.goDown();
     }
 
-    public void init() {
-        release();
+    @Override
+    public String getName() {
+        return SUBSYSTEM_NAME;
     }
 
+    @Override
     public boolean isInitComplete() {
+        return true;
+    }
+
+    @Override
+    public boolean init(Configuration config) {
+        release();
         return true;
     }
 
@@ -99,10 +111,12 @@ public class Gripper {
         pendingRelease = true;
     }
 
+    @Override
     public void shutdown() {
         release();
     }
 
+    @Override
     public void update() {
         telemetry.addData("servo states: ", gripperState);
         switch (gripperState) {

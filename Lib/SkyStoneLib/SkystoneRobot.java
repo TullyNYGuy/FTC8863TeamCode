@@ -46,6 +46,9 @@ public class SkystoneRobot implements FTCRobot {
         LIFT_LEFT_RETRACTION_SWITCH("LiftRetractionLimitSwitchLeft"),
         INTAKE_RIGHT_MOTOR("intakeMotorRight"),
         INTAKE_LEFT_MOTOR("intakeMotorLeft"),
+        GRIPPER_SERVO("gripper"),
+        INTAKE_PUSHER_RIGHT_SERVO("intakePusherRight"),
+        INTAKE_PUSHER_LEFT_SERVO("intakePusherLeft"),
         ;
 
         public final String hwName;
@@ -203,11 +206,15 @@ public class SkystoneRobot implements FTCRobot {
                 telemetry);
         subsystemMap.put(dualLift.getName(), dualLift);
 
-
-
         //Intake pusher servo
-        intakePusherServos = new IntakePusherServos("intakePusherRight", "intakePusherLeft", telemetry, hardwareMap);
+        intakePusherServos = new IntakePusherServos(HardwareName.INTAKE_PUSHER_RIGHT_SERVO.hwName, HardwareName.INTAKE_PUSHER_RIGHT_SERVO.hwName, telemetry, hardwareMap);
         subsystemMap.put(intakePusherServos.getName(), intakePusherServos);
+
+        // Gripper
+        gripper = new Gripper(hardwareMap, HardwareName.GRIPPER_SERVO.hwName, telemetry);
+        subsystemMap.put(gripper.getName(), gripper);
+
+
         return true;
     }
 

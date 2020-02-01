@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.opmodes.SkystoneTest;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.Gripper;
 
 /**
@@ -20,14 +21,17 @@ public class TestGripper extends LinearOpMode {
 
 
         // Put your initializations here
-        gripper = new Gripper("gripper", hardwareMap, telemetry);
+        Configuration config = new Configuration();
+        config.load();
+
+        gripper = new Gripper(hardwareMap, "gripper", telemetry);
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
         telemetry.update();
         waitForStart();
 
         // Put your calls here - they will not run in a loop
-        gripper.init();
+        gripper.init(config);
         sleep(5000);
         gripper.grip();
         sleep(5000);
