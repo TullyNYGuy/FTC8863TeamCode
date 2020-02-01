@@ -345,7 +345,7 @@ public class SkystoneRobot {
 
 
     //*********************************************
-    //BLOCK PREPARATION//
+    //BLOCK DEPORTATION//
     //********************************************
     private ElapsedTime prepTimer;
 
@@ -379,7 +379,7 @@ public class SkystoneRobot {
                 break;
             case ARM_EXTENDING:
                 if (prepTimer.milliseconds() > prepTimerLimit) {
-                    gripperRotator.rotateFront();
+                    gripperRotator.rotateOutward();
                     prepTimer.reset();
                 }
                 break;

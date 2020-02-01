@@ -29,8 +29,8 @@ public class Gripper {
     private Servo8863 gripperServo;
 
     private double initPos = 0.1;
-    private double releasePosition = 0.9;
-    private double gripPosition = 0.3;
+    private double releasePosition = 0.20;
+    private double gripPosition = 0.74;
     private double homePos = 0.5;
     private State gripperState;
     private Telemetry telemetry;
