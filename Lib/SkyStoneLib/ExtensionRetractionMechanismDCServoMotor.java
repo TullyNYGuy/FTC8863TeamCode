@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Lib.FTCLib;
+package org.firstinspires.ftc.teamcode.Lib.SkyStoneLib;
 
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -8,8 +8,14 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.CSVDataFile;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcServoMotor;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.PairedList;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Switch;
 
-public class ExtensionRetractionMechanism {
+public class ExtensionRetractionMechanismDCServoMotor {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -62,7 +68,7 @@ public class ExtensionRetractionMechanism {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
-    protected DcMotor8863 extensionRetractionMotor;
+    protected DcServoMotor extensionRetractionMotor;
 
     // null is shown for emphasis. Any object is null until is it created.
     protected Switch retractedLimitSwitch = null;
@@ -265,7 +271,6 @@ public class ExtensionRetractionMechanism {
 
     public void setFinishBehavior(DcMotor8863.FinishBehavior finishBehavior) {
         this.finishBehavior = finishBehavior;
-        extensionRetractionMotor.setFinishBehavior(finishBehavior);
     }
 
     /**
@@ -313,7 +318,7 @@ public class ExtensionRetractionMechanism {
      * The commands sent to the mechanism and the states it passes through can be logged so that
      * you can review them later. The log is a file stored on the phone.
      */
-    protected DataLogging logFile;
+    private DataLogging logFile;
 
     public void setDataLog(DataLogging logFile) {
         this.logFile = logFile;
@@ -327,7 +332,7 @@ public class ExtensionRetractionMechanism {
         this.loggingOn = false;
     }
 
-    protected boolean loggingOn = false;
+    private boolean loggingOn = false;
 
     /**
      * Collect time vs encoder count data for debug purposes
@@ -397,9 +402,9 @@ public class ExtensionRetractionMechanism {
      *                                  Note that the units can be anything. But you must always use
      *                                  the same units when working with the mechanism.
      */
-    public ExtensionRetractionMechanism(HardwareMap hardwareMap, Telemetry telemetry, String mechanismName,
-                                        String extensionLimitSwitchName, String retractionLimitSwitchName,
-                                        String motorName, DcMotor8863.MotorType motorType, double movementPerRevolution) {
+    public ExtensionRetractionMechanismDCServoMotor(HardwareMap hardwareMap, Telemetry telemetry, String mechanismName,
+                                                    String extensionLimitSwitchName, String retractionLimitSwitchName,
+                                                    String motorName, DcMotor8863.MotorType motorType, double movementPerRevolution) {
         // set all of the private variables using the parameters passed into the constructor
         createExtensionRetractionMechanismCommonCommands(hardwareMap, telemetry, mechanismName, motorName, motorType, movementPerRevolution);
 
@@ -424,9 +429,9 @@ public class ExtensionRetractionMechanism {
      *                                           Note that the units can be anything. But you must always use
      *                                           the same units when working with the mechanism.
      */
-    public ExtensionRetractionMechanism(HardwareMap hardwareMap, Telemetry telemetry, String mechanismName,
-                                        Double retractionPositionInMechanismUnits, Double extensionPositionInMechamismUnits,
-                                        String motorName, DcMotor8863.MotorType motorType, double movementPerRevolution) {
+    public ExtensionRetractionMechanismDCServoMotor(HardwareMap hardwareMap, Telemetry telemetry, String mechanismName,
+                                                    Double retractionPositionInMechanismUnits, Double extensionPositionInMechamismUnits,
+                                                    String motorName, DcMotor8863.MotorType motorType, double movementPerRevolution) {
         // set all of the private variables using the parameters passed into the constructor
         createExtensionRetractionMechanismCommonCommands(hardwareMap, telemetry, mechanismName, motorName, motorType, movementPerRevolution);
 
@@ -446,31 +451,17 @@ public class ExtensionRetractionMechanism {
         this.telemetry = telemetry;
 
         // create the motor
-        createExtensionRetractionMotor(hardwareMap, telemetry, motorName);
+        extensionRetractionMotor = new DcServoMotor("extensionArmMotor", "extensionArmServoMotor", 0.5, 0.5, .01, hardwareMap, telemetry);
         extensionRetractionMotor.setMotorType(motorType);
         extensionRetractionMotor.setMovementPerRev(movementPerRevolution);
         extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        extensionRetractionMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
 
         // set the initial state of the state machine
         extensionRetractionState = ExtensionRetractionStates.START_RESET_SEQUENCE;
-        extensionRetractionCommand = ExtensionRetractionCommands.NO_COMMAND;
 
         // create the time encoder data list in case it is needed
         timeEncoderValues = new PairedList();
         liftTimer = new ElapsedTime();
-    }
-
-    /**
-     * This method is separated out in order to be overridable in a child class. It creates the
-     * extension retraction motor.
-     *
-     * @param hardwareMap
-     * @param telemetry
-     * @param motorName
-     */
-    protected void createExtensionRetractionMotor(HardwareMap hardwareMap, Telemetry telemetry, String motorName) {
-        extensionRetractionMotor = new DcMotor8863(motorName, hardwareMap, telemetry);
     }
 
 
@@ -514,21 +505,22 @@ public class ExtensionRetractionMechanism {
 
     /**
      * This method is meant to be called as the robot initializes. It resets the mechanism upon
-     * initialization. The update() method has to be called after this until the isInitComplete()
-     * returns true.
+     * initialization. NOte that this method blocks any other method from running due to the while
+     * loop. If this is a problem, we should look into starting a new thread for it.
      */
     public void init() {
         log(mechanismName + "Extension retraction system initializing");
         liftTimer.reset();
         if (!isDebugMode()) {
-            reset();
+            if (!isResetComplete()) {
+                reset();
+            }
+            while (!isResetComplete()) {
+                update();
+            }
         } else {
             // in debug mode no reset occurs
         }
-    }
-
-    public boolean isInitComplete() {
-        return isResetComplete();
     }
 
     public void reverseMotor() {
@@ -734,7 +726,7 @@ public class ExtensionRetractionMechanism {
      * @return true if complete
      */
     public boolean isPositionReached() {
-        if (extensionRetractionState == ExtensionRetractionStates.AT_POSITION && extensionRetractionCommand == ExtensionRetractionCommands.NO_COMMAND) {
+        if (extensionRetractionState == ExtensionRetractionStates.AT_POSITION) {
             return true;
         } else {
             return false;
@@ -823,7 +815,7 @@ public class ExtensionRetractionMechanism {
         // your method of determining whether the movement to the reset is complete must be
         // coded here
         if (isRetractionLimitReached()) {
-            log("Retraction limit switch pressed " + mechanismName);
+            log("Reset movement complete " + mechanismName);
             return true;
         } else {
             return false;
@@ -1178,12 +1170,6 @@ public class ExtensionRetractionMechanism {
      * finished the mechanism will either actively hold position or will float.
      */
     private void moveToPosition() {
-        // Setting the finish behavior here is to fix a bug. When the mechanism resets, and the
-        // retraction limit switch is not pressed, the state machine runs the full reset sequence
-        // in the state machine. Part of that sets the finish behavior to float. Then when a
-        // goToPosition command is issued by the user, the motor moves to the desired position but
-        // does not hold position because it is still in FLOAT mode. This forces it to HOLD position.
-        setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
         extensionRetractionMotor.moveToPosition(moveToPositionPower, desiredPosition, finishBehavior);
         // extensionRetractionMotor.rotateToEncoderCount(moveToPositionPower, 1300, finishBehavior);
     }
@@ -1272,13 +1258,11 @@ public class ExtensionRetractionMechanism {
     /**
      * Cause the mechanism to stop moving.
      */
-    protected void stopMechanism() {
+    private void stopMechanism() {
         if (finishBehavior == DcMotor8863.FinishBehavior.FLOAT) {
-            log("Stopping mechanism, motor set to float");
             extensionRetractionMotor.setPower(0);
         } else {
             // the motor is going to have to actively hold position
-            log("Stopping mechanism, attempting to hold position");
             extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             extensionRetractionMotor.setTargetPosition(extensionRetractionMotor.getCurrentPosition());
             extensionRetractionMotor.setPower(1.0);
@@ -1309,7 +1293,7 @@ public class ExtensionRetractionMechanism {
      * @param extensionRetractionState
      * @param extensionRetractionCommand
      */
-    protected void logState(ExtensionRetractionStates extensionRetractionState, ExtensionRetractionCommands extensionRetractionCommand) {
+    private void logState(ExtensionRetractionStates extensionRetractionState, ExtensionRetractionCommands extensionRetractionCommand) {
         if (logFile != null && loggingOn) {
             if (extensionRetractionState != previousExtensionRetractionState || extensionRetractionCommand != previousExtensionRetractionCommand) {
                 logFile.logData(mechanismName, extensionRetractionState.toString(), extensionRetractionCommand.toString());
@@ -1340,11 +1324,9 @@ public class ExtensionRetractionMechanism {
         }
     }
 
-    //*********************************************************************************************
-    // *********************************************************************************************
+    //*********************************************************************************************]
     // mechanism state machine
     //**********************************************************************************************
-    //*********************************************************************************************
 
     public ExtensionRetractionStates update() {
 
@@ -2064,7 +2046,6 @@ public class ExtensionRetractionMechanism {
                             // the extension limit has been reached. This is probably not intentional.
                             // But the movement has to be stopped in order to protect the mechanism
                             // from damage. Clear the command.
-                            log("Emergency stop! Tried to extend past extension limit! Stopping!");
                             stopMechanism();
                             extensionRetractionCommand = ExtensionRetractionCommands.NO_COMMAND;
                             extensionRetractionState = ExtensionRetractionStates.FULLY_EXTENDED;
@@ -2076,7 +2057,6 @@ public class ExtensionRetractionMechanism {
                             // the retraction limit has been reached. This is probably not intentional.
                             // But the movement has to be stopped in order to protect the mechanism
                             // from damage. Clear the command.
-                            log("Emergency stop! Tried to retract past retraction limit! Stopping!");
                             stopMechanism();
                             extensionRetractionCommand = ExtensionRetractionCommands.NO_COMMAND;
                             extensionRetractionState = ExtensionRetractionStates.FULLY_RETRACTED;
@@ -2263,7 +2243,6 @@ public class ExtensionRetractionMechanism {
         } else {
             telemetry.addLine("extension limit switch NOT pressed");
         }
-        telemetry.addData("encoder = ", extensionRetractionMotor.getCurrentPosition());
     }
 
     public void testReset(LinearOpMode opMode) {

@@ -1178,12 +1178,15 @@ public class ExtensionRetractionMechanism {
      * finished the mechanism will either actively hold position or will float.
      */
     private void moveToPosition() {
+<<<<<<< HEAD
         // Setting the finish behavior here is to fix a bug. When the mechanism resets, and the
         // retraction limit switch is not pressed, the state machine runs the full reset sequence
         // in the state machine. Part of that sets the finish behavior to float. Then when a
         // goToPosition command is issued by the user, the motor moves to the desired position but
         // does not hold position because it is still in FLOAT mode. This forces it to HOLD position.
         setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
+=======
+>>>>>>> SkystoneExtentionArm
         extensionRetractionMotor.moveToPosition(moveToPositionPower, desiredPosition, finishBehavior);
         // extensionRetractionMotor.rotateToEncoderCount(moveToPositionPower, 1300, finishBehavior);
     }
@@ -1272,7 +1275,7 @@ public class ExtensionRetractionMechanism {
     /**
      * Cause the mechanism to stop moving.
      */
-    protected void stopMechanism() {
+    private void stopMechanism() {
         if (finishBehavior == DcMotor8863.FinishBehavior.FLOAT) {
             log("Stopping mechanism, motor set to float");
             extensionRetractionMotor.setPower(0);

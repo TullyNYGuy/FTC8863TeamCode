@@ -16,7 +16,7 @@ import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.Lift;
  */
 @TeleOp(name = "A MEGA-EPIC Dual Lift Test", group = "DEMO")
 //@Disabled
-public class AAATestTwoLiftContinuousUpdate extends LinearOpMode {
+public class AAATestDualLiftContinuousUpdate extends LinearOpMode {
 
     public enum Steps {
         ZERO,
@@ -32,7 +32,11 @@ public class AAATestTwoLiftContinuousUpdate extends LinearOpMode {
         TEN,
         ELEVEN,
         TWELVE,
-        THIRTEEN
+        THIRTEEN,
+        FOURTEEN,
+        FIFTEEN,
+        SIXTEEN,
+        SEVENTEEN
     }
 
     public Steps steps = Steps.ZERO;
@@ -81,24 +85,15 @@ public class AAATestTwoLiftContinuousUpdate extends LinearOpMode {
         logFileBoth = new DataLogging("LiftTestBoth", telemetry);
         timeEncoderValueFile = new CSVDataFile("LiftTimeEncoderValues", telemetry);
 
-        //liftLeft.setDataLog(logFileLeft);
-       // liftLeft.enableDataLogging();
-        //liftLeft.enableCollectData();
-        //liftLeft.setResetPower(-0.1);
-        //liftLeft.setRetractionPower(-speed);
-        //liftLeft.setExtensionPower(+speed);
+        dualLift.setDataLog(logFileBoth);
+        dualLift.enableDataLogging();
+        dualLift.enableCollectData();
+        dualLift.setResetPower(-0.1);
+        dualLift.setRetractionPower(-speed);
+        dualLift.setExtensionPower(+speed);
 
-        //liftLeft.setExtensionPositionInMechanismUnits(9.5 * 5); //inches * 5 stages
+        dualLift.setExtensionPositionInMechanismUnits(9.5 * 5); //inches * 5 stages
 
-        ////logFile = new DataLogging("ExtensionRetractionTestBoth", telemetry);;
-       // liftRight.setDataLog(logFileRight);
-       // liftRight.enableDataLogging();
-        //liftRight.enableCollectData();
-        //liftRight.setResetPower(-0.1);
-        //liftRight.setRetractionPower(-speed);
-       // liftRight.setExtensionPower(+speed);
-
-        //liftRight.setExtensionPositionInMechanismUnits(9.5 * 5); //inches * 5 stages
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
@@ -111,7 +106,6 @@ public class AAATestTwoLiftContinuousUpdate extends LinearOpMode {
 
         while (opModeIsActive()) {
             dualLiftState = dualLift.update();
-
 
 
             switch (steps) {
@@ -137,7 +131,7 @@ public class AAATestTwoLiftContinuousUpdate extends LinearOpMode {
                     }
                     break;
                 case FOUR:
-                    if ( dualLift.isPositionReached()) {
+                    if (dualLift.isPositionReached()) {
                         stateTimer.reset();
                         steps = Steps.FIVE;
                     }
@@ -149,7 +143,7 @@ public class AAATestTwoLiftContinuousUpdate extends LinearOpMode {
                     }
                     break;
                 case SIX:
-                    if ( dualLift.isPositionReached()) {
+                    if (dualLift.isPositionReached()) {
                         stateTimer.reset();
                         steps = Steps.SEVEN;
                     }
@@ -180,17 +174,48 @@ public class AAATestTwoLiftContinuousUpdate extends LinearOpMode {
                     break;
                 case ELEVEN:
                     if (stateTimer.milliseconds() > waitTime) {
-                        dualLift.reset();
+                        dualLift.goToBlockHeights(5);
                         steps = Steps.TWELVE;
+                    }
+                    break;
+                case TWELVE:
+                    if (dualLift.isPositionReached()) {
+                        stateTimer.reset();
+                        steps = Steps.THIRTEEN;
                     }
                     ;
                     break;
-                case TWELVE:
+                case THIRTEEN:
+                    if (stateTimer.milliseconds() > waitTime) {
+                        dualLift.goToBlockHeights(10);
+                        steps = Steps.FOURTEEN;
+                    }
+
+                    break;
+                case FOURTEEN:
+                    if (dualLift.isPositionReached()) {
+                        stateTimer.reset();
+                        steps = Steps.ELEVEN;
+                    }
+                    break;
+                case FIFTEEN:
+                    if (stateTimer.milliseconds() > waitTime) {
+                        dualLift.goToBlockHeights(1);
+                        steps = Steps.SIXTEEN;
+                    }
+                    break;
+                case SIXTEEN:
+                    if (dualLift.isPositionReached()) {
+                        steps = Steps.SEVENTEEN;
+                    }
+                    break;
+                case SEVENTEEN:
                     break;
             }
 
-           // telemetry.addData("The One True state = ", dualLift.toString());
-            telemetry.addData("The One True encoder = ", encoderValueRight);
+            // telemetry.addData("The One True state = ", dualLift.toString());
+            telemetry.addData("The One True encoder R = ", dualLift.getCurrentEncoderValueRight());
+            telemetry.addData("The One True encoder L = ", dualLift.getCurrentEncoderValueLeft());
             telemetry.update();
             idle();
         }

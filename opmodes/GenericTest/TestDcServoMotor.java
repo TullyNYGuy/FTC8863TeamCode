@@ -22,7 +22,7 @@ public class TestDcServoMotor extends LinearOpMode {
     public void runOpMode() {
 
         // Put your initializations here
-        dcServoMotor = new DcServoMotor("extensionRetractionMotorRight", "servoMotor",
+        dcServoMotor = new DcServoMotor("extensionArmMotor", "extensionArmServoMotor",
                 0.5, 0.5, .1, hardwareMap, telemetry);
         dcServoMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         dcServoMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -37,33 +37,33 @@ public class TestDcServoMotor extends LinearOpMode {
         dcServoMotor.setPower(0.0);
         telemetry.addData("power = ", "0");
         telemetry.update();
-        sleep(4000);
+        sleep(5000);
 
         dcServoMotor.setPower(0.05);
         telemetry.addData("power = ", "0.05");
         telemetry.update();
-        sleep(4000);
+        sleep(5000);
 
         dcServoMotor.setPower(0.2);
         telemetry.addData("power = ", "0.2");
         telemetry.update();
-        sleep(2000);
+        sleep(5000);
 
         dcServoMotor.setPower(-0.2);
         telemetry.addData("power = ", "-0.2");
         telemetry.update();
-        sleep(2000);
+        sleep(5000);
 
         dcServoMotor.setPower(1.0);
         telemetry.addData("power = ", "1.0");
         telemetry.update();
-        sleep(2000);
+        sleep(5000);
 
 
         dcServoMotor.setPower(-1.0);
         telemetry.addData("power = ", "-1.0");
         telemetry.update();
-        sleep(2000);
+        sleep(5000);
 
         dcServoMotor.setPower(0.0);
 
