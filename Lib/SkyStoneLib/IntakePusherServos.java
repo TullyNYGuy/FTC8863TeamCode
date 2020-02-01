@@ -12,6 +12,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
 
 public class IntakePusherServos implements FTCRobotSubsystem {
 
+    private final static String SUBSYSTEM_NAME = "IntakePusherServos";
 
     enum State {
         OUT, MOVINGIN, MOVINGOUT
@@ -68,7 +69,7 @@ public class IntakePusherServos implements FTCRobotSubsystem {
 
     @Override
     public String getName() {
-        return "intakePusherServos";
+        return SUBSYSTEM_NAME;
     }
 
     @Override
