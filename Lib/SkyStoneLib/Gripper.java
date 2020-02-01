@@ -61,6 +61,7 @@ public class Gripper implements FTCRobotSubsystem {
     public Gripper(HardwareMap hardwareMap, String servoName, Telemetry telemetry) {
         gripperServo = new Servo8863(servoName, hardwareMap, telemetry, homePos, releasePosition, gripPosition, initPos, Servo.Direction.FORWARD);
         this.telemetry = telemetry;
+        timer = new ElapsedTime();
         timer.reset();
         pendingGrip = false;
         pendingRelease = false;
