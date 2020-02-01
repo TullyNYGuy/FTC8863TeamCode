@@ -27,6 +27,7 @@ public class Gripper {
     // getter and setter methods
     //*********************************************************************************************
     private Servo8863 gripperServo;
+
     private double initPos = 0.1;
     private double releasePosition = 0.9;
     private double gripPosition = 0.3;
