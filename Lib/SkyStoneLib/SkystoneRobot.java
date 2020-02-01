@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863.MotorType.ANDYMARK_20_ORBITAL;
+import static org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863.MotorType.ANDYMARK_40;
 
 public class SkystoneRobot implements FTCRobot {
 
@@ -44,8 +45,12 @@ public class SkystoneRobot implements FTCRobot {
         LIFT_LEFT_ENCODER("LiftLeft"),
         LIFT_LEFT_EXTENSION_SWITCH("LiftExtensionLimitSwitchLeft"),
         LIFT_LEFT_RETRACTION_SWITCH("LiftRetractionLimitSwitchLeft"),
-        INTAKE_RIGHT_MOTOR("intakeMotorRight"),
-        INTAKE_LEFT_MOTOR("intakeMotorLeft"),
+        INTAKE_RIGHT_MOTOR("IntakeMotorRight"),
+        INTAKE_LEFT_MOTOR("IntakeMotorLeft"),
+        EXT_ARM_SERVO("ExtensionArmServoMotor"),
+        EXT_ARM_ENCODER("ExtensionArmEncoder"),
+        EXT_ARM_RETRACTION_SWITCH("RetractionLimitSwitchArm"),
+        EXT_ARM_EXTENSION_SWITCH("ExtensionLimitSwitchArm"),
         GRIPPER_SERVO("gripper"),
         INTAKE_PUSHER_RIGHT_SERVO("intakePusherRight"),
         INTAKE_PUSHER_LEFT_SERVO("intakePusherLeft"),
@@ -205,6 +210,8 @@ public class SkystoneRobot implements FTCRobot {
                 HardwareName.LIFT_LEFT_RETRACTION_SWITCH.hwName,
                 telemetry);
         subsystemMap.put(dualLift.getName(), dualLift);
+        extensionArm = new ExtensionArm(hardwareMap, telemetry, HardwareName.EXT_ARM_SERVO.hwName, HardwareName.EXT_ARM_EXTENSION_SWITCH.hwName, HardwareName.EXT_ARM_RETRACTION_SWITCH.hwName, HardwareName.EXT_ARM_ENCODER.hwName, ANDYMARK_40, 2.75 * Math.PI * 2);
+        subsystemMap.put(extensionArm.getName(), extensionArm);
 
         //Intake pusher servo
         intakePusherServos = new IntakePusherServos(HardwareName.INTAKE_PUSHER_RIGHT_SERVO.hwName, HardwareName.INTAKE_PUSHER_RIGHT_SERVO.hwName, telemetry, hardwareMap);

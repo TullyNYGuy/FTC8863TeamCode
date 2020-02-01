@@ -107,9 +107,10 @@ public class TestLiftResetCode extends LinearOpMode {
         timerLeft.reset();
 
         while (opModeIsActive() && (!liftRight.isResetComplete() || !liftLeft.isResetComplete())) {
-
-            extensionRetractionStateRight = liftRight.update();
-            extensionRetractionStateLeft = liftLeft.update();
+            liftRight.update();
+            extensionRetractionStateRight = liftRight.getExtensionRetractionState();
+            liftLeft.update();
+            extensionRetractionStateLeft = liftLeft.getExtensionRetractionState();
 
             encoderValueRight = liftRight.getCurrentEncoderValue();
             encoderValueLeft = liftLeft.getCurrentEncoderValue();

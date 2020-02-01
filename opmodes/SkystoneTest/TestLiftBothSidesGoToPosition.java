@@ -106,8 +106,10 @@ public class TestLiftBothSidesGoToPosition extends LinearOpMode {
 
         while (opModeIsActive() && !(extensionRetractionMechanismLeft.isPositionReached() && extensionRetractionMechanismRight.isPositionReached())) {
 
-            extensionRetractionStateLeft = extensionRetractionMechanismLeft.update();
-            extensionRetractionStateRight = extensionRetractionMechanismRight.update();
+            extensionRetractionMechanismLeft.update();
+            extensionRetractionStateLeft = extensionRetractionMechanismLeft.getExtensionRetractionState();
+            extensionRetractionMechanismRight.update();
+            extensionRetractionStateRight = extensionRetractionMechanismRight.getExtensionRetractionState();
 
             encoderValueLeft = extensionRetractionMechanismLeft.getCurrentEncoderValue();
             encoderValueRight = extensionRetractionMechanismRight.getCurrentEncoderValue();
@@ -152,9 +154,10 @@ public class TestLiftBothSidesGoToPosition extends LinearOpMode {
 
         while (opModeIsActive() && !(extensionRetractionMechanismLeft.isPositionReached() && extensionRetractionMechanismRight.isPositionReached())) {
 
-            extensionRetractionStateLeft = extensionRetractionMechanismLeft.update();
-            extensionRetractionStateRight = extensionRetractionMechanismRight.update();
-
+            extensionRetractionMechanismLeft.update();
+            extensionRetractionStateLeft = extensionRetractionMechanismLeft.getExtensionRetractionState();
+            extensionRetractionMechanismRight.update();
+            extensionRetractionStateRight = extensionRetractionMechanismRight.getExtensionRetractionState();
             encoderValueLeft = extensionRetractionMechanismLeft.getCurrentEncoderValue();
             encoderValueRight = extensionRetractionMechanismRight.getCurrentEncoderValue();
 
@@ -202,8 +205,10 @@ public class TestLiftBothSidesGoToPosition extends LinearOpMode {
 
         while (opModeIsActive() && !(extensionRetractionMechanismLeft.isPositionReached() && extensionRetractionMechanismRight.isPositionReached())) {
 
-            extensionRetractionStateLeft = extensionRetractionMechanismLeft.update();
-            extensionRetractionStateRight = extensionRetractionMechanismRight.update();
+            extensionRetractionMechanismLeft.update();
+            extensionRetractionStateLeft = extensionRetractionMechanismLeft.getExtensionRetractionState();
+            extensionRetractionMechanismRight.update();
+            extensionRetractionStateRight = extensionRetractionMechanismRight.getExtensionRetractionState();
 
             encoderValueLeft = extensionRetractionMechanismLeft.getCurrentEncoderValue();
             encoderValueRight = extensionRetractionMechanismRight.getCurrentEncoderValue();
@@ -248,9 +253,10 @@ public class TestLiftBothSidesGoToPosition extends LinearOpMode {
 
         while (opModeIsActive() && !(extensionRetractionMechanismLeft.isPositionReached() && extensionRetractionMechanismRight.isPositionReached())) {
 
-            extensionRetractionStateLeft = extensionRetractionMechanismLeft.update();
-            extensionRetractionStateRight = extensionRetractionMechanismRight.update();
-
+            extensionRetractionMechanismLeft.update();
+            extensionRetractionStateLeft = extensionRetractionMechanismLeft.getExtensionRetractionState();
+            extensionRetractionMechanismRight.update();
+            extensionRetractionStateRight = extensionRetractionMechanismRight.getExtensionRetractionState();
             encoderValueLeft = extensionRetractionMechanismLeft.getCurrentEncoderValue();
             encoderValueRight = extensionRetractionMechanismRight.getCurrentEncoderValue();
 
@@ -298,8 +304,10 @@ public class TestLiftBothSidesGoToPosition extends LinearOpMode {
 
         while (opModeIsActive() && !(extensionRetractionMechanismLeft.isPositionReached() && extensionRetractionMechanismRight.isPositionReached())) {
 
-            extensionRetractionStateLeft = extensionRetractionMechanismLeft.update();
-            extensionRetractionStateRight = extensionRetractionMechanismRight.update();
+            extensionRetractionMechanismLeft.update();
+            extensionRetractionStateLeft = extensionRetractionMechanismLeft.getExtensionRetractionState();
+            extensionRetractionMechanismRight.update();
+            extensionRetractionStateRight = extensionRetractionMechanismRight.getExtensionRetractionState();
 
             encoderValueLeft = extensionRetractionMechanismLeft.getCurrentEncoderValue();
             encoderValueRight = extensionRetractionMechanismRight.getCurrentEncoderValue();
@@ -344,9 +352,10 @@ public class TestLiftBothSidesGoToPosition extends LinearOpMode {
 
         while (opModeIsActive() && !(extensionRetractionMechanismLeft.isPositionReached() && extensionRetractionMechanismRight.isPositionReached())) {
 
-            extensionRetractionStateLeft = extensionRetractionMechanismLeft.update();
-            extensionRetractionStateRight = extensionRetractionMechanismRight.update();
-
+            extensionRetractionMechanismLeft.update();
+            extensionRetractionStateLeft = extensionRetractionMechanismLeft.getExtensionRetractionState();
+            extensionRetractionMechanismRight.update();
+            extensionRetractionStateRight = extensionRetractionMechanismRight.getExtensionRetractionState();
             encoderValueLeft = extensionRetractionMechanismLeft.getCurrentEncoderValue();
             encoderValueRight = extensionRetractionMechanismRight.getCurrentEncoderValue();
 
@@ -394,8 +403,10 @@ public class TestLiftBothSidesGoToPosition extends LinearOpMode {
 
         while (opModeIsActive() && !(extensionRetractionMechanismLeft.isPositionReached() && extensionRetractionMechanismRight.isPositionReached())) {
 
-            extensionRetractionStateLeft = extensionRetractionMechanismLeft.update();
-            extensionRetractionStateRight = extensionRetractionMechanismRight.update();
+            extensionRetractionMechanismLeft.update();
+            extensionRetractionStateLeft = extensionRetractionMechanismLeft.getExtensionRetractionState();
+            extensionRetractionMechanismRight.update();
+            extensionRetractionStateRight = extensionRetractionMechanismRight.getExtensionRetractionState();
 
             encoderValueLeft = extensionRetractionMechanismLeft.getCurrentEncoderValue();
             encoderValueRight = extensionRetractionMechanismRight.getCurrentEncoderValue();
@@ -439,10 +450,10 @@ public class TestLiftBothSidesGoToPosition extends LinearOpMode {
         extensionRetractionMechanismRight.update();
 
         while (opModeIsActive() && !(extensionRetractionMechanismLeft.isPositionReached() && extensionRetractionMechanismRight.isPositionReached())) {
-
-            extensionRetractionStateLeft = extensionRetractionMechanismLeft.update();
-            extensionRetractionStateRight = extensionRetractionMechanismRight.update();
-
+            extensionRetractionMechanismLeft.update();
+            extensionRetractionStateLeft = extensionRetractionMechanismLeft.getExtensionRetractionState();
+            extensionRetractionMechanismRight.update();
+            extensionRetractionStateRight = extensionRetractionMechanismRight.getExtensionRetractionState();
             encoderValueLeft = extensionRetractionMechanismLeft.getCurrentEncoderValue();
             encoderValueRight = extensionRetractionMechanismRight.getCurrentEncoderValue();
 

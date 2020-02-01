@@ -119,8 +119,11 @@ public class DualLiftGoToHeightDemo extends LinearOpMode {
             //logFileLeft.logData("in loop for first go to position");
             //logFileRight.logData("in loop for first go to position");
 
-            extensionRetractionStateLeft = liftLeft.update();
-            extensionRetractionStateRight = liftRight.update();
+            liftLeft.update();
+
+            extensionRetractionStateLeft = liftLeft.getExtensionRetractionState();
+            liftRight.getExtensionRetractionState();
+            extensionRetractionStateRight = liftRight.getExtensionRetractionState();
 
             encoderValueLeft = dualLift.getCurrentEncoderValueLeft();
             encoderValueRight = dualLift.getCurrentEncoderValueRight();
@@ -148,8 +151,11 @@ public class DualLiftGoToHeightDemo extends LinearOpMode {
             //logFileLeft.logData("in loop for first go to position");
             //logFileRight.logData("in loop for first go to position");
 
-            extensionRetractionStateLeft = liftLeft.update();
-            extensionRetractionStateRight = liftRight.update();
+            liftLeft.update();
+
+            extensionRetractionStateLeft = liftLeft.getExtensionRetractionState();
+            liftRight.getExtensionRetractionState();
+            extensionRetractionStateRight = liftRight.getExtensionRetractionState();
 
             encoderValueLeft = dualLift.getCurrentEncoderValueLeft();
             encoderValueRight = dualLift.getCurrentEncoderValueRight();
@@ -177,8 +183,11 @@ public class DualLiftGoToHeightDemo extends LinearOpMode {
             //logFileLeft.logData("in loop for first go to position");
             //logFileRight.logData("in loop for first go to position");
 
-            extensionRetractionStateLeft = liftLeft.update();
-            extensionRetractionStateRight = liftRight.update();
+            liftLeft.update();
+
+            extensionRetractionStateLeft = liftLeft.getExtensionRetractionState();
+            liftRight.getExtensionRetractionState();
+            extensionRetractionStateRight = liftRight.getExtensionRetractionState();
 
             encoderValueLeft = dualLift.getCurrentEncoderValueLeft();
             encoderValueRight = dualLift.getCurrentEncoderValueRight();
@@ -206,8 +215,11 @@ public class DualLiftGoToHeightDemo extends LinearOpMode {
             //logFileLeft.logData("in loop for first go to position");
             //logFileRight.logData("in loop for first go to position");
 
-            extensionRetractionStateLeft = liftLeft.update();
-            extensionRetractionStateRight = liftRight.update();
+            liftLeft.update();
+
+            extensionRetractionStateLeft = liftLeft.getExtensionRetractionState();
+            liftRight.getExtensionRetractionState();
+            extensionRetractionStateRight = liftRight.getExtensionRetractionState();
 
             encoderValueLeft = dualLift.getCurrentEncoderValueLeft();
             encoderValueRight = dualLift.getCurrentEncoderValueRight();
@@ -235,8 +247,11 @@ public class DualLiftGoToHeightDemo extends LinearOpMode {
             //logFileLeft.logData("in loop for first go to position");
             //logFileRight.logData("in loop for first go to position");
 
-            extensionRetractionStateLeft = liftLeft.update();
-            extensionRetractionStateRight = liftRight.update();
+            liftLeft.update();
+
+            extensionRetractionStateLeft = liftLeft.getExtensionRetractionState();
+            liftRight.getExtensionRetractionState();
+            extensionRetractionStateRight = liftRight.getExtensionRetractionState();
 
             encoderValueLeft = dualLift.getCurrentEncoderValueLeft();
             encoderValueRight = dualLift.getCurrentEncoderValueRight();
@@ -264,8 +279,11 @@ public class DualLiftGoToHeightDemo extends LinearOpMode {
             //logFileLeft.logData("in loop for first go to position");
             //logFileRight.logData("in loop for first go to position");
 
-            extensionRetractionStateLeft = liftLeft.update();
-            extensionRetractionStateRight = liftRight.update();
+            liftRight.update();
+            extensionRetractionStateRight = liftRight.getExtensionRetractionState();
+            liftLeft.update();
+            extensionRetractionStateLeft = liftLeft.getExtensionRetractionState();
+
 
             encoderValueLeft = dualLift.getCurrentEncoderValueLeft();
             encoderValueRight = dualLift.getCurrentEncoderValueRight();
@@ -299,8 +317,11 @@ public class DualLiftGoToHeightDemo extends LinearOpMode {
             //logFileLeft.logData("in loop for first go to position");
             //logFileRight.logData("in loop for first go to position");
 
-            extensionRetractionStateLeft = liftLeft.update();
-            extensionRetractionStateRight = liftRight.update();
+            liftRight.update();
+            extensionRetractionStateRight = liftRight.getExtensionRetractionState();
+            liftLeft.update();
+            extensionRetractionStateLeft = liftLeft.getExtensionRetractionState();
+
 
             encoderValueLeft = dualLift.getCurrentEncoderValueLeft();
             encoderValueRight = dualLift.getCurrentEncoderValueRight();

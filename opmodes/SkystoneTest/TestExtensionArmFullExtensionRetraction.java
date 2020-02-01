@@ -74,8 +74,8 @@ public class TestExtensionArmFullExtensionRetraction extends LinearOpMode {
         timer.reset();
 
         while (opModeIsActive() && !(extensionArm.isExtensionComplete())) {
-
-            extensionRetractionState = extensionArm.update();
+            extensionArm.update();
+            extensionRetractionState = extensionArm.getExtensionRetractionState();
 
             encoderValue = extensionArm.getCurrentEncoderValue();
 
@@ -97,8 +97,8 @@ public class TestExtensionArmFullExtensionRetraction extends LinearOpMode {
         timer.reset();
 
         while (opModeIsActive() && !(extensionArm.isRetractionComplete())) {
-
-            extensionRetractionState = extensionArm.update();
+            extensionArm.update();
+            extensionRetractionState = extensionArm.getExtensionRetractionState();
 
             encoderValue = extensionArm.getCurrentEncoderValue();
 

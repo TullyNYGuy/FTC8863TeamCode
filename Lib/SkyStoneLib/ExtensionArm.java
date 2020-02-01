@@ -10,14 +10,16 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcServoMotor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometryModule;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.PairedList;
 
-public class ExtensionArm extends ExtensionRetractionMechanism {
-
+public class ExtensionArm extends ExtensionRetractionMechanism implements FTCRobotSubsystem {
+    private final static String SUBSYSTEM_NAME = "ExtentionArm";
     //*********************************************************************************************
     //          ENUMERATED TYPES
     //
@@ -110,6 +112,7 @@ public class ExtensionArm extends ExtensionRetractionMechanism {
         }
     }
 
+
     //*********************************************************************************************
     //          Helper Methods
     //
@@ -117,6 +120,16 @@ public class ExtensionArm extends ExtensionRetractionMechanism {
     //*********************************************************************************************
     protected void stopMechanism() {
         extensionRetractionMotor.setPower(0.0);
+    }
+
+    @Override
+    public String getName() {
+        return SUBSYSTEM_NAME;
+    }
+
+    @Override
+    public boolean init(Configuration config) {
+        return super.init();
     }
 
 

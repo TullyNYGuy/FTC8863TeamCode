@@ -114,8 +114,11 @@ public class TestTwoLiftContinuousUpdate extends LinearOpMode {
         timerRight.reset();
 
         while (opModeIsActive()) {
-            extensionRetractionStateLeft = liftLeft.update();
-            extensionRetractionStateRight = liftRight.update();
+            liftRight.update();
+            extensionRetractionStateRight = liftRight.getExtensionRetractionState();
+            liftLeft.update();
+            extensionRetractionStateLeft = liftLeft.getExtensionRetractionState();
+
 
 
             switch (steps) {

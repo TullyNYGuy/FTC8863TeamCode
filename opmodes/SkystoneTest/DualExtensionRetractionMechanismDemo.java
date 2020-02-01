@@ -119,9 +119,12 @@ public class DualExtensionRetractionMechanismDemo extends LinearOpMode {
 
             //logFileLeft.logData("in loop for first go to position");
             //logFileRight.logData("in loop for first go to position");
+            ;
+            liftLeft.update();
 
-            extensionRetractionStateLeft = liftLeft.update();
-            extensionRetractionStateRight = liftRight.update();
+            extensionRetractionStateLeft = liftLeft.getExtensionRetractionState();
+            liftRight.getExtensionRetractionState();
+            extensionRetractionStateRight = liftRight.getExtensionRetractionState();
 
             encoderValueLeft = liftLeft.getCurrentEncoderValue();
             encoderValueRight = liftRight.getCurrentEncoderValue();

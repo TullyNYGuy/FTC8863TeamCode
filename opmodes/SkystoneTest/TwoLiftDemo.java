@@ -119,8 +119,10 @@ public class TwoLiftDemo extends LinearOpMode {
             //logFileLeft.logData("in loop for first go to position");
             //logFileRight.logData("in loop for first go to position");
 
-            extensionRetractionStateLeft = liftLeft.update();
-            extensionRetractionStateRight = liftRight.update();
+            liftRight.update();
+            extensionRetractionStateRight = liftRight.getExtensionRetractionState();
+            liftLeft.update();
+            extensionRetractionStateLeft = liftLeft.getExtensionRetractionState();
 
             encoderValueLeft = liftLeft.getCurrentEncoderValue();
             encoderValueRight = liftRight.getCurrentEncoderValue();
@@ -151,8 +153,11 @@ public class TwoLiftDemo extends LinearOpMode {
             //logFileLeft.logData("in loop for first go to position");
             //logFileRight.logData("in loop for first go to position");
 
-            extensionRetractionStateLeft = liftLeft.update();
-            extensionRetractionStateRight = liftRight.update();
+            liftRight.update();
+            extensionRetractionStateRight = liftRight.getExtensionRetractionState();
+            liftLeft.update();
+            extensionRetractionStateLeft = liftLeft.getExtensionRetractionState();
+
 
             encoderValueLeft = liftLeft.getCurrentEncoderValue();
             encoderValueRight = liftRight.getCurrentEncoderValue();
@@ -201,8 +206,11 @@ public class TwoLiftDemo extends LinearOpMode {
             logFileRight.logData("in loop for second go to position");
 
 
-            extensionRetractionStateLeft = liftLeft.update();
-            extensionRetractionStateRight = liftRight.update();
+            liftRight.update();
+            extensionRetractionStateRight = liftRight.getExtensionRetractionState();
+            liftLeft.update();
+            extensionRetractionStateLeft = liftLeft.getExtensionRetractionState();
+
 
             encoderValueLeft = liftLeft.getCurrentEncoderValue();
             encoderValueRight = liftRight.getCurrentEncoderValue();

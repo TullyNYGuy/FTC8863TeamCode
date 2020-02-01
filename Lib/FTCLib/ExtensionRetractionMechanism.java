@@ -517,7 +517,7 @@ public class ExtensionRetractionMechanism {
      * initialization. The update() method has to be called after this until the isInitComplete()
      * returns true.
      */
-    public void init() {
+    public boolean init() {
         log(mechanismName + "Extension retraction system initializing");
         liftTimer.reset();
         if (!isDebugMode()) {
@@ -525,6 +525,7 @@ public class ExtensionRetractionMechanism {
         } else {
             // in debug mode no reset occurs
         }
+        return true;
     }
 
     public boolean isInitComplete() {
@@ -702,6 +703,10 @@ public class ExtensionRetractionMechanism {
         }
     }
 
+    public ExtensionRetractionStates getExtensionRetractionState() {
+
+        return this.extensionRetractionState;
+    }
     /**
      * Is the mechanism retraction cycle completed?
      *
@@ -1346,8 +1351,8 @@ public class ExtensionRetractionMechanism {
     //**********************************************************************************************
     //*********************************************************************************************
 
-    public ExtensionRetractionStates update() {
-
+    // public ExtensionRetractionStates update() {
+    public void update() {
         // update the state machine for the motor
         DcMotor8863.MotorState motorState = extensionRetractionMotor.update();
         currentEncoderValue = extensionRetractionMotor.getCurrentPosition();
@@ -2205,7 +2210,7 @@ public class ExtensionRetractionMechanism {
                 }
                 break;
         }
-        return extensionRetractionState;
+
     }
 
 
@@ -2270,7 +2275,8 @@ public class ExtensionRetractionMechanism {
         ExtensionRetractionStates extensionRetractionState;
         this.reset();
         while (opMode.opModeIsActive() && !isResetComplete()) {
-            extensionRetractionState = this.update();
+            update();
+            extensionRetractionState = getExtensionRetractionState();
             opMode.telemetry.addData("state = ", extensionRetractionState.toString());
             opMode.telemetry.update();
             opMode.idle();
@@ -2291,7 +2297,8 @@ public class ExtensionRetractionMechanism {
         int encoderValueMax = 0;
         this.goToFullExtend();
         while (opMode.opModeIsActive() && !this.isExtensionComplete()) {
-            extensionRetractionState = this.update();
+            update();
+            extensionRetractionState = getExtensionRetractionState();
             encoderValue = extensionRetractionMotor.getCurrentPosition();
             if (encoderValue > encoderValueMax) {
                 encoderValueMax = encoderValue;
@@ -2311,7 +2318,8 @@ public class ExtensionRetractionMechanism {
         int encoderValueMin = 1000000;
         this.goToFullRetract();
         while (opMode.opModeIsActive() && !this.isRetractionComplete()) {
-            extensionRetractionState = this.update();
+            update();
+            extensionRetractionState = getExtensionRetractionState();
             encoderValue = extensionRetractionMotor.getCurrentPosition();
             if (encoderValue < encoderValueMin) {
                 encoderValueMin = encoderValue;
@@ -2345,7 +2353,8 @@ public class ExtensionRetractionMechanism {
         extending = true;
 
         while (currentCycleNumber < (double) numberOfCycles && !errorExists && opMode.opModeIsActive()) {
-            extensionRetractionState = update();
+            update();
+            extensionRetractionState = getExtensionRetractionState();
             switch (extensionRetractionState) {
                 case FULLY_EXTENDED:
                     // reached full extension

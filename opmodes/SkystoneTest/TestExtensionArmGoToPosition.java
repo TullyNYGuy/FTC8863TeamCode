@@ -98,7 +98,8 @@ public class TestExtensionArmGoToPosition extends LinearOpMode {
         timer.reset();
 
         while (opModeIsActive()) {
-            extensionArmState = extensionArm.update();
+            extensionArm.update();
+            extensionArmState = extensionArm.getExtensionRetractionState();
 
 
             switch (steps) {
