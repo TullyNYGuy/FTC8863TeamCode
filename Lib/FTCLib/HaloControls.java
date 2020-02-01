@@ -25,9 +25,9 @@ public class HaloControls {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
-    private JoyStick yJoystick;
-    private JoyStick xJoystick;
-    private JoyStick speedOfRotationJoystick;
+    private SmartJoystick yJoystick;
+    private SmartJoystick xJoystick;
+    private SmartJoystick speedOfRotationJoystick;
     protected Gamepad gamepad;
     private double adjustAngle = 0;
     private Mode mode = Mode.DRIVER_MODE;
@@ -52,9 +52,9 @@ public class HaloControls {
 
     public HaloControls(Gamepad gamepad, FTCRobot robot) {
         this.gamepad = gamepad;
-        xJoystick = new JoyStick(gamepad, JoyStick.JoystickSide.LEFT, JoyStick.JoystickAxis.X);
-        yJoystick = new JoyStick(gamepad, JoyStick.JoystickSide.LEFT, JoyStick.JoystickAxis.Y);
-        speedOfRotationJoystick = new JoyStick(gamepad, JoyStick.JoystickSide.RIGHT, JoyStick.JoystickAxis.X);
+        xJoystick = new SmartJoystick(gamepad, SmartJoystick.JoystickSide.LEFT, SmartJoystick.JoystickAxis.X);
+        yJoystick = new SmartJoystick(gamepad, SmartJoystick.JoystickSide.LEFT, SmartJoystick.JoystickAxis.Y);
+        speedOfRotationJoystick = new SmartJoystick(gamepad, SmartJoystick.JoystickSide.RIGHT, SmartJoystick.JoystickAxis.X);
         this.robot = robot;
 
     }

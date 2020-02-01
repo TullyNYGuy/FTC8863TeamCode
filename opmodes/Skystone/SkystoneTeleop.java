@@ -16,6 +16,34 @@ import java.io.IOException;
 @TeleOp(name = "Skystone Teleop", group = "Run")
 //@Disabled
 
+/*
+ * Class for Skystone TeleOp mode
+ * Gamepad 1 layout
+ *      Left JoystickX - robot moves left/right
+ *      Left JoystickY - robot moves forward/backward
+ *      Right JoystickX - robot rotation
+ *      DPad Up -  Change Drive Mode
+ *      DPad Left -
+ *      DPad Down - Reset heading
+ *      DPad Right -
+ *      A - Outtake
+ *      B - Start/Stop intake state machine
+ *      X - Change Power
+ *      Y -
+ *  Gamepad 2 layout
+ *      Left JoystickX -
+ *      Left JoystickY -
+ *      Right JoystickX -
+ *      Right Joystick Y - Extension arm in and out
+ *      DPad Up -
+ *      DPad Left -
+ *      DPad Down -
+ *      DPad Right-
+ *      A - add 1 to height counter
+ *      B - reset height counter to 1
+ *      X - confirm lift movement
+ *      Y -
+ */
 public class SkystoneTeleop extends LinearOpMode {
 
     //*********************************************************************************************
