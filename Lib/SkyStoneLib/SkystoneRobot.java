@@ -279,6 +279,16 @@ public class SkystoneRobot implements FTCRobot {
         for (FTCRobotSubsystem subsystem : subsystemMap.values()) {
             subsystem.update();
         }
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        intakeBlockUpdate();
+        gripStateUpdate();
+        deportStateUpdate();
+        liftBlockStateUpdate();
+        placeBlockStateUpdate();
+        prepareIntakeUpdate();
     }
 
     public void shutdown() {
@@ -326,10 +336,13 @@ public class SkystoneRobot implements FTCRobot {
     //State Machines for robot commands
     //********************************************
     //********************************************
+    ///////////////NOTE the state machines have been edited to run without moving the lift////////////////
+
 
     //*********************************************
     //INTAKE//
     //********************************************
+    public ElapsedTime intakeTimer;
 
     public enum IntakeStates {
         IDLE,
@@ -350,20 +363,23 @@ public class SkystoneRobot implements FTCRobot {
             case IDLE:
                 break;
             case START:
-                lift.goToPosition(2, 1);
+                //lift.goToPosition(2, 1);
                 intakeState = IntakeStates.LIFT_MOVING_TO_POSITION;
                 break;
             case LIFT_MOVING_TO_POSITION:
-                if (lift.isPositionReached()) {
+                //if (lift.isPositionReached()) {
                     intake.intake();
                     intakeState = IntakeStates.INTAKE_ON;
-                }
+                //  }
                 break;
             case INTAKE_ON:
                 //Do nothing
                 break;
             case OUTTAKE:
-                //Still just hanging out
+
+                if (intakeTimer.milliseconds() > 2000) {
+                    intakeOff();
+                }
                 break;
         }
     }
@@ -375,6 +391,7 @@ public class SkystoneRobot implements FTCRobot {
 
     public void intakeSpitOut() {
         intake.outtake();
+        intakeTimer.reset();
         intakeState = IntakeStates.OUTTAKE;
     }
 
@@ -477,14 +494,14 @@ public class SkystoneRobot implements FTCRobot {
                 if (deportTimer.milliseconds() > 500) {
                     deportState = DeportStates.LIFT_LOWERING;
                     ////////////////ASK MR  BALL ABOUT HOME POSITION////////////////
-                    lift.goToPosition(1, 1);
+                    // lift.goToPosition(1, 1);
                     deportTimer.reset();
                 }
                 break;
             case LIFT_LOWERING:
-                if (lift.isPositionReached()) {
+                //if (lift.isPositionReached()) {
                     deportState = DeportStates.COMPLETE;
-                }
+                //}
                 break;
             case COMPLETE:
                 //we chillin'
@@ -536,15 +553,15 @@ public class SkystoneRobot implements FTCRobot {
                 //nothing just chilling
                 break;
             case START:
-                lift.goToBlockHeights(skyscraperLevel);
+                //lift.goToBlockHeights(skyscraperLevel);
                 liftBlockTimer.reset();
                 liftBlockState = LiftBlockStates.BLOCK_LIFTING;
 
                 break;
             case BLOCK_LIFTING:
-                if (lift.isPositionReached()) {
+                //if (lift.isPositionReached()) {
                     liftBlockState = LiftBlockStates.COMPLETE;
-                }
+                //}
                 break;
             case COMPLETE:
                 //we chillin'
@@ -639,9 +656,9 @@ public class SkystoneRobot implements FTCRobot {
                 prepareIntakeState = PrepareIntakeStates.PREPARING;
                 break;
             case PREPARING:
-                if (lift.isPositionReached() && extensionArm.isPositionReached()) {
+                // if (lift.isPositionReached() && extensionArm.isPositionReached()) {
                     prepareIntakeState = PrepareIntakeStates.COMPLETE;
-                }
+                //}
                 break;
             case COMPLETE:
                 //we chillin'

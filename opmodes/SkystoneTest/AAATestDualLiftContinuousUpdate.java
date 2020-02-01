@@ -77,11 +77,11 @@ public class AAATestDualLiftContinuousUpdate extends LinearOpMode {
         // Put your initializations here
         dualLift = new DualLift(hardwareMap,
                 "LiftRight",
-                "LiftMotortRight",
+                "LiftMotorRight",
                 "LiftExtensionLimitSwitchRight",
                 "LiftRetractionLimitSwitchRight",
                 "LiftLeft",
-                "LiftMotortLeft",
+                "LiftMotorLeft",
                 "LiftExtensionLimitSwitchLeft",
                 "LiftRetractionLimitSwitchLeft",
                 telemetry);
