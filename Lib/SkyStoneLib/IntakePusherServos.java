@@ -1,25 +1,29 @@
 package org.firstinspires.ftc.teamcode.Lib.SkyStoneLib;
 
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
 
 
-public class IntakePusherServos {
+public class IntakePusherServos implements FTCRobotSubsystem {
+
+
     enum State {
         OUT, MOVINGIN, MOVINGOUT
     }
 
-    final private double POSITION_TOLERANCE = 0.05;
-    final public double DEFAULT_LEFT_POSITION_IN = 0.34;
-    final public double DEFAULT_LEFT_POSITION_OUT = 0.05;
-    final public double DEFAULT_RIGHT_POSITION_IN = 0.60;
-    final public double DEFAULT_RIGHT_POSITION_OUT = 0.95;
+    final public double leftPushingPosition = 0.34;
+    final public double leftIdlePosition = 0.05;
+    final public double rightPushingPosition = 0.60;
+    final public double rightIdlePosition = 0.95;
 
-    private Servo left;
-    private Servo right;
+    private Servo8863 leftPusher;
+    private Servo8863 rightPusher;
     private boolean pendingPush;
     private Telemetry telemetry;
     private double inRight;
@@ -33,19 +37,17 @@ public class IntakePusherServos {
      * @param right Right servo
      * @param left Left servo
      * @param telemetry Telemetry object
-     * @param inLeft Left servo position IN. IntakePusherServos.DEFAULT_LEFT_POSITION_IN can be used here
-     * @param inRight Right servo position IN. IntakePusherServos.DEFAULT_RIGHT_POSITION_IN can be used here
-     * @param outLeft Left servo position OUT. IntakePusherServos.DEFAULT_LEFT_POSITION_OUT can be used here
-     * @param outRight Right servo position OUT. IntakePusherServos.DEFAULT_RIGHT_POSITION_IN can be used here
+     * @param inLeft Left servo position IN. IntakePusherServos.leftPushingPosition can be used here
+     * @param inRight Right servo position IN. IntakePusherServos.rightPushingPosition can be used here
+     * @param outLeft Left servo position OUT. IntakePusherServos.leftIdlePosition can be used here
+     * @param outRight Right servo position OUT. IntakePusherServos.rightPushingPosition can be used here
      */
-    public IntakePusherServos(Servo right, Servo left, Telemetry telemetry, double inLeft, double inRight, double outLeft, double outRight) {
-        this.left = left;
-        this.right = right;
+    public IntakePusherServos(String rightServoName, String leftServoName, Telemetry telemetry, HardwareMap hardwareMap) {
+        leftPusher = new Servo8863("intakePusherServoLeft", hardwareMap, telemetry, leftIdlePosition, leftPushingPosition, leftIdlePosition, leftIdlePosition, Servo.Direction.FORWARD);
+        rightPusher = new Servo8863("intakePusherServoright", hardwareMap, telemetry, rightIdlePosition, rightPushingPosition, rightIdlePosition, rightIdlePosition, Servo.Direction.FORWARD);
+        //this.left = left;
+        //this.right = right;
         this.telemetry = telemetry;
-        this.inLeft = inLeft;
-        this.inRight = inRight;
-        this.outLeft = outLeft;
-        this.outRight = outRight;
         servoState = State.OUT;
         pendingPush = false;
         timer = new ElapsedTime();
@@ -62,6 +64,16 @@ public class IntakePusherServos {
         } else {
             return false;
         }
+    }
+
+    @Override
+    public String getName() {
+        return "intakePusherServos";
+    }
+
+    @Override
+    public boolean init(Configuration config) {
+        return false;
     }
 
     public void shutdown() {
@@ -84,8 +96,8 @@ public class IntakePusherServos {
             case OUT:
                 if (pendingPush == true) {
                     pendingPush = false;
-                    left.setPosition(inLeft);
-                    right.setPosition(inRight);
+                    //left.setPosition(inLeft);
+                    //right.setPosition(inRight);
                     setState(State.MOVINGIN);
                     timer.reset();
                 }
@@ -93,8 +105,8 @@ public class IntakePusherServos {
             case MOVINGIN:
                 if (timer.milliseconds() > 1000) {
                     setState(State.MOVINGOUT);
-                    right.setPosition(outRight);
-                    left.setPosition(outLeft);
+                    //right.setPosition(outRight);
+                    //left.setPosition(outLeft);
                     timer.reset();
                 }
                 break;
@@ -110,6 +122,14 @@ public class IntakePusherServos {
 
     public boolean IsMoveOutComplete() {
         if (servoState == State.OUT) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean isPushComplete() {
+        if (servoState == State.MOVINGIN) {
             return true;
         } else {
             return false;

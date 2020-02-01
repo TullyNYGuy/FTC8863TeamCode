@@ -51,6 +51,7 @@ public class SkystoneRobot implements FTCRobot {
     private ExtensionArm extensionArm;
     private GripperRotator gripperRotator;
     private Gripper gripper;
+    private IntakePusherServos intakePusherServos;
 
     public SkystoneRobot(HardwareMap hardwareMap, Telemetry telemetry, Configuration config, DataLogging dataLog, DistanceUnit units) {
         this.hardwareMap = hardwareMap;
@@ -165,6 +166,11 @@ public class SkystoneRobot implements FTCRobot {
 //        leftIntake.setMotorType(ANDYMARK_20_ORBITAL);
         intake = new IntakeWheels("intakeMotorRight", "intakeMotorLeft", hardwareMap);
         subsystemMap.put(intake.getName(), intake);
+
+
+        //Intake pusher servo
+        intakePusherServos = new IntakePusherServos("intakePusherRight", "intakePusherLeft", telemetry, hardwareMap);
+        subsystemMap.put(intakePusherServos.getName(), intakePusherServos);
         return true;
     }
 
@@ -339,18 +345,16 @@ public class SkystoneRobot implements FTCRobot {
                 //nothing just chilling
                 break;
             case START:
-                //servo.move
-                gripTimer.reset();
+                intakePusherServos.pushIn();
                 gripState = GripStates.PUSHER_ARMS_MOVING;
                 break;
             case PUSHER_ARMS_MOVING:
-                if (gripTimer.milliseconds() > gripTimerLimit) {
+                if (intakePusherServos.isPushComplete()) {
                     gripper.grip();
-                    gripTimer.reset();
                 }
                 break;
             case GRIPPING:
-                if (gripTimer.milliseconds() > 500) {
+                if (gripper.IsGripComplete()) {
                     gripState = GripStates.COMPLETE;
                 }
                 break;
@@ -372,9 +376,9 @@ public class SkystoneRobot implements FTCRobot {
     //*********************************************
     //BLOCK DEPORTATION//
     //********************************************
-    private ElapsedTime prepTimer;
+    private ElapsedTime deportTimer;
 
-    public enum PrepStates {
+    public enum DeportStates {
         IDLE,
         START,
         ARM_EXTENDING,
@@ -383,40 +387,44 @@ public class SkystoneRobot implements FTCRobot {
         COMPLETE
     }
 
-    private PrepStates prepState = PrepStates.IDLE;
+    private DeportStates deportState = DeportStates.IDLE;
 
-    private double prepTimerLimit = 1000;
+    private double deportTimerLimit = 1000;
 
-    public void prepareBlock() {
-        prepState = PrepStates.START;
+    public void deportBlock() {
+        deportState = DeportStates.START;
     }
 
 
-    public void prepStateUpdate() {
-        switch (prepState) {
+    public void deportStateUpdate() {
+        switch (deportState) {
             case IDLE:
                 //nothing just chilling
                 break;
             case START:
-                prepTimer.reset();
-                prepState = PrepStates.ARM_EXTENDING;
+                deportTimer.reset();
+                deportState = DeportStates.ARM_EXTENDING;
+                ///////////////Ask about inches vs centimeters the method asks for inch////////////
                 extensionArm.goToPosition(21, 1);
                 break;
             case ARM_EXTENDING:
-                if (prepTimer.milliseconds() > prepTimerLimit) {
+                if (deportTimer.milliseconds() > deportTimerLimit) {
                     gripperRotator.rotateOutward();
-                    prepTimer.reset();
+                    deportTimer.reset();
                 }
                 break;
             case GRIPPER_ROTATING:
-                if (prepTimer.milliseconds() > 500) {
-                    prepState = PrepStates.LIFT_LOWERING;
-                    lift.goToBottom();
-                    prepTimer.reset();
+                if (deportTimer.milliseconds() > 500) {
+                    deportState = DeportStates.LIFT_LOWERING;
+                    ////////////////ASK MR  BALL ABOUT HOME POSITION////////////////
+                    lift.goToPosition(1, 1);
+                    deportTimer.reset();
                 }
                 break;
             case LIFT_LOWERING:
-                if (prepTimer.milliseconds() > 500)
+                if (lift.isPositionReached()) {
+                    deportState = DeportStates.COMPLETE;
+                }
                     break;
             case COMPLETE:
                 //we chillin'
@@ -425,37 +433,37 @@ public class SkystoneRobot implements FTCRobot {
     }
 
     //*********************************************
-    //BLOCK MOVING//
+    //BLOCK LIFTING//
     //********************************************
-    private ElapsedTime moveBlockTimer;
+    private ElapsedTime liftBlockTimer;
 
-    public enum MoveBlockStates {
+    public enum LiftBlockStates {
         IDLE,
         START,
-        BLOCK_MOVING,
+        BLOCK_LIFTING,
         COMPLETE
     }
 
-    private MoveBlockStates moveBlockState = MoveBlockStates.IDLE;
+    private LiftBlockStates liftBlockState = LiftBlockStates.IDLE;
 
-    private double moveBlockTimerLimit;
+    private double liftBlockTimerLimit;
 
-    public void moveBlock(int skyscraperLevel) {
+    public void liftBlock(int skyscraperLevel) {
         intakeState = IntakeStates.START;
     }
 
-    public void moveBlockStateUpdate() {
-        switch (moveBlockState) {
+    public void liftBlockStateUpdate() {
+        switch (liftBlockState) {
             case IDLE:
                 //nothing just chilling
                 break;
             case START:
-                moveBlockTimer.reset();
-                moveBlockState = MoveBlockStates.BLOCK_MOVING;
+                liftBlockTimer.reset();
+                liftBlockState = LiftBlockStates.BLOCK_LIFTING;
 
                 break;
-            case BLOCK_MOVING:
-                if (moveBlockTimer.milliseconds() > 1000) {
+            case BLOCK_LIFTING:
+                if (liftBlockTimer.milliseconds() > 1000) {
 
                 }
                 break;

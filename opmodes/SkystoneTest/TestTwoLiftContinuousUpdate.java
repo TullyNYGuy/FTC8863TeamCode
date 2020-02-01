@@ -60,7 +60,7 @@ public class TestTwoLiftContinuousUpdate extends LinearOpMode {
 
     public String buffer = "";
 
-    public double speed = 0.3;
+    public double speed = 0.1;
 
     @Override
     public void runOpMode() {
