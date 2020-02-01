@@ -28,6 +28,7 @@ public class IntakePusherServos {
     private double outLeft;
     private State servoState;
     private ElapsedTime timer;
+
     /*
      * @param right Right servo
      * @param left Left servo
@@ -106,4 +107,13 @@ public class IntakePusherServos {
         }
         telemetry.update();
     }
+
+    public boolean IsMoveOutComplete() {
+        if (servoState == State.OUT) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }
+
