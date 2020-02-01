@@ -15,22 +15,32 @@ public class Configuration extends Properties {
         super();
     }
 
-    public void load() throws IOException {
-        load(CONFIG_FILE);
+    public boolean load() {
+        return load(CONFIG_FILE);
     }
 
-    public void load(String configFile) throws IOException {
+    public boolean load(String configFile) {
         String fileName = Environment.getExternalStorageDirectory() + CONFIG_DIRECTORY + "/" + configFile;
-        super.load(new FileInputStream(fileName));
+        try {
+            super.load(new FileInputStream(fileName));
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
     }
 
-    public void store() throws IOException {
-        store(CONFIG_FILE);
+    public boolean store() {
+        return store(CONFIG_FILE);
     }
 
-    public void store(String configFile) throws IOException {
+    public boolean store(String configFile) {
         String fileName = Environment.getExternalStorageDirectory() + CONFIG_DIRECTORY + "/" + configFile;
-        super.store(new FileOutputStream(fileName), "Robot Configuration");
+        try {
+            super.store(new FileOutputStream(fileName), "Robot Configuration");
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
     }
 
     public Pair<String, Boolean> getPropertyString(String key, String defaultValue) {

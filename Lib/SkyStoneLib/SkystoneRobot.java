@@ -12,14 +12,19 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobot;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Mecanum;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometryModule;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometrySystem;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863.MotorType.ANDYMARK_20_ORBITAL;
 
-public class SkystoneRobot {
+public class SkystoneRobot implements FTCRobot {
 
     final public String PROP_IMU_NAME = "imu.deviceName";
 
@@ -28,6 +33,7 @@ public class SkystoneRobot {
     DistanceUnit units;
     Configuration config;
     private DataLogging dataLog;
+    Map<String, FTCRobotSubsystem> subsystemMap;
 
     private boolean dataLoggingEnabled = true;
 
@@ -52,6 +58,7 @@ public class SkystoneRobot {
         this.units = units;
         this.config = config;
         this.dataLog = dataLog;
+        this.subsystemMap = new HashMap<String, FTCRobotSubsystem>();
     }
 
     boolean createRobot() {
@@ -142,6 +149,7 @@ public class SkystoneRobot {
         OdometryModule right = new OdometryModule(1440, 3.8, units, "BackRight", hardwareMap);
         OdometryModule back = new OdometryModule(1440, 3.8, units, "FrontRight", hardwareMap);
         odometry = new OdometrySystem(units, left, right, back);
+        subsystemMap.put(odometry.getName(), odometry);
         if (!odometry.loadConfiguration(config)) {
             telemetry.addData("ERROR", "Couldn't initialize Odometry");
             return false;
@@ -156,16 +164,22 @@ public class SkystoneRobot {
 //        rightIntake.setMotorType(ANDYMARK_20_ORBITAL);
 //        leftIntake.setMotorType(ANDYMARK_20_ORBITAL);
         intake = new IntakeWheels("intakeMotorRight", "intakeMotorLeft", hardwareMap);
+        subsystemMap.put(intake.getName(), intake);
         return true;
     }
 
     /**
      * Every system has an init. Call it.
      */
-    public void init() {
+    public void init(Configuration config) {
         dataLog.logData("Init starting");
+        for (FTCRobotSubsystem subsystem : subsystemMap.values()) {
+            if (!subsystem.init(config)) {
+                if (dataLoggingEnabled)
+                    dataLog.logData(subsystem.getName() + " initialization failed");
+            }
+        }
         // put the init() method for each subsytem here
-        intake.init();
     }
 
     /**
@@ -179,8 +193,8 @@ public class SkystoneRobot {
 
         // put the isInitComplete for each subsystem here. In other words repeat this block of code
         // for each subsystem
-        if (!intake.isInitComplete()) {
-            result = false;
+        for (FTCRobotSubsystem subsystem : subsystemMap.values()) {
+            result &= subsystem.isInitComplete();
         }
 
         if (dataLoggingEnabled && result == true) {
@@ -196,11 +210,15 @@ public class SkystoneRobot {
      * anyway just in case that changes in the future.
      */
     public void update() {
-        intake.update();
+        for (FTCRobotSubsystem subsystem : subsystemMap.values()) {
+            subsystem.update();
+        }
     }
 
     public void shutdown() {
-        intake.shutdown();
+        for (FTCRobotSubsystem subsystem : subsystemMap.values()) {
+            subsystem.shutdown();
+        }
     }
 
     /**
@@ -218,15 +236,22 @@ public class SkystoneRobot {
 
     }
 
-    void getCurrentPosition(Position position) {
+    public void getCurrentPosition(Position position) {
         odometry.getCurrentPosition(position);
     }
 
-    double getCurrentRotation(AngleUnit unit) {
-        return odometry.getCurrentRotation(unit);
+    /*
+     * Return current robot rotation. If odometry is initialized odometry is used, otherwise IMU is used
+     */
+    @Override
+    public double getCurrentRotation(AngleUnit unit) {
+        if (odometry != null && odometry.isInitComplete())
+            return odometry.getCurrentRotation(unit);
+        else
+            return unit.fromDegrees(imu.getHeading());
     }
 
-    void setMovement(MecanumCommands commands) {
+    public void setMovement(MecanumCommands commands) {
         mecanum.setMotorPower(commands);
     }
 

@@ -3,11 +3,12 @@ package org.firstinspires.ftc.teamcode.Lib.SkyStoneLib;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
 
-public class IntakeWheels {
+public class IntakeWheels implements FTCRobotSubsystem {
     private DcMotor8863 rightIntakeMotor;
     private DcMotor8863 leftIntakeMotor;
     final private double motorSpeed = 1.0;
@@ -30,14 +31,29 @@ public class IntakeWheels {
         rightIntakeMotor.runAtConstantPower(motorSpeed);
     }
 
-    public void init() {
+    @Override
+    public boolean init(Configuration config) {
+        return true;
     }
 
+    @Override
+    public String getName() {
+        return "IntakeWheels";
+    }
+
+    @Override
     public boolean isInitComplete() {
         return true;
     }
 
+    @Override
     public void update() {
+    }
+
+    @Override
+    public void shutdown() {
+        rightIntakeMotor.stop();
+        leftIntakeMotor.stop();
     }
 
     public void intake() {
@@ -50,11 +66,6 @@ public class IntakeWheels {
         rightIntakeMotor.setPower(-motorSpeed);
         leftIntakeMotor.setPower(-motorSpeed);
         direction = false;
-    }
-
-    public void shutdown() {
-        rightIntakeMotor.stop();
-        leftIntakeMotor.stop();
     }
 
     public void stop() {

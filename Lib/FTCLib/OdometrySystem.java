@@ -1,22 +1,10 @@
 package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Scanner;
-import java.util.regex.MatchResult;
-
-import static java.lang.Math.cos;
 
 /*
  * This Odometry system designed to be used with mecanum drive.
@@ -31,7 +19,7 @@ import static java.lang.Math.cos;
  * motion along the length of the parallel odometers. The adjusted reading of
  * the back module gives translation across the length of the parallel odometers.
  */
-public class OdometrySystem {
+public class OdometrySystem implements FTCRobotSubsystem {
     //*********************************************************************************************
     //          ENUMERATED TYPES
     //
@@ -45,6 +33,8 @@ public class OdometrySystem {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
+
+    private boolean initComplete;
 
     private OdometryModule left;
     private OdometryModule right;
@@ -122,7 +112,7 @@ public class OdometrySystem {
         this.right = right;
         this.back = back;
         this.unit = unit;
-
+        this.initComplete = false;
     }
 
     //*********************************************************************************************
@@ -171,6 +161,7 @@ public class OdometrySystem {
         rightMultiplier = rightModuleDistanceSq / rightOffsetWidth;
         backMultiplier = backModuleDistanceSq / backOffsetDepth;
         initializeInternal();
+        initComplete = true;
     }
 
     protected void initializeInternal() {
@@ -359,7 +350,8 @@ public class OdometrySystem {
         backDirectionMultiplier = dblVal.first;
         fullConfig &= dblVal.second;
         initializeInternal();
-        return fullConfig;
+        initComplete = fullConfig;
+        return initComplete;
     }
 
     public void resetCoordinates() {
@@ -389,5 +381,30 @@ public class OdometrySystem {
 
     public double getCurrentRotation(AngleUnit angleUnit) {
         return angleUnit.fromRadians(currentRotation);
+    }
+
+    @Override
+    public String getName() {
+        return "Odometry";
+    }
+
+    @Override
+    public boolean isInitComplete() {
+        return initComplete;
+    }
+
+    @Override
+    public boolean init(Configuration config) {
+        return loadConfiguration(config);
+    }
+
+    @Override
+    public void update() {
+
+    }
+
+    @Override
+    public void shutdown() {
+
     }
 }

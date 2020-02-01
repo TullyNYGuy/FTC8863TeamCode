@@ -13,6 +13,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobot;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.HaloControls;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Mecanum;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
@@ -32,6 +33,21 @@ import static org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863.MotorType.AN
 //@Disabled
 public class TestMecanumWithOdometry extends LinearOpMode {
 
+    class TestRobot implements FTCRobot {
+
+        AdafruitIMU8863 imu;
+
+        public TestRobot(AdafruitIMU8863 imu) {
+            this.imu = imu;
+        }
+
+        @Override
+        public double getCurrentRotation(AngleUnit unit) {
+            return unit.fromDegrees(imu.getHeading());
+        }
+    }
+
+
     // Put your variable declarations here
     private Configuration config = new Configuration();
     private boolean configLoaded = false;
@@ -39,23 +55,13 @@ public class TestMecanumWithOdometry extends LinearOpMode {
 
     private boolean loadConfiguration() {
         configLoaded = false;
-        try {
-            config.clear();
-            config.load();
-            configLoaded = true;
-        } catch (IOException e) {
-
-        }
+        config.clear();
+        configLoaded = config.load();
         return configLoaded;
     }
 
     private boolean saveConfiguration() {
-        try {
-            config.store();
-        } catch (IOException e) {
-            return false;
-        }
-        return true;
+        return config.store();
     }
 
     private void initializeOdometry(OdometrySystem odometry, Mecanum mecanum, AdafruitIMU8863 imu) {
@@ -184,7 +190,8 @@ public class TestMecanumWithOdometry extends LinearOpMode {
 
         AdafruitIMU8863 imu = new AdafruitIMU8863(hardwareMap);
         Mecanum mecanum = new Mecanum(frontLeft, frontRight, backLeft, backRight, telemetry);
-        HaloControls haloControls = new HaloControls(gamepad1, imu);
+        TestRobot robot = new TestRobot(imu);
+        HaloControls haloControls = new HaloControls(gamepad1, robot);
         DistanceUnit units = DistanceUnit.CM;
         OdometryModule left = new OdometryModule(1440, 3.8 * Math.PI, units, "FrontLeft", hardwareMap);
         OdometryModule right = new OdometryModule(1440, 3.8 * Math.PI, units, "BackRight", hardwareMap);

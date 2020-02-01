@@ -14,6 +14,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobot;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.HaloControls;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.JoyStick;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Mecanum;
@@ -38,6 +39,20 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
     }
 
     public IntakeState intakeState;
+
+    class TestRobot implements FTCRobot {
+
+        AdafruitIMU8863 imu;
+
+        public TestRobot(AdafruitIMU8863 imu) {
+            this.imu = imu;
+        }
+
+        @Override
+        public double getCurrentRotation(AngleUnit unit) {
+            return unit.fromDegrees(imu.getHeading());
+        }
+    }
 
     @Override
     public void runOpMode() {
@@ -128,7 +143,8 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
 
         AdafruitIMU8863 imu = new AdafruitIMU8863(hardwareMap);
         Mecanum mecanum = new Mecanum(frontLeft, frontRight, backLeft, backRight, telemetry);
-        HaloControls haloControls = new HaloControls(gamepad1, imu);
+        TestRobot robot = new TestRobot(imu);
+        HaloControls haloControls = new HaloControls(gamepad1, robot);
 
 
         // Note from Glenn:

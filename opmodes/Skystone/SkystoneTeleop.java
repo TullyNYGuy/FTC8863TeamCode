@@ -2,20 +2,16 @@ package org.firstinspires.ftc.teamcode.opmodes.Skystone;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.robot.Robot;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.GamepadButtonMultiPush;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.JoyStick;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.SkystoneRobot;
-import org.firstinspires.ftc.teamcode.opmodes.RoverRuckus.RoverRuckusRobot;
+
+import java.io.IOException;
 
 @TeleOp(name = "Skystone Teleop", group = "Run")
 //@Disabled
@@ -114,6 +110,10 @@ public class SkystoneTeleop extends LinearOpMode {
 
         dataLog = new DataLogging("Teleop", telemetry);
         config = new Configuration();
+        if (!config.load()) {
+            telemetry.addData("ERROR", "Couldn't load config file");
+            telemetry.update();
+        }
         timer = new ElapsedTime();
 
         robot = new SkystoneRobot(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM);
@@ -170,7 +170,7 @@ public class SkystoneTeleop extends LinearOpMode {
         gamepad1RightJoyStickY.set30PercentPower();
 
         // start the inits for the robot subsytems
-        robot.init();
+        robot.init(config);
         timer.reset();
 
         // run the state machines associated with the subsystems to allow the inits to complete

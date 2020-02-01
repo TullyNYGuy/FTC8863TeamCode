@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobot;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.HaloControls;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
 
@@ -12,8 +13,8 @@ public class HaloControlsWithIntake extends HaloControls {
     private int modifier = 1;
     private Telemetry telemetry;
 
-    public HaloControlsWithIntake(Gamepad gamepad, AdafruitIMU8863 imu, Telemetry telemetry) {
-        super(gamepad, imu);
+    public HaloControlsWithIntake(Gamepad gamepad, FTCRobot robot, Telemetry telemetry) {
+        super(gamepad, robot);
         this.telemetry = telemetry;
     }
 

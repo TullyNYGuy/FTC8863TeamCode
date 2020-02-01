@@ -31,9 +31,9 @@ public class HaloControls {
     protected Gamepad gamepad;
     private double adjustAngle = 0;
     private Mode mode = Mode.DRIVER_MODE;
-    private AdafruitIMU8863 imu;
     private double heading = 0;
     private boolean modeButton = false;
+    private FTCRobot robot;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -50,12 +50,12 @@ public class HaloControls {
     // from it
     //*********************************************************************************************
 
-    public HaloControls(Gamepad gamepad, AdafruitIMU8863 imu) {
+    public HaloControls(Gamepad gamepad, FTCRobot robot) {
         this.gamepad = gamepad;
         xJoystick = new JoyStick(gamepad, JoyStick.JoystickSide.LEFT, JoyStick.JoystickAxis.X);
         yJoystick = new JoyStick(gamepad, JoyStick.JoystickSide.LEFT, JoyStick.JoystickAxis.Y);
         speedOfRotationJoystick = new JoyStick(gamepad, JoyStick.JoystickSide.RIGHT, JoyStick.JoystickAxis.X);
-        this.imu = imu;
+        this.robot = robot;
 
     }
 
@@ -74,7 +74,7 @@ public class HaloControls {
     public void calculateMecanumCommands(MecanumCommands commands) {
         if (commands == null)
             return;
-        heading = Math.toRadians(imu.getHeading());
+        heading = robot.getCurrentRotation(AngleUnit.RADIANS);
         /*
          * b button on the gamepad toggles between driver point of view mode (angles are based
          * on coordinate system relative to field) and robot point of view mode (angles are based
@@ -112,7 +112,7 @@ public class HaloControls {
         commands.setAngleOfTranslation(AngleUnit.RADIANS, angleOfTranslation);
         commands.setSpeed(translationSpeed);
         commands.setSpeedOfRotation(rValue);
-        heading = Math.toRadians(imu.getHeading());
+        heading = robot.getCurrentRotation(AngleUnit.RADIANS);
     }
 
     public Mode getMode() {
@@ -120,28 +120,20 @@ public class HaloControls {
     }
 
     public void setMode(Mode mode) {
-        if (imu != null) {
-            this.mode = mode;
-            if (mode == Mode.DRIVER_MODE) {
-                adjustAngle = heading - adjustAngle;
-            }
-        } else {
-            this.mode = Mode.ROBOT_MODE;
-
+        this.mode = mode;
+        if (mode == Mode.DRIVER_MODE) {
+            adjustAngle = heading - adjustAngle;
         }
-
     }
 
     public void toggleMode() {
-        if (imu != null) {
-            if (mode == Mode.DRIVER_MODE) {
-                mode = Mode.ROBOT_MODE;
-            } else {
-                mode = Mode.DRIVER_MODE;
-                // get the difference in angle between the robot referenced coordinate system and the
-                // driver / field referenced coordinate system
-                adjustAngle = heading - adjustAngle;
-            }
+        if (mode == Mode.DRIVER_MODE) {
+            mode = Mode.ROBOT_MODE;
+        } else {
+            mode = Mode.DRIVER_MODE;
+            // get the difference in angle between the robot referenced coordinate system and the
+            // driver / field referenced coordinate system
+            adjustAngle = heading - adjustAngle;
         }
     }
 

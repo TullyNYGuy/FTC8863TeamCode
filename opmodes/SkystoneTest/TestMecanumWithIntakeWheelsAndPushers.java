@@ -5,8 +5,11 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobot;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.HaloControls;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Mecanum;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
@@ -24,11 +27,28 @@ import static org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863.MotorType.AN
 //@Disabled
 public class TestMecanumWithIntakeWheelsAndPushers extends LinearOpMode {
 
+    class TestRobot implements FTCRobot {
+
+        AdafruitIMU8863 imu;
+
+        public TestRobot(AdafruitIMU8863 imu) {
+            this.imu = imu;
+        }
+
+        @Override
+        public double getCurrentRotation(AngleUnit unit) {
+            return unit.fromDegrees(imu.getHeading());
+        }
+    }
+
     // Put your variable declarations here
 
     @Override
     public void runOpMode() {
 
+
+        Configuration config = new Configuration();
+        config.load();
 
         // Put your initializations here
         MecanumCommands mecanumCommands = new MecanumCommands();
@@ -127,7 +147,8 @@ public class TestMecanumWithIntakeWheelsAndPushers extends LinearOpMode {
 
         AdafruitIMU8863 imu = new AdafruitIMU8863(hardwareMap);
         Mecanum mecanum = new Mecanum(frontLeft, frontRight, backLeft, backRight, telemetry);
-        HaloControlsWithIntake haloControls = new HaloControlsWithIntake(gamepad1, imu, telemetry);
+        TestRobot robot = new TestRobot(imu);
+        HaloControlsWithIntake haloControls = new HaloControlsWithIntake(gamepad1, robot, telemetry);
         ElapsedTime outtakeTimer = new ElapsedTime();
 
 /*
@@ -147,7 +168,7 @@ public class TestMecanumWithIntakeWheelsAndPushers extends LinearOpMode {
 
         //**************************************************************
 
-        intakeWheels.init();
+        intakeWheels.init(config);
         intakePusherServos.init();
 
         waitForStart();
