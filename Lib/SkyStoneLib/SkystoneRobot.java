@@ -530,8 +530,15 @@ public class SkystoneRobot implements FTCRobot {
 
     private double liftBlockTimerLimit;
 
-    private int skyscraperLevel = 0;
+    int skyscraperLevel = 0;
 
+    public void resetSkyscraperLevel() {
+        skyscraperLevel = 0;
+    }
+
+    public int getSkyscraperLevel() {
+        return skyscraperLevel;
+    }
     public void increaseDesiredHeightForLift() {
         skyscraperLevel = skyscraperLevel + 1;
         if (skyscraperLevel > 8) {

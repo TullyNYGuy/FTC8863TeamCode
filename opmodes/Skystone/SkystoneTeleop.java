@@ -21,30 +21,30 @@ import java.io.IOException;
 /*
  * Class for Skystone TeleOp mode
  * Gamepad 1 layout
- *      Left JoystickX - robot moves left/right
- *      Left JoystickY - robot moves forward/backward
- *      Right JoystickX - robot rotation
- *      DPad Up -  Change Drive Mode
- *      DPad Left -
- *      DPad Down - Reset heading
- *      DPad Right -
- *      A - Outtake
- *      B - Start/Stop intake state machine
- *      X - Change Power
- *      Y -
+ *    /  Left JoystickX - robot moves left/right
+ *     / Left JoystickY - robot moves forward/backward
+ *     / Right JoystickX - robot rotation
+ *    /  DPad Up -  Change Drive Mode
+ *     / DPad Left -
+ *      /DPad Down - Reset heading
+ *    /  DPad Right -
+ *     /A - Outtake
+ *    /  B - Start/Stop intake state machine
+ *     / X - Change Power
+ *     / Y -
  *  Gamepad 2 layout
- *      Left JoystickX -
- *      Left JoystickY -
- *      Right JoystickX -
- *      Right Joystick Y - Extension arm in and out
- *      DPad Up -
- *      DPad Left -
- *      DPad Down -
- *      DPad Right-
- *      A - add 1 to height counter
- *      B - reset height counter to 1
- *      X - confirm lift movement
- *      Y -
+ *      /Left JoystickX -
+ *    /  Left JoystickY -
+ *     / Right JoystickX -
+ *     / Right Joystick Y - Extension arm in and out
+ *     / DPad Up -
+ *     / DPad Left -
+ *     / DPad Down -
+ *     / DPad Right-
+ *     / A - add 1 to height counter
+ *     / B - reset height counter to 1
+ *     / X - confirm lift movement
+ *     / Y -
  */
 public class SkystoneTeleop extends LinearOpMode {
 
@@ -60,22 +60,24 @@ public class SkystoneTeleop extends LinearOpMode {
 
     private ElapsedTime timer;
 
+    public int blockLevel = 0;
+
     // GAMEPAD 1
 
     // declare the buttons on the gamepad as multi push button objects
-    public GamepadButtonMultiPush gamepad1RightBumper;
-    public GamepadButtonMultiPush gamepad1LeftBumper;
+    // public GamepadButtonMultiPush gamepad1RightBumper;
+    //public GamepadButtonMultiPush gamepad1LeftBumper;
     public GamepadButtonMultiPush gamepad1a;
     public GamepadButtonMultiPush gamepad1b;
-    public GamepadButtonMultiPush gamepad1y;
+    // public GamepadButtonMultiPush gamepad1y;
     public GamepadButtonMultiPush gamepad1x;
     public GamepadButtonMultiPush gamepad1DpadUp;
     public GamepadButtonMultiPush gamepad1DpadDown;
-    public GamepadButtonMultiPush gamepad1DpadLeft;
-    public GamepadButtonMultiPush gamepad1DpadRight;
+    // public GamepadButtonMultiPush gamepad1DpadLeft;
+    // public GamepadButtonMultiPush gamepad1DpadRight;
     public GamepadButtonMultiPush gamepad1LeftStickButton;
     public GamepadButtonMultiPush gamepad1RightStickButton;
-    public GamepadButtonMultiPush gamepad1LeftTriggerButton;
+    //public GamepadButtonMultiPush gamepad1LeftTriggerButton;
 
     // joystick and joystick value declarations - game pad 1
     final static double JOYSTICK_DEADBAND_VALUE = .15;
@@ -95,16 +97,16 @@ public class SkystoneTeleop extends LinearOpMode {
     // GAMEPAD 2
 
     // declare the buttons on the gamepad as multi push button objects
-    public GamepadButtonMultiPush gamepad2RightBumper;
-    public GamepadButtonMultiPush gamepad2LeftBumper;
+    //public GamepadButtonMultiPush gamepad2RightBumper;
+    // public GamepadButtonMultiPush gamepad2LeftBumper;
     public GamepadButtonMultiPush gamepad2a;
     public GamepadButtonMultiPush gamepad2b;
-    public GamepadButtonMultiPush gamepad2y;
+    // public GamepadButtonMultiPush gamepad2y;
     public GamepadButtonMultiPush gamepad2x;
-    public GamepadButtonMultiPush gamepad2DpadUp;
-    public GamepadButtonMultiPush gamepad2DpadDown;
-    public GamepadButtonMultiPush gamepad2DpadLeft;
-    public GamepadButtonMultiPush gamepad2DpadRight;
+    //  public GamepadButtonMultiPush gamepad2DpadUp;
+    // public GamepadButtonMultiPush gamepad2DpadDown;
+    // public GamepadButtonMultiPush gamepad2DpadLeft;
+    // public GamepadButtonMultiPush gamepad2DpadRight;
     public GamepadButtonMultiPush gamepad2LeftStickButton;
     public GamepadButtonMultiPush gamepad2RightStickButton;
 
@@ -126,6 +128,7 @@ public class SkystoneTeleop extends LinearOpMode {
     // drive train powers for differential drive
     double throttle = 0;
     double direction = 0;
+
 
     @Override
     public void runOpMode() {
@@ -150,19 +153,19 @@ public class SkystoneTeleop extends LinearOpMode {
         robot.enableDataLogging();
 
         // create the gamepad 1 buttons and tell each button how many commands it has
-        gamepad1RightBumper = new GamepadButtonMultiPush(1);
-        gamepad1LeftBumper = new GamepadButtonMultiPush(1);
-        gamepad1a = new GamepadButtonMultiPush(2);
-        gamepad1b = new GamepadButtonMultiPush(2);
-        gamepad1y = new GamepadButtonMultiPush(2);
+        // gamepad1RightBumper = new GamepadButtonMultiPush(1);
+        // gamepad1LeftBumper = new GamepadButtonMultiPush(1);
+        gamepad1a = new GamepadButtonMultiPush(1);
+        gamepad1b = new GamepadButtonMultiPush(1);
+        // gamepad1y = new GamepadButtonMultiPush(2);
         gamepad1x = new GamepadButtonMultiPush(1);
         gamepad1DpadUp = new GamepadButtonMultiPush(1);
         gamepad1DpadDown = new GamepadButtonMultiPush(1);
-        gamepad1DpadLeft = new GamepadButtonMultiPush(1);
-        gamepad1DpadRight = new GamepadButtonMultiPush(1);
+        // gamepad1DpadLeft = new GamepadButtonMultiPush(1);
+        // gamepad1DpadRight = new GamepadButtonMultiPush(1);
         gamepad1LeftStickButton = new GamepadButtonMultiPush(1);
         gamepad1RightStickButton = new GamepadButtonMultiPush(1);
-        gamepad1LeftTriggerButton = new GamepadButtonMultiPush(1);
+        // gamepad1LeftTriggerButton = new GamepadButtonMultiPush(1);
 
         // Game Pad 1 joysticks
         gamepad1LeftJoyStickX = new SmartJoystick(gamepad1, SmartJoystick.JoystickSide.LEFT, SmartJoystick.JoystickAxis.X);
@@ -172,16 +175,15 @@ public class SkystoneTeleop extends LinearOpMode {
         gamepad1RightJoyStickY = new SmartJoystick(gamepad1, SmartJoystick.JoystickSide.RIGHT, SmartJoystick.JoystickAxis.Y);
 
         // create the gamepad 2 buttons and tell each button how many commands it has
-        gamepad2RightBumper = new GamepadButtonMultiPush(1);
-        gamepad2LeftBumper = new GamepadButtonMultiPush(1);
-        gamepad2a = new GamepadButtonMultiPush(1);
+        //gamepad2RightBumper = new GamepadButtonMultiPush(1);
+        // gamepad2LeftBumper = new GamepadButtonMultiPush(1);
+        gamepad2a = new GamepadButtonMultiPush(8);
         gamepad2b = new GamepadButtonMultiPush(1);
-        gamepad2y = new GamepadButtonMultiPush(1);
+        // gamepad2y = new GamepadButtonMultiPush(1);
         gamepad2x = new GamepadButtonMultiPush(1);
-        gamepad2DpadUp = new GamepadButtonMultiPush(2);
-        gamepad2DpadDown = new GamepadButtonMultiPush(1);
-        gamepad2DpadLeft = new GamepadButtonMultiPush(1);
-        gamepad2DpadRight = new GamepadButtonMultiPush(1);
+//        gamepad2DpadDown = new GamepadButtonMultiPush(1);
+        // gamepad2DpadLeft = new GamepadButtonMultiPush(1);
+        //  gamepad2DpadRight = new GamepadButtonMultiPush(1);
         gamepad2LeftStickButton = new GamepadButtonMultiPush(1);
         gamepad2RightStickButton = new GamepadButtonMultiPush(1);
 
@@ -265,37 +267,29 @@ public class SkystoneTeleop extends LinearOpMode {
             if (gamepad1b.buttonPress(gamepad1.b)) {
                 robot.intakeBlock();
             }
-            if (gamepad1LeftTriggerButton.triggerPress(gamepad1.left_trigger)) {
-            }
+            // if (gamepad1LeftTriggerButton.triggerPress(gamepad1.left_trigger)) {
+            // }
 
-            if (gamepad1RightBumper.buttonPress(gamepad1.right_bumper)) {
-            }
+            // if (gamepad1RightBumper.buttonPress(gamepad1.right_bumper)) {
+            // }
 
-            if (gamepad1LeftBumper.buttonPress(gamepad1.left_bumper)) {
-            }
+            // if (gamepad1LeftBumper.buttonPress(gamepad1.left_bumper)) {
+            //  }
 
-            if (gamepad1a.buttonPress(gamepad1.a)) {
-                if (gamepad1a.isCommand1()) {
-                }
-                if (gamepad1a.isCommand2()) {
-                }
-            }
 
-            if (gamepad1b.buttonPress(gamepad1.b)) {
-                if (gamepad1b.isCommand1()) {
-                }
-                if (gamepad1b.isCommand2()) {
-                }
-            }
-
+/*
             if (gamepad1y.buttonPress(gamepad1.y)) {
                 if (gamepad1y.isCommand1()) {
                 }
                 if (gamepad1y.isCommand2()) {
                 }
             }
-
+*/
             if (gamepad1x.buttonPress(gamepad1.x)) {
+
+                haloControls.togglePowerModifier();
+
+
             }
 
             if (gamepad1DpadUp.buttonPress(gamepad1.dpad_up)) {
@@ -316,7 +310,7 @@ public class SkystoneTeleop extends LinearOpMode {
                 gamepad1RightJoyStickX.set30PercentPower();
                 gamepad1RightJoyStickY.set30PercentPower();
             }
-
+/*
             if (gamepad1DpadLeft.buttonPress(gamepad1.dpad_left)) {
                 // this was a new button press, not a button held down for a while
                 // put the command to be executed here
@@ -325,7 +319,8 @@ public class SkystoneTeleop extends LinearOpMode {
                 gamepad1RightJoyStickX.setHalfPower();
                 gamepad1RightJoyStickY.setHalfPower();
             }
-
+*/
+/*
             if (gamepad1DpadRight.buttonPress(gamepad1.dpad_right)) {
                 // this was a new button press, not a button held down for a while
                 // put the command to be executed here
@@ -334,7 +329,7 @@ public class SkystoneTeleop extends LinearOpMode {
                 gamepad1RightJoyStickX.set20PercentPower();
                 gamepad1RightJoyStickY.set20PercentPower();
             }
-
+*/
             if (gamepad1LeftStickButton.buttonPress(gamepad1.left_stick_button)) {
                 // this was a new button press, not a button held down for a while
                 // put the command to be executed here
@@ -380,39 +375,43 @@ public class SkystoneTeleop extends LinearOpMode {
 //                }
 //            }
 
-            if (gamepad2RightBumper.buttonPress(gamepad2.right_bumper)) {
-            }
+            // if (gamepad2RightBumper.buttonPress(gamepad2.right_bumper)) {
+            // }
 
-            if (gamepad2LeftBumper.buttonPress(gamepad2.left_bumper)) {
-            }
+            // if (gamepad2LeftBumper.buttonPress(gamepad2.left_bumper)) {
+            //  }
 
             if (gamepad2a.buttonPress(gamepad2.a)) {
+                robot.increaseDesiredHeightForLift();
+
             }
 
             if (gamepad2b.buttonPress(gamepad2.b)) {
+                robot.resetSkyscraperLevel();
             }
 
-            if (gamepad2y.buttonPress(gamepad2.y)) {
-            }
+            //  if (gamepad2y.buttonPress(gamepad2.y)) {
+            // }
 
             if (gamepad2x.buttonPress(gamepad2.x)) {
+                robot.liftBlock(robot.getSkyscraperLevel());
             }
 
-            if (gamepad2DpadUp.buttonPress(gamepad2.dpad_up)) {
-                if (gamepad2DpadUp.isCommand1()) {
-                }
-                if (gamepad2DpadUp.isCommand2()) {
-                }
-            }
+            // if (gamepad2DpadUp.buttonPress(gamepad2.dpad_up)) {
+            //   if (gamepad2DpadUp.isCommand1()) {
+            // }
+            // if (gamepad2DpadUp.isCommand2()) {
+            //  }
+            // }
 
-            if (gamepad2DpadDown.buttonPress(gamepad2.dpad_down)) {
-            }
+            // if (gamepad2DpadDown.buttonPress(gamepad2.dpad_down)) {
+            //  }
 
-            if (gamepad2DpadLeft.buttonPress(gamepad2.dpad_left)) {
-            }
+            // if (gamepad2DpadLeft.buttonPress(gamepad2.dpad_left)) {
+            // }
 
-            if (gamepad2DpadRight.buttonPress(gamepad2.dpad_right)) {
-            }
+            // if (gamepad2DpadRight.buttonPress(gamepad2.dpad_right)) {
+            // }
 
             if (gamepad2LeftStickButton.buttonPress(gamepad2.left_stick_button)) {
                 // this was a new button press, not a button held down for a while
