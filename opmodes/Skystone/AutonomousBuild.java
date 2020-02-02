@@ -146,10 +146,10 @@ public class AutonomousBuild extends LinearOpMode {
         //**************************************************************
 
         waitForStart();
-        mecanumCommands.setSpeed(1);
+        mecanumCommands.setSpeed(.5);
         mecanumCommands.setAngleOfTranslation(0);
         outtakeTimer.reset();
-        while (opModeIsActive() && outtakeTimer.milliseconds() < 10) {
+        while (opModeIsActive() && outtakeTimer.milliseconds() < 120) {
             mecanum.setMotorPower(mecanumCommands);
             telemetry.addData("Mecanum:", mecanumCommands.toString());
             telemetry.update();

@@ -146,7 +146,7 @@ public class AutonomousGatherForward extends LinearOpMode {
         mecanumCommands.setSpeed(1);
         mecanumCommands.setAngleOfTranslation(0);
         outtakeTimer.reset();
-        while (opModeIsActive() && outtakeTimer.milliseconds() < 480) {
+        while (opModeIsActive() && outtakeTimer.milliseconds() < 550) {
             mecanum.setMotorPower(mecanumCommands);
             telemetry.addData("Mecanum:", mecanumCommands.toString());
             telemetry.update();
