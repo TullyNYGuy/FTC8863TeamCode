@@ -22,30 +22,30 @@ import java.io.IOException;
 /*
  * Class for Skystone TeleOp mode
  * Gamepad 1 layout
- *    /  Left JoystickX - robot moves left/right
- *     / Left JoystickY - robot moves forward/backward
- *     / Right JoystickX - robot rotation
- *    /  DPad Up -  Change Drive Mode
- *     / DPad Left -
- *      /DPad Down - Reset heading
- *    /  DPad Right -
- *     /A - Outtake
- *    /  B - Start/Stop intake state machine
- *     / X - Change Power
- *     / Y -
+ *    / Left JoystickX - robot moves left/right
+ *    / Left JoystickY - robot moves forward/backward
+ *    / Right JoystickX - robot rotation
+ *    / DPad Up -  Change Drive Mode
+ *    / DPad Left -
+ *    / DPad Down - Reset heading
+ *    / DPad Right -
+ *    / A - Outtake
+ *    / B - Start/Stop intake state machine
+ *    / X - Change Power
+ *    / Y -
  *  Gamepad 2 layout
- *      /Left JoystickX -
- *    /  Left JoystickY -
- *     / Right JoystickX -
- *     / Right Joystick Y - Extension arm in and out
- *     / DPad Up -
- *     / DPad Left -
- *     / DPad Down -
- *     / DPad Right-
- *     / A - add 1 to height counter
- *     / B - reset height counter to 1
- *     / X - confirm lift movement
- *     / Y -
+ *    / Left JoystickX -
+ *    / Left JoystickY -
+ *    / Right JoystickX -
+ *    / Right JoystickY - Extension arm in and out
+ *    / DPad Up -
+ *    / DPad Left -
+ *    / DPad Down -
+ *    / DPad Right-
+ *    / A - add 1 to height counter
+ *    / B - reset height counter to 1
+ *    / X - confirm lift movement
+ *    / Y -
  */
 public class SkystoneTeleop extends LinearOpMode {
 
@@ -113,7 +113,8 @@ public class SkystoneTeleop extends LinearOpMode {
 
     // joystick and joystick value declarations - game pad 2
     JoyStick gamepad2LeftJoyStickX;
-    JoyStick gamepad2LeftJoyStickY;
+    //JoyStick gamepad2LeftJoyStickY;
+    SmartJoystick gamepad2LeftJoyStickY;
     double gamepad2LeftJoyStickXValue = 0;
     double gamepad2LeftJoyStickYValue = 0;
 
@@ -191,7 +192,7 @@ public class SkystoneTeleop extends LinearOpMode {
 
         // Game Pad 2 joysticks
         gamepad2LeftJoyStickX = new JoyStick(JoyStick.JoyStickMode.SQUARE, JOYSTICK_DEADBAND_VALUE, JoyStick.InvertSign.NO_INVERT_SIGN);
-        gamepad2LeftJoyStickY = new JoyStick(JoyStick.JoyStickMode.SQUARE, JOYSTICK_DEADBAND_VALUE, JoyStick.InvertSign.INVERT_SIGN);
+        gamepad2LeftJoyStickY = new SmartJoystick(gamepad2, SmartJoystick.JoystickSide.LEFT, SmartJoystick.JoystickAxis.Y);
 
         gamepad2RightJoyStickX = new JoyStick(JoyStick.JoyStickMode.SQUARE, JOYSTICK_DEADBAND_VALUE, JoyStick.InvertSign.NO_INVERT_SIGN);
         gamepad2RightJoyStickY = new JoyStick(JoyStick.JoyStickMode.SQUARE, JOYSTICK_DEADBAND_VALUE, JoyStick.InvertSign.INVERT_SIGN);
@@ -293,7 +294,7 @@ public class SkystoneTeleop extends LinearOpMode {
 
 
             }
-
+/*
             if (gamepad1DpadUp.buttonPress(gamepad1.dpad_up)) {
                 // this was a new button press, not a+
                 //button held down for a while
@@ -312,6 +313,8 @@ public class SkystoneTeleop extends LinearOpMode {
                 gamepad1RightJoyStickX.set30PercentPower();
                 gamepad1RightJoyStickY.set30PercentPower();
             }
+            */
+
 /*
             if (gamepad1DpadLeft.buttonPress(gamepad1.dpad_left)) {
                 // this was a new button press, not a button held down for a while
@@ -332,6 +335,7 @@ public class SkystoneTeleop extends LinearOpMode {
                 gamepad1RightJoyStickY.set20PercentPower();
             }
 */
+/*
             if (gamepad1LeftStickButton.buttonPress(gamepad1.left_stick_button)) {
                 // this was a new button press, not a button held down for a while
                 // put the command to be executed here
@@ -382,7 +386,7 @@ public class SkystoneTeleop extends LinearOpMode {
 
             // if (gamepad2LeftBumper.buttonPress(gamepad2.left_bumper)) {
             //  }
-
+*/
             if (gamepad2a.buttonPress(gamepad2.a)) {
                 robot.increaseDesiredHeightForLift();
 
@@ -391,13 +395,13 @@ public class SkystoneTeleop extends LinearOpMode {
             if (gamepad2b.buttonPress(gamepad2.b)) {
                 robot.resetSkyscraperLevel();
             }
-
             //  if (gamepad2y.buttonPress(gamepad2.y)) {
             // }
 
             if (gamepad2x.buttonPress(gamepad2.x)) {
                 robot.liftBlock(robot.getSkyscraperLevel());
             }
+/*
 
             // if (gamepad2DpadUp.buttonPress(gamepad2.dpad_up)) {
             //   if (gamepad2DpadUp.isCommand1()) {
@@ -447,8 +451,10 @@ public class SkystoneTeleop extends LinearOpMode {
             // joysticks to differential drive
             throttle = gamepad1RightJoyStickYValue;
             direction = gamepad1RightJoyStickXValue;
-haloControls.calculateMecanumCommands(commands);
-robot.setMovement(commands);
+
+ */
+            haloControls.calculateMecanumCommands(commands);
+            robot.setMovement(commands);
 
             // update the robot
             robot.update();
