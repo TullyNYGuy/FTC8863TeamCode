@@ -61,6 +61,8 @@ public class SkystoneRobot implements FTCRobot {
         INTAKE_PUSHER_LEFT_SERVO("intakePusherLeft"),
         GRIPPER_ROTATOR_SERVO("gripperRotator"),
         INTAKE_SWITCH("intakeLimitSwitch"),
+        BASE_MOVER_RIGHT_SERVO(""),
+        BASE_MOVER_LEFT_SERVO("")
         ;
 
         public final String hwName;
@@ -77,7 +79,8 @@ public class SkystoneRobot implements FTCRobot {
         INTAKE_LIMIT_SW,
         ODOMETRY,
         LIFT,
-        EXT_ARM
+        EXT_ARM,
+        BASE_MOVER
     }
 
     Subsystem[] currentCaps = new Subsystem[]{Subsystem.MECANUM, Subsystem.INTAKE_MOTORS, Subsystem.INTAKE_LIMIT_SW};
@@ -114,6 +117,7 @@ public class SkystoneRobot implements FTCRobot {
     private Gripper gripper;
     private IntakePusherServos intakePusherServos;
     Switch intakeLimitSwitch;
+    private BaseGrabberServo baseGrabberServo;
 
     public SkystoneRobot(HardwareMap hardwareMap, Telemetry telemetry, Configuration config, DataLogging dataLog, DistanceUnit units) {
         this.hardwareMap = hardwareMap;
@@ -238,7 +242,13 @@ public class SkystoneRobot implements FTCRobot {
                         Switch.SwitchType.NORMALLY_OPEN);
             }
         }
+        if (capabilities.contains(Subsystem.BASE_MOVER)) {
+            baseGrabberServo = new BaseGrabberServo(hardwareMap,
+                    HardwareName.BASE_MOVER_RIGHT_SERVO.hwName,
+                    HardwareName.BASE_MOVER_LEFT_SERVO.hwName, telemetry);
+            subsystemMap.put(baseGrabberServo.getName(), baseGrabberServo);
 
+        }
         if (capabilities.contains(Subsystem.LIFT)) {
             dualLift = new DualLift(hardwareMap,
                     HardwareName.LIFT_RIGHT_ENCODER.hwName,
@@ -341,6 +351,7 @@ public class SkystoneRobot implements FTCRobot {
         liftBlockStateUpdate();
         placeBlockStateUpdate();
         prepareIntakeUpdate();
+
         if (capabilities.contains(Subsystem.INTAKE_LIMIT_SW))
             updateIntakeSwitches();
     }
