@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
+import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.SkystoneRobot;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
@@ -32,7 +33,7 @@ public class TestLiftRight extends LinearOpMode {
 
         // Put your initializations here
         extensionRetractionMechanismRight = new ExtensionRetractionMechanism(hardwareMap, telemetry, "extensionRetractionRight",
-                "extensionLimitSwitchRight", "retractionLimitSwitchRight", "extensionRetractionMotorRight",
+                SkystoneRobot.HardwareName.LIFT_RIGHT_EXTENSION_SWITCH.hwName, SkystoneRobot.HardwareName.LIFT_RIGHT_RETRACTION_SWITCH.hwName, SkystoneRobot.HardwareName.LIFT_RIGHT_MOTOR.hwName,
                 DcMotor8863.MotorType.ANDYMARK_40, spoolDiameter * Math.PI);
         extensionRetractionMechanismRight.reverseMotor();
         logFile = new DataLogging("ExtensionRetractionTest", telemetry);
@@ -40,8 +41,8 @@ public class TestLiftRight extends LinearOpMode {
         extensionRetractionMechanismRight.setDataLog(logFile);
         extensionRetractionMechanismRight.enableDataLogging();
         extensionRetractionMechanismRight.setResetPower(-0.1);
-        extensionRetractionMechanismRight.setRetractionPower(-.7);
-        extensionRetractionMechanismRight.setExtensionPower(+.7);
+        extensionRetractionMechanismRight.setRetractionPower(-.1);
+        extensionRetractionMechanismRight.setExtensionPower(+.1);
 
         extensionRetractionMechanismRight.setExtensionPositionInEncoderCounts(2700.0);
 

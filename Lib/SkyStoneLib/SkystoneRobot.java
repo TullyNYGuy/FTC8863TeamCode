@@ -18,6 +18,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.Mecanum;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometryModule;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometrySystem;
+import org.firstinspires.ftc.teamcode.opmodes.GenericTest.TestMecanumToDrivetrain;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,7 +28,7 @@ import static org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863.MotorType.AN
 
 public class SkystoneRobot implements FTCRobot {
 
-    enum HardwareName {
+    public enum HardwareName {
 
         FRONT_LEFT_MOTOR("FrontLeft"),
         FRONT_RIGHT_MOTOR("FrontRight"),
@@ -37,11 +38,11 @@ public class SkystoneRobot implements FTCRobot {
         ODOMETRY_MODULE_LEFT("BackLeft"),
         ODOMETRY_MODULE_RIGHT("BackRight"),
         ODOMETRY_MODULE_BACK("FrontRight"),
-        LIFT_RIGHT_MOTOR("LiftMotortRight"),
+        LIFT_RIGHT_MOTOR("LiftMotorRight"),
         LIFT_RIGHT_ENCODER("LiftRight"),
         LIFT_RIGHT_EXTENSION_SWITCH("LiftExtensionLimitSwitchRight"),
         LIFT_RIGHT_RETRACTION_SWITCH("LiftRetractionLimitSwitchRight"),
-        LIFT_LEFT_MOTOR("LiftMotortLeft"),
+        LIFT_LEFT_MOTOR("LiftMotorLeft"),
         LIFT_LEFT_ENCODER("LiftLeft"),
         LIFT_LEFT_EXTENSION_SWITCH("LiftExtensionLimitSwitchLeft"),
         LIFT_LEFT_RETRACTION_SWITCH("LiftRetractionLimitSwitchLeft"),
@@ -279,10 +280,6 @@ public class SkystoneRobot implements FTCRobot {
         for (FTCRobotSubsystem subsystem : subsystemMap.values()) {
             subsystem.update();
         }
-        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         intakeBlockUpdate();
         gripStateUpdate();
         deportStateUpdate();
@@ -395,6 +392,12 @@ public class SkystoneRobot implements FTCRobot {
         intakeState = IntakeStates.OUTTAKE;
     }
 
+    public IntakeStates getCurrentIntakeState() {
+        return intakeState;
+    }
+
+
+
     //*********************************************
     //BLOCK GRIPPING//
     //********************************************
@@ -447,6 +450,10 @@ public class SkystoneRobot implements FTCRobot {
         } else {
             return false;
         }
+    }
+
+    public GripStates getCurrentGripperState() {
+        return gripState;
     }
 
 
@@ -517,6 +524,10 @@ public class SkystoneRobot implements FTCRobot {
         }
     }
 
+    public DeportStates getCurrentDeportState() {
+        return deportState;
+    }
+
     //*********************************************
     //BLOCK LIFTING//
     //********************************************
@@ -577,6 +588,10 @@ public class SkystoneRobot implements FTCRobot {
         }
     }
 
+    public LiftBlockStates getCurrentLiftState() {
+        return liftBlockState;
+    }
+
     //*********************************************
     //BLOCK PLACING//
     //********************************************
@@ -624,6 +639,10 @@ public class SkystoneRobot implements FTCRobot {
         } else {
             return false;
         }
+    }
+
+    public PlaceBlockStates getCurrentPlaceBlockState() {
+        return placeBlockState;
     }
 
     //*********************************************
@@ -674,6 +693,9 @@ public class SkystoneRobot implements FTCRobot {
         }
     }
 
+    public PrepareIntakeStates getCurrentPrepareIntakeState() {
+        return prepareIntakeState;
+    }
 
 
 }

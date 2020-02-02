@@ -8,6 +8,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.CSVDataFile;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.Lift;
+import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.SkystoneRobot;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
@@ -68,12 +69,12 @@ public class TestTwoLiftContinuousUpdate extends LinearOpMode {
 
         // Put your initializations here
         liftLeft = new Lift(hardwareMap, telemetry, "liftLeft",
-                "extensionLimitSwitchLiftLeft", "retractionLimitSwitchLiftLeft", "liftMotorLeft",
+                SkystoneRobot.HardwareName.LIFT_LEFT_EXTENSION_SWITCH.hwName, SkystoneRobot.HardwareName.LIFT_LEFT_RETRACTION_SWITCH.hwName, SkystoneRobot.HardwareName.LIFT_LEFT_MOTOR.hwName,
                 DcMotor8863.MotorType.ANDYMARK_40, movementPerRevolution);
-        //liftLeft.reverseMotor();
+        liftLeft.reverseMotor();
 
         liftRight = new Lift(hardwareMap, telemetry, "liftRight",
-                "extensionLimitSwitchLiftRight", "retractionLimitSwitchLiftRight", "liftMotorRight",
+                SkystoneRobot.HardwareName.LIFT_RIGHT_EXTENSION_SWITCH.hwName, SkystoneRobot.HardwareName.LIFT_RIGHT_RETRACTION_SWITCH.hwName, SkystoneRobot.HardwareName.LIFT_RIGHT_MOTOR.hwName,
                 DcMotor8863.MotorType.ANDYMARK_40, movementPerRevolution);
         liftRight.reverseMotor();
 

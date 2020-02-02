@@ -5,6 +5,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
+import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.Lift;
+import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.SkystoneRobot;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
@@ -14,23 +16,26 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
 public class TestLimitSwitches extends LinearOpMode {
 
     // Put your variable declarations here
-    public ExtensionRetractionMechanism extensionRetractionMechanismLeft;
-    public ExtensionRetractionMechanism extensionRetractionMechanismRight;
-    //public ExtensionRetractionMechanism extensionRetractionMechanismArm;
-    public double spoolDiameter = 1.25 * 25.4;
+    public Lift liftLeft;
+    public Lift liftRight;
+
+    public double spoolDiameter = 1.25; //inches
+    // spool diameter * pi * 5 stages
+    public double movementPerRevolution = spoolDiameter * Math.PI * 5;
 
     @Override
     public void runOpMode() {
 
 
         // Put your initializations here
-        extensionRetractionMechanismLeft = new ExtensionRetractionMechanism(hardwareMap, telemetry, "liftLeft",
-                "extensionLimitSwitchLiftLeft", "retractionLimitSwitchLiftLeft", "liftMotorLeft",
-                DcMotor8863.MotorType.ANDYMARK_40, spoolDiameter * Math.PI);
+        liftLeft = new Lift(hardwareMap, telemetry, "liftLeft",
+                SkystoneRobot.HardwareName.LIFT_LEFT_EXTENSION_SWITCH.hwName, SkystoneRobot.HardwareName.LIFT_LEFT_RETRACTION_SWITCH.hwName, SkystoneRobot.HardwareName.LIFT_LEFT_MOTOR.hwName,
+                DcMotor8863.MotorType.ANDYMARK_40, movementPerRevolution);
+        //liftLeft.reverseMotor();
 
-        extensionRetractionMechanismRight = new ExtensionRetractionMechanism(hardwareMap, telemetry, "liftRight",
-                "extensionLimitSwitchLiftRight", "retractionLimitSwitchLiftRight", "liftMotorRight",
-                DcMotor8863.MotorType.ANDYMARK_40, spoolDiameter * Math.PI);
+        liftRight = new Lift(hardwareMap, telemetry, "liftRight",
+                SkystoneRobot.HardwareName.LIFT_RIGHT_EXTENSION_SWITCH.hwName, SkystoneRobot.HardwareName.LIFT_RIGHT_RETRACTION_SWITCH.hwName, SkystoneRobot.HardwareName.LIFT_RIGHT_MOTOR.hwName,
+                DcMotor8863.MotorType.ANDYMARK_40, movementPerRevolution);
 
         //extensionRetractionMechanismArm = new ExtensionRetractionMechanism(hardwareMap,telemetry,"extensionArm",
         //        "extensionLimitSwitchArm", "retractionLimitSwitchArm", "extensionArmMotor",
@@ -47,9 +52,9 @@ public class TestLimitSwitches extends LinearOpMode {
 
             // Put your calls that need to run in a loop here
             telemetry.addData("left", ":");
-            extensionRetractionMechanismLeft.testLimitSwitches();
+            liftLeft.testLimitSwitches();
             telemetry.addData("right", ":");
-            extensionRetractionMechanismRight.testLimitSwitches();
+            liftRight.testLimitSwitches();
             telemetry.addData("arm", ":");
             //extensionRetractionMechanismArm.testLimitSwitches();
             telemetry.update();
