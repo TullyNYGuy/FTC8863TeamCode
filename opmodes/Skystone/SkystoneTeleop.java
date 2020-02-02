@@ -10,6 +10,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.GamepadButtonMultiPush;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.HaloControls;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.JoyStick;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.SmartJoystick;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.SkystoneRobot;
 
@@ -148,6 +149,7 @@ public class SkystoneTeleop extends LinearOpMode {
             telemetry.update();
         }
         timer = new ElapsedTime();
+        MecanumCommands commands = new MecanumCommands();
 
         robot = new SkystoneRobot(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM);
         robot.enableDataLogging();
@@ -445,6 +447,8 @@ public class SkystoneTeleop extends LinearOpMode {
             // joysticks to differential drive
             throttle = gamepad1RightJoyStickYValue;
             direction = gamepad1RightJoyStickXValue;
+haloControls.calculateMecanumCommands(commands);
+robot.setMovement(commands);
 
             // update the robot
             robot.update();
