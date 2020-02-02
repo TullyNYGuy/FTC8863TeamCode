@@ -4,6 +4,7 @@ package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 public class HaloControls {
@@ -34,6 +35,7 @@ public class HaloControls {
     private FTCRobot robot;
     private int powerModifier = 1;
 
+    private Telemetry telemetry;
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -49,11 +51,12 @@ public class HaloControls {
     // from it
     //*********************************************************************************************
 
-    public HaloControls(SmartJoystick xJoystick, SmartJoystick yJoystick, SmartJoystick speedOfRotationJoystick, FTCRobot robot) {
+    public HaloControls(SmartJoystick xJoystick, SmartJoystick yJoystick, SmartJoystick speedOfRotationJoystick, FTCRobot robot, Telemetry telemetry) {
         this.xJoystick = xJoystick;
         this.yJoystick = yJoystick;
         this.speedOfRotationJoystick = speedOfRotationJoystick;
         this.robot = robot;
+        this.telemetry = telemetry;
     }
 
     //*********************************************************************************************
@@ -62,7 +65,7 @@ public class HaloControls {
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
     public double getPowerModifier() {
-        return 1 / ((powerModifier + 1) * 2);
+        return 1 / (((double)powerModifier + 1) * 2);
     }
 
 
@@ -73,8 +76,8 @@ public class HaloControls {
     // public methods that give the class its functionality
     //*********************************************************************************************
     public void calculateMecanumCommands(MecanumCommands commands) {
-        if (commands == null)
-            return;
+       // if (commands == null)
+      //      return;
         heading = robot.getCurrentRotation(AngleUnit.RADIANS);
         /*
          * b button on the gamepad toggles between driver point of view mode (angles are based
@@ -109,6 +112,7 @@ public class HaloControls {
         translationSpeed *= powerModifier;
         rValue *= powerModifier;
 
+        telemetry.addData("Halo: ", String.format("x: %.2f, y: %.2f, sp: %.2f", xValue, yValue, translationSpeed));
         commands.setAngleOfTranslation(AngleUnit.RADIANS, angleOfTranslation);
         commands.setSpeed(translationSpeed);
         commands.setSpeedOfRotation(rValue);

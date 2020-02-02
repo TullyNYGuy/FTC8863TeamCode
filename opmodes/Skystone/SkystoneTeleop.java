@@ -199,13 +199,13 @@ public class SkystoneTeleop extends LinearOpMode {
         //gamepad2RightJoyStickY.setHalfPower();
 
         // default the wheels to 30% power
-        gamepad1LeftJoyStickX.set30PercentPower();
-        gamepad1LeftJoyStickY.set30PercentPower();
-        gamepad1RightJoyStickX.set30PercentPower();
-        gamepad1RightJoyStickY.set30PercentPower();
+      //  gamepad1LeftJoyStickX.set30PercentPower();
+       // gamepad1LeftJoyStickY.set30PercentPower();
+       // gamepad1RightJoyStickX.set30PercentPower();
+       // gamepad1RightJoyStickY.set30PercentPower();
 
-        HaloControls haloControls = new HaloControls(gamepad1LeftJoyStickX, gamepad1LeftJoyStickY, gamepad1RightJoyStickX, robot);
-
+        HaloControls haloControls = new HaloControls(gamepad1LeftJoyStickX, gamepad1LeftJoyStickY, gamepad1RightJoyStickX, robot, telemetry);
+        robot.createRobot();
         // start the inits for the robot subsytems
         robot.init(config);
         timer.reset();
@@ -454,6 +454,9 @@ public class SkystoneTeleop extends LinearOpMode {
 
  */
             haloControls.calculateMecanumCommands(commands);
+            telemetry.addData("Mecanum", commands);
+          //  telemetry.addData("left x joystick value: ", gamepad1LeftJoyStickX.getValue());
+//            telemetry.addData("power modifier: ", haloControls.getPowerModifier());
             robot.setMovement(commands);
 
             // update the robot

@@ -50,8 +50,8 @@ public class SkystoneRobot implements FTCRobot {
         LIFT_LEFT_ENCODER("LiftLeft"),
         LIFT_LEFT_EXTENSION_SWITCH("LiftExtensionLimitSwitchLeft"),
         LIFT_LEFT_RETRACTION_SWITCH("LiftRetractionLimitSwitchLeft"),
-        INTAKE_RIGHT_MOTOR("IntakeMotorRight"),
-        INTAKE_LEFT_MOTOR("IntakeMotorLeft"),
+        INTAKE_RIGHT_MOTOR("intakeMotorRight"),
+        INTAKE_LEFT_MOTOR("intakeMotorLeft"),
         EXT_ARM_SERVO("ExtensionArmServoMotor"),
         EXT_ARM_ENCODER("ExtensionArmEncoder"),
         EXT_ARM_RETRACTION_SWITCH("RetractionLimitSwitchArm"),
@@ -126,7 +126,7 @@ public class SkystoneRobot implements FTCRobot {
         capabilities.addAll(new ArrayList<Subsystem>());
     }
 
-    boolean createRobot() {
+    public boolean createRobot() {
         imu = new AdafruitIMU8863(hardwareMap, null, "IMU", HardwareName.IMU.hwName);
         if (capabilities.contains(Subsystem.MECANUM)) {
             DcMotor8863 frontLeft = new DcMotor8863(HardwareName.FRONT_LEFT_MOTOR.hwName, hardwareMap);
@@ -378,7 +378,10 @@ public class SkystoneRobot implements FTCRobot {
         if (odometry != null && odometry.isInitComplete())
             return odometry.getCurrentRotation(unit);
         else
+            if(imu != null)
             return unit.fromDegrees(imu.getHeading());
+            else
+                return 0;
     }
 
     public void setMovement(MecanumCommands commands) {
