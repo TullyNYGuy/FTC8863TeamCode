@@ -17,6 +17,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.SmartJoystick;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Switch;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.IntakePusherServosGB;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.IntakeWheels;
+import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.SkystoneRobot;
 
 import static org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863.MotorType.ANDYMARK_20_ORBITAL;
 
@@ -66,7 +67,9 @@ public class TestMecanumWithIntakeWheelsAndPushers extends LinearOpMode {
         DcMotor8863 frontRight = new DcMotor8863("FrontRight", hardwareMap);
         DcMotor8863 backRight = new DcMotor8863("BackRight", hardwareMap);
 
-        IntakeWheels intakeWheels = new IntakeWheels(hardwareMap, "intakeMotorRight", "intakeMotorLeft");
+        IntakeWheels intakeWheels = new IntakeWheels(hardwareMap,
+                SkystoneRobot.HardwareName.INTAKE_RIGHT_MOTOR.hwName,
+                SkystoneRobot.HardwareName.INTAKE_LEFT_MOTOR.hwName);
 
         IntakePusherServosGB intakePusherServos = new IntakePusherServosGB("intakeServoLeft", "intakeServoRight", hardwareMap, telemetry);
 
