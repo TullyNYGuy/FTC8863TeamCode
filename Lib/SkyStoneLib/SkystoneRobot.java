@@ -61,8 +61,8 @@ public class SkystoneRobot implements FTCRobot {
         INTAKE_PUSHER_LEFT_SERVO("intakePusherLeft"),
         GRIPPER_ROTATOR_SERVO("gripperRotator"),
         INTAKE_SWITCH("intakeLimitSwitch"),
-        BASE_MOVER_RIGHT_SERVO(""),
-        BASE_MOVER_LEFT_SERVO("")
+        BASE_MOVER_RIGHT_SERVO("BaseMoverRight"),
+        BASE_MOVER_LEFT_SERVO("BaseMoverLeft")
         ;
 
         public final String hwName;
@@ -83,7 +83,7 @@ public class SkystoneRobot implements FTCRobot {
         BASE_MOVER
     }
 
-    Subsystem[] currentCaps = new Subsystem[]{Subsystem.MECANUM, Subsystem.INTAKE_MOTORS, Subsystem.INTAKE_LIMIT_SW};
+    Subsystem[] currentCaps = new Subsystem[]{Subsystem.MECANUM, Subsystem.INTAKE_MOTORS, Subsystem.INTAKE_LIMIT_SW, Subsystem.BASE_MOVER};
 
     Set<Subsystem> capabilities = new HashSet<Subsystem>(Arrays.asList(currentCaps));
 
@@ -249,6 +249,7 @@ public class SkystoneRobot implements FTCRobot {
             subsystemMap.put(baseGrabberServo.getName(), baseGrabberServo);
 
         }
+
         if (capabilities.contains(Subsystem.LIFT)) {
             dualLift = new DualLift(hardwareMap,
                     HardwareName.LIFT_RIGHT_ENCODER.hwName,
@@ -761,6 +762,7 @@ public class SkystoneRobot implements FTCRobot {
             return false;
         }
     }
-
+    public void baseGrab(){baseGrabberServo.grabBase();}
+    public void baseRelease(){baseGrabberServo.releaseBase();}
 
 }

@@ -12,6 +12,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.HaloControls;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.JoyStick;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.SmartJoystick;
+import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.BaseGrabberServo;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.SkystoneRobot;
 
 import java.io.IOException;
@@ -102,7 +103,7 @@ public class SkystoneTeleop extends LinearOpMode {
     // public GamepadButtonMultiPush gamepad2LeftBumper;
     public GamepadButtonMultiPush gamepad2a;
     public GamepadButtonMultiPush gamepad2b;
-    // public GamepadButtonMultiPush gamepad2y;
+    public GamepadButtonMultiPush gamepad2y;
     public GamepadButtonMultiPush gamepad2x;
     //  public GamepadButtonMultiPush gamepad2DpadUp;
     // public GamepadButtonMultiPush gamepad2DpadDown;
@@ -182,7 +183,7 @@ public class SkystoneTeleop extends LinearOpMode {
         // gamepad2LeftBumper = new GamepadButtonMultiPush(1);
         gamepad2a = new GamepadButtonMultiPush(8);
         gamepad2b = new GamepadButtonMultiPush(1);
-        // gamepad2y = new GamepadButtonMultiPush(1);
+        gamepad2y = new GamepadButtonMultiPush(2);
         gamepad2x = new GamepadButtonMultiPush(1);
 //        gamepad2DpadDown = new GamepadButtonMultiPush(1);
         // gamepad2DpadLeft = new GamepadButtonMultiPush(1);
@@ -199,10 +200,10 @@ public class SkystoneTeleop extends LinearOpMode {
         //gamepad2RightJoyStickY.setHalfPower();
 
         // default the wheels to 30% power
-      //  gamepad1LeftJoyStickX.set30PercentPower();
-       // gamepad1LeftJoyStickY.set30PercentPower();
-       // gamepad1RightJoyStickX.set30PercentPower();
-       // gamepad1RightJoyStickY.set30PercentPower();
+        //  gamepad1LeftJoyStickX.set30PercentPower();
+        // gamepad1LeftJoyStickY.set30PercentPower();
+        // gamepad1RightJoyStickX.set30PercentPower();
+        // gamepad1RightJoyStickY.set30PercentPower();
 
         HaloControls haloControls = new HaloControls(gamepad1LeftJoyStickX, gamepad1LeftJoyStickY, gamepad1RightJoyStickX, robot, telemetry);
         robot.createRobot();
@@ -280,14 +281,16 @@ public class SkystoneTeleop extends LinearOpMode {
             //  }
 
 
-/*
+
             if (gamepad1y.buttonPress(gamepad1.y)) {
                 if (gamepad1y.isCommand1()) {
+                    robot.baseGrab();
                 }
                 if (gamepad1y.isCommand2()) {
+                    robot.baseRelease();
                 }
             }
-*/
+
             if (gamepad1x.buttonPress(gamepad1.x)) {
 
                 haloControls.togglePowerModifier();
@@ -395,8 +398,18 @@ public class SkystoneTeleop extends LinearOpMode {
             if (gamepad2b.buttonPress(gamepad2.b)) {
                 robot.resetSkyscraperLevel();
             }
-            //  if (gamepad2y.buttonPress(gamepad2.y)) {
-            // }
+            if (gamepad2y.buttonPress(gamepad2.y)) {
+                if (gamepad2y.isCommand1()) {
+                    robot.baseGrab();
+//                     call the first command you want to run
+                }
+                if (gamepad2y.isCommand2()) {
+//                     call the 2nd command you want to run
+                    robot.baseRelease();
+                }
+
+            }
+
 
             if (gamepad2x.buttonPress(gamepad2.x)) {
                 robot.liftBlock(robot.getSkyscraperLevel());
@@ -455,7 +468,7 @@ public class SkystoneTeleop extends LinearOpMode {
  */
             haloControls.calculateMecanumCommands(commands);
             telemetry.addData("Mecanum", commands);
-          //  telemetry.addData("left x joystick value: ", gamepad1LeftJoyStickX.getValue());
+            //  telemetry.addData("left x joystick value: ", gamepad1LeftJoyStickX.getValue());
 //            telemetry.addData("power modifier: ", haloControls.getPowerModifier());
             robot.setMovement(commands);
 

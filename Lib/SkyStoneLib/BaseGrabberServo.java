@@ -18,10 +18,10 @@ public class BaseGrabberServo implements FTCRobotSubsystem {
         UP, GOINGTOUP, GOINGTOGRAB, GRABBED
     }
 
-    final public double leftGrabbingPosition = 0.34;
-    final public double leftUpPosition = 0.05;
-    final public double rightGrabbingPosition = 0.60;
-    final public double rightUpPosition = 0.95;
+    final public double leftGrabbingPosition = .05;
+    final public double leftUpPosition = .95;
+    final public double rightGrabbingPosition = .95;
+    final public double rightUpPosition = .05;
     private boolean pendingRelease;
     private Servo8863 leftGrabber;
     private Servo8863 rightGrabber;
@@ -99,8 +99,8 @@ public class BaseGrabberServo implements FTCRobotSubsystem {
             case UP:
                 if (pendingGrab == true) {
                     pendingGrab = false;
-                    leftGrabber.setPosition(grabLeft);
-                    rightGrabber.setPosition(grabRight);
+                    leftGrabber.setPosition(leftGrabbingPosition);
+                    rightGrabber.setPosition(rightGrabbingPosition);
                     setState(State.GOINGTOGRAB);
                     timer.reset();
                 }
@@ -120,8 +120,8 @@ public class BaseGrabberServo implements FTCRobotSubsystem {
             case GRABBED:
                 if(pendingRelease == true){
                     pendingRelease = false;
-                    leftGrabber.setPosition(upLeft);
-                    rightGrabber.setPosition(upRight);
+                    leftGrabber.setPosition(leftUpPosition);
+                    rightGrabber.setPosition(rightUpPosition);
                     setState(State.GOINGTOUP);
                     timer.reset();
                 }
