@@ -19,9 +19,14 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometryModule;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometrySystem;
 import org.firstinspires.ftc.teamcode.opmodes.GenericTest.TestMecanumToDrivetrain;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Switch;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import static org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863.MotorType.ANDYMARK_20_ORBITAL;
 import static org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863.MotorType.ANDYMARK_40;
@@ -46,8 +51,8 @@ public class SkystoneRobot implements FTCRobot {
         LIFT_LEFT_ENCODER("LiftLeft"),
         LIFT_LEFT_EXTENSION_SWITCH("LiftExtensionLimitSwitchLeft"),
         LIFT_LEFT_RETRACTION_SWITCH("LiftRetractionLimitSwitchLeft"),
-        INTAKE_RIGHT_MOTOR("IntakeMotorRight"),
-        INTAKE_LEFT_MOTOR("IntakeMotorLeft"),
+        INTAKE_RIGHT_MOTOR("intakeMotorRight"),
+        INTAKE_LEFT_MOTOR("intakeMotorLeft"),
         EXT_ARM_SERVO("ExtensionArmServoMotor"),
         EXT_ARM_ENCODER("ExtensionArmEncoder"),
         EXT_ARM_RETRACTION_SWITCH("RetractionLimitSwitchArm"),
@@ -56,6 +61,7 @@ public class SkystoneRobot implements FTCRobot {
         INTAKE_PUSHER_RIGHT_SERVO("intakePusherRight"),
         INTAKE_PUSHER_LEFT_SERVO("intakePusherLeft"),
         GRIPPER_ROTATOR_SERVO("gripperRotator"),
+        INTAKE_SWITCH("intakeLimitSwitch"),
         ;
 
         public final String hwName;
@@ -64,6 +70,20 @@ public class SkystoneRobot implements FTCRobot {
             this.hwName = name;
         }
     }
+
+    public enum Subsystem {
+        MECANUM,
+        INTAKE_MOTORS,
+        INTAKE_PUSHER,
+        INTAKE_LIMIT_SW,
+        ODOMETRY,
+        LIFT,
+        EXT_ARM
+    }
+
+    Subsystem[] currentCaps = new Subsystem[]{Subsystem.MECANUM, Subsystem.INTAKE_MOTORS, Subsystem.INTAKE_LIMIT_SW};
+
+    Set<Subsystem> capabilities = new HashSet<Subsystem>(Arrays.asList(currentCaps));
 
     HardwareMap hardwareMap;
     Telemetry telemetry;
@@ -78,6 +98,10 @@ public class SkystoneRobot implements FTCRobot {
         return dataLoggingEnabled;
     }
 
+    boolean isCapableOf(Subsystem subsystem) {
+        return capabilities.contains(subsystem);
+    }
+
     private AdafruitIMU8863 imu;
     private Mecanum mecanum;
     private OdometrySystem odometry;
@@ -90,6 +114,7 @@ public class SkystoneRobot implements FTCRobot {
     private GripperRotator gripperRotator;
     private Gripper gripper;
     private IntakePusherServos intakePusherServos;
+    Switch intakeLimitSwitch;
 
     public SkystoneRobot(HardwareMap hardwareMap, Telemetry telemetry, Configuration config, DataLogging dataLog, DistanceUnit units) {
         this.hardwareMap = hardwareMap;
@@ -98,97 +123,102 @@ public class SkystoneRobot implements FTCRobot {
         this.config = config;
         this.dataLog = dataLog;
         this.subsystemMap = new HashMap<String, FTCRobotSubsystem>();
+        Set<Subsystem> capabilities = new HashSet<Subsystem>();
+        capabilities.addAll(new ArrayList<Subsystem>());
     }
 
-    boolean createRobot() {
-        DcMotor8863 frontLeft = new DcMotor8863(HardwareName.FRONT_LEFT_MOTOR.hwName, hardwareMap);
-        DcMotor8863 backLeft = new DcMotor8863(HardwareName.BACK_LEFT_MOTOR.hwName, hardwareMap);
-        DcMotor8863 frontRight = new DcMotor8863(HardwareName.FRONT_RIGHT_MOTOR.hwName, hardwareMap);
-        DcMotor8863 backRight = new DcMotor8863(HardwareName.BACK_RIGHT_MOTOR.hwName, hardwareMap);
-
-        // these motors are orbital (planetary gear) motors. The type of motor sets up the number
-        // of encoder ticks per revolution. Since we are not using encoder feedback yet, this is
-        // really not important now. But it will be once we hook up the encoders and set a motor
-        // mode that uses feedback.
-        frontLeft.setMotorType(ANDYMARK_20_ORBITAL);
-        backLeft.setMotorType(ANDYMARK_20_ORBITAL);
-        frontRight.setMotorType(ANDYMARK_20_ORBITAL);
-        backRight.setMotorType(ANDYMARK_20_ORBITAL);
-
-
-        // This value will get set to some distance traveled per revolution later.
-        frontLeft.setMovementPerRev(360);
-        backLeft.setMovementPerRev(360);
-        frontRight.setMovementPerRev(360);
-        backRight.setMovementPerRev(360);
-
-        // The encoder tolerance is used when you give the motor a target encoder tick count to rotate to. 5 is
-        // probably too tight. 10 is pretty good based on experience. Note that 10 is set as the
-        // default when you create a motor object so this statement is not needed.
-        //frontLeft.setTargetEncoderTolerance(10);
-
-        // FLOAT  is also the default when you create a new motor object
-        //frontLeft.setFinishBehavior(DcMotor8863.FinishBehavior.FLOAT);
-
-        // powers are also defaulted to -1 and 1
-        //frontLeft.setMinMotorPower(-1);
-        //frontLeft.setMaxMotorPower(1);
-
-        // setDirection() is a software control that controls which direction the motor moves when
-        // you give it a positive power. We may have to change this once we see which direction the
-        // motor actually moves.
-        frontLeft.setDirection(DcMotor.Direction.REVERSE);
-        backLeft.setDirection(DcMotor.Direction.REVERSE);
-        frontRight.setDirection(DcMotor.Direction.FORWARD);
-        backRight.setDirection(DcMotor.Direction.FORWARD);
-
-        // set the running mode for the motor. The motor initializes at STOP_AND_RESET_ENCODER which
-        // resets the encoder count to zero. After this you have to choose a mode that will allow
-        // the motor to run.
-        // In this case, we do not have the encoder connected from the motor. So we only have one
-        // choice. We must run the motor without any feedback (open loop). This call is not really
-        // needed since later I use runAtConstantPower() and that sets the mode too. But since you
-        // are coming up to speed on the motors, I put this here for you to see (like my pun?).
-        frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        frontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        // The other 2 options would be:
-        // RUN_TO_POSITION - run until the targeted encoder count is reached using PID
-        // RUN_WITH_ENCODER - run at a velocity controlled by a PID
-        // For more details, see this page and start reading at Running the motor and continue down
-        // https://ftc-tricks.com/dc-motors/
-
-        // Make sure the motor does not start moving. This is not really needed because
-        // runAtConstantPower(0) below does the same thing. But I put it here so you can see this
-        // call exists.
-        frontLeft.setPower(0);
-        backLeft.setPower(0);
-        frontRight.setPower(0);
-        backRight.setPower(0);
-
-        // The runAtConstantPower() and runAtConstantSpeed() methods setup the motor to do that.
-        // They are initialzation methods. So they should not be inside the while loop.
-        //
-        // We can't use runAtConstantSpeed because there is no encoder feedback. I suspect this
-        // is why the motor did not turn. runAtConstantSpeed uses the encoder and PID control
-        // to turn the motor at a constant velocity.
-        //frontLeft.runAtConstantSpeed(mecanum.getFrontLeft());
-        //
-        // Instead we will run the motor open loop (without controlling its speed, just feeding
-        // it a power. Initialize the motor power to 0 for now.
-        frontLeft.runAtConstantPower(0);
-        backLeft.runAtConstantPower(0);
-        frontRight.runAtConstantPower(0);
-        backRight.runAtConstantPower(0);
-
+    public boolean createRobot() {
         imu = new AdafruitIMU8863(hardwareMap, null, "IMU", HardwareName.IMU.hwName);
-        mecanum = new Mecanum(frontLeft, frontRight, backLeft, backRight, telemetry);
-        OdometryModule left = new OdometryModule(1440, 3.8, units, HardwareName.ODOMETRY_MODULE_LEFT.hwName, hardwareMap);
-        OdometryModule right = new OdometryModule(1440, 3.8, units, HardwareName.ODOMETRY_MODULE_RIGHT.hwName, hardwareMap);
-        OdometryModule back = new OdometryModule(1440, 3.8, units, HardwareName.ODOMETRY_MODULE_BACK.hwName, hardwareMap);
-        odometry = new OdometrySystem(units, left, right, back);
-        subsystemMap.put(odometry.getName(), odometry);
+        if (capabilities.contains(Subsystem.MECANUM)) {
+            DcMotor8863 frontLeft = new DcMotor8863(HardwareName.FRONT_LEFT_MOTOR.hwName, hardwareMap);
+            DcMotor8863 backLeft = new DcMotor8863(HardwareName.BACK_LEFT_MOTOR.hwName, hardwareMap);
+            DcMotor8863 frontRight = new DcMotor8863(HardwareName.FRONT_RIGHT_MOTOR.hwName, hardwareMap);
+            DcMotor8863 backRight = new DcMotor8863(HardwareName.BACK_RIGHT_MOTOR.hwName, hardwareMap);
+
+            // these motors are orbital (planetary gear) motors. The type of motor sets up the number
+            // of encoder ticks per revolution. Since we are not using encoder feedback yet, this is
+            // really not important now. But it will be once we hook up the encoders and set a motor
+            // mode that uses feedback.
+            frontLeft.setMotorType(ANDYMARK_20_ORBITAL);
+            backLeft.setMotorType(ANDYMARK_20_ORBITAL);
+            frontRight.setMotorType(ANDYMARK_20_ORBITAL);
+            backRight.setMotorType(ANDYMARK_20_ORBITAL);
+
+
+            // This value will get set to some distance traveled per revolution later.
+            frontLeft.setMovementPerRev(360);
+            backLeft.setMovementPerRev(360);
+            frontRight.setMovementPerRev(360);
+            backRight.setMovementPerRev(360);
+
+            // The encoder tolerance is used when you give the motor a target encoder tick count to rotate to. 5 is
+            // probably too tight. 10 is pretty good based on experience. Note that 10 is set as the
+            // default when you create a motor object so this statement is not needed.
+            //frontLeft.setTargetEncoderTolerance(10);
+
+            // FLOAT  is also the default when you create a new motor object
+            //frontLeft.setFinishBehavior(DcMotor8863.FinishBehavior.FLOAT);
+
+            // powers are also defaulted to -1 and 1
+            //frontLeft.setMinMotorPower(-1);
+            //frontLeft.setMaxMotorPower(1);
+
+            // setDirection() is a software control that controls which direction the motor moves when
+            // you give it a positive power. We may have to change this once we see which direction the
+            // motor actually moves.
+            frontLeft.setDirection(DcMotor.Direction.REVERSE);
+            backLeft.setDirection(DcMotor.Direction.REVERSE);
+            frontRight.setDirection(DcMotor.Direction.FORWARD);
+            backRight.setDirection(DcMotor.Direction.FORWARD);
+
+            // set the running mode for the motor. The motor initializes at STOP_AND_RESET_ENCODER which
+            // resets the encoder count to zero. After this you have to choose a mode that will allow
+            // the motor to run.
+            // In this case, we do not have the encoder connected from the motor. So we only have one
+            // choice. We must run the motor without any feedback (open loop). This call is not really
+            // needed since later I use runAtConstantPower() and that sets the mode too. But since you
+            // are coming up to speed on the motors, I put this here for you to see (like my pun?).
+            frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            frontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            // The other 2 options would be:
+            // RUN_TO_POSITION - run until the targeted encoder count is reached using PID
+            // RUN_WITH_ENCODER - run at a velocity controlled by a PID
+            // For more details, see this page and start reading at Running the motor and continue down
+            // https://ftc-tricks.com/dc-motors/
+
+            // Make sure the motor does not start moving. This is not really needed because
+            // runAtConstantPower(0) below does the same thing. But I put it here so you can see this
+            // call exists.
+            frontLeft.setPower(0);
+            backLeft.setPower(0);
+            frontRight.setPower(0);
+            backRight.setPower(0);
+
+            // The runAtConstantPower() and runAtConstantSpeed() methods setup the motor to do that.
+            // They are initialzation methods. So they should not be inside the while loop.
+            //
+            // We can't use runAtConstantSpeed because there is no encoder feedback. I suspect this
+            // is why the motor did not turn. runAtConstantSpeed uses the encoder and PID control
+            // to turn the motor at a constant velocity.
+            //frontLeft.runAtConstantSpeed(mecanum.getFrontLeft());
+            //
+            // Instead we will run the motor open loop (without controlling its speed, just feeding
+            // it a power. Initialize the motor power to 0 for now.
+            frontLeft.runAtConstantPower(0);
+            backLeft.runAtConstantPower(0);
+            frontRight.runAtConstantPower(0);
+            backRight.runAtConstantPower(0);
+            mecanum = new Mecanum(frontLeft, frontRight, backLeft, backRight, telemetry);
+        }
+        if (capabilities.contains(Subsystem.ODOMETRY)) {
+            OdometryModule left = new OdometryModule(1440, 3.8, units, HardwareName.ODOMETRY_MODULE_LEFT.hwName, hardwareMap);
+            OdometryModule right = new OdometryModule(1440, 3.8, units, HardwareName.ODOMETRY_MODULE_RIGHT.hwName, hardwareMap);
+            OdometryModule back = new OdometryModule(1440, 3.8, units, HardwareName.ODOMETRY_MODULE_BACK.hwName, hardwareMap);
+            odometry = new OdometrySystem(units, left, right, back);
+            subsystemMap.put(odometry.getName(), odometry);
+        }
 
         // My preference is to encapsulate as much as possible so that creation code can be reused.
         // So move this stuff into the IntakeWheels. It should know how to create itself. I should
@@ -198,40 +228,65 @@ public class SkystoneRobot implements FTCRobot {
 //        DcMotor8863 leftIntake = new DcMotor8863("intakeMotorLeft", hardwareMap);
 //        rightIntake.setMotorType(ANDYMARK_20_ORBITAL);
 //        leftIntake.setMotorType(ANDYMARK_20_ORBITAL);
-        intake = new IntakeWheels(hardwareMap, HardwareName.INTAKE_RIGHT_MOTOR.hwName, HardwareName.INTAKE_LEFT_MOTOR.hwName);
-        subsystemMap.put(intake.getName(), intake);
+        if (capabilities.contains(Subsystem.INTAKE_MOTORS)) {
+            intake = new IntakeWheels(hardwareMap,
+                    HardwareName.INTAKE_RIGHT_MOTOR.hwName,
+                    HardwareName.INTAKE_LEFT_MOTOR.hwName);
+            subsystemMap.put(intake.getName(), intake);
+            if (capabilities.contains(Subsystem.INTAKE_LIMIT_SW)) {
+                intakeLimitSwitch = new Switch(hardwareMap,
+                        HardwareName.INTAKE_SWITCH.hwName,
+                        Switch.SwitchType.NORMALLY_OPEN);
+            }
+        }
 
-        dualLift = new DualLift(hardwareMap,
-                HardwareName.LIFT_RIGHT_ENCODER.hwName,
-                HardwareName.LIFT_RIGHT_MOTOR.hwName,
-                HardwareName.LIFT_RIGHT_EXTENSION_SWITCH.hwName,
-                HardwareName.LIFT_RIGHT_RETRACTION_SWITCH.hwName,
-                HardwareName.LIFT_LEFT_ENCODER.hwName,
-                HardwareName.LIFT_LEFT_MOTOR.hwName,
-                HardwareName.LIFT_LEFT_EXTENSION_SWITCH.hwName,
-                HardwareName.LIFT_LEFT_RETRACTION_SWITCH.hwName,
-                telemetry);
-        subsystemMap.put(dualLift.getName(), dualLift);
-        extensionArm = new ExtensionArm(hardwareMap, telemetry, HardwareName.EXT_ARM_SERVO.hwName, HardwareName.EXT_ARM_EXTENSION_SWITCH.hwName, HardwareName.EXT_ARM_RETRACTION_SWITCH.hwName, HardwareName.EXT_ARM_ENCODER.hwName, ANDYMARK_40, 2.75 * Math.PI * 2);
-        subsystemMap.put(extensionArm.getName(), extensionArm);
+        if (capabilities.contains(Subsystem.LIFT)) {
+            dualLift = new DualLift(hardwareMap,
+                    HardwareName.LIFT_RIGHT_ENCODER.hwName,
+                    HardwareName.LIFT_RIGHT_MOTOR.hwName,
+                    HardwareName.LIFT_RIGHT_EXTENSION_SWITCH.hwName,
+                    HardwareName.LIFT_RIGHT_RETRACTION_SWITCH.hwName,
+                    HardwareName.LIFT_LEFT_ENCODER.hwName,
+                    HardwareName.LIFT_LEFT_MOTOR.hwName,
+                    HardwareName.LIFT_LEFT_EXTENSION_SWITCH.hwName,
+                    HardwareName.LIFT_LEFT_RETRACTION_SWITCH.hwName,
+                    telemetry);
+            subsystemMap.put(dualLift.getName(), dualLift);
+        }
+        if (capabilities.contains(Subsystem.EXT_ARM)) {
+
+            // Extension Arm
+            extensionArm = new ExtensionArm(hardwareMap, telemetry, HardwareName.EXT_ARM_SERVO.hwName, HardwareName.EXT_ARM_EXTENSION_SWITCH.hwName, HardwareName.EXT_ARM_RETRACTION_SWITCH.hwName, HardwareName.EXT_ARM_ENCODER.hwName, ANDYMARK_40, 2.75 * Math.PI * 2);
+            subsystemMap.put(extensionArm.getName(), extensionArm);
+
+            // Gripper
+            gripper = new Gripper(hardwareMap, HardwareName.GRIPPER_SERVO.hwName, telemetry);
+            subsystemMap.put(gripper.getName(), gripper);
+
+            // GripperRotator
+            gripperRotator = new GripperRotator(hardwareMap, HardwareName.GRIPPER_ROTATOR_SERVO.hwName, telemetry);
+            subsystemMap.put(gripperRotator.getName(), gripperRotator);
+        }
 
         //Intake pusher servo
-        intakePusherServos = new IntakePusherServos(
-                hardwareMap,
-                HardwareName.INTAKE_PUSHER_RIGHT_SERVO.hwName,
-                HardwareName.INTAKE_PUSHER_RIGHT_SERVO.hwName,
-                telemetry);
-        subsystemMap.put(intakePusherServos.getName(), intakePusherServos);
+        if (capabilities.contains(Subsystem.INTAKE_PUSHER)) {
+            intakePusherServos = new IntakePusherServos(
+                    hardwareMap,
+                    HardwareName.INTAKE_PUSHER_RIGHT_SERVO.hwName,
+                    HardwareName.INTAKE_PUSHER_RIGHT_SERVO.hwName,
+                    telemetry);
+            subsystemMap.put(intakePusherServos.getName(), intakePusherServos);
+        }
 
-        // Gripper
-        gripper = new Gripper(hardwareMap, HardwareName.GRIPPER_SERVO.hwName, telemetry);
-        subsystemMap.put(gripper.getName(), gripper);
-
-        // GripperRotator
-        gripperRotator = new GripperRotator(hardwareMap, HardwareName.GRIPPER_ROTATOR_SERVO.hwName, telemetry);
-        subsystemMap.put(gripperRotator.getName(), gripperRotator);
-
-
+        //Intake pusher servo
+        if (capabilities.contains(Subsystem.INTAKE_LIMIT_SW)) {
+            intakePusherServos = new IntakePusherServos(
+                    hardwareMap,
+                    HardwareName.INTAKE_PUSHER_RIGHT_SERVO.hwName,
+                    HardwareName.INTAKE_PUSHER_RIGHT_SERVO.hwName,
+                    telemetry);
+            subsystemMap.put(intakePusherServos.getName(), intakePusherServos);
+        }
         return true;
     }
 
@@ -257,17 +312,14 @@ public class SkystoneRobot implements FTCRobot {
      */
     public boolean isInitComplete() {
         boolean result = true;
-
         // put the isInitComplete for each subsystem here. In other words repeat this block of code
         // for each subsystem
         for (FTCRobotSubsystem subsystem : subsystemMap.values()) {
             result &= subsystem.isInitComplete();
         }
-
         if (dataLoggingEnabled && result == true) {
             dataLog.logData("Init complete");
         }
-
         return result;
     }
 
@@ -286,6 +338,8 @@ public class SkystoneRobot implements FTCRobot {
         liftBlockStateUpdate();
         placeBlockStateUpdate();
         prepareIntakeUpdate();
+        if (capabilities.contains(Subsystem.INTAKE_LIMIT_SW))
+            updateIntakeSwitches();
     }
 
     public void shutdown() {
@@ -321,7 +375,10 @@ public class SkystoneRobot implements FTCRobot {
         if (odometry != null && odometry.isInitComplete())
             return odometry.getCurrentRotation(unit);
         else
+            if(imu != null)
             return unit.fromDegrees(imu.getHeading());
+            else
+                return 0;
     }
 
     public void setMovement(MecanumCommands commands) {
@@ -365,8 +422,8 @@ public class SkystoneRobot implements FTCRobot {
                 break;
             case LIFT_MOVING_TO_POSITION:
                 //if (lift.isPositionReached()) {
-                    intake.intake();
-                    intakeState = IntakeStates.INTAKE_ON;
+                intake.intake();
+                intakeState = IntakeStates.INTAKE_ON;
                 //  }
                 break;
             case INTAKE_ON:
@@ -392,6 +449,20 @@ public class SkystoneRobot implements FTCRobot {
         intakeState = IntakeStates.OUTTAKE;
     }
 
+    public void updateIntakeSwitches() {
+        boolean intakeSwitchPressed = false;
+        if (intakeLimitSwitch != null && intakeLimitSwitch.isPressed()) {
+            intakeSwitchPressed = true;
+        }
+        if (intakeSwitchPressed)
+            intake.stop();
+
+        if (intakeSwitchPressed) {
+            telemetry.addLine("intake limit switch pressed");
+        } else {
+            telemetry.addLine("intake limit switch NOT pressed");
+        }
+    }
     public IntakeStates getCurrentIntakeState() {
         return intakeState;
     }
@@ -507,7 +578,7 @@ public class SkystoneRobot implements FTCRobot {
                 break;
             case LIFT_LOWERING:
                 //if (lift.isPositionReached()) {
-                    deportState = DeportStates.COMPLETE;
+                deportState = DeportStates.COMPLETE;
                 //}
                 break;
             case COMPLETE:
@@ -544,8 +615,15 @@ public class SkystoneRobot implements FTCRobot {
 
     private double liftBlockTimerLimit;
 
-    private int skyscraperLevel = 0;
+    int skyscraperLevel = 0;
 
+    public void resetSkyscraperLevel() {
+        skyscraperLevel = 0;
+    }
+
+    public int getSkyscraperLevel() {
+        return skyscraperLevel;
+    }
     public void increaseDesiredHeightForLift() {
         skyscraperLevel = skyscraperLevel + 1;
         if (skyscraperLevel > 8) {
@@ -567,11 +645,10 @@ public class SkystoneRobot implements FTCRobot {
                 //lift.goToBlockHeights(skyscraperLevel);
                 liftBlockTimer.reset();
                 liftBlockState = LiftBlockStates.BLOCK_LIFTING;
-
                 break;
             case BLOCK_LIFTING:
                 //if (lift.isPositionReached()) {
-                    liftBlockState = LiftBlockStates.COMPLETE;
+                liftBlockState = LiftBlockStates.COMPLETE;
                 //}
                 break;
             case COMPLETE:
@@ -676,7 +753,7 @@ public class SkystoneRobot implements FTCRobot {
                 break;
             case PREPARING:
                 // if (lift.isPositionReached() && extensionArm.isPositionReached()) {
-                    prepareIntakeState = PrepareIntakeStates.COMPLETE;
+                prepareIntakeState = PrepareIntakeStates.COMPLETE;
                 //}
                 break;
             case COMPLETE:
@@ -696,6 +773,5 @@ public class SkystoneRobot implements FTCRobot {
     public PrepareIntakeStates getCurrentPrepareIntakeState() {
         return prepareIntakeState;
     }
-
 
 }

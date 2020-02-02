@@ -13,10 +13,11 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobot;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.HaloControls;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Mecanum;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.SmartJoystick;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Switch;
-import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.HaloControlsWithIntake;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.IntakePusherServosGB;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.IntakeWheels;
+import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.SkystoneRobot;
 
 import static org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863.MotorType.ANDYMARK_20_ORBITAL;
 
@@ -66,7 +67,9 @@ public class TestMecanumWithIntakeWheelsAndPushers extends LinearOpMode {
         DcMotor8863 frontRight = new DcMotor8863("FrontRight", hardwareMap);
         DcMotor8863 backRight = new DcMotor8863("BackRight", hardwareMap);
 
-        IntakeWheels intakeWheels = new IntakeWheels(hardwareMap, "intakeMotorRight", "intakeMotorLeft");
+        IntakeWheels intakeWheels = new IntakeWheels(hardwareMap,
+                SkystoneRobot.HardwareName.INTAKE_RIGHT_MOTOR.hwName,
+                SkystoneRobot.HardwareName.INTAKE_LEFT_MOTOR.hwName);
 
         IntakePusherServosGB intakePusherServos = new IntakePusherServosGB("intakeServoLeft", "intakeServoRight", hardwareMap, telemetry);
 
@@ -148,7 +151,13 @@ public class TestMecanumWithIntakeWheelsAndPushers extends LinearOpMode {
         AdafruitIMU8863 imu = new AdafruitIMU8863(hardwareMap);
         Mecanum mecanum = new Mecanum(frontLeft, frontRight, backLeft, backRight, telemetry);
         TestRobot robot = new TestRobot(imu);
-        HaloControlsWithIntake haloControls = new HaloControlsWithIntake(gamepad1, robot, telemetry);
+        // Game Pad 1 joysticks
+        SmartJoystick gamepad1LeftJoyStickX = new SmartJoystick(gamepad1, SmartJoystick.JoystickSide.LEFT, SmartJoystick.JoystickAxis.X);
+        SmartJoystick gamepad1LeftJoyStickY = new SmartJoystick(gamepad1, SmartJoystick.JoystickSide.LEFT, SmartJoystick.JoystickAxis.Y);
+
+        SmartJoystick gamepad1RightJoyStickX = new SmartJoystick(gamepad1, SmartJoystick.JoystickSide.RIGHT, SmartJoystick.JoystickAxis.X);
+        SmartJoystick gamepad1RightJoyStickY = new SmartJoystick(gamepad1, SmartJoystick.JoystickSide.RIGHT, SmartJoystick.JoystickAxis.Y);
+        HaloControls haloControls = new HaloControls(gamepad1LeftJoyStickX, gamepad1LeftJoyStickY, gamepad1RightJoyStickX, robot, telemetry);
         ElapsedTime outtakeTimer = new ElapsedTime();
 
 /*
