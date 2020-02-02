@@ -54,8 +54,8 @@ public class TestMecanumWithIntake extends LinearOpMode {
         DcMotor8863 backLeft = new DcMotor8863("BackLeft", hardwareMap);
         DcMotor8863 frontRight = new DcMotor8863("FrontRight", hardwareMap);
         DcMotor8863 backRight = new DcMotor8863("BackRight", hardwareMap);
-        DcMotor8863 rightIntake = new DcMotor8863("Right", hardwareMap);
-        DcMotor8863 leftIntake = new DcMotor8863("Left", hardwareMap);
+        DcMotor8863 rightIntake = new DcMotor8863("intakeMotorRight", hardwareMap);
+        DcMotor8863 leftIntake = new DcMotor8863("intakeMotorLeft", hardwareMap);
         IntakeWheels intakeWheels = new IntakeWheels(rightIntake, leftIntake);
         // these motors are orbital (planetary gear) motors. The type of motor sets up the number
         // of encoder ticks per revolution. Since we are not using encoder feedback yet, this is
@@ -66,8 +66,8 @@ public class TestMecanumWithIntake extends LinearOpMode {
         frontRight.setMotorType(ANDYMARK_20_ORBITAL);
         backRight.setMotorType(ANDYMARK_20_ORBITAL);
 
-        rightIntake.setMotorType(ANDYMARK_20_ORBITAL);
-        leftIntake.setMotorType(ANDYMARK_20_ORBITAL);
+        //rightIntake.setMotorType(ANDYMARK_20_ORBITAL);
+        //leftIntake.setMotorType(ANDYMARK_20_ORBITAL);
 
         // This value will get set to some distance traveled per revolution later.
         frontLeft.setMovementPerRev(360);
@@ -92,8 +92,8 @@ public class TestMecanumWithIntake extends LinearOpMode {
         // motor actually moves.
         frontLeft.setDirection(DcMotor.Direction.FORWARD);
         backLeft.setDirection(DcMotor.Direction.FORWARD);
-        frontRight.setDirection(DcMotor.Direction.REVERSE);
-        backRight.setDirection(DcMotor.Direction.REVERSE);
+        frontRight.setDirection(DcMotor.Direction.FORWARD);
+        backRight.setDirection(DcMotor.Direction.FORWARD);
 
         // set the running mode for the motor. The motor initializes at STOP_AND_RESET_ENCODER which
         // resets the encoder count to zero. After this you have to choose a mode that will allow
@@ -140,7 +140,7 @@ public class TestMecanumWithIntake extends LinearOpMode {
         HaloControlsWithIntake haloControls = new HaloControlsWithIntake(gamepad1, imu, telemetry);
         ElapsedTime outtakeTimer = new ElapsedTime();
 
-        Switch intakeLimitSwitchLeft = new Switch(hardwareMap, "IntakeSwitchLeft", Switch.SwitchType.NORMALLY_OPEN);
+        //Switch intakeLimitSwitchLeft = new Switch(hardwareMap, "IntakeSwitchLeft", Switch.SwitchType.NORMALLY_OPEN);
         Switch intakeLimitSwitchRight = new Switch(hardwareMap, "IntakeSwitchRight", Switch.SwitchType.NORMALLY_OPEN);
 
         boolean inOuttake = false;
@@ -188,13 +188,17 @@ public class TestMecanumWithIntake extends LinearOpMode {
             }
             boolean intakeSwitchLeftPressed = false;
             boolean intakeSwitchRightPressed = false;
+
+/*
             if (intakeLimitSwitchLeft != null && intakeLimitSwitchLeft.isPressed()) {
                 intakeSwitchLeftPressed = true;
             }
+            */
             if (intakeLimitSwitchRight != null && intakeLimitSwitchRight.isPressed()) {
                 intakeSwitchRightPressed = true;
+
             }
-            if (intakeSwitchLeftPressed || intakeSwitchRightPressed)
+            if (/*intakeSwitchLeftPressed || */intakeSwitchRightPressed)
                 intakeWheels.stop();
 
             // This would also work. Is there a performance advantage to it?
@@ -206,16 +210,20 @@ public class TestMecanumWithIntake extends LinearOpMode {
            // telemetry.addData("back left = ", mecanum.getBackLeft());
            // telemetry.addData("back right = ", mecanum.getBackRight());
             telemetry.addData("Mode: ", haloControls.getMode() == HaloControls.Mode.DRIVER_MODE?"Driver":"Robot");
-            if (intakeSwitchLeftPressed) {
+/*            if (intakeSwitchLeftPressed) {
                 telemetry.addLine("left limit switch pressed");
             } else {
                 telemetry.addLine("left limit switch NOT pressed");
+
             }
+*/
             if (intakeSwitchRightPressed) {
                 telemetry.addLine("right limit switch pressed");
             } else {
                 telemetry.addLine("right limit switch NOT pressed");
             }
+
+
             telemetry.addData(">", "Press Stop to end test.");
             telemetry.update();
 
