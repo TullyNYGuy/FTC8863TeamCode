@@ -71,7 +71,7 @@ public class SkystoneTeleop extends LinearOpMode {
     //public GamepadButtonMultiPush gamepad1LeftBumper;
     public GamepadButtonMultiPush gamepad1a;
     public GamepadButtonMultiPush gamepad1b;
-    // public GamepadButtonMultiPush gamepad1y;
+    public GamepadButtonMultiPush gamepad1y;
     public GamepadButtonMultiPush gamepad1x;
     public GamepadButtonMultiPush gamepad1DpadUp;
     public GamepadButtonMultiPush gamepad1DpadDown;
@@ -161,7 +161,7 @@ public class SkystoneTeleop extends LinearOpMode {
         // gamepad1LeftBumper = new GamepadButtonMultiPush(1);
         gamepad1a = new GamepadButtonMultiPush(1);
         gamepad1b = new GamepadButtonMultiPush(1);
-        // gamepad1y = new GamepadButtonMultiPush(2);
+        gamepad1y = new GamepadButtonMultiPush(2);
         gamepad1x = new GamepadButtonMultiPush(1);
         gamepad1DpadUp = new GamepadButtonMultiPush(1);
         gamepad1DpadDown = new GamepadButtonMultiPush(1);
