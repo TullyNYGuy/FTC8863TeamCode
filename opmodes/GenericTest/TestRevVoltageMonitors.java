@@ -5,8 +5,10 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.CSVDataFile;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometryModule;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.SkystoneRobot;
 import org.openftc.revextensions2.ExpansionHubEx;
 
@@ -36,6 +38,21 @@ public class TestRevVoltageMonitors extends LinearOpMode {
         expansionHubPrimary = hardwareMap.get(ExpansionHubEx.class, "Expansion Hub 1");
         expansionHubSecondary = hardwareMap.get(ExpansionHubEx.class, "Expansion Hub 2");
 
+        double odometryModuleRightValue = 0;
+        double odometryModuleBackValue = 0;
+        double odometryModuleLeftValue = 0;
+        boolean distanceMeasured = false;
+        boolean started = false;
+        double averageDistance = 0;
+        double velocity = 0;
+        double travelTime;
+        double travelTimeStart = 0;
+        double travelTimeEnd = 0;
+
+        OdometryModule odometryModuleRight;
+        OdometryModule odometryModuleBack;
+        OdometryModule odometryModuleLeft;
+
         csvDataFile = new CSVDataFile("RevVoltageCurrentMonitors", telemetry);
         csvDataFile.headerStrings("Primary Voltage", "Secondary Voltage", "Primary Current", "Secondary Current");
 
@@ -55,34 +72,60 @@ public class TestRevVoltageMonitors extends LinearOpMode {
         backRight.setMotorType(DcMotor8863.MotorType.ANDYMARK_20_ORBITAL);
         backRight.runAtConstantPower(0);
 
+        odometryModuleRight = new OdometryModule(1440, 3.8 * Math.PI, DistanceUnit.CM, "BackRight", hardwareMap);
+        odometryModuleBack = new OdometryModule(1440, 3.8 * Math.PI, DistanceUnit.CM, "FrontRight", hardwareMap);
+        odometryModuleLeft = new OdometryModule(1440, 3.8 * Math.PI, DistanceUnit.CM, "FrontLeft", hardwareMap);
+
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
         telemetry.update();
         waitForStart();
 
         timer.reset();
+        odometryModuleLeft.resetEncoderValue();
+        odometryModuleBack.resetEncoderValue();
+        odometryModuleRight.resetEncoderValue();
+
 
         while (opModeIsActive()) {
             csvDataFile.writeData(
+                    timer.seconds(),
                     expansionHubPrimary.read12vMonitor(ExpansionHubEx.VoltageUnits.VOLTS),
                     expansionHubSecondary.read12vMonitor(ExpansionHubEx.VoltageUnits.VOLTS),
                     expansionHubPrimary.getTotalModuleCurrentDraw((ExpansionHubEx.CurrentDrawUnits.AMPS)),
-                    expansionHubSecondary.getTotalModuleCurrentDraw((ExpansionHubEx.CurrentDrawUnits.AMPS))
+                    expansionHubPrimary.getMotorCurrentDraw(ExpansionHubEx.CurrentDrawUnits.AMPS, 0),
+                    expansionHubPrimary.getMotorCurrentDraw(ExpansionHubEx.CurrentDrawUnits.AMPS, 1),
+                    expansionHubPrimary.getMotorCurrentDraw(ExpansionHubEx.CurrentDrawUnits.AMPS, 2),
+                    expansionHubPrimary.getMotorCurrentDraw(ExpansionHubEx.CurrentDrawUnits.AMPS, 3),
+                    expansionHubSecondary.getTotalModuleCurrentDraw((ExpansionHubEx.CurrentDrawUnits.AMPS)),
+                    expansionHubSecondary.getMotorCurrentDraw(ExpansionHubEx.CurrentDrawUnits.AMPS, 0),
+                    expansionHubSecondary.getMotorCurrentDraw(ExpansionHubEx.CurrentDrawUnits.AMPS, 1),
+                    expansionHubSecondary.getMotorCurrentDraw(ExpansionHubEx.CurrentDrawUnits.AMPS, 2),
+                    expansionHubSecondary.getMotorCurrentDraw(ExpansionHubEx.CurrentDrawUnits.AMPS, 3)
             );
 
-            if (timer.milliseconds() > 2000) {
-                frontLeft.setPower(1);
+
+            if (timer.milliseconds() > 2000 && !started) {
+                frontLeft.setPower(-1);
                 frontRight.setPower(1);
-                backLeft.setPower(1);
+                backLeft.setPower(-1);
                 backRight.setPower(1);
-                timer.reset();
+                started = true;
+                travelTimeStart = timer.milliseconds();
             }
 
-            if (timer.milliseconds() > 3000) {
+            if (timer.milliseconds() > 4000) {
                 frontLeft.setPower(0);
                 frontRight.setPower(0);
                 backLeft.setPower(0);
                 backRight.setPower(0);
+                if (!distanceMeasured) {
+                    odometryModuleRightValue = odometryModuleRight.getDistanceSinceReset(DistanceUnit.CM);
+                    odometryModuleLeftValue = odometryModuleLeft.getDistanceSinceReset(DistanceUnit.CM);
+                    travelTimeEnd = timer.milliseconds();
+                    distanceMeasured = true;
+                }
+                break;
             }
 
             telemetry.addData(">", "Press Stop to end test.");
@@ -90,6 +133,13 @@ public class TestRevVoltageMonitors extends LinearOpMode {
 
             idle();
         }
+
+        averageDistance = ((odometryModuleLeftValue + odometryModuleRightValue) / 2);
+        travelTime = (travelTimeEnd - travelTimeStart) / 1000;
+        velocity = averageDistance / travelTime;
+        csvDataFile.blankLine();
+        csvDataFile.headerStrings("left distance", "right distance", "average distance", "travel time", "velocity");
+        csvDataFile.writeData(odometryModuleLeftValue, odometryModuleRightValue, averageDistance, travelTime, velocity);
 
         // Put your cleanup code here - it runs as the application shuts down
         csvDataFile.closeDataLog();
