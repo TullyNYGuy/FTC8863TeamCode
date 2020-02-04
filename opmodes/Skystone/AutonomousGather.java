@@ -18,7 +18,7 @@ import static org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863.MotorType.AN
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@Autonomous(name = "gather start", group = "Run")
+@Autonomous(name = "right", group = "Run")
 //@Disabled
 public class AutonomousGather extends LinearOpMode {
 
@@ -43,8 +43,8 @@ public class AutonomousGather extends LinearOpMode {
         DcMotor8863 backLeft = new DcMotor8863("BackLeft", hardwareMap);
         DcMotor8863 frontRight = new DcMotor8863("FrontRight", hardwareMap);
         DcMotor8863 backRight = new DcMotor8863("BackRight", hardwareMap);
-        DcMotor8863 rightIntake = new DcMotor8863("Right", hardwareMap);
-        DcMotor8863 leftIntake = new DcMotor8863("Left", hardwareMap);
+        DcMotor8863 rightIntake = new DcMotor8863("intakeMotorRight", hardwareMap);
+        DcMotor8863 leftIntake = new DcMotor8863("intakeMotorLeft", hardwareMap);
         IntakeWheels intakeWheels = new IntakeWheels(rightIntake, leftIntake);
         // these motors are orbital (planetary gear) motors. The type of motor sets up the number
         // of encoder ticks per revolution. Since we are not using encoder feedback yet, this is
@@ -81,8 +81,8 @@ public class AutonomousGather extends LinearOpMode {
         // motor actually moves.
         frontLeft.setDirection(DcMotor.Direction.FORWARD);
         backLeft.setDirection(DcMotor.Direction.FORWARD);
-        frontRight.setDirection(DcMotor.Direction.REVERSE);
-        backRight.setDirection(DcMotor.Direction.REVERSE);
+        frontRight.setDirection(DcMotor.Direction.FORWARD);
+        backRight.setDirection(DcMotor.Direction.FORWARD);
 
         // set the running mode for the motor. The motor initializes at STOP_AND_RESET_ENCODER which
         // resets the encoder count to zero. After this you have to choose a mode that will allow
@@ -129,7 +129,7 @@ public class AutonomousGather extends LinearOpMode {
         HaloControlsWithIntake haloControls = new HaloControlsWithIntake(gamepad1, imu, telemetry);
         ElapsedTime outtakeTimer = new ElapsedTime();
 
-        Switch intakeLimitSwitchLeft = new Switch(hardwareMap, "IntakeSwitchLeft", Switch.SwitchType.NORMALLY_OPEN);
+       // Switch intakeLimitSwitchLeft = new Switch(hardwareMap, "IntakeSwitchLeft", Switch.SwitchType.NORMALLY_OPEN);
         Switch intakeLimitSwitchRight = new Switch(hardwareMap, "IntakeSwitchRight", Switch.SwitchType.NORMALLY_OPEN);
 
         boolean inOuttake = false;
@@ -143,10 +143,12 @@ public class AutonomousGather extends LinearOpMode {
         //**************************************************************
 
         waitForStart();
-        mecanumCommands.setSpeed(1);
+        mecanumCommands.setSpeed(.5);
         mecanumCommands.setAngleOfTranslation(0);
         outtakeTimer.reset();
-        while (opModeIsActive() && outtakeTimer.milliseconds() < 10) {
+        while (opModeIsActive() && outtakeTimer.milliseconds() < 120)
+
+        {
             mecanum.setMotorPower(mecanumCommands);
             telemetry.addData("Mecanum:", mecanumCommands.toString());
             telemetry.update();

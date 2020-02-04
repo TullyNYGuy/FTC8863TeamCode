@@ -186,7 +186,8 @@ public class TestMecanumWithIntake extends LinearOpMode {
                 inOuttake = false;
                 intakeWheels.intake();
             }
-            boolean intakeSwitchLeftPressed = false;
+           //
+            // boolean intakeSwitchLeftPressed = false;
             boolean intakeSwitchRightPressed = false;
 
 /*
