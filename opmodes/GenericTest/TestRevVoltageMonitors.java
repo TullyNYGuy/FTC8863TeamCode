@@ -8,9 +8,12 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.CSVDataFile;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.MeasureVelocity;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometryModule;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.SkystoneRobot;
 import org.openftc.revextensions2.ExpansionHubEx;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
@@ -30,6 +33,8 @@ public class TestRevVoltageMonitors extends LinearOpMode {
     DcMotor8863 backLeft;
     DcMotor8863 backRight;
 
+    MeasureVelocity measureVelocity;
+
     @Override
     public void runOpMode() {
 
@@ -37,6 +42,8 @@ public class TestRevVoltageMonitors extends LinearOpMode {
         // Put your initializations here
         expansionHubPrimary = hardwareMap.get(ExpansionHubEx.class, "Expansion Hub 1");
         expansionHubSecondary = hardwareMap.get(ExpansionHubEx.class, "Expansion Hub 2");
+
+        measureVelocity = new MeasureVelocity();
 
         double odometryModuleRightValue = 0;
         double odometryModuleBackValue = 0;
@@ -111,7 +118,7 @@ public class TestRevVoltageMonitors extends LinearOpMode {
                 backLeft.setPower(-1);
                 backRight.setPower(1);
                 started = true;
-                travelTimeStart = timer.milliseconds();
+                measureVelocity.startMeasure(0, DistanceUnit.CM);
             }
 
             if (timer.milliseconds() > 4000) {
@@ -122,7 +129,8 @@ public class TestRevVoltageMonitors extends LinearOpMode {
                 if (!distanceMeasured) {
                     odometryModuleRightValue = odometryModuleRight.getDistanceSinceReset(DistanceUnit.CM);
                     odometryModuleLeftValue = odometryModuleLeft.getDistanceSinceReset(DistanceUnit.CM);
-                    travelTimeEnd = timer.milliseconds();
+                    averageDistance = ((odometryModuleLeftValue + odometryModuleRightValue) / 2);
+                    measureVelocity.stopMeasure(averageDistance, DistanceUnit.CM);
                     distanceMeasured = true;
                 }
                 break;
@@ -134,12 +142,9 @@ public class TestRevVoltageMonitors extends LinearOpMode {
             idle();
         }
 
-        averageDistance = ((odometryModuleLeftValue + odometryModuleRightValue) / 2);
-        travelTime = (travelTimeEnd - travelTimeStart) / 1000;
-        velocity = averageDistance / travelTime;
         csvDataFile.blankLine();
         csvDataFile.headerStrings("left distance", "right distance", "average distance", "travel time", "velocity");
-        csvDataFile.writeData(odometryModuleLeftValue, odometryModuleRightValue, averageDistance, travelTime, velocity);
+        csvDataFile.writeData(odometryModuleLeftValue, odometryModuleRightValue, averageDistance, measureVelocity.getAcquistionTime(TimeUnit.SECONDS), measureVelocity.getGetAverageVelocity(DistanceUnit.METER));
 
         // Put your cleanup code here - it runs as the application shuts down
         csvDataFile.closeDataLog();
