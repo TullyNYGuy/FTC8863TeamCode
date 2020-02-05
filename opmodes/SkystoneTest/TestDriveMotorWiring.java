@@ -30,8 +30,6 @@ public class TestDriveMotorWiring extends LinearOpMode {
     ExpansionHubEx expansionHubPrimary;
     ExpansionHubEx expansionHubSecondary;
 
-    int frontLeftPortNumber;
-
     @Override
     public void runOpMode() {
 
@@ -74,7 +72,9 @@ public class TestDriveMotorWiring extends LinearOpMode {
 
         while (opModeIsActive() && timer.milliseconds() < 2000) {
             frontLeft.setPower(1.0);
-            telemetry.addData("Front left current = ", expansionHubPrimary.getMotorCurrentDraw(ExpansionHubEx.CurrentDrawUnits.AMPS, frontLeft.getPortNumber()));
+            telemetry.addData("motor = ", "front left");
+            telemetry.addData("port configured for = ", frontLeft.getPortNumber());
+            telemetry.addData("current = ", expansionHubPrimary.getMotorCurrentDraw(ExpansionHubEx.CurrentDrawUnits.AMPS, frontLeft.getPortNumber()));
             telemetry.addData("Supply Voltage = ", expansionHubPrimary.read12vMonitor(ExpansionHubEx.VoltageUnits.VOLTS));
             telemetry.update();
             idle();
@@ -85,7 +85,9 @@ public class TestDriveMotorWiring extends LinearOpMode {
 
         while (opModeIsActive() && timer.milliseconds() < 2000) {
             frontRight.setPower(1.0);
-            telemetry.addData("Front right current = ", expansionHubPrimary.getMotorCurrentDraw(ExpansionHubEx.CurrentDrawUnits.AMPS, frontRight.getPortNumber()));
+            telemetry.addData("motor = ", "front right");
+            telemetry.addData("port configured for = ", frontRight.getPortNumber());
+            telemetry.addData("current = ", expansionHubPrimary.getMotorCurrentDraw(ExpansionHubEx.CurrentDrawUnits.AMPS, frontRight.getPortNumber()));
             telemetry.addData("Supply Voltage = ", expansionHubPrimary.read12vMonitor(ExpansionHubEx.VoltageUnits.VOLTS));
             telemetry.update();
             idle();
@@ -96,7 +98,9 @@ public class TestDriveMotorWiring extends LinearOpMode {
 
         while (opModeIsActive() && timer.milliseconds() < 2000) {
             backRight.setPower(1.0);
-            telemetry.addData("Back right current = ", expansionHubPrimary.getMotorCurrentDraw(ExpansionHubEx.CurrentDrawUnits.AMPS, backRight.getPortNumber()));
+            telemetry.addData("motor = ", "back right");
+            telemetry.addData("port configured for = ", backRight.getPortNumber());
+            telemetry.addData("current = ", expansionHubPrimary.getMotorCurrentDraw(ExpansionHubEx.CurrentDrawUnits.AMPS, backRight.getPortNumber()));
             telemetry.addData("Supply Voltage = ", expansionHubPrimary.read12vMonitor(ExpansionHubEx.VoltageUnits.VOLTS));
             telemetry.update();
             idle();
@@ -107,7 +111,9 @@ public class TestDriveMotorWiring extends LinearOpMode {
 
         while (opModeIsActive() && timer.milliseconds() < 2000) {
             backLeft.setPower(1.0);
-            telemetry.addData("Back left current = ", expansionHubPrimary.getMotorCurrentDraw(ExpansionHubEx.CurrentDrawUnits.AMPS, backLeft.getPortNumber()));
+            telemetry.addData("motor = ", "back left");
+            telemetry.addData("port configured for = ", backLeft.getPortNumber());
+            telemetry.addData("current = ", expansionHubPrimary.getMotorCurrentDraw(ExpansionHubEx.CurrentDrawUnits.AMPS, backLeft.getPortNumber()));
             telemetry.addData("Supply Voltage = ", expansionHubPrimary.read12vMonitor(ExpansionHubEx.VoltageUnits.VOLTS));
             telemetry.update();
             idle();
