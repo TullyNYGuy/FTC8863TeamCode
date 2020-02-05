@@ -4,7 +4,7 @@ package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
+import org.firstinspires.ftc.robotcore.external.navigation.Position;
 
 import java.util.concurrent.TimeUnit;
 
@@ -52,7 +52,9 @@ public class MeasureVelocity {
         return distanceUnit.fromUnit(desiredDistanceUnit, endDistance);
     }
 
-    protected Velocity velocity;
+    protected Position startPosition;
+    protected Position endPosition;
+    protected Velocity8863 velocity;
 
     protected double averageVelocity = 0;
 
@@ -81,6 +83,9 @@ public class MeasureVelocity {
     // from it
     //*********************************************************************************************
 
+    /**
+     * Create a
+     */
     public MeasureVelocity() {
         this.distanceUnit = DistanceUnit.CM;
         this.timeUnit = TimeUnit.MILLISECONDS;
@@ -100,19 +105,30 @@ public class MeasureVelocity {
     // public methods that give the class its functionality
     //*********************************************************************************************
 
-    public void startMeasure(double startDistance, DistanceUnit unit) {
+    /**
+     * Starting position for the distance measurement that is to be used in calculating the velocity.
+     *
+     * @param distanceUnit   - units of the positions that are passed in as parameters
+     * @param startPositionX
+     * @param startPositionY
+     * @param startPositionZ
+     */
+    public void startMeasure(DistanceUnit distanceUnit, double startPositionX, double startPositionY, double startPositionZ) {
         // convert distance from the input units to this classes internal units
-        this.startDistance = distanceUnit.fromUnit(unit, startDistance);
-        timer.reset();
+        this.distanceUnit = distanceUnit;
+        startPosition = new Position(distanceUnit, startPositionX, startPositionY, startPositionZ, System.nanoTime());
     }
 
-    public void stopMeasure(double endDistance, DistanceUnit unit) {
-        // convert distance from the input units to this classes internal units
-        this.endDistance = distanceUnit.fromUnit(unit, endDistance);
-        acquistionTime = timer.seconds();
-        // velocity will be in units of this classes distance units / second
-        averageVelocity = (endDistance - startDistance) / acquistionTime;
-        velocity = new Velocity(this.distanceUnit, averageVelocity, 0.0, 0.0, (long) acquistionTime);
+    /**
+     * @param distanceUnit
+     * @param endPositionX
+     * @param endPositionY
+     * @param endPositionZ
+     */
+    public void stopMeasure(DistanceUnit distanceUnit, double endPositionX, double endPositionY, double endPositionZ) {
+        endPosition = new Position(distanceUnit, endPositionX, endPositionY, endPositionZ, System.nanoTime());
+        // velocity will be in units of this class's distance units / second
+        velocity = new Velocity8863(this.distanceUnit, endPosition, startPosition);
     }
 }
 

@@ -118,7 +118,7 @@ public class TestRevVoltageMonitors extends LinearOpMode {
                 backLeft.setPower(-1);
                 backRight.setPower(1);
                 started = true;
-                measureVelocity.startMeasure(0, DistanceUnit.CM);
+                measureVelocity.startMeasure(DistanceUnit.CM, 0, 0, 0);
             }
 
             if (timer.milliseconds() > 4000) {
@@ -130,7 +130,7 @@ public class TestRevVoltageMonitors extends LinearOpMode {
                     odometryModuleRightValue = odometryModuleRight.getDistanceSinceReset(DistanceUnit.CM);
                     odometryModuleLeftValue = odometryModuleLeft.getDistanceSinceReset(DistanceUnit.CM);
                     averageDistance = ((odometryModuleLeftValue + odometryModuleRightValue) / 2);
-                    measureVelocity.stopMeasure(averageDistance, DistanceUnit.CM);
+                    measureVelocity.stopMeasure(DistanceUnit.CM, averageDistance, 0, 0);
                     distanceMeasured = true;
                 }
                 break;
