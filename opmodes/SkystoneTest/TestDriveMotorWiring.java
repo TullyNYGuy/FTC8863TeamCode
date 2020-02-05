@@ -18,8 +18,8 @@ import org.openftc.revextensions2.ExpansionHubEx;
  * or reverse settings are correct. All motor should spin toward the front of the robot, as if it
  * were traveling forward.
  */
-@TeleOp(name = "Test Motor wiring", group = "Test")
-@Disabled
+@TeleOp(name = "Test Drive Motor wiring", group = "Test")
+//@Disabled
 public class TestDriveMotorWiring extends LinearOpMode {
 
     DcMotor8863 frontLeft;
@@ -74,8 +74,8 @@ public class TestDriveMotorWiring extends LinearOpMode {
             frontLeft.setPower(1.0);
             telemetry.addData("motor = ", "front left");
             telemetry.addData("port configured for = ", frontLeft.getPortNumber());
-            telemetry.addData("current = ", expansionHubPrimary.getMotorCurrentDraw(ExpansionHubEx.CurrentDrawUnits.AMPS, frontLeft.getPortNumber()));
-            telemetry.addData("Supply Voltage = ", expansionHubPrimary.read12vMonitor(ExpansionHubEx.VoltageUnits.VOLTS));
+            telemetry.addData("current = ", expansionHubSecondary.getMotorCurrentDraw(ExpansionHubEx.CurrentDrawUnits.AMPS, frontLeft.getPortNumber()));
+            telemetry.addData("Supply Voltage = ", expansionHubSecondary.read12vMonitor(ExpansionHubEx.VoltageUnits.VOLTS));
             telemetry.update();
             idle();
         }
@@ -87,8 +87,8 @@ public class TestDriveMotorWiring extends LinearOpMode {
             frontRight.setPower(1.0);
             telemetry.addData("motor = ", "front right");
             telemetry.addData("port configured for = ", frontRight.getPortNumber());
-            telemetry.addData("current = ", expansionHubPrimary.getMotorCurrentDraw(ExpansionHubEx.CurrentDrawUnits.AMPS, frontRight.getPortNumber()));
-            telemetry.addData("Supply Voltage = ", expansionHubPrimary.read12vMonitor(ExpansionHubEx.VoltageUnits.VOLTS));
+            telemetry.addData("current = ", expansionHubSecondary.getMotorCurrentDraw(ExpansionHubEx.CurrentDrawUnits.AMPS, frontRight.getPortNumber()));
+            telemetry.addData("Supply Voltage = ", expansionHubSecondary.read12vMonitor(ExpansionHubEx.VoltageUnits.VOLTS));
             telemetry.update();
             idle();
         }
@@ -100,8 +100,8 @@ public class TestDriveMotorWiring extends LinearOpMode {
             backRight.setPower(1.0);
             telemetry.addData("motor = ", "back right");
             telemetry.addData("port configured for = ", backRight.getPortNumber());
-            telemetry.addData("current = ", expansionHubPrimary.getMotorCurrentDraw(ExpansionHubEx.CurrentDrawUnits.AMPS, backRight.getPortNumber()));
-            telemetry.addData("Supply Voltage = ", expansionHubPrimary.read12vMonitor(ExpansionHubEx.VoltageUnits.VOLTS));
+            telemetry.addData("current = ", expansionHubSecondary.getMotorCurrentDraw(ExpansionHubEx.CurrentDrawUnits.AMPS, backRight.getPortNumber()));
+            telemetry.addData("Supply Voltage = ", expansionHubSecondary.read12vMonitor(ExpansionHubEx.VoltageUnits.VOLTS));
             telemetry.update();
             idle();
         }
@@ -113,8 +113,8 @@ public class TestDriveMotorWiring extends LinearOpMode {
             backLeft.setPower(1.0);
             telemetry.addData("motor = ", "back left");
             telemetry.addData("port configured for = ", backLeft.getPortNumber());
-            telemetry.addData("current = ", expansionHubPrimary.getMotorCurrentDraw(ExpansionHubEx.CurrentDrawUnits.AMPS, backLeft.getPortNumber()));
-            telemetry.addData("Supply Voltage = ", expansionHubPrimary.read12vMonitor(ExpansionHubEx.VoltageUnits.VOLTS));
+            telemetry.addData("current = ", expansionHubSecondary.getMotorCurrentDraw(ExpansionHubEx.CurrentDrawUnits.AMPS, backLeft.getPortNumber()));
+            telemetry.addData("Supply Voltage = ", expansionHubSecondary.read12vMonitor(ExpansionHubEx.VoltageUnits.VOLTS));
             telemetry.update();
             idle();
         }
