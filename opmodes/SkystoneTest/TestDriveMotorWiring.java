@@ -27,11 +27,19 @@ public class TestDriveMotorWiring extends LinearOpMode {
     DcMotor8863 backLeft;
     DcMotor8863 backRight;
 
+    ExpansionHubEx expansionHubPrimary;
+    ExpansionHubEx expansionHubSecondary;
+
+    int frontLeftPortNumber;
+
     @Override
     public void runOpMode() {
 
+        // these method calls require the installation of the RevExtensions2 package
+        // https://github.com/OpenFTC/RevExtensions2
 
-        // Put your initializations here
+        expansionHubPrimary = hardwareMap.get(ExpansionHubEx.class, "Expansion Hub 1");
+        expansionHubSecondary = hardwareMap.get(ExpansionHubEx.class, "Expansion Hub 2");
 
         ElapsedTime timer = new ElapsedTime();
 
@@ -61,40 +69,51 @@ public class TestDriveMotorWiring extends LinearOpMode {
 
         timer.reset();
 
+        // I have not figured out how to get the expansion hub name for a given motor name yet. So I
+        // have hardwired the expansion hub when I get the current draw and expansion hub voltage.
+
         while (opModeIsActive() && timer.milliseconds() < 2000) {
             frontLeft.setPower(1.0);
-            telemetry.addData(">", "Front left");
+            telemetry.addData("Front left current = ", expansionHubPrimary.getMotorCurrentDraw(ExpansionHubEx.CurrentDrawUnits.AMPS, frontLeft.getPortNumber()));
+            telemetry.addData("Supply Voltage = ", expansionHubPrimary.read12vMonitor(ExpansionHubEx.VoltageUnits.VOLTS));
             telemetry.update();
             idle();
         }
 
+        frontLeft.setPower(0);
         timer.reset();
 
         while (opModeIsActive() && timer.milliseconds() < 2000) {
             frontRight.setPower(1.0);
-            telemetry.addData(">", "Front right");
+            telemetry.addData("Front right current = ", expansionHubPrimary.getMotorCurrentDraw(ExpansionHubEx.CurrentDrawUnits.AMPS, frontRight.getPortNumber()));
+            telemetry.addData("Supply Voltage = ", expansionHubPrimary.read12vMonitor(ExpansionHubEx.VoltageUnits.VOLTS));
             telemetry.update();
             idle();
         }
 
+        frontRight.setPower(0);
         timer.reset();
 
         while (opModeIsActive() && timer.milliseconds() < 2000) {
             backRight.setPower(1.0);
-            telemetry.addData(">", "Back right");
+            telemetry.addData("Back right current = ", expansionHubPrimary.getMotorCurrentDraw(ExpansionHubEx.CurrentDrawUnits.AMPS, backRight.getPortNumber()));
+            telemetry.addData("Supply Voltage = ", expansionHubPrimary.read12vMonitor(ExpansionHubEx.VoltageUnits.VOLTS));
             telemetry.update();
             idle();
         }
 
+        backRight.setPower(0);
         timer.reset();
 
         while (opModeIsActive() && timer.milliseconds() < 2000) {
             backLeft.setPower(1.0);
-            telemetry.addData(">", "Back Left");
+            telemetry.addData("Back left current = ", expansionHubPrimary.getMotorCurrentDraw(ExpansionHubEx.CurrentDrawUnits.AMPS, backLeft.getPortNumber()));
+            telemetry.addData("Supply Voltage = ", expansionHubPrimary.read12vMonitor(ExpansionHubEx.VoltageUnits.VOLTS));
             telemetry.update();
             idle();
         }
 
+        backLeft.setPower(0);
 
         // Put your cleanup code here - it runs as the application shuts down
         telemetry.addData(">", "Done");

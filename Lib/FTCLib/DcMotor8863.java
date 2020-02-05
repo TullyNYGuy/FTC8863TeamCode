@@ -1612,6 +1612,10 @@ public class DcMotor8863 {
         this.direction = direction;
     }
 
+    public int getPortNumber() {
+        return FTCDcMotor.getPortNumber();
+    }
+
     // FTC SDK 3.4 removed these calls so I'm commenting out this code
     /*    *//**
      * When the motor is running in one of the <a href="https://en.wikipedia.org/wiki/PID_controller">PID modes</a>
