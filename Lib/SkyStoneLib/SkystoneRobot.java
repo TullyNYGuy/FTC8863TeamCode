@@ -40,9 +40,9 @@ public class SkystoneRobot implements FTCRobot {
         BACK_LEFT_MOTOR("BackLeft"),
         BACK_RIGHT_MOTOR("BackRight"),
         IMU("IMU"),
-        ODOMETRY_MODULE_LEFT("BackLeft"),
-        ODOMETRY_MODULE_RIGHT("BackRight"),
-        ODOMETRY_MODULE_BACK("FrontRight"),
+        ODOMETRY_MODULE_LEFT("FrontLeft"),
+        ODOMETRY_MODULE_RIGHT("FrontRight"),
+        ODOMETRY_MODULE_BACK("BackLeft"),
         LIFT_RIGHT_MOTOR("LiftMotorRight"),
         LIFT_RIGHT_ENCODER("LiftRight"),
         LIFT_RIGHT_EXTENSION_SWITCH("LiftExtensionLimitSwitchRight"),
@@ -63,7 +63,7 @@ public class SkystoneRobot implements FTCRobot {
         GRIPPER_ROTATOR_SERVO("gripperRotator"),
         INTAKE_SWITCH("intakeLimitSwitch"),
         BASE_MOVER_RIGHT_SERVO("BaseMoverRight"),
-        BASE_MOVER_LEFT_SERVO("BaseMoverLeft")
+        BASE_MOVER_LEFT_SERVO("BaseMoverLeft"),
         ;
 
         public final String hwName;
