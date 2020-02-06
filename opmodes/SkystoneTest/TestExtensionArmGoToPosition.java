@@ -76,7 +76,7 @@ public class TestExtensionArmGoToPosition extends LinearOpMode {
         stateTimer = new ElapsedTime();
 
         logFile = new DataLogging("MegaEpicExtensionArmTest", telemetry);
-        timeEncoderValueFile = new CSVDataFile("LiftTimeEncoderValues", telemetry);
+        timeEncoderValueFile = new CSVDataFile("LiftTimeEncoderValues");
 
 
         //logFile = new DataLogging("ExtensionRetractionTestBoth", telemetry);;

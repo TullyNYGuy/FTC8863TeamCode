@@ -84,7 +84,7 @@ public class TestTwoLiftContinuousUpdate extends LinearOpMode {
 
         logFileLeft = new DataLogging("LiftTestLeft", telemetry);
         logFileRight = new DataLogging("LiftTestRight", telemetry);
-        timeEncoderValueFile = new CSVDataFile("LiftTimeEncoderValues", telemetry);
+        timeEncoderValueFile = new CSVDataFile("LiftTimeEncoderValues");
 
         liftLeft.setDataLog(logFileLeft);
         liftLeft.enableDataLogging();

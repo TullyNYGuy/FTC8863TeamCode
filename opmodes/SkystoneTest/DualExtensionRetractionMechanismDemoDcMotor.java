@@ -71,7 +71,7 @@ public class DualExtensionRetractionMechanismDemoDcMotor extends LinearOpMode {
 
         logFileLeft = new DataLogging("ExtensionRetractionTestLeft", telemetry);
         logFileRight = new DataLogging("ExtensionRetractionTestRight", telemetry);
-        timeEncoderValueFile = new CSVDataFile("LiftTimeEncoderValues", telemetry);
+        timeEncoderValueFile = new CSVDataFile("LiftTimeEncoderValues");
 
         liftLeft.setDataLog(logFileLeft);
         liftLeft.enableDataLogging();

@@ -50,7 +50,7 @@ public class TestExtensionArmFullExtensionRetraction extends LinearOpMode {
         timer = new ElapsedTime();
 
         logFile = new DataLogging("ExtensionArmFullExtRetractTest", telemetry);
-        timeEncoderValueFile = new CSVDataFile("ExtensionArmTimeEncoderValues", telemetry);
+        timeEncoderValueFile = new CSVDataFile("ExtensionArmTimeEncoderValues");
 
         extensionArm.setDataLog(logFile);
         extensionArm.enableDataLogging();
