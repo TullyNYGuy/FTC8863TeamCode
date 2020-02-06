@@ -25,8 +25,8 @@ public class Read3OdometryModules extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        odometryModuleRight = new OdometryModule(1440, 3.8 * Math.PI, DistanceUnit.CM, "BackRight", hardwareMap);
-        odometryModuleBack = new OdometryModule(1440, 3.8 * Math.PI, DistanceUnit.CM, "FrontRight", hardwareMap);
+        odometryModuleRight = new OdometryModule(1440, 3.8 * Math.PI, DistanceUnit.CM, "FrontRight", hardwareMap);
+        odometryModuleBack = new OdometryModule(1440, 3.8 * Math.PI, DistanceUnit.CM, "BackLeft", hardwareMap);
         odometryModuleLeft = new OdometryModule(1440, 3.8 * Math.PI, DistanceUnit.CM, "FrontLeft", hardwareMap);
 
         //Odometry System Calibration Init Complete
