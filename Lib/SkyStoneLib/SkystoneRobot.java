@@ -40,9 +40,9 @@ public class SkystoneRobot implements FTCRobot {
         BACK_LEFT_MOTOR("BackLeft"),
         BACK_RIGHT_MOTOR("BackRight"),
         IMU("IMU"),
-        ODOMETRY_MODULE_LEFT("BackLeft"),
-        ODOMETRY_MODULE_RIGHT("BackRight"),
-        ODOMETRY_MODULE_BACK("FrontRight"),
+        ODOMETRY_MODULE_LEFT("FrontLeft"),
+        ODOMETRY_MODULE_RIGHT("FrontRight"),
+        ODOMETRY_MODULE_BACK("BackLeft"),
         LIFT_RIGHT_MOTOR("LiftMotorRight"),
         LIFT_RIGHT_ENCODER("LiftRight"),
         LIFT_RIGHT_EXTENSION_SWITCH("LiftExtensionLimitSwitchRight"),
@@ -315,7 +315,7 @@ public class SkystoneRobot implements FTCRobot {
         // put the init() method for each subsytem here
     }
 
-    /**
+    /*
      * Every system must tell us when its init is complete. When all of the inits are complete, the
      * robot init is complete.
      *
@@ -343,12 +343,14 @@ public class SkystoneRobot implements FTCRobot {
         for (FTCRobotSubsystem subsystem : subsystemMap.values()) {
             subsystem.update();
         }
+
         intakeBlockUpdate();
         gripStateUpdate();
         deportStateUpdate();
         liftBlockStateUpdate();
         placeBlockStateUpdate();
         prepareIntakeUpdate();
+
 
         if (capabilities.contains(Subsystem.INTAKE_LIMIT_SW))
             updateIntakeSwitches();
@@ -764,9 +766,10 @@ public class SkystoneRobot implements FTCRobot {
                 prepareIntakeState = PrepareIntakeStates.PREPARING;
                 break;
             case PREPARING:
-                // if (lift.isPositionReached() && extensionArm.isPositionReached()) {
+                //why was the if here commented out? Care to answer, Kelloggs? - Tanya
+                 if (lift.isPositionReached() && extensionArm.isPositionReached()) {
                 prepareIntakeState = PrepareIntakeStates.COMPLETE;
-                //}
+                 }
                 break;
             case COMPLETE:
                 //we chillin'
