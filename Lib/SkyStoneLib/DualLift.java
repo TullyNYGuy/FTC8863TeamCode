@@ -166,6 +166,23 @@ public class DualLift implements FTCRobotSubsystem {
         return (liftRight.isResetComplete() && liftLeft.isResetComplete());
     }
 
+    public void goToFullExtend() {
+        liftRight.goToFullExtend();
+        liftLeft.goToFullExtend();
+    }
+
+    public boolean isExtensionComplete() {
+        return liftRight.isExtensionComplete() && liftLeft.isExtensionComplete();
+    }
+
+    public void goToFullRetract() {
+        liftRight.goToFullRetract();
+        liftLeft.goToFullRetract();
+    }
+
+    public boolean isRetractionComplete() {
+        return liftRight.isRetractionComplete() && liftLeft.isRetractionComplete();
+    }
 
     public void goToPosition(double positionInInches, double positionPower) {
         liftRight.goToPosition(positionInInches, positionPower);
