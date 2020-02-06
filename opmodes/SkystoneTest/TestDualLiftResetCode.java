@@ -9,6 +9,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.DualLift;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.Lift;
+import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.SkystoneRobot;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
@@ -58,10 +59,10 @@ public class TestDualLiftResetCode extends LinearOpMode {
 
         // Put your initializations here
         lift = new DualLift(hardwareMap,
-                "liftRight", "LiftMotorRight",
-                "LiftExtensionLimitSwitchRight", "LiftRetractionLimitSwitchRight",
-                "liftLeft", "LiftMotorLeft",
-                "LiftExtensionLimitSwitchLeft", "LiftRetractionLimitSwitchLeft",
+                "liftRight", SkystoneRobot.HardwareName.LIFT_RIGHT_MOTOR.hwName,
+                SkystoneRobot.HardwareName.LIFT_RIGHT_EXTENSION_SWITCH.hwName, SkystoneRobot.HardwareName.LIFT_RIGHT_RETRACTION_SWITCH.hwName,
+                "liftLeft", SkystoneRobot.HardwareName.LIFT_LEFT_MOTOR.hwName,
+                SkystoneRobot.HardwareName.LIFT_LEFT_EXTENSION_SWITCH.hwName, SkystoneRobot.HardwareName.LIFT_LEFT_RETRACTION_SWITCH.hwName,
                 telemetry);
 
         timer = new ElapsedTime();
@@ -92,6 +93,7 @@ public class TestDualLiftResetCode extends LinearOpMode {
 
             telemetry.addData("", lift.stateToString());
             telemetry.addData("", lift.encoderValuesToString());
+            telemetry.addData("", lift.resetStateToString());
             telemetry.update();
             idle();
         }

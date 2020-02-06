@@ -65,6 +65,8 @@ public class DualLift implements FTCRobotSubsystem {
 
     private ExtensionRetractionMechanism.ExtensionRetractionStates[] dualLiftStates;
 
+    private Lift.LiftResetExtraStates[] liftResetExtraStates;
+
     private int[] encoderValues;
 
     private boolean collectData = false;
@@ -107,6 +109,9 @@ public class DualLift implements FTCRobotSubsystem {
 
         dualLiftStates = new ExtensionRetractionMechanism.ExtensionRetractionStates[2];
         getState();
+
+        liftResetExtraStates = new Lift.LiftResetExtraStates[2];
+        getResetState();
 
         encoderValues = new int[2];
         getEncoderValues();
@@ -256,6 +261,27 @@ public class DualLift implements FTCRobotSubsystem {
         getState();
         return "state (L, R) = " + dualLiftStates[LiftSide.LEFT.side].toString() + " " + dualLiftStates[LiftSide.RIGHT.side].toString();
     }
+
+    public Lift.LiftResetExtraStates[] getResetState() {
+        liftResetExtraStates[LiftSide.RIGHT.side] = liftRight.getLiftResetExtraState();
+        liftResetExtraStates[LiftSide.LEFT.side] = liftLeft.getLiftResetExtraState();
+        return liftResetExtraStates;
+    }
+
+    public Lift.LiftResetExtraStates getLeftResetState() {
+        return liftLeft.getLiftResetExtraState();
+    }
+
+    public Lift.LiftResetExtraStates getRightResetState() {
+        return liftRight.getLiftResetExtraState();
+    }
+
+    public String resetStateToString() {
+        // update the state property
+        getState();
+        return "reset state (L, R) = " + liftResetExtraStates[LiftSide.LEFT.side].toString() + " " + liftResetExtraStates[LiftSide.RIGHT.side].toString();
+    }
+
 
     public int[] getEncoderValues() {
         encoderValues[LiftSide.RIGHT.side] = liftRight.getCurrentEncoderValue();
