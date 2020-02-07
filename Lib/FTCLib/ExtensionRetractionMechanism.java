@@ -920,6 +920,9 @@ public class ExtensionRetractionMechanism {
     private void moveToFullRetract() {
         // when the mechanism retracts you may want to do something with whatever is attached to it.
         extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        // this is to fix a bug, when the lift resets, it leaves the motor in float mode. In order
+        // for the lift to stay retracted, hold has to be set
+        setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
         extensionRetractionMotor.setPower(retractionPower);
     }
 
@@ -1054,6 +1057,9 @@ public class ExtensionRetractionMechanism {
     private void moveToFullExtend() {
         // when the mechanism extends you may want to do something with whatever is attached to it.
         extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        // this is to fix a bug, when the lift resets, it leaves the motor in float mode. In order
+        // for the lift to stay extended, hold has to be set
+        setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
         extensionRetractionMotor.setPower(extensionPower);
     }
 
