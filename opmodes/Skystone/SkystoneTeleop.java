@@ -398,10 +398,8 @@ public class SkystoneTeleop extends LinearOpMode {
             if (gamepad2y.buttonPress(gamepad2.y)) {
                 if (gamepad2y.isCommand1()) {
                     robot.baseGrab();
-//
                 }
                 if (gamepad2y.isCommand2()) {
-//
                     robot.baseRelease();
                 }
 
@@ -472,6 +470,7 @@ public class SkystoneTeleop extends LinearOpMode {
             // update the robot
             robot.update();
 
+   telemetry.addData("mecanum commands are: ", commands);
             // Display telemetry
             telemetry.addData(">", "Press Stop to end.");
             telemetry.update();
