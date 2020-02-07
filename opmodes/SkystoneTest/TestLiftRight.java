@@ -53,12 +53,12 @@ public class TestLiftRight extends LinearOpMode {
 
         // Put your calls here - they will not run in a loop
         extensionRetractionMechanismRight.testReset(this);
-        sleep(3000);
+        sleep(2000);
         timer.reset();
         encoderValueMax = extensionRetractionMechanismRight.testExtension(this);
         endUpTime = timer.seconds();
         telemetry.update();
-        sleep(10000);
+        sleep(2000);
         timer.reset();
         encoderValueMin = extensionRetractionMechanismRight.testRetraction(this);
         endDownTime = timer.seconds();
