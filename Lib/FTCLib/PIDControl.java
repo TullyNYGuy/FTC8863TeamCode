@@ -63,6 +63,7 @@ public class PIDControl {
 
     private double lastIntegral = 0;
 
+    private double lastError = 0;
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -278,10 +279,11 @@ public class PIDControl {
         setFeedback(feedback);
         double error = (getSetpoint() - feedback);
         // figure out the integral part of the correction
-        double timeDifference = elapsedTime.milliseconds() - lastTime;
+        double currentTime = elapsedTime.milliseconds();
+        double timeDifference = currentTime - lastTime;
         integral = error * timeDifference * getKi();
         integral = integral + lastIntegral;
-        double correction = error * getKp() + integral;
+        double correction = error * getKp() + integral + getKd() * (error - lastError) / timeDifference;
         // if the correction that is calculated is above the limit of what is of what can be physically
         // controlled (like motor power is 110%), then we have to limit the integral portion or it will
         // windup.
@@ -297,6 +299,8 @@ public class PIDControl {
         }
         correction = rampControl.getRampValueLinear(correction);
         correction = Range.clip(correction, -maxCorrection, maxCorrection);
+        lastTime = currentTime;
+        lastError = error;
         return correction;
     }
 
