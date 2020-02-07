@@ -91,6 +91,12 @@ public class Mecanum {
                 backLeft = backLeft / biggerNumber;
             }
         }
+
+        @Override
+        public String toString() {
+            return String.format("FL: %.2f, FR: %.2f, BL: %.2f, BR: %.2f", frontLeft, frontRight, backLeft, backRight);
+        }
+
     }
     //*********************************************************************************************
     //          GETTER and SETTER Methods

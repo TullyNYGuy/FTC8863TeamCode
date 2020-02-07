@@ -64,7 +64,7 @@ public class SkystoneRobot implements FTCRobot {
         GRIPPER_ROTATOR_SERVO("gripperRotator"),
         INTAKE_SWITCH("intakeLimitSwitch"),
         BASE_MOVER_RIGHT_SERVO("BaseMoverRight"),
-        BASE_MOVER_LEFT_SERVO("BaseMoverLeft")
+        BASE_MOVER_LEFT_SERVO("BaseMoverLeft"),
         ;
 
         public final String hwName;

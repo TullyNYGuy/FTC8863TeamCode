@@ -201,7 +201,7 @@ public class DualLift implements FTCRobotSubsystem {
     }
 
     public void lowerBlockOntoTower() {
-
+        //go to the block height directed - 1
     }
 
     public void setRetractionPower(double power){
