@@ -59,13 +59,13 @@ public class CSVDataFile {
     // from it
     //*********************************************************************************************
 
-    public CSVDataFile(String folderPath, String filePrefix, Telemetry telemetry) {
+    public CSVDataFile(String folderPath, String filePrefix) {
         this.folderPath = folderPath;
         this.filePrefix = filePrefix;
         csvDataFileSetup();
     }
 
-    public CSVDataFile(String filePrefix, Telemetry telemetry) {
+    public CSVDataFile(String filePrefix) {
         this.folderPath = "/sdcard/FTC8863/";
         this.filePrefix = filePrefix;
         csvDataFileSetup();

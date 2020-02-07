@@ -4,6 +4,7 @@ package org.firstinspires.ftc.teamcode.Lib.SkyStoneLib;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.CSVDataFile;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
@@ -21,27 +22,16 @@ public class DualLift implements FTCRobotSubsystem {
     // user defined types
     //
     //*********************************************************************************************
-    public enum DualLiftStates {
-        START_RESET_SEQUENCE, //
-        PERFORMING_PRE_RESET_ACTIONS, // actions that need to be run before mechanism can be moved to reset position
-        MOVING_TO_RESET_POSITION, //
-        PERFORMING_POST_RESET_ACTIONS, // actions that need to be run after the movement to the reset positon is complete
-        RESET_COMPLETE, // reset movement and post reset actions are complete
-        START_RETRACTION_SEQUENCE, //
-        PERFORMING_PRE_RETRACTION_ACTIONS, // actions that need to be run before mechanism can be moved to retracted position
-        RETRACTING, // in process of retracting
-        PERFORMING_POST_RETRACTION_ACTIONS, // actions that need to be run after the movement to full retraction is complete
-        FULLY_RETRACTED, // fully retracted
-        START_EXTENSION_SEQUENCE, //
-        PERFORMING_PRE_EXTENSION_ACTIONS, // actions that need to be run before mechanism can be moved extended position
-        EXTENDING, // in process of extending
-        PERFORMING_POST_EXTENSION_ACTIONS, // actions that need to be run after the movement to full extension is complete
-        FULLY_EXTENDED, // fully extended
-        START_GO_TO_POSITION, //
-        MOVING_TO_POSITION, // moving to a specified position
-        AT_POSITION, // arrived at the specified position
-        START_JOYSTICK, //
-        JOYSTICK // under joystick control
+
+    public enum LiftSide {
+        LEFT(0),
+        RIGHT(1);
+
+        public final int side;
+
+        private LiftSide(int side) {
+            this.side = side;
+        }
     }
 
     //*********************************************************************************************
@@ -59,13 +49,11 @@ public class DualLift implements FTCRobotSubsystem {
     // spool diameter * pi * 5 stages
     private double movementPerRevolution = spoolDiameter * Math.PI * 5;
 
-    private int maxBlockNumber = 6;
-
     private double heightAboveTower = 1;
 
     private DataLogging logFileBoth;
 
-
+    private int maxBlockNumber = 6;
 
     public int getMaxBlockNumber() {
         return maxBlockNumber;
@@ -74,6 +62,18 @@ public class DualLift implements FTCRobotSubsystem {
     public void setMaxBlockNumber(int maxBlockNumber) {
         this.maxBlockNumber = maxBlockNumber;
     }
+
+    private ExtensionRetractionMechanism.ExtensionRetractionStates[] dualLiftStates;
+
+    private Lift.LiftResetExtraStates[] liftResetExtraStates;
+
+    private int[] encoderValues;
+
+    private boolean collectData = false;
+
+    private boolean dataLogging = false;
+
+    public CSVDataFile timeEncoderValueFile = null;
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -105,6 +105,19 @@ public class DualLift implements FTCRobotSubsystem {
         liftLeft = new Lift(hardwareMap, telemetry, liftLeftName,
                 liftLeftExtensionLimitSwitchName, liftLeftRetractionLimitSwitch, liftLeftMotorName,
                 motorType, movementPerRevolution);
+        liftRight.reverseMotor();
+
+        dualLiftStates = new ExtensionRetractionMechanism.ExtensionRetractionStates[2];
+        getState();
+
+        liftResetExtraStates = new Lift.LiftResetExtraStates[2];
+        getResetState();
+
+        encoderValues = new int[2];
+        getEncoderValues();
+
+        disableCollectData();
+        disableDataLogging();
     }
 
 
@@ -149,6 +162,28 @@ public class DualLift implements FTCRobotSubsystem {
         liftLeft.reset();
     }
 
+    public boolean isResetComplete() {
+        return (liftRight.isResetComplete() && liftLeft.isResetComplete());
+    }
+
+    public void goToFullExtend() {
+        liftRight.goToFullExtend();
+        liftLeft.goToFullExtend();
+    }
+
+    public boolean isExtensionComplete() {
+        return liftRight.isExtensionComplete() && liftLeft.isExtensionComplete();
+    }
+
+    public void goToFullRetract() {
+        liftRight.goToFullRetract();
+        liftLeft.goToFullRetract();
+    }
+
+    public boolean isRetractionComplete() {
+        return liftRight.isRetractionComplete() && liftLeft.isRetractionComplete();
+    }
+
     public void goToPosition(double positionInInches, double positionPower) {
         liftRight.goToPosition(positionInInches, positionPower);
         liftLeft.goToPosition(positionInInches, positionPower);
@@ -166,7 +201,7 @@ public class DualLift implements FTCRobotSubsystem {
     }
 
     public void lowerBlockOntoTower() {
-
+        //go to the block height directed - 1
     }
 
     public void setRetractionPower(double power){
@@ -188,11 +223,26 @@ public class DualLift implements FTCRobotSubsystem {
     public void enableDataLogging() {
         liftLeft.enableDataLogging();
         liftRight.enableDataLogging();
+        dataLogging = true;
     }
 
-    public void enableCollectData() {
+    public void disableDataLogging() {
+        liftLeft.disableDataLogging();
+        liftRight.disableDataLogging();
+        dataLogging = false;
+    }
+
+    public void enableCollectData(String filename) {
         liftLeft.enableCollectData();
         liftRight.enableCollectData();
+        timeEncoderValueFile = new CSVDataFile(filename);
+        collectData = true;
+    }
+
+    public void disableCollectData() {
+        liftLeft.enableCollectData();
+        liftRight.enableCollectData();
+        collectData = false;
     }
 
     public void setResetPower(double resetPower) {
@@ -209,17 +259,79 @@ public class DualLift implements FTCRobotSubsystem {
         return (liftLeft.isPositionReached() && liftRight.isPositionReached());
     }
 
+    public ExtensionRetractionMechanism.ExtensionRetractionStates[] getState() {
+        dualLiftStates[LiftSide.RIGHT.side] = liftRight.getExtensionRetractionState();
+        dualLiftStates[LiftSide.LEFT.side] = liftLeft.getExtensionRetractionState();
+        return dualLiftStates;
+    }
+
+    public ExtensionRetractionMechanism.ExtensionRetractionStates getLeftState() {
+        return liftLeft.getExtensionRetractionState();
+    }
+
+    public ExtensionRetractionMechanism.ExtensionRetractionStates getRightState() {
+        return liftRight.getExtensionRetractionState();
+    }
+
+    public String stateToString() {
+        // update the state property
+        getState();
+        return "state (L, R) = " + dualLiftStates[LiftSide.LEFT.side].toString() + " " + dualLiftStates[LiftSide.RIGHT.side].toString();
+    }
+
+    public Lift.LiftResetExtraStates[] getResetState() {
+        liftResetExtraStates[LiftSide.RIGHT.side] = liftRight.getLiftResetExtraState();
+        liftResetExtraStates[LiftSide.LEFT.side] = liftLeft.getLiftResetExtraState();
+        return liftResetExtraStates;
+    }
+
+    public Lift.LiftResetExtraStates getLeftResetState() {
+        return liftLeft.getLiftResetExtraState();
+    }
+
+    public Lift.LiftResetExtraStates getRightResetState() {
+        return liftRight.getLiftResetExtraState();
+    }
+
+    public String resetStateToString() {
+        // update the state property
+        getState();
+        return "reset state (L, R) = " + liftResetExtraStates[LiftSide.LEFT.side].toString() + " " + liftResetExtraStates[LiftSide.RIGHT.side].toString();
+    }
+
+
+    public int[] getEncoderValues() {
+        encoderValues[LiftSide.RIGHT.side] = liftRight.getCurrentEncoderValue();
+        encoderValues[LiftSide.LEFT.side] = liftLeft.getCurrentEncoderValue();
+        return encoderValues;
+    }
+
+    public int getLeftEncoderValue() {
+        return liftLeft.getCurrentEncoderValue();
+    }
+
+    public int getRightEncoderValue() {
+        return liftRight.getCurrentEncoderValue();
+    }
+
+    public String encoderValuesToString() {
+        getEncoderValues();
+        return "encoder values (L, R) = " + encoderValues[LiftSide.LEFT.side] + " " + encoderValues[LiftSide.RIGHT.side];
+    }
+
     @Override
     public void update() {
         liftRight.update();
         liftLeft.update();
+        if (collectData) {
+            liftLeft.writeTimerEncoderDataToCSVFile(timeEncoderValueFile);
+            liftRight.writeTimerEncoderDataToCSVFile(timeEncoderValueFile);
+        }
     }
-
 
     @Override
     public void shutdown() {
         liftRight.shutdown();
         liftLeft.shutdown();
     }
-
 }

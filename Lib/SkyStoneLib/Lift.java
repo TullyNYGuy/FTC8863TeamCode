@@ -18,7 +18,7 @@ public class Lift extends ExtensionRetractionMechanism {
     //
     //*********************************************************************************************
 
-    private enum LiftResetExtraStates{
+    public enum LiftResetExtraStates {
         WAITING_FOR_TIMER,
         MOVING_OFF_LIMIT_SWITCH,
         TENSION_COMPLETE,
@@ -33,6 +33,11 @@ public class Lift extends ExtensionRetractionMechanism {
     private double raiseOffLimitSwitchPower = 0.1;
 
     private LiftResetExtraStates liftResetExtraState = LiftResetExtraStates.WAITING_FOR_TIMER;
+
+    public LiftResetExtraStates getLiftResetExtraState() {
+        return liftResetExtraState;
+    }
+
     private LiftResetExtraStates previousLiftResetExtraState = LiftResetExtraStates.NONE;
     private LiftResetExtraStates currentLiftResetExtraState = liftResetExtraState;
 

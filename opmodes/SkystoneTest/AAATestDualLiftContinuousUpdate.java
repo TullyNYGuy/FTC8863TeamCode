@@ -91,11 +91,11 @@ public class AAATestDualLiftContinuousUpdate extends LinearOpMode {
         stateTimer = new ElapsedTime();
 
         logFileBoth = new DataLogging("LiftTestBoth", telemetry);
-        timeEncoderValueFile = new CSVDataFile("LiftTimeEncoderValues", telemetry);
+        timeEncoderValueFile = new CSVDataFile("LiftTimeEncoderValues");
 
         dualLift.setDataLog(logFileBoth);
         dualLift.enableDataLogging();
-        dualLift.enableCollectData();
+        dualLift.enableCollectData("dualLiftTimeEncoderValues");
         dualLift.setResetPower(-0.1);
         dualLift.setRetractionPower(-speed);
         dualLift.setExtensionPower(+speed);

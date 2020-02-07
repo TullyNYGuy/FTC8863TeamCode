@@ -33,7 +33,7 @@ public class HaloControls {
     private Mode mode = Mode.DRIVER_MODE;
     private double heading = 0;
     private FTCRobot robot;
-    private int powerModifier = 1;
+    private int powerModifier = 0;
 
     private Telemetry telemetry;
     //*********************************************************************************************
@@ -65,7 +65,7 @@ public class HaloControls {
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
     public double getPowerModifier() {
-        return 1 / (((double)powerModifier + 1) * 2);
+        return 1 / (((double)powerModifier + 1));
     }
 
 
@@ -95,6 +95,7 @@ public class HaloControls {
         double xValue = xJoystick.getValue();
         double rValue = speedOfRotationJoystick.getValue();
         double translationSpeed = java.lang.Math.hypot(xValue, yValue);
+        telemetry.addData("speed: ", translationSpeed);
         // Divide pi by 2 to shift axis. add pi to get correct range
         double angleOfTranslation = (java.lang.Math.atan2(yValue, xValue));
         if (angleOfTranslation > Math.PI / 2 && angleOfTranslation <= Math.PI) {
@@ -109,6 +110,7 @@ public class HaloControls {
             translationSpeed = 1;
         }
         double powerModifier = getPowerModifier();
+        telemetry.addData("power modifier: ", powerModifier);
         translationSpeed *= powerModifier;
         rValue *= powerModifier;
 

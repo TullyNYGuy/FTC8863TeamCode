@@ -315,7 +315,7 @@ public class SkystoneRobot implements FTCRobot {
         // put the init() method for each subsytem here
     }
 
-    /**
+    /*
      * Every system must tell us when its init is complete. When all of the inits are complete, the
      * robot init is complete.
      *
@@ -343,12 +343,14 @@ public class SkystoneRobot implements FTCRobot {
         for (FTCRobotSubsystem subsystem : subsystemMap.values()) {
             subsystem.update();
         }
+
         intakeBlockUpdate();
         gripStateUpdate();
         deportStateUpdate();
         liftBlockStateUpdate();
         placeBlockStateUpdate();
         prepareIntakeUpdate();
+
 
         if (capabilities.contains(Subsystem.INTAKE_LIMIT_SW))
             updateIntakeSwitches();
@@ -764,9 +766,10 @@ public class SkystoneRobot implements FTCRobot {
                 prepareIntakeState = PrepareIntakeStates.PREPARING;
                 break;
             case PREPARING:
-                // if (lift.isPositionReached() && extensionArm.isPositionReached()) {
+                //why was the if here commented out? Care to answer, Kelloggs? - Tanya
+                 if (lift.isPositionReached() && extensionArm.isPositionReached()) {
                 prepareIntakeState = PrepareIntakeStates.COMPLETE;
-                //}
+                 }
                 break;
             case COMPLETE:
                 //we chillin'

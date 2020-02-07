@@ -60,13 +60,13 @@ public class TestLiftResetCode extends LinearOpMode {
     public void runOpMode() {
 
         // Put your initializations here
-        liftRight = new Lift(hardwareMap, telemetry, "extensionRetractionRight",
-                "extensionLimitSwitchRight", "retractionLimitSwitchRight", "extensionRetractionMotorRight",
+        liftRight = new Lift(hardwareMap, telemetry, "liftRight",
+                "LiftExtensionLimitSwitchRight", "LiftRetractionLimitSwitchRight", "LiftMotorRight",
                 DcMotor8863.MotorType.ANDYMARK_40, movementPerRevolution);
         liftRight.reverseMotor();
 
-        liftLeft = new Lift(hardwareMap, telemetry, "extensionRetractionLeft",
-                "extensionLimitSwitchLeft", "retractionLimitSwitchLeft", "extensionRetractionMotorLeft",
+        liftLeft = new Lift(hardwareMap, telemetry, "liftLeft",
+                "LiftExtensionLimitSwitchLeft", "LiftRetractionLimitSwitchLeft", "LiftMotorLeft",
                 DcMotor8863.MotorType.ANDYMARK_40, movementPerRevolution);
 
         timerRight = new ElapsedTime();
@@ -75,7 +75,7 @@ public class TestLiftResetCode extends LinearOpMode {
         logFileRight = new DataLogging("ResetTestRight", telemetry);
         logFileLeft = new DataLogging("ResetTestLeft", telemetry);
 
-        timeEncoderValueFile = new CSVDataFile("LiftTimeEncoderValues", telemetry);
+        timeEncoderValueFile = new CSVDataFile("LiftTimeEncoderValues");
 
         //logFile = new DataLogging("ExtensionRetractionTestBoth", telemetry);;
         liftRight.setDataLog(logFileRight);

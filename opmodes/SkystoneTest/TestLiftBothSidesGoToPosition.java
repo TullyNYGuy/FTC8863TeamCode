@@ -68,7 +68,7 @@ public class TestLiftBothSidesGoToPosition extends LinearOpMode {
 
         logFileLeft = new DataLogging("ExtensionRetractionTestLeft", telemetry);
         logFileRight = new DataLogging("ExtensionRetractionTestRight", telemetry);
-        timeEncoderValueFile = new CSVDataFile("LiftTimeEncoderValues", telemetry);
+        timeEncoderValueFile = new CSVDataFile("LiftTimeEncoderValues");
 
         extensionRetractionMechanismLeft.setDataLog(logFileLeft);
         extensionRetractionMechanismLeft.enableDataLogging();

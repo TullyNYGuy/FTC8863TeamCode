@@ -64,7 +64,7 @@ public class TestLiftBothSidesFullExtensionRetraction extends LinearOpMode {
         timerRight = new ElapsedTime();
 
         logFile = new DataLogging("ExtensionRetractionTestBoth", telemetry);
-        timeEncoderValueFile = new CSVDataFile("LiftTimeEncoderValues", telemetry);
+        timeEncoderValueFile = new CSVDataFile("LiftTimeEncoderValues");
 
         extensionRetractionMechanismLeft.setDataLog(logFile);
         extensionRetractionMechanismLeft.enableDataLogging();

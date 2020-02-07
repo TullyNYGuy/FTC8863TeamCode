@@ -75,8 +75,8 @@ public class SkystoneTeleop extends LinearOpMode {
     public GamepadButtonMultiPush gamepad1x;
     public GamepadButtonMultiPush gamepad1DpadUp;
     public GamepadButtonMultiPush gamepad1DpadDown;
-    // public GamepadButtonMultiPush gamepad1DpadLeft;
-    // public GamepadButtonMultiPush gamepad1DpadRight;
+     public GamepadButtonMultiPush gamepad1DpadLeft;
+     public GamepadButtonMultiPush gamepad1DpadRight;
     public GamepadButtonMultiPush gamepad1LeftStickButton;
     public GamepadButtonMultiPush gamepad1RightStickButton;
     //public GamepadButtonMultiPush gamepad1LeftTriggerButton;
@@ -105,10 +105,10 @@ public class SkystoneTeleop extends LinearOpMode {
     public GamepadButtonMultiPush gamepad2b;
     public GamepadButtonMultiPush gamepad2y;
     public GamepadButtonMultiPush gamepad2x;
-    //  public GamepadButtonMultiPush gamepad2DpadUp;
-    // public GamepadButtonMultiPush gamepad2DpadDown;
-    // public GamepadButtonMultiPush gamepad2DpadLeft;
-    // public GamepadButtonMultiPush gamepad2DpadRight;
+      public GamepadButtonMultiPush gamepad2DpadUp;
+     public GamepadButtonMultiPush gamepad2DpadDown;
+     public GamepadButtonMultiPush gamepad2DpadLeft;
+    public GamepadButtonMultiPush gamepad2DpadRight;
     public GamepadButtonMultiPush gamepad2LeftStickButton;
     public GamepadButtonMultiPush gamepad2RightStickButton;
 
@@ -137,7 +137,7 @@ public class SkystoneTeleop extends LinearOpMode {
     public void runOpMode() {
 
         //*********************************************************************************************
-        //  Initializations after the pogram is selected by the user on the driver phone
+        //  Initializations after the program is selected by the user on the driver phone
         //*********************************************************************************************
 
         // create the robot
@@ -161,7 +161,7 @@ public class SkystoneTeleop extends LinearOpMode {
         // gamepad1LeftBumper = new GamepadButtonMultiPush(1);
         gamepad1a = new GamepadButtonMultiPush(1);
         gamepad1b = new GamepadButtonMultiPush(1);
-        gamepad1y = new GamepadButtonMultiPush(2);
+         gamepad1y = new GamepadButtonMultiPush(2);
         gamepad1x = new GamepadButtonMultiPush(1);
         gamepad1DpadUp = new GamepadButtonMultiPush(1);
         gamepad1DpadDown = new GamepadButtonMultiPush(1);
@@ -185,7 +185,7 @@ public class SkystoneTeleop extends LinearOpMode {
         gamepad2b = new GamepadButtonMultiPush(1);
         gamepad2y = new GamepadButtonMultiPush(2);
         gamepad2x = new GamepadButtonMultiPush(1);
-//        gamepad2DpadDown = new GamepadButtonMultiPush(1);
+//       gamepad2DpadDown = new GamepadButtonMultiPush(1);
         // gamepad2DpadLeft = new GamepadButtonMultiPush(1);
         //  gamepad2DpadRight = new GamepadButtonMultiPush(1);
         gamepad2LeftStickButton = new GamepadButtonMultiPush(1);
@@ -197,13 +197,8 @@ public class SkystoneTeleop extends LinearOpMode {
 
         gamepad2RightJoyStickX = new JoyStick(JoyStick.JoyStickMode.SQUARE, JOYSTICK_DEADBAND_VALUE, JoyStick.InvertSign.NO_INVERT_SIGN);
         gamepad2RightJoyStickY = new JoyStick(JoyStick.JoyStickMode.SQUARE, JOYSTICK_DEADBAND_VALUE, JoyStick.InvertSign.INVERT_SIGN);
-        //gamepad2RightJoyStickY.setHalfPower();
 
-        // default the wheels to 30% power
-        //  gamepad1LeftJoyStickX.set30PercentPower();
-        // gamepad1LeftJoyStickY.set30PercentPower();
-        // gamepad1RightJoyStickX.set30PercentPower();
-        // gamepad1RightJoyStickY.set30PercentPower();
+
 
         HaloControls haloControls = new HaloControls(gamepad1LeftJoyStickX, gamepad1LeftJoyStickY, gamepad1RightJoyStickX, robot, telemetry);
         robot.createRobot();
@@ -218,7 +213,9 @@ public class SkystoneTeleop extends LinearOpMode {
             robot.update();
             if (timer.milliseconds() > 5000) {
                 // something went wrong with the inits. They never finished. Proceed anyway
+
                 dataLog.logData("Init failed to complete on time. Proceeding anyway!");
+                //How cheerful. How comforting...
                 break;
             }
             idle();
@@ -299,7 +296,7 @@ public class SkystoneTeleop extends LinearOpMode {
             }
 /*
             if (gamepad1DpadUp.buttonPress(gamepad1.dpad_up)) {
-                // this was a new button press, not a+
+                // this was a new button press, not a
                 //button held down for a while
                 // put the command to be executed here
                 gamepad1LeftJoyStickX.setFullPower();
@@ -401,10 +398,8 @@ public class SkystoneTeleop extends LinearOpMode {
             if (gamepad2y.buttonPress(gamepad2.y)) {
                 if (gamepad2y.isCommand1()) {
                     robot.baseGrab();
-//                     call the first command you want to run
                 }
                 if (gamepad2y.isCommand2()) {
-//                     call the 2nd command you want to run
                     robot.baseRelease();
                 }
 
@@ -475,6 +470,7 @@ public class SkystoneTeleop extends LinearOpMode {
             // update the robot
             robot.update();
 
+   telemetry.addData("mecanum commands are: ", commands);
             // Display telemetry
             telemetry.addData(">", "Press Stop to end.");
             telemetry.update();
