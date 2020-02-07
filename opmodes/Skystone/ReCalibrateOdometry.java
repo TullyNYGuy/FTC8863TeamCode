@@ -1,8 +1,7 @@
-package org.firstinspires.ftc.teamcode.opmodes.GenericTest;
+package org.firstinspires.ftc.teamcode.opmodes.Skystone;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -19,20 +18,17 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.Mecanum;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometryModule;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometrySystem;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.RampControl;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.SmartJoystick;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.Switch;
-
-
-import java.io.IOException;
 
 import static org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863.MotorType.ANDYMARK_20_ORBITAL;
 
 /*
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@Autonomous(name = "Mecanum with Odometry", group = "ATest")
+@Autonomous(name = "Re-Calibrate Odometry", group = "ATest")
 //@Disabled
-public class TestMecanumWithOdometry extends LinearOpMode {
+public class ReCalibrateOdometry extends LinearOpMode {
 
     class TestRobot implements FTCRobot {
 
@@ -70,6 +66,7 @@ public class TestMecanumWithOdometry extends LinearOpMode {
             telemetry.addData("init", "Loaded Odometry configuration");
             return;
         }
+
         MecanumCommands commands = new MecanumCommands();
         commands.setSpeed(0);
         commands.setAngleOfTranslation(AngleUnit.RADIANS, 0);
@@ -80,6 +77,15 @@ public class TestMecanumWithOdometry extends LinearOpMode {
         timer.reset();
         mecanum.setMotorPower(commands);
         while (opModeIsActive() && (timer.milliseconds() < INIT_ODOMETRY_TIMER_MSEC)) {
+            idle();
+        }
+        RampControl rampControl = new RampControl(.3, 0, 1000);
+        rampControl.enable();
+        rampControl.start();
+        while(rampControl.isRunning() && opModeIsActive()){
+            commands.setSpeedOfRotation(rampControl.getRampValueLinear(0));
+
+            mecanum.setMotorPower(commands);
             idle();
         }
         commands.setSpeedOfRotation(0);
@@ -95,7 +101,7 @@ public class TestMecanumWithOdometry extends LinearOpMode {
 
 
         // Put your initializations here
-
+config.delete();
         loadConfiguration();
 
         MecanumCommands mecanumCommands = new MecanumCommands();

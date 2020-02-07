@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
 import android.os.Environment;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -20,7 +21,7 @@ public class Configuration extends Properties {
     }
 
     public boolean load(String configFile) {
-        String fileName = Environment.getExternalStorageDirectory() + CONFIG_DIRECTORY + "/" + configFile;
+        String fileName = Environment.getExternalStorageDirectory() + "/" + CONFIG_DIRECTORY + "/" + configFile;
         try {
             super.load(new FileInputStream(fileName));
             return true;
@@ -28,13 +29,27 @@ public class Configuration extends Properties {
             return false;
         }
     }
+public boolean delete(String configFile){
+    String fileName = Environment.getExternalStorageDirectory() + "/" + CONFIG_DIRECTORY + "/" + configFile;
 
+
+            File f = new File(fileName);
+
+
+            return f.delete();
+
+
+
+}
+    public boolean delete(){
+        return delete(CONFIG_FILE);
+    }
     public boolean store() {
         return store(CONFIG_FILE);
     }
 
     public boolean store(String configFile) {
-        String fileName = Environment.getExternalStorageDirectory() + CONFIG_DIRECTORY + "/" + configFile;
+        String fileName = Environment.getExternalStorageDirectory() + "/" + CONFIG_DIRECTORY + "/" + configFile;
         try {
             super.store(new FileOutputStream(fileName), "Robot Configuration");
             return true;
