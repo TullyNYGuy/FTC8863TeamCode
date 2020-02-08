@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.opmodes.SkystoneTest;
+package org.firstinspires.ftc.teamcode.opmodes.SkystoneDiagnostics;
 
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -18,7 +18,7 @@ import org.openftc.revextensions2.ExpansionHubEx;
  * or reverse settings are correct. All motor should spin toward the front of the robot, as if it
  * were traveling forward.
  */
-@TeleOp(name = "Test Drive Motor wiring", group = "Test")
+@TeleOp(name = "Test Drive Motor wiring", group = "Diagnostics")
 //@Disabled
 public class TestDriveMotorWiring extends LinearOpMode {
 

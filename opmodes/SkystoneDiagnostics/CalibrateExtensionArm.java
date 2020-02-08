@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.opmodes.SkystoneTest;
+package org.firstinspires.ftc.teamcode.opmodes.SkystoneDiagnostics;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
