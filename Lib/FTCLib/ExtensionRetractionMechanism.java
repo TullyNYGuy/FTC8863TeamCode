@@ -1280,6 +1280,12 @@ public class ExtensionRetractionMechanism {
     // supporting methods
     //**********************************************************************************************
 
+    private void rotateMotor(double degrees, double power) {
+        extensionRetractionMotor.setTargetPosition((int) (degrees / 360 * extensionRetractionMotor.getCountsPerRev()));
+        extensionRetractionMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        extensionRetractionMotor.rotateToEncoderCount(power, extensionRetractionMotor.getTargetEncoderCount(), DcMotor8863.FinishBehavior.HOLD);
+    }
+
     /**
      * Cause the mechanism to stop moving.
      */
@@ -2219,6 +2225,31 @@ public class ExtensionRetractionMechanism {
 
     }
 
+    //*********************************************************************************************]
+    // calibration
+    //**********************************************************************************************
+
+    /**
+     * Rotate the motor attached to the mechanism a certain number of degrees. When it stops, you
+     * should measure the distance moved and come up with the distance moved / revolution.
+     *
+     * @param degrees
+     * @param power
+     * @param opMode
+     */
+    public void calibrate(double degrees, double power, LinearOpMode opMode) {
+        rotateMotor(degrees, power);
+        while (opMode.opModeIsActive() && !extensionRetractionMotor.isMotorStateComplete()) {
+            opMode.telemetry.addData("encoder count = ", extensionRetractionMotor.getCurrentPosition());
+            opMode.telemetry.update();
+            opMode.idle();
+        }
+        extensionRetractionMotor.setPower(0);
+        double numberOfRevolutions = extensionRetractionMotor.getCurrentPosition() / (double) extensionRetractionMotor.getCountsPerRev();
+        opMode.telemetry.addData("actual number of revolutions = ", numberOfRevolutions);
+        opMode.telemetry.addData("Measure the distance moved. Calculate distance / revolution", "!");
+        opMode.telemetry.update();
+    }
 
     //*********************************************************************************************]
     // tests for mechanism
@@ -2413,6 +2444,171 @@ public class ExtensionRetractionMechanism {
             opMode.telemetry.addData("retraction time: total = ", totalRetractionTime);
             opMode.telemetry.addData("                 ave   = ", "%.2f", totalRetractionTime / numberOfCycles);
         }
+    }
+
+    private enum JoystickTestState {
+        ONE,
+        TWO,
+        THREE,
+        FOUR,
+        FIVE,
+        SIX,
+        SEVEN,
+        EIGHT,
+        NINE,
+        TEN
+    }
+
+    private JoystickTestState joystickTestState;
+
+    public int testJoystick(LinearOpMode opMode) {
+        joystickTestState = JoystickTestState.ONE;
+        ElapsedTime timer = new ElapsedTime();
+        ExtensionRetractionStates extensionRetractionState;
+        int encoderValue = 0;
+        int encoderValueMax = 0;
+
+        this.setLiftPowerUsingJoystick(.1);
+        timer.reset();
+
+        while (opMode.opModeIsActive()) {
+            update();
+
+            switch (joystickTestState) {
+                case ONE:
+                    if (timer.milliseconds() > 2000) {
+                        timer.reset();
+                        joystickTestState = JoystickTestState.TWO;
+                    }
+                    break;
+                case TWO:
+                    if (timer.milliseconds() > 1000) {
+                        timer.reset();
+                        this.setLiftPowerUsingJoystick(-0.1);
+                        joystickTestState = JoystickTestState.THREE;
+                    }
+                    break;
+                case THREE:
+                    if (timer.milliseconds() > 1000) {
+                        timer.reset();
+                        joystickTestState = JoystickTestState.FOUR;
+                    }
+                    break;
+                case FOUR:
+                    if (timer.milliseconds() > 10000) {
+                        timer.reset();
+                        this.setLiftPowerUsingJoystick(0.1);
+                        joystickTestState = JoystickTestState.FIVE;
+                    }
+                    break;
+                case FIVE:
+                    if (timer.milliseconds() > 1000) {
+                        timer.reset();
+                        this.reset();
+                        joystickTestState = JoystickTestState.SIX;
+                    }
+                    break;
+                case SIX:
+                    break;
+                case SEVEN:
+                    break;
+                case EIGHT:
+                    break;
+                case NINE:
+                    break;
+                case TEN:
+                    break;
+            }
+
+            extensionRetractionState = getExtensionRetractionState();
+            encoderValue = extensionRetractionMotor.getCurrentPosition();
+
+            if (encoderValue > encoderValueMax) {
+                encoderValueMax = encoderValue;
+            }
+
+            opMode.telemetry.addData("state = ", extensionRetractionState.toString());
+            opMode.telemetry.addData("encoder = ", extensionRetractionMotor.getCurrentPosition());
+            opMode.telemetry.update();
+            opMode.idle();
+        }
+        opMode.telemetry.addData("max encoder value = ", encoderValueMax);
+        return encoderValueMax;
+    }
+
+    public int testJoystickWithGoToPosition(LinearOpMode opMode) {
+        joystickTestState = JoystickTestState.ONE;
+        ElapsedTime timer = new ElapsedTime();
+        ExtensionRetractionStates extensionRetractionState;
+        int encoderValue = 0;
+        int encoderValueMax = 0;
+
+        this.setLiftPowerUsingJoystick(.1);
+        timer.reset();
+
+        while (opMode.opModeIsActive()) {
+            update();
+
+            switch (joystickTestState) {
+                case ONE:
+                    if (timer.milliseconds() > 2000) {
+                        timer.reset();
+                        joystickTestState = JoystickTestState.TWO;
+                    }
+                    break;
+                case TWO:
+                    if (timer.milliseconds() > 1000) {
+                        timer.reset();
+                        this.setLiftPowerUsingJoystick(-0.1);
+                        joystickTestState = JoystickTestState.THREE;
+                    }
+                    break;
+                case THREE:
+                    if (timer.milliseconds() > 1000) {
+                        timer.reset();
+                        joystickTestState = JoystickTestState.FOUR;
+                    }
+                    break;
+                case FOUR:
+                    if (timer.milliseconds() > 10000) {
+                        timer.reset();
+                        this.setLiftPowerUsingJoystick(0.1);
+                        joystickTestState = JoystickTestState.FIVE;
+                    }
+                    break;
+                case FIVE:
+                    if (timer.milliseconds() > 1000) {
+                        timer.reset();
+                        this.reset();
+                        joystickTestState = JoystickTestState.SIX;
+                    }
+                    break;
+                case SIX:
+                    break;
+                case SEVEN:
+                    break;
+                case EIGHT:
+                    break;
+                case NINE:
+                    break;
+                case TEN:
+                    break;
+            }
+
+            extensionRetractionState = getExtensionRetractionState();
+            encoderValue = extensionRetractionMotor.getCurrentPosition();
+
+            if (encoderValue > encoderValueMax) {
+                encoderValueMax = encoderValue;
+            }
+
+            opMode.telemetry.addData("state = ", extensionRetractionState.toString());
+            opMode.telemetry.addData("encoder = ", extensionRetractionMotor.getCurrentPosition());
+            opMode.telemetry.update();
+            opMode.idle();
+        }
+        opMode.telemetry.addData("max encoder value = ", encoderValueMax);
+        return encoderValueMax;
     }
 
     private void delay(int ms) {
