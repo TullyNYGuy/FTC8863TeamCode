@@ -1280,12 +1280,6 @@ public class ExtensionRetractionMechanism {
     // supporting methods
     //**********************************************************************************************
 
-    private void rotateMotor(double degrees, double power) {
-        extensionRetractionMotor.setTargetPosition((int) (degrees / 360 * extensionRetractionMotor.getCountsPerRev()));
-        extensionRetractionMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        extensionRetractionMotor.rotateToEncoderCount(power, extensionRetractionMotor.getTargetEncoderCount(), DcMotor8863.FinishBehavior.HOLD);
-    }
-
     /**
      * Cause the mechanism to stop moving.
      */
@@ -2238,14 +2232,19 @@ public class ExtensionRetractionMechanism {
      * @param opMode
      */
     public void calibrate(double degrees, double power, LinearOpMode opMode) {
-        rotateMotor(degrees, power);
+        int originalEncoderCount = extensionRetractionMotor.getCurrentPosition();
+        extensionRetractionMotor.rotateNumberOfRevolutions(.1, 1, DcMotor8863.FinishBehavior.HOLD);
+
         while (opMode.opModeIsActive() && !extensionRetractionMotor.isMotorStateComplete()) {
+            extensionRetractionMotor.update();
+            opMode.telemetry.addData("motor state = ", extensionRetractionMotor.getCurrentMotorState().toString());
             opMode.telemetry.addData("encoder count = ", extensionRetractionMotor.getCurrentPosition());
             opMode.telemetry.update();
             opMode.idle();
         }
-        extensionRetractionMotor.setPower(0);
-        double numberOfRevolutions = extensionRetractionMotor.getCurrentPosition() / (double) extensionRetractionMotor.getCountsPerRev();
+
+        double numberOfRevolutions = (extensionRetractionMotor.getCurrentPosition() - originalEncoderCount) / (double) extensionRetractionMotor.getCountsPerRev();
+        opMode.telemetry.addData("encoder count = ", extensionRetractionMotor.getCurrentPosition());
         opMode.telemetry.addData("actual number of revolutions = ", numberOfRevolutions);
         opMode.telemetry.addData("Measure the distance moved. Calculate distance / revolution", "!");
         opMode.telemetry.update();
