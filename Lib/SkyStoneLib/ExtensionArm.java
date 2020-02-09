@@ -2,21 +2,16 @@ package org.firstinspires.ftc.teamcode.Lib.SkyStoneLib;
 
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcServoMotor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometryModule;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.PairedList;
 
 public class ExtensionArm extends ExtensionRetractionMechanism implements FTCRobotSubsystem {
     private final static String SUBSYSTEM_NAME = "ExtentionArm";
@@ -130,6 +125,11 @@ public class ExtensionArm extends ExtensionRetractionMechanism implements FTCRob
     @Override
     public boolean init(Configuration config) {
         return super.init();
+    }
+
+    @Override
+    public void timedUpdate(double timerValueMsec) {
+
     }
 
 

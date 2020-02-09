@@ -59,6 +59,11 @@ public class IntakeWheels implements FTCRobotSubsystem {
         leftIntakeMotor.stop();
     }
 
+    @Override
+    public void timedUpdate(double timerValueMsec) {
+
+    }
+
     public void intake() {
         rightIntakeMotor.setPower(motorSpeed);
         leftIntakeMotor.setPower(motorSpeed);

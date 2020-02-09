@@ -81,6 +81,11 @@ public class IntakePusherServos implements FTCRobotSubsystem {
         setState(State.OUT);
     }
 
+    @Override
+    public void timedUpdate(double timerValueMsec) {
+
+    }
+
     public void pushIn() {
         pendingPush = true;
     }
