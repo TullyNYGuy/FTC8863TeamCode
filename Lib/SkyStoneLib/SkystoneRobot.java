@@ -130,6 +130,7 @@ public class SkystoneRobot implements FTCRobot {
         capabilities.addAll(new ArrayList<Subsystem>());
     }
 
+    @Override
     public boolean createRobot() {
         imu = new AdafruitIMU8863(hardwareMap, null, "IMU", HardwareName.IMU.hwName);
         if (capabilities.contains(Subsystem.MECANUM)) {
@@ -303,6 +304,7 @@ public class SkystoneRobot implements FTCRobot {
     /**
      * Every system has an init. Call it.
      */
+    @Override
     public void init() {
         dataLog.logData("Init starting");
         for (FTCRobotSubsystem subsystem : subsystemMap.values()) {
@@ -320,6 +322,7 @@ public class SkystoneRobot implements FTCRobot {
      *
      * @return
      */
+    @Override
     public boolean isInitComplete() {
         boolean result = true;
         // put the isInitComplete for each subsystem here. In other words repeat this block of code

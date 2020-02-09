@@ -4,6 +4,13 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 public interface FTCRobot {
 
+
+    boolean createRobot();
+
+    void init();
+
+    boolean isInitComplete();
+
     void update();
 
     void shutdown();

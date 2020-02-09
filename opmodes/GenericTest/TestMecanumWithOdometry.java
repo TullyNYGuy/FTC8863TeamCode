@@ -39,6 +39,21 @@ public class TestMecanumWithOdometry extends LinearOpMode {
         }
 
         @Override
+        public boolean createRobot() {
+            return false;
+        }
+
+        @Override
+        public void init() {
+
+        }
+
+        @Override
+        public boolean isInitComplete() {
+            return false;
+        }
+
+        @Override
         public void update() {
 
         }
