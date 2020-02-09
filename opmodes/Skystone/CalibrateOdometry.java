@@ -39,6 +39,21 @@ public class CalibrateOdometry extends LinearOpMode {
         }
 
         @Override
+        public void update() {
+
+        }
+
+        @Override
+        public void shutdown() {
+
+        }
+
+        @Override
+        public void timedUpdate(double timerValueMsec) {
+
+        }
+
+        @Override
         public double getCurrentRotation(AngleUnit unit) {
             return unit.fromDegrees(imu.getHeading());
         }
@@ -90,7 +105,7 @@ public class CalibrateOdometry extends LinearOpMode {
         commands.setSpeedOfRotation(0);
         mecanum.setMotorPower(commands);
         sleep(1500);
-        odometry.finishCalibration(AngleUnit.DEGREES, AngleUnit.DEGREES.normalize(imu.getHeading() - originalAngle));
+        odometry.finishCalibration(AngleUnit.DEGREES, AngleUnit.DEGREES.normalize(-(imu.getHeading() - originalAngle)));
         odometry.saveConfiguration(config);
         odometry.reset();
     }

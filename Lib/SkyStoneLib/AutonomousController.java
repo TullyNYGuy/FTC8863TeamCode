@@ -1,13 +1,15 @@
 package org.firstinspires.ftc.teamcode.Lib.SkyStoneLib;
 
-import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometryModule;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.PIDControl;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.PIDControlExternalTimer;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -40,7 +42,7 @@ public class AutonomousController {
     /*
      * Interval in milliseconds in which movement control task runs
      */
-    final private long MOVEMENT_THREAD_INTERVAL = 50;
+    final private long MOVEMENT_THREAD_INTERVAL = 200;
 
     private enum Areas {
         BUILDSITE, BRIDGE, BLOCK, PLATFORM, HOME
@@ -65,20 +67,34 @@ public class AutonomousController {
     private MovemenetThread movementThread;
     private ScheduledFuture<?> movementTask;
 
+    private Telemetry telemetry;
+    private DataLogging dataLog;
+
     class MovemenetThread implements Runnable {
 
-        private PIDControl xControl;
-        private PIDControl yControl;
-        private PIDControl rotationControl;
+        private final double XY_Kp = .02;
+        private final double XY_Ki = 0;
+        private final double XY_Kd = 0;
+        private final double XY_MAX_CORRECTION = 1;
+        private final double ROT_Kp = .02;
+        private final double ROT_Ki = 0;
+        private final double ROT_Kd = 0;
+        private final double ROT_MAX_CORRECTION = 1;
+        private PIDControlExternalTimer xControl;
+        private PIDControlExternalTimer yControl;
+        private PIDControlExternalTimer rotationControl;
         private MecanumCommands commands;
         private Position current;
         private DistanceUnit distanceUnit;
         private MecanumCommands zeroMovement;
+        private ElapsedTime elapsedTime;
 
         public MovemenetThread(DistanceUnit distanceUnit) {
-            xControl = new PIDControl(0.2, 20.0, 0);
-            yControl = new PIDControl(0.2, 20.0, 0);
-            rotationControl = new PIDControl(0.2, 20.0, 0);
+            elapsedTime = new ElapsedTime();
+            elapsedTime.reset();
+            xControl = new PIDControlExternalTimer(XY_Kp, XY_Ki, XY_Kd, XY_MAX_CORRECTION);
+            yControl = new PIDControlExternalTimer(XY_Kp, XY_Ki, XY_Kd, XY_MAX_CORRECTION);
+            rotationControl = new PIDControlExternalTimer(ROT_Kp, ROT_Ki, ROT_Kd, ROT_MAX_CORRECTION);
             commands = new MecanumCommands();
             zeroMovement = new MecanumCommands();
             this.distanceUnit = distanceUnit;
@@ -98,35 +114,50 @@ public class AutonomousController {
             }
         }
 
+        public void resetTimers() {
+            xControl.reset();
+            yControl.reset();
+            rotationControl.reset();
+            elapsedTime.reset();
+        }
+
         @Override
         public void run() {
             double valX;
             double valY;
             double valRot;
+            double timerValue = elapsedTime.milliseconds();
+            robot.timedUpdate(timerValue);
             robot.getCurrentPosition(current);
             double currentRotation = robot.getCurrentRotation(AngleUnit.RADIANS);
             synchronized (this) {
-                valX = xControl.getCorrection(current.x);
-                valY = yControl.getCorrection(current.y);
-                valRot = rotationControl.getCorrection(currentRotation);
+                valX = xControl.getCorrection(current.x, timerValue);
+                valY = yControl.getCorrection(current.y, timerValue);
+                valRot = rotationControl.getCorrection(currentRotation, timerValue);
             }
             commands.setSpeed(Math.sqrt(valX * valX + valY * valY));
             commands.setAngleOfTranslation(AngleUnit.RADIANS, Math.atan2(valY, valX));
             commands.setSpeedOfRotation(valRot);
-            robot.setMovement(commands);
+            // robot.setMovement(commands);
+            //telemetry.addData("MT: ", String.format("x: %.2f, y: %.2f", valX, valY));
+            dataLog.logData(String.format("Position: (X, Y): (%.2f, %.2f)", current.x, current.y));
+            dataLog.logData(String.format("Correction (X, Y): (%.2f, %.2f)", valX, valY));
         }
     }
 
-    public AutonomousController(SkystoneRobot robot) {
+    public AutonomousController(SkystoneRobot robot, DataLogging logger, Telemetry telemetry) {
         places = new HashMap<Areas, Position>();
         this.robot = robot;
         movementThread = new MovemenetThread(distanceUnit);
         scheduler = Executors.newScheduledThreadPool(2);
         movementTask = null;
+        this.telemetry = telemetry;
+        this.dataLog = logger;
     }
 
 
     public void startController() {
+        movementThread.resetTimers();
         if (movementTask == null)
             movementTask = scheduler.scheduleAtFixedRate(movementThread, 0, MOVEMENT_THREAD_INTERVAL, TimeUnit.MILLISECONDS);
     }

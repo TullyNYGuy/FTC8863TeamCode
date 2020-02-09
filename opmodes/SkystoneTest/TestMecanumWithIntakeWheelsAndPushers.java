@@ -37,6 +37,21 @@ public class TestMecanumWithIntakeWheelsAndPushers extends LinearOpMode {
         }
 
         @Override
+        public void update() {
+
+        }
+
+        @Override
+        public void shutdown() {
+
+        }
+
+        @Override
+        public void timedUpdate(double timerValueMsec) {
+
+        }
+
+        @Override
         public double getCurrentRotation(AngleUnit unit) {
             return unit.fromDegrees(imu.getHeading());
         }
