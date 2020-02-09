@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.opmodes.SkystoneTest;
+package org.firstinspires.ftc.teamcode.opmodes.SkystoneDiagnostics;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -9,6 +9,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.ExtensionArm;
+import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.SkystoneRobot;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
@@ -26,8 +27,8 @@ public class CalibrateExtensionArm extends LinearOpMode {
     public void runOpMode() {
 
         // Put your initializations here
-        extensionArm = new ExtensionArm(hardwareMap, telemetry, "Extension Arm", "extensionLimitSwitchArm",
-                "retractionLimitSwitchArm", "extensionArmEncoder", DcMotor8863.MotorType.ANDYMARK_40, movementPerRevolution);
+        extensionArm = new ExtensionArm(hardwareMap, telemetry, "Extension Arm", SkystoneRobot.HardwareName.EXT_ARM_EXTENSION_SWITCH.hwName,
+                SkystoneRobot.HardwareName.INTAKE_LEFT_MOTOR.hwName, SkystoneRobot.HardwareName.EXT_ARM_SERVO.hwName, DcMotor8863.MotorType.ANDYMARK_40, movementPerRevolution);
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
@@ -36,5 +37,10 @@ public class CalibrateExtensionArm extends LinearOpMode {
         waitForStart();
 
         extensionArm.calibrate(360, .5, this);
+
+        while (opModeIsActive()) {
+            // sit here until the user has read the values and then they kill the opmode
+            idle();
+        }
     }
 }

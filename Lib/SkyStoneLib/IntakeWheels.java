@@ -18,20 +18,19 @@ public class IntakeWheels implements FTCRobotSubsystem {
     private boolean direction;
 
     public IntakeWheels(HardwareMap hardwareMap, String rightIntakeMotorName, String leftIntakeMotorName) {
-        DcMotor8863 rightIntakeMotor = new DcMotor8863(rightIntakeMotorName, hardwareMap);
-        DcMotor8863 leftIntakeMotor = new DcMotor8863(leftIntakeMotorName, hardwareMap);
+        this.rightIntakeMotor = new DcMotor8863(rightIntakeMotorName, hardwareMap);
+        this.leftIntakeMotor = new DcMotor8863(leftIntakeMotorName, hardwareMap);
 
         rightIntakeMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
-        leftIntakeMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
-        rightIntakeMotor.setMovementPerRev(360);
-        leftIntakeMotor.setMovementPerRev(360);
-
         rightIntakeMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        rightIntakeMotor.setMovementPerRev(360);
+        rightIntakeMotor.runAtConstantPower(0);
+
+        leftIntakeMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
+        leftIntakeMotor.setMovementPerRev(360);
         leftIntakeMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-        rightIntakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        leftIntakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        leftIntakeMotor.runAtConstantPower(motorSpeed);
-        rightIntakeMotor.runAtConstantPower(motorSpeed);
+        leftIntakeMotor.runAtConstantPower(0);
+
     }
 
     @Override

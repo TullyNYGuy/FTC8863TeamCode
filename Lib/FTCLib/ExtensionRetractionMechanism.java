@@ -475,6 +475,45 @@ public class ExtensionRetractionMechanism {
 
 
     //*********************************************************************************************
+    //          Wrapper Methods
+    //
+    //*********************************************************************************************
+
+    /**
+     * This method wraps the equivalent method in the DcMotor8863 class. The reason for this is that
+     * I don't want to expose the motor publicly. But other code will need access to this method.
+     *
+     * @param power
+     * @param revs
+     * @param afterCompletion
+     * @return
+     */
+    public boolean rotateNumberOfRevolutions(double power, double revs, DcMotor8863.FinishBehavior afterCompletion) {
+        return extensionRetractionMotor.rotateNumberOfRevolutions(power, revs, afterCompletion);
+    }
+
+    /**
+     * This method wraps the equivalent method in the DcMotor8863 class. The reason for this is that
+     * I don't want to expose the motor publicly. But other code will need access to this method.
+     *
+     * @return
+     */
+    public boolean isMotorStateComplete() {
+        return extensionRetractionMotor.isMotorStateComplete();
+    }
+
+    /**
+     * This method wraps the equivalent method in the DcMotor8863 class. The reason for this is that
+     * I don't want to expose the motor publicly. But other code will need access to this method.
+     *
+     * @return
+     */
+    public int getCountsPerRev() {
+        return extensionRetractionMotor.getCountsPerRev();
+    }
+
+
+    //*********************************************************************************************
     //          Helper Methods
     //
     // methods that aid or support the major functions in the class
@@ -920,6 +959,9 @@ public class ExtensionRetractionMechanism {
     private void moveToFullRetract() {
         // when the mechanism retracts you may want to do something with whatever is attached to it.
         extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        // this is to fix a bug, when the lift resets, it leaves the motor in float mode. In order
+        // for the lift to stay retracted, hold has to be set
+        setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
         extensionRetractionMotor.setPower(retractionPower);
     }
 
@@ -1054,6 +1096,9 @@ public class ExtensionRetractionMechanism {
     private void moveToFullExtend() {
         // when the mechanism extends you may want to do something with whatever is attached to it.
         extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        // this is to fix a bug, when the lift resets, it leaves the motor in float mode. In order
+        // for the lift to stay extended, hold has to be set
+        setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
         extensionRetractionMotor.setPower(extensionPower);
     }
 
@@ -2213,6 +2258,36 @@ public class ExtensionRetractionMechanism {
 
     }
 
+    //*********************************************************************************************]
+    // calibration
+    //**********************************************************************************************
+
+    /**
+     * Rotate the motor attached to the mechanism a certain number of degrees. When it stops, you
+     * should measure the distance moved and come up with the distance moved / revolution.
+     *
+     * @param degrees
+     * @param power
+     * @param opMode
+     */
+    public void calibrate(double degrees, double power, LinearOpMode opMode) {
+        int originalEncoderCount = extensionRetractionMotor.getCurrentPosition();
+        extensionRetractionMotor.rotateNumberOfRevolutions(.1, 1, DcMotor8863.FinishBehavior.HOLD);
+
+        while (opMode.opModeIsActive() && !extensionRetractionMotor.isMotorStateComplete()) {
+            extensionRetractionMotor.update();
+            opMode.telemetry.addData("motor state = ", extensionRetractionMotor.getCurrentMotorState().toString());
+            opMode.telemetry.addData("encoder count = ", extensionRetractionMotor.getCurrentPosition());
+            opMode.telemetry.update();
+            opMode.idle();
+        }
+
+        double numberOfRevolutions = (extensionRetractionMotor.getCurrentPosition() - originalEncoderCount) / (double) extensionRetractionMotor.getCountsPerRev();
+        opMode.telemetry.addData("encoder count = ", extensionRetractionMotor.getCurrentPosition());
+        opMode.telemetry.addData("actual number of revolutions = ", numberOfRevolutions);
+        opMode.telemetry.addData("Measure the distance moved. Calculate distance / revolution", "!");
+        opMode.telemetry.update();
+    }
 
     //*********************************************************************************************]
     // tests for mechanism
@@ -2407,6 +2482,171 @@ public class ExtensionRetractionMechanism {
             opMode.telemetry.addData("retraction time: total = ", totalRetractionTime);
             opMode.telemetry.addData("                 ave   = ", "%.2f", totalRetractionTime / numberOfCycles);
         }
+    }
+
+    private enum JoystickTestState {
+        ONE,
+        TWO,
+        THREE,
+        FOUR,
+        FIVE,
+        SIX,
+        SEVEN,
+        EIGHT,
+        NINE,
+        TEN
+    }
+
+    private JoystickTestState joystickTestState;
+
+    public int testJoystick(LinearOpMode opMode) {
+        joystickTestState = JoystickTestState.ONE;
+        ElapsedTime timer = new ElapsedTime();
+        ExtensionRetractionStates extensionRetractionState;
+        int encoderValue = 0;
+        int encoderValueMax = 0;
+
+        this.setLiftPowerUsingJoystick(.1);
+        timer.reset();
+
+        while (opMode.opModeIsActive()) {
+            update();
+
+            switch (joystickTestState) {
+                case ONE:
+                    if (timer.milliseconds() > 2000) {
+                        timer.reset();
+                        joystickTestState = JoystickTestState.TWO;
+                    }
+                    break;
+                case TWO:
+                    if (timer.milliseconds() > 1000) {
+                        timer.reset();
+                        this.setLiftPowerUsingJoystick(-0.1);
+                        joystickTestState = JoystickTestState.THREE;
+                    }
+                    break;
+                case THREE:
+                    if (timer.milliseconds() > 1000) {
+                        timer.reset();
+                        joystickTestState = JoystickTestState.FOUR;
+                    }
+                    break;
+                case FOUR:
+                    if (timer.milliseconds() > 10000) {
+                        timer.reset();
+                        this.setLiftPowerUsingJoystick(0.1);
+                        joystickTestState = JoystickTestState.FIVE;
+                    }
+                    break;
+                case FIVE:
+                    if (timer.milliseconds() > 1000) {
+                        timer.reset();
+                        this.reset();
+                        joystickTestState = JoystickTestState.SIX;
+                    }
+                    break;
+                case SIX:
+                    break;
+                case SEVEN:
+                    break;
+                case EIGHT:
+                    break;
+                case NINE:
+                    break;
+                case TEN:
+                    break;
+            }
+
+            extensionRetractionState = getExtensionRetractionState();
+            encoderValue = extensionRetractionMotor.getCurrentPosition();
+
+            if (encoderValue > encoderValueMax) {
+                encoderValueMax = encoderValue;
+            }
+
+            opMode.telemetry.addData("state = ", extensionRetractionState.toString());
+            opMode.telemetry.addData("encoder = ", extensionRetractionMotor.getCurrentPosition());
+            opMode.telemetry.update();
+            opMode.idle();
+        }
+        opMode.telemetry.addData("max encoder value = ", encoderValueMax);
+        return encoderValueMax;
+    }
+
+    public int testJoystickWithGoToPosition(LinearOpMode opMode) {
+        joystickTestState = JoystickTestState.ONE;
+        ElapsedTime timer = new ElapsedTime();
+        ExtensionRetractionStates extensionRetractionState;
+        int encoderValue = 0;
+        int encoderValueMax = 0;
+
+        this.setLiftPowerUsingJoystick(.1);
+        timer.reset();
+
+        while (opMode.opModeIsActive()) {
+            update();
+
+            switch (joystickTestState) {
+                case ONE:
+                    if (timer.milliseconds() > 2000) {
+                        timer.reset();
+                        joystickTestState = JoystickTestState.TWO;
+                    }
+                    break;
+                case TWO:
+                    if (timer.milliseconds() > 1000) {
+                        timer.reset();
+                        this.setLiftPowerUsingJoystick(-0.1);
+                        joystickTestState = JoystickTestState.THREE;
+                    }
+                    break;
+                case THREE:
+                    if (timer.milliseconds() > 1000) {
+                        timer.reset();
+                        joystickTestState = JoystickTestState.FOUR;
+                    }
+                    break;
+                case FOUR:
+                    if (timer.milliseconds() > 10000) {
+                        timer.reset();
+                        this.setLiftPowerUsingJoystick(0.1);
+                        joystickTestState = JoystickTestState.FIVE;
+                    }
+                    break;
+                case FIVE:
+                    if (timer.milliseconds() > 1000) {
+                        timer.reset();
+                        this.reset();
+                        joystickTestState = JoystickTestState.SIX;
+                    }
+                    break;
+                case SIX:
+                    break;
+                case SEVEN:
+                    break;
+                case EIGHT:
+                    break;
+                case NINE:
+                    break;
+                case TEN:
+                    break;
+            }
+
+            extensionRetractionState = getExtensionRetractionState();
+            encoderValue = extensionRetractionMotor.getCurrentPosition();
+
+            if (encoderValue > encoderValueMax) {
+                encoderValueMax = encoderValue;
+            }
+
+            opMode.telemetry.addData("state = ", extensionRetractionState.toString());
+            opMode.telemetry.addData("encoder = ", extensionRetractionMotor.getCurrentPosition());
+            opMode.telemetry.update();
+            opMode.idle();
+        }
+        opMode.telemetry.addData("max encoder value = ", encoderValueMax);
+        return encoderValueMax;
     }
 
     private void delay(int ms) {

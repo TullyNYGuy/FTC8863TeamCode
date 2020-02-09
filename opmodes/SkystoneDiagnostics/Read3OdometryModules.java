@@ -1,5 +1,5 @@
 
-package org.firstinspires.ftc.teamcode.opmodes.GenericTest;
+package org.firstinspires.ftc.teamcode.opmodes.SkystoneDiagnostics;
 
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometryModule;
 
-@TeleOp(name = "Test 3 odometry modules", group = "Test")
+@TeleOp(name = "Test 3 odometry modules", group = "Diagnostics")
 //@Disabled
 public class Read3OdometryModules extends LinearOpMode {
     //Odometry Wheels

@@ -24,7 +24,8 @@ public class DcMotor8863 {
         TETRIX,
         ANDYMARK_20_ORBITAL,
         ANDYMARK_3_7_ORBITAL,
-        ANDYMARK_3_7_ORBITAL_OLD
+        ANDYMARK_3_7_ORBITAL_OLD,
+        USDIGITAL_360PPR_ENCODER
     }
 
     /**
@@ -284,6 +285,9 @@ public class DcMotor8863 {
             case ANDYMARK_3_7_ORBITAL_OLD:
                 this.countsPerRev = 44;
                 break;
+            case USDIGITAL_360PPR_ENCODER:
+                this.countsPerRev = 1440;
+                break;
             default:
                 this.countsPerRev = 0;
                 break;
@@ -331,6 +335,9 @@ public class DcMotor8863 {
                 break;
             case ANDYMARK_3_7_ORBITAL:
                 noLoadRPM = 1784;
+                break;
+            case USDIGITAL_360PPR_ENCODER:
+                noLoadRPM = 60;
                 break;
             default:
                 noLoadRPM = 0;
