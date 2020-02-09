@@ -265,6 +265,8 @@ public class PIDControl {
     public void reset() {
         integral = 0;
         lastIntegral = 0;
+        lastError = 0;
+        lastTime = 0;
         elapsedTime.reset();
     }
 
