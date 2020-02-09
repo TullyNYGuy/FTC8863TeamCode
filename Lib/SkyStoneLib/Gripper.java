@@ -99,8 +99,7 @@ public class Gripper implements FTCRobotSubsystem {
     public boolean isInitComplete() {
         if (gripperState == State.INIT_FINISHED) {
             return true;
-        }
-        return false;
+        } else return false;
     }
 
     @Override

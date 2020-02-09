@@ -16,6 +16,12 @@ public class TestGripperRotator extends LinearOpMode {
     // Put your variable declarations here
     public org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.GripperRotator gripperRotator;
 
+    public enum Steps {
+        ZERO, ONE, TWO, THREE, FOUR
+    }
+
+    public Steps steps = Steps.ZERO;
+
     @Override
     public void runOpMode() {
 
@@ -29,20 +35,40 @@ public class TestGripperRotator extends LinearOpMode {
         telemetry.update();
         waitForStart();
 
-        // Put your calls here - they will not run in a loop
         gripperRotator.init(config);
-        sleep(5000);
-        gripperRotator.rotateOutward();
-        sleep(5000);
-        gripperRotator.rotateInward();
-        sleep(5000);
-        gripperRotator.rotateOutward();
-        sleep(5000);
-        gripperRotator.shutdown();
-        sleep(5000);
-        // Put your cleanup code here - it runs as the application shuts down
-        telemetry.addData(">", "Done");
-        telemetry.update();
+
+        while (opModeIsActive()) {
+            gripperRotator.update();
+
+            switch (steps) {
+                case ZERO:
+                    if (gripperRotator.isInitComplete()) {
+                        gripperRotator.rotateOutward();
+                        steps = steps.ONE;
+                    }
+                    break;
+                case ONE:
+                    if (gripperRotator.isRotateOutwardComplete()) {
+                        gripperRotator.rotateInward();
+                        steps = Steps.TWO;
+                    }
+                    break;
+                case TWO:
+                    if (gripperRotator.isRotateInwardComplete()) {
+                        gripperRotator.rotateOutward();
+                        steps = Steps.THREE;
+                    }
+                    break;
+                case THREE:
+                    if (gripperRotator.isRotateOutwardComplete()) {
+                        //robot.chill
+                    }
+                    break;
+                case FOUR:
+                    break;
+            }
+
+        }
 
     }
 }
