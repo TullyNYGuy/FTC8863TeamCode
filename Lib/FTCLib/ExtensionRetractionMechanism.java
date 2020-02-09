@@ -475,6 +475,45 @@ public class ExtensionRetractionMechanism {
 
 
     //*********************************************************************************************
+    //          Wrapper Methods
+    //
+    //*********************************************************************************************
+
+    /**
+     * This method wraps the equivalent method in the DcMotor8863 class. The reason for this is that
+     * I don't want to expose the motor publicly. But other code will need access to this method.
+     *
+     * @param power
+     * @param revs
+     * @param afterCompletion
+     * @return
+     */
+    public boolean rotateNumberOfRevolutions(double power, double revs, DcMotor8863.FinishBehavior afterCompletion) {
+        return extensionRetractionMotor.rotateNumberOfRevolutions(power, revs, afterCompletion);
+    }
+
+    /**
+     * This method wraps the equivalent method in the DcMotor8863 class. The reason for this is that
+     * I don't want to expose the motor publicly. But other code will need access to this method.
+     *
+     * @return
+     */
+    public boolean isMotorStateComplete() {
+        return extensionRetractionMotor.isMotorStateComplete();
+    }
+
+    /**
+     * This method wraps the equivalent method in the DcMotor8863 class. The reason for this is that
+     * I don't want to expose the motor publicly. But other code will need access to this method.
+     *
+     * @return
+     */
+    public int getCountsPerRev() {
+        return extensionRetractionMotor.getCountsPerRev();
+    }
+
+
+    //*********************************************************************************************
     //          Helper Methods
     //
     // methods that aid or support the major functions in the class

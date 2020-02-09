@@ -166,7 +166,12 @@ public class CalibrateDualLift extends LinearOpMode {
             idle();
         }
 
-        lift.calibrate(this);
+        lift.calibrate(360, .1, this);
+
+        while (opModeIsActive()) {
+            // hang out while the user measures the lift height
+            idle();
+        }
 
         telemetry.addData("", "DONE!");
         telemetry.update();
