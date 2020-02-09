@@ -303,7 +303,7 @@ public class SkystoneRobot implements FTCRobot {
     /**
      * Every system has an init. Call it.
      */
-    public void init(Configuration config) {
+    public void init() {
         dataLog.logData("Init starting");
         for (FTCRobotSubsystem subsystem : subsystemMap.values()) {
             if (!subsystem.init(config)) {
