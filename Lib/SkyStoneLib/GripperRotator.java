@@ -28,9 +28,9 @@ public class GripperRotator implements FTCRobotSubsystem {
     // getter and setter methods
     //*********************************************************************************************
     private Servo8863 servoRotator;
-    private double initPos = 0.87;
-    private double outwardPos = 0.09;
-    private double inwardPos = 0.98;
+    private double initPos = 0;
+    private double outwardPos = 0.85;
+    private double inwardPos = 0;
     private double homePos = 0.00;
     //*********************************************************************************************
     //          GETTER and SETTER Methods
