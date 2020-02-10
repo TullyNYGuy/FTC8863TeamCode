@@ -64,10 +64,13 @@ public class TestExtensionArmGoToPosition extends LinearOpMode {
 
 
         // Put your initializations here
-        extensionArm = new ExtensionArm(hardwareMap, telemetry, ExtensionArmConstants.mechanismName,
-                SkystoneRobot.HardwareName.EXT_ARM_EXTENSION_SWITCH.hwName, SkystoneRobot.HardwareName.EXT_ARM_RETRACTION_SWITCH.hwName,
+        extensionArm = new ExtensionArm(hardwareMap, telemetry,
+                ExtensionArmConstants.mechanismName,
+                SkystoneRobot.HardwareName.EXT_ARM_EXTENSION_SWITCH.hwName,
+                SkystoneRobot.HardwareName.EXT_ARM_RETRACTION_SWITCH.hwName,
                 SkystoneRobot.HardwareName.EXT_ARM_MOTOR_NAME_FOR_ENCODER_PORT.hwName,
-                ExtensionArmConstants.motorType, ExtensionArmConstants.movementPerRevolution);
+                ExtensionArmConstants.motorType,
+                ExtensionArmConstants.movementPerRevolution);
 
         timer = new ElapsedTime();
         stateTimer = new ElapsedTime();
@@ -114,7 +117,7 @@ public class TestExtensionArmGoToPosition extends LinearOpMode {
                     break;
                 case THREE:
                     if (stateTimer.milliseconds() > waitTime) {
-                        extensionArm.goToPosition(15, speed);
+                        extensionArm.goToPosition(25, speed);
                         steps = Steps.FOUR;
                     }
                     break;
@@ -126,14 +129,14 @@ public class TestExtensionArmGoToPosition extends LinearOpMode {
                     break;
                 case FIVE:
                     if (stateTimer.milliseconds() > waitTime) {
-                        extensionArm.goToPosition(5, speed);
+                        extensionArm.goToPosition(2, speed);
                         steps = Steps.SIX;
                     }
                     break;
                 case SIX:
                     if (extensionArm.isPositionReached()) {
                         stateTimer.reset();
-                        steps = Steps.SEVEN;
+                        steps = Steps.ELEVEN;
                     }
                     break;
                 case SEVEN:

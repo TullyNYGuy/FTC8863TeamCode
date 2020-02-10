@@ -21,13 +21,14 @@ public class ExtensionArmConstants {
 
     // 2.75" spool size
     // 2 stages
+    // in theory 17.27
     public static double movementPerRevolution = 2.75 * Math.PI * 2;
 
     public static double resetPower = -0.1;
 
     // with the drag chain installed the max is limited due to the length of the drag chain.
     // It was experimentally determined to be 1900 but let's give a little safety margin
-    public static Double maximumExtensionInEncoderCounts = 1850.0;
+    public static Double maximumExtensionInEncoderCounts = 1800.0;
 
     public static String mechanismName = "extensionArm";
 

@@ -124,7 +124,6 @@ public class ExtensionArm extends ExtensionRetractionMechanism implements FTCRob
         return super.init();
     }
 
-
     //*********************************************************************************************
     //          MAJOR METHODS
     //

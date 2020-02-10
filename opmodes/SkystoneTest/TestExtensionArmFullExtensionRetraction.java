@@ -46,10 +46,13 @@ public class TestExtensionArmFullExtensionRetraction extends LinearOpMode {
     public void runOpMode() {
 
         // Put your initializations here
-        extensionArm = new ExtensionArm(hardwareMap, telemetry, ExtensionArmConstants.mechanismName,
-                SkystoneRobot.HardwareName.EXT_ARM_EXTENSION_SWITCH.hwName, SkystoneRobot.HardwareName.EXT_ARM_RETRACTION_SWITCH.hwName,
+        extensionArm = new ExtensionArm(hardwareMap, telemetry,
+                ExtensionArmConstants.mechanismName,
+                SkystoneRobot.HardwareName.EXT_ARM_EXTENSION_SWITCH.hwName,
+                SkystoneRobot.HardwareName.EXT_ARM_RETRACTION_SWITCH.hwName,
                 SkystoneRobot.HardwareName.EXT_ARM_MOTOR_NAME_FOR_ENCODER_PORT.hwName,
-                ExtensionArmConstants.motorType, ExtensionArmConstants.movementPerRevolution);
+                ExtensionArmConstants.motorType,
+                ExtensionArmConstants.movementPerRevolution);
 
         timer = new ElapsedTime();
 

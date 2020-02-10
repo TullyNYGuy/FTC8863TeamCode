@@ -41,10 +41,13 @@ public class TestExtensionArm extends LinearOpMode {
         // and instead of creating DcMotor8863, create DcServoMotor.
 
         // Put your initializations here
-        extensionArm = new ExtensionArm(hardwareMap, telemetry, ExtensionArmConstants.mechanismName,
-                SkystoneRobot.HardwareName.EXT_ARM_EXTENSION_SWITCH.hwName, SkystoneRobot.HardwareName.EXT_ARM_RETRACTION_SWITCH.hwName,
+        extensionArm = new ExtensionArm(hardwareMap, telemetry,
+                ExtensionArmConstants.mechanismName,
+                SkystoneRobot.HardwareName.EXT_ARM_EXTENSION_SWITCH.hwName,
+                SkystoneRobot.HardwareName.EXT_ARM_RETRACTION_SWITCH.hwName,
                 SkystoneRobot.HardwareName.EXT_ARM_MOTOR_NAME_FOR_ENCODER_PORT.hwName,
-                ExtensionArmConstants.motorType, ExtensionArmConstants.movementPerRevolution);
+                ExtensionArmConstants.motorType,
+                ExtensionArmConstants.movementPerRevolution);
 
         logFile = new DataLogging("ExtensionRetractionTest", telemetry);
         timer = new ElapsedTime();

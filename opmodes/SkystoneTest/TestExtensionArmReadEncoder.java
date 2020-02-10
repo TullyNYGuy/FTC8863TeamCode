@@ -26,10 +26,13 @@ public class TestExtensionArmReadEncoder extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
 
         //odometryModule = new OdometryModule(1440, 2.75*Math.PI, DistanceUnit.INCH, "ExtensionArmEncoder", hardwareMap);
-        extensionArm = new ExtensionArm(hardwareMap, telemetry, ExtensionArmConstants.mechanismName,
-                SkystoneRobot.HardwareName.EXT_ARM_EXTENSION_SWITCH.hwName, SkystoneRobot.HardwareName.EXT_ARM_RETRACTION_SWITCH.hwName,
+        extensionArm = new ExtensionArm(hardwareMap, telemetry,
+                ExtensionArmConstants.mechanismName,
+                SkystoneRobot.HardwareName.EXT_ARM_EXTENSION_SWITCH.hwName,
+                SkystoneRobot.HardwareName.EXT_ARM_RETRACTION_SWITCH.hwName,
                 SkystoneRobot.HardwareName.EXT_ARM_MOTOR_NAME_FOR_ENCODER_PORT.hwName,
-                ExtensionArmConstants.motorType, ExtensionArmConstants.movementPerRevolution);
+                ExtensionArmConstants.motorType,
+                ExtensionArmConstants.movementPerRevolution);
 
         //Odometry System Calibration Init Complete
         encoderValue = extensionArm.getMotorEncoderValue();
