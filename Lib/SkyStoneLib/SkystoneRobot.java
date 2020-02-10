@@ -268,10 +268,13 @@ public class SkystoneRobot implements FTCRobot {
         if (capabilities.contains(Subsystem.EXT_ARM)) {
 
             // Extension Arm
-            extensionArm = new ExtensionArm(hardwareMap, telemetry, ExtensionArmConstants.mechanismName,
-                    SkystoneRobot.HardwareName.EXT_ARM_EXTENSION_SWITCH.hwName, SkystoneRobot.HardwareName.EXT_ARM_RETRACTION_SWITCH.hwName,
+            extensionArm = new ExtensionArm(hardwareMap, telemetry,
+                    ExtensionArmConstants.mechanismName,
+                    SkystoneRobot.HardwareName.EXT_ARM_EXTENSION_SWITCH.hwName,
+                    SkystoneRobot.HardwareName.EXT_ARM_RETRACTION_SWITCH.hwName,
                     SkystoneRobot.HardwareName.EXT_ARM_MOTOR_NAME_FOR_ENCODER_PORT.hwName,
-                    ExtensionArmConstants.motorType, ExtensionArmConstants.movementPerRevolution);
+                    ExtensionArmConstants.motorType,
+                    ExtensionArmConstants.movementPerRevolution);
             subsystemMap.put(extensionArm.getName(), extensionArm);
 
             // Gripper
