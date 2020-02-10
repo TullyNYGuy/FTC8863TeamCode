@@ -37,11 +37,10 @@ public class Gripper implements FTCRobotSubsystem {
     private double initPos = releasePosition;
     private double gripPosition = 0.74;
     private double homePos = releasePosition;
+
     private State gripperState;
     private Telemetry telemetry;
     private ElapsedTime timer;
-    private boolean pendingGrip;
-    private boolean pendingRelease;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -49,9 +48,6 @@ public class Gripper implements FTCRobotSubsystem {
     // allow access to private data fields for example setMotorPower,
     // getPositionInTermsOfAttachment
     //*********************************************************************************************
-    public void setGripperState(State gripperState) {
-        this.gripperState = gripperState;
-    }
 
     //*********************************************************************************************
     //          Constructors
@@ -65,8 +61,6 @@ public class Gripper implements FTCRobotSubsystem {
         this.telemetry = telemetry;
         timer = new ElapsedTime();
         timer.reset();
-        pendingGrip = false;
-        pendingRelease = false;
         gripperState = State.RELEASED;
     }
 
@@ -144,13 +138,13 @@ public class Gripper implements FTCRobotSubsystem {
                 break;
             case GRIPPING:
                 if (timer.milliseconds() > 1000) {
-                    setGripperState(State.GRIPPED);
+                    gripperState = State.GRIPPED;
                     timer.reset();
                 }
                 break;
             case RELEASING:
                 if (timer.milliseconds() > 1000) {
-                    setGripperState(State.RELEASED);
+                    gripperState = State.RELEASED;
                     timer.reset();
                 }
                 break;

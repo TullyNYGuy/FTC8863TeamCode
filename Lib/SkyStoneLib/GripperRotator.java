@@ -38,7 +38,7 @@ public class GripperRotator implements FTCRobotSubsystem {
     private double initPos = 0;
     private double outwardPos = 0.95;
     private double inwardPos = 0;
-    private double homePos = 0.00;
+    private double homePos = inwardPos;
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -115,7 +115,6 @@ public class GripperRotator implements FTCRobotSubsystem {
                     rotatorState = RotatorStates.INIT_FINISHED;
                 }
                 break;
-
             case INIT_FINISHED:
                 break;
             case IN:
@@ -153,7 +152,6 @@ public class GripperRotator implements FTCRobotSubsystem {
             return false;
         }
     }
-
 
     @Override
     public void shutdown() {
