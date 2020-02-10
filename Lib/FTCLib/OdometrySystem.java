@@ -410,4 +410,9 @@ public class OdometrySystem implements FTCRobotSubsystem {
     public void shutdown() {
 
     }
+
+    @Override
+    public void timedUpdate(double timerValueMsec) {
+        calculateMoveDistance();
+    }
 }

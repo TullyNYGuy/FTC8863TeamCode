@@ -203,7 +203,7 @@ public class SkystoneTeleop extends LinearOpMode {
         HaloControls haloControls = new HaloControls(gamepad1LeftJoyStickX, gamepad1LeftJoyStickY, gamepad1RightJoyStickX, robot, telemetry);
         robot.createRobot();
         // start the inits for the robot subsytems
-        robot.init(config);
+        robot.init();
         timer.reset();
 
         // run the state machines associated with the subsystems to allow the inits to complete

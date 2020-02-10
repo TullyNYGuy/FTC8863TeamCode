@@ -82,6 +82,11 @@ public class BaseGrabberServo implements FTCRobotSubsystem {
         setState(State.UP);
     }
 
+    @Override
+    public void timedUpdate(double timerValueMsec) {
+
+    }
+
     public void grabBase() {
         pendingGrab = true;
     }

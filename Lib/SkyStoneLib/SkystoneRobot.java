@@ -18,7 +18,6 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.Mecanum;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometryModule;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometrySystem;
-import org.firstinspires.ftc.teamcode.opmodes.GenericTest.TestMecanumToDrivetrain;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Switch;
 
 import java.util.ArrayList;
@@ -85,7 +84,7 @@ public class SkystoneRobot implements FTCRobot {
         BASE_MOVER
     }
 
-    Subsystem[] currentCaps = new Subsystem[]{Subsystem.MECANUM, Subsystem.INTAKE_MOTORS, Subsystem.INTAKE_LIMIT_SW, Subsystem.BASE_MOVER};
+    Subsystem[] currentCaps = new Subsystem[]{Subsystem.MECANUM, Subsystem.INTAKE_MOTORS, Subsystem.INTAKE_LIMIT_SW, Subsystem.BASE_MOVER, Subsystem.ODOMETRY};
 
     Set<Subsystem> capabilities = new HashSet<Subsystem>(Arrays.asList(currentCaps));
 
@@ -132,6 +131,7 @@ public class SkystoneRobot implements FTCRobot {
         capabilities.addAll(new ArrayList<Subsystem>());
     }
 
+    @Override
     public boolean createRobot() {
         imu = new AdafruitIMU8863(hardwareMap, null, "IMU", HardwareName.IMU.hwName);
         if (capabilities.contains(Subsystem.MECANUM)) {
@@ -311,7 +311,8 @@ public class SkystoneRobot implements FTCRobot {
     /**
      * Every system has an init. Call it.
      */
-    public void init(Configuration config) {
+    @Override
+    public void init() {
         dataLog.logData("Init starting");
         for (FTCRobotSubsystem subsystem : subsystemMap.values()) {
             if (!subsystem.init(config)) {
@@ -328,6 +329,7 @@ public class SkystoneRobot implements FTCRobot {
      *
      * @return
      */
+    @Override
     public boolean isInitComplete() {
         boolean result = true;
         // put the isInitComplete for each subsystem here. In other words repeat this block of code
@@ -346,6 +348,7 @@ public class SkystoneRobot implements FTCRobot {
      * Note that some systems don't have a state machine but the update() method will be there
      * anyway just in case that changes in the future.
      */
+    @Override
     public void update() {
         for (FTCRobotSubsystem subsystem : subsystemMap.values()) {
             subsystem.update();
@@ -363,6 +366,7 @@ public class SkystoneRobot implements FTCRobot {
             updateIntakeSwitches();
     }
 
+    @Override
     public void shutdown() {
         for (FTCRobotSubsystem subsystem : subsystemMap.values()) {
             subsystem.shutdown();
@@ -397,7 +401,7 @@ public class SkystoneRobot implements FTCRobot {
             return odometry.getCurrentRotation(unit);
         else
             if(imu != null)
-            return unit.fromDegrees(imu.getHeading());
+                return -unit.fromDegrees(imu.getHeading());
             else
                 return 0;
     }
@@ -470,6 +474,13 @@ public class SkystoneRobot implements FTCRobot {
         intakeState = IntakeStates.OUTTAKE;
     }
 
+    @Override
+    public void timedUpdate(double timerValueMsec) {
+        for (FTCRobotSubsystem subsystem : subsystemMap.values()) {
+            subsystem.timedUpdate(timerValueMsec);
+        }
+    }
+
     public void updateIntakeSwitches() {
         boolean intakeSwitchPressed = false;
         if (intakeLimitSwitch != null && intakeLimitSwitch.isPressed()) {
@@ -477,12 +488,13 @@ public class SkystoneRobot implements FTCRobot {
         }
         if (intakeSwitchPressed)
             intake.stop();
-
+/*
         if (intakeSwitchPressed) {
             telemetry.addLine("intake limit switch pressed");
         } else {
             telemetry.addLine("intake limit switch NOT pressed");
         }
+ */
     }
     public IntakeStates getCurrentIntakeState() {
         return intakeState;

@@ -158,4 +158,9 @@ public class GripperRotator implements FTCRobotSubsystem {
         rotateInward();
     }
 
+    @Override
+    public void timedUpdate(double timerValueMsec) {
+
+    }
+
 }

@@ -11,7 +11,6 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
-import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.Skystone;
 
 public class DualLift implements FTCRobotSubsystem {
 
@@ -347,6 +346,11 @@ public class DualLift implements FTCRobotSubsystem {
     public void shutdown() {
         liftRight.shutdown();
         liftLeft.shutdown();
+    }
+
+    @Override
+    public void timedUpdate(double timerValueMsec) {
+
     }
 
     /**

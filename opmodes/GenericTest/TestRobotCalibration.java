@@ -108,7 +108,7 @@ public class TestRobotCalibration extends LinearOpMode {
         mecanum.stopMotor();
         double newHeading = imu.getHeading();
         double heading = newHeading - oldHeading;
-        trial.finishCalibration(AngleUnit.DEGREES, heading);
+        trial.finishCalibration(AngleUnit.DEGREES, -heading);
 
         //*************************************************************************************
         //  Stop everything after the user hits the stop button on the driver phone

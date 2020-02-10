@@ -4,7 +4,7 @@ package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-public class PIDControl {
+public class PIDControlExternalTimer {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -51,7 +51,9 @@ public class PIDControl {
 
     private double threshold = 0;
 
-    private ElapsedTime elapsedTime;
+//    private ElapsedTime elapsedTime;
+
+    private boolean externalTimer = false;
 
     private double lastTime = 0;
 
@@ -174,27 +176,32 @@ public class PIDControl {
      * @param kd       Derivitive constant for PIDControl
      * @param setpoint Set Desired Value for PIDControl
      */
-    public PIDControl(double kp, double ki, double kd, double setpoint) {
+    public PIDControlExternalTimer(double kp, double ki, double kd, double maxCorrection) {
         this.Kp = kp;
         this.Ki = ki;
         this.Kd = kd;
-        this.maxCorrection = 0;
-        this.setpoint = setpoint;
+        this.maxCorrection = maxCorrection;
+        this.setpoint = 0;
         rampControl = new RampControl(0, 0, 0);
         useRampControl = false;
-        elapsedTime = new ElapsedTime();
-        elapsedTime.reset();
-        lastTime = elapsedTime.milliseconds();
         finishedTimer = new ElapsedTime();
         finishedTimer.reset();
-        lastFinishedTime = elapsedTime.milliseconds();
+        lastFinishedTime = finishedTimer.milliseconds();
     }
 
+    /**
+     * Constructor. Derivivtive not implemented at this time but here for the future.
+     *
+     * @param kp       Proportionality constant for PIDControl
+     * @param ki       Integral Constant for PIDControl
+     * @param kd       Derivitive constant for PIDControl
+     * @param setpoint Set Desired Value for PIDControl
+     */
     /**
      * Constructor without setting any gains at all. You should set them later or you will get 0
      * back for the correction.
      */
-    public PIDControl() {
+    public PIDControlExternalTimer() {
         this.Kp = 0;
         this.Ki = 0;
         this.Kd = 0;
@@ -202,34 +209,9 @@ public class PIDControl {
         this.setpoint = 0;
         rampControl = new RampControl(0, 0, 0);
         useRampControl = false;
-        elapsedTime = new ElapsedTime();
-        elapsedTime.reset();
-        lastTime = elapsedTime.milliseconds();
         finishedTimer = new ElapsedTime();
         finishedTimer.reset();
-        lastFinishedTime = elapsedTime.milliseconds();
-    }
-
-    /**
-     * Constructor Ki=0 Kd=0
-     *
-     * @param kp       Proportionality constant for PIDControl
-     * @param setpoint Set Desired Value for PIDControl
-     */
-    public PIDControl(double kp, double setpoint, double maxCorrection) {
-        this.Kp = kp;
-        this.Ki = 0;
-        this.Kd = 0;
-        this.maxCorrection = maxCorrection;
-        this.setpoint = setpoint;
-        rampControl = new RampControl(0, 0, 0);
-        useRampControl = false;
-        elapsedTime = new ElapsedTime();
-        elapsedTime.reset();
-        lastTime = elapsedTime.milliseconds();
-        finishedTimer = new ElapsedTime();
-        finishedTimer.reset();
-        lastFinishedTime = elapsedTime.milliseconds();
+        lastFinishedTime = finishedTimer.milliseconds();
     }
 
     //*********************************************************************************************
@@ -267,7 +249,7 @@ public class PIDControl {
         lastIntegral = 0;
         lastError = 0;
         lastTime = 0;
-        elapsedTime.reset();
+        finishedTimer.reset();
     }
 
     /**
@@ -276,13 +258,12 @@ public class PIDControl {
      * @param feedback Actual Value from sensor.
      * @return Correction to use in control code.
      */
-    public double getCorrection(double feedback) {
+    public double getCorrection(double feedback, double currentTimeMS) {
         // set the feedback property so it can be retrieved later
         setFeedback(feedback);
         double error = (getSetpoint() - feedback);
         // figure out the integral part of the correction
-        double currentTime = elapsedTime.milliseconds();
-        double timeDifference = currentTime - lastTime;
+        double timeDifference = currentTimeMS - lastTime;
         integral = error * timeDifference * getKi();
         integral = integral + lastIntegral;
         double correction = error * getKp() + integral + getKd() * (error - lastError) / timeDifference;
@@ -301,7 +282,7 @@ public class PIDControl {
         }
         correction = rampControl.getRampValueLinear(correction);
         correction = Range.clip(correction, -maxCorrection, maxCorrection);
-        lastTime = currentTime;
+        lastTime = currentTimeMS;
         lastError = error;
         return correction;
     }

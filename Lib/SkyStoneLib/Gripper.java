@@ -123,6 +123,11 @@ public class Gripper implements FTCRobotSubsystem {
     }
 
     @Override
+    public void timedUpdate(double timerValueMsec) {
+
+    }
+
+    @Override
     public void update() {
         telemetry.addData("servo states: ", gripperState);
         switch (gripperState) {
