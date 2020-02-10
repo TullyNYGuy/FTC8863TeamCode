@@ -6,6 +6,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.ExtensionArm;
+import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.ExtensionArmConstants;
+import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.SkystoneRobot;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
@@ -17,14 +19,14 @@ public class TestExtensionArmLimitSwitches extends LinearOpMode {
     // Put your variable declarations here
 
     public ExtensionArm extensionArm;
-    public double spoolDiameter = 2.75;
 
     @Override
     public void runOpMode() {
 
-        extensionArm = new ExtensionArm(hardwareMap, telemetry, "extensionArm",
-                "extensionLimitSwitchArm", "retractionLimitSwitchArm", "intakeMotorRight",
-                DcMotor8863.MotorType.ANDYMARK_40, spoolDiameter * Math.PI);
+        extensionArm = new ExtensionArm(hardwareMap, telemetry, ExtensionArmConstants.mechanismName,
+                SkystoneRobot.HardwareName.EXT_ARM_EXTENSION_SWITCH.hwName, SkystoneRobot.HardwareName.EXT_ARM_RETRACTION_SWITCH.hwName,
+                SkystoneRobot.HardwareName.EXT_ARM_MOTOR_NAME_FOR_ENCODER_PORT.hwName,
+                ExtensionArmConstants.motorType, ExtensionArmConstants.movementPerRevolution);
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");

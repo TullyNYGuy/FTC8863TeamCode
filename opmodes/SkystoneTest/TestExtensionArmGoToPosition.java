@@ -10,7 +10,9 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.ExtensionArm;
+import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.ExtensionArmConstants;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.Lift;
+import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.SkystoneRobot;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
@@ -45,17 +47,11 @@ public class TestExtensionArmGoToPosition extends LinearOpMode {
 
     public ExtensionRetractionMechanism.ExtensionRetractionStates extensionArmState;
 
-
-    //public Lift.ExtensionRetractionStates extensionRetractionStateLeft;
-
     public int encoderValue = 0;
-
 
     public DataLogging logFile;
     public CSVDataFile timeEncoderValueFile;
-    public double spoolDiameter = 2.75; //inches
-    // spool diameter * pi * 5 stages
-    public double movementPerRevolution = spoolDiameter * Math.PI * 2;
+
     public ElapsedTime timer;
     public double startTime = 0;
 
@@ -68,9 +64,10 @@ public class TestExtensionArmGoToPosition extends LinearOpMode {
 
 
         // Put your initializations here
-        extensionArm = new ExtensionArm(hardwareMap, telemetry, "Extension Arm", "extensionLimitSwitchArm",
-                "retractionLimitSwitchArm", "intakeMotorRight", DcMotor8863.MotorType.ANDYMARK_40, movementPerRevolution);
-
+        extensionArm = new ExtensionArm(hardwareMap, telemetry, ExtensionArmConstants.mechanismName,
+                SkystoneRobot.HardwareName.EXT_ARM_EXTENSION_SWITCH.hwName, SkystoneRobot.HardwareName.EXT_ARM_RETRACTION_SWITCH.hwName,
+                SkystoneRobot.HardwareName.EXT_ARM_MOTOR_NAME_FOR_ENCODER_PORT.hwName,
+                ExtensionArmConstants.motorType, ExtensionArmConstants.movementPerRevolution);
 
         timer = new ElapsedTime();
         stateTimer = new ElapsedTime();
@@ -83,7 +80,6 @@ public class TestExtensionArmGoToPosition extends LinearOpMode {
         extensionArm.setDataLog(logFile);
         extensionArm.enableDataLogging();
         extensionArm.enableCollectData();
-        extensionArm.setResetPower(-0.1);
         extensionArm.setRetractionPower(-speed);
         extensionArm.setExtensionPower(+speed);
 

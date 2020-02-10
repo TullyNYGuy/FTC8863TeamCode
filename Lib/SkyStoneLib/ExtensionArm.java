@@ -19,7 +19,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometryModule;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.PairedList;
 
 public class ExtensionArm extends ExtensionRetractionMechanism implements FTCRobotSubsystem {
-    private final static String SUBSYSTEM_NAME = "ExtentionArm";
+    private final static String SUBSYSTEM_NAME = "ExtensionArm";
     //*********************************************************************************************
     //          ENUMERATED TYPES
     //
@@ -35,7 +35,7 @@ public class ExtensionArm extends ExtensionRetractionMechanism implements FTCRob
     // getter and setter methods
     //*********************************************************************************************
 
-    private double movementPerRevolution = 2.75 * Math.PI * 2; // 2 = number of stages
+    private double movementPerRevolution = ExtensionArmConstants.movementPerRevolution;
 
     @Override
     public double getMovementPerRevolution() {
@@ -101,7 +101,8 @@ public class ExtensionArm extends ExtensionRetractionMechanism implements FTCRob
      */
     protected void configureForSkystone() {
         //determined experimentally to be 1900 but gave some margin, limited by the drag chain
-        setExtensionPositionInEncoderCounts(1850.0);
+        setExtensionPositionInEncoderCounts(ExtensionArmConstants.maximumExtensionInEncoderCounts);
+        setResetPower(ExtensionArmConstants.resetPower);
     }
 
     //*********************************************************************************************
