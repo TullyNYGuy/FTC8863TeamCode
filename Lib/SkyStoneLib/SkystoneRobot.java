@@ -84,9 +84,7 @@ public class SkystoneRobot implements FTCRobot {
         BASE_MOVER
     }
 
-    Subsystem[] currentCaps = new Subsystem[]{Subsystem.MECANUM, Subsystem.INTAKE_MOTORS, Subsystem.INTAKE_LIMIT_SW, Subsystem.BASE_MOVER, Subsystem.ODOMETRY};
-
-    Set<Subsystem> capabilities = new HashSet<Subsystem>(Arrays.asList(currentCaps));
+    Set<Subsystem> capabilities;
 
     HardwareMap hardwareMap;
     Telemetry telemetry;
@@ -127,8 +125,14 @@ public class SkystoneRobot implements FTCRobot {
         this.config = config;
         this.dataLog = dataLog;
         this.subsystemMap = new HashMap<String, FTCRobotSubsystem>();
-        Set<Subsystem> capabilities = new HashSet<Subsystem>();
-        capabilities.addAll(new ArrayList<Subsystem>());
+        setCapabilities(Subsystem.values());
+    }
+
+    /*
+     * This function should be called, if needed, before createRobot() call
+     */
+    public void setCapabilities(Subsystem[] subsystems) {
+        capabilities = new HashSet<Subsystem>(Arrays.asList(subsystems));
     }
 
     @Override
@@ -361,6 +365,13 @@ public class SkystoneRobot implements FTCRobot {
     }
 
     @Override
+    public void timedUpdate(double timerValueMsec) {
+        for (FTCRobotSubsystem subsystem : subsystemMap.values()) {
+            subsystem.timedUpdate(timerValueMsec);
+        }
+    }
+
+    @Override
     public void shutdown() {
         for (FTCRobotSubsystem subsystem : subsystemMap.values()) {
             subsystem.shutdown();
@@ -466,13 +477,6 @@ public class SkystoneRobot implements FTCRobot {
         intake.outtake();
         intakeTimer.reset();
         intakeState = IntakeStates.OUTTAKE;
-    }
-
-    @Override
-    public void timedUpdate(double timerValueMsec) {
-        for (FTCRobotSubsystem subsystem : subsystemMap.values()) {
-            subsystem.timedUpdate(timerValueMsec);
-        }
     }
 
     public void updateIntakeSwitches() {
