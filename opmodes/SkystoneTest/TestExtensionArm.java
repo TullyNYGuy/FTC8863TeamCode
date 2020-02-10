@@ -7,6 +7,9 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
+import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.ExtensionArm;
+import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.ExtensionArmConstants;
+import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.SkystoneRobot;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
@@ -38,19 +41,20 @@ public class TestExtensionArm extends LinearOpMode {
         // and instead of creating DcMotor8863, create DcServoMotor.
 
         // Put your initializations here
-        extensionArm = new ExtensionRetractionMechanism(hardwareMap,telemetry,"extensionArm",
-                "extensionLimitSwitchLeft", "retractionLimitSwitch", "extensionArmDcServoMotor",
-                DcMotor8863.MotorType.ANDYMARK_40, spoolDiameter * Math.PI);
-        //extensionArm.reverseMotor();
+        extensionArm = new ExtensionArm(hardwareMap, telemetry,
+                ExtensionArmConstants.mechanismName,
+                SkystoneRobot.HardwareName.EXT_ARM_EXTENSION_SWITCH.hwName,
+                SkystoneRobot.HardwareName.EXT_ARM_RETRACTION_SWITCH.hwName,
+                SkystoneRobot.HardwareName.EXT_ARM_MOTOR_NAME_FOR_ENCODER_PORT.hwName,
+                ExtensionArmConstants.motorType,
+                ExtensionArmConstants.movementPerRevolution);
+
         logFile = new DataLogging("ExtensionRetractionTest", telemetry);
         timer = new ElapsedTime();
         extensionArm.setDataLog(logFile);
         extensionArm.enableDataLogging();
-        extensionArm.setResetPower(-0.1);
         extensionArm.setRetractionPower(-.7);
         extensionArm.setExtensionPower(+.7);
-
-        extensionArm.setExtensionPositionInEncoderCounts(2700.0);
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run" );
@@ -80,9 +84,5 @@ public class TestExtensionArm extends LinearOpMode {
         while(opModeIsActive()) {
             idle();
         }
-
-        // Put your cleanup code here - it runs as the application shuts down
-
-        sleep(5000);
     }
 }

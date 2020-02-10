@@ -44,17 +44,17 @@ public class SkystoneRobot implements FTCRobot {
         ODOMETRY_MODULE_RIGHT("FrontRight"),
         ODOMETRY_MODULE_BACK("BackLeft"),
         LIFT_RIGHT_MOTOR("LiftMotorRight"),
-        LIFT_RIGHT_ENCODER("LiftRight"),
+        LIFT_RIGHT_NAME("LiftRight"),
         LIFT_RIGHT_EXTENSION_SWITCH("LiftExtensionLimitSwitchRight"),
         LIFT_RIGHT_RETRACTION_SWITCH("LiftRetractionLimitSwitchRight"),
         LIFT_LEFT_MOTOR("LiftMotorLeft"),
-        LIFT_LEFT_ENCODER("LiftLeft"),
+        LIFT_LEFT_NAME("LiftLeft"),
         LIFT_LEFT_EXTENSION_SWITCH("LiftExtensionLimitSwitchLeft"),
         LIFT_LEFT_RETRACTION_SWITCH("LiftRetractionLimitSwitchLeft"),
         INTAKE_RIGHT_MOTOR("IntakeMotorRight"),
         INTAKE_LEFT_MOTOR("IntakeMotorLeft"),
         EXT_ARM_SERVO("ExtensionArmServoMotor"),
-        EXT_ARM_ENCODER("ExtensionArmEncoder"),
+        EXT_ARM_MOTOR_NAME_FOR_ENCODER_PORT("IntakeMotorRight"),
         EXT_ARM_RETRACTION_SWITCH("RetractionLimitSwitchArm"),
         EXT_ARM_EXTENSION_SWITCH("ExtensionLimitSwitchArm"),
         GRIPPER_SERVO("gripper"),
@@ -258,11 +258,11 @@ public class SkystoneRobot implements FTCRobot {
 
         if (capabilities.contains(Subsystem.LIFT)) {
             dualLift = new DualLift(hardwareMap,
-                    HardwareName.LIFT_RIGHT_ENCODER.hwName,
+                    HardwareName.LIFT_RIGHT_NAME.hwName,
                     HardwareName.LIFT_RIGHT_MOTOR.hwName,
                     HardwareName.LIFT_RIGHT_EXTENSION_SWITCH.hwName,
                     HardwareName.LIFT_RIGHT_RETRACTION_SWITCH.hwName,
-                    HardwareName.LIFT_LEFT_ENCODER.hwName,
+                    HardwareName.LIFT_LEFT_NAME.hwName,
                     HardwareName.LIFT_LEFT_MOTOR.hwName,
                     HardwareName.LIFT_LEFT_EXTENSION_SWITCH.hwName,
                     HardwareName.LIFT_LEFT_RETRACTION_SWITCH.hwName,
@@ -272,7 +272,13 @@ public class SkystoneRobot implements FTCRobot {
         if (capabilities.contains(Subsystem.EXT_ARM)) {
 
             // Extension Arm
-            extensionArm = new ExtensionArm(hardwareMap, telemetry, HardwareName.EXT_ARM_SERVO.hwName, HardwareName.EXT_ARM_EXTENSION_SWITCH.hwName, HardwareName.EXT_ARM_RETRACTION_SWITCH.hwName, HardwareName.EXT_ARM_ENCODER.hwName, ANDYMARK_40, 2.75 * Math.PI * 2);
+            extensionArm = new ExtensionArm(hardwareMap, telemetry,
+                    ExtensionArmConstants.mechanismName,
+                    SkystoneRobot.HardwareName.EXT_ARM_EXTENSION_SWITCH.hwName,
+                    SkystoneRobot.HardwareName.EXT_ARM_RETRACTION_SWITCH.hwName,
+                    SkystoneRobot.HardwareName.EXT_ARM_MOTOR_NAME_FOR_ENCODER_PORT.hwName,
+                    ExtensionArmConstants.motorType,
+                    ExtensionArmConstants.movementPerRevolution);
             subsystemMap.put(extensionArm.getName(), extensionArm);
 
             // Gripper

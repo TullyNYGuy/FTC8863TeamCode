@@ -8,6 +8,8 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometryModule;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.ExtensionArm;
+import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.ExtensionArmConstants;
+import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.SkystoneRobot;
 
 @TeleOp(name = "Test Extension Arm Read Encoder", group = "Test")
 public class TestExtensionArmReadEncoder extends LinearOpMode {
@@ -24,9 +26,14 @@ public class TestExtensionArmReadEncoder extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
 
         //odometryModule = new OdometryModule(1440, 2.75*Math.PI, DistanceUnit.INCH, "ExtensionArmEncoder", hardwareMap);
-        extensionArm = new ExtensionArm(hardwareMap, telemetry, "Extension Arm", "extensionLimitSwitchArm",
-                "retractionLimitSwitchArm", "ExtensionArmEncoder", DcMotor8863.MotorType.ANDYMARK_40,
-                6.985 * Math.PI);
+        extensionArm = new ExtensionArm(hardwareMap, telemetry,
+                ExtensionArmConstants.mechanismName,
+                SkystoneRobot.HardwareName.EXT_ARM_EXTENSION_SWITCH.hwName,
+                SkystoneRobot.HardwareName.EXT_ARM_RETRACTION_SWITCH.hwName,
+                SkystoneRobot.HardwareName.EXT_ARM_MOTOR_NAME_FOR_ENCODER_PORT.hwName,
+                ExtensionArmConstants.motorType,
+                ExtensionArmConstants.movementPerRevolution);
+
         //Odometry System Calibration Init Complete
         encoderValue = extensionArm.getMotorEncoderValue();
         telemetry.addData("Odometry encoder value = ", encoderValue);

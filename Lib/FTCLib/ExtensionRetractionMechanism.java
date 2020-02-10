@@ -213,7 +213,7 @@ public class ExtensionRetractionMechanism {
     /**
      * The power to use when resetting the mechanism.
      */
-    private double resetPower = -1.0;
+    private double resetPower = -0.1;
 
     public double getResetPower() {
         return resetPower;

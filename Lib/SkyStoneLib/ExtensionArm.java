@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
 
 public class ExtensionArm extends ExtensionRetractionMechanism implements FTCRobotSubsystem {
-    private final static String SUBSYSTEM_NAME = "ExtentionArm";
+    private final static String SUBSYSTEM_NAME = "ExtensionArm";
     //*********************************************************************************************
     //          ENUMERATED TYPES
     //
@@ -30,7 +30,7 @@ public class ExtensionArm extends ExtensionRetractionMechanism implements FTCRob
     // getter and setter methods
     //*********************************************************************************************
 
-    private double movementPerRevolution = 2.75 * Math.PI * 2; // 2 = number of stages
+    private double movementPerRevolution = ExtensionArmConstants.movementPerRevolution;
 
     @Override
     public double getMovementPerRevolution() {
@@ -67,6 +67,7 @@ public class ExtensionArm extends ExtensionRetractionMechanism implements FTCRob
                         String extensionLimitSwitchName, String retractionLimitSwitchName,
                         String motorNameForEncoderPort, DcMotor8863.MotorType motorType, double movementPerRevolution) {
         super(hardwareMap, telemetry, mechanismName, extensionLimitSwitchName, retractionLimitSwitchName, motorNameForEncoderPort, motorType, movementPerRevolution);
+        configureForSkystone();
     }
 
     /**
@@ -88,6 +89,15 @@ public class ExtensionArm extends ExtensionRetractionMechanism implements FTCRob
         // the encoder is plugged into the intake motor left port
         extensionRetractionMotor = new DcServoMotor(motorNameForEncoderPort, servoName, 0.5, 0.5, .01, hardwareMap, telemetry);
         extensionRetractionMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+    }
+
+    /**
+     * Specific configuration for skystone extension arm
+     */
+    protected void configureForSkystone() {
+        //determined experimentally to be 1900 but gave some margin, limited by the drag chain
+        setExtensionPositionInEncoderCounts(ExtensionArmConstants.maximumExtensionInEncoderCounts);
+        setResetPower(ExtensionArmConstants.resetPower);
     }
 
     //*********************************************************************************************

@@ -54,9 +54,6 @@ public class CalibrateDualLift extends LinearOpMode {
     public DataLogging logFile;
 
     public CSVDataFile timeEncoderValueFile;
-    public double spoolDiameter = 1.25; //inches
-    // spool diameter * pi * 5 stages
-    public double movementPerRevolution = spoolDiameter * Math.PI * 5;
 
     public ElapsedTime timer;
 
@@ -79,10 +76,14 @@ public class CalibrateDualLift extends LinearOpMode {
 
         // Put your initializations here
         lift = new DualLift(hardwareMap,
-                "liftRight", SkystoneRobot.HardwareName.LIFT_RIGHT_MOTOR.hwName,
-                SkystoneRobot.HardwareName.LIFT_RIGHT_EXTENSION_SWITCH.hwName, SkystoneRobot.HardwareName.LIFT_RIGHT_RETRACTION_SWITCH.hwName,
-                "liftLeft", SkystoneRobot.HardwareName.LIFT_LEFT_MOTOR.hwName,
-                SkystoneRobot.HardwareName.LIFT_LEFT_EXTENSION_SWITCH.hwName, SkystoneRobot.HardwareName.LIFT_LEFT_RETRACTION_SWITCH.hwName,
+                SkystoneRobot.HardwareName.LIFT_RIGHT_NAME.hwName,
+                SkystoneRobot.HardwareName.LIFT_RIGHT_MOTOR.hwName,
+                SkystoneRobot.HardwareName.LIFT_RIGHT_EXTENSION_SWITCH.hwName,
+                SkystoneRobot.HardwareName.LIFT_RIGHT_RETRACTION_SWITCH.hwName,
+                SkystoneRobot.HardwareName.LIFT_LEFT_NAME.hwName,
+                SkystoneRobot.HardwareName.LIFT_LEFT_MOTOR.hwName,
+                SkystoneRobot.HardwareName.LIFT_LEFT_EXTENSION_SWITCH.hwName,
+                SkystoneRobot.HardwareName.LIFT_LEFT_RETRACTION_SWITCH.hwName,
                 telemetry);
 
         timer = new ElapsedTime();
