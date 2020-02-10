@@ -106,7 +106,6 @@ public class DualLift implements FTCRobotSubsystem {
         liftLeft = new Lift(hardwareMap, telemetry, liftLeftName,
                 liftLeftExtensionLimitSwitchName, liftLeftRetractionLimitSwitch, liftLeftMotorName,
                 motorType, movementPerRevolution);
-        liftRight.reverseMotor();
 
         dualLiftStates = new ExtensionRetractionMechanism.ExtensionRetractionStates[2];
         getState();
@@ -119,6 +118,20 @@ public class DualLift implements FTCRobotSubsystem {
 
         disableCollectData();
         disableDataLogging();
+
+        configureForSkystone();
+    }
+
+    private void configureForSkystone() {
+        liftRight.reverseMotor();
+        liftRight.setExtensionPositionInEncoderCounts(DualLiftConstants.maximumExtensionInEncoderCounts);
+        liftRight.setMovementPerRevolution(DualLiftConstants.movementPerRevolution);
+        liftRight.setResetPower(DualLiftConstants.resetPower);
+
+        liftLeft.setExtensionPositionInEncoderCounts(DualLiftConstants.maximumExtensionInEncoderCounts);
+        liftLeft.setMovementPerRevolution(DualLiftConstants.movementPerRevolution);
+        liftLeft.setResetPower(DualLiftConstants.resetPower);
+
     }
 
 

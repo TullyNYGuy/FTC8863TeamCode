@@ -77,10 +77,14 @@ public class TestDualLiftExtensionRetraction extends LinearOpMode {
 
         // Put your initializations here
         lift = new DualLift(hardwareMap,
-                "liftRight", SkystoneRobot.HardwareName.LIFT_RIGHT_MOTOR.hwName,
-                SkystoneRobot.HardwareName.LIFT_RIGHT_EXTENSION_SWITCH.hwName, SkystoneRobot.HardwareName.LIFT_RIGHT_RETRACTION_SWITCH.hwName,
-                "liftLeft", SkystoneRobot.HardwareName.LIFT_LEFT_MOTOR.hwName,
-                SkystoneRobot.HardwareName.LIFT_LEFT_EXTENSION_SWITCH.hwName, SkystoneRobot.HardwareName.LIFT_LEFT_RETRACTION_SWITCH.hwName,
+                SkystoneRobot.HardwareName.LIFT_RIGHT_NAME.hwName,
+                SkystoneRobot.HardwareName.LIFT_RIGHT_MOTOR.hwName,
+                SkystoneRobot.HardwareName.LIFT_RIGHT_EXTENSION_SWITCH.hwName,
+                SkystoneRobot.HardwareName.LIFT_RIGHT_RETRACTION_SWITCH.hwName,
+                SkystoneRobot.HardwareName.LIFT_LEFT_NAME.hwName,
+                SkystoneRobot.HardwareName.LIFT_LEFT_MOTOR.hwName,
+                SkystoneRobot.HardwareName.LIFT_LEFT_EXTENSION_SWITCH.hwName,
+                SkystoneRobot.HardwareName.LIFT_LEFT_RETRACTION_SWITCH.hwName,
                 telemetry);
 
         timer = new ElapsedTime();
@@ -91,10 +95,8 @@ public class TestDualLiftExtensionRetraction extends LinearOpMode {
         lift.setDataLog(logFile);
         lift.enableDataLogging();
         lift.enableCollectData("dualLiftTimeEncoderValues");
-        lift.setResetPower(-0.1);
         lift.setRetractionPower(-speed);
         lift.setExtensionPower(+speed);
-        lift.setExtensionPositionInMechanismUnits(9.5 * 5); //inches * 5 stages
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
