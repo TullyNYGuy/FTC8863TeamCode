@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.Lift;
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Test Extension arm got to position", group = "Test")
+@TeleOp(name = "Test Extension Arm go to position", group = "Test")
 //@Disabled
 public class TestExtensionArmGoToPosition extends LinearOpMode {
 
@@ -61,7 +61,7 @@ public class TestExtensionArmGoToPosition extends LinearOpMode {
 
     public String buffer = "";
 
-    public double speed = 1.0;
+    public double speed = 1;
 
     @Override
     public void runOpMode() {
@@ -69,7 +69,7 @@ public class TestExtensionArmGoToPosition extends LinearOpMode {
 
         // Put your initializations here
         extensionArm = new ExtensionArm(hardwareMap, telemetry, "Extension Arm", "extensionLimitSwitchArm",
-                "retractionLimitSwitchArm", "extensionArmEncoder", DcMotor8863.MotorType.ANDYMARK_40, movementPerRevolution);
+                "retractionLimitSwitchArm", "intakeMotorRight", DcMotor8863.MotorType.ANDYMARK_40, movementPerRevolution);
 
 
         timer = new ElapsedTime();
@@ -86,8 +86,6 @@ public class TestExtensionArmGoToPosition extends LinearOpMode {
         extensionArm.setResetPower(-0.1);
         extensionArm.setRetractionPower(-speed);
         extensionArm.setExtensionPower(+speed);
-
-        extensionArm.setExtensionPositionInMechanismUnits(14 * 2); //inches * 5 stages
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
@@ -120,7 +118,7 @@ public class TestExtensionArmGoToPosition extends LinearOpMode {
                     break;
                 case THREE:
                     if (stateTimer.milliseconds() > waitTime) {
-                        extensionArm.goToPosition(20, speed);
+                        extensionArm.goToPosition(15, speed);
                         steps = Steps.FOUR;
                     }
                     break;

@@ -23,7 +23,7 @@ public class TestExtensionArmLimitSwitches extends LinearOpMode {
     public void runOpMode() {
 
         extensionArm = new ExtensionArm(hardwareMap, telemetry, "extensionArm",
-                "extensionLimitSwitchArm", "retractionLimitSwitchArm", "extensionArmMotor",
+                "extensionLimitSwitchArm", "retractionLimitSwitchArm", "intakeMotorRight",
                 DcMotor8863.MotorType.ANDYMARK_40, spoolDiameter * Math.PI);
 
         // Wait for the start button
