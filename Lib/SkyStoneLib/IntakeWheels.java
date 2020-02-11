@@ -10,12 +10,18 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
 
 public class IntakeWheels implements FTCRobotSubsystem {
 
+    private enum IntakeDirection {
+        INTAKE,
+        OUTTAKE
+    }
+
+    private IntakeDirection intakeDirection;
+
     private final static String SUBSYSTEM_NAME = "IntakeWheels";
 
     private DcMotor8863 rightIntakeMotor;
     private DcMotor8863 leftIntakeMotor;
     final private double motorSpeed = 1.0;
-    private boolean direction;
 
     public IntakeWheels(HardwareMap hardwareMap, String rightIntakeMotorName, String leftIntakeMotorName) {
         this.rightIntakeMotor = new DcMotor8863(rightIntakeMotorName, hardwareMap);
@@ -27,10 +33,11 @@ public class IntakeWheels implements FTCRobotSubsystem {
         rightIntakeMotor.runAtConstantPower(0);
 
         leftIntakeMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
+        leftIntakeMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         leftIntakeMotor.setMovementPerRev(360);
-        leftIntakeMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         leftIntakeMotor.runAtConstantPower(0);
 
+        intakeDirection = IntakeDirection.INTAKE;
     }
 
     @Override
@@ -54,8 +61,7 @@ public class IntakeWheels implements FTCRobotSubsystem {
 
     @Override
     public void shutdown() {
-        rightIntakeMotor.stop();
-        leftIntakeMotor.stop();
+        stop();
     }
 
     @Override
@@ -66,13 +72,13 @@ public class IntakeWheels implements FTCRobotSubsystem {
     public void intake() {
         rightIntakeMotor.setPower(motorSpeed);
         leftIntakeMotor.setPower(motorSpeed);
-        direction = true;
+        intakeDirection = IntakeDirection.INTAKE;
     }
 
     public void outtake() {
         rightIntakeMotor.setPower(-motorSpeed);
         leftIntakeMotor.setPower(-motorSpeed);
-        direction = false;
+        intakeDirection = IntakeDirection.OUTTAKE;
     }
 
     public void stop() {
@@ -81,11 +87,10 @@ public class IntakeWheels implements FTCRobotSubsystem {
     }
 
     public void switchDirection() {
-        if (direction == false) {
+        if (intakeDirection == IntakeDirection.OUTTAKE) {
             intake();
         } else {
             outtake();
         }
-        direction = !direction;
     }
 }
