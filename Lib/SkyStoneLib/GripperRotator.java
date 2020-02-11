@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
 
@@ -37,6 +38,7 @@ public class GripperRotator implements FTCRobotSubsystem {
     private Servo8863 servoGripperRotator;
 
     private GripperRotatorStates gripperRotatorState;
+    private GripperRotatorStates previousGripperRotatorState;
 
     public GripperRotatorStates getGripperRotatorState() {
         return gripperRotatorState;
@@ -51,13 +53,30 @@ public class GripperRotator implements FTCRobotSubsystem {
 
     public Telemetry telemetry;
     private ElapsedTime timer;
+
+    private DataLogging logFile = null;
+    private boolean loggingOn = false;
+
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
     // allow access to private data fields for example setMotorPower,
     // getPositionInTermsOfAttachment
     //*********************************************************************************************
+    @Override
+    public void setDataLog(DataLogging logFile) {
+        this.logFile = logFile;
+    }
 
+    @Override
+    public void enableDataLogging() {
+        this.loggingOn = true;
+    }
+
+    @Override
+    public void disableDataLogging() {
+        this.loggingOn = false;
+    }
 
     //*********************************************************************************************
     //          Constructors
@@ -77,6 +96,21 @@ public class GripperRotator implements FTCRobotSubsystem {
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
 
+    private void log(String stringToLog) {
+        if (logFile != null && loggingOn) {
+            logFile.logData(stringToLog);
+
+        }
+    }
+
+    private void logState(GripperRotatorStates gripperRotatorState) {
+        if (logFile != null && loggingOn) {
+            if (gripperRotatorState != previousGripperRotatorState) {
+                logFile.logData("Gripper Rotator state is now ", gripperRotatorState.toString());
+                previousGripperRotatorState = gripperRotatorState;
+            }
+        }
+    }
 
     //*********************************************************************************************
     //          MAJOR METHODS
@@ -84,12 +118,14 @@ public class GripperRotator implements FTCRobotSubsystem {
     // public methods that give the class its functionality
     //*********************************************************************************************
     public void rotateOutward() {
+        log("Gripper Rotator commanded to rotate outward");
         servoGripperRotator.goUp();
         timer.reset();
         gripperRotatorState = GripperRotatorStates.ROTATING_OUTWARD;
     }
 
     public void rotateInward() {
+        log("Gripper Rotator commanded to rotate inward");
         servoGripperRotator.goDown();
         timer.reset();
         gripperRotatorState = GripperRotatorStates.ROTATING_INWARD;
@@ -110,6 +146,7 @@ public class GripperRotator implements FTCRobotSubsystem {
 
     @Override
     public boolean init(Configuration config) {
+        log("Gripper Rotator commanded to init");
         rotateInward();
         timer.reset();
         gripperRotatorState = GripperRotatorStates.INITTING;
@@ -118,6 +155,7 @@ public class GripperRotator implements FTCRobotSubsystem {
 
     @Override
     public void update() {
+
         switch (gripperRotatorState) {
             case INITTING:
                 if (timer.milliseconds() > 1000) {
@@ -145,7 +183,7 @@ public class GripperRotator implements FTCRobotSubsystem {
             case OUT:
                 break;
         }
-        telemetry.update();
+        logState(gripperRotatorState);
     }
 
     public boolean isRotateOutwardComplete() {
@@ -166,6 +204,7 @@ public class GripperRotator implements FTCRobotSubsystem {
 
     @Override
     public void shutdown() {
+        log("Gripper Rotator commanded to shutdown");
         rotateInward();
     }
 

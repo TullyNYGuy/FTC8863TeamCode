@@ -329,6 +329,8 @@ public class SkystoneRobot implements FTCRobot {
     public void init() {
         dataLog.logData("Init starting");
         for (FTCRobotSubsystem subsystem : subsystemMap.values()) {
+            subsystem.setDataLog(dataLog);
+            subsystem.enableDataLogging();
             if (!subsystem.init(config)) {
                 if (dataLoggingEnabled)
                     dataLog.logData(subsystem.getName() + " initialization failed");
@@ -432,6 +434,13 @@ public class SkystoneRobot implements FTCRobot {
 
     }
 
+    private void log(String stringToLog) {
+        if (dataLog != null && dataLoggingEnabled) {
+            dataLog.logData(stringToLog);
+
+        }
+    }
+
     public void getCurrentPosition(Position position) {
         odometry.getCurrentPosition(position);
     }
@@ -476,9 +485,20 @@ public class SkystoneRobot implements FTCRobot {
     }
 
     private IntakeStates intakeState = IntakeStates.IDLE;
+    private IntakeStates previousIntakeState;
+
+    private void logState(IntakeStates intakeState) {
+        if (dataLog != null && dataLoggingEnabled) {
+            if (intakeState != previousIntakeState) {
+                dataLog.logData("Intake state is now ", intakeState.toString());
+                previousIntakeState = intakeState;
+            }
+        }
+    }
 
     public void intakeBlock() {
         intakeState = IntakeStates.START;
+        log("Robot commanded to intake stone");
     }
 
     public void initIntakeStateMachine() {
@@ -512,6 +532,7 @@ public class SkystoneRobot implements FTCRobot {
             case COMPLETE:
                 break;
         }
+        logState(intakeState);
     }
 
     public boolean isIntakeBlockComplete() {
@@ -523,11 +544,13 @@ public class SkystoneRobot implements FTCRobot {
     }
 
     public void intakeOff() {
+        log("Robot commanded to intake off");
         intake.stop();
         intakeState = IntakeStates.IDLE;
     }
 
     public void intakeSpitOut() {
+        log("Robot commanded to outtake");
         intake.outtake();
         intakeTimer.reset();
         intakeState = IntakeStates.OUTTAKE;
@@ -559,7 +582,7 @@ public class SkystoneRobot implements FTCRobot {
     //********************************************
 
     public void gripBlock() {
-        gripper.grip();
+        gripper.gripBlock();
     }
 
     public boolean isGripBlockComplete() {
@@ -638,6 +661,16 @@ public class SkystoneRobot implements FTCRobot {
     }
 
     private DeportStates deportState = DeportStates.IDLE;
+    private DeportStates previousDeportState;
+
+    private void logState(DeportStates deportState) {
+        if (dataLog != null && dataLoggingEnabled) {
+            if (deportState != previousDeportState) {
+                dataLog.logData("Deport state is now ", deportState.toString());
+                previousDeportState = deportState;
+            }
+        }
+    }
 
     public void initDeportStateMachine() {
         deportState = DeportStates.IDLE;
@@ -645,6 +678,7 @@ public class SkystoneRobot implements FTCRobot {
 
 
     public void deportBlock() {
+        log("Robot commanded to deport stone");
         deportState = DeportStates.START;
     }
 
@@ -678,6 +712,7 @@ public class SkystoneRobot implements FTCRobot {
                 //we chillin'
                 break;
         }
+        logState(deportState);
     }
 
     public boolean isDeportBlockComplete() {
@@ -705,12 +740,23 @@ public class SkystoneRobot implements FTCRobot {
     }
 
     private LiftBlockStates liftBlockState = LiftBlockStates.IDLE;
+    private LiftBlockStates previousliftBlockState;
+
+    private void logState(LiftBlockStates liftBlockState) {
+        if (dataLog != null && dataLoggingEnabled) {
+            if (liftBlockState != previousliftBlockState) {
+                dataLog.logData("LiftBlock state is now ", liftBlockState.toString());
+                previousliftBlockState = liftBlockState;
+            }
+        }
+    }
 
     private double liftBlockTimerLimit;
 
     int skyscraperLevel = 0;
 
     public void resetSkyscraperLevel() {
+        log("Robot commanded to reset skyscraper level");
         skyscraperLevel = 0;
     }
 
@@ -719,11 +765,13 @@ public class SkystoneRobot implements FTCRobot {
     }
 
     public void increaseDesiredHeightForLift() {
+        log("Robot commanded to increase skyscraper level");
         skyscraperLevel = skyscraperLevel + 1;
         if (skyscraperLevel > 8) {
             skyscraperLevel = 0;
             telemetry.addData("DESIRED HEIGHT =", skyscraperLevel);
         }
+        log("Robot commanded to change skyscraper level = " + skyscraperLevel);
     }
 
     public void initLiftBlockStateMachine() {
@@ -733,6 +781,7 @@ public class SkystoneRobot implements FTCRobot {
 
 
     public void liftBlock() {
+        log("Robot commanded to lift stone");
         liftBlockState = LiftBlockStates.START;
     }
 
@@ -755,6 +804,7 @@ public class SkystoneRobot implements FTCRobot {
                 //we chillin'
                 break;
         }
+        logState(liftBlockState);
     }
 
     public boolean isLiftBlockComplete() {
@@ -782,6 +832,16 @@ public class SkystoneRobot implements FTCRobot {
     }
 
     private PlaceBlockStates placeBlockState = PlaceBlockStates.IDLE;
+    private PlaceBlockStates previousPlaceBlockState;
+
+    private void logState(PlaceBlockStates placeBlockState) {
+        if (dataLog != null && dataLoggingEnabled) {
+            if (placeBlockState != previousPlaceBlockState) {
+                dataLog.logData("PlaceBlock state is now ", placeBlockState.toString());
+                previousPlaceBlockState = placeBlockState;
+            }
+        }
+    }
 
     private double placeBlockTimerLimit;
 
@@ -792,6 +852,7 @@ public class SkystoneRobot implements FTCRobot {
 
 
     public void placeBlock() {
+        log("Robot commanded to place stone");
         placeBlockState = PlaceBlockStates.EXTENDING;
     }
 
@@ -802,7 +863,7 @@ public class SkystoneRobot implements FTCRobot {
                 //The Driver will extend the arm using joystick then call place block
                 break;
             case EXTENDING:
-                gripper.release();
+                gripper.releaseBlock();
                 break;
             case GRIPPER_RELEASING:
                 if (gripper.isReleaseComplete()) {
@@ -813,6 +874,7 @@ public class SkystoneRobot implements FTCRobot {
                 //we chillin'
                 break;
         }
+        logState(placeBlockState);
     }
 
     public boolean isPlaceBlockComplete() {
@@ -840,6 +902,16 @@ public class SkystoneRobot implements FTCRobot {
     }
 
     private PrepareIntakeStates prepareIntakeState = PrepareIntakeStates.IDLE;
+    private PrepareIntakeStates previousPrepareIntakeState;
+
+    private void logState(PrepareIntakeStates prepareIntakeState) {
+        if (dataLog != null && dataLoggingEnabled) {
+            if (prepareIntakeState != previousPrepareIntakeState) {
+                dataLog.logData("PlaceBlock state is now ", prepareIntakeState.toString());
+                previousPrepareIntakeState = prepareIntakeState;
+            }
+        }
+    }
 
     public void initPrepareBlockStateMachine() {
         prepareIntakeState = PrepareIntakeStates.IDLE;
@@ -847,6 +919,7 @@ public class SkystoneRobot implements FTCRobot {
 
 
     public void prepareToIntakeBlock() {
+        log("Robot commanded to prepare to intake a stone");
         prepareIntakeState = PrepareIntakeStates.START;
     }
 
@@ -858,7 +931,7 @@ public class SkystoneRobot implements FTCRobot {
                 break;
             case START:
                 gripperRotator.rotateInward();
-                gripper.release();
+                gripper.releaseBlock();
                 prepareIntakeState = PrepareIntakeStates.PREPARATION_PHASE_1;
                 break;
             case PREPARATION_PHASE_1:
@@ -877,6 +950,7 @@ public class SkystoneRobot implements FTCRobot {
                 //we chillin'
                 break;
         }
+        logState(prepareIntakeState);
     }
 
     public boolean isPrepareIntakeComplete() {
@@ -892,10 +966,12 @@ public class SkystoneRobot implements FTCRobot {
     }
 
     public void baseGrab() {
+        log("Robot commanded to grab foundation");
         baseGrabberServo.grabBase();
     }
 
     public void baseRelease() {
+        log("Robot commanded to release foundation");
         baseGrabberServo.releaseBase();
     }
 

@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
 
@@ -39,8 +40,14 @@ public class Gripper implements FTCRobotSubsystem {
     private double homePos = releasePosition;
 
     private State gripperState;
+    private State previousGripperState;
+
     private Telemetry telemetry;
     private ElapsedTime timer;
+
+
+    private DataLogging logFile = null;
+    private boolean loggingOn = false;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -49,6 +56,20 @@ public class Gripper implements FTCRobotSubsystem {
     // getPositionInTermsOfAttachment
     //*********************************************************************************************
 
+    @Override
+    public void setDataLog(DataLogging logFile) {
+        this.logFile = logFile;
+    }
+
+    @Override
+    public void enableDataLogging() {
+        this.loggingOn = true;
+    }
+
+    @Override
+    public void disableDataLogging() {
+        this.loggingOn = false;
+    }
 
     public State getGripperState() {
         return gripperState;
@@ -76,16 +97,32 @@ public class Gripper implements FTCRobotSubsystem {
     //*********************************************************************************************
 
 
+    private void log(String stringToLog) {
+        if (logFile != null && loggingOn) {
+            logFile.logData(stringToLog);
+
+        }
+    }
+
+    private void logState(State gripperState) {
+        if (logFile != null && loggingOn) {
+            if (gripperState != previousGripperState) {
+                logFile.logData("Gripper state is now ", gripperState.toString());
+                previousGripperState = gripperState;
+            }
+        }
+    }
+
     //*********************************************************************************************
     //          MAJOR METHODS
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
-    public void release() {
+    private void release() {
         gripperServo.goUp();
     }
 
-    public void grip() {
+    private void grip() {
         gripperServo.goDown();
     }
 
@@ -103,6 +140,7 @@ public class Gripper implements FTCRobotSubsystem {
 
     @Override
     public boolean init(Configuration config) {
+        log("Gripper commanded to init");
         gripperServo.goInitPosition();
         timer.reset();
         gripperState = State.INITTING;
@@ -110,6 +148,7 @@ public class Gripper implements FTCRobotSubsystem {
     }
 
     public void gripBlock() {
+        log("Gripper commanded to grip");
         grip();
         timer.reset();
         gripperState = State.GRIPPING;
@@ -117,6 +156,7 @@ public class Gripper implements FTCRobotSubsystem {
     }
 
     public void releaseBlock() {
+        log("Gripper commanded to release");
         release();
         timer.reset();
         gripperState = State.RELEASING;
@@ -124,6 +164,7 @@ public class Gripper implements FTCRobotSubsystem {
 
     @Override
     public void shutdown() {
+        log("Gripper commanded to shutdown");
         release();
     }
 
@@ -161,7 +202,7 @@ public class Gripper implements FTCRobotSubsystem {
             case GRIPPED:
                 break;
         }
-        telemetry.update();
+        logState(gripperState);
     }
 
     public boolean isGripComplete() {

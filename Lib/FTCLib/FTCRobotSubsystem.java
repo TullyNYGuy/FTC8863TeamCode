@@ -11,6 +11,13 @@ public interface FTCRobotSubsystem {
 
     void shutdown();
 
+    void setDataLog(DataLogging logFile);
+
+    void enableDataLogging();
+
+    void disableDataLogging();
+
+
     /*
      * This function can be called asynchronously with the rest of the program access to shared variables needs to be controller by either synchronized or explicit locking.
      * @param timerValueMsec current time in milliseconds

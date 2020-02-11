@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
 
@@ -23,6 +24,9 @@ public class IntakeWheels implements FTCRobotSubsystem {
     private DcMotor8863 leftIntakeMotor;
     final private double motorSpeed = 1.0;
 
+    private DataLogging logFile = null;
+    private boolean loggingOn = false;
+
     public IntakeWheels(HardwareMap hardwareMap, String rightIntakeMotorName, String leftIntakeMotorName) {
         this.rightIntakeMotor = new DcMotor8863(rightIntakeMotorName, hardwareMap);
         this.leftIntakeMotor = new DcMotor8863(leftIntakeMotorName, hardwareMap);
@@ -38,6 +42,28 @@ public class IntakeWheels implements FTCRobotSubsystem {
         leftIntakeMotor.runAtConstantPower(0);
 
         intakeDirection = IntakeDirection.INTAKE;
+    }
+
+    @Override
+    public void setDataLog(DataLogging logFile) {
+        this.logFile = logFile;
+    }
+
+    @Override
+    public void enableDataLogging() {
+        this.loggingOn = true;
+    }
+
+    @Override
+    public void disableDataLogging() {
+        this.loggingOn = false;
+    }
+
+    private void log(String stringToLog) {
+        if (logFile != null && loggingOn) {
+            logFile.logData(stringToLog);
+
+        }
     }
 
     @Override
@@ -61,6 +87,7 @@ public class IntakeWheels implements FTCRobotSubsystem {
 
     @Override
     public void shutdown() {
+        log("Intake wheels commanded to shutdown");
         stop();
     }
 
@@ -73,17 +100,20 @@ public class IntakeWheels implements FTCRobotSubsystem {
         rightIntakeMotor.setPower(motorSpeed);
         leftIntakeMotor.setPower(motorSpeed);
         intakeDirection = IntakeDirection.INTAKE;
+        log("Intake wheels commanded to intake");
     }
 
     public void outtake() {
         rightIntakeMotor.setPower(-motorSpeed);
         leftIntakeMotor.setPower(-motorSpeed);
         intakeDirection = IntakeDirection.OUTTAKE;
+        log("Intake wheels commanded to outtake");
     }
 
     public void stop() {
         rightIntakeMotor.setPower(0);
         leftIntakeMotor.setPower(0);
+        log("Intake wheels commanded to stop");
     }
 
     public void switchDirection() {
