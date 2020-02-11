@@ -85,10 +85,7 @@ public class SkystoneRobot implements FTCRobot {
         BASE_MOVER
     }
 
-    //Subsystem[] currentCaps = new Subsystem[]{Subsystem.MECANUM, Subsystem.INTAKE_MOTORS, Subsystem.INTAKE_LIMIT_SW, Subsystem.BASE_MOVER, Subsystem.ODOMETRY};
-    Subsystem[] currentCaps = new Subsystem[]{Subsystem.INTAKE_MOTORS, Subsystem.LIFT, Subsystem.EXT_ARM};
-
-    Set<Subsystem> capabilities = new HashSet<Subsystem>(Arrays.asList(currentCaps));
+    Set<Subsystem> capabilities;
 
     HardwareMap hardwareMap;
     Telemetry telemetry;
@@ -125,7 +122,6 @@ public class SkystoneRobot implements FTCRobot {
     Switch intakeLimitSwitch;
     private BaseGrabberServo baseGrabberServo;
 
-
     public SkystoneRobot(HardwareMap hardwareMap, Telemetry telemetry, Configuration config, DataLogging dataLog, DistanceUnit units, LinearOpMode opMode) {
         this.hardwareMap = hardwareMap;
         this.telemetry = telemetry;
@@ -135,11 +131,14 @@ public class SkystoneRobot implements FTCRobot {
         enableDataLogging();
         this.opMode = opMode;
         this.subsystemMap = new HashMap<String, FTCRobotSubsystem>();
-        Set<Subsystem> capabilities = new HashSet<Subsystem>();
-        capabilities.addAll(new ArrayList<Subsystem>());
+        setCapabilities(Subsystem.values());
+    }
 
-        createRobot();
-        init();
+    /*
+     * This function should be called, if needed, before createRobot() call
+     */
+    public void setCapabilities(Subsystem[] subsystems) {
+        capabilities = new HashSet<Subsystem>(Arrays.asList(subsystems));
     }
 
     @Override
@@ -280,6 +279,7 @@ public class SkystoneRobot implements FTCRobot {
         }
 
         if (capabilities.contains(Subsystem.EXT_ARM)) {
+
             // Extension Arm
             extensionArm = new ExtensionArm(hardwareMap, telemetry,
                     ExtensionArmConstants.mechanismName,
@@ -318,6 +318,7 @@ public class SkystoneRobot implements FTCRobot {
                     telemetry);
             subsystemMap.put(intakePusherServos.getName(), intakePusherServos);
         }
+        init();
         return true;
     }
 
@@ -400,6 +401,13 @@ public class SkystoneRobot implements FTCRobot {
 
         if (capabilities.contains(Subsystem.INTAKE_LIMIT_SW))
             updateIntakeSwitches();
+    }
+
+    @Override
+    public void timedUpdate(double timerValueMsec) {
+        for (FTCRobotSubsystem subsystem : subsystemMap.values()) {
+            subsystem.timedUpdate(timerValueMsec);
+        }
     }
 
     @Override
@@ -523,13 +531,6 @@ public class SkystoneRobot implements FTCRobot {
         intake.outtake();
         intakeTimer.reset();
         intakeState = IntakeStates.OUTTAKE;
-    }
-
-    @Override
-    public void timedUpdate(double timerValueMsec) {
-        for (FTCRobotSubsystem subsystem : subsystemMap.values()) {
-            subsystem.timedUpdate(timerValueMsec);
-        }
     }
 
     public void updateIntakeSwitches() {

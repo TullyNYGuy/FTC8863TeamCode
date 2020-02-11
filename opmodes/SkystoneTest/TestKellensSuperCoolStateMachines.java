@@ -56,7 +56,10 @@ public class TestKellensSuperCoolStateMachines extends LinearOpMode {
         }
         datalog = new DataLogging("State Machine Test", telemetry);
 
+
         SkystoneRobot robot = new SkystoneRobot(hardwareMap, telemetry, config, datalog, DistanceUnit.INCH, this);
+        robot.setCapabilities(new SkystoneRobot.Subsystem[]{SkystoneRobot.Subsystem.INTAKE_MOTORS, SkystoneRobot.Subsystem.LIFT, SkystoneRobot.Subsystem.EXT_ARM});
+        robot.createRobot();
 
         timer = new ElapsedTime();
 
