@@ -153,8 +153,7 @@ public class SkystoneTeleop extends LinearOpMode {
         timer = new ElapsedTime();
         MecanumCommands commands = new MecanumCommands();
 
-        robot = new SkystoneRobot(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM);
-        robot.enableDataLogging();
+        robot = new SkystoneRobot(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, this);
 
         // create the gamepad 1 buttons and tell each button how many commands it has
         // gamepad1RightBumper = new GamepadButtonMultiPush(1);

@@ -56,23 +56,7 @@ public class TestKellensSuperCoolStateMachines extends LinearOpMode {
         }
         datalog = new DataLogging("State Machine Test", telemetry);
 
-        SkystoneRobot robot = new SkystoneRobot(hardwareMap, telemetry, config, datalog, DistanceUnit.INCH);
-        robot.createRobot();
-        // start the inits for the robot subsytems
-        robot.init();
-
-        while (!robot.isInitComplete()) {
-            timer = new ElapsedTime();
-            robot.update();
-            if (timer.milliseconds() > 5000) {
-                // something went wrong with the inits. They never finished. Proceed anyway
-
-                datalog.logData("Init failed to complete on time. Proceeding anyway!");
-                //How cheerful. How comforting...
-                break;
-            }
-            idle();
-        }
+        SkystoneRobot robot = new SkystoneRobot(hardwareMap, telemetry, config, datalog, DistanceUnit.INCH, this);
 
         timer = new ElapsedTime();
 

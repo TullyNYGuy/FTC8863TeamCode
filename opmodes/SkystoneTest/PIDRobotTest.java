@@ -151,8 +151,7 @@ public class PIDRobotTest extends LinearOpMode {
         timer = new ElapsedTime();
         MecanumCommands commands = new MecanumCommands();
 
-        robot = new SkystoneRobot(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM);
-        robot.enableDataLogging();
+        robot = new SkystoneRobot(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, this);
 
         AutonomousController controller = new AutonomousController(robot, dataLog, telemetry);
 

@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Lib.SkyStoneLib;
 
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -96,6 +97,9 @@ public class SkystoneRobot implements FTCRobot {
     private DataLogging dataLog;
     Map<String, FTCRobotSubsystem> subsystemMap;
 
+    private ElapsedTime timer;
+    private LinearOpMode opMode;
+
     private boolean dataLoggingEnabled = true;
 
     public boolean isDataLoggingEnabled() {
@@ -122,15 +126,20 @@ public class SkystoneRobot implements FTCRobot {
     private BaseGrabberServo baseGrabberServo;
 
 
-    public SkystoneRobot(HardwareMap hardwareMap, Telemetry telemetry, Configuration config, DataLogging dataLog, DistanceUnit units) {
+    public SkystoneRobot(HardwareMap hardwareMap, Telemetry telemetry, Configuration config, DataLogging dataLog, DistanceUnit units, LinearOpMode opMode) {
         this.hardwareMap = hardwareMap;
         this.telemetry = telemetry;
         this.units = units;
         this.config = config;
         this.dataLog = dataLog;
+        enableDataLogging();
+        this.opMode = opMode;
         this.subsystemMap = new HashMap<String, FTCRobotSubsystem>();
         Set<Subsystem> capabilities = new HashSet<Subsystem>();
         capabilities.addAll(new ArrayList<Subsystem>());
+
+        createRobot();
+        init();
     }
 
     @Override
@@ -324,12 +333,26 @@ public class SkystoneRobot implements FTCRobot {
                     dataLog.logData(subsystem.getName() + " initialization failed");
             }
         }
+
         // inits for the command state machines
         initDeportStateMachine();
         initIntakeStateMachine();
         initLiftBlockStateMachine();
         initPlaceBlockStateMachine();
         initPrepareBlockStateMachine();
+
+        // wait until all the updates are complete or until the timer has expired
+        timer.reset();
+        while (!isInitComplete()) {
+            update();
+            if (timer.milliseconds() > 5000) {
+                // something went wrong with the inits. They never finished. Proceed anyway
+                dataLog.logData("Init failed to complete on time. Proceeding anyway!");
+                //How cheerful. How comforting...
+                break;
+            }
+            opMode.idle();
+        }
     }
 
     /*
@@ -344,6 +367,11 @@ public class SkystoneRobot implements FTCRobot {
         // put the isInitComplete for each subsystem here. In other words repeat this block of code
         // for each subsystem
         for (FTCRobotSubsystem subsystem : subsystemMap.values()) {
+            if (subsystem.isInitComplete()) {
+                if (dataLoggingEnabled) {
+                    dataLog.logData("Init complete for " + subsystem.getName());
+                }
+            }
             result &= subsystem.isInitComplete();
         }
         if (dataLoggingEnabled && result == true) {
