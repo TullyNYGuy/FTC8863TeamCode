@@ -49,6 +49,11 @@ public class Gripper implements FTCRobotSubsystem {
     // getPositionInTermsOfAttachment
     //*********************************************************************************************
 
+
+    public State getGripperState() {
+        return gripperState;
+    }
+
     //*********************************************************************************************
     //          Constructors
     //
@@ -129,27 +134,27 @@ public class Gripper implements FTCRobotSubsystem {
 
     @Override
     public void update() {
-        telemetry.addData("servo states: ", gripperState);
         switch (gripperState) {
             case INITTING:
                 if (timer.milliseconds() > 500) {
                     gripperState = State.INIT_FINISHED;
                 }
                 break;
-
             case INIT_FINISHED:
                 break;
-            case RELEASED:
-                break;
-            case GRIPPING:
-                if (timer.milliseconds() > 1000) {
-                    gripperState = State.GRIPPED;
-                    timer.reset();
-                }
-                break;
+
             case RELEASING:
                 if (timer.milliseconds() > 1000) {
                     gripperState = State.RELEASED;
+                    timer.reset();
+                }
+                break;
+            case RELEASED:
+                break;
+
+            case GRIPPING:
+                if (timer.milliseconds() > 1000) {
+                    gripperState = State.GRIPPED;
                     timer.reset();
                 }
                 break;
@@ -159,7 +164,7 @@ public class Gripper implements FTCRobotSubsystem {
         telemetry.update();
     }
 
-    public boolean IsGripComplete() {
+    public boolean isGripComplete() {
         if (gripperState == State.GRIPPED) {
             return true;
         } else {

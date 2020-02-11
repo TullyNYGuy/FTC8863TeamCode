@@ -407,7 +407,7 @@ public class SkystoneTeleop extends LinearOpMode {
 
 
             if (gamepad2x.buttonPress(gamepad2.x)) {
-                robot.liftBlock(robot.getSkyscraperLevel());
+                robot.liftBlock();
             }
 /*
 

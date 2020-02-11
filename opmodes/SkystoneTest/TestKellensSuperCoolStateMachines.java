@@ -29,37 +29,112 @@ import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.SkystoneRobot;
 public class TestKellensSuperCoolStateMachines extends LinearOpMode {
     private Configuration config;
     private DataLogging datalog;
-    public SkystoneRobot robot = new SkystoneRobot(hardwareMap, telemetry, config, datalog, DistanceUnit.INCH);
+    private SkystoneRobot robot;
+
     public ElapsedTime timer;
 
-    public void megaMasterUpdate() {
-        robot.intakeBlockUpdate();
-        robot.gripStateUpdate();
-        robot.deportStateUpdate();
-        robot.liftBlockStateUpdate();
-        robot.placeBlockStateUpdate();
-        robot.prepareIntakeUpdate();
+    enum Actions {
+        START,
+        INTAKE,
+        GRIP,
+        DEPORT,
+        LIFT,
+        PLACE,
+        PREPARE,
+        COMPLETE,
+        IDLE
     }
 
-    public SkystoneRobot.IntakeStates intakeStates;
-    public SkystoneRobot.GripStates gripStates;
-    public SkystoneRobot.DeportStates deportStates;
-    public SkystoneRobot.LiftBlockStates liftBlockStates;
-    public SkystoneRobot.PlaceBlockStates placeBlockStates;
-    public SkystoneRobot.PrepareIntakeStates prepareIntakeStates;
-
+    Actions action = Actions.IDLE;
 
     @Override
     public void runOpMode() throws InterruptedException {
+        config = new Configuration();
+        if (!config.load()) {
+            telemetry.addData("ERROR", "Couldn't load config file");
+            telemetry.update();
+        }
+        datalog = new DataLogging("State Machine Test", telemetry);
 
-        robot.intakeBlock();
+        SkystoneRobot robot = new SkystoneRobot(hardwareMap, telemetry, config, datalog, DistanceUnit.INCH);
+        robot.createRobot();
+        // start the inits for the robot subsytems
+        robot.init();
+
+        while (!robot.isInitComplete()) {
+            timer = new ElapsedTime();
+            robot.update();
+            if (timer.milliseconds() > 5000) {
+                // something went wrong with the inits. They never finished. Proceed anyway
+
+                datalog.logData("Init failed to complete on time. Proceeding anyway!");
+                //How cheerful. How comforting...
+                break;
+            }
+            idle();
+        }
+
+        timer = new ElapsedTime();
+
+        telemetry.addData(">", "Press Start to run");
+        telemetry.update();
+        waitForStart();
+
+        action = Actions.START;
         timer.reset();
         while (opModeIsActive()) {
-            if (timer.milliseconds() > 5000) {
+            robot.update();
+
+            switch (action) {
+                case IDLE:
+                    break;
+                case START:
+                    robot.intakeBlock();
+                    action = Actions.INTAKE;
+                    break;
+                case INTAKE:
+                    if (robot.isIntakeBlockComplete()) {
+                        robot.gripBlock();
+                        action = Actions.GRIP;
+                    }
+                    break;
+                case GRIP:
+                    if (robot.isGripBlockComplete()) {
+                        robot.deportBlock();
+                        action = Actions.DEPORT;
+                    }
+                    break;
+                case DEPORT:
+                    if (robot.isDeportBlockComplete()) {
+                        robot.liftBlock();
+                        action = Actions.LIFT;
+                    }
+                    break;
+                case LIFT:
+                    if (robot.isLiftBlockComplete()) {
+                        robot.placeBlock();
+                        action = Actions.PLACE;
+                    }
+                    break;
+                case PLACE:
+                    if (robot.isPlaceBlockComplete()) {
+                        robot.prepareToIntakeBlock();
+                        action = Actions.PREPARE;
+                    }
+                    break;
+                case PREPARE:
+                    if (robot.isPrepareIntakeComplete()) {
+                        action = Actions.COMPLETE;
+                    }
+                    break;
+                case COMPLETE:
+                    break;
+            }
+           /* if (timer.milliseconds() > 5000) {
                 robot.intakeOff();
                 robot.gripBlock();
             }
-            if (robot.isGripComplete()) {
+           if (robot.isGripBlockComplete()) {
                 robot.deportBlock();
             }
             if (robot.isDeportBlockComplete()) {
@@ -73,16 +148,16 @@ public class TestKellensSuperCoolStateMachines extends LinearOpMode {
             }
             if (robot.isPrepareIntakeComplete()) {
                 stop();
-            }
-            telemetry.addData("CurrentState", robot.getCurrentIntakeState());
-            telemetry.addData("CurrentState", robot.getCurrentGripperState());
-            telemetry.addData("CurrentState", robot.getCurrentDeportState());
-            telemetry.addData("CurrentState", robot.getCurrentLiftState());
-            telemetry.addData("CurrentState", robot.getCurrentPlaceBlockState());
-            telemetry.addData("CurrentState", robot.getCurrentPrepareIntakeState());
+            }*/
+            telemetry.addData("CurrentStateIntake", robot.getCurrentIntakeState());
+            telemetry.addData("CurrentStateGrip", robot.getCurrentGripperState());
+            telemetry.addData("CurrentStateDeport", robot.getCurrentDeportState());
+            telemetry.addData("CurrentStateLift", robot.getCurrentLiftState());
+            telemetry.addData("CurrentStatePlaceBlock", robot.getCurrentPlaceBlockState());
+            telemetry.addData("CurrentStatePrepareIntake", robot.getCurrentPrepareIntakeState());
 
-            megaMasterUpdate();
 
+            idle();
         }
 
     }

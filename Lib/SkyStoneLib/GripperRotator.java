@@ -12,11 +12,6 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
 
 public class GripperRotator implements FTCRobotSubsystem {
 
-    private final static String SUBSYSTEM_NAME = "GripperRotator";
-    public RotatorStates rotatorState = RotatorStates.IN;
-    public Telemetry telemetry;
-    private ElapsedTime timer;
-
     //*********************************************************************************************
     //          ENUMERATED TYPES
     //
@@ -24,8 +19,13 @@ public class GripperRotator implements FTCRobotSubsystem {
     //
     //*********************************************************************************************
 
-    public enum RotatorStates {
-        INITTING, INIT_FINISHED, ROTATING_INWARD, IN, ROTATING_OUTWARD, OUT
+    public enum GripperRotatorStates {
+        INITTING,
+        INIT_FINISHED,
+        ROTATING_INWARD,
+        IN,
+        ROTATING_OUTWARD,
+        OUT
     }
 
     //*********************************************************************************************
@@ -34,11 +34,23 @@ public class GripperRotator implements FTCRobotSubsystem {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
-    private Servo8863 servoRotator;
+    private Servo8863 servoGripperRotator;
+
+    private GripperRotatorStates gripperRotatorState;
+
+    public GripperRotatorStates getGripperRotatorState() {
+        return gripperRotatorState;
+    }
+
     private double initPos = 0;
     private double outwardPos = 0.95;
     private double inwardPos = 0;
     private double homePos = inwardPos;
+
+    private final static String SUBSYSTEM_NAME = "GripperRotator";
+
+    public Telemetry telemetry;
+    private ElapsedTime timer;
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -54,7 +66,7 @@ public class GripperRotator implements FTCRobotSubsystem {
     // from it
     //*********************************************************************************************
     public GripperRotator(HardwareMap hardwareMap, String servoName, Telemetry telemetry) {
-        servoRotator = new Servo8863(servoName, hardwareMap, telemetry, homePos, outwardPos, inwardPos, initPos, Servo.Direction.FORWARD);
+        servoGripperRotator = new Servo8863(servoName, hardwareMap, telemetry, homePos, outwardPos, inwardPos, initPos, Servo.Direction.FORWARD);
         timer = new ElapsedTime();
         this.telemetry = telemetry;
     }
@@ -72,17 +84,15 @@ public class GripperRotator implements FTCRobotSubsystem {
     // public methods that give the class its functionality
     //*********************************************************************************************
     public void rotateOutward() {
-        servoRotator.goUp();
+        servoGripperRotator.goUp();
         timer.reset();
-        rotatorState = RotatorStates.ROTATING_OUTWARD;
-
+        gripperRotatorState = GripperRotatorStates.ROTATING_OUTWARD;
     }
 
     public void rotateInward() {
-        servoRotator.goDown();
+        servoGripperRotator.goDown();
         timer.reset();
-        rotatorState = RotatorStates.ROTATING_INWARD;
-
+        gripperRotatorState = GripperRotatorStates.ROTATING_INWARD;
     }
 
     @Override
@@ -92,7 +102,7 @@ public class GripperRotator implements FTCRobotSubsystem {
 
     @Override
     public boolean isInitComplete() {
-        if (rotatorState == RotatorStates.INIT_FINISHED) {
+        if (gripperRotatorState == GripperRotatorStates.INIT_FINISHED) {
             return true;
         } else
             return false;
@@ -102,32 +112,33 @@ public class GripperRotator implements FTCRobotSubsystem {
     public boolean init(Configuration config) {
         rotateInward();
         timer.reset();
-        rotatorState = RotatorStates.INITTING;
+        gripperRotatorState = GripperRotatorStates.INITTING;
         return true;
     }
 
     @Override
     public void update() {
-        telemetry.addData("servo states: ", rotatorState);
-        switch (rotatorState) {
+        switch (gripperRotatorState) {
             case INITTING:
                 if (timer.milliseconds() > 1000) {
-                    rotatorState = RotatorStates.INIT_FINISHED;
+                    gripperRotatorState = GripperRotatorStates.INIT_FINISHED;
                 }
                 break;
             case INIT_FINISHED:
                 break;
-            case IN:
-                break;
+
             case ROTATING_INWARD:
                 if (timer.milliseconds() > 1000) {
-                    rotatorState = RotatorStates.IN;
+                    gripperRotatorState = GripperRotatorStates.IN;
                     timer.reset();
                 }
                 break;
+            case IN:
+                break;
+
             case ROTATING_OUTWARD:
                 if (timer.milliseconds() > 1000) {
-                    rotatorState = RotatorStates.OUT;
+                    gripperRotatorState = GripperRotatorStates.OUT;
                     timer.reset();
                 }
                 break;
@@ -138,7 +149,7 @@ public class GripperRotator implements FTCRobotSubsystem {
     }
 
     public boolean isRotateOutwardComplete() {
-        if (rotatorState == rotatorState.OUT) {
+        if (gripperRotatorState == gripperRotatorState.OUT) {
             return true;
         } else {
             return false;
@@ -146,7 +157,7 @@ public class GripperRotator implements FTCRobotSubsystem {
     }
 
     public boolean isRotateInwardComplete() {
-        if (rotatorState == rotatorState.IN) {
+        if (gripperRotatorState == gripperRotatorState.IN) {
             return true;
         } else {
             return false;

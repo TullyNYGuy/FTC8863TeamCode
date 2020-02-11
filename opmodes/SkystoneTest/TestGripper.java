@@ -67,7 +67,7 @@ public class TestGripper extends LinearOpMode {
                     }
                     break;
                 case ONE:
-                    if (gripper.IsGripComplete()) {
+                    if (gripper.isGripComplete()) {
                         gripper.releaseBlock();
                         steps = Steps.TWO;
                     }
@@ -79,7 +79,7 @@ public class TestGripper extends LinearOpMode {
                     }
                     break;
                 case THREE:
-                    if (gripper.IsGripComplete()) {
+                    if (gripper.isGripComplete()) {
                         //robot.chill
                     }
                     break;

@@ -84,7 +84,8 @@ public class SkystoneRobot implements FTCRobot {
         BASE_MOVER
     }
 
-    Subsystem[] currentCaps = new Subsystem[]{Subsystem.MECANUM, Subsystem.INTAKE_MOTORS, Subsystem.INTAKE_LIMIT_SW, Subsystem.BASE_MOVER, Subsystem.ODOMETRY};
+    //Subsystem[] currentCaps = new Subsystem[]{Subsystem.MECANUM, Subsystem.INTAKE_MOTORS, Subsystem.INTAKE_LIMIT_SW, Subsystem.BASE_MOVER, Subsystem.ODOMETRY};
+    Subsystem[] currentCaps = new Subsystem[]{Subsystem.INTAKE_MOTORS, Subsystem.LIFT, Subsystem.EXT_ARM};
 
     Set<Subsystem> capabilities = new HashSet<Subsystem>(Arrays.asList(currentCaps));
 
@@ -108,7 +109,7 @@ public class SkystoneRobot implements FTCRobot {
     private AdafruitIMU8863 imu;
     private Mecanum mecanum;
     private OdometrySystem odometry;
-    private DualLift dualLift;
+    // private DualLift dualLift;
 
     /* TODO: Needs initialization */
     private IntakeWheels intake;
@@ -119,6 +120,7 @@ public class SkystoneRobot implements FTCRobot {
     private IntakePusherServos intakePusherServos;
     Switch intakeLimitSwitch;
     private BaseGrabberServo baseGrabberServo;
+
 
     public SkystoneRobot(HardwareMap hardwareMap, Telemetry telemetry, Configuration config, DataLogging dataLog, DistanceUnit units) {
         this.hardwareMap = hardwareMap;
@@ -233,6 +235,7 @@ public class SkystoneRobot implements FTCRobot {
 //        DcMotor8863 leftIntake = new DcMotor8863("intakeMotorLeft", hardwareMap);
 //        rightIntake.setMotorType(ANDYMARK_20_ORBITAL);
 //        leftIntake.setMotorType(ANDYMARK_20_ORBITAL);
+
         if (capabilities.contains(Subsystem.INTAKE_MOTORS)) {
             intake = new IntakeWheels(hardwareMap,
                     HardwareName.INTAKE_RIGHT_MOTOR.hwName,
@@ -244,6 +247,7 @@ public class SkystoneRobot implements FTCRobot {
                         Switch.SwitchType.NORMALLY_OPEN);
             }
         }
+
         if (capabilities.contains(Subsystem.BASE_MOVER)) {
             baseGrabberServo = new BaseGrabberServo(hardwareMap,
                     HardwareName.BASE_MOVER_RIGHT_SERVO.hwName,
@@ -253,7 +257,7 @@ public class SkystoneRobot implements FTCRobot {
         }
 
         if (capabilities.contains(Subsystem.LIFT)) {
-            dualLift = new DualLift(hardwareMap,
+            lift = new DualLift(hardwareMap,
                     HardwareName.LIFT_RIGHT_NAME.hwName,
                     HardwareName.LIFT_RIGHT_MOTOR.hwName,
                     HardwareName.LIFT_RIGHT_EXTENSION_SWITCH.hwName,
@@ -263,10 +267,10 @@ public class SkystoneRobot implements FTCRobot {
                     HardwareName.LIFT_LEFT_EXTENSION_SWITCH.hwName,
                     HardwareName.LIFT_LEFT_RETRACTION_SWITCH.hwName,
                     telemetry);
-            subsystemMap.put(dualLift.getName(), dualLift);
+            subsystemMap.put(lift.getName(), lift);
         }
-        if (capabilities.contains(Subsystem.EXT_ARM)) {
 
+        if (capabilities.contains(Subsystem.EXT_ARM)) {
             // Extension Arm
             extensionArm = new ExtensionArm(hardwareMap, telemetry,
                     ExtensionArmConstants.mechanismName,
@@ -320,7 +324,12 @@ public class SkystoneRobot implements FTCRobot {
                     dataLog.logData(subsystem.getName() + " initialization failed");
             }
         }
-        // put the init() method for each subsytem here
+        // inits for the command state machines
+        initDeportStateMachine();
+        initIntakeStateMachine();
+        initLiftBlockStateMachine();
+        initPlaceBlockStateMachine();
+        initPrepareBlockStateMachine();
     }
 
     /*
@@ -355,7 +364,6 @@ public class SkystoneRobot implements FTCRobot {
         }
 
         intakeBlockUpdate();
-        gripStateUpdate();
         deportStateUpdate();
         liftBlockStateUpdate();
         placeBlockStateUpdate();
@@ -399,11 +407,10 @@ public class SkystoneRobot implements FTCRobot {
     public double getCurrentRotation(AngleUnit unit) {
         if (odometry != null && odometry.isInitComplete())
             return odometry.getCurrentRotation(unit);
+        else if (imu != null)
+            return -unit.fromDegrees(imu.getHeading());
         else
-            if(imu != null)
-                return -unit.fromDegrees(imu.getHeading());
-            else
-                return 0;
+            return 0;
     }
 
     public void setMovement(MecanumCommands commands) {
@@ -428,7 +435,8 @@ public class SkystoneRobot implements FTCRobot {
         START,
         LIFT_MOVING_TO_POSITION,
         INTAKE_ON,
-        OUTTAKE
+        OUTTAKE,
+        COMPLETE
     }
 
     private IntakeStates intakeState = IntakeStates.IDLE;
@@ -437,29 +445,44 @@ public class SkystoneRobot implements FTCRobot {
         intakeState = IntakeStates.START;
     }
 
+    public void initIntakeStateMachine() {
+        intakeTimer = new ElapsedTime();
+        intakeState = IntakeStates.IDLE;
+    }
+
     public void intakeBlockUpdate() {
         switch (intakeState) {
             case IDLE:
                 break;
             case START:
-                //lift.goToPosition(2, 1);
-                intakeState = IntakeStates.LIFT_MOVING_TO_POSITION;
-                break;
-            case LIFT_MOVING_TO_POSITION:
-                //if (lift.isPositionReached()) {
                 intake.intake();
+                intakeTimer.reset();
                 intakeState = IntakeStates.INTAKE_ON;
-                //  }
                 break;
             case INTAKE_ON:
+                // THIS IS A TEMPORARY COB TO GET A SEQUENCE WE CAN TEST WITH. REMOVE THIS ONCE WE ARE DONE!
+                if (intakeTimer.milliseconds() > 5000) {
+                    intake.stop();
+                    intakeState = IntakeStates.COMPLETE;
+                }
                 //Do nothing
                 break;
             case OUTTAKE:
-
                 if (intakeTimer.milliseconds() > 2000) {
                     intakeOff();
+                    intakeState = IntakeStates.IDLE;
                 }
                 break;
+            case COMPLETE:
+                break;
+        }
+    }
+
+    public boolean isIntakeBlockComplete() {
+        if (intakeState == IntakeStates.COMPLETE) {
+            return true;
+        } else {
+            return false;
         }
     }
 
@@ -496,28 +519,41 @@ public class SkystoneRobot implements FTCRobot {
         }
  */
     }
+
     public IntakeStates getCurrentIntakeState() {
         return intakeState;
     }
 
 
-
     //*********************************************
     //BLOCK GRIPPING//
     //********************************************
-    private ElapsedTime gripTimer;
 
+    public void gripBlock() {
+        gripper.grip();
+    }
+
+    public boolean isGripBlockComplete() {
+        return gripper.isGripComplete();
+    }
+
+    public Gripper.State getCurrentGripperState() {
+        return gripper.getGripperState();
+    }
+
+    /*
     public enum GripStates {
         IDLE,
         START,
-        PUSHER_ARMS_MOVING,
         GRIPPING,
         COMPLETE
     }
 
     private GripStates gripState = GripStates.IDLE;
 
-    private double gripTimerLimit = 1000;
+    public void initGripStateMachine() {
+        gripState = GripStates.IDLE;
+    }
 
     public void gripBlock() {
         gripState = GripStates.START;
@@ -529,16 +565,12 @@ public class SkystoneRobot implements FTCRobot {
                 //nothing just chilling
                 break;
             case START:
-                intakePusherServos.pushIn();
-                gripState = GripStates.PUSHER_ARMS_MOVING;
+                gripper.grip();
+                gripState = GripStates.GRIPPING;
                 break;
-            case PUSHER_ARMS_MOVING:
-                if (intakePusherServos.isPushComplete()) {
-                    gripper.grip();
-                }
-                break;
+
             case GRIPPING:
-                if (gripper.IsGripComplete()) {
+                if (gripper.isGripComplete()) {
                     gripState = GripStates.COMPLETE;
                 }
                 break;
@@ -548,7 +580,7 @@ public class SkystoneRobot implements FTCRobot {
         }
     }
 
-    public boolean isGripComplete() {
+    public boolean isGripBlockComplete() {
         if (gripState == GripStates.COMPLETE) {
             return true;
         } else {
@@ -559,6 +591,7 @@ public class SkystoneRobot implements FTCRobot {
     public GripStates getCurrentGripperState() {
         return gripState;
     }
+    */
 
 
     //*********************************************
@@ -569,15 +602,18 @@ public class SkystoneRobot implements FTCRobot {
     public enum DeportStates {
         IDLE,
         START,
+        LIFT_RAISING,
         ARM_EXTENDING,
         GRIPPER_ROTATING,
-        LIFT_LOWERING,
         COMPLETE
     }
 
     private DeportStates deportState = DeportStates.IDLE;
 
-    private double deportTimerLimit = 1000;
+    public void initDeportStateMachine() {
+        deportState = DeportStates.IDLE;
+    }
+
 
     public void deportBlock() {
         deportState = DeportStates.START;
@@ -590,29 +626,24 @@ public class SkystoneRobot implements FTCRobot {
                 //nothing just chilling
                 break;
             case START:
-                deportTimer.reset();
-                deportState = DeportStates.ARM_EXTENDING;
-                ///////////////Ask about inches vs centimeters the method asks for inch////////////
-                extensionArm.goToPosition(21, 1);
+                deportState = DeportStates.LIFT_RAISING;
+                lift.goToPosition(6, 1);
                 break;
+            case LIFT_RAISING:
+                if (lift.isPositionReached()) {
+                    extensionArm.goToPosition(5, 1);
+                    deportState = DeportStates.ARM_EXTENDING;
+                }
             case ARM_EXTENDING:
-                if (deportTimer.milliseconds() > deportTimerLimit) {
+                if (extensionArm.isPositionReached()) {
                     gripperRotator.rotateOutward();
-                    deportTimer.reset();
+                    deportState = DeportStates.GRIPPER_ROTATING;
                 }
                 break;
             case GRIPPER_ROTATING:
-                if (deportTimer.milliseconds() > 500) {
-                    deportState = DeportStates.LIFT_LOWERING;
-                    ////////////////ASK MR  BALL ABOUT HOME POSITION////////////////
-                    // lift.goToPosition(1, 1);
-                    deportTimer.reset();
+                if (gripperRotator.isRotateOutwardComplete()) {
+                    deportState = DeportStates.COMPLETE;
                 }
-                break;
-            case LIFT_LOWERING:
-                //if (lift.isPositionReached()) {
-                deportState = DeportStates.COMPLETE;
-                //}
                 break;
             case COMPLETE:
                 //we chillin'
@@ -657,6 +688,7 @@ public class SkystoneRobot implements FTCRobot {
     public int getSkyscraperLevel() {
         return skyscraperLevel;
     }
+
     public void increaseDesiredHeightForLift() {
         skyscraperLevel = skyscraperLevel + 1;
         if (skyscraperLevel > 8) {
@@ -665,24 +697,30 @@ public class SkystoneRobot implements FTCRobot {
         }
     }
 
-    public void liftBlock(int skyscraperLevel) {
+    public void initLiftBlockStateMachine() {
+        liftBlockTimer = new ElapsedTime();
+        liftBlockState = LiftBlockStates.IDLE;
+    }
+
+
+    public void liftBlock() {
         liftBlockState = LiftBlockStates.START;
     }
 
     public void liftBlockStateUpdate() {
         switch (liftBlockState) {
             case IDLE:
+                skyscraperLevel = 3;
                 //nothing just chilling
                 break;
             case START:
-                //lift.goToBlockHeights(skyscraperLevel);
-                liftBlockTimer.reset();
+                lift.goToBlockHeights(skyscraperLevel);
                 liftBlockState = LiftBlockStates.BLOCK_LIFTING;
                 break;
             case BLOCK_LIFTING:
-                //if (lift.isPositionReached()) {
-                liftBlockState = LiftBlockStates.COMPLETE;
-                //}
+                if (lift.isPositionReached()) {
+                    liftBlockState = LiftBlockStates.COMPLETE;
+                }
                 break;
             case COMPLETE:
                 //we chillin'
@@ -717,6 +755,11 @@ public class SkystoneRobot implements FTCRobot {
     private PlaceBlockStates placeBlockState = PlaceBlockStates.IDLE;
 
     private double placeBlockTimerLimit;
+
+    public void initPlaceBlockStateMachine() {
+        placeBlockTimer = new ElapsedTime();
+        placeBlockState = PlaceBlockStates.IDLE;
+    }
 
 
     public void placeBlock() {
@@ -762,11 +805,16 @@ public class SkystoneRobot implements FTCRobot {
     public enum PrepareIntakeStates {
         IDLE,
         START,
-        PREPARING,
+        PREPARATION_PHASE_1,
+        PREPARATION_PHASE_2,
         COMPLETE
     }
 
     private PrepareIntakeStates prepareIntakeState = PrepareIntakeStates.IDLE;
+
+    public void initPrepareBlockStateMachine() {
+        prepareIntakeState = PrepareIntakeStates.IDLE;
+    }
 
 
     public void prepareToIntakeBlock() {
@@ -780,15 +828,21 @@ public class SkystoneRobot implements FTCRobot {
                 //chillin' like a villain
                 break;
             case START:
-                extensionArm.goToPosition(0, 1);
-                lift.goToPosition(0, 1);
-                prepareIntakeState = PrepareIntakeStates.PREPARING;
+                gripperRotator.rotateInward();
+                gripper.release();
+                prepareIntakeState = PrepareIntakeStates.PREPARATION_PHASE_1;
                 break;
-            case PREPARING:
-                //why was the if here commented out? Care to answer, Kelloggs? - Tanya
-                 if (lift.isPositionReached() && extensionArm.isPositionReached()) {
-                prepareIntakeState = PrepareIntakeStates.COMPLETE;
-                 }
+            case PREPARATION_PHASE_1:
+                if (gripper.isReleaseComplete() && gripperRotator.isRotateInwardComplete()) {
+                    extensionArm.goToPosition(0, 1);
+                    lift.goToPosition(0, 1);
+                    prepareIntakeState = PrepareIntakeStates.PREPARATION_PHASE_2;
+                }
+                break;
+            case PREPARATION_PHASE_2:
+                if (lift.isPositionReached() && extensionArm.isPositionReached()) {
+                    prepareIntakeState = PrepareIntakeStates.COMPLETE;
+                }
                 break;
             case COMPLETE:
                 //we chillin'
@@ -807,7 +861,13 @@ public class SkystoneRobot implements FTCRobot {
     public PrepareIntakeStates getCurrentPrepareIntakeState() {
         return prepareIntakeState;
     }
-    public void baseGrab(){baseGrabberServo.grabBase();}
-    public void baseRelease(){baseGrabberServo.releaseBase();}
+
+    public void baseGrab() {
+        baseGrabberServo.grabBase();
+    }
+
+    public void baseRelease() {
+        baseGrabberServo.releaseBase();
+    }
 
 }
