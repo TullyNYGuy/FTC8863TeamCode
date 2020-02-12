@@ -54,7 +54,7 @@ public class TestKellensSuperCoolStateMachines extends LinearOpMode {
             telemetry.addData("ERROR", "Couldn't load config file");
             telemetry.update();
         }
-        datalog = new DataLogging("State Machine Test", telemetry);
+        datalog = new DataLogging("StateMachineTest", telemetry);
 
 
         SkystoneRobot robot = new SkystoneRobot(hardwareMap, telemetry, config, datalog, DistanceUnit.INCH, this);
