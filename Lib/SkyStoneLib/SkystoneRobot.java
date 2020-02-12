@@ -121,8 +121,10 @@ public class SkystoneRobot implements FTCRobot {
     private IntakePusherServos intakePusherServos;
     Switch intakeLimitSwitch;
     private BaseGrabberServo baseGrabberServo;
+    private Double deportHeight;
 
     public SkystoneRobot(HardwareMap hardwareMap, Telemetry telemetry, Configuration config, DataLogging dataLog, DistanceUnit units, LinearOpMode opMode) {
+        timer = new ElapsedTime();
         this.hardwareMap = hardwareMap;
         this.telemetry = telemetry;
         this.units = units;
@@ -678,7 +680,15 @@ public class SkystoneRobot implements FTCRobot {
 
 
     public void deportBlock() {
+        deportHeight = 6.0;
         log("Robot commanded to deport stone");
+        deportState = DeportStates.START;
+    }
+
+    public void deportBlockCapstone() {
+        //Special Secret Sauce Height//
+        deportHeight = 10.0;
+        log("Robot commanded to deport stone(capstone)");
         deportState = DeportStates.START;
     }
 
@@ -690,7 +700,7 @@ public class SkystoneRobot implements FTCRobot {
                 break;
             case START:
                 deportState = DeportStates.LIFT_RAISING;
-                lift.goToPosition(6, 1);
+                lift.goToPosition(deportHeight, 1);
                 break;
             case LIFT_RAISING:
                 if (lift.isPositionReached()) {
