@@ -75,8 +75,8 @@ public class SkystoneTeleop extends LinearOpMode {
     public GamepadButtonMultiPush gamepad1x;
     public GamepadButtonMultiPush gamepad1DpadUp;
     public GamepadButtonMultiPush gamepad1DpadDown;
-     public GamepadButtonMultiPush gamepad1DpadLeft;
-     public GamepadButtonMultiPush gamepad1DpadRight;
+    public GamepadButtonMultiPush gamepad1DpadLeft;
+    public GamepadButtonMultiPush gamepad1DpadRight;
     public GamepadButtonMultiPush gamepad1LeftStickButton;
     public GamepadButtonMultiPush gamepad1RightStickButton;
     //public GamepadButtonMultiPush gamepad1LeftTriggerButton;
@@ -105,9 +105,9 @@ public class SkystoneTeleop extends LinearOpMode {
     public GamepadButtonMultiPush gamepad2b;
     public GamepadButtonMultiPush gamepad2y;
     public GamepadButtonMultiPush gamepad2x;
-      public GamepadButtonMultiPush gamepad2DpadUp;
-     public GamepadButtonMultiPush gamepad2DpadDown;
-     public GamepadButtonMultiPush gamepad2DpadLeft;
+    public GamepadButtonMultiPush gamepad2DpadUp;
+    public GamepadButtonMultiPush gamepad2DpadDown;
+    public GamepadButtonMultiPush gamepad2DpadLeft;
     public GamepadButtonMultiPush gamepad2DpadRight;
     public GamepadButtonMultiPush gamepad2LeftStickButton;
     public GamepadButtonMultiPush gamepad2RightStickButton;
@@ -160,7 +160,7 @@ public class SkystoneTeleop extends LinearOpMode {
         // gamepad1LeftBumper = new GamepadButtonMultiPush(1);
         gamepad1a = new GamepadButtonMultiPush(1);
         gamepad1b = new GamepadButtonMultiPush(1);
-         gamepad1y = new GamepadButtonMultiPush(2);
+        gamepad1y = new GamepadButtonMultiPush(2);
         gamepad1x = new GamepadButtonMultiPush(1);
         gamepad1DpadUp = new GamepadButtonMultiPush(1);
         gamepad1DpadDown = new GamepadButtonMultiPush(1);
@@ -196,7 +196,6 @@ public class SkystoneTeleop extends LinearOpMode {
 
         gamepad2RightJoyStickX = new JoyStick(JoyStick.JoyStickMode.SQUARE, JOYSTICK_DEADBAND_VALUE, JoyStick.InvertSign.NO_INVERT_SIGN);
         gamepad2RightJoyStickY = new JoyStick(JoyStick.JoyStickMode.SQUARE, JOYSTICK_DEADBAND_VALUE, JoyStick.InvertSign.INVERT_SIGN);
-
 
 
         HaloControls haloControls = new HaloControls(gamepad1LeftJoyStickX, gamepad1LeftJoyStickY, gamepad1RightJoyStickX, robot, telemetry);
@@ -275,7 +274,6 @@ public class SkystoneTeleop extends LinearOpMode {
 
             // if (gamepad1LeftBumper.buttonPress(gamepad1.left_bumper)) {
             //  }
-
 
 
             if (gamepad1y.buttonPress(gamepad1.y)) {
@@ -469,7 +467,7 @@ public class SkystoneTeleop extends LinearOpMode {
             // update the robot
             robot.update();
 
-   telemetry.addData("mecanum commands are: ", commands);
+            telemetry.addData("mecanum commands are: ", commands);
             // Display telemetry
             telemetry.addData(">", "Press Stop to end.");
             telemetry.update();
