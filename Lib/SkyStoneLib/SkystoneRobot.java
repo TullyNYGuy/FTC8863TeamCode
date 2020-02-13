@@ -499,8 +499,12 @@ public class SkystoneRobot implements FTCRobot {
     }
 
     public void intakeBlock() {
-        intakeState = IntakeStates.START;
-        log("Robot commanded to intake stone");
+        if (intakeState == IntakeStates.IDLE || intakeState == IntakeStates.COMPLETE) {
+            intakeState = IntakeStates.START;
+            log("Robot commanded to intake stone");
+        } else {
+            log("Robot command to intake stone IGNORED");
+        }
     }
 
     public void initIntakeStateMachine() {
@@ -680,16 +684,22 @@ public class SkystoneRobot implements FTCRobot {
 
 
     public void deportBlock() {
-        deportHeight = 6.0;
-        log("Robot commanded to deport stone");
-        deportState = DeportStates.START;
+        if (deportState == DeportStates.IDLE || deportState == DeportStates.COMPLETE) {
+            deportHeight = 6.0;
+            log("Robot commanded to deport stone");
+            deportState = DeportStates.START;
+        }
     }
 
     public void deportBlockCapstone() {
         //Special Secret Sauce Height//
-        deportHeight = 10.0;
-        log("Robot commanded to deport stone(capstone)");
-        deportState = DeportStates.START;
+        if (deportState == DeportStates.IDLE || deportState == DeportStates.COMPLETE) {
+            deportHeight = 10.0;
+            log("Robot commanded to deport stone(capstone)");
+            deportState = DeportStates.START;
+        } else {
+            log("Robot command to deport stone IGNORED");
+        }
     }
 
 
@@ -791,8 +801,12 @@ public class SkystoneRobot implements FTCRobot {
 
 
     public void liftBlock() {
-        log("Robot commanded to lift stone");
-        liftBlockState = LiftBlockStates.START;
+        if (liftBlockState == LiftBlockStates.IDLE || liftBlockState == LiftBlockStates.COMPLETE) {
+            log("Robot commanded to lift stone");
+            liftBlockState = LiftBlockStates.START;
+        } else {
+            log("Robot command to lift stone IGNORED");
+        }
     }
 
     public void liftBlockStateUpdate() {
@@ -862,8 +876,12 @@ public class SkystoneRobot implements FTCRobot {
 
 
     public void placeBlock() {
-        log("Robot commanded to place stone");
-        placeBlockState = PlaceBlockStates.EXTENDING;
+        if (placeBlockState == PlaceBlockStates.IDLE.IDLE || placeBlockState == PlaceBlockStates.COMPLETE) {
+            log("Robot commanded to place stone");
+            placeBlockState = PlaceBlockStates.EXTENDING;
+        } else {
+            log("Robot command to place stone IGNORED");
+        }
     }
 
 
@@ -906,8 +924,9 @@ public class SkystoneRobot implements FTCRobot {
     public enum PrepareIntakeStates {
         IDLE,
         START,
-        PREPARATION_PHASE_1,
-        PREPARATION_PHASE_2,
+        PREPARATION_PHASE_1_ROTATOR,
+        PREPARATION_PHASE_2_RETRACTION,
+        PREPARATION_PHASE_3_LOWERING,
         COMPLETE
     }
 
@@ -929,8 +948,12 @@ public class SkystoneRobot implements FTCRobot {
 
 
     public void prepareToIntakeBlock() {
-        log("Robot commanded to prepare to intake a stone");
-        prepareIntakeState = PrepareIntakeStates.START;
+        if (prepareIntakeState == PrepareIntakeStates.IDLE || prepareIntakeState == PrepareIntakeStates.COMPLETE) {
+            log("Robot commanded to prepare to intake a stone");
+            prepareIntakeState = PrepareIntakeStates.START;
+        } else {
+            log("Robot command to prepare to intake IGNORED");
+        }
     }
 
 
@@ -942,20 +965,26 @@ public class SkystoneRobot implements FTCRobot {
             case START:
                 gripperRotator.rotateInward();
                 gripper.releaseBlock();
-                prepareIntakeState = PrepareIntakeStates.PREPARATION_PHASE_1;
+                prepareIntakeState = PrepareIntakeStates.PREPARATION_PHASE_1_ROTATOR;
                 break;
-            case PREPARATION_PHASE_1:
+            case PREPARATION_PHASE_1_ROTATOR:
                 if (gripper.isReleaseComplete() && gripperRotator.isRotateInwardComplete()) {
                     extensionArm.goToPosition(0, 1);
-                    lift.goToPosition(0, 1);
-                    prepareIntakeState = PrepareIntakeStates.PREPARATION_PHASE_2;
+                    prepareIntakeState = PrepareIntakeStates.PREPARATION_PHASE_2_RETRACTION;
                 }
                 break;
-            case PREPARATION_PHASE_2:
+            case PREPARATION_PHASE_2_RETRACTION:
+                if (extensionArm.isPositionReached()) {
+                    lift.goToPosition(0, 1);
+                    prepareIntakeState = PrepareIntakeStates.PREPARATION_PHASE_3_LOWERING;
+                }
+                break;
+            case PREPARATION_PHASE_3_LOWERING:
                 if (lift.isPositionReached() && extensionArm.isPositionReached()) {
                     prepareIntakeState = PrepareIntakeStates.COMPLETE;
                 }
                 break;
+
             case COMPLETE:
                 //we chillin'
                 break;
