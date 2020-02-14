@@ -202,6 +202,11 @@ public class DualLift implements FTCRobotSubsystem {
         liftLeft.goToPosition(positionInInches, positionPower);
     }
 
+    public void setPowerUsingJoystick(double power) {
+        liftRight.setPowerUsingJoystick(power);
+        liftLeft.setPowerUsingJoystick(power);
+    }
+
     public void goToBlockHeights(int blockNumber) {
         if (blockNumber > maxBlockNumber) {
             blockNumber = maxBlockNumber;
@@ -383,5 +388,39 @@ public class DualLift implements FTCRobotSubsystem {
         opMode.telemetry.addData("Average # revolutions = ", (numberOfRevolutionsLeft + numberOfRevolutionsRight) / 2);
         opMode.telemetry.addData("Measure the distance moved. Calculate distance / revolution", "!");
         opMode.telemetry.update();
+    }
+
+    public void testLimitSwitches(LinearOpMode opMode) {
+        // needed to update the encoder values
+        liftLeft.update();
+        liftRight.update();
+
+        opMode.telemetry.addData("LEFT", "=");
+        if (liftLeft.isRetractionLimitSwitchPressed()) {
+            opMode.telemetry.addLine("retracted limit switch pressed");
+        } else {
+            opMode.telemetry.addLine("retracted limit switch NOT pressed");
+        }
+
+        if (liftLeft.isExtensionLimitSwitchPressed()) {
+            opMode.telemetry.addLine("extension limit switch pressed");
+        } else {
+            opMode.telemetry.addLine("extension limit switch NOT pressed");
+        }
+        opMode.telemetry.addData("encoder = ", liftLeft.getCurrentEncoderValue());
+
+        opMode.telemetry.addData("RIGHT", "=");
+        if (liftRight.isRetractionLimitSwitchPressed()) {
+            opMode.telemetry.addLine("retracted limit switch pressed");
+        } else {
+            opMode.telemetry.addLine("retracted limit switch NOT pressed");
+        }
+
+        if (liftRight.isExtensionLimitSwitchPressed()) {
+            opMode.telemetry.addLine("extension limit switch pressed");
+        } else {
+            opMode.telemetry.addLine("extension limit switch NOT pressed");
+        }
+        opMode.telemetry.addData("encoder = ", liftRight.getCurrentEncoderValue());
     }
 }
