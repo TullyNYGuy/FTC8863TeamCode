@@ -40,7 +40,8 @@ public class TestIntake extends LinearOpMode {
                 SkystoneRobot.HardwareName.INTAKE_LEFT_MOTOR.hwName,
                 SkystoneRobot.HardwareName.INTAKE_SWITCH_BACK_LEFT.hwName,
                 SkystoneRobot.HardwareName.INTAKE_SWITCH_BACK_RIGHT.hwName,
-                SkystoneRobot.HardwareName.INTAKE_SWITCH_FRONT.hwName);
+                SkystoneRobot.HardwareName.INTAKE_SWITCH_FRONT_RIGHT.hwName,
+                SkystoneRobot.HardwareName.INTAKE_SWITCH_FRONT_LEFT.hwName);
         //intakeWheels.init(config);
         intakeWheels.stop();
 
