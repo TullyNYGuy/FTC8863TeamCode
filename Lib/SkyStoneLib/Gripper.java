@@ -22,7 +22,13 @@ public class Gripper implements FTCRobotSubsystem {
     //
     //*********************************************************************************************
     enum State {
-        GRIPPING, RELEASED, GRIPPED, RELEASING, INITTING, INIT_FINISHED
+        IDLE,
+        GRIPPING,
+        RELEASED,
+        GRIPPED,
+        RELEASING,
+        INITTING,
+        INIT_FINISHED
     }
 
     //*********************************************************************************************
@@ -34,9 +40,9 @@ public class Gripper implements FTCRobotSubsystem {
     private Servo8863 gripperServo;
 
 
-    private double releasePosition = 0.20;
+    private double releasePosition = 0.43;
     private double initPos = releasePosition;
-    private double gripPosition = 0.74;
+    private double gripPosition = 0.7;
     private double homePos = releasePosition;
 
     private State gripperState;
@@ -87,7 +93,7 @@ public class Gripper implements FTCRobotSubsystem {
         this.telemetry = telemetry;
         timer = new ElapsedTime();
         timer.reset();
-        gripperState = State.RELEASED;
+        gripperState = State.IDLE;
     }
 
     //*********************************************************************************************
@@ -176,8 +182,10 @@ public class Gripper implements FTCRobotSubsystem {
     @Override
     public void update() {
         switch (gripperState) {
+            case IDLE:
+                break;
             case INITTING:
-                if (timer.milliseconds() > 500) {
+                if (timer.milliseconds() > 1500) {
                     gripperState = State.INIT_FINISHED;
                 }
                 break;
