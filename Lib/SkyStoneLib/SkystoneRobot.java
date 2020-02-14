@@ -136,6 +136,7 @@ public class SkystoneRobot implements FTCRobot {
         setCapabilities(Subsystem.values());
         capabilities.remove(Subsystem.INTAKE_PUSHER);
         capabilities.remove(Subsystem.EXT_ARM);
+        capabilities.remove(Subsystem.BASE_MOVER);
     }
 
     /*
@@ -1015,13 +1016,17 @@ public class SkystoneRobot implements FTCRobot {
     }
 
     public void baseGrab() {
-        log("Robot commanded to grab foundation");
-        baseGrabberServo.grabBase();
+        if (baseGrabberServo != null) {
+            log("Robot commanded to grab foundation");
+            baseGrabberServo.grabBase();
+        }
     }
 
     public void baseRelease() {
-        log("Robot commanded to release foundation");
-        baseGrabberServo.releaseBase();
+        if (baseGrabberServo != null) {
+            log("Robot commanded to release foundation");
+            baseGrabberServo.releaseBase();
+        }
     }
 
 }
