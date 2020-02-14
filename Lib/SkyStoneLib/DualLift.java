@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Lib.SkyStoneLib;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.CSVDataFile;
@@ -33,6 +34,16 @@ public class DualLift implements FTCRobotSubsystem {
             this.side = side;
         }
     }
+
+    private enum PositionReachedStates {
+        LEFT_REACHED,
+        RIGHT_REACHED,
+        BOTH_REACHED,
+        NONE_REACHED
+    }
+
+    private PositionReachedStates positionReachedState;
+
 
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS
@@ -74,6 +85,8 @@ public class DualLift implements FTCRobotSubsystem {
     private boolean dataLogging = false;
 
     public CSVDataFile timeEncoderValueFile = null;
+
+    private ElapsedTime positionReachedTimer;
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -111,6 +124,8 @@ public class DualLift implements FTCRobotSubsystem {
 
         liftResetExtraStates = new Lift.LiftResetExtraStates[2];
         getResetState();
+
+        positionReachedTimer = new ElapsedTime();
 
         encoderValues = new int[2];
         getEncoderValues();
@@ -200,6 +215,47 @@ public class DualLift implements FTCRobotSubsystem {
     public void goToPosition(double positionInInches, double positionPower) {
         liftRight.goToPosition(positionInInches, positionPower);
         liftLeft.goToPosition(positionInInches, positionPower);
+        positionReachedState = PositionReachedStates.NONE_REACHED;
+    }
+
+    public void setExtensionPositionInMechanismUnits(double heightTimesSlides) {
+        liftLeft.setExtensionPositionInMechanismUnits(heightTimesSlides);
+        liftRight.setExtensionPositionInMechanismUnits(heightTimesSlides);
+    }
+
+    public boolean isPositionReached() {
+        boolean result = false;
+        switch (positionReachedState) {
+            case NONE_REACHED:
+                if (liftLeft.isPositionReached()) {
+                    positionReachedTimer.reset();
+                    positionReachedState = PositionReachedStates.LEFT_REACHED;
+                }
+                break;
+            case LEFT_REACHED:
+                if (liftRight.isPositionReached()) {
+                    result = true;
+                    positionReachedState = PositionReachedStates.BOTH_REACHED;
+                }
+                if (positionReachedTimer.milliseconds() > 1000) {
+                    result = true;
+                    positionReachedState = PositionReachedStates.BOTH_REACHED;
+                }
+                break;
+            case RIGHT_REACHED:
+                if (liftLeft.isPositionReached()) {
+                    result = true;
+                    positionReachedState = PositionReachedStates.BOTH_REACHED;
+                }
+                if (positionReachedTimer.milliseconds() > 1000) {
+                    result = true;
+                    positionReachedState = PositionReachedStates.BOTH_REACHED;
+                }
+                break;
+            case BOTH_REACHED:
+                break;
+        }
+        return result;
     }
 
     public void setPowerUsingJoystick(double power) {
@@ -266,15 +322,6 @@ public class DualLift implements FTCRobotSubsystem {
     public void setResetPower(double resetPower) {
         liftRight.setResetPower(resetPower);
         liftLeft.setResetPower(resetPower);
-    }
-
-    public void setExtensionPositionInMechanismUnits(double heightTimesSlides) {
-        liftLeft.setExtensionPositionInMechanismUnits(heightTimesSlides);
-        liftRight.setExtensionPositionInMechanismUnits(heightTimesSlides);
-    }
-
-    public boolean isPositionReached() {
-        return (liftLeft.isPositionReached() && liftRight.isPositionReached());
     }
 
     public ExtensionRetractionMechanism.ExtensionRetractionStates[] getState() {

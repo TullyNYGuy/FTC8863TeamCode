@@ -70,7 +70,7 @@ public class TestDualLiftGoToPosition extends LinearOpMode {
 
     public String buffer = "";
 
-    public double speed = 1.0;
+    public double speed = 0.3;
 
     @Override
     public void runOpMode() {
