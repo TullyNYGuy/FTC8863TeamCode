@@ -96,6 +96,9 @@ public class OdometrySystem implements FTCRobotSubsystem {
     private double currentY = 0;
     private double currentRotation = 0;
 
+    private DataLogging logFile = null;
+    private boolean loggingOn = false;
+
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -123,6 +126,28 @@ public class OdometrySystem implements FTCRobotSubsystem {
     //
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
+
+    @Override
+    public void setDataLog(DataLogging logFile) {
+        this.logFile = logFile;
+    }
+
+    @Override
+    public void enableDataLogging() {
+        this.loggingOn = true;
+    }
+
+    @Override
+    public void disableDataLogging() {
+        this.loggingOn = false;
+    }
+
+    private void log(String stringToLog) {
+        if (logFile != null && loggingOn) {
+            logFile.logData(stringToLog);
+
+        }
+    }
 
     //*********************************************************************************************
     //          MAJOR METHODS
@@ -409,5 +434,10 @@ public class OdometrySystem implements FTCRobotSubsystem {
     @Override
     public void shutdown() {
 
+    }
+
+    @Override
+    public void timedUpdate(double timerValueMsec) {
+        calculateMoveDistance();
     }
 }

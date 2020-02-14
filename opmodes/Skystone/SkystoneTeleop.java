@@ -153,8 +153,7 @@ public class SkystoneTeleop extends LinearOpMode {
         timer = new ElapsedTime();
         MecanumCommands commands = new MecanumCommands();
 
-        robot = new SkystoneRobot(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM);
-        robot.enableDataLogging();
+        robot = new SkystoneRobot(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, this);
 
         // create the gamepad 1 buttons and tell each button how many commands it has
         // gamepad1RightBumper = new GamepadButtonMultiPush(1);
@@ -203,7 +202,7 @@ public class SkystoneTeleop extends LinearOpMode {
         HaloControls haloControls = new HaloControls(gamepad1LeftJoyStickX, gamepad1LeftJoyStickY, gamepad1RightJoyStickX, robot, telemetry);
         robot.createRobot();
         // start the inits for the robot subsytems
-        robot.init(config);
+        robot.init();
         timer.reset();
 
         // run the state machines associated with the subsystems to allow the inits to complete
@@ -407,7 +406,7 @@ public class SkystoneTeleop extends LinearOpMode {
 
 
             if (gamepad2x.buttonPress(gamepad2.x)) {
-                robot.liftBlock(robot.getSkyscraperLevel());
+                robot.liftBlock();
             }
 /*
 

@@ -69,6 +69,10 @@ public class DcServoMotor extends DcMotor8863 {
         setDirection(DcMotorSimple.Direction.FORWARD);
         // get the encoder position and set that base encoder position to that
         baseEncoderPosition = getCurrentPosition();
+
+        // it is assumed that the encoder attached to this servo in order to provide position
+        // feedback is a US Digital encoder that puts out 1440 ticks per revolution
+        setMotorType(MotorType.USDIGITAL_360PPR_ENCODER);
     }
 
     //*********************************************************************************************

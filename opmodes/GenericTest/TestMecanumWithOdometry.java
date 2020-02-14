@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.opmodes.GenericTest;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -20,10 +19,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometryModule;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometrySystem;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.SmartJoystick;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.Switch;
 
-
-import java.io.IOException;
 
 import static org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863.MotorType.ANDYMARK_20_ORBITAL;
 
@@ -40,6 +36,36 @@ public class TestMecanumWithOdometry extends LinearOpMode {
 
         public TestRobot(AdafruitIMU8863 imu) {
             this.imu = imu;
+        }
+
+        @Override
+        public boolean createRobot() {
+            return false;
+        }
+
+        @Override
+        public void init() {
+
+        }
+
+        @Override
+        public boolean isInitComplete() {
+            return false;
+        }
+
+        @Override
+        public void update() {
+
+        }
+
+        @Override
+        public void shutdown() {
+
+        }
+
+        @Override
+        public void timedUpdate(double timerValueMsec) {
+
         }
 
         @Override
@@ -85,7 +111,7 @@ public class TestMecanumWithOdometry extends LinearOpMode {
         commands.setSpeedOfRotation(0);
         mecanum.setMotorPower(commands);
         sleep(1500);
-        odometry.finishCalibration(AngleUnit.DEGREES, AngleUnit.DEGREES.normalize(imu.getHeading() - originalAngle));
+        odometry.finishCalibration(AngleUnit.DEGREES, AngleUnit.DEGREES.normalize(-(imu.getHeading() - originalAngle)));
         odometry.saveConfiguration(config);
         odometry.reset();
     }

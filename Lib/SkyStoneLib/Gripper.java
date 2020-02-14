@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
 
@@ -21,7 +22,7 @@ public class Gripper implements FTCRobotSubsystem {
     //
     //*********************************************************************************************
     enum State {
-        GRIPPED, RELEASED, GRIPPING, RELEASING
+        GRIPPING, RELEASED, GRIPPED, RELEASING, INITTING, INIT_FINISHED
     }
 
     //*********************************************************************************************
@@ -32,23 +33,46 @@ public class Gripper implements FTCRobotSubsystem {
     //*********************************************************************************************
     private Servo8863 gripperServo;
 
-    private double initPos = 0.1;
+
     private double releasePosition = 0.20;
+    private double initPos = releasePosition;
     private double gripPosition = 0.74;
-    private double homePos = 0.5;
+    private double homePos = releasePosition;
+
     private State gripperState;
+    private State previousGripperState;
+
     private Telemetry telemetry;
     private ElapsedTime timer;
-    private boolean pendingGrip;
-    private boolean pendingRelease;
+
+
+    private DataLogging logFile = null;
+    private boolean loggingOn = false;
+
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
     // allow access to private data fields for example setMotorPower,
     // getPositionInTermsOfAttachment
     //*********************************************************************************************
-    public void setGripperState(State gripperState) {
-        this.gripperState = gripperState;
+
+    @Override
+    public void setDataLog(DataLogging logFile) {
+        this.logFile = logFile;
+    }
+
+    @Override
+    public void enableDataLogging() {
+        this.loggingOn = true;
+    }
+
+    @Override
+    public void disableDataLogging() {
+        this.loggingOn = false;
+    }
+
+    public State getGripperState() {
+        return gripperState;
     }
 
     //*********************************************************************************************
@@ -63,8 +87,6 @@ public class Gripper implements FTCRobotSubsystem {
         this.telemetry = telemetry;
         timer = new ElapsedTime();
         timer.reset();
-        pendingGrip = false;
-        pendingRelease = false;
         gripperState = State.RELEASED;
     }
 
@@ -75,17 +97,32 @@ public class Gripper implements FTCRobotSubsystem {
     //*********************************************************************************************
 
 
+    private void log(String stringToLog) {
+        if (logFile != null && loggingOn) {
+            logFile.logData(stringToLog);
+
+        }
+    }
+
+    private void logState(State gripperState) {
+        if (logFile != null && loggingOn) {
+            if (gripperState != previousGripperState) {
+                logFile.logData("Gripper state is now ", gripperState.toString());
+                previousGripperState = gripperState;
+            }
+        }
+    }
 
     //*********************************************************************************************
     //          MAJOR METHODS
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
-    public void release() {
+    private void release() {
         gripperServo.goUp();
     }
 
-    public void grip() {
+    private void grip() {
         gripperServo.goDown();
     }
 
@@ -96,66 +133,79 @@ public class Gripper implements FTCRobotSubsystem {
 
     @Override
     public boolean isInitComplete() {
-        return true;
+        if (gripperState == State.INIT_FINISHED) {
+            return true;
+        } else return false;
     }
 
     @Override
     public boolean init(Configuration config) {
-        release();
+        log("Gripper commanded to init");
+        gripperServo.goInitPosition();
+        timer.reset();
+        gripperState = State.INITTING;
         return true;
     }
 
     public void gripBlock() {
-        pendingGrip = true;
+        log("Gripper commanded to grip");
+        grip();
+        timer.reset();
+        gripperState = State.GRIPPING;
+
     }
 
     public void releaseBlock() {
-        pendingRelease = true;
+        log("Gripper commanded to release");
+        release();
+        timer.reset();
+        gripperState = State.RELEASING;
     }
 
     @Override
     public void shutdown() {
+        log("Gripper commanded to shutdown");
         release();
     }
 
     @Override
+    public void timedUpdate(double timerValueMsec) {
+
+    }
+
+    @Override
     public void update() {
-        telemetry.addData("servo states: ", gripperState);
         switch (gripperState) {
-
-            case RELEASED:
-                if (pendingGrip == true) {
-                    pendingGrip = false;
-                    grip();
-                    gripperState = State.GRIPPING;
-                    timer.reset();
+            case INITTING:
+                if (timer.milliseconds() > 500) {
+                    gripperState = State.INIT_FINISHED;
                 }
                 break;
-            case GRIPPING:
-                if (timer.milliseconds() > 1000) {
-                    setGripperState(State.GRIPPED);
-                    timer.reset();
-
-                }
+            case INIT_FINISHED:
                 break;
+
             case RELEASING:
                 if (timer.milliseconds() > 1000) {
-                    setGripperState(State.RELEASED);
+                    gripperState = State.RELEASED;
+                    timer.reset();
+                }
+                break;
+            case RELEASED:
+                break;
+
+            case GRIPPING:
+                if (timer.milliseconds() > 1000) {
+                    gripperState = State.GRIPPED;
                     timer.reset();
                 }
                 break;
             case GRIPPED:
-                if (pendingRelease == true) {
-                    pendingRelease = false;
-                    release();
-                    setGripperState(State.RELEASING);
-                }
                 break;
         }
-        telemetry.update();
+        logState(gripperState);
     }
 
-    public boolean IsGripComplete() {
+    public boolean isGripComplete() {
         if (gripperState == State.GRIPPED) {
             return true;
         } else {

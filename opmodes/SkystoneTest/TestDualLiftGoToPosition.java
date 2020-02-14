@@ -13,9 +13,9 @@ import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.SkystoneRobot;
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Test Dual Lift Extension Retraction", group = "Test")
+@TeleOp(name = "Test Dual Lift Go To Position", group = "Test")
 //@Disabled
-public class TestDualLiftExtensionRetraction extends LinearOpMode {
+public class TestDualLiftGoToPosition extends LinearOpMode {
 
     // Put your variable declarations here
 
@@ -70,7 +70,7 @@ public class TestDualLiftExtensionRetraction extends LinearOpMode {
 
     public String buffer = "";
 
-    public double speed = 0.1;
+    public double speed = 1.0;
 
     @Override
     public void runOpMode() {
@@ -120,29 +120,76 @@ public class TestDualLiftExtensionRetraction extends LinearOpMode {
                     break;
                 case ONE:
                     if (timer.milliseconds() > 2000) {
-                        lift.goToFullExtend();
+                        lift.goToPosition(10, speed);
                         step = Steps.TWO;
                     }
                     break;
                 case TWO:
-                    if (lift.isExtensionComplete()) {
+                    if (lift.isPositionReached()) {
                         timer.reset();
                         step = Steps.THREE;
                     }
                     break;
                 case THREE:
                     if (timer.milliseconds() > 2000) {
-                        lift.goToFullRetract();
+                        lift.goToPosition(20, speed);
                         step = Steps.FOUR;
                     }
                     break;
                 case FOUR:
-                    if (lift.isRetractionComplete()) {
+                    if (lift.isPositionReached()) {
+                        timer.reset();
                         step = Steps.FIVE;
                     }
                     break;
                 case FIVE:
-                    //just hang out
+                    if (timer.milliseconds() > 2000) {
+                        lift.goToPosition(5, speed);
+                        step = Steps.SIX;
+                    }
+                    break;
+                case SIX:
+                    if (lift.isPositionReached()) {
+                        timer.reset();
+                        step = Steps.SEVEN;
+                    }
+                    break;
+                case SEVEN:
+                    if (timer.milliseconds() > 2000) {
+                        lift.goToPosition(40, speed);
+                        step = Steps.EIGHT;
+                    }
+                    break;
+                case EIGHT:
+                    if (lift.isPositionReached()) {
+                        timer.reset();
+                        step = Steps.NINE;
+                    }
+                    break;
+                case NINE:
+                    if (timer.milliseconds() > 2000) {
+                        lift.goToPosition(5, speed);
+                        step = Steps.TEN;
+                    }
+                    break;
+                case TEN:
+                    if (lift.isPositionReached()) {
+                        timer.reset();
+                        step = Steps.ELEVEN;
+                    }
+                    break;
+                case ELEVEN:
+                    if (timer.milliseconds() > 2000) {
+                        lift.reset();
+                        step = Steps.TWELVE;
+                    }
+                    break;
+                case TWELVE:
+                    if (lift.isResetComplete()) {
+                        step = Steps.THIRTEEN;
+                    }
+                    break;
+                case THIRTEEN:
                     break;
             }
 

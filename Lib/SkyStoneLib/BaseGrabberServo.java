@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
 
@@ -32,7 +33,11 @@ public class BaseGrabberServo implements FTCRobotSubsystem {
     private double upLeft;
     private double grabLeft;
     private State servoState;
+    private State previousServoState;
     private ElapsedTime timer;
+
+    private DataLogging logFile = null;
+    private boolean loggingOn = false;
 
     /*
      * @param right Right servo
@@ -69,6 +74,37 @@ public class BaseGrabberServo implements FTCRobotSubsystem {
     }
 
     @Override
+    public void setDataLog(DataLogging logFile) {
+        this.logFile = logFile;
+    }
+
+    @Override
+    public void enableDataLogging() {
+        this.loggingOn = true;
+    }
+
+    @Override
+    public void disableDataLogging() {
+        this.loggingOn = false;
+    }
+
+    private void log(String stringToLog) {
+        if (logFile != null && loggingOn) {
+            logFile.logData(stringToLog);
+
+        }
+    }
+
+    private void logState(State servoState) {
+        if (logFile != null && loggingOn) {
+            if (servoState != previousServoState) {
+                logFile.logData("Foundation grabber state is now ", servoState.toString());
+                previousServoState = servoState;
+            }
+        }
+    }
+
+    @Override
     public String getName() {
         return SUBSYSTEM_NAME;
     }
@@ -79,13 +115,24 @@ public class BaseGrabberServo implements FTCRobotSubsystem {
     }
 
     public void shutdown() {
+        log("foundation grabber commanded to shutdown");
         setState(State.UP);
     }
 
+    @Override
+    public void timedUpdate(double timerValueMsec) {
+
+    }
+
     public void grabBase() {
+        log("foundation grabber commanded to grab");
         pendingGrab = true;
     }
-    public void releaseBase(){pendingRelease = true;}
+
+    public void releaseBase() {
+        log("foundation grabber commanded to release");
+        pendingRelease = true;
+    }
 
     // UNFORTUNATELY, there is no real position feedback for a servo. The method getPosition() is
     // misleading. All it does is to return the last position command you sent to the servo. It does
@@ -126,7 +173,7 @@ public class BaseGrabberServo implements FTCRobotSubsystem {
                     timer.reset();
                 }
         }
-        telemetry.update();
+        logState(servoState);
     }
 
     public boolean IsUpComplete() {

@@ -16,6 +16,29 @@ public class TestGripper extends LinearOpMode {
     // Put your variable declarations here
     public Gripper gripper;
 
+    public enum Steps {
+        ZERO,
+        ONE,
+        TWO,
+        THREE,
+        FOUR,
+        FIVE,
+        SIX,
+        SEVEN,
+        EIGHT,
+        NINE,
+        TEN,
+        ELEVEN,
+        TWELVE,
+        THIRTEEN,
+        FOURTEEN,
+        FIFTEEN,
+        SIXTEEN,
+        SEVENTEEN
+    }
+
+    public Steps steps = Steps.ZERO;
+
     @Override
     public void runOpMode() {
 
@@ -24,26 +47,49 @@ public class TestGripper extends LinearOpMode {
         Configuration config = new Configuration();
         config.load();
 
+
         gripper = new Gripper(hardwareMap, "gripper", telemetry);
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
         telemetry.update();
         waitForStart();
+        gripper.init(config);
 
         // Put your calls here - they will not run in a loop
-        gripper.init(config);
-        sleep(5000);
-        gripper.grip();
-        sleep(5000);
-        gripper.release();
-        sleep(5000);
-        gripper.grip();
-        sleep(5000);
-        gripper.shutdown();
-        sleep(5000);
-        // Put your cleanup code here - it runs as the application shuts down
-        telemetry.addData(">", "Done");
-        telemetry.update();
+        while (opModeIsActive()) {
 
+
+            switch (steps) {
+                case ZERO:
+                    if (gripper.isInitComplete()) {
+                        gripper.gripBlock();
+                        steps = steps.ONE;
+                    }
+                    break;
+                case ONE:
+                    if (gripper.isGripComplete()) {
+                        gripper.releaseBlock();
+                        steps = Steps.TWO;
+                    }
+                    break;
+                case TWO:
+                    if (gripper.isReleaseComplete()) {
+                        gripper.gripBlock();
+                        steps = Steps.THREE;
+                    }
+                    break;
+                case THREE:
+                    if (gripper.isGripComplete()) {
+                        //robot.chill
+                    }
+                    break;
+                case FOUR:
+                    break;
+            }
+            telemetry.addData(">", "Done");
+            telemetry.update();
+            gripper.update();
+
+        }
     }
 }

@@ -19,7 +19,8 @@ public class TestLiftLeft extends LinearOpMode {
     // Put your variable declarations here
     public ExtensionRetractionMechanism extensionRetractionMechanismLeft;
     public DataLogging logFile;
-    public double spoolDiameter = 1.25 * 25.4;
+    public double spoolDiameter = 1.25;
+    public double movementPerRevolution = spoolDiameter * Math.PI * 5;
     public ElapsedTime timer;
     public double startTime = 0;
     public double endUpTime = 0;
@@ -34,8 +35,8 @@ public class TestLiftLeft extends LinearOpMode {
         // Put your initializations here
         extensionRetractionMechanismLeft = new ExtensionRetractionMechanism(hardwareMap, telemetry, "extensionRetractionLeft",
                 SkystoneRobot.HardwareName.LIFT_LEFT_EXTENSION_SWITCH.hwName, SkystoneRobot.HardwareName.LIFT_LEFT_RETRACTION_SWITCH.hwName, SkystoneRobot.HardwareName.LIFT_LEFT_MOTOR.hwName,
-                DcMotor8863.MotorType.ANDYMARK_40, spoolDiameter * Math.PI);
-        extensionRetractionMechanismLeft.reverseMotor();
+                DcMotor8863.MotorType.ANDYMARK_40, movementPerRevolution);
+        //extensionRetractionMechanismLeft.reverseMotor();
         logFile = new DataLogging("ExtensionRetractionTest", telemetry);
         timer = new ElapsedTime();
         extensionRetractionMechanismLeft.setDataLog(logFile);
@@ -53,12 +54,12 @@ public class TestLiftLeft extends LinearOpMode {
 
         // Put your calls here - they will not run in a loop
         extensionRetractionMechanismLeft.testReset(this);
-        sleep(3000);
+        sleep(2000);
         timer.reset();
         encoderValueMax = extensionRetractionMechanismLeft.testExtension(this);
         endUpTime = timer.seconds();
         telemetry.update();
-        sleep(10000);
+        sleep(2000);
         timer.reset();
         encoderValueMin = extensionRetractionMechanismLeft.testRetraction(this);
         endDownTime = timer.seconds();

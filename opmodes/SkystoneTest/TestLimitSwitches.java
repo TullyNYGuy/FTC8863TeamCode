@@ -36,6 +36,7 @@ public class TestLimitSwitches extends LinearOpMode {
         liftRight = new Lift(hardwareMap, telemetry, "liftRight",
                 SkystoneRobot.HardwareName.LIFT_RIGHT_EXTENSION_SWITCH.hwName, SkystoneRobot.HardwareName.LIFT_RIGHT_RETRACTION_SWITCH.hwName, SkystoneRobot.HardwareName.LIFT_RIGHT_MOTOR.hwName,
                 DcMotor8863.MotorType.ANDYMARK_40, movementPerRevolution);
+        liftRight.reverseMotor();
 
         //extensionRetractionMechanismArm = new ExtensionRetractionMechanism(hardwareMap,telemetry,"extensionArm",
         //        "extensionLimitSwitchArm", "retractionLimitSwitchArm", "extensionArmMotor",

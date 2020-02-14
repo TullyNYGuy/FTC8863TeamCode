@@ -39,6 +39,36 @@ public class ReCalibrateOdometry extends LinearOpMode {
         }
 
         @Override
+        public boolean createRobot() {
+            return false;
+        }
+
+        @Override
+        public void init() {
+
+        }
+
+        @Override
+        public boolean isInitComplete() {
+            return false;
+        }
+
+        @Override
+        public void update() {
+
+        }
+
+        @Override
+        public void shutdown() {
+
+        }
+
+        @Override
+        public void timedUpdate(double timerValueMsec) {
+
+        }
+
+        @Override
         public double getCurrentRotation(AngleUnit unit) {
             return unit.fromDegrees(imu.getHeading());
         }
@@ -91,7 +121,7 @@ public class ReCalibrateOdometry extends LinearOpMode {
         commands.setSpeedOfRotation(0);
         mecanum.setMotorPower(commands);
         sleep(1500);
-        odometry.finishCalibration(AngleUnit.DEGREES, AngleUnit.DEGREES.normalize(imu.getHeading() - originalAngle));
+        odometry.finishCalibration(AngleUnit.DEGREES, AngleUnit.DEGREES.normalize(-(imu.getHeading() - originalAngle)));
         odometry.saveConfiguration(config);
         odometry.reset();
     }
@@ -101,7 +131,7 @@ public class ReCalibrateOdometry extends LinearOpMode {
 
 
         // Put your initializations here
-config.delete();
+        config.delete();
         loadConfiguration();
 
         MecanumCommands mecanumCommands = new MecanumCommands();

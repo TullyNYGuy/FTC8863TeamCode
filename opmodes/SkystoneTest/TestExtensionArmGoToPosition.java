@@ -10,12 +10,14 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.ExtensionArm;
+import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.ExtensionArmConstants;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.Lift;
+import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.SkystoneRobot;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Test Extension arm got to position", group = "Test")
+@TeleOp(name = "Test Extension Arm go to position", group = "Test")
 //@Disabled
 public class TestExtensionArmGoToPosition extends LinearOpMode {
 
@@ -45,32 +47,30 @@ public class TestExtensionArmGoToPosition extends LinearOpMode {
 
     public ExtensionRetractionMechanism.ExtensionRetractionStates extensionArmState;
 
-
-    //public Lift.ExtensionRetractionStates extensionRetractionStateLeft;
-
     public int encoderValue = 0;
-
 
     public DataLogging logFile;
     public CSVDataFile timeEncoderValueFile;
-    public double spoolDiameter = 2.75; //inches
-    // spool diameter * pi * 5 stages
-    public double movementPerRevolution = spoolDiameter * Math.PI * 2;
+
     public ElapsedTime timer;
     public double startTime = 0;
 
     public String buffer = "";
 
-    public double speed = 1.0;
+    public double speed = 1;
 
     @Override
     public void runOpMode() {
 
 
         // Put your initializations here
-        extensionArm = new ExtensionArm(hardwareMap, telemetry, "Extension Arm", "extensionLimitSwitchArm",
-                "retractionLimitSwitchArm", "extensionArmEncoder", DcMotor8863.MotorType.ANDYMARK_40, movementPerRevolution);
-
+        extensionArm = new ExtensionArm(hardwareMap, telemetry,
+                ExtensionArmConstants.mechanismName,
+                SkystoneRobot.HardwareName.EXT_ARM_EXTENSION_SWITCH.hwName,
+                SkystoneRobot.HardwareName.EXT_ARM_RETRACTION_SWITCH.hwName,
+                SkystoneRobot.HardwareName.EXT_ARM_MOTOR_NAME_FOR_ENCODER_PORT.hwName,
+                ExtensionArmConstants.motorType,
+                ExtensionArmConstants.movementPerRevolution);
 
         timer = new ElapsedTime();
         stateTimer = new ElapsedTime();
@@ -83,11 +83,8 @@ public class TestExtensionArmGoToPosition extends LinearOpMode {
         extensionArm.setDataLog(logFile);
         extensionArm.enableDataLogging();
         extensionArm.enableCollectData();
-        extensionArm.setResetPower(-0.1);
         extensionArm.setRetractionPower(-speed);
         extensionArm.setExtensionPower(+speed);
-
-        extensionArm.setExtensionPositionInMechanismUnits(14 * 2); //inches * 5 stages
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
@@ -120,7 +117,7 @@ public class TestExtensionArmGoToPosition extends LinearOpMode {
                     break;
                 case THREE:
                     if (stateTimer.milliseconds() > waitTime) {
-                        extensionArm.goToPosition(20, speed);
+                        extensionArm.goToPosition(25, speed);
                         steps = Steps.FOUR;
                     }
                     break;
@@ -132,14 +129,14 @@ public class TestExtensionArmGoToPosition extends LinearOpMode {
                     break;
                 case FIVE:
                     if (stateTimer.milliseconds() > waitTime) {
-                        extensionArm.goToPosition(5, speed);
+                        extensionArm.goToPosition(2, speed);
                         steps = Steps.SIX;
                     }
                     break;
                 case SIX:
                     if (extensionArm.isPositionReached()) {
                         stateTimer.reset();
-                        steps = Steps.SEVEN;
+                        steps = Steps.ELEVEN;
                     }
                     break;
                 case SEVEN:

@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Lib.SkyStoneLib;
 
 
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -10,7 +11,6 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
-import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.Skystone;
 
 public class DualLift implements FTCRobotSubsystem {
 
@@ -105,7 +105,6 @@ public class DualLift implements FTCRobotSubsystem {
         liftLeft = new Lift(hardwareMap, telemetry, liftLeftName,
                 liftLeftExtensionLimitSwitchName, liftLeftRetractionLimitSwitch, liftLeftMotorName,
                 motorType, movementPerRevolution);
-        liftRight.reverseMotor();
 
         dualLiftStates = new ExtensionRetractionMechanism.ExtensionRetractionStates[2];
         getState();
@@ -118,6 +117,20 @@ public class DualLift implements FTCRobotSubsystem {
 
         disableCollectData();
         disableDataLogging();
+
+        configureForSkystone();
+    }
+
+    private void configureForSkystone() {
+        liftRight.reverseMotor();
+        liftRight.setExtensionPositionInEncoderCounts(DualLiftConstants.maximumExtensionInEncoderCounts);
+        liftRight.setMovementPerRevolution(DualLiftConstants.movementPerRevolution);
+        liftRight.setResetPower(DualLiftConstants.resetPower);
+
+        liftLeft.setExtensionPositionInEncoderCounts(DualLiftConstants.maximumExtensionInEncoderCounts);
+        liftLeft.setMovementPerRevolution(DualLiftConstants.movementPerRevolution);
+        liftLeft.setResetPower(DualLiftConstants.resetPower);
+
     }
 
 
@@ -333,5 +346,42 @@ public class DualLift implements FTCRobotSubsystem {
     public void shutdown() {
         liftRight.shutdown();
         liftLeft.shutdown();
+    }
+
+    @Override
+    public void timedUpdate(double timerValueMsec) {
+
+    }
+
+    /**
+     * Rotate the motor attached to the mechanism a certain number of degrees. When it stops, you
+     * should measure the distance moved and come up with the distance moved / revolution.
+     *
+     * @param degrees
+     * @param power
+     * @param opMode
+     */
+    public void calibrate(double degrees, double power, LinearOpMode opMode) {
+        int originalEncoderCountLeft = liftLeft.getCurrentEncoderValue();
+        int originalEncoderCountRight = liftRight.getCurrentEncoderValue();
+        liftLeft.rotateNumberOfRevolutions(.1, 1, DcMotor8863.FinishBehavior.HOLD);
+        liftRight.rotateNumberOfRevolutions(.1, 1, DcMotor8863.FinishBehavior.HOLD);
+
+        while (opMode.opModeIsActive() && !liftLeft.isMotorStateComplete() && !liftRight.isMotorStateComplete()) {
+            liftLeft.update();
+            liftRight.update();
+            //opMode.telemetry.addData("motor state = ", extensionRetractionMotor.getCurrentMotorState().toString());
+            opMode.telemetry.addData("encoder count (L,R) = ", liftLeft.getCurrentEncoderValue() + " " + liftRight.getCurrentEncoderValue());
+            opMode.telemetry.update();
+            opMode.idle();
+        }
+
+        double numberOfRevolutionsLeft = (liftLeft.getCurrentEncoderValue() - originalEncoderCountLeft) / (double) liftLeft.getCountsPerRev();
+        double numberOfRevolutionsRight = (liftRight.getCurrentEncoderValue() - originalEncoderCountRight) / (double) liftRight.getCountsPerRev();
+        opMode.telemetry.addData("encoder count (L, R) = ", liftLeft.getCurrentEncoderValue() + " " + liftRight.getCurrentEncoderValue());
+        opMode.telemetry.addData("actual number of revolutions (L,R) = ", numberOfRevolutionsLeft + " " + numberOfRevolutionsRight);
+        opMode.telemetry.addData("Average # revolutions = ", (numberOfRevolutionsLeft + numberOfRevolutionsRight) / 2);
+        opMode.telemetry.addData("Measure the distance moved. Calculate distance / revolution", "!");
+        opMode.telemetry.update();
     }
 }

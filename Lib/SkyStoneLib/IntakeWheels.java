@@ -5,33 +5,65 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
 
 public class IntakeWheels implements FTCRobotSubsystem {
+
+    private enum IntakeDirection {
+        INTAKE,
+        OUTTAKE
+    }
+
+    private IntakeDirection intakeDirection;
 
     private final static String SUBSYSTEM_NAME = "IntakeWheels";
 
     private DcMotor8863 rightIntakeMotor;
     private DcMotor8863 leftIntakeMotor;
     final private double motorSpeed = 1.0;
-    private boolean direction;
+
+    private DataLogging logFile = null;
+    private boolean loggingOn = false;
 
     public IntakeWheels(HardwareMap hardwareMap, String rightIntakeMotorName, String leftIntakeMotorName) {
-        DcMotor8863 rightIntakeMotor = new DcMotor8863(rightIntakeMotorName, hardwareMap);
-        DcMotor8863 leftIntakeMotor = new DcMotor8863(leftIntakeMotorName, hardwareMap);
+        this.rightIntakeMotor = new DcMotor8863(rightIntakeMotorName, hardwareMap);
+        this.leftIntakeMotor = new DcMotor8863(leftIntakeMotorName, hardwareMap);
 
         rightIntakeMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
-        leftIntakeMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
-        rightIntakeMotor.setMovementPerRev(360);
-        leftIntakeMotor.setMovementPerRev(360);
-
         rightIntakeMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-        leftIntakeMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-        rightIntakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        leftIntakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        leftIntakeMotor.runAtConstantPower(motorSpeed);
-        rightIntakeMotor.runAtConstantPower(motorSpeed);
+        rightIntakeMotor.setMovementPerRev(360);
+        rightIntakeMotor.runAtConstantPower(0);
+
+        leftIntakeMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
+        leftIntakeMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftIntakeMotor.setMovementPerRev(360);
+        leftIntakeMotor.runAtConstantPower(0);
+
+        intakeDirection = IntakeDirection.INTAKE;
+    }
+
+    @Override
+    public void setDataLog(DataLogging logFile) {
+        this.logFile = logFile;
+    }
+
+    @Override
+    public void enableDataLogging() {
+        this.loggingOn = true;
+    }
+
+    @Override
+    public void disableDataLogging() {
+        this.loggingOn = false;
+    }
+
+    private void log(String stringToLog) {
+        if (logFile != null && loggingOn) {
+            logFile.logData(stringToLog);
+
+        }
     }
 
     @Override
@@ -55,33 +87,40 @@ public class IntakeWheels implements FTCRobotSubsystem {
 
     @Override
     public void shutdown() {
-        rightIntakeMotor.stop();
-        leftIntakeMotor.stop();
+        log("Intake wheels commanded to shutdown");
+        stop();
+    }
+
+    @Override
+    public void timedUpdate(double timerValueMsec) {
+
     }
 
     public void intake() {
         rightIntakeMotor.setPower(motorSpeed);
         leftIntakeMotor.setPower(motorSpeed);
-        direction = true;
+        intakeDirection = IntakeDirection.INTAKE;
+        log("Intake wheels commanded to intake");
     }
 
     public void outtake() {
         rightIntakeMotor.setPower(-motorSpeed);
         leftIntakeMotor.setPower(-motorSpeed);
-        direction = false;
+        intakeDirection = IntakeDirection.OUTTAKE;
+        log("Intake wheels commanded to outtake");
     }
 
     public void stop() {
         rightIntakeMotor.setPower(0);
         leftIntakeMotor.setPower(0);
+        log("Intake wheels commanded to stop");
     }
 
     public void switchDirection() {
-        if (direction == false) {
+        if (intakeDirection == IntakeDirection.OUTTAKE) {
             intake();
         } else {
             outtake();
         }
-        direction = !direction;
     }
 }

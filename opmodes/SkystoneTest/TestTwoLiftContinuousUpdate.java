@@ -71,7 +71,7 @@ public class TestTwoLiftContinuousUpdate extends LinearOpMode {
         liftLeft = new Lift(hardwareMap, telemetry, "liftLeft",
                 SkystoneRobot.HardwareName.LIFT_LEFT_EXTENSION_SWITCH.hwName, SkystoneRobot.HardwareName.LIFT_LEFT_RETRACTION_SWITCH.hwName, SkystoneRobot.HardwareName.LIFT_LEFT_MOTOR.hwName,
                 DcMotor8863.MotorType.ANDYMARK_40, movementPerRevolution);
-        liftLeft.reverseMotor();
+        //liftLeft.reverseMotor();
 
         liftRight = new Lift(hardwareMap, telemetry, "liftRight",
                 SkystoneRobot.HardwareName.LIFT_RIGHT_EXTENSION_SWITCH.hwName, SkystoneRobot.HardwareName.LIFT_RIGHT_RETRACTION_SWITCH.hwName, SkystoneRobot.HardwareName.LIFT_RIGHT_MOTOR.hwName,
@@ -119,7 +119,6 @@ public class TestTwoLiftContinuousUpdate extends LinearOpMode {
             extensionRetractionStateRight = liftRight.getExtensionRetractionState();
             liftLeft.update();
             extensionRetractionStateLeft = liftLeft.getExtensionRetractionState();
-
 
 
             switch (steps) {

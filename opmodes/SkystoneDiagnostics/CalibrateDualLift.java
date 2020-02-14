@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.opmodes.SkystoneTest;
+package org.firstinspires.ftc.teamcode.opmodes.SkystoneDiagnostics;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -6,7 +6,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.CSVDataFile;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.DualLift;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.Lift;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.SkystoneRobot;
@@ -14,11 +13,30 @@ import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.SkystoneRobot;
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Test Dual Lift Reset", group = "Test")
+@TeleOp(name = "Calibrate Dual Lift", group = "Calibrate")
 //@Disabled
-public class TestDualLiftResetCode extends LinearOpMode {
+public class CalibrateDualLift extends LinearOpMode {
 
     // Put your variable declarations here
+
+    public enum Steps {
+        ZERO,
+        ONE,
+        TWO,
+        THREE,
+        FOUR,
+        FIVE,
+        SIX,
+        SEVEN,
+        EIGHT,
+        NINE,
+        TEN,
+        ELEVEN,
+        TWELVE,
+        THIRTEEN
+    }
+
+    public Steps step = Steps.ZERO;
 
     public DualLift lift;
 
@@ -49,7 +67,9 @@ public class TestDualLiftResetCode extends LinearOpMode {
 
     public String buffer = "";
 
-    public double speed = 1.0;
+    public double speed = 0.1;
+
+    public boolean startCalibrate = false;
 
     @Override
     public void runOpMode() {
@@ -68,7 +88,7 @@ public class TestDualLiftResetCode extends LinearOpMode {
 
         timer = new ElapsedTime();
 
-        logFile = new DataLogging("ResetTestDualLift", telemetry);
+        logFile = new DataLogging("CalibrateDualLift", telemetry);
 
         //logFile = new DataLogging("ExtensionRetractionTestBoth", telemetry);;
         lift.setDataLog(logFile);
@@ -89,8 +109,56 @@ public class TestDualLiftResetCode extends LinearOpMode {
 
         timer.reset();
 
-        while (opModeIsActive() && !lift.isResetComplete()) {
+        while (opModeIsActive() && !startCalibrate) {
             lift.update();
+
+            switch (step) {
+                case ZERO:
+                    if (lift.isResetComplete()) {
+                        timer.reset();
+                        step = Steps.ONE;
+                    }
+                    break;
+                case ONE:
+                    if (timer.milliseconds() > 1000) {
+                        lift.goToPosition(10, speed);
+                        step = Steps.TWO;
+                    }
+                    break;
+                case TWO:
+                    if (lift.isPositionReached()) {
+                        timer.reset();
+                        step = Steps.THREE;
+                    }
+                    break;
+                case THREE:
+                    telemetry.addData(">", "You have 10 sec to measure the height of the lift");
+                    if (timer.milliseconds() > 10000) {
+                        startCalibrate = true;
+                        step = Steps.FOUR;
+                    }
+                    break;
+                case FOUR:
+                    break;
+                case FIVE:
+                    break;
+                case SIX:
+                    break;
+                case SEVEN:
+                    break;
+                case EIGHT:
+                    break;
+                case NINE:
+                    break;
+                case TEN:
+                    break;
+                case ELEVEN:
+                    break;
+                case TWELVE:
+                    break;
+                case THIRTEEN:
+                    break;
+            }
 
             telemetry.addData("", lift.stateToString());
             telemetry.addData("", lift.encoderValuesToString());
@@ -99,17 +167,15 @@ public class TestDualLiftResetCode extends LinearOpMode {
             idle();
         }
 
-        // have to update the state machine in order to generate the last state update
-        lift.update();
+        lift.calibrate(360, .1, this);
 
-        buffer = String.format(String.format("%.2f", endUpTimeRight));
-        telemetry.addData("DONE! time up = ", buffer);
-        telemetry.update();
-
-        // wait for user to kill the app
         while (opModeIsActive()) {
+            // hang out while the user measures the lift height
             idle();
         }
+
+        telemetry.addData("", "DONE!");
+        telemetry.update();
 
         lift.shutdown();
     }

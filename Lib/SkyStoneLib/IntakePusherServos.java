@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
 
@@ -33,6 +34,9 @@ public class IntakePusherServos implements FTCRobotSubsystem {
     private double outLeft;
     private State servoState;
     private ElapsedTime timer;
+
+    private DataLogging logFile = null;
+    private boolean loggingOn = false;
 
     /*
      * @param right Right servo
@@ -68,6 +72,28 @@ public class IntakePusherServos implements FTCRobotSubsystem {
     }
 
     @Override
+    public void setDataLog(DataLogging logFile) {
+        this.logFile = logFile;
+    }
+
+    @Override
+    public void enableDataLogging() {
+        this.loggingOn = true;
+    }
+
+    @Override
+    public void disableDataLogging() {
+        this.loggingOn = false;
+    }
+
+    private void log(String stringToLog) {
+        if (logFile != null && loggingOn) {
+            logFile.logData(stringToLog);
+
+        }
+    }
+
+    @Override
     public String getName() {
         return SUBSYSTEM_NAME;
     }
@@ -79,6 +105,11 @@ public class IntakePusherServos implements FTCRobotSubsystem {
 
     public void shutdown() {
         setState(State.OUT);
+    }
+
+    @Override
+    public void timedUpdate(double timerValueMsec) {
+
     }
 
     public void pushIn() {
