@@ -21,6 +21,7 @@ public class GripperRotator implements FTCRobotSubsystem {
     //*********************************************************************************************
 
     public enum GripperRotatorStates {
+        IDLE,
         INITTING,
         INIT_FINISHED,
         ROTATING_INWARD,
@@ -44,10 +45,10 @@ public class GripperRotator implements FTCRobotSubsystem {
         return gripperRotatorState;
     }
 
-    private double initPos = 0;
-    private double outwardPos = 0.95;
-    private double inwardPos = 0;
+    private double outwardPos = 0.27;
+    private double inwardPos = .99;
     private double homePos = inwardPos;
+    private double initPos = inwardPos;
 
     private final static String SUBSYSTEM_NAME = "GripperRotator";
 
@@ -88,6 +89,7 @@ public class GripperRotator implements FTCRobotSubsystem {
         servoGripperRotator = new Servo8863(servoName, hardwareMap, telemetry, homePos, outwardPos, inwardPos, initPos, Servo.Direction.FORWARD);
         timer = new ElapsedTime();
         this.telemetry = telemetry;
+        gripperRotatorState = GripperRotatorStates.IDLE;
     }
 
     //*********************************************************************************************
@@ -157,8 +159,10 @@ public class GripperRotator implements FTCRobotSubsystem {
     public void update() {
 
         switch (gripperRotatorState) {
+            case IDLE:
+                break;
             case INITTING:
-                if (timer.milliseconds() > 1000) {
+                if (timer.milliseconds() > 2000) {
                     gripperRotatorState = GripperRotatorStates.INIT_FINISHED;
                 }
                 break;
