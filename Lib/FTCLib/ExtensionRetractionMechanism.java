@@ -188,6 +188,17 @@ public class ExtensionRetractionMechanism {
         this.movementPerRevolution = movementPerRevolution;
     }
 
+    private int targetEncoderTolerance = 10;
+
+    public int getTargetEncoderTolerance() {
+        return targetEncoderTolerance;
+    }
+
+    public void setTargetEncoderTolerance(int targetEncoderTolerance) {
+        this.targetEncoderTolerance = targetEncoderTolerance;
+        extensionRetractionMotor.setTargetEncoderTolerance(targetEncoderTolerance);
+    }
+
     private int currentEncoderValue = 0;
 
     public int getCurrentEncoderValue() {
@@ -451,6 +462,7 @@ public class ExtensionRetractionMechanism {
         extensionRetractionMotor.setMovementPerRev(movementPerRevolution);
         extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         extensionRetractionMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
+        extensionRetractionMotor.setTargetEncoderTolerance(targetEncoderTolerance);
 
         // set the initial state of the state machine
         extensionRetractionState = ExtensionRetractionStates.START_RESET_SEQUENCE;
@@ -2517,8 +2529,9 @@ public class ExtensionRetractionMechanism {
         ExtensionRetractionStates extensionRetractionState;
         int encoderValue = 0;
         int encoderValueMax = 0;
+        double joystickPower = .2;
 
-        this.setPowerUsingJoystick(.1);
+        this.setPowerUsingJoystick(joystickPower);
         timer.reset();
 
         while (opMode.opModeIsActive()) {
@@ -2534,7 +2547,7 @@ public class ExtensionRetractionMechanism {
                 case TWO:
                     if (timer.milliseconds() > 1000) {
                         timer.reset();
-                        this.setPowerUsingJoystick(-0.1);
+                        this.setPowerUsingJoystick(-joystickPower);
                         joystickTestState = JoystickTestState.THREE;
                     }
                     break;
@@ -2547,7 +2560,7 @@ public class ExtensionRetractionMechanism {
                 case FOUR:
                     if (timer.milliseconds() > 10000) {
                         timer.reset();
-                        this.setPowerUsingJoystick(0.1);
+                        this.setPowerUsingJoystick(joystickPower);
                         joystickTestState = JoystickTestState.FIVE;
                     }
                     break;
@@ -2579,6 +2592,7 @@ public class ExtensionRetractionMechanism {
 
             opMode.telemetry.addData("state = ", extensionRetractionState.toString());
             opMode.telemetry.addData("encoder = ", extensionRetractionMotor.getCurrentPosition());
+            telemetry.addData("joystick = ", joystickPower);
             opMode.telemetry.update();
             opMode.idle();
         }

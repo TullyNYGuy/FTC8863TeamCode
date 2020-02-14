@@ -62,6 +62,8 @@ public class Lift extends ExtensionRetractionMechanism {
                 String extensionLimitSwitchName, String retractionLimitSwitchName,
                 String motorName, DcMotor8863.MotorType motorType, double movementPerRevolution) {
         super(hardwareMap, telemetry, mechanismName, extensionLimitSwitchName, retractionLimitSwitchName, motorName, motorType, movementPerRevolution);
+        // need to open up the tolerance in order to get two lifts to complete the movement in a timely manner
+        setTargetEncoderTolerance(30);
         resetTimer = new ElapsedTime();
         liftResetExtraState = LiftResetExtraStates.WAITING_FOR_TIMER;
     }
