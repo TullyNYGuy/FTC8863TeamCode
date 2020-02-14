@@ -54,6 +54,9 @@ public class SkystoneRobot implements FTCRobot {
         LIFT_LEFT_RETRACTION_SWITCH("LiftRetractionLimitSwitchLeft"),
         INTAKE_RIGHT_MOTOR("IntakeMotorRight"),
         INTAKE_LEFT_MOTOR("IntakeMotorLeft"),
+        INTAKE_SWITCH_BACK_LEFT("IntakeSwitchBackLeft"),
+        INTAKE_SWITCH_BACK_RIGHT("IntakeSwitchBackRight"),
+        INTAKE_SWITCH_FRONT("IntakeSwitchFront"),
         EXT_ARM_SERVO("ExtensionArmServoMotor"),
         EXT_ARM_MOTOR_NAME_FOR_ENCODER_PORT("IntakeMotorRight"),
         EXT_ARM_RETRACTION_SWITCH("RetractionLimitSwitchArm"),
@@ -78,7 +81,8 @@ public class SkystoneRobot implements FTCRobot {
         MECANUM,
         INTAKE_MOTORS,
         INTAKE_PUSHER,
-        INTAKE_LIMIT_SW,
+        // these are now part of the IntakeWheels object
+        //INTAKE_LIMIT_SW,
         ODOMETRY,
         LIFT,
         EXT_ARM,
@@ -135,7 +139,7 @@ public class SkystoneRobot implements FTCRobot {
         this.subsystemMap = new HashMap<String, FTCRobotSubsystem>();
         setCapabilities(Subsystem.values());
         capabilities.remove(Subsystem.INTAKE_PUSHER);
-        capabilities.remove(Subsystem.EXT_ARM);
+        //capabilities.remove(Subsystem.EXT_ARM);
         capabilities.remove(Subsystem.BASE_MOVER);
     }
 
@@ -252,13 +256,17 @@ public class SkystoneRobot implements FTCRobot {
         if (capabilities.contains(Subsystem.INTAKE_MOTORS)) {
             intake = new IntakeWheels(hardwareMap,
                     HardwareName.INTAKE_RIGHT_MOTOR.hwName,
-                    HardwareName.INTAKE_LEFT_MOTOR.hwName);
+                    HardwareName.INTAKE_LEFT_MOTOR.hwName,
+                    HardwareName.INTAKE_SWITCH_BACK_LEFT.hwName,
+                    HardwareName.INTAKE_SWITCH_BACK_RIGHT.hwName,
+                    HardwareName.INTAKE_SWITCH_FRONT.hwName);
             subsystemMap.put(intake.getName(), intake);
-            if (capabilities.contains(Subsystem.INTAKE_LIMIT_SW)) {
-                intakeLimitSwitch = new Switch(hardwareMap,
-                        HardwareName.INTAKE_SWITCH.hwName,
-                        Switch.SwitchType.NORMALLY_OPEN);
-            }
+            // the intake switches are now part of the IntakeWheels class
+//            if (capabilities.contains(Subsystem.INTAKE_LIMIT_SW)) {
+//                intakeLimitSwitch = new Switch(hardwareMap,
+//                        HardwareName.INTAKE_SWITCH.hwName,
+//                        Switch.SwitchType.NORMALLY_OPEN);
+//            }
         }
 
         if (capabilities.contains(Subsystem.BASE_MOVER)) {
@@ -414,8 +422,8 @@ public class SkystoneRobot implements FTCRobot {
         prepareIntakeUpdate();
 
 
-        if (capabilities.contains(Subsystem.INTAKE_LIMIT_SW))
-            updateIntakeSwitches();
+//        if (capabilities.contains(Subsystem.INTAKE_LIMIT_SW))
+//            updateIntakeSwitches();
     }
 
     @Override

@@ -8,6 +8,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Switch;
 
 public class IntakeWheels implements FTCRobotSubsystem {
 
@@ -27,7 +28,16 @@ public class IntakeWheels implements FTCRobotSubsystem {
     private DataLogging logFile = null;
     private boolean loggingOn = false;
 
-    public IntakeWheels(HardwareMap hardwareMap, String rightIntakeMotorName, String leftIntakeMotorName) {
+    private Switch intakeSwitchBackLeft;
+    private Switch intakeSwitchBackRight;
+    private Switch intakeSwitchFront;
+
+    public IntakeWheels(HardwareMap hardwareMap, String rightIntakeMotorName, String leftIntakeMotorName,
+                        String intakeSwitchBackLeftName, String intakeSwitchBackRightName, String intakeSwitchFrontName) {
+        this.intakeSwitchBackLeft = new Switch(hardwareMap, intakeSwitchBackLeftName, Switch.SwitchType.NORMALLY_OPEN);
+        this.intakeSwitchBackRight = new Switch(hardwareMap, intakeSwitchBackRightName, Switch.SwitchType.NORMALLY_OPEN);
+        this.intakeSwitchFront = new Switch(hardwareMap, intakeSwitchFrontName, Switch.SwitchType.NORMALLY_OPEN);
+
         this.rightIntakeMotor = new DcMotor8863(rightIntakeMotorName, hardwareMap);
         this.leftIntakeMotor = new DcMotor8863(leftIntakeMotorName, hardwareMap);
 
@@ -83,6 +93,10 @@ public class IntakeWheels implements FTCRobotSubsystem {
 
     @Override
     public void update() {
+        if ((intakeSwitchBackLeft.isPressed() || intakeSwitchBackRight.isPressed() || intakeSwitchFront.isPressed()) && intakeDirection == IntakeDirection.INTAKE) {
+            logFile.logData("Intake switch pressed, stopping intake");
+            stop();
+        }
     }
 
     @Override
