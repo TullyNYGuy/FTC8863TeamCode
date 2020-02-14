@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.GoldMineralDetection;
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
 @TeleOp(name = "Test Gold Mineral Detection", group = "Test")
-//@Disabled
+@Disabled
 public class TestGoldMineralDetection extends LinearOpMode {
 
     // Put your variable declarations here

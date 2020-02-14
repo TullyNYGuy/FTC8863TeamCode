@@ -19,7 +19,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.StatTracker;
 import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.AutonomousMovements;
 
 @Autonomous(name = "wicked cool test for some teacherz( no Piddazle)", group = "Test")
-//@Disabled
+@Disabled
 public class gefTeacherAutonomousWithoutIMU extends LinearOpMode {
 
     // Put your variable declarations here

@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmodes.RoverRuckusTest;
 
 import android.graphics.Color;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -21,7 +22,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
  */
 
 @TeleOp(name = "Collection Test+State Machine", group = "Test")
-//@Disabled
+@Disabled
 
 public class CollectionTestStateMachine extends LinearOpMode {
 

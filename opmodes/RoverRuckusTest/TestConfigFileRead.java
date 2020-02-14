@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.RoverRuckusTest;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -9,7 +10,7 @@ import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.AutonomousConfiguration
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
 @TeleOp(name = "Test Config File Read", group = "Test")
-//@Disabled
+@Disabled
 public class TestConfigFileRead extends LinearOpMode {
 
     // Put your variable declarations here

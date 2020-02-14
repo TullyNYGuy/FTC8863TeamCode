@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.CollectorArm;
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
 @TeleOp(name = "Rotation Arm Encoder Test", group = "Test")
-//@Disabled
+@Disabled
 public class RotationArmEncoderTest extends LinearOpMode {
 
     // Put your variable declarations here

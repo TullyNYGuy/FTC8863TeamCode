@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.AutonomousDirector;
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
 @TeleOp(name = "Test Autonomous Director", group = "Test")
-//@Disabled
+@Disabled
 public class TestAutonomousDirector extends LinearOpMode {
 
     // Put your variable declarations here

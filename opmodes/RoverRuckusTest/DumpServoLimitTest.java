@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.RoverRuckusTest;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -13,7 +14,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.JoyStick;
 import org.firstinspires.ftc.teamcode.opmodes.RoverRuckus.RoverRuckusRobot;
 
 @TeleOp(name = "Dump Servo Limit Test", group = "Test")
-//@Disabled
+@Disabled
 
 public class DumpServoLimitTest extends LinearOpMode {
 
