@@ -30,13 +30,16 @@ public class IntakeWheels implements FTCRobotSubsystem {
 
     private Switch intakeSwitchBackLeft;
     private Switch intakeSwitchBackRight;
-    private Switch intakeSwitchFront;
+    private Switch intakeSwitchFrontLeft;
+    private Switch intakeSwitchFrontRight;
 
     public IntakeWheels(HardwareMap hardwareMap, String rightIntakeMotorName, String leftIntakeMotorName,
-                        String intakeSwitchBackLeftName, String intakeSwitchBackRightName, String intakeSwitchFrontName) {
+                        String intakeSwitchBackLeftName, String intakeSwitchBackRightName,
+                        String intakeSwitchFrontLeftName, String intakeSwitchFrontRightName) {
         this.intakeSwitchBackLeft = new Switch(hardwareMap, intakeSwitchBackLeftName, Switch.SwitchType.NORMALLY_OPEN);
         this.intakeSwitchBackRight = new Switch(hardwareMap, intakeSwitchBackRightName, Switch.SwitchType.NORMALLY_OPEN);
-        this.intakeSwitchFront = new Switch(hardwareMap, intakeSwitchFrontName, Switch.SwitchType.NORMALLY_OPEN);
+        this.intakeSwitchFrontLeft = new Switch(hardwareMap, intakeSwitchFrontLeftName, Switch.SwitchType.NORMALLY_OPEN);
+        this.intakeSwitchFrontRight = new Switch(hardwareMap, intakeSwitchFrontLeftName, Switch.SwitchType.NORMALLY_OPEN);
 
         this.rightIntakeMotor = new DcMotor8863(rightIntakeMotorName, hardwareMap);
         this.leftIntakeMotor = new DcMotor8863(leftIntakeMotorName, hardwareMap);
@@ -93,7 +96,9 @@ public class IntakeWheels implements FTCRobotSubsystem {
 
     @Override
     public void update() {
-        if ((intakeSwitchBackLeft.isPressed() || intakeSwitchBackRight.isPressed() || intakeSwitchFront.isPressed()) && intakeDirection == IntakeDirection.INTAKE) {
+        if ((intakeSwitchBackLeft.isPressed() || intakeSwitchBackRight.isPressed() ||
+                intakeSwitchFrontLeft.isPressed() || intakeSwitchFrontRight.isPressed())
+                && intakeDirection == IntakeDirection.INTAKE) {
             logFile.logData("Intake switch pressed, stopping intake");
             stop();
         }
