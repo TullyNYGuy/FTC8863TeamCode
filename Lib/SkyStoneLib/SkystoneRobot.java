@@ -134,6 +134,9 @@ public class SkystoneRobot implements FTCRobot {
         this.opMode = opMode;
         this.subsystemMap = new HashMap<String, FTCRobotSubsystem>();
         setCapabilities(Subsystem.values());
+        capabilities.remove(Subsystem.INTAKE_PUSHER);
+        capabilities.remove(Subsystem.EXT_ARM);
+        capabilities.remove(Subsystem.BASE_MOVER);
     }
 
     /*
@@ -303,23 +306,25 @@ public class SkystoneRobot implements FTCRobot {
 
         //Intake pusher servo
         if (capabilities.contains(Subsystem.INTAKE_PUSHER)) {
+            /*
             intakePusherServos = new IntakePusherServos(
                     hardwareMap,
                     HardwareName.INTAKE_PUSHER_RIGHT_SERVO.hwName,
                     HardwareName.INTAKE_PUSHER_RIGHT_SERVO.hwName,
                     telemetry);
             subsystemMap.put(intakePusherServos.getName(), intakePusherServos);
+             */
         }
 
         //Intake pusher servo
-        if (capabilities.contains(Subsystem.INTAKE_LIMIT_SW)) {
+       /* if (capabilities.contains(Subsystem.INTAKE_LIMIT_SW)) {
             intakePusherServos = new IntakePusherServos(
                     hardwareMap,
                     HardwareName.INTAKE_PUSHER_RIGHT_SERVO.hwName,
                     HardwareName.INTAKE_PUSHER_RIGHT_SERVO.hwName,
                     telemetry);
             subsystemMap.put(intakePusherServos.getName(), intakePusherServos);
-        }
+        }*/
         init();
         return true;
     }
@@ -350,12 +355,14 @@ public class SkystoneRobot implements FTCRobot {
         timer.reset();
         while (!isInitComplete()) {
             update();
+
             if (timer.milliseconds() > 5000) {
                 // something went wrong with the inits. They never finished. Proceed anyway
                 dataLog.logData("Init failed to complete on time. Proceeding anyway!");
                 //How cheerful. How comforting...
                 break;
             }
+            telemetry.update();
             opMode.idle();
         }
     }
@@ -376,6 +383,10 @@ public class SkystoneRobot implements FTCRobot {
                 if (dataLoggingEnabled) {
                     dataLog.logData("Init complete for " + subsystem.getName());
                 }
+
+            }
+            else{
+                dataLog.logData("Init is not complete for " + subsystem.getName());
             }
             result &= subsystem.isInitComplete();
         }
@@ -1005,13 +1016,17 @@ public class SkystoneRobot implements FTCRobot {
     }
 
     public void baseGrab() {
-        log("Robot commanded to grab foundation");
-        baseGrabberServo.grabBase();
+        if (baseGrabberServo != null) {
+            log("Robot commanded to grab foundation");
+            baseGrabberServo.grabBase();
+        }
     }
 
     public void baseRelease() {
-        log("Robot commanded to release foundation");
-        baseGrabberServo.releaseBase();
+        if (baseGrabberServo != null) {
+            log("Robot commanded to release foundation");
+            baseGrabberServo.releaseBase();
+        }
     }
 
 }

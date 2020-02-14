@@ -1,5 +1,6 @@
-package org.firstinspires.ftc.teamcode.opmodes.Skystone;
+package org.firstinspires.ftc.teamcode.opmodes.SkystoneTest;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -12,12 +13,10 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.HaloControls;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.JoyStick;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.SmartJoystick;
-import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.BaseGrabberServo;
+import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.AutonomousController;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.SkystoneRobot;
 
-import java.io.IOException;
-
-@TeleOp(name = "Skystone Teleop", group = "Run")
+@TeleOp(name = "PID move to", group = "ATest")
 //@Disabled
 
 /*
@@ -48,21 +47,24 @@ import java.io.IOException;
  *    / X - confirm lift movement
  *    / Y -
  */
-public class SkystoneTeleop extends LinearOpMode {
+public class MoveToWithPID extends LinearOpMode {
 
     //*********************************************************************************************
     //             Declarations
     //*********************************************************************************************
 
-    // joystick and joystick value declarations - game pad 1
-    final static double JOYSTICK_DEADBAND_VALUE = .15;
-    final static double JOYSTICK_HALF_POWER = .5;
-    final static double JOYSTICK_QUARTER_POWER = .25;
     public SkystoneRobot robot;
+
+    DataLogging dataLog = null;
+
     public Configuration config;
 
-    // GAMEPAD 1
+    private ElapsedTime timer;
+
     public int blockLevel = 0;
+
+    // GAMEPAD 1
+
     // declare the buttons on the gamepad as multi push button objects
     // public GamepadButtonMultiPush gamepad1RightBumper;
     //public GamepadButtonMultiPush gamepad1LeftBumper;
@@ -72,11 +74,29 @@ public class SkystoneTeleop extends LinearOpMode {
     public GamepadButtonMultiPush gamepad1x;
     public GamepadButtonMultiPush gamepad1DpadUp;
     public GamepadButtonMultiPush gamepad1DpadDown;
-    public GamepadButtonMultiPush gamepad1DpadLeft;
-    public GamepadButtonMultiPush gamepad1DpadRight;
+     public GamepadButtonMultiPush gamepad1DpadLeft;
+     public GamepadButtonMultiPush gamepad1DpadRight;
     public GamepadButtonMultiPush gamepad1LeftStickButton;
-    //public GamepadButtonMultiPush gamepad1LeftTriggerButton;
     public GamepadButtonMultiPush gamepad1RightStickButton;
+    //public GamepadButtonMultiPush gamepad1LeftTriggerButton;
+
+    // joystick and joystick value declarations - game pad 1
+    final static double JOYSTICK_DEADBAND_VALUE = .15;
+    final static double JOYSTICK_HALF_POWER = .5;
+    final static double JOYSTICK_QUARTER_POWER = .25;
+
+    SmartJoystick gamepad1LeftJoyStickX;
+    SmartJoystick gamepad1LeftJoyStickY;
+    double gamepad1LeftJoyStickXValue = 0;
+    double gamepad1LeftJoyStickYValue = 0;
+
+    SmartJoystick gamepad1RightJoyStickX;
+    SmartJoystick gamepad1RightJoyStickY;
+    double gamepad1RightJoyStickXValue = 0;
+    double gamepad1RightJoyStickYValue = 0;
+
+    // GAMEPAD 2
+
     // declare the buttons on the gamepad as multi push button objects
     //public GamepadButtonMultiPush gamepad2RightBumper;
     // public GamepadButtonMultiPush gamepad2LeftBumper;
@@ -84,40 +104,33 @@ public class SkystoneTeleop extends LinearOpMode {
     public GamepadButtonMultiPush gamepad2b;
     public GamepadButtonMultiPush gamepad2y;
     public GamepadButtonMultiPush gamepad2x;
-    public GamepadButtonMultiPush gamepad2DpadUp;
-    public GamepadButtonMultiPush gamepad2DpadDown;
-    public GamepadButtonMultiPush gamepad2DpadLeft;
+      public GamepadButtonMultiPush gamepad2DpadUp;
+     public GamepadButtonMultiPush gamepad2DpadDown;
+     public GamepadButtonMultiPush gamepad2DpadLeft;
     public GamepadButtonMultiPush gamepad2DpadRight;
     public GamepadButtonMultiPush gamepad2LeftStickButton;
     public GamepadButtonMultiPush gamepad2RightStickButton;
 
-    // GAMEPAD 2
-    DataLogging dataLog = null;
-    SmartJoystick gamepad1LeftJoyStickX;
-    SmartJoystick gamepad1LeftJoyStickY;
-    double gamepad1LeftJoyStickXValue = 0;
-    double gamepad1LeftJoyStickYValue = 0;
-    SmartJoystick gamepad1RightJoyStickX;
-    SmartJoystick gamepad1RightJoyStickY;
-    double gamepad1RightJoyStickXValue = 0;
-    double gamepad1RightJoyStickYValue = 0;
     // joystick and joystick value declarations - game pad 2
     JoyStick gamepad2LeftJoyStickX;
     //JoyStick gamepad2LeftJoyStickY;
     SmartJoystick gamepad2LeftJoyStickY;
     double gamepad2LeftJoyStickXValue = 0;
     double gamepad2LeftJoyStickYValue = 0;
+
     JoyStick gamepad2RightJoyStickX;
     JoyStick gamepad2RightJoyStickY;
     double gamepad2RightJoyStickXValue = 0;
     double gamepad2RightJoyStickYValue = 0;
+
     // drive train powers for tank drive
     double leftPower = 0;
     double rightPower = 0;
+
     // drive train powers for differential drive
     double throttle = 0;
     double direction = 0;
-    private ElapsedTime timer;
+
 
     @Override
     public void runOpMode() {
@@ -140,18 +153,20 @@ public class SkystoneTeleop extends LinearOpMode {
         MecanumCommands commands = new MecanumCommands();
 
         robot = new SkystoneRobot(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, this);
-
+        robot.enableDataLogging();
+AutonomousController controller = new AutonomousController(robot, dataLog, telemetry);
+controller.startController();
         // create the gamepad 1 buttons and tell each button how many commands it has
         // gamepad1RightBumper = new GamepadButtonMultiPush(1);
         // gamepad1LeftBumper = new GamepadButtonMultiPush(1);
         gamepad1a = new GamepadButtonMultiPush(1);
         gamepad1b = new GamepadButtonMultiPush(1);
-        gamepad1y = new GamepadButtonMultiPush(2);
+         gamepad1y = new GamepadButtonMultiPush(2);
         gamepad1x = new GamepadButtonMultiPush(1);
         gamepad1DpadUp = new GamepadButtonMultiPush(1);
         gamepad1DpadDown = new GamepadButtonMultiPush(1);
         // gamepad1DpadLeft = new GamepadButtonMultiPush(1);
-        // gamepad1DpadRight = new GamepadButtonMultiPush(1);
+         gamepad1DpadRight = new GamepadButtonMultiPush(1);
         gamepad1LeftStickButton = new GamepadButtonMultiPush(1);
         gamepad1RightStickButton = new GamepadButtonMultiPush(1);
         // gamepad1LeftTriggerButton = new GamepadButtonMultiPush(1);
@@ -182,6 +197,7 @@ public class SkystoneTeleop extends LinearOpMode {
 
         gamepad2RightJoyStickX = new JoyStick(JoyStick.JoyStickMode.SQUARE, JOYSTICK_DEADBAND_VALUE, JoyStick.InvertSign.NO_INVERT_SIGN);
         gamepad2RightJoyStickY = new JoyStick(JoyStick.JoyStickMode.SQUARE, JOYSTICK_DEADBAND_VALUE, JoyStick.InvertSign.INVERT_SIGN);
+
 
 
         HaloControls haloControls = new HaloControls(gamepad1LeftJoyStickX, gamepad1LeftJoyStickY, gamepad1RightJoyStickX, robot, telemetry);
@@ -262,6 +278,7 @@ public class SkystoneTeleop extends LinearOpMode {
             //  }
 
 
+
             if (gamepad1y.buttonPress(gamepad1.y)) {
                 if (gamepad1y.isCommand1()) {
                     robot.baseGrab();
@@ -308,16 +325,13 @@ public class SkystoneTeleop extends LinearOpMode {
                 gamepad1RightJoyStickY.setHalfPower();
             }
 */
-/*
+
             if (gamepad1DpadRight.buttonPress(gamepad1.dpad_right)) {
                 // this was a new button press, not a button held down for a while
-                // put the command to be executed here
-                gamepad1LeftJoyStickX.set20PercentPower();
-                gamepad1LeftJoyStickY.set20PercentPower();
-                gamepad1RightJoyStickX.set20PercentPower();
-                gamepad1RightJoyStickY.set20PercentPower();
+                // put the command to be executed hererobot.moveTo();
+                controller.moveTo(DistanceUnit.CM, 0, 100);
             }
-*/
+
 /*
             if (gamepad1LeftStickButton.buttonPress(gamepad1.left_stick_button)) {
                 // this was a new button press, not a button held down for a while
@@ -378,20 +392,19 @@ public class SkystoneTeleop extends LinearOpMode {
             if (gamepad2b.buttonPress(gamepad2.b)) {
                 robot.resetSkyscraperLevel();
             }
-
             if (gamepad2y.buttonPress(gamepad2.y)) {
                 if (gamepad2y.isCommand1()) {
+                    robot.baseGrab();
+                }
+                if (gamepad2y.isCommand2()) {
+                    robot.baseRelease();
+                }
 
-                    robot.liftBlock();
-                }
-                if (gamepad2y.buttonPress((gamepad2.y))) {
-                    robot.deportBlock();
-                }
             }
 
-            if (gamepad2x.buttonPress(gamepad2.x)) {
 
-                robot.deportBlockCapstone();
+            if (gamepad2x.buttonPress(gamepad2.x)) {
+                robot.liftBlock();
             }
 /*
 
@@ -449,12 +462,13 @@ public class SkystoneTeleop extends LinearOpMode {
             telemetry.addData("Mecanum", commands);
             //  telemetry.addData("left x joystick value: ", gamepad1LeftJoyStickX.getValue());
 //            telemetry.addData("power modifier: ", haloControls.getPowerModifier());
+
             robot.setMovement(commands);
 
             // update the robot
             robot.update();
 
-            telemetry.addData("mecanum commands are: ", commands);
+   telemetry.addData("mecanum commands are: ", commands);
             // Display telemetry
             telemetry.addData(">", "Press Stop to end.");
             telemetry.update();
@@ -468,6 +482,7 @@ public class SkystoneTeleop extends LinearOpMode {
 
         // Stop has been hit, shutdown everything
         dataLog.closeDataLog();
+        controller.stopController();
         robot.shutdown();
         telemetry.addData(">", "Done");
         telemetry.update();
@@ -477,5 +492,4 @@ public class SkystoneTeleop extends LinearOpMode {
     //             Helper methods
     //*********************************************************************************************
 }
-
 
