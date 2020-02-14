@@ -54,9 +54,9 @@ public class TestDualLiftGoToPosition extends LinearOpMode {
     public DataLogging logFile;
 
     public CSVDataFile timeEncoderValueFile;
-    public double spoolDiameter = 1.25; //inches
+    //public double spoolDiameter = 1.25; //inches
     // spool diameter * pi * 5 stages
-    public double movementPerRevolution = spoolDiameter * Math.PI * 5;
+    //public double movementPerRevolution = spoolDiameter * Math.PI * 5;
 
     public ElapsedTime timer;
 
@@ -70,7 +70,7 @@ public class TestDualLiftGoToPosition extends LinearOpMode {
 
     public String buffer = "";
 
-    public double speed = 0.3;
+    public double speed = 1.0;
 
     @Override
     public void runOpMode() {
@@ -89,12 +89,12 @@ public class TestDualLiftGoToPosition extends LinearOpMode {
 
         timer = new ElapsedTime();
 
-        logFile = new DataLogging("ResetTestDualLift", telemetry);
+        logFile = new DataLogging("TestDualLiftGoToPosition", telemetry);
 
         //logFile = new DataLogging("ExtensionRetractionTestBoth", telemetry);;
         lift.setDataLog(logFile);
         lift.enableDataLogging();
-        lift.enableCollectData("dualLiftTimeEncoderValues");
+        //lift.enableCollectData("dualLiftTimeEncoderValues");
         lift.setRetractionPower(-speed);
         lift.setExtensionPower(+speed);
 
