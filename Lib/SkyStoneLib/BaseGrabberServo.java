@@ -140,7 +140,7 @@ public class BaseGrabberServo implements FTCRobotSubsystem {
     // controlling position.
 
     public void update() {
-        telemetry.addData("servo states: ", servoState);
+       // telemetry.addData("servo states: ", servoState);
         switch (servoState) {
 
             case UP:

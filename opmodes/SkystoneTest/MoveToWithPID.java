@@ -152,9 +152,9 @@ public class MoveToWithPID extends LinearOpMode {
         timer = new ElapsedTime();
         MecanumCommands commands = new MecanumCommands();
 
-        robot = new SkystoneRobot(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM);
+        robot = new SkystoneRobot(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, this);
         robot.enableDataLogging();
-AutonomousController controller = new AutonomousController(robot);
+AutonomousController controller = new AutonomousController(robot, dataLog, telemetry);
 controller.startController();
         // create the gamepad 1 buttons and tell each button how many commands it has
         // gamepad1RightBumper = new GamepadButtonMultiPush(1);
@@ -203,7 +203,7 @@ controller.startController();
         HaloControls haloControls = new HaloControls(gamepad1LeftJoyStickX, gamepad1LeftJoyStickY, gamepad1RightJoyStickX, robot, telemetry);
         robot.createRobot();
         // start the inits for the robot subsytems
-        robot.init(config);
+        robot.init();
         timer.reset();
 
         // run the state machines associated with the subsystems to allow the inits to complete
@@ -404,7 +404,7 @@ controller.startController();
 
 
             if (gamepad2x.buttonPress(gamepad2.x)) {
-                robot.liftBlock(robot.getSkyscraperLevel());
+                robot.liftBlock();
             }
 /*
 
