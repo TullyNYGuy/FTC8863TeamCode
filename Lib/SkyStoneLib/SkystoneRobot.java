@@ -58,13 +58,13 @@ public class SkystoneRobot implements FTCRobot {
         EXT_ARM_MOTOR_NAME_FOR_ENCODER_PORT("IntakeMotorRight"),
         EXT_ARM_RETRACTION_SWITCH("RetractionLimitSwitchArm"),
         EXT_ARM_EXTENSION_SWITCH("ExtensionLimitSwitchArm"),
-        GRIPPER_SERVO("gripper"),
-        INTAKE_PUSHER_RIGHT_SERVO("intakePusherRight"),
-        INTAKE_PUSHER_LEFT_SERVO("intakePusherLeft"),
-        GRIPPER_ROTATOR_SERVO("gripperRotator"),
-        INTAKE_SWITCH("intakeLimitSwitch"),
-        BASE_MOVER_RIGHT_SERVO("BaseMoverRight"),
-        BASE_MOVER_LEFT_SERVO("BaseMoverLeft"),
+        GRIPPER_SERVO("Gripper"),
+        INTAKE_PUSHER_RIGHT_SERVO("IntakePusherRight"),
+        INTAKE_PUSHER_LEFT_SERVO("IntakePusherLeft"),
+        GRIPPER_ROTATOR_SERVO("GripperRotator"),
+        INTAKE_SWITCH("IntakeLimitSwitch"),
+        BASE_MOVER_RIGHT_SERVO("FoundationGrabberRight"),
+        BASE_MOVER_LEFT_SERVO("FoundationGrabberLeft"),
         ;
 
         public final String hwName;
