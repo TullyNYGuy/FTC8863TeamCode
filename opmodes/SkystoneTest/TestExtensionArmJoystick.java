@@ -95,11 +95,11 @@ public class TestExtensionArmJoystick extends LinearOpMode {
             extensionArm.update();
             extensionArmState = extensionArm.getExtensionRetractionState();
 
-
             switch (steps) {
                 case ZERO:
                     extensionArm.init();
                     steps = Steps.ONE;
+                    break;
                 case ONE:
                     if (extensionArm.isInitComplete()) {
                         extensionArm.goToPosition(10, speed);
@@ -134,6 +134,7 @@ public class TestExtensionArmJoystick extends LinearOpMode {
                     break;
                 case TWELVE:
                     break;
+
             }
 
             extensionArm.testJoystick(this);

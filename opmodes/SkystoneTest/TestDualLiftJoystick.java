@@ -43,7 +43,7 @@ public class TestDualLiftJoystick extends LinearOpMode {
 
     public String buffer = "";
 
-    public double speed = 1.0;
+    public double speed = 0.1;
 
     @Override
     public void runOpMode() {
@@ -84,14 +84,18 @@ public class TestDualLiftJoystick extends LinearOpMode {
             lift.update();
         }
 
+        sleep(1000);
+
         while (opModeIsActive()) {
             lift.update();
 
-            gamepad1LeftJoyStickYValue = gamepad1LeftJoyStickY.scaleInput(gamepad1.left_stick_y);
+            //gamepad1LeftJoyStickYValue = gamepad1LeftJoyStickY.scaleInput(gamepad1.left_stick_y);
+            gamepad1LeftJoyStickYValue = .5;
             lift.setPowerUsingJoystick(gamepad1LeftJoyStickYValue);
 
             telemetry.addData("", lift.stateToString());
             telemetry.addData("", lift.encoderValuesToString());
+            telemetry.addData("joystick = ", gamepad1LeftJoyStickYValue);
             telemetry.update();
             idle();
         }
