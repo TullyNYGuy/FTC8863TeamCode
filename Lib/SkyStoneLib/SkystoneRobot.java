@@ -58,7 +58,7 @@ public class SkystoneRobot implements FTCRobot {
         INTAKE_SWITCH_BACK_RIGHT("IntakeSwitchBackRight"),
         INTAKE_SWITCH_FRONT("IntakeSwitchFront"),
         EXT_ARM_SERVO("ExtensionArmServoMotor"),
-        EXT_ARM_MOTOR_NAME_FOR_ENCODER_PORT("IntakeMotorRight"),
+        EXT_ARM_MOTOR_NAME_FOR_ENCODER_PORT("BackRight"),
         EXT_ARM_RETRACTION_SWITCH("RetractionLimitSwitchArm"),
         EXT_ARM_EXTENSION_SWITCH("ExtensionLimitSwitchArm"),
         GRIPPER_SERVO("Gripper"),
