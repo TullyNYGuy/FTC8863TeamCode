@@ -480,7 +480,7 @@ public class SkystoneRobot implements FTCRobot {
         if (odometry != null && odometry.isInitComplete())
             return odometry.getCurrentRotation(unit);
         else if (imu != null)
-            return -unit.fromDegrees(imu.getHeading());
+            return unit.fromDegrees(imu.getHeading());
         else
             return 0;
     }
