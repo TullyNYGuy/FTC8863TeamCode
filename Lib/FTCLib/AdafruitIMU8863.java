@@ -582,6 +582,18 @@ public class AdafruitIMU8863 {
     }
 
     /**
+     * Wrapper for AdafruitBNO055IMU getPosition().
+     * Returns the current position of the sensor as calculated by doubly integrating the observed
+     * sensor accelerations.
+     * @return  the current position of the sensor.
+     * @see BNO055IMU.Parameters#accelerationIntegrationAlgorithm
+     * @see #startAccelerationIntegration(Position, Velocity, int)
+     */
+    public Position getPosition() {
+        return imu.getPosition();
+    }
+
+    /**
      * Checks to see if the chip id can be read from the IMU. If it can then the IMU is connected to
      * the core device interface module correctly. If it cannot be read something is wrong, most
      * likely the wiring.

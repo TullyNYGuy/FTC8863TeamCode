@@ -224,6 +224,7 @@ controller.startController();
         // Wait for the start button
         telemetry.addData(">", "Press start to run Teleop");
         telemetry.update();
+        robot.setPosition(0,0,0);
         waitForStart();
 
         //*********************************************************************************************

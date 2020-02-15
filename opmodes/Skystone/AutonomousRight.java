@@ -2,14 +2,12 @@ package org.firstinspires.ftc.teamcode.opmodes.Skystone;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.HaloControls;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Mecanum;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Switch;
@@ -22,9 +20,9 @@ import static org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863.MotorType.AN
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@Autonomous(name = "left", group = "Run")
+@Autonomous(name = "right", group = "Run")
 //@Disabled
-public class AutonomousLeft extends LinearOpMode {
+public class AutonomousRight extends LinearOpMode {
 
     // Put your variable declarations here
 
@@ -159,7 +157,7 @@ public class AutonomousLeft extends LinearOpMode {
             idle();
         }
         mecanumCommands.setSpeed(1);
-        mecanumCommands.setAngleOfTranslation(AngleUnit.RADIANS, Math.PI / 2);
+        mecanumCommands.setAngleOfTranslation(AngleUnit.RADIANS, -Math.PI / 2);
         outtakeTimer.reset();
         while (opModeIsActive() && outtakeTimer.milliseconds() < 1150) {
             mecanum.setMotorPower(mecanumCommands);
