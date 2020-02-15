@@ -18,7 +18,7 @@ import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.SkystoneRobot;
 
 import java.io.IOException;
 
-@TeleOp(name = "Skystone Teleop", group = "Run")
+@TeleOp(name = "Skystone Teleop", group = "AARun")
 //@Disabled
 
 /*
@@ -28,13 +28,13 @@ import java.io.IOException;
  *    / Left JoystickY - robot moves forward/backward
  *    / Right JoystickX - robot rotation
  *    / DPad Up -  Change Drive Mode
- *    / DPad Left -
+ *    / DPad Left - Change Power
  *    / DPad Down - Reset heading
  *    / DPad Right -
  *    / A - Outtake
  *    / B - Start/Stop intake state machine
- *    / X - Change Power
- *    / Y -
+ *    / X - Base grabbers
+ *    / Y - Intake
  *  Gamepad 2 layout
  *    / Left JoystickX -
  *    / Left JoystickY -
@@ -76,7 +76,7 @@ public class SkystoneTeleop extends LinearOpMode {
     public GamepadButtonMultiPush gamepad1DpadLeft;
     public GamepadButtonMultiPush gamepad1DpadRight;
     public GamepadButtonMultiPush gamepad1LeftStickButton;
-    //public GamepadButtonMultiPush gamepad1LeftTriggerButton;
+    public GamepadButtonMultiPush gamepad1LeftTriggerButton;
     public GamepadButtonMultiPush gamepad1RightStickButton;
     // declare the buttons on the gamepad as multi push button objects
     //public GamepadButtonMultiPush gamepad2RightBumper;
@@ -147,15 +147,15 @@ public class SkystoneTeleop extends LinearOpMode {
         // gamepad1LeftBumper = new GamepadButtonMultiPush(1);
         gamepad1a = new GamepadButtonMultiPush(1);
         gamepad1b = new GamepadButtonMultiPush(1);
-        gamepad1y = new GamepadButtonMultiPush(2);
-        gamepad1x = new GamepadButtonMultiPush(1);
+        gamepad1y = new GamepadButtonMultiPush(1);
+        gamepad1x = new GamepadButtonMultiPush(2);
         gamepad1DpadUp = new GamepadButtonMultiPush(1);
         gamepad1DpadDown = new GamepadButtonMultiPush(1);
         // gamepad1DpadLeft = new GamepadButtonMultiPush(1);
         // gamepad1DpadRight = new GamepadButtonMultiPush(1);
         gamepad1LeftStickButton = new GamepadButtonMultiPush(1);
         gamepad1RightStickButton = new GamepadButtonMultiPush(1);
-        // gamepad1LeftTriggerButton = new GamepadButtonMultiPush(1);
+        gamepad1LeftTriggerButton = new GamepadButtonMultiPush(1);
 
         // Game Pad 1 joysticks
         gamepad1LeftJoyStickX = new SmartJoystick(gamepad1, SmartJoystick.JoystickSide.LEFT, SmartJoystick.JoystickAxis.X);
@@ -254,10 +254,11 @@ public class SkystoneTeleop extends LinearOpMode {
                 robot.intakeSpitOut();
             }
             if (gamepad1b.buttonPress(gamepad1.b)) {
-                robot.intakeBlock();
+                robot.intakeOff();
             }
-            // if (gamepad1LeftTriggerButton.triggerPress(gamepad1.left_trigger)) {
-            // }
+            if (gamepad1DpadLeft.buttonPress(gamepad1.dpad_left)) {
+                haloControls.togglePowerModifier();
+            }
 
             // if (gamepad1RightBumper.buttonPress(gamepad1.right_bumper)) {
             // }
@@ -267,17 +268,16 @@ public class SkystoneTeleop extends LinearOpMode {
 
 
             if (gamepad1y.buttonPress(gamepad1.y)) {
-                if (gamepad1y.isCommand1()) {
-                    robot.baseGrab();
-                }
-                if (gamepad1y.isCommand2()) {
-                    robot.baseRelease();
-                }
+                robot.intakeBlock();
             }
 
             if (gamepad1x.buttonPress(gamepad1.x)) {
-
-                haloControls.togglePowerModifier();
+                if (gamepad1x.isCommand1()) {
+                    robot.baseGrab();
+                }
+                if (gamepad1x.isCommand2()) {
+                    robot.baseRelease();
+                }
 
 
             }
