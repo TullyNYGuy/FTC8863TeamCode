@@ -13,6 +13,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.JoyStick;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.SmartJoystick;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.BaseGrabberServo;
+import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.IntakeWheels;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.SkystoneRobot;
 
 import java.io.IOException;
@@ -209,7 +210,9 @@ public class SkystoneTeleop extends LinearOpMode {
         telemetry.addData(">", "Press start to run Teleop");
         telemetry.update();
         waitForStart();
+        robot.setIntakeStateAfterOuttake(IntakeWheels.IntakeStates.INTAKE_ON);
         robot.intakeBlock();
+
 
         //*********************************************************************************************
         //             Robot Running after the user hits play on the driver phone

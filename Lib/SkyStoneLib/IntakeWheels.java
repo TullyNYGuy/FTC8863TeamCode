@@ -15,7 +15,6 @@ public class IntakeWheels implements FTCRobotSubsystem {
 
     public enum IntakeStates {
         IDLE,
-        LIFT_MOVING_TO_POSITION,
         INTAKE_ON,
         OUTTAKE,
         COMPLETE
@@ -23,6 +22,7 @@ public class IntakeWheels implements FTCRobotSubsystem {
 
     private IntakeStates intakeState = IntakeStates.IDLE;
     private IntakeStates previousIntakeState;
+    private IntakeStates intakeStateAfterOuttake = IntakeStates.IDLE;
 
     private final static String SUBSYSTEM_NAME = "IntakeWheels";
 
@@ -127,14 +127,36 @@ public class IntakeWheels implements FTCRobotSubsystem {
                 break;
             case OUTTAKE:
                 if (timer.milliseconds() > OUTTAKE_TIMER_MS) {
-                    intake();
-                    log("Intake wheels automatically set to intake");
+                    switch (intakeStateAfterOuttake) {
+                        case INTAKE_ON:
+                            log("Intake wheels automatically set to intake");
+                            intake();
+                            break;
+                        case IDLE:
+                            log("Intake wheels automatically set to idle");
+                            stop();
+                            break;
+                        default:
+                            log("Invalid afterOuttake state, setting to idle");
+                            stop();
+                    }
                 }
                 break;
             case COMPLETE:
                 break;
         }
         logState(intakeState);
+    }
+
+    public boolean setStateAfterOuttake(IntakeStates state) {
+        switch (state) {
+            case INTAKE_ON:
+            case IDLE:
+                intakeStateAfterOuttake = state;
+                return true;
+            default:
+                return false;
+        }
     }
 
     @Override

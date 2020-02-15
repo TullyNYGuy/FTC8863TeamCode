@@ -395,8 +395,7 @@ public class SkystoneRobot implements FTCRobot {
                     dataLog.logData("Init complete for " + subsystem.getName());
                 }
 
-            }
-            else{
+            } else {
                 dataLog.logData("Init is not complete for " + subsystem.getName());
             }
             result &= subsystem.isInitComplete();
@@ -524,20 +523,34 @@ public class SkystoneRobot implements FTCRobot {
             intake.outtake();
     }
 
+    public boolean setIntakeStateAfterOuttake(IntakeWheels.IntakeStates state) {
+        if (intake != null)
+            return intake.setStateAfterOuttake(state);
+        else
+            return false;
+    }
+
     //*********************************************
     //BLOCK GRIPPING//
     //********************************************
 
     public void gripBlock() {
-        gripper.gripBlock();
+        if (gripper != null)
+            gripper.gripBlock();
     }
 
     public boolean isGripBlockComplete() {
-        return gripper.isGripComplete();
+        if (gripper != null)
+            return gripper.isGripComplete();
+        else
+            return false;
     }
 
     public Gripper.State getCurrentGripperState() {
-        return gripper.getGripperState();
+        if (gripper != null)
+            return gripper.getGripperState();
+        else
+            return Gripper.State.IDLE;
     }
 
     /*
@@ -651,21 +664,25 @@ public class SkystoneRobot implements FTCRobot {
                 break;
             case START:
                 deportState = DeportStates.LIFT_RAISING;
-                lift.goToPosition(deportHeight, 1);
+                if (lift != null)
+                    lift.goToPosition(deportHeight, 1);
                 break;
             case LIFT_RAISING:
-                if (lift.isPositionReached()) {
-                    extensionArm.goToPosition(5, 1);
-                    deportState = DeportStates.ARM_EXTENDING;
-                }
+                if (lift != null)
+                    if (lift.isPositionReached()) {
+                        if (extensionArm != null)
+                            extensionArm.goToPosition(5, 1);
+                        deportState = DeportStates.ARM_EXTENDING;
+                    }
             case ARM_EXTENDING:
-                if (extensionArm.isPositionReached()) {
-                    gripperRotator.rotateOutward();
+                if (extensionArm != null && extensionArm.isPositionReached()) {
+                    if (gripperRotator != null)
+                        gripperRotator.rotateOutward();
                     deportState = DeportStates.GRIPPER_ROTATING;
                 }
                 break;
             case GRIPPER_ROTATING:
-                if (gripperRotator.isRotateOutwardComplete()) {
+                if (gripperRotator != null && gripperRotator.isRotateOutwardComplete()) {
                     deportState = DeportStates.COMPLETE;
                 }
                 break;
@@ -757,11 +774,12 @@ public class SkystoneRobot implements FTCRobot {
                 //nothing just chilling
                 break;
             case START:
-                lift.goToBlockHeights(skyscraperLevel);
+                if (lift != null)
+                    lift.goToBlockHeights(skyscraperLevel);
                 liftBlockState = LiftBlockStates.BLOCK_LIFTING;
                 break;
             case BLOCK_LIFTING:
-                if (lift.isPositionReached()) {
+                if (lift != null && lift.isPositionReached()) {
                     liftBlockState = LiftBlockStates.COMPLETE;
                 }
                 break;
@@ -832,10 +850,11 @@ public class SkystoneRobot implements FTCRobot {
                 //The Driver will extend the arm using joystick then call place block
                 break;
             case EXTENDING:
-                gripper.releaseBlock();
+                if (gripper != null)
+                    gripper.releaseBlock();
                 break;
             case GRIPPER_RELEASING:
-                if (gripper.isReleaseComplete()) {
+                if (gripper != null && gripper.isReleaseComplete()) {
                     placeBlockState = PlaceBlockStates.COMPLETE;
                 }
                 break;
@@ -904,24 +923,29 @@ public class SkystoneRobot implements FTCRobot {
                 //chillin' like a villain
                 break;
             case START:
-                gripperRotator.rotateInward();
-                gripper.releaseBlock();
+                if (gripperRotator != null)
+                    gripperRotator.rotateInward();
+                if (gripper != null)
+                    gripper.releaseBlock();
                 prepareIntakeState = PrepareIntakeStates.PREPARATION_PHASE_1_ROTATOR;
                 break;
             case PREPARATION_PHASE_1_ROTATOR:
-                if (gripper.isReleaseComplete() && gripperRotator.isRotateInwardComplete()) {
-                    extensionArm.goToPosition(0, 1);
+                if (gripper != null && gripper.isReleaseComplete()
+                        && gripperRotator != null && gripperRotator.isRotateInwardComplete()) {
+                    if (extensionArm != null)
+                        extensionArm.goToPosition(0, 1);
                     prepareIntakeState = PrepareIntakeStates.PREPARATION_PHASE_2_RETRACTION;
                 }
                 break;
             case PREPARATION_PHASE_2_RETRACTION:
-                if (extensionArm.isPositionReached()) {
-                    lift.goToPosition(0, 1);
+                if (extensionArm != null && extensionArm.isPositionReached()) {
+                    if (lift != null)
+                        lift.goToPosition(0, 1);
                     prepareIntakeState = PrepareIntakeStates.PREPARATION_PHASE_3_LOWERING;
                 }
                 break;
             case PREPARATION_PHASE_3_LOWERING:
-                if (lift.isPositionReached() && extensionArm.isPositionReached()) {
+                if (lift != null && lift.isPositionReached() && extensionArm != null && extensionArm.isPositionReached()) {
                     prepareIntakeState = PrepareIntakeStates.COMPLETE;
                 }
                 break;
