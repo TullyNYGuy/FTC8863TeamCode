@@ -25,6 +25,7 @@ public class IntakeWheels implements FTCRobotSubsystem {
     private DcMotor8863 rightIntakeMotor;
     private DcMotor8863 leftIntakeMotor;
     final private double motorSpeed = 1.0;
+    final private double OUTTAKE_TIMER_MS = 2000;
 
     private DataLogging logFile = null;
     private boolean loggingOn = false;
@@ -99,11 +100,20 @@ public class IntakeWheels implements FTCRobotSubsystem {
 
     @Override
     public void update() {
-        if ((intakeSwitchBackLeft.isPressed() || intakeSwitchBackRight.isPressed() ||
-                intakeSwitchFrontLeft.isPressed() || intakeSwitchFrontRight.isPressed())
-                && intakeDirection == IntakeDirection.INTAKE) {
-            logFile.logData("Intake switch pressed, stopping intake");
-            stop();
+        switch (intakeDirection) {
+            case INTAKE:
+                if ((intakeSwitchBackLeft.isPressed() || intakeSwitchBackRight.isPressed() ||
+                        intakeSwitchFrontLeft.isPressed() || intakeSwitchFrontRight.isPressed())) {
+                    logFile.logData("Intake switch pressed, stopping intake");
+                    stop();
+                }
+                break;
+            case OUTTAKE:
+                if (timer.milliseconds() > OUTTAKE_TIMER_MS) {
+                    log("Intake wheels automatically set to intake");
+                    intake();
+                }
+                break;
         }
     }
 
@@ -131,10 +141,6 @@ public class IntakeWheels implements FTCRobotSubsystem {
         intakeDirection = IntakeDirection.OUTTAKE;
         timer.reset();
         log("Intake wheels commanded to outtake");
-        if (timer.milliseconds() > 2000) {
-            intakeDirection = IntakeDirection.INTAKE;
-            log("Intake wheels automatically set to intake");
-        }
     }
 
     public void stop() {
