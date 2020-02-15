@@ -76,7 +76,7 @@ public class SkystoneTeleop extends LinearOpMode {
     public GamepadButtonMultiPush gamepad1DpadLeft;
     public GamepadButtonMultiPush gamepad1DpadRight;
     public GamepadButtonMultiPush gamepad1LeftStickButton;
-    public GamepadButtonMultiPush gamepad1LeftTriggerButton;
+  //  public GamepadButtonMultiPush gamepad1LeftTriggerButton;
     public GamepadButtonMultiPush gamepad1RightStickButton;
     // declare the buttons on the gamepad as multi push button objects
     //public GamepadButtonMultiPush gamepad2RightBumper;
@@ -151,11 +151,11 @@ public class SkystoneTeleop extends LinearOpMode {
         gamepad1x = new GamepadButtonMultiPush(2);
         gamepad1DpadUp = new GamepadButtonMultiPush(1);
         gamepad1DpadDown = new GamepadButtonMultiPush(1);
-        // gamepad1DpadLeft = new GamepadButtonMultiPush(1);
+         gamepad1DpadLeft = new GamepadButtonMultiPush(1);
         // gamepad1DpadRight = new GamepadButtonMultiPush(1);
         gamepad1LeftStickButton = new GamepadButtonMultiPush(1);
         gamepad1RightStickButton = new GamepadButtonMultiPush(1);
-        gamepad1LeftTriggerButton = new GamepadButtonMultiPush(1);
+      //  gamepad1LeftTriggerButton = new GamepadButtonMultiPush(1);
 
         // Game Pad 1 joysticks
         gamepad1LeftJoyStickX = new SmartJoystick(gamepad1, SmartJoystick.JoystickSide.LEFT, SmartJoystick.JoystickAxis.X);
