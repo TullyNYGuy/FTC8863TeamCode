@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.RoverRuckus;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
@@ -13,7 +14,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.AutonomousMovements;
 
 @Autonomous(name = "Philipa!(mucho PIDDDDAZLE)", group = "Test")
-//@Disabled
+@Disabled
 public class gefTeacherAutonomousWithIMU extends LinearOpMode {
 
     // Put your variable declarations here

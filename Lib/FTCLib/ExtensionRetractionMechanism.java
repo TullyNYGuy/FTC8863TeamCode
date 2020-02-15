@@ -66,7 +66,7 @@ public class ExtensionRetractionMechanism {
 
     // null is shown for emphasis. Any object is null until is it created.
     protected Switch retractedLimitSwitch = null;
-    private Switch extendedLimitSwitch = null;
+    protected Switch extendedLimitSwitch = null;
 
     private ExtensionRetractionCommands extensionRetractionCommand;
     private ExtensionRetractionStates previousExtensionRetractionState;
@@ -186,6 +186,17 @@ public class ExtensionRetractionMechanism {
 
     public void setMovementPerRevolution(double movementPerRevolution) {
         this.movementPerRevolution = movementPerRevolution;
+    }
+
+    private int targetEncoderTolerance = 10;
+
+    public int getTargetEncoderTolerance() {
+        return targetEncoderTolerance;
+    }
+
+    public void setTargetEncoderTolerance(int targetEncoderTolerance) {
+        this.targetEncoderTolerance = targetEncoderTolerance;
+        extensionRetractionMotor.setTargetEncoderTolerance(targetEncoderTolerance);
     }
 
     private int currentEncoderValue = 0;
@@ -451,6 +462,7 @@ public class ExtensionRetractionMechanism {
         extensionRetractionMotor.setMovementPerRev(movementPerRevolution);
         extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         extensionRetractionMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
+        extensionRetractionMotor.setTargetEncoderTolerance(targetEncoderTolerance);
 
         // set the initial state of the state machine
         extensionRetractionState = ExtensionRetractionStates.START_RESET_SEQUENCE;
@@ -619,6 +631,18 @@ public class ExtensionRetractionMechanism {
     public void displayMotorState() {
         telemetry.addData("Motor state = ", extensionRetractionMotor.getCurrentMotorState().toString());
     }
+
+    //*********************************************************************************************]
+    //  switch feedback
+    //**********************************************************************************************
+
+    public boolean isRetractionLimitSwitchPressed() {
+        return retractedLimitSwitch.isPressed();
+    }
+
+    public boolean isExtensionLimitSwitchPressed() {
+        return extendedLimitSwitch.isPressed();
+    }
     //*********************************************************************************************]
     // mechanism commands - these can come at any time. They are not synced to any state. In
     // engineering terms, they are asynchronous. These commands are publicly accessible.
@@ -711,7 +735,7 @@ public class ExtensionRetractionMechanism {
      *
      * @param power apply this power to the motor
      */
-    public void setLiftPowerUsingJoystick(double power) {
+    public void setPowerUsingJoystick(double power) {
         // if a command has been given to reset the mechanism, then do not allow the joystick to take
         // effect and override the reset
         joystickPower = 0;
@@ -2505,8 +2529,9 @@ public class ExtensionRetractionMechanism {
         ExtensionRetractionStates extensionRetractionState;
         int encoderValue = 0;
         int encoderValueMax = 0;
+        double joystickPower = .2;
 
-        this.setLiftPowerUsingJoystick(.1);
+        this.setPowerUsingJoystick(joystickPower);
         timer.reset();
 
         while (opMode.opModeIsActive()) {
@@ -2522,7 +2547,7 @@ public class ExtensionRetractionMechanism {
                 case TWO:
                     if (timer.milliseconds() > 1000) {
                         timer.reset();
-                        this.setLiftPowerUsingJoystick(-0.1);
+                        this.setPowerUsingJoystick(-joystickPower);
                         joystickTestState = JoystickTestState.THREE;
                     }
                     break;
@@ -2535,7 +2560,7 @@ public class ExtensionRetractionMechanism {
                 case FOUR:
                     if (timer.milliseconds() > 10000) {
                         timer.reset();
-                        this.setLiftPowerUsingJoystick(0.1);
+                        this.setPowerUsingJoystick(joystickPower);
                         joystickTestState = JoystickTestState.FIVE;
                     }
                     break;
@@ -2567,6 +2592,7 @@ public class ExtensionRetractionMechanism {
 
             opMode.telemetry.addData("state = ", extensionRetractionState.toString());
             opMode.telemetry.addData("encoder = ", extensionRetractionMotor.getCurrentPosition());
+            telemetry.addData("joystick = ", joystickPower);
             opMode.telemetry.update();
             opMode.idle();
         }
@@ -2581,7 +2607,7 @@ public class ExtensionRetractionMechanism {
         int encoderValue = 0;
         int encoderValueMax = 0;
 
-        this.setLiftPowerUsingJoystick(.1);
+        this.setPowerUsingJoystick(.1);
         timer.reset();
 
         while (opMode.opModeIsActive()) {
@@ -2589,37 +2615,32 @@ public class ExtensionRetractionMechanism {
 
             switch (joystickTestState) {
                 case ONE:
+                    // go to position interrupts the joystick movement
                     if (timer.milliseconds() > 2000) {
                         timer.reset();
+                        this.goToPosition(5, .1);
                         joystickTestState = JoystickTestState.TWO;
                     }
                     break;
                 case TWO:
+                    // joystick interrupts the go to position
                     if (timer.milliseconds() > 1000) {
                         timer.reset();
-                        this.setLiftPowerUsingJoystick(-0.1);
+                        this.setPowerUsingJoystick(0.1);
                         joystickTestState = JoystickTestState.THREE;
                     }
                     break;
+                // joystick set power to 0 should stop the mechanism
                 case THREE:
                     if (timer.milliseconds() > 1000) {
                         timer.reset();
+                        this.setPowerUsingJoystick(0);
                         joystickTestState = JoystickTestState.FOUR;
                     }
                     break;
                 case FOUR:
-                    if (timer.milliseconds() > 10000) {
-                        timer.reset();
-                        this.setLiftPowerUsingJoystick(0.1);
-                        joystickTestState = JoystickTestState.FIVE;
-                    }
                     break;
                 case FIVE:
-                    if (timer.milliseconds() > 1000) {
-                        timer.reset();
-                        this.reset();
-                        joystickTestState = JoystickTestState.SIX;
-                    }
                     break;
                 case SIX:
                     break;

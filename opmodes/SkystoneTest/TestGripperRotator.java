@@ -5,11 +5,12 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.GripperRotator;
+import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.SkystoneRobot;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Gripper Rotator Test", group = "Test")
+@TeleOp(name = "Test Gripper Rotator", group = "Test")
 //@Disabled
 public class TestGripperRotator extends LinearOpMode {
 
@@ -29,7 +30,7 @@ public class TestGripperRotator extends LinearOpMode {
         // Put your initializations here
         Configuration config = new Configuration();
         config.load();
-        gripperRotator = new GripperRotator(hardwareMap, "gripperRotator", telemetry);
+        gripperRotator = new GripperRotator(hardwareMap, SkystoneRobot.HardwareName.GRIPPER_ROTATOR_SERVO.hwName, telemetry);
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
         telemetry.update();

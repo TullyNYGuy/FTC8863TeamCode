@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.RoverRuckus;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -12,7 +13,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.GamepadButtonMultiPush;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.JoyStick;
 
 @TeleOp(name = "Rover Ruckus Teleop", group = "Run")
-//@Disabled
+@Disabled
 
 public class RoverRuckusTeleop extends LinearOpMode {
 

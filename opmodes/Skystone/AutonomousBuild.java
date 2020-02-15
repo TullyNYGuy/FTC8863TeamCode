@@ -15,6 +15,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Switch;
 
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.IntakeWheels;
+import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.SkystoneRobot;
 
 import static org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863.MotorType.ANDYMARK_20_ORBITAL;
 
@@ -47,7 +48,13 @@ public class AutonomousBuild extends LinearOpMode {
         DcMotor8863 frontRight = new DcMotor8863("FrontRight", hardwareMap);
         DcMotor8863 backRight = new DcMotor8863("BackRight", hardwareMap);
 
-        IntakeWheels intakeWheels = new IntakeWheels(hardwareMap, "intakeMotorRight", "intakeMotorLeft");
+        IntakeWheels intakeWheels = new IntakeWheels(hardwareMap,
+                SkystoneRobot.HardwareName.INTAKE_RIGHT_MOTOR.hwName,
+                SkystoneRobot.HardwareName.INTAKE_LEFT_MOTOR.hwName,
+                SkystoneRobot.HardwareName.INTAKE_SWITCH_BACK_LEFT.hwName,
+                SkystoneRobot.HardwareName.INTAKE_SWITCH_BACK_RIGHT.hwName,
+                SkystoneRobot.HardwareName.INTAKE_SWITCH_FRONT_RIGHT.hwName,
+                SkystoneRobot.HardwareName.INTAKE_SWITCH_FRONT_LEFT.hwName);
         // these motors are orbital (planetary gear) motors. The type of motor sets up the number
         // of encoder ticks per revolution. Since we are not using encoder feedback yet, this is
         // really not important now. But it will be once we hook up the encoders and set a motor

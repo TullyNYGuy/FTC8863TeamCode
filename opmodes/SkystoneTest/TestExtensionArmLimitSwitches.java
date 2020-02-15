@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.SkystoneRobot;
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Test Extension Arm Limit Switches", group = "Test")
+@TeleOp(name = "Test Extension Arm Limit Switches", group = "Diagnostics")
 //@Disabled
 public class TestExtensionArmLimitSwitches extends LinearOpMode {
 

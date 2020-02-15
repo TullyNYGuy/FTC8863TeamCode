@@ -5,11 +5,12 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.Gripper;
+import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.SkystoneRobot;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Gripper Test", group = "Test")
+@TeleOp(name = "Test Gripper", group = "Test")
 //@Disabled
 public class TestGripper extends LinearOpMode {
 
@@ -48,7 +49,7 @@ public class TestGripper extends LinearOpMode {
         config.load();
 
 
-        gripper = new Gripper(hardwareMap, "gripper", telemetry);
+        gripper = new Gripper(hardwareMap, SkystoneRobot.HardwareName.GRIPPER_SERVO.hwName, telemetry);
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
         telemetry.update();

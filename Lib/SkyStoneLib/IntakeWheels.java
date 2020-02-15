@@ -3,11 +3,13 @@ package org.firstinspires.ftc.teamcode.Lib.SkyStoneLib;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Switch;
 
 public class IntakeWheels implements FTCRobotSubsystem {
 
@@ -27,10 +29,24 @@ public class IntakeWheels implements FTCRobotSubsystem {
     private DataLogging logFile = null;
     private boolean loggingOn = false;
 
-    public IntakeWheels(HardwareMap hardwareMap, String rightIntakeMotorName, String leftIntakeMotorName) {
+    private Switch intakeSwitchBackLeft;
+    private Switch intakeSwitchBackRight;
+    private Switch intakeSwitchFrontLeft;
+    private Switch intakeSwitchFrontRight;
+
+    private ElapsedTime timer;
+
+    public IntakeWheels(HardwareMap hardwareMap, String rightIntakeMotorName, String leftIntakeMotorName,
+                        String intakeSwitchBackLeftName, String intakeSwitchBackRightName,
+                        String intakeSwitchFrontLeftName, String intakeSwitchFrontRightName) {
+        this.intakeSwitchBackLeft = new Switch(hardwareMap, intakeSwitchBackLeftName, Switch.SwitchType.NORMALLY_OPEN);
+        this.intakeSwitchBackRight = new Switch(hardwareMap, intakeSwitchBackRightName, Switch.SwitchType.NORMALLY_OPEN);
+        this.intakeSwitchFrontLeft = new Switch(hardwareMap, intakeSwitchFrontLeftName, Switch.SwitchType.NORMALLY_OPEN);
+        this.intakeSwitchFrontRight = new Switch(hardwareMap, intakeSwitchFrontLeftName, Switch.SwitchType.NORMALLY_OPEN);
+
         this.rightIntakeMotor = new DcMotor8863(rightIntakeMotorName, hardwareMap);
         this.leftIntakeMotor = new DcMotor8863(leftIntakeMotorName, hardwareMap);
-
+        timer = new ElapsedTime();
         rightIntakeMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
         rightIntakeMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         rightIntakeMotor.setMovementPerRev(360);
@@ -83,6 +99,12 @@ public class IntakeWheels implements FTCRobotSubsystem {
 
     @Override
     public void update() {
+        if ((intakeSwitchBackLeft.isPressed() || intakeSwitchBackRight.isPressed() ||
+                intakeSwitchFrontLeft.isPressed() || intakeSwitchFrontRight.isPressed())
+                && intakeDirection == IntakeDirection.INTAKE) {
+            logFile.logData("Intake switch pressed, stopping intake");
+            stop();
+        }
     }
 
     @Override
@@ -107,7 +129,12 @@ public class IntakeWheels implements FTCRobotSubsystem {
         rightIntakeMotor.setPower(-motorSpeed);
         leftIntakeMotor.setPower(-motorSpeed);
         intakeDirection = IntakeDirection.OUTTAKE;
+        timer.reset();
         log("Intake wheels commanded to outtake");
+        if (timer.milliseconds() > 2000) {
+            intakeDirection = IntakeDirection.INTAKE;
+            log("Intake wheels automatically set to intake");
+        }
     }
 
     public void stop() {

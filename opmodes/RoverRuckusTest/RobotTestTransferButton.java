@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 import org.firstinspires.ftc.teamcode.opmodes.RoverRuckus.RoverRuckusRobot;
 
 @TeleOp(name = "Robot Test Transfer Button", group = "Test")
-//@Disabled
+@Disabled
 
 public class RobotTestTransferButton extends LinearOpMode {
 

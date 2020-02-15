@@ -54,17 +54,21 @@ public class SkystoneRobot implements FTCRobot {
         LIFT_LEFT_RETRACTION_SWITCH("LiftRetractionLimitSwitchLeft"),
         INTAKE_RIGHT_MOTOR("IntakeMotorRight"),
         INTAKE_LEFT_MOTOR("IntakeMotorLeft"),
+        INTAKE_SWITCH_BACK_LEFT("IntakeSwitchBackLeft"),
+        INTAKE_SWITCH_BACK_RIGHT("IntakeSwitchBackRight"),
+        INTAKE_SWITCH_FRONT_LEFT("IntakeSwitchFrontLeft"),
+        INTAKE_SWITCH_FRONT_RIGHT("IntakeSwitchFrontRight"),
         EXT_ARM_SERVO("ExtensionArmServoMotor"),
-        EXT_ARM_MOTOR_NAME_FOR_ENCODER_PORT("IntakeMotorRight"),
+        EXT_ARM_MOTOR_NAME_FOR_ENCODER_PORT("BackRight"),
         EXT_ARM_RETRACTION_SWITCH("RetractionLimitSwitchArm"),
         EXT_ARM_EXTENSION_SWITCH("ExtensionLimitSwitchArm"),
-        GRIPPER_SERVO("gripper"),
-        INTAKE_PUSHER_RIGHT_SERVO("intakePusherRight"),
-        INTAKE_PUSHER_LEFT_SERVO("intakePusherLeft"),
-        GRIPPER_ROTATOR_SERVO("gripperRotator"),
-        INTAKE_SWITCH("intakeLimitSwitch"),
-        BASE_MOVER_RIGHT_SERVO("BaseMoverRight"),
-        BASE_MOVER_LEFT_SERVO("BaseMoverLeft"),
+        GRIPPER_SERVO("Gripper"),
+        INTAKE_PUSHER_RIGHT_SERVO("IntakePusherRight"),
+        INTAKE_PUSHER_LEFT_SERVO("IntakePusherLeft"),
+        GRIPPER_ROTATOR_SERVO("GripperRotator"),
+        INTAKE_SWITCH("IntakeLimitSwitch"),
+        BASE_MOVER_RIGHT_SERVO("FoundationGrabberRight"),
+        BASE_MOVER_LEFT_SERVO("FoundationGrabberLeft"),
         ;
 
         public final String hwName;
@@ -78,7 +82,8 @@ public class SkystoneRobot implements FTCRobot {
         MECANUM,
         INTAKE_MOTORS,
         INTAKE_PUSHER,
-        INTAKE_LIMIT_SW,
+        // these are now part of the IntakeWheels object
+        //INTAKE_LIMIT_SW,
         ODOMETRY,
         LIFT,
         EXT_ARM,
@@ -135,7 +140,7 @@ public class SkystoneRobot implements FTCRobot {
         this.subsystemMap = new HashMap<String, FTCRobotSubsystem>();
         setCapabilities(Subsystem.values());
         capabilities.remove(Subsystem.INTAKE_PUSHER);
-        capabilities.remove(Subsystem.EXT_ARM);
+        //capabilities.remove(Subsystem.EXT_ARM);
         capabilities.remove(Subsystem.BASE_MOVER);
         capabilities.remove(Subsystem.ODOMETRY);
     }
@@ -253,13 +258,18 @@ public class SkystoneRobot implements FTCRobot {
         if (capabilities.contains(Subsystem.INTAKE_MOTORS)) {
             intake = new IntakeWheels(hardwareMap,
                     HardwareName.INTAKE_RIGHT_MOTOR.hwName,
-                    HardwareName.INTAKE_LEFT_MOTOR.hwName);
+                    HardwareName.INTAKE_LEFT_MOTOR.hwName,
+                    HardwareName.INTAKE_SWITCH_BACK_LEFT.hwName,
+                    HardwareName.INTAKE_SWITCH_BACK_RIGHT.hwName,
+                    HardwareName.INTAKE_SWITCH_FRONT_LEFT.hwName,
+                    HardwareName.INTAKE_SWITCH_FRONT_RIGHT.hwName);
             subsystemMap.put(intake.getName(), intake);
-            if (capabilities.contains(Subsystem.INTAKE_LIMIT_SW)) {
-                intakeLimitSwitch = new Switch(hardwareMap,
-                        HardwareName.INTAKE_SWITCH.hwName,
-                        Switch.SwitchType.NORMALLY_OPEN);
-            }
+            // the intake switches are now part of the IntakeWheels class
+//            if (capabilities.contains(Subsystem.INTAKE_LIMIT_SW)) {
+//                intakeLimitSwitch = new Switch(hardwareMap,
+//                        HardwareName.INTAKE_SWITCH.hwName,
+//                        Switch.SwitchType.NORMALLY_OPEN);
+//            }
         }
 
         if (capabilities.contains(Subsystem.BASE_MOVER)) {
@@ -415,8 +425,8 @@ public class SkystoneRobot implements FTCRobot {
         prepareIntakeUpdate();
 
 
-        if (capabilities.contains(Subsystem.INTAKE_LIMIT_SW))
-            updateIntakeSwitches();
+//        if (capabilities.contains(Subsystem.INTAKE_LIMIT_SW))
+//            updateIntakeSwitches();
     }
 
     @Override

@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.RoverRuckusTest;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -11,7 +12,7 @@ import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.Collector;
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
 @TeleOp(name = "AAA Collection Delivery Demo", group = "Test")
-//@Disabled
+@Disabled
 public class CollectionDeliveryTest extends LinearOpMode {
 
     // Put your variable declarations here

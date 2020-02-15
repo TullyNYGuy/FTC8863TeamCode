@@ -35,7 +35,13 @@ public class TestIntake extends LinearOpMode {
         // THIS OPMODE DOES NOT WORK! ONLY ONE MOTOR RUNS OUT OF THE 2 MOTORS IN THE INTAKEWHEELS OBJECT. I'M NOT SURE WHY!
 
 
-        IntakeWheels intakeWheels = new IntakeWheels(hardwareMap, SkystoneRobot.HardwareName.INTAKE_RIGHT_MOTOR.hwName, SkystoneRobot.HardwareName.INTAKE_LEFT_MOTOR.hwName);
+        IntakeWheels intakeWheels = new IntakeWheels(hardwareMap,
+                SkystoneRobot.HardwareName.INTAKE_RIGHT_MOTOR.hwName,
+                SkystoneRobot.HardwareName.INTAKE_LEFT_MOTOR.hwName,
+                SkystoneRobot.HardwareName.INTAKE_SWITCH_BACK_LEFT.hwName,
+                SkystoneRobot.HardwareName.INTAKE_SWITCH_BACK_RIGHT.hwName,
+                SkystoneRobot.HardwareName.INTAKE_SWITCH_FRONT_RIGHT.hwName,
+                SkystoneRobot.HardwareName.INTAKE_SWITCH_FRONT_LEFT.hwName);
         //intakeWheels.init(config);
         intakeWheels.stop();
 
