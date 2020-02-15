@@ -209,6 +209,7 @@ public class SkystoneTeleop extends LinearOpMode {
         telemetry.addData(">", "Press start to run Teleop");
         telemetry.update();
         waitForStart();
+        robot.intakeBlock();
 
         //*********************************************************************************************
         //             Robot Running after the user hits play on the driver phone

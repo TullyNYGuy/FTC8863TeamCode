@@ -136,7 +136,6 @@ public class TestKellensSuperCoolStateMachines extends LinearOpMode {
             if (robot.isPrepareIntakeComplete()) {
                 stop();
             }*/
-            telemetry.addData("CurrentStateIntake", robot.getCurrentIntakeState());
             telemetry.addData("CurrentStateGrip", robot.getCurrentGripperState());
             telemetry.addData("CurrentStateDeport", robot.getCurrentDeportState());
             telemetry.addData("CurrentStateLift", robot.getCurrentLiftState());

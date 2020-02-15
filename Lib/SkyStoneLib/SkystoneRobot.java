@@ -140,9 +140,10 @@ public class SkystoneRobot implements FTCRobot {
         this.subsystemMap = new HashMap<String, FTCRobotSubsystem>();
         setCapabilities(Subsystem.values());
         capabilities.remove(Subsystem.INTAKE_PUSHER);
-        //capabilities.remove(Subsystem.EXT_ARM);
+        capabilities.remove(Subsystem.EXT_ARM);
         capabilities.remove(Subsystem.BASE_MOVER);
         capabilities.remove(Subsystem.ODOMETRY);
+        capabilities.remove(Subsystem.LIFT);
     }
 
     /*
@@ -357,7 +358,6 @@ public class SkystoneRobot implements FTCRobot {
 
         // inits for the command state machines
         initDeportStateMachine();
-        initIntakeStateMachine();
         initLiftBlockStateMachine();
         initPlaceBlockStateMachine();
         initPrepareBlockStateMachine();
@@ -418,7 +418,6 @@ public class SkystoneRobot implements FTCRobot {
             subsystem.update();
         }
 
-        intakeBlockUpdate();
         deportStateUpdate();
         liftBlockStateUpdate();
         placeBlockStateUpdate();
@@ -502,113 +501,28 @@ public class SkystoneRobot implements FTCRobot {
     //*********************************************
     //INTAKE//
     //********************************************
-    public ElapsedTime intakeTimer;
-
-    public enum IntakeStates {
-        IDLE,
-        START,
-        LIFT_MOVING_TO_POSITION,
-        INTAKE_ON,
-        OUTTAKE,
-        COMPLETE
-    }
-
-    private IntakeStates intakeState = IntakeStates.IDLE;
-    private IntakeStates previousIntakeState;
-
-    private void logState(IntakeStates intakeState) {
-        if (dataLog != null && dataLoggingEnabled) {
-            if (intakeState != previousIntakeState) {
-                dataLog.logData("Intake state is now ", intakeState.toString());
-                previousIntakeState = intakeState;
-            }
-        }
-    }
 
     public void intakeBlock() {
-        if (intakeState == IntakeStates.IDLE || intakeState == IntakeStates.COMPLETE) {
-            intakeState = IntakeStates.START;
-            log("Robot commanded to intake stone");
-        } else {
-            log("Robot command to intake stone IGNORED");
-        }
-    }
-
-    public void initIntakeStateMachine() {
-        intakeTimer = new ElapsedTime();
-        intakeState = IntakeStates.IDLE;
-    }
-
-    public void intakeBlockUpdate() {
-        switch (intakeState) {
-            case IDLE:
-                break;
-            case START:
-                intake.intake();
-                intakeTimer.reset();
-                intakeState = IntakeStates.INTAKE_ON;
-                break;
-            case INTAKE_ON:
-                // THIS IS A TEMPORARY COB TO GET A SEQUENCE WE CAN TEST WITH. REMOVE THIS ONCE WE ARE DONE!
-                if (intakeTimer.milliseconds() > 5000) {
-                    intake.stop();
-                    intakeState = IntakeStates.COMPLETE;
-                }
-                //Do nothing
-                break;
-            case OUTTAKE:
-                if (intakeTimer.milliseconds() > 2000) {
-                    intakeOff();
-                    intakeState = IntakeStates.IDLE;
-                }
-                break;
-            case COMPLETE:
-                break;
-        }
-        logState(intakeState);
+        if (intake != null)
+            intake.intake();
     }
 
     public boolean isIntakeBlockComplete() {
-        if (intakeState == IntakeStates.COMPLETE) {
-            return true;
-        } else {
+        if (intake != null)
+            return intake.isIntakeComplete();
+        else
             return false;
-        }
     }
 
     public void intakeOff() {
-        log("Robot commanded to intake off");
-        intake.stop();
-        intakeState = IntakeStates.IDLE;
+        if (intake != null)
+            intake.stop();
     }
 
     public void intakeSpitOut() {
-        log("Robot commanded to outtake");
-        intake.outtake();
-        intakeTimer.reset();
-        intakeState = IntakeStates.OUTTAKE;
+        if (intake != null)
+            intake.outtake();
     }
-
-    public void updateIntakeSwitches() {
-        boolean intakeSwitchPressed = false;
-        if (intakeLimitSwitch != null && intakeLimitSwitch.isPressed()) {
-            intakeSwitchPressed = true;
-        }
-        if (intakeSwitchPressed)
-            intake.stop();
-/*
-        if (intakeSwitchPressed) {
-            telemetry.addLine("intake limit switch pressed");
-        } else {
-            telemetry.addLine("intake limit switch NOT pressed");
-        }
- */
-    }
-
-    public IntakeStates getCurrentIntakeState() {
-        return intakeState;
-    }
-
 
     //*********************************************
     //BLOCK GRIPPING//
