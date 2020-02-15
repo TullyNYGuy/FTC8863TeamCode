@@ -137,6 +137,7 @@ public class SkystoneRobot implements FTCRobot {
         capabilities.remove(Subsystem.INTAKE_PUSHER);
         capabilities.remove(Subsystem.EXT_ARM);
         capabilities.remove(Subsystem.BASE_MOVER);
+        capabilities.remove(Subsystem.ODOMETRY);
     }
 
     /*
@@ -454,8 +455,13 @@ public class SkystoneRobot implements FTCRobot {
         }
     }
 
-    public void getCurrentPosition(Position position) {
-        odometry.getCurrentPosition(position);
+    public boolean getCurrentPosition(Position position) {
+        if (odometry != null && odometry.isInitComplete()) {
+            odometry.getCurrentPosition(position);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /*
