@@ -140,8 +140,10 @@ public class SkystoneRobot implements FTCRobot {
         this.subsystemMap = new HashMap<String, FTCRobotSubsystem>();
         setCapabilities(Subsystem.values());
         capabilities.remove(Subsystem.INTAKE_PUSHER);
-        //capabilities.remove(Subsystem.EXT_ARM);
+        capabilities.remove(Subsystem.EXT_ARM);
         capabilities.remove(Subsystem.BASE_MOVER);
+        capabilities.remove(Subsystem.ODOMETRY);
+        capabilities.remove(Subsystem.LIFT);
     }
 
     /*
@@ -356,7 +358,6 @@ public class SkystoneRobot implements FTCRobot {
 
         // inits for the command state machines
         initDeportStateMachine();
-        initIntakeStateMachine();
         initLiftBlockStateMachine();
         initPlaceBlockStateMachine();
         initPrepareBlockStateMachine();
@@ -394,8 +395,7 @@ public class SkystoneRobot implements FTCRobot {
                     dataLog.logData("Init complete for " + subsystem.getName());
                 }
 
-            }
-            else{
+            } else {
                 dataLog.logData("Init is not complete for " + subsystem.getName());
             }
             result &= subsystem.isInitComplete();
@@ -417,7 +417,6 @@ public class SkystoneRobot implements FTCRobot {
             subsystem.update();
         }
 
-        intakeBlockUpdate();
         deportStateUpdate();
         liftBlockStateUpdate();
         placeBlockStateUpdate();
@@ -464,8 +463,13 @@ public class SkystoneRobot implements FTCRobot {
         }
     }
 
-    public void getCurrentPosition(Position position) {
-        odometry.getCurrentPosition(position);
+    public boolean getCurrentPosition(Position position) {
+        if (odometry != null && odometry.isInitComplete()) {
+            odometry.getCurrentPosition(position);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /*
@@ -476,7 +480,7 @@ public class SkystoneRobot implements FTCRobot {
         if (odometry != null && odometry.isInitComplete())
             return odometry.getCurrentRotation(unit);
         else if (imu != null)
-            return -unit.fromDegrees(imu.getHeading());
+            return unit.fromDegrees(imu.getHeading());
         else
             return 0;
     }
@@ -496,128 +500,57 @@ public class SkystoneRobot implements FTCRobot {
     //*********************************************
     //INTAKE//
     //********************************************
-    public ElapsedTime intakeTimer;
-
-    public enum IntakeStates {
-        IDLE,
-        START,
-        LIFT_MOVING_TO_POSITION,
-        INTAKE_ON,
-        OUTTAKE,
-        COMPLETE
-    }
-
-    private IntakeStates intakeState = IntakeStates.IDLE;
-    private IntakeStates previousIntakeState;
-
-    private void logState(IntakeStates intakeState) {
-        if (dataLog != null && dataLoggingEnabled) {
-            if (intakeState != previousIntakeState) {
-                dataLog.logData("Intake state is now ", intakeState.toString());
-                previousIntakeState = intakeState;
-            }
-        }
-    }
 
     public void intakeBlock() {
-        if (intakeState == IntakeStates.IDLE || intakeState == IntakeStates.COMPLETE) {
-            intakeState = IntakeStates.START;
-            log("Robot commanded to intake stone");
-        } else {
-            log("Robot command to intake stone IGNORED");
-        }
-    }
-
-    public void initIntakeStateMachine() {
-        intakeTimer = new ElapsedTime();
-        intakeState = IntakeStates.IDLE;
-    }
-
-    public void intakeBlockUpdate() {
-        switch (intakeState) {
-            case IDLE:
-                break;
-            case START:
-                intake.intake();
-                intakeTimer.reset();
-                intakeState = IntakeStates.INTAKE_ON;
-                break;
-            case INTAKE_ON:
-                // THIS IS A TEMPORARY COB TO GET A SEQUENCE WE CAN TEST WITH. REMOVE THIS ONCE WE ARE DONE!
-                if (intakeTimer.milliseconds() > 5000) {
-                    intake.stop();
-                    intakeState = IntakeStates.COMPLETE;
-                }
-                //Do nothing
-                break;
-            case OUTTAKE:
-                if (intakeTimer.milliseconds() > 2000) {
-                    intakeOff();
-                    intakeState = IntakeStates.IDLE;
-                }
-                break;
-            case COMPLETE:
-                break;
-        }
-        logState(intakeState);
+        if (intake != null)
+            intake.intake();
     }
 
     public boolean isIntakeBlockComplete() {
-        if (intakeState == IntakeStates.COMPLETE) {
-            return true;
-        } else {
+        if (intake != null)
+            return intake.isIntakeComplete();
+        else
             return false;
-        }
     }
 
     public void intakeOff() {
-        log("Robot commanded to intake off");
-        intake.stop();
-        intakeState = IntakeStates.IDLE;
+        if (intake != null)
+            intake.stop();
     }
 
     public void intakeSpitOut() {
-        log("Robot commanded to outtake");
-        intake.outtake();
-        intakeTimer.reset();
-        intakeState = IntakeStates.OUTTAKE;
+        if (intake != null)
+            intake.outtake();
     }
 
-    public void updateIntakeSwitches() {
-        boolean intakeSwitchPressed = false;
-        if (intakeLimitSwitch != null && intakeLimitSwitch.isPressed()) {
-            intakeSwitchPressed = true;
-        }
-        if (intakeSwitchPressed)
-            intake.stop();
-/*
-        if (intakeSwitchPressed) {
-            telemetry.addLine("intake limit switch pressed");
-        } else {
-            telemetry.addLine("intake limit switch NOT pressed");
-        }
- */
+    public boolean setIntakeStateAfterOuttake(IntakeWheels.IntakeStates state) {
+        if (intake != null)
+            return intake.setStateAfterOuttake(state);
+        else
+            return false;
     }
-
-    public IntakeStates getCurrentIntakeState() {
-        return intakeState;
-    }
-
 
     //*********************************************
     //BLOCK GRIPPING//
     //********************************************
 
     public void gripBlock() {
-        gripper.gripBlock();
+        if (gripper != null)
+            gripper.gripBlock();
     }
 
     public boolean isGripBlockComplete() {
-        return gripper.isGripComplete();
+        if (gripper != null)
+            return gripper.isGripComplete();
+        else
+            return false;
     }
 
     public Gripper.State getCurrentGripperState() {
-        return gripper.getGripperState();
+        if (gripper != null)
+            return gripper.getGripperState();
+        else
+            return Gripper.State.IDLE;
     }
 
     /*
@@ -731,21 +664,25 @@ public class SkystoneRobot implements FTCRobot {
                 break;
             case START:
                 deportState = DeportStates.LIFT_RAISING;
-                lift.goToPosition(deportHeight, 1);
+                if (lift != null)
+                    lift.goToPosition(deportHeight, 1);
                 break;
             case LIFT_RAISING:
-                if (lift.isPositionReached()) {
-                    extensionArm.goToPosition(5, 1);
-                    deportState = DeportStates.ARM_EXTENDING;
-                }
+                if (lift != null)
+                    if (lift.isPositionReached()) {
+                        if (extensionArm != null)
+                            extensionArm.goToPosition(5, 1);
+                        deportState = DeportStates.ARM_EXTENDING;
+                    }
             case ARM_EXTENDING:
-                if (extensionArm.isPositionReached()) {
-                    gripperRotator.rotateOutward();
+                if (extensionArm != null && extensionArm.isPositionReached()) {
+                    if (gripperRotator != null)
+                        gripperRotator.rotateOutward();
                     deportState = DeportStates.GRIPPER_ROTATING;
                 }
                 break;
             case GRIPPER_ROTATING:
-                if (gripperRotator.isRotateOutwardComplete()) {
+                if (gripperRotator != null && gripperRotator.isRotateOutwardComplete()) {
                     deportState = DeportStates.COMPLETE;
                 }
                 break;
@@ -837,11 +774,12 @@ public class SkystoneRobot implements FTCRobot {
                 //nothing just chilling
                 break;
             case START:
-                lift.goToBlockHeights(skyscraperLevel);
+                if (lift != null)
+                    lift.goToBlockHeights(skyscraperLevel);
                 liftBlockState = LiftBlockStates.BLOCK_LIFTING;
                 break;
             case BLOCK_LIFTING:
-                if (lift.isPositionReached()) {
+                if (lift != null && lift.isPositionReached()) {
                     liftBlockState = LiftBlockStates.COMPLETE;
                 }
                 break;
@@ -912,10 +850,11 @@ public class SkystoneRobot implements FTCRobot {
                 //The Driver will extend the arm using joystick then call place block
                 break;
             case EXTENDING:
-                gripper.releaseBlock();
+                if (gripper != null)
+                    gripper.releaseBlock();
                 break;
             case GRIPPER_RELEASING:
-                if (gripper.isReleaseComplete()) {
+                if (gripper != null && gripper.isReleaseComplete()) {
                     placeBlockState = PlaceBlockStates.COMPLETE;
                 }
                 break;
@@ -984,24 +923,29 @@ public class SkystoneRobot implements FTCRobot {
                 //chillin' like a villain
                 break;
             case START:
-                gripperRotator.rotateInward();
-                gripper.releaseBlock();
+                if (gripperRotator != null)
+                    gripperRotator.rotateInward();
+                if (gripper != null)
+                    gripper.releaseBlock();
                 prepareIntakeState = PrepareIntakeStates.PREPARATION_PHASE_1_ROTATOR;
                 break;
             case PREPARATION_PHASE_1_ROTATOR:
-                if (gripper.isReleaseComplete() && gripperRotator.isRotateInwardComplete()) {
-                    extensionArm.goToPosition(0, 1);
+                if (gripper != null && gripper.isReleaseComplete()
+                        && gripperRotator != null && gripperRotator.isRotateInwardComplete()) {
+                    if (extensionArm != null)
+                        extensionArm.goToPosition(0, 1);
                     prepareIntakeState = PrepareIntakeStates.PREPARATION_PHASE_2_RETRACTION;
                 }
                 break;
             case PREPARATION_PHASE_2_RETRACTION:
-                if (extensionArm.isPositionReached()) {
-                    lift.goToPosition(0, 1);
+                if (extensionArm != null && extensionArm.isPositionReached()) {
+                    if (lift != null)
+                        lift.goToPosition(0, 1);
                     prepareIntakeState = PrepareIntakeStates.PREPARATION_PHASE_3_LOWERING;
                 }
                 break;
             case PREPARATION_PHASE_3_LOWERING:
-                if (lift.isPositionReached() && extensionArm.isPositionReached()) {
+                if (lift != null && lift.isPositionReached() && extensionArm != null && extensionArm.isPositionReached()) {
                     prepareIntakeState = PrepareIntakeStates.COMPLETE;
                 }
                 break;

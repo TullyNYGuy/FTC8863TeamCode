@@ -13,18 +13,23 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.Switch;
 
 public class IntakeWheels implements FTCRobotSubsystem {
 
-    private enum IntakeDirection {
-        INTAKE,
-        OUTTAKE
+    public enum IntakeStates {
+        IDLE,
+        INTAKE_ON,
+        OUTTAKE,
+        COMPLETE
     }
 
-    private IntakeDirection intakeDirection;
+    private IntakeStates intakeState = IntakeStates.IDLE;
+    private IntakeStates previousIntakeState;
+    private IntakeStates intakeStateAfterOuttake = IntakeStates.IDLE;
 
     private final static String SUBSYSTEM_NAME = "IntakeWheels";
 
     private DcMotor8863 rightIntakeMotor;
     private DcMotor8863 leftIntakeMotor;
     final private double motorSpeed = 1.0;
+    final private double OUTTAKE_TIMER_MS = 2000;
 
     private DataLogging logFile = null;
     private boolean loggingOn = false;
@@ -57,7 +62,6 @@ public class IntakeWheels implements FTCRobotSubsystem {
         leftIntakeMotor.setMovementPerRev(360);
         leftIntakeMotor.runAtConstantPower(0);
 
-        intakeDirection = IntakeDirection.INTAKE;
     }
 
     @Override
@@ -82,6 +86,14 @@ public class IntakeWheels implements FTCRobotSubsystem {
         }
     }
 
+    private void logState(IntakeStates intakeState) {
+        if (intakeState != previousIntakeState) {
+            log("Intake state is now " + intakeState.toString());
+            previousIntakeState = intakeState;
+        }
+    }
+
+
     @Override
     public boolean init(Configuration config) {
         return true;
@@ -99,11 +111,51 @@ public class IntakeWheels implements FTCRobotSubsystem {
 
     @Override
     public void update() {
-        if ((intakeSwitchBackLeft.isPressed() || intakeSwitchBackRight.isPressed() ||
-                intakeSwitchFrontLeft.isPressed() || intakeSwitchFrontRight.isPressed())
-                && intakeDirection == IntakeDirection.INTAKE) {
-            logFile.logData("Intake switch pressed, stopping intake");
-            stop();
+        switch (intakeState) {
+            case IDLE:
+                break;
+            case INTAKE_ON:
+                if ((intakeSwitchBackLeft != null && intakeSwitchBackLeft.isPressed())
+                        || (intakeSwitchBackRight != null && intakeSwitchBackRight.isPressed())
+                        || (intakeSwitchFrontLeft != null && intakeSwitchFrontLeft.isPressed())
+                        || (intakeSwitchFrontRight != null && intakeSwitchFrontRight.isPressed())) {
+                    logFile.logData("Intake switch pressed, stopping intake");
+                    stop();
+                    intakeState = IntakeStates.COMPLETE;
+                }
+                //Do nothing
+                break;
+            case OUTTAKE:
+                if (timer.milliseconds() > OUTTAKE_TIMER_MS) {
+                    switch (intakeStateAfterOuttake) {
+                        case INTAKE_ON:
+                            log("Intake wheels automatically set to intake");
+                            intake();
+                            break;
+                        case IDLE:
+                            log("Intake wheels automatically set to idle");
+                            stop();
+                            break;
+                        default:
+                            log("Invalid afterOuttake state, setting to idle");
+                            stop();
+                    }
+                }
+                break;
+            case COMPLETE:
+                break;
+        }
+        logState(intakeState);
+    }
+
+    public boolean setStateAfterOuttake(IntakeStates state) {
+        switch (state) {
+            case INTAKE_ON:
+            case IDLE:
+                intakeStateAfterOuttake = state;
+                return true;
+            default:
+                return false;
         }
     }
 
@@ -118,36 +170,45 @@ public class IntakeWheels implements FTCRobotSubsystem {
 
     }
 
+    public boolean isIntakeComplete() {
+        return (intakeState == IntakeStates.COMPLETE);
+    }
+
     public void intake() {
-        rightIntakeMotor.setPower(motorSpeed);
-        leftIntakeMotor.setPower(motorSpeed);
-        intakeDirection = IntakeDirection.INTAKE;
-        log("Intake wheels commanded to intake");
+        if (intakeState == IntakeStates.IDLE || intakeState == IntakeStates.COMPLETE || intakeState == IntakeStates.OUTTAKE) {
+            rightIntakeMotor.setPower(motorSpeed);
+            leftIntakeMotor.setPower(motorSpeed);
+            intakeState = IntakeStates.INTAKE_ON;
+            timer.reset();
+            log("Intake wheels commanded to intake");
+        } else {
+            log("Intake wheels command to intake is IGNORED");
+        }
     }
 
     public void outtake() {
         rightIntakeMotor.setPower(-motorSpeed);
         leftIntakeMotor.setPower(-motorSpeed);
-        intakeDirection = IntakeDirection.OUTTAKE;
+        intakeState = IntakeStates.OUTTAKE;
         timer.reset();
         log("Intake wheels commanded to outtake");
-        if (timer.milliseconds() > 2000) {
-            intakeDirection = IntakeDirection.INTAKE;
-            log("Intake wheels automatically set to intake");
-        }
     }
 
     public void stop() {
         rightIntakeMotor.setPower(0);
         leftIntakeMotor.setPower(0);
+        intakeState = IntakeStates.IDLE;
         log("Intake wheels commanded to stop");
     }
 
     public void switchDirection() {
-        if (intakeDirection == IntakeDirection.OUTTAKE) {
-            intake();
-        } else {
-            outtake();
+        switch (intakeState) {
+            case INTAKE_ON:
+                outtake();
+                break;
+            case OUTTAKE:
+                intake();
+                break;
         }
     }
 }
