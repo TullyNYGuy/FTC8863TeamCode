@@ -546,66 +546,6 @@ public class SkystoneRobot implements FTCRobot {
             return false;
     }
 
-    public Gripper.State getCurrentGripperState() {
-        if (gripper != null)
-            return gripper.getGripperState();
-        else
-            return Gripper.State.IDLE;
-    }
-
-    /*
-    public enum GripStates {
-        IDLE,
-        START,
-        GRIPPING,
-        COMPLETE
-    }
-
-    private GripStates gripState = GripStates.IDLE;
-
-    public void initGripStateMachine() {
-        gripState = GripStates.IDLE;
-    }
-
-    public void gripBlock() {
-        gripState = GripStates.START;
-    }
-
-    public void gripStateUpdate() {
-        switch (gripState) {
-            case IDLE:
-                //nothing just chilling
-                break;
-            case START:
-                gripper.grip();
-                gripState = GripStates.GRIPPING;
-                break;
-
-            case GRIPPING:
-                if (gripper.isGripComplete()) {
-                    gripState = GripStates.COMPLETE;
-                }
-                break;
-            case COMPLETE:
-                //we chillin'
-                break;
-        }
-    }
-
-    public boolean isGripBlockComplete() {
-        if (gripState == GripStates.COMPLETE) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public GripStates getCurrentGripperState() {
-        return gripState;
-    }
-    */
-
-
     //*********************************************
     //BLOCK DEPORTATION//
     //********************************************
