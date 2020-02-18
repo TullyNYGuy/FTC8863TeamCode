@@ -557,6 +557,14 @@ public class ExtensionRetractionMechanism {
         timeEncoderValues.writeToCSVFile(timerEncoderValuesFile);
     }
 
+    public void setBaseEncoderValue(int baseEncoderValue) {
+        extensionRetractionMotor.setBaseEncoderValue(baseEncoderValue);
+    }
+
+    public int getBaseEncoderValue() {
+        return extensionRetractionMotor.getBaseEncoderValue();
+    }
+
     //*********************************************************************************************
     //          MAJOR METHODS
     //

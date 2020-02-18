@@ -43,6 +43,12 @@ public class Lift extends ExtensionRetractionMechanism {
 
     private ElapsedTime resetTimer;
 
+    private int tensionCompleteEncoderValue = 0;
+
+    public int getTensionCompleteEncoderValue() {
+        return tensionCompleteEncoderValue;
+    }
+
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -158,6 +164,8 @@ public class Lift extends ExtensionRetractionMechanism {
         boolean result = false;
         // run the state machine for the extra reset states
         if (updateResetExtraStates() == LiftResetExtraStates.TENSION_COMPLETE) {
+            tensionCompleteEncoderValue = extensionRetractionMotor.getCurrentPosition();
+            extensionRetractionMotor.setBaseEncoderValue(tensionCompleteEncoderValue);
             // string tension is completed, let the rest of the reset state machine complete
             result = true;
             log("Lift string tensioned " + mechanismName);

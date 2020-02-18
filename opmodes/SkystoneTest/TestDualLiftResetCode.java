@@ -99,6 +99,9 @@ public class TestDualLiftResetCode extends LinearOpMode {
             idle();
         }
 
+        telemetry.addData("Left", " lift");
+        telemetry.addData("Tension Complete encoder = ", lift.getLiftLeftTensionCompleteEncoderValue());
+
         // have to update the state machine in order to generate the last state update
         lift.update();
 

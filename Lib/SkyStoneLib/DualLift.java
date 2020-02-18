@@ -87,6 +87,19 @@ public class DualLift implements FTCRobotSubsystem {
     public CSVDataFile timeEncoderValueFile = null;
 
     private ElapsedTime positionReachedTimer;
+
+    private int liftLeftTensionCompleteEncoderValue;
+
+    public int getLiftLeftTensionCompleteEncoderValue() {
+        return liftLeftTensionCompleteEncoderValue;
+    }
+
+    private int liftRightTensionCompleteEncoderValue;
+
+    public int getLiftRightTensionCompleteEncoderValue() {
+        return liftRightTensionCompleteEncoderValue;
+    }
+
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -191,7 +204,24 @@ public class DualLift implements FTCRobotSubsystem {
     }
 
     public boolean isResetComplete() {
-        return (liftRight.isResetComplete() && liftLeft.isResetComplete());
+        if (liftRight.isResetComplete() && liftLeft.isResetComplete()) {
+            liftLeftTensionCompleteEncoderValue = liftLeft.getTensionCompleteEncoderValue();
+            liftRightTensionCompleteEncoderValue = liftRight.getTensionCompleteEncoderValue();
+            ////////////////////////////////////////////////////////////////////////////////////////////
+            ////////////////////////////////////////////////////////////////////////////////////////////
+            ////////////////////////////////////////////////////////////////////////////////////////////
+            //Take this out
+            // need to capture the base encoder value before the adjustment, it should be the same as the tension complete value
+            // need to captuer the base encoder value after the adjusetment, it should be the same as tension complete + tweak value
+            liftRight.setBaseEncoderValue(liftRight.getBaseEncoderValue() + 205);
+            liftLeft.setBaseEncoderValue(liftLeft.getBaseEncoderValue() + 317);
+            // need to capture the altered and unaltered encoder values
+            ////////////////////////////////////////////////////////////////////////////////////////////
+
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public void goToFullExtend() {
@@ -230,6 +260,10 @@ public class DualLift implements FTCRobotSubsystem {
                 if (liftLeft.isPositionReached()) {
                     positionReachedTimer.reset();
                     positionReachedState = PositionReachedStates.LEFT_REACHED;
+                }
+                if (liftRight.isPositionReached()) {
+                    positionReachedTimer.reset();
+                    positionReachedState = PositionReachedStates.RIGHT_REACHED;
                 }
                 break;
             case LEFT_REACHED:
@@ -278,17 +312,17 @@ public class DualLift implements FTCRobotSubsystem {
         //go to the block height directed - 1
     }
 
-    public void setRetractionPower(double power){
+    public void setRetractionPower(double power) {
         liftRight.setRetractionPower(power);
         liftLeft.setRetractionPower(power);
     }
 
-    public void setExtensionPower(double power){
+    public void setExtensionPower(double power) {
         liftLeft.setExtensionPower(power);
         liftRight.setExtensionPower(power);
     }
 
-    public void setDataLog(DataLogging logFileBoth){
+    public void setDataLog(DataLogging logFileBoth) {
         this.logFileBoth = logFileBoth;
         liftLeft.setDataLog(logFileBoth);
         liftRight.setDataLog(logFileBoth);
