@@ -23,6 +23,11 @@ public class ServoPosition {
     //*********************************************************************************************
 
     private Servo servo;
+
+    /**
+     * The position associated with this ServoPosition. This is the numeric value that gets sent
+     * to the servo.
+     */
     private double position;
 
     public double getPosition() {
@@ -33,6 +38,9 @@ public class ServoPosition {
         this.position = position;
     }
 
+    /**
+     * An estimate of how long it will take the servo to reach this position.
+     */
     public double timeToReachPosition;
 
     public double getTimeToReachPosition() {
@@ -43,9 +51,19 @@ public class ServoPosition {
         this.timeToReachPosition = timeToReachPosition;
     }
 
+    /**
+     * A flag that says whether a move to a position has been started.
+     */
     private boolean startedMovement = false;
 
+    /**
+     * The internal units for time in this class.
+     */
     private TimeUnit timeUnitInternal = TimeUnit.MILLISECONDS;
+
+    /**
+     * A timer for tracking time while the movement is taking place
+     */
     private ElapsedTime timer;
 
     //*********************************************************************************************
@@ -85,11 +103,24 @@ public class ServoPosition {
     // public methods that give the class its functionality
     //*********************************************************************************************
 
+    /**
+     * Start a movement to a position. That started movement flag ensures that if someone calls
+     * isPositionReached before a movement has been sent to the servo, that isPositionReached will
+     * not return true.
+     */
     public void startMoveToPosition() {
         timer.reset();
         startedMovement = true;
     }
 
+    /**
+     * Check whether the movement has gone on for more than the specified time. If so, then we
+     * call the movement complete. Note that it may or may not actually be complete. If there is
+     * a bigger load on the servo than normal, it may not be complete by this time. But this is the
+     * best we can do since a servo does not include position feedback.
+     *
+     * @return
+     */
     public boolean isPositionReached() {
         // make sure the user started a movement so that we know the timer was reset, otherwise
         // the timer could report a long time has elapsed but no movement was ever started. This

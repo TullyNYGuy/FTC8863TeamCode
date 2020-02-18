@@ -15,8 +15,11 @@ import java.util.concurrent.TimeUnit;
 /**
  * This class wraps the normal FTC Servo class and gives you two new features:
  * - You can name a position and refer to the position name from then on. (like setPosition(position name)
- * - You can as whether the servo has completed a movememt to that position based on how long said
- * the movement is supposed to take to complete.
+ * - You can ask whether the servo has completed a movememt to that position. This is based on how
+ *   long you said the movement is supposed to take to complete.
+ *
+ *   In addition this class allows you to dynamically create new positions. The old Servo8863 gave
+ *   you a static number of positions.
  */
 public class Servo8863New {
 
@@ -46,7 +49,7 @@ public class Servo8863New {
 
     /**
      * Data structure that holds a list of servo position names and the position associated with the
-     * name
+     * name. These get dynamically added by the user.
      */
     private HashMap<String, ServoPosition> positions;
 
@@ -67,7 +70,15 @@ public class Servo8863New {
     // from it
     //*********************************************************************************************
 
+    /**
+     * Constructor
+     *
+     * @param servoName   - the name of the servo in the phone config file
+     * @param hardwareMap
+     * @param telemetry
+     */
     public Servo8863New(String servoName, HardwareMap hardwareMap, Telemetry telemetry) {
+        // get the servo from the hardware map
         servo = hardwareMap.get(Servo.class, servoName);
         positions = new HashMap<>();
         timer = new ElapsedTime();
@@ -79,6 +90,11 @@ public class Servo8863New {
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
 
+    /**
+     * Get the ServoPosition object using its position name.
+     * @param positionName
+     * @return
+     */
     private ServoPosition getServoPosition(String positionName) {
         if (positions.containsKey(positionName)) {
             return positions.get(positionName);
@@ -111,7 +127,8 @@ public class Servo8863New {
     }
 
     /**
-     * I'm using this method to effectively replace the setPosition method of the servo class.
+     * I'm using this method to effectively replace the setPosition method of the servo class. The
+     * difference is that you are setPosition using a position name.
      *
      * @param positionName
      */
@@ -168,5 +185,4 @@ public class Servo8863New {
     // the position of the servo. A servo has no position feedback so all it does is return the
     // value of the last setPosition.
     // public double SetPosition()
-
 }
