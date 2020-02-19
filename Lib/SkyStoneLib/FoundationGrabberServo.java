@@ -93,7 +93,7 @@ public class FoundationGrabberServo implements FTCRobotSubsystem {
 
     @Override
     public boolean isInitComplete() {
-        if (leftGrabber.isPositionReached(initPositionName) && rightGrabber.isPositionReached(initPositionName)) {
+        if (leftGrabber.isPositionReached() && rightGrabber.isPositionReached()) {
             log("foundation grabber init complete");
             return true;
         } else {
@@ -124,7 +124,7 @@ public class FoundationGrabberServo implements FTCRobotSubsystem {
     }
 
     public boolean isGrabBaseComplete() {
-        if (rightGrabber.isPositionReached(grabPositionName) && leftGrabber.isPositionReached(grabPositionName)) {
+        if (rightGrabber.isPositionReached() && leftGrabber.isPositionReached()) {
             return true;
         } else {
             return false;
@@ -138,7 +138,7 @@ public class FoundationGrabberServo implements FTCRobotSubsystem {
     }
 
     public boolean isReleaseBaseComplete() {
-        if (rightGrabber.isPositionReached(releasePositionName) && leftGrabber.isPositionReached(releasePositionName)) {
+        if (rightGrabber.isPositionReached() && leftGrabber.isPositionReached()) {
             return true;
         } else {
             return false;

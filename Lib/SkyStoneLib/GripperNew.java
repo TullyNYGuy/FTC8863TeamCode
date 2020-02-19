@@ -116,7 +116,7 @@ public class GripperNew implements FTCRobotSubsystem {
 
     @Override
     public boolean isInitComplete() {
-        return gripperServo.isPositionReached(initPositionName);
+        return gripperServo.isPositionReached();
     }
 
     public void releaseBlock() {
@@ -125,7 +125,7 @@ public class GripperNew implements FTCRobotSubsystem {
     }
 
     public boolean isReleaseComplete() {
-        return gripperServo.isPositionReached(releasePositionName);
+        return gripperServo.isPositionReached();
     }
 
     public void gripBlock() {
@@ -134,7 +134,7 @@ public class GripperNew implements FTCRobotSubsystem {
     }
 
     public boolean isGripComplete() {
-        return gripperServo.isPositionReached(gripPositionName);
+        return gripperServo.isPositionReached();
     }
 
     @Override

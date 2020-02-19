@@ -53,6 +53,13 @@ public class Servo8863New {
      */
     private HashMap<String, ServoPosition> positions;
 
+    /**
+     * The ServoPosition that is currently active. The one that is active is the one that was just
+     * used in the setPosition() method. So the active servoPosition is the one that the servo is
+     * moving to.
+     */
+    private ServoPosition activePosition;
+
     private ElapsedTime timer;
 
     //*********************************************************************************************
@@ -133,9 +140,9 @@ public class Servo8863New {
      * @param positionName
      */
     public void setPosition(String positionName) {
-        ServoPosition position = positions.get(positionName);
-        servo.setPosition(position.getPosition());
-        position.startMoveToPosition();
+        activePosition = positions.get(positionName);
+        servo.setPosition(activePosition.getPosition());
+        activePosition.startMoveToPosition();
     }
 
     /**
@@ -145,14 +152,16 @@ public class Servo8863New {
      * servo takes to reach the position when you setup the position. Then after you start a movement
      * I'll tell you if it has reached position based on how long it is since you told the servo
      * to move to the position. This is the other functionality that makes this servo unique from
-     * the normal servo class.
+     * the normal servo class. The position being checked is the last one used in the setPosition()
+     * method.
      *
-     * @param positionName
      * @return
      */
-    public boolean isPositionReached(String positionName) {
-        ServoPosition position = positions.get(positionName);
-        return position.isPositionReached();
+    public boolean isPositionReached() {
+        // since this method will be called repeatedly in a loop, it needs to be fast. Rather than
+        // get the ServoPosition from the hashmap using the position name, just assume that the
+        // position is the last one set using setPosition().
+        return activePosition.isPositionReached();
     }
 
     //*************************************************************************************************
