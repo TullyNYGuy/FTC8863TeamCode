@@ -38,10 +38,6 @@ public class MotorSynchronizer {
     private DcMotor8863 motor2;
 
     private PIDControl pidControl;
-    private PIDControl pidControl2;
-    private double correction1;
-    private double correction2;
-    private double[] corrections;
 
     private int motor1Position;
     private int motor2Position;
@@ -86,15 +82,17 @@ public class MotorSynchronizer {
     // public methods that give the class its functionality
     //*********************************************************************************************
 
-    public void setupPID(double kp, double ki, double kd) {
+    public void setupPID(double setPoint, double kp, double ki, double kd) {
+        // the max that a motor power can be is 1.0
+        pidControl.setMaxCorrection(1.0);
         pidControl.setKp(kp);
         pidControl.setKi(ki);
         pidControl.setKd(kd);
-        pidControl.setSetpoint(0);
+        pidControl.setSetpoint(setPoint);
         setupPIDComplete = true;
     }
 
-    public double synchronizePosition() {
+    public double getCorrection() {
         motor1Position = motor1.getCurrentPosition();
         motor2Position = motor2.getCurrentPosition();
         correction = pidControl.getCorrection(motor1Position - motor2Position);
