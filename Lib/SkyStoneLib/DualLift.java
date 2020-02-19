@@ -86,7 +86,7 @@ public class DualLift implements FTCRobotSubsystem {
 
     private boolean dataLogging = false;
 
-    public CSVDataFile timeEncoderValueFile = null;
+    public DataLogging timeEncoderValueFile = null;
 
     private ElapsedTime positionReachedTimer;
 
@@ -261,8 +261,12 @@ public class DualLift implements FTCRobotSubsystem {
 
     public void goToPosition(double positionInInches, double positionPower) {
         liftRight.goToPosition(positionInInches, positionPower);
+        // this is a hardwired cob to see the effect of offsetting the command
         liftLeft.goToPosition(positionInInches + 1, positionPower);
         positionReachedState = PositionReachedStates.NONE_REACHED;
+        if (collectData) {
+            timeEncoderValueFile.startTimer();
+        }
     }
 
     public void setExtensionPositionInMechanismUnits(double heightTimesSlides) {
@@ -358,15 +362,12 @@ public class DualLift implements FTCRobotSubsystem {
     }
 
     public void enableCollectData(String filename) {
-        liftLeft.enableCollectData();
-        liftRight.enableCollectData();
-        timeEncoderValueFile = new CSVDataFile(filename);
+        timeEncoderValueFile = new DataLogging(filename);
+        timeEncoderValueFile.headerStrings("left encoder", "right encoder");
         collectData = true;
     }
 
     public void disableCollectData() {
-        liftLeft.enableCollectData();
-        liftRight.enableCollectData();
         collectData = false;
     }
 
@@ -440,8 +441,7 @@ public class DualLift implements FTCRobotSubsystem {
         liftRight.update();
         liftLeft.update();
         if (collectData) {
-            liftLeft.writeTimerEncoderDataToCSVFile(timeEncoderValueFile);
-            liftRight.writeTimerEncoderDataToCSVFile(timeEncoderValueFile);
+            timeEncoderValueFile.logData(liftLeft.getCurrentEncoderValue(), liftRight.getCurrentEncoderValue());
         }
     }
 

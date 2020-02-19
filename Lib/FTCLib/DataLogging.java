@@ -70,6 +70,10 @@ public class DataLogging {
     }
 
     public DataLogging(String filePrefix, Telemetry telemetry) {
+        this(filePrefix);
+    }
+
+    public DataLogging(String filePrefix) {
         this.folderPath = "/sdcard/FTC8863/";
         this.filePrefix = filePrefix;
         dataLoggingSetup();
@@ -257,6 +261,33 @@ public class DataLogging {
         // print a newline
         dataLog.println();
     }
+
+
+    /**
+     * Write a series of integers into the data log. Each integer will be followed by a comma and
+     * a space, except the last one. The beginning of the line will have a timestamp.
+     *
+     * @param args a variable number of integers to write into the file in this line
+     */
+    public void logData(int... args) {
+        // print the timestamp
+        double timeStamp = timer.milliseconds();
+        dataLog.print(String.format("%.2f", timeStamp) + ", ");
+        // print each argument
+        int index = 0;
+        for (int arg : args) {
+            if (index != args.length - 1) {
+                dataLog.print((arg) + ", ");
+            } else {
+                // if this is the last int to write then leave off the comma and space
+                dataLog.print((arg));
+            }
+
+        }
+        // print a newline
+        dataLog.println();
+    }
+
 
     /**
      * Write a string and a series of doubles into the data log. The string and the each double will
