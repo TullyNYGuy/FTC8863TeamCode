@@ -221,7 +221,7 @@ public class OdometrySystem implements FTCRobotSubsystem {
         double backVal = backEncoderValue - deltaRotation * backMultiplier;
 
         double deltaX = (leftVal + rightVal) / 2.0;
-        double deltaY = backVal;
+        double deltaY = -backVal;
 
         currentX += deltaX * Math.cos(deltaRotation);
         currentY += deltaY * Math.sin(deltaRotation);
