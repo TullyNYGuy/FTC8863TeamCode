@@ -22,8 +22,6 @@ public class ServoPosition {
     // getter and setter methods
     //*********************************************************************************************
 
-    private Servo servo;
-
     /**
      * The position associated with this ServoPosition. This is the numeric value that gets sent
      * to the servo.
@@ -97,6 +95,26 @@ public class ServoPosition {
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
 
+    @Override
+    public int hashCode() {
+        return Double.valueOf(position).hashCode()
+                ^ Double.valueOf(timeToReachPosition).hashCode()
+                ^ timeUnitInternal.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null)
+            return false;
+        if (getClass() != o.getClass())
+            return false;
+        ServoPosition pos = (ServoPosition) o;
+        return (pos.position == position)
+                && (pos.timeToReachPosition == timeToReachPosition)
+                && (pos.timeUnitInternal == timeUnitInternal);
+    }
     //*********************************************************************************************
     //          MAJOR METHODS
     //

@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
@@ -51,7 +52,7 @@ public class Servo8863New {
      * Data structure that holds a list of servo position names and the position associated with the
      * name. These get dynamically added by the user.
      */
-    private HashMap<String, ServoPosition> positions;
+    private ArrayList<ServoPosition> positions;
 
     private ElapsedTime timer;
 
@@ -80,7 +81,7 @@ public class Servo8863New {
     public Servo8863New(String servoName, HardwareMap hardwareMap, Telemetry telemetry) {
         // get the servo from the hardware map
         servo = hardwareMap.get(Servo.class, servoName);
-        positions = new HashMap<>();
+        positions = new ArrayList<>();
         timer = new ElapsedTime();
     }
 
@@ -91,15 +92,15 @@ public class Servo8863New {
     //*********************************************************************************************
 
     /**
-     * Get the ServoPosition object using its position name.
-     * @param positionName
+     * Get the ServoPosition object using its position value.
+     * @param positionValue
      * @return
      */
-    private ServoPosition getServoPosition(String positionName) {
-        if (positions.containsKey(positionName)) {
-            return positions.get(positionName);
-        } else {
-            throw new NullPointerException("tried to locate servo position but it has not been setup " + positionName);
+    private ServoPosition getServoPosition(int positionValue) {
+        try {
+            return positions.get(positionValue);
+        } catch (IndexOutOfBoundsException ex) {
+            throw new NullPointerException("tried to locate servo position but it has not been setup " + positionValue);
         }
     }
 
@@ -113,29 +114,37 @@ public class Servo8863New {
      * Add a position associated with the servo. You can have any number of positions and you can
      * refer to them by their name. This is one functionality that enhances the normal servo class.
      *
-     * @param positionName        - name associated with this position
      * @param position            - the value of the position (ranges from 0 to 1)
      * @param timeToReachPosition - a time that is needed for the servo to reach its position. This
      *                            is an estimate. If the servo experiences a higher than normal
      *                            load then it will take longer than this time. This can lead to the
      *                            servo movement being reported as complete when it is not.
      * @param timeUnits           - units for the time you are providing
+     * @return value associated with this position
      */
-    public void addPosition(String positionName, double position, long timeToReachPosition, TimeUnit timeUnits) {
+    public int addPosition(double position, long timeToReachPosition, TimeUnit timeUnits) {
         ServoPosition servoPosition = new ServoPosition(position, timeToReachPosition, timeUnits);
-        positions.put(positionName, servoPosition);
+        int index = positions.indexOf(servoPosition);
+        if (index >= 0)
+            return index;
+        positions.add(servoPosition);
+        return positions.indexOf(servoPosition);
     }
 
     /**
      * I'm using this method to effectively replace the setPosition method of the servo class. The
      * difference is that you are setPosition using a position name.
      *
-     * @param positionName
+     * @param positionValue
      */
-    public void setPosition(String positionName) {
-        ServoPosition position = positions.get(positionName);
-        servo.setPosition(position.getPosition());
-        position.startMoveToPosition();
+    public void setPosition(int positionValue) {
+        try {
+            ServoPosition position = positions.get(positionValue);
+            servo.setPosition(position.getPosition());
+            position.startMoveToPosition();
+        } catch (IndexOutOfBoundsException ex) {
+            throw new NullPointerException("tried to use servo position but it has not been setup " + positionValue);
+        }
     }
 
     /**
@@ -147,12 +156,15 @@ public class Servo8863New {
      * to move to the position. This is the other functionality that makes this servo unique from
      * the normal servo class.
      *
-     * @param positionName
+     * @param positionValue
      * @return
      */
-    public boolean isPositionReached(String positionName) {
-        ServoPosition position = positions.get(positionName);
-        return position.isPositionReached();
+    public boolean isPositionReached(int positionValue) {
+        try {
+            return positions.get(positionValue).isPositionReached();
+        } catch (IndexOutOfBoundsException ex) {
+            throw new NullPointerException("tried to use servo position but it has not been setup " + positionValue);
+        }
     }
 
     //*************************************************************************************************

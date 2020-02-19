@@ -37,9 +37,9 @@ public class GripperNew implements FTCRobotSubsystem {
     private double gripPosition = 0.7;
     private double initPosition = releasePosition;
 
-    private String initPositionName = "init";
-    private String gripPositionName = "grip";
-    private String releasePositionName = "release";
+    private final int initPositionName;
+    private final int gripPositionName;
+    private final int releasePositionName;
 
     private DataLogging logFile = null;
     private boolean loggingOn = false;
@@ -76,9 +76,9 @@ public class GripperNew implements FTCRobotSubsystem {
     public GripperNew(HardwareMap hardwareMap, String servoName, Telemetry telemetry) {
         gripperServo = new Servo8863New(servoName, hardwareMap, telemetry);
 
-        gripperServo.addPosition(initPositionName, initPosition, 1500, TimeUnit.MILLISECONDS);
-        gripperServo.addPosition(gripPositionName, gripPosition, 1000, TimeUnit.MILLISECONDS);
-        gripperServo.addPosition(releasePositionName, releasePosition, 1000, TimeUnit.MILLISECONDS);
+        initPositionName = gripperServo.addPosition(initPosition, 1500, TimeUnit.MILLISECONDS);
+        gripPositionName = gripperServo.addPosition(gripPosition, 1000, TimeUnit.MILLISECONDS);
+        releasePositionName = gripperServo.addPosition(releasePosition, 1000, TimeUnit.MILLISECONDS);
     }
 
     //*********************************************************************************************
