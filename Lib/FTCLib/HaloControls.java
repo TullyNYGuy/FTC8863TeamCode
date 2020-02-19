@@ -1,9 +1,6 @@
 package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.Gamepad;
-
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
@@ -26,8 +23,8 @@ public class HaloControls {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
-    private SmartJoystick yJoystick;
-    private SmartJoystick xJoystick;
+    private SmartJoystick forwardJoystick;
+    private SmartJoystick sideJoystick;
     private SmartJoystick speedOfRotationJoystick;
     private double adjustAngle = 0;
     private Mode mode = Mode.DRIVER_MODE;
@@ -51,9 +48,9 @@ public class HaloControls {
     // from it
     //*********************************************************************************************
 
-    public HaloControls(SmartJoystick xJoystick, SmartJoystick yJoystick, SmartJoystick speedOfRotationJoystick, FTCRobot robot, Telemetry telemetry) {
-        this.xJoystick = xJoystick;
-        this.yJoystick = yJoystick;
+    public HaloControls(SmartJoystick sideJoystick, SmartJoystick forwardJoystick, SmartJoystick speedOfRotationJoystick, FTCRobot robot, Telemetry telemetry) {
+        this.sideJoystick = sideJoystick;
+        this.forwardJoystick = forwardJoystick;
         this.speedOfRotationJoystick = speedOfRotationJoystick;
         this.robot = robot;
         this.telemetry = telemetry;
@@ -80,13 +77,13 @@ public class HaloControls {
       //      return;
         heading = robot.getCurrentRotation(AngleUnit.RADIANS);
 
-        double yValue = yJoystick.getValue();
-        double xValue = xJoystick.getValue();
+        double forwardValue = forwardJoystick.getValue();
+        double sideValue = sideJoystick.getValue();
         double rValue = speedOfRotationJoystick.getValue();
-        double translationSpeed = java.lang.Math.hypot(xValue, yValue);
-        telemetry.addData("speed: ", translationSpeed);
+        double translationSpeed = java.lang.Math.hypot(sideValue, forwardValue);
+        //telemetry.addData("speed: ", translationSpeed);
         // Divide pi by 2 to shift axis. add pi to get correct range
-        double angleOfTranslation = (java.lang.Math.atan2(yValue, xValue));
+        double angleOfTranslation = -(java.lang.Math.atan2(sideValue, forwardValue));
         if (angleOfTranslation > Math.PI / 2 && angleOfTranslation <= Math.PI) {
             angleOfTranslation = angleOfTranslation - (Math.PI / 2);
         } else {
@@ -103,7 +100,7 @@ public class HaloControls {
         translationSpeed *= powerModifier;
         rValue *= powerModifier;
 
-        telemetry.addData("Halo: ", String.format("x: %.2f, y: %.2f, sp: %.2f", xValue, yValue, translationSpeed));
+        telemetry.addData("Halo: ", String.format("f: %.2f, s: %.2f, sp: %.2f", forwardValue, sideValue, translationSpeed));
         commands.setAngleOfTranslation(AngleUnit.RADIANS, angleOfTranslation);
         commands.setSpeed(translationSpeed);
         commands.setSpeedOfRotation(rValue);

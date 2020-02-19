@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.opmodes.Skystone;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -20,9 +21,9 @@ import static org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863.MotorType.AN
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@Autonomous(name = "left - forward", group = "Run")
+@Autonomous(name = "right - forward", group = "Run")
 //@Disabled
-public class AutonomousLeftForward extends LinearOpMode {
+public class AutonomousRightForward extends LinearOpMode {
 
     // Put your variable declarations here
 
@@ -45,7 +46,7 @@ public class AutonomousLeftForward extends LinearOpMode {
         DcMotor8863 backLeft = new DcMotor8863("BackLeft", hardwareMap);
         DcMotor8863 frontRight = new DcMotor8863("FrontRight", hardwareMap);
         DcMotor8863 backRight = new DcMotor8863("BackRight", hardwareMap);
-        ;
+
         IntakeWheels intakeWheels = new IntakeWheels(hardwareMap,
                 SkystoneRobot.HardwareName.INTAKE_RIGHT_MOTOR.hwName,
                 SkystoneRobot.HardwareName.INTAKE_LEFT_MOTOR.hwName,
@@ -133,8 +134,8 @@ public class AutonomousLeftForward extends LinearOpMode {
 
         ElapsedTime outtakeTimer = new ElapsedTime();
 
-        Switch intakeLimitSwitchLeft = new Switch(hardwareMap, "IntakeSwitchLeft", Switch.SwitchType.NORMALLY_OPEN);
-        Switch intakeLimitSwitchRight = new Switch(hardwareMap, "IntakeSwitchRight", Switch.SwitchType.NORMALLY_OPEN);
+//        Switch intakeLimitSwitchLeft = new Switch(hardwareMap, "IntakeSwitchLeft", Switch.SwitchType.NORMALLY_OPEN);
+  //      Switch intakeLimitSwitchRight = new Switch(hardwareMap, "IntakeSwitchRight", Switch.SwitchType.NORMALLY_OPEN);
 
         boolean inOuttake = false;
         final double OUTTAKE_TIME = 2.0;
@@ -157,7 +158,7 @@ public class AutonomousLeftForward extends LinearOpMode {
             idle();
         }
         mecanumCommands.setSpeed(1);
-        mecanumCommands.setAngleOfTranslation(AngleUnit.RADIANS, Math.PI / 2);
+        mecanumCommands.setAngleOfTranslation(AngleUnit.RADIANS, -Math.PI / 2);
         outtakeTimer.reset();
         while (opModeIsActive() && outtakeTimer.milliseconds() < 1150) {
             mecanum.setMotorPower(mecanumCommands);

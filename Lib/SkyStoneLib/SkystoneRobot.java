@@ -9,6 +9,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
+import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
@@ -340,7 +341,21 @@ public class SkystoneRobot implements FTCRobot {
         init();
         return true;
     }
+public void setPosition(double currentpositionx,double currentPositiionY,double currentPositionRot){
+        if(odometry != null){
 
+            odometry.setCoordinates(units, currentpositionx, currentPositiionY, AngleUnit.DEGREES, currentPositionRot);
+        }else{
+            if(imu != null){
+                //it dodesnt want to work. implement inti thfr imu clas instead of  tnrd bno0ffimu class
+                //imu.stopAccelerationIntegration();
+                Position place = new Position(units, currentpositionx, currentPositiionY, 0, 0);
+                Velocity velocity = new Velocity(units,0,0,0,0);
+                imu.startAccelerationIntegration(place, velocity, 100);
+            }
+            else {return;}
+        }
+}
     /**
      * Every system has an init. Call it.
      */
@@ -362,6 +377,10 @@ public class SkystoneRobot implements FTCRobot {
         initPlaceBlockStateMachine();
         initPrepareBlockStateMachine();
 
+        // Start IMU-based positioning if Odometry is not enabled
+        if(!capabilities.contains(Subsystem.ODOMETRY)) {
+            imu.startAccelerationIntegration(null, null, 100);
+        }
         // wait until all the updates are complete or until the timer has expired
         timer.reset();
         while (!isInitComplete()) {
@@ -466,6 +485,14 @@ public class SkystoneRobot implements FTCRobot {
     public boolean getCurrentPosition(Position position) {
         if (odometry != null && odometry.isInitComplete()) {
             odometry.getCurrentPosition(position);
+            return true;
+        } else if(imu != null) {
+            Position p = imu.getPosition();
+            position.acquisitionTime = p.acquisitionTime;
+            position.unit = p.unit;
+            position.x = p.x;
+            position.y = p.y;
+            position.z = p.z;
             return true;
         } else {
             return false;

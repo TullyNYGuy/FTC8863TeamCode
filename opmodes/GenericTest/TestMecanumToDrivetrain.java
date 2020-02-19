@@ -20,7 +20,7 @@ import static org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863.MotorType.AN
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Test Mecanum To Drivetrain", group = "Test")
+@TeleOp(name = "Test Mecanum To Drivetrain", group = "AATest")
 //@Disabled
 public class TestMecanumToDrivetrain extends LinearOpMode {
 
@@ -97,8 +97,8 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
         DcMotor8863 frontRight = new DcMotor8863("FrontRight", hardwareMap);
         DcMotor8863 backRight = new DcMotor8863("BackRight", hardwareMap);
 
-        DcMotor8863 rightIntake = new DcMotor8863("intakeMotorRight", hardwareMap);
-        DcMotor8863 leftIntake = new DcMotor8863("intakeMotorLeft", hardwareMap);
+        //  DcMotor8863 rightIntake = new DcMotor8863("intakeMotorRight", hardwareMap);
+        //  DcMotor8863 leftIntake = new DcMotor8863("intakeMotorLeft", hardwareMap);
 
         // these motors are orbital (planetary gear) motors. The type of motor sets up the number
         // of encoder ticks per revolution. Since we are not using encoder feedback yet, this is
@@ -109,8 +109,8 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
         frontRight.setMotorType(ANDYMARK_20_ORBITAL);
         backRight.setMotorType(ANDYMARK_20_ORBITAL);
 
-        rightIntake.setMotorType(ANDYMARK_40);
-        leftIntake.setMotorType(ANDYMARK_40);
+        //rightIntake.setMotorType(ANDYMARK_40);
+        //leftIntake.setMotorType(ANDYMARK_40);
 
         // This value will get set to some distance traveled per revolution later.
         frontLeft.setMovementPerRev(360);
@@ -118,8 +118,8 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
         frontRight.setMovementPerRev(360);
         backRight.setMovementPerRev(360);
 
-        rightIntake.setMovementPerRev(360);
-        leftIntake.setMovementPerRev(360);
+        //   rightIntake.setMovementPerRev(360);
+        //   leftIntake.setMovementPerRev(360);
 
         // The encoder tolerance is used when you give the motor a target encoder tick count to rotate to. 5 is
         // probably too tight. 10 is pretty good based on experience. Note that 10 is set as the
@@ -141,8 +141,8 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
         frontRight.setDirection(DcMotor.Direction.FORWARD);
         backRight.setDirection(DcMotor.Direction.FORWARD);
 
-        rightIntake.setDirection(DcMotorSimple.Direction.FORWARD);
-        leftIntake.setDirection(DcMotorSimple.Direction.REVERSE);
+        //  rightIntake.setDirection(DcMotorSimple.Direction.FORWARD);
+        //  leftIntake.setDirection(DcMotorSimple.Direction.REVERSE);
 
         // The runAtConstantPower() and runAtConstantSpeed() methods setup the motor to do that.
         // They are initialzation methods. So they should not be inside the while loop.
@@ -159,10 +159,10 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
         frontRight.runAtConstantPower(0);
         backRight.runAtConstantPower(0);
 
-        rightIntake.runAtConstantPower(0);
-        leftIntake.runAtConstantPower(0);
-        rightIntake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        leftIntake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        //rightIntake.runAtConstantPower(0);
+        //leftIntake.runAtConstantPower(0);
+        //rightIntake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        //leftIntake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         AdafruitIMU8863 imu = new AdafruitIMU8863(hardwareMap);
         Mecanum mecanum = new Mecanum(frontLeft, frontRight, backLeft, backRight, telemetry);
@@ -174,7 +174,7 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
         SmartJoystick gamepad1RightJoyStickX = new SmartJoystick(gamepad1, SmartJoystick.JoystickSide.RIGHT, SmartJoystick.JoystickAxis.X);
         SmartJoystick gamepad1RightJoyStickY = new SmartJoystick(gamepad1, SmartJoystick.JoystickSide.RIGHT, SmartJoystick.JoystickAxis.Y);
 
-        HaloControls haloControls = new HaloControls(gamepad1LeftJoyStickX, gamepad1LeftJoyStickY, gamepad1RightJoyStickX, null, telemetry);
+        HaloControls haloControls = new HaloControls(gamepad1LeftJoyStickY, gamepad1LeftJoyStickX, gamepad1RightJoyStickX, robot, telemetry);
 
 
         // Note from Glenn:
@@ -201,7 +201,7 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
 
 
             mecanum.setMotorPower(mecanumCommands);
-
+/*
             if (gamepad1.dpad_up) {
                 rightIntake.setPower(1.0);
                 leftIntake.setPower(1.0);
@@ -219,7 +219,7 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
                 leftIntake.setPower(-1.0);
                 telemetry.addData("Intake = ", "OUT");
             }
-
+*/
             // This would also work. Is there a performance advantage to it?
             //frontLeft.setPower(wheelVelocities.getFrontLeft());
 
