@@ -80,6 +80,8 @@ public class DualLift implements FTCRobotSubsystem {
 
     private int[] encoderValues;
 
+    private int baseEncoderValue = 0;
+
     private boolean collectData = false;
 
     private boolean dataLogging = false;
@@ -99,6 +101,16 @@ public class DualLift implements FTCRobotSubsystem {
     public int getLiftRightTensionCompleteEncoderValue() {
         return liftRightTensionCompleteEncoderValue;
     }
+
+    public double encoderToInchMath = 1120 / 20.47;
+
+    public int leftBaseEncoderValue = 0;
+
+    public int rightBaseEncoderValue = 0;
+
+    public int rightLiftEncoderValue;
+
+    public int leftLiftEncoderValue;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -213,8 +225,13 @@ public class DualLift implements FTCRobotSubsystem {
             //Take this out
             // need to capture the base encoder value before the adjustment, it should be the same as the tension complete value
             // need to captuer the base encoder value after the adjusetment, it should be the same as tension complete + tweak value
-            liftRight.setBaseEncoderValue(liftRight.getBaseEncoderValue() + 205);
-            liftLeft.setBaseEncoderValue(liftLeft.getBaseEncoderValue() + 317);
+            leftBaseEncoderValue = liftLeft.getBaseEncoderValue();
+            rightBaseEncoderValue = liftRight.getBaseEncoderValue();
+            liftRight.setBaseEncoderValue(liftRight.getBaseEncoderValue() + 104);
+            liftLeft.setBaseEncoderValue(liftLeft.getBaseEncoderValue() + 164);
+            leftLiftEncoderValue = liftLeft.getMotorEncoderValue();
+            rightLiftEncoderValue = liftRight.getMotorEncoderValue();
+
             // need to capture the altered and unaltered encoder values
             ////////////////////////////////////////////////////////////////////////////////////////////
 
