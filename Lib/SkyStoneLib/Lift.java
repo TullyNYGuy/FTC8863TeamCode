@@ -165,7 +165,7 @@ public class Lift extends ExtensionRetractionMechanism {
         // run the state machine for the extra reset states
         if (updateResetExtraStates() == LiftResetExtraStates.TENSION_COMPLETE) {
             tensionCompleteEncoderValue = extensionRetractionMotor.getCurrentPosition();
-            extensionRetractionMotor.setBaseEncoderValue(tensionCompleteEncoderValue);
+            //extensionRetractionMotor.setBaseEncoderValue(tensionCompleteEncoderValue);
             // string tension is completed, let the rest of the reset state machine complete
             result = true;
             log("Lift string tensioned " + mechanismName);

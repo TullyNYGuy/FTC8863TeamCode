@@ -227,8 +227,8 @@ public class DualLift implements FTCRobotSubsystem {
             // need to captuer the base encoder value after the adjusetment, it should be the same as tension complete + tweak value
             leftBaseEncoderValue = liftLeft.getBaseEncoderValue();
             rightBaseEncoderValue = liftRight.getBaseEncoderValue();
-            liftRight.setBaseEncoderValue(liftRight.getBaseEncoderValue() + 104);
-            liftLeft.setBaseEncoderValue(liftLeft.getBaseEncoderValue() + 164);
+            //liftRight.setBaseEncoderValue(liftRight.getBaseEncoderValue() + 104);
+            //liftLeft.setBaseEncoderValue(liftLeft.getBaseEncoderValue() + 164);
             leftLiftEncoderValue = liftLeft.getMotorEncoderValue();
             rightLiftEncoderValue = liftRight.getMotorEncoderValue();
 
@@ -261,7 +261,7 @@ public class DualLift implements FTCRobotSubsystem {
 
     public void goToPosition(double positionInInches, double positionPower) {
         liftRight.goToPosition(positionInInches, positionPower);
-        liftLeft.goToPosition(positionInInches, positionPower);
+        liftLeft.goToPosition(positionInInches + 1, positionPower);
         positionReachedState = PositionReachedStates.NONE_REACHED;
     }
 
