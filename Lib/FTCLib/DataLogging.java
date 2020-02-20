@@ -288,6 +288,26 @@ public class DataLogging {
         dataLog.println();
     }
 
+    public void logData(int arg1, int arg2, double... args) {
+        // print the timestamp
+        double timeStamp = timer.milliseconds();
+        dataLog.print(String.format("%.2f", timeStamp) + ", ");
+        // print each argument
+        dataLog.print(arg1 + ", ");
+        dataLog.print(arg2 + ", ");
+        int index = 0;
+        for (double arg : args) {
+            if (index != args.length - 1) {
+                dataLog.print((arg) + ", ");
+            } else {
+                // if this is the last int to write then leave off the comma and space
+                dataLog.print((arg));
+            }
+
+        }
+        // print a newline
+        dataLog.println();
+    }
 
     /**
      * Write a string and a series of doubles into the data log. The string and the each double will
