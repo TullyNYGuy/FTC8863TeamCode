@@ -273,7 +273,7 @@ public class OdometrySystem implements FTCRobotSubsystem {
             if (right != null) {
                 double rightEndingValue = right.getDistanceSinceReset(unit);
                 rightMultiplier = (rightEndingValue - rightStartingValue) / rotation;
-                if (rightMultiplier < 0.0) {
+                if (rightMultiplier > 0.0) {
                     rightDirectionMultiplier = 1.0;
                     rightMultiplier = -rightMultiplier;
                 } else {
