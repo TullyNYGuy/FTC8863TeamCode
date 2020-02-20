@@ -94,7 +94,7 @@ public class TestDualLiftGoToPosition extends LinearOpMode {
         //logFile = new DataLogging("ExtensionRetractionTestBoth", telemetry);;
         lift.setDataLog(logFile);
         lift.enableDataLogging();
-        //lift.enableCollectData("dualLiftTimeEncoderValues");
+        lift.enableCollectData("dualLiftTimeEncoderValues");
         lift.setRetractionPower(-speed);
         lift.setExtensionPower(+speed);
 

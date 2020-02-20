@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.CSVDataFile;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.MotorCurrentVoltageMonitor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometryModule;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.SkystoneRobot;
 import org.openftc.revextensions2.ExpansionHubEx;
@@ -30,14 +31,15 @@ public class TestDriveMotorWiring extends LinearOpMode {
     ExpansionHubEx expansionHubPrimary;
     ExpansionHubEx expansionHubSecondary;
 
+    MotorCurrentVoltageMonitor motorCurrentVoltageMonitor;
+
     @Override
     public void runOpMode() {
 
         // these method calls require the installation of the RevExtensions2 package
         // https://github.com/OpenFTC/RevExtensions2
 
-        expansionHubPrimary = hardwareMap.get(ExpansionHubEx.class, "Expansion Hub 1");
-        expansionHubSecondary = hardwareMap.get(ExpansionHubEx.class, "Expansion Hub 2");
+        motorCurrentVoltageMonitor = new MotorCurrentVoltageMonitor(hardwareMap, telemetry, "Expansion Hub 2", MotorCurrentVoltageMonitor.OutputTo.WRITE_CSV_FILE_AND_DISPLAY);
 
         ElapsedTime timer = new ElapsedTime();
 
@@ -60,6 +62,13 @@ public class TestDriveMotorWiring extends LinearOpMode {
         frontRight.setDirection(DcMotor.Direction.FORWARD);
         backRight.setDirection(DcMotor.Direction.FORWARD);
 
+        motorCurrentVoltageMonitor.addMotor(frontLeft);
+        motorCurrentVoltageMonitor.addMotor(frontRight);
+        motorCurrentVoltageMonitor.addMotor(backRight);
+        motorCurrentVoltageMonitor.addMotor(backLeft);
+
+        motorCurrentVoltageMonitor.setupCSVDataFile("DriveMotorCurrents");
+
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
         telemetry.update();
@@ -72,10 +81,7 @@ public class TestDriveMotorWiring extends LinearOpMode {
 
         while (opModeIsActive() && timer.milliseconds() < 2000) {
             frontLeft.setPower(1.0);
-            telemetry.addData("motor = ", "front left");
-            telemetry.addData("port configured for = ", frontLeft.getPortNumber());
-            telemetry.addData("current = ", expansionHubSecondary.getMotorCurrentDraw(ExpansionHubEx.CurrentDrawUnits.AMPS, frontLeft.getPortNumber()));
-            telemetry.addData("Supply Voltage = ", expansionHubSecondary.read12vMonitor(ExpansionHubEx.VoltageUnits.VOLTS));
+            motorCurrentVoltageMonitor.update();
             telemetry.update();
             idle();
         }
@@ -85,10 +91,7 @@ public class TestDriveMotorWiring extends LinearOpMode {
 
         while (opModeIsActive() && timer.milliseconds() < 2000) {
             frontRight.setPower(1.0);
-            telemetry.addData("motor = ", "front right");
-            telemetry.addData("port configured for = ", frontRight.getPortNumber());
-            telemetry.addData("current = ", expansionHubSecondary.getMotorCurrentDraw(ExpansionHubEx.CurrentDrawUnits.AMPS, frontRight.getPortNumber()));
-            telemetry.addData("Supply Voltage = ", expansionHubSecondary.read12vMonitor(ExpansionHubEx.VoltageUnits.VOLTS));
+            motorCurrentVoltageMonitor.update();
             telemetry.update();
             idle();
         }
@@ -98,10 +101,7 @@ public class TestDriveMotorWiring extends LinearOpMode {
 
         while (opModeIsActive() && timer.milliseconds() < 2000) {
             backRight.setPower(1.0);
-            telemetry.addData("motor = ", "back right");
-            telemetry.addData("port configured for = ", backRight.getPortNumber());
-            telemetry.addData("current = ", expansionHubSecondary.getMotorCurrentDraw(ExpansionHubEx.CurrentDrawUnits.AMPS, backRight.getPortNumber()));
-            telemetry.addData("Supply Voltage = ", expansionHubSecondary.read12vMonitor(ExpansionHubEx.VoltageUnits.VOLTS));
+            motorCurrentVoltageMonitor.update();
             telemetry.update();
             idle();
         }
@@ -111,15 +111,13 @@ public class TestDriveMotorWiring extends LinearOpMode {
 
         while (opModeIsActive() && timer.milliseconds() < 2000) {
             backLeft.setPower(1.0);
-            telemetry.addData("motor = ", "back left");
-            telemetry.addData("port configured for = ", backLeft.getPortNumber());
-            telemetry.addData("current = ", expansionHubSecondary.getMotorCurrentDraw(ExpansionHubEx.CurrentDrawUnits.AMPS, backLeft.getPortNumber()));
-            telemetry.addData("Supply Voltage = ", expansionHubSecondary.read12vMonitor(ExpansionHubEx.VoltageUnits.VOLTS));
+            motorCurrentVoltageMonitor.update();
             telemetry.update();
             idle();
         }
 
         backLeft.setPower(0);
+        motorCurrentVoltageMonitor.closeCSVData();
 
         // Put your cleanup code here - it runs as the application shuts down
         telemetry.addData(">", "Done");

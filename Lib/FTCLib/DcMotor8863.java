@@ -69,6 +69,16 @@ public class DcMotor8863 {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
+
+    /**
+     * The name of this motor
+     */
+    protected String motorName;
+
+    public String getMotorName() {
+        return motorName;
+    }
+
     /**
      * A DcMotor from the qualcomm code
      */
@@ -167,6 +177,8 @@ public class DcMotor8863 {
      * go 10 miles to
      */
     private int currentEncoderValue = 0;
+
+    private int baseEncoderValue = 0;
 
     /**
      * enables whether you detect a stall
@@ -487,6 +499,14 @@ public class DcMotor8863 {
         this.dataLog = dataLog;
     }
 
+    public void setBaseEncoderValue(int baseEncoderValue) {
+        this.baseEncoderValue = baseEncoderValue;
+    }
+
+    public int getBaseEncoderValue() {
+        return baseEncoderValue;
+    }
+
     //*********************************************************************************************
     //          Constructors
     //*********************************************************************************************
@@ -497,7 +517,8 @@ public class DcMotor8863 {
     }
 
     public DcMotor8863(String motorName, HardwareMap hardwareMap) {
-        FTCDcMotor = hardwareMap.dcMotor.get(motorName);
+        this.motorName = motorName;
+        FTCDcMotor = hardwareMap.get(DcMotor.class, motorName);
         stallTimer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
         completionTimer = new ElapsedTime();
         powerRamp = new RampControl(0, 0, 0);
@@ -1611,6 +1632,10 @@ public class DcMotor8863 {
      * @return current encoder count
      */
     public int getCurrentPosition() {
+        return FTCDcMotor.getCurrentPosition() - baseEncoderValue;
+    }
+
+    public int getCurrentPositionUnaltered() {
         return FTCDcMotor.getCurrentPosition();
     }
 

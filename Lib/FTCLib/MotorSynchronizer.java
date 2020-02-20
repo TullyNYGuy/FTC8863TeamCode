@@ -37,7 +37,7 @@ public class MotorSynchronizer {
     private DcMotor8863 motor1;
     private DcMotor8863 motor2;
 
-    private PIDControl pidControl1;
+    private PIDControl pidControl;
     private PIDControl pidControl2;
     private double correction1;
     private double correction2;
@@ -45,6 +45,8 @@ public class MotorSynchronizer {
 
     private int motor1Position;
     private int motor2Position;
+
+    private double correction = 0;
 
     /**
      * Once the PID has been setup is complete, this gets set to true.
@@ -69,9 +71,7 @@ public class MotorSynchronizer {
     public MotorSynchronizer(DcMotor8863 motor1, DcMotor8863 motor2) {
         this.motor1 = motor1;
         this.motor2 = motor2;
-        pidControl1 = new PIDControl();
-        pidControl2 = new PIDControl();
-        corrections = new double[]{0, 0};
+        pidControl = new PIDControl();
     }
 
     //*********************************************************************************************
@@ -87,23 +87,17 @@ public class MotorSynchronizer {
     //*********************************************************************************************
 
     public void setupPID(double kp, double ki, double kd) {
-        pidControl1.setKp(kp);
-        pidControl1.setKi(ki);
-        pidControl1.setKd(kd);
-        pidControl2.setKp(kp);
-        pidControl2.setKi(ki);
-        pidControl2.setKd(kd);
+        pidControl.setKp(kp);
+        pidControl.setKi(ki);
+        pidControl.setKd(kd);
+        pidControl.setSetpoint(0);
         setupPIDComplete = true;
     }
 
-    public double[] synchronizePosition() {
+    public double synchronizePosition() {
         motor1Position = motor1.getCurrentPosition();
         motor2Position = motor2.getCurrentPosition();
-        int averagePosition = (int)(motor2Position - motor1Position) / 2;
-        pidControl1.setSetpoint(averagePosition);
-        pidControl2.setSetpoint(averagePosition);
-        corrections[WhichMotor.MOTOR1.index] = pidControl1.getCorrection(motor1Position);
-        corrections[WhichMotor.MOTOR2.index] = pidControl2.getCorrection(motor2Position);
-        return corrections;
+        correction = pidControl.getCorrection(motor1Position - motor2Position);
+        return correction;
     }
 }
