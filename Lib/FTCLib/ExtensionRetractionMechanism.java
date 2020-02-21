@@ -560,7 +560,7 @@ public class ExtensionRetractionMechanism {
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
 
-    private double convertMechanismUnitsToEncoderCounts(double mechanismUnits) {
+    public double convertMechanismUnitsToEncoderCounts(double mechanismUnits) {
         return (mechanismUnits / movementPerRevolution * extensionRetractionMotor.getCountsPerRev());
     }
 
