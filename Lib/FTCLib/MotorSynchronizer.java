@@ -50,7 +50,7 @@ public class MotorSynchronizer {
     }
 
     /**
-     * The motor power for both motors that is the one you want them to run at.
+     * The desired or normal motor power for both motors.
      */
     private double motorPowerDesired = 0;
 
@@ -62,6 +62,9 @@ public class MotorSynchronizer {
         this.motorPowerDesired = motorPowerDesired;
     }
 
+    /**
+     * The normal motor power gets adjusted by the PID. This power is for motor1.
+     */
     private double motor1PowerAdjusted = 0;
 
     /**
@@ -74,9 +77,7 @@ public class MotorSynchronizer {
     }
 
     /**
-     * The motor power for motor 2 after being adjusted by the PID
-     *
-     * @return
+     * The normal motor power gets adjusted by the PID. This power is for motor2.
      */
     private double motor2PowerAdjusted = 0;
 
@@ -119,6 +120,23 @@ public class MotorSynchronizer {
 
     public void setTargetEncoderDifference(int targetEncoderDifference) {
         this.targetEncoderDifference = targetEncoderDifference;
+    }
+
+    /**
+     * Enable or disable the PID control.
+     */
+    private boolean enablePID = true;
+
+    public boolean isPIDEnabled() {
+        return enablePID;
+    }
+
+    public void enablePID() {
+        this.enablePID = true;
+    }
+
+    public void disablePID() {
+        this.enablePID = false;
     }
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -170,6 +188,7 @@ public class MotorSynchronizer {
         pidControl.setKd(kd);
         pidControl.setSetpoint(targetEncoderDifference);
         setupPIDComplete = true;
+        enablePID();
     }
 
     /**
@@ -192,25 +211,33 @@ public class MotorSynchronizer {
     public void adjustPowers(int motor1Position, int motor2Position) {
         // note that the correction produced by the PIDControl is - if motor1Position-motor2Position
         // is positive!
-        correction = pidControl.getCorrection(motor1Position - motor2Position);
-        if (movementDirection == MovementDirection.INCREASING_ENCODER) {
-            // if motor1 is leading then its encoder count is greater than motor2.
-            // motor1Position - motor2Position will be positive. Correction will be negative.
-            // So reduce its power. Correction is negative so add it!
-            motor1PowerAdjusted = motorPowerDesired + correction;
-            // if motor2 is lagging then its encoder count is less than motor1
-            // So increase its power. Correction is negative so subtract it!
-            motor2PowerAdjusted = motorPowerDesired - correction;
+        if (enablePID) {
+            correction = pidControl.getCorrection(motor1Position - motor2Position);
+            if (movementDirection == MovementDirection.INCREASING_ENCODER) {
+                // if motor1 is leading then its encoder count is greater than motor2.
+                // motor1Position - motor2Position will be positive. Correction will be negative.
+                // So reduce its power. Correction is negative so add it!
+                motor1PowerAdjusted = motorPowerDesired + correction;
+                // if motor2 is lagging then its encoder count is less than motor1
+                // So increase its power. Correction is negative so subtract it!
+                motor2PowerAdjusted = motorPowerDesired - correction;
+            }
+            if (movementDirection == MovementDirection.DECREASING_ENCODER) {
+                // if motor1 is leading then its encoder count is less than motor2.
+                // motor1Position - motor2Position will be negative. Correction will be positive.
+                // So decrease its power. Correction is positive so subtract it!
+                motor1PowerAdjusted = motorPowerDesired - correction;
+                // if motor2 is lagging then its encoder count is greater than motor1.
+                // motor1Position - motor2Position will be negative. Correction will be positive.
+                // So increase its power. Correction is positive so add it!
+                motor2PowerAdjusted = motorPowerDesired + correction;
+            }
+        } else {
+            // PID is disabled to no adjustments are made
+            correction = 0;
+            motor1PowerAdjusted = motorPowerDesired;
+            motor2PowerAdjusted = motorPowerDesired;
         }
-        if (movementDirection == MovementDirection.DECREASING_ENCODER) {
-            // if motor1 is leading then its encoder count is less than motor2.
-            // motor1Position - motor2Position will be negative. Correction will be positive.
-            // So decrease its power. Correction is positive so subtract it!
-            motor1PowerAdjusted = motorPowerDesired - correction;
-            // if motor2 is lagging then its encoder count is greater than motor1.
-            // motor1Position - motor2Position will be negative. Correction will be positive.
-            // So increase its power. Correction is positive so add it!
-            motor2PowerAdjusted = motorPowerDesired + correction;
-        }
+
     }
 }
