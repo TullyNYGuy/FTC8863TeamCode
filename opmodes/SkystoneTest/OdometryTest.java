@@ -55,13 +55,13 @@ public class OdometryTest extends LinearOpMode {
         TestOdometryModule left= new TestOdometryModule(hardwareMap);
         TestOdometryModule back = new TestOdometryModule(hardwareMap);
         OdometrySystem trial = new OdometrySystem(DistanceUnit.CM, left, right, back);
-        trial.initializeRobotGeometry(DistanceUnit.CM, 0, 1, DcMotorSimple.Direction.REVERSE, 0, 1, DcMotorSimple.Direction.FORWARD, 1, 0, DcMotorSimple.Direction.FORWARD);
+        trial.initializeRobotGeometry(DistanceUnit.CM, 0, 1, DcMotorSimple.Direction.REVERSE, 0, 1, DcMotorSimple.Direction.FORWARD, 1, 0, DcMotorSimple.Direction.REVERSE);
 
         left.setData(0);
         right.setData(0);
         back.setData(1);
         trial.calculateMoveDistance();
-        Position shower = new Position();
+        Position shower = new Position(DistanceUnit.INCH, 0, 0, 0, 0);
         shower.unit = DistanceUnit.CM;
         trial.getCurrentPosition(shower);
         telemetry.addData("robot moved: ", shower);
