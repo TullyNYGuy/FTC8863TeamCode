@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
 
-public class RampUpFlatTopRampDown implements ProfileFunction {
+public class ProfileFunctionTrapezoidal implements ProfileFunction {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -37,7 +37,7 @@ public class RampUpFlatTopRampDown implements ProfileFunction {
         return rampUpSlope;
     }
 
-    private double rampUpStartValueX = 0;
+    private double startValueX = 0;
 
     /**
      * point at which the ramp up transitions to the next phase of the function
@@ -77,8 +77,8 @@ public class RampUpFlatTopRampDown implements ProfileFunction {
         return rampUpTransitionX;
     }
 
-    private double rampDownFinishValueX = 0;
-    private double rampDownFinishValueY = 0;
+    private double finishValueX = 0;
+    private double finishValueY = 0;
 
     // values for a flat top function
 
@@ -96,7 +96,7 @@ public class RampUpFlatTopRampDown implements ProfileFunction {
 
     @Override
     public ProfileType getProfileType() {
-        return ProfileType.RAMP_UP_DOWN_FLAT_TOP;
+        return ProfileType.TRAPEZOIDAL;
     }
 
     @Override
@@ -111,21 +111,31 @@ public class RampUpFlatTopRampDown implements ProfileFunction {
     // from it
     //*********************************************************************************************
 
-    public RampUpFlatTopRampDown(double rampUpStartValueX, double rampUpStartValueY,
-                                 double rampUpFinishValueX, double rampUpFinishValueY,
-                                 double flatTopValueY,
-                                 double rampDownStartValueX, double rampDownStartValueY,
-                                 double rampDownFinishValueX, double rampDownFinishValueY) {
-        this.rampUpSlope = (rampUpFinishValueY - rampUpStartValueY) / (rampUpFinishValueX - rampUpStartValueX);
-        this.rampUpYIntercept = rampUpStartValueY;
-        this.rampUpStartValueX = rampUpStartValueX;
-        this.rampUpTransitionX = rampUpFinishValueX;
+    public ProfileFunctionTrapezoidal(double startValueX, double startValueY,
+                                      double rampUpFinishAtX,
+                                      double flatTopValueY,
+                                      double rampDownStartAtX,
+                                      double finishValueX, double finishValueY) {
+        this.rampUpSlope = (flatTopValueY - startValueY) / (rampUpFinishAtX - startValueX);
+        this.rampUpYIntercept = startValueY;
+        this.startValueX = startValueX;
+        this.rampUpTransitionX = rampUpFinishAtX;
         this.flatTopValueY = flatTopValueY;
-        this.rampDownSlope = (rampDownFinishValueY - rampDownStartValueY) / (rampDownStartValueX - rampDownFinishValueX);
-        this.rampDownYIntercept = rampDownStartValueY;
-        this.rampDownTransitionX = rampDownStartValueX;
-        this.rampDownFinishValueX = rampDownFinishValueX;
-        this.rampDownFinishValueY = rampDownFinishValueY;
+        this.rampDownSlope = (finishValueY - flatTopValueY) / (rampDownStartAtX - finishValueX);
+        this.rampDownYIntercept = flatTopValueY;
+        this.rampDownTransitionX = rampDownStartAtX;
+        this.finishValueX = finishValueX;
+        this.finishValueY = finishValueY;
+    }
+
+    public ProfileFunctionTrapezoidal ProfileFunctionTrapezoidalByPercent(double startValueX, double startValueY,
+                                                                          double percentOfTotalMovementToFlatTopTransition,
+                                                                          double flatTopValueY,
+                                                                          double percenOfTotalMovementToRampDownTransition,
+                                                                          double finishValueX, double finishValueY) {
+        double rampUpFinishAtX = (finishValueX - startValueX) * percentOfTotalMovementToFlatTopTransition / 100;
+        double rampDownStartAtX = (finishValueX - startValueX) * percenOfTotalMovementToRampDownTransition / 100;
+        return new ProfileFunctionTrapezoidal(startValueX, startValueY, rampUpFinishAtX, flatTopValueY, rampDownStartAtX, finishValueX, finishValueY);
     }
 
     //*********************************************************************************************
@@ -163,11 +173,11 @@ public class RampUpFlatTopRampDown implements ProfileFunction {
     @Override
     public double getYValue(double xValue) {
         double yValue = 0;
-        if (xValue < rampUpStartValueX) {
+        if (xValue < startValueX) {
             yValue = getRampUpYIntercept();
             isFinished = false;
         }
-        if (xValue >= rampUpStartValueX && xValue < rampUpTransitionX) {
+        if (xValue >= startValueX && xValue < rampUpTransitionX) {
             yValue = rampUpSlope * xValue + rampUpYIntercept;
             isFinished = false;
         }
@@ -175,12 +185,12 @@ public class RampUpFlatTopRampDown implements ProfileFunction {
             yValue = flatTopValueY;
             isFinished = false;
         }
-        if (xValue >= rampDownTransitionX && xValue < rampDownFinishValueX) {
+        if (xValue >= rampDownTransitionX && xValue < finishValueX) {
             yValue = rampDownSlope * xValue + rampDownYIntercept;
             isFinished = false;
         }
-        if (xValue >= rampDownFinishValueX) {
-            yValue = rampDownFinishValueY;
+        if (xValue >= finishValueX) {
+            yValue = finishValueY;
             isFinished = true;
         }
         return yValue;
