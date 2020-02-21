@@ -70,7 +70,7 @@ public class TestDualLiftGoToPosition extends LinearOpMode {
 
     public String buffer = "";
 
-    public double speed = 0.3;
+    public double speed = 0.7;
 
     @Override
     public void runOpMode() {
@@ -97,6 +97,7 @@ public class TestDualLiftGoToPosition extends LinearOpMode {
         lift.enableCollectData("dualLiftTimeEncoderValues");
         lift.setRetractionPower(-speed);
         lift.setExtensionPower(+speed);
+        lift.setTelemetry(telemetry);
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
