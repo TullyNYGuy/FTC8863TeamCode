@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
 
+import android.renderscript.Script;
+
 /**
  * This class is intended to synchronize the position of two motors as they move so that they move
  * together. It assumes that the motors are in RUN_TO_POSITION mode. It manipulates the max power
@@ -32,6 +34,13 @@ public class MotorSynchronizer {
 
     private PIDControl pidControl;
 
+    private double KpIncreasing = 0;
+    private double KpDecreasing = 0;
+    private double KiIncreasing = 0;
+    private double KiDecreasing = 0;
+    private double KdIncreasing = 0;
+    private double KdDecreasing = 0;
+
     private int motor1Position;
     private int motor2Position;
 
@@ -48,6 +57,8 @@ public class MotorSynchronizer {
     public double getCorrection() {
         return correction;
     }
+
+    private double correctionMultiplier = 1.0;
 
     /**
      * The desired or normal motor power for both motors.
@@ -101,10 +112,6 @@ public class MotorSynchronizer {
 
     public MovementDirection getMovementDirection() {
         return movementDirection;
-    }
-
-    public void setMovementDirection(MovementDirection movementDirection) {
-        this.movementDirection = movementDirection;
     }
 
     /**
@@ -184,11 +191,64 @@ public class MotorSynchronizer {
         // the max that a motor power can be is 1.0
         pidControl.setMaxCorrection(1.0);
         pidControl.setKp(kp);
+        this.KpIncreasing = kp;
+        this.KpDecreasing = kp;
         pidControl.setKi(ki);
+        this.KiIncreasing = ki;
+        this.KiDecreasing = ki;
         pidControl.setKd(kd);
+        this.KdIncreasing = kd;
+        this.KdDecreasing = kd;
         pidControl.setSetpoint(targetEncoderDifference);
+        correctionMultiplier = 1.0;
         setupPIDComplete = true;
         enablePID();
+    }
+
+    public void setupPID(int targetEncoderDifference,
+                         double KpIncreasing, double KiIncreasing, double KdIncreasing,
+                         double KpDecreasing, double KiDecreasing, double KdDecreasing) {
+        this.targetEncoderDifference = targetEncoderDifference;
+        pidControl.setMaxCorrection(1.0);
+        pidControl.setKp(KpIncreasing);
+        this.KpIncreasing = KpIncreasing;
+        this.KpDecreasing = KpDecreasing;
+        pidControl.setKi(KiIncreasing);
+        this.KiIncreasing = KiIncreasing;
+        this.KiDecreasing = KiDecreasing;
+        pidControl.setKd(KdIncreasing);
+        this.KdIncreasing = KdIncreasing;
+        this.KdDecreasing = KdDecreasing;
+        pidControl.setSetpoint(targetEncoderDifference);
+        correctionMultiplier = 1.0;
+        setupPIDComplete = true;
+        enablePID();
+    }
+
+    /**
+     * The movement is causing the encoders to increase. Use the PID gains for that direction and
+     * setup the proper subtraction or addition of the correction to the nominal power.
+     */
+    public void setMovementDirectionIncreasingEncoder() {
+        movementDirection = MovementDirection.INCREASING_ENCODER;
+        pidControl.setKp(KpIncreasing);
+        pidControl.setKi(KiIncreasing);
+        pidControl.setKd(KdIncreasing);
+        pidControl.reset();
+        correctionMultiplier = 1.0;
+    }
+
+    /**
+     * The movement is causing the encoders to decrease. Use the PID gains for that direction and
+     * setup the proper subtraction or addition of the correction to the nominal power.
+     */
+    public void setMovementDirectionDecreasingEncoder() {
+        movementDirection = MovementDirection.DECREASING_ENCODER;
+        pidControl.setKp(KpDecreasing);
+        pidControl.setKi(KiDecreasing);
+        pidControl.setKd(KdDecreasing);
+        pidControl.reset();
+        correctionMultiplier = -1.0;
     }
 
     /**
@@ -213,25 +273,27 @@ public class MotorSynchronizer {
         // is positive!
         if (enablePID) {
             correction = pidControl.getCorrection(motor1Position - motor2Position);
-            if (movementDirection == MovementDirection.INCREASING_ENCODER) {
-                // if motor1 is leading then its encoder count is greater than motor2.
-                // motor1Position - motor2Position will be positive. Correction will be negative.
-                // So reduce its power. Correction is negative so add it!
-                motor1PowerAdjusted = motorPowerDesired + correction;
-                // if motor2 is lagging then its encoder count is less than motor1
-                // So increase its power. Correction is negative so subtract it!
-                motor2PowerAdjusted = motorPowerDesired - correction;
-            }
-            if (movementDirection == MovementDirection.DECREASING_ENCODER) {
-                // if motor1 is leading then its encoder count is less than motor2.
-                // motor1Position - motor2Position will be negative. Correction will be positive.
-                // So decrease its power. Correction is positive so subtract it!
-                motor1PowerAdjusted = motorPowerDesired - correction;
-                // if motor2 is lagging then its encoder count is greater than motor1.
-                // motor1Position - motor2Position will be negative. Correction will be positive.
-                // So increase its power. Correction is positive so add it!
-                motor2PowerAdjusted = motorPowerDesired + correction;
-            }
+            // when the encoder count is increasing:
+            // if motor1 is leading then its encoder count is greater than motor2.
+            // motor1Position - motor2Position will be positive. Correction will be negative.
+            // So reduce its power. Correction is negative so add it (multiplier = +1)!
+
+            // when the encoder count is decreasing:
+            // if motor1 is leading then its encoder count is less than motor2.
+            // motor1Position - motor2Position will be negative. Correction will be positive.
+            // So decrease its power. Correction is positive so subtract it (multiplier = -1)!
+
+            motor1PowerAdjusted = motorPowerDesired + correction * correctionMultiplier;
+
+            // when the encoder count is increasing:
+            // if motor2 is lagging then its encoder count is less than motor1
+            // So increase its power. Correction is negative so subtract it (multiplier = +1)!
+
+            // when the encoder count is decreasing:
+            // if motor2 is lagging then its encoder count is greater than motor1.
+            // motor1Position - motor2Position will be negative. Correction will be positive.
+            // So increase its power. Correction is positive so add it (multiplier = -1)!
+            motor2PowerAdjusted = motorPowerDesired - correction * correctionMultiplier;
         } else {
             // PID is disabled to no adjustments are made
             correction = 0;
