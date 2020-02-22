@@ -319,25 +319,14 @@ public class SkystoneRobot implements FTCRobot {
 
         //Intake pusher servo
         if (capabilities.contains(Subsystem.INTAKE_PUSHER)) {
-            /*
             intakePusherServos = new IntakePusherServos(
                     hardwareMap,
                     HardwareName.INTAKE_PUSHER_RIGHT_SERVO.hwName,
-                    HardwareName.INTAKE_PUSHER_RIGHT_SERVO.hwName,
+                    HardwareName.INTAKE_PUSHER_LEFT_SERVO.hwName,
                     telemetry);
             subsystemMap.put(intakePusherServos.getName(), intakePusherServos);
-             */
         }
 
-        //Intake pusher servo
-       /* if (capabilities.contains(Subsystem.INTAKE_LIMIT_SW)) {
-            intakePusherServos = new IntakePusherServos(
-                    hardwareMap,
-                    HardwareName.INTAKE_PUSHER_RIGHT_SERVO.hwName,
-                    HardwareName.INTAKE_PUSHER_RIGHT_SERVO.hwName,
-                    telemetry);
-            subsystemMap.put(intakePusherServos.getName(), intakePusherServos);
-        }*/
         init();
         return true;
     }
@@ -353,7 +342,6 @@ public void setPosition(double currentpositionx,double currentPositiionY,double 
                 Velocity velocity = new Velocity(units,0,0,0,0);
                 imu.startAccelerationIntegration(place, velocity, 100);
             }
-            else {return;}
         }
 }
     /**

@@ -213,18 +213,18 @@ public class OdometrySystem implements FTCRobotSubsystem {
 
 
         // calculate angle of rotation
-        double deltaRotation = (leftEncoderValue - rightEncoderValue) * rotationalMultiplier;
+        double deltaRotation = (rightEncoderValue - leftEncoderValue) * rotationalMultiplier;
 
         // adjust values by canceling rotation
-        double leftVal = leftEncoderValue - deltaRotation * leftMultiplier;
-        double rightVal = rightEncoderValue + deltaRotation * rightMultiplier;
-        double backVal = backEncoderValue - deltaRotation * backMultiplier;
+        double leftVal = leftEncoderValue + deltaRotation * leftMultiplier;
+        double rightVal = rightEncoderValue - deltaRotation * rightMultiplier;
+        double backVal = backEncoderValue + deltaRotation * backMultiplier;
 
         double deltaX = (leftVal + rightVal) / 2.0;
-        double deltaY = -backVal;
+        double deltaY = backVal;
 
-        currentX += deltaX * Math.cos(deltaRotation);
-        currentY += deltaY * Math.sin(deltaRotation);
+        currentX += deltaX * Math.cos(currentRotation) - deltaY * Math.sin(currentRotation);
+        currentY += deltaX * Math.sin(currentRotation) + deltaY * Math.cos(currentRotation);
         currentRotation += deltaRotation;
         leftEncoderOld = leftEncoderNew;
         rightEncoderOld = rightEncoderNew;
@@ -263,10 +263,10 @@ public class OdometrySystem implements FTCRobotSubsystem {
             if (left != null) {
                 double leftEndingValue = left.getDistanceSinceReset(unit);
                 leftMultiplier = (leftEndingValue - leftStartingValue) / rotation;
-                if (leftMultiplier < 0.0) {
-                    leftDirectionMultiplier = 1.0;
-                } else {
+                if (leftMultiplier > 0.0) {
                     leftDirectionMultiplier = -1.0;
+                } else {
+                    leftDirectionMultiplier = 1.0;
                     leftMultiplier = -leftMultiplier;
                 }
             }
@@ -274,19 +274,19 @@ public class OdometrySystem implements FTCRobotSubsystem {
                 double rightEndingValue = right.getDistanceSinceReset(unit);
                 rightMultiplier = (rightEndingValue - rightStartingValue) / rotation;
                 if (rightMultiplier < 0.0) {
-                    rightDirectionMultiplier = 1.0;
+                    rightDirectionMultiplier = -1.0;
                     rightMultiplier = -rightMultiplier;
                 } else {
-                    rightDirectionMultiplier = -1.0;
+                    rightDirectionMultiplier = 1.0;
                 }
             }
             if (back != null) {
                 double backEndingValue = back.getDistanceSinceReset(unit);
                 backMultiplier = (backEndingValue - backStartingValue) / rotation;
                 if (backMultiplier > 0.0) {
-                    backDirectionMultiplier = 1.0;
-                } else {
                     backDirectionMultiplier = -1.0;
+                } else {
+                    backDirectionMultiplier = 1.0;
                     backMultiplier = -backMultiplier;
                 }
             }
