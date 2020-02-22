@@ -98,6 +98,17 @@ public class TestDualLiftResetCode extends LinearOpMode {
             telemetry.update();
             idle();
         }
+        telemetry.addData("Tension Complete Value L  ", lift.getLiftLeftTensionCompleteEncoderValue());
+        telemetry.addData("Tension Complete Value R  ", lift.getLiftRightTensionCompleteEncoderValue());
+
+        telemetry.addData("Base Encoder Value L pre adjustment ", lift.leftBaseEncoderValue);
+        telemetry.addData("Base Encoder Value R pre adjustment  ", lift.rightBaseEncoderValue);
+
+        telemetry.addData("Lift Encoder Value L after Adjustment  ", lift.leftLiftEncoderValue);
+        telemetry.addData("Lift Encoder Value R after Adjustment  ", lift.rightLiftEncoderValue);
+
+        telemetry.addData("Left", " lift");
+        telemetry.addData("Tension Complete encoder = ", lift.getLiftLeftTensionCompleteEncoderValue());
 
         // have to update the state machine in order to generate the last state update
         lift.update();
