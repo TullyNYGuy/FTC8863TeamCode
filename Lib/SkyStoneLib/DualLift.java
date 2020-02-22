@@ -283,13 +283,16 @@ public class DualLift implements FTCRobotSubsystem {
         this.desiredPower = desiredPower;
         liftRight.goToPosition(positionInInches, desiredPower);
         // this is a hardwired cob to see the effect of offsetting the command
-        liftLeft.goToPosition(positionInInches + 2, desiredPower);
+        liftLeft.goToPosition(positionInInches + 3, desiredPower);
         positionReachedState = PositionReachedStates.NONE_REACHED;
         enablePID = true;
+        logFileBoth.logData("Dual lift PID control enabled");
         if (liftLeft.convertMechanismUnitsToEncoderCounts(positionInInches) < getCurrentEncoderValueLeft()) {
+            logFileBoth.logData("Dual lift going down, Kp and multiplier set");
             correctionMultiplier = -1;
             KP = 0.0002;
         } else {
+            logFileBoth.logData("Dual lift going up, Kp and multiplier set");
             correctionMultiplier = 1;
             KP = 0.002;
         }
