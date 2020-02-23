@@ -144,7 +144,7 @@ public class SkystoneRobot implements FTCRobot {
         capabilities.remove(Subsystem.EXT_ARM);
         capabilities.remove(Subsystem.BASE_MOVER);
         capabilities.remove(Subsystem.ODOMETRY);
-        capabilities.remove(Subsystem.LIFT);
+        //capabilities.remove(Subsystem.LIFT);
     }
 
     /*
@@ -666,7 +666,7 @@ public void setPosition(double currentpositionx,double currentPositiionY,double 
 
     public void deportBlock() {
         if (deportState == DeportStates.IDLE || deportState == DeportStates.COMPLETE) {
-            deportHeight = 6.0;
+            deportHeight = 8.0;
             log("Robot commanded to deport stone");
             deportState = DeportStates.START;
         }
@@ -690,17 +690,19 @@ public void setPosition(double currentpositionx,double currentPositiionY,double 
                 //nothing just chilling
                 break;
             case START:
-                deportState = DeportStates.LIFT_RAISING;
-                if (lift != null)
+                if (lift != null) {
                     lift.goToPosition(deportHeight, 1);
+                    deportState = DeportStates.LIFT_RAISING;
+                }
                 break;
             case LIFT_RAISING:
-                if (lift != null)
+                if (lift != null) {
                     if (lift.isPositionReached()) {
                         if (extensionArm != null)
                             extensionArm.goToPosition(5, 1);
                         deportState = DeportStates.ARM_EXTENDING;
                     }
+                }
             case ARM_EXTENDING:
                 if (extensionArm != null && extensionArm.isPositionReached()) {
                     if (gripperRotator != null)
