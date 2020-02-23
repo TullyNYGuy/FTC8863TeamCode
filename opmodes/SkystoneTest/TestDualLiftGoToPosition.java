@@ -103,7 +103,7 @@ public class TestDualLiftGoToPosition extends LinearOpMode {
         lift.enableCollectData("dualLiftTimeEncoderValues");
         lift.setRetractionPower(-speed);
         lift.setExtensionPower(+speed);
-        lift.setTelemetry(telemetry);
+        //lift.setTelemetry(telemetry);
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");

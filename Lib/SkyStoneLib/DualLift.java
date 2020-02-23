@@ -126,9 +126,6 @@ public class DualLift implements FTCRobotSubsystem {
 
     private Telemetry telemetry;
 
-    public void setTelemetry(Telemetry telemetry) {
-        this.telemetry = telemetry;
-    }
 //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -178,6 +175,8 @@ public class DualLift implements FTCRobotSubsystem {
         configureForSkystone();
 
         pidControl = new PIDControl(KP, -120, 1);
+
+        this.telemetry = telemetry;
     }
 
     private void configureForSkystone() {
