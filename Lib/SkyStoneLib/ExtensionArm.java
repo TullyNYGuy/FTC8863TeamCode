@@ -86,8 +86,9 @@ public class ExtensionArm extends ExtensionRetractionMechanism implements FTCRob
         // after the super. Super is now in the middle of running. So those statements would not have
         // run yet.
         String servoName = SkystoneRobot.HardwareName.EXT_ARM_SERVO.hwName;
-        // the encoder is plugged into the intake motor left port
+
         extensionRetractionMotor = new DcServoMotor(motorNameForEncoderPort, servoName, 0.5, 0.5, .01, hardwareMap, telemetry);
+        // This call does not change the direction of the motor. It changes the direction of the servo!
         extensionRetractionMotor.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
@@ -98,6 +99,7 @@ public class ExtensionArm extends ExtensionRetractionMechanism implements FTCRob
         //determined experimentally to be 1900 but gave some margin, limited by the drag chain
         setExtensionPositionInEncoderCounts(ExtensionArmConstants.maximumExtensionInEncoderCounts);
         setResetPower(ExtensionArmConstants.resetPower);
+        extensionRetractionMotor.encoder.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
     //*********************************************************************************************
@@ -114,6 +116,14 @@ public class ExtensionArm extends ExtensionRetractionMechanism implements FTCRob
         return SUBSYSTEM_NAME;
     }
 
+    /**
+     * The init of the ExtensionRetractionMechanism resets the motor using
+     * setMode(STOP_AND_RESET_ENCODER). setMode is Overridden and calls resetEncoder() so everything
+     * is relative to the reset encoder count.
+     *
+     * @param config
+     * @return
+     */
     @Override
     public boolean init(Configuration config) {
         return super.init();

@@ -89,35 +89,16 @@ public class DcMotor8863 {
      */
     private MotorType motorType = MotorType.ANDYMARK_40;
 
-    /**
-     * Encoder counts per shaft revolution for this type of motor
-     */
-    private int countsPerRev = 0;
+    public EncoderWithoutMotor encoder;
 
     /**
      * The no load RPM for the motor as given by the motor datasheet
      */
     private int noLoadRPM = 0;
 
-    /**
-     * The no load max speed in encoder ticks per second
-     */
-    private int maxEncoderTicksPerSecond = 0;
-
-    /**
-     * Number of cm or degrees or whatever moved for each motor shaft revolution
-     */
-    private double MovementPerRev = 0;
-
-    /**
-     * Holds the desired encoder count for RUN_TO_POSITION
-     */
-    private int targetEncoderCount = 0;
-
-    /**
-     * The tolerance range for saying if the encoder count target has been reached.
-     */
-    private int targetEncoderTolerance = 0;
+    public int getNoLoadRPM() {
+        return this.noLoadRPM;
+    }
 
     /**
      * The current state of the motor.
@@ -156,29 +137,6 @@ public class DcMotor8863 {
      * motor direction
      */
     protected DcMotor.Direction direction = com.qualcomm.robotcore.hardware.DcMotor.Direction.FORWARD;
-
-    /**
-     * last encoder value
-     */
-    private int lastEncoderValue = 0;
-
-    /**
-     * current value of the encoder. NOTE: this may not be the same as the encoder value of the
-     * underlying DCMotor. This is a separate copy of the encoder value. It may not be updated with
-     * the value of the encoder on the actual motor so it may not match. Or this value can be
-     * manipulated so that it is set to 0 even though the underlying encoder has not been reset.
-     * Note that for whatever reason the SDK forces the motor to stop when the actual encoder is
-     * reset. If we are just keeping track of a series of movements, we may not want the motor to
-     * stop even though we want the encoder to be set to 0 again.
-     * In essence, this is a virtual encoder.
-     * Setting this value to the actual motor encoder value before starting a movement, and making
-     * the target encoder value = currentEncoderValue + Encoder Ticks needed for movement effectively
-     * implements a relative movement. Like saying go 2 miles to the stop sign, turn right, and then
-     * go 10 miles to
-     */
-    private int currentEncoderValue = 0;
-
-    private int baseEncoderValue = 0;
 
     /**
      * enables whether you detect a stall
@@ -256,64 +214,11 @@ public class DcMotor8863 {
 
     public void setMotorType(MotorType motorType) {
         this.motorType = motorType;
-        setCountsPerRevForMotorType(motorType);
         setNoLoadRPMForMotorType(motorType);
-        setMaxEncoderTicksPerSecond(getMotorSpeedInEncoderTicksPerSec(getCountsPerRev(), getNoLoadRPM()));
+        encoder.setMotorType(motorType);
+        encoder.setMaxEncoderTicksPerSecond(getMotorSpeedInEncoderTicksPerSec(encoder.getCountsPerRev(), getNoLoadRPM()));
     }
 
-    /**
-     * Set the number of encoder counts per revolution of the shaft based on the type of motor.
-     *
-     * @param motorType Type of motor.
-     * @return Number of encoder counts per revolution of the output shaft of the motor
-     */
-    private int setCountsPerRevForMotorType(MotorType motorType) {
-        switch (motorType) {
-            case NXT:
-                this.countsPerRev = 360;
-                break;
-            case ANDYMARK_20:
-                // http://www.andymark.com/NeveRest-20-12V-Gearmotor-p/am-3102.htm
-                this.countsPerRev = 560;
-                break;
-            case ANDYMARK_40:
-                // http://www.andymark.com/NeveRest-40-Gearmotor-p/am-2964a.htm
-                this.countsPerRev = 1120;
-                break;
-            case ANDYMARK_60:
-                // http://www.andymark.com/NeveRest-60-Gearmotor-p/am-3103.htm
-                this.countsPerRev = 1680;
-                break;
-            case TETRIX:
-                // http://www.cougarrobot.com/attachments/328_Tetrix_DC_Motor_V2.pdf
-                this.countsPerRev = 1440;
-                break;
-            case ANDYMARK_20_ORBITAL:
-                this.countsPerRev = 537;
-                break;
-            case ANDYMARK_3_7_ORBITAL:
-                this.countsPerRev = 103;
-                break;
-            case ANDYMARK_3_7_ORBITAL_OLD:
-                this.countsPerRev = 44;
-                break;
-            case USDIGITAL_360PPR_ENCODER:
-                this.countsPerRev = 1440;
-                break;
-            default:
-                this.countsPerRev = 0;
-                break;
-        }
-        return getCountsPerRev();
-    }
-
-    public int getCountsPerRev() {
-        return countsPerRev;
-    }
-
-    public int getNoLoadRPM() {
-        return this.noLoadRPM;
-    }
 
     /**
      * Put the data in for the no load RPM of each type of motor.
@@ -356,38 +261,6 @@ public class DcMotor8863 {
                 break;
         }
         return getNoLoadRPM();
-    }
-
-    private int getMaxEncoderTicksPerSecond() {
-        return this.maxEncoderTicksPerSecond;
-    }
-
-    private void setMaxEncoderTicksPerSecond(int maxEncoderCountsPerSec) {
-        this.maxEncoderTicksPerSecond = maxEncoderCountsPerSec;
-    }
-
-    public double getMovementPerRev() {
-        return MovementPerRev;
-    }
-
-    public void setMovementPerRev(double MovementPerRev) {
-        this.MovementPerRev = MovementPerRev;
-    }
-
-    public int getTargetEncoderCount() {
-        return targetEncoderCount;
-    }
-
-    protected void setTargetEncoderCount(int targetEncoderCount) {
-        this.targetEncoderCount = targetEncoderCount;
-    }
-
-    public int getTargetEncoderTolerance() {
-        return targetEncoderTolerance;
-    }
-
-    public void setTargetEncoderTolerance(int targetEncoderTolerance) {
-        this.targetEncoderTolerance = targetEncoderTolerance;
     }
 
     public MotorState getMotorState() {
@@ -471,10 +344,6 @@ public class DcMotor8863 {
         this.stallDetectionTolerance = stallDetectionTolerance;
     }
 
-    public int getLastEncoderValue() {
-        return lastEncoderValue;
-    }
-
     public MotorState getCurrentMotorState() {
         return currentMotorState;
     }
@@ -499,26 +368,26 @@ public class DcMotor8863 {
         this.dataLog = dataLog;
     }
 
-    public void setBaseEncoderValue(int baseEncoderValue) {
-        this.baseEncoderValue = baseEncoderValue;
-    }
-
-    public int getBaseEncoderValue() {
-        return baseEncoderValue;
-    }
-
     //*********************************************************************************************
     //          Constructors
     //*********************************************************************************************
 
+    public DcMotor8863(String motorName, MotorType motorType, HardwareMap hardwareMap, Telemetry telemetry) {
+        this(motorName, hardwareMap, telemetry);
+        this.motorType = motorType;
+    }
+
+    @Deprecated
     public DcMotor8863(String motorName, HardwareMap hardwareMap, Telemetry telemetry) {
         this(motorName, hardwareMap);
         this.telemetry = telemetry;
     }
 
+    @Deprecated
     public DcMotor8863(String motorName, HardwareMap hardwareMap) {
         this.motorName = motorName;
         FTCDcMotor = hardwareMap.get(DcMotor.class, motorName);
+        encoder = new EncoderWithoutMotor(motorName, motorType, DcMotorSimple.Direction.FORWARD, hardwareMap);
         stallTimer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
         completionTimer = new ElapsedTime();
         powerRamp = new RampControl(0, 0, 0);
@@ -532,10 +401,10 @@ public class DcMotor8863 {
      */
     private void initMotorDefaults() {
         setMotorType(MotorType.ANDYMARK_40);
-        setMovementPerRev(0);
+        encoder.setMovementPerRev(0);
         setStallDetectionEnabled(false);
-        setTargetEncoderCount(0);
-        setTargetEncoderTolerance(10);
+        encoder.setTargetEncoderCount(0);
+        encoder.setTargetEncoderTolerance(10);
         setMotorState(MotorState.IDLE);
         setFinishBehavior(FinishBehavior.FLOAT);
         setMotorMoveType(MotorMoveType.RELATIVE);
@@ -581,145 +450,6 @@ public class DcMotor8863 {
     // tested
     private int getMotorSpeedInEncoderTicksPerSec(int countsPerRev, int motorRPM) {
         return (int) Math.round((double) motorRPM * 1 / 60 * countsPerRev);
-    }
-
-    /**
-     * Calculate the number or motor revolutions needed to move whatever is attached to the motor
-     * a certain amount. It uses the MovementPerRev value for the calculation.
-     *
-     * @param movement The amount to move whatever is attached. It could be degrees, cm or any
-     *                 other units.
-     * @return Number of motor revolutions to turn.
-     */
-    // tested
-    public double getRevsForMovement(double movement) {
-        return movement / getMovementPerRev();
-    }
-
-    /**
-     * Calculate the number of encoder counts needed to move whatever is attached to the motor
-     * a certain amount. It uses the MovementPerRev value and number of encoder counts per revolution
-     * for the calculation. The number of encoder counts per rev is dependent on the motor type.
-     *
-     * @param movement The amount to move whatever is attached. It could be degrees, cm or any
-     *                 other units.
-     * @return Number of encoder counts to turn to create the movement.
-     */
-    // tested
-    public int getEncoderCountForMovement(double movement) {
-        return (int) Math.round(getCountsPerRev() * getRevsForMovement(movement));
-    }
-
-    /**
-     * Calculate the "movement" of whatever is attached to the motor based on the
-     * encoder counts given. The movement can be the number of degrees the motor has moved, the
-     * number of cm a wheel attached to the motor has turned etc. It uses the MovementPerRev and
-     * CountsPerRev defined when the motor object is setup.
-     *
-     * @param encoderCount The position of the motor as given by the encoder count
-     * @return How far the motor has moved whatever is attached to it.
-     */
-    // tested
-    public double getMovementForEncoderCount(int encoderCount) {
-        // note that I have to cast encoderCount to a double in order to get a double answer
-        // If I did not then 1000/300 = 3 rather than 3.3333 because 1000 and 300 are integers in the
-        // equation below. The compiler makes the answer int also and drops the .3333. So you get
-        // the wrong answer. Casting the numerator forces the compiler to do double math and you
-        // get the correct answer (3.333).
-        return (double) encoderCount / getCountsPerRev() * getMovementPerRev();
-    }
-
-    /**
-     * Provide a method to manually set the last encoder value to the current position.
-     */
-    public void setLastEncoderCountToCurrentPostion() {
-        lastEncoderValue = getCurrentPosition();
-    }
-
-    /**
-     * Get the current motor position in terms of the position of whatever is attached to it. The
-     * position can be the number of degrees, the position of a wheel in cm etc.
-     *
-     * @return position in units of whatever is attached to it
-     */
-    // tested
-    public double getPositionInTermsOfAttachment() {
-        return getMovementForEncoderCount(getCurrentPosition());
-    }
-
-    /**
-     * Get the current motor position in terms of the position of whatever is attached to it. The
-     * position can be the number of degrees, the position of a wheel in cm etc. The position is
-     * relative to the last position. In other words, the position is the current position - the
-     * position of the object before the last movement started.
-     *
-     * @return position in units of whatever is attached to it
-     */
-    // tested
-    public double getPositionInTermsOfAttachmentRelativeToLast() {
-        return getMovementForEncoderCount(getCurrentPosition() - this.lastEncoderValue);
-    }
-
-    /**
-     * Get the current encoder value relative to the last encoder value. In other words, the
-     * position is the current position - the position of the encoder  before the last movement
-     * started.
-     *
-     * @return encoder value - encoder value before the last movement started
-     */
-    public int getCurrentPositionRelativeToLast() {
-        return this.getCurrentPosition() - this.lastEncoderValue;
-    }
-
-
-    /**
-     * Gets the number of encoder counts for a certain number of revolutions.
-     *
-     * @param revs number of revolutions
-     * @return encoder counts
-     */
-    // tested
-    public int getEncoderCountForRevs(double revs) {
-        return (int) Math.round((getCountsPerRev() * revs));
-    }
-
-    /**
-     * Gets the number of encoder counts corresponding to a movement of a given number of degrees.
-     *
-     * @param degrees number of degrees
-     * @return encoder counts
-     */
-    //tested
-    public int getEncoderCountForDegrees(double degrees) {
-        return (int) Math.round(getCountsPerRev() * degrees / 360);
-    }
-
-    /**
-     * If the motor is set for relative movement, the encoder will be reset. But if the motor
-     * is set for absolute movement, the encoder needs to keep track of where the motor is, so
-     * it cannot be reset.
-     */
-    @Deprecated
-    private void resetEncoder() {
-        if (getMotorMoveType() == MotorMoveType.RELATIVE) {
-            this.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        }
-    }
-
-    /**
-     * If true is set, reset the encoder, no matter whether the motor is set for relative or
-     * absolute movement.
-     * Use this method to set the zero point on a motor that will be moved absolute from now on.
-     *
-     * @param override If true, then reset the encoder, no matter what.
-     */
-    @Deprecated
-    private void resetEncoder(boolean override) {
-        if (override) {
-            this.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        } else {
-            resetEncoder();
-        }
     }
 
     /**
@@ -793,8 +523,8 @@ public class DcMotor8863 {
     // tested
     public boolean moveToPosition(double power, double targetPosition, FinishBehavior afterCompletion) {
         // figure out what the encoder count is that corresponds to the target position
-        int encoderCountForPosition = getEncoderCountForMovement(targetPosition);
-        this.lastEncoderValue = this.getCurrentPosition();
+        int encoderCountForPosition = encoder.getEncoderCountForMovement(targetPosition);
+        encoder.setLastEncoderValue(encoder.getCurrentPosition());
         return rotateToEncoderCount(power, encoderCountForPosition, afterCompletion);
     }
 
@@ -832,10 +562,10 @@ public class DcMotor8863 {
     public boolean moveByAmount(double power, double movement, FinishBehavior afterCompletion) {
         int currentPosition = this.getCurrentPosition();
         // figure out what the encoder count is that corresponds to the amount to be moved
-        int encoderCountForMovement = getEncoderCountForMovement(movement);
+        int encoderCountForMovement = encoder.getEncoderCountForMovement(movement);
         // add that to the current encoder count
         int encoderCountForPosition = encoderCountForMovement + currentPosition;
-        this.lastEncoderValue = currentPosition;
+        encoder.setLastEncoderValue(currentPosition);
         return rotateToEncoderCount(power, encoderCountForPosition, afterCompletion);
 
     }
@@ -853,10 +583,10 @@ public class DcMotor8863 {
     public boolean rotateNumberOfDegrees(double power, double degrees, FinishBehavior afterCompletion) {
         int currentPosition = this.getCurrentPosition();
         // figure out what the encoder count is that corresponds to the amount to be moved
-        int encoderCountForDegrees = getEncoderCountForDegrees(degrees);
+        int encoderCountForDegrees = encoder.getEncoderCountForDegrees(degrees);
         // add that to the current encoder count
         int encoderCountForPosition = encoderCountForDegrees + currentPosition;
-        this.lastEncoderValue = currentPosition;
+        encoder.setLastEncoderValue(currentPosition);
         return rotateToEncoderCount(power, encoderCountForPosition, afterCompletion);
     }
 
@@ -873,10 +603,10 @@ public class DcMotor8863 {
     public boolean rotateNumberOfRevolutions(double power, double revs, FinishBehavior afterCompletion) {
         int currentPosition = this.getCurrentPosition();
         // figure out what the encoder count is that corresponds to the amount to be moved
-        int encoderCountForRevs = getEncoderCountForRevs(revs);
+        int encoderCountForRevs = encoder.getEncoderCountForRevs(revs);
         // add that to the current encoder count
         int encoderCountForPosition = encoderCountForRevs + currentPosition;
-        this.lastEncoderValue = currentPosition;
+        encoder.setLastEncoderValue(currentPosition);
         return rotateToEncoderCount(power, encoderCountForPosition, afterCompletion);
     }
 
@@ -1193,7 +923,7 @@ public class DcMotor8863 {
         setStallDetectionTolerance(stallDetectionTolerance);
         setStallTimeLimit(stallTimeLimit);
         stallTimer.reset();
-        this.lastEncoderValue = this.getCurrentPosition();
+        encoder.setLastEncoderValue(encoder.getCurrentPosition());
     }
 
     public boolean isStalled() {
@@ -1209,7 +939,7 @@ public class DcMotor8863 {
                 telemetry.addData("checking for a stall", "!");
             }
             // if the motor has not moved since the last time the position was read
-            if (Math.abs(currentEncoderValue - lastEncoderValue) < stallDetectionTolerance) {
+            if (Math.abs(currentEncoderValue - encoder.getLastEncoderValue()) < stallDetectionTolerance) {
                 if (telemetry != null) {
                     telemetry.addData("motor is not moving", "!");
                 }
@@ -1233,7 +963,7 @@ public class DcMotor8863 {
                 stallTimer.reset();
             }
         }
-        this.lastEncoderValue = currentEncoderValue;
+        encoder.setLastEncoderValue(currentEncoderValue);
         return false;
     }
 
@@ -1276,7 +1006,7 @@ public class DcMotor8863 {
                 int currentEncoderCount = this.getCurrentPosition();
                 // is the current position within the tolerance limit of the desired position? and
                 // has it been there for longer than the completion timeout?
-                if (Math.abs(targetEncoderCount - currentEncoderCount) < targetEncoderTolerance) {
+                if (Math.abs(encoder.getTargetEncoderCount() - currentEncoderCount) < encoder.getTargetEncoderTolerance()) {
                     if (completionTimer.milliseconds() > completionTimeoutInmSec) {
                         // movement is complete
                         result = true;
@@ -1575,13 +1305,67 @@ public class DcMotor8863 {
         }
     }
 
+
+    //*********************************************************************************************
+    //          Methods for interacting with the encoder - mostly wrappers due to refactoring
+    //          the encoder out of DcMotor8863. These are here for compatibility with older code.
+    //
+    //          For new code access the encoder directly.
+    //*********************************************************************************************
+
+    /**
+     * This resets the base encoder value. It does not reset the motor.
+     */
+    public void resetEncoder() {
+        encoder.reset();
+    }
+
+    public void setTargetEncoderCount(int targetEncoderCount) {
+        encoder.setTargetEncoderCount(targetEncoderCount);
+    }
+
+    /**
+     * Get the target encoder count adjusted by the base encoder value that was set at encoder reset
+     *
+     * @return
+     */
+    public int getTargetEncoderCount() {
+        return encoder.getTargetEncoderCount();
+    }
+
+
+    public void setMovementPerRev(double movementPerRev) {
+        encoder.setMovementPerRev(movementPerRev);
+    }
+
+    public void setTargetEncoderTolerance(int targetEncoderTolerance) {
+        encoder.setTargetEncoderTolerance(targetEncoderTolerance);
+    }
+
+    public double getPositionInTermsOfAttachment() {
+        return encoder.getPositionInTermsOfAttachment();
+    }
+
+    public double getPositionInTermsOfAttachmentRelativeToLast() {
+        return encoder.getPositionInTermsOfAttachmentRelativeToLast();
+    }
+
+    public int getEncoderCountForRevs(double revs) {
+        return encoder.getEncoderCountForRevs(revs);
+    }
+
+    public int getCountsPerRev() {
+        return encoder.getCountsPerRev();
+    }
+
+    public int getBaseEncoderValue() {
+        return encoder.getBaseEncoderValue();
+    }
+
     //*********************************************************************************************
     //          Wrapper Methods
     //*********************************************************************************************
     public void setMode(DcMotor.RunMode mode) {
-        if (mode == DcMotor.RunMode.STOP_AND_RESET_ENCODER) {
-            this.setMotorState(MotorState.IDLE);
-        }
         // There appears to be a bug that the motor controller gets confused when sending it mode
         // changes over and over quickly. So this code will detect a change and only send the change.
         // 1/15/2019
@@ -1599,6 +1383,11 @@ public class DcMotor8863 {
         // Save the mode locally so that I don't have to make a call to the controller later and
         // take up bus bandwidth to get the value. I can just look at this variable locally.
         this.currentRunMode = mode;
+        // reset the state machine and the encoder so it matches
+        if (mode == DcMotor.RunMode.STOP_AND_RESET_ENCODER) {
+            this.setMotorState(MotorState.IDLE);
+            encoder.reset();
+        }
     }
 
     public DcMotor.RunMode getMode() {
@@ -1620,10 +1409,14 @@ public class DcMotor8863 {
         FTCDcMotor.setZeroPowerBehavior(ZeroPowerBehavior);
     }
 
+    /**
+     * Set the motor's target encoder count for use in a RUN_TO_POSITION
+     * @param position
+     */
     public void setTargetPosition(int position) {
         // set the field holding the desired rotation
-        setTargetEncoderCount(position);
-        FTCDcMotor.setTargetPosition(position);
+        // adjust the target by any soft encoder reset value
+        FTCDcMotor.setTargetPosition(encoder.getTargetPosition(position));
     }
 
     /**
@@ -1632,16 +1425,14 @@ public class DcMotor8863 {
      * @return current encoder count
      */
     public int getCurrentPosition() {
-        return FTCDcMotor.getCurrentPosition() - baseEncoderValue;
-    }
-
-    public int getCurrentPositionUnaltered() {
-        return FTCDcMotor.getCurrentPosition();
+        return encoder.getCurrentPosition();
     }
 
     public void setDirection(DcMotor.Direction direction) {
         FTCDcMotor.setDirection(direction);
         this.direction = direction;
+        // must keep the encoder direction matching the motor direction
+        encoder.setDirectionDueToMotorDirectionChange(direction);
     }
 
     public int getPortNumber() {

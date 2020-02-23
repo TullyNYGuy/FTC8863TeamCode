@@ -590,10 +590,6 @@ public class ExtensionRetractionMechanism {
         timeEncoderValues.writeToCSVFile(timerEncoderValuesFile);
     }
 
-    public void setBaseEncoderValue(int baseEncoderValue) {
-        extensionRetractionMotor.setBaseEncoderValue(baseEncoderValue);
-    }
-
     public int getBaseEncoderValue() {
         return extensionRetractionMotor.getBaseEncoderValue();
     }
@@ -934,10 +930,6 @@ public class ExtensionRetractionMechanism {
         // coded here
         if (isRetractionLimitReached()) {
             log("Retraction limit switch pressed " + mechanismName);
-            result = true;
-        }
-        if (resetTimer.milliseconds() > 1000) {
-            log("Retraction timer tripped");
             result = true;
         }
         return result;

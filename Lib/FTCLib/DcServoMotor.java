@@ -19,7 +19,6 @@ public class DcServoMotor extends DcMotor8863 {
 
     private Servo servoMotor;
 
-    private int baseEncoderPosition = 0;
     /**
      * The last command sent to the servo. If the new command = last command then we don't actually
      * send out the new command.
@@ -58,7 +57,13 @@ public class DcServoMotor extends DcMotor8863 {
     public DcServoMotor(String motorName, String servoName, double centerValueForward, double centerValueReverse, double deadBandRange, HardwareMap hardwareMap, Telemetry telemetry) {
         // the motor is only going to be used for reading the encoder port since the encoder is
         // plugged into it.
-        super(motorName, hardwareMap, telemetry);
+
+
+        // it is assumed that the encoder attached to this servo in order to provide position
+        // feedback is a US Digital encoder that puts out 1440 ticks per revolution
+        super(motorName, MotorType.USDIGITAL_360PPR_ENCODER, hardwareMap, telemetry);
+        resetEncoder();
+
         // program the servo for continuous rotation and config the phone for a normal servo, NOT
         // a continuous rotation servo
         servoMotor = hardwareMap.get(Servo.class, servoName);
@@ -66,21 +71,19 @@ public class DcServoMotor extends DcMotor8863 {
         this.centerValueReverse = centerValueReverse;
         this.deadBandRange = deadBandRange;
         // must set a default direction. This forces the centervalue to be set to centerValueForward
+        // this sets the direction of the servo, not the motor or the encoder
         setDirection(DcMotorSimple.Direction.FORWARD);
-        // get the encoder position and set that base encoder position to that
-        baseEncoderPosition = getCurrentPosition();
-
-        // it is assumed that the encoder attached to this servo in order to provide position
-        // feedback is a US Digital encoder that puts out 1440 ticks per revolution
-        setMotorType(MotorType.USDIGITAL_360PPR_ENCODER);
     }
 
     //*********************************************************************************************
-    //          MAJOR METHODS
-    //
-    // public methods that give the class its functionality
+    //     methods that interact with the servo.
     //*********************************************************************************************
 
+    /**
+     * Set the speed of the servo.
+     *
+     * @param power
+     */
     @Override
     public void setPower(double power) {
         // there is no PID here so we don't need to clip the power
@@ -122,9 +125,9 @@ public class DcServoMotor extends DcMotor8863 {
         }
     }
 
+
     /**
-     * Set the direction the motor turns when it is sent a positive command. This method re-defines
-     * the meaning of forwards and backwards.
+     * This method actually set the direction of the servo, NOT the motor.
      *
      * @param direction
      */
@@ -138,9 +141,25 @@ public class DcServoMotor extends DcMotor8863 {
             servoMotor.setDirection(Servo.Direction.REVERSE);
         }
         this.direction = direction;
-
     }
 
+    //*********************************************************************************************
+    //     methods that interact with the encoder.
+    //*********************************************************************************************
+
+    public void setEncoderDirection(DcMotorSimple.Direction direction) {
+        encoder.setDirection(direction);
+    }
+
+    //*********************************************************************************************
+    //     methods that interact with the motor.
+    //*********************************************************************************************
+
+    /**
+     * The motor can't be affected by methods called from this class because something else is
+     * actually using the motor. So override the method and remove its affect on the motor.
+     * @param ZeroPowerBehavior
+     */
     @Override
     public void setZeroPowerBehavior(DcMotor.ZeroPowerBehavior ZeroPowerBehavior) {
     }
@@ -149,14 +168,19 @@ public class DcServoMotor extends DcMotor8863 {
     public void setTargetPosition(int position) {
         // set the field holding the desired rotation
         // this does NOT interact with the motor that the encoder is plugged into
-        setTargetEncoderCount(position);
+        encoder.setTargetEncoderCount(position);
     }
 
     @Override
     public int getCurrentPosition() {
-        return (FTCDcMotor.getCurrentPosition() - baseEncoderPosition);
+        return encoder.getCurrentPosition();
     }
 
+    /**
+     * The motor can't be affected by methods called from this class because something else is
+     * actually using the motor. So override the method and remove its affect on the motor.
+     * @param mode
+     */
     @Override
     public void setMode(DcMotor.RunMode mode) {
         if (mode != getCurrentRunMode()) {
@@ -165,14 +189,20 @@ public class DcServoMotor extends DcMotor8863 {
                     mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER;
                     break;
                 case STOP_AND_RESET_ENCODER:
+                    // THIS doeds NOT reset the motor!
                     setServoSpeed(0);
-                    baseEncoderPosition = FTCDcMotor.getCurrentPosition();
+                    resetEncoder();
                     break;
             }
             setCurrentRunMode(mode);
         }
     }
 
+    /**
+     * The motor can't be affected by methods called from this class because something else is
+     * actually using the motor. So override the method and remove its affect on the motor.
+     * @return
+     */
     @Override
     public MotorState update() {
         return MotorState.COMPLETE_HOLD;
@@ -198,7 +228,7 @@ public class DcServoMotor extends DcMotor8863 {
     // OR just override rotateToEncoderCount
 
     private boolean isEncoderAtTarget(int desiredEncoderCount) {
-        if (Math.abs(desiredEncoderCount - getCurrentPosition()) <= 40) {
+        if (Math.abs(desiredEncoderCount - encoder.getCurrentPosition()) <= 40) {
             // stop the servo
             setPower(0);
             return true;
@@ -207,9 +237,19 @@ public class DcServoMotor extends DcMotor8863 {
         }
     }
 
+    /**
+     * The motor can't be affected by methods called from this class because something else is
+     * actually using the motor. So override the method and remove its affect on the motor.
+     *
+     * Run the servo until the encoder count target is reached.
+     * @param power           Power input for the motor. Note that it will be clipped to less than +/-0.8.
+     * @param encoderCount    Motor will be rotated so that it results in a movement of this distance.
+     * @param afterCompletion What to do after this movement is completed: HOLD or COAST
+     * @return
+     */
     @Override
     public boolean rotateToEncoderCount(double power, int encoderCount, FinishBehavior afterCompletion) {
-        setTargetEncoderCount(encoderCount);
+        encoder.setTargetEncoderCount(encoderCount);
         setMode(DcMotor.RunMode.RUN_TO_POSITION);
         if (!isEncoderAtTarget(encoderCount)) {
             if (encoderCount > getCurrentPosition()) {
@@ -222,6 +262,10 @@ public class DcServoMotor extends DcMotor8863 {
         return false;
     }
 
+    /**
+     * Redefine completion of the movement
+     * @return
+     */
     @Override
     public boolean isMotorStateComplete() {
         return isEncoderAtTarget(getTargetEncoderCount());
