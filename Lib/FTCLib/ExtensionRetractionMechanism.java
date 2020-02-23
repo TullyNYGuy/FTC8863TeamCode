@@ -243,6 +243,8 @@ public class ExtensionRetractionMechanism {
         this.resetPower = resetPower;
     }
 
+    private ElapsedTime resetTimer;
+
     /**
      * The power to use when retracting the mechanism
      */
@@ -500,6 +502,8 @@ public class ExtensionRetractionMechanism {
         // create the time encoder data list in case it is needed
         timeEncoderValues = new PairedList();
         liftTimer = new ElapsedTime();
+
+        resetTimer = new ElapsedTime();
     }
 
     /**
@@ -925,14 +929,18 @@ public class ExtensionRetractionMechanism {
     }
 
     protected boolean isMoveToResetComplete() {
+        boolean result = false;
         // your method of determining whether the movement to the reset is complete must be
         // coded here
         if (isRetractionLimitReached()) {
             log("Retraction limit switch pressed " + mechanismName);
-            return true;
-        } else {
-            return false;
+            result = true;
         }
+        if (resetTimer.milliseconds() > 1000) {
+            log("Retraction timer tripped");
+            result = true;
+        }
+        return result;
     }
 
     protected void performActionsToCompleteResetMovement() {
@@ -1515,6 +1523,7 @@ public class ExtensionRetractionMechanism {
                         if (arePreResetActionsComplete()) {
                             // pre reset actions are complete, start the movement to reset position
                             moveToReset();
+                            resetTimer.reset();
                             extensionRetractionState = ExtensionRetractionStates.MOVING_TO_RESET_POSITION;
                             extensionRetractionCommand = ExtensionRetractionCommands.RESET;
                         } else {
