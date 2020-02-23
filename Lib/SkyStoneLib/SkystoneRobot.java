@@ -143,8 +143,8 @@ public class SkystoneRobot implements FTCRobot {
         capabilities.remove(Subsystem.INTAKE_PUSHER);
         capabilities.remove(Subsystem.EXT_ARM);
         capabilities.remove(Subsystem.BASE_MOVER);
-        capabilities.remove(Subsystem.ODOMETRY);
-        //capabilities.remove(Subsystem.LIFT);
+       // capabilities.remove(Subsystem.ODOMETRY);
+        capabilities.remove(Subsystem.LIFT);
     }
 
     /*
@@ -241,9 +241,9 @@ public class SkystoneRobot implements FTCRobot {
             mecanum = new Mecanum(frontLeft, frontRight, backLeft, backRight, telemetry);
         }
         if (capabilities.contains(Subsystem.ODOMETRY)) {
-            OdometryModule left = new OdometryModule(1440, 3.8, units, HardwareName.ODOMETRY_MODULE_LEFT.hwName, hardwareMap);
-            OdometryModule right = new OdometryModule(1440, 3.8, units, HardwareName.ODOMETRY_MODULE_RIGHT.hwName, hardwareMap);
-            OdometryModule back = new OdometryModule(1440, 3.8, units, HardwareName.ODOMETRY_MODULE_BACK.hwName, hardwareMap);
+            OdometryModule left = new OdometryModule(1440, 3.8*Math.PI, units, HardwareName.ODOMETRY_MODULE_LEFT.hwName, hardwareMap);
+            OdometryModule right = new OdometryModule(1440, 3.8*Math.PI, units, HardwareName.ODOMETRY_MODULE_RIGHT.hwName, hardwareMap);
+            OdometryModule back = new OdometryModule(1440, 3.8*Math.PI, units, HardwareName.ODOMETRY_MODULE_BACK.hwName, hardwareMap);
             odometry = new OdometrySystem(units, left, right, back);
             subsystemMap.put(odometry.getName(), odometry);
         }
@@ -319,25 +319,14 @@ public class SkystoneRobot implements FTCRobot {
 
         //Intake pusher servo
         if (capabilities.contains(Subsystem.INTAKE_PUSHER)) {
-            /*
             intakePusherServos = new IntakePusherServos(
                     hardwareMap,
                     HardwareName.INTAKE_PUSHER_RIGHT_SERVO.hwName,
-                    HardwareName.INTAKE_PUSHER_RIGHT_SERVO.hwName,
+                    HardwareName.INTAKE_PUSHER_LEFT_SERVO.hwName,
                     telemetry);
             subsystemMap.put(intakePusherServos.getName(), intakePusherServos);
-             */
         }
 
-        //Intake pusher servo
-       /* if (capabilities.contains(Subsystem.INTAKE_LIMIT_SW)) {
-            intakePusherServos = new IntakePusherServos(
-                    hardwareMap,
-                    HardwareName.INTAKE_PUSHER_RIGHT_SERVO.hwName,
-                    HardwareName.INTAKE_PUSHER_RIGHT_SERVO.hwName,
-                    telemetry);
-            subsystemMap.put(intakePusherServos.getName(), intakePusherServos);
-        }*/
         init();
         return true;
     }
@@ -353,7 +342,6 @@ public void setPosition(double currentpositionx,double currentPositiionY,double 
                 Velocity velocity = new Velocity(units,0,0,0,0);
                 imu.startAccelerationIntegration(place, velocity, 100);
             }
-            else {return;}
         }
 }
     /**

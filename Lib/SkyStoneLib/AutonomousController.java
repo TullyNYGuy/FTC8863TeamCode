@@ -72,7 +72,7 @@ public class AutonomousController {
 
     class MovemenetThread implements Runnable {
 
-        private final double XY_Kp = .02;
+        private final double XY_Kp = .05;
         private final double XY_Ki = 0;
         private final double XY_Kd = 0;
         private final double XY_MAX_CORRECTION = 1;
@@ -138,7 +138,7 @@ public class AutonomousController {
             commands.setSpeed(Math.sqrt(valX * valX + valY * valY));
             commands.setAngleOfTranslation(AngleUnit.RADIANS, Math.atan2(valY, valX));
             commands.setSpeedOfRotation(valRot);
-            // robot.setMovement(commands);
+            robot.setMovement(commands);
             //telemetry.addData("MT: ", String.format("x: %.2f, y: %.2f", valX, valY));
             dataLog.logData(String.format("Position (X, Y): (%.2f, %.2f)", current.x, current.y));
             dataLog.logData(String.format("Correction (X, Y): (%.2f, %.2f)", valX, valY));
