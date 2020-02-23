@@ -143,7 +143,7 @@ public class SkystoneRobot implements FTCRobot {
         capabilities.remove(Subsystem.INTAKE_PUSHER);
         capabilities.remove(Subsystem.EXT_ARM);
         capabilities.remove(Subsystem.BASE_MOVER);
-        capabilities.remove(Subsystem.ODOMETRY);
+       // capabilities.remove(Subsystem.ODOMETRY);
         capabilities.remove(Subsystem.LIFT);
     }
 
@@ -241,9 +241,9 @@ public class SkystoneRobot implements FTCRobot {
             mecanum = new Mecanum(frontLeft, frontRight, backLeft, backRight, telemetry);
         }
         if (capabilities.contains(Subsystem.ODOMETRY)) {
-            OdometryModule left = new OdometryModule(1440, 3.8, units, HardwareName.ODOMETRY_MODULE_LEFT.hwName, hardwareMap);
-            OdometryModule right = new OdometryModule(1440, 3.8, units, HardwareName.ODOMETRY_MODULE_RIGHT.hwName, hardwareMap);
-            OdometryModule back = new OdometryModule(1440, 3.8, units, HardwareName.ODOMETRY_MODULE_BACK.hwName, hardwareMap);
+            OdometryModule left = new OdometryModule(1440, 3.8*Math.PI, units, HardwareName.ODOMETRY_MODULE_LEFT.hwName, hardwareMap);
+            OdometryModule right = new OdometryModule(1440, 3.8*Math.PI, units, HardwareName.ODOMETRY_MODULE_RIGHT.hwName, hardwareMap);
+            OdometryModule back = new OdometryModule(1440, 3.8*Math.PI, units, HardwareName.ODOMETRY_MODULE_BACK.hwName, hardwareMap);
             odometry = new OdometrySystem(units, left, right, back);
             subsystemMap.put(odometry.getName(), odometry);
         }
