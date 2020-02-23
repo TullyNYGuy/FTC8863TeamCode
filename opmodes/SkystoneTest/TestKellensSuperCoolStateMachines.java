@@ -78,9 +78,10 @@ public class TestKellensSuperCoolStateMachines extends LinearOpMode {
                 case START:
                     robot.intakeBlock();
                     action = Actions.INTAKE;
+                    timer.reset();
                     break;
                 case INTAKE:
-                    if (robot.isIntakeBlockComplete()) {
+                    if (timer.milliseconds() > 2000) {
                         robot.gripBlock();
                         action = Actions.GRIP;
                     }
@@ -88,7 +89,7 @@ public class TestKellensSuperCoolStateMachines extends LinearOpMode {
                 case GRIP:
                     if (robot.isGripBlockComplete()) {
                         robot.deportBlock();
-                        action = Actions.DEPORT;
+                        action = Actions.COMPLETE;
                     }
                     break;
                 case DEPORT:
@@ -136,11 +137,11 @@ public class TestKellensSuperCoolStateMachines extends LinearOpMode {
             if (robot.isPrepareIntakeComplete()) {
                 stop();
             }*/
-            telemetry.addData("CurrentStateGrip", robot.getCurrentGripperState());
-            telemetry.addData("CurrentStateDeport", robot.getCurrentDeportState());
-            telemetry.addData("CurrentStateLift", robot.getCurrentLiftState());
-            telemetry.addData("CurrentStatePlaceBlock", robot.getCurrentPlaceBlockState());
-            telemetry.addData("CurrentStatePrepareIntake", robot.getCurrentPrepareIntakeState());
+            // telemetry.addData("CurrentStateGrip", robot.getCurrentGripperState());
+            // telemetry.addData("CurrentStateDeport", robot.getCurrentDeportState());
+            //telemetry.addData("CurrentStateLift", robot.getCurrentLiftState());
+            // telemetry.addData("CurrentStatePlaceBlock", robot.getCurrentPlaceBlockState());
+            //telemetry.addData("CurrentStatePrepareIntake", robot.getCurrentPrepareIntakeState());
 
 
             idle();
