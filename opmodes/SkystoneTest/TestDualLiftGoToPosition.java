@@ -132,6 +132,7 @@ public class TestDualLiftGoToPosition extends LinearOpMode {
                     }
                     break;
                 case TWO:
+                    // ToDo something is broken here
                     if (lift.isPositionReached()) {
                         timer.reset();
                         step = Steps.THREE;
