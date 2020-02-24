@@ -117,8 +117,6 @@ public class DualLift implements FTCRobotSubsystem {
 
     private int correctionMultiplier;
 
-    private double KP;
-
     private double desiredPower;
 
     private PIDControl pidControl;
@@ -174,7 +172,7 @@ public class DualLift implements FTCRobotSubsystem {
 
         configureForSkystone();
 
-        pidControl = new PIDControl(KP, -120, 1);
+        pidControl = new PIDControl(.002, -120, 1);
 
         this.telemetry = telemetry;
     }
@@ -289,11 +287,15 @@ public class DualLift implements FTCRobotSubsystem {
         if (liftLeft.convertMechanismUnitsToEncoderCounts(positionInInches) < getCurrentEncoderValueLeft()) {
             logFileBoth.logData("Dual lift going down, Kp and multiplier set");
             correctionMultiplier = -1;
-            KP = 0.0002;
+            pidControl.setKp(0.0002);
         } else {
             logFileBoth.logData("Dual lift going up, Kp and multiplier set");
             correctionMultiplier = 1;
-            KP = 0.002;
+            //todo show kellen the pid control bug
+            // here is the bug in the correction! kp in the pidControl was never set
+            //KP = 0.002;
+            pidControl.setKp(.002);
+
         }
     }
 

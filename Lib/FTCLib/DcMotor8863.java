@@ -1002,10 +1002,13 @@ public class DcMotor8863 {
             case RUN_TO_POSITION:
                 // This is the only mode that will eventually have the motor stop turning. This next
                 // section of code is my replacement for DcMotor.isBusy().
-                // get the current encoder position
-                int currentEncoderCount = this.getCurrentPosition();
+                // get the current encoder position. This is from the point of view of the encoder.
+                // IN other words, the encoder count reported by the motor adjusted for encoder reset
+                // count and difference in direction between the motor and encoder.
+                int currentEncoderCount = encoder.getCurrentPosition();
                 // is the current position within the tolerance limit of the desired position? and
                 // has it been there for longer than the completion timeout?
+                // Again, target encoder count is from the point of view of the encoder.
                 if (Math.abs(encoder.getTargetEncoderCount() - currentEncoderCount) < encoder.getTargetEncoderTolerance()) {
                     if (completionTimer.milliseconds() > completionTimeoutInmSec) {
                         // movement is complete
@@ -1415,7 +1418,9 @@ public class DcMotor8863 {
      */
     public void setTargetPosition(int position) {
         // set the field holding the desired rotation
-        // adjust the target by any soft encoder reset value
+        encoder.setTargetEncoderCount(position);
+        // adjust the target by any soft encoder reset value and direction difference between the
+        // motor and encoder. Set the motor with it.
         FTCDcMotor.setTargetPosition(encoder.getTargetPosition(position));
     }
 

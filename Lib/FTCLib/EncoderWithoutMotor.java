@@ -114,12 +114,13 @@ public class EncoderWithoutMotor {
     }
 
     /**
-     * Holds the desired encoder count for RUN_TO_POSITION
+     * Holds the desired encoder count for RUN_TO_POSITION. The encoder count is from the point of
+     * view of the encoder. It is not raw motor encoder count.
      */
     private int targetEncoderCount = 0;
 
     public int getTargetEncoderCount() {
-        return targetEncoderCount + baseEncoderValue;
+        return targetEncoderCount;
     }
 
     protected void setTargetEncoderCount(int targetEncoderCount) {
@@ -552,8 +553,9 @@ public class EncoderWithoutMotor {
      * Get the target position after adjusting for the reset position of the encoder and any
      * difference in direction between the encoder and motor.
      *
-     * @param positionToBeAdjusted
-     * @return
+     * @param positionToBeAdjusted - this is a position from the point of view of the encoder or
+     *                             user
+     * @return - target position from the point of view of the motor
      */
     public int getTargetPosition(int positionToBeAdjusted) {
         // flip the sign on the encoder referenced target based on the algorithm above
