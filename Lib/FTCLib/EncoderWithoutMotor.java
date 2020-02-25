@@ -471,8 +471,6 @@ public class EncoderWithoutMotor {
     // getCurrentPosition = +1000 (motor)   - +100 (base)  =  +900 (encoder)
     //      This is not the correct value so there are 2 options:
     //      flip the sign on the answer +900 -> -900
-    //      flip the sign on the motor value during the calculation
-    // getCurrentPosition = -1000 (motor)   - +100 (base)  =  -900 (encoder)
     // getTargetPosition  =  -900 (encoder) + +100 (base)  =  -800 (motor)
     //      This is also not the correct answer. The only way to arrive at the correct answer
     //      is to flip the sign on the encoder value:

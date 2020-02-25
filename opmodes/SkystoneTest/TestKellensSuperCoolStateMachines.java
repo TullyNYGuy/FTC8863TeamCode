@@ -83,19 +83,21 @@ public class TestKellensSuperCoolStateMachines extends LinearOpMode {
                 case INTAKE:
                     if (timer.milliseconds() > 2000) {
                         robot.gripBlock();
+                        robot.intakeOff();
                         action = Actions.GRIP;
                     }
                     break;
                 case GRIP:
                     if (robot.isGripBlockComplete()) {
                         robot.deportBlock();
-                        action = Actions.COMPLETE;
+                        action = Actions.DEPORT;
                     }
                     break;
                 case DEPORT:
                     if (robot.isDeportBlockComplete()) {
+                        robot.setSkyscraperLevel(4);
                         robot.liftBlock();
-                        action = Actions.LIFT;
+                        action = Actions.COMPLETE;
                     }
                     break;
                 case LIFT:

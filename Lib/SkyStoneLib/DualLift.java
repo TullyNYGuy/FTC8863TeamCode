@@ -61,7 +61,13 @@ public class DualLift implements FTCRobotSubsystem {
     // spool diameter * pi * 5 stages
     private double movementPerRevolution = spoolDiameter * Math.PI * 5;
 
-    private double heightAboveTower = 1;
+    private double heightAboveTower = 2;
+
+    private double foundationHeight = 2;
+
+    private double heightBeforeLiftStartsMoving = 7.5;
+
+    private double nub = 1;
 
     private DataLogging logFileBoth;
 
@@ -352,7 +358,7 @@ public class DualLift implements FTCRobotSubsystem {
         if (blockNumber > maxBlockNumber) {
             blockNumber = maxBlockNumber;
         }
-        goToPosition(Skystone.getHeightPlusNubIN() * blockNumber + heightAboveTower, .3);
+        goToPosition(Skystone.getHeightIN() * blockNumber + heightAboveTower + foundationHeight + heightBeforeLiftStartsMoving + nub, .7);
     }
 
     public void goToBottom() {

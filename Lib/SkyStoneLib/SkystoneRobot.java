@@ -654,7 +654,7 @@ public void setPosition(double currentpositionx,double currentPositiionY,double 
 
     public void deportBlock() {
         if (deportState == DeportStates.IDLE || deportState == DeportStates.COMPLETE) {
-            deportHeight = 8.0;
+            deportHeight = 14.0;
             log("Robot commanded to deport stone");
             deportState = DeportStates.START;
         }
@@ -663,7 +663,7 @@ public void setPosition(double currentpositionx,double currentPositiionY,double 
     public void deportBlockCapstone() {
         //Special Secret Sauce Height//
         if (deportState == DeportStates.IDLE || deportState == DeportStates.COMPLETE) {
-            deportHeight = 10.0;
+            deportHeight = 16.0;
             log("Robot commanded to deport stone(capstone)");
             deportState = DeportStates.START;
         } else {
@@ -687,7 +687,7 @@ public void setPosition(double currentpositionx,double currentPositiionY,double 
                 if (lift != null) {
                     if (lift.isPositionReached()) {
                         if (extensionArm != null)
-                            extensionArm.goToPosition(5, 1);
+                            extensionArm.goToPosition(10, 1);
                         deportState = DeportStates.ARM_EXTENDING;
                     }
                 }
@@ -759,6 +759,10 @@ public void setPosition(double currentpositionx,double currentPositiionY,double 
         return skyscraperLevel;
     }
 
+    public void setSkyscraperLevel(int skyscraperLevel) {
+        this.skyscraperLevel = skyscraperLevel;
+    }
+
     public void increaseDesiredHeightForLift() {
         log("Robot commanded to increase skyscraper level");
         skyscraperLevel = skyscraperLevel + 1;
@@ -787,7 +791,6 @@ public void setPosition(double currentpositionx,double currentPositiionY,double 
     public void liftBlockStateUpdate() {
         switch (liftBlockState) {
             case IDLE:
-                skyscraperLevel = 3;
                 //nothing just chilling
                 break;
             case START:

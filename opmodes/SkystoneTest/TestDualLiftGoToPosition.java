@@ -127,7 +127,7 @@ public class TestDualLiftGoToPosition extends LinearOpMode {
                     break;
                 case ONE:
                     if (timer.milliseconds() > 2000) {
-                        lift.goToPosition(15, speed);
+                        lift.goToPosition(8, speed);
                         step = Steps.TWO;
                     }
                     break;
@@ -140,7 +140,7 @@ public class TestDualLiftGoToPosition extends LinearOpMode {
                     break;
                 case THREE:
                     if (timer.milliseconds() > 2000) {
-                        lift.goToPosition(8, speed);
+                        lift.goToPosition(2, speed);
                         step = Steps.FOUR;
                     }
                     break;
@@ -152,7 +152,7 @@ public class TestDualLiftGoToPosition extends LinearOpMode {
                     break;
                 case FIVE:
                     if (timer.milliseconds() > 2000) {
-                        lift.goToPosition(15, speed);
+                        lift.goToPosition(3, speed);
                         step = Steps.SIX;
                     }
                     break;
@@ -164,7 +164,7 @@ public class TestDualLiftGoToPosition extends LinearOpMode {
                     break;
                 case SEVEN:
                     if (timer.milliseconds() > 2000) {
-                        lift.goToPosition(8, speed);
+                        lift.goToPosition(4, speed);
                         step = Steps.EIGHT;
                     }
                     break;
@@ -176,7 +176,7 @@ public class TestDualLiftGoToPosition extends LinearOpMode {
                     break;
                 case NINE:
                     if (timer.milliseconds() > 2000) {
-                        lift.goToPosition(15, speed);
+                        lift.goToPosition(5, speed);
                         step = Steps.TEN;
                     }
                     break;
@@ -188,7 +188,7 @@ public class TestDualLiftGoToPosition extends LinearOpMode {
                     break;
                 case ELEVEN:
                     if (timer.milliseconds() > 2000) {
-                        lift.goToPosition(8, speed);
+                        lift.goToPosition(6, speed);
                         step = Steps.TWELVE;
                     }
                     break;
@@ -200,7 +200,7 @@ public class TestDualLiftGoToPosition extends LinearOpMode {
                     break;
                 case THIRTEEN:
                     if (timer.milliseconds() > 2000) {
-                        lift.goToPosition(15, speed);
+                        lift.goToPosition(7, speed);
                         step = Steps.FOURTEEN;
                     }
                     break;

@@ -42,7 +42,7 @@ public class Gripper implements FTCRobotSubsystem {
 
     private double releasePosition = 0.43;
     private double initPos = releasePosition;
-    private double gripPosition = 0.7;
+    private double gripPosition = 0.8;
     private double homePos = releasePosition;
 
     private State gripperState;
