@@ -101,7 +101,8 @@ public class MotorCurrentVoltageMonitor {
     //*********************************************************************************************
 
     /**
-     * Add a motor to the list of motors to be monitored
+     * Add a motor to the list of motors to be monitored. You have to manually add each motor
+     * you want to monitor as part of the setup for an object created from this class.
      *
      * @param motor
      */
@@ -114,7 +115,8 @@ public class MotorCurrentVoltageMonitor {
     }
 
     /**
-     * The file prefix for the data file. Date and time get appended to the name.
+     * The file prefix for the data file. Date and time get appended to the name. Call this method
+     * AFTER you have added all of your motors. This is also part of the setup.
      *
      * @param filePrefix
      */
@@ -172,7 +174,8 @@ public class MotorCurrentVoltageMonitor {
     }
 
     /**
-     * Update the current and voltage data and output it based on the mode.
+     * Update the current and voltage data and output it based on the mode. Run this on each robot
+     * loop.
      */
     public void update() {
         getData();
