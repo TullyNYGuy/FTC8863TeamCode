@@ -61,25 +61,7 @@ public class DualLift implements FTCRobotSubsystem {
     // spool diameter * pi * 5 stages
     private double movementPerRevolution = spoolDiameter * Math.PI * 5;
 
-    private double heightAboveTower = 2;
-
-    private double foundationHeight = 2;
-
-    private double heightBeforeLiftStartsMoving = 7.5;
-
-    private double nub = 1;
-
     private DataLogging logFileBoth;
-
-    private int maxBlockNumber = 6;
-
-    public int getMaxBlockNumber() {
-        return maxBlockNumber;
-    }
-
-    public void setMaxBlockNumber(int maxBlockNumber) {
-        this.maxBlockNumber = maxBlockNumber;
-    }
 
     private ExtensionRetractionMechanism.ExtensionRetractionStates[] dualLiftStates;
 
@@ -150,16 +132,18 @@ public class DualLift implements FTCRobotSubsystem {
                     String liftRightMotorName,
                     String liftRightExtensionLimitSwitchName,
                     String liftRightRetractionLimitSwitch,
+                    String liftRightZeroLimitSwitchName,
                     String liftLeftName,
                     String liftLeftMotorName,
                     String liftLeftExtensionLimitSwitchName,
                     String liftLeftRetractionLimitSwitch,
+                    String liftLeftZeroLimitSwitchName,
                     Telemetry telemetry) {
         liftRight = new Lift(hardwareMap, telemetry, liftRightName,
-                liftRightExtensionLimitSwitchName, liftRightRetractionLimitSwitch, liftRightMotorName,
+                liftRightExtensionLimitSwitchName, liftRightRetractionLimitSwitch, liftRightZeroLimitSwitchName, liftRightMotorName,
                 motorType, movementPerRevolution);
         liftLeft = new Lift(hardwareMap, telemetry, liftLeftName,
-                liftLeftExtensionLimitSwitchName, liftLeftRetractionLimitSwitch, liftLeftMotorName,
+                liftLeftExtensionLimitSwitchName, liftLeftRetractionLimitSwitch, liftLeftZeroLimitSwitchName, liftLeftMotorName,
                 motorType, movementPerRevolution);
 
         dualLiftStates = new ExtensionRetractionMechanism.ExtensionRetractionStates[2];
@@ -178,7 +162,7 @@ public class DualLift implements FTCRobotSubsystem {
 
         configureForSkystone();
 
-        pidControl = new PIDControl(.002, -120, 1);
+        pidControl = new PIDControl(.002, 0, 1);
 
         this.telemetry = telemetry;
     }
@@ -286,7 +270,7 @@ public class DualLift implements FTCRobotSubsystem {
         this.desiredPower = desiredPower;
         liftRight.goToPosition(positionInInches, desiredPower);
         // this is a hardwired cob to see the effect of offsetting the command
-        liftLeft.goToPosition(positionInInches + 3, desiredPower);
+        liftLeft.goToPosition(positionInInches, desiredPower);
         positionReachedState = PositionReachedStates.NONE_REACHED;
         enablePID = true;
         logFileBoth.logData("Dual lift PID control enabled");
@@ -352,13 +336,6 @@ public class DualLift implements FTCRobotSubsystem {
     public void setPowerUsingJoystick(double power) {
         liftRight.setPowerUsingJoystick(power);
         liftLeft.setPowerUsingJoystick(power);
-    }
-
-    public void goToBlockHeights(int blockNumber) {
-        if (blockNumber > maxBlockNumber) {
-            blockNumber = maxBlockNumber;
-        }
-        goToPosition(Skystone.getHeightIN() * blockNumber + heightAboveTower + foundationHeight + heightBeforeLiftStartsMoving + nub, .7);
     }
 
     public void goToBottom() {
@@ -558,6 +535,11 @@ public class DualLift implements FTCRobotSubsystem {
         } else {
             opMode.telemetry.addLine("extension limit switch NOT pressed");
         }
+        if (liftLeft.isZeroLimitReached()) {
+            opMode.telemetry.addLine("zero limit switch pressed");
+        } else {
+            opMode.telemetry.addLine("zero limit switch NOT pressed");
+        }
         opMode.telemetry.addData("encoder = ", liftLeft.getCurrentEncoderValue());
 
         opMode.telemetry.addData("RIGHT", "=");
@@ -571,6 +553,12 @@ public class DualLift implements FTCRobotSubsystem {
             opMode.telemetry.addLine("extension limit switch pressed");
         } else {
             opMode.telemetry.addLine("extension limit switch NOT pressed");
+        }
+
+        if (liftRight.isZeroLimitReached()) {
+            opMode.telemetry.addLine("zero limit switch pressed");
+        } else {
+            opMode.telemetry.addLine("zero limit switch NOT pressed");
         }
         opMode.telemetry.addData("encoder = ", liftRight.getCurrentEncoderValue());
     }

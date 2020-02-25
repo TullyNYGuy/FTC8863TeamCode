@@ -55,13 +55,14 @@ public class TwoLiftDemo extends LinearOpMode {
 
 
         // Put your initializations here
-        liftLeft = new Lift(hardwareMap, telemetry, "extensionRetractionLeft",
-                "extensionLimitSwitchLeft", "retractionLimitSwitchLeft", "extensionRetractionMotorLeft",
+        // Put your initializations here
+        liftRight = new Lift(hardwareMap, telemetry, "liftRight",
+                "LiftExtensionLimitSwitchRight", "LiftRetractionLimitSwitchRight", "LiftZeroLimitSwitchRight", "LiftMotorRight",
                 DcMotor8863.MotorType.ANDYMARK_40, movementPerRevolution);
-        //liftLeft.reverseMotor();
+        liftRight.reverseMotor();
 
-        liftRight = new Lift(hardwareMap, telemetry, "extensionRetractionRight",
-                "extensionLimitSwitchRight", "retractionLimitSwitchRight", "extensionRetractionMotorRight",
+        liftLeft = new Lift(hardwareMap, telemetry, "liftLeft",
+                "LiftExtensionLimitSwitchLeft", "LiftRetractionLimitSwitchLeft", "LiftZeroLimitSwitchLeft", "LiftMotorLeft",
                 DcMotor8863.MotorType.ANDYMARK_40, movementPerRevolution);
         liftRight.reverseMotor();
 

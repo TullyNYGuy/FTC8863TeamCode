@@ -11,6 +11,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.DualLift;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.Lift;
+import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.SkystoneRobot;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
@@ -56,14 +57,16 @@ public class DualLiftGoToHeightDemo extends LinearOpMode {
     @Override
     public void runOpMode() {
         dualLift = new DualLift(hardwareMap,
-                "LiftRight",
-                "LiftMotortRight",
-                "LiftExtensionLimitSwitchRight",
-                "LiftRetractionLimitSwitchRight",
-                "LiftLeft",
-                "LiftMotortLeft",
-                "LiftExtensionLimitSwitchLeft",
-                "LiftRetractionLimitSwitchLeft",
+                SkystoneRobot.HardwareName.LIFT_RIGHT_NAME.hwName,
+                SkystoneRobot.HardwareName.LIFT_RIGHT_MOTOR.hwName,
+                SkystoneRobot.HardwareName.LIFT_RIGHT_EXTENSION_SWITCH.hwName,
+                SkystoneRobot.HardwareName.LIFT_RIGHT_RETRACTION_SWITCH.hwName,
+                SkystoneRobot.HardwareName.LIFT_RIGHT_ZERO_SWITCH.hwName,
+                SkystoneRobot.HardwareName.LIFT_LEFT_NAME.hwName,
+                SkystoneRobot.HardwareName.LIFT_LEFT_MOTOR.hwName,
+                SkystoneRobot.HardwareName.LIFT_LEFT_EXTENSION_SWITCH.hwName,
+                SkystoneRobot.HardwareName.LIFT_LEFT_RETRACTION_SWITCH.hwName,
+                SkystoneRobot.HardwareName.LIFT_LEFT_ZERO_SWITCH.hwName,
                 telemetry);
 
 
@@ -112,7 +115,9 @@ public class DualLiftGoToHeightDemo extends LinearOpMode {
 
         sleep(500);
 
+        /*
         dualLift.goToBlockHeights(1);
+
 
         while (opModeIsActive() && !(dualLift.isPositionReached())) {
 

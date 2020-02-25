@@ -29,10 +29,12 @@ public class TestDualLiftLimitSwitches extends LinearOpMode {
                 SkystoneRobot.HardwareName.LIFT_RIGHT_MOTOR.hwName,
                 SkystoneRobot.HardwareName.LIFT_RIGHT_EXTENSION_SWITCH.hwName,
                 SkystoneRobot.HardwareName.LIFT_RIGHT_RETRACTION_SWITCH.hwName,
+                SkystoneRobot.HardwareName.LIFT_RIGHT_ZERO_SWITCH.hwName,
                 SkystoneRobot.HardwareName.LIFT_LEFT_NAME.hwName,
                 SkystoneRobot.HardwareName.LIFT_LEFT_MOTOR.hwName,
                 SkystoneRobot.HardwareName.LIFT_LEFT_EXTENSION_SWITCH.hwName,
                 SkystoneRobot.HardwareName.LIFT_LEFT_RETRACTION_SWITCH.hwName,
+                SkystoneRobot.HardwareName.LIFT_LEFT_ZERO_SWITCH.hwName,
                 telemetry);
 
         // Wait for the start button

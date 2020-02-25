@@ -62,12 +62,12 @@ public class TestLiftResetCode extends LinearOpMode {
 
         // Put your initializations here
         liftRight = new Lift(hardwareMap, telemetry, "liftRight",
-                "LiftExtensionLimitSwitchRight", "LiftRetractionLimitSwitchRight", "LiftMotorRight",
+                "LiftExtensionLimitSwitchRight", "LiftRetractionLimitSwitchRight", "LiftZeroLimitSwitchRight", "LiftMotorRight",
                 DcMotor8863.MotorType.ANDYMARK_40, movementPerRevolution);
         liftRight.reverseMotor();
 
         liftLeft = new Lift(hardwareMap, telemetry, "liftLeft",
-                "LiftExtensionLimitSwitchLeft", "LiftRetractionLimitSwitchLeft", "LiftMotorLeft",
+                "LiftExtensionLimitSwitchLeft", "LiftRetractionLimitSwitchLeft", "LiftZeroLimitSwitchLeft", "LiftMotorLeft",
                 DcMotor8863.MotorType.ANDYMARK_40, movementPerRevolution);
 
         timerRight = new ElapsedTime();

@@ -49,10 +49,12 @@ public class SkystoneRobot implements FTCRobot {
         LIFT_RIGHT_NAME("LiftRight"),
         LIFT_RIGHT_EXTENSION_SWITCH("LiftExtensionLimitSwitchRight"),
         LIFT_RIGHT_RETRACTION_SWITCH("LiftRetractionLimitSwitchRight"),
+        LIFT_RIGHT_ZERO_SWITCH("LiftZeroLimitSwitchRight"),
         LIFT_LEFT_MOTOR("LiftMotorLeft"),
         LIFT_LEFT_NAME("LiftLeft"),
         LIFT_LEFT_EXTENSION_SWITCH("LiftExtensionLimitSwitchLeft"),
         LIFT_LEFT_RETRACTION_SWITCH("LiftRetractionLimitSwitchLeft"),
+        LIFT_LEFT_ZERO_SWITCH("LiftZeroLimitSwitchLeft"),
         INTAKE_RIGHT_MOTOR("IntakeMotorRight"),
         INTAKE_LEFT_MOTOR("IntakeMotorLeft"),
         INTAKE_SWITCH_BACK_LEFT("IntakeSwitchBackLeft"),
@@ -288,10 +290,12 @@ public class SkystoneRobot implements FTCRobot {
                     HardwareName.LIFT_RIGHT_MOTOR.hwName,
                     HardwareName.LIFT_RIGHT_EXTENSION_SWITCH.hwName,
                     HardwareName.LIFT_RIGHT_RETRACTION_SWITCH.hwName,
+                    HardwareName.LIFT_RIGHT_ZERO_SWITCH.hwName,
                     HardwareName.LIFT_LEFT_NAME.hwName,
                     HardwareName.LIFT_LEFT_MOTOR.hwName,
                     HardwareName.LIFT_LEFT_EXTENSION_SWITCH.hwName,
                     HardwareName.LIFT_LEFT_RETRACTION_SWITCH.hwName,
+                    HardwareName.LIFT_LEFT_ZERO_SWITCH.hwName,
                     telemetry);
             subsystemMap.put(lift.getName(), lift);
         }
@@ -654,7 +658,7 @@ public void setPosition(double currentpositionx,double currentPositiionY,double 
 
     public void deportBlock() {
         if (deportState == DeportStates.IDLE || deportState == DeportStates.COMPLETE) {
-            deportHeight = 14.0;
+            deportHeight = 6.0;
             log("Robot commanded to deport stone");
             deportState = DeportStates.START;
         }
@@ -663,7 +667,7 @@ public void setPosition(double currentpositionx,double currentPositiionY,double 
     public void deportBlockCapstone() {
         //Special Secret Sauce Height//
         if (deportState == DeportStates.IDLE || deportState == DeportStates.COMPLETE) {
-            deportHeight = 16.0;
+            deportHeight = 8.0;
             log("Robot commanded to deport stone(capstone)");
             deportState = DeportStates.START;
         } else {
@@ -679,7 +683,7 @@ public void setPosition(double currentpositionx,double currentPositiionY,double 
                 break;
             case START:
                 if (lift != null) {
-                    lift.goToPosition(deportHeight, 1);
+                    lift.goToPosition(deportHeight, .8);
                     deportState = DeportStates.LIFT_RAISING;
                 }
                 break;
@@ -687,7 +691,7 @@ public void setPosition(double currentpositionx,double currentPositiionY,double 
                 if (lift != null) {
                     if (lift.isPositionReached()) {
                         if (extensionArm != null)
-                            extensionArm.goToPosition(10, 1);
+                            extensionArm.goToPosition(13, .8);
                         deportState = DeportStates.ARM_EXTENDING;
                     }
                 }
@@ -737,6 +741,22 @@ public void setPosition(double currentpositionx,double currentPositiionY,double 
     private LiftBlockStates liftBlockState = LiftBlockStates.IDLE;
     private LiftBlockStates previousliftBlockState;
 
+    private int maxBlockNumber = 6;
+
+    public int getMaxBlockNumber() {
+        return maxBlockNumber;
+    }
+
+    public void setMaxBlockNumber(int maxBlockNumber) {
+        this.maxBlockNumber = maxBlockNumber;
+    }
+
+    private double heightAboveTower = 2;
+
+    private double foundationHeight = 2;
+
+    private double nub = 1;
+
     private void logState(LiftBlockStates liftBlockState) {
         if (dataLog != null && dataLoggingEnabled) {
             if (liftBlockState != previousliftBlockState) {
@@ -748,12 +768,8 @@ public void setPosition(double currentpositionx,double currentPositiionY,double 
 
     private double liftBlockTimerLimit;
 
-    int skyscraperLevel = 0;
+    private int skyscraperLevel = 0;
 
-    public void resetSkyscraperLevel() {
-        log("Robot commanded to reset skyscraper level");
-        skyscraperLevel = 0;
-    }
 
     public int getSkyscraperLevel() {
         return skyscraperLevel;
@@ -761,6 +777,11 @@ public void setPosition(double currentpositionx,double currentPositiionY,double 
 
     public void setSkyscraperLevel(int skyscraperLevel) {
         this.skyscraperLevel = skyscraperLevel;
+    }
+
+    public void resetSkyscraperLevel() {
+        log("Robot commanded to reset skyscraper level");
+        skyscraperLevel = 0;
     }
 
     public void increaseDesiredHeightForLift() {
@@ -771,6 +792,14 @@ public void setPosition(double currentpositionx,double currentPositiionY,double 
             telemetry.addData("DESIRED HEIGHT =", skyscraperLevel);
         }
         log("Robot commanded to change skyscraper level = " + skyscraperLevel);
+    }
+
+
+    public void goToBlockHeights(int blockNumber) {
+        if (blockNumber > maxBlockNumber) {
+            blockNumber = maxBlockNumber;
+        }
+        lift.goToPosition(Skystone.getHeightIN() * blockNumber + heightAboveTower + foundationHeight + nub, .7);
     }
 
     public void initLiftBlockStateMachine() {
@@ -795,7 +824,7 @@ public void setPosition(double currentpositionx,double currentPositiionY,double 
                 break;
             case START:
                 if (lift != null)
-                    lift.goToBlockHeights(skyscraperLevel);
+                    goToBlockHeights(skyscraperLevel);
                 liftBlockState = LiftBlockStates.BLOCK_LIFTING;
                 break;
             case BLOCK_LIFTING:

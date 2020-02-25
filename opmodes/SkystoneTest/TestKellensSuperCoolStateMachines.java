@@ -95,6 +95,7 @@ public class TestKellensSuperCoolStateMachines extends LinearOpMode {
                     break;
                 case DEPORT:
                     if (robot.isDeportBlockComplete()) {
+                        // 4 * 4 + 2 + 2 + 1 = 21" above floor
                         robot.setSkyscraperLevel(4);
                         robot.liftBlock();
                         action = Actions.COMPLETE;

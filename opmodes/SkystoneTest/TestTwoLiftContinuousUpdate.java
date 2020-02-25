@@ -69,13 +69,13 @@ public class TestTwoLiftContinuousUpdate extends LinearOpMode {
 
 
         // Put your initializations here
-        liftLeft = new Lift(hardwareMap, telemetry, "liftLeft",
-                SkystoneRobot.HardwareName.LIFT_LEFT_EXTENSION_SWITCH.hwName, SkystoneRobot.HardwareName.LIFT_LEFT_RETRACTION_SWITCH.hwName, SkystoneRobot.HardwareName.LIFT_LEFT_MOTOR.hwName,
-                DcMotor8863.MotorType.ANDYMARK_40, movementPerRevolution);
-        //liftLeft.reverseMotor();
-
         liftRight = new Lift(hardwareMap, telemetry, "liftRight",
-                SkystoneRobot.HardwareName.LIFT_RIGHT_EXTENSION_SWITCH.hwName, SkystoneRobot.HardwareName.LIFT_RIGHT_RETRACTION_SWITCH.hwName, SkystoneRobot.HardwareName.LIFT_RIGHT_MOTOR.hwName,
+                "LiftExtensionLimitSwitchRight", "LiftRetractionLimitSwitchRight", "LiftZeroLimitSwitchRight", "LiftMotorRight",
+                DcMotor8863.MotorType.ANDYMARK_40, movementPerRevolution);
+        liftRight.reverseMotor();
+
+        liftLeft = new Lift(hardwareMap, telemetry, "liftLeft",
+                "LiftExtensionLimitSwitchLeft", "LiftRetractionLimitSwitchLeft", "LiftZeroLimitSwitchLeft", "LiftMotorLeft",
                 DcMotor8863.MotorType.ANDYMARK_40, movementPerRevolution);
         liftRight.reverseMotor();
 

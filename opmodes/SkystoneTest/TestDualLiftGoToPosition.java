@@ -87,10 +87,12 @@ public class TestDualLiftGoToPosition extends LinearOpMode {
                 SkystoneRobot.HardwareName.LIFT_RIGHT_MOTOR.hwName,
                 SkystoneRobot.HardwareName.LIFT_RIGHT_EXTENSION_SWITCH.hwName,
                 SkystoneRobot.HardwareName.LIFT_RIGHT_RETRACTION_SWITCH.hwName,
+                SkystoneRobot.HardwareName.LIFT_RIGHT_ZERO_SWITCH.hwName,
                 SkystoneRobot.HardwareName.LIFT_LEFT_NAME.hwName,
                 SkystoneRobot.HardwareName.LIFT_LEFT_MOTOR.hwName,
                 SkystoneRobot.HardwareName.LIFT_LEFT_EXTENSION_SWITCH.hwName,
                 SkystoneRobot.HardwareName.LIFT_LEFT_RETRACTION_SWITCH.hwName,
+                SkystoneRobot.HardwareName.LIFT_LEFT_ZERO_SWITCH.hwName,
                 telemetry);
 
         timer = new ElapsedTime();
@@ -152,7 +154,7 @@ public class TestDualLiftGoToPosition extends LinearOpMode {
                     break;
                 case FIVE:
                     if (timer.milliseconds() > 2000) {
-                        lift.goToPosition(3, speed);
+                        lift.goToPosition(20, speed);
                         step = Steps.SIX;
                     }
                     break;
@@ -164,7 +166,7 @@ public class TestDualLiftGoToPosition extends LinearOpMode {
                     break;
                 case SEVEN:
                     if (timer.milliseconds() > 2000) {
-                        lift.goToPosition(4, speed);
+                        lift.goToPosition(2, speed);
                         step = Steps.EIGHT;
                     }
                     break;
@@ -176,7 +178,7 @@ public class TestDualLiftGoToPosition extends LinearOpMode {
                     break;
                 case NINE:
                     if (timer.milliseconds() > 2000) {
-                        lift.goToPosition(5, speed);
+                        lift.goToPosition(30, speed);
                         step = Steps.TEN;
                     }
                     break;
@@ -188,7 +190,7 @@ public class TestDualLiftGoToPosition extends LinearOpMode {
                     break;
                 case ELEVEN:
                     if (timer.milliseconds() > 2000) {
-                        lift.goToPosition(6, speed);
+                        lift.goToPosition(2, speed);
                         step = Steps.TWELVE;
                     }
                     break;
@@ -200,7 +202,7 @@ public class TestDualLiftGoToPosition extends LinearOpMode {
                     break;
                 case THIRTEEN:
                     if (timer.milliseconds() > 2000) {
-                        lift.goToPosition(7, speed);
+                        lift.goToPosition(40, speed);
                         step = Steps.FOURTEEN;
                     }
                     break;
@@ -212,7 +214,7 @@ public class TestDualLiftGoToPosition extends LinearOpMode {
                     break;
                 case FIFTEEN:
                     if (timer.milliseconds() > 2000) {
-                        lift.goToPosition(8, speed);
+                        lift.goToPosition(2, speed);
                         step = Steps.SIXTEEN;
                     }
                     break;

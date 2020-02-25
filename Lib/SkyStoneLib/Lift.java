@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Switch;
 
 public class Lift extends ExtensionRetractionMechanism {
 
@@ -20,7 +21,7 @@ public class Lift extends ExtensionRetractionMechanism {
 
     public enum LiftResetExtraStates {
         WAITING_FOR_TIMER,
-        MOVING_OFF_LIMIT_SWITCH,
+        MOVING_OFF_ZERO_LIMIT_SWITCH,
         TENSION_COMPLETE,
         NONE
     }
@@ -49,6 +50,8 @@ public class Lift extends ExtensionRetractionMechanism {
         return tensionCompleteEncoderValue;
     }
 
+    private Switch zeroLimitSwitch;
+
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -65,13 +68,14 @@ public class Lift extends ExtensionRetractionMechanism {
     //*********************************************************************************************
 
     public Lift(HardwareMap hardwareMap, Telemetry telemetry, String mechanismName,
-                String extensionLimitSwitchName, String retractionLimitSwitchName,
+                String extensionLimitSwitchName, String retractionLimitSwitchName, String zeroLimitSwitchName,
                 String motorName, DcMotor8863.MotorType motorType, double movementPerRevolution) {
         super(hardwareMap, telemetry, mechanismName, extensionLimitSwitchName, retractionLimitSwitchName, motorName, motorType, movementPerRevolution);
         // need to open up the tolerance in order to get two lifts to complete the movement in a timely manner
         setTargetEncoderTolerance(30);
         resetTimer = new ElapsedTime();
         liftResetExtraState = LiftResetExtraStates.WAITING_FOR_TIMER;
+        zeroLimitSwitch = new Switch(hardwareMap, zeroLimitSwitchName, Switch.SwitchType.NORMALLY_OPEN);
     }
 
     //*********************************************************************************************
@@ -194,6 +198,18 @@ public class Lift extends ExtensionRetractionMechanism {
         return (retractionLimitSwitchReached);
     }
 
+    public boolean isZeroLimitReached() {
+        boolean zeroLimitSwitchReached = false;
+        // if a limit switch is not present, the retractedLimitSwitch object will be null.
+        // Only check it if it is present.
+        if (zeroLimitSwitch != null) {
+            if (zeroLimitSwitch.isPressed()) {
+                zeroLimitSwitchReached = true;
+            }
+        }
+        return (zeroLimitSwitchReached);
+    }
+
     public LiftResetExtraStates updateResetExtraStates() {
         logResetExtraState(liftResetExtraState);
 
@@ -204,11 +220,13 @@ public class Lift extends ExtensionRetractionMechanism {
                     // up off the limit switch
                     log("reset timer expired, moving lift up off limit switch " + mechanismName);
                     moveOffRetractionLimitSwitch();
-                    liftResetExtraState = LiftResetExtraStates.MOVING_OFF_LIMIT_SWITCH;
+                    liftResetExtraState = LiftResetExtraStates.MOVING_OFF_ZERO_LIMIT_SWITCH;
                 }
                 break;
-            case MOVING_OFF_LIMIT_SWITCH:
-                if (!isRetractionLimitReached()) {
+            case MOVING_OFF_ZERO_LIMIT_SWITCH:
+                if (!isZeroLimitReached()) {
+                    log("Encoder Value Just Before Zero =" + extensionRetractionMotor.encoder.getCurrentPosition());
+                    extensionRetractionMotor.encoder.reset();
                     // the lift is no longer pressing the retraction limit switch. Stop the lift and
                     // make it hold its position
                     // make the target position the current position

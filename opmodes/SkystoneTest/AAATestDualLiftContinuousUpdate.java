@@ -11,6 +11,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.DualLift;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.Lift;
+import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.SkystoneRobot;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
@@ -76,14 +77,16 @@ public class AAATestDualLiftContinuousUpdate extends LinearOpMode {
 
         // Put your initializations here
         dualLift = new DualLift(hardwareMap,
-                "LiftRight",
-                "LiftMotorRight",
-                "LiftExtensionLimitSwitchRight",
-                "LiftRetractionLimitSwitchRight",
-                "LiftLeft",
-                "LiftMotorLeft",
-                "LiftExtensionLimitSwitchLeft",
-                "LiftRetractionLimitSwitchLeft",
+                SkystoneRobot.HardwareName.LIFT_RIGHT_NAME.hwName,
+                SkystoneRobot.HardwareName.LIFT_RIGHT_MOTOR.hwName,
+                SkystoneRobot.HardwareName.LIFT_RIGHT_EXTENSION_SWITCH.hwName,
+                SkystoneRobot.HardwareName.LIFT_RIGHT_RETRACTION_SWITCH.hwName,
+                SkystoneRobot.HardwareName.LIFT_RIGHT_ZERO_SWITCH.hwName,
+                SkystoneRobot.HardwareName.LIFT_LEFT_NAME.hwName,
+                SkystoneRobot.HardwareName.LIFT_LEFT_MOTOR.hwName,
+                SkystoneRobot.HardwareName.LIFT_LEFT_EXTENSION_SWITCH.hwName,
+                SkystoneRobot.HardwareName.LIFT_LEFT_RETRACTION_SWITCH.hwName,
+                SkystoneRobot.HardwareName.LIFT_LEFT_ZERO_SWITCH.hwName,
                 telemetry);
 
         timerLeft = new ElapsedTime();
@@ -181,7 +184,7 @@ public class AAATestDualLiftContinuousUpdate extends LinearOpMode {
                     break;
                 case ELEVEN:
                     if (stateTimer.milliseconds() > waitTime) {
-                        dualLift.goToBlockHeights(5);
+                        //goToBlockHeights(5);
                         steps = Steps.TWELVE;
                     }
                     break;
@@ -194,7 +197,7 @@ public class AAATestDualLiftContinuousUpdate extends LinearOpMode {
                     break;
                 case THIRTEEN:
                     if (stateTimer.milliseconds() > waitTime) {
-                        dualLift.goToBlockHeights(10);
+                        //dualLift.goToBlockHeights(10);
                         steps = Steps.FOURTEEN;
                     }
 
@@ -207,7 +210,7 @@ public class AAATestDualLiftContinuousUpdate extends LinearOpMode {
                     break;
                 case FIFTEEN:
                     if (stateTimer.milliseconds() > waitTime) {
-                        dualLift.goToBlockHeights(1);
+                        //dualLift.goToBlockHeights(1);
                         steps = Steps.SIXTEEN;
                     }
                     break;
