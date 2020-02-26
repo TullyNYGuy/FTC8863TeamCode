@@ -359,6 +359,11 @@ public void setPosition(double currentpositionx,double currentPositiionY,double 
             }
         }
 
+        if (mecanum != null && !mecanum.init(config)) {
+            if (dataLoggingEnabled)
+                dataLog.logData("Mecanum initialization failed");
+        }
+
         // inits for the command state machines
         initDeportStateMachine();
         initLiftBlockStateMachine();
@@ -501,7 +506,13 @@ public void setPosition(double currentpositionx,double currentPositiionY,double 
     }
 
     public void setMovement(MecanumCommands commands) {
-        mecanum.setMotorPower(commands);
+        if (mecanum != null)
+            mecanum.setMotorPower(commands);
+    }
+
+    public void setMaxMovementPower(double maxPower) {
+        if (mecanum != null)
+            mecanum.setMaxMotorPower(maxPower);
     }
 
     //********************************************
