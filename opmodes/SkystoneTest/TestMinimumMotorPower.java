@@ -188,11 +188,11 @@ public class TestMinimumMotorPower extends LinearOpMode {
                 backLeft.setPower(motorPower);
                 backRight.setPower(motorPower);
                 timer.reset();
-                while (timer.milliseconds() < 3000 && getDistance(DistanceUnit.CM, initialPosition, currentPosition) < 1.0) {
+                do {
                     idle();
                     odometry.calculateMoveDistance();
                     odometry.getCurrentPosition(currentPosition);
-                }
+                } while (timer.milliseconds() < 3000 && getDistance(DistanceUnit.CM, initialPosition, currentPosition) < 1.0);
             } while (getDistance(DistanceUnit.CM, initialPosition, currentPosition) < 1.0);
             frontLeft.shutDown();
             frontRight.shutDown();
