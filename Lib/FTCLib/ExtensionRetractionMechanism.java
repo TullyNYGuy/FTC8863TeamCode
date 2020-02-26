@@ -62,7 +62,7 @@ public class ExtensionRetractionMechanism {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
-    protected DcMotor8863 extensionRetractionMotor;
+    public DcMotor8863 extensionRetractionMotor;
 
     // null is shown for emphasis. Any object is null until is it created.
     protected Switch retractedLimitSwitch = null;
