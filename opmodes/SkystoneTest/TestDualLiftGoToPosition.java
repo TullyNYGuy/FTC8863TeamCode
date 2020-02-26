@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.CSVDataFile;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.MotorCurrentVoltageMonitor;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.DualLift;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.Lift;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.SkystoneRobot;
@@ -42,6 +43,10 @@ public class TestDualLiftGoToPosition extends LinearOpMode {
         NINETEEN
     }
 
+    MotorCurrentVoltageMonitor motorCurrentVoltageMonitor1;
+    MotorCurrentVoltageMonitor motorCurrentVoltageMonitor2;
+
+
     public Steps step = Steps.ZERO;
 
     public DualLift lift;
@@ -76,7 +81,7 @@ public class TestDualLiftGoToPosition extends LinearOpMode {
 
     public String buffer = "";
 
-    public double speed = 0.3;
+    public double speed = 0.9;
 
     @Override
     public void runOpMode() {
@@ -94,6 +99,15 @@ public class TestDualLiftGoToPosition extends LinearOpMode {
                 SkystoneRobot.HardwareName.LIFT_LEFT_RETRACTION_SWITCH.hwName,
                 SkystoneRobot.HardwareName.LIFT_LEFT_ZERO_SWITCH.hwName,
                 telemetry);
+        motorCurrentVoltageMonitor1 = new MotorCurrentVoltageMonitor(hardwareMap, telemetry, "Expansion Hub 1", MotorCurrentVoltageMonitor.OutputTo.WRITE_CSV_FILE_AND_DISPLAY);
+        motorCurrentVoltageMonitor2 = new MotorCurrentVoltageMonitor(hardwareMap, telemetry, "Expansion Hub 2", MotorCurrentVoltageMonitor.OutputTo.WRITE_CSV_FILE_AND_DISPLAY);
+
+        motorCurrentVoltageMonitor1.addMotor(lift.liftLeft.extensionRetractionMotor);
+        motorCurrentVoltageMonitor1.addMotor(lift.liftRight.extensionRetractionMotor);
+
+
+        motorCurrentVoltageMonitor1.setupCSVDataFile("LiftMotorCurrents1");
+        motorCurrentVoltageMonitor2.setupCSVDataFile("LiftMotorCurrents2");
 
         timer = new ElapsedTime();
 
@@ -239,6 +253,9 @@ public class TestDualLiftGoToPosition extends LinearOpMode {
                     break;
             }
 
+            motorCurrentVoltageMonitor1.update();
+            motorCurrentVoltageMonitor2.update();
+
             // telemetry.addData("", lift.stateToString());
             // telemetry.addData("", lift.encoderValuesToString());
             //telemetry.addData("", lift.resetStateToString());
@@ -246,6 +263,8 @@ public class TestDualLiftGoToPosition extends LinearOpMode {
             telemetry.update();
             idle();
         }
+        motorCurrentVoltageMonitor1.closeCSVData();
+        motorCurrentVoltageMonitor2.closeCSVData();
 
         telemetry.addData("", "DONE!");
         telemetry.update();

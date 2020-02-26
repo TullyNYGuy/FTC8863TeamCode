@@ -53,8 +53,8 @@ public class DualLift implements FTCRobotSubsystem {
     // getter and setter methods
     //*********************************************************************************************
 
-    private Lift liftRight;
-    private Lift liftLeft;
+    public Lift liftRight;
+    public Lift liftLeft;
 
     private DcMotor8863.MotorType motorType = org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863.MotorType.ANDYMARK_40;
     private double spoolDiameter = 1.25; //inches
