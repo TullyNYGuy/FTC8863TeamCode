@@ -184,12 +184,9 @@ public class Mecanum {
 
     public boolean init(Configuration config) {
         if (config != null) {
-            Pair<Double, Boolean> dblVal = config.getPropertyDouble(PROP_MIN_POWER, 0.14);
-            setMinMotorPower(dblVal.first);
-            dblVal = config.getPropertyDouble(PROP_MIN_POWER_MULTIPLIER, 0.5);
-            setMinMotorPowerMultiplier(dblVal.first);
-            dblVal = config.getPropertyDouble(PROP_MAX_POWER, 1.0);
-            setMaxMotorPower(dblVal.first);
+            setMinMotorPower(config.getPropertyDouble(PROP_MIN_POWER, 0.14));
+            setMinMotorPowerMultiplier(config.getPropertyDouble(PROP_MIN_POWER_MULTIPLIER, 0.5));
+            setMaxMotorPower(config.getPropertyDouble(PROP_MAX_POWER, 1.0));
             return true;
         } else {
             setMinMotorPower(0.14);
