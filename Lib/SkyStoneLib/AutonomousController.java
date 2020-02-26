@@ -44,14 +44,14 @@ public class AutonomousController {
      */
     final private long MOVEMENT_THREAD_INTERVAL = 200;
 
-    private enum Areas {
+    public enum Areas {
         BUILDSITE, BRIDGE, BLOCK, PLATFORM, HOME
     }
 
     public boolean blockState;
     Areas place;
 
-    private enum Color {
+    public enum Color {
         BLUE, RED
     }
 
@@ -66,7 +66,7 @@ public class AutonomousController {
     private ScheduledExecutorService scheduler;
     private MovemenetThread movementThread;
     private ScheduledFuture<?> movementTask;
-
+    private ElapsedTime time = new ElapsedTime();
     private Telemetry telemetry;
     private DataLogging dataLog;
 
@@ -201,9 +201,11 @@ public class AutonomousController {
 
     public void goTo(Areas place) {
         this.place = place;
-        Position p = places.get(place);
-        if (p != null) {
-            moveTo(distanceUnit, p.x, p.y);
+        time.reset();
+        currentDestination = places.get(place);
+
+        if (currentDestination != null) {
+            moveTo(distanceUnit, currentDestination.x, currentDestination.y);
         }
     }
 
@@ -261,5 +263,21 @@ public class AutonomousController {
         //align qrm
         //drop arm
     }
+    public boolean isActionCompleteTime(){
+        if(currentDestination.acquisitionTime < time.milliseconds()){
+            return true;
 
+        }
+        else{
+            return false;
+        }
+    }
+   public boolean isActionCompleteDistance(Position currentPosition){
+        if((currentDestination.x - currentPosition.x) == 0 && (currentDestination.y-currentPosition.y == 0)){
+          return true;
+       }
+        else{
+            return false;
+        }
+   }
 }
