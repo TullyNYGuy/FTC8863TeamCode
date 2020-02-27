@@ -257,6 +257,8 @@ public class DualLift implements FTCRobotSubsystem {
         return liftRight.isExtensionComplete() && liftLeft.isExtensionComplete();
     }
 
+    //ToDo test this and confirm there is a bug - lift extends rather than retracts
+    //ToDo find a faster way to retract (maybe goToPosition just above 0, then retract?)
     public void goToFullRetract() {
         liftRight.goToFullRetract();
         liftLeft.goToFullRetract();
@@ -535,7 +537,7 @@ public class DualLift implements FTCRobotSubsystem {
         } else {
             opMode.telemetry.addLine("extension limit switch NOT pressed");
         }
-        if (liftLeft.isZeroLimitReached()) {
+        if (liftLeft.isZeroLimitSwitchPressed()) {
             opMode.telemetry.addLine("zero limit switch pressed");
         } else {
             opMode.telemetry.addLine("zero limit switch NOT pressed");
@@ -555,7 +557,7 @@ public class DualLift implements FTCRobotSubsystem {
             opMode.telemetry.addLine("extension limit switch NOT pressed");
         }
 
-        if (liftRight.isZeroLimitReached()) {
+        if (liftRight.isZeroLimitSwitchPressed()) {
             opMode.telemetry.addLine("zero limit switch pressed");
         } else {
             opMode.telemetry.addLine("zero limit switch NOT pressed");

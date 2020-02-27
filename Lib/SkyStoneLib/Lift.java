@@ -20,7 +20,8 @@ public class Lift extends ExtensionRetractionMechanism {
     //*********************************************************************************************
 
     public enum LiftResetExtraStates {
-        WAITING_FOR_TIMER,
+        WAITING_FOR_RESET_TIMER,
+        MOVING_OFF_RETRACTION_LIMIT_SWTICH,
         MOVING_OFF_ZERO_LIMIT_SWITCH,
         TENSION_COMPLETE,
         NONE
@@ -33,7 +34,7 @@ public class Lift extends ExtensionRetractionMechanism {
     //*********************************************************************************************
     private double raiseOffLimitSwitchPower = 0.1;
 
-    private LiftResetExtraStates liftResetExtraState = LiftResetExtraStates.WAITING_FOR_TIMER;
+    private LiftResetExtraStates liftResetExtraState = LiftResetExtraStates.WAITING_FOR_RESET_TIMER;
 
     public LiftResetExtraStates getLiftResetExtraState() {
         return liftResetExtraState;
@@ -74,7 +75,7 @@ public class Lift extends ExtensionRetractionMechanism {
         // need to open up the tolerance in order to get two lifts to complete the movement in a timely manner
         setTargetEncoderTolerance(30);
         resetTimer = new ElapsedTime();
-        liftResetExtraState = LiftResetExtraStates.WAITING_FOR_TIMER;
+        liftResetExtraState = LiftResetExtraStates.WAITING_FOR_RESET_TIMER;
         zeroLimitSwitch = new Switch(hardwareMap, zeroLimitSwitchName, Switch.SwitchType.NORMALLY_OPEN);
     }
 
@@ -155,7 +156,7 @@ public class Lift extends ExtensionRetractionMechanism {
         // put your actions that need to be performed here
         log("Beginning to tension string " + mechanismName);
         resetTimer.reset();
-        liftResetExtraState = LiftResetExtraStates.WAITING_FOR_TIMER;
+        liftResetExtraState = LiftResetExtraStates.WAITING_FOR_RESET_TIMER;
     }
 
     /**
@@ -189,55 +190,64 @@ public class Lift extends ExtensionRetractionMechanism {
      */
     @Override
     protected boolean isRetractionLimitReached() {
-        boolean retractionLimitSwitchReached = false;
+        boolean limitSwitchesReached = false;
         // if a limit switch is not present, the retractedLimitSwitch object will be null.
         // Only check it if it is present.
-        if (retractedLimitSwitch != null) {
-            if (retractedLimitSwitch.isPressed()) {
-                retractionLimitSwitchReached = true;
+        if (retractedLimitSwitch != null && zeroLimitSwitch != null) {
+            if (retractedLimitSwitch.isPressed() && zeroLimitSwitch.isPressed()) {
+                limitSwitchesReached = true;
+                log("retraction and zero limit switches pressed " + mechanismName);
             }
         }
-        return (retractionLimitSwitchReached);
+        return (limitSwitchesReached);
     }
 
-    public boolean isZeroLimitReached() {
-        boolean zeroLimitSwitchReached = false;
-        // if a limit switch is not present, the retractedLimitSwitch object will be null.
+    public boolean isZeroLimitSwitchPressed() {
+        // if a limit switch is not present, the zeroLimitSwitch object will be null.
         // Only check it if it is present.
         if (zeroLimitSwitch != null) {
-            if (zeroLimitSwitch.isPressed()) {
-                zeroLimitSwitchReached = true;
-            }
+            return (zeroLimitSwitch.isPressed());
+        } else {
+            return false;
         }
-        return (zeroLimitSwitchReached);
     }
 
     public LiftResetExtraStates updateResetExtraStates() {
         logResetExtraState(liftResetExtraState);
 
         switch (liftResetExtraState) {
-            case WAITING_FOR_TIMER:
+            case WAITING_FOR_RESET_TIMER:
                 if (resetTimer.milliseconds() > 200) {
                     // The lift has been sitting on the limit switch for long enough. Move the lift
                     // up off the limit switch
                     log("reset timer expired, moving lift up off limit switch " + mechanismName);
                     moveOffRetractionLimitSwitch();
+                    liftResetExtraState = LiftResetExtraStates.MOVING_OFF_RETRACTION_LIMIT_SWTICH;
+                }
+                break;
+            case MOVING_OFF_RETRACTION_LIMIT_SWTICH:
+                if (!isRetractionLimitSwitchPressed()) {
+                    log("Lifted off retraction limit switch " + mechanismName);
                     liftResetExtraState = LiftResetExtraStates.MOVING_OFF_ZERO_LIMIT_SWITCH;
                 }
                 break;
             case MOVING_OFF_ZERO_LIMIT_SWITCH:
-                if (!isZeroLimitReached()) {
-                    log("Encoder Value Just Before Zero =" + extensionRetractionMotor.encoder.getCurrentPosition());
-                    extensionRetractionMotor.encoder.reset();
-                    // the lift is no longer pressing the retraction limit switch. Stop the lift and
+                //ToDo test this when the lift is off both limit switches. See if this fixes the bug.
+                if (!isZeroLimitSwitchPressed()) {
+                    int currentPosition = extensionRetractionMotor.encoder.getCurrentPosition();
+                    log("Lifted off zero limit switch " + mechanismName);
+                    log("Base Encoder Value =" + currentPosition + " " + mechanismName);
+                    // the lift is no longer pressing the zero limit switch. Stop the lift and
                     // make it hold its position
-                    // make the target position the current position
+                    // make the target position the current position.
+                    // Reset the encoder zero position.
+                    extensionRetractionMotor.encoder.reset();
                     this.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
-                    extensionRetractionMotor.setTargetPosition((extensionRetractionMotor.getCurrentPosition()));
+                    extensionRetractionMotor.setTargetPosition((currentPosition));
                     extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     extensionRetractionMotor.setPower(raiseOffLimitSwitchPower);
                     liftResetExtraState = LiftResetExtraStates.TENSION_COMPLETE;
-                    log("Holding position off limit switch, string tensioned " + mechanismName);
+                    log("Holding position off limit switch, string tensioned, zero encoder set " + mechanismName);
                 }
                 break;
             case TENSION_COMPLETE:

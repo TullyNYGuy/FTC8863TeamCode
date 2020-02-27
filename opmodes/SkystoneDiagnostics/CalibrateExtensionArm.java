@@ -45,6 +45,7 @@ public class CalibrateExtensionArm extends LinearOpMode {
     public double speed = 0.1;
     public ElapsedTime timer;
 
+    // ToDo run this and find the constants for the extension arm
     @Override
     public void runOpMode() {
 
