@@ -406,13 +406,11 @@ public void setPosition(double currentpositionx,double currentPositiionY,double 
                     dataLog.logData("Init complete for " + subsystem.getName());
                 }
 
-            } else {
-                dataLog.logData("Init is not complete for " + subsystem.getName());
             }
             result &= subsystem.isInitComplete();
         }
         if (dataLoggingEnabled && result == true) {
-            dataLog.logData("Init complete");
+            dataLog.logData(" Robot Init complete");
         }
         return result;
     }
