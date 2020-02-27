@@ -134,6 +134,7 @@ public class Lift extends ExtensionRetractionMechanism {
      *
      * @return
      */
+    @Override
     protected boolean isOKToReset() {
         // for the lift it is always ok to reset because the sting has to be tensioned so the lift
         // has to go through the entire reset/tension process
@@ -149,6 +150,7 @@ public class Lift extends ExtensionRetractionMechanism {
      * This is optional. If you don't have any actions, just leave this method blank and return true
      * in arePostResetActionsComplete() in all cases.
      */
+    @Override
     protected void performPostResetActions() {
         // put your actions that need to be performed here
         log("Beginning to tension string " + mechanismName);
@@ -183,9 +185,9 @@ public class Lift extends ExtensionRetractionMechanism {
      * You can override it if you have a different method. Note that the retraction limit position
      * is assumed to be the least value possible for all of the possible positions of the mechanism.
      *
-     * @return true if EITHER extension limit switch is pressed OR if current position is equal to
-     * or less than the extension position.
+     * @return true if the retraction limit switch is pressed
      */
+    @Override
     protected boolean isRetractionLimitReached() {
         boolean retractionLimitSwitchReached = false;
         // if a limit switch is not present, the retractedLimitSwitch object will be null.

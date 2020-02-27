@@ -741,7 +741,7 @@ public void setPosition(double currentpositionx,double currentPositiionY,double 
     private LiftBlockStates liftBlockState = LiftBlockStates.IDLE;
     private LiftBlockStates previousliftBlockState;
 
-    private int maxBlockNumber = 6;
+    private int maxBlockNumber = 8;
 
     public int getMaxBlockNumber() {
         return maxBlockNumber;
@@ -796,6 +796,7 @@ public void setPosition(double currentpositionx,double currentPositiionY,double 
 
 
     public void goToBlockHeights(int blockNumber) {
+        blockNumber = blockNumber - 1;
         if (blockNumber > maxBlockNumber) {
             blockNumber = maxBlockNumber;
         }
@@ -901,6 +902,7 @@ public void setPosition(double currentpositionx,double currentPositiionY,double 
             case EXTENDING:
                 if (gripper != null)
                     gripper.releaseBlock();
+                placeBlockState = PlaceBlockStates.GRIPPER_RELEASING;
                 break;
             case GRIPPER_RELEASING:
                 if (gripper != null && gripper.isReleaseComplete()) {
@@ -982,19 +984,20 @@ public void setPosition(double currentpositionx,double currentPositiionY,double 
                 if (gripper != null && gripper.isReleaseComplete()
                         && gripperRotator != null && gripperRotator.isRotateInwardComplete()) {
                     if (extensionArm != null)
-                        extensionArm.goToPosition(0, 1);
+                        extensionArm.goToPosition(0, 0.5);
                     prepareIntakeState = PrepareIntakeStates.PREPARATION_PHASE_2_RETRACTION;
                 }
                 break;
             case PREPARATION_PHASE_2_RETRACTION:
                 if (extensionArm != null && extensionArm.isPositionReached()) {
                     if (lift != null)
-                        lift.goToPosition(0, 1);
+                        lift.goToPosition(2, 0.3);
                     prepareIntakeState = PrepareIntakeStates.PREPARATION_PHASE_3_LOWERING;
                 }
                 break;
             case PREPARATION_PHASE_3_LOWERING:
                 if (lift != null && lift.isPositionReached() && extensionArm != null && extensionArm.isPositionReached()) {
+                    lift.goToFullRetract();
                     prepareIntakeState = PrepareIntakeStates.COMPLETE;
                 }
                 break;

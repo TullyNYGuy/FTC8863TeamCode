@@ -469,7 +469,7 @@ public class DualLift implements FTCRobotSubsystem {
             liftLeft.setCurrentPower(currentPowerLeft);
             liftRight.setCurrentPower(currentPowerRight);
             if (collectData) {
-                timeEncoderValueFile.logData(liftLeft.getCurrentEncoderValue(), liftRight.getCurrentEncoderValue(), correction, currentPowerLeft, currentPowerRight);
+                timeEncoderValueFile.logData(liftLeft.getCurrentEncoderValue(), liftRight.getCurrentEncoderValue(), liftLeft.extensionRetractionMotor.encoder.getCurrentPositionNotAdjusted(), liftRight.extensionRetractionMotor.encoder.getCurrentPositionNotAdjusted(), correction, currentPowerLeft, currentPowerRight);
             }
         }
 
