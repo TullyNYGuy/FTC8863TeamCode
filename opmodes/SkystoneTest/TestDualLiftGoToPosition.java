@@ -33,7 +33,13 @@ public class TestDualLiftGoToPosition extends LinearOpMode {
         TEN,
         ELEVEN,
         TWELVE,
-        THIRTEEN
+        THIRTEEN,
+        FOURTEEN,
+        FIFTEEN,
+        SIXTEEN,
+        SEVENTEEN,
+        EIGHTEEN,
+        NINETEEN
     }
 
     public Steps step = Steps.ZERO;
@@ -97,6 +103,7 @@ public class TestDualLiftGoToPosition extends LinearOpMode {
         lift.enableCollectData("dualLiftTimeEncoderValues");
         lift.setRetractionPower(-speed);
         lift.setExtensionPower(+speed);
+        //lift.setTelemetry(telemetry);
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
@@ -120,7 +127,7 @@ public class TestDualLiftGoToPosition extends LinearOpMode {
                     break;
                 case ONE:
                     if (timer.milliseconds() > 2000) {
-                        lift.goToPosition(10, speed);
+                        lift.goToPosition(15, speed);
                         step = Steps.TWO;
                     }
                     break;
@@ -132,7 +139,7 @@ public class TestDualLiftGoToPosition extends LinearOpMode {
                     break;
                 case THREE:
                     if (timer.milliseconds() > 2000) {
-                        lift.goToPosition(20, speed);
+                        lift.goToPosition(8, speed);
                         step = Steps.FOUR;
                     }
                     break;
@@ -144,7 +151,7 @@ public class TestDualLiftGoToPosition extends LinearOpMode {
                     break;
                 case FIVE:
                     if (timer.milliseconds() > 2000) {
-                        lift.goToPosition(5, speed);
+                        lift.goToPosition(15, speed);
                         step = Steps.SIX;
                     }
                     break;
@@ -156,7 +163,7 @@ public class TestDualLiftGoToPosition extends LinearOpMode {
                     break;
                 case SEVEN:
                     if (timer.milliseconds() > 2000) {
-                        lift.goToPosition(40, speed);
+                        lift.goToPosition(8, speed);
                         step = Steps.EIGHT;
                     }
                     break;
@@ -168,7 +175,7 @@ public class TestDualLiftGoToPosition extends LinearOpMode {
                     break;
                 case NINE:
                     if (timer.milliseconds() > 2000) {
-                        lift.goToPosition(5, speed);
+                        lift.goToPosition(15, speed);
                         step = Steps.TEN;
                     }
                     break;
@@ -180,22 +187,59 @@ public class TestDualLiftGoToPosition extends LinearOpMode {
                     break;
                 case ELEVEN:
                     if (timer.milliseconds() > 2000) {
-                        lift.reset();
+                        lift.goToPosition(8, speed);
                         step = Steps.TWELVE;
                     }
                     break;
                 case TWELVE:
-                    if (lift.isResetComplete()) {
+                    if (lift.isPositionReached()) {
+                        timer.reset();
                         step = Steps.THIRTEEN;
                     }
                     break;
                 case THIRTEEN:
+                    if (timer.milliseconds() > 2000) {
+                        lift.goToPosition(15, speed);
+                        step = Steps.FOURTEEN;
+                    }
+                    break;
+                case FOURTEEN:
+                    if (lift.isPositionReached()) {
+                        timer.reset();
+                        step = Steps.FIFTEEN;
+                    }
+                    break;
+                case FIFTEEN:
+                    if (timer.milliseconds() > 2000) {
+                        lift.goToPosition(8, speed);
+                        step = Steps.SIXTEEN;
+                    }
+                    break;
+                case SIXTEEN:
+                    if (lift.isPositionReached()) {
+                        timer.reset();
+                        step = Steps.SEVENTEEN;
+                    }
+                    break;
+                case SEVENTEEN:
+                    if (timer.milliseconds() > 2000) {
+                        lift.reset();
+                        step = Steps.EIGHTEEN;
+                    }
+                    break;
+                case EIGHTEEN:
+                    if (lift.isResetComplete()) {
+                        step = Steps.NINETEEN;
+                    }
+                    break;
+                case NINETEEN:
                     break;
             }
 
-            telemetry.addData("", lift.stateToString());
-            telemetry.addData("", lift.encoderValuesToString());
-            telemetry.addData("", lift.resetStateToString());
+            // telemetry.addData("", lift.stateToString());
+            // telemetry.addData("", lift.encoderValuesToString());
+            //telemetry.addData("", lift.resetStateToString());
+            telemetry.addData("STEP", step);
             telemetry.update();
             idle();
         }

@@ -349,7 +349,7 @@ public class OdometrySystem implements FTCRobotSubsystem {
     public boolean loadConfiguration(Configuration config) {
         if (config == null)
             return false;
-        Pair<String, Boolean> strVal = config.getPropertyString(PROP_UNIT, "mm");
+        Pair<String, Boolean> strVal = config.getPropertyStringCheck(PROP_UNIT, "mm");
         boolean fullConfig = strVal.second;
         if (strVal.first.equalsIgnoreCase("in"))
             unit = DistanceUnit.INCH;
@@ -359,22 +359,22 @@ public class OdometrySystem implements FTCRobotSubsystem {
             unit = DistanceUnit.METER;
         else
             unit = DistanceUnit.MM;
-        Pair<Double, Boolean> dblVal = config.getPropertyDouble(PROP_LEFT_MULTIPLIER, 1.0);
+        Pair<Double, Boolean> dblVal = config.getPropertyDoubleCheck(PROP_LEFT_MULTIPLIER, 1.0);
         leftMultiplier = dblVal.first;
         fullConfig &= dblVal.second;
-        dblVal = config.getPropertyDouble(PROP_LEFT_DIRECTION_MULTIPLIER, 1.0);
+        dblVal = config.getPropertyDoubleCheck(PROP_LEFT_DIRECTION_MULTIPLIER, 1.0);
         leftDirectionMultiplier = dblVal.first;
         fullConfig &= dblVal.second;
-        dblVal = config.getPropertyDouble(PROP_RIGHT_MULTIPLIER, 1.0);
+        dblVal = config.getPropertyDoubleCheck(PROP_RIGHT_MULTIPLIER, 1.0);
         rightMultiplier = dblVal.first;
         fullConfig &= dblVal.second;
-        dblVal = config.getPropertyDouble(PROP_RIGHT_DIRECTION_MULTIPLIER, 1.0);
+        dblVal = config.getPropertyDoubleCheck(PROP_RIGHT_DIRECTION_MULTIPLIER, 1.0);
         rightDirectionMultiplier = dblVal.first;
         fullConfig &= dblVal.second;
-        dblVal = config.getPropertyDouble(PROP_BACK_MULTIPLIER, 1.0);
+        dblVal = config.getPropertyDoubleCheck(PROP_BACK_MULTIPLIER, 1.0);
         backMultiplier = dblVal.first;
         fullConfig &= dblVal.second;
-        dblVal = config.getPropertyDouble(PROP_BACK_DIRECTION_MULTIPLIER, 1.0);
+        dblVal = config.getPropertyDoubleCheck(PROP_BACK_DIRECTION_MULTIPLIER, 1.0);
         backDirectionMultiplier = dblVal.first;
         fullConfig &= dblVal.second;
         initializeInternal();

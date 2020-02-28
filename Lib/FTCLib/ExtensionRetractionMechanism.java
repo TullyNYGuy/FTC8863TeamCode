@@ -219,7 +219,16 @@ public class ExtensionRetractionMechanism {
     }
 
     private double desiredPosition = 0;
+
+    /**
+     * The desired power for a move to position. This can be altered later using setPower(), like
+     * when a PID correction is being applied
+     */
     private double moveToPositionPower = 0;
+
+    public double getMoveToPositionPower() {
+        return moveToPositionPower;
+    }
 
     /**
      * The power to use when resetting the mechanism.
@@ -233,6 +242,8 @@ public class ExtensionRetractionMechanism {
     public void setResetPower(double resetPower) {
         this.resetPower = resetPower;
     }
+
+    private ElapsedTime resetTimer;
 
     /**
      * The power to use when retracting the mechanism
@@ -261,6 +272,26 @@ public class ExtensionRetractionMechanism {
     }
 
     private double extensionRetractionPower = 0;
+
+    /**
+     * Current power to the motor
+     */
+    private double currentPower = 0;
+
+    public double getCurrentPower() {
+        return currentPower;
+    }
+
+    /**
+     * Set the motor power. This overrides any other power settings if you use it!
+     * All access to the motor power comes through this method.
+     *
+     * @param power
+     */
+    public void setCurrentPower(double power) {
+        this.currentPower = power;
+        extensionRetractionMotor.setPower(power);
+    }
 
     /**
      * The motor driving the mechanism can actively hold a postition at the end of a movement. This
@@ -471,6 +502,8 @@ public class ExtensionRetractionMechanism {
         // create the time encoder data list in case it is needed
         timeEncoderValues = new PairedList();
         liftTimer = new ElapsedTime();
+
+        resetTimer = new ElapsedTime();
     }
 
     /**
@@ -531,7 +564,7 @@ public class ExtensionRetractionMechanism {
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
 
-    private double convertMechanismUnitsToEncoderCounts(double mechanismUnits) {
+    public double convertMechanismUnitsToEncoderCounts(double mechanismUnits) {
         return (mechanismUnits / movementPerRevolution * extensionRetractionMotor.getCountsPerRev());
     }
 
@@ -891,19 +924,23 @@ public class ExtensionRetractionMechanism {
 
     private void moveToReset() {
         extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        extensionRetractionMotor.setPower(resetPower);
+        setCurrentPower(resetPower);
         log("Resetting mechanism " + mechanismName);
     }
 
     protected boolean isMoveToResetComplete() {
+        boolean result = false;
         // your method of determining whether the movement to the reset is complete must be
         // coded here
         if (isRetractionLimitReached()) {
             log("Retraction limit switch pressed " + mechanismName);
-            return true;
-        } else {
-            return false;
+            result = true;
         }
+        if (resetTimer.milliseconds() > 1000) {
+            log("Retraction timer tripped");
+            result = true;
+        }
+        return result;
     }
 
     protected void performActionsToCompleteResetMovement() {
@@ -994,7 +1031,7 @@ public class ExtensionRetractionMechanism {
         // this is to fix a bug, when the lift resets, it leaves the motor in float mode. In order
         // for the lift to stay retracted, hold has to be set
         setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
-        extensionRetractionMotor.setPower(retractionPower);
+        setCurrentPower(retractionPower);
     }
 
     /**
@@ -1131,7 +1168,7 @@ public class ExtensionRetractionMechanism {
         // this is to fix a bug, when the lift resets, it leaves the motor in float mode. In order
         // for the lift to stay extended, hold has to be set
         setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
-        extensionRetractionMotor.setPower(extensionPower);
+        setCurrentPower(extensionPower);
     }
 
     /**
@@ -1325,7 +1362,7 @@ public class ExtensionRetractionMechanism {
     private void processJoystick() {
         if (isOkToJoystick()) {
             extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            extensionRetractionMotor.setPower(joystickPower);
+            setCurrentPower(joystickPower);
             // not sure about this anymore since the state machine has completely changed. Need to
             // investigate it.
             /*
@@ -1357,13 +1394,13 @@ public class ExtensionRetractionMechanism {
     protected void stopMechanism() {
         if (finishBehavior == DcMotor8863.FinishBehavior.FLOAT) {
             log("Stopping mechanism, motor set to float");
-            extensionRetractionMotor.setPower(0);
+            setCurrentPower(0);
         } else {
             // the motor is going to have to actively hold position
             log("Stopping mechanism, attempting to hold position");
             extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             extensionRetractionMotor.setTargetPosition(extensionRetractionMotor.getCurrentPosition());
-            extensionRetractionMotor.setPower(1.0);
+            setCurrentPower(1.0);
         }
     }
 
@@ -1486,6 +1523,7 @@ public class ExtensionRetractionMechanism {
                         if (arePreResetActionsComplete()) {
                             // pre reset actions are complete, start the movement to reset position
                             moveToReset();
+                            resetTimer.reset();
                             extensionRetractionState = ExtensionRetractionStates.MOVING_TO_RESET_POSITION;
                             extensionRetractionCommand = ExtensionRetractionCommands.RESET;
                         } else {

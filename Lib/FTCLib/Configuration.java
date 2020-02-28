@@ -58,7 +58,15 @@ public boolean delete(String configFile){
         }
     }
 
-    public Pair<String, Boolean> getPropertyString(String key, String defaultValue) {
+    public String getPropertyString(String key) {
+        return getProperty(key);
+    }
+
+    public String getPropertyString(String key, String defaultValue) {
+        return getProperty(key, defaultValue);
+    }
+
+    public Pair<String, Boolean> getPropertyStringCheck(String key, String defaultValue) {
         String propVal = getProperty(key);
         if (propVal != null) {
             return new Pair<String, Boolean>(propVal, true);
@@ -79,7 +87,20 @@ public boolean delete(String configFile){
         return null;
     }
 
-    public Pair<Double, Boolean> getPropertyDouble(String key, Double defaultValue) {
+    public Double getPropertyDouble(String key, Double defaultValue) {
+        String propVal = getProperty(key);
+        if (propVal != null) {
+            try {
+                return Double.valueOf(propVal);
+            } catch (NumberFormatException ex) {
+                return defaultValue;
+            }
+        } else {
+            return defaultValue;
+        }
+    }
+
+    public Pair<Double, Boolean> getPropertyDoubleCheck(String key, Double defaultValue) {
         String propVal = getProperty(key);
         if (propVal != null) {
             try {
@@ -104,7 +125,20 @@ public boolean delete(String configFile){
         return null;
     }
 
-    public Pair<Integer, Boolean> getPropertyInteger(String key, Integer defaultValue) {
+    public Integer getPropertyInteger(String key, Integer defaultValue) {
+        String propVal = getProperty(key);
+        if (propVal != null) {
+            try {
+                return Integer.valueOf(propVal);
+            } catch (NumberFormatException ex) {
+                return defaultValue;
+            }
+        } else {
+            return defaultValue;
+        }
+    }
+
+    public Pair<Integer, Boolean> getPropertyIntegerCheck(String key, Integer defaultValue) {
         String propVal = getProperty(key);
         if (propVal != null) {
             try {
@@ -129,7 +163,20 @@ public boolean delete(String configFile){
         return null;
     }
 
-    public Pair<Long, Boolean> getPropertyLong(String key, Long defaultValue) {
+    public Long getPropertyLong(String key, Long defaultValue) {
+        String propVal = getProperty(key);
+        if (propVal != null) {
+            try {
+                return Long.valueOf(propVal);
+            } catch (NumberFormatException ex) {
+                return defaultValue;
+            }
+        } else {
+            return defaultValue;
+        }
+    }
+
+    public Pair<Long, Boolean> getPropertyLongCheck(String key, Long defaultValue) {
         String propVal = getProperty(key);
         if (propVal != null) {
             try {
@@ -141,6 +188,7 @@ public boolean delete(String configFile){
             return new Pair<Long, Boolean>(defaultValue, false);
         }
     }
+
     public Boolean getPropertyBoolean(String key) {
         String propVal = getProperty(key);
         if (propVal != null) {
@@ -149,7 +197,16 @@ public boolean delete(String configFile){
         return null;
     }
 
-    public Pair<Boolean, Boolean> getPropertyBoolean(String key, Boolean defaultValue) {
+    public Boolean getPropertyBoolean(String key, Boolean defaultValue) {
+        String propVal = getProperty(key);
+        if (propVal != null) {
+            return Boolean.valueOf(propVal);
+        } else {
+            return defaultValue;
+        }
+    }
+
+    public Pair<Boolean, Boolean> getPropertyBooleanCheck(String key, Boolean defaultValue) {
         String propVal = getProperty(key);
         if (propVal != null) {
             return new Pair<Boolean, Boolean>(Boolean.valueOf(propVal), true);
@@ -166,7 +223,16 @@ public boolean delete(String configFile){
         return null;
     }
 
-    public Pair<Byte, Boolean> getPropertyByte(String key, Byte defaultValue) {
+    public Byte getPropertyByte(String key, Byte defaultValue) {
+        String propVal = getProperty(key);
+        if (propVal != null) {
+            return Byte.valueOf(propVal);
+        } else {
+            return defaultValue;
+        }
+    }
+
+    public Pair<Byte, Boolean> getPropertyByteCheck(String key, Byte defaultValue) {
         String propVal = getProperty(key);
         if (propVal != null) {
             return new Pair<Byte, Boolean>(Byte.valueOf(propVal), true);
