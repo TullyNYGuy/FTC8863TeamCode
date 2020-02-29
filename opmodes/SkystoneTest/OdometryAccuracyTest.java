@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmodes.SkystoneTest;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -16,7 +17,7 @@ import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.SkystoneRobot;
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@Autonomous(name = "Super Complicated Autonomous", group = "A Test")
+@TeleOp(name = "Super Complicated Autonomous", group = "A Test")
 //@Disabled
 
 public class OdometryAccuracyTest extends LinearOpMode {
@@ -74,32 +75,34 @@ public class OdometryAccuracyTest extends LinearOpMode {
             }
             idle();
         }
+
         controller.startController();
         robot.setPosition(0,0,0);
         controller.setAllegiance(AutonomousController.Color.RED);
         controller.initPlaces();
         waitForStart();
-        controller.moveTo(DistanceUnit.CM, 50, 0);
-        outtakeTimer.reset();
-        while(outtakeTimer.seconds() > 5){
-            idle();
+        while (opModeIsActive()) {
+            controller.moveTo(DistanceUnit.CM, 50, 0);
+            outtakeTimer.reset();
+            while (outtakeTimer.seconds() > 5) {
+                idle();
+            }
+            controller.moveTo(DistanceUnit.CM, 0, 50);
+            outtakeTimer.reset();
+            while (outtakeTimer.seconds() > 5) {
+                idle();
+            }
+            controller.moveTo(DistanceUnit.CM, -50, 0);
+            outtakeTimer.reset();
+            while (outtakeTimer.seconds() > 5) {
+                idle();
+            }
+            controller.moveTo(DistanceUnit.CM, 0, -50);
+            outtakeTimer.reset();
+            while (outtakeTimer.seconds() > 5) {
+                idle();
+            }
         }
-        controller.moveTo(DistanceUnit.CM, 0, 50);
-        outtakeTimer.reset();
-        while(outtakeTimer.seconds() > 5){
-            idle();
-        }
-        controller.moveTo(DistanceUnit.CM, -50, 0);
-        outtakeTimer.reset();
-        while(outtakeTimer.seconds() > 5){
-            idle();
-        }
-        controller.moveTo(DistanceUnit.CM, 0, -50);
-        outtakeTimer.reset();
-        while(outtakeTimer.seconds() > 5){
-            idle();
-        }
-
         // Put your cleanup code here - it runs as the application shuts down
         telemetry.addData(">", "Done");
         dataLog.closeDataLog();
