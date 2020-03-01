@@ -17,7 +17,7 @@ import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.SkystoneRobot;
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Super Complicated Autonomous", group = "A Test")
+@TeleOp(name = "acc test", group = "A Test")
 //@Disabled
 
 public class OdometryAccuracyTest extends LinearOpMode {
@@ -27,6 +27,13 @@ public class OdometryAccuracyTest extends LinearOpMode {
     public Configuration config;
     DataLogging dataLog = null;
     Position placeholder;
+
+    static double distance(Position p1, Position p2) {
+double dist;
+dist = Math.hypot(p2.y-p1.y, p2.x-p1.x);
+return dist;
+    }
+
     @Override
     public void runOpMode() {
 
@@ -63,8 +70,8 @@ public class OdometryAccuracyTest extends LinearOpMode {
         AutonomousController controller = new AutonomousController(robot, dataLog, telemetry);
         robot.createRobot();
         // start the inits for the robot subsytems
-        outtakeTimer.reset();
         robot.init();
+        outtakeTimer.reset();
         while (!robot.isInitComplete()) {
             robot.update();
             if (outtakeTimer.milliseconds() > 5000) {
@@ -76,39 +83,66 @@ public class OdometryAccuracyTest extends LinearOpMode {
             idle();
         }
 
-        controller.startController();
-        robot.setPosition(0,0,0);
-        controller.setAllegiance(AutonomousController.Color.RED);
-        controller.initPlaces();
+
+       // controller.setAllegiance(AutonomousController.Color.RED);
+       // controller.initPlaces();
+        Position cuurent = new Position();
+        cuurent.unit = DistanceUnit.CM;
+        Position destination = new Position();
+        destination.unit = DistanceUnit.CM;
+        telemetry.addData(">", "Press start to run Teleop");
+        telemetry.update();
         waitForStart();
-        while (opModeIsActive()) {
-            controller.moveTo(DistanceUnit.CM, 50, 0);
-            outtakeTimer.reset();
-            while (outtakeTimer.seconds() > 5) {
+        controller.startController();
+        //robot.setPosition(0,0,0);
+        /*while (opModeIsActive()) */{
+            destination.x = 50;
+            destination.y = 0;
+            double dist;
+            controller.moveTo(DistanceUnit.CM, destination.x, destination.y);
+            do {
+                robot.update();
+                telemetry.update();
                 idle();
-            }
-            controller.moveTo(DistanceUnit.CM, 0, 50);
-            outtakeTimer.reset();
-            while (outtakeTimer.seconds() > 5) {
+                robot.getCurrentPosition(cuurent);
+                dist= distance(destination, cuurent);
+            } while (dist > 1 && opModeIsActive());
+            /*
+            destination.x = 50;
+            destination.y = 50;
+            controller.moveTo(DistanceUnit.CM, destination.x, destination.y);
+            do {
                 idle();
-            }
-            controller.moveTo(DistanceUnit.CM, -50, 0);
-            outtakeTimer.reset();
-            while (outtakeTimer.seconds() > 5) {
+                robot.getCurrentPosition(cuurent);
+                dist= distance(destination, cuurent);
+            } while (dist > 1);
+            destination.x = 0;
+            destination.y = 50;
+            controller.moveTo(DistanceUnit.CM, destination.x, destination.y);
+            do {
                 idle();
-            }
-            controller.moveTo(DistanceUnit.CM, 0, -50);
-            outtakeTimer.reset();
-            while (outtakeTimer.seconds() > 5) {
+                robot.getCurrentPosition(cuurent);
+                dist= distance(destination, cuurent);
+            } while (dist > 1);
+            destination.x = 0;
+            destination.y = 0;
+            controller.moveTo(DistanceUnit.CM, destination.x, destination.y);
+            do {
                 idle();
-            }
+                robot.getCurrentPosition(cuurent);
+                dist= distance(destination, cuurent);
+            } while (dist > 1);
+            idle();
+             */
         }
         // Put your cleanup code here - it runs as the application shuts down
         telemetry.addData(">", "Done");
         dataLog.closeDataLog();
-        controller.stopController();
+//        controller.stopController();
+
         robot.shutdown();
         telemetry.update();
+        stop();
 
     }
 }

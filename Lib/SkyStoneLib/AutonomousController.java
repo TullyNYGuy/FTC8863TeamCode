@@ -72,7 +72,7 @@ public class AutonomousController {
 
     class MovemenetThread implements Runnable {
 
-        private final double XY_Kp = .05;
+        private final double XY_Kp = 0.03;
         private final double XY_Ki = 0;
         private final double XY_Kd = 0;
         private final double XY_MAX_CORRECTION = 1;
@@ -126,7 +126,7 @@ public class AutonomousController {
             double valX;
             double valY;
             double valRot;
-            double timerValue = elapsedTime.milliseconds();
+            double timerValue = elapsedTime.seconds();
             robot.timedUpdate(timerValue);
             robot.getCurrentPosition(current);
             double currentRotation = robot.getCurrentRotation(AngleUnit.RADIANS);
