@@ -394,9 +394,21 @@ public class OdometrySystem implements FTCRobotSubsystem {
         currentY = this.unit.fromUnit(unit, y);
     }
 
+    public void setCurrentPosition(RobotPosition position) {
+        currentRotation = position.angleUnit.toRadians(position.rotation);
+        currentX = this.unit.fromUnit(position.distanceUnit, position.x);
+        currentY = this.unit.fromUnit(position.distanceUnit, position.y);
+    }
+
     public void getCurrentPosition(Position position) {
         position.x = position.unit.fromUnit(unit, currentX);
         position.y = position.unit.fromUnit(unit, currentY);
+    }
+
+    public void getCurrentPosition(RobotPosition position) {
+        position.x = position.distanceUnit.fromUnit(unit, currentX);
+        position.y = position.distanceUnit.fromUnit(unit, currentY);
+        position.rotation = position.angleUnit.fromRadians(currentRotation);
     }
 
     public double getCurrentY(DistanceUnit unit) {

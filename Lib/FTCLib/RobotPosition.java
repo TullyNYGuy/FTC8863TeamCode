@@ -52,6 +52,12 @@ public class RobotPosition extends Vector2D {
         this.angleUnit = AngleUnit.RADIANS;
     }
 
+    private void copyFrom(RobotPosition source) {
+        this.x = distanceUnit.fromUnit(source.distanceUnit, source.x);
+        this.y = distanceUnit.fromUnit(source.distanceUnit, source.y);
+        this.rotation = angleUnit.fromUnit(source.angleUnit, source.rotation);
+    }
+
     @Override
     public String toString() {
         return String.format(Locale.ENGLISH, "(%+.2f %s, %+.2f %s, %+.2f %s)", x, distanceUnit, y, distanceUnit, rotation, angleUnit);
