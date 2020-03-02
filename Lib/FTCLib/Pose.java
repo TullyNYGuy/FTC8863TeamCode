@@ -32,8 +32,16 @@ public class Pose {
         return this.position.getX();
     }
 
+    public void setXLocation(DistanceUnit distanceUnit, double xLocation) {
+        this.position.setX(xLocation, distanceUnit);
+    }
+
     public double getYLocation() {
         return this.position.getY();
+    }
+
+    public void setYLocation(DistanceUnit distanceUnit, double yLocation) {
+        this.position.setY(yLocation, distanceUnit);
     }
 
     private Orientation2D orientation;
@@ -44,6 +52,10 @@ public class Pose {
 
     public double getOrientation(AngleUnit desiredAngleUnit) {
         return this.orientation.getAngle(desiredAngleUnit);
+    }
+
+    public void setOrientation(AngleUnit angleUnit, double orientation) {
+        this.orientation.setAngle(orientation, angleUnit);
     }
 
     public AngleUnit getAngleUnit() {
