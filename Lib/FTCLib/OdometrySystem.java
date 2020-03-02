@@ -96,6 +96,8 @@ public class OdometrySystem implements FTCRobotSubsystem {
     private double currentY = 0;
     private double currentRotation = 0;
 
+    private Pose pose;
+
     private DataLogging logFile = null;
     private boolean loggingOn = false;
 
@@ -119,6 +121,7 @@ public class OdometrySystem implements FTCRobotSubsystem {
         this.back = back;
         this.unit = unit;
         this.initComplete = false;
+        pose = new Pose();
     }
 
     //*********************************************************************************************
@@ -226,6 +229,11 @@ public class OdometrySystem implements FTCRobotSubsystem {
         currentX += deltaX * Math.cos(currentRotation) - deltaY * Math.sin(currentRotation);
         currentY += deltaX * Math.sin(currentRotation) + deltaY * Math.cos(currentRotation);
         currentRotation += deltaRotation;
+
+        pose.setXLocation(this.unit, currentX);
+        pose.setYLocation(this.unit, currentY);
+        pose.setOrientation(AngleUnit.RADIANS, currentRotation);
+
         leftEncoderOld = leftEncoderNew;
         rightEncoderOld = rightEncoderNew;
         backEncoderOld = backEncoderNew;
@@ -386,12 +394,24 @@ public class OdometrySystem implements FTCRobotSubsystem {
         currentX = 0.0;
         currentY = 0.0;
         currentRotation = 0.0;
+        pose.setXLocation(this.unit, 0);
+        pose.setYLocation(this.unit, 0);
+        pose.setOrientation(AngleUnit.RADIANS, 0);
     }
 
     public void setCoordinates(DistanceUnit unit, double x, double y, AngleUnit angleUnit, double rotation) {
         currentRotation = angleUnit.toRadians(rotation);
         currentX = this.unit.fromUnit(unit, x);
         currentY = this.unit.fromUnit(unit, y);
+    }
+
+    public void setCurrentPose(DistanceUnit distanceUnit, double x, double y, AngleUnit angleUnit, double rotation) {
+        currentRotation = angleUnit.toRadians(rotation);
+        currentX = this.unit.fromUnit(unit, x);
+        currentY = this.unit.fromUnit(unit, y);
+        pose.setXLocation(distanceUnit, currentX);
+        pose.setYLocation(distanceUnit, currentY);
+        pose.setOrientation(angleUnit, rotation);
     }
 
     public void getCurrentPosition(Position position) {
@@ -409,6 +429,10 @@ public class OdometrySystem implements FTCRobotSubsystem {
 
     public double getCurrentRotation(AngleUnit angleUnit) {
         return angleUnit.fromRadians(currentRotation);
+    }
+
+    public Pose getCurrentPose() {
+        return this.pose;
     }
 
     @Override
