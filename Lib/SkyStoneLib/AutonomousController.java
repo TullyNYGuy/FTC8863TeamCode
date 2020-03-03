@@ -10,6 +10,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.PIDControl;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.PIDControlExternalTimer;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.RobotPosition;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -38,6 +39,7 @@ public class AutonomousController {
     final private double RED_HOME_Y = 10.0;
 
     final private DistanceUnit distanceUnit = DistanceUnit.CM;
+    final private AngleUnit angleUnit = AngleUnit.RADIANS;
 
     /*
      * Interval in milliseconds in which movement control task runs
@@ -57,9 +59,9 @@ public class AutonomousController {
 
     private Color color;
 
-    private Position currentDestination;
+    private RobotPosition currentDestination;
 
-    private Map<Areas, Position> places;
+    private Map<Areas, RobotPosition> places;
 
     private SkystoneRobot robot;
 
@@ -84,8 +86,9 @@ public class AutonomousController {
         private PIDControlExternalTimer yControl;
         private PIDControlExternalTimer rotationControl;
         private MecanumCommands commands;
-        private Position current;
+        private RobotPosition current;
         private DistanceUnit distanceUnit;
+        private AngleUnit angleUnit;
         private MecanumCommands zeroMovement;
         private ElapsedTime elapsedTime;
 
@@ -101,7 +104,8 @@ public class AutonomousController {
             commands = new MecanumCommands();
             zeroMovement = new MecanumCommands();
             this.distanceUnit = distanceUnit;
-            current = new Position(distanceUnit, 0, 0, 0, 0);
+            this.angleUnit = angleUnit;
+            current = new RobotPosition(distanceUnit, 0, 0, angleUnit, 0);
         }
 
         public void setDestination(DistanceUnit distanceUnit, double x, double y) {
@@ -114,6 +118,14 @@ public class AutonomousController {
         public void setDestinationRotation(AngleUnit angleUnit, double rotation) {
             synchronized (this) {
                 rotationControl.setSetpoint(angleUnit.toRadians(rotation));
+            }
+        }
+
+        public void setDestination(RobotPosition destination) {
+            synchronized (this) {
+                xControl.setSetpoint(distanceUnit.fromUnit(destination.distanceUnit, destination.x));
+                yControl.setSetpoint(distanceUnit.fromUnit(destination.distanceUnit, destination.y));
+                rotationControl.setSetpoint(angleUnit.fromUnit(destination.angleUnit, destination.rotation));
             }
         }
 
@@ -131,27 +143,26 @@ public class AutonomousController {
             double valRot;
             double timerValue = elapsedTime.seconds();
             robot.timedUpdate(timerValue);
-            robot.getCurrentPosition(current);
-            double currentRotation = robot.getCurrentRotation(AngleUnit.RADIANS);
+            robot.getCurrentRobotPosition(current);
             synchronized (this) {
                 valX = xControl.getCorrection(current.x, timerValue);
                 valY = yControl.getCorrection(current.y, timerValue);
-                valRot = rotationControl.getCorrection(currentRotation, timerValue);
+                valRot = rotationControl.getCorrection(current.rotation, timerValue);
             }
             commands.setSpeed(Math.sqrt(valX * valX + valY * valY));
             commands.setAngleOfTranslation(AngleUnit.RADIANS, Math.atan2(valY, valX));
             commands.setSpeedOfRotation(valRot);
             robot.setMovement(commands);
             //telemetry.addData("MT: ", String.format("x: %.2f, y: %.2f", valX, valY));
-            dataLog.logData(String.format("Position (X, Y): (%.2f, %.2f)", current.x, current.y));
-            dataLog.logData(String.format("Correction (X, Y): (%.2f, %.2f)", valX, valY));
+            dataLog.logData(String.format("Position (X, Y, ROT): %s", current));
+            dataLog.logData(String.format("Correction (X, Y, ROT): (%+.2f, %+.2f, %+.2f)", valX, valY, valRot));
         }
     }
 
-    public AutonomousController(SkystoneRobot robot, DataLogging logger, Telemetry telemetry, double Kp, double Ki, double Kd) {
-        places = new HashMap<Areas, Position>();
+    public AutonomousController(SkystoneRobot robot, DataLogging logger, Telemetry telemetry) {
+        places = new HashMap<Areas, RobotPosition>();
         this.robot = robot;
-        movementThread = new MovemenetThread(distanceUnit, Kp, Ki, Kd);
+        movementThread = new MovemenetThread(distanceUnit, angleUnit);
         scheduler = Executors.newScheduledThreadPool(2);
         movementTask = null;
         this.telemetry = telemetry;
@@ -190,25 +201,23 @@ public class AutonomousController {
 
     public void initPlaces() {
         if (color == Color.BLUE) {
-            places.put(Areas.BUILDSITE, new Position(distanceUnit, BLUE_BUILDSITE_X, BLUE_BUILDSITE_Y, 0, 0));
-            places.put(Areas.BRIDGE, new Position(distanceUnit, BLUE_BRIDGE_X, BLUE_BRIDGE_Y, 0, 0));
-            places.put(Areas.PLATFORM, new Position(distanceUnit, BLUE_PLATFORM_X, BLUE_PLATFORM_Y, 0, 0));
-            places.put(Areas.HOME, new Position(distanceUnit, BLUE_HOME_X, BLUE_HOME_Y, 0, 0));
+            places.put(Areas.BUILDSITE, new RobotPosition(distanceUnit, BLUE_BUILDSITE_X, BLUE_BUILDSITE_Y, AngleUnit.RADIANS, 0));
+            places.put(Areas.BRIDGE, new RobotPosition(distanceUnit, BLUE_BRIDGE_X, BLUE_BRIDGE_Y, AngleUnit.RADIANS, 0));
+            places.put(Areas.PLATFORM, new RobotPosition(distanceUnit, BLUE_PLATFORM_X, BLUE_PLATFORM_Y, AngleUnit.RADIANS, 0));
+            places.put(Areas.HOME, new RobotPosition(distanceUnit, BLUE_HOME_X, BLUE_HOME_Y, AngleUnit.RADIANS, 0));
         } else {
-            places.put(Areas.BUILDSITE, new Position(distanceUnit, RED_BUILDSITE_X, RED_BUILDSITE_Y, 0, 0));
-            places.put(Areas.BRIDGE, new Position(distanceUnit, RED_BRIDGE_X, RED_BRIDGE_Y, 0, 0));
-            places.put(Areas.PLATFORM, new Position(distanceUnit, RED_PLATFORM_X, RED_PLATFORM_Y, 0, 0));
-            places.put(Areas.HOME, new Position(distanceUnit, RED_HOME_X, RED_HOME_Y, 0, 0));
+            places.put(Areas.BUILDSITE, new RobotPosition(distanceUnit, RED_BUILDSITE_X, RED_BUILDSITE_Y, AngleUnit.RADIANS, 0));
+            places.put(Areas.BRIDGE, new RobotPosition(distanceUnit, RED_BRIDGE_X, RED_BRIDGE_Y, AngleUnit.RADIANS, 0));
+            places.put(Areas.PLATFORM, new RobotPosition(distanceUnit, RED_PLATFORM_X, RED_PLATFORM_Y, AngleUnit.RADIANS, 0));
+            places.put(Areas.HOME, new RobotPosition(distanceUnit, RED_HOME_X, RED_HOME_Y, AngleUnit.RADIANS, 0));
         }
     }
 
     public void goTo(Areas place) {
         this.place = place;
-        time.reset();
-        currentDestination = places.get(place);
-
-        if (currentDestination != null) {
-            moveTo(distanceUnit, currentDestination.x, currentDestination.y);
+        RobotPosition p = places.get(place);
+        if (p != null) {
+            moveTo(distanceUnit, p.x, p.y);
         }
     }
 

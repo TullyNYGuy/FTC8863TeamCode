@@ -20,6 +20,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.Mecanum;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometryModule;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometrySystem;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.RobotPosition;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Switch;
 
 import java.util.ArrayList;
@@ -503,6 +504,21 @@ public void setPosition(double currentpositionx,double currentPositiionY,double 
             return unit.fromDegrees(imu.getHeading());
         else
             return 0;
+    }
+
+    public boolean getCurrentRobotPosition(RobotPosition position) {
+        if (odometry != null && odometry.isInitComplete()) {
+            odometry.getCurrentPosition(position);
+            return true;
+        } else if (imu != null) {
+            Position p = imu.getPosition();
+            position.x = position.distanceUnit.fromUnit(p.unit, p.x);
+            position.y = position.distanceUnit.fromUnit(p.unit, p.y);
+            position.rotation = position.angleUnit.fromDegrees(imu.getHeading());
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public void setMovement(MecanumCommands commands) {
