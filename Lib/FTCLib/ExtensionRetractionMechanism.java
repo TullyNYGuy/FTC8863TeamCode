@@ -1019,10 +1019,20 @@ public class ExtensionRetractionMechanism {
      */
     private void moveToFullRetract() {
         // when the mechanism retracts you may want to do something with whatever is attached to it.
+
+        // ToDo - fix this bug in moveToFullRetract. It will also appear in moveToFullExtend
+        // 3/2/2020 THERE APPEARS TO BE A BUG HERE. WHEN RUNNING IN GO_TO_POSITION, the motor is in
+        // RUN_TO_POSITION mode. The next command switches the motor mode. But it takes time for this
+        // to happen. Testing showed at least 200 mSec but less than 1000 mSec. Without a delay,
+        // the following commands to the motor cause it to do wonky things. Currently do not use a
+        // move to full retract or move to full extend command after you use a go to position
+        // command. That is a bad workaround but all I have time for now.
+
         extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         // this is to fix a bug, when the lift resets, it leaves the motor in float mode. In order
         // for the lift to stay retracted, hold has to be set
         setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
+        //logFile.logData("RETRACTION POWER SET TO " + retractionPower + " " + extensionRetractionMotor.getDirection());
         setCurrentPower(retractionPower);
     }
 
@@ -1389,6 +1399,14 @@ public class ExtensionRetractionMechanism {
             setCurrentPower(0);
         } else {
             // the motor is going to have to actively hold position
+
+            // ToDo Fix this bug in stopping mechanism from a move to full retract or extend
+            // 3/2/2020 there appears to be a bug here. Sequence of events:
+            // use a goToPostion command (mode of motor = RUN_TO_POSITION)
+            // Use a goToFullRetract command (mode of motor = RUN_WITHOUT_ENCODER)
+            // the next set of commands switches the motor mode again. There does not appear to be
+            // enough time to allow the mode to switch before pushing new commands at the motor.
+
             log("Stopping mechanism, attempting to hold position");
             extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             extensionRetractionMotor.setTargetPosition(extensionRetractionMotor.getCurrentPosition());
@@ -2220,6 +2238,7 @@ public class ExtensionRetractionMechanism {
                     // fully retract
                     case GO_TO_RETRACTED:
                         extensionRetractionState = ExtensionRetractionStates.START_RETRACTION_SEQUENCE;
+                        break;
                     case GO_TO_EXTENDED:
                         extensionRetractionState = ExtensionRetractionStates.START_EXTENSION_SEQUENCE;
                         break;

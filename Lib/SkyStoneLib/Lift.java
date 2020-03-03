@@ -232,7 +232,8 @@ public class Lift extends ExtensionRetractionMechanism {
                 }
                 break;
             case MOVING_OFF_ZERO_LIMIT_SWITCH:
-                //ToDo test this when the lift is off both limit switches. See if this fixes the bug.
+                // ToDo fix the bug when a lift is not touching both limit switches and it resets wrong
+                // one side goes up and the other does not
                 if (!isZeroLimitSwitchPressed()) {
                     int currentPosition = extensionRetractionMotor.encoder.getCurrentPosition();
                     log("Lifted off zero limit switch " + mechanismName);
@@ -243,7 +244,8 @@ public class Lift extends ExtensionRetractionMechanism {
                     // Reset the encoder zero position.
                     extensionRetractionMotor.encoder.reset();
                     this.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
-                    extensionRetractionMotor.setTargetPosition((currentPosition));
+                    // target position has to be 0 since the encoder was just reset
+                    extensionRetractionMotor.setTargetPosition(0);
                     extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     extensionRetractionMotor.setPower(raiseOffLimitSwitchPower);
                     liftResetExtraState = LiftResetExtraStates.TENSION_COMPLETE;

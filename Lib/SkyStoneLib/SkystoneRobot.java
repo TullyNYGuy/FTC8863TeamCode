@@ -933,9 +933,9 @@ public void setPosition(double currentpositionx,double currentPositiionY,double 
     public enum PrepareIntakeStates {
         IDLE,
         START,
-        PREPARATION_PHASE_1_ROTATOR,
-        PREPARATION_PHASE_2_RETRACTION,
-        PREPARATION_PHASE_3_LOWERING,
+        RELEASE_AND_ROTATE,
+        RETRACT_EXTENSION_ARM_FULL_SPEED,
+        LOWER_LIFT,
         COMPLETE
     }
 
@@ -945,7 +945,7 @@ public void setPosition(double currentpositionx,double currentPositiionY,double 
     private void logState(PrepareIntakeStates prepareIntakeState) {
         if (dataLog != null && dataLoggingEnabled) {
             if (prepareIntakeState != previousPrepareIntakeState) {
-                dataLog.logData("PlaceBlock state is now ", prepareIntakeState.toString());
+                dataLog.logData("PrepareIntake state is now ", prepareIntakeState.toString());
                 previousPrepareIntakeState = prepareIntakeState;
             }
         }
@@ -972,28 +972,30 @@ public void setPosition(double currentpositionx,double currentPositiionY,double 
                 //chillin' like a villain
                 break;
             case START:
-                if (gripperRotator != null)
-                    gripperRotator.rotateInward();
                 if (gripper != null)
                     gripper.releaseBlock();
-                prepareIntakeState = PrepareIntakeStates.PREPARATION_PHASE_1_ROTATOR;
+                if (gripperRotator != null)
+                    gripperRotator.rotateInward();
+                prepareIntakeState = PrepareIntakeStates.RELEASE_AND_ROTATE;
                 break;
-            case PREPARATION_PHASE_1_ROTATOR:
+            case RELEASE_AND_ROTATE:
                 if (gripper != null && gripper.isReleaseComplete()
                         && gripperRotator != null && gripperRotator.isRotateInwardComplete()) {
                     if (extensionArm != null)
                         extensionArm.goToPosition(0, 0.5);
-                    prepareIntakeState = PrepareIntakeStates.PREPARATION_PHASE_2_RETRACTION;
+                    prepareIntakeState = PrepareIntakeStates.RETRACT_EXTENSION_ARM_FULL_SPEED;
                 }
                 break;
-            case PREPARATION_PHASE_2_RETRACTION:
+            // ToDo fix the extension arm retracting past 0 and shutting the machine down
+            case RETRACT_EXTENSION_ARM_FULL_SPEED:
                 if (extensionArm != null && extensionArm.isPositionReached()) {
                     if (lift != null)
                         lift.goToPosition(2, 0.3);
-                    prepareIntakeState = PrepareIntakeStates.PREPARATION_PHASE_3_LOWERING;
+                    prepareIntakeState = PrepareIntakeStates.LOWER_LIFT;
                 }
                 break;
-            case PREPARATION_PHASE_3_LOWERING:
+            // ToDo make a state machine to retract the lift fully using a two step goToPosition
+            case LOWER_LIFT:
                 if (lift != null && lift.isPositionReached() && extensionArm != null && extensionArm.isPositionReached()) {
                     lift.goToFullRetract();
                     prepareIntakeState = PrepareIntakeStates.COMPLETE;
