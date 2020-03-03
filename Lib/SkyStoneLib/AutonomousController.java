@@ -72,9 +72,9 @@ public class AutonomousController {
 
     class MovemenetThread implements Runnable {
 
-        private final double XY_Kp = 0.03;
-        private final double XY_Ki = 0;
-        private final double XY_Kd = 0;
+        private double XY_Kp = 0.03;
+        private double XY_Ki = 0;
+        private double XY_Kd = 0;
         private final double XY_MAX_CORRECTION = 1;
         private final double ROT_Kp = .02;
         private final double ROT_Ki = 0;
@@ -89,7 +89,10 @@ public class AutonomousController {
         private MecanumCommands zeroMovement;
         private ElapsedTime elapsedTime;
 
-        public MovemenetThread(DistanceUnit distanceUnit) {
+        public MovemenetThread(DistanceUnit distanceUnit, double Kp, double Ki, double Kd) {
+            XY_Kp = Kp;
+            XY_Ki = Ki;
+            XY_Kd = Kd;
             elapsedTime = new ElapsedTime();
             elapsedTime.reset();
             xControl = new PIDControlExternalTimer(XY_Kp, XY_Ki, XY_Kd, XY_MAX_CORRECTION);
@@ -145,10 +148,10 @@ public class AutonomousController {
         }
     }
 
-    public AutonomousController(SkystoneRobot robot, DataLogging logger, Telemetry telemetry) {
+    public AutonomousController(SkystoneRobot robot, DataLogging logger, Telemetry telemetry, double Kp, double Ki, double Kd) {
         places = new HashMap<Areas, Position>();
         this.robot = robot;
-        movementThread = new MovemenetThread(distanceUnit);
+        movementThread = new MovemenetThread(distanceUnit, Kp, Ki, Kd);
         scheduler = Executors.newScheduledThreadPool(2);
         movementTask = null;
         this.telemetry = telemetry;

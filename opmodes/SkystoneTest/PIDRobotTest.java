@@ -141,7 +141,9 @@ public class PIDRobotTest extends LinearOpMode {
         // create the robot
         telemetry.addData("Initializing ...", "Wait for it ...");
         telemetry.update();
-
+        double Kp = 0.036;
+        double Ki = 0.05950413223;
+        double Kd = 0.005445;
         dataLog = new DataLogging("Teleop", telemetry);
         config = new Configuration();
         if (!config.load()) {
@@ -153,7 +155,7 @@ public class PIDRobotTest extends LinearOpMode {
 
         robot = new SkystoneRobot(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, this);
 
-        AutonomousController controller = new AutonomousController(robot, dataLog, telemetry);
+        AutonomousController controller = new AutonomousController(robot, dataLog, telemetry, Kp, Ki, Kd);
 
         // create the gamepad 1 buttons and tell each button how many commands it has
         // gamepad1RightBumper = new GamepadButtonMultiPush(1);

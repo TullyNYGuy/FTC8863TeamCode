@@ -17,7 +17,7 @@ import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.SkystoneRobot;
 
 import java.util.Locale;
 
-@TeleOp(name = "acc test (take 2, PID)", group = "ATest")
+@TeleOp(name = "acc test (P only)", group = "ATest")
 //@Disabled
 
 /*
@@ -48,7 +48,7 @@ import java.util.Locale;
  *    / X - confirm lift movement
  *    / Y -
  */
-public class AccuracyTest extends LinearOpMode {
+public class AccuracyTestP extends LinearOpMode {
 
     //*********************************************************************************************
     //             Declarations
@@ -148,9 +148,9 @@ public class AccuracyTest extends LinearOpMode {
         // create the robot
         telemetry.addData("Initializing ...", "Wait for it ...");
         telemetry.update();
-        double Kp = 0.036;
-        double Ki = 0.05950413223;
-        double Kd = 0.005445;
+        double Kp = 0.03;
+        double Ki = 0;
+        double Kd = 0;
         dataLog = new DataLogging("Teleop", telemetry);
         config = new Configuration();
         if (!config.load()) {
@@ -239,7 +239,7 @@ public class AccuracyTest extends LinearOpMode {
         waitForStart();
 
         controller.startController();
-        destination.x = 20;
+        destination.x = 50;
         destination.y = 0;
         double dist;
         controller.moveTo(DistanceUnit.CM, destination.x, destination.y);
@@ -268,97 +268,8 @@ public class AccuracyTest extends LinearOpMode {
             telemetry.addData("Distance: ", String.format(Locale.ENGLISH, "%.2f", dist));
             telemetry.update();
 
-        } while(dist > 1 &&opModeIsActive());
-        destination.x = 20;
-        destination.y = 20;
+        } while(/*dist > 1 &&*/ opModeIsActive());
 
-        controller.moveTo(DistanceUnit.CM, destination.x, destination.y);
-
-        //*********************************************************************************************
-        //             Robot Running after the user hits play on the driver phone
-        //*********************************************************************************************
-
-        do {
-
-            //haloControls.calculateMecanumCommands(commands);
-            //telemetry.addData("Mecanum", commands);
-            //  telemetry.addData("left x joystick value: ", gamepad1LeftJoyStickX.getValue());
-//            telemetry.addData("power modifier: ", haloControls.getPowerModifier());
-            //robot.setMovement(commands);
-
-            // update the robot
-            robot.update();
-
-            //telemetry.addData("mecanum commands are: ", commands);
-            // Display telemetry
-
-            idle();
-            robot.getCurrentPosition(cuurent);
-            dist= distance(destination, cuurent);
-            telemetry.addData("Distance: ", String.format(Locale.ENGLISH, "%.2f", dist));
-            telemetry.update();
-
-        } while(dist > 1 &&opModeIsActive());
-        destination.x = 0;
-        destination.y = 20;
-
-        controller.moveTo(DistanceUnit.CM, destination.x, destination.y);
-
-        //*********************************************************************************************
-        //             Robot Running after the user hits play on the driver phone
-        //*********************************************************************************************
-
-        do {
-
-            //haloControls.calculateMecanumCommands(commands);
-            //telemetry.addData("Mecanum", commands);
-            //  telemetry.addData("left x joystick value: ", gamepad1LeftJoyStickX.getValue());
-//            telemetry.addData("power modifier: ", haloControls.getPowerModifier());
-            //robot.setMovement(commands);
-
-            // update the robot
-            robot.update();
-
-            //telemetry.addData("mecanum commands are: ", commands);
-            // Display telemetry
-
-            idle();
-            robot.getCurrentPosition(cuurent);
-            dist= distance(destination, cuurent);
-            telemetry.addData("Distance: ", String.format(Locale.ENGLISH, "%.2f", dist));
-            telemetry.update();
-
-        } while(dist > 1 &&opModeIsActive());
-        destination.x = 0;
-        destination.y = 0;
-
-        controller.moveTo(DistanceUnit.CM, destination.x, destination.y);
-
-        //*********************************************************************************************
-        //             Robot Running after the user hits play on the driver phone
-        //*********************************************************************************************
-
-        do {
-
-            //haloControls.calculateMecanumCommands(commands);
-            //telemetry.addData("Mecanum", commands);
-            //  telemetry.addData("left x joystick value: ", gamepad1LeftJoyStickX.getValue());
-//            telemetry.addData("power modifier: ", haloControls.getPowerModifier());
-            //robot.setMovement(commands);
-
-            // update the robot
-            robot.update();
-
-            //telemetry.addData("mecanum commands are: ", commands);
-            // Display telemetry
-
-            idle();
-            robot.getCurrentPosition(cuurent);
-            dist= distance(destination, cuurent);
-            telemetry.addData("Distance: ", String.format(Locale.ENGLISH, "%.2f", dist));
-            telemetry.update();
-
-        } while(dist > 1 &&opModeIsActive());
         //*************************************************************************************
         //  Stop everything after the user hits the stop button on the driver phone
         // ************************************************************************************
@@ -367,11 +278,6 @@ public class AccuracyTest extends LinearOpMode {
     //    dataLog.closeDataLog();
         robot.shutdown();
         controller.stopController();
-
-        timer.reset();
-        while(timer.seconds() < 10) {
-            idle();
-        }
         telemetry.addData(">", "Done");
         telemetry.update();
         stop();

@@ -66,7 +66,7 @@ public class AunomouseComplicated extends LinearOpMode {
         // initialization of the imu as part of the constructor.
 
         //**************************************************************
-        AutonomousController controller = new AutonomousController(robot, dataLog, telemetry);
+        AutonomousController controller = new AutonomousController(robot, dataLog, telemetry, 0.03,0,0);
         robot.createRobot();
         // start the inits for the robot subsytems
         outtakeTimer.reset();

@@ -154,7 +154,7 @@ public class MoveToWithPID extends LinearOpMode {
 
         robot = new SkystoneRobot(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, this);
         robot.enableDataLogging();
-AutonomousController controller = new AutonomousController(robot, dataLog, telemetry);
+AutonomousController controller = new AutonomousController(robot, dataLog, telemetry, .03, 0,0);
 controller.startController();
         // create the gamepad 1 buttons and tell each button how many commands it has
         // gamepad1RightBumper = new GamepadButtonMultiPush(1);

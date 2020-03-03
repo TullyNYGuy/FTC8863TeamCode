@@ -41,7 +41,9 @@ return dist;
         // Put your initializations here
         MecanumCommands mecanumCommands = new MecanumCommands();
         boolean intakeState = false;
-
+        double Kp = 0.036;
+        double Ki = 0.05950413223;
+        double Kd = 0.005445;
         /*
         gamepad1LeftJoyStickX = new JoyStick(gamepad1, JoyStick.JoystickSide.LEFT, JoyStick.JoystickAxis.X);
         gamepad1LeftJoyStickY = new JoyStick(gamepad1, JoyStick.JoystickSide.LEFT, JoyStick.JoystickAxis.Y);
@@ -67,7 +69,7 @@ return dist;
         // initialization of the imu as part of the constructor.
 
         //**************************************************************
-        AutonomousController controller = new AutonomousController(robot, dataLog, telemetry);
+        AutonomousController controller = new AutonomousController(robot, dataLog, telemetry, Kp, Ki, Kd);
         robot.createRobot();
         // start the inits for the robot subsytems
         robot.init();

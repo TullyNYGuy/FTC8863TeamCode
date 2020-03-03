@@ -204,7 +204,7 @@ public class OdometrySystem implements FTCRobotSubsystem {
     public void calculateMoveDistance() {
 
         double leftEncoderNew = (left != null) ? left.getDistanceSinceReset(unit) : 0.0;
-        double rightEncoderNew = (right != null) ? right.getDistanceSinceReset(unit) : 0.0;
+        double rightEncoderNew = (right != null) ? left.getDistanceSinceReset(unit) : 0.0;
         double backEncoderNew = (back != null) ? back.getDistanceSinceReset(unit) : 0.0;
 
         double leftEncoderValue = (leftEncoderNew - leftEncoderOld) * leftDirectionMultiplier;
