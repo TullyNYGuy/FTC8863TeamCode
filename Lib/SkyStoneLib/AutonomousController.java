@@ -159,10 +159,10 @@ public class AutonomousController {
         }
     }
 
-    public AutonomousController(SkystoneRobot robot, DataLogging logger, Telemetry telemetry) {
+    public AutonomousController(SkystoneRobot robot, DataLogging logger, Telemetry telemetry, double Kp, double Ki, double Kd) {
         places = new HashMap<Areas, RobotPosition>();
         this.robot = robot;
-        movementThread = new MovemenetThread(distanceUnit, angleUnit);
+        movementThread = new MovemenetThread(distanceUnit, Kp, Ki, Kd);
         scheduler = Executors.newScheduledThreadPool(2);
         movementTask = null;
         this.telemetry = telemetry;
@@ -276,11 +276,11 @@ public class AutonomousController {
         //drop arm
     }
     public boolean isActionCompleteTime(){
-        if(currentDestination.acquisitionTime < time.milliseconds()){
+       /* if(){
             return true;
 
         }
-        else{
+        else*/{
             return false;
         }
     }
