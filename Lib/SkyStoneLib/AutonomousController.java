@@ -8,7 +8,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.PIDControl;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.PIDControlExternalTimer;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.RobotPosition;
 
@@ -21,22 +20,26 @@ import java.util.concurrent.TimeUnit;
 
 
 public class AutonomousController {
-    final private double BLUE_BUILDSITE_X = 10.0;
-    final private double BLUE_BUILDSITE_Y = 10.0;
-    final private double RED_BUILDSITE_X = 10.0;
-    final private double RED_BUILDSITE_Y = 10.0;
-    final private double BLUE_BRIDGE_X = 10.0;
-    final private double BLUE_BRIDGE_Y = 10.0;
-    final private double RED_BRIDGE_X = 10.0;
-    final private double RED_BRIDGE_Y = 10.0;
-    final private double BLUE_PLATFORM_X = 10.0;
-    final private double BLUE_PLATFORM_Y = 10.0;
-    final private double RED_PLATFORM_X = 10.0;
-    final private double RED_PLATFORM_Y = 10.0;
-    final private double BLUE_HOME_X = 10.0;
-    final private double BLUE_HOME_Y = 10.0;
-    final private double RED_HOME_X = 10.0;
-    final private double RED_HOME_Y = 10.0;
+    final private double BLUE_BUILDSITE_X = 121.92;
+    final private double BLUE_BUILDSITE_Y = 121.92;
+    final private double RED_BUILDSITE_X = 121.92;
+    final private double RED_BUILDSITE_Y = -121.92;
+    final private double BLUE_BRIDGE_X = 0;
+    final private double BLUE_BRIDGE_Y = 121.92;
+    final private double NEAR_CENTRE_BLUE_BRIDGE_X = 0;
+    final private double NEAR_CENTRE_BLUE_BRIDGE_Y = 152.4;
+    final private double NEAR_CENTRE_RED_BRIDGE_X = 0;
+    final private double NEAR_CENTRE_RED_BRIDGE_Y = -152.4;
+    final private double RED_BRIDGE_X =0;
+    final private double RED_BRIDGE_Y = -121.92;
+    final private double BLUE_PLATFORM_X = 121.92;
+    final private double BLUE_PLATFORM_Y = 30.48;
+    final private double RED_PLATFORM_X = 121.92;
+    final private double RED_PLATFORM_Y = -30.48;
+    final private double BLUE_HOME_X = 0;
+    final private double BLUE_HOME_Y = 121.92;
+    final private double RED_HOME_X = 0;
+    final private double RED_HOME_Y = -121.92;
 
     final private DistanceUnit distanceUnit = DistanceUnit.CM;
     final private AngleUnit angleUnit = AngleUnit.RADIANS;
@@ -47,7 +50,7 @@ public class AutonomousController {
     final private long MOVEMENT_THREAD_INTERVAL = 200;
 
     public enum Areas {
-        BUILDSITE, BRIDGE, BLOCK, PLATFORM, HOME
+        BUILDSITE, BRIDGE, BLOCK, PLATFORM, HOME, NEARCENTREBRIDGE
     }
 
     public boolean blockState;
@@ -205,11 +208,13 @@ public class AutonomousController {
             places.put(Areas.BRIDGE, new RobotPosition(distanceUnit, BLUE_BRIDGE_X, BLUE_BRIDGE_Y, AngleUnit.RADIANS, 0));
             places.put(Areas.PLATFORM, new RobotPosition(distanceUnit, BLUE_PLATFORM_X, BLUE_PLATFORM_Y, AngleUnit.RADIANS, 0));
             places.put(Areas.HOME, new RobotPosition(distanceUnit, BLUE_HOME_X, BLUE_HOME_Y, AngleUnit.RADIANS, 0));
+            places.put(Areas.NEARCENTREBRIDGE, new RobotPosition(distanceUnit, NEAR_CENTRE_BLUE_BRIDGE_X, NEAR_CENTRE_BLUE_BRIDGE_Y, AngleUnit.RADIANS, 0));
         } else {
             places.put(Areas.BUILDSITE, new RobotPosition(distanceUnit, RED_BUILDSITE_X, RED_BUILDSITE_Y, AngleUnit.RADIANS, 0));
             places.put(Areas.BRIDGE, new RobotPosition(distanceUnit, RED_BRIDGE_X, RED_BRIDGE_Y, AngleUnit.RADIANS, 0));
             places.put(Areas.PLATFORM, new RobotPosition(distanceUnit, RED_PLATFORM_X, RED_PLATFORM_Y, AngleUnit.RADIANS, 0));
             places.put(Areas.HOME, new RobotPosition(distanceUnit, RED_HOME_X, RED_HOME_Y, AngleUnit.RADIANS, 0));
+            places.put(Areas.NEARCENTREBRIDGE, new RobotPosition(distanceUnit, NEAR_CENTRE_RED_BRIDGE_X, NEAR_CENTRE_RED_BRIDGE_Y, AngleUnit.RADIANS, 0));
         }
     }
 
