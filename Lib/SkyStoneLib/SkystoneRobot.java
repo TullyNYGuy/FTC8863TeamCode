@@ -506,6 +506,7 @@ public void setPosition(double currentpositionx,double currentPositiionY,double 
             return 0;
     }
 
+    @Override
     public boolean getCurrentRobotPosition(RobotPosition position) {
         if (odometry != null && odometry.isInitComplete()) {
             odometry.getCurrentPosition(position);

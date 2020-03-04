@@ -21,6 +21,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometryModule;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometrySystem;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.RampControl;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.RobotPosition;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.SmartJoystick;
 
 import java.io.DataInput;
@@ -77,6 +78,11 @@ public class TestMinimumMotorPower extends LinearOpMode {
         @Override
         public double getCurrentRotation(AngleUnit unit) {
             return unit.fromDegrees(imu.getHeading());
+        }
+
+        @Override
+        public boolean getCurrentRobotPosition(RobotPosition position) {
+            return false;
         }
     }
 

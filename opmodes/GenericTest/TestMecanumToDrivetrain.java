@@ -12,6 +12,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobot;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.HaloControls;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Mecanum;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.RobotPosition;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.SmartJoystick;
 
 import static org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863.MotorType.ANDYMARK_20_ORBITAL;
@@ -74,6 +75,11 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
         @Override
         public double getCurrentRotation(AngleUnit unit) {
             return unit.fromDegrees(imu.getHeading());
+        }
+
+        @Override
+        public boolean getCurrentRobotPosition(RobotPosition position) {
+            return false;
         }
     }
 

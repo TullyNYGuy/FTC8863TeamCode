@@ -21,4 +21,7 @@ public interface FTCRobot {
     void timedUpdate(double timerValueMsec);
 
     double getCurrentRotation(AngleUnit unit);
+
+    boolean getCurrentRobotPosition(RobotPosition position);
+
 }
