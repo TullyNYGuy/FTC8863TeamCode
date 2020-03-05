@@ -229,8 +229,6 @@ public class DcServoMotor extends DcMotor8863 {
 
     private boolean isEncoderAtTarget(int desiredEncoderCount) {
         if (Math.abs(desiredEncoderCount - encoder.getCurrentPosition()) <= 40) {
-            // stop the servo
-            setPower(0);
             return true;
         } else {
             return false;
@@ -251,10 +249,15 @@ public class DcServoMotor extends DcMotor8863 {
     public boolean rotateToEncoderCount(double power, int encoderCount, FinishBehavior afterCompletion) {
         encoder.setTargetEncoderCount(encoderCount);
         setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        // if we are not at the target encoder count already. Note this isEncoderAtTarget() uses
+        // a tolerance zone and also shuts off the servo.
         if (!isEncoderAtTarget(encoderCount)) {
+            // is the target in front of the current position?
             if (encoderCount > getCurrentPosition()) {
+                // yes set the power so the serrvo extends the arm
                 setPower(power);
             } else {
+                // target is behind our current position, set the servo to retract the arm
                 setPower(-power);
             }
             return true;
@@ -263,12 +266,21 @@ public class DcServoMotor extends DcMotor8863 {
     }
 
     /**
-     * Redefine completion of the movement
+     * Redefine completion of the movement. This method is called from the ExtensionRetractionMechanism
+     * state machine in the MOVING TO POSITION section. isMoveToPositionComplete() is called every
+     * update cycle to check if the position target has been reached. That in turn calls this method.
+     *
      * @return
      */
     @Override
     public boolean isMotorStateComplete() {
-        return isEncoderAtTarget(getTargetEncoderCount());
+        boolean result = false;
+        if (isEncoderAtTarget(getTargetEncoderCount())) {
+            // stop the servo if the target is reached
+            setPower(0);
+            result = true;
+        }
+        return result;
     }
 
 }

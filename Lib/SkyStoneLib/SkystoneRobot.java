@@ -695,6 +695,7 @@ public void setPosition(double currentpositionx,double currentPositiionY,double 
                 }
             case ARM_EXTENDING:
                 if (extensionArm != null && extensionArm.isPositionReached()) {
+                    dataLog.logData("Extension arm encoder count = " + extensionArm.getCurrentEncoderValue());
                     if (gripperRotator != null)
                         gripperRotator.rotateOutward();
                     deportState = DeportStates.GRIPPER_ROTATING;
@@ -935,6 +936,7 @@ public void setPosition(double currentpositionx,double currentPositiionY,double 
         START,
         RELEASE_AND_ROTATE,
         RETRACT_EXTENSION_ARM_FULL_SPEED,
+        RETRACT_EXTENSION_ARM_ALL_THE_WAY,
         LOWER_LIFT,
         COMPLETE
     }
@@ -979,27 +981,37 @@ public void setPosition(double currentpositionx,double currentPositiionY,double 
                 prepareIntakeState = PrepareIntakeStates.RELEASE_AND_ROTATE;
                 break;
             case RELEASE_AND_ROTATE:
-                if (gripper != null && gripper.isReleaseComplete()
-                        && gripperRotator != null && gripperRotator.isRotateInwardComplete()) {
-                    if (extensionArm != null)
-                        extensionArm.goToPosition(0, 0.5);
-                    prepareIntakeState = PrepareIntakeStates.RETRACT_EXTENSION_ARM_FULL_SPEED;
-                }
-                break;
-            // ToDo fix the extension arm retracting past 0 and shutting the machine down
-            case RETRACT_EXTENSION_ARM_FULL_SPEED:
-                if (extensionArm != null && extensionArm.isPositionReached()) {
+                if (gripperRotator != null && gripperRotator.isRotateInwardComplete()) {
                     if (lift != null)
-                        lift.goToPosition(2, 0.3);
+                        extensionArm.goToPosition(3, 1.0);
                     prepareIntakeState = PrepareIntakeStates.LOWER_LIFT;
                 }
                 break;
+            case RETRACT_EXTENSION_ARM_FULL_SPEED:
+                if (extensionArm != null && extensionArm.isPositionReached()) {
+                    if (lift != null)
+                        extensionArm.goToPosition(3, 1.0);
+                    prepareIntakeState = PrepareIntakeStates.RETRACT_EXTENSION_ARM_ALL_THE_WAY;
+                }
+                break;
+            // ToDo fix the extension arm retracting past 0 and shutting the machine down
+            case RETRACT_EXTENSION_ARM_ALL_THE_WAY:
+                if (extensionArm != null && extensionArm.isPositionReached()) {
+                    if (lift != null)
+                        lift.goToPosition(3, 0.3);
+                    prepareIntakeState = PrepareIntakeStates.LOWER_LIFT;
+                }
+                break;
+
+
             // ToDo make a state machine to retract the lift fully using a two step goToPosition
             case LOWER_LIFT:
-                if (lift != null && lift.isPositionReached() && extensionArm != null && extensionArm.isPositionReached()) {
+                if (extensionArm != null && extensionArm.isPositionReached()) {
                     lift.goToFullRetract();
                     prepareIntakeState = PrepareIntakeStates.COMPLETE;
                 }
+                telemetry.addData("extension arm encoder = ", extensionArm.getCurrentEncoderValue());
+                telemetry.update();
                 break;
 
             case COMPLETE:

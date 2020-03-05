@@ -117,7 +117,7 @@ public class TestExtensionArmGoToPosition extends LinearOpMode {
                     break;
                 case THREE:
                     if (stateTimer.milliseconds() > waitTime) {
-                        extensionArm.goToPosition(25, speed);
+                        extensionArm.goToPosition(3, speed);
                         steps = Steps.FOUR;
                     }
                     break;
@@ -129,19 +129,19 @@ public class TestExtensionArmGoToPosition extends LinearOpMode {
                     break;
                 case FIVE:
                     if (stateTimer.milliseconds() > waitTime) {
-                        extensionArm.goToPosition(2, speed);
+                        extensionArm.goToPosition(25, speed);
                         steps = Steps.SIX;
                     }
                     break;
                 case SIX:
                     if (extensionArm.isPositionReached()) {
                         stateTimer.reset();
-                        steps = Steps.ELEVEN;
+                        steps = Steps.SEVEN;
                     }
                     break;
                 case SEVEN:
                     if (stateTimer.milliseconds() > waitTime) {
-                        extensionArm.goToPosition(12, speed);
+                        extensionArm.goToPosition(3, speed);
                         steps = Steps.EIGHT;
                     }
                     break;
@@ -153,7 +153,7 @@ public class TestExtensionArmGoToPosition extends LinearOpMode {
                     break;
                 case NINE:
                     if (stateTimer.milliseconds() > waitTime) {
-                        extensionArm.goToPosition(3, speed);
+                        extensionArm.goToPosition(15, speed);
                         steps = Steps.TEN;
                     }
                     break;
@@ -165,18 +165,16 @@ public class TestExtensionArmGoToPosition extends LinearOpMode {
                     break;
                 case ELEVEN:
                     if (stateTimer.milliseconds() > waitTime) {
-                        extensionArm.reset();
+                        extensionArm.goToPosition(3, speed);
                         steps = Steps.TWELVE;
                     }
-                    ;
-                    break;
                 case TWELVE:
                     break;
             }
 
             telemetry.addData("STEP = ", steps.toString());
             telemetry.addData("STATE = ", extensionArmState.toString());
-            telemetry.addData("ENCODER = ", encoderValue);
+            telemetry.addData("ENCODER = ", extensionArm.getCurrentEncoderValue());
             telemetry.update();
             idle();
         }

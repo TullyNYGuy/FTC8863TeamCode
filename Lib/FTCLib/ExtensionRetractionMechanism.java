@@ -728,7 +728,7 @@ public class ExtensionRetractionMechanism {
      * @param moveToPositionPower the power to use during the movement
      */
     public void goToPosition(double position, double moveToPositionPower) {
-        log("COMMANDED " + mechanismName.toUpperCase() + " TO GO TO POSITION " + position + " (encoder counts = " + convertMechanismUnitsToEncoderCounts(position) + ")");
+        log("COMMANDED " + mechanismName.toUpperCase() + " TO GO TO POSITION. POWER = " + moveToPositionPower + " POSITION = " + position + " (encoder counts = " + convertMechanismUnitsToEncoderCounts(position) + ")");
         // set the properties so they can be used later
         this.desiredPosition = position;
         this.moveToPositionPower = moveToPositionPower;
@@ -1019,6 +1019,12 @@ public class ExtensionRetractionMechanism {
      */
     private void moveToFullRetract() {
         // when the mechanism retracts you may want to do something with whatever is attached to it.
+
+        // use RUN_TO_POSITION mode at a high power with a target configured by the user. For the
+        // dual lift this is a little more than 0 (just above the zero limit switches)
+        // Once this is complete use another RUN_TO_POSITION at a low power with a target configured
+        // by the user. For the dual lift this is the -base encoder value.
+        // The limit switch will trip and hold the lift at the retraction limit switch height.
 
         // ToDo - fix this bug in moveToFullRetract. It will also appear in moveToFullExtend
         // 3/2/2020 THERE APPEARS TO BE A BUG HERE. WHEN RUNNING IN GO_TO_POSITION, the motor is in
@@ -1407,10 +1413,11 @@ public class ExtensionRetractionMechanism {
             // the next set of commands switches the motor mode again. There does not appear to be
             // enough time to allow the mode to switch before pushing new commands at the motor.
 
-            log("Stopping mechanism, attempting to hold position");
+            int holdEncoderCount = extensionRetractionMotor.getCurrentPosition();
             extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            extensionRetractionMotor.setTargetPosition(extensionRetractionMotor.getCurrentPosition());
-            setCurrentPower(1.0);
+            extensionRetractionMotor.setTargetPosition(holdEncoderCount);
+            setCurrentPower(0);
+            log("Stopping mechanism " + mechanismName + " attempting to hold position = " + holdEncoderCount);
         }
     }
 
@@ -2194,7 +2201,7 @@ public class ExtensionRetractionMechanism {
                             // the extension limit has been reached. This is probably not intentional.
                             // But the movement has to be stopped in order to protect the mechanism
                             // from damage. Clear the command.
-                            log("Emergency stop! Tried to extend past extension limit! Stopping!");
+                            log("Tripped extension limit switch while going to position - holding at encoder = " + extensionRetractionMotor.getCurrentPosition());
                             stopMechanism();
                             extensionRetractionCommand = ExtensionRetractionCommands.NO_COMMAND;
                             extensionRetractionState = ExtensionRetractionStates.FULLY_EXTENDED;
@@ -2206,7 +2213,7 @@ public class ExtensionRetractionMechanism {
                             // the retraction limit has been reached. This is probably not intentional.
                             // But the movement has to be stopped in order to protect the mechanism
                             // from damage. Clear the command.
-                            log("Emergency stop! Tried to retract past retraction limit! Stopping!");
+                            log("Tripped retraction limit switch while going to position - holding at encoder = " + extensionRetractionMotor.getCurrentPosition());
                             stopMechanism();
                             extensionRetractionCommand = ExtensionRetractionCommands.NO_COMMAND;
                             extensionRetractionState = ExtensionRetractionStates.FULLY_RETRACTED;

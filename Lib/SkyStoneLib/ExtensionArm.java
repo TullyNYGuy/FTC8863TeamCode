@@ -100,6 +100,7 @@ public class ExtensionArm extends ExtensionRetractionMechanism implements FTCRob
         setExtensionPositionInEncoderCounts(ExtensionArmConstants.maximumExtensionInEncoderCounts);
         setResetPower(ExtensionArmConstants.resetPower);
         extensionRetractionMotor.encoder.setDirection(DcMotorSimple.Direction.REVERSE);
+        extensionRetractionMotor.setTargetEncoderTolerance(20);
     }
 
     //*********************************************************************************************
@@ -107,6 +108,7 @@ public class ExtensionArm extends ExtensionRetractionMechanism implements FTCRob
     //
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
+    @Override
     protected void stopMechanism() {
         extensionRetractionMotor.setPower(0.0);
     }
