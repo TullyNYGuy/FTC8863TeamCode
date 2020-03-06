@@ -11,6 +11,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.GamepadButtonMultiPush;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.JoyStick;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.RobotPosition;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.SmartJoystick;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.AutonomousController;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.SkystoneRobot;
@@ -132,7 +133,7 @@ public class AccuracyTestPI extends LinearOpMode {
     double throttle = 0;
     double direction = 0;
 
-    static double distance(Position p1, Position p2) {
+    static double distance(RobotPosition p1, RobotPosition p2) {
         double dist;
         dist = Math.hypot(p2.y-p1.y, p2.x-p1.x);
         return dist;
@@ -228,10 +229,10 @@ public class AccuracyTestPI extends LinearOpMode {
             idle();
         }
 
-        Position cuurent = new Position();
-        cuurent.unit = DistanceUnit.CM;
-        Position destination = new Position();
-        destination.unit = DistanceUnit.CM;
+        RobotPosition cuurent = new RobotPosition();
+        cuurent.distanceUnit = DistanceUnit.CM;
+        RobotPosition destination = new RobotPosition();
+        destination.distanceUnit = DistanceUnit.CM;
 
         // Wait for the start button
         telemetry.addData(">", "Press start to run Teleop");
@@ -263,7 +264,7 @@ public class AccuracyTestPI extends LinearOpMode {
             // Display telemetry
 
             idle();
-            robot.getCurrentPosition(cuurent);
+            robot.getCurrentRobotPosition(cuurent);
             dist= distance(destination, cuurent);
             telemetry.addData("Distance: ", String.format(Locale.ENGLISH, "%.2f", dist));
             telemetry.update();
