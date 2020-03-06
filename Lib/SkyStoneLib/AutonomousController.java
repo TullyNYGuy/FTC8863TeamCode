@@ -36,10 +36,10 @@ public class AutonomousController {
     final private double BLUE_PLATFORM_Y = 30.48;
     final private double RED_PLATFORM_X = 121.92;
     final private double RED_PLATFORM_Y = -30.48;
-    final private double BLUE_HOME_X = 0;
-    final private double BLUE_HOME_Y = 121.92;
-    final private double RED_HOME_X = 0;
-    final private double RED_HOME_Y = -121.92;
+    final private double BLUE_HOME_X = -121.92;
+    final private double BLUE_HOME_Y = 0;
+    final private double RED_HOME_X = -121.92;
+    final private double RED_HOME_Y = 0;
 
     final private DistanceUnit distanceUnit = DistanceUnit.CM;
     final private AngleUnit angleUnit = AngleUnit.RADIANS;

@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.opmodes.SkystoneTest;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -11,27 +10,21 @@ import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.Mecanum;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.PurePursuit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.RobotPosition;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.AutonomousController;
-import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.IntakeWheels;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.SkystoneRobot;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-
-import static org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863.MotorType.ANDYMARK_20_ORBITAL;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@Autonomous(name = "Super Complicated Autonomous", group = "A Test")
+@Autonomous(name = "Autonomous with PP", group = "A Test")
 //@Disabled
 
-public class AunomouseComplicated extends LinearOpMode {
+public class AunomouseComplicatedPurePusuit extends LinearOpMode {
 
     // Put your variable declarations here
     public SkystoneRobot robot;
@@ -89,41 +82,146 @@ public class AunomouseComplicated extends LinearOpMode {
             idle();
         }
         controller.startController();
-robot.setPosition(0,0,0);
+robot.setPosition(0,-152.4,0);
+        AutonomousController.Color color = AutonomousController.Color.RED;
 controller.setAllegiance(AutonomousController.Color.RED);
 controller.initPlaces();
 
+        RobotPosition buildsite;
+        RobotPosition bridge ;
+        RobotPosition platform;
+        RobotPosition home;
+        RobotPosition nearCentreBridge;
+
+        if (color == AutonomousController.Color.BLUE) {
+
+            buildsite= new RobotPosition(DistanceUnit.CM, 121.92, 121.92, AngleUnit.RADIANS, 0);
+            bridge =new RobotPosition(DistanceUnit.CM, 0, 121.92, AngleUnit.RADIANS, 0);
+            platform = new RobotPosition(DistanceUnit.CM, 121.92, 30.48, AngleUnit.RADIANS, 0);
+           home =new RobotPosition(DistanceUnit.CM, -121.92, 0, AngleUnit.RADIANS, 0);
+             nearCentreBridge =new RobotPosition(DistanceUnit.CM, 0, 152.4, AngleUnit.RADIANS, 0);
+        } else {
+            buildsite= new RobotPosition(DistanceUnit.CM, 121.92, -121.92, AngleUnit.RADIANS, 0);
+             bridge = new RobotPosition(DistanceUnit.CM, 0, -121.92, AngleUnit.RADIANS, 0);
+             platform = new RobotPosition(DistanceUnit.CM, 121.92, -30.48, AngleUnit.RADIANS, 0);
+             home = new RobotPosition(DistanceUnit.CM, -121.92, 0, AngleUnit.RADIANS, 0);
+             nearCentreBridge = new RobotPosition(DistanceUnit.CM, 0, -152.4, AngleUnit.RADIANS, 0);
+        }
+        positions.add(home);
+        positions.add(bridge);
+        positions.add( platform);
+        positions.add(bridge);
+        positions.add(home);
+        positions.add(bridge);
+        positions.add( platform);
+        positions.add(nearCentreBridge);
+
+
+        positions.add(nearCentreBridge);
+        positions.add( home);
+        RobotPosition current = new RobotPosition();
+        current.distanceUnit = DistanceUnit.CM;
+        current.angleUnit = AngleUnit.DEGREES;
+
+        PurePursuit pursuit = new PurePursuit(4, positions);
+        robot.getCurrentRobotPosition(current);
+        pursuit.getNextPosition(current);
         waitForStart();
-controller.goTo(AutonomousController.Areas.BLOCK);
+
+controller.goTo(AutonomousController.Areas.HOME);
 while(controller.isActionCompleteTime() != true){
+    robot.getCurrentRobotPosition(current);
+    PurePursuit.ResultPosition res = pursuit.getNextPosition(current);
+    controller.moveTo(res.pos.distanceUnit, res.pos.x, res.pos.y);
+
+    if(res.reached == true){
+
+        break;
+    }
+
     idle();
 }
+
 controller.pickUpBlock();
 controller.goTo(AutonomousController.Areas.BRIDGE);
         while(controller.isActionCompleteTime() != true){
+            robot.getCurrentRobotPosition(current);
+            PurePursuit.ResultPosition res = pursuit.getNextPosition(current);
+            controller.moveTo(res.pos.distanceUnit, res.pos.x, res.pos.y);
+
+            if(res.reached == true){
+
+                break;
+            }
+
             idle();
         }
 controller.goTo(AutonomousController.Areas.PLATFORM);
         while(controller.isActionCompleteTime() != true){
+            robot.getCurrentRobotPosition(current);
+            PurePursuit.ResultPosition res = pursuit.getNextPosition(current);
+            controller.moveTo(res.pos.distanceUnit, res.pos.x, res.pos.y);
+
+            if(res.reached == true){
+
+                break;
+            }
+
             idle();
         }
 controller.putBlockOnBase();
 controller.moveBaseRotate();
 controller.goTo(AutonomousController.Areas.BRIDGE);
         while(controller.isActionCompleteTime() != true){
+            robot.getCurrentRobotPosition(current);
+            PurePursuit.ResultPosition res = pursuit.getNextPosition(current);
+            controller.moveTo(res.pos.distanceUnit, res.pos.x, res.pos.y);
+
+            if(res.reached == true){
+
+                break;
+            }
+
             idle();
         }
-controller.goTo(AutonomousController.Areas.BLOCK);
+controller.goTo(AutonomousController.Areas.HOME);
         while(controller.isActionCompleteTime() != true){
+            robot.getCurrentRobotPosition(current);
+            PurePursuit.ResultPosition res = pursuit.getNextPosition(current);
+            controller.moveTo(res.pos.distanceUnit, res.pos.x, res.pos.y);
+
+            if(res.reached == true){
+
+                break;
+            }
+
             idle();
         }
 controller.pickUpBlock();
 controller.goTo(AutonomousController.Areas.BRIDGE);
         while(controller.isActionCompleteTime() != true){
+            robot.getCurrentRobotPosition(current);
+            PurePursuit.ResultPosition res = pursuit.getNextPosition(current);
+            controller.moveTo(res.pos.distanceUnit, res.pos.x, res.pos.y);
+
+            if(res.reached == true){
+
+                break;
+            }
+
             idle();
         }
 controller.goTo(AutonomousController.Areas.PLATFORM);
         while(controller.isActionCompleteTime() != true){
+            robot.getCurrentRobotPosition(current);
+            PurePursuit.ResultPosition res = pursuit.getNextPosition(current);
+            controller.moveTo(res.pos.distanceUnit, res.pos.x, res.pos.y);
+
+            if(res.reached == true){
+
+                break;
+            }
+
             idle();
         }
 controller.putBlockOnBase();

@@ -7,8 +7,8 @@ import java.util.ArrayList;
 public class PurePursuit {
 
     public static class ResultPosition {
-        boolean reached;
-        RobotPosition pos;
+         public boolean reached;
+        public RobotPosition pos;
 
         public ResultPosition(RobotPosition pos, boolean reached) {
             this.pos = pos;
