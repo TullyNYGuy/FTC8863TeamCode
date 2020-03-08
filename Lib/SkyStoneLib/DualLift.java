@@ -263,14 +263,15 @@ public class DualLift implements FTCRobotSubsystem {
         // You might think that the following commands would perform a go to full retract. HOwever,
         // there is a bug in ExtensionRetractionMechanism when switching from goToPosition to
         // goToFullRetract. The motor has to switch modes and then it goes wonky. So a better way
-        // is to just use goToPosition to get to the full retraction.
+        // is to just use goToPosition to get to the full retraction. The retraction limit switch
+        // shut the motors off.
         //liftRight.goToFullRetract();
         //liftLeft.goToFullRetract();
         // ToDo add a state machine that goes to just above position = 0 at full power, then
         // goToPosition = -baseEncoderValue at a lower power to the lift is not banging into the
         // extrusion hard
-        liftLeft.goToPosition(-liftLeft.getBaseEncoderValue(), 0.3);
-        liftRight.goToPosition(-liftRight.getBaseEncoderValue(), 0.3);
+        liftLeft.goToPosition(-liftLeft.getBaseEncoderValue(), 0.1);
+        liftRight.goToPosition(-liftRight.getBaseEncoderValue(), 0.1);
     }
 
     public boolean isRetractionComplete() {

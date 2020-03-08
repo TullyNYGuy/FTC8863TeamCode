@@ -997,6 +997,11 @@ public void setPosition(double currentpositionx,double currentPositiionY,double 
             // ToDo fix the extension arm retracting past 0 and shutting the machine down
             case RETRACT_EXTENSION_ARM_ALL_THE_WAY:
                 if (extensionArm != null && extensionArm.isPositionReached()) {
+                    // let the extension arm zero in on the exact position since it can overshoot
+                    // the retraction. The completion of this movement will not be checked and it
+                    // will proceed in parallel with the lift coming down. I hope the timing works
+                    // out
+                    extensionArm.goToPosition(0, .1);
                     if (lift != null)
                         lift.goToPosition(3, 0.3);
                     prepareIntakeState = PrepareIntakeStates.LOWER_LIFT;

@@ -124,6 +124,149 @@ public class ExtensionRetractionMechanism {
         setRetractionPositionInEncoderCounts(convertMechanismUnitsToEncoderCounts(retractionPosition));
     }
 
+    // ToDo the ability to disable the limit switch may not be needed
+    //private boolean enableRetractionLimitSwitch = true;
+
+    //*********************************************************************************************
+    //  Velocity Profile
+    //*********************************************************************************************
+
+    /**
+     * This class contains a profile for the velocity vs the position of the mechanism. This is used
+     * to slowly ramp up the speed and then slowly ramp it down.
+     */
+    protected ProfileFunctionTrapezoidal retractionPowerProfile;
+
+    public void setupRetractionPowerProfile(
+            double startingPower,
+            double changeInMechanismUnitsToFullPower,
+            double retractionSlowdownStartPositionInMechanismUnits,
+            double retractionSlowdownFinishPositionInMechanismUnits,
+            double finishPower) {
+        setChangeInPositionToFullPower(changeInMechanismUnitsToFullPower);
+        retractionPowerProfile = new ProfileFunctionTrapezoidal(
+                0, startingPower,
+                0,
+                0,
+                convertMechanismUnitsToEncoderCounts(retractionSlowdownStartPositionInMechanismUnits),
+                convertMechanismUnitsToEncoderCounts(retractionSlowdownFinishPositionInMechanismUnits),
+                finishPower);
+    }
+
+    protected ProfileFunctionTrapezoidal extensionPowerProfile;
+
+    /**
+     * This is the speed at the start of the ramp up to full speed.
+     */
+    private double startingPower = 0.1;
+
+    public double getStartingPower() {
+        return startingPower;
+    }
+
+    public void setStartingPower(double startingPower) {
+        this.startingPower = startingPower;
+    }
+
+    /**
+     * After the movement starts, the power ramps up from the start value to the full power.
+     * This value is the number of encoder counts it takes to ramp up the power.
+     */
+    private double changeInEncoderToFullPower = 0;
+
+    public double getChangeInEncoderToFullPower() {
+        return changeInEncoderToFullPower;
+    }
+
+    public void setChangeInEncoderToFullPower(double changeInEncoderToFullPower) {
+        this.changeInEncoderToFullPower = changeInEncoderToFullPower;
+    }
+
+    public void setChangeInPositionToFullPower(double changeInMechanismUnits) {
+        this.changeInEncoderToFullPower = convertMechanismUnitsToEncoderCounts(changeInMechanismUnits);
+    }
+
+    /**
+     * When retracting fully, the mechanism may need to slowly ramp down its speed as it nears the
+     * fully retracted position in order to avoid a hard crash into the end of travel. This value
+     * is when the ramp down should start, in encoder units. Note that is it of type Double (the class)
+     * rather than double (the primitive). This
+     * allows it to be set to null. If the value is null then it is assumed that no retractionPosition
+     * has been set. The units for this value are encoder counts!
+     */
+    protected Double retractionSlowdownStartPositionInEncoderUnits = null;
+
+    public Double getRetractionSlowdownStartPositionInEncoderUnits() {
+        return retractionSlowdownStartPositionInEncoderUnits;
+    }
+
+    public void setRetractionSlowdownStartPositionInEncoderUnits(Double retractionSlowdownStartPositionInEncoderUnits) {
+        this.retractionSlowdownStartPositionInEncoderUnits = retractionSlowdownStartPositionInEncoderUnits;
+    }
+
+    public void setRetractionSlowdownStartPositionInMechanismUnits(double retractionSlowdownStartPosition) {
+        setRetractionPositionInEncoderCounts(convertMechanismUnitsToEncoderCounts(retractionSlowdownStartPosition));
+    }
+
+    /**
+     * When retracting fully, the mechanism may need to slowly ramp down its speed as it nears the
+     * fully retracted position in order to avoid a hard crash into the end of travel. This value
+     * is when the ramp down should finish, in encoder units. Note that is it of type Double (the class)
+     * rather than double (the primitive). This
+     * allows it to be set to null. If the value is null then it is assumed that no retractionPosition
+     * has been set. The units for this value are encoder counts!
+     */
+    protected Double retractionSlowdownFinishPositionInEncoderUnits = null;
+
+    public Double getRetractionSlowdownFinishPositionInEncoderUnits() {
+        return retractionSlowdownFinishPositionInEncoderUnits;
+    }
+
+    public void setRetractionSlowdownFinishPositionInEncoderUnits(Double retractionSlowdownFinishPositionInEncoderUnits) {
+        this.retractionSlowdownFinishPositionInEncoderUnits = retractionSlowdownFinishPositionInEncoderUnits;
+    }
+
+    public void setRetractionSlowdownFinishPositionInMechanismUnits(double retractionSlowdownFinishPosition) {
+        setRetractionPositionInEncoderCounts(convertMechanismUnitsToEncoderCounts(retractionSlowdownFinishPosition));
+    }
+
+
+    /**
+     * After the mechanism reaches full power, the power ramps down from the full power value to
+     * the finish power.
+     * This value is the number of encoder counts it takes to ramp down the power.
+     */
+    private double changeInEncoderToFinishPower = 0;
+
+    public double getChangeInEncoderToFinishPower() {
+        return changeInEncoderToFinishPower;
+    }
+
+    public void setChangeInEncoderToFinishPower(double changeInEncoderToFinishPower) {
+        this.changeInEncoderToFinishPower = changeInEncoderToFinishPower;
+    }
+
+    public void setChangeInPositionToFinishPower(double changeInMechanismUnits) {
+        this.changeInEncoderToFullPower = convertMechanismUnitsToEncoderCounts(changeInMechanismUnits);
+    }
+
+    /**
+     * This is the power at the end of the ramp down from full power.
+     */
+    private double finishPower = 0.1;
+
+    public double getFinishPower() {
+        return finishPower;
+    }
+
+    public void setFinishPower(double finishPower) {
+        this.finishPower = finishPower;
+    }
+
+    //*********************************************************************************************
+    //  End of Velocity Profile
+    //*********************************************************************************************
+
     /**
      * You can set a position that is the limit for extension. Do this when there is no extension
      * limit switch installed. This value is used by the state machine to see if the mechanism has
@@ -594,6 +737,12 @@ public class ExtensionRetractionMechanism {
         return extensionRetractionMotor.getBaseEncoderValue();
     }
 
+    //ToDo add a method to setup a velocityProfile, using the object to strore many of the values
+    // needed for the method to run
+//    public void setupVelocityProfile(double startingPower,
+//                                     int changeInEncoderToFullPower,
+//                                     int )
+
     //*********************************************************************************************
     //          MAJOR METHODS
     //
@@ -734,7 +883,22 @@ public class ExtensionRetractionMechanism {
         this.moveToPositionPower = moveToPositionPower;
         // the next execution of the state machine will pick up this new command and execute it
         extensionRetractionCommand = ExtensionRetractionCommands.GO_TO_POSITION;
+        // make sure the retractionLimitSwitch is enabled
+        //enableRetractionLimitSwitch = true;
     }
+
+    //ToDo determine if the ability to disable the limit swtich is needed. If using the mechanism overshoots on a retraction then
+    // it may not be needed
+//    public void goToPosition(double position, double moveToPositionPower, boolean enableRetractionLimitSwitch) {
+//        this.enableRetractionLimitSwitch = enableRetractionLimitSwitch;
+//        log("COMMANDED " + mechanismName.toUpperCase() + " TO GO TO POSITION. POWER = " + moveToPositionPower + " POSITION = " + position + " (encoder counts = " + convertMechanismUnitsToEncoderCounts(position) + ")");
+//        // set the properties so they can be used later
+//        this.desiredPosition = position;
+//        this.moveToPositionPower = moveToPositionPower;
+//        // the next execution of the state machine will pick up this new command and execute it
+//        extensionRetractionCommand = ExtensionRetractionCommands.GO_TO_POSITION;
+//        // make sure the retractionLimitSwitch is enabled
+//    }
 
 
     /**
@@ -807,6 +971,7 @@ public class ExtensionRetractionMechanism {
 
         return this.extensionRetractionState;
     }
+
     /**
      * Is the mechanism retraction cycle completed?
      *
@@ -1034,12 +1199,21 @@ public class ExtensionRetractionMechanism {
         // move to full retract or move to full extend command after you use a go to position
         // command. That is a bad workaround but all I have time for now.
 
-        extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         // this is to fix a bug, when the lift resets, it leaves the motor in float mode. In order
         // for the lift to stay retracted, hold has to be set
         setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
-        //logFile.logData("RETRACTION POWER SET TO " + retractionPower + " " + extensionRetractionMotor.getDirection());
-        setCurrentPower(retractionPower);
+
+        //ToDo setup a velocity profile for the retraction
+//        velocityProfile = new ProfileFunctionTrapezoidal(
+//                (double) currentEncoderValue,
+//                startingPower,
+//                (double) (currentEncoderValue + changeInEncoderToFullPower),
+//                retractionPower,
+//                (double) retractionSlowdownStartPositionInEncoderUnits,
+//                (double) retractionSlowdownFinishPositionInEncoderUnits
+//                finishPower);
+//        setCurrentPower(velocityProfile.getYValue(currentEncoderValue));
     }
 
     /**

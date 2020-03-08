@@ -17,6 +17,112 @@ public class ProfileFunctionTrapezoidal implements ProfileFunction {
     // getter and setter methods
     //*********************************************************************************************
 
+    //*********************************************************************************************
+    // The physical transition points that define the function
+    //*********************************************************************************************
+
+    /**
+     * The point at which the function starts.
+     */
+    private double startValueX = 0;
+
+    public double getStartValueX() {
+        return startValueX;
+    }
+
+    public void setStartValueX(double startValueX) {
+        this.startValueX = startValueX;
+        calculateMathFunctions();
+    }
+
+    /**
+     * The starting value of the function.
+     */
+    private double startValueY = 0;
+
+    public double getStartValueY() {
+        return startValueY;
+    }
+
+    public void setStartValueY(double startValueY) {
+        this.startValueY = startValueY;
+        calculateMathFunctions();
+    }
+
+    /**
+     * Point at which the ramp up transitions to the maximum value
+     */
+    private double rampUpFinishAtX = 0;
+
+    public double getrampUpFinishAtX() {
+        return rampUpFinishAtX;
+    }
+
+    public void setrampUpFinishAtX(double rampUpFinishAtX) {
+        this.rampUpFinishAtX = rampUpFinishAtX;
+        calculateMathFunctions();
+    }
+
+    /**
+     * maximum value of the profile
+     */
+    private double maximumY = 0;
+
+    public double getmaximumY() {
+        return maximumY;
+    }
+
+    public void setmaximumY(double maximumY) {
+        this.maximumY = maximumY;
+        calculateMathFunctions();
+    }
+
+    /**
+     * point at which the function transitions to ramping down
+     */
+    private double rampDownStartAtX = 0;
+
+    public double getrampDownStartAtX() {
+        return rampDownStartAtX;
+    }
+
+    public void setrampDownStartAtX(double rampDownStartAtX) {
+        this.rampDownStartAtX = rampDownStartAtX;
+        calculateMathFunctions();
+    }
+
+    /**
+     * Point at which the function stops ramping down
+     */
+    private double finishValueX = 0;
+
+    public double getFinishValueX() {
+        return finishValueX;
+    }
+
+    public void setFinishValueX(double finishValueX) {
+        this.finishValueX = finishValueX;
+        calculateMathFunctions();
+    }
+
+    /**
+     * The final value that is held after the ramp down is finished.
+     */
+    private double finishValueY = 0;
+
+    public double getFinishValueY() {
+        return finishValueY;
+    }
+
+    public void setFinishValueY(double finishValueY) {
+        this.finishValueY = finishValueY;
+        calculateMathFunctions();
+    }
+
+    //*********************************************************************************************
+    // The math values associated with the function. These are calculated from the physical points.
+    //*********************************************************************************************
+
     // variables associated with ramp up
 
     /**
@@ -37,16 +143,6 @@ public class ProfileFunctionTrapezoidal implements ProfileFunction {
         return rampUpSlope;
     }
 
-    private double startValueX = 0;
-
-    /**
-     * point at which the ramp up transitions to the next phase of the function
-     */
-    private double rampUpTransitionX = 0;
-
-    public double getRampUpTransitionX() {
-        return rampUpTransitionX;
-    }
 
     // variables associated with ramp down
 
@@ -68,36 +164,7 @@ public class ProfileFunctionTrapezoidal implements ProfileFunction {
         return rampUpSlope;
     }
 
-    /**
-     * point at which the ramp up transitions to the next phase of the function
-     */
-    private double rampDownTransitionX = 0;
-
-    public double getRampDownTransitionX() {
-        return rampUpTransitionX;
-    }
-
-    private double finishValueX = 0;
-    private double finishValueY = 0;
-
-    // values for a flat top function
-
-    private double flatTopValueY = 0;
-
     private boolean isFinished = false;
-
-
-    //*********************************************************************************************
-    //          GETTER and SETTER Methods
-    //
-    // allow access to private data fields for example setMotorPower,
-    // getPositionInTermsOfAttachment
-    //*********************************************************************************************
-
-    @Override
-    public ProfileType getProfileType() {
-        return ProfileType.TRAPEZOIDAL;
-    }
 
     @Override
     public boolean isFinished() {
@@ -111,31 +178,38 @@ public class ProfileFunctionTrapezoidal implements ProfileFunction {
     // from it
     //*********************************************************************************************
 
-    public ProfileFunctionTrapezoidal(double startValueX, double startValueY,
-                                      double rampUpFinishAtX,
-                                      double flatTopValueY,
-                                      double rampDownStartAtX,
-                                      double finishValueX, double finishValueY) {
-        this.rampUpSlope = (flatTopValueY - startValueY) / (rampUpFinishAtX - startValueX);
-        this.rampUpYIntercept = startValueY;
+
+    public ProfileFunctionTrapezoidal(
+            double startValueX, double startValueY,
+            double rampUpFinishAtX,
+            double maximumY,
+            double rampDownStartAtX,
+            double finishValueX, double finishValueY) {
         this.startValueX = startValueX;
-        this.rampUpTransitionX = rampUpFinishAtX;
-        this.flatTopValueY = flatTopValueY;
-        this.rampDownSlope = (finishValueY - flatTopValueY) / (rampDownStartAtX - finishValueX);
-        this.rampDownYIntercept = flatTopValueY;
-        this.rampDownTransitionX = rampDownStartAtX;
+        this.startValueY = startValueY;
+        this.rampUpFinishAtX = rampUpFinishAtX;
+        this.maximumY = maximumY;
+        this.rampDownStartAtX = rampDownStartAtX;
         this.finishValueX = finishValueX;
         this.finishValueY = finishValueY;
+        calculateMathFunctions();
     }
 
     public ProfileFunctionTrapezoidal ProfileFunctionTrapezoidalByPercent(double startValueX, double startValueY,
                                                                           double percentOfTotalMovementToFlatTopTransition,
-                                                                          double flatTopValueY,
+                                                                          double maximumY,
                                                                           double percenOfTotalMovementToRampDownTransition,
                                                                           double finishValueX, double finishValueY) {
         double rampUpFinishAtX = (finishValueX - startValueX) * percentOfTotalMovementToFlatTopTransition / 100;
         double rampDownStartAtX = (finishValueX - startValueX) * percenOfTotalMovementToRampDownTransition / 100;
-        return new ProfileFunctionTrapezoidal(startValueX, startValueY, rampUpFinishAtX, flatTopValueY, rampDownStartAtX, finishValueX, finishValueY);
+        return new ProfileFunctionTrapezoidal(startValueX, startValueY, rampUpFinishAtX, maximumY, rampDownStartAtX, finishValueX, finishValueY);
+    }
+
+    private void calculateMathFunctions() {
+        this.rampUpSlope = (maximumY - startValueY) / (rampUpFinishAtX - startValueX);
+        this.rampUpYIntercept = startValueY;
+        this.rampDownSlope = (finishValueY - maximumY) / (rampDownStartAtX - finishValueX);
+        this.rampDownYIntercept = maximumY;
     }
 
     //*********************************************************************************************
@@ -144,6 +218,10 @@ public class ProfileFunctionTrapezoidal implements ProfileFunction {
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
 
+    @Override
+    public ProfileType getProfileType() {
+        return ProfileType.TRAPEZOIDAL;
+    }
 
     //*********************************************************************************************
     //          MAJOR METHODS
@@ -177,15 +255,15 @@ public class ProfileFunctionTrapezoidal implements ProfileFunction {
             yValue = getRampUpYIntercept();
             isFinished = false;
         }
-        if (xValue >= startValueX && xValue < rampUpTransitionX) {
+        if (xValue >= startValueX && xValue < rampUpFinishAtX) {
             yValue = rampUpSlope * xValue + rampUpYIntercept;
             isFinished = false;
         }
-        if (xValue >= rampUpTransitionX && xValue < rampDownTransitionX) {
-            yValue = flatTopValueY;
+        if (xValue >= rampUpFinishAtX && xValue < rampDownStartAtX) {
+            yValue = maximumY;
             isFinished = false;
         }
-        if (xValue >= rampDownTransitionX && xValue < finishValueX) {
+        if (xValue >= rampDownStartAtX && xValue < finishValueX) {
             yValue = rampDownSlope * xValue + rampDownYIntercept;
             isFinished = false;
         }
