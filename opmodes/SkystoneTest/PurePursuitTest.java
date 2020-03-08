@@ -4,18 +4,23 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.GamepadButtonMultiPush;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.HaloControls;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.JoyStick;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.PurePursuit;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.RobotPosition;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.SmartJoystick;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.AutonomousController;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.SkystoneRobot;
 
-@TeleOp(name = "PID Robot Test", group = "ATest")
+import java.util.ArrayList;
+import java.util.Locale;
+
+@TeleOp(name = "Pure Pursuit Test", group = "ATest")
 //@Disabled
 
 /*
@@ -46,7 +51,7 @@ import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.SkystoneRobot;
  *    / X - confirm lift movement
  *    / Y -
  */
-public class PIDRobotTest extends LinearOpMode {
+public class PurePursuitTest extends LinearOpMode {
 
     //*********************************************************************************************
     //             Declarations
@@ -130,6 +135,11 @@ public class PIDRobotTest extends LinearOpMode {
     double throttle = 0;
     double direction = 0;
 
+    static double distance(RobotPosition p1, RobotPosition p2) {
+        double dist;
+        dist = Math.hypot(p2.y - p1.y, p2.x - p1.x);
+        return dist;
+    }
 
     @Override
     public void runOpMode() {
@@ -157,50 +167,14 @@ public class PIDRobotTest extends LinearOpMode {
 
         AutonomousController controller = new AutonomousController(robot, dataLog, telemetry, Kp, Ki, Kd);
 
-        // create the gamepad 1 buttons and tell each button how many commands it has
-        // gamepad1RightBumper = new GamepadButtonMultiPush(1);
-        // gamepad1LeftBumper = new GamepadButtonMultiPush(1);
-        gamepad1a = new GamepadButtonMultiPush(1);
-        gamepad1b = new GamepadButtonMultiPush(1);
-        gamepad1y = new GamepadButtonMultiPush(2);
-        gamepad1x = new GamepadButtonMultiPush(1);
-        gamepad1DpadUp = new GamepadButtonMultiPush(1);
-        gamepad1DpadDown = new GamepadButtonMultiPush(1);
-        // gamepad1DpadLeft = new GamepadButtonMultiPush(1);
-        // gamepad1DpadRight = new GamepadButtonMultiPush(1);
-        gamepad1LeftStickButton = new GamepadButtonMultiPush(1);
-        gamepad1RightStickButton = new GamepadButtonMultiPush(1);
-        // gamepad1LeftTriggerButton = new GamepadButtonMultiPush(1);
+        ArrayList<RobotPosition> waypoints = new ArrayList<RobotPosition>();
+        waypoints.add(new RobotPosition(DistanceUnit.CM, 0, 0, AngleUnit.DEGREES, 0));
+        waypoints.add(new RobotPosition(DistanceUnit.CM, 50, 0, AngleUnit.DEGREES, 0));
+        waypoints.add(new RobotPosition(DistanceUnit.CM, 50, 50, AngleUnit.DEGREES, 0));
+        waypoints.add(new RobotPosition(DistanceUnit.CM, 0, 50, AngleUnit.DEGREES, 0));
+        waypoints.add(new RobotPosition(DistanceUnit.CM, 0, 0, AngleUnit.DEGREES, 0));
+        PurePursuit alg = new PurePursuit(10, waypoints);
 
-        // Game Pad 1 joysticks
-        gamepad1LeftJoyStickX = new SmartJoystick(gamepad1, SmartJoystick.JoystickSide.LEFT, SmartJoystick.JoystickAxis.X);
-        gamepad1LeftJoyStickY = new SmartJoystick(gamepad1, SmartJoystick.JoystickSide.LEFT, SmartJoystick.JoystickAxis.Y);
-
-        gamepad1RightJoyStickX = new SmartJoystick(gamepad1, SmartJoystick.JoystickSide.RIGHT, SmartJoystick.JoystickAxis.X);
-        gamepad1RightJoyStickY = new SmartJoystick(gamepad1, SmartJoystick.JoystickSide.RIGHT, SmartJoystick.JoystickAxis.Y);
-
-        // create the gamepad 2 buttons and tell each button how many commands it has
-        //gamepad2RightBumper = new GamepadButtonMultiPush(1);
-        // gamepad2LeftBumper = new GamepadButtonMultiPush(1);
-        gamepad2a = new GamepadButtonMultiPush(8);
-        gamepad2b = new GamepadButtonMultiPush(1);
-        gamepad2y = new GamepadButtonMultiPush(2);
-        gamepad2x = new GamepadButtonMultiPush(1);
-//       gamepad2DpadDown = new GamepadButtonMultiPush(1);
-        // gamepad2DpadLeft = new GamepadButtonMultiPush(1);
-        //  gamepad2DpadRight = new GamepadButtonMultiPush(1);
-        gamepad2LeftStickButton = new GamepadButtonMultiPush(1);
-        gamepad2RightStickButton = new GamepadButtonMultiPush(1);
-
-        // Game Pad 2 joysticks
-        gamepad2LeftJoyStickX = new JoyStick(JoyStick.JoyStickMode.SQUARE, JOYSTICK_DEADBAND_VALUE, JoyStick.InvertSign.NO_INVERT_SIGN);
-        gamepad2LeftJoyStickY = new SmartJoystick(gamepad2, SmartJoystick.JoystickSide.LEFT, SmartJoystick.JoystickAxis.Y);
-
-        gamepad2RightJoyStickX = new JoyStick(JoyStick.JoyStickMode.SQUARE, JOYSTICK_DEADBAND_VALUE, JoyStick.InvertSign.NO_INVERT_SIGN);
-        gamepad2RightJoyStickY = new JoyStick(JoyStick.JoyStickMode.SQUARE, JOYSTICK_DEADBAND_VALUE, JoyStick.InvertSign.INVERT_SIGN);
-
-
-//        HaloControls haloControls = new HaloControls(gamepad1LeftJoyStickX, gamepad1LeftJoyStickY, gamepad1RightJoyStickX, robot, telemetry);
         robot.createRobot();
         // start the inits for the robot subsytems
         robot.init();
@@ -221,46 +195,52 @@ public class PIDRobotTest extends LinearOpMode {
             idle();
         }
 
+        RobotPosition current = new RobotPosition(DistanceUnit.CM, AngleUnit.DEGREES);
+
         // Wait for the start button
         telemetry.addData(">", "Press start to run Teleop");
         telemetry.update();
         waitForStart();
 
         controller.startController();
-        controller.moveTo(DistanceUnit.CM, 50, 0);
+        final double minDist = 3;
 
         //*********************************************************************************************
         //             Robot Running after the user hits play on the driver phone
         //*********************************************************************************************
 
-        while (opModeIsActive()) {
+        boolean running = false;
+        while (running && opModeIsActive()) {
+            robot.getCurrentRobotPosition(current);
+            PurePursuit.ResultPosition res = alg.getNextPosition(current);
+            if (res.reached)
+                running = false;
+            else
+                controller.moveTo(res.pos.distanceUnit, res.pos.x, res.pos.y);
 
-            //haloControls.calculateMecanumCommands(commands);
-            //telemetry.addData("Mecanum", commands);
-            //  telemetry.addData("left x joystick value: ", gamepad1LeftJoyStickX.getValue());
-//            telemetry.addData("power modifier: ", haloControls.getPowerModifier());
-            //robot.setMovement(commands);
-
-            // update the robot
             robot.update();
 
-            //telemetry.addData("mecanum commands are: ", commands);
-            // Display telemetry
-            //       telemetry.addData(">", "Press Stop to end.");
-            telemetry.update();
 
             idle();
-        }
+            telemetry.update();
 
+        }
         //*************************************************************************************
         //  Stop everything after the user hits the stop button on the driver phone
         // ************************************************************************************
 
         // Stop has been hit, shutdown everything
-        dataLog.closeDataLog();
+        //    dataLog.closeDataLog();
         robot.shutdown();
+        controller.stopController();
+
+        timer.reset();
+        while (timer.seconds() < 10) {
+            idle();
+        }
         telemetry.addData(">", "Done");
         telemetry.update();
+        stop();
     }
 
     //*********************************************************************************************

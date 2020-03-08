@@ -47,7 +47,7 @@ public class AutonomousController {
     /*
      * Interval in milliseconds in which movement control task runs
      */
-    final private long MOVEMENT_THREAD_INTERVAL = 200;
+    final private long MOVEMENT_THREAD_INTERVAL = 100;
 
     public enum Areas {
         BUILDSITE, BRIDGE, BLOCK, PLATFORM, HOME, NEARCENTREBRIDGE
@@ -95,7 +95,7 @@ public class AutonomousController {
         private MecanumCommands zeroMovement;
         private ElapsedTime elapsedTime;
 
-        public MovemenetThread(DistanceUnit distanceUnit, double Kp, double Ki, double Kd) {
+        public MovemenetThread(DistanceUnit distanceUnit, AngleUnit angleUnit, double Kp, double Ki, double Kd) {
             XY_Kp = Kp;
             XY_Ki = Ki;
             XY_Kd = Kd;
@@ -108,7 +108,7 @@ public class AutonomousController {
             zeroMovement = new MecanumCommands();
             this.distanceUnit = distanceUnit;
             this.angleUnit = angleUnit;
-            current = new RobotPosition(distanceUnit, 0, 0, angleUnit, 0);
+            current = new RobotPosition(distanceUnit, angleUnit);
         }
 
         public void setDestination(DistanceUnit distanceUnit, double x, double y) {
@@ -165,7 +165,7 @@ public class AutonomousController {
     public AutonomousController(SkystoneRobot robot, DataLogging logger, Telemetry telemetry, double Kp, double Ki, double Kd) {
         places = new HashMap<Areas, RobotPosition>();
         this.robot = robot;
-        movementThread = new MovemenetThread(distanceUnit, Kp, Ki, Kd);
+        movementThread = new MovemenetThread(distanceUnit, angleUnit, Kp, Ki, Kd);
         scheduler = Executors.newScheduledThreadPool(2);
         movementTask = null;
         this.telemetry = telemetry;

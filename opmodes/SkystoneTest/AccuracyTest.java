@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
@@ -11,6 +12,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.GamepadButtonMultiPush;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.JoyStick;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.RobotPosition;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.SmartJoystick;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.AutonomousController;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.SkystoneRobot;
@@ -132,7 +134,7 @@ public class AccuracyTest extends LinearOpMode {
     double throttle = 0;
     double direction = 0;
 
-    static double distance(Position p1, Position p2) {
+    static double distance(RobotPosition p1, RobotPosition p2) {
         double dist;
         dist = Math.hypot(p2.y-p1.y, p2.x-p1.x);
         return dist;
@@ -148,9 +150,9 @@ public class AccuracyTest extends LinearOpMode {
         // create the robot
         telemetry.addData("Initializing ...", "Wait for it ...");
         telemetry.update();
-        double Kp = 0.036;
-        double Ki = 0.05950413223;
-        double Kd = 0.005445;
+        double Kp = 0.018;
+        double Ki = 0.01983471074;
+        double Kd = 0.001815;
         dataLog = new DataLogging("Teleop", telemetry);
         config = new Configuration();
         if (!config.load()) {
@@ -228,10 +230,8 @@ public class AccuracyTest extends LinearOpMode {
             idle();
         }
 
-        Position cuurent = new Position();
-        cuurent.unit = DistanceUnit.CM;
-        Position destination = new Position();
-        destination.unit = DistanceUnit.CM;
+        RobotPosition current = new RobotPosition(DistanceUnit.CM, AngleUnit.DEGREES);
+        RobotPosition destination = new RobotPosition(DistanceUnit.CM, AngleUnit.DEGREES);
 
         // Wait for the start button
         telemetry.addData(">", "Press start to run Teleop");
@@ -242,6 +242,7 @@ public class AccuracyTest extends LinearOpMode {
         destination.x = 20;
         destination.y = 0;
         double dist;
+        final double minDist = 3;
         controller.moveTo(DistanceUnit.CM, destination.x, destination.y);
 
         //*********************************************************************************************
@@ -263,12 +264,12 @@ public class AccuracyTest extends LinearOpMode {
             // Display telemetry
 
             idle();
-            robot.getCurrentPosition(cuurent);
-            dist= distance(destination, cuurent);
+            robot.getCurrentRobotPosition(current);
+            dist = distance(destination, current);
             telemetry.addData("Distance: ", String.format(Locale.ENGLISH, "%.2f", dist));
             telemetry.update();
 
-        } while(dist > 1 &&opModeIsActive());
+        } while (dist > minDist && opModeIsActive());
         destination.x = 20;
         destination.y = 20;
 
@@ -293,12 +294,12 @@ public class AccuracyTest extends LinearOpMode {
             // Display telemetry
 
             idle();
-            robot.getCurrentPosition(cuurent);
-            dist= distance(destination, cuurent);
+            robot.getCurrentRobotPosition(current);
+            dist = distance(destination, current);
             telemetry.addData("Distance: ", String.format(Locale.ENGLISH, "%.2f", dist));
             telemetry.update();
 
-        } while(dist > 1 &&opModeIsActive());
+        } while (dist > minDist && opModeIsActive());
         destination.x = 0;
         destination.y = 20;
 
@@ -323,12 +324,12 @@ public class AccuracyTest extends LinearOpMode {
             // Display telemetry
 
             idle();
-            robot.getCurrentPosition(cuurent);
-            dist= distance(destination, cuurent);
+            robot.getCurrentRobotPosition(current);
+            dist = distance(destination, current);
             telemetry.addData("Distance: ", String.format(Locale.ENGLISH, "%.2f", dist));
             telemetry.update();
 
-        } while(dist > 1 &&opModeIsActive());
+        } while (dist > minDist && opModeIsActive());
         destination.x = 0;
         destination.y = 0;
 
@@ -353,20 +354,22 @@ public class AccuracyTest extends LinearOpMode {
             // Display telemetry
 
             idle();
-            robot.getCurrentPosition(cuurent);
-            dist= distance(destination, cuurent);
+            robot.getCurrentRobotPosition(current);
+            dist = distance(destination, current);
             telemetry.addData("Distance: ", String.format(Locale.ENGLISH, "%.2f", dist));
             telemetry.update();
 
-        } while(dist > 1 &&opModeIsActive());
+        } while (dist > minDist && opModeIsActive());
         //*************************************************************************************
         //  Stop everything after the user hits the stop button on the driver phone
         // ************************************************************************************
 
         // Stop has been hit, shutdown everything
     //    dataLog.closeDataLog();
-        robot.shutdown();
         controller.stopController();
+        sleep(300);
+        robot.stop();
+        robot.shutdown();
 
         timer.reset();
         while(timer.seconds() < 10) {

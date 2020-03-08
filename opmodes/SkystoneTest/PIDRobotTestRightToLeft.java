@@ -8,14 +8,13 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.GamepadButtonMultiPush;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.HaloControls;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.JoyStick;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.SmartJoystick;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.AutonomousController;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.SkystoneRobot;
 
-@TeleOp(name = "PID Robot Test", group = "ATest")
+@TeleOp(name = "PID right to left", group = "ATest")
 //@Disabled
 
 /*
@@ -46,7 +45,7 @@ import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.SkystoneRobot;
  *    / X - confirm lift movement
  *    / Y -
  */
-public class PIDRobotTest extends LinearOpMode {
+public class PIDRobotTestRightToLeft extends LinearOpMode {
 
     //*********************************************************************************************
     //             Declarations
@@ -227,7 +226,7 @@ public class PIDRobotTest extends LinearOpMode {
         waitForStart();
 
         controller.startController();
-        controller.moveTo(DistanceUnit.CM, 50, 0);
+        controller.moveTo(DistanceUnit.CM, 0, 50);
 
         //*********************************************************************************************
         //             Robot Running after the user hits play on the driver phone
