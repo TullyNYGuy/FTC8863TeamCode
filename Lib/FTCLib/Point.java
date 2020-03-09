@@ -86,7 +86,7 @@ public class Point {
      * @param otherPoint
      * @return
      */
-    public double distanceTo(Point otherPoint) {
+    public Distance distanceTo(Point otherPoint) {
         return distanceTo(otherPoint.getX(), otherPoint.getY(), otherPoint.getUnit());
     }
 
@@ -100,13 +100,13 @@ public class Point {
      * @param otherUnit
      * @return
      */
-    public double distanceTo(double otherX, double otherY, DistanceUnit otherUnit) {
+    public Distance distanceTo(double otherX, double otherY, DistanceUnit otherUnit) {
         // figure out the distance between the points. Make sure the units are the same for the
         // distance calculations.
         double xDifference = this.unit.fromUnit(otherUnit, otherX) - this.x;
         double yDifference = this.unit.fromUnit(otherUnit, otherY) - this.y;
         ;
-        return Math.hypot(xDifference, yDifference);
+        return new Distance(Math.hypot(xDifference, yDifference), this.unit);
     }
 
     /**
@@ -117,7 +117,7 @@ public class Point {
      * @param - otherPoint
      * @return - angle to the other point in radians
      */
-    public double angleTo(Point otherPoint) {
+    public Orientation2D angleTo(Point otherPoint) {
         return angleTo(otherPoint.getX(), otherPoint.getY(), otherPoint.getUnit());
     }
 
@@ -131,7 +131,7 @@ public class Point {
      * @param unit - units of the other point's coordinates
      * @return - angle to the other point in radians
      */
-    public double angleTo(double x, double y, DistanceUnit unit) {
+    public Orientation2D angleTo(double x, double y, DistanceUnit unit) {
         // figure out the distance between the points. Make sure the units are the same for the
         // distance calculations.
         double xDifference = this.unit.fromUnit(unit, x) - this.x;
@@ -142,7 +142,7 @@ public class Point {
         // 0 degrees to the robot is north, where 90 is normally.
         // normal atan2 arguments are (y, x)
         double angleToInRadians = Math.atan2(xDifference, yDifference);
-        return angleToInRadians;
+        return new Orientation2D(angleToInRadians, AngleUnit.RADIANS);
     }
 
     /**
@@ -153,7 +153,7 @@ public class Point {
      * @param otherPoint
      * @return
      */
-    public double angleFrom(Point otherPoint) {
+    public Orientation2D angleFrom(Point otherPoint) {
         return angleFrom(otherPoint.getX(), otherPoint.getY(), otherPoint.getUnit());
     }
 
@@ -168,7 +168,7 @@ public class Point {
      * @param unit - units of the other point's coordinates
      * @return - angle from the other point to this point in radians
      */
-    public double angleFrom(double x, double y, DistanceUnit unit) {
-        return Math.PI + angleTo(x, y, unit);
+    public Orientation2D angleFrom(double x, double y, DistanceUnit unit) {
+        return new Orientation2D(Math.PI + angleTo(x, y, unit).getAngle(AngleUnit.RADIANS), AngleUnit.RADIANS);
     }
 }

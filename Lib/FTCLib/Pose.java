@@ -104,4 +104,12 @@ public class Pose {
     // public methods that give the class its functionality
     //*********************************************************************************************
 
+    public Orientation2D headingTo(Pose otherPose) {
+        return position.angleTo(otherPose.position);
+    }
+
+    public Distance distanceTo(Pose otherPose) {
+        return position.distanceTo(otherPose.position);
+    }
+
 }

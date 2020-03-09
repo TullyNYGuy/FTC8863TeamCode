@@ -1,12 +1,9 @@
 package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.Position;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.Point;
 
-public class MecanumNavigation {
+public class Distance {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -21,16 +18,18 @@ public class MecanumNavigation {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
-    private OdometrySystem odometrySystem;
 
-    private Pose currentPose;
-    private Pose targetPose;
+    private double distance = 0;
 
-    public void setTargetPose(Pose targetPose) {
-        this.targetPose = targetPose;
+    public double getDistance(DistanceUnit desiredUnit) {
+        return desiredUnit.fromUnit(this.unit, distance);
     }
 
-    private MecanumOrientationControl mecanumOrientationControl;
+    private DistanceUnit unit = DistanceUnit.CM;
+
+    public DistanceUnit getUnit() {
+        return unit;
+    }
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -47,10 +46,9 @@ public class MecanumNavigation {
     // from it
     //*********************************************************************************************
 
-    public MecanumNavigation(OdometrySystem odometrySystem, Pose targetPose) {
-        this.odometrySystem = odometrySystem;
-        this.targetPose = targetPose;
-        this.mecanumOrientationControl = new MecanumOrientationControl(0.1, 0, 0, targetPose.getOrientation());
+    public Distance(double distance, DistanceUnit unit) {
+        this.distance = distance;
+        this.unit = unit;
     }
 
     //*********************************************************************************************
@@ -64,24 +62,5 @@ public class MecanumNavigation {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
-
-    // get current x, y, orientation of robot
-    // given x, y of target
-    // calculate angle to target
-    // calculate robot rate of rotation needed to maintain desired orientation using PID
-    // setup mecanum commands: robot speed, angle of translation, robot rate of rotation
-
-
-    public MecanumCommands getMecanumCommands(MecanumCommands commands, double speed) {
-        commands.setSpeed(speed);
-        currentPose = odometrySystem.getCurrentPose();
-        // get the angle of translation
-        Orientation2D headingToTarget = currentPose.headingTo(targetPose);
-        commands.setAngleOfTranslation(headingToTarget);
-        // set the rate of rotation in the mecanum commands
-        commands.setSpeedOfRotation(mecanumOrientationControl.getRateOfRotation(currentPose.getOrientation()));
-        return commands;
-    }
-
 
 }
