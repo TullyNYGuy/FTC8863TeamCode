@@ -132,6 +132,7 @@ controller.initPlaces();
             robot.setMovement(commands);
             telemetry.addData("IMU rotation: ", robot.getCurrentRotationIMU(AngleUnit.DEGREES));
             telemetry.addData("Odometry rotation: ", robot.getCurrentRotation(AngleUnit.DEGREES));
+            telemetry.update();
             idle();
 
         }
