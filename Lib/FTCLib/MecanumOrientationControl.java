@@ -20,7 +20,7 @@ public class MecanumOrientationControl {
     //*********************************************************************************************
 
     private PIDControl pidControl;
-    private Orientation2D desiredOrientation;
+    private Angle desiredOrientation;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -37,7 +37,7 @@ public class MecanumOrientationControl {
     // from it
     //*********************************************************************************************
 
-    public MecanumOrientationControl(double kp, double ki, double kd, Orientation2D desiredOrientation) {
+    public MecanumOrientationControl(double kp, double ki, double kd, Angle desiredOrientation) {
         this.desiredOrientation = desiredOrientation;
         this.pidControl = new PIDControl(kp, ki, kd, desiredOrientation.getAngle(AngleUnit.DEGREES));
     }
@@ -54,7 +54,7 @@ public class MecanumOrientationControl {
     // public methods that give the class its functionality
     //*********************************************************************************************
 
-    public double getRateOfRotation(Orientation2D currentOrientation) {
+    public double getRateOfRotation(Angle currentOrientation) {
         return pidControl.getCorrection(currentOrientation.getAngle(AngleUnit.DEGREES));
     }
 

@@ -3,8 +3,6 @@ package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
-import org.firstinspires.ftc.robotcore.external.navigation.Position;
 
 public class Pose {
 
@@ -44,9 +42,9 @@ public class Pose {
         this.position.setY(yLocation, distanceUnit);
     }
 
-    private Orientation2D orientation;
+    private Angle orientation;
 
-    public Orientation2D getOrientation() {
+    public Angle getOrientation() {
         return orientation;
     }
 
@@ -79,16 +77,16 @@ public class Pose {
 
     public Pose(DistanceUnit distanceUnit, double XPosition, double YPosition, AngleUnit angleUnit, double orientation) {
         this.position = new Point(XPosition, YPosition, distanceUnit);
-        this.orientation = new Orientation2D(orientation, angleUnit);
+        this.orientation = new Angle(orientation, angleUnit);
     }
 
     public Pose() {
         this(DistanceUnit.INCH, 0, 0, AngleUnit.RADIANS, 0);
     }
 
-    public Pose(Point position, Orientation2D orientation2D) {
+    public Pose(Point position, Angle angle) {
         this.position = position;
-        this.orientation = orientation2D;
+        this.orientation = angle;
     }
 
 
@@ -104,7 +102,7 @@ public class Pose {
     // public methods that give the class its functionality
     //*********************************************************************************************
 
-    public Orientation2D headingTo(Pose otherPose) {
+    public Angle headingTo(Pose otherPose) {
         return position.angleTo(otherPose.position);
     }
 

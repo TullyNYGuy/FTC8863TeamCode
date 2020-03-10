@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.Position;
 
 public class Point {
 
@@ -117,7 +116,7 @@ public class Point {
      * @param - otherPoint
      * @return - angle to the other point in radians
      */
-    public Orientation2D angleTo(Point otherPoint) {
+    public Angle angleTo(Point otherPoint) {
         return angleTo(otherPoint.getX(), otherPoint.getY(), otherPoint.getUnit());
     }
 
@@ -131,7 +130,7 @@ public class Point {
      * @param unit - units of the other point's coordinates
      * @return - angle to the other point in radians
      */
-    public Orientation2D angleTo(double x, double y, DistanceUnit unit) {
+    public Angle angleTo(double x, double y, DistanceUnit unit) {
         // figure out the distance between the points. Make sure the units are the same for the
         // distance calculations.
         double xDifference = this.unit.fromUnit(unit, x) - this.x;
@@ -142,7 +141,7 @@ public class Point {
         // 0 degrees to the robot is north, where 90 is normally.
         // normal atan2 arguments are (y, x)
         double angleToInRadians = Math.atan2(xDifference, yDifference);
-        return new Orientation2D(angleToInRadians, AngleUnit.RADIANS);
+        return new Angle(angleToInRadians, AngleUnit.RADIANS);
     }
 
     /**
@@ -153,7 +152,7 @@ public class Point {
      * @param otherPoint
      * @return
      */
-    public Orientation2D angleFrom(Point otherPoint) {
+    public Angle angleFrom(Point otherPoint) {
         return angleFrom(otherPoint.getX(), otherPoint.getY(), otherPoint.getUnit());
     }
 
@@ -168,7 +167,7 @@ public class Point {
      * @param unit - units of the other point's coordinates
      * @return - angle from the other point to this point in radians
      */
-    public Orientation2D angleFrom(double x, double y, DistanceUnit unit) {
-        return new Orientation2D(Math.PI + angleTo(x, y, unit).getAngle(AngleUnit.RADIANS), AngleUnit.RADIANS);
+    public Angle angleFrom(double x, double y, DistanceUnit unit) {
+        return new Angle(Math.PI + angleTo(x, y, unit).getAngle(AngleUnit.RADIANS), AngleUnit.RADIANS);
     }
 }

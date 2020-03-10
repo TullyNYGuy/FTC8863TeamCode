@@ -3,7 +3,24 @@ package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
-public class Orientation2D {
+/**
+ * This class contains an angle and its associated unites (radians for degrees).
+ * Through the AngleUnit class it can convert between the two units.
+ * An angle of 0 can be defined to be at one of 4 of the axes. The four axes are what we think of as
+ * +x +y -x and -y. Most commonly, in our robots, 0 degrees is the + y axis. By comparison most of
+ * us think of +x as the 0 axis.
+ * <p>
+ * +y
+ * |
+ * |
+ * -x <----------|------------> +x
+ * |
+ * |
+ * -y
+ * <p>
+ * This class translates between different reference axes.
+ */
+public class Angle {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -11,11 +28,6 @@ public class Orientation2D {
     // user defined types
     //
     //*********************************************************************************************
-    public enum ReferenceAxis {
-        EAST,
-        NORTH
-    }
-
 
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS
@@ -27,7 +39,7 @@ public class Orientation2D {
     private double angle = 0;
 
     public double getAngle(AngleUnit desiredUnit) {
-        return desiredUnit.fromUnit(unit, this.angle);
+        return desiredUnit.fromUnit(this.unit, this.angle);
     }
 
     public void setAngle(double angle, AngleUnit unit) {
@@ -39,6 +51,12 @@ public class Orientation2D {
 
     public AngleUnit getUnit() {
         return unit;
+    }
+
+    private ReferenceAxis referenceAxis = ReferenceAxis.PLUSY;
+
+    public ReferenceAxis getReferenceAxis() {
+        return referenceAxis;
     }
 
     //*********************************************************************************************
@@ -56,7 +74,7 @@ public class Orientation2D {
     // from it
     //*********************************************************************************************
 
-    public Orientation2D(double angle, AngleUnit unit) {
+    public Angle(double angle, AngleUnit unit) {
         this.angle = angle;
         this.unit = unit;
     }

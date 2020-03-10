@@ -55,7 +55,7 @@ public class MecanumCommands {
         this.angleOfTranslation = angleUnit.toRadians(angleOfTranslation);
     }
 
-    public void setAngleOfTranslation(Orientation2D angleOfTranslation) {
+    public void setAngleOfTranslation(Angle angleOfTranslation) {
         this.setAngleOfTranslation(angleOfTranslation.getUnit(), angleOfTranslation.getAngle(angleOfTranslation.getUnit()));
     }
 

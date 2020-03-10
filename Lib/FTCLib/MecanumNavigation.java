@@ -1,11 +1,6 @@
 package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.Position;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.Point;
-
 public class MecanumNavigation {
 
     //*********************************************************************************************
@@ -76,7 +71,7 @@ public class MecanumNavigation {
         commands.setSpeed(speed);
         currentPose = odometrySystem.getCurrentPose();
         // get the angle of translation
-        Orientation2D headingToTarget = currentPose.headingTo(targetPose);
+        Angle headingToTarget = currentPose.headingTo(targetPose);
         commands.setAngleOfTranslation(headingToTarget);
         // set the rate of rotation in the mecanum commands
         commands.setSpeedOfRotation(mecanumOrientationControl.getRateOfRotation(currentPose.getOrientation()));
