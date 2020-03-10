@@ -53,10 +53,16 @@ public class Angle {
         return unit;
     }
 
-    private ReferenceAxis referenceAxis = ReferenceAxis.PLUSY;
+    private AngleReference angleReference = AngleReference.PLUSY;
 
-    public ReferenceAxis getReferenceAxis() {
-        return referenceAxis;
+    public AngleReference getAngleReference() {
+        return angleReference;
+    }
+
+    public AngleRange angleRange = AngleRange.PLUS_TO_MINUS_180;
+
+    public AngleRange getAngleRange() {
+        return angleRange;
     }
 
     //*********************************************************************************************
