@@ -505,7 +505,9 @@ public void setPosition(double currentpositionx,double currentPositiionY,double 
         else
             return 0;
     }
-
+    public double getCurrentRotationIMU(AngleUnit unit){
+        return unit.fromDegrees(imu.getHeading());
+    }
     public boolean getCurrentRobotPosition(RobotPosition position) {
         if (odometry != null && odometry.isInitComplete()) {
             odometry.getCurrentPosition(position);
