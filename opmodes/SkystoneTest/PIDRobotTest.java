@@ -141,9 +141,9 @@ public class PIDRobotTest extends LinearOpMode {
         // create the robot
         telemetry.addData("Initializing ...", "Wait for it ...");
         telemetry.update();
-        double Kp = 0.012;
-        double Ki = 0.01983471074;
-        double Kd = 0.001815;
+        double Kp = 0.05;
+        double Ki = 0;
+        double Kd = 0;
         dataLog = new DataLogging("Teleop", telemetry);
         config = new Configuration();
         if (!config.load()) {
@@ -261,6 +261,7 @@ public class PIDRobotTest extends LinearOpMode {
         robot.shutdown();
         telemetry.addData(">", "Done");
         telemetry.update();
+        stop();
     }
 
     //*********************************************************************************************

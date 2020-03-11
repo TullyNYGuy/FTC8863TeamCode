@@ -240,9 +240,9 @@ public class SkystoneRobot implements FTCRobot {
             frontRight.runAtConstantPower(0);
             backRight.runAtConstantPower(0);
             mecanum = new Mecanum(frontLeft, frontRight, backLeft, backRight, telemetry);
-            mecanum.setMinMotorPower(0.15);
-            mecanum.setMinMotorPowerMultiplier(.3);
-            mecanum.setMaxMotorPower(.3);
+            //           mecanum.setMinMotorPower(0.15);
+            //           mecanum.setMinMotorPowerMultiplier(.3);
+//            mecanum.setMaxMotorPower(.3);
         }
         if (capabilities.contains(Subsystem.ODOMETRY)) {
             OdometryModule left = new OdometryModule(1440, 3.8*Math.PI, units, HardwareName.ODOMETRY_MODULE_LEFT.hwName, hardwareMap);

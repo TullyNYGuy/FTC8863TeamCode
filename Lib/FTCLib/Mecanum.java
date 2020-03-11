@@ -248,6 +248,7 @@ public class Mecanum {
         // set the power to the motor. This is the call to use when changing power after the
         // motor is set up for a mode.
 
+        telemetry.addData("Wheels", wheelVelocities);
        /*
         telemetry.addData("wheel (FL, FR, BL, BR): ",
                 String.format("(%.2f, %.2f, %.2f, %.2f)", wheelVelocities.frontLeft, wheelVelocities.frontRight,

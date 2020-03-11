@@ -157,8 +157,10 @@ public class AutonomousController {
             commands.setSpeedOfRotation(valRot);
             robot.setMovement(commands);
             //telemetry.addData("MT: ", String.format("x: %.2f, y: %.2f", valX, valY));
+            telemetry.addData("Comm: ", commands);
             dataLog.logData(String.format("Position (X, Y, ROT): %s", current));
             dataLog.logData(String.format("Correction (X, Y, ROT): (%+.2f, %+.2f, %+.2f)", valX, valY, valRot));
+            dataLog.logData(String.format("Comm: %s", commands));
         }
     }
 
