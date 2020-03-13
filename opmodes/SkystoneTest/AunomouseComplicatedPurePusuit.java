@@ -116,7 +116,7 @@ controller.initPlaces();
         positions.add( platform);
         positions.add(nearCentreBridge);
         positions.add(nearCentreBridge);
-        positions.add( home);
+        positions.add(home);
         RobotPosition current = new RobotPosition();
         current.distanceUnit = DistanceUnit.CM;
         current.angleUnit = AngleUnit.DEGREES;
