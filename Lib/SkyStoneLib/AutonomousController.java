@@ -8,7 +8,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.PIDControl;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.PIDControlExternalTimer;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.RobotPosition;
 
@@ -21,22 +20,26 @@ import java.util.concurrent.TimeUnit;
 
 
 public class AutonomousController {
-    final private double BLUE_BUILDSITE_X = 10.0;
-    final private double BLUE_BUILDSITE_Y = 10.0;
-    final private double RED_BUILDSITE_X = 10.0;
-    final private double RED_BUILDSITE_Y = 10.0;
-    final private double BLUE_BRIDGE_X = 10.0;
-    final private double BLUE_BRIDGE_Y = 10.0;
-    final private double RED_BRIDGE_X = 10.0;
-    final private double RED_BRIDGE_Y = 10.0;
-    final private double BLUE_PLATFORM_X = 10.0;
-    final private double BLUE_PLATFORM_Y = 10.0;
-    final private double RED_PLATFORM_X = 10.0;
-    final private double RED_PLATFORM_Y = 10.0;
-    final private double BLUE_HOME_X = 10.0;
-    final private double BLUE_HOME_Y = 10.0;
-    final private double RED_HOME_X = 10.0;
-    final private double RED_HOME_Y = 10.0;
+    final private double BLUE_BUILDSITE_X = 121.92;
+    final private double BLUE_BUILDSITE_Y = 121.92;
+    final private double RED_BUILDSITE_X = 121.92;
+    final private double RED_BUILDSITE_Y = -121.92;
+    final private double BLUE_BRIDGE_X = 0;
+    final private double BLUE_BRIDGE_Y = 121.92;
+    final private double NEAR_CENTRE_BLUE_BRIDGE_X = 0;
+    final private double NEAR_CENTRE_BLUE_BRIDGE_Y = 152.4;
+    final private double NEAR_CENTRE_RED_BRIDGE_X = 0;
+    final private double NEAR_CENTRE_RED_BRIDGE_Y = -152.4;
+    final private double RED_BRIDGE_X =0;
+    final private double RED_BRIDGE_Y = -121.92;
+    final private double BLUE_PLATFORM_X = 121.92;
+    final private double BLUE_PLATFORM_Y = 30.48;
+    final private double RED_PLATFORM_X = 121.92;
+    final private double RED_PLATFORM_Y = -30.48;
+    final private double BLUE_HOME_X = 0;
+    final private double BLUE_HOME_Y = 121.92;
+    final private double RED_HOME_X = 0;
+    final private double RED_HOME_Y = -121.92;
 
     final private DistanceUnit distanceUnit = DistanceUnit.CM;
     final private AngleUnit angleUnit = AngleUnit.RADIANS;
@@ -44,16 +47,16 @@ public class AutonomousController {
     /*
      * Interval in milliseconds in which movement control task runs
      */
-    final private long MOVEMENT_THREAD_INTERVAL = 200;
+    final private long MOVEMENT_THREAD_INTERVAL = 100;
 
-    private enum Areas {
-        BUILDSITE, BRIDGE, BLOCK, PLATFORM, HOME
+    public enum Areas {
+        BUILDSITE, BRIDGE, BLOCK, PLATFORM, HOME, NEARCENTREBRIDGE
     }
 
     public boolean blockState;
     Areas place;
 
-    private enum Color {
+    public enum Color {
         BLUE, RED
     }
 
@@ -68,15 +71,15 @@ public class AutonomousController {
     private ScheduledExecutorService scheduler;
     private MovemenetThread movementThread;
     private ScheduledFuture<?> movementTask;
-
+    private ElapsedTime time = new ElapsedTime();
     private Telemetry telemetry;
     private DataLogging dataLog;
 
     class MovemenetThread implements Runnable {
 
-        private final double XY_Kp = .05;
-        private final double XY_Ki = 0;
-        private final double XY_Kd = 0;
+        private double XY_Kp = 0.03;
+        private double XY_Ki = 0;
+        private double XY_Kd = 0;
         private final double XY_MAX_CORRECTION = 1;
         private final double ROT_Kp = .02;
         private final double ROT_Ki = 0;
@@ -92,7 +95,10 @@ public class AutonomousController {
         private MecanumCommands zeroMovement;
         private ElapsedTime elapsedTime;
 
-        public MovemenetThread(DistanceUnit distanceUnit, AngleUnit angleUnit) {
+        public MovemenetThread(DistanceUnit distanceUnit, AngleUnit angleUnit, double Kp, double Ki, double Kd) {
+            XY_Kp = Kp;
+            XY_Ki = Ki;
+            XY_Kd = Kd;
             elapsedTime = new ElapsedTime();
             elapsedTime.reset();
             xControl = new PIDControlExternalTimer(XY_Kp, XY_Ki, XY_Kd, XY_MAX_CORRECTION);
@@ -102,7 +108,7 @@ public class AutonomousController {
             zeroMovement = new MecanumCommands();
             this.distanceUnit = distanceUnit;
             this.angleUnit = angleUnit;
-            current = new RobotPosition(distanceUnit, 0, 0, angleUnit, 0);
+            current = new RobotPosition(distanceUnit, angleUnit);
         }
 
         public void setDestination(DistanceUnit distanceUnit, double x, double y) {
@@ -138,7 +144,7 @@ public class AutonomousController {
             double valX;
             double valY;
             double valRot;
-            double timerValue = elapsedTime.milliseconds();
+            double timerValue = elapsedTime.seconds();
             robot.timedUpdate(timerValue);
             robot.getCurrentRobotPosition(current);
             synchronized (this) {
@@ -151,15 +157,17 @@ public class AutonomousController {
             commands.setSpeedOfRotation(valRot);
             robot.setMovement(commands);
             //telemetry.addData("MT: ", String.format("x: %.2f, y: %.2f", valX, valY));
+            telemetry.addData("Comm: ", commands);
             dataLog.logData(String.format("Position (X, Y, ROT): %s", current));
             dataLog.logData(String.format("Correction (X, Y, ROT): (%+.2f, %+.2f, %+.2f)", valX, valY, valRot));
+            dataLog.logData(String.format("Comm: %s", commands));
         }
     }
 
-    public AutonomousController(SkystoneRobot robot, DataLogging logger, Telemetry telemetry) {
+    public AutonomousController(SkystoneRobot robot, DataLogging logger, Telemetry telemetry, double Kp, double Ki, double Kd) {
         places = new HashMap<Areas, RobotPosition>();
         this.robot = robot;
-        movementThread = new MovemenetThread(distanceUnit, angleUnit);
+        movementThread = new MovemenetThread(distanceUnit, angleUnit, Kp, Ki, Kd);
         scheduler = Executors.newScheduledThreadPool(2);
         movementTask = null;
         this.telemetry = telemetry;
@@ -202,11 +210,13 @@ public class AutonomousController {
             places.put(Areas.BRIDGE, new RobotPosition(distanceUnit, BLUE_BRIDGE_X, BLUE_BRIDGE_Y, AngleUnit.RADIANS, 0));
             places.put(Areas.PLATFORM, new RobotPosition(distanceUnit, BLUE_PLATFORM_X, BLUE_PLATFORM_Y, AngleUnit.RADIANS, 0));
             places.put(Areas.HOME, new RobotPosition(distanceUnit, BLUE_HOME_X, BLUE_HOME_Y, AngleUnit.RADIANS, 0));
+            places.put(Areas.NEARCENTREBRIDGE, new RobotPosition(distanceUnit, NEAR_CENTRE_BLUE_BRIDGE_X, NEAR_CENTRE_BLUE_BRIDGE_Y, AngleUnit.RADIANS, 0));
         } else {
             places.put(Areas.BUILDSITE, new RobotPosition(distanceUnit, RED_BUILDSITE_X, RED_BUILDSITE_Y, AngleUnit.RADIANS, 0));
             places.put(Areas.BRIDGE, new RobotPosition(distanceUnit, RED_BRIDGE_X, RED_BRIDGE_Y, AngleUnit.RADIANS, 0));
             places.put(Areas.PLATFORM, new RobotPosition(distanceUnit, RED_PLATFORM_X, RED_PLATFORM_Y, AngleUnit.RADIANS, 0));
             places.put(Areas.HOME, new RobotPosition(distanceUnit, RED_HOME_X, RED_HOME_Y, AngleUnit.RADIANS, 0));
+            places.put(Areas.NEARCENTREBRIDGE, new RobotPosition(distanceUnit, NEAR_CENTRE_RED_BRIDGE_X, NEAR_CENTRE_RED_BRIDGE_Y, AngleUnit.RADIANS, 0));
         }
     }
 
@@ -272,5 +282,21 @@ public class AutonomousController {
         //align qrm
         //drop arm
     }
+    public boolean isActionCompleteTime(){
+       /* if(){
+            return true;
 
+        }
+        else*/{
+            return false;
+        }
+    }
+   public boolean isActionCompleteDistance(Position currentPosition){
+        if((currentDestination.x - currentPosition.x) == 0 && (currentDestination.y-currentPosition.y == 0)){
+          return true;
+       }
+        else{
+            return false;
+        }
+   }
 }

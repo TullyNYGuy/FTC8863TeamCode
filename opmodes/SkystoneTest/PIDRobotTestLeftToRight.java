@@ -4,18 +4,19 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.GamepadButtonMultiPush;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.HaloControls;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.JoyStick;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.RobotPosition;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.SmartJoystick;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.AutonomousController;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.SkystoneRobot;
 
-@TeleOp(name = "PID Robot Test", group = "ATest")
+@TeleOp(name = "PID left to right", group = "ATest")
 //@Disabled
 
 /*
@@ -46,7 +47,7 @@ import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.SkystoneRobot;
  *    / X - confirm lift movement
  *    / Y -
  */
-public class PIDRobotTest extends LinearOpMode {
+public class PIDRobotTestLeftToRight extends LinearOpMode {
 
     //*********************************************************************************************
     //             Declarations
@@ -141,9 +142,9 @@ public class PIDRobotTest extends LinearOpMode {
         // create the robot
         telemetry.addData("Initializing ...", "Wait for it ...");
         telemetry.update();
-        double Kp = 0.05;
-        double Ki = 0;
-        double Kd = 0;
+        double Kp = 0.012;
+        double Ki = 0.01983471074;
+        double Kd = 0.001815;
         dataLog = new DataLogging("Teleop", telemetry);
         config = new Configuration();
         if (!config.load()) {
@@ -226,8 +227,12 @@ public class PIDRobotTest extends LinearOpMode {
         telemetry.update();
         waitForStart();
 
+        RobotPosition dest = new RobotPosition(DistanceUnit.CM, AngleUnit.DEGREES);
+        RobotPosition current = new RobotPosition(DistanceUnit.CM, AngleUnit.DEGREES);
+        dest.x = 0;
+        dest.y = -50;
         controller.startController();
-        controller.moveTo(DistanceUnit.CM, 50, 0);
+        controller.moveTo(dest.distanceUnit, dest.x, dest.y);
 
         //*********************************************************************************************
         //             Robot Running after the user hits play on the driver phone
@@ -244,7 +249,8 @@ public class PIDRobotTest extends LinearOpMode {
             // update the robot
             robot.update();
 
-            //telemetry.addData("mecanum commands are: ", commands);
+            robot.getCurrentRobotPosition(current);
+            telemetry.addData("Distance: ", String.format("%.2f", Math.hypot(current.x - dest.x, current.y - dest.y)));
             // Display telemetry
             //       telemetry.addData(">", "Press Stop to end.");
             telemetry.update();
@@ -261,7 +267,6 @@ public class PIDRobotTest extends LinearOpMode {
         robot.shutdown();
         telemetry.addData(">", "Done");
         telemetry.update();
-        stop();
     }
 
     //*********************************************************************************************

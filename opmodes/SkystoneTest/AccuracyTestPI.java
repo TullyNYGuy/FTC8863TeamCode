@@ -5,17 +5,19 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.GamepadButtonMultiPush;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.HaloControls;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.JoyStick;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.SmartJoystick;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.AutonomousController;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.SkystoneRobot;
 
-@TeleOp(name = "PID Robot Test", group = "ATest")
+import java.util.Locale;
+
+@TeleOp(name = "acc test (only PI)", group = "ATest")
 //@Disabled
 
 /*
@@ -46,7 +48,7 @@ import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.SkystoneRobot;
  *    / X - confirm lift movement
  *    / Y -
  */
-public class PIDRobotTest extends LinearOpMode {
+public class AccuracyTestPI extends LinearOpMode {
 
     //*********************************************************************************************
     //             Declarations
@@ -130,6 +132,11 @@ public class PIDRobotTest extends LinearOpMode {
     double throttle = 0;
     double direction = 0;
 
+    static double distance(Position p1, Position p2) {
+        double dist;
+        dist = Math.hypot(p2.y-p1.y, p2.x-p1.x);
+        return dist;
+    }
 
     @Override
     public void runOpMode() {
@@ -141,8 +148,8 @@ public class PIDRobotTest extends LinearOpMode {
         // create the robot
         telemetry.addData("Initializing ...", "Wait for it ...");
         telemetry.update();
-        double Kp = 0.05;
-        double Ki = 0;
+        double Kp = 0.027;
+        double Ki = 0.0267768595;
         double Kd = 0;
         dataLog = new DataLogging("Teleop", telemetry);
         config = new Configuration();
@@ -221,19 +228,27 @@ public class PIDRobotTest extends LinearOpMode {
             idle();
         }
 
+        Position cuurent = new Position();
+        cuurent.unit = DistanceUnit.CM;
+        Position destination = new Position();
+        destination.unit = DistanceUnit.CM;
+
         // Wait for the start button
         telemetry.addData(">", "Press start to run Teleop");
         telemetry.update();
         waitForStart();
 
         controller.startController();
-        controller.moveTo(DistanceUnit.CM, 50, 0);
+        destination.x = 50;
+        destination.y = 0;
+        double dist;
+        controller.moveTo(DistanceUnit.CM, destination.x, destination.y);
 
         //*********************************************************************************************
         //             Robot Running after the user hits play on the driver phone
         //*********************************************************************************************
 
-        while (opModeIsActive()) {
+        do {
 
             //haloControls.calculateMecanumCommands(commands);
             //telemetry.addData("Mecanum", commands);
@@ -246,19 +261,23 @@ public class PIDRobotTest extends LinearOpMode {
 
             //telemetry.addData("mecanum commands are: ", commands);
             // Display telemetry
-            //       telemetry.addData(">", "Press Stop to end.");
-            telemetry.update();
 
             idle();
-        }
+            robot.getCurrentPosition(cuurent);
+            dist= distance(destination, cuurent);
+            telemetry.addData("Distance: ", String.format(Locale.ENGLISH, "%.2f", dist));
+            telemetry.update();
+
+        } while(/*dist > 1 &&*/ opModeIsActive());
 
         //*************************************************************************************
         //  Stop everything after the user hits the stop button on the driver phone
         // ************************************************************************************
 
         // Stop has been hit, shutdown everything
-        dataLog.closeDataLog();
+    //    dataLog.closeDataLog();
         robot.shutdown();
+        controller.stopController();
         telemetry.addData(">", "Done");
         telemetry.update();
         stop();

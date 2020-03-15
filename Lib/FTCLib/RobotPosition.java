@@ -16,6 +16,13 @@ public class RobotPosition extends Vector2D {
         initZero();
     }
 
+    public RobotPosition(DistanceUnit distanceUnit, AngleUnit angleUnit) {
+        super();
+        initZero();
+        this.distanceUnit = distanceUnit;
+        this.angleUnit = angleUnit;
+    }
+
     public RobotPosition(DistanceUnit distanceUnit, double x, double y, AngleUnit angleUnit, double rotation) {
         super(x, y);
         this.rotation = rotation;
