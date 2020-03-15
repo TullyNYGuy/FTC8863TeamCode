@@ -230,6 +230,54 @@ public class JSON extends HashMap<String, Object> {
         return toString(this);
     }
 
+    public Long getLong(String key) {
+        Object v = get(key);
+        if (v != null && v.getClass() == String.class) {
+            try {
+                return Long.valueOf((String) v);
+            } catch (NumberFormatException ex) {
+                return null;
+            }
+        }
+        return null;
+    }
+
+    public Integer getInteger(String key) {
+        Object v = get(key);
+        if (v != null && v.getClass() == String.class) {
+            try {
+                return Integer.valueOf((String) v);
+            } catch (NumberFormatException ex) {
+                return null;
+            }
+        }
+        return null;
+    }
+
+    public Double getDouble(String key) {
+        Object v = get(key);
+        if (v != null && v.getClass() == String.class) {
+            try {
+                return Double.valueOf((String) v);
+            } catch (NumberFormatException ex) {
+                return null;
+            }
+        }
+        return null;
+    }
+
+    public Boolean getBoolean(String key) {
+        Object v = get(key);
+        if (v != null && v.getClass() == String.class) {
+            try {
+                return Boolean.valueOf((String) v);
+            } catch (NumberFormatException ex) {
+                return null;
+            }
+        }
+        return null;
+    }
+
     public String getString(String key) {
         Object v = get(key);
         if (v != null && v.getClass() == String.class) {

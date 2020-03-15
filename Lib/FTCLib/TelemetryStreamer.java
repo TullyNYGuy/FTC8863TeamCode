@@ -99,14 +99,11 @@ public class TelemetryStreamer {
                         JSON command = JSON.fromString(buf.toString());
                         if (command != null) {
                             String cmd = command.getString("command");
-                            String frequency = command.getString("frequency");
+                            Long frequency = command.getLong("frequency");
                             if ("start".equals(cmd)) {
                                 long freqMs = 200;
-                                try {
-                                    freqMs = Long.valueOf(frequency);
-                                } catch (NumberFormatException ex) {
-
-                                }
+                                if (frequency != null)
+                                    freqMs = frequency;
                                 startPoller(freqMs);
                             } else if ("stop".equals(cmd)) {
                                 stopPoller();
