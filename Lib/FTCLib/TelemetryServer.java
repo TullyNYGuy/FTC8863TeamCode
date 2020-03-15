@@ -18,7 +18,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class TelemetryStreamer {
+public class TelemetryServer {
 
     FTCRobot robot;
 
@@ -182,7 +182,8 @@ public class TelemetryStreamer {
     }
 
     ConnectionListener listener;
-    public TelemetryStreamer(FTCRobot robot) {
+
+    public TelemetryServer(FTCRobot robot) {
         this.robot = robot;
         listener = new ConnectionListener();
     }
