@@ -2,14 +2,12 @@ package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.AutonomousController;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -85,16 +83,6 @@ public class TelemetryStreamer {
                 running = new AtomicBoolean(false);
             }
 
-            private Map<String, String> parseCommand(String data) {
-                HashMap<String, String> result = new HashMap<String, String>();
-                int start = data.indexOf('{');
-
-                if (start >= 0) {
-
-                }
-                return result;
-            }
-
             @Override
             public void run() {
                 running.set(true);
@@ -108,7 +96,22 @@ public class TelemetryStreamer {
                         byte[] buf = new byte[size];
                         stream.read(buf);
                         String s = new String(buf);
-                        parseCommand(s);
+                        JSON command = JSON.fromString(buf.toString());
+                        if (command != null) {
+                            String cmd = command.getString("command");
+                            String frequency = command.getString("frequency");
+                            if ("start".equals(cmd)) {
+                                long freqMs = 200;
+                                try {
+                                    freqMs = Long.valueOf(frequency);
+                                } catch (NumberFormatException ex) {
+
+                                }
+                                startPoller(freqMs);
+                            } else if ("stop".equals(cmd)) {
+                                stopPoller();
+                            }
+                        }
                     }
                     socket.close();
                 } catch (IOException e) {
@@ -121,7 +124,7 @@ public class TelemetryStreamer {
 
             public void stop() {
                 stopPoller();
-                running = false;
+                running.set(false);
             }
 
             private void stopPoller() {
@@ -169,7 +172,7 @@ public class TelemetryStreamer {
         }
 
         public void stopListener() {
-            runningListener = false;
+            runningListener.set(false);
         }
 
         private void stopConnection(ConnectionHandler handler) {
@@ -177,20 +180,18 @@ public class TelemetryStreamer {
         }
     }
 
+    ConnectionListener listener;
     public TelemetryStreamer(FTCRobot robot) {
         this.robot = robot;
+        listener = new ConnectionListener();
     }
 
     public boolean start() {
-        try {
-            serverSocket = new ServerSocket(LISTEN_PORT);
-        } catch (IOException e) {
-            return false;
-        }
+        listener.startListener();
         return true;
     }
 
     public void stop() {
-
+        listener.stopListener();
     }
 }
