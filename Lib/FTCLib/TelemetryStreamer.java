@@ -22,9 +22,13 @@ public class TelemetryStreamer {
 
     FTCRobot robot;
 
-    private class ConnectionListener extends Thread {
+    final static public int LISTEN_PORT = 2481;
 
-        final public int LISTEN_PORT = 2481;
+    final static public String TAG_COMMAND = "command";
+
+    final static public String TAG_FREQUENCY = "frequency";
+
+    private class ConnectionListener extends Thread {
 
         private ServerSocket serverSocket;
 
@@ -98,8 +102,8 @@ public class TelemetryStreamer {
                         String s = new String(buf);
                         JSON command = JSON.fromString(buf.toString());
                         if (command != null) {
-                            String cmd = command.getString("command");
-                            Long frequency = command.getLong("frequency");
+                            String cmd = command.getString(TAG_COMMAND);
+                            Long frequency = command.getLong(TAG_FREQUENCY);
                             if ("start".equals(cmd)) {
                                 long freqMs = 200;
                                 if (frequency != null)
