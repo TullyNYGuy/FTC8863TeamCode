@@ -1,15 +1,12 @@
 package org.firstinspires.ftc.teamcode.opmodes.SkystoneDiagnostics;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.CSVDataFile;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MotorCurrentVoltageMonitor;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometryModule;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.SkystoneRobot;
 import org.openftc.revextensions2.ExpansionHubEx;
 
@@ -19,9 +16,9 @@ import org.openftc.revextensions2.ExpansionHubEx;
  * or reverse settings are correct. All motor should spin toward the front of the robot, as if it
  * were traveling forward.
  */
-@TeleOp(name = "Test Drive Motor wiring (2 hub)", group = "Diagnostics")
+@TeleOp(name = "Test Drive Motor wiring (1 hub)", group = "Diagnostics")
 //@Disabled
-public class TestDriveMotorWiring extends LinearOpMode {
+public class TestDriveMotorWiringOneHub extends LinearOpMode {
 
     DcMotor8863 frontLeft;
     DcMotor8863 frontRight;
@@ -39,7 +36,7 @@ public class TestDriveMotorWiring extends LinearOpMode {
         // these method calls require the installation of the RevExtensions2 package
         // https://github.com/OpenFTC/RevExtensions2
 
-        motorCurrentVoltageMonitor = new MotorCurrentVoltageMonitor(hardwareMap, telemetry, "Expansion Hub 2", MotorCurrentVoltageMonitor.OutputTo.WRITE_CSV_FILE_AND_DISPLAY);
+        motorCurrentVoltageMonitor = new MotorCurrentVoltageMonitor(hardwareMap, telemetry, "Expansion Hub 1", MotorCurrentVoltageMonitor.OutputTo.WRITE_CSV_FILE_AND_DISPLAY);
 
         ElapsedTime timer = new ElapsedTime();
 
