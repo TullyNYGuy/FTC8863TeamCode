@@ -21,10 +21,10 @@ import java.util.ArrayList;
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@Autonomous(name = "Autonomous with PP", group = "A Test")
+@Autonomous(name = "Test Rotation", group = "A Test")
 //@Disabled
 
-public class AunomouseComplicatedPurePusuit extends LinearOpMode {
+public class TestRotataion extends LinearOpMode {
 
     // Put your variable declarations here
     public SkystoneRobot robot;
@@ -126,104 +126,17 @@ controller.initPlaces();
         pursuit.getNextPosition(current);
         waitForStart();
 
-controller.goTo(AutonomousController.Areas.HOME);
-while(controller.isActionCompleteTime() != true){
-    robot.getCurrentRobotPosition(current);
-    PurePursuit.ResultPosition res = pursuit.getNextPosition(current);
-    controller.moveTo(res.pos.distanceUnit, res.pos.x, res.pos.y);
-
-    if(res.reached == true){
-
-        break;
-    }
-
-    idle();
-}
-
-controller.pickUpBlock();
-controller.goTo(AutonomousController.Areas.BRIDGE);
-        while(controller.isActionCompleteTime() != true){
-            robot.getCurrentRobotPosition(current);
-            PurePursuit.ResultPosition res = pursuit.getNextPosition(current);
-            controller.moveTo(res.pos.distanceUnit, res.pos.x, res.pos.y);
-
-            if(res.reached == true){
-
-                break;
-            }
-
+        commands.setSpeedOfRotation(.4);
+        robot.setMovement(commands);
+        while(opModeIsActive()) {
+            robot.setMovement(commands);
+            telemetry.addData("IMU rotation: ", robot.getCurrentRotationIMU(AngleUnit.DEGREES));
+            telemetry.addData("Odometry rotation: ", robot.getCurrentRotation(AngleUnit.DEGREES));
+            telemetry.update();
             idle();
+
         }
-controller.goTo(AutonomousController.Areas.PLATFORM);
-        while(controller.isActionCompleteTime() != true){
-            robot.getCurrentRobotPosition(current);
-            PurePursuit.ResultPosition res = pursuit.getNextPosition(current);
-            controller.moveTo(res.pos.distanceUnit, res.pos.x, res.pos.y);
 
-            if(res.reached == true){
-
-                break;
-            }
-
-            idle();
-        }
-controller.putBlockOnBase();
-controller.moveBaseRotate();
-controller.goTo(AutonomousController.Areas.BRIDGE);
-        while(controller.isActionCompleteTime() != true){
-            robot.getCurrentRobotPosition(current);
-            PurePursuit.ResultPosition res = pursuit.getNextPosition(current);
-            controller.moveTo(res.pos.distanceUnit, res.pos.x, res.pos.y);
-
-            if(res.reached == true){
-
-                break;
-            }
-
-            idle();
-        }
-controller.goTo(AutonomousController.Areas.HOME);
-        while(controller.isActionCompleteTime() != true){
-            robot.getCurrentRobotPosition(current);
-            PurePursuit.ResultPosition res = pursuit.getNextPosition(current);
-            controller.moveTo(res.pos.distanceUnit, res.pos.x, res.pos.y);
-
-            if(res.reached == true){
-
-                break;
-            }
-
-            idle();
-        }
-controller.pickUpBlock();
-controller.goTo(AutonomousController.Areas.BRIDGE);
-        while(controller.isActionCompleteTime() != true){
-            robot.getCurrentRobotPosition(current);
-            PurePursuit.ResultPosition res = pursuit.getNextPosition(current);
-            controller.moveTo(res.pos.distanceUnit, res.pos.x, res.pos.y);
-
-            if(res.reached == true){
-
-                break;
-            }
-
-            idle();
-        }
-controller.goTo(AutonomousController.Areas.PLATFORM);
-        while(controller.isActionCompleteTime() != true){
-            robot.getCurrentRobotPosition(current);
-            PurePursuit.ResultPosition res = pursuit.getNextPosition(current);
-            controller.moveTo(res.pos.distanceUnit, res.pos.x, res.pos.y);
-
-            if(res.reached == true){
-
-                break;
-            }
-
-            idle();
-        }
-controller.putBlockOnBase();
-controller.parkWithArm();
         // Put your cleanup code here - it runs as the application shuts down
         telemetry.addData(">", "Done");
         dataLog.closeDataLog();
