@@ -124,8 +124,15 @@ public enum AngleRange {
         // example:
         // -450 % 360 = -90
         // +720 % 360 = 0
-        // ToDo essentially the task is to translate any negative or positive angle to -180 to +180 range
-        // starting point? angle = angle % 180;
+        // make the angle between the range -360 to +360
+        angle = angle % 360;
+        if (angle < -180) {
+            angle = -(angle % 180);
+        }
+        if (angle > 180) {
+            angle = -(angle % 180);
+        }
+        return angle;
     }
 
     /**
