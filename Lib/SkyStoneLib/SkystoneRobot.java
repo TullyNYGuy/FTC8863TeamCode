@@ -1052,4 +1052,44 @@ public void setPosition(double currentpositionx,double currentPositiionY,double 
         }
     }
 
+    /////////////////ExtensionArmTest/////////////////////////
+    public enum ExtensionArmTestState {
+        IDLE,
+        START,
+        MOVING_OUT,
+        MOVING_IN_PARTIAL,
+        MOVING_IN_COMPLETE
+    }
+
+    private ExtensionArmTestState extensionArmTestState = ExtensionArmTestState.IDLE;
+
+    public void testExtensionArmStates() {
+        extensionArmTestState = ExtensionArmTestState.START;
+    }
+
+    public void extensionArmTestUpdate() {
+        switch (extensionArmTestState) {
+            case IDLE:
+                //nothing
+                break;
+            case START:
+                extensionArm.goToPosition(20, 1);
+                break;
+            case MOVING_OUT:
+                if (extensionArm.isPositionReached()) {
+                    extensionArm.goToPosition(3, 1);
+                }
+                break;
+            case MOVING_IN_PARTIAL:
+                if (extensionArm.isPositionReached()) {
+                    extensionArm.goToPosition(0, 0.1);
+                }
+                break;
+            case MOVING_IN_COMPLETE:
+                //nothing
+                break;
+        }
+    }
+
+
 }

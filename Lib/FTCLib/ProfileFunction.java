@@ -24,7 +24,7 @@ public interface ProfileFunction {
 
     ProfileType getProfileType();
 
-    boolean isFinished();
+    boolean isFinished(double xValue);
 
     double getYValue(double xValue);
 

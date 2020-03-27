@@ -105,7 +105,7 @@ public class TestExtensionArmGoToPosition extends LinearOpMode {
                     steps = Steps.ONE;
                 case ONE:
                     if (extensionArm.isInitComplete()) {
-                        extensionArm.goToPosition(10, speed);
+                        extensionArm.goToPosition(20, speed);
                         steps = Steps.TWO;
                     }
                     break;
@@ -129,8 +129,8 @@ public class TestExtensionArmGoToPosition extends LinearOpMode {
                     break;
                 case FIVE:
                     if (stateTimer.milliseconds() > waitTime) {
-                        extensionArm.goToPosition(25, speed);
-                        steps = Steps.SIX;
+                        extensionArm.goToPosition(0, 0.2);
+                        steps = Steps.TWELVE;
                     }
                     break;
                 case SIX:
