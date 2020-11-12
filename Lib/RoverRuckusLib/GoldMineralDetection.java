@@ -143,17 +143,11 @@ public class GoldMineralDetection {
      * Initialize the Tensor Flow Object Detection engine.
      */
     private void initTfod() {
-        // Check if tensor flow object detection (Tfod) can be run on the phone
-        if (ClassFactory.getInstance().canCreateTFObjectDetector()) {
-            // yes it can. Initialize tensor flow object detection
-            int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-            TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-            tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
-            tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_GOLD_MINERAL, LABEL_SILVER_MINERAL);
-        } else {
-            // no it can't
-            telemetry.addData("Sorry!", "This device is not compatible with TFOD");
-        }
+        // Initialize tensor flow object detection
+        int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
+        tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
+        tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_GOLD_MINERAL, LABEL_SILVER_MINERAL);
     }
 
     /**

@@ -97,14 +97,9 @@ public class TestTensorFlowGoldDetection extends LinearOpMode {
         // first.
         initVuforia();
 
-        // Check if tensor flow object detection (Tfod) can be run on the phone
-        if (ClassFactory.getInstance().canCreateTFObjectDetector()) {
-            // yes it can. Initialize tensor flow object detection
-            initTfod();
-        } else {
-            // no it can't
-            telemetry.addData("Sorry!", "This device is not compatible with TFOD");
-        }
+        // Initialize tensor flow object detection
+         initTfod();
+
 
         logFile = new DataLogging("VisionGold", telemetry);
 
