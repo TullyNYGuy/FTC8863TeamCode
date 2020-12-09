@@ -1,7 +1,6 @@
-package org.firstinspires.ftc.teamcode.opmodes.Skystone;
+package org.firstinspires.ftc.teamcode.opmodes.UltimateGoal;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -27,9 +26,9 @@ import static org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863.MotorType.AN
 /*
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@Autonomous(name = "Skystone Calibrate Odometry", group = "ATest")
-@Disabled
-public class CalibrateOdometry extends LinearOpMode {
+@Autonomous(name = "Re-Calibrate Odometry", group = "ATest")
+//@Disabled
+public class ReCalibrateOdometry extends LinearOpMode {
 
     class TestRobot implements FTCRobot {
 
@@ -97,6 +96,7 @@ public class CalibrateOdometry extends LinearOpMode {
             telemetry.addData("init", "Loaded Odometry configuration");
             return;
         }
+
         MecanumCommands commands = new MecanumCommands();
         commands.setSpeed(0);
         commands.setAngleOfTranslation(AngleUnit.RADIANS, 0);
@@ -131,7 +131,7 @@ public class CalibrateOdometry extends LinearOpMode {
 
 
         // Put your initializations here
-
+        config.delete();
         loadConfiguration();
 
         MecanumCommands mecanumCommands = new MecanumCommands();

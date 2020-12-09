@@ -1,7 +1,6 @@
 
-package org.firstinspires.ftc.teamcode.opmodes.SkystoneDiagnostics;
+package org.firstinspires.ftc.teamcode.opmodes.UltimateGoalTest;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -10,10 +9,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometryModule;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometrySystem;
-import org.firstinspires.ftc.teamcode.R;
 
-@TeleOp(name = "Read 3 odometry modules", group = "Diagnostics")
-@Disabled
+@TeleOp(name = "Test 3 odometry modules", group = "Diagnostics")
+//@Disabled
 public class Read3OdometryModules extends LinearOpMode {
     //Odometry Wheels
 
@@ -32,8 +30,8 @@ public class Read3OdometryModules extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 system = new OdometrySystem(DistanceUnit.INCH, odometryModuleLeft, odometryModuleRight, odometryModuleBack);
-        odometryModuleRight = new OdometryModule(1440, 3.8 * Math.PI, DistanceUnit.CM, "FrontRight", hardwareMap);
-        odometryModuleBack = new OdometryModule(1440, 3.8 * Math.PI, DistanceUnit.CM, "BackLeft", hardwareMap);
+        odometryModuleRight = new OdometryModule(1440, 3.8 * Math.PI, DistanceUnit.CM, "BackLeft", hardwareMap);
+        odometryModuleBack = new OdometryModule(1440, 3.8 * Math.PI, DistanceUnit.CM, "BackRight", hardwareMap);
         odometryModuleLeft = new OdometryModule(1440, 3.8 * Math.PI, DistanceUnit.CM, "FrontLeft", hardwareMap);
         FrontLeft = new DcMotor8863("FrontLeft", hardwareMap, telemetry);
         FrontRight = new DcMotor8863("FrontRight", hardwareMap,telemetry);

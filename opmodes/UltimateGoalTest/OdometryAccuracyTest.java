@@ -1,7 +1,5 @@
-package org.firstinspires.ftc.teamcode.opmodes.SkystoneTest;
+package org.firstinspires.ftc.teamcode.opmodes.UltimateGoalTest;
 
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -18,8 +16,8 @@ import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.SkystoneRobot;
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Skystone acc test", group = "A Test")
-@Disabled
+@TeleOp(name = "acc test", group = "A Test")
+//@Disabled
 
 public class OdometryAccuracyTest extends LinearOpMode {
 
