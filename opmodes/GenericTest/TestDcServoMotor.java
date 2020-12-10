@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcServoMotor;
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
 @TeleOp(name = "Test Dc Servo Motor", group = "Test")
-//@Disabled
+@Disabled
 public class TestDcServoMotor extends LinearOpMode {
 
     // Put your variable declarations here

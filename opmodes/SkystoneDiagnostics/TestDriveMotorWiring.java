@@ -20,7 +20,7 @@ import org.openftc.revextensions2.ExpansionHubEx;
  * were traveling forward.
  */
 @TeleOp(name = "Test Drive Motor wiring", group = "Diagnostics")
-//@Disabled
+@Disabled
 public class TestDriveMotorWiring extends LinearOpMode {
 
     DcMotor8863 frontLeft;

@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.GenericTest;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -10,7 +11,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.SmartJoystick;
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
 @TeleOp(name = "Test Joystick", group = "Test")
-//@Disabled
+@Disabled
 public class TestJoystick extends LinearOpMode {
     final static double JOYSTICK_DEADBAND_VALUE = .15;
     // Put your variable declarations here

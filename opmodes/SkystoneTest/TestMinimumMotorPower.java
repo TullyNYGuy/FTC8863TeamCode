@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.SkystoneTest;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -33,7 +34,7 @@ import static org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863.MotorType.AN
  * This Opmode is a test to determine minimum motor power required to move the robot.
  */
 @TeleOp(name = "Test Min Power", group = "ATest")
-//@Disabled
+@Disabled
 public class TestMinimumMotorPower extends LinearOpMode {
 
     class TestRobot implements FTCRobot {

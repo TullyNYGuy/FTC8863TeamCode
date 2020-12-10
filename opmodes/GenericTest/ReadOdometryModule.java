@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.GenericTest;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -11,6 +12,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometryModule;
 import java.io.File;
 
 @TeleOp(name = "Odometry Test Read", group = "Test")
+@Disabled
 public class ReadOdometryModule extends LinearOpMode {
     //Odometry Wheels
 

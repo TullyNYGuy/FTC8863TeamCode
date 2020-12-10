@@ -10,8 +10,8 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
-import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.AutonomousController;
-import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.SkystoneRobot;
+import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.AutonomousController;
+import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.UltimateGoalRobot;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
@@ -22,7 +22,7 @@ import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.SkystoneRobot;
 public class OdometryAccuracyTest extends LinearOpMode {
 
     // Put your variable declarations here
-    public SkystoneRobot robot;
+    public UltimateGoalRobot robot;
     public Configuration config;
     DataLogging dataLog = null;
     Position placeholder;
@@ -50,7 +50,7 @@ return dist;
         gamepad1RightJoyStickX = new JoyStick(gamepad1, JoyStick.JoystickSide.RIGHT, JoyStick.JoystickAxis.X);
         gamepad1RightJoyStickY = new JoyStick(gamepad1, JoyStick.JoystickSide.RIGHT, JoyStick.JoystickAxis.Y);
   */    dataLog = new DataLogging("Autonomous", telemetry);
-        robot = new SkystoneRobot(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, this);
+        robot = new UltimateGoalRobot(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, this);
         AdafruitIMU8863 imu = new AdafruitIMU8863(hardwareMap);
         MecanumCommands commands = new MecanumCommands();
 

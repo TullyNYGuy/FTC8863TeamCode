@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.SkystoneTest;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -29,7 +30,7 @@ import static org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863.MotorType.AN
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
 @Autonomous(name = "Super Complicated Autonomous", group = "A Test")
-//@Disabled
+@Disabled
 
 public class AunomouseComplicated extends LinearOpMode {
 

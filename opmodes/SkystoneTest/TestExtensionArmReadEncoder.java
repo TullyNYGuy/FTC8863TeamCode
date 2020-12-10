@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.SkystoneTest;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -12,6 +13,7 @@ import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.ExtensionArmConstants;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.SkystoneRobot;
 
 @TeleOp(name = "Test Extension Arm Read Encoder", group = "Test")
+@Disabled
 public class TestExtensionArmReadEncoder extends LinearOpMode {
     //Odometry Wheels
 

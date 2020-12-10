@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.SkystoneTest;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -22,7 +23,7 @@ import java.util.ArrayList;
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
 @Autonomous(name = "Autonomous Smol Test w/ PP", group = "A Test")
-//@Disabled
+@Disabled
 
 public class AunomousSmolTestPurePusuit extends LinearOpMode {
     static double distance(RobotPosition p1, RobotPosition p2) {

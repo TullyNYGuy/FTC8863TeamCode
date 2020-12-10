@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.PIDControlExternalTimer;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.RobotPosition;
-import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.SkystoneRobot;
+import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.UltimateGoalRobot;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -67,7 +67,7 @@ public class AutonomousController {
 
     private Map<Areas, RobotPosition> places;
 
-    private SkystoneRobot robot;
+    private UltimateGoalRobot robot;
 
     private ScheduledExecutorService scheduler;
     private MovemenetThread movementThread;
@@ -163,7 +163,7 @@ public class AutonomousController {
         }
     }
 
-    public AutonomousController(SkystoneRobot robot, DataLogging logger, Telemetry telemetry, double Kp, double Ki, double Kd) {
+    public AutonomousController(UltimateGoalRobot robot, DataLogging logger, Telemetry telemetry, double Kp, double Ki, double Kd) {
         places = new HashMap<Areas, RobotPosition>();
         this.robot = robot;
         movementThread = new MovemenetThread(distanceUnit, Kp, Ki, Kd);

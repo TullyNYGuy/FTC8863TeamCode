@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
 @TeleOp(name = "Test Drive Curve Andrew", group = "Test")
-//@Disabled
+@Disabled
 public class TestDriveCurvesAndrew extends LinearOpMode {
 
     // Put your variable declarations here

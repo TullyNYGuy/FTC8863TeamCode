@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.Switch;
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
 @TeleOp(name = "Test Extension Retraction Limit Switches", group = "Test")
-//@Disabled
+@Disabled
 public class TestExtensionRetractionMechanismLimitSwitches extends LinearOpMode {
 
     // Put your variable declarations here

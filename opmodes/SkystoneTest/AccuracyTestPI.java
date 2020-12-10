@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.SkystoneTest;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -19,7 +20,7 @@ import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.SkystoneRobot;
 import java.util.Locale;
 
 @TeleOp(name = "acc test (only PI)", group = "ATest")
-//@Disabled
+@Disabled
 
 /*
  * Class for Skystone TeleOp mode
