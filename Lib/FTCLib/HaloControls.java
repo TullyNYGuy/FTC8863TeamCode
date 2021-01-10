@@ -27,7 +27,7 @@ public class HaloControls {
     private SmartJoystick sideJoystick;
     private SmartJoystick speedOfRotationJoystick;
     private double adjustAngle = 0;
-    private Mode mode = Mode.DRIVER_MODE;
+    private Mode mode = Mode.ROBOT_MODE;
     private double heading = 0;
     private FTCRobot robot;
     private int powerModifier = 0;
@@ -75,7 +75,7 @@ public class HaloControls {
     public void calculateMecanumCommands(MecanumCommands commands) {
        // if (commands == null)
       //      return;
-        heading = robot.getCurrentRotation(AngleUnit.RADIANS);
+        heading = (robot != null)?robot.getCurrentRotation(AngleUnit.RADIANS):0;
 
         double forwardValue = forwardJoystick.getValue();
         double sideValue = sideJoystick.getValue();

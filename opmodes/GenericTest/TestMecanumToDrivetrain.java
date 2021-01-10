@@ -22,7 +22,7 @@ import static org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863.MotorType.AN
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
 @TeleOp(name = "Test Mecanum To Drivetrain", group = "AATest")
-@Disabled
+//@Disabled
 public class TestMecanumToDrivetrain extends LinearOpMode {
 
     // Put your variable declarations here
@@ -138,9 +138,9 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
         // you give it a positive power. We may have to change this once we see which direction the
         // motor actually moves.
         frontLeft.setDirection(DcMotor.Direction.REVERSE);
-        backLeft.setDirection(DcMotor.Direction.REVERSE);
+        backLeft.setDirection(DcMotor.Direction.FORWARD);
         frontRight.setDirection(DcMotor.Direction.FORWARD);
-        backRight.setDirection(DcMotor.Direction.FORWARD);
+        backRight.setDirection(DcMotor.Direction.REVERSE);
 
         //  rightIntake.setDirection(DcMotorSimple.Direction.FORWARD);
         //  leftIntake.setDirection(DcMotorSimple.Direction.REVERSE);

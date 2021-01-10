@@ -92,7 +92,7 @@ public class AdafruitIMU8863 {
     // getter and setter methods
     //*********************************************************************************************
 
-    private final String DEFAULT_DEVICE_NAME = "IMU";
+    private final String DEFAULT_DEVICE_NAME = "imu";
 
     /**
      * The IMU
@@ -128,7 +128,7 @@ public class AdafruitIMU8863 {
      * file. You may or may not have run the manual calibration earlier. If it is null the manual
      * calibration has not been run.
      *
-     * @see com.qualcomm.hardware.adafruit.BNO055IMU.Parameters#calibrationDataFile
+     * @see //com.qualcomm.hardware.adafruit.BNO055IMU.Parameters#calibrationDataFile
      * and com.qualcomm.ftcrobotcontroller.external.samples.SensorAdafruitIMUCalibration
      */
     private String calibrationFile = null;

@@ -20,7 +20,7 @@ import static org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863.MotorType.AN
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
 @TeleOp(name = "Test Mecanum to Driver Station", group = "Test")
-@Disabled
+//@Disabled
 public class TestMecanumToDriverStation extends LinearOpMode {
 
     // Put your variable declarations here
@@ -57,6 +57,7 @@ public class TestMecanumToDriverStation extends LinearOpMode {
             //telemetry.addData("Encoder Count=", "%5d", motor.getCurrentPosition());
             haloControls.calculateMecanumCommands(mecanumCommands);
 
+            telemetry.addData("MC", mecanumCommands);
             mecanum.calculateWheelVelocity(mecanumCommands);
 
             telemetry.addData("front left = ", mecanum.getFrontLeft());

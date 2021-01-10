@@ -227,10 +227,12 @@ public class Mecanum {
 
     //if speed of rotation is = 0 then our max speed is 0.707. We may want to scale up to 1.
     public WheelVelocities calculateWheelVelocity(MecanumCommands mecanumCommands) {
-        wheelVelocities.frontLeft = mecanumCommands.getSpeed() * Math.sin(-mecanumCommands.getAngleOfTranslation(AngleUnit.RADIANS) + (Math.PI / 4)) * SPEED_ADJUSTER - mecanumCommands.getSpeedOfRotation();
-        wheelVelocities.frontRight = mecanumCommands.getSpeed() * Math.cos(-mecanumCommands.getAngleOfTranslation(AngleUnit.RADIANS) + (Math.PI / 4)) * SPEED_ADJUSTER + mecanumCommands.getSpeedOfRotation();
-        wheelVelocities.backLeft = mecanumCommands.getSpeed() * Math.cos(-mecanumCommands.getAngleOfTranslation(AngleUnit.RADIANS) + (Math.PI / 4)) * SPEED_ADJUSTER - mecanumCommands.getSpeedOfRotation();
-        wheelVelocities.backRight = mecanumCommands.getSpeed() * Math.sin(-mecanumCommands.getAngleOfTranslation(AngleUnit.RADIANS) + (Math.PI / 4)) * SPEED_ADJUSTER + mecanumCommands.getSpeedOfRotation();
+        double translationAngle = -mecanumCommands.getAngleOfTranslation(AngleUnit.RADIANS) + (Math.PI / 4);
+        double speedOfRotation = mecanumCommands.getSpeedOfRotation();
+        wheelVelocities.frontLeft = mecanumCommands.getSpeed() * Math.sin(translationAngle) * SPEED_ADJUSTER + speedOfRotation;
+        wheelVelocities.frontRight = mecanumCommands.getSpeed() * Math.cos(translationAngle) * SPEED_ADJUSTER - speedOfRotation;
+        wheelVelocities.backLeft = mecanumCommands.getSpeed() * Math.cos(translationAngle) * SPEED_ADJUSTER - speedOfRotation;
+        wheelVelocities.backRight = mecanumCommands.getSpeed() * Math.sin(translationAngle) * SPEED_ADJUSTER + speedOfRotation;
         wheelVelocities.scale4Numbers(maxMotorPower);
         wheelVelocities.frontLeft = adjustForMinimumPower(wheelVelocities.frontLeft);
         wheelVelocities.frontRight = adjustForMinimumPower(wheelVelocities.frontRight);
