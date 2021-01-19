@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometrySystem;
 import org.firstinspires.ftc.teamcode.R;
 
 @TeleOp(name = "Read 3 odometry modules", group = "Diagnostics")
-@Disabled
+//@Disabled
 public class Read3OdometryModules extends LinearOpMode {
     //Odometry Wheels
 

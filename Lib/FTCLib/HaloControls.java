@@ -78,8 +78,8 @@ public class HaloControls {
         heading = (robot != null)?robot.getCurrentRotation(AngleUnit.RADIANS):0;
 
         double forwardValue = forwardJoystick.getValue();
-        double sideValue = sideJoystick.getValue();
-        double rValue = speedOfRotationJoystick.getValue();
+        double sideValue = sideJoystick.getValue()*-1;
+        double rValue = speedOfRotationJoystick.getValue()*-1;
         double translationSpeed = java.lang.Math.hypot(sideValue, forwardValue);
         //telemetry.addData("speed: ", translationSpeed);
         // Divide pi by 2 to shift axis. add pi to get correct range

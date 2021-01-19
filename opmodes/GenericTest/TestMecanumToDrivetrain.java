@@ -138,9 +138,9 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
         // you give it a positive power. We may have to change this once we see which direction the
         // motor actually moves.
         frontLeft.setDirection(DcMotor.Direction.REVERSE);
-        backLeft.setDirection(DcMotor.Direction.FORWARD);
+        backLeft.setDirection(DcMotor.Direction.REVERSE);
         frontRight.setDirection(DcMotor.Direction.FORWARD);
-        backRight.setDirection(DcMotor.Direction.REVERSE);
+        backRight.setDirection(DcMotor.Direction.FORWARD);
 
         //  rightIntake.setDirection(DcMotorSimple.Direction.FORWARD);
         //  leftIntake.setDirection(DcMotorSimple.Direction.REVERSE);

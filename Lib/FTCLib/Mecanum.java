@@ -229,8 +229,8 @@ public class Mecanum {
     public WheelVelocities calculateWheelVelocity(MecanumCommands mecanumCommands) {
         double translationAngle = -mecanumCommands.getAngleOfTranslation(AngleUnit.RADIANS) + (Math.PI / 4);
         double speedOfRotation = mecanumCommands.getSpeedOfRotation();
-        wheelVelocities.frontLeft = mecanumCommands.getSpeed() * Math.sin(translationAngle) * SPEED_ADJUSTER + speedOfRotation;
-        wheelVelocities.frontRight = mecanumCommands.getSpeed() * Math.cos(translationAngle) * SPEED_ADJUSTER - speedOfRotation;
+        wheelVelocities.frontLeft = mecanumCommands.getSpeed() * Math.sin(translationAngle) * SPEED_ADJUSTER - speedOfRotation;
+        wheelVelocities.frontRight = mecanumCommands.getSpeed() * Math.cos(translationAngle) * SPEED_ADJUSTER + speedOfRotation;
         wheelVelocities.backLeft = mecanumCommands.getSpeed() * Math.cos(translationAngle) * SPEED_ADJUSTER - speedOfRotation;
         wheelVelocities.backRight = mecanumCommands.getSpeed() * Math.sin(translationAngle) * SPEED_ADJUSTER + speedOfRotation;
         wheelVelocities.scale4Numbers(maxMotorPower);
