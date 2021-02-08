@@ -237,8 +237,8 @@ public class CalibrateOdometry extends LinearOpMode {
 
         DistanceUnit units = DistanceUnit.CM;
         OdometryModule left = new OdometryModule(1440, 3.8 * Math.PI, units, "FrontLeft", hardwareMap);
-        OdometryModule right = new OdometryModule(1440, 3.8 * Math.PI, units, "BackRight", hardwareMap);
-        OdometryModule back = new OdometryModule(1440, 3.8 * Math.PI, units, "FrontRight", hardwareMap);
+        OdometryModule right = new OdometryModule(1440, 3.8 * Math.PI, units, "BackLeft", hardwareMap);
+        OdometryModule back = new OdometryModule(1440, 3.8 * Math.PI, units, "BackRight", hardwareMap);
         OdometrySystem odometry = new OdometrySystem(units, left, right, back);
         odometry.initializeRobotGeometry(DistanceUnit.CM, 0, 1, DcMotorSimple.Direction.REVERSE, 0, 1, DcMotorSimple.Direction.FORWARD, 1, 0, DcMotorSimple.Direction.FORWARD);
         Position position = new Position(DistanceUnit.CM, 0.0, 0.0, 0.0, 0);

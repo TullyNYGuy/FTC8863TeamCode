@@ -10,6 +10,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobot;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.GamepadButtonMultiPush;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.HaloControls;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Mecanum;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
@@ -93,6 +94,9 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
         gamepad1RightJoyStickX = new JoyStick(gamepad1, JoyStick.JoystickSide.RIGHT, JoyStick.JoystickAxis.X);
         gamepad1RightJoyStickY = new JoyStick(gamepad1, JoyStick.JoystickSide.RIGHT, JoyStick.JoystickAxis.Y);
   */
+         GamepadButtonMultiPush gamepad1DpadUp;
+         GamepadButtonMultiPush gamepad1DpadDown;
+         GamepadButtonMultiPush gamepad1DpadLeft;
         DcMotor8863 frontLeft = new DcMotor8863("FrontLeft", hardwareMap);
         DcMotor8863 backLeft = new DcMotor8863("BackLeft", hardwareMap);
         DcMotor8863 frontRight = new DcMotor8863("FrontRight", hardwareMap);
@@ -174,9 +178,11 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
 
         SmartJoystick gamepad1RightJoyStickX = new SmartJoystick(gamepad1, SmartJoystick.JoystickSide.RIGHT, SmartJoystick.JoystickAxis.X);
         SmartJoystick gamepad1RightJoyStickY = new SmartJoystick(gamepad1, SmartJoystick.JoystickSide.RIGHT, SmartJoystick.JoystickAxis.Y);
-
+        gamepad1DpadUp = new GamepadButtonMultiPush(1);
+        gamepad1DpadDown = new GamepadButtonMultiPush(1);
+        gamepad1DpadLeft = new GamepadButtonMultiPush(1);
         HaloControls haloControls = new HaloControls(gamepad1LeftJoyStickY, gamepad1LeftJoyStickX, gamepad1RightJoyStickX, robot, telemetry);
-
+    haloControls.setMode(HaloControls.Mode.DRIVER_MODE);
 
         // Note from Glenn:
         // None of the following are needed using the class AdafruitIMU8863. They are handled in the
@@ -202,13 +208,18 @@ public class TestMecanumToDrivetrain extends LinearOpMode {
 
 
             mecanum.setMotorPower(mecanumCommands);
-/*
-            if (gamepad1.dpad_up) {
-                rightIntake.setPower(1.0);
-                leftIntake.setPower(1.0);
-                telemetry.addData("Intake = ", "IN");
+
+            if (gamepad1DpadDown.buttonPress(gamepad1.dpad_down)) {
+                haloControls.resetHeading();
+            }
+            if (gamepad1DpadUp.buttonPress(gamepad1.dpad_up)) {
+                haloControls.toggleMode();
+            }
+            if (gamepad1DpadLeft.buttonPress(gamepad1.dpad_left)) {
+                haloControls.togglePowerModifier();
             }
 
+            /*
             if (gamepad1.dpad_left) {
                 rightIntake.setPower(0);
                 leftIntake.setPower(0);
