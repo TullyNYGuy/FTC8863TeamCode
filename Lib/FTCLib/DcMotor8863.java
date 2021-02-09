@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 import static java.lang.Thread.sleep;
 
@@ -76,7 +77,6 @@ public class DcMotor8863 {
      * The name of this motor
      */
     protected String motorName;
-
     public String getMotorName() {
         return motorName;
     }
@@ -240,7 +240,8 @@ public class DcMotor8863 {
      * Should data be logged into the log file
      */
     private boolean logFlag = false;
-
+    private Configuration config = new Configuration();
+    private boolean configLoaded = false;
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //*********************************************************************************************
@@ -514,6 +515,9 @@ public class DcMotor8863 {
     public int getBaseEncoderValue() {
         return baseEncoderValue;
     }
+   static final private String PROP_NAME = ".name";
+   static final private String PROP_TYPE = ".type";
+   static final private String PROP_DIRECTION = ".direction";
 
     //*********************************************************************************************
     //          Constructors
@@ -568,8 +572,92 @@ public class DcMotor8863 {
     /**
      * Implements a delay
      *
-     * @param mSec delay in milli Seconds
+     * @param //mSec delay in milli Seconds
      */
+    private boolean loadConfiguration() {
+        configLoaded = false;
+        config.clear();
+        configLoaded = config.load();
+        return configLoaded;
+    }
+
+    private boolean saveConfiguration() {
+        return config.store();
+    }
+
+    static public boolean saveMotorConfiguration(Configuration config, String section, String motorName, DcMotorSimple.Direction direction, MotorType motorType) {
+        if (config == null)
+            return false;
+        String unitStr;
+        config.setProperty(section + PROP_NAME, String.valueOf(motorName));
+        config.setProperty(section + PROP_TYPE, String.valueOf(motorType));
+        config.setProperty(section + PROP_DIRECTION, String.valueOf(direction));
+        return true;
+    }
+
+    static public DcMotor8863 createMotorFromFile(Configuration config, String section, HardwareMap hardwareMap) {
+        if (config == null)
+            return null;
+        String motorName;
+        String motorTypeString;
+        String directionString;
+        MotorType motorType;
+        DcMotorSimple.Direction direction;
+        motorName = config.getPropertyString(section + PROP_NAME);
+        motorTypeString = config.getPropertyString(section + PROP_TYPE);
+        directionString = config.getPropertyString(section + PROP_DIRECTION);
+        if (motorTypeString == null){
+            return null;
+        }
+        else if ("NXT".equals(motorTypeString)){
+            motorType = MotorType.NXT;
+        }
+        else if ("ANDYMARK_20".equals(motorTypeString)){
+            motorType = MotorType.ANDYMARK_20;
+        }
+        else if ("ANDYMARK_40".equals(motorTypeString)){
+            motorType = MotorType.ANDYMARK_40;
+        }
+        else if ("ANDYMARK_60".equals(motorTypeString)){
+            motorType = MotorType.ANDYMARK_60;
+        }
+        else if ("TETRIX".equals(motorTypeString)){
+            motorType = MotorType.TETRIX;
+        }
+        else if ("ANDYMARK_20_ORBITAL".equals(motorTypeString)){
+            motorType = MotorType.ANDYMARK_20;
+        }
+        else if ("ANDYMARK_3_7_ORBITAL".equals(motorTypeString)){
+            motorType = MotorType.ANDYMARK_3_7_ORBITAL;
+        }
+        else if ("USDIGITAL_360PPR_ENCODER".equals(motorTypeString)){
+            motorType = MotorType.USDIGITAL_360PPR_ENCODER;
+        }
+        else if ("GOBILDA_312".equals(motorTypeString)){
+            motorType = MotorType.GOBILDA_312;
+        }
+        else {
+            return null;
+        }
+        if (directionString == null){
+            return null;
+        }
+        else if ("FORWARD".equals(motorTypeString)){
+            direction = DcMotorSimple.Direction.FORWARD;
+        }
+        else if ("REVERSE".equals(motorTypeString)){
+            direction = DcMotorSimple.Direction.REVERSE;
+        }
+        else{
+            return null;
+        }
+        DcMotor8863 motor = new DcMotor8863(motorName, hardwareMap);
+        motor.setMotorType(motorType);
+        motor.setMovementPerRev(360);
+        motor.setDirection(direction);
+        motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        return motor;
+    }
     private void delay(int mSec) {
         try {
             Thread.sleep((int) (mSec));
@@ -590,6 +678,8 @@ public class DcMotor8863 {
     private int getMotorSpeedInEncoderTicksPerSec(int countsPerRev, int motorRPM) {
         return (int) Math.round((double) motorRPM * 1 / 60 * countsPerRev);
     }
+
+
 
     /**
      * Calculate the number or motor revolutions needed to move whatever is attached to the motor
