@@ -28,7 +28,8 @@ public class DcMotor8863 {
         ANDYMARK_3_7_ORBITAL,
         ANDYMARK_3_7_ORBITAL_OLD,
         USDIGITAL_360PPR_ENCODER,
-        GOBILDA_312
+        GOBILDA_312,
+        GOBILDA_6000
     }
 
     /**
@@ -306,6 +307,9 @@ public class DcMotor8863 {
             case GOBILDA_312:
                 this.countsPerRev = 538;
                 break;
+            case GOBILDA_6000:
+                this.countsPerRev = 28;
+                break;
             default:
                 this.countsPerRev = 0;
                 break;
@@ -359,6 +363,10 @@ public class DcMotor8863 {
                 break;
             case GOBILDA_312:
                 noLoadRPM = 312;
+                break;
+            case GOBILDA_6000:
+                // https://www.gobilda.com/5202-series-yellow-jacket-motor-1-1-ratio-24mm-length-6mm-d-shaft-6000-rpm-3-3-5v-encoder/
+                noLoadRPM = 6000;
                 break;
             default:
                 noLoadRPM = 0;
