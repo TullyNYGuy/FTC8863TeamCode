@@ -8,6 +8,9 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static java.lang.Thread.sleep;
 
 /**
@@ -603,9 +606,13 @@ public class DcMotor8863 {
         return true;
     }
 
+    static protected Map<String, DcMotor8863> motorsMap = new HashMap<String, DcMotor8863>();
+
     static public DcMotor8863 createMotorFromFile(Configuration config, String section, HardwareMap hardwareMap) {
         if (config == null)
             return null;
+        if(motorsMap.containsKey(section))
+            return motorsMap.get(section);
         String motorName;
         String motorTypeString;
         String directionString;
@@ -659,13 +666,69 @@ public class DcMotor8863 {
         else{
             return null;
         }
+
         DcMotor8863 motor = new DcMotor8863(motorName, hardwareMap);
+
+        // these motors are orbital (planetary gear) motors. The type of motor sets up the number
+        // of encoder ticks per revolution. Since we are not using encoder feedback yet, this is
+        // really not important now. But it will be once we hook up the encoders and set a motor
+        // mode that uses feedback.
         motor.setMotorType(motorType);
+
+        // The encoder tolerance is used when you give the motor a target encoder tick count to rotate to. 5 is
+        // probably too tight. 10 is pretty good based on experience. Note that 10 is set as the
+        // default when you create a motor object so this statement is not needed.
+        //frontLeft.setTargetEncoderTolerance(10);
+
+        // FLOAT  is also the default when you create a new motor object
+        //frontLeft.setFinishBehavior(DcMotor8863.FinishBehavior.FLOAT);
+
+        // powers are also defaulted to -1 and 1
+        //frontLeft.setMinMotorPower(-1);
+        //frontLeft.setMaxMotorPower(1);
+
+        // This value will get set to some distance traveled per revolution later.
         motor.setMovementPerRev(360);
+
+        // setDirection() is a software control that controls which direction the motor moves when
+        // you give it a positive power. We may have to change this once we see which direction the
+        // motor actually moves.
         motor.setDirection(direction);
+
+        // set the running mode for the motor. The motor initializes at STOP_AND_RESET_ENCODER which
+        // resets the encoder count to zero. After this you have to choose a mode that will allow
+        // the motor to run.
+        // In this case, we do not have the encoder connected from the motor. So we only have one
+        // choice. We must run the motor without any feedback (open loop). This call is not really
+        // needed since later I use runAtConstantPower() and that sets the mode too. But since you
+        // are coming up to speed on the motors, I put this here for you to see (like my pun?).
+        // The other 2 options would be:
+        // RUN_TO_POSITION - run until the targeted encoder count is reached using PID
+        // RUN_WITH_ENCODER - run at a velocity controlled by a PID
+        // For more details, see this page and start reading at Running the motor and continue down
+        // https://ftc-tricks.com/dc-motors/
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        // Make sure the motor does not start moving. This is not really needed because
+        // runAtConstantPower(0) below does the same thing. But I put it here so you can see this
+        // call exists.
+        motor.setPower(0);
+
+        // The runAtConstantPower() and runAtConstantSpeed() methods setup the motor to do that.
+        // They are initialzation methods. So they should not be inside the while loop.
+        //
+        // We can't use runAtConstantSpeed because there is no encoder feedback. I suspect this
+        // is why the motor did not turn. runAtConstantSpeed uses the encoder and PID control
+        // to turn the motor at a constant velocity.
+        //frontLeft.runAtConstantSpeed(mecanum.getFrontLeft());
+        //
+        // Instead we will run the motor open loop (without controlling its speed, just feeding
+        // it a power. Initialize the motor power to 0 for now.
+        motor.runAtConstantPower(0);
+        motorsMap.put(section, motor);
         return motor;
     }
+
     private void delay(int mSec) {
         try {
             Thread.sleep((int) (mSec));
