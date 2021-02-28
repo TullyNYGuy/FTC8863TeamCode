@@ -6,7 +6,12 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometryModule;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometrySystem;
+import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.AutonomousController;
+import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.UltimateGoalRobot;
 import org.firstinspires.ftc.teamcode.opmodes.UltimateGoalTest.TestOdometryModule;
 
 /**
@@ -44,28 +49,52 @@ public class OdometryTest extends LinearOpMode {
         //*********************************************************************************************
         //  Initializations after the pogram is selected by the user on the driver phone
         //*********************************************************************************************
+        /*
         TestOdometryModule right = new TestOdometryModule(hardwareMap);
         TestOdometryModule left= new TestOdometryModule(hardwareMap);
         TestOdometryModule back = new TestOdometryModule(hardwareMap);
+        */
+        Configuration config = new Configuration();
+        config.load();
+        DistanceUnit units = DistanceUnit.CM;
+/*
+        OdometryModule left = new OdometryModule(1440, 3.8 * Math.PI, units, "FrontLeft", hardwareMap);
+        OdometryModule right = new OdometryModule(1440, 3.8 * Math.PI, units, "BackLeft", hardwareMap);
+        OdometryModule back = new OdometryModule(1440, 3.8 * Math.PI, units, "BackRight", hardwareMap);
+        OdometrySystem odometry = new OdometrySystem(units, left, right, back);
+        odometry.loadConfiguration(config);
+
+ */
+        DataLogging dataLog = new DataLogging("OdometryTest", telemetry);
+        UltimateGoalRobot robot = new UltimateGoalRobot(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, this);
+    //    AutonomousController controller = new AutonomousController(robot, dataLog, telemetry, 0, 0, 0);
+        telemetry.addData("Status:", "Initializing robot");
+        telemetry.update();
+        robot.createRobot();
+        robot.init();
+        while(!robot.isInitComplete()) {
+            idle();
+        }
+
+/*
         OdometrySystem trial = new OdometrySystem(DistanceUnit.CM, left, right, back);
         trial.initializeRobotGeometry(DistanceUnit.CM, 0, 1, DcMotorSimple.Direction.REVERSE, 0, 1, DcMotorSimple.Direction.FORWARD, 1, 0, DcMotorSimple.Direction.REVERSE);
-
         left.setData(0);
         right.setData(0);
         back.setData(1);
         trial.calculateMoveDistance();
+*/
         Position shower = new Position(DistanceUnit.INCH, 0, 0, 0, 0);
         shower.unit = DistanceUnit.CM;
-        trial.getCurrentPosition(shower);
-        telemetry.addData("robot moved: ", shower);
         // create the robot. Tell the driver we are creating it since this can take a few seconds
         // and we want the driver to know what is going on.
        // telemetry.addData("Initializing ...", "Wait for it ...");
+        telemetry.addData("Status:", "Initialization complete. Press Start.");
         telemetry.update();
 
 
         waitForStart();
-
+  //      controller.startController();
         //*********************************************************************************************
         //             Robot Running after the user hits play on the driver phone
         //*********************************************************************************************
@@ -106,8 +135,12 @@ public class OdometryTest extends LinearOpMode {
             // update the drive motors with the new power
 
 
+            robot.timedUpdate(0);
 
-
+            robot.getCurrentPosition(shower);
+//            odometry.getCurrentPosition(shower);
+            telemetry.addData("robot moved: ", shower);
+            telemetry.update();
             idle();
         }
 

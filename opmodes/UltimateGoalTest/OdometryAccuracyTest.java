@@ -23,7 +23,7 @@ public class OdometryAccuracyTest extends LinearOpMode {
 
     // Put your variable declarations here
     public UltimateGoalRobot robot;
-    public Configuration config;
+    public Configuration config = new Configuration();
     DataLogging dataLog = null;
     Position placeholder;
 
@@ -43,6 +43,8 @@ return dist;
         double Kp = 0.036;
         double Ki = 0.05950413223;
         double Kd = 0.005445;
+
+        config.load();
         /*
         gamepad1LeftJoyStickX = new JoyStick(gamepad1, JoyStick.JoystickSide.LEFT, JoyStick.JoystickAxis.X);
         gamepad1LeftJoyStickY = new JoyStick(gamepad1, JoyStick.JoystickSide.LEFT, JoyStick.JoystickAxis.Y);

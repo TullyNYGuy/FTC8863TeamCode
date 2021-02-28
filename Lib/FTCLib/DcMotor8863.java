@@ -657,10 +657,10 @@ public class DcMotor8863 {
         if (directionString == null){
             return null;
         }
-        else if ("FORWARD".equals(motorTypeString)){
+        else if ("FORWARD".equals(directionString)){
             direction = DcMotorSimple.Direction.FORWARD;
         }
-        else if ("REVERSE".equals(motorTypeString)){
+        else if ("REVERSE".equals(directionString)){
             direction = DcMotorSimple.Direction.REVERSE;
         }
         else{

@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometryModule;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometrySystem;
@@ -17,7 +18,16 @@ import java.util.Locale;
 public class Read3OdometryModules extends LinearOpMode {
     //Odometry Wheels
 
+    private Configuration config = new Configuration();
+    private boolean configLoaded = false;
 
+
+    private boolean loadConfiguration() {
+        configLoaded = false;
+        config.clear();
+        configLoaded = config.load();
+        return configLoaded;
+    }
     double odometryModuleRightValue = 0;
     double odometryModuleBackValue = 0;
     double odometryModuleLeftValue = 0;
@@ -25,24 +35,18 @@ public class Read3OdometryModules extends LinearOpMode {
     OdometryModule odometryModuleRight;
     OdometryModule odometryModuleBack;
     OdometryModule odometryModuleLeft;
-    DcMotor8863 FrontRight;
-    DcMotor8863 BackRight;
-    DcMotor8863 FrontLeft;
-    DcMotor8863 BackLeft;
+
     @Override
     public void runOpMode() {
 system = new OdometrySystem(DistanceUnit.INCH, odometryModuleLeft, odometryModuleRight, odometryModuleBack);
         odometryModuleRight = new OdometryModule(1440, 3.8 * Math.PI, DistanceUnit.CM, "BackLeft", hardwareMap);
         odometryModuleBack = new OdometryModule(1440, 3.8 * Math.PI, DistanceUnit.CM, "BackRight", hardwareMap);
         odometryModuleLeft = new OdometryModule(1440, 3.8 * Math.PI, DistanceUnit.CM, "FrontLeft", hardwareMap);
-        FrontLeft = new DcMotor8863("FrontLeft", hardwareMap, telemetry);
-        FrontRight = new DcMotor8863("FrontRight", hardwareMap,telemetry);
-        BackLeft = new DcMotor8863("BackLeft", hardwareMap,telemetry);
-        BackRight = new DcMotor8863("BackRight",hardwareMap,telemetry);
-        FrontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
-        FrontRight.setDirection(DcMotorSimple.Direction.FORWARD);
-        BackRight.setDirection(DcMotorSimple.Direction.REVERSE);
-        BackLeft.setDirection(DcMotorSimple.Direction.FORWARD);
+        DcMotor8863 frontLeft = DcMotor8863.createMotorFromFile(config, "FLMotor", hardwareMap);
+        DcMotor8863 backLeft = DcMotor8863.createMotorFromFile(config, "BLMotor", hardwareMap);
+        DcMotor8863 frontRight = DcMotor8863.createMotorFromFile(config, "FRMotor", hardwareMap);
+        DcMotor8863 backRight = DcMotor8863.createMotorFromFile(config, "BRMotor", hardwareMap);
+
         system =new OdometrySystem(DistanceUnit.INCH, odometryModuleLeft, odometryModuleRight, odometryModuleBack);
         //Odometry System Calibration Init Complete
         system.initializeRobotGeometry(DistanceUnit.INCH, 1,1, DcMotorSimple.Direction.REVERSE, 1,1, DcMotorSimple.Direction.FORWARD, 1,1, DcMotorSimple.Direction.REVERSE);

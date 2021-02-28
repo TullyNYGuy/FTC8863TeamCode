@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MotorCurrentVoltageMonitor;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.SkystoneRobot;
@@ -21,7 +22,16 @@ import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.SkystoneRobot;
 @TeleOp(name = "Test Drive Motor Directions", group = "Diagnostics")
 //@Disabled
 public class TestDriveMotorDirections extends LinearOpMode {
+    private Configuration config = new Configuration();
+    private boolean configLoaded = false;
 
+
+    private boolean loadConfiguration() {
+        configLoaded = false;
+        config.clear();
+        configLoaded = config.load();
+        return configLoaded;
+    }
     DcMotor8863 frontLeft;
     DcMotor8863 frontRight;
     DcMotor8863 backLeft;
@@ -43,29 +53,24 @@ public class TestDriveMotorDirections extends LinearOpMode {
         ElapsedTime timer = new ElapsedTime();
 
         // create the motor objects
-        frontLeft = new DcMotor8863("FrontLeft", hardwareMap);
-        frontRight = new DcMotor8863("FrontRight", hardwareMap);
-        backLeft = new DcMotor8863("BackLeft", hardwareMap);
-        backRight = new DcMotor8863("BackRight", hardwareMap);
+        DcMotor8863 frontLeft = DcMotor8863.createMotorFromFile(config, "FLMotor", hardwareMap);
+        DcMotor8863 backLeft = DcMotor8863.createMotorFromFile(config, "BLMotor", hardwareMap);
+        DcMotor8863 frontRight = DcMotor8863.createMotorFromFile(config, "FRMotor", hardwareMap);
+        DcMotor8863 backRight = DcMotor8863.createMotorFromFile(config, "BRMotor", hardwareMap);
 
-        //Set the motor type and setup to run it at constant power. Initial power = 0
-        frontLeft.setMotorType(DcMotor8863.MotorType.GOBILDA_312);
         frontLeft.runAtConstantPower(0);
-        frontRight.setMotorType(DcMotor8863.MotorType.GOBILDA_312);
+
         frontRight.runAtConstantPower(0);
-        backLeft.setMotorType(DcMotor8863.MotorType.GOBILDA_312);
+
         backLeft.runAtConstantPower(0);
-        backRight.setMotorType(DcMotor8863.MotorType.GOBILDA_312);
+
         backRight.runAtConstantPower(0);
 
 
         // setDirection() is a software control that controls which direction the motor moves when
         // you give it a positive power. We may have to change this once we see which direction the
         // motor actually moves.
-        frontLeft.setDirection(DcMotor.Direction.REVERSE);
-        backLeft.setDirection(DcMotor.Direction.REVERSE);
-        frontRight.setDirection(DcMotor.Direction.FORWARD);
-        backRight.setDirection(DcMotor.Direction.FORWARD);
+
 
         //motorCurrentVoltageMonitor.addMotor(frontLeft);
         //motorCurrentVoltageMonitor.addMotor(frontRight);
