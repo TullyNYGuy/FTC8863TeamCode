@@ -1,4 +1,4 @@
-package Lib.UltimateGoalLib;
+package org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib;
 
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -55,13 +55,13 @@ public class DualMotorGearBox {
 
     public void setDirection(Direction direction) {
         if (direction == Direction.FORWARD) {
-            leftMotor.setDirection(REVERSE);
+            leftMotor.setDirection(FORWARD);
             rightMotor.setDirection(FORWARD);
             direction = Direction.FORWARD;
         }
 
         if (direction == Direction.REVERSE) {
-            leftMotor.setDirection(FORWARD);
+            leftMotor.setDirection(REVERSE);
             rightMotor.setDirection(REVERSE);
             direction = Direction.REVERSE;
         }
@@ -83,10 +83,10 @@ public class DualMotorGearBox {
         leftMotor = new DcMotor8863(leftMotorName, hardwareMap, telemetry);
         leftMotor.setMotorType(DcMotor8863.MotorType.GOBILDA_6000);
         leftMotor.setMovementPerRev(360);
-        leftMotor.runAtConstantSpeed(0);
+        //leftMotor.runAtConstantSpeed(0);
         rightMotor = new DcMotor8863(rightMotorName, hardwareMap, telemetry);
         rightMotor.setMotorType(DcMotor8863.MotorType.GOBILDA_6000);
-        rightMotor.runAtConstantSpeed(0);
+        //rightMotor.runAtConstantSpeed(0);
         rightMotor.setMovementPerRev(360);
         setDirection(Direction.FORWARD);
     }
@@ -124,7 +124,8 @@ public class DualMotorGearBox {
      * Stops the gearbox
      */
     public void stopGearbox() {
-        setSpeed(0);
+        leftMotor.stop();
+        rightMotor.stop();
     }
 
 }
