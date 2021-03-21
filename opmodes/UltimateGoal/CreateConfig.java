@@ -34,6 +34,7 @@ public class CreateConfig extends LinearOpMode {
         DcMotor8863.saveMotorConfiguration(config, "BRMotor", "BackRight", DcMotorSimple.Direction.FORWARD, ANDYMARK_20_ORBITAL);
         DcMotor8863.saveMotorConfiguration(config, "FLMotor", "FrontLeft", DcMotorSimple.Direction.REVERSE, ANDYMARK_20_ORBITAL);
         DcMotor8863.saveMotorConfiguration(config, "BLMotor", "BackLeft", DcMotorSimple.Direction.REVERSE, ANDYMARK_20_ORBITAL);
+
         config.store();
 
     }
