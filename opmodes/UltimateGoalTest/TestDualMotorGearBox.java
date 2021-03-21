@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import Lib.UltimateGoalLib.DualMotorGearBox;
+import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.DualMotorGearBox;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
@@ -26,7 +26,7 @@ public class TestDualMotorGearBox extends LinearOpMode {
         // Put your initializations here
         dualMotorGearBox = new DualMotorGearBox("LeftMotor", "RightMotor", hardwareMap, telemetry);
         timer = new ElapsedTime();
-        speed = 0.1;
+        speed = 1.0;
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
@@ -50,7 +50,9 @@ public class TestDualMotorGearBox extends LinearOpMode {
 
             idle();
         }
+
         dualMotorGearBox.stopGearbox();
+        timer.reset();
 
         while (opModeIsActive() && timer.milliseconds() < 5000) {
 
@@ -68,6 +70,8 @@ public class TestDualMotorGearBox extends LinearOpMode {
         }
         dualMotorGearBox.setDirection(DualMotorGearBox.Direction.REVERSE);
         dualMotorGearBox.setSpeed(speed);
+        timer.reset();
+
         while (opModeIsActive() && timer.milliseconds() < 5000) {
 
             // Put your calls that need to run in a loop here
