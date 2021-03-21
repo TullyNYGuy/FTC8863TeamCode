@@ -160,7 +160,7 @@ public class OdometryTest extends LinearOpMode {
         trial.calculateMoveDistance();
 */
         Position shower = new Position(DistanceUnit.INCH, 0, 0, 0, 0);
-        shower.unit = DistanceUnit.CM;
+        shower.unit = DistanceUnit.INCH;
         // create the robot. Tell the driver we are creating it since this can take a few seconds
         // and we want the driver to know what is going on.
        // telemetry.addData("Initializing ...", "Wait for it ...");
@@ -233,6 +233,7 @@ public class OdometryTest extends LinearOpMode {
             robot.getCurrentPosition(shower);
 //            odometry.getCurrentPosition(shower);
             telemetry.addData("robot moved: ", shower);
+            telemetry.addData("imu data", imu.getHeading());
             telemetry.update();
             idle();
         }

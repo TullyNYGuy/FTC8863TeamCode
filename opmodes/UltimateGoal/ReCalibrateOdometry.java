@@ -106,11 +106,16 @@ public class ReCalibrateOdometry extends LinearOpMode {
         double originalAngle = imu.getHeading();
         odometry.startCalibration();
         timer.reset();
-        mecanum.setMotorPower(commands);
-        while (opModeIsActive() && (timer.milliseconds() < INIT_ODOMETRY_TIMER_MSEC)) {
+        RampControl rampControl = new RampControl(0, 0.3, INIT_ODOMETRY_TIMER_MSEC);
+        rampControl.enable();
+        rampControl.start();
+        while(rampControl.isRunning() && opModeIsActive()){
+            commands.setSpeedOfRotation(rampControl.getRampValueLinear(0.3));
+
+            mecanum.setMotorPower(commands);
             idle();
         }
-        RampControl rampControl = new RampControl(.3, 0, 1000);
+        rampControl = new RampControl(.3, 0, INIT_ODOMETRY_TIMER_MSEC);
         rampControl.enable();
         rampControl.start();
         while(rampControl.isRunning() && opModeIsActive()){
