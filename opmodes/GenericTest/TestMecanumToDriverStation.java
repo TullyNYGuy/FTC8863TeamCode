@@ -25,7 +25,6 @@ public class TestMecanumToDriverStation extends LinearOpMode {
 
     // Put your variable declarations here
     Mecanum mecanum;
-    Mecanum.WheelVelocities wheelVelocities;
     HaloControls haloControls;
     MecanumCommands mecanumCommands;
 
