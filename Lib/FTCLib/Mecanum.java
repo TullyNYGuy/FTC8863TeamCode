@@ -4,6 +4,8 @@ package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
+import java.util.Locale;
+
 public class Mecanum {
 
     final private String PROP_MIN_POWER = "Mecanum.minMotorPower";
@@ -54,7 +56,7 @@ public class Mecanum {
         return wheelVelocities.getBackRight();
     }
 
-    static public class WheelVelocities {
+    static private class WheelVelocities {
         private double frontLeft;
         private double frontRight;
         private double backLeft;
@@ -104,7 +106,7 @@ public class Mecanum {
 
         @Override
         public String toString() {
-            return String.format("FL: %.2f, FR: %.2f, BL: %.2f, BR: %.2f", frontLeft, frontRight, backLeft, backRight);
+            return String.format(Locale.getDefault(), "FL: %.2f, FR: %.2f, BL: %.2f, BR: %.2f", frontLeft, frontRight, backLeft, backRight);
         }
 
     }
@@ -226,7 +228,7 @@ public class Mecanum {
     //*********************************************************************************************
 
     //if speed of rotation is = 0 then our max speed is 0.707. We may want to scale up to 1.
-    public WheelVelocities calculateWheelVelocity(MecanumCommands mecanumCommands) {
+    public void calculateWheelVelocity(MecanumCommands mecanumCommands) {
         double translationAngle = -mecanumCommands.getAngleOfTranslation(AngleUnit.RADIANS) + (Math.PI / 4);
         double speedOfRotation = mecanumCommands.getSpeedOfRotation();
         wheelVelocities.frontLeft = mecanumCommands.getSpeed() * Math.sin(translationAngle) * SPEED_ADJUSTER - speedOfRotation;
@@ -238,7 +240,6 @@ public class Mecanum {
         wheelVelocities.frontRight = adjustForMinimumPower(wheelVelocities.frontRight);
         wheelVelocities.backLeft = adjustForMinimumPower(wheelVelocities.backLeft);
         wheelVelocities.backRight = adjustForMinimumPower(wheelVelocities.backRight);
-        return wheelVelocities;
     }
 
     public void setMotorPower(MecanumCommands mecanumCommands) {
@@ -274,10 +275,10 @@ public class Mecanum {
         mecanumCommands.setSpeedOfRotation(0);
         mecanumCommands.setAngleOfTranslation(AngleUnit.RADIANS, -Math.PI / 2);
         mecanumCommands.setSpeed(0.5);
-        WheelVelocities wheelVelocities = calculateWheelVelocity(mecanumCommands);
-        telemetry.addData("front left = ", wheelVelocities.frontLeft);
-        telemetry.addData("front right = ", wheelVelocities.frontRight);
-        telemetry.addData("back left = ", wheelVelocities.backLeft);
-        telemetry.addData("back right = ", wheelVelocities.backRight);
+        calculateWheelVelocity(mecanumCommands);
+        telemetry.addData("front left = ", getFrontLeft());
+        telemetry.addData("front right = ", getFrontRight());
+        telemetry.addData("back left = ", getBackLeft());
+        telemetry.addData("back right = ", getBackRight());
     }
 }
