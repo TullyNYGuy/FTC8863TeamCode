@@ -52,50 +52,6 @@ public class OdometryTest extends LinearOpMode {
     // GAMEPAD 2 - declare all of the objects on game pad 2
 
 
-    class TestRobot implements FTCRobot {
-
-        AdafruitIMU8863 imu;
-
-        public TestRobot(AdafruitIMU8863 imu) {
-            this.imu = imu;
-        }
-
-        @Override
-        public boolean createRobot() {
-            return false;
-        }
-
-        @Override
-        public void init() {
-
-        }
-
-        @Override
-        public boolean isInitComplete() {
-            return false;
-        }
-
-        @Override
-        public void update() {
-
-        }
-
-        @Override
-        public void shutdown() {
-
-        }
-
-        @Override
-        public void timedUpdate(double timerValueMsec) {
-
-        }
-
-        @Override
-        public double getCurrentRotation(AngleUnit unit) {
-            return unit.fromDegrees(imu.getHeading());
-        }
-    }
-
     @Override
     public void runOpMode() {
 
@@ -114,11 +70,6 @@ public class OdometryTest extends LinearOpMode {
         GamepadButtonMultiPush gamepad1DpadUp;
         GamepadButtonMultiPush gamepad1DpadDown;
         GamepadButtonMultiPush gamepad1DpadLeft;
-        AdafruitIMU8863 imu = new AdafruitIMU8863(hardwareMap);
-        DcMotor8863 frontLeft = DcMotor8863.createMotorFromFile(config, "FLMotor", hardwareMap);
-        DcMotor8863 backLeft = DcMotor8863.createMotorFromFile(config, "BLMotor", hardwareMap);
-        DcMotor8863 frontRight = DcMotor8863.createMotorFromFile(config, "FRMotor", hardwareMap);
-        DcMotor8863 backRight = DcMotor8863.createMotorFromFile(config, "BRMotor", hardwareMap);
 
         SmartJoystick gamepad1LeftJoyStickX = new SmartJoystick(gamepad1, SmartJoystick.JoystickSide.LEFT, SmartJoystick.JoystickAxis.X);
         SmartJoystick gamepad1LeftJoyStickY = new SmartJoystick(gamepad1, SmartJoystick.JoystickSide.LEFT, SmartJoystick.JoystickAxis.Y);
@@ -233,7 +184,7 @@ public class OdometryTest extends LinearOpMode {
             robot.getCurrentPosition(shower);
 //            odometry.getCurrentPosition(shower);
             telemetry.addData("robot moved: ", shower);
-            telemetry.addData("imu data", imu.getHeading());
+            telemetry.addData("imu data", robot.getCurrentRotationIMU(AngleUnit.DEGREES));
             telemetry.update();
             idle();
         }
