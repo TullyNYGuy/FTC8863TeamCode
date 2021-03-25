@@ -44,6 +44,13 @@ public class UltimateGoalRobot implements FTCRobot {
     public enum HardwareName {
 
         IMU("imu"),
+        CONFIG_FL_MOTOR("FLMotor"),
+        CONFIG_FR_MOTOR("FRMotor"),
+        CONFIG_BL_MOTOR("BLMotor"),
+        CONFIG_BR_MOTOR("BRMotor"),
+        CONFIG_LEFT_ODOMETRY_MODULE("LeftOdometryModule"),
+        CONFIG_RIGHT_ODOMETRY_MODULE("RightOdometryModule"),
+        CONFIG_BACK_ODOMETRY_MODULE("BackOdometryModule"),
         ODOMETRY_MODULE_LEFT("FrontLeft"),
         ODOMETRY_MODULE_RIGHT("BackLeft"),
         ODOMETRY_MODULE_BACK("BackRight"),
@@ -122,17 +129,17 @@ public class UltimateGoalRobot implements FTCRobot {
         imu = new AdafruitIMU8863(hardwareMap, null, "IMU", HardwareName.IMU.hwName);
         if (capabilities.contains(Subsystem.MECANUM)) {
 
-            DcMotor8863 frontLeft = DcMotor8863.createMotorFromFile(config, "FLMotor", hardwareMap);
-            DcMotor8863 backLeft = DcMotor8863.createMotorFromFile(config, "BLMotor", hardwareMap);
-            DcMotor8863 frontRight = DcMotor8863.createMotorFromFile(config, "FRMotor", hardwareMap);
-            DcMotor8863 backRight = DcMotor8863.createMotorFromFile(config, "BRMotor", hardwareMap);
+            DcMotor8863 frontLeft = DcMotor8863.createMotorFromFile(config, HardwareName.CONFIG_FL_MOTOR.hwName, hardwareMap);
+            DcMotor8863 backLeft = DcMotor8863.createMotorFromFile(config, HardwareName.CONFIG_BL_MOTOR.hwName, hardwareMap);
+            DcMotor8863 frontRight = DcMotor8863.createMotorFromFile(config, HardwareName.CONFIG_FR_MOTOR.hwName, hardwareMap);
+            DcMotor8863 backRight = DcMotor8863.createMotorFromFile(config, HardwareName.CONFIG_BR_MOTOR.hwName, hardwareMap);
 
             mecanum = new Mecanum(frontLeft, frontRight, backLeft, backRight, telemetry);
         }
         if (capabilities.contains(Subsystem.ODOMETRY)) {
-            OdometryModule left = new OdometryModule(1440, 3.8*Math.PI, units, HardwareName.ODOMETRY_MODULE_LEFT.hwName, hardwareMap);
-            OdometryModule right = new OdometryModule(1440, 3.8*Math.PI, units, HardwareName.ODOMETRY_MODULE_RIGHT.hwName, hardwareMap);
-            OdometryModule back = new OdometryModule(1440, 3.8*Math.PI, units, HardwareName.ODOMETRY_MODULE_BACK.hwName, hardwareMap);
+            OdometryModule left = OdometryModule.createOdometryModuleFromFile(config, HardwareName.CONFIG_LEFT_ODOMETRY_MODULE.hwName, hardwareMap);
+            OdometryModule right = OdometryModule.createOdometryModuleFromFile(config, HardwareName.CONFIG_RIGHT_ODOMETRY_MODULE.hwName, hardwareMap);
+            OdometryModule back = OdometryModule.createOdometryModuleFromFile(config, HardwareName.CONFIG_BACK_ODOMETRY_MODULE.hwName, hardwareMap);
             odometry = new OdometrySystem(units, left, right, back);
             subsystemMap.put(odometry.getName(), odometry);
         }
