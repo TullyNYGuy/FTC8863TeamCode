@@ -95,7 +95,7 @@ public class DcMotor8863 {
     /**
      * A DcMotor from the qualcomm code
      */
-    protected com.qualcomm.robotcore.hardware.DcMotor FTCDcMotor;
+    protected com.qualcomm.robotcore.hardware.DcMotorEx FTCDcMotor;
 
     /**
      * Type of motor. Controls the encoder counts per revolution
@@ -544,7 +544,7 @@ public class DcMotor8863 {
 
     public DcMotor8863(String motorName, HardwareMap hardwareMap) {
         this.motorName = motorName;
-        FTCDcMotor = hardwareMap.get(DcMotor.class, motorName);
+        FTCDcMotor = hardwareMap.get(DcMotorEx.class, motorName);
         stallTimer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
         completionTimer = new ElapsedTime();
         powerRamp = new RampControl(0, 0, 0);
@@ -721,6 +721,15 @@ public class DcMotor8863 {
         return motor;
     }
 
+    //*********************************************************************************************
+    //          Helper Methods
+    //*********************************************************************************************
+
+    /**
+     * Implements a delay
+     *
+     * @param //mSec delay in milli Seconds
+     */
     private void delay(int mSec) {
         try {
             Thread.sleep((int) (mSec));
@@ -1158,7 +1167,8 @@ public class DcMotor8863 {
      * <p>
      * NOTE: You can change the power while the movement is going on by calling setPower().
      *
-     * @param power Power input for the motor.
+     * @param power Power input for the motor. Ranges from -1 to +1, which corresponds to -100%
+     *              (backwards)to +100% (forwards)
      * @return true if successfully completed
      */
     // tested
@@ -1186,6 +1196,40 @@ public class DcMotor8863 {
             return false;
         }
     }
+
+    /**
+     * Run the motor at a constant RPM using encoder feedback. If there is a load on the motor the
+     * power will be increased in an attempt to maintain the speed. Note that a command for a high
+     * speed may require more power than is available to run the motor at that speed. So it may
+     * result in the PID not being able to control the motor and the motor will lose speed under
+     * load.
+     * <p>
+     * This method starts the movement. Once it is started there are 3 ways it can stop:
+     * stop()
+     * interrupt()
+     * motor stalls and stall detection is enabled
+     * Remember that movement cannot complete since this mode runs until specifically stopped.
+     * <p>
+     * NOTE: You can change the power while the movement is going on by calling setPower().
+     *
+     * @param motorRPM the desired RPM for the motor to run at.
+     * @return true if successfully completed
+     */
+    // tested
+    public boolean runAtConstantRPM(int motorRPM) {
+        // If the motor is already moving then make sure that another movement command cannot be issued.
+        if (!isMotorStateMoving()) {
+            // set the run mode
+            this.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            this.setMotorState(MotorState.MOVING_PID_NO_POWER_RAMP);
+            FTCDcMotor.setVelocity(getMotorSpeedInEncoderTicksPerSec(getCountsPerRev(), motorRPM));
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+
 
     //*********************************************************************************************
     //    Methods for rotating the motor without encoders - open loop - run at a constant power
