@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
 import android.os.Environment;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -239,6 +241,40 @@ public boolean delete(String configFile){
         } else {
             return new Pair<Byte, Boolean>(defaultValue, false);
         }
+    }
+
+    public DistanceUnit getPropertyDistanceUnit(String key, DistanceUnit defaultUnit) {
+        String strVal = getPropertyString(key);
+        if (strVal.equalsIgnoreCase("in"))
+            return DistanceUnit.INCH;
+        else if (strVal.equalsIgnoreCase("cm"))
+            return DistanceUnit.CM;
+        else if (strVal.equalsIgnoreCase("m"))
+            return DistanceUnit.METER;
+        else
+            return defaultUnit;
+    }
+
+    public DistanceUnit getPropertyDistanceUnit(String key) {
+        return getPropertyDistanceUnit(key, null);
+    }
+
+    public void setProperty(String key, DistanceUnit unit) {
+        String unitStr;
+        switch (unit) {
+            case INCH:
+                unitStr = "in";
+                break;
+            case CM:
+                unitStr = "cm";
+                break;
+            case METER:
+                unitStr = "m";
+                break;
+            default:
+                unitStr = "mm";
+        }
+        setProperty(key, unitStr);
     }
 
 }
