@@ -23,11 +23,20 @@ public class UltimateGoalIntake {
     //*********************************************************************************************
     private enum State {
             OFF,
-            TURNING_ON,
-            STAGE1ON,
-            STAGE2ON,
-            STAGE3ON,
-            ON
+            DELAY,
+            ONE_ON,
+            ONE_TWO_ON,
+            ONE_TWO_THREE_ON,
+            TWO_THREE_ON,
+            THREE_ON
+    }
+    private enum Commands {
+            TURN_ON_123,
+            TURN_ON_12,
+            TURN_ON_1,
+            TURN_ON_23,
+            TURN_ON_3,
+            OFF
     }
 
     //*********************************************************************************************
@@ -51,6 +60,10 @@ public class UltimateGoalIntake {
     private CRServo stage3CRServo;
 
     private int numberOfRingsAtStage3 = 0;
+
+    private boolean commandComplete=true;
+
+    private Commands currentCommand=Commands.OFF;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -99,21 +112,20 @@ public class UltimateGoalIntake {
         switch (currentState) {
             case OFF:
                 break;
-            case TURNING_ON:
+            case DELAY:
                 turnStage2On();
                 turnStage3On();
                 if(turnOnTimer.milliseconds() > 1000) {
-                    currentState = State.STAGE2ON;
+                    currentState = State.TWO_THREE_ON;
                 }
                 break;
-            case STAGE2ON:
-            case STAGE3ON:
+            case TWO_THREE_ON:
                 turnStage1On();
-                currentState = State.ON;
+                currentState = State.ONE_TWO_THREE_ON;
                 break;
-            case STAGE1ON:
+            case ONE_ON:
                 break;
-            case ON:
+            case ONE_TWO_THREE_ON:
                 break;
         }
         if (stage3Switch.isBumped()) {
@@ -176,7 +188,7 @@ public class UltimateGoalIntake {
 
     public void turnIntake123On() {
         turnOnTimer.reset();
-        currentState = State.TURNING_ON;
+        currentState = State.DELAY;
     }
 
     //*********************************************************************************************
