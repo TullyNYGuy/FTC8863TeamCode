@@ -322,21 +322,7 @@ public class OdometrySystem implements FTCRobotSubsystem {
     public boolean saveConfiguration(Configuration config) {
         if (config == null)
             return false;
-        String unitStr;
-        switch (unit) {
-            case INCH:
-                unitStr = "in";
-                break;
-            case CM:
-                unitStr = "cm";
-                break;
-            case METER:
-                unitStr = "m";
-                break;
-            default:
-                unitStr = "mm";
-        }
-        config.setProperty(PROP_UNIT, unitStr);
+        config.setProperty(PROP_UNIT, unit);
         config.setProperty(PROP_LEFT_MULTIPLIER, String.valueOf(leftMultiplier));
         config.setProperty(PROP_LEFT_DIRECTION_MULTIPLIER, String.valueOf(leftDirectionMultiplier));
         config.setProperty(PROP_RIGHT_MULTIPLIER, String.valueOf(rightMultiplier));
@@ -349,16 +335,8 @@ public class OdometrySystem implements FTCRobotSubsystem {
     public boolean loadConfiguration(Configuration config) {
         if (config == null)
             return false;
-        Pair<String, Boolean> strVal = config.getPropertyStringCheck(PROP_UNIT, "mm");
-        boolean fullConfig = strVal.second;
-        if (strVal.first.equalsIgnoreCase("in"))
-            unit = DistanceUnit.INCH;
-        else if (strVal.first.equalsIgnoreCase("cm"))
-            unit = DistanceUnit.CM;
-        else if (strVal.first.equalsIgnoreCase("m"))
-            unit = DistanceUnit.METER;
-        else
-            unit = DistanceUnit.MM;
+        boolean fullConfig = true;
+        unit = config.getPropertyDistanceUnit(PROP_UNIT, DistanceUnit.MM);
         Pair<Double, Boolean> dblVal = config.getPropertyDoubleCheck(PROP_LEFT_MULTIPLIER, 1.0);
         leftMultiplier = dblVal.first;
         fullConfig &= dblVal.second;

@@ -36,6 +36,13 @@ public class DcMotor8863 {
     }
 
     /**
+     * Defines configuration names
+     */
+    static final private String PROP_NAME = ".name";
+    static final private String PROP_TYPE = ".type";
+    static final private String PROP_DIRECTION = ".direction";
+
+    /**
      * Defines the state of the motor. For use in the state machine
      * IDLE = not moving, able to move freely (float)
      * HOLD = not moving but actively holding a position under PID control
@@ -244,8 +251,7 @@ public class DcMotor8863 {
      * Should data be logged into the log file
      */
     private boolean logFlag = false;
-    private Configuration config = new Configuration();
-    private boolean configLoaded = false;
+
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //*********************************************************************************************
@@ -526,9 +532,6 @@ public class DcMotor8863 {
     public int getBaseEncoderValue() {
         return baseEncoderValue;
     }
-   static final private String PROP_NAME = ".name";
-   static final private String PROP_TYPE = ".type";
-   static final private String PROP_DIRECTION = ".direction";
 
     //*********************************************************************************************
     //          Constructors
@@ -577,20 +580,14 @@ public class DcMotor8863 {
     }
 
     //*********************************************************************************************
-    //          Methods for saving and loading a motor configuration file
+    //          Helper Methods
     //*********************************************************************************************
 
-    private boolean loadConfiguration() {
-        configLoaded = false;
-        config.clear();
-        configLoaded = config.load();
-        return configLoaded;
-    }
-
-    private boolean saveConfiguration() {
-        return config.store();
-    }
-
+    /**
+     * Implements a delay
+     *
+     * @param //mSec delay in milli Seconds
+     */
     static public boolean saveMotorConfiguration(Configuration config, String section, String motorName, DcMotorSimple.Direction direction, MotorType motorType) {
         if (config == null)
             return false;

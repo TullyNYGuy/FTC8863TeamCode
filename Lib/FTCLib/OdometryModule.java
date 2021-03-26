@@ -6,6 +6,9 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class OdometryModule {
 
     //*********************************************************************************************
@@ -14,6 +17,14 @@ public class OdometryModule {
     // user defined types
     //
     //*********************************************************************************************
+
+    /**
+     * Defines configuration names
+     */
+    static final private String PROP_MOTOR = ".motor";
+    static final private String PROP_COUNTS_PER_REVOLUTION = ".counts_per_revolution";
+    static final private String PROP_CIRCUMFERENCE = ".circimference";
+    static final private String PROP_CIRCUMFERENCE_UNITS = ".circimference_units";
 
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS
@@ -26,8 +37,6 @@ public class OdometryModule {
     private double circumference;
 
     private DistanceUnit units;
-
-    private String odometryModuleConfigName;
 
     private DcMotor odometryModule;
 
@@ -66,14 +75,6 @@ public class OdometryModule {
         this.units = units;
     }
 
-    public String getOdometryModuleConfigName() {
-        return odometryModuleConfigName;
-    }
-
-    public void setName(String odometryModuleConfigName) {
-        this.odometryModuleConfigName = odometryModuleConfigName;
-    }
-
     public double getPreviousEncoderValue() {
         return previousEncoderValue;
     }
@@ -88,14 +89,13 @@ public class OdometryModule {
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
-    public OdometryModule(int countsPerRevolution, double circumference, DistanceUnit units, String odometryModuleConfigName, HardwareMap hardwareMap) {
+    public OdometryModule(int countsPerRevolution, double circumference, DistanceUnit circumferenceUnits, String odometryModuleConfigName, HardwareMap hardwareMap) {
         this.countsPerRevolution = countsPerRevolution;
         this.circumference = circumference;
 
         // let's pick a unit to use inside this class and do all storage and calculations in that unit
         // When someone wants a different unit we just convert to that unit as the last step
-        this.units = units;
-        this.odometryModuleConfigName = odometryModuleConfigName;
+        this.units = circumferenceUnits;
         //this.name = name;
         //odometryModule = hardwareMap.dcMotor.get(name);
         if(hardwareMap != null)
@@ -108,6 +108,44 @@ public class OdometryModule {
             // instead
             startingEncoderValue = odometryModule.getCurrentPosition();
         }
+    }
+
+    public OdometryModule(int countsPerRevolution, double circumference, DistanceUnit circumferenceUnits, DcMotor motor) {
+        this.countsPerRevolution = countsPerRevolution;
+        this.circumference = circumference;
+        this.units = circumferenceUnits;
+        odometryModule = motor;
+        if (odometryModule != null) {
+            startingEncoderValue = odometryModule.getCurrentPosition();
+        }
+    }
+
+    static protected Map<String, OdometryModule> odometryModulesMap = new HashMap<>();
+
+    static public OdometryModule createOdometryModuleFromFile(Configuration config, String section, HardwareMap hardwareMap) {
+        if (config == null)
+            return null;
+        if(odometryModulesMap.containsKey(section))
+            return odometryModulesMap.get(section);
+        String motorName = config.getPropertyString(section + PROP_MOTOR);
+        Integer countsPerRevolution = config.getPropertyInteger(section + PROP_COUNTS_PER_REVOLUTION);
+        Double circumference = config.getPropertyDouble(section + PROP_CIRCUMFERENCE);
+        DistanceUnit circumferenceUnits = config.getPropertyDistanceUnit(section + PROP_CIRCUMFERENCE_UNITS);
+        if(motorName == null || countsPerRevolution == null || circumference == null || circumferenceUnits == null)
+            return null;
+        DcMotor8863 motor = DcMotor8863.createMotorFromFile(config, motorName, hardwareMap);
+        return new OdometryModule(countsPerRevolution, circumference,  circumferenceUnits, motor.getMotorInstance());
+
+    }
+
+    static public boolean saveOdometryModuleConfiguration(Configuration config, String section, String motorName, int countsPerRevolution, double circumference, DistanceUnit circumferenceUnits) {
+        if (config == null)
+            return false;
+        config.setProperty(section + PROP_MOTOR, motorName);
+        config.setProperty(section + PROP_COUNTS_PER_REVOLUTION, String.valueOf(countsPerRevolution));
+        config.setProperty(section + PROP_CIRCUMFERENCE, String.valueOf(circumference));
+        config.setProperty(section + PROP_CIRCUMFERENCE_UNITS, circumferenceUnits);
+        return true;
     }
 
     //*********************************************************************************************
