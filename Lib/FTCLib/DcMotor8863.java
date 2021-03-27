@@ -600,6 +600,10 @@ public class DcMotor8863 {
 
     static protected Map<String, DcMotor8863> motorsMap = new HashMap<String, DcMotor8863>();
 
+    static public void clearMotorsList() {
+            motorsMap.clear();
+    }
+
     static public DcMotor8863 createMotorFromFile(Configuration config, String section, HardwareMap hardwareMap) {
         if (config == null)
             return null;
