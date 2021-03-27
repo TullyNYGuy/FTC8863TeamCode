@@ -38,10 +38,10 @@ public class CreateConfig extends LinearOpMode {
         waitForStart();
 
         // Initialize motor configuration
-        DcMotor8863.saveMotorConfiguration(config, UltimateGoalRobot.HardwareName.CONFIG_FR_MOTOR.hwName, "FrontRight", DcMotorSimple.Direction.REVERSE, ANDYMARK_20_ORBITAL);
+        DcMotor8863.saveMotorConfiguration(config, UltimateGoalRobot.HardwareName.CONFIG_FR_MOTOR.hwName, "FrontRight", DcMotorSimple.Direction.FORWARD, ANDYMARK_20_ORBITAL);
         DcMotor8863.saveMotorConfiguration(config, UltimateGoalRobot.HardwareName.CONFIG_BR_MOTOR.hwName, "BackRight", DcMotorSimple.Direction.FORWARD, ANDYMARK_20_ORBITAL);
         DcMotor8863.saveMotorConfiguration(config, UltimateGoalRobot.HardwareName.CONFIG_FL_MOTOR.hwName, "FrontLeft", DcMotorSimple.Direction.REVERSE, ANDYMARK_20_ORBITAL);
-        DcMotor8863.saveMotorConfiguration(config, UltimateGoalRobot.HardwareName.CONFIG_BL_MOTOR.hwName, "BackLeft", DcMotorSimple.Direction.FORWARD, ANDYMARK_20_ORBITAL);
+        DcMotor8863.saveMotorConfiguration(config, UltimateGoalRobot.HardwareName.CONFIG_BL_MOTOR.hwName, "BackLeft", DcMotorSimple.Direction.REVERSE, ANDYMARK_20_ORBITAL);
 
         // Initialize odometry modules with default values
         OdometryModule.saveOdometryModuleConfiguration(config, UltimateGoalRobot.HardwareName.CONFIG_LEFT_ODOMETRY_MODULE.hwName, UltimateGoalRobot.HardwareName.CONFIG_FL_MOTOR.hwName, 1440, 3.8*Math.PI, DistanceUnit.CM);
