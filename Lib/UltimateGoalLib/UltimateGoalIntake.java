@@ -40,6 +40,16 @@ public class UltimateGoalIntake {
         OFF
     }
 
+    public enum RingsAt {
+        NO_RINGS,
+        ONE,
+        TWO,
+        THREE,
+        ONE_TWO,
+        TWO_THREE,
+        ONE_THREE,
+        ONE_TWO_THREE;
+    }
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS
     //
@@ -65,6 +75,9 @@ public class UltimateGoalIntake {
     private boolean commandComplete = true;
 
     private Commands currentCommand = Commands.OFF;
+
+    private boolean firstCommand = true;
+    private int turnOnDelay = 1000;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -112,6 +125,9 @@ public class UltimateGoalIntake {
     public void updateIntake() {
         switch (currentState) {
             case OFF:
+                if (!firstCommand) {
+                    turnOnDelay=0;
+                }
                 switch (currentCommand) {
                     case TURN_ON_123:
                         turnStage2On();
@@ -119,28 +135,33 @@ public class UltimateGoalIntake {
                         turnOnTimer.reset();
                         commandComplete = false;
                         currentState = State.DELAY;
+                        firstCommand = false;
                         break;
                     case TURN_ON_1:
                         turnStage1On();
                         commandComplete = true;
                         currentState = State.ONE_ON;
+                        firstCommand = false;
                         break;
                     case TURN_ON_12:
                         turnStage2On();
                         turnOnTimer.reset();
                         commandComplete = false;
                         currentState = State.DELAY;
+                        firstCommand = false;
                         break;
                     case TURN_ON_23:
                         turnStage2On();
                         turnStage3On();
                         commandComplete = true;
                         currentState = State.TWO_THREE_ON;
+                        firstCommand = false;
                         break;
                     case TURN_ON_3:
                         turnStage3On();
                         commandComplete = true;
                         currentState = State.THREE_ON;
+                        firstCommand = false;
                         break;
                     case OFF:
                         turnIntakeOff();
@@ -152,7 +173,7 @@ public class UltimateGoalIntake {
             case DELAY:
                 switch (currentCommand) {
                     case TURN_ON_123:
-                        if (turnOnTimer.milliseconds() > 1000) {
+                        if (turnOnTimer.milliseconds() > turnOnDelay) {
                             turnStage1On();
                             commandComplete = true;
                             currentState = State.ONE_TWO_THREE_ON;
@@ -162,7 +183,7 @@ public class UltimateGoalIntake {
                         //not a valid command
                         break;
                     case TURN_ON_12:
-                        if (turnOnTimer.milliseconds() > 1000) {
+                        if (turnOnTimer.milliseconds() > turnOnDelay) {
                             turnStage1On();
                             commandComplete = true;
                             currentState = State.ONE_TWO_ON;
@@ -321,7 +342,7 @@ public class UltimateGoalIntake {
         }
     }
 
-    public void intakeClearedOfRings() {
+    public void intakeEmpty() {
         numberOfRingsAtStage3 = 0;
     }
 
@@ -339,6 +360,7 @@ public class UltimateGoalIntake {
 
     private void turnStage1On() {
         stage1Motor.runAtConstantPower(1);
+
     }
 
     private void turnStage1Off() {
@@ -418,4 +440,15 @@ public class UltimateGoalIntake {
         currentCommand = Commands.OFF;
     }
 
+    public RingsAt whereAreRings () {
+        RingsAt answer= RingsAt.NO_RINGS;
+        if (ringAtStage1() && !ringAtStage2() && !ringAtStage3()) answer= RingsAt.ONE;
+        if (!ringAtStage1() && ringAtStage2() && !ringAtStage3()) answer= RingsAt.TWO;
+        if (!ringAtStage1() && !ringAtStage2() && ringAtStage3()) answer= RingsAt.THREE;
+        if (ringAtStage1() && ringAtStage2() && !ringAtStage3()) answer= RingsAt.ONE_TWO;
+        if (!ringAtStage1() && ringAtStage2() && ringAtStage3()) answer= RingsAt.TWO_THREE;
+        if (ringAtStage1() && !ringAtStage2() && ringAtStage3()) answer= RingsAt.ONE_THREE;
+        if (ringAtStage1() && ringAtStage2() && ringAtStage3()) answer= RingsAt.ONE_TWO_THREE;
+        return answer;
+    }
 }

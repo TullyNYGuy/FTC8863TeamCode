@@ -32,7 +32,122 @@ public class IntakeTest extends LinearOpMode {
         waitForStart();
 
         // Put your calls here - they will not run in a loop
+        intake.requestTurnStage12On();
+        intake.updateIntake();
+        intake.requestTurnStage123On();
+        timeMachine.reset();
+
+        while (opModeIsActive() && timeMachine.milliseconds()<5000) {
+
+            // Put your calls that need to run in a loop here
+            intake.updateIntake();
+            // Display the current value
+            telemetry.addData(">", "Press Stop to terminate.");
+
+            telemetry.update();
+
+            idle();
+        }
+
+        intake.requestTurnIntakeOFF();
+        timeMachine.reset();
+        while (opModeIsActive() && timeMachine.milliseconds()<5000) {
+
+            // Put your calls that need to run in a loop here
+            intake.updateIntake();
+            // Display the current value
+            telemetry.addData(">", "Press Stop to terminate.");
+
+            telemetry.update();
+
+            idle();
+        }
         intake.requestTurnStage23On();
+        timeMachine.reset();
+
+        while (opModeIsActive() && timeMachine.milliseconds()<5000) {
+
+            // Put your calls that need to run in a loop here
+            intake.updateIntake();
+            intake.requestTurnStage123On();
+            // Display the current value
+            telemetry.addData(">", "Press Stop to terminate.");
+
+            telemetry.update();
+
+            idle();
+        }
+
+        intake.requestTurnIntakeOFF();
+        timeMachine.reset();
+        while (opModeIsActive() && timeMachine.milliseconds()<5000) {
+
+            // Put your calls that need to run in a loop here
+            intake.updateIntake();
+            // Display the current value
+            telemetry.addData(">", "Press Stop to terminate.");
+
+            telemetry.update();
+
+            idle();
+        }
+        intake.requestTurnStage3On();
+        timeMachine.reset();
+
+        while (opModeIsActive() && timeMachine.milliseconds()<5000) {
+
+            // Put your calls that need to run in a loop here
+            intake.updateIntake();
+            // Display the current value
+            telemetry.addData(">", "Press Stop to terminate.");
+
+            telemetry.update();
+
+            idle();
+        }
+
+        intake.requestTurnIntakeOFF();
+        timeMachine.reset();
+        while (opModeIsActive() && timeMachine.milliseconds()<5000) {
+
+            // Put your calls that need to run in a loop here
+            intake.updateIntake();
+            // Display the current value
+            telemetry.addData(">", "Press Stop to terminate.");
+
+            telemetry.update();
+
+            idle();
+        }
+        intake.requestTurnStage12On();
+        timeMachine.reset();
+
+        while (opModeIsActive() && timeMachine.milliseconds()<5000) {
+
+            // Put your calls that need to run in a loop here
+            intake.updateIntake();
+            // Display the current value
+            telemetry.addData(">", "Press Stop to terminate.");
+
+            telemetry.update();
+
+            idle();
+        }
+
+        intake.requestTurnIntakeOFF();
+        timeMachine.reset();
+        while (opModeIsActive() && timeMachine.milliseconds()<5000) {
+
+            // Put your calls that need to run in a loop here
+            intake.updateIntake();
+            // Display the current value
+            telemetry.addData(">", "Press Stop to terminate.");
+
+            telemetry.update();
+
+            idle();
+        }
+        intake.requestTurnStage1On();
         timeMachine.reset();
 
         while (opModeIsActive() && timeMachine.milliseconds()<5000) {
