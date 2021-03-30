@@ -15,6 +15,13 @@ import org.firstinspires.ftc.teamcode.R;
 @TeleOp(name = "Read 3 odometry modules", group = "Diagnostics")
 //@Disabled
 public class Read3OdometryModules extends LinearOpMode {
+
+    public enum RobotModel {
+        MECANUM_2020,
+        STRAFER
+    }
+    RobotModel robotModel = RobotModel.MECANUM_2020;
+
     //Odometry Wheels
 
 
@@ -39,10 +46,22 @@ system = new OdometrySystem(DistanceUnit.INCH, odometryModuleLeft, odometryModul
         FrontRight = new DcMotor8863("FrontRight", hardwareMap,telemetry);
         BackLeft = new DcMotor8863("BackLeft", hardwareMap,telemetry);
         BackRight = new DcMotor8863("BackRight",hardwareMap,telemetry);
-        FrontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
-        FrontRight.setDirection(DcMotorSimple.Direction.FORWARD);
-        BackRight.setDirection(DcMotorSimple.Direction.FORWARD);
-        BackLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        switch(robotModel) {
+            case MECANUM_2020:
+                FrontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+                FrontRight.setDirection(DcMotorSimple.Direction.FORWARD);
+                BackRight.setDirection(DcMotorSimple.Direction.REVERSE);
+                BackLeft.setDirection(DcMotorSimple.Direction.FORWARD);
+                break;
+            case STRAFER:
+                FrontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+                FrontRight.setDirection(DcMotorSimple.Direction.FORWARD);
+                BackRight.setDirection(DcMotorSimple.Direction.FORWARD);
+                BackLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+                break;
+        }
+
         system =new OdometrySystem(DistanceUnit.INCH, odometryModuleLeft, odometryModuleRight, odometryModuleBack);
         //Odometry System Calibration Init Complete
         system.initializeRobotGeometry(DistanceUnit.INCH, 1,1, DcMotorSimple.Direction.REVERSE, 1,1, DcMotorSimple.Direction.FORWARD, 1,1, DcMotorSimple.Direction.REVERSE);
