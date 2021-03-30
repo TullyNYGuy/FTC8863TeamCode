@@ -20,7 +20,6 @@ import org.openftc.revextensions2.ExpansionHubEx;
  * were traveling forward.
  */
 @TeleOp(name = "Test Drive Motor wiring", group = "Diagnostics")
-@Disabled
 public class TestDriveMotorWiring extends LinearOpMode {
 
     DcMotor8863 frontLeft;
@@ -33,15 +32,22 @@ public class TestDriveMotorWiring extends LinearOpMode {
 
     MotorCurrentVoltageMonitor motorCurrentVoltageMonitor;
 
+    public enum RobotModel {
+        MECANUM_2020,
+        STRAFER
+    }
+
     @Override
     public void runOpMode() {
 
         // these method calls require the installation of the RevExtensions2 package
         // https://github.com/OpenFTC/RevExtensions2
 
-        motorCurrentVoltageMonitor = new MotorCurrentVoltageMonitor(hardwareMap, telemetry, "Expansion Hub 2", MotorCurrentVoltageMonitor.OutputTo.WRITE_CSV_FILE_AND_DISPLAY);
+       // motorCurrentVoltageMonitor = new MotorCurrentVoltageMonitor(hardwareMap, telemetry, "Expansion Hub 2", MotorCurrentVoltageMonitor.OutputTo.WRITE_CSV_FILE_AND_DISPLAY);
 
         ElapsedTime timer = new ElapsedTime();
+
+        RobotModel robotModel = RobotModel.MECANUM_2020;
 
         frontLeft = new DcMotor8863(SkystoneRobot.HardwareName.FRONT_LEFT_MOTOR.hwName, hardwareMap);
         frontRight = new DcMotor8863(SkystoneRobot.HardwareName.FRONT_RIGHT_MOTOR.hwName, hardwareMap);
@@ -57,17 +63,29 @@ public class TestDriveMotorWiring extends LinearOpMode {
         backRight.setMotorType(DcMotor8863.MotorType.ANDYMARK_20_ORBITAL);
         backRight.runAtConstantPower(0);
 
-        frontLeft.setDirection(DcMotor.Direction.REVERSE);
-        backLeft.setDirection(DcMotor.Direction.REVERSE);
-        frontRight.setDirection(DcMotor.Direction.FORWARD);
-        backRight.setDirection(DcMotor.Direction.FORWARD);
+        switch (robotModel) {
+            case MECANUM_2020:
+                frontLeft.setDirection(DcMotor.Direction.REVERSE);
+                backLeft.setDirection(DcMotor.Direction.REVERSE);
+                frontRight.setDirection(DcMotor.Direction.FORWARD);
+                backRight.setDirection(DcMotor.Direction.FORWARD);
+                break;
+            case STRAFER:
+                frontLeft.setDirection(DcMotor.Direction.REVERSE);
+                backLeft.setDirection(DcMotor.Direction.REVERSE);
+                frontRight.setDirection(DcMotor.Direction.FORWARD);
+                backRight.setDirection(DcMotor.Direction.FORWARD);
+                break;
+        }
 
-        motorCurrentVoltageMonitor.addMotor(frontLeft);
-        motorCurrentVoltageMonitor.addMotor(frontRight);
-        motorCurrentVoltageMonitor.addMotor(backRight);
-        motorCurrentVoltageMonitor.addMotor(backLeft);
 
-        motorCurrentVoltageMonitor.setupCSVDataFile("DriveMotorCurrents");
+
+//        motorCurrentVoltageMonitor.addMotor(frontLeft);
+//        motorCurrentVoltageMonitor.addMotor(frontRight);
+//        motorCurrentVoltageMonitor.addMotor(backRight);
+//        motorCurrentVoltageMonitor.addMotor(backLeft);
+
+     //   motorCurrentVoltageMonitor.setupCSVDataFile("DriveMotorCurrents");
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
@@ -81,7 +99,7 @@ public class TestDriveMotorWiring extends LinearOpMode {
 
         while (opModeIsActive() && timer.milliseconds() < 2000) {
             frontLeft.setPower(1.0);
-            motorCurrentVoltageMonitor.update();
+            //motorCurrentVoltageMonitor.update();
             telemetry.update();
             idle();
         }
@@ -91,7 +109,7 @@ public class TestDriveMotorWiring extends LinearOpMode {
 
         while (opModeIsActive() && timer.milliseconds() < 2000) {
             frontRight.setPower(1.0);
-            motorCurrentVoltageMonitor.update();
+           // motorCurrentVoltageMonitor.update();
             telemetry.update();
             idle();
         }
@@ -101,7 +119,7 @@ public class TestDriveMotorWiring extends LinearOpMode {
 
         while (opModeIsActive() && timer.milliseconds() < 2000) {
             backRight.setPower(1.0);
-            motorCurrentVoltageMonitor.update();
+           // motorCurrentVoltageMonitor.update();
             telemetry.update();
             idle();
         }
@@ -111,13 +129,13 @@ public class TestDriveMotorWiring extends LinearOpMode {
 
         while (opModeIsActive() && timer.milliseconds() < 2000) {
             backLeft.setPower(1.0);
-            motorCurrentVoltageMonitor.update();
+            //motorCurrentVoltageMonitor.update();
             telemetry.update();
             idle();
         }
 
         backLeft.setPower(0);
-        motorCurrentVoltageMonitor.closeCSVData();
+        //motorCurrentVoltageMonitor.closeCSVData();
 
         // Put your cleanup code here - it runs as the application shuts down
         telemetry.addData(">", "Done");
