@@ -96,6 +96,7 @@ public class OdometryTest extends LinearOpMode {
         haloControls.setMode(HaloControls.Mode.DRIVER_MODE);
         telemetry.addData("Status:", "Initializing robot");
         telemetry.update();
+        DcMotor8863.clearMotorsList();
         robot.createRobot();
         robot.init();
         while(!robot.isInitComplete()) {
@@ -166,6 +167,11 @@ public class OdometryTest extends LinearOpMode {
             //*****************************************************************
 
 
+            /* Testing only
+            mecanumCommands.setAngleOfTranslation(AngleUnit.RADIANS, 0);
+            mecanumCommands.setSpeed(.2);
+            mecanumCommands.setSpeedOfRotation(0);
+            */
             robot.setMovement(mecanumCommands);
 
             if (gamepad1DpadDown.buttonPress(gamepad1.dpad_down)) {

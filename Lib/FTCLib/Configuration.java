@@ -245,11 +245,11 @@ public boolean delete(String configFile){
 
     public DistanceUnit getPropertyDistanceUnit(String key, DistanceUnit defaultUnit) {
         String strVal = getPropertyString(key);
-        if (strVal.equalsIgnoreCase("in"))
+        if ("in".equalsIgnoreCase(strVal))
             return DistanceUnit.INCH;
-        else if (strVal.equalsIgnoreCase("cm"))
+        else if ("cm".equalsIgnoreCase(strVal))
             return DistanceUnit.CM;
-        else if (strVal.equalsIgnoreCase("m"))
+        else if ("m".equalsIgnoreCase(strVal))
             return DistanceUnit.METER;
         else
             return defaultUnit;
