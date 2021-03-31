@@ -17,7 +17,7 @@ public class TestDualMotorGearBox extends LinearOpMode {
     // Put your variable declarations here
     public DualMotorGearBox dualMotorGearBox;
     public ElapsedTime timer;
-    public double speed;
+    public int motorRPM;
 
     @Override
     public void runOpMode() {
@@ -26,7 +26,7 @@ public class TestDualMotorGearBox extends LinearOpMode {
         // Put your initializations here
         dualMotorGearBox = new DualMotorGearBox("LeftMotor", "RightMotor", hardwareMap, telemetry);
         timer = new ElapsedTime();
-        speed = 1.0;
+        motorRPM = 3000;
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
@@ -34,14 +34,14 @@ public class TestDualMotorGearBox extends LinearOpMode {
         waitForStart();
 
         // Put your calls here - they will not run in a loop
-        dualMotorGearBox.setSpeed(speed);
+        dualMotorGearBox.setSpeed(motorRPM);
         timer.reset();
         while (opModeIsActive() && timer.milliseconds() < 5000) {
 
             // Put your calls that need to run in a loop here
 
             // Display the current value
-            telemetry.addData("Gear box running at ", speed * 100 + "%");
+            telemetry.addData("Gear box running at ", motorRPM + " RPM");
             //telemetry.addData("Motor Speed = ", "%5.2f", powerToRunAt);
             //telemetry.addData("Encoder Count=", "%5d", motor.getCurrentPosition());
             telemetry.addData(">", "Press Stop to end test.");
@@ -69,7 +69,7 @@ public class TestDualMotorGearBox extends LinearOpMode {
             idle();
         }
         dualMotorGearBox.setDirection(DualMotorGearBox.Direction.REVERSE);
-        dualMotorGearBox.setSpeed(speed);
+        dualMotorGearBox.setSpeed(motorRPM);
         timer.reset();
 
         while (opModeIsActive() && timer.milliseconds() < 5000) {
@@ -77,7 +77,7 @@ public class TestDualMotorGearBox extends LinearOpMode {
             // Put your calls that need to run in a loop here
 
             // Display the current value
-            telemetry.addData("Gear box running at ", speed * 100 + "%");
+            telemetry.addData("Gear box running at ", motorRPM + " RPM");
             //telemetry.addData("Motor Speed = ", "%5.2f", powerToRunAt);
             //telemetry.addData("Encoder Count=", "%5d", motor.getCurrentPosition());
             telemetry.addData(">", "Press Stop to end test.");
