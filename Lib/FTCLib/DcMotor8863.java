@@ -1220,13 +1220,13 @@ public class DcMotor8863 {
      * @return true if successfully completed
      */
     // tested
-    public boolean runAtConstantRPM(int motorRPM) {
+    public boolean runAtConstantRPM(double motorRPM) {
         // If the motor is already moving then make sure that another movement command cannot be issued.
         if (!isMotorStateMoving()) {
             // set the run mode
             this.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             this.setMotorState(MotorState.MOVING_PID_NO_POWER_RAMP);
-            FTCDcMotor.setVelocity(getMotorSpeedInEncoderTicksPerSec(getCountsPerRev(), motorRPM));
+            FTCDcMotor.setVelocity(getMotorSpeedInEncoderTicksPerSec(getCountsPerRev(), (int) motorRPM));
             return true;
         } else {
             return false;

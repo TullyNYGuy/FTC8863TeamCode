@@ -105,19 +105,19 @@ public class DualMotorGearBox {
     /**
      * When the user sets a speed the motors run at that speed.
      *
-     * @param speed The speed in a range from -1 to 1
+     * @param motorRPM The speed in a range from -6000 to 6000
      */
-    public void setSpeed(double speed) {
+    public void setSpeed(int motorRPM) {
         //Limits the input to positive 1
-        if (speed > 1) {
-            speed = 1;
+        if (motorRPM > 6000) {
+            motorRPM = 6000;
         }
         //Limits the input to negative 1
-        if (speed < -1) {
-            speed = -1;
+        if (motorRPM < -6000) {
+            motorRPM = -6000;
         }
-        leftMotor.runAtConstantSpeed(speed);
-        rightMotor.runAtConstantSpeed(speed);
+        leftMotor.runAtConstantRPM(motorRPM);
+        rightMotor.runAtConstantRPM(motorRPM);
     }
 
     /**
