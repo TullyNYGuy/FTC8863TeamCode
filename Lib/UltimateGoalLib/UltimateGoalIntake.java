@@ -125,17 +125,23 @@ public class UltimateGoalIntake {
     public void updateIntake() {
         switch (currentState) {
             case OFF:
-                if (!firstCommand) {
-                    turnOnDelay=0;
-                }
                 switch (currentCommand) {
                     case TURN_ON_123:
-                        turnStage2On();
-                        turnStage3On();
-                        turnOnTimer.reset();
-                        commandComplete = false;
-                        currentState = State.DELAY;
-                        firstCommand = false;
+                        if (firstCommand) {
+                            turnStage2On();
+                            turnStage3On();
+                            turnOnTimer.reset();
+                            commandComplete = false;
+                            currentState = State.DELAY;
+                        }
+                        else {
+                            turnStage1On();
+                            turnStage2On();
+                            turnStage3On();
+                            commandComplete= true;
+                            currentState= State.ONE_TWO_THREE_ON;
+                        }
+
                         break;
                     case TURN_ON_1:
                         turnStage1On();
@@ -144,11 +150,18 @@ public class UltimateGoalIntake {
                         firstCommand = false;
                         break;
                     case TURN_ON_12:
-                        turnStage2On();
-                        turnOnTimer.reset();
-                        commandComplete = false;
-                        currentState = State.DELAY;
-                        firstCommand = false;
+                        if (firstCommand) {
+                            turnStage2On();
+                            turnOnTimer.reset();
+                            commandComplete = false;
+                            currentState = State.DELAY;
+                        }
+                        else {
+                            turnStage1On();
+                            turnStage2On();
+                            commandComplete= true;
+                            currentState= State.ONE_TWO_ON;
+                        }
                         break;
                     case TURN_ON_23:
                         turnStage2On();
@@ -177,21 +190,19 @@ public class UltimateGoalIntake {
                             turnStage1On();
                             commandComplete = true;
                             currentState = State.ONE_TWO_THREE_ON;
+                            firstCommand= false;
                         }
-                        break;
-                    case TURN_ON_1:
-                        //not a valid command
                         break;
                     case TURN_ON_12:
                         if (turnOnTimer.milliseconds() > turnOnDelay) {
                             turnStage1On();
                             commandComplete = true;
                             currentState = State.ONE_TWO_ON;
+                            firstCommand=false;
                         }
                         break;
                     case TURN_ON_23:
-                        //not valid command
-                        break;
+                    case TURN_ON_1:
                     case TURN_ON_3:
                         //not valid command
                         break;
@@ -219,10 +230,17 @@ public class UltimateGoalIntake {
                         currentState = State.ONE_TWO_ON;
                         break;
                     case TURN_ON_23:
-                        //command invalid
+                        turnStage1Off();
+                        turnStage2On();
+                        turnStage3On();
+                        commandComplete= true;
+                        currentState= State.TWO_THREE_ON;
                         break;
                     case TURN_ON_3:
-                        //command invalid
+                        turnStage1Off();
+                        turnStage3On();
+                        commandComplete= true;
+                        currentState= State.THREE_ON;
                         break;
                     case OFF:
                         turnIntakeOff();
@@ -239,16 +257,25 @@ public class UltimateGoalIntake {
                         currentState = State.ONE_TWO_THREE_ON;
                         break;
                     case TURN_ON_1:
-                        //command invalid
+                        turnStage2Off();
+                        turnStage3Off();
+                        turnStage1On();
+                        commandComplete= true;
+                        currentState= State.ONE_ON;
                         break;
                     case TURN_ON_12:
-                        //command invalid
+                        turnStage3Off();
+                        turnStage1On();
+                        commandComplete= true;
+                        currentState= State.ONE_TWO_ON;
                         break;
                     case TURN_ON_23:
                         //already on
                         break;
                     case TURN_ON_3:
-                        //command invalid
+                       turnStage2Off();
+                       commandComplete= true;
+                       currentState= State.THREE_ON;
                         break;
                     case OFF:
                         turnIntakeOff();
@@ -266,10 +293,17 @@ public class UltimateGoalIntake {
                         currentState = State.DELAY;
                         break;
                     case TURN_ON_1:
-                        //command invalid
+                        turnStage3Off();
+                        turnStage1On();
+                        commandComplete= true;
+                        currentState= State.ONE_ON;
                         break;
                     case TURN_ON_12:
-                        //command invalid
+                        turnStage3Off();
+                        turnStage1On();
+                        turnStage2On();
+                        commandComplete= true;
+                        currentState= State.ONE_TWO_ON;
                         break;
                     case TURN_ON_23:
                         turnStage2On();
@@ -292,16 +326,26 @@ public class UltimateGoalIntake {
                         //already on
                         break;
                     case TURN_ON_1:
-                        //invalid
+                        turnStage2Off();
+                        turnStage3Off();
+                        commandComplete= true;
+                        currentState= State.ONE_ON;
                         break;
                     case TURN_ON_12:
-                        //invalid
+                        turnStage3Off();
+                        commandComplete= true;
+                        currentState= State.ONE_TWO_ON;
                         break;
                     case TURN_ON_23:
-                        //invalid
+                        turnStage1Off();
+                        commandComplete= true;
+                        currentState= State.TWO_THREE_ON;
                         break;
                     case TURN_ON_3:
-                        //invalid
+                        turnStage2Off();
+                        turnStage1Off();
+                        commandComplete= true;
+                        currentState= State.THREE_ON;
                         break;
                     case OFF:
                         turnIntakeOff();
@@ -318,16 +362,25 @@ public class UltimateGoalIntake {
                         currentState = State.ONE_TWO_THREE_ON;
                         break;
                     case TURN_ON_1:
-                        //invalid
+                        turnStage2Off();
+                        commandComplete=true;
+                        currentState= State.ONE_ON;
                         break;
                     case TURN_ON_12:
                         //already on
                         break;
                     case TURN_ON_23:
-                        //invalid
+                        turnStage1Off();
+                        turnStage3On();
+                        commandComplete= true;
+                        currentState= State.TWO_THREE_ON;
                         break;
                     case TURN_ON_3:
-                        //invalid
+                       turnStage1Off();
+                       turnStage2Off();
+                       turnStage3On();
+                       commandComplete= true;
+                       currentState= State.THREE_ON;
                         break;
                     case OFF:
                         turnIntakeOff();

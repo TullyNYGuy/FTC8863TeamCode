@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.opmodes.UltimateGoalTest;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -10,9 +9,9 @@ import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.UltimateGoalIntake;
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Ultamate Goal Intake Test", group = "Test")
+@TeleOp(name = "Ultamate Goal Intake Test 2", group = "Test")
 //@Disabled
-public class IntakeTest extends LinearOpMode {
+public class IntakeTest2 extends LinearOpMode {
 
     // Put your variable declarations here
     public UltimateGoalIntake intake;
@@ -33,15 +32,7 @@ public class IntakeTest extends LinearOpMode {
 
         // Put your calls here - they will not run in a loop
 
-        intake.requestTurnStage123On();
-        timeMachine.reset();
-        waitForTime(5000);
-
         intake.requestTurnStage12On();
-        timeMachine.reset();
-        waitForTime(5000);
-
-        intake.requestTurnStage1On();
         timeMachine.reset();
         waitForTime(5000);
 
@@ -49,7 +40,11 @@ public class IntakeTest extends LinearOpMode {
         timeMachine.reset();
         waitForTime(5000);
 
-        intake.requestTurnStage12On();
+        intake.requestTurnStage23On();
+        timeMachine.reset();
+        waitForTime(5000);
+
+        intake.requestTurnStage3On();
         timeMachine.reset();
         waitForTime(5000);
 
@@ -57,7 +52,7 @@ public class IntakeTest extends LinearOpMode {
         timeMachine.reset();
         waitForTime(5000);
 
-        intake.requestTurnStage123On();
+        intake.requestTurnStage12On();
         timeMachine.reset();
         waitForTime(5000);
 
