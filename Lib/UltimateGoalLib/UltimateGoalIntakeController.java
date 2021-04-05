@@ -265,7 +265,33 @@ public class UltimateGoalIntakeController {
                     case FIRE_2:
                     case FIRE_3:
                         switch (intake.whereAreRings()) {
-                            //LEFT OFF HERE. How to incorporate "number of times ring is present at 3"?
+                            case TWO_THREE:
+                                intake.requestTurnStage23On();
+                                commandComplete= false;
+                                currentState= States.TWO_RING;
+                                break;
+                            case TWO:
+                                intake.requestTurnStage23On();
+                                commandComplete= false;
+                                currentState= States.TWO_RING;
+                                break;
+                            case NO_RINGS:
+                                if (intake.getNumberOfRingsAtStage3()==1){
+                                    intake.requestTurnStage23On();
+                                    commandComplete= false;
+                                    currentState=States.TWO_RING;
+                            }
+                                if (intake.getNumberOfRingsAtStage3()==2){
+                                    intake.requestTurnIntakeOFF();
+                                    commandComplete= true;
+                                    currentState= States.IDLE;
+                                }
+                                break;
+                            case THREE:
+                                intake.requestTurnStage3On();
+                                commandComplete= false;
+                                currentState= States.TWO_RING;
+                                break;
                         }
                         break;
                 }
@@ -284,8 +310,37 @@ public class UltimateGoalIntakeController {
                         handleIntakeCommand(currentState);
                         break;
                     case FIRE_1:
+                        switch (intake.whereAreRings()) {
+                            case ONE_TWO_THREE:
+                                intake.requestTurnStage123On();
+                                commandComplete= false;
+                                currentState= States.THREE_RING;
+                                break;
+                            case TWO_THREE:
+                                intake.requestTurnIntakeOFF();
+                                commandComplete= true;
+                                currentState= States.TWO_RING;
+                                break;
+                            case THREE:
+                                intake.requestTurnStage12On();
+                                commandComplete=false;
+                                currentState=States.THREE_RING;
+                                break;
+                            case NO_RINGS:
+                            case TWO:
+                            case ONE_THREE:
+                            case ONE_TWO:
+                            case ONE:
+                                intake.requestTurnStage123On();
+                                currentState= States.THREE_RING;
+                                commandComplete= false;
+                                break;
+                        }
                         break;
                     case FIRE_2:
+                        switch (intake.whereAreRings()) {
+                            
+                        }
                         break;
                     case FIRE_3:
                         break;
