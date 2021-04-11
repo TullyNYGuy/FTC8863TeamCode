@@ -10,50 +10,36 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometryModule;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometrySystem;
+import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.UltimateGoalRobot;
 
 import java.util.Locale;
 
 @TeleOp(name = "Test 3 odometry modules", group = "Diagnostics")
 //@Disabled
-public class Read3OdometryModules extends LinearOpMode {
-    //Odometry Wheels
-
-    private Configuration config = new Configuration();
-    private boolean configLoaded = false;
-
-
-    private boolean loadConfiguration() {
-        configLoaded = false;
-        config.clear();
-        configLoaded = config.load();
-        return configLoaded;
-    }
-    double odometryModuleRightValue = 0;
-    double odometryModuleBackValue = 0;
-    double odometryModuleLeftValue = 0;
-    OdometrySystem system;
-    OdometryModule odometryModuleRight;
-    OdometryModule odometryModuleBack;
-    OdometryModule odometryModuleLeft;
+public class Test3OdometryModules extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-system = new OdometrySystem(DistanceUnit.INCH, odometryModuleLeft, odometryModuleRight, odometryModuleBack);
-        odometryModuleRight = new OdometryModule(1440, 3.8 * Math.PI, DistanceUnit.CM, "BackLeft", hardwareMap);
-        odometryModuleBack = new OdometryModule(1440, 3.8 * Math.PI, DistanceUnit.CM, "BackRight", hardwareMap);
-        odometryModuleLeft = new OdometryModule(1440, 3.8 * Math.PI, DistanceUnit.CM, "FrontLeft", hardwareMap);
-        DcMotor8863 frontLeft = DcMotor8863.createMotorFromFile(config, "FLMotor", hardwareMap);
-        DcMotor8863 backLeft = DcMotor8863.createMotorFromFile(config, "BLMotor", hardwareMap);
-        DcMotor8863 frontRight = DcMotor8863.createMotorFromFile(config, "FRMotor", hardwareMap);
-        DcMotor8863 backRight = DcMotor8863.createMotorFromFile(config, "BRMotor", hardwareMap);
-
-        system =new OdometrySystem(DistanceUnit.INCH, odometryModuleLeft, odometryModuleRight, odometryModuleBack);
+/*
+        DcMotor8863 frontLeft = DcMotor8863.createMotorFromFile(config, UltimateGoalRobot.HardwareName.CONFIG_FL_MOTOR.hwName, hardwareMap);
+        DcMotor8863 backLeft = DcMotor8863.createMotorFromFile(config, UltimateGoalRobot.HardwareName.CONFIG_BL_MOTOR.hwName, hardwareMap);
+        DcMotor8863 frontRight = DcMotor8863.createMotorFromFile(config, UltimateGoalRobot.HardwareName.CONFIG_FR_MOTOR.hwName, hardwareMap);
+        DcMotor8863 backRight = DcMotor8863.createMotorFromFile(config, UltimateGoalRobot.HardwareName.CONFIG_BR_MOTOR.hwName, hardwareMap);
+ */
+        Configuration config = new Configuration();
+        config.load();
+        OdometryModule odometryModuleLeft = OdometryModule.createOdometryModuleFromFile(config, UltimateGoalRobot.HardwareName.CONFIG_LEFT_ODOMETRY_MODULE.hwName, hardwareMap);
+        OdometryModule odometryModuleRight = OdometryModule.createOdometryModuleFromFile(config, UltimateGoalRobot.HardwareName.CONFIG_RIGHT_ODOMETRY_MODULE.hwName, hardwareMap);
+        OdometryModule odometryModuleBack = OdometryModule.createOdometryModuleFromFile(config, UltimateGoalRobot.HardwareName.CONFIG_BACK_ODOMETRY_MODULE.hwName, hardwareMap);
+        odometryModuleBack.setShiftValue((byte) 7);
+        odometryModuleBack.resetEncoderValue();
+        OdometrySystem system =new OdometrySystem(DistanceUnit.INCH, odometryModuleLeft, odometryModuleRight, odometryModuleBack);
         //Odometry System Calibration Init Complete
         system.initializeRobotGeometry(DistanceUnit.INCH, 1,1, DcMotorSimple.Direction.REVERSE, 1,1, DcMotorSimple.Direction.FORWARD, 1,1, DcMotorSimple.Direction.REVERSE);
         telemetry.addData("Odometry System Calibration Status", "Init Complete");
-        odometryModuleRightValue = odometryModuleRight.getDistanceSinceReset(DistanceUnit.CM);
-        odometryModuleBackValue = odometryModuleBack.getDistanceSinceReset(DistanceUnit.CM);
-        odometryModuleLeftValue = odometryModuleLeft.getDistanceSinceReset(DistanceUnit.CM);
+        double odometryModuleRightValue = odometryModuleRight.getDistanceSinceReset(DistanceUnit.CM);
+        double odometryModuleBackValue = odometryModuleBack.getDistanceSinceReset(DistanceUnit.CM);
+        double odometryModuleLeftValue = odometryModuleLeft.getDistanceSinceReset(DistanceUnit.CM);
         telemetry.addData("Odometry encoder 1 value = ", odometryModuleRightValue);
         telemetry.addData("Odometry encoder 2 value = ", odometryModuleBackValue);
         telemetry.addData("Odometry encoder 3 value = ", odometryModuleLeftValue);
