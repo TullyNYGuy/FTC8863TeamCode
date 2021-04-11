@@ -28,14 +28,14 @@ public class TestIntakeSwitch extends LinearOpMode {
         waitForStart();
 
         // Put your calls here - they will not run in a loop
-        intake.turnIntake123On();
+        intake.requestTurnStage123On();
 
         while (opModeIsActive()) {
 
             // Put your calls that need to run in a loop here
             intake.updateIntake();
             if (intake.ringAtStage2()) {
-                intake.turnIntakeOff();
+                intake.requestTurnIntakeOFF();
             }
 
             telemetry.addData(">", "Press Stop to end test.");

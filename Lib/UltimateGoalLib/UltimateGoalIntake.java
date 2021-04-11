@@ -22,23 +22,34 @@ public class UltimateGoalIntake {
     //
     //*********************************************************************************************
     private enum State {
-            OFF,
-            DELAY,
-            ONE_ON,
-            ONE_TWO_ON,
-            ONE_TWO_THREE_ON,
-            TWO_THREE_ON,
-            THREE_ON
-    }
-    private enum Commands {
-            TURN_ON_123,
-            TURN_ON_12,
-            TURN_ON_1,
-            TURN_ON_23,
-            TURN_ON_3,
-            OFF
+        OFF,
+        DELAY,
+        ONE_ON,
+        ONE_TWO_ON,
+        ONE_TWO_THREE_ON,
+        TWO_THREE_ON,
+        THREE_ON
     }
 
+    private enum Commands {
+        TURN_ON_123,
+        TURN_ON_12,
+        TURN_ON_1,
+        TURN_ON_23,
+        TURN_ON_3,
+        OFF
+    }
+
+    public enum RingsAt {
+        NO_RINGS,
+        ONE,
+        TWO,
+        THREE,
+        ONE_TWO,
+        TWO_THREE,
+        ONE_THREE,
+        ONE_TWO_THREE;
+    }
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS
     //
@@ -61,9 +72,12 @@ public class UltimateGoalIntake {
 
     private int numberOfRingsAtStage3 = 0;
 
-    private boolean commandComplete=true;
+    private boolean commandComplete = true;
 
-    private Commands currentCommand=Commands.OFF;
+    private Commands currentCommand = Commands.OFF;
+
+    private boolean firstCommand = true;
+    private int turnOnDelay = 1000;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -111,29 +125,277 @@ public class UltimateGoalIntake {
     public void updateIntake() {
         switch (currentState) {
             case OFF:
+                switch (currentCommand) {
+                    case TURN_ON_123:
+                        if (firstCommand) {
+                            turnStage2On();
+                            turnStage3On();
+                            turnOnTimer.reset();
+                            commandComplete = false;
+                            currentState = State.DELAY;
+                        }
+                        else {
+                            turnStage1On();
+                            turnStage2On();
+                            turnStage3On();
+                            commandComplete= true;
+                            currentState= State.ONE_TWO_THREE_ON;
+                        }
+
+                        break;
+                    case TURN_ON_1:
+                        turnStage1On();
+                        commandComplete = true;
+                        currentState = State.ONE_ON;
+                        firstCommand = false;
+                        break;
+                    case TURN_ON_12:
+                        if (firstCommand) {
+                            turnStage2On();
+                            turnOnTimer.reset();
+                            commandComplete = false;
+                            currentState = State.DELAY;
+                        }
+                        else {
+                            turnStage1On();
+                            turnStage2On();
+                            commandComplete= true;
+                            currentState= State.ONE_TWO_ON;
+                        }
+                        break;
+                    case TURN_ON_23:
+                        turnStage2On();
+                        turnStage3On();
+                        commandComplete = true;
+                        currentState = State.TWO_THREE_ON;
+                        firstCommand = false;
+                        break;
+                    case TURN_ON_3:
+                        turnStage3On();
+                        commandComplete = true;
+                        currentState = State.THREE_ON;
+                        firstCommand = false;
+                        break;
+                    case OFF:
+                        turnIntakeOff();
+                        commandComplete = true;
+                        currentState = State.OFF;
+                        break;
+                }
                 break;
             case DELAY:
-                turnStage2On();
-                turnStage3On();
-                if(turnOnTimer.milliseconds() > 1000) {
-                    currentState = State.TWO_THREE_ON;
+                switch (currentCommand) {
+                    case TURN_ON_123:
+                        if (turnOnTimer.milliseconds() > turnOnDelay) {
+                            turnStage1On();
+                            commandComplete = true;
+                            currentState = State.ONE_TWO_THREE_ON;
+                            firstCommand= false;
+                        }
+                        break;
+                    case TURN_ON_12:
+                        if (turnOnTimer.milliseconds() > turnOnDelay) {
+                            turnStage1On();
+                            commandComplete = true;
+                            currentState = State.ONE_TWO_ON;
+                            firstCommand=false;
+                        }
+                        break;
+                    case TURN_ON_23:
+                    case TURN_ON_1:
+                    case TURN_ON_3:
+                        //not valid command
+                        break;
+                    case OFF:
+                        turnIntakeOff();
+                        commandComplete = true;
+                        currentState = State.OFF;
+                        break;
+                }
+                break;
+            case ONE_ON:
+                switch (currentCommand) {
+                    case TURN_ON_123:
+                        turnStage2On();
+                        turnStage3On();
+                        commandComplete = true;
+                        currentState = State.ONE_TWO_THREE_ON;
+                        break;
+                    case TURN_ON_1:
+                        //already on
+                        break;
+                    case TURN_ON_12:
+                        turnStage2On();
+                        commandComplete = true;
+                        currentState = State.ONE_TWO_ON;
+                        break;
+                    case TURN_ON_23:
+                        turnStage1Off();
+                        turnStage2On();
+                        turnStage3On();
+                        commandComplete= true;
+                        currentState= State.TWO_THREE_ON;
+                        break;
+                    case TURN_ON_3:
+                        turnStage1Off();
+                        turnStage3On();
+                        commandComplete= true;
+                        currentState= State.THREE_ON;
+                        break;
+                    case OFF:
+                        turnIntakeOff();
+                        commandComplete = true;
+                        currentState = State.OFF;
+                        break;
                 }
                 break;
             case TWO_THREE_ON:
-                turnStage1On();
-                currentState = State.ONE_TWO_THREE_ON;
+                switch (currentCommand) {
+                    case TURN_ON_123:
+                        turnStage1On();
+                        commandComplete = true;
+                        currentState = State.ONE_TWO_THREE_ON;
+                        break;
+                    case TURN_ON_1:
+                        turnStage2Off();
+                        turnStage3Off();
+                        turnStage1On();
+                        commandComplete= true;
+                        currentState= State.ONE_ON;
+                        break;
+                    case TURN_ON_12:
+                        turnStage3Off();
+                        turnStage1On();
+                        commandComplete= true;
+                        currentState= State.ONE_TWO_ON;
+                        break;
+                    case TURN_ON_23:
+                        //already on
+                        break;
+                    case TURN_ON_3:
+                       turnStage2Off();
+                       commandComplete= true;
+                       currentState= State.THREE_ON;
+                        break;
+                    case OFF:
+                        turnIntakeOff();
+                        commandComplete = true;
+                        currentState = State.OFF;
+                        break;
+                }
                 break;
-            case ONE_ON:
+            case THREE_ON:
+                switch (currentCommand) {
+                    case TURN_ON_123:
+                        turnStage2On();
+                        turnOnTimer.reset();
+                        commandComplete = false;
+                        currentState = State.DELAY;
+                        break;
+                    case TURN_ON_1:
+                        turnStage3Off();
+                        turnStage1On();
+                        commandComplete= true;
+                        currentState= State.ONE_ON;
+                        break;
+                    case TURN_ON_12:
+                        turnStage3Off();
+                        turnStage1On();
+                        turnStage2On();
+                        commandComplete= true;
+                        currentState= State.ONE_TWO_ON;
+                        break;
+                    case TURN_ON_23:
+                        turnStage2On();
+                        commandComplete = true;
+                        currentState = State.TWO_THREE_ON;
+                        break;
+                    case TURN_ON_3:
+                        //already on
+                        break;
+                    case OFF:
+                        turnIntakeOff();
+                        commandComplete = true;
+                        currentState = State.OFF;
+                        break;
+                }
                 break;
             case ONE_TWO_THREE_ON:
+                switch (currentCommand) {
+                    case TURN_ON_123:
+                        //already on
+                        break;
+                    case TURN_ON_1:
+                        turnStage2Off();
+                        turnStage3Off();
+                        commandComplete= true;
+                        currentState= State.ONE_ON;
+                        break;
+                    case TURN_ON_12:
+                        turnStage3Off();
+                        commandComplete= true;
+                        currentState= State.ONE_TWO_ON;
+                        break;
+                    case TURN_ON_23:
+                        turnStage1Off();
+                        commandComplete= true;
+                        currentState= State.TWO_THREE_ON;
+                        break;
+                    case TURN_ON_3:
+                        turnStage2Off();
+                        turnStage1Off();
+                        commandComplete= true;
+                        currentState= State.THREE_ON;
+                        break;
+                    case OFF:
+                        turnIntakeOff();
+                        commandComplete = true;
+                        currentState = State.OFF;
+                        break;
+                }
+                break;
+            case ONE_TWO_ON:
+                switch (currentCommand) {
+                    case TURN_ON_123:
+                        turnStage3On();
+                        commandComplete = true;
+                        currentState = State.ONE_TWO_THREE_ON;
+                        break;
+                    case TURN_ON_1:
+                        turnStage2Off();
+                        commandComplete=true;
+                        currentState= State.ONE_ON;
+                        break;
+                    case TURN_ON_12:
+                        //already on
+                        break;
+                    case TURN_ON_23:
+                        turnStage1Off();
+                        turnStage3On();
+                        commandComplete= true;
+                        currentState= State.TWO_THREE_ON;
+                        break;
+                    case TURN_ON_3:
+                       turnStage1Off();
+                       turnStage2Off();
+                       turnStage3On();
+                       commandComplete= true;
+                       currentState= State.THREE_ON;
+                        break;
+                    case OFF:
+                        turnIntakeOff();
+                        commandComplete = true;
+                        currentState = State.OFF;
+                        break;
+                }
                 break;
         }
         if (stage3Switch.isBumped()) {
-            numberOfRingsAtStage3 = numberOfRingsAtStage3 ++;
+            numberOfRingsAtStage3 = numberOfRingsAtStage3++;
         }
     }
 
-    public void intakeClearedOfRings() {
+    public void intakeEmpty() {
         numberOfRingsAtStage3 = 0;
     }
 
@@ -149,44 +411,45 @@ public class UltimateGoalIntake {
         return stage3Switch.isPressed();
     }
 
-    public void turnStage1On(){
+    private void turnStage1On() {
         stage1Motor.runAtConstantPower(1);
+
     }
 
-    public void turnStage1Off() {
+    private void turnStage1Off() {
         stage1Motor.stop();
     }
 
-    public void turnStage2On() {
+    private void turnStage2On() {
         stage2CRServo.setPower(1);
     }
 
-    public void turnStage2Off() {
+    private void turnStage2Off() {
         stage2CRServo.setPower(0);
     }
 
-    public void turnStage3On() {
+    private void turnStage3On() {
         stage3CRServo.setPower(1);
     }
 
-    public void turnStage3Off() {
+    private void turnStage3Off() {
         stage3CRServo.setPower(0);
     }
 
-    public void turnIntakeOff() {
+    private void turnIntakeOff() {
         turnStage1Off();
         turnStage2Off();
         turnStage3Off();
         currentState = State.OFF;
     }
 
-    public void turnIntakeOn() {
+    private void turnIntakeOn() {
         turnStage2On();
         turnStage1On();
         turnStage3On();
     }
 
-    public void turnIntake123On() {
+    private void turnIntake123On() {
         turnOnTimer.reset();
         currentState = State.DELAY;
     }
@@ -196,5 +459,49 @@ public class UltimateGoalIntake {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
+    public void requestTurnStage1On() {
+        if (commandComplete) {
+            currentCommand = Commands.TURN_ON_1;
+        }
+    }
 
+    public void requestTurnStage12On() {
+        if (commandComplete) {
+            currentCommand = Commands.TURN_ON_12;
+        }
+    }
+
+    public void requestTurnStage123On() {
+        if (commandComplete) {
+            currentCommand = Commands.TURN_ON_123;
+        }
+    }
+
+    public void requestTurnStage23On() {
+        if (commandComplete) {
+            currentCommand = Commands.TURN_ON_23;
+        }
+    }
+
+    public void requestTurnStage3On() {
+        if (commandComplete) {
+            currentCommand = Commands.TURN_ON_3;
+        }
+    }
+
+    public void requestTurnIntakeOFF() {
+        currentCommand = Commands.OFF;
+    }
+
+    public RingsAt whereAreRings () {
+        RingsAt answer= RingsAt.NO_RINGS;
+        if (ringAtStage1() && !ringAtStage2() && !ringAtStage3()) answer= RingsAt.ONE;
+        if (!ringAtStage1() && ringAtStage2() && !ringAtStage3()) answer= RingsAt.TWO;
+        if (!ringAtStage1() && !ringAtStage2() && ringAtStage3()) answer= RingsAt.THREE;
+        if (ringAtStage1() && ringAtStage2() && !ringAtStage3()) answer= RingsAt.ONE_TWO;
+        if (!ringAtStage1() && ringAtStage2() && ringAtStage3()) answer= RingsAt.TWO_THREE;
+        if (ringAtStage1() && !ringAtStage2() && ringAtStage3()) answer= RingsAt.ONE_THREE;
+        if (ringAtStage1() && ringAtStage2() && ringAtStage3()) answer= RingsAt.ONE_TWO_THREE;
+        return answer;
+    }
 }
