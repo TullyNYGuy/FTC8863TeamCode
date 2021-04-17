@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.UltimateGoalTest;
 
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -9,6 +10,8 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.UltimateGoalIntake;
 import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.UltimateGoalIntakeController;
+
+import java.util.List;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
@@ -25,6 +28,12 @@ public class IntakeControllerTest extends LinearOpMode {
 
     @Override
     public void runOpMode() {
+
+        // set bulk read mode for the sensor reads - speeds up the loop
+        List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
+        for (LynxModule hub : allHubs) {
+            hub.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
+        }
 
         // create a new data log file
         dataLog = new DataLogging("IntakeController", telemetry);
@@ -50,19 +59,19 @@ public class IntakeControllerTest extends LinearOpMode {
         waitForStart();
 
         // Put your calls here - they will not run in a loop
-        
+
         // reset the clock for the data log to 0
         dataLog.startTimer();
         controller.requestIntake();
 
         timer.reset();
-        while (opModeIsActive() && timer.milliseconds() < 5000) {
+        while (opModeIsActive() && timer.milliseconds() < 10000) {
 
             // Put your calls that need to run in a loop here
             controller.update();
             // Display the current value
             telemetry.addData(">", "Press Stop to terminate.");
-            intake.displaySWitches(telemetry);
+            //intake.displaySWitches(telemetry);
 
             telemetry.update();
 

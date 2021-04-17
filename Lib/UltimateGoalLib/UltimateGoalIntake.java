@@ -585,13 +585,16 @@ public class UltimateGoalIntake {
      */
     private RingsAt whereAreRings () {
         RingsAt answer= RingsAt.NO_RINGS;
-        if (ringAtStage1() && !ringAtStage2() && !ringAtStage3()) answer= RingsAt.ONE;
-        if (!ringAtStage1() && ringAtStage2() && !ringAtStage3()) answer= RingsAt.TWO;
-        if (!ringAtStage1() && !ringAtStage2() && ringAtStage3()) answer= RingsAt.THREE;
-        if (ringAtStage1() && ringAtStage2() && !ringAtStage3()) answer= RingsAt.ONE_TWO;
-        if (!ringAtStage1() && ringAtStage2() && ringAtStage3()) answer= RingsAt.TWO_THREE;
-        if (ringAtStage1() && !ringAtStage2() && ringAtStage3()) answer= RingsAt.ONE_THREE;
-        if (ringAtStage1() && ringAtStage2() && ringAtStage3()) answer= RingsAt.ONE_TWO_THREE;
+        boolean ringAtStage1 = ringAtStage1();
+        boolean ringAtStage2 = ringAtStage2();
+        boolean ringAtStage3 = ringAtStage3();
+        if (ringAtStage1 && !ringAtStage2 && !ringAtStage3) answer= RingsAt.ONE;
+        if (!ringAtStage1 && ringAtStage2 && !ringAtStage3) answer= RingsAt.TWO;
+        if (!ringAtStage1 && !ringAtStage2 && ringAtStage3) answer= RingsAt.THREE;
+        if (ringAtStage1 && ringAtStage2 && !ringAtStage3) answer= RingsAt.ONE_TWO;
+        if (!ringAtStage1 && ringAtStage2 && ringAtStage3) answer= RingsAt.TWO_THREE;
+        if (ringAtStage1 && !ringAtStage2 && ringAtStage3) answer= RingsAt.ONE_THREE;
+        if (ringAtStage1 && ringAtStage2 && ringAtStage3) answer= RingsAt.ONE_TWO_THREE;
         return answer;
     }
 
