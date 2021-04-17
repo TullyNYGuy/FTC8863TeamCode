@@ -35,8 +35,8 @@ public class TestIntakeFlow extends LinearOpMode {
         while (opModeIsActive()) {
 
             // Put your calls that need to run in a loop here
-            intake.updateIntake();
-            if (intake.ringAtStage2()) {
+            intake.update();
+            if (intake.getCurrentRingsAt() == UltimateGoalIntake.RingsAt.TWO) {
                 intake.requestTurnIntakeOFF();
                 break;
             }
@@ -54,42 +54,15 @@ public class TestIntakeFlow extends LinearOpMode {
 
         intake.requestTurnStage123On();
         while (opModeIsActive() && timer.milliseconds() < 2000) {
-            intake.updateIntake();
+            intake.update();
             idle();
         }
 
         while (opModeIsActive()) {
 
             // Put your calls that need to run in a loop here
-            intake.updateIntake();
-            if (intake.ringAtStage2()) {
-                intake.requestTurnIntakeOFF();
-                break;
-            }
-
-            telemetry.addData(">", "Press Stop to end test.");
-            telemetry.update();
-
-            idle();
-        }
-
-        timer.reset();
-        while (opModeIsActive() && timer.milliseconds() < 2000) {
-            idle();
-        }
-
-        intake.requestTurnStage123On();
-        timer.reset();
-        while (opModeIsActive() && timer.milliseconds() < 2000) {
-            intake.updateIntake();
-            idle();
-        }
-
-        while (opModeIsActive()) {
-
-            // Put your calls that need to run in a loop here
-            intake.updateIntake();
-            if (intake.ringAtStage2()) {
+            intake.update();
+            if (intake.getCurrentRingsAt() == UltimateGoalIntake.RingsAt.TWO) {
                 intake.requestTurnIntakeOFF();
                 break;
             }
@@ -108,15 +81,42 @@ public class TestIntakeFlow extends LinearOpMode {
         intake.requestTurnStage123On();
         timer.reset();
         while (opModeIsActive() && timer.milliseconds() < 2000) {
-            intake.updateIntake();
+            intake.update();
             idle();
         }
 
         while (opModeIsActive()) {
 
             // Put your calls that need to run in a loop here
-            intake.updateIntake();
-            if (intake.ringAtStage2()) {
+            intake.update();
+            if (intake.getCurrentRingsAt() == UltimateGoalIntake.RingsAt.TWO) {
+                intake.requestTurnIntakeOFF();
+                break;
+            }
+
+            telemetry.addData(">", "Press Stop to end test.");
+            telemetry.update();
+
+            idle();
+        }
+
+        timer.reset();
+        while (opModeIsActive() && timer.milliseconds() < 2000) {
+            idle();
+        }
+
+        intake.requestTurnStage123On();
+        timer.reset();
+        while (opModeIsActive() && timer.milliseconds() < 2000) {
+            intake.update();
+            idle();
+        }
+
+        while (opModeIsActive()) {
+
+            // Put your calls that need to run in a loop here
+            intake.update();
+            if (intake.getCurrentRingsAt() == UltimateGoalIntake.RingsAt.TWO) {
                 intake.requestTurnIntakeOFF();
                 break;
             }

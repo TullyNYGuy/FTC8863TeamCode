@@ -70,7 +70,7 @@ public class IntakeTest2 extends LinearOpMode {
         while (opModeIsActive() && timeMachine.milliseconds()<time) {
 
             // Put your calls that need to run in a loop here
-            intake.updateIntake();
+            intake.update();
             // Display the current value
             telemetry.addData(">", "Press Stop to terminate.");
 
