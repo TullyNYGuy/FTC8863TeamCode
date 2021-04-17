@@ -47,7 +47,8 @@ public class TestShooter extends LinearOpMode {
             // Put your calls that need to run in a loop here
 
             // Display the current value
-            telemetry.addData("Gear box running at ", motorRPM + " RPM");
+            telemetry.addData("Gear box set to run at ", motorRPM + " RPM");
+            telemetry.addData("RPM is measured to be  ", dualMotorGearBox.getSpeed() + "RPM");
             //telemetry.addData("Motor Speed = ", "%5.2f", powerToRunAt);
             //telemetry.addData("Encoder Count=", "%5d", motor.getCurrentPosition());
             telemetry.addData(">", "Press Stop to end test.");

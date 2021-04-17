@@ -1243,6 +1243,10 @@ public class DcMotor8863 {
         return velocityInDegrees/360;
     }
 
+    /**
+     * Get the motor motor velocity in counts per second
+     * @return
+     */
     public double getCurrentVelocityInCounts() {
         return FTCDcMotor.getVelocity();
     }
