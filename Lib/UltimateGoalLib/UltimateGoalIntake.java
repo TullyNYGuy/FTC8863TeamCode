@@ -588,7 +588,9 @@ public class UltimateGoalIntake {
         boolean ringAtStage1 = ringAtStage1();
         boolean ringAtStage2 = ringAtStage2();
         boolean ringAtStage3 = ringAtStage3();
-        if (ringAtStage1 && !ringAtStage2 && !ringAtStage3) answer= RingsAt.ONE;
+        if (ringAtStage1 && !ringAtStage2 && !ringAtStage3) {
+            answer= RingsAt.ONE;
+        }
         if (!ringAtStage1 && ringAtStage2 && !ringAtStage3) answer= RingsAt.TWO;
         if (!ringAtStage1 && !ringAtStage2 && ringAtStage3) answer= RingsAt.THREE;
         if (ringAtStage1 && ringAtStage2 && !ringAtStage3) answer= RingsAt.ONE_TWO;
