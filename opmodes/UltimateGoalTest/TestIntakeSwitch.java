@@ -33,8 +33,8 @@ public class TestIntakeSwitch extends LinearOpMode {
         while (opModeIsActive()) {
 
             // Put your calls that need to run in a loop here
-            intake.updateIntake();
-            if (intake.ringAtStage2()) {
+            intake.update();
+            if (intake.getCurrentRingsAt() == UltimateGoalIntake.RingsAt.TWO) {
                 intake.requestTurnIntakeOFF();
             }
 

@@ -83,9 +83,11 @@ public class DualMotorGearBox {
         leftMotor = new DcMotor8863(leftMotorName, hardwareMap, telemetry);
         leftMotor.setMotorType(DcMotor8863.MotorType.GOBILDA_6000);
         leftMotor.setMovementPerRev(360);
+        leftMotor.setFinishBehavior(DcMotor8863.FinishBehavior.FLOAT);
         //leftMotor.runAtConstantSpeed(0);
         rightMotor = new DcMotor8863(rightMotorName, hardwareMap, telemetry);
         rightMotor.setMotorType(DcMotor8863.MotorType.GOBILDA_6000);
+        rightMotor.setFinishBehavior(DcMotor8863.FinishBehavior.FLOAT);
         //rightMotor.runAtConstantSpeed(0);
         rightMotor.setMovementPerRev(360);
         setDirection(Direction.FORWARD);
@@ -101,6 +103,9 @@ public class DualMotorGearBox {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
+
+    public void update() {
+    }
 
     /**
      * When the user sets a speed the motors run at that speed.
@@ -121,11 +126,20 @@ public class DualMotorGearBox {
     }
 
     /**
+     * Get the RPM for the output shaft
+     * @return
+     */
+    public double getSpeed() {
+        return (leftMotor.getCurrentRPM() + rightMotor.getCurrentRPM()) / 2;
+    }
+
+    /**
      * Stops the gearbox
      */
     public void stopGearbox() {
-        leftMotor.stop();
-        rightMotor.stop();
+        // interrupt sets the motors to coast to a stop, not stop suddenly
+        leftMotor.interrupt();
+        rightMotor.interrupt();
     }
 
 }

@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,6 +44,10 @@ public class OdometryModule {
     private int previousEncoderValue = 0;
 
     private int startingEncoderValue = 0;
+
+    private byte shiftValue = 0;
+    private int maskValue = ~0;
+    private int centerValue = 0;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -83,6 +88,21 @@ public class OdometryModule {
         this.previousEncoderValue = previousEncoderValue;
     }
 
+    public void setShiftValue(byte shiftValue) {
+        this.shiftValue = shiftValue;
+        if(shiftValue > 0) {
+            maskValue = ~((1 << shiftValue) - 1);
+            centerValue = (1 << (shiftValue-1)) - 1;
+        } else {
+            maskValue = ~0;
+            centerValue = 0;
+        }
+    }
+
+    public byte getShiftValue() {
+        return this.shiftValue;
+    }
+
     //*********************************************************************************************
     //          Constructors
     //
@@ -106,7 +126,7 @@ public class OdometryModule {
             // Some other code controls that.
             //odometryModule.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             // instead
-            startingEncoderValue = odometryModule.getCurrentPosition();
+            startingEncoderValue = getCurrentEncoderValue();
         }
     }
 
@@ -114,9 +134,9 @@ public class OdometryModule {
         this.countsPerRevolution = countsPerRevolution;
         this.circumference = circumference;
         this.units = circumferenceUnits;
-        odometryModule = motor;
+        this.odometryModule = motor;
         if (odometryModule != null) {
-            startingEncoderValue = odometryModule.getCurrentPosition();
+            startingEncoderValue = getCurrentEncoderValue();
         }
     }
 
@@ -158,13 +178,18 @@ public class OdometryModule {
         return units.fromUnit(this.units, (double) ticks / 1440.0 * circumference);
     }
 
+    private int getCurrentEncoderValue() {
+        int rawEncoderValue = odometryModule.getCurrentPosition();
+        return (rawEncoderValue - this.centerValue) & this.maskValue;
+    }
+
     //*********************************************************************************************
     //          MAJOR METHODS
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
     public int getEncoderValue() {
-        return odometryModule.getCurrentPosition() - startingEncoderValue;
+        return getCurrentEncoderValue() - startingEncoderValue;
     }
 
     public void resetEncoderValue() {
@@ -173,17 +198,8 @@ public class OdometryModule {
         // Some other code controls that.
         //odometryModule.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         // instead
-        startingEncoderValue = odometryModule.getCurrentPosition();
+        startingEncoderValue = getCurrentEncoderValue();
     }
-
-    //public double getDistanceSinceReset() {
-    //if (units == Units.IN) {
-    //return convertTicksToInches(odometryModule.getCurrentPosition());
-    //} else {
-    // return convertTicksToCm(odometryModule.getCurrentPosition());
-    // }
-
-    //  }
 
     public double getDistanceSinceReset(DistanceUnit units) {
         return convertTicksToUnit(units, getEncoderValue());
@@ -191,7 +207,7 @@ public class OdometryModule {
 
 
     public double getDistanceSinceLastChange(DistanceUnit units) {
-        int currentPosition = odometryModule.getCurrentPosition();
+        int currentPosition = getCurrentEncoderValue();
         double distanceSinceLastChange = convertTicksToUnit(units, currentPosition - previousEncoderValue);
         previousEncoderValue = currentPosition;
         return distanceSinceLastChange;

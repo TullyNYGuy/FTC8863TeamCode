@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 import java.util.HashMap;
@@ -1233,6 +1234,22 @@ public class DcMotor8863 {
         }
     }
 
+    /**
+     * Get the current velocity of the motor in RPM
+     * @return
+     */
+    public double getCurrentRPM() {
+        double velocityInDegrees = FTCDcMotor.getVelocity(AngleUnit.DEGREES);
+        return velocityInDegrees/360;
+    }
+
+    /**
+     * Get the motor motor velocity in counts per second
+     * @return
+     */
+    public double getCurrentVelocityInCounts() {
+        return FTCDcMotor.getVelocity();
+    }
 
 
     //*********************************************************************************************

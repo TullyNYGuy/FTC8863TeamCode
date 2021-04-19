@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Switch;
 
@@ -58,6 +59,7 @@ public class UltimateGoalIntake {
     //*********************************************************************************************
 
     private State currentState = State.OFF;
+    private State previousState = currentState;
 
     private ElapsedTime turnOnTimer;
 
@@ -75,9 +77,18 @@ public class UltimateGoalIntake {
     private boolean commandComplete = true;
 
     private Commands currentCommand = Commands.OFF;
+    private Commands previousCommand = currentCommand;
+
+    private RingsAt currentRingsAt = RingsAt.NO_RINGS;
+    private RingsAt previousRingsAt = currentRingsAt;
 
     private boolean firstCommand = true;
     private int turnOnDelay = 1000;
+
+    private DataLogging logFile;
+    private boolean loggingOn = false;
+    // this says that the first line in the data log is about to be written
+    private boolean firstLogLine = true;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -90,6 +101,26 @@ public class UltimateGoalIntake {
         return numberOfRingsAtStage3;
     }
 
+    /**
+     * Set the data log file
+     * @param logFile
+     */
+    public void setDataLog(DataLogging logFile) {
+        this.logFile = logFile;
+    }
+
+    public void enableDataLogging() {
+        this.loggingOn = true;
+    }
+
+    public void disableDataLogging() {
+        this.loggingOn = false;
+    }
+
+    public RingsAt getCurrentRingsAt() {
+        return currentRingsAt;
+    }
+
     //*********************************************************************************************
     //          Constructors
     //
@@ -100,7 +131,7 @@ public class UltimateGoalIntake {
     public UltimateGoalIntake(HardwareMap hardwareMap, Telemetry telemetry) {
         stage1Switch = new Switch(hardwareMap, "stage1Switch", Switch.SwitchType.NORMALLY_OPEN);
         stage2Switch = new Switch(hardwareMap, "stage2Switch", Switch.SwitchType.NORMALLY_OPEN);
-        stage3Switch = new Switch(hardwareMap, "stage2Switch", Switch.SwitchType.NORMALLY_OPEN);
+        stage3Switch = new Switch(hardwareMap, "stage3Switch", Switch.SwitchType.NORMALLY_OPEN);
 
         stage1Motor = new DcMotor8863("stage1Motor", hardwareMap, telemetry);
         stage1Motor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
@@ -122,7 +153,120 @@ public class UltimateGoalIntake {
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
 
-    public void updateIntake() {
+    /**
+     * Log the state and command into the log file. But only if the value of one of them has changed
+     * from the last time the state machine was run.
+     * @param state - value of the state (in the state machine)
+     * @param command - the current command to the state machine
+     */
+
+    /**
+     * Log the state and command and ring locations into the log file. But only if the value of one
+     * of them has changed from the last time the state machine was run
+     * @param state
+     * @param command
+     * @param ringsAt
+     */
+    private void logState(State state, Commands command, RingsAt ringsAt) {
+        // is there a log file and is logging enabled?
+        if (logFile != null && loggingOn) {
+            // has the state or the command or ring location changed since the last run through the
+            // state machine? Or is this the first line in the log file?
+            if (state != previousState || command != previousCommand || currentRingsAt != previousRingsAt || firstLogLine) {
+                // yes so write the info into the log file
+                logFile.logData("Intake", state.toString(), command.toString(), ringsAt.toString());
+                // save the current state and command and ring location so they can be used next time
+                previousState = state;
+                previousCommand = command;
+                previousRingsAt = ringsAt;
+                // if this was the first line in the log file, change the flag so that later on
+                // we know that the first line has already been written
+                firstLogLine = false;
+            }
+        }
+    }
+
+    public void intakeEmpty() {
+        numberOfRingsAtStage3 = 0;
+    }
+
+    //*********************************************************************************************
+    //          Ask the switch for the stage whether a ring is present
+    //*********************************************************************************************
+
+    private boolean ringAtStage1() {
+        return stage1Switch.isPressed();
+    }
+
+    private boolean ringAtStage2() {
+        return stage2Switch.isPressed();
+    }
+
+    private boolean ringAtStage3() {
+        return stage3Switch.isPressed();
+    }
+
+    //*********************************************************************************************
+    //          Give a command to the intake
+    //*********************************************************************************************
+
+    private void turnStage1On() {
+        stage1Motor.runAtConstantPower(1);
+    }
+
+    private void turnStage1Off() {
+        stage1Motor.stop();
+    }
+
+    private void turnStage2On() {
+        stage2CRServo.setPower(1);
+    }
+
+    private void turnStage2Off() {
+        stage2CRServo.setPower(0);
+    }
+
+    private void turnStage3On() {
+        stage3CRServo.setPower(1);
+    }
+
+    private void turnStage3Off() {
+        stage3CRServo.setPower(0);
+    }
+
+    private void turnIntakeOff() {
+        turnStage1Off();
+        turnStage2Off();
+        turnStage3Off();
+        currentState = State.OFF;
+    }
+
+    private void turnIntakeOn() {
+        turnStage2On();
+        turnStage1On();
+        turnStage3On();
+    }
+
+    private void turnIntake123On() {
+        turnOnTimer.reset();
+        currentState = State.DELAY;
+    }
+
+    //*********************************************************************************************
+    //          MAJOR METHODS
+    //
+    // public methods that give the class its functionality
+    //*********************************************************************************************
+
+    /**
+     * The state machine for the Intake. We need this because the timing of turning on the 3 stages
+     * has to be managed
+     */
+    public void update() {
+        // only get the switch info once per state machine once per state machine update
+        currentRingsAt = whereAreRings();
+        // log the state, command and where the rings are located into the log file
+        logState(currentState, currentCommand, currentRingsAt);
         switch (currentState) {
             case OFF:
                 switch (currentCommand) {
@@ -273,9 +417,9 @@ public class UltimateGoalIntake {
                         //already on
                         break;
                     case TURN_ON_3:
-                       turnStage2Off();
-                       commandComplete= true;
-                       currentState= State.THREE_ON;
+                        turnStage2Off();
+                        commandComplete= true;
+                        currentState= State.THREE_ON;
                         break;
                     case OFF:
                         turnIntakeOff();
@@ -376,11 +520,11 @@ public class UltimateGoalIntake {
                         currentState= State.TWO_THREE_ON;
                         break;
                     case TURN_ON_3:
-                       turnStage1Off();
-                       turnStage2Off();
-                       turnStage3On();
-                       commandComplete= true;
-                       currentState= State.THREE_ON;
+                        turnStage1Off();
+                        turnStage2Off();
+                        turnStage3On();
+                        commandComplete= true;
+                        currentState= State.THREE_ON;
                         break;
                     case OFF:
                         turnIntakeOff();
@@ -395,70 +539,10 @@ public class UltimateGoalIntake {
         }
     }
 
-    public void intakeEmpty() {
-        numberOfRingsAtStage3 = 0;
-    }
-
-    public boolean ringAtStage1() {
-        return stage1Switch.isPressed();
-    }
-
-    public boolean ringAtStage2() {
-        return stage2Switch.isPressed();
-    }
-
-    public boolean ringAtStage3() {
-        return stage3Switch.isPressed();
-    }
-
-    private void turnStage1On() {
-        stage1Motor.runAtConstantPower(1);
-
-    }
-
-    private void turnStage1Off() {
-        stage1Motor.stop();
-    }
-
-    private void turnStage2On() {
-        stage2CRServo.setPower(1);
-    }
-
-    private void turnStage2Off() {
-        stage2CRServo.setPower(0);
-    }
-
-    private void turnStage3On() {
-        stage3CRServo.setPower(1);
-    }
-
-    private void turnStage3Off() {
-        stage3CRServo.setPower(0);
-    }
-
-    private void turnIntakeOff() {
-        turnStage1Off();
-        turnStage2Off();
-        turnStage3Off();
-        currentState = State.OFF;
-    }
-
-    private void turnIntakeOn() {
-        turnStage2On();
-        turnStage1On();
-        turnStage3On();
-    }
-
-    private void turnIntake123On() {
-        turnOnTimer.reset();
-        currentState = State.DELAY;
-    }
-
     //*********************************************************************************************
-    //          MAJOR METHODS
-    //
-    // public methods that give the class its functionality
+    //          Requests for the intake to do something
     //*********************************************************************************************
+
     public void requestTurnStage1On() {
         if (commandComplete) {
             currentCommand = Commands.TURN_ON_1;
@@ -490,18 +574,55 @@ public class UltimateGoalIntake {
     }
 
     public void requestTurnIntakeOFF() {
-        currentCommand = Commands.OFF;
+        if (commandComplete) {
+            currentCommand = Commands.OFF;
+        }
     }
 
-    public RingsAt whereAreRings () {
+    /**
+     * Get the state of the switches for each stage and return it
+     * @return
+     */
+    private RingsAt whereAreRings () {
         RingsAt answer= RingsAt.NO_RINGS;
-        if (ringAtStage1() && !ringAtStage2() && !ringAtStage3()) answer= RingsAt.ONE;
-        if (!ringAtStage1() && ringAtStage2() && !ringAtStage3()) answer= RingsAt.TWO;
-        if (!ringAtStage1() && !ringAtStage2() && ringAtStage3()) answer= RingsAt.THREE;
-        if (ringAtStage1() && ringAtStage2() && !ringAtStage3()) answer= RingsAt.ONE_TWO;
-        if (!ringAtStage1() && ringAtStage2() && ringAtStage3()) answer= RingsAt.TWO_THREE;
-        if (ringAtStage1() && !ringAtStage2() && ringAtStage3()) answer= RingsAt.ONE_THREE;
-        if (ringAtStage1() && ringAtStage2() && ringAtStage3()) answer= RingsAt.ONE_TWO_THREE;
+        boolean ringAtStage1 = ringAtStage1();
+        boolean ringAtStage2 = ringAtStage2();
+        boolean ringAtStage3 = ringAtStage3();
+        if (ringAtStage1 && !ringAtStage2 && !ringAtStage3) answer= RingsAt.ONE;
+        if (!ringAtStage1 && ringAtStage2 && !ringAtStage3) answer= RingsAt.TWO;
+        if (!ringAtStage1 && !ringAtStage2 && ringAtStage3) answer= RingsAt.THREE;
+        if (ringAtStage1 && ringAtStage2 && !ringAtStage3) answer= RingsAt.ONE_TWO;
+        if (!ringAtStage1 && ringAtStage2 && ringAtStage3) answer= RingsAt.TWO_THREE;
+        if (ringAtStage1 && !ringAtStage2 && ringAtStage3) answer= RingsAt.ONE_THREE;
+        if (ringAtStage1 && ringAtStage2 && ringAtStage3) answer= RingsAt.ONE_TWO_THREE;
         return answer;
     }
+
+    /**
+     * Debug method to display switch value on the driver station
+     * @param telemetry
+     */
+    public void displaySWitches (Telemetry telemetry) {
+        if (stage1Switch.isPressed() ) {
+            telemetry.addData("switch 1 is pressed", ":)");
+        }
+        else {
+            telemetry.addData("switch 1 is NOT pressed", ":(");
+        }
+
+        if (stage2Switch.isPressed() ) {
+            telemetry.addData("switch 2 is pressed", ":)");
+        }
+        else {
+            telemetry.addData("switch 2 is NOT pressed", ":(");
+        }
+
+        if (stage3Switch.isPressed() ) {
+            telemetry.addData("switch 3 is pressed", ":)");
+        }
+        else {
+            telemetry.addData("switch 3 is NOT pressed", ":(");
+        }
+    }
+
 }
