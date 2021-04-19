@@ -339,10 +339,63 @@ public class UltimateGoalIntakeController {
                         break;
                     case FIRE_2:
                         switch (intake.whereAreRings()) {
-                            
+                            case ONE_TWO_THREE:
+                                intake.requestTurnStage123On();
+                                commandComplete= false;
+                                currentState= States.THREE_RING;
+                                break;
+                            case TWO_THREE:
+                                intake.requestTurnStage23On();
+                                commandComplete= false;
+                                currentState= States.THREE_RING;
+                                break;
+                            case THREE:
+                                intake.requestTurnIntakeOFF();
+                                commandComplete= true;
+                                currentState= States.ONE_RING;
+                                break;
+                            case NO_RINGS:
+                            case TWO:
+                            case ONE_THREE:
+                            case ONE_TWO:
+                            case ONE:
+                                intake.requestTurnStage123On();
+                                currentState= States.THREE_RING;
+                                commandComplete= false;
+                                break;
                         }
                         break;
                     case FIRE_3:
+                        switch (intake.whereAreRings()) {
+                            case ONE_TWO_THREE:
+                                intake.requestTurnStage123On();
+                                commandComplete= false;
+                                currentState= States.THREE_RING;
+                                break;
+                            case NO_RINGS:
+                                if (intake.getNumberOfRingsAtStage3()==1 || intake.getNumberOfRingsAtStage3()== 2) {
+                                    intake.requestTurnStage123On();
+                                    commandComplete= false;
+                                    currentState= States.THREE_RING;
+                                }
+                                if (intake.getNumberOfRingsAtStage3()==3){
+                                    intake.requestTurnIntakeOFF();
+                                    commandComplete= true;
+                                    currentState= States.IDLE;
+                                }
+                                break;
+                            case THREE:
+                            case TWO_THREE:
+                            case ONE:
+                            case TWO:
+                            case ONE_TWO:
+                            case ONE_THREE:
+                                intake.requestTurnStage123On();
+                                currentState= States.THREE_RING;
+                                commandComplete= false;
+                                break;
+
+                        }
                         break;
                 }
                 break;
