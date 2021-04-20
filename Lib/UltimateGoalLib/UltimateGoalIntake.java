@@ -141,7 +141,7 @@ public class UltimateGoalIntake {
         stage1Motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         stage2CRServo = hardwareMap.get(CRServo.class, "stage2CRServo");
-        stage2CRServo.setDirection(DcMotorSimple.Direction.REVERSE);
+        stage2CRServo.setDirection(DcMotorSimple.Direction.FORWARD);
         stage3CRServo = hardwareMap.get(CRServo.class, "stage3CRServo");
 
         turnOnTimer = new ElapsedTime();
