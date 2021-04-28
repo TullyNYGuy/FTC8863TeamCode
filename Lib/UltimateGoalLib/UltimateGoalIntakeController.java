@@ -147,34 +147,34 @@ public class UltimateGoalIntakeController {
             case THREE:
                 commandComplete = true;
                 intake.requestTurnStage12On();
-                currentState = States.ONE_RING;
+                this.currentState = States.ONE_RING;
                 break;
             case TWO_THREE:
                 commandComplete = true;
                 intake.requestTurnStage1On();
-                currentState = States.TWO_RING;
+                this.currentState = States.TWO_RING;
                 break;
             case ONE_TWO_THREE:
                 commandComplete = true;
                 intake.requestTurnIntakeOFF();
-                currentState = States.THREE_RING;
+                this.currentState = States.THREE_RING;
                 break;
             case TWO:
             case ONE:
                 intake.requestTurnStage123On();
                 commandComplete = false;
-                currentState = States.ONE_RING;
+                this.currentState = States.ONE_RING;
                 break;
 
             case ONE_TWO:
                 intake.requestTurnStage123On();
                 commandComplete = false;
-                currentState = States.TWO_RING;
+                this.currentState = States.TWO_RING;
                 break;
             case ONE_THREE:
                 intake.requestTurnStage12On();
                 commandComplete = false;
-                currentState = States.TWO_RING;
+                this.currentState = States.TWO_RING;
                 break;
         }
     }
