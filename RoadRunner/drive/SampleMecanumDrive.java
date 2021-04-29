@@ -35,8 +35,8 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
-import org.firstinspires.ftc.teamcode.RoadRunner.drive.util.DashboardUtil;
-import org.firstinspires.ftc.teamcode.RoadRunner.drive.util.LynxModuleUtil;
+import org.firstinspires.ftc.teamcode.RoadRunner.util.DashboardUtil;
+import org.firstinspires.ftc.teamcode.RoadRunner.util.LynxModuleUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;

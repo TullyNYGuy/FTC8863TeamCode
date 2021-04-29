@@ -7,8 +7,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.RoadRunner.drive.SampleMecanumDrive;
-import org.firstinspires.ftc.teamcode.RoadRunner.drive.util.JoyStick;
-import org.firstinspires.ftc.teamcode.RoadRunner.drive.util.UltimateGoalField;
+import org.firstinspires.ftc.teamcode.RoadRunner.util.JoyStick;
+import org.firstinspires.ftc.teamcode.RoadRunner.util.UltimateGoalField;
 
 /**
  * This is a simple teleop routine for testing localization. Drive the robot around like a normal
