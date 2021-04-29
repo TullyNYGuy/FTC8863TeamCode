@@ -138,7 +138,7 @@ public class UltimateGoalIntakeController {
         switch (intake.getCurrentRingsAt()) {
             case NO_RINGS:
                 intake.requestTurnStage123On();
-                if (currentState == States.NO_RING) {
+                if (this.currentState == States.NO_RING) {
                     commandComplete = true;
                 } else {
                     commandComplete = false;
@@ -147,34 +147,34 @@ public class UltimateGoalIntakeController {
             case THREE:
                 commandComplete = true;
                 intake.requestTurnStage12On();
-                currentState = States.ONE_RING;
+                this.currentState = States.ONE_RING;
                 break;
             case TWO_THREE:
                 commandComplete = true;
                 intake.requestTurnStage1On();
-                currentState = States.TWO_RING;
+                this.currentState = States.TWO_RING;
                 break;
             case ONE_TWO_THREE:
                 commandComplete = true;
                 intake.requestTurnIntakeOFF();
-                currentState = States.THREE_RING;
+                this.currentState = States.THREE_RING;
                 break;
             case TWO:
             case ONE:
                 intake.requestTurnStage123On();
                 commandComplete = false;
-                currentState = States.ONE_RING;
+                this.currentState = States.ONE_RING;
                 break;
 
             case ONE_TWO:
                 intake.requestTurnStage123On();
                 commandComplete = false;
-                currentState = States.TWO_RING;
+                this.currentState = States.TWO_RING;
                 break;
             case ONE_THREE:
                 intake.requestTurnStage12On();
                 commandComplete = false;
-                currentState = States.TWO_RING;
+                this.currentState = States.TWO_RING;
                 break;
         }
     }
@@ -285,6 +285,7 @@ public class UltimateGoalIntakeController {
                                 intake.requestTurnIntakeOFF();
                                 commandComplete = true;
                                 currentState = States.IDLE;
+                                currentCommand= Commands.OFF;
                                 break;
                             //no other cases matter
                         }
@@ -325,6 +326,7 @@ public class UltimateGoalIntakeController {
                                 intake.requestTurnIntakeOFF();
                                 commandComplete = true;
                                 currentState = States.IDLE;
+                                currentCommand= Commands.OFF;
                                 break;
                         }
                         break;
@@ -351,6 +353,7 @@ public class UltimateGoalIntakeController {
                                     intake.requestTurnIntakeOFF();
                                     commandComplete = true;
                                     currentState = States.IDLE;
+                                    currentCommand= Commands.OFF;
                                 }
                                 break;
                             case THREE:
@@ -386,6 +389,7 @@ public class UltimateGoalIntakeController {
                                 commandComplete = true;
                                 intake.requestTurnIntakeOFF();
                                 currentState = States.TWO_RING;
+                                currentCommand= Commands.OFF;
                                 break;
                             case THREE:
                                 intake.requestTurnStage12On();
@@ -419,6 +423,7 @@ public class UltimateGoalIntakeController {
                                 intake.requestTurnIntakeOFF();
                                 commandComplete = true;
                                 currentState = States.ONE_RING;
+                                currentCommand= Commands.OFF;
                                 break;
                             case NO_RINGS:
                             case TWO:
@@ -447,6 +452,7 @@ public class UltimateGoalIntakeController {
                                             intake.requestTurnIntakeOFF();
                                             commandComplete= true;
                                             currentState= States.IDLE;
+                                            currentCommand= Commands.OFF;
                                         }
                                         break;
                                     case THREE:

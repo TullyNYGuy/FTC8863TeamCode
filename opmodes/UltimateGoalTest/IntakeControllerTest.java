@@ -65,13 +65,13 @@ public class IntakeControllerTest extends LinearOpMode {
         controller.requestIntake();
 
         timer.reset();
-        while (opModeIsActive() && timer.milliseconds() < 10000) {
+        while (opModeIsActive() && timer.milliseconds() < 15000) {
 
             // Put your calls that need to run in a loop here
             controller.update();
             // Display the current value
             telemetry.addData(">", "Press Stop to terminate.");
-            //intake.displaySWitches(telemetry);
+            intake.displaySWitches(telemetry);
 
             telemetry.update();
 
