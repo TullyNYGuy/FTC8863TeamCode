@@ -113,7 +113,7 @@ public class GamepadUltimateGoal {
     public double gamepad2RightJoyStickXValue = 0;
     public double gamepad2RightJoyStickYValue = 0;
 
-    private UltimateGoalRobot robot;
+    private UltimateGoalRobotRoadRunner robot;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -130,7 +130,7 @@ public class GamepadUltimateGoal {
     // from it
     //*********************************************************************************************
 
-    public GamepadUltimateGoal(Gamepad gamepad1, Gamepad gamepad2, UltimateGoalRobot robot) {
+    public GamepadUltimateGoal(Gamepad gamepad1, Gamepad gamepad2, UltimateGoalRobotRoadRunner robot) {
         this.robot = robot;
 
         // create the gamepad 1 buttons and tell each button how many commands it has

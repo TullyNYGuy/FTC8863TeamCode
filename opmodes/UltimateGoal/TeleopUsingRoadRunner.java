@@ -79,6 +79,9 @@ public class TeleopUsingRoadRunner extends LinearOpMode {
             idle();
         }
 
+        // create the gamepad
+        gamepad = new GamepadUltimateGoal(gamepad1, gamepad2, robot);
+
         // Wait for the start button
         telemetry.addData(">", "Press start to run Teleop");
         telemetry.update();
