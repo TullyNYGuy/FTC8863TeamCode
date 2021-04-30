@@ -13,6 +13,7 @@ import com.acmerobotics.roadrunner.drive.MecanumDrive;
 import com.acmerobotics.roadrunner.followers.HolonomicPIDVAFollower;
 import com.acmerobotics.roadrunner.followers.TrajectoryFollower;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.profile.MotionProfile;
 import com.acmerobotics.roadrunner.profile.MotionProfileGenerator;
 import com.acmerobotics.roadrunner.profile.MotionState;
@@ -492,6 +493,37 @@ public class MecanumDriveUltimateGoal extends MecanumDrive implements FTCRobotSu
         // flat on a surface
 
         return (double) imu.getAngularVelocity().zRotationRate;
+    }
+
+    /**
+     * Calculate motor powers for driving in teleop using a joystick (x and y) that controls the direction of
+     * movement of the robot (translation) and a joystick (x) that controls the heading of the robot.
+     * The movement is relative to the driver or field (field centric or driver centric), not relative
+     * to the robot.
+     * @param translationJoystickYValue
+     * @param translationJoystickXValue
+     * @param rotationJoystickXValue
+     */
+    public void calculateMotorCommandsFieldCentric(double translationJoystickYValue, double translationJoystickXValue, double rotationJoystickXValue) {
+        // Read pose
+        Pose2d poseEstimate = getPoseEstimate();
+
+        // Create a vector from the gamepad x/y inputs
+        // Then, rotate that vector by the inverse of that heading
+        Vector2d input = new Vector2d(
+                -translationJoystickYValue,
+                -translationJoystickXValue
+        ).rotated(-poseEstimate.getHeading());
+
+        // Pass in the rotated input + right stick value for rotation
+        // Rotation is not part of the rotated input thus must be passed in separately
+        setWeightedDrivePower(
+                new Pose2d(
+                        input.getX(),
+                        input.getY(),
+                        -rotationJoystickXValue
+                )
+        );
     }
 
     @Override

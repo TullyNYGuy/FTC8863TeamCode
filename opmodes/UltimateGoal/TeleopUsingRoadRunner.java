@@ -64,7 +64,7 @@ public class TeleopUsingRoadRunner extends LinearOpMode {
     public Configuration config;
 
     // GAMEPAD 1
-    public int blockLevel = 0;
+
     // declare the buttons on the gamepad as multi push button objects
     // public GamepadButtonMultiPush gamepad1RightBumper;
     //public GamepadButtonMultiPush gamepad1LeftBumper;
@@ -94,6 +94,7 @@ public class TeleopUsingRoadRunner extends LinearOpMode {
     public GamepadButtonMultiPush gamepad2RightStickButton;
 
     // GAMEPAD 2
+    
     DataLogging dataLog = null;
     SmartJoystick gamepad1LeftJoyStickX;
     SmartJoystick gamepad1LeftJoyStickY;
@@ -420,26 +421,7 @@ public class TeleopUsingRoadRunner extends LinearOpMode {
 
             // The following code uses road runner to move the robot in a driver (field) centric
             // drive
-
-            // Read pose
-            Pose2d poseEstimate = robot.mecanum.getPoseEstimate();
-
-            // Create a vector from the gamepad x/y inputs
-            // Then, rotate that vector by the inverse of that heading
-            Vector2d input = new Vector2d(
-                    -gamepad1LeftJoyStickYValue,
-                    -gamepad1LeftJoyStickXValue
-            ).rotated(-poseEstimate.getHeading());
-
-            // Pass in the rotated input + right stick value for rotation
-            // Rotation is not part of the rotated input thus must be passed in separately
-            robot.mecanum.setWeightedDrivePower(
-                    new Pose2d(
-                            input.getX(),
-                            input.getY(),
-                            -gamepad1RightJoyStickXValue
-                    )
-            );
+            robot.mecanum.calculateMotorCommandsFieldCentric(gamepad1LeftJoyStickYValue, gamepad1LeftJoyStickXValue, gamepad1RightJoyStickXValue);
 
             // update the robot
             robot.update();
