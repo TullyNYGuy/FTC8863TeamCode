@@ -133,6 +133,10 @@ public class GamepadUltimateGoal {
     public GamepadUltimateGoal(Gamepad gamepad1, Gamepad gamepad2, UltimateGoalRobotRoadRunner robot) {
         this.robot = robot;
 
+        //
+        //YOU WILL HAVE TO CONFIGURE THE GAMEPAD BUTTONS FOR TOGGLING IF YOU WANT THAT. DO THAT HERE.
+        //
+
         // create the gamepad 1 buttons and tell each button how many commands it has
         // gamepad1RightBumper = new GamepadButtonMultiPush(1);
         // gamepad1LeftBumper = new GamepadButtonMultiPush(1);
@@ -188,6 +192,10 @@ public class GamepadUltimateGoal {
     //*********************************************************************************************
 
     public void update() {
+
+        //
+        //YOU WILL HAVE TO CONFIGURE THE GAMEPAD BUTTONS WITH ROBOT COMMANDS. DO THAT HERE.
+        //
 
         //*************************************************************************************
         // Gamepad 1 buttons
