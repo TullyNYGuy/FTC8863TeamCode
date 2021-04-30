@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.opmodes.UltimateGoal;
+package org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib;
 
 import androidx.annotation.NonNull;
 
@@ -35,7 +35,10 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
-import org.firstinspires.ftc.teamcode.RoadRunner.drive.StandardTrackingWheelLocalizer;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
+import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.TrackingWheelLocalizerUltimateGoal;
 import org.firstinspires.ftc.teamcode.RoadRunner.util.DashboardUtil;
 import org.firstinspires.ftc.teamcode.RoadRunner.util.LynxModuleUtil;
 
@@ -44,23 +47,44 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-import static org.firstinspires.ftc.teamcode.RoadRunner.drive.DriveConstants.MAX_ACCEL;
-import static org.firstinspires.ftc.teamcode.RoadRunner.drive.DriveConstants.MAX_ANG_ACCEL;
-import static org.firstinspires.ftc.teamcode.RoadRunner.drive.DriveConstants.MAX_ANG_VEL;
-import static org.firstinspires.ftc.teamcode.RoadRunner.drive.DriveConstants.MAX_VEL;
-import static org.firstinspires.ftc.teamcode.RoadRunner.drive.DriveConstants.MOTOR_VELO_PID;
-import static org.firstinspires.ftc.teamcode.RoadRunner.drive.DriveConstants.RUN_USING_ENCODER;
-import static org.firstinspires.ftc.teamcode.RoadRunner.drive.DriveConstants.TRACK_WIDTH;
-import static org.firstinspires.ftc.teamcode.RoadRunner.drive.DriveConstants.encoderTicksToInches;
-import static org.firstinspires.ftc.teamcode.RoadRunner.drive.DriveConstants.kA;
-import static org.firstinspires.ftc.teamcode.RoadRunner.drive.DriveConstants.kStatic;
-import static org.firstinspires.ftc.teamcode.RoadRunner.drive.DriveConstants.kV;
+import static org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.DriveConstantsUltimateGoal.MAX_ACCEL;
+import static org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.DriveConstantsUltimateGoal.MAX_ANG_ACCEL;
+import static org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.DriveConstantsUltimateGoal.MAX_ANG_VEL;
+import static org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.DriveConstantsUltimateGoal.MAX_VEL;
+import static org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.DriveConstantsUltimateGoal.MOTOR_VELO_PID;
+import static org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.DriveConstantsUltimateGoal.RUN_USING_ENCODER;
+import static org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.DriveConstantsUltimateGoal.TRACK_WIDTH;
+import static org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.DriveConstantsUltimateGoal.encoderTicksToInches;
+import static org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.DriveConstantsUltimateGoal.kA;
+import static org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.DriveConstantsUltimateGoal.kStatic;
+import static org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.DriveConstantsUltimateGoal.kV;
 
 /*
  * Simple mecanum drive hardware implementation for REV hardware.
  */
 @Config
-public class MecanumDriveUltimateGoal extends MecanumDrive {
+public class MecanumDriveUltimateGoal extends MecanumDrive implements FTCRobotSubsystem {
+
+    //*********************************************************************************************
+    //          ENUMERATED TYPES
+    //
+    // user defined types
+    //
+    //*********************************************************************************************
+
+    public enum Mode {
+        IDLE,
+        TURN,
+        FOLLOW_TRAJECTORY
+    }
+
+    //*********************************************************************************************
+    //          PRIVATE DATA FIELDS
+    //
+    // can be accessed only by this class, or by using the public
+    // getter and setter methods
+    //*********************************************************************************************
+
     public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(2, 0, 0);
     public static PIDCoefficients HEADING_PID = new PIDCoefficients(12, 0, 0);
 
@@ -71,12 +95,6 @@ public class MecanumDriveUltimateGoal extends MecanumDrive {
     public static double OMEGA_WEIGHT = 1;
 
     public static int POSE_HISTORY_LIMIT = 100;
-
-    public enum Mode {
-        IDLE,
-        TURN,
-        FOLLOW_TRAJECTORY
-    }
 
     private FtcDashboard dashboard;
     private NanoClock clock;
@@ -101,7 +119,39 @@ public class MecanumDriveUltimateGoal extends MecanumDrive {
 
     private Pose2d lastPoseOnTurn;
 
-    public MecanumDriveUltimateGoal(HardwareMap hardwareMap) {
+    private DataLogging logFile = null;
+    private boolean loggingOn = false;
+
+    //*********************************************************************************************
+    //          GETTER and SETTER Methods
+    //
+    // allow access to private data fields for example setMotorPower,
+    // getPositionInTermsOfAttachment
+    //*********************************************************************************************
+
+    @Override
+    public void setDataLog(DataLogging logFile) {
+        this.logFile = logFile;
+    }
+
+    @Override
+    public void enableDataLogging() {
+        this.loggingOn = true;
+    }
+
+    @Override
+    public void disableDataLogging() {
+        this.loggingOn = false;
+    }
+
+    //*********************************************************************************************
+    //          Constructors
+    //
+    //
+    // the function that builds the class when an object is created
+    // from it
+    //*********************************************************************************************
+    public MecanumDriveUltimateGoal(String frontLeftMotorName, String backLeftMotorName, String frontRightMotorName, String backRightMotorName, HardwareMap hardwareMap) {
         super(kV, kA, kStatic, TRACK_WIDTH, TRACK_WIDTH, LATERAL_MULTIPLIER);
 
         dashboard = FtcDashboard.getInstance();
@@ -142,10 +192,10 @@ public class MecanumDriveUltimateGoal extends MecanumDrive {
         // upward (normal to the floor) using a command like the following:
         // BNO055IMUUtil.remapAxes(imu, AxesOrder.XYZ, AxesSigns.NPN);
 
-        leftFront = hardwareMap.get(DcMotorEx.class, "FrontLeft");
-        leftRear = hardwareMap.get(DcMotorEx.class, "BackLeft");
-        rightRear = hardwareMap.get(DcMotorEx.class, "BackRight");
-        rightFront = hardwareMap.get(DcMotorEx.class, "FrontRight");
+        leftFront = hardwareMap.get(DcMotorEx.class, frontLeftMotorName);
+        leftRear = hardwareMap.get(DcMotorEx.class, backLeftMotorName);
+        rightRear = hardwareMap.get(DcMotorEx.class, backRightMotorName);
+        rightFront = hardwareMap.get(DcMotorEx.class, frontRightMotorName);
 
         motors = Arrays.asList(leftFront, leftRear, rightRear, rightFront);
 
@@ -171,8 +221,21 @@ public class MecanumDriveUltimateGoal extends MecanumDrive {
 
         // TODO: if desired, use setLocalizer() to change the localization method
         // for instance, setLocalizer(new ThreeTrackingWheelLocalizer(...));
-        setLocalizer(new StandardTrackingWheelLocalizer(hardwareMap));
+        setLocalizer(new TrackingWheelLocalizerUltimateGoal(hardwareMap));
     }
+
+    //*********************************************************************************************
+    //          Helper Methods
+    //
+    // methods that aid or support the major functions in the class
+    //*********************************************************************************************
+
+
+    //*********************************************************************************************
+    //          MAJOR METHODS
+    //
+    // public methods that give the class its functionality
+    //*********************************************************************************************
 
     public TrajectoryBuilder trajectoryBuilder(Pose2d startPose) {
         return new TrajectoryBuilder(startPose, velConstraint, accelConstraint);
@@ -429,5 +492,28 @@ public class MecanumDriveUltimateGoal extends MecanumDrive {
         // flat on a surface
 
         return (double) imu.getAngularVelocity().zRotationRate;
+    }
+
+    @Override
+    public String getName() {
+        return "mecanum";
+    }
+
+    @Override
+    public boolean isInitComplete() {
+        return true;
+    }
+
+    @Override
+    public void shutdown() {
+    }
+
+    @Override
+    public void timedUpdate(double timerValueMsec) {
+    }
+
+    @Override
+    public boolean init(Configuration config) {
+        return true;
     }
 }

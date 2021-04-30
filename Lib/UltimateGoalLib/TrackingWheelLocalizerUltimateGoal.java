@@ -27,21 +27,21 @@ import java.util.List;
  *
  */
 @Config
-public class StandardTrackingWheelLocalizer extends ThreeTrackingWheelLocalizer {
+public class TrackingWheelLocalizerUltimateGoal extends ThreeTrackingWheelLocalizer {
     public static double TICKS_PER_REV = 1440;
-    public static double WHEEL_RADIUS = .748; // in
+    public static double WHEEL_RADIUS = .748; // in 38mm omniwheel
     public static double GEAR_RATIO = 1; // output (wheel) speed / input (encoder) speed
 
-    public static double LATERAL_DISTANCE = 16.506; // in; distance between the left and right wheels
-    public static double FORWARD_OFFSET = -4.976; // in; offset of the lateral wheel
+    public static double LATERAL_DISTANCE = 16.2205; // in; distance between the left and right wheels = 206mm * 2 from cad
+    public static double FORWARD_OFFSET = -7.2638; // in; offset of the lateral wheel = 184.5mm from cad
 
     // use these to adjust for wheel radius differences
-    public static double X_MULTIPLIER = .9957; // Multiplier in the X direction
-    public static double Y_MULTIPLIER = 0.9984; // Multiplier in the Y direction
+    public static double X_MULTIPLIER = 1.0; // Multiplier in the X direction
+    public static double Y_MULTIPLIER = 1.0; // Multiplier in the Y direction
 
     private Encoder leftEncoder, rightEncoder, frontEncoder;
 
-    public StandardTrackingWheelLocalizer(HardwareMap hardwareMap) {
+    public TrackingWheelLocalizerUltimateGoal(HardwareMap hardwareMap) {
         super(Arrays.asList(
                 new Pose2d(0, LATERAL_DISTANCE / 2, 0), // left
                 new Pose2d(0, -LATERAL_DISTANCE / 2, 0), // right

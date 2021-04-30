@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.opmodes.UltimateGoal;
+package org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
@@ -13,9 +13,11 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
  *
  * These are not the only parameters; some are located in the localizer classes, drive base classes,
  * and op modes themselves.
+ *
+ * THESE CONSTANTS ARE FOR THE STRAFER CHASSIS USED FOR OUR ULTIMATE GOAL ROBOT
  */
 @Config
-public class DriveContantsUltimateGoal {
+public class DriveConstantsUltimateGoal {
 
     /*
      * These are motor constants that should be listed online for your motors.
@@ -43,10 +45,9 @@ public class DriveContantsUltimateGoal {
      * angular distances although most angular parameters are wrapped in Math.toRadians() for
      * convenience. Make sure to exclude any gear ratio included in MOTOR_CONFIG from GEAR_RATIO.
      */
-    public static double WHEEL_RADIUS = 1.8898; // in
+    public static double WHEEL_RADIUS = 1.8898; // in - goBilda mecanum wheels (96mm diam)
     public static double GEAR_RATIO = 1.0; // output (wheel) speed / input (motor) speed
-    //public static double TRACK_WIDTH = 13.461; // in
-    public static double TRACK_WIDTH = 16.358; // in
+    public static double TRACK_WIDTH = 15.878; // from cad 403.3mm
 
     /*
      * These are the feedforward parameters used to model the drive motor behavior. If you are using
