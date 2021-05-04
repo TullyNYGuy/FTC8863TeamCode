@@ -42,6 +42,8 @@ public class UltimateGoalRobotRoadRunner implements FTCRobot {
         ODOMETRY_MODULE_LEFT("FrontLeft"),
         ODOMETRY_MODULE_RIGHT("BackLeft"),
         ODOMETRY_MODULE_BACK("BackRight"),
+        LEFT_DUAL_MOTOR("LeftDualMotor"),
+        RIGHT_DUAL_MOTOR("RightDualMotor")
         ;
 
         public final String hwName;
@@ -82,6 +84,7 @@ public class UltimateGoalRobotRoadRunner implements FTCRobot {
     private AdafruitIMU8863 imu;
     public MecanumDriveUltimateGoal mecanum;
     private UltimateGoalIntakeController intakeController;
+    public Shooter shooter;
 
     public UltimateGoalRobotRoadRunner(HardwareMap hardwareMap, Telemetry telemetry, Configuration config, DataLogging dataLog, DistanceUnit units, LinearOpMode opMode) {
         timer = new ElapsedTime();
@@ -111,6 +114,11 @@ public class UltimateGoalRobotRoadRunner implements FTCRobot {
             subsystemMap.put(mecanum.getName(), mecanum);
         }
 
+        if (capabilities.contains(Subsystem.SHOOTER)) {
+            shooter = new Shooter(HardwareName.LEFT_DUAL_MOTOR.hwName, HardwareName.RIGHT_DUAL_MOTOR.hwName, hardwareMap, telemetry);
+            subsystemMap.put(shooter.getName(), shooter);
+        }
+
         init();
         return true;
     }
@@ -128,11 +136,6 @@ public class UltimateGoalRobotRoadRunner implements FTCRobot {
                 if (dataLoggingEnabled)
                     dataLog.logData(subsystem.getName() + " initialization failed");
             }
-        }
-
-        if (mecanum != null && !mecanum.init(config)) {
-            if (dataLoggingEnabled)
-                dataLog.logData("Mecanum initialization failed");
         }
 
         // inits for the command state machines
