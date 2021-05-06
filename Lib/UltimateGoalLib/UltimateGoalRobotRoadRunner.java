@@ -32,18 +32,25 @@ public class UltimateGoalRobotRoadRunner implements FTCRobot {
     public enum HardwareName {
 
         IMU("imu"),
-        CONFIG_FL_MOTOR("FLMotor"),
-        CONFIG_FR_MOTOR("FRMotor"),
-        CONFIG_BL_MOTOR("BLMotor"),
-        CONFIG_BR_MOTOR("BRMotor"),
+        CONFIG_FL_MOTOR("leftFrontMotor"),
+        CONFIG_FR_MOTOR("rightFrontMotor"),
+        CONFIG_BL_MOTOR("leftRearMotor"),
+        CONFIG_BR_MOTOR("rightRearMotor"),
         CONFIG_LEFT_ODOMETRY_MODULE("LeftOdometryModule"),
         CONFIG_RIGHT_ODOMETRY_MODULE("RightOdometryModule"),
         CONFIG_BACK_ODOMETRY_MODULE("BackOdometryModule"),
         ODOMETRY_MODULE_LEFT("FrontLeft"),
         ODOMETRY_MODULE_RIGHT("BackLeft"),
         ODOMETRY_MODULE_BACK("BackRight"),
-        LEFT_DUAL_MOTOR("LeftDualMotor"),
-        RIGHT_DUAL_MOTOR("RightDualMotor")
+        LEFT_SHOOTER_MOTOR("leftShooterMotor"),
+        RIGHT_SHOOTER_MOTOR("rightShooterMotor"),
+        LEAD_SCREW_MOTOR ("leadScrewMotor"),
+        STAGE_1_MOTOR ("stage1motor"),
+        STAGE_2_SWITCH ("stage2switch"),
+        STAGE_3_SWITCH ("stage3switch"),
+        STAGE_1_SENSOR ("stage1sensor"),
+        STAGE_2_SERVO ("stage2servo"),
+        STAGE_3_SERVO ("stage3servo")
         ;
 
         public final String hwName;
@@ -115,7 +122,7 @@ public class UltimateGoalRobotRoadRunner implements FTCRobot {
         }
 
         if (capabilities.contains(Subsystem.SHOOTER)) {
-            shooter = new Shooter(HardwareName.LEFT_DUAL_MOTOR.hwName, HardwareName.RIGHT_DUAL_MOTOR.hwName, hardwareMap, telemetry);
+            shooter = new Shooter(HardwareName.LEFT_SHOOTER_MOTOR.hwName, HardwareName.RIGHT_SHOOTER_MOTOR.hwName, hardwareMap, telemetry);
             subsystemMap.put(shooter.getName(), shooter);
         }
 
@@ -137,8 +144,6 @@ public class UltimateGoalRobotRoadRunner implements FTCRobot {
                     dataLog.logData(subsystem.getName() + " initialization failed");
             }
         }
-
-        // inits for the command state machines
 
         // wait until all the updates are complete or until the timer has expired
         timer.reset();
@@ -214,6 +219,9 @@ public class UltimateGoalRobotRoadRunner implements FTCRobot {
      * For each subsystem that supports logging turn it on.
      */
     public void enableDataLogging() {
+        for (FTCRobotSubsystem subsystem : subsystemMap.values()) {
+            subsystem.enableDataLogging();
+        }
         dataLoggingEnabled = true;
     }
 
@@ -221,8 +229,10 @@ public class UltimateGoalRobotRoadRunner implements FTCRobot {
      * For each subsystem that supports logging, turn it off
      */
     public void disableDataLogging() {
+        for (FTCRobotSubsystem subsystem : subsystemMap.values()) {
+            subsystem.disableDataLogging();
+        }
         dataLoggingEnabled = false;
-
     }
 
     private void log(String stringToLog) {

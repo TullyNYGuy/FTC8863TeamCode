@@ -6,10 +6,14 @@ import android.sax.StartElementListener;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
+import com.qualcomm.robotcore.hardware.SwitchableLight;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Switch;
@@ -63,7 +67,8 @@ public class UltimateGoalIntake {
 
     private ElapsedTime turnOnTimer;
 
-    private Switch stage1Switch;
+    private NormalizedColorSensor stage1Sensor;     /** The colorSensor field will contain a reference to our color sensor hardware object */
+
     private Switch stage2Switch;
     private Switch stage3Switch;
 
@@ -129,20 +134,23 @@ public class UltimateGoalIntake {
     //*********************************************************************************************
 
     public UltimateGoalIntake(HardwareMap hardwareMap, Telemetry telemetry) {
-        stage1Switch = new Switch(hardwareMap, "stage1Switch", Switch.SwitchType.NORMALLY_OPEN);
-        stage2Switch = new Switch(hardwareMap, "stage2Switch", Switch.SwitchType.NORMALLY_OPEN);
-        stage3Switch = new Switch(hardwareMap, "stage3Switch", Switch.SwitchType.NORMALLY_OPEN);
+        stage1Sensor = hardwareMap.get(NormalizedColorSensor.class, UltimateGoalRobotRoadRunner.HardwareName.STAGE_1_SENSOR.hwName);
+        if (stage1Sensor instanceof SwitchableLight) {
+            ((SwitchableLight)stage1Sensor).enableLight(true);
+        }
+        stage2Switch = new Switch(hardwareMap, UltimateGoalRobotRoadRunner.HardwareName.STAGE_2_SWITCH.hwName, Switch.SwitchType.NORMALLY_OPEN);
+        stage3Switch = new Switch(hardwareMap, UltimateGoalRobotRoadRunner.HardwareName.STAGE_3_SWITCH.hwName, Switch.SwitchType.NORMALLY_OPEN);
 
-        stage1Motor = new DcMotor8863("stage1Motor", hardwareMap, telemetry);
+        stage1Motor = new DcMotor8863(UltimateGoalRobotRoadRunner.HardwareName.STAGE_1_MOTOR.hwName, hardwareMap, telemetry);
         stage1Motor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
         stage1Motor.setMovementPerRev(360);
-        stage1Motor.setDirection(DcMotorSimple.Direction.REVERSE);
+        stage1Motor.setDirection(DcMotorSimple.Direction.FORWARD);
         stage1Motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         stage1Motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        stage2CRServo = hardwareMap.get(CRServo.class, "stage2CRServo");
+        stage2CRServo = hardwareMap.get(CRServo.class, UltimateGoalRobotRoadRunner.HardwareName.STAGE_2_SERVO.hwName);
         stage2CRServo.setDirection(DcMotorSimple.Direction.FORWARD);
-        stage3CRServo = hardwareMap.get(CRServo.class, "stage3CRServo");
+        stage3CRServo = hardwareMap.get(CRServo.class, UltimateGoalRobotRoadRunner.HardwareName.STAGE_3_SERVO.hwName);
 
         turnOnTimer = new ElapsedTime();
     }
@@ -195,7 +203,13 @@ public class UltimateGoalIntake {
     //*********************************************************************************************
 
     private boolean ringAtStage1() {
-        return stage1Switch.isPressed();
+        boolean result=false;
+        if (stage1Sensor instanceof DistanceSensor) {
+            if (((DistanceSensor) stage1Sensor).getDistance(DistanceUnit.CM)<8) {
+                result=true;
+            }
+        }
+        return result;
     }
 
     private boolean ringAtStage2() {
@@ -605,12 +619,7 @@ public class UltimateGoalIntake {
      * @param telemetry
      */
     public void displaySWitches (Telemetry telemetry) {
-        if (stage1Switch.isPressed() ) {
-            telemetry.addData("switch 1 is pressed", ":)");
-        }
-        else {
-            telemetry.addData("switch 1 is NOT pressed", ":(");
-        }
+        telemetry.addData("distance=", ((DistanceSensor) stage1Sensor).getDistance(DistanceUnit.CM));
 
         if (stage2Switch.isPressed() ) {
             telemetry.addData("switch 2 is pressed", ":)");
