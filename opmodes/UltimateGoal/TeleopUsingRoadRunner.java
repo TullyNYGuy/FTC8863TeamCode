@@ -2,9 +2,11 @@ package org.firstinspires.ftc.teamcode.opmodes.UltimateGoal;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -19,6 +21,8 @@ import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.IntakeWheels;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.SkystoneRobot;
 import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.GamepadUltimateGoal;
 import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.UltimateGoalRobotRoadRunner;
+
+import java.util.List;
 
 @TeleOp(name = "Teleop", group = "AARun")
 //@Disabled
@@ -60,6 +64,9 @@ public class TeleopUsingRoadRunner extends LinearOpMode {
         robot = new UltimateGoalRobotRoadRunner(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, this);
 
         robot.createRobot();
+
+        enableBulkReads(hardwareMap, LynxModule.BulkCachingMode.AUTO);
+
         // start the inits for the robot subsytems
         robot.init();
         timer.reset();
@@ -128,6 +135,14 @@ public class TeleopUsingRoadRunner extends LinearOpMode {
     //*********************************************************************************************
     //             Helper methods
     //*********************************************************************************************
+
+    public void enableBulkReads(HardwareMap hardwareMap, LynxModule.BulkCachingMode mode) {
+        // set bulk read mode for the sensor reads - speeds up the loop
+        List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
+        for (LynxModule hub : allHubs) {
+            hub.setBulkCachingMode(mode);
+        }
+    }
 }
 
 
