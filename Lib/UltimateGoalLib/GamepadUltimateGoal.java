@@ -32,6 +32,7 @@ package org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobot;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.GamepadButtonMultiPush;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.JoyStick;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.SmartJoystick;
@@ -113,7 +114,7 @@ public class GamepadUltimateGoal {
     public double gamepad2RightJoyStickXValue = 0;
     public double gamepad2RightJoyStickYValue = 0;
 
-    private UltimateGoalRobotRoadRunner robot;
+    private FTCRobot robot;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -130,7 +131,7 @@ public class GamepadUltimateGoal {
     // from it
     //*********************************************************************************************
 
-    public GamepadUltimateGoal(Gamepad gamepad1, Gamepad gamepad2, UltimateGoalRobotRoadRunner robot) {
+    public GamepadUltimateGoal(Gamepad gamepad1, Gamepad gamepad2, FTCRobot robot) {
         this.robot = robot;
 
         //
