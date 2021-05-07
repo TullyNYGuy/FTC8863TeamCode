@@ -238,6 +238,8 @@ public class MecanumDriveUltimateGoal extends MecanumDrive implements FTCRobotSu
     // public methods that give the class its functionality
     //*********************************************************************************************
 
+    // MOTION CONTROL METHODS
+
     public TrajectoryBuilder trajectoryBuilder(Pose2d startPose) {
         return new TrajectoryBuilder(startPose, velConstraint, accelConstraint);
     }
@@ -293,6 +295,9 @@ public class MecanumDriveUltimateGoal extends MecanumDrive implements FTCRobotSu
         throw new AssertionError();
     }
 
+    /**
+     * Update the drive motion control
+     */
     public void update() {
         updatePoseEstimate();
 
@@ -495,6 +500,8 @@ public class MecanumDriveUltimateGoal extends MecanumDrive implements FTCRobotSu
         return (double) imu.getAngularVelocity().zRotationRate;
     }
 
+    // THE NEXT TWO METHODS ARE USED FOR TELEOP DRIVING THE ROBOT.
+
     /**
      * Calculate motor powers for driving in teleop using a joystick (x and y) that controls the direction of
      * movement of the robot (translation) and a joystick (x) that controls the heading of the robot.
@@ -524,6 +531,26 @@ public class MecanumDriveUltimateGoal extends MecanumDrive implements FTCRobotSu
                         -rotationJoystickXValue
                 )
         );
+        //NOTE that the teleop or other calling code must call the drive update() method.
+    }
+
+    /**
+     * Calculate motor powers for driving in teleop using a joystick (x and y) that controls the direction of
+     * movement of the robot (translation) and a joystick (x) that controls the heading of the robot.
+     * The movement is relative to the robot.
+     * @param translationJoystickYValue
+     * @param translationJoystickXValue
+     * @param rotationJoystickXValue
+     */
+    public void calculateMotorCommandsRobotCentric(double translationJoystickYValue, double translationJoystickXValue, double rotationJoystickXValue) {
+        setWeightedDrivePower(
+                new Pose2d(
+                        -translationJoystickYValue,
+                        -translationJoystickXValue,
+                        -rotationJoystickXValue
+                )
+        );
+        //NOTE that the teleop or other calling code must call the drive update() method.
     }
 
     @Override
