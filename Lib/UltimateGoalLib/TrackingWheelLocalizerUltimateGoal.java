@@ -48,9 +48,9 @@ public class TrackingWheelLocalizerUltimateGoal extends ThreeTrackingWheelLocali
                 new Pose2d(FORWARD_OFFSET, 0, Math.toRadians(90)) // front
         ));
 
-        leftEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "FrontLeft"));
-        rightEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "BackLeft"));
-        frontEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "BackRight"));
+        leftEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, UltimateGoalRobotRoadRunner.HardwareName.CONFIG_FL_MOTOR.hwName));
+        rightEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, UltimateGoalRobotRoadRunner.HardwareName.CONFIG_FR_MOTOR.hwName));
+        frontEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, UltimateGoalRobotRoadRunner.HardwareName.CONFIG_BR_MOTOR.hwName));
 
         // TODO: reverse any encoders using Encoder.setDirection(Encoder.Direction.REVERSE)
         frontEncoder.setDirection(Encoder.Direction.FORWARD);

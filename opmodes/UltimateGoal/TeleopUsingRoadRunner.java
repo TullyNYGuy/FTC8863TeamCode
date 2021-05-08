@@ -24,7 +24,7 @@ import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.UltimateGoalRobotRoadR
 
 import java.util.List;
 
-@TeleOp(name = "Teleop", group = "AARun")
+@TeleOp(name = "Teleop Roadrunner", group = "AARun")
 //@Disabled
 
 public class TeleopUsingRoadRunner extends LinearOpMode {
@@ -53,13 +53,14 @@ public class TeleopUsingRoadRunner extends LinearOpMode {
         telemetry.update();
 
         dataLog = new DataLogging("Teleop", telemetry);
-        config = new Configuration();
-        if (!config.load()) {
-            telemetry.addData("ERROR", "Couldn't load config file");
-            telemetry.update();
-        }
+        config = null;
+//        config = new Configuration();
+//        if (!config.load()) {
+//            telemetry.addData("ERROR", "Couldn't load config file");
+//            telemetry.update();
+//        }
         timer = new ElapsedTime();
-        MecanumCommands commands = new MecanumCommands();
+        //MecanumCommands commands = new MecanumCommands();
 
         robot = new UltimateGoalRobotRoadRunner(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, this);
 

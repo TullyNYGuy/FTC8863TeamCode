@@ -46,7 +46,8 @@ public class UltimateGoalRobotRoadRunner implements FTCRobot {
         RIGHT_SHOOTER_MOTOR("rightShooterMotor"),
         LEAD_SCREW_MOTOR ("leadScrewMotor"),
         STAGE_1_MOTOR ("stage1motor"),
-        STAGE_2_SWITCH ("stage2switch"),
+        STAGE_2A_SWITCH ("stage2Aswitch"),
+        STAGE_2B_SWITCH ("stage2Bswitch"),
         STAGE_3_SWITCH ("stage3switch"),
         STAGE_1_SENSOR ("stage1sensor"),
         STAGE_2_SERVO ("stage2servo"),
@@ -100,10 +101,10 @@ public class UltimateGoalRobotRoadRunner implements FTCRobot {
         this.units = units;
         this.config = config;
         this.dataLog = dataLog;
-        enableDataLogging();
         this.opMode = opMode;
         this.subsystemMap = new HashMap<String, FTCRobotSubsystem>();
         setCapabilities(Subsystem.values());
+        enableDataLogging();
     }
 
     /*
@@ -258,4 +259,37 @@ public class UltimateGoalRobotRoadRunner implements FTCRobot {
             return true;
     }
 
+    public void intakeOn () {
+        intakeController.requestIntake();
+    }
+
+    public void intakeOff () {
+        intakeController.requestOff();
+    }
+
+    public void fire1 () {
+        intakeController.requestFire_1();
+    }
+
+    public void fire2 () {
+        intakeController.requestFire_2();
+    }
+
+    public void fire3 () {
+        intakeController.requestFire_3();
+    }
+
+    public void eStop () {
+        intakeController.requestEstop();
+        shooter.stop();
+    }
+
+    public void shooterOn () {
+        shooter.setSpeed(5000);
+    }
+
+    public void shooterOff () {
+        shooter.stop();
+    }
 }
+

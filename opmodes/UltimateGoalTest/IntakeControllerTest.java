@@ -65,7 +65,7 @@ public class IntakeControllerTest extends LinearOpMode {
         controller.requestIntake();
 
         timer.reset();
-        while (opModeIsActive() && timer.milliseconds() < 10000) {
+        while (opModeIsActive()) {
 
             // Put your calls that need to run in a loop here
             controller.update();
@@ -78,19 +78,7 @@ public class IntakeControllerTest extends LinearOpMode {
             idle();
         }
 
-        controller.requestFire_1();
-        while (opModeIsActive()) {
 
-            // Put your calls that need to run in a loop here
-            controller.update();
-            // Display the current value
-            telemetry.addData(">", "Press Stop to terminate.");
-            intake.displaySWitches(telemetry);
-
-            telemetry.update();
-
-            idle();
-        }
 
         // Put your cleanup code here - it runs as the application shuts down
         telemetry.addData(">", "Done");

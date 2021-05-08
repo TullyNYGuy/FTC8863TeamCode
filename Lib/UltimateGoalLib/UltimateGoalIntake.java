@@ -69,7 +69,8 @@ public class UltimateGoalIntake {
 
     private NormalizedColorSensor stage1Sensor;     /** The colorSensor field will contain a reference to our color sensor hardware object */
 
-    private Switch stage2Switch;
+    private Switch stage2ASwitch;
+    private Switch stage2BSwitch;
     private Switch stage3Switch;
 
     private DcMotor8863 stage1Motor;
@@ -138,7 +139,8 @@ public class UltimateGoalIntake {
         if (stage1Sensor instanceof SwitchableLight) {
             ((SwitchableLight)stage1Sensor).enableLight(true);
         }
-        stage2Switch = new Switch(hardwareMap, UltimateGoalRobotRoadRunner.HardwareName.STAGE_2_SWITCH.hwName, Switch.SwitchType.NORMALLY_OPEN);
+        stage2ASwitch = new Switch(hardwareMap, UltimateGoalRobotRoadRunner.HardwareName.STAGE_2A_SWITCH.hwName, Switch.SwitchType.NORMALLY_OPEN);
+        stage2BSwitch = new Switch(hardwareMap, UltimateGoalRobotRoadRunner.HardwareName.STAGE_2B_SWITCH.hwName, Switch.SwitchType.NORMALLY_OPEN);
         stage3Switch = new Switch(hardwareMap, UltimateGoalRobotRoadRunner.HardwareName.STAGE_3_SWITCH.hwName, Switch.SwitchType.NORMALLY_OPEN);
 
         stage1Motor = new DcMotor8863(UltimateGoalRobotRoadRunner.HardwareName.STAGE_1_MOTOR.hwName, hardwareMap, telemetry);
@@ -213,7 +215,7 @@ public class UltimateGoalIntake {
     }
 
     private boolean ringAtStage2() {
-        return stage2Switch.isPressed();
+        return stage2ASwitch.isPressed()|| stage2BSwitch.isPressed();
     }
 
     private boolean ringAtStage3() {
@@ -621,11 +623,18 @@ public class UltimateGoalIntake {
     public void displaySWitches (Telemetry telemetry) {
         telemetry.addData("distance=", ((DistanceSensor) stage1Sensor).getDistance(DistanceUnit.CM));
 
-        if (stage2Switch.isPressed() ) {
-            telemetry.addData("switch 2 is pressed", ":)");
+        if (stage2ASwitch.isPressed() ) {
+            telemetry.addData("switch 2A is pressed", ":)");
         }
         else {
-            telemetry.addData("switch 2 is NOT pressed", ":(");
+            telemetry.addData("switch 2A is NOT pressed", ":(");
+        }
+
+        if (stage2BSwitch.isPressed() ) {
+            telemetry.addData("switch 2B is pressed", ":)");
+        }
+        else {
+            telemetry.addData("switch 2B is NOT pressed", ":(");
         }
 
         if (stage3Switch.isPressed() ) {
