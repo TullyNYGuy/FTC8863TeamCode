@@ -7,13 +7,13 @@ package org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib;
  *    / Left JoystickY - robot moves forward/backward
  *    / Right JoystickX - robot rotation
  *    / DPad Up - reverse intake on/off
- *    / DPad Left - 50% power
+ *    / DPad Left - reset intake
  *    / DPad Down - stage 23 on/off
  *    / DPad Right - 100% power
  *    / A - EStop
- *    / B - fire 3
+ *    / B - Intake on
  *    / X - fire 1
- *    / Y - fire 2
+ *    / Y - Intake off
  *    /Left Bumper- intake on/off
  *    /Right Bumper- shooter on/off
  *
@@ -314,10 +314,7 @@ public class GamepadUltimateGoal {
         if (gamepad1DpadLeft.buttonPress(gamepad1.dpad_left)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            gamepad1LeftJoyStickX.setHalfPower();
-            gamepad1LeftJoyStickY.setHalfPower();
-            gamepad1RightJoyStickX.setHalfPower();
-            gamepad1RightJoyStickY.setHalfPower();
+                robot.resetIntake();
         }
 
         if (gamepad1DpadRight.buttonPress(gamepad1.dpad_right)) {

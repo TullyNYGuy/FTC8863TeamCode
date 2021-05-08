@@ -700,4 +700,10 @@ public class UltimateGoalIntake implements FTCRobotSubsystem {
         return true;
     }
 
+    public void reset () {
+        currentState= State.OFF;
+        currentCommand= Commands.OFF;
+
+    }
+
 }

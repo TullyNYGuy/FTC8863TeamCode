@@ -335,6 +335,11 @@ public class UltimateGoalRobotRoadRunner implements FTCRobot {
         intake.setEnableUpdate();
     }
 
+    public void resetIntake () {
+        intake.reset();
+        intakeController.reset();
+    }
+
 
     }
 

@@ -544,4 +544,9 @@ public class UltimateGoalIntakeController implements FTCRobotSubsystem {
     public boolean init(Configuration config) {
         return true;
     }
+
+    public void reset () {
+        currentState=States.IDLE;
+        currentCommand= Commands.OFF;
+    }
 }
