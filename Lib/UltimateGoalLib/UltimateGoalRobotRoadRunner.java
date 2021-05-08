@@ -48,7 +48,8 @@ public class UltimateGoalRobotRoadRunner implements FTCRobot {
         STAGE_1_MOTOR ("stage1motor"),
         STAGE_2A_SWITCH ("stage2Aswitch"),
         STAGE_2B_SWITCH ("stage2Bswitch"),
-        STAGE_3_SWITCH ("stage3switch"),
+        STAGE_3A_SWITCH ("stage3Aswitch"),
+        STAGE_3B_SWITCH ("stage3Bswitch"),
         STAGE_1_SENSOR ("stage1sensor"),
         STAGE_2_SERVO ("stage2servo"),
         STAGE_3_SERVO ("stage3servo")
@@ -303,5 +304,37 @@ public class UltimateGoalRobotRoadRunner implements FTCRobot {
     public void shooterOff () {
         shooter.stop();
     }
-}
+
+    public void displaySwitches () {
+        intake.displaySWitches(telemetry);
+    }
+
+    public void turnStage23On () {
+        intakeController.setDisableUpdate();
+        intake.setDisableUpdate();
+        intake.turnStage2On();
+        intake.turnStage3On();
+    }
+
+    public void turnStage23Off () {
+        intake.turnStage2Off();
+        intake.turnStage3Off();
+        intakeController.setEnableUpdate();
+        intake.setEnableUpdate();
+    }
+
+    public void reverseStage1On () {
+        intakeController.setDisableUpdate();
+        intake.setDisableUpdate();
+        intake.reverseStage1On();
+    }
+
+    public void reverseStage1Off () {
+        intake.reverseStage1Off();
+        intakeController.setEnableUpdate();
+        intake.setEnableUpdate();
+    }
+
+
+    }
 

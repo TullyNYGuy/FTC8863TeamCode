@@ -52,6 +52,7 @@ public class UltimateGoalIntakeController implements FTCRobotSubsystem {
     private boolean loggingOn = false;
     // this says that the first line in the data log is about to be written
     private boolean firstLogLine = true;
+    private boolean enableUpdate = true;
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -72,6 +73,14 @@ public class UltimateGoalIntakeController implements FTCRobotSubsystem {
     @Override
     public void disableDataLogging() {
         this.loggingOn = false;
+    }
+
+    public void setEnableUpdate () {
+        enableUpdate=true;
+    }
+
+    public void setDisableUpdate () {
+        enableUpdate= false;
     }
 
     //*********************************************************************************************
@@ -190,286 +199,288 @@ public class UltimateGoalIntakeController implements FTCRobotSubsystem {
     public void update() {
         // update the intake state machine
         intake.update();
-        // log the state and command
-        logState(currentState, currentCommand);
-        switch (currentState) {
-            case IDLE:
-                switch (currentCommand) {
-                    case ESTOP:
-                        //already idle
-                        break;
-                    case OFF:
-                        //already idle
-                        break;
-                    case INTAKE:
-                    case FIRE_1:
-                    case FIRE_2:
-                    case FIRE_3:
-                        commandComplete = false;
-                        switch (intake.getCurrentRingsAt()) {
-                            case NO_RINGS:
-                                currentState = States.NO_RING;
-                                break;
-                            case THREE:
-                                currentState = States.ONE_RING;
-                                break;
-                            case TWO_THREE:
-                                currentState = States.TWO_RING;
-                                break;
-                            case ONE_TWO_THREE:
-                                currentState = States.THREE_RING;
-                                break;
-                            case TWO:
-                                currentState = States.ONE_RING;
-                                break;
-                            case ONE:
-                                currentState = States.ONE_RING;
-                                break;
-                            case ONE_TWO:
-                                currentState = States.TWO_RING;
-                                break;
-                            case ONE_THREE:
-                                currentState = States.TWO_RING;
-                                break;
-                        }
-                        break;
-                }
-                break;
-            case NO_RING:
-                switch (currentCommand) {
-                    case ESTOP:
-                        intake.requestTurnIntakeOFF();
-                        break;
-                    case OFF:
-                        if (intake.getCurrentRingsAt() == UltimateGoalIntake.RingsAt.NO_RINGS) {
+        if (enableUpdate) {
+            // log the state and command
+            logState(currentState, currentCommand);
+            switch (currentState) {
+                case IDLE:
+                    switch (currentCommand) {
+                        case ESTOP:
+                            //already idle
+                            break;
+                        case OFF:
+                            //already idle
+                            break;
+                        case INTAKE:
+                        case FIRE_1:
+                        case FIRE_2:
+                        case FIRE_3:
+                            commandComplete = false;
+                            switch (intake.getCurrentRingsAt()) {
+                                case NO_RINGS:
+                                    currentState = States.NO_RING;
+                                    break;
+                                case THREE:
+                                    currentState = States.ONE_RING;
+                                    break;
+                                case TWO_THREE:
+                                    currentState = States.TWO_RING;
+                                    break;
+                                case ONE_TWO_THREE:
+                                    currentState = States.THREE_RING;
+                                    break;
+                                case TWO:
+                                    currentState = States.ONE_RING;
+                                    break;
+                                case ONE:
+                                    currentState = States.ONE_RING;
+                                    break;
+                                case ONE_TWO:
+                                    currentState = States.TWO_RING;
+                                    break;
+                                case ONE_THREE:
+                                    currentState = States.TWO_RING;
+                                    break;
+                            }
+                            break;
+                    }
+                    break;
+                case NO_RING:
+                    switch (currentCommand) {
+                        case ESTOP:
+                            intake.requestTurnIntakeOFF();
+                            break;
+                        case OFF:
+                            if (intake.getCurrentRingsAt() == UltimateGoalIntake.RingsAt.NO_RINGS) {
+                                intake.requestTurnIntakeOFF();
+                                commandComplete = true;
+                                currentState = States.IDLE;
+                            }
+                            break;
+                        case INTAKE:
+                            handleIntakeCommand(currentState);
+                            break;
+                        case FIRE_1:
+                        case FIRE_2:
+                        case FIRE_3:
                             intake.requestTurnIntakeOFF();
                             commandComplete = true;
                             currentState = States.IDLE;
-                        }
-                        break;
-                    case INTAKE:
-                        handleIntakeCommand(currentState);
-                        break;
-                    case FIRE_1:
-                    case FIRE_2:
-                    case FIRE_3:
-                        intake.requestTurnIntakeOFF();
-                        commandComplete = true;
-                        currentState = States.IDLE;
-                        break;
-                }
-                break;
-            case ONE_RING:
-                switch (currentCommand) {
-                    case ESTOP:
-                        intake.requestTurnIntakeOFF();
-                        break;
-                    case OFF:
-                        intake.requestTurnIntakeOFF();
-                        commandComplete = true;
-                        currentState = States.IDLE;
-                        break;
-                    case INTAKE:
-                        handleIntakeCommand(currentState);
-                        break;
-                    case FIRE_1:
-                    case FIRE_2:
-                    case FIRE_3:
-                        switch (intake.getCurrentRingsAt()) {
-                            case THREE:
-                                intake.requestTurnStage3On();
-                                commandComplete = false;
-                                currentState = States.ONE_RING;
-                                break;
-                            case NO_RINGS:
-                                intake.requestTurnIntakeOFF();
-                                commandComplete = true;
-                                currentState = States.IDLE;
-                                currentCommand = Commands.OFF;
-                                break;
-                            //no other cases matter
-                        }
-                        break;
-                }
-                break;
-            case TWO_RING:
-                switch (currentCommand) {
-                    case ESTOP:
-                        intake.requestTurnIntakeOFF();
-                        break;
-                    case OFF:
-                        intake.requestTurnIntakeOFF();
-                        commandComplete = true;
-                        currentState = States.IDLE;
-                        break;
-                    case INTAKE:
-                        handleIntakeCommand(currentState);
-                        break;
-                    case FIRE_1:
-                        switch (intake.getCurrentRingsAt()) {
-                            case TWO_THREE:
-                                intake.requestTurnStage23On();
-                                currentState = States.TWO_RING;
-                                commandComplete = false;
-                                break;
-                            case TWO:
-                                intake.requestTurnStage23On();
-                                currentState = States.TWO_RING;
-                                commandComplete = false;
-                                break;
-                            case NO_RINGS:
-                                intake.requestTurnStage23On();
-                                currentState = States.TWO_RING;
-                                commandComplete = false;
-                                break;
-                            case THREE:
-                                intake.requestTurnIntakeOFF();
-                                commandComplete = true;
-                                currentState = States.IDLE;
-                                currentCommand = Commands.OFF;
-                                break;
-                        }
-                        break;
-                    case FIRE_2:
-                    case FIRE_3:
-                        switch (intake.getCurrentRingsAt()) {
-                            case TWO_THREE:
-                                intake.requestTurnStage23On();
-                                commandComplete = false;
-                                currentState = States.TWO_RING;
-                                break;
-                            case TWO:
-                                intake.requestTurnStage23On();
-                                commandComplete = false;
-                                currentState = States.TWO_RING;
-                                break;
-                            case NO_RINGS:
-                                if (intake.getNumberOfRingsAtStage3() == 1) {
-                                    intake.requestTurnStage23On();
+                            break;
+                    }
+                    break;
+                case ONE_RING:
+                    switch (currentCommand) {
+                        case ESTOP:
+                            intake.requestTurnIntakeOFF();
+                            break;
+                        case OFF:
+                            intake.requestTurnIntakeOFF();
+                            commandComplete = true;
+                            currentState = States.IDLE;
+                            break;
+                        case INTAKE:
+                            handleIntakeCommand(currentState);
+                            break;
+                        case FIRE_1:
+                        case FIRE_2:
+                        case FIRE_3:
+                            switch (intake.getCurrentRingsAt()) {
+                                case THREE:
+                                    intake.requestTurnStage3On();
                                     commandComplete = false;
-                                    currentState = States.TWO_RING;
-                                }
-                                if (intake.getNumberOfRingsAtStage3() == 2) {
+                                    currentState = States.ONE_RING;
+                                    break;
+                                case NO_RINGS:
                                     intake.requestTurnIntakeOFF();
                                     commandComplete = true;
                                     currentState = States.IDLE;
                                     currentCommand = Commands.OFF;
-                                }
-                                break;
-                            case THREE:
-                                intake.requestTurnStage3On();
-                                commandComplete = false;
-                                currentState = States.TWO_RING;
-                                break;
-                        }
-                        break;
-                }
-                break;
-            case THREE_RING:
-                switch (currentCommand) {
-                    case ESTOP:
-                        intake.requestTurnIntakeOFF();
-                        break;
-                    case OFF:
-                        intake.requestTurnIntakeOFF();
-                        commandComplete = true;
-                        currentState = States.IDLE;
-                        break;
-                    case INTAKE:
-                        handleIntakeCommand(currentState);
-                        break;
-                    case FIRE_1:
-                        switch (intake.getCurrentRingsAt()) {
-                            case ONE_TWO_THREE:
-                                intake.requestTurnStage123On();
-                                commandComplete = false;
-                                currentState = States.THREE_RING;
-                                break;
-                            case TWO_THREE:
-                                commandComplete = true;
-                                intake.requestTurnIntakeOFF();
-                                currentState = States.TWO_RING;
-                                currentCommand = Commands.OFF;
-                                break;
-                            case THREE:
-                                intake.requestTurnStage12On();
-                                commandComplete = false;
-                                currentState = States.THREE_RING;
-                                break;
-                            case NO_RINGS:
-                            case TWO:
-                            case ONE_THREE:
-                            case ONE_TWO:
-                            case ONE:
-                                intake.requestTurnStage123On();
-                                currentState = States.THREE_RING;
-                                commandComplete = false;
-                                break;
-                        }
-                        break;
-                    case FIRE_2:
-                        switch (intake.getCurrentRingsAt()) {
-                            case ONE_TWO_THREE:
-                                intake.requestTurnStage123On();
-                                commandComplete = false;
-                                currentState = States.THREE_RING;
-                                break;
-                            case TWO_THREE:
-                                intake.requestTurnStage23On();
-                                commandComplete = false;
-                                currentState = States.THREE_RING;
-                                break;
-                            case THREE:
-                                intake.requestTurnIntakeOFF();
-                                commandComplete = true;
-                                currentState = States.ONE_RING;
-                                currentCommand = Commands.OFF;
-                                break;
-                            case NO_RINGS:
-                            case TWO:
-                            case ONE_THREE:
-                            case ONE_TWO:
-                            case ONE:
-                                intake.requestTurnStage123On();
-                                currentState = States.THREE_RING;
-                                commandComplete = false;
-                                break;
-                        }
-                            case FIRE_3:
-                                switch (intake.getCurrentRingsAt()) {
-                                    case ONE_TWO_THREE:
+                                    break;
+                                //no other cases matter
+                            }
+                            break;
+                    }
+                    break;
+                case TWO_RING:
+                    switch (currentCommand) {
+                        case ESTOP:
+                            intake.requestTurnIntakeOFF();
+                            break;
+                        case OFF:
+                            intake.requestTurnIntakeOFF();
+                            commandComplete = true;
+                            currentState = States.IDLE;
+                            break;
+                        case INTAKE:
+                            handleIntakeCommand(currentState);
+                            break;
+                        case FIRE_1:
+                            switch (intake.getCurrentRingsAt()) {
+                                case TWO_THREE:
+                                    intake.requestTurnStage23On();
+                                    currentState = States.TWO_RING;
+                                    commandComplete = false;
+                                    break;
+                                case TWO:
+                                    intake.requestTurnStage23On();
+                                    currentState = States.TWO_RING;
+                                    commandComplete = false;
+                                    break;
+                                case NO_RINGS:
+                                    intake.requestTurnStage23On();
+                                    currentState = States.TWO_RING;
+                                    commandComplete = false;
+                                    break;
+                                case THREE:
+                                    intake.requestTurnIntakeOFF();
+                                    commandComplete = true;
+                                    currentState = States.IDLE;
+                                    currentCommand = Commands.OFF;
+                                    break;
+                            }
+                            break;
+                        case FIRE_2:
+                        case FIRE_3:
+                            switch (intake.getCurrentRingsAt()) {
+                                case TWO_THREE:
+                                    intake.requestTurnStage23On();
+                                    commandComplete = false;
+                                    currentState = States.TWO_RING;
+                                    break;
+                                case TWO:
+                                    intake.requestTurnStage23On();
+                                    commandComplete = false;
+                                    currentState = States.TWO_RING;
+                                    break;
+                                case NO_RINGS:
+                                    if (intake.getNumberOfRingsAtStage3() == 1) {
+                                        intake.requestTurnStage23On();
+                                        commandComplete = false;
+                                        currentState = States.TWO_RING;
+                                    }
+                                    if (intake.getNumberOfRingsAtStage3() == 2) {
+                                        intake.requestTurnIntakeOFF();
+                                        commandComplete = true;
+                                        currentState = States.IDLE;
+                                        currentCommand = Commands.OFF;
+                                    }
+                                    break;
+                                case THREE:
+                                    intake.requestTurnStage3On();
+                                    commandComplete = false;
+                                    currentState = States.TWO_RING;
+                                    break;
+                            }
+                            break;
+                    }
+                    break;
+                case THREE_RING:
+                    switch (currentCommand) {
+                        case ESTOP:
+                            intake.requestTurnIntakeOFF();
+                            break;
+                        case OFF:
+                            intake.requestTurnIntakeOFF();
+                            commandComplete = true;
+                            currentState = States.IDLE;
+                            break;
+                        case INTAKE:
+                            handleIntakeCommand(currentState);
+                            break;
+                        case FIRE_1:
+                            switch (intake.getCurrentRingsAt()) {
+                                case ONE_TWO_THREE:
+                                    intake.requestTurnStage123On();
+                                    commandComplete = false;
+                                    currentState = States.THREE_RING;
+                                    break;
+                                case TWO_THREE:
+                                    commandComplete = true;
+                                    intake.requestTurnIntakeOFF();
+                                    currentState = States.TWO_RING;
+                                    currentCommand = Commands.OFF;
+                                    break;
+                                case THREE:
+                                    intake.requestTurnStage12On();
+                                    commandComplete = false;
+                                    currentState = States.THREE_RING;
+                                    break;
+                                case NO_RINGS:
+                                case TWO:
+                                case ONE_THREE:
+                                case ONE_TWO:
+                                case ONE:
+                                    intake.requestTurnStage123On();
+                                    currentState = States.THREE_RING;
+                                    commandComplete = false;
+                                    break;
+                            }
+                            break;
+                        case FIRE_2:
+                            switch (intake.getCurrentRingsAt()) {
+                                case ONE_TWO_THREE:
+                                    intake.requestTurnStage123On();
+                                    commandComplete = false;
+                                    currentState = States.THREE_RING;
+                                    break;
+                                case TWO_THREE:
+                                    intake.requestTurnStage23On();
+                                    commandComplete = false;
+                                    currentState = States.THREE_RING;
+                                    break;
+                                case THREE:
+                                    intake.requestTurnIntakeOFF();
+                                    commandComplete = true;
+                                    currentState = States.ONE_RING;
+                                    currentCommand = Commands.OFF;
+                                    break;
+                                case NO_RINGS:
+                                case TWO:
+                                case ONE_THREE:
+                                case ONE_TWO:
+                                case ONE:
+                                    intake.requestTurnStage123On();
+                                    currentState = States.THREE_RING;
+                                    commandComplete = false;
+                                    break;
+                            }
+                        case FIRE_3:
+                            switch (intake.getCurrentRingsAt()) {
+                                case ONE_TWO_THREE:
+                                    intake.requestTurnStage123On();
+                                    commandComplete = false;
+                                    currentState = States.THREE_RING;
+                                    break;
+                                case NO_RINGS:
+                                    if (intake.getNumberOfRingsAtStage3() == 1 || intake.getNumberOfRingsAtStage3() == 2) {
                                         intake.requestTurnStage123On();
-                                        commandComplete= false;
-                                        currentState= States.THREE_RING;
-                                        break;
-                                    case NO_RINGS:
-                                        if (intake.getNumberOfRingsAtStage3()==1 || intake.getNumberOfRingsAtStage3()== 2) {
-                                            intake.requestTurnStage123On();
-                                            commandComplete= false;
-                                            currentState= States.THREE_RING;
-                                        }
-                                        if (intake.getNumberOfRingsAtStage3()==3){
-                                            intake.requestTurnIntakeOFF();
-                                            commandComplete= true;
-                                            currentState= States.IDLE;
-                                            currentCommand = Commands.OFF;
-                                        }
-                                        break;
-                                    case THREE:
-                                    case TWO_THREE:
-                                    case ONE:
-                                    case TWO:
-                                    case ONE_TWO:
-                                    case ONE_THREE:
-                                        intake.requestTurnStage123On();
-                                        currentState= States.THREE_RING;
-                                        commandComplete= false;
-                                        break;
+                                        commandComplete = false;
+                                        currentState = States.THREE_RING;
+                                    }
+                                    if (intake.getNumberOfRingsAtStage3() == 3) {
+                                        intake.requestTurnIntakeOFF();
+                                        commandComplete = true;
+                                        currentState = States.IDLE;
+                                        currentCommand = Commands.OFF;
+                                    }
+                                    break;
+                                case THREE:
+                                case TWO_THREE:
+                                case ONE:
+                                case TWO:
+                                case ONE_TWO:
+                                case ONE_THREE:
+                                    intake.requestTurnStage123On();
+                                    currentState = States.THREE_RING;
+                                    commandComplete = false;
+                                    break;
 
-                                }
-                                break;
-                        }
-                        break;
+                            }
+                            break;
+                    }
+                    break;
+            }
         }
     }
 

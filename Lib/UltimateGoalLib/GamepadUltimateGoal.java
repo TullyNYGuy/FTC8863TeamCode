@@ -6,10 +6,10 @@ package org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib;
  *    / Left JoystickX - robot moves left/right
  *    / Left JoystickY - robot moves forward/backward
  *    / Right JoystickX - robot rotation
- *    / DPad Up - 100% power
+ *    / DPad Up - reverse intake on/off
  *    / DPad Left - 50% power
- *    / DPad Down - 30% power
- *    / DPad Right - 20% power
+ *    / DPad Down - stage 23 on/off
+ *    / DPad Right - 100% power
  *    / A - EStop
  *    / B - fire 3
  *    / X - fire 1
@@ -149,8 +149,8 @@ public class GamepadUltimateGoal {
         gamepad1b = new GamepadButtonMultiPush(1);
         gamepad1y = new GamepadButtonMultiPush(1);
         gamepad1x = new GamepadButtonMultiPush(1);
-        gamepad1DpadUp = new GamepadButtonMultiPush(1);
-        gamepad1DpadDown = new GamepadButtonMultiPush(1);
+        gamepad1DpadUp = new GamepadButtonMultiPush(2);
+        gamepad1DpadDown = new GamepadButtonMultiPush(2);
         gamepad1DpadLeft = new GamepadButtonMultiPush(1);
         gamepad1DpadRight = new GamepadButtonMultiPush(1);
         gamepad1LeftStickButton = new GamepadButtonMultiPush(1);
@@ -288,19 +288,27 @@ public class GamepadUltimateGoal {
             // this was a new button press, not a
             //button held down for a while
             // put the command to be executed here
-            gamepad1LeftJoyStickX.setFullPower();
-            gamepad1LeftJoyStickY.setFullPower();
-            gamepad1RightJoyStickX.setFullPower();
-            gamepad1RightJoyStickY.setFullPower();
+            if (gamepad1DpadUp.isCommand1()) {
+                // call the first command you want to run
+                robot.reverseStage1On();
+            }
+            if (gamepad1DpadUp.isCommand2()) {
+                // call the 2nd command you want to run
+                robot.reverseStage1Off();
+            }
         }
 
         if (gamepad1DpadDown.buttonPress(gamepad1.dpad_down)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            gamepad1LeftJoyStickX.set30PercentPower();
-            gamepad1LeftJoyStickY.set30PercentPower();
-            gamepad1RightJoyStickX.set30PercentPower();
-            gamepad1RightJoyStickY.set30PercentPower();
+            if (gamepad1DpadDown.isCommand1()) {
+                // call the first command you want to run
+                robot.turnStage23On();
+            }
+            if (gamepad1DpadDown.isCommand2()) {
+                // call the 2nd command you want to run
+                robot.turnStage23Off();
+            }
         }
 
         if (gamepad1DpadLeft.buttonPress(gamepad1.dpad_left)) {
@@ -315,10 +323,10 @@ public class GamepadUltimateGoal {
         if (gamepad1DpadRight.buttonPress(gamepad1.dpad_right)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            gamepad1LeftJoyStickX.set20PercentPower();
-            gamepad1LeftJoyStickY.set20PercentPower();
-            gamepad1RightJoyStickX.set20PercentPower();
-            gamepad1RightJoyStickY.set20PercentPower();
+            gamepad1LeftJoyStickX.setFullPower();
+            gamepad1LeftJoyStickY.setFullPower();
+            gamepad1RightJoyStickX.setFullPower();
+            gamepad1RightJoyStickY.setFullPower();
         }
 
         if (gamepad1LeftStickButton.buttonPress(gamepad1.left_stick_button)) {
@@ -438,3 +446,4 @@ public class GamepadUltimateGoal {
     }
 
 }
+

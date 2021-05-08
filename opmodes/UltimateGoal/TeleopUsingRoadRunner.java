@@ -114,6 +114,12 @@ public class TeleopUsingRoadRunner extends LinearOpMode {
 
             // update the robot
             robot.update();
+            robot.displaySwitches();
+
+            telemetry.addData("leftJoyStickY", gamepad.gamepad1LeftJoyStickYValue);
+            telemetry.addData("leftJoyStickX", gamepad.gamepad1LeftJoyStickXValue);
+            telemetry.addData("rightJoyStickY", gamepad.gamepad1RightJoyStickYValue);
+            telemetry.addData("rightJoyStickX", gamepad.gamepad1RightJoyStickXValue);
 
             telemetry.addData(">", "Press Stop to end.");
             telemetry.update();
