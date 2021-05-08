@@ -14,11 +14,13 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Switch;
 
-public class UltimateGoalIntake {
+public class UltimateGoalIntake implements FTCRobotSubsystem {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -107,25 +109,25 @@ public class UltimateGoalIntake {
         return numberOfRingsAtStage3;
     }
 
-    /**
-     * Set the data log file
-     * @param logFile
-     */
+    public RingsAt getCurrentRingsAt() {
+        return currentRingsAt;
+    }
+
+    @Override
     public void setDataLog(DataLogging logFile) {
         this.logFile = logFile;
     }
 
+    @Override
     public void enableDataLogging() {
         this.loggingOn = true;
     }
 
+    @Override
     public void disableDataLogging() {
         this.loggingOn = false;
     }
 
-    public RingsAt getCurrentRingsAt() {
-        return currentRingsAt;
-    }
 
     //*********************************************************************************************
     //          Constructors
@@ -643,6 +645,29 @@ public class UltimateGoalIntake {
         else {
             telemetry.addData("switch 3 is NOT pressed", ":(");
         }
+    }
+
+    @Override
+    public String getName() {
+        return "intake";
+    }
+
+    @Override
+    public boolean isInitComplete() {
+        return true;
+    }
+
+    @Override
+    public void shutdown() {
+    }
+
+    @Override
+    public void timedUpdate(double timerValueMsec) {
+    }
+
+    @Override
+    public boolean init(Configuration config) {
+        return true;
     }
 
 }

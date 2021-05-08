@@ -4,10 +4,12 @@ package org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
 import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.DeliveryLiftSystem;
 
-public class UltimateGoalIntakeController {
+public class UltimateGoalIntakeController implements FTCRobotSubsystem {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -57,19 +59,17 @@ public class UltimateGoalIntakeController {
     // getPositionInTermsOfAttachment
     //*********************************************************************************************
 
-    /**
-     * Set the datalog file
-     *
-     * @param logFile
-     */
+    @Override
     public void setDataLog(DataLogging logFile) {
         this.logFile = logFile;
     }
 
+    @Override
     public void enableDataLogging() {
         this.loggingOn = true;
     }
 
+    @Override
     public void disableDataLogging() {
         this.loggingOn = false;
     }
@@ -285,6 +285,7 @@ public class UltimateGoalIntakeController {
                                 intake.requestTurnIntakeOFF();
                                 commandComplete = true;
                                 currentState = States.IDLE;
+                                currentCommand = Commands.OFF;
                                 break;
                             //no other cases matter
                         }
@@ -325,6 +326,7 @@ public class UltimateGoalIntakeController {
                                 intake.requestTurnIntakeOFF();
                                 commandComplete = true;
                                 currentState = States.IDLE;
+                                currentCommand = Commands.OFF;
                                 break;
                         }
                         break;
@@ -351,6 +353,7 @@ public class UltimateGoalIntakeController {
                                     intake.requestTurnIntakeOFF();
                                     commandComplete = true;
                                     currentState = States.IDLE;
+                                    currentCommand = Commands.OFF;
                                 }
                                 break;
                             case THREE:
@@ -386,6 +389,7 @@ public class UltimateGoalIntakeController {
                                 commandComplete = true;
                                 intake.requestTurnIntakeOFF();
                                 currentState = States.TWO_RING;
+                                currentCommand = Commands.OFF;
                                 break;
                             case THREE:
                                 intake.requestTurnStage12On();
@@ -419,6 +423,7 @@ public class UltimateGoalIntakeController {
                                 intake.requestTurnIntakeOFF();
                                 commandComplete = true;
                                 currentState = States.ONE_RING;
+                                currentCommand = Commands.OFF;
                                 break;
                             case NO_RINGS:
                             case TWO:
@@ -447,6 +452,7 @@ public class UltimateGoalIntakeController {
                                             intake.requestTurnIntakeOFF();
                                             commandComplete= true;
                                             currentState= States.IDLE;
+                                            currentCommand = Commands.OFF;
                                         }
                                         break;
                                     case THREE:
@@ -503,5 +509,28 @@ public class UltimateGoalIntakeController {
 
     public void requestEstop() {
         currentCommand = Commands.ESTOP;
+    }
+
+    @Override
+    public String getName() {
+        return "intakeController";
+    }
+
+    @Override
+    public boolean isInitComplete() {
+        return true;
+    }
+
+    @Override
+    public void shutdown() {
+    }
+
+    @Override
+    public void timedUpdate(double timerValueMsec) {
+    }
+
+    @Override
+    public boolean init(Configuration config) {
+        return true;
     }
 }

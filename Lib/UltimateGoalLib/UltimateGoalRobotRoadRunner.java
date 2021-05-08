@@ -63,6 +63,7 @@ public class UltimateGoalRobotRoadRunner implements FTCRobot {
 
     public enum Subsystem {
         MECANUM_DRIVE,
+        INTAKE,
         INTAKE_CONTROLLER,
         SHOOTER
     }
@@ -91,6 +92,7 @@ public class UltimateGoalRobotRoadRunner implements FTCRobot {
 
     private AdafruitIMU8863 imu;
     public MecanumDriveUltimateGoal mecanum;
+    private UltimateGoalIntake intake;
     private UltimateGoalIntakeController intakeController;
     public Shooter shooter;
 
@@ -120,6 +122,16 @@ public class UltimateGoalRobotRoadRunner implements FTCRobot {
         if (capabilities.contains(Subsystem.MECANUM_DRIVE)) {
             mecanum = new MecanumDriveUltimateGoal(HardwareName.CONFIG_FL_MOTOR.hwName, HardwareName.CONFIG_BL_MOTOR.hwName, HardwareName.CONFIG_FR_MOTOR.hwName, HardwareName.CONFIG_BR_MOTOR.hwName, hardwareMap);
             subsystemMap.put(mecanum.getName(), mecanum);
+        }
+
+        if (capabilities.contains(Subsystem.INTAKE)) {
+            intake = new UltimateGoalIntake(hardwareMap, telemetry);
+            subsystemMap.put(intake.getName(), intake);
+        }
+
+        if (capabilities.contains(Subsystem.INTAKE_CONTROLLER)) {
+            intakeController = new UltimateGoalIntakeController(hardwareMap, telemetry,intake);
+            subsystemMap.put(intakeController.getName(), intakeController);
         }
 
         if (capabilities.contains(Subsystem.SHOOTER)) {

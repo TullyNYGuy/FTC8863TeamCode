@@ -110,7 +110,7 @@ public class TeleopUsingRoadRunner extends LinearOpMode {
 
             // The following code uses road runner to move the robot in a driver (field) centric
             // drive
-            robot.mecanum.calculateMotorCommandsFieldCentric(gamepad.gamepad1LeftJoyStickYValue, gamepad.gamepad1LeftJoyStickXValue, gamepad.gamepad1RightJoyStickXValue);
+            robot.mecanum.calculateMotorCommandsFieldCentric(gamepad.gamepad1LeftJoyStickYValue, -gamepad.gamepad1LeftJoyStickXValue, gamepad.gamepad1RightJoyStickXValue);
 
             // update the robot
             robot.update();

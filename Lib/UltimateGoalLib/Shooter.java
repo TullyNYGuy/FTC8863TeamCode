@@ -62,6 +62,10 @@ public class Shooter implements FTCRobotSubsystem {
         return dualMotorGearBox.getSpeed();
     }
 
+    public void stop(){
+        dualMotorGearBox.stopGearbox();
+    }
+
     @Override
     public String getName() {
         return "Shooter";
@@ -104,9 +108,5 @@ public class Shooter implements FTCRobotSubsystem {
 
     @Override
     public void timedUpdate(double timerValueMsec) {
-    }
-
-    public void stop(){
-        dualMotorGearBox.stopGearbox();
     }
 }
