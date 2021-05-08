@@ -64,12 +64,14 @@ public class TeleopUsingRoadRunner extends LinearOpMode {
 
         robot = new UltimateGoalRobotRoadRunner(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, this);
 
+        // create the robot and run the init for it
         robot.createRobot();
 
         enableBulkReads(hardwareMap, LynxModule.BulkCachingMode.AUTO);
 
-        // start the inits for the robot subsytems
-        robot.init();
+        // create the gamepad
+        gamepad = new GamepadUltimateGoal(gamepad1, gamepad2, robot);
+
         timer.reset();
 
         // run the state machines associated with the subsystems to allow the inits to complete
@@ -86,9 +88,6 @@ public class TeleopUsingRoadRunner extends LinearOpMode {
             }
             idle();
         }
-
-        // create the gamepad
-        gamepad = new GamepadUltimateGoal(gamepad1, gamepad2, robot);
 
         // Wait for the start button
         telemetry.addData(">", "Press start to run Teleop");
