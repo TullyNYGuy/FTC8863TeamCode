@@ -28,7 +28,7 @@ import java.util.List;
  */
 @Config
 public class TrackingWheelLocalizerUltimateGoal extends ThreeTrackingWheelLocalizer {
-    public static double TICKS_PER_REV = 1440;
+    public static double TICKS_PER_REV = 8192;
     public static double WHEEL_RADIUS = .748; // in 38mm omniwheel
     public static double GEAR_RATIO = 1; // output (wheel) speed / input (encoder) speed
 
@@ -80,9 +80,9 @@ public class TrackingWheelLocalizerUltimateGoal extends ThreeTrackingWheelLocali
         //  compensation method
 
         return Arrays.asList(
-                encoderTicksToInches(leftEncoder.getRawVelocity()) * X_MULTIPLIER,
-                encoderTicksToInches(rightEncoder.getRawVelocity()) * X_MULTIPLIER,
-                encoderTicksToInches(frontEncoder.getRawVelocity()) * Y_MULTIPLIER
+                encoderTicksToInches(leftEncoder.getCorrectedVelocity()) * X_MULTIPLIER,
+                encoderTicksToInches(rightEncoder.getCorrectedVelocity()) * X_MULTIPLIER,
+                encoderTicksToInches(frontEncoder.getCorrectedVelocity()) * Y_MULTIPLIER
         );
     }
 }
