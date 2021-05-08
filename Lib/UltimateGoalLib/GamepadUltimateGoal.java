@@ -6,16 +6,17 @@ package org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib;
  *    / Left JoystickX - robot moves left/right
  *    / Left JoystickY - robot moves forward/backward
  *    / Right JoystickX - robot rotation
- *    / DPad Up -
- *    / DPad Left - Estop
- *    / DPad Down -
- *    / DPad Right -
- *    / A -
+ *    / DPad Up - 100% power
+ *    / DPad Left - 50% power
+ *    / DPad Down - 30% power
+ *    / DPad Right - 20% power
+ *    / A - EStop
  *    / B - fire 3
  *    / X - fire 1
- *    / Y -fire 2
+ *    / Y - fire 2
  *    /Left Bumper- intake on/off
  *    /Right Bumper- shooter on/off
+ *
  *  Gamepad 2 layout
  *    / Left JoystickX -
  *    / Left JoystickY -
@@ -86,7 +87,7 @@ public class GamepadUltimateGoal {
     SmartJoystick gamepad1RightJoyStickX;
     SmartJoystick gamepad1RightJoyStickY;
     public double gamepad1RightJoyStickXValue = 0;
-    double gamepad1RightJoyStickYValue = 0;
+    public double gamepad1RightJoyStickYValue = 0;
 
     // GAMEPAD 2
 
@@ -106,13 +107,12 @@ public class GamepadUltimateGoal {
     public GamepadButtonMultiPush gamepad2RightStickButton;
 
     // joystick and joystick value declarations - game pad 2
-    JoyStick gamepad2LeftJoyStickX;
-    //JoyStick gamepad2LeftJoyStickY;
+    SmartJoystick gamepad2LeftJoyStickX;
     SmartJoystick gamepad2LeftJoyStickY;
     public double gamepad2LeftJoyStickXValue = 0;
     public double gamepad2LeftJoyStickYValue = 0;
-    JoyStick gamepad2RightJoyStickX;
-    JoyStick gamepad2RightJoyStickY;
+    SmartJoystick gamepad2RightJoyStickX;
+    SmartJoystick gamepad2RightJoyStickY;
     public double gamepad2RightJoyStickXValue = 0;
     public double gamepad2RightJoyStickYValue = 0;
 
@@ -135,8 +135,8 @@ public class GamepadUltimateGoal {
 
     public GamepadUltimateGoal(Gamepad gamepad1, Gamepad gamepad2, UltimateGoalRobotRoadRunner robot) {
         this.robot = robot;
-        this.gamepad1= gamepad1;
-        this.gamepad2= gamepad2;
+        this.gamepad1 = gamepad1;
+        this.gamepad2 = gamepad2;
 
         //
         //YOU WILL HAVE TO CONFIGURE THE GAMEPAD BUTTONS FOR TOGGLING IF YOU WANT THAT. DO THAT HERE.
@@ -169,22 +169,22 @@ public class GamepadUltimateGoal {
         //create the gamepad 2 buttons and tell each button how many commands it has
         gamepad2RightBumper = new GamepadButtonMultiPush(1);
         gamepad2LeftBumper = new GamepadButtonMultiPush(1);
-        gamepad2a = new GamepadButtonMultiPush(8);
+        gamepad2a = new GamepadButtonMultiPush(1);
         gamepad2b = new GamepadButtonMultiPush(1);
-        gamepad2y = new GamepadButtonMultiPush(2);
+        gamepad2y = new GamepadButtonMultiPush(1);
         gamepad2x = new GamepadButtonMultiPush(1);
-      gamepad2DpadDown = new GamepadButtonMultiPush(1);
+        gamepad2DpadDown = new GamepadButtonMultiPush(1);
         gamepad2DpadLeft = new GamepadButtonMultiPush(1);
         gamepad2DpadRight = new GamepadButtonMultiPush(1);
         gamepad2LeftStickButton = new GamepadButtonMultiPush(1);
         gamepad2RightStickButton = new GamepadButtonMultiPush(1);
 
         // Game Pad 2 joysticks
-        gamepad2LeftJoyStickX = new JoyStick(JoyStick.JoyStickMode.SQUARE, JOYSTICK_DEADBAND_VALUE, JoyStick.InvertSign.NO_INVERT_SIGN);
+        gamepad2LeftJoyStickX = new SmartJoystick(gamepad2, SmartJoystick.JoystickSide.LEFT, SmartJoystick.JoystickAxis.X);
         gamepad2LeftJoyStickY = new SmartJoystick(gamepad2, SmartJoystick.JoystickSide.LEFT, SmartJoystick.JoystickAxis.Y);
 
-        gamepad2RightJoyStickX = new JoyStick(JoyStick.JoyStickMode.SQUARE, JOYSTICK_DEADBAND_VALUE, JoyStick.InvertSign.NO_INVERT_SIGN);
-        gamepad2RightJoyStickY = new JoyStick(JoyStick.JoyStickMode.SQUARE, JOYSTICK_DEADBAND_VALUE, JoyStick.InvertSign.INVERT_SIGN);
+        gamepad2RightJoyStickX = new SmartJoystick(gamepad2, SmartJoystick.JoystickSide.RIGHT, SmartJoystick.JoystickAxis.X);
+        gamepad2RightJoyStickY = new SmartJoystick(gamepad2, SmartJoystick.JoystickSide.RIGHT, SmartJoystick.JoystickAxis.Y);
     }
     //*********************************************************************************************
     //          Helper Methods
@@ -229,57 +229,6 @@ public class GamepadUltimateGoal {
 //            }
 //        }
 
-        if (gamepad1DpadDown.buttonPress(gamepad1.dpad_down)) {
-            // this was a new button press, not a button held down for a while
-            // put the command to be executed here
-        }
-
-        if (gamepad1DpadUp.buttonPress(gamepad1.dpad_up)) {
-            // this was a new button press, not a button held down for a while
-            // put the command to be executed here
-        }
-
-        if (gamepad1DpadLeft.buttonPress(gamepad1.dpad_left)) {
-            // this was a new button press, not a button held down for a while
-            // put the command to be executed here
-            robot.eStop();
-        }
-
-        if (gamepad1DpadUp.buttonPress(gamepad1.dpad_up)) {
-            // this was a new button press, not a
-            //button held down for a while
-            // put the command to be executed here
-            gamepad1LeftJoyStickX.setFullPower();
-            gamepad1LeftJoyStickY.setFullPower();
-            gamepad1RightJoyStickX.setFullPower();
-            gamepad1RightJoyStickY.setFullPower();
-        }
-
-
-        if (gamepad1a.buttonPress(gamepad1.a)) {
-            // this was a new button press, not a button held down for a while
-            // put the command to be executed here
-        }
-
-        if (gamepad1b.buttonPress(gamepad1.b)) {
-            // this was a new button press, not a button held down for a while
-            // put the command to be executed here
-            robot.fire3();
-        }
-
-        if (gamepad1x.buttonPress(gamepad1.x)) {
-            //this was a new button press, not a button held down for a while
-            //put the command to be executed here
-            robot.fire1();
-        }
-
-        if (gamepad1y.buttonPress(gamepad1.y)) {
-            // this was a new button press, not a button held down for a while
-            // put the command to be executed here
-            robot.fire2();
-        }
-
-
         if (gamepad1RightBumper.buttonPress(gamepad1.right_bumper)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
@@ -306,9 +255,39 @@ public class GamepadUltimateGoal {
             }
         }
 
+        if (gamepad1a.buttonPress(gamepad1.a)) {
+            // this was a new button press, not a button held down for a while
+            // put the command to be executed here
+            robot.eStop();
+        }
 
+        if (gamepad1b.buttonPress(gamepad1.b)) {
+            // this was a new button press, not a button held down for a while
+            // put the command to be executed here
+            robot.fire3();
+        }
 
+        if (gamepad1y.buttonPress(gamepad1.y)) {
+            // this was a new button press, not a button held down for a while
+            // put the command to be executed here
+            robot.fire2();
+        }
 
+        if (gamepad1x.buttonPress(gamepad1.x)) {
+            //this was a new button press, not a button held down for a while
+            //put the command to be executed here
+            robot.fire1();
+        }
+
+        if (gamepad1DpadUp.buttonPress(gamepad1.dpad_up)) {
+            // this was a new button press, not a
+            //button held down for a while
+            // put the command to be executed here
+            gamepad1LeftJoyStickX.setFullPower();
+            gamepad1LeftJoyStickY.setFullPower();
+            gamepad1RightJoyStickX.setFullPower();
+            gamepad1RightJoyStickY.setFullPower();
+        }
 
         if (gamepad1DpadDown.buttonPress(gamepad1.dpad_down)) {
             // this was a new button press, not a button held down for a while
@@ -367,20 +346,20 @@ public class GamepadUltimateGoal {
         //                                        ^
         //                                        |
         //
-        if (gamepad1x.buttonPress(gamepad1.x)) {
-            if (gamepad1x.isCommand1()) {
-                // call the first command you want to run
-            }
-            if (gamepad1x.isCommand2()) {
-                // call the 2nd command you want to run
-            }
-            if (gamepad1x.isCommand3()) {
-                // call the 3rd command you want to run
-            }
-            if (gamepad1x.isCommand4()) {
-                // call the 4th command you want to run
-            }
-        }
+//        if (gamepad1x.buttonPress(gamepad1.x)) {
+//            if (gamepad1x.isCommand1()) {
+//                // call the first command you want to run
+//            }
+//            if (gamepad1x.isCommand2()) {
+//                // call the 2nd command you want to run
+//            }
+//            if (gamepad1x.isCommand3()) {
+//                // call the 3rd command you want to run
+//            }
+//            if (gamepad1x.isCommand4()) {
+//                // call the 4th command you want to run
+//            }
+//        }
 
         if (gamepad2RightBumper.buttonPress(gamepad2.right_bumper)) {
             // this was a new button press, not a button held down for a while
@@ -403,24 +382,18 @@ public class GamepadUltimateGoal {
         }
 
         if (gamepad2y.buttonPress(gamepad2.y)) {
-            if (gamepad2y.isCommand1()) {
-                // call the first command you want to run
-            }
-            if (gamepad2y.buttonPress((gamepad2.y))) {
-                // call the 2nd command you want to run
-            }
+            // this was a new button press, not a button held down for a while
+            // put the command to be executed here
         }
 
         if (gamepad2x.buttonPress(gamepad2.x)) {
+            // this was a new button press, not a button held down for a while
+            // put the command to be executed here
         }
 
         if (gamepad2DpadUp.buttonPress(gamepad2.dpad_up)) {
-            if (gamepad2DpadUp.isCommand1()) {
-                // call the first command you want to run
-            }
-            if (gamepad2DpadUp.isCommand2()) {
-            }
-            // call the 2nd command you want to run
+            // this was a new button press, not a button held down for a while
+            // put the command to be executed here
         }
 
         if (gamepad2DpadDown.buttonPress(gamepad2.dpad_down)) {
