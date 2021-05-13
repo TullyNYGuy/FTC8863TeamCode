@@ -92,7 +92,7 @@ public class UltimateGoalIntake implements FTCRobotSubsystem {
     private RingsAt previousRingsAt = currentRingsAt;
 
     private boolean firstCommand = true;
-    private int turnOnDelay = 1000;
+    private int turnOnDelay = 00000;
 
     private DataLogging logFile;
     private boolean loggingOn = false;
@@ -703,6 +703,7 @@ public class UltimateGoalIntake implements FTCRobotSubsystem {
     public void reset () {
         currentState= State.OFF;
         currentCommand= Commands.OFF;
+        commandComplete=true;
 
     }
 
