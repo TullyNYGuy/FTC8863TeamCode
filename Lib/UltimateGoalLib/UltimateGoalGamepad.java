@@ -318,7 +318,7 @@ public class UltimateGoalGamepad {
         if (gamepad1DpadLeft.buttonPress(gamepad1.dpad_left)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-                robot.resetIntake();
+            robot.resetIntake();
         }
 
         if (gamepad1DpadRight.buttonPress(gamepad1.dpad_right)) {
