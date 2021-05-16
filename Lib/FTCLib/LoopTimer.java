@@ -117,6 +117,7 @@ public class LoopTimer implements FTCRobotSubsystem{
 
     @Override
     public void shutdown() {
+        logAverageLoopTime();
     }
 
     @Override
