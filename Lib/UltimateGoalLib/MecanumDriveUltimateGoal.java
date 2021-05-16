@@ -518,8 +518,8 @@ public class MecanumDriveUltimateGoal extends MecanumDrive implements FTCRobotSu
         // Create a vector from the gamepad x/y inputs
         // Then, rotate that vector by the inverse of that heading
         Vector2d input = new Vector2d(
-                -translationJoystickYValue,
-                -translationJoystickXValue
+                translationJoystickYValue,
+                translationJoystickXValue
         ).rotated(-poseEstimate.getHeading());
 
         // Pass in the rotated input + right stick value for rotation
@@ -545,8 +545,8 @@ public class MecanumDriveUltimateGoal extends MecanumDrive implements FTCRobotSu
     public void calculateMotorCommandsRobotCentric(double translationJoystickYValue, double translationJoystickXValue, double rotationJoystickXValue) {
         setWeightedDrivePower(
                 new Pose2d(
-                        -translationJoystickYValue,
-                        -translationJoystickXValue,
+                        translationJoystickYValue,
+                        translationJoystickXValue,
                         -rotationJoystickXValue
                 )
         );

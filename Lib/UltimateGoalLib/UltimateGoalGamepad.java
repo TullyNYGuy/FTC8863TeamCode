@@ -166,7 +166,7 @@ public class UltimateGoalGamepad {
         gamepad1LeftJoyStickX.setInvertSign(JoyStick.InvertSign.NO_INVERT_SIGN);
         gamepad1LeftJoyStickY = new SmartJoystick(gamepad1, SmartJoystick.JoystickSide.LEFT, SmartJoystick.JoystickAxis.Y);
         //road runner handles the joystick sign inversions
-        gamepad1LeftJoyStickY.setInvertSign(JoyStick.InvertSign.NO_INVERT_SIGN);
+        gamepad1LeftJoyStickY.setInvertSign(JoyStick.InvertSign.INVERT_SIGN);
 
         gamepad1RightJoyStickX = new SmartJoystick(gamepad1, SmartJoystick.JoystickSide.RIGHT, SmartJoystick.JoystickAxis.X);
         //road runner handles the joystick sign inversions
