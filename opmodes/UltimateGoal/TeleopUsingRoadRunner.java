@@ -97,22 +97,20 @@ public class TeleopUsingRoadRunner extends LinearOpMode {
             // gamepad actually runs the robot commands.
             gamepad.update();
 
-             //*************************************************************************************
-            //  Process joysticks into drive commands
-            // ************************************************************************************
-
             // The following code uses road runner to move the robot in a driver (field) centric
             // drive
-            robot.mecanum.calculateMotorCommandsFieldCentric(gamepad.gamepad1LeftJoyStickYValue, gamepad.gamepad1LeftJoyStickXValue, gamepad.gamepad1RightJoyStickXValue);
+            robot.mecanum.calculateMotorCommandsFieldCentric(
+                    gamepad.gamepad1LeftJoyStickYValue,
+                    gamepad.gamepad1LeftJoyStickXValue,
+                    gamepad.gamepad1RightJoyStickXValue
+            );
 
             // update the robot
             robot.update();
-            robot.displaySwitches();
 
-            telemetry.addData("leftJoyStickY", gamepad.gamepad1LeftJoyStickYValue);
-            telemetry.addData("leftJoyStickX", gamepad.gamepad1LeftJoyStickXValue);
-            telemetry.addData("rightJoyStickY", gamepad.gamepad1RightJoyStickYValue);
-            telemetry.addData("rightJoyStickX", gamepad.gamepad1RightJoyStickXValue);
+            // feedback on the driver station
+            robot.displaySwitches();
+            gamepad.displayGamepad2JoystickValues(telemetry);
 
             telemetry.addData(">", "Press Stop to end.");
             telemetry.update();

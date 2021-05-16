@@ -34,6 +34,7 @@ package org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib;
 
 import com.qualcomm.robotcore.hardware.Gamepad;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobot;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.GamepadButtonMultiPush;
@@ -444,6 +445,20 @@ public class UltimateGoalGamepad {
 
         gamepad2RightJoyStickXValue = gamepad2RightJoyStickX.getValue();
         gamepad2RightJoyStickYValue = gamepad2RightJoyStickY.getValue();
+    }
+
+    public void displayGamepad1JoystickValues(Telemetry telemetry) {
+        telemetry.addData("1-leftJoyStickY  = ", gamepad1LeftJoyStickYValue);
+        telemetry.addData("1-leftJoyStickX  = ", gamepad1LeftJoyStickXValue);
+        telemetry.addData("1-rightJoyStickY = ", gamepad1RightJoyStickYValue);
+        telemetry.addData("1-rightJoyStickX = ", gamepad1RightJoyStickXValue);
+    }
+
+    public void displayGamepad2JoystickValues(Telemetry telemetry) {
+        telemetry.addData("2-leftJoyStickY  = ", gamepad2LeftJoyStickYValue);
+        telemetry.addData("2-leftJoyStickX  = ", gamepad2LeftJoyStickXValue);
+        telemetry.addData("2-rightJoyStickY = ", gamepad2RightJoyStickYValue);
+        telemetry.addData("2-rightJoyStickX = ", gamepad2RightJoyStickXValue);
     }
 
 }
