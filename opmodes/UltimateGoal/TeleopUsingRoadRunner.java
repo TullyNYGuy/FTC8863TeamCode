@@ -1,9 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.UltimateGoal;
 
-import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.hardware.lynx.LynxModule;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -12,14 +9,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.GamepadButtonMultiPush;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.HaloControls;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.JoyStick;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.SmartJoystick;
-import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.IntakeWheels;
-import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.SkystoneRobot;
-import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.GamepadUltimateGoal;
+import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.UltimateGoalGamepad;
 import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.UltimateGoalRobotRoadRunner;
 
 import java.util.List;
@@ -34,7 +24,7 @@ public class TeleopUsingRoadRunner extends LinearOpMode {
     //*********************************************************************************************
 
     public UltimateGoalRobotRoadRunner robot;
-    public GamepadUltimateGoal gamepad;
+    public UltimateGoalGamepad gamepad;
     public Configuration config;
 
     private ElapsedTime timer;
@@ -70,7 +60,7 @@ public class TeleopUsingRoadRunner extends LinearOpMode {
         enableBulkReads(hardwareMap, LynxModule.BulkCachingMode.AUTO);
 
         // create the gamepad
-        gamepad = new GamepadUltimateGoal(gamepad1, gamepad2, robot);
+        gamepad = new UltimateGoalGamepad(gamepad1, gamepad2, robot);
 
         timer.reset();
 

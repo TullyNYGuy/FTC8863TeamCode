@@ -40,7 +40,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.GamepadButtonMultiPush;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.JoyStick;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.SmartJoystick;
 
-public class GamepadUltimateGoal {
+public class UltimateGoalGamepad {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -133,7 +133,7 @@ public class GamepadUltimateGoal {
     // from it
     //*********************************************************************************************
 
-    public GamepadUltimateGoal(Gamepad gamepad1, Gamepad gamepad2, UltimateGoalRobotRoadRunner robot) {
+    public UltimateGoalGamepad(Gamepad gamepad1, Gamepad gamepad2, UltimateGoalRobotRoadRunner robot) {
         this.robot = robot;
         this.gamepad1 = gamepad1;
         this.gamepad2 = gamepad2;
@@ -161,14 +161,18 @@ public class GamepadUltimateGoal {
 
         // Game Pad 1 joysticks
         gamepad1LeftJoyStickX = new SmartJoystick(gamepad1, SmartJoystick.JoystickSide.LEFT, SmartJoystick.JoystickAxis.X);
-        //road runner expects left push is positive and right push is negative
+        //road runner handles the joystick sign inversions
         gamepad1LeftJoyStickX.setInvertSign(JoyStick.InvertSign.NO_INVERT_SIGN);
         gamepad1LeftJoyStickY = new SmartJoystick(gamepad1, SmartJoystick.JoystickSide.LEFT, SmartJoystick.JoystickAxis.Y);
+        //road runner handles the joystick sign inversions
+        gamepad1LeftJoyStickY.setInvertSign(JoyStick.InvertSign.NO_INVERT_SIGN);
 
         gamepad1RightJoyStickX = new SmartJoystick(gamepad1, SmartJoystick.JoystickSide.RIGHT, SmartJoystick.JoystickAxis.X);
-        //road runner expects left push is positive and right push is negative
+        //road runner handles the joystick sign inversions
         gamepad1RightJoyStickX.setInvertSign(JoyStick.InvertSign.NO_INVERT_SIGN);
         gamepad1RightJoyStickY = new SmartJoystick(gamepad1, SmartJoystick.JoystickSide.RIGHT, SmartJoystick.JoystickAxis.Y);
+        //road runner handles the joystick sign inversions
+        gamepad1RightJoyStickY.setInvertSign(JoyStick.InvertSign.NO_INVERT_SIGN);
 
         //create the gamepad 2 buttons and tell each button how many commands it has
         gamepad2RightBumper = new GamepadButtonMultiPush(1);
@@ -340,11 +344,11 @@ public class GamepadUltimateGoal {
         // Gamepad 1 joysticks
         //**************************************************************************************
 
-        gamepad1LeftJoyStickXValue = gamepad1LeftJoyStickX.scaleInput(gamepad1.left_stick_x);
-        gamepad1LeftJoyStickYValue = gamepad1LeftJoyStickY.scaleInput(gamepad1.left_stick_y);
+        gamepad1LeftJoyStickXValue = gamepad1LeftJoyStickX.getValue();
+        gamepad1LeftJoyStickYValue = gamepad1LeftJoyStickY.getValue();
 
-        gamepad1RightJoyStickXValue = gamepad1RightJoyStickX.scaleInput(gamepad1.right_stick_x);
-        gamepad1RightJoyStickYValue = gamepad1RightJoyStickY.scaleInput(gamepad1.right_stick_y);
+        gamepad1RightJoyStickXValue = gamepad1RightJoyStickX.getValue();
+        gamepad1RightJoyStickYValue = gamepad1RightJoyStickY.getValue();
 
         //**************************************************************************************
         // Gamepad 2 buttons
@@ -435,11 +439,11 @@ public class GamepadUltimateGoal {
         // Gamepad 2 joysticks
         //**************************************************************************************
 
-        gamepad2LeftJoyStickXValue = gamepad2LeftJoyStickX.scaleInput(gamepad2.left_stick_x);
-        gamepad2LeftJoyStickYValue = gamepad2LeftJoyStickY.scaleInput(gamepad2.left_stick_y);
+        gamepad2LeftJoyStickXValue = gamepad2LeftJoyStickX.getValue();
+        gamepad2LeftJoyStickYValue = gamepad2LeftJoyStickY.getValue();
 
-        gamepad2RightJoyStickXValue = gamepad2RightJoyStickX.scaleInput(gamepad2.right_stick_x);
-        gamepad2RightJoyStickYValue = gamepad2RightJoyStickY.scaleInput(gamepad2.right_stick_y);
+        gamepad2RightJoyStickXValue = gamepad2RightJoyStickX.getValue();
+        gamepad2RightJoyStickYValue = gamepad2RightJoyStickY.getValue();
     }
 
 }

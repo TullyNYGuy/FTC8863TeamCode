@@ -3,14 +3,13 @@ package org.firstinspires.ftc.teamcode.opmodes.UltimateGoal;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
-import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.GamepadUltimateGoal;
+import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.UltimateGoalGamepad;
 import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.UltimateGoalRobotRoadRunner;
 
 import java.util.List;
@@ -25,7 +24,7 @@ public class AutoUsingRoadRunner extends LinearOpMode {
     //*********************************************************************************************
 
     public UltimateGoalRobotRoadRunner robot;
-    public GamepadUltimateGoal gamepad;
+    public UltimateGoalGamepad gamepad;
     public Configuration config;
 
     private ElapsedTime timer;
@@ -61,7 +60,7 @@ public class AutoUsingRoadRunner extends LinearOpMode {
         enableBulkReads(hardwareMap, LynxModule.BulkCachingMode.AUTO);
 
         // create the gamepad
-        gamepad = new GamepadUltimateGoal(gamepad1, gamepad2, robot);
+        gamepad = new UltimateGoalGamepad(gamepad1, gamepad2, robot);
 
         timer.reset();
 
