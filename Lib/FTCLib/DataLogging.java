@@ -331,6 +331,27 @@ public class DataLogging {
     }
 
     /**
+     * Write a string and a series of ints into the data log. The string and the each int will
+     * be followed by a comma and a space. The beginning of the line will have a timestamp.
+     *
+     * @param string
+     * @param args   a variable number of doubles to write into the file in this line
+     */
+    public void logData(String string, Integer... args) {
+        // print the timestamp
+        double timeStamp = timer.milliseconds();
+        dataLog.print(String.format("%.2f", timeStamp) + ", ");
+        // print the string
+        dataLog.print(string + ", ");
+        // print the doubles
+        for (int arg : args) {
+            dataLog.print(Integer.toString(arg) + ", ");
+        }
+        // print a newline
+        dataLog.println();
+    }
+
+    /**
      * This method closes the data log file. You have to do this after you are finished with logging.
      */
     public void closeDataLog() {
