@@ -49,7 +49,7 @@ public class TrackingWheelLocalizerUltimateGoal extends ThreeTrackingWheelLocali
         ));
 
         leftEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, UltimateGoalRobotRoadRunner.HardwareName.CONFIG_FL_MOTOR.hwName));
-        rightEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, UltimateGoalRobotRoadRunner.HardwareName.CONFIG_FR_MOTOR.hwName));
+        rightEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, UltimateGoalRobotRoadRunner.HardwareName.CONFIG_BL_MOTOR.hwName));
         frontEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, UltimateGoalRobotRoadRunner.HardwareName.CONFIG_BR_MOTOR.hwName));
 
         // TODO: reverse any encoders using Encoder.setDirection(Encoder.Direction.REVERSE)
