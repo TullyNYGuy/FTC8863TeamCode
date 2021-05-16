@@ -1506,6 +1506,11 @@ public class DcMotor8863 {
                     if (completionTimer.milliseconds() > completionTimeoutInmSec) {
                         // movement is complete
                         result = true;
+                        // THIS IS A COB TO FIX A BUG DISCOVERED FOR ULTIMATE GOAL ANGLE CHANGER
+                        // SOMEHOW THE MOTOR STATE WAS GETTING SET TO MOVING EVEN THOUGH isRotationComplete returned true
+                        // So force the state to what we think it should be
+                        // todo look into this bug
+                        currentMotorState = MotorState.COMPLETE_HOLD;
                     } else {
                         // if on target but the timer is not yet expired just let it run
                     }

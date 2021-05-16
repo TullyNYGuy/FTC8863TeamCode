@@ -17,7 +17,7 @@ public class AngleStorage {
     // getter and setter methods
     //*********************************************************************************************
     //Angle storage is in radians
-    public static double shooterAngle = 0;
+    public static AngleChanger angleChangerSaved;
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //

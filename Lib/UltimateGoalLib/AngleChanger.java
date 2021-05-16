@@ -29,7 +29,7 @@ public class AngleChanger {
 
     private DcMotor8863 motor;
 
-    private final double MAX_ANGLE = Math.toRadians(55);
+    private final double MAX_ANGLE = Math.toRadians(40);
     private final double MIN_ANGLE = Math.toRadians(0);
 
     //*********************************************************************************************
@@ -44,15 +44,16 @@ public class AngleChanger {
     }
 
     public void setCurrentAngle(double currentAngle) {
+       currentAngle = Math.toRadians(currentAngle);
         if (currentAngle > MAX_ANGLE) {
             currentAngle = MAX_ANGLE;
         }
         if (currentAngle < MIN_ANGLE) {
             currentAngle = MIN_ANGLE;
         }
-        this.currentAngle = Math.toRadians(currentAngle);
+        this.currentAngle = currentAngle;
 
-        motor.moveToPosition(0.8, calculateLeadScrewPosition(currentAngle), DcMotor8863.FinishBehavior.HOLD);
+        motor.moveToPosition(1, calculateLeadScrewPosition(currentAngle), DcMotor8863.FinishBehavior.HOLD);
     }
 
 
@@ -67,7 +68,6 @@ public class AngleChanger {
         motor.setMotorType(DcMotor8863.MotorType.ANDYMARK_20_ORBITAL);
         motor.setMovementPerRev(8);
         motor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
-        currentAngle = AngleStorage.shooterAngle;
     }
 
     //*********************************************************************************************
@@ -75,16 +75,22 @@ public class AngleChanger {
     //
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
-    private double calculateLeadScrewPosition(double desiredAngle) {
+    private double calculateLeadScrewPosition(double desiredAngleInRadians) {
         //constants
         double initialLength = toMM(1.345);
         double initialAngle = Math.toRadians(9.961);
         //Side A is the bottom side side B is the shooter
         double sideA = toMM(6.593);
         double sideB = toMM(7.207);
+        if(desiredAngleInRadians > 0){
+            double leadScrewPosition = Math.sqrt(Math.pow(sideA, 2) + Math.pow(sideB, 2) - 2 * sideA * sideB * Math.cos(desiredAngleInRadians + initialAngle)) - initialLength;
+            return leadScrewPosition;
+        } else {
+            desiredAngleInRadians = Math.abs(desiredAngleInRadians);
+            double leadScrewPosition = -Math.sqrt(Math.pow(sideA, 2) + Math.pow(sideB, 2) - 2 * sideA * sideB * Math.cos(desiredAngleInRadians + initialAngle)) - initialLength;
+            return leadScrewPosition;
+        }
 
-        double leadScrewPosition = Math.sqrt(Math.pow(sideA, 2) + Math.pow(sideB, 2) - 2 * sideA * sideB * Math.cos(desiredAngle + initialAngle)) - initialLength;
-        return leadScrewPosition;
     }
 
     private double toMM(double inches) {
@@ -96,9 +102,22 @@ public class AngleChanger {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
+    public void setAngleNegative(double desiredAngleInDegrees){
+        desiredAngleInDegrees = Math.toRadians(desiredAngleInDegrees);
+        if (currentAngle > MAX_ANGLE) {
+            currentAngle = MAX_ANGLE;
+        }
+        this.currentAngle = desiredAngleInDegrees;
+
+        motor.moveToPosition(0.3, calculateLeadScrewPosition(desiredAngleInDegrees), DcMotor8863.FinishBehavior.HOLD);
+
+    }
+
+
+
     public void setAngleReference() {
         currentAngle = 0;
-        AngleStorage.shooterAngle = 0;
+
     }
 
     public void update() {
@@ -107,7 +126,7 @@ public class AngleChanger {
 
     public boolean isAngleAdjustComplete() {
       if(motor.isRotationComplete()){
-          AngleStorage.shooterAngle = currentAngle;
+          AngleStorage.angleChangerSaved = this;
           return true;
       }else {
           return false;
