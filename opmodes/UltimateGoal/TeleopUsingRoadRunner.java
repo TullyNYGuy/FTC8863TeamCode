@@ -64,25 +64,28 @@ public class TeleopUsingRoadRunner extends LinearOpMode {
 
         timer.reset();
 
-        // run the state machines associated with the subsystems to allow the inits to complete
-        // NOTE, if a subsystem does not complete the init, it will hang the robot, so that is what
-        // the timer is for
-        while (!robot.isInitComplete()) {
-            robot.update();
-            if (timer.milliseconds() > 5000) {
-                // something went wrong with the inits. They never finished. Proceed anyway
-
-                dataLog.logData("Init failed to complete on time. Proceeding anyway!");
-                //How cheerful. How comforting...
-                break;
-            }
-            idle();
-        }
+        // the inits are run as part of createRobot(). They should not be needed here.
+//        // run the state machines associated with the subsystems to allow the inits to complete
+//        // NOTE, if a subsystem does not complete the init, it will hang the robot, so that is what
+//        // the timer is for
+//        while (!robot.isInitComplete()) {
+//            robot.update();
+//            if (timer.milliseconds() > 5000) {
+//                // something went wrong with the inits. They never finished. Proceed anyway
+//
+//                dataLog.logData("Init failed to complete on time. Proceeding anyway!");
+//                //How cheerful. How comforting...
+//                break;
+//            }
+//            idle();
+//        }
 
         // Wait for the start button
         telemetry.addData(">", "Press start to run Teleop");
         telemetry.update();
         waitForStart();
+
+        robot.loopTimer.startLoopTimer();
 
         //*********************************************************************************************
         //             Robot Running after the user hits play on the driver phone
@@ -100,7 +103,7 @@ public class TeleopUsingRoadRunner extends LinearOpMode {
 
             // The following code uses road runner to move the robot in a driver (field) centric
             // drive
-            robot.mecanum.calculateMotorCommandsFieldCentric(gamepad.gamepad1LeftJoyStickYValue, -gamepad.gamepad1LeftJoyStickXValue, gamepad.gamepad1RightJoyStickXValue);
+            robot.mecanum.calculateMotorCommandsFieldCentric(gamepad.gamepad1LeftJoyStickYValue, gamepad.gamepad1LeftJoyStickXValue, gamepad.gamepad1RightJoyStickXValue);
 
             // update the robot
             robot.update();
@@ -121,9 +124,10 @@ public class TeleopUsingRoadRunner extends LinearOpMode {
         //  Stop everything after the user hits the stop button on the driver phone
         // ************************************************************************************
 
-        // Stop has been hit, shutdown everything
-        dataLog.closeDataLog();
+        // Stop has been hit, shutdown everything. Note that some of the subsystem shutdowns may
+        // write to the datalog so we can't close it just yet.
         robot.shutdown();
+        dataLog.closeDataLog();
         telemetry.addData(">", "Done");
         telemetry.update();
     }

@@ -15,6 +15,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobot;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.LoopTimer;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Mecanum;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometryModule;
@@ -66,7 +67,8 @@ public class UltimateGoalRobotRoadRunner implements FTCRobot {
         MECANUM_DRIVE,
         INTAKE,
         INTAKE_CONTROLLER,
-        SHOOTER
+        SHOOTER,
+        LOOP_TIMER
     }
 
     Set<Subsystem> capabilities;
@@ -96,6 +98,7 @@ public class UltimateGoalRobotRoadRunner implements FTCRobot {
     private UltimateGoalIntake intake;
     private UltimateGoalIntakeController intakeController;
     public Shooter shooter;
+    public LoopTimer loopTimer;
 
     public UltimateGoalRobotRoadRunner(HardwareMap hardwareMap, Telemetry telemetry, Configuration config, DataLogging dataLog, DistanceUnit units, LinearOpMode opMode) {
         timer = new ElapsedTime();
@@ -117,6 +120,10 @@ public class UltimateGoalRobotRoadRunner implements FTCRobot {
         capabilities = new HashSet<Subsystem>(Arrays.asList(subsystems));
     }
 
+    /**
+     * Create the robot should be called from the teleop or auto opmode.
+     * @return
+     */
     @Override
     public boolean createRobot() {
         imu = new AdafruitIMU8863(hardwareMap, null, "IMU", HardwareName.IMU.hwName);
@@ -138,6 +145,11 @@ public class UltimateGoalRobotRoadRunner implements FTCRobot {
         if (capabilities.contains(Subsystem.SHOOTER)) {
             shooter = new Shooter(HardwareName.LEFT_SHOOTER_MOTOR.hwName, HardwareName.RIGHT_SHOOTER_MOTOR.hwName, hardwareMap, telemetry);
             subsystemMap.put(shooter.getName(), shooter);
+        }
+
+        if (capabilities.contains(Subsystem.LOOP_TIMER)) {
+            loopTimer = new LoopTimer();
+            subsystemMap.put(loopTimer.getName(), loopTimer);
         }
 
         init();
