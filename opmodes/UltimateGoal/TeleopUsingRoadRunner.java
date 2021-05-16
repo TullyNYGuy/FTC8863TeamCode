@@ -110,7 +110,7 @@ public class TeleopUsingRoadRunner extends LinearOpMode {
 
             // feedback on the driver station
             robot.displaySwitches();
-            gamepad.displayGamepad2JoystickValues(telemetry);
+            gamepad.displayGamepad1JoystickValues(telemetry);
 
             telemetry.addData(">", "Press Stop to end.");
             telemetry.update();
