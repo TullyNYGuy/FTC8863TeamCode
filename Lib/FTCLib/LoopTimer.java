@@ -22,7 +22,7 @@ public class LoopTimer implements FTCRobotSubsystem{
     //*********************************************************************************************
 
     private double runningTotalOfLoopTimes = 0;
-    private double numberOfLoops = 0;
+    private long numberOfLoops = 0;
 
     private ElapsedTime loopTimer;
 
@@ -86,7 +86,7 @@ public class LoopTimer implements FTCRobotSubsystem{
 
     @Override
     public void update() {
-        runningTotalOfLoopTimes = loopTimer.milliseconds();
+        runningTotalOfLoopTimes = runningTotalOfLoopTimes + loopTimer.milliseconds();
         numberOfLoops++;
         loopTimer.reset();
     }
