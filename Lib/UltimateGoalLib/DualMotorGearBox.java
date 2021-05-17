@@ -4,12 +4,15 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
 
 import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.FORWARD;
 import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
 
-public class DualMotorGearBox {
+public class DualMotorGearBox implements FTCRobotSubsystem {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -36,7 +39,8 @@ public class DualMotorGearBox {
     private DcMotor8863 leftMotor;
     private DcMotor8863 rightMotor;
     private Direction direction;
-
+    private DataLogging logFile;
+    private boolean loggingOn = false;
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -65,6 +69,21 @@ public class DualMotorGearBox {
             rightMotor.setDirection(REVERSE);
             direction = Direction.REVERSE;
         }
+
+    }
+    @Override
+    public void setDataLog(DataLogging logFile) {
+        this.logFile = logFile;
+    }
+
+    @Override
+    public void enableDataLogging() {
+        this.loggingOn = true;
+    }
+
+    @Override
+    public void disableDataLogging() {
+        this.loggingOn = false;
     }
     //*******************T**************************************************************************
     //          Constructors
@@ -103,7 +122,7 @@ public class DualMotorGearBox {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
-
+    @Override
     public void update() {
     }
 
@@ -141,5 +160,26 @@ public class DualMotorGearBox {
         leftMotor.interrupt();
         rightMotor.interrupt();
     }
+    @Override
+    public String getName() {
+        return "intake";
+    }
 
+    @Override
+    public boolean isInitComplete() {
+        return true;
+    }
+
+    @Override
+    public void shutdown() {
+    }
+
+    @Override
+    public void timedUpdate(double timerValueMsec) {
+    }
+
+    @Override
+    public boolean init(Configuration config) {
+        return true;
+    }
 }

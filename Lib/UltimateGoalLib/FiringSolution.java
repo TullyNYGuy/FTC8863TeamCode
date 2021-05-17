@@ -56,7 +56,9 @@ public class FiringSolution {
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
+public FiringSolution(){
 
+}
     //*********************************************************************************************
     //          Helper Methods
     //

@@ -4,6 +4,7 @@ package org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 
 import kotlin.Unit;
@@ -125,12 +126,15 @@ public class AngleChanger {
     }
 
     public boolean isAngleAdjustComplete() {
-      if(motor.isRotationComplete()){
-          AngleStorage.angleChangerSaved = this;
-          return true;
-      }else {
-          return false;
-      }
+        if (motor.isRotationComplete()) {
+            AngleStorage.angleChangerSaved = this;
+            return true;
+        } else {
+            return false;
+        }
 
+    }
+    public boolean init(Configuration config) {
+        return true;
     }
 }
