@@ -69,12 +69,19 @@ public class UltimateGoalIntake implements FTCRobotSubsystem {
 
     private ElapsedTime turnOnTimer;
 
-    private NormalizedColorSensor stage1Sensor;     /** The colorSensor field will contain a reference to our color sensor hardware object */
+    private NormalizedColorSensor stage1Sensor;
+    /**
+     * The colorSensor field will contain a reference to our color sensor hardware object
+     */
 
     private Switch stage2ASwitch;
     private Switch stage2BSwitch;
-    private Switch stage3ASwitch;
-    private Switch stage3BSwitch;
+
+    private NormalizedColorSensor stage3Sensor;
+    /**
+     * The colorSensor field will contain a reference to our color sensor hardware object
+     */
+
 
     private DcMotor8863 stage1Motor;
 
@@ -129,12 +136,12 @@ public class UltimateGoalIntake implements FTCRobotSubsystem {
         this.loggingOn = false;
     }
 
-    public void setEnableUpdate () {
-        enableUpdate=true;
+    public void setEnableUpdate() {
+        enableUpdate = true;
     }
 
-    public void setDisableUpdate () {
-        enableUpdate= false;
+    public void setDisableUpdate() {
+        enableUpdate = false;
     }
 
     //*********************************************************************************************
@@ -147,12 +154,17 @@ public class UltimateGoalIntake implements FTCRobotSubsystem {
     public UltimateGoalIntake(HardwareMap hardwareMap, Telemetry telemetry) {
         stage1Sensor = hardwareMap.get(NormalizedColorSensor.class, UltimateGoalRobotRoadRunner.HardwareName.STAGE_1_SENSOR.hwName);
         if (stage1Sensor instanceof SwitchableLight) {
-            ((SwitchableLight)stage1Sensor).enableLight(true);
+            ((SwitchableLight) stage1Sensor).enableLight(true);
         }
         stage2ASwitch = new Switch(hardwareMap, UltimateGoalRobotRoadRunner.HardwareName.STAGE_2A_SWITCH.hwName, Switch.SwitchType.NORMALLY_OPEN);
+        stage2ASwitch.setDebounceLengthInMs(0);
         stage2BSwitch = new Switch(hardwareMap, UltimateGoalRobotRoadRunner.HardwareName.STAGE_2B_SWITCH.hwName, Switch.SwitchType.NORMALLY_OPEN);
-        stage3ASwitch = new Switch(hardwareMap, UltimateGoalRobotRoadRunner.HardwareName.STAGE_3A_SWITCH.hwName, Switch.SwitchType.NORMALLY_OPEN);
-        stage3BSwitch = new Switch(hardwareMap, UltimateGoalRobotRoadRunner.HardwareName.STAGE_3B_SWITCH.hwName, Switch.SwitchType.NORMALLY_OPEN);
+        stage2BSwitch.setDebounceLengthInMs(0);
+
+        stage3Sensor = hardwareMap.get(NormalizedColorSensor.class, UltimateGoalRobotRoadRunner.HardwareName.STAGE_3_SENSOR.hwName);
+        if (stage3Sensor instanceof SwitchableLight) {
+            ((SwitchableLight) stage3Sensor).enableLight(true);
+        }
 
         stage1Motor = new DcMotor8863(UltimateGoalRobotRoadRunner.HardwareName.STAGE_1_MOTOR.hwName, hardwareMap, telemetry);
         stage1Motor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
@@ -184,6 +196,7 @@ public class UltimateGoalIntake implements FTCRobotSubsystem {
     /**
      * Log the state and command and ring locations into the log file. But only if the value of one
      * of them has changed from the last time the state machine was run
+     *
      * @param state
      * @param command
      * @param ringsAt
@@ -216,22 +229,27 @@ public class UltimateGoalIntake implements FTCRobotSubsystem {
     //*********************************************************************************************
 
     private boolean ringAtStage1() {
-        boolean result=false;
+        boolean result = false;
         if (stage1Sensor instanceof DistanceSensor) {
-            if (((DistanceSensor) stage1Sensor).getDistance(DistanceUnit.CM)<8) {
-                result=true;
+            if (((DistanceSensor) stage1Sensor).getDistance(DistanceUnit.CM) < 8) {
+                result = true;
             }
         }
         return result;
     }
 
     private boolean ringAtStage2() {
-        return stage2ASwitch.isPressed()|| stage2BSwitch.isPressed();
+        return stage2ASwitch.isPressed() || stage2BSwitch.isPressed();
     }
 
     private boolean ringAtStage3() {
-        return stage3ASwitch.isPressed() || stage3BSwitch.isPressed();
-
+        boolean result = false;
+        if (stage3Sensor instanceof DistanceSensor) {
+            if (((DistanceSensor) stage3Sensor).getDistance(DistanceUnit.CM) < 6) {
+                result = true;
+            }
+        }
+        return result;
     }
 
     //*********************************************************************************************
@@ -306,13 +324,12 @@ public class UltimateGoalIntake implements FTCRobotSubsystem {
                                 turnOnTimer.reset();
                                 commandComplete = false;
                                 currentState = State.DELAY;
-                            }
-                            else {
+                            } else {
                                 turnStage1On();
                                 turnStage2On();
                                 turnStage3On();
-                                commandComplete= true;
-                                currentState= State.ONE_TWO_THREE_ON;
+                                commandComplete = true;
+                                currentState = State.ONE_TWO_THREE_ON;
                             }
 
                             break;
@@ -328,12 +345,11 @@ public class UltimateGoalIntake implements FTCRobotSubsystem {
                                 turnOnTimer.reset();
                                 commandComplete = false;
                                 currentState = State.DELAY;
-                            }
-                            else {
+                            } else {
                                 turnStage1On();
                                 turnStage2On();
-                                commandComplete= true;
-                                currentState= State.ONE_TWO_ON;
+                                commandComplete = true;
+                                currentState = State.ONE_TWO_ON;
                             }
                             break;
                         case TURN_ON_23:
@@ -363,7 +379,7 @@ public class UltimateGoalIntake implements FTCRobotSubsystem {
                                 turnStage1On();
                                 commandComplete = true;
                                 currentState = State.ONE_TWO_THREE_ON;
-                                firstCommand= false;
+                                firstCommand = false;
                             }
                             break;
                         case TURN_ON_12:
@@ -371,7 +387,7 @@ public class UltimateGoalIntake implements FTCRobotSubsystem {
                                 turnStage1On();
                                 commandComplete = true;
                                 currentState = State.ONE_TWO_ON;
-                                firstCommand=false;
+                                firstCommand = false;
                             }
                             break;
                         case TURN_ON_23:
@@ -406,14 +422,14 @@ public class UltimateGoalIntake implements FTCRobotSubsystem {
                             turnStage1Off();
                             turnStage2On();
                             turnStage3On();
-                            commandComplete= true;
-                            currentState= State.TWO_THREE_ON;
+                            commandComplete = true;
+                            currentState = State.TWO_THREE_ON;
                             break;
                         case TURN_ON_3:
                             turnStage1Off();
                             turnStage3On();
-                            commandComplete= true;
-                            currentState= State.THREE_ON;
+                            commandComplete = true;
+                            currentState = State.THREE_ON;
                             break;
                         case OFF:
                             turnIntakeOff();
@@ -433,22 +449,22 @@ public class UltimateGoalIntake implements FTCRobotSubsystem {
                             turnStage2Off();
                             turnStage3Off();
                             turnStage1On();
-                            commandComplete= true;
-                            currentState= State.ONE_ON;
+                            commandComplete = true;
+                            currentState = State.ONE_ON;
                             break;
                         case TURN_ON_12:
                             turnStage3Off();
                             turnStage1On();
-                            commandComplete= true;
-                            currentState= State.ONE_TWO_ON;
+                            commandComplete = true;
+                            currentState = State.ONE_TWO_ON;
                             break;
                         case TURN_ON_23:
                             //already on
                             break;
                         case TURN_ON_3:
                             turnStage2Off();
-                            commandComplete= true;
-                            currentState= State.THREE_ON;
+                            commandComplete = true;
+                            currentState = State.THREE_ON;
                             break;
                         case OFF:
                             turnIntakeOff();
@@ -468,15 +484,15 @@ public class UltimateGoalIntake implements FTCRobotSubsystem {
                         case TURN_ON_1:
                             turnStage3Off();
                             turnStage1On();
-                            commandComplete= true;
-                            currentState= State.ONE_ON;
+                            commandComplete = true;
+                            currentState = State.ONE_ON;
                             break;
                         case TURN_ON_12:
                             turnStage3Off();
                             turnStage1On();
                             turnStage2On();
-                            commandComplete= true;
-                            currentState= State.ONE_TWO_ON;
+                            commandComplete = true;
+                            currentState = State.ONE_TWO_ON;
                             break;
                         case TURN_ON_23:
                             turnStage2On();
@@ -501,24 +517,24 @@ public class UltimateGoalIntake implements FTCRobotSubsystem {
                         case TURN_ON_1:
                             turnStage2Off();
                             turnStage3Off();
-                            commandComplete= true;
-                            currentState= State.ONE_ON;
+                            commandComplete = true;
+                            currentState = State.ONE_ON;
                             break;
                         case TURN_ON_12:
                             turnStage3Off();
-                            commandComplete= true;
-                            currentState= State.ONE_TWO_ON;
+                            commandComplete = true;
+                            currentState = State.ONE_TWO_ON;
                             break;
                         case TURN_ON_23:
                             turnStage1Off();
-                            commandComplete= true;
-                            currentState= State.TWO_THREE_ON;
+                            commandComplete = true;
+                            currentState = State.TWO_THREE_ON;
                             break;
                         case TURN_ON_3:
                             turnStage2Off();
                             turnStage1Off();
-                            commandComplete= true;
-                            currentState= State.THREE_ON;
+                            commandComplete = true;
+                            currentState = State.THREE_ON;
                             break;
                         case OFF:
                             turnIntakeOff();
@@ -536,8 +552,8 @@ public class UltimateGoalIntake implements FTCRobotSubsystem {
                             break;
                         case TURN_ON_1:
                             turnStage2Off();
-                            commandComplete=true;
-                            currentState= State.ONE_ON;
+                            commandComplete = true;
+                            currentState = State.ONE_ON;
                             break;
                         case TURN_ON_12:
                             //already on
@@ -545,15 +561,15 @@ public class UltimateGoalIntake implements FTCRobotSubsystem {
                         case TURN_ON_23:
                             turnStage1Off();
                             turnStage3On();
-                            commandComplete= true;
-                            currentState= State.TWO_THREE_ON;
+                            commandComplete = true;
+                            currentState = State.TWO_THREE_ON;
                             break;
                         case TURN_ON_3:
                             turnStage1Off();
                             turnStage2Off();
                             turnStage3On();
-                            commandComplete= true;
-                            currentState= State.THREE_ON;
+                            commandComplete = true;
+                            currentState = State.THREE_ON;
                             break;
                         case OFF:
                             turnIntakeOff();
@@ -563,9 +579,7 @@ public class UltimateGoalIntake implements FTCRobotSubsystem {
                     }
                     break;
             }
-            if (stage3ASwitch.isBumped()|| stage2BSwitch.isBumped()) {
-                numberOfRingsAtStage3 = numberOfRingsAtStage3++;
-            }
+
         }
 
     }
@@ -610,71 +624,59 @@ public class UltimateGoalIntake implements FTCRobotSubsystem {
         }
     }
 
-    public void reverseStage1On () {
+    public void reverseStage1On() {
         stage1Motor.setDirection(DcMotorSimple.Direction.REVERSE);
         turnStage1On();
     }
 
-    public void reverseStage1Off () {
+    public void reverseStage1Off() {
         stage1Motor.setDirection(DcMotorSimple.Direction.FORWARD);
         turnStage1Off();
     }
 
     /**
      * Get the state of the switches for each stage and return it
+     *
      * @return
      */
-    private RingsAt whereAreRings () {
-        RingsAt answer= RingsAt.NO_RINGS;
+    private RingsAt whereAreRings() {
+        RingsAt answer = RingsAt.NO_RINGS;
         boolean ringAtStage1 = ringAtStage1();
         boolean ringAtStage2 = ringAtStage2();
         boolean ringAtStage3 = ringAtStage3();
         if (ringAtStage1 && !ringAtStage2 && !ringAtStage3) {
-            answer= RingsAt.ONE;
+            answer = RingsAt.ONE;
         }
-        if (!ringAtStage1 && ringAtStage2 && !ringAtStage3) answer= RingsAt.TWO;
-        if (!ringAtStage1 && !ringAtStage2 && ringAtStage3) answer= RingsAt.THREE;
-        if (ringAtStage1 && ringAtStage2 && !ringAtStage3) answer= RingsAt.ONE_TWO;
-        if (!ringAtStage1 && ringAtStage2 && ringAtStage3) answer= RingsAt.TWO_THREE;
-        if (ringAtStage1 && !ringAtStage2 && ringAtStage3) answer= RingsAt.ONE_THREE;
-        if (ringAtStage1 && ringAtStage2 && ringAtStage3) answer= RingsAt.ONE_TWO_THREE;
+        if (!ringAtStage1 && ringAtStage2 && !ringAtStage3) answer = RingsAt.TWO;
+        if (!ringAtStage1 && !ringAtStage2 && ringAtStage3) answer = RingsAt.THREE;
+        if (ringAtStage1 && ringAtStage2 && !ringAtStage3) answer = RingsAt.ONE_TWO;
+        if (!ringAtStage1 && ringAtStage2 && ringAtStage3) answer = RingsAt.TWO_THREE;
+        if (ringAtStage1 && !ringAtStage2 && ringAtStage3) answer = RingsAt.ONE_THREE;
+        if (ringAtStage1 && ringAtStage2 && ringAtStage3) answer = RingsAt.ONE_TWO_THREE;
         return answer;
     }
 
     /**
      * Debug method to display switch value on the driver station
+     *
      * @param telemetry
      */
-    public void displaySWitches (Telemetry telemetry) {
+    public void displaySWitches(Telemetry telemetry) {
         telemetry.addData("distance=", ((DistanceSensor) stage1Sensor).getDistance(DistanceUnit.CM));
 
-        if (stage2ASwitch.isPressed() ) {
+        if (stage2ASwitch.isPressed()) {
             telemetry.addData("switch 2A is pressed", ":)");
-        }
-        else {
+        } else {
             telemetry.addData("switch 2A is NOT pressed", ":(");
         }
 
-        if (stage2BSwitch.isPressed() ) {
+        if (stage2BSwitch.isPressed()) {
             telemetry.addData("switch 2B is pressed", ":)");
-        }
-        else {
+        } else {
             telemetry.addData("switch 2B is NOT pressed", ":(");
         }
 
-        if (stage3ASwitch.isPressed() ) {
-            telemetry.addData("switch 3A is pressed", ":)");
-        }
-        else {
-            telemetry.addData("switch 3A is NOT pressed", ":(");
-        }
-
-        if (stage3BSwitch.isPressed() ) {
-            telemetry.addData("switch 3B is pressed", ":)");
-        }
-        else {
-            telemetry.addData("switch 3B is NOT pressed", ":(");
-        }
+        telemetry.addData("distance=", ((DistanceSensor) stage3Sensor).getDistance(DistanceUnit.CM));
     }
 
     @Override
@@ -700,10 +702,10 @@ public class UltimateGoalIntake implements FTCRobotSubsystem {
         return true;
     }
 
-    public void reset () {
-        currentState= State.OFF;
-        currentCommand= Commands.OFF;
-        commandComplete=true;
+    public void reset() {
+        currentState = State.OFF;
+        currentCommand = Commands.OFF;
+        commandComplete = true;
 
     }
 

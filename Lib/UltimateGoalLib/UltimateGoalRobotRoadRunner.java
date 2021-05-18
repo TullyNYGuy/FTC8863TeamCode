@@ -49,8 +49,7 @@ public class UltimateGoalRobotRoadRunner implements FTCRobot {
         STAGE_1_MOTOR("stage1motor"),
         STAGE_2A_SWITCH("stage2Aswitch"),
         STAGE_2B_SWITCH("stage2Bswitch"),
-        STAGE_3A_SWITCH("stage3Aswitch"),
-        STAGE_3B_SWITCH("stage3Bswitch"),
+        STAGE_3_SENSOR ("stage3sensor"),
         STAGE_1_SENSOR("stage1sensor"),
         STAGE_2_SERVO("stage2servo"),
         STAGE_3_SERVO("stage3servo");
