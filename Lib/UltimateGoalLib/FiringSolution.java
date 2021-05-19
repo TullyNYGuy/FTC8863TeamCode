@@ -122,11 +122,11 @@ public FiringSolution(){
             return -1;
         } else {
             double secondCalculation = calculateShooterAngle2(calculateShooterHeight(firstCalculation, shooterLength), distanceFromGoal, goalHeight, velocity, shooterHeightParallelGround);
-            if (firstCalculation <= 0) {
+            if (secondCalculation <= 0) {
                 return -1;
             } else {
                 double thirdCalculation = calculateShooterAngle2(calculateShooterHeight(secondCalculation, shooterLength), distanceFromGoal, goalHeight, velocity, shooterHeightParallelGround);
-                if (firstCalculation <= 0) {
+                if (thirdCalculation <= 0) {
                     return -1;
                 } else {
                     return thirdCalculation;
