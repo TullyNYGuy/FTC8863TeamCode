@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.GoalTop;
 import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.Shooter;
+import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.UltimateGoalGoal;
 
 import static org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.UltimateGoalRobotRoadRunner.HardwareName.LEFT_SHOOTER_MOTOR;
 import static org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.UltimateGoalRobotRoadRunner.HardwareName.RIGHT_SHOOTER_MOTOR;
@@ -22,8 +23,9 @@ public class AngleChangerPlusShooterTest extends LinearOpMode {
 
     // Put your variable declarations her
     public Shooter shooter;
-    public GoalTop goalTop;
-public ElapsedTime timer;
+    public UltimateGoalGoal goalTop;
+    public ElapsedTime timer;
+
     @Override
     public void runOpMode() {
 
@@ -32,7 +34,9 @@ public ElapsedTime timer;
         shooter = new Shooter(LEFT_SHOOTER_MOTOR.hwName, RIGHT_SHOOTER_MOTOR.hwName, hardwareMap, telemetry);
         goalTop = new GoalTop();
         timer = new ElapsedTime();
-        telemetry.addData("Angle", shooter.calculateAngle(2));
+        goalTop = new GoalTop();
+
+        telemetry.addData("Angle", shooter.calculateAngle(2, goalTop));
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
         telemetry.update();
@@ -53,9 +57,9 @@ public ElapsedTime timer;
 
             idle();
         }
-shooter.setSpeed(5000);
+        shooter.setSpeed(5000);
         timer.reset();
-        while (opModeIsActive() && timer.milliseconds()<10000) {
+        while (opModeIsActive() && timer.milliseconds() < 10000) {
             shooter.update();
             idle();
         }

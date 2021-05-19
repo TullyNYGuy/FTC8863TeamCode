@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 
-public class GoalTop {
+public class GoalTop implements UltimateGoalGoal{
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -18,7 +18,8 @@ public class GoalTop {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
-    public GoalProperties top;
+    private double height = 35.5 * 0.0254;
+    private Pose2d position = new Pose2d(71, -12, 0);
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -26,6 +27,15 @@ public class GoalTop {
     // getPositionInTermsOfAttachment
     //*********************************************************************************************
 
+    @Override
+    public double getHeight() {
+        return height;
+    }
+
+    @Override
+    public Pose2d getPosition() {
+        return position;
+    }
 
     //*********************************************************************************************
     //          Constructors
@@ -34,8 +44,6 @@ public class GoalTop {
     // from it
     //*********************************************************************************************
     public GoalTop() {
-        top = new GoalProperties(35.5 * 0.0254, new Pose2d(71 * 0.0254, -12 * 0.0254, 0));
-
     }
     //*********************************************************************************************
     //          Helper Methods
