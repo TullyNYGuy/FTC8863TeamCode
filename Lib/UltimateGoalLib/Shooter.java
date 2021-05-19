@@ -61,17 +61,24 @@ public class Shooter implements FTCRobotSubsystem {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
-    public boolean requestFire(double distanceToGoalMeters, Goals goal) {
+    public boolean requestFire(double distanceToGoalMeters, GoalTop goal) {
         boolean result = false;
         double angle = 0;
-        angle = firingSolution.calculateShooterAngle(distanceToGoalMeters, goal.top.getHeight(), 5, SHOOTER_HEIGHT_PARALLEL, SHOOTER_LENGTH);
+        angle = firingSolution.calculateShooterAngle(distanceToGoalMeters, 35.5 * 0.0254, 12, SHOOTER_HEIGHT_PARALLEL, SHOOTER_LENGTH);
         if (angle > 0) {
             result = true;
-            angleChanger.setCurrentAngle(angle);
+            angleChanger.setCurrentAngle(Math.toDegrees(angle));
         }
         return result;
     }
-//Need to write method that tells the user that the angle change is complete
+
+    public boolean isAngleAdjustmentComplete() {
+        return angleChanger.isAngleAdjustComplete();
+    }
+
+    public double calculateAngle(double distanceToGoalMeters) {
+        return Math.toDegrees(firingSolution.calculateShooterAngle(distanceToGoalMeters, 35.5 * 0.0254, 12, SHOOTER_HEIGHT_PARALLEL, SHOOTER_LENGTH));
+    }
 
     public void setSpeed(int motorRPM) {
         dualMotorGearBox.setSpeed(motorRPM);
