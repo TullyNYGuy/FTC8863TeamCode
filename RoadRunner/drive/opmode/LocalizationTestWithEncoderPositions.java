@@ -6,6 +6,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.RoadRunner.drive.SampleMecanumDrive;
+import org.firstinspires.ftc.teamcode.RoadRunner.drive.StandardTrackingWheelLocalizer;
+import org.firstinspires.ftc.teamcode.RoadRunner.util.Encoder;
 
 /**
  * This is a simple teleop routine for testing localization. Drive the robot around like a normal
@@ -20,6 +22,12 @@ public class LocalizationTestWithEncoderPositions extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
 
+        StandardTrackingWheelLocalizer localizer = (StandardTrackingWheelLocalizer)drive.getLocalizer();
+
+        Encoder leftEncoder = localizer.getLeftEncoder();
+        Encoder rightEncoder = localizer.getRightEncoder();
+        Encoder frontEncoder = localizer.getFrontEncoder();
+
         drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         // Running https://www.learnroadrunner.com/dead-wheels.html#tuning-three-wheel
@@ -28,24 +36,6 @@ public class LocalizationTestWithEncoderPositions extends LinearOpMode {
         // the only dimension changing, we saw y changing a little too. Over 100" of x, we might see
         // 2-3" of y. This does not seem right since there was no visible physical movement of the
         // robot in y. So we need to see the raw dead wheel encoder values to help debug this.
-
-        // I sure wish I could figure out how to get at the encoder ticks. It seems like I should
-        // be able to get at them through the localizer but I can't figure out how. So I'm going to
-        // get them from the motor encoder ports that they are plugged into.
-
-        // enocoders are plugged into motor encoder port as follows
-        // left  encoder into FrontLeft = 0 index in list of motors
-        // right encoder into BackLeft  = 1 index in list of motors
-        // rear  encoder into BackRight = 2 index in list of motors
-
-        // apparently the encoder positions are not zeroed out as part of initialization so I will
-        // zero them myself
-        double leftEncoderStartPositionInInches = drive.getWheelPositions().get(0);
-        double rightEncoderStartPositionInInches = drive.getWheelPositions().get(1);
-        double rearEncoderStartPositionInInches = drive.getWheelPositions().get(2);
-        double leftEncoderDeltaPositionInInches = 0;
-        double rightEncoderDeltaPositionInInches = 0;
-        double rearEncoderDeltaPositionInInches = 0;
 
         waitForStart();
 
@@ -60,18 +50,13 @@ public class LocalizationTestWithEncoderPositions extends LinearOpMode {
 
             drive.update();
 
-            // calculate how far each encoder wheel has turned. Note the units are inches here.
-            leftEncoderDeltaPositionInInches = leftEncoderStartPositionInInches - drive.getWheelPositions().get(0);
-            rightEncoderDeltaPositionInInches = rightEncoderStartPositionInInches - drive.getWheelPositions().get(1);
-            rearEncoderDeltaPositionInInches = rearEncoderStartPositionInInches - drive.getWheelPositions().get(2);
-
             Pose2d poseEstimate = drive.getPoseEstimate();
             telemetry.addData("x", poseEstimate.getX());
             telemetry.addData("y", poseEstimate.getY());
             telemetry.addData("heading", Math.toDegrees(poseEstimate.getHeading()));
-            telemetry.addData("left encoder (in) ", leftEncoderDeltaPositionInInches);
-            telemetry.addData("right encoder (in) ", rightEncoderDeltaPositionInInches);
-            telemetry.addData("lateral encoder (in) ", rearEncoderDeltaPositionInInches);
+            telemetry.addData("left encoder (in) ", leftEncoder.getCurrentPosition());
+            telemetry.addData("right encoder (in) ", rightEncoder.getCurrentPosition());
+            telemetry.addData("lateral encoder (in) ", frontEncoder.getCurrentPosition());
             telemetry.update();
         }
     }
