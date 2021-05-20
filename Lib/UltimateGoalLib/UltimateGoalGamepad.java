@@ -3,33 +3,33 @@ package org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib;
 /*
  * Class for Ultimate Goal TeleOp mode
  * Gamepad 1 layout
- *    / Left JoystickX - robot moves left/right
- *    / Left JoystickY - robot moves forward/backward
- *    / Right JoystickX - robot rotation
- *    / DPad Up - reverse intake on/off
- *    / DPad Left - reset intake
- *    / DPad Down - stage 23 on/off
- *    / DPad Right - 100% power
- *    / A - EStop
- *    / B - Intake on
- *    / X - fire 1
- *    / Y - Intake off
- *    /Left Bumper- intake on/off
- *    /Right Bumper- shooter on/off
+ *    / Left JoystickX   - robot moves left/right
+ *    / Left JoystickY   - robot moves forward/backward
+ *    / Right JoystickX  - robot rotation
+ *    / DPad Up          - reverse stage 1 intake on/off
+ *    / DPad Left        - reset intake
+ *    / DPad Down        - stage 23 intake on/off
+ *    / DPad Right       - 100% power
+ *    / A                - EStop
+ *    / B                - fire 3 - does not work
+ *    / X                - fire 1
+ *    / Y                - fire 2 - does not work
+ *    /Left Bumper       - intake on/off
+ *    /Right Bumper      - shooter on/off
  *
  *  Gamepad 2 layout
- *    / Left JoystickX -
- *    / Left JoystickY -
- *    / Right JoystickX -
- *    / Right JoystickY -
- *    / DPad Up -
- *    / DPad Left -
- *    / DPad Down -
- *    / DPad Right-
- *    / A -
- *    / B -
- *    / X -
- *    / Y -
+ *    / Left JoystickX   -
+ *    / Left JoystickY   -
+ *    / Right JoystickX  -
+ *    / Right JoystickY  -
+ *    / DPad Up          -
+ *    / DPad Left        -
+ *    / DPad Down        -
+ *    / DPad Right       -
+ *    / A                -
+ *    / B                -
+ *    / X                -
+ *    / Y                -
  */
 
 import com.qualcomm.robotcore.hardware.Gamepad;
