@@ -1,9 +1,12 @@
 package org.firstinspires.ftc.teamcode.opmodes.UltimateGoalTest;
 
+import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.Shooter;
 import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.UltimateGoalField;
 
@@ -13,14 +16,17 @@ import static org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.UltimateGoalRob
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "AngleTesting Aidan", group = "Test")
+@TeleOp(name = "AngleTesting Localized", group = "Test")
 //@Disabled
-public class AngleChangerPlusShooterTest extends LinearOpMode {
+public class AngleChangerPlusShooterTestWithLocalization extends LinearOpMode {
 
     // Put your variable declarations her
     public Shooter shooter;
     public UltimateGoalField field;
     public ElapsedTime timer;
+    public Pose2d robotPose;
+    public double distance = 0;
+    public double angleBetween = 0;
 
     @Override
     public void runOpMode() {
@@ -30,11 +36,18 @@ public class AngleChangerPlusShooterTest extends LinearOpMode {
         shooter = new Shooter(LEFT_SHOOTER_MOTOR.hwName, RIGHT_SHOOTER_MOTOR.hwName, hardwareMap, telemetry);
         field = new UltimateGoalField();
         timer = new ElapsedTime();
+        robotPose = new Pose2d(-62, -18.9, 0);
 
-        telemetry.addData("Angle", shooter.calculateAngle(2, field.topGoal));
-        // Wait for the start button
+        distance = field.distanceTo(DistanceUnit.INCH, robotPose, field.topGoal.getPose2d());
+        angleBetween = field.angleTo(AngleUnit.DEGREES, robotPose, field.topGoal.getPose2d());
+
+        telemetry.addData("distance =", distance);
+        telemetry.addData("angleto =", Math.toDegrees(angleBetween));
+        telemetry.addData("Angle", shooter.calculateAngle(distance, field.topGoal));
         telemetry.addData(">", "Press Start to run");
         telemetry.update();
+
+        // Wait for the start button
         waitForStart();
 
         // Put your calls here - they will not run in a loop

@@ -64,7 +64,7 @@ public class Shooter implements FTCRobotSubsystem {
     public boolean requestFire(double distanceToGoalMeters, UltimateGoalGoal goal) {
         boolean result = false;
         double angle = 0;
-        angle = firingSolution.calculateShooterAngle(distanceToGoalMeters, goal.getHeight(), 12, SHOOTER_HEIGHT_PARALLEL, SHOOTER_LENGTH);
+        angle = firingSolution.calculateShooterAngle(distanceToGoalMeters, goal.getHeight(DistanceUnit.METER), 12, SHOOTER_HEIGHT_PARALLEL, SHOOTER_LENGTH);
         if (angle > 0) {
             result = true;
             angleChanger.setCurrentAngle(Math.toDegrees(angle));
@@ -77,7 +77,7 @@ public class Shooter implements FTCRobotSubsystem {
     }
 
     public double calculateAngle(double distanceToGoalMeters, UltimateGoalGoal goal) {
-        return Math.toDegrees(firingSolution.calculateShooterAngle(distanceToGoalMeters, goal.getHeight(), 12, SHOOTER_HEIGHT_PARALLEL, SHOOTER_LENGTH));
+        return Math.toDegrees(firingSolution.calculateShooterAngle(distanceToGoalMeters, goal.getHeight(DistanceUnit.METER), 12, SHOOTER_HEIGHT_PARALLEL, SHOOTER_LENGTH));
     }
 
     public void setSpeed(int motorRPM) {
