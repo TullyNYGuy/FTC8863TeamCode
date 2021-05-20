@@ -75,12 +75,12 @@ public class UltimateGoalIntakeController implements FTCRobotSubsystem {
         this.loggingOn = false;
     }
 
-    public void setEnableUpdate () {
-        enableUpdate=true;
+    public void setEnableUpdate() {
+        enableUpdate = true;
     }
 
-    public void setDisableUpdate () {
-        enableUpdate= false;
+    public void setDisableUpdate() {
+        enableUpdate = false;
     }
 
     //*********************************************************************************************
@@ -318,7 +318,7 @@ public class UltimateGoalIntakeController implements FTCRobotSubsystem {
                         case FIRE_1:
                             switch (intake.getCurrentRingsAt()) {
                                 case TWO_THREE:
-                                    intake.requestTurnStage23On();
+                                    intake.requestTurnStage3On();
                                     currentState = States.TWO_RING;
                                     commandComplete = false;
                                     break;
@@ -391,7 +391,7 @@ public class UltimateGoalIntakeController implements FTCRobotSubsystem {
                         case FIRE_1:
                             switch (intake.getCurrentRingsAt()) {
                                 case ONE_TWO_THREE:
-                                    intake.requestTurnStage123On();
+                                    intake.requestTurnStage3On();
                                     commandComplete = false;
                                     currentState = States.THREE_RING;
                                     break;
@@ -407,9 +407,25 @@ public class UltimateGoalIntakeController implements FTCRobotSubsystem {
                                     currentState = States.THREE_RING;
                                     break;
                                 case NO_RINGS:
+                                    intake.requestTurnStage123On();
+                                    commandComplete = false;
+                                    currentState = States.THREE_RING;
+                                    break;
                                 case TWO:
+                                    intake.requestTurnStage123On();
+                                    commandComplete = false;
+                                    currentState = States.THREE_RING;
+                                    break;
                                 case ONE_THREE:
+                                    intake.requestTurnStage12On();
+                                    commandComplete = false;
+                                    currentState = States.THREE_RING;
+                                    break;
                                 case ONE_TWO:
+                                    intake.requestTurnStage123On();
+                                    commandComplete = false;
+                                    currentState = States.THREE_RING;
+                                    break;
                                 case ONE:
                                     intake.requestTurnStage123On();
                                     currentState = States.THREE_RING;
@@ -545,9 +561,9 @@ public class UltimateGoalIntakeController implements FTCRobotSubsystem {
         return true;
     }
 
-    public void reset () {
-        currentState=States.IDLE;
-        currentCommand= Commands.OFF;
-        commandComplete= true;
+    public void reset() {
+        currentState = States.IDLE;
+        currentCommand = Commands.OFF;
+        commandComplete = true;
     }
 }
