@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.Shooter;
 import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.UltimateGoalField;
 
@@ -31,14 +32,14 @@ public class AngleChangerPlusShooterTest extends LinearOpMode {
         field = new UltimateGoalField();
         timer = new ElapsedTime();
 
-        telemetry.addData("Angle", shooter.calculateAngle(2, field.topGoal));
+        telemetry.addData("Angle", shooter.calculateAngle(2, DistanceUnit.METER, field.topGoal));
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
         telemetry.update();
         waitForStart();
 
         // Put your calls here - they will not run in a loop
-        shooter.requestFire(2, field.topGoal);
+        shooter.requestFire(2 , DistanceUnit.METER,field.topGoal);
         while (opModeIsActive() && !shooter.isAngleAdjustmentComplete()) {
 
             // Put your calls that need to run in a loop here

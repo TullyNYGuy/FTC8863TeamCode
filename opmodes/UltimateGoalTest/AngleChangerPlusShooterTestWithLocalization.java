@@ -38,12 +38,12 @@ public class AngleChangerPlusShooterTestWithLocalization extends LinearOpMode {
         timer = new ElapsedTime();
         robotPose = new Pose2d(-62, -18.9, 0);
 
-        distance = field.distanceTo(DistanceUnit.INCH, robotPose, field.topGoal.getPose2d());
+        distance = field.distanceTo(DistanceUnit.METER, robotPose, field.topGoal.getPose2d());
         angleBetween = field.angleTo(AngleUnit.DEGREES, robotPose, field.topGoal.getPose2d());
 
         telemetry.addData("distance =", distance);
         telemetry.addData("angleto =", Math.toDegrees(angleBetween));
-        telemetry.addData("Angle", shooter.calculateAngle(distance, field.topGoal));
+        telemetry.addData("Angle", shooter.calculateAngle(distance, DistanceUnit.METER, field.topGoal));
         telemetry.addData(">", "Press Start to run");
         telemetry.update();
 
@@ -51,7 +51,7 @@ public class AngleChangerPlusShooterTestWithLocalization extends LinearOpMode {
         waitForStart();
 
         // Put your calls here - they will not run in a loop
-        shooter.requestFire(2, field.topGoal);
+        shooter.requestFire(distance, DistanceUnit.METER, field.topGoal);
         while (opModeIsActive() && !shooter.isAngleAdjustmentComplete()) {
 
             // Put your calls that need to run in a loop here
