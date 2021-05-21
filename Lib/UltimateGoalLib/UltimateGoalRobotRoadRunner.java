@@ -309,6 +309,10 @@ public class UltimateGoalRobotRoadRunner implements FTCRobot {
         shooter.stop();
     }
 
+    public void bump1() {
+        intakeController.requestBump1();
+    }
+
     public void shooterOn() {
         shooter.setSpeed(5000);
     }
