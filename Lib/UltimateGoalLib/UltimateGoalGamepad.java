@@ -10,8 +10,8 @@ package org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib;
  *    / DPad Left        - reset intake
  *    / DPad Down        - stage 23 intake on/off
  *    / DPad Right       - 100% power
- *    / A                - EStop
- *    / B                - fire 3 - does not work
+ *    / A                - Bump 1
+ *    / B                -  EStop
  *    / X                - fire 1
  *    / Y                - fire 2 - does not work
  *    /Left Bumper       - intake on/off
@@ -268,13 +268,13 @@ public class UltimateGoalGamepad {
         if (gamepad1a.buttonPress(gamepad1.a)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            robot.eStop();
+            robot.bump1();
         }
 
         if (gamepad1b.buttonPress(gamepad1.b)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            robot.fire3();
+            robot.eStop();
         }
 
         if (gamepad1y.buttonPress(gamepad1.y)) {
