@@ -7,8 +7,6 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 
-import kotlin.Unit;
-
 public class AngleChanger {
 
 
@@ -127,7 +125,7 @@ public class AngleChanger {
 
     public boolean isAngleAdjustComplete() {
         if (motor.isRotationComplete()) {
-            AngleStorage.angleChangerSaved = this;
+            PersistantStorage.angleChanger = this;
             return true;
         } else {
             return false;
