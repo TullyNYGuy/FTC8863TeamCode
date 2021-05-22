@@ -52,7 +52,9 @@ public class UltimateGoalRobotRoadRunner implements FTCRobot {
         STAGE_3_SENSOR ("stage3sensor"),
         STAGE_1_SENSOR("stage1sensor"),
         STAGE_2_SERVO("stage2servo"),
-        STAGE_3_SERVO("stage3servo");
+        STAGE_3_SERVO("stage3servo"),
+        GRABBER_SERVO("grabberServo"),
+        ARM_ROTATION_SERVO("armRotationServo");
 
         public final String hwName;
 
