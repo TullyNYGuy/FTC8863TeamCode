@@ -181,6 +181,7 @@ private Pose2d shooterPose = new Pose2d(-10,-6);
         }
 robot.shooterOff();
        // Put your cleanup code here - it runs as the application shuts down
+
         trajSeq = robot.mecanum.trajectorySequenceBuilder(robot.mecanum.getPoseEstimate())
 
                 .lineTo(new Vector2d(15,-18.9))
@@ -191,8 +192,11 @@ robot.shooterOff();
         while(opModeIsActive() && robot.mecanum.isBusy()){
             robot.update();
         }
-
-       PersistantStorage.robotPose = robot.mecanum.getPoseEstimate();
+        robot.dropWobbleGoal();
+        while(opModeIsActive() && !robot.isWobbleGoalDropComplete()){
+            robot.update();
+        }
+        PersistantStorage.robotPose = robot.mecanum.getPoseEstimate();
         robot.shutdown();
         dataLog.closeDataLog();
         telemetry.addData(">", "Done");
