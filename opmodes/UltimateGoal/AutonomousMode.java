@@ -115,9 +115,9 @@ private Pose2d shooterPose = new Pose2d(-10,-6);
         telemetry.addData("Angle", robot.shooter.calculateAngle(distance, DistanceUnit.METER, field.topGoal));
 
      */
-        telemetry.addData("angle option+0",robot.shooter.calculateAngle(distance, DistanceUnit.METER, field.topGoal));
+        //telemetry.addData("angle option+0",robot.shooter.calculateAngle(distance, DistanceUnit.METER, field.topGoal));
       // telemetry.addData("angle option+10",robot.shooter.calculateAngle(distance_10, DistanceUnit.METER, field.topGoal));
-        telemetry.addData("angle option-10",robot.shooter.calculateAngle(distance_no10, DistanceUnit.METER, field.topGoal));
+        //telemetry.addData("angle option-10",robot.shooter.calculateAngle(distance_no10, DistanceUnit.METER, field.topGoal));
         telemetry.addData(">", "Press Start to run");
         telemetry.update();
 
@@ -141,6 +141,9 @@ private Pose2d shooterPose = new Pose2d(-10,-6);
 
         distance = field.distanceTo(DistanceUnit.METER, robot.mecanum.getPoseEstimate().minus(shooterPose), field.topGoal.getPose2d());
         angleBetween = field.angleTo(AngleUnit.DEGREES, robot.mecanum.getPoseEstimate().minus(shooterPose), field.topGoal.getPose2d());
+        double angleAtTheTop = Math.toDegrees(robot.shooter.calculateAngle(distance, DistanceUnit.METER, field.topGoal));
+        telemetry.addData("Angle for shot at Top goal ", angleAtTheTop);
+        telemetry.update();
         robot.shooter.requestFire(distance, DistanceUnit.METER, field.topGoal);
         while (opModeIsActive() && !robot.shooter.isAngleAdjustmentComplete()) {
 
@@ -149,6 +152,7 @@ private Pose2d shooterPose = new Pose2d(-10,-6);
             // Display the current value
             //telemetry.addData("Motor Speed = ", "%5.2f", powerToRunAt);
             //telemetry.addData("Encoder Count=", "%5d", motor.getCurrentPosition());
+            telemetry.addData("Angle for shot at Top goal ", angleAtTheTop);
             telemetry.addData(">", "Press Stop to end test.");
 
             telemetry.update();
@@ -181,6 +185,7 @@ private Pose2d shooterPose = new Pose2d(-10,-6);
         }
 robot.shooterOff();
        // Put your cleanup code here - it runs as the application shuts down
+
         trajSeq = robot.mecanum.trajectorySequenceBuilder(robot.mecanum.getPoseEstimate())
 
                 .lineTo(new Vector2d(15,-18.9))
@@ -191,10 +196,14 @@ robot.shooterOff();
         while(opModeIsActive() && robot.mecanum.isBusy()){
             robot.update();
         }
-
-       PersistantStorage.robotPose = robot.mecanum.getPoseEstimate();
+        robot.dropWobbleGoal();
+        while(opModeIsActive() && !robot.isWobbleGoalDropComplete()){
+            robot.update();
+        }
+        PersistantStorage.robotPose = robot.mecanum.getPoseEstimate();
         robot.shutdown();
         dataLog.closeDataLog();
+        telemetry.addData("Angle for shot at Top goal ", angleAtTheTop);
         telemetry.addData(">", "Done");
         telemetry.update();
     }

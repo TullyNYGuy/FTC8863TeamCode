@@ -84,8 +84,10 @@ public class TeleopUsingRoadRunner extends LinearOpMode {
         // Wait for the start button
         telemetry.addData(">", "Press start to run Teleop");
         telemetry.update();
+        double multiplier = 1;
         if(PersistantStorage.robotPose != null){
             robot.mecanum.setPoseEstimate(PersistantStorage.robotPose);
+            multiplier = -1;
         }
 
         waitForStart();
@@ -105,8 +107,8 @@ public class TeleopUsingRoadRunner extends LinearOpMode {
             // The following code uses road runner to move the robot in a driver (field) centric
             // drive
             robot.mecanum.calculateMotorCommandsFieldCentric(
-                    gamepad.gamepad1LeftJoyStickYValue,
-                    gamepad.gamepad1LeftJoyStickXValue,
+                    gamepad.gamepad1LeftJoyStickYValue * multiplier,
+                    gamepad.gamepad1LeftJoyStickXValue * multiplier,
                     gamepad.gamepad1RightJoyStickXValue
             );
 

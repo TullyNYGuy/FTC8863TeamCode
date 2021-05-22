@@ -389,13 +389,11 @@ public class UltimateGoalGamepad {
         if (gamepad2a.buttonPress(gamepad2.a)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            robot.setGameAngle1();
         }
 
         if (gamepad2b.buttonPress(gamepad2.b)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            robot.setGameAngle2();
         }
 
         if (gamepad2y.buttonPress(gamepad2.y)) {
@@ -411,11 +409,13 @@ public class UltimateGoalGamepad {
         if (gamepad2DpadUp.buttonPress(gamepad2.dpad_up)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
+            robot.setGameAngleHighGoal();
         }
 
         if (gamepad2DpadDown.buttonPress(gamepad2.dpad_down)) {
             // this was a new button press, not a button held down for a while
-            // put the command to be executed here
+            // put the command to be executed here\
+            robot.setGameAnglePowerShots();
         }
 
         if (gamepad2DpadLeft.buttonPress(gamepad2.dpad_left)) {

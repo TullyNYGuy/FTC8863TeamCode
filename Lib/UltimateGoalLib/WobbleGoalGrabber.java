@@ -44,7 +44,7 @@ public class WobbleGoalGrabber implements FTCRobotSubsystem {
     private final double GRABBER_OPEN_POSITION = 0;
 
     private Servo8863 armRotationServo;
-    private final double ARM_RETRACT_POSITION  = .75;
+    private final double ARM_RETRACT_POSITION = .75;
     private final double ARM_EXTEND_POSITION = .13;
 
     private DataLogging logFile;
@@ -52,6 +52,7 @@ public class WobbleGoalGrabber implements FTCRobotSubsystem {
 
     private boolean commandComplete = true;
     private ElapsedTime timer;
+
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -87,7 +88,7 @@ public class WobbleGoalGrabber implements FTCRobotSubsystem {
         grabberServo.setPositionOne(GRABBER_OPEN_POSITION);
 
         armRotationServo = new Servo8863(UltimateGoalRobotRoadRunner.HardwareName.ARM_ROTATION_SERVO.hwName, hardwareMap, telemetry);
-        armRotationServo.setDirection( Servo.Direction.FORWARD);
+        armRotationServo.setDirection(Servo.Direction.FORWARD);
         armRotationServo.setHomePosition(ARM_RETRACT_POSITION);
         armRotationServo.setPositionOne(ARM_EXTEND_POSITION);
 
@@ -101,19 +102,19 @@ public class WobbleGoalGrabber implements FTCRobotSubsystem {
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
     public void extendArm() {
-    armRotationServo.goPositionOne();
+        armRotationServo.goPositionOne();
     }
 
     public void retractArm() {
-armRotationServo.goHome();
+        armRotationServo.goHome();
     }
 
-    public void openGrabber(){
-grabberServo.goPositionOne();
+    public void openGrabber() {
+        grabberServo.goPositionOne();
     }
 
     public void closeGrabber() {
-grabberServo.goHome();
+        grabberServo.goHome();
     }
 
     //*********************************************************************************************
@@ -122,9 +123,9 @@ grabberServo.goHome();
     // public methods that give the class its functionality
     //*********************************************************************************************
 
-    public void reset () {
-retractArm();
-closeGrabber();
+    public void reset() {
+        retractArm();
+        closeGrabber();
     }
 
     @Override
@@ -142,7 +143,7 @@ closeGrabber();
     }
 
     public void dropGoal() {
-        if(commandComplete) {
+        if (commandComplete) {
             commandComplete = false;
             currentState = States.DROPPING_GOAL;
         }
@@ -158,28 +159,28 @@ closeGrabber();
             case DROPPING_GOAL:
                 extendArm();
                 timer.reset();
-                currentState=States.EXTENDING_ARM;
+                currentState = States.EXTENDING_ARM;
                 break;
             case EXTENDING_ARM:
-                if(timer.milliseconds()>1000){
+                if (timer.milliseconds() > 1000) {
                     openGrabber();
                     timer.reset();
-                    currentState=States.OPENING_GRABBER;
+                    currentState = States.OPENING_GRABBER;
                 }
                 break;
             case OPENING_GRABBER:
-                if(timer.milliseconds()>500){
+                if (timer.milliseconds() > 500) {
                     retractArm();
                     timer.reset();
-                    currentState=States.RETRACTING_ARM;
+                    currentState = States.RETRACTING_ARM;
                 }
                 break;
             case RETRACTING_ARM:
-                if(timer.milliseconds()>1000){
+                if (timer.milliseconds() > 1000) {
                     closeGrabber();
                     timer.reset();
-                    currentState=States.HOME;
-                    commandComplete=true;
+                    currentState = States.HOME;
+                    commandComplete = true;
                 }
                 break;
         }

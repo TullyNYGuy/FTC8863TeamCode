@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmodes.UltimateGoal;
 
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -15,7 +16,7 @@ import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.UltimateGoalRobotRoadR
 import java.util.List;
 
 @Autonomous(name = "Auto Roadrunner", group = "AARun")
-//@Disabled
+@Disabled
 
 public class AutoUsingRoadRunner extends LinearOpMode {
 
