@@ -40,7 +40,7 @@ public class WobbleGoalGrabber implements FTCRobotSubsystem {
     //*********************************************************************************************
 
     private Servo8863 grabberServo;
-    private final double GRABBER_CLOSE_POSITION = .30;
+    private final double GRABBER_CLOSE_POSITION = .3;
     private final double GRABBER_OPEN_POSITION = 0;
 
     private Servo8863 armRotationServo;
@@ -101,19 +101,19 @@ public class WobbleGoalGrabber implements FTCRobotSubsystem {
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
     public void extendArm() {
-        armRotationServo.goPositionOne();
+    armRotationServo.goPositionOne();
     }
 
     public void retractArm() {
-        armRotationServo.goHome();
+armRotationServo.goHome();
     }
 
     public void openGrabber(){
-        grabberServo.goPositionOne();
+grabberServo.goPositionOne();
     }
 
     public void closeGrabber() {
-        grabberServo.goHome();
+grabberServo.goHome();
     }
 
     //*********************************************************************************************
@@ -123,8 +123,8 @@ public class WobbleGoalGrabber implements FTCRobotSubsystem {
     //*********************************************************************************************
 
     public void reset () {
-        closeGrabber();
-        retractArm();
+retractArm();
+closeGrabber();
     }
 
     @Override
@@ -134,13 +134,11 @@ public class WobbleGoalGrabber implements FTCRobotSubsystem {
     }
 
     public void preloadWobbleGoalStart() {
-        retractArm();
-        openGrabber();
+
     }
 
     public void preloadWobbleGoalComplete() {
-        closeGrabber();
-        currentState = States.GOAL_STORED;
+
     }
 
     public void dropGoal() {
@@ -160,28 +158,28 @@ public class WobbleGoalGrabber implements FTCRobotSubsystem {
             case DROPPING_GOAL:
                 extendArm();
                 timer.reset();
-                currentState = States.EXTENDING_ARM;
+                currentState=States.EXTENDING_ARM;
                 break;
             case EXTENDING_ARM:
-                if(timer.milliseconds() > 1500) {
+                if(timer.milliseconds()>1000){
                     openGrabber();
                     timer.reset();
-                    currentState = States.OPENING_GRABBER;
+                    currentState=States.OPENING_GRABBER;
                 }
                 break;
             case OPENING_GRABBER:
-                if(timer.milliseconds() > 500){
+                if(timer.milliseconds()>500){
                     retractArm();
                     timer.reset();
-                    currentState = States.RETRACTING_ARM;
+                    currentState=States.RETRACTING_ARM;
                 }
                 break;
             case RETRACTING_ARM:
-                if(timer.milliseconds() > 500) {
+                if(timer.milliseconds()>1000){
                     closeGrabber();
                     timer.reset();
-                    currentState = States.GOAL_DROPPED;
-                    commandComplete = true;
+                    currentState=States.HOME;
+                    commandComplete=true;
                 }
                 break;
         }

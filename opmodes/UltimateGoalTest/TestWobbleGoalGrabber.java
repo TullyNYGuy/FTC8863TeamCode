@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.UltimateGoalTest;
 
+import android.media.audiofx.DynamicsProcessing;
+
 import com.qualcomm.ftccommon.configuration.EditLegacyModuleControllerActivity;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -16,32 +18,26 @@ import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.WobbleGoalGrabber;
 //@Disabled
 public class TestWobbleGoalGrabber extends LinearOpMode {
 
-    // Put your variable declarations her
-    WobbleGoalGrabber wobbleGoalGrabber;
-    Configuration configuration = null;
-    ElapsedTime timer;
+    // Put your variable declarations here
+    WobbleGoalGrabber theClaw;
+    Configuration configuration;
 
     @Override
     public void runOpMode() {
 
 
         // Put your initializations here
-        timer = new ElapsedTime();
-        wobbleGoalGrabber = new WobbleGoalGrabber(hardwareMap, telemetry);
-        wobbleGoalGrabber.init(configuration);
-
+        theClaw = new WobbleGoalGrabber(hardwareMap, telemetry);
+        theClaw.init(configuration);
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
         telemetry.update();
         waitForStart();
 
         // Put your calls here - they will not run in a loop
-        wobbleGoalGrabber.dropGoal();
-
-        timer.reset();
-        while (opModeIsActive()) {
-            wobbleGoalGrabber.update();
-
+        theClaw.dropGoal();
+        while (opModeIsActive() && !theClaw.isComplete()) {
+            theClaw.update();
             telemetry.addData(">", "Press Stop to end test.");
             telemetry.update();
 
