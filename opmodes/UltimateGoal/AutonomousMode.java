@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.UltimateGoal;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -12,10 +13,12 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
+import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.MecanumDriveUltimateGoal;
 import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.Shooter;
 import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.UltimateGoalField;
 import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.UltimateGoalGamepad;
 import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.UltimateGoalRobotRoadRunner;
+import org.firstinspires.ftc.teamcode.RoadRunner.trajectorysequence.TrajectorySequence;
 
 import java.util.List;
 
@@ -40,6 +43,10 @@ public class AutonomousMode extends LinearOpMode {
     public Pose2d robotPose;
     public double distance = 0;
     public double angleBetween = 0;
+private Pose2d shooterPose = new Pose2d(-10,-6);
+    //private Pose2d shooterPose = new Pose2d(10,-6);
+   // private Pose2d shooterPose = new Pose2d(0,0);
+
 
     @Override
     public void runOpMode() {
@@ -85,25 +92,31 @@ public class AutonomousMode extends LinearOpMode {
 //        }
 
         // Wait for the start button
-        telemetry.addData(">", "Press start to run Teleop");
-        telemetry.update();
-        waitForStart();
+
 
         robot.loopTimer.startLoopTimer();
 
 
         // Put your initializations here
-
+        //MecanumDriveUltimateGoal drive = new MecanumDriveUltimateGoal(UltimateGoalRobotRoadRunner.HardwareName.CONFIG_FL_MOTOR.hwName, UltimateGoalRobotRoadRunner.HardwareName.CONFIG_BL_MOTOR.hwName, UltimateGoalRobotRoadRunner.HardwareName.CONFIG_FR_MOTOR.hwName, UltimateGoalRobotRoadRunner.HardwareName.CONFIG_BR_MOTOR.hwName, hardwareMap);
         field = new UltimateGoalField();
         timer = new ElapsedTime();
-        robotPose = new Pose2d(-62, -18.9, 0);
-
+        robotPose = new Pose2d(-62, -18.9, Math.toRadians(180));
+        //robotPose = new Pose2d(0, -18.9, 0);
+        robot.mecanum.setPoseEstimate(robotPose);
         distance = field.distanceTo(DistanceUnit.METER, robotPose, field.topGoal.getPose2d());
+       // double distance_10 = field.distanceTo(DistanceUnit.METER, robotPose.plus(shooterPose), field.topGoal.getPose2d());
+        double distance_no10 = field.distanceTo(DistanceUnit.METER, robotPose.minus(shooterPose), field.topGoal.getPose2d());
         angleBetween = field.angleTo(AngleUnit.DEGREES, robotPose, field.topGoal.getPose2d());
-
-        telemetry.addData("distance =", distance);
+       // distance = field.distanceTo(DistanceUnit.METER, robot.mecanum.getPoseEstimate().minus(shooterPose), field.topGoal.getPose2d());
+    /*    telemetry.addData("distance =", distance);
         telemetry.addData("angle to =", Math.toDegrees(angleBetween));
         telemetry.addData("Angle", robot.shooter.calculateAngle(distance, DistanceUnit.METER, field.topGoal));
+
+     */
+        telemetry.addData("angle option+0",robot.shooter.calculateAngle(distance, DistanceUnit.METER, field.topGoal));
+      // telemetry.addData("angle option+10",robot.shooter.calculateAngle(distance_10, DistanceUnit.METER, field.topGoal));
+        telemetry.addData("angle option-10",robot.shooter.calculateAngle(distance_no10, DistanceUnit.METER, field.topGoal));
         telemetry.addData(">", "Press Start to run");
         telemetry.update();
 
@@ -112,6 +125,20 @@ public class AutonomousMode extends LinearOpMode {
 
         // Put your calls here - they will not run in a loop
 
+        TrajectorySequence trajSeq = robot.mecanum.trajectorySequenceBuilder(robotPose)
+
+                .lineTo(new Vector2d(0,-18.9))
+
+
+                .build();
+        robot.mecanum.followTrajectorySequenceAsync(trajSeq);
+        while(opModeIsActive() && robot.mecanum.isBusy()){
+            robot.update();
+        }
+
+
+        distance = field.distanceTo(DistanceUnit.METER, robot.mecanum.getPoseEstimate().minus(shooterPose), field.topGoal.getPose2d());
+        angleBetween = field.angleTo(AngleUnit.DEGREES, robot.mecanum.getPoseEstimate().minus(shooterPose), field.topGoal.getPose2d());
         robot.shooter.requestFire(distance, DistanceUnit.METER, field.topGoal);
         while (opModeIsActive() && !robot.shooter.isAngleAdjustmentComplete()) {
 
@@ -126,14 +153,43 @@ public class AutonomousMode extends LinearOpMode {
 
             idle();
         }
-        robot.shooter.setSpeed(5000);
+        robot.shooterOn();
         timer.reset();
-        while (opModeIsActive() && timer.milliseconds() < 10000) {
-            robot.shooter.update();
+        while (opModeIsActive() && timer.milliseconds() < 2000) {
+            robot.update();
             idle();
         }
+        timer.reset();
+        robot.fire1();
+        while (opModeIsActive() && timer.milliseconds() < 2000) {
+            robot.update();
+            idle();
+        }
+        timer.reset();
+        robot.fire1();
+        while (opModeIsActive() && timer.milliseconds() < 2000) {
+            robot.update();
+            idle();
+        }
+        timer.reset();
+        robot.fire1();
+        while (opModeIsActive() && timer.milliseconds() < 2000) {
+            robot.update();
+            idle();
+        }
+robot.shooterOff();
+       // Put your cleanup code here - it runs as the application shuts down
+        trajSeq = robot.mecanum.trajectorySequenceBuilder(robot.mecanum.getPoseEstimate())
 
-        // Put your cleanup code here - it runs as the application shuts down
+                .lineTo(new Vector2d(15,-18.9))
+
+
+                .build();
+        robot.mecanum.followTrajectorySequenceAsync(trajSeq);
+        while(opModeIsActive() && robot.mecanum.isBusy()){
+            robot.update();
+        }
+
 
         robot.shutdown();
         dataLog.closeDataLog();

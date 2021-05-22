@@ -31,6 +31,7 @@ public class Shooter implements FTCRobotSubsystem {
     private FiringSolution firingSolution;
     private final double SHOOTER_LENGTH = 9.25 * 0.0254;//Units are meters
     private final double SHOOTER_HEIGHT_PARALLEL = 5.75 * 0.0254;//Units are meters
+    private final double VELOCITY = 10;
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -66,7 +67,7 @@ public class Shooter implements FTCRobotSubsystem {
        double distanceToGoalMeters = unit.toMeters(distanceToGoal);
         boolean result = false;
         double angle = 0;
-        angle = firingSolution.calculateShooterAngle(distanceToGoalMeters, goal.getHeight(DistanceUnit.METER), 12, SHOOTER_HEIGHT_PARALLEL, SHOOTER_LENGTH);
+        angle = firingSolution.calculateShooterAngle(distanceToGoalMeters, goal.getHeight(DistanceUnit.METER), VELOCITY, SHOOTER_HEIGHT_PARALLEL, SHOOTER_LENGTH);
         if (angle > 0) {
             result = true;
             angleChanger.setCurrentAngle(Math.toDegrees(angle));
@@ -80,7 +81,7 @@ public class Shooter implements FTCRobotSubsystem {
 
     public double calculateAngle(double distanceToGoal,DistanceUnit unit, UltimateGoalGoal goal) {
         double distanceToGoalMeters = unit.toMeters(distanceToGoal);
-        return Math.toDegrees(firingSolution.calculateShooterAngle(distanceToGoalMeters, goal.getHeight(DistanceUnit.METER), 12, SHOOTER_HEIGHT_PARALLEL, SHOOTER_LENGTH));
+        return Math.toDegrees(firingSolution.calculateShooterAngle(distanceToGoalMeters, goal.getHeight(DistanceUnit.METER), VELOCITY, SHOOTER_HEIGHT_PARALLEL, SHOOTER_LENGTH));
     }
 
     public void setSpeed(int motorRPM) {
