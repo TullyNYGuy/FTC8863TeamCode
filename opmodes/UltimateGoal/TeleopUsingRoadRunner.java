@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
+import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.PersistantStorage;
 import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.UltimateGoalGamepad;
 import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.UltimateGoalRobotRoadRunner;
 
@@ -83,6 +84,10 @@ public class TeleopUsingRoadRunner extends LinearOpMode {
         // Wait for the start button
         telemetry.addData(">", "Press start to run Teleop");
         telemetry.update();
+        if(PersistantStorage.robotPose != null){
+            robot.mecanum.setPoseEstimate(PersistantStorage.robotPose);
+        }
+
         waitForStart();
 
         robot.loopTimer.startLoopTimer();

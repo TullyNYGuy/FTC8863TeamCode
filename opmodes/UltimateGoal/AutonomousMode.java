@@ -14,6 +14,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.MecanumDriveUltimateGoal;
+import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.PersistantStorage;
 import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.Shooter;
 import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.UltimateGoalField;
 import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.UltimateGoalGamepad;
@@ -126,7 +127,8 @@ private Pose2d shooterPose = new Pose2d(-10,-6);
         // Put your calls here - they will not run in a loop
 
         TrajectorySequence trajSeq = robot.mecanum.trajectorySequenceBuilder(robotPose)
-
+                .strafeLeft(13)
+                .back(45)
                 .lineTo(new Vector2d(0,-18.9))
 
 
@@ -190,7 +192,7 @@ robot.shooterOff();
             robot.update();
         }
 
-
+       PersistantStorage.robotPose = robot.mecanum.getPoseEstimate();
         robot.shutdown();
         dataLog.closeDataLog();
         telemetry.addData(">", "Done");

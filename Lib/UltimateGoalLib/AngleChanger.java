@@ -62,13 +62,21 @@ public class AngleChanger {
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
-    public AngleChanger(HardwareMap hardwareMap, Telemetry telemetry) {
+    private AngleChanger(HardwareMap hardwareMap, Telemetry telemetry) {
         motor = new DcMotor8863(UltimateGoalRobotRoadRunner.HardwareName.LEAD_SCREW_MOTOR.hwName, hardwareMap, telemetry);
         motor.setMotorType(DcMotor8863.MotorType.ANDYMARK_20_ORBITAL);
         motor.setMovementPerRev(8);
         motor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
     }
-
+    public static AngleChanger createAngleChanger (HardwareMap hardwareMap, Telemetry telemetry){
+        if(PersistantStorage.angleChanger == null){
+            PersistantStorage.angleChanger = new AngleChanger(hardwareMap, telemetry);
+        }
+        return PersistantStorage.angleChanger;
+    }
+    public static void clearAngleChanger(){
+        PersistantStorage.angleChanger = null;
+    }
     //*********************************************************************************************
     //          Helper Methods
     //
