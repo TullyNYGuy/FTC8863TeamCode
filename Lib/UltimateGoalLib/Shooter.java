@@ -75,6 +75,10 @@ public class Shooter implements FTCRobotSubsystem {
         return result;
     }
 
+    public void setAngle (double angle) {
+        angleChanger.setCurrentAngle(Math.toDegrees(angle));
+    }
+
     public boolean isAngleAdjustmentComplete() {
         return angleChanger.isAngleAdjustComplete();
     }

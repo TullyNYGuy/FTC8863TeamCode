@@ -26,8 +26,8 @@ package org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib;
  *    / DPad Left        -
  *    / DPad Down        -
  *    / DPad Right       -
- *    / A                -
- *    / B                -
+ *    / A                - set game angle1
+ *    / B                - set game angle2
  *    / X                -
  *    / Y                -
  */
@@ -389,11 +389,13 @@ public class UltimateGoalGamepad {
         if (gamepad2a.buttonPress(gamepad2.a)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
+            robot.setGameAngle1();
         }
 
         if (gamepad2b.buttonPress(gamepad2.b)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
+            robot.setGameAngle2();
         }
 
         if (gamepad2y.buttonPress(gamepad2.y)) {
