@@ -48,7 +48,7 @@ public class Shooter implements FTCRobotSubsystem {
     //*********************************************************************************************
     public Shooter(String leftMotorName, String rightMotorName, HardwareMap hardwareMap, Telemetry telemetry) {
         dualMotorGearBox = new DualMotorGearBox(leftMotorName, rightMotorName, hardwareMap, telemetry);
-        angleChanger = new AngleChanger(hardwareMap, telemetry);
+        angleChanger =  AngleChanger.createAngleChanger(hardwareMap, telemetry);
         firingSolution = new FiringSolution();
     }
     //*********************************************************************************************

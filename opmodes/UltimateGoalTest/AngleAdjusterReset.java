@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.AngleChanger;
+import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.PersistantStorage;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
@@ -20,7 +21,7 @@ public class AngleAdjusterReset extends LinearOpMode {
 
 
         // Put your initializations here
-        angleChanger = new AngleChanger(hardwareMap, telemetry);
+        angleChanger =  AngleChanger.createAngleChanger(hardwareMap, telemetry);
 
         angleChanger.setAngleReference();
 
@@ -44,7 +45,7 @@ public class AngleAdjusterReset extends LinearOpMode {
 
             idle();
         }
-
+        AngleChanger.clearAngleChanger();
         // Put your cleanup code here - it runs as the application shuts down
         telemetry.addData(">", "Done");
         telemetry.update();

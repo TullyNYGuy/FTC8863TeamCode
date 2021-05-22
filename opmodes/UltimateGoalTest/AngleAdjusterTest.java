@@ -23,7 +23,7 @@ public class AngleAdjusterTest extends LinearOpMode {
 
 
         // Put your initializations here
-        angleChanger = new AngleChanger(hardwareMap, telemetry);
+        angleChanger = AngleChanger.createAngleChanger(hardwareMap, telemetry);
         timer = new ElapsedTime();
         angleChanger.setAngleReference();
 
