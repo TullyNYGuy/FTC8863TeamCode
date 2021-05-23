@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.PersistantStorage;
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Angle Adjuster Reset", group = "Test")
+@TeleOp(name = "Angle Adjuster Reset", group = "Setup")
 //@Disabled
 public class AngleAdjusterReset extends LinearOpMode {
 

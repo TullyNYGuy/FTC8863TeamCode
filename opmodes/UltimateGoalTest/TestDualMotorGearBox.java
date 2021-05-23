@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.DualMotorGearBox;
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
 @TeleOp(name = "Dual Motor Test", group = "Test")
-//@Disabled
+@Disabled
 public class TestDualMotorGearBox extends LinearOpMode {
 
     // Put your variable declarations here

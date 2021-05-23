@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.UltimateGoalTest;
 
 import com.qualcomm.hardware.lynx.LynxModule;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -17,7 +18,7 @@ import java.util.List;
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
 @TeleOp(name = "Ultimate Goal Intake Controller Test", group = "Test")
-//@Disabled
+@Disabled
 public class IntakeControllerTest extends LinearOpMode {
 
     // Put your variable declarations here

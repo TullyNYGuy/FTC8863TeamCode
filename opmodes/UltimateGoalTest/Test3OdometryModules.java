@@ -1,6 +1,7 @@
 
 package org.firstinspires.ftc.teamcode.opmodes.UltimateGoalTest;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -15,7 +16,7 @@ import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.UltimateGoalRobot;
 import java.util.Locale;
 
 @TeleOp(name = "Test 3 odometry modules", group = "Diagnostics")
-//@Disabled
+@Disabled
 public class Test3OdometryModules extends LinearOpMode {
 
     @Override

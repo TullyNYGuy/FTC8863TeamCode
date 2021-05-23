@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.AngleChanger;
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
 @TeleOp(name = "Test Angle Adjuster", group = "Test")
-//@Disabled
+@Disabled
 public class AngleAdjusterTest extends LinearOpMode {
 
     // Put your variable declarations here
