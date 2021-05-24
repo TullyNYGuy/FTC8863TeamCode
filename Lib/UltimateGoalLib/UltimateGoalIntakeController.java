@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib;
 
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
@@ -22,7 +23,9 @@ public class UltimateGoalIntakeController implements FTCRobotSubsystem {
         NO_RING,
         ONE_RING,
         TWO_RING,
-        THREE_RING;
+        THREE_RING,
+        BUMP_STAGE_ONE,
+        WAIT_FOR_BUMP;
     }
 
     private enum Commands {
@@ -31,7 +34,8 @@ public class UltimateGoalIntakeController implements FTCRobotSubsystem {
         INTAKE,
         FIRE_1,
         FIRE_2,
-        FIRE_3;
+        FIRE_3,
+        BUMP_1;
     }
 
 
@@ -53,6 +57,8 @@ public class UltimateGoalIntakeController implements FTCRobotSubsystem {
     // this says that the first line in the data log is about to be written
     private boolean firstLogLine = true;
     private boolean enableUpdate = true;
+
+    private ElapsedTime turnOnTimer;
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -75,12 +81,12 @@ public class UltimateGoalIntakeController implements FTCRobotSubsystem {
         this.loggingOn = false;
     }
 
-    public void setEnableUpdate () {
-        enableUpdate=true;
+    public void setEnableUpdate() {
+        enableUpdate = true;
     }
 
-    public void setDisableUpdate () {
-        enableUpdate= false;
+    public void setDisableUpdate() {
+        enableUpdate = false;
     }
 
     //*********************************************************************************************
@@ -92,6 +98,7 @@ public class UltimateGoalIntakeController implements FTCRobotSubsystem {
 
     public UltimateGoalIntakeController(HardwareMap hardwareMap, Telemetry telemetry, UltimateGoalIntake intake) {
         this.intake = intake;
+        turnOnTimer = new ElapsedTime();
     }
 
     //*********************************************************************************************
@@ -203,6 +210,24 @@ public class UltimateGoalIntakeController implements FTCRobotSubsystem {
             // log the state and command
             logState(currentState, currentCommand);
             switch (currentState) {
+                case BUMP_STAGE_ONE:
+                    switch (currentCommand) {
+                        case BUMP_1:
+                            turnOnTimer.reset();
+                            intake.requestTurnStage1On();
+                            commandComplete = false;
+                            currentState = States.WAIT_FOR_BUMP;
+                            break;
+                    }
+                    break;
+                case WAIT_FOR_BUMP:
+                    if (turnOnTimer.milliseconds() > 500) {
+                        intake.requestTurnIntakeOFF();
+                        commandComplete = true;
+                        currentState = States.THREE_RING;
+                        break;
+                    }
+                    break;
                 case IDLE:
                     switch (currentCommand) {
                         case ESTOP:
@@ -318,7 +343,7 @@ public class UltimateGoalIntakeController implements FTCRobotSubsystem {
                         case FIRE_1:
                             switch (intake.getCurrentRingsAt()) {
                                 case TWO_THREE:
-                                    intake.requestTurnStage23On();
+                                    intake.requestTurnStage3On();
                                     currentState = States.TWO_RING;
                                     commandComplete = false;
                                     break;
@@ -538,6 +563,14 @@ public class UltimateGoalIntakeController implements FTCRobotSubsystem {
         currentCommand = Commands.ESTOP;
     }
 
+    public void requestBump1() {
+        if (commandComplete) {
+            turnOnTimer.reset();
+            currentCommand = Commands.BUMP_1;
+            currentState= States.BUMP_STAGE_ONE;
+        }
+    }
+
     @Override
     public String getName() {
         return "intakeController";
@@ -561,9 +594,9 @@ public class UltimateGoalIntakeController implements FTCRobotSubsystem {
         return true;
     }
 
-    public void reset () {
-        currentState=States.IDLE;
-        currentCommand= Commands.OFF;
-        commandComplete= true;
+    public void reset() {
+        currentState = States.IDLE;
+        currentCommand = Commands.OFF;
+        commandComplete = true;
     }
 }

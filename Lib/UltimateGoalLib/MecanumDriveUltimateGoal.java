@@ -40,6 +40,9 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
 import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.TrackingWheelLocalizerUltimateGoal;
+import org.firstinspires.ftc.teamcode.RoadRunner.trajectorysequence.TrajectorySequence;
+import org.firstinspires.ftc.teamcode.RoadRunner.trajectorysequence.TrajectorySequenceBuilder;
+import org.firstinspires.ftc.teamcode.RoadRunner.trajectorysequence.TrajectorySequenceRunner;
 import org.firstinspires.ftc.teamcode.RoadRunner.util.DashboardUtil;
 import org.firstinspires.ftc.teamcode.RoadRunner.util.LynxModuleUtil;
 
@@ -86,39 +89,31 @@ public class MecanumDriveUltimateGoal extends MecanumDrive implements FTCRobotSu
     // getter and setter methods
     //*********************************************************************************************
 
-    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(2, 0, 0);
-    public static PIDCoefficients HEADING_PID = new PIDCoefficients(12, 0, 0);
+    // THESE COME FROM THE SAMPLE MECANUM DRIVE CLASS IN road-runner-quickstart
 
-    public static double LATERAL_MULTIPLIER = 2.37;
+    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(8, 0, 1);
+    public static PIDCoefficients HEADING_PID = new PIDCoefficients(8, 0, 0);
+
+    public static double LATERAL_MULTIPLIER = 1.978;
 
     public static double VX_WEIGHT = 1;
     public static double VY_WEIGHT = 1;
     public static double OMEGA_WEIGHT = 1;
 
-    public static int POSE_HISTORY_LIMIT = 100;
+    private TrajectorySequenceRunner trajectorySequenceRunner;
 
-    private FtcDashboard dashboard;
-    private NanoClock clock;
+    private static final TrajectoryVelocityConstraint VEL_CONSTRAINT = getVelocityConstraint(MAX_VEL, MAX_ANG_VEL, TRACK_WIDTH);
+    private static final TrajectoryAccelerationConstraint ACCEL_CONSTRAINT = getAccelerationConstraint(MAX_ACCEL);
 
-    private Mode mode;
-
-    private PIDFController turnController;
-    private MotionProfile turnProfile;
-    private double turnStart;
-
-    private TrajectoryVelocityConstraint velConstraint;
-    private TrajectoryAccelerationConstraint accelConstraint;
     private TrajectoryFollower follower;
-
-    private LinkedList<Pose2d> poseHistory;
 
     private DcMotorEx leftFront, leftRear, rightRear, rightFront;
     private List<DcMotorEx> motors;
-    private BNO055IMU imu;
 
+    private BNO055IMU imu;
     private VoltageSensor batteryVoltageSensor;
 
-    private Pose2d lastPoseOnTurn;
+    // THESE ARE OUR OWN ADDITIONS
 
     private DataLogging logFile = null;
     private boolean loggingOn = false;
@@ -155,25 +150,9 @@ public class MecanumDriveUltimateGoal extends MecanumDrive implements FTCRobotSu
     public MecanumDriveUltimateGoal(String frontLeftMotorName, String backLeftMotorName, String frontRightMotorName, String backRightMotorName, HardwareMap hardwareMap) {
         super(kV, kA, kStatic, TRACK_WIDTH, TRACK_WIDTH, LATERAL_MULTIPLIER);
 
-        dashboard = FtcDashboard.getInstance();
-        dashboard.setTelemetryTransmissionInterval(25);
 
-        clock = NanoClock.system();
-
-        mode = Mode.IDLE;
-
-        turnController = new PIDFController(HEADING_PID);
-        turnController.setInputBounds(0, 2 * Math.PI);
-
-        velConstraint = new MinVelocityConstraint(Arrays.asList(
-                new AngularVelocityConstraint(MAX_ANG_VEL),
-                new MecanumVelocityConstraint(MAX_VEL, TRACK_WIDTH)
-        ));
-        accelConstraint = new ProfileAccelerationConstraint(MAX_ACCEL);
         follower = new HolonomicPIDVAFollower(TRANSLATIONAL_PID, TRANSLATIONAL_PID, HEADING_PID,
                 new Pose2d(0.5, 0.5, Math.toRadians(5.0)), 0.5);
-
-        poseHistory = new LinkedList<>();
 
         LynxModuleUtil.ensureMinimumFirmwareVersion(hardwareMap);
 
@@ -192,6 +171,8 @@ public class MecanumDriveUltimateGoal extends MecanumDrive implements FTCRobotSu
         // TODO: if your hub is mounted vertically, remap the IMU axes so that the z-axis points
         // upward (normal to the floor) using a command like the following:
         // BNO055IMUUtil.remapAxes(imu, AxesOrder.XYZ, AxesSigns.NPN);
+
+        //WE CHANGED THE MOTOR NAME PARAMETERS IN THE NEXT 4 LINES
 
         leftFront = hardwareMap.get(DcMotorEx.class, frontLeftMotorName);
         leftRear = hardwareMap.get(DcMotorEx.class, backLeftMotorName);
@@ -223,6 +204,8 @@ public class MecanumDriveUltimateGoal extends MecanumDrive implements FTCRobotSu
         // TODO: if desired, use setLocalizer() to change the localization method
         // for instance, setLocalizer(new ThreeTrackingWheelLocalizer(...));
         setLocalizer(new TrackingWheelLocalizerUltimateGoal(hardwareMap));
+
+        trajectorySequenceRunner = new TrajectorySequenceRunner(follower, HEADING_PID);
     }
 
     //*********************************************************************************************
@@ -238,34 +221,35 @@ public class MecanumDriveUltimateGoal extends MecanumDrive implements FTCRobotSu
     // public methods that give the class its functionality
     //*********************************************************************************************
 
-    // MOTION CONTROL METHODS
+    // MOTION CONTROL METHODS - THESE COME FROM road-runner-quickstart
+
 
     public TrajectoryBuilder trajectoryBuilder(Pose2d startPose) {
-        return new TrajectoryBuilder(startPose, velConstraint, accelConstraint);
+        return new TrajectoryBuilder(startPose, VEL_CONSTRAINT, ACCEL_CONSTRAINT);
     }
 
     public TrajectoryBuilder trajectoryBuilder(Pose2d startPose, boolean reversed) {
-        return new TrajectoryBuilder(startPose, reversed, velConstraint, accelConstraint);
+        return new TrajectoryBuilder(startPose, reversed, VEL_CONSTRAINT, ACCEL_CONSTRAINT);
     }
 
     public TrajectoryBuilder trajectoryBuilder(Pose2d startPose, double startHeading) {
-        return new TrajectoryBuilder(startPose, startHeading, velConstraint, accelConstraint);
+        return new TrajectoryBuilder(startPose, startHeading, VEL_CONSTRAINT, ACCEL_CONSTRAINT);
+    }
+
+    public TrajectorySequenceBuilder trajectorySequenceBuilder(Pose2d startPose) {
+        return new TrajectorySequenceBuilder(
+                startPose,
+                VEL_CONSTRAINT, ACCEL_CONSTRAINT,
+                MAX_ANG_VEL, MAX_ANG_ACCEL
+        );
     }
 
     public void turnAsync(double angle) {
-        double heading = getPoseEstimate().getHeading();
-
-        lastPoseOnTurn = getPoseEstimate();
-
-        turnProfile = MotionProfileGenerator.generateSimpleMotionProfile(
-                new MotionState(heading, 0, 0, 0),
-                new MotionState(heading + angle, 0, 0, 0),
-                MAX_ANG_VEL,
-                MAX_ANG_ACCEL
+        trajectorySequenceRunner.followTrajectorySequenceAsync(
+                trajectorySequenceBuilder(getPoseEstimate())
+                        .turn(angle)
+                        .build()
         );
-
-        turnStart = clock.seconds();
-        mode = Mode.TURN;
     }
 
     public void turn(double angle) {
@@ -274,8 +258,11 @@ public class MecanumDriveUltimateGoal extends MecanumDrive implements FTCRobotSu
     }
 
     public void followTrajectoryAsync(Trajectory trajectory) {
-        follower.followTrajectory(trajectory);
-        mode = Mode.FOLLOW_TRAJECTORY;
+        trajectorySequenceRunner.followTrajectorySequenceAsync(
+                trajectorySequenceBuilder(trajectory.start())
+                        .addTrajectory(trajectory)
+                        .build()
+        );
     }
 
     public void followTrajectory(Trajectory trajectory) {
@@ -283,116 +270,32 @@ public class MecanumDriveUltimateGoal extends MecanumDrive implements FTCRobotSu
         waitForIdle();
     }
 
-    public Pose2d getLastError() {
-        switch (mode) {
-            case FOLLOW_TRAJECTORY:
-                return follower.getLastError();
-            case TURN:
-                return new Pose2d(0, 0, turnController.getLastError());
-            case IDLE:
-                return new Pose2d();
-        }
-        throw new AssertionError();
+    public void followTrajectorySequenceAsync(TrajectorySequence trajectorySequence) {
+        trajectorySequenceRunner.followTrajectorySequenceAsync(trajectorySequence);
     }
 
-    /**
-     * Update the drive motion control
-     */
+    public void followTrajectorySequence(TrajectorySequence trajectorySequence) {
+        followTrajectorySequenceAsync(trajectorySequence);
+        waitForIdle();
+    }
+
+    public Pose2d getLastError() {
+        return trajectorySequenceRunner.getLastPoseError();
+    }
+
     public void update() {
         updatePoseEstimate();
-
-        Pose2d currentPose = getPoseEstimate();
-        Pose2d lastError = getLastError();
-
-        poseHistory.add(currentPose);
-
-        if (POSE_HISTORY_LIMIT > -1 && poseHistory.size() > POSE_HISTORY_LIMIT) {
-            poseHistory.removeFirst();
-        }
-
-        TelemetryPacket packet = new TelemetryPacket();
-        Canvas fieldOverlay = packet.fieldOverlay();
-
-        packet.put("mode", mode);
-
-        packet.put("x", currentPose.getX());
-        packet.put("y", currentPose.getY());
-        packet.put("heading (deg)", Math.toDegrees(currentPose.getHeading()));
-
-        packet.put("xError", lastError.getX());
-        packet.put("yError", lastError.getY());
-        packet.put("headingError (deg)", Math.toDegrees(lastError.getHeading()));
-
-        switch (mode) {
-            case IDLE:
-                // do nothing
-                break;
-            case TURN: {
-                double t = clock.seconds() - turnStart;
-
-                MotionState targetState = turnProfile.get(t);
-
-                turnController.setTargetPosition(targetState.getX());
-
-                double correction = turnController.update(currentPose.getHeading());
-
-                double targetOmega = targetState.getV();
-                double targetAlpha = targetState.getA();
-                setDriveSignal(new DriveSignal(new Pose2d(
-                        0, 0, targetOmega + correction
-                ), new Pose2d(
-                        0, 0, targetAlpha
-                )));
-
-                Pose2d newPose = lastPoseOnTurn.copy(lastPoseOnTurn.getX(), lastPoseOnTurn.getY(), targetState.getX());
-
-                fieldOverlay.setStroke("#4CAF50");
-                DashboardUtil.drawRobot(fieldOverlay, newPose);
-
-                if (t >= turnProfile.duration()) {
-                    mode = Mode.IDLE;
-                    setDriveSignal(new DriveSignal());
-                }
-
-                break;
-            }
-            case FOLLOW_TRAJECTORY: {
-                setDriveSignal(follower.update(currentPose, getPoseVelocity()));
-
-                Trajectory trajectory = follower.getTrajectory();
-
-                fieldOverlay.setStrokeWidth(1);
-                fieldOverlay.setStroke("#4CAF50");
-                DashboardUtil.drawSampledPath(fieldOverlay, trajectory.getPath());
-                double t = follower.elapsedTime();
-                DashboardUtil.drawRobot(fieldOverlay, trajectory.get(t));
-
-                fieldOverlay.setStroke("#3F51B5");
-                DashboardUtil.drawPoseHistory(fieldOverlay, poseHistory);
-
-                if (!follower.isFollowing()) {
-                    mode = Mode.IDLE;
-                    setDriveSignal(new DriveSignal());
-                }
-
-                break;
-            }
-        }
-
-        fieldOverlay.setStroke("#3F51B5");
-        DashboardUtil.drawRobot(fieldOverlay, currentPose);
-
-        dashboard.sendTelemetryPacket(packet);
+        DriveSignal signal = trajectorySequenceRunner.update(getPoseEstimate(), getPoseVelocity());
+        if (signal != null) setDriveSignal(signal);
     }
 
     public void waitForIdle() {
-        while (!Thread.currentThread().isInterrupted() && isBusy()) {
+        while (!Thread.currentThread().isInterrupted() && isBusy())
             update();
-        }
     }
 
     public boolean isBusy() {
-        return mode != Mode.IDLE;
+        return trajectorySequenceRunner.isBusy();
     }
 
     public void setMode(DcMotor.RunMode runMode) {
@@ -412,6 +315,7 @@ public class MecanumDriveUltimateGoal extends MecanumDrive implements FTCRobotSu
                 coefficients.p, coefficients.i, coefficients.d,
                 coefficients.f * 12 / batteryVoltageSensor.getVoltage()
         );
+
         for (DcMotorEx motor : motors) {
             motor.setPIDFCoefficients(runMode, compensatedCoefficients);
         }
@@ -500,7 +404,18 @@ public class MecanumDriveUltimateGoal extends MecanumDrive implements FTCRobotSu
         return (double) imu.getAngularVelocity().zRotationRate;
     }
 
-    // THE NEXT TWO METHODS ARE USED FOR TELEOP DRIVING THE ROBOT.
+    public static TrajectoryVelocityConstraint getVelocityConstraint(double maxVel, double maxAngularVel, double trackWidth) {
+        return new MinVelocityConstraint(Arrays.asList(
+                new AngularVelocityConstraint(maxAngularVel),
+                new MecanumVelocityConstraint(maxVel, trackWidth)
+        ));
+    }
+
+    public static TrajectoryAccelerationConstraint getAccelerationConstraint(double maxAccel) {
+        return new ProfileAccelerationConstraint(maxAccel);
+    }
+
+    // THE NEXT TWO METHODS ARE USED FOR TELEOP DRIVING THE ROBOT. THEY ARE ARE ADDITIONS
 
     /**
      * Calculate motor powers for driving in teleop using a joystick (x and y) that controls the direction of

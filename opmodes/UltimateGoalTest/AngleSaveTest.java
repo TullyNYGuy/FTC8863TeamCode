@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.AngleChanger;
-import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.AngleStorage;
+import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.PersistantStorage;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
@@ -23,7 +23,7 @@ public class AngleSaveTest extends LinearOpMode {
 
 
         // Put your initializations here
-        angleChanger = AngleStorage.angleChangerSaved;
+        angleChanger = PersistantStorage.angleChanger;
         timer = new ElapsedTime();
 
 

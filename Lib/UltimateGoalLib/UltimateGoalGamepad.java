@@ -3,33 +3,33 @@ package org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib;
 /*
  * Class for Ultimate Goal TeleOp mode
  * Gamepad 1 layout
- *    / Left JoystickX - robot moves left/right
- *    / Left JoystickY - robot moves forward/backward
- *    / Right JoystickX - robot rotation
- *    / DPad Up - reverse intake on/off
- *    / DPad Left - reset intake
- *    / DPad Down - stage 23 on/off
- *    / DPad Right - 100% power
- *    / A - EStop
- *    / B - Intake on
- *    / X - fire 1
- *    / Y - Intake off
- *    /Left Bumper- intake on/off
- *    /Right Bumper- shooter on/off
+ *    / Left JoystickX   - robot moves left/right
+ *    / Left JoystickY   - robot moves forward/backward
+ *    / Right JoystickX  - robot rotation
+ *    / DPad Up          - reverse stage 1 intake on/off
+ *    / DPad Left        - reset intake
+ *    / DPad Down        - stage 23 intake on/off
+ *    / DPad Right       - 100% power
+ *    / A                - Bump 1
+ *    / B                -  EStop
+ *    / X                - fire 1
+ *    / Y                - fire 2 - does not work
+ *    /Left Bumper       - intake on/off
+ *    /Right Bumper      - shooter on/off
  *
  *  Gamepad 2 layout
- *    / Left JoystickX -
- *    / Left JoystickY -
- *    / Right JoystickX -
- *    / Right JoystickY -
- *    / DPad Up -
- *    / DPad Left -
- *    / DPad Down -
- *    / DPad Right-
- *    / A -
- *    / B -
- *    / X -
- *    / Y -
+ *    / Left JoystickX   -
+ *    / Left JoystickY   -
+ *    / Right JoystickX  -
+ *    / Right JoystickY  -
+ *    / DPad Up          -
+ *    / DPad Left        -
+ *    / DPad Down        -
+ *    / DPad Right       -
+ *    / A                - set game angle1
+ *    / B                - set game angle2
+ *    / X                -
+ *    / Y                -
  */
 
 import com.qualcomm.robotcore.hardware.Gamepad;
@@ -268,13 +268,13 @@ public class UltimateGoalGamepad {
         if (gamepad1a.buttonPress(gamepad1.a)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            robot.eStop();
+            robot.bump1();
         }
 
         if (gamepad1b.buttonPress(gamepad1.b)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            robot.fire3();
+            robot.eStop();
         }
 
         if (gamepad1y.buttonPress(gamepad1.y)) {
@@ -409,11 +409,13 @@ public class UltimateGoalGamepad {
         if (gamepad2DpadUp.buttonPress(gamepad2.dpad_up)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
+            robot.setGameAngleHighGoal();
         }
 
         if (gamepad2DpadDown.buttonPress(gamepad2.dpad_down)) {
             // this was a new button press, not a button held down for a while
-            // put the command to be executed here
+            // put the command to be executed here\
+            robot.setGameAnglePowerShots();
         }
 
         if (gamepad2DpadLeft.buttonPress(gamepad2.dpad_left)) {

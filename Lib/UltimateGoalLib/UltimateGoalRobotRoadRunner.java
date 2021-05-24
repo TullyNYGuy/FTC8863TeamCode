@@ -9,6 +9,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
+import org.firstinspires.ftc.robotcore.internal.webserver.WebObserver;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
@@ -52,7 +53,9 @@ public class UltimateGoalRobotRoadRunner implements FTCRobot {
         STAGE_3_SENSOR ("stage3sensor"),
         STAGE_1_SENSOR("stage1sensor"),
         STAGE_2_SERVO("stage2servo"),
-        STAGE_3_SERVO("stage3servo");
+        STAGE_3_SERVO("stage3servo"),
+        GRABBER_SERVO("grabberServo"),
+        ARM_ROTATION_SERVO("armRotationServo");
 
         public final String hwName;
 
@@ -66,7 +69,8 @@ public class UltimateGoalRobotRoadRunner implements FTCRobot {
         INTAKE,
         INTAKE_CONTROLLER,
         SHOOTER,
-        LOOP_TIMER
+        LOOP_TIMER,
+        WOBBLE_GOAL_GRABBER;
     }
 
     Set<Subsystem> capabilities;
@@ -97,6 +101,7 @@ public class UltimateGoalRobotRoadRunner implements FTCRobot {
     private UltimateGoalIntakeController intakeController;
     public Shooter shooter;
     public LoopTimer loopTimer;
+    public WobbleGoalGrabber wobbleGoalGrabber;
 
     public UltimateGoalRobotRoadRunner(HardwareMap hardwareMap, Telemetry telemetry, Configuration config, DataLogging dataLog, DistanceUnit units, LinearOpMode opMode) {
         timer = new ElapsedTime();
@@ -149,6 +154,11 @@ public class UltimateGoalRobotRoadRunner implements FTCRobot {
         if (capabilities.contains(Subsystem.LOOP_TIMER)) {
             loopTimer = new LoopTimer();
             subsystemMap.put(loopTimer.getName(), loopTimer);
+        }
+
+        if (capabilities.contains(Subsystem.WOBBLE_GOAL_GRABBER)) {
+            wobbleGoalGrabber = new WobbleGoalGrabber(hardwareMap, telemetry);
+            subsystemMap.put(wobbleGoalGrabber.getName(), wobbleGoalGrabber);
         }
 
         init();
@@ -309,6 +319,10 @@ public class UltimateGoalRobotRoadRunner implements FTCRobot {
         shooter.stop();
     }
 
+    public void bump1() {
+        intakeController.requestBump1();
+    }
+
     public void shooterOn() {
         shooter.setSpeed(5000);
     }
@@ -350,6 +364,22 @@ public class UltimateGoalRobotRoadRunner implements FTCRobot {
     public void resetIntake() {
         intake.reset();
         intakeController.reset();
+    }
+
+    public void setGameAngleHighGoal () {
+        this.shooter.setAngle(Math.toRadians(25.5));
+    }
+
+    public void setGameAnglePowerShots () {
+        this.shooter.setAngle(Math.toRadians(21.3));
+    }
+
+    public void dropWobbleGoal () {
+        wobbleGoalGrabber.dropGoal();
+    }
+
+    public boolean isWobbleGoalDropComplete() {
+        return wobbleGoalGrabber.isComplete();
     }
 }
 
