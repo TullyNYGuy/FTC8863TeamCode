@@ -9,6 +9,7 @@ public class PersistantStorage {
 
     // angle changer object
 
-    public static AngleChanger angleChanger;
-    public static Pose2d robotPose;
+    //public static AngleChanger angleChanger;
+    public static Double shooterAngle = null;
+    public static Pose2d robotPose = null;
 }
