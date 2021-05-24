@@ -366,6 +366,10 @@ public class UltimateGoalRobotRoadRunner implements FTCRobot {
         intakeController.reset();
     }
 
+    public boolean isIntakeOrFireComplete () {
+        return intakeController.isComplete();
+    }
+
     public void setGameAngleHighGoal () {
         this.shooter.setAngle(Math.toRadians(25.5));
     }
