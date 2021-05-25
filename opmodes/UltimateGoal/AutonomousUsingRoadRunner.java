@@ -54,14 +54,14 @@ public class AutonomousUsingRoadRunner extends LinearOpMode {
         timer = new ElapsedTime();
         field = new UltimateGoalField();
 
-        // todo Change the constructor call to change out to a different autonomous
-        autonomous = new Autonomous3RingsHighGoalPark1Wobble(robot, field);
-
         // Put your initializations here
         // create the robot and run the init for it
         robot = new UltimateGoalRobotRoadRunner(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, this);
         robot.createRobot();
         enableBulkReads(hardwareMap, LynxModule.BulkCachingMode.AUTO);
+
+        // todo Change the constructor call to change out to a different autonomous
+        autonomous = new Autonomous3RingsHighGoalPark1Wobble(robot, field);
 
         timer.reset();
         robot.loopTimer.startLoopTimer();
