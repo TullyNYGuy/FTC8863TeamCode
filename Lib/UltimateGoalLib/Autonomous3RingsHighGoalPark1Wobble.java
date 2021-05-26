@@ -10,7 +10,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Pose2d8863;
 
-public class Autonomous3RingsHighGoalPark1Wobble implements AutonomousStateMachine{
+public class Autonomous3RingsHighGoalPark1Wobble implements AutonomousStateMachine {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -49,6 +49,10 @@ public class Autonomous3RingsHighGoalPark1Wobble implements AutonomousStateMachi
     private final Pose2d START_POSE = new Pose2d(-62, -18.9, Math.toRadians(180));
     private final Pose2d SHOOTING_POSE = new Pose2d(0, -18.9, Math.toRadians(180));
     private final Pose2d PARK_POSE = new Pose2d(15, -18.9, Math.toRadians(180));
+
+    private Trajectory trajectoryToShootPosition;
+    private Trajectory trajectoryToParkPosition;
+
     private double distanceToTopGoal = 0;
     private double angleOfShot = 0;
     private boolean isComplete = false;
@@ -72,7 +76,7 @@ public class Autonomous3RingsHighGoalPark1Wobble implements AutonomousStateMachi
     // from it
     //*********************************************************************************************
 
-    public Autonomous3RingsHighGoalPark1Wobble(UltimateGoalRobotRoadRunner robot, UltimateGoalField field){
+    public Autonomous3RingsHighGoalPark1Wobble(UltimateGoalRobotRoadRunner robot, UltimateGoalField field) {
         this.robot = robot;
         this.field = field;
         currentState = States.IDLE;
@@ -80,7 +84,9 @@ public class Autonomous3RingsHighGoalPark1Wobble implements AutonomousStateMachi
         angleUnits = AngleUnit.DEGREES;
 
         distanceToTopGoal = field.distanceTo(DistanceUnit.METER, SHOOTING_POSE, field.topGoal.getPose2d());
-        angleOfShot = robot.shooter.calculateAngle(distanceToTopGoal, DistanceUnit.METER,field.topGoal);
+        angleOfShot = robot.shooter.calculateAngle(distanceToTopGoal, DistanceUnit.METER, field.topGoal);
+
+        createTrajectories();
     }
 
     //*********************************************************************************************
@@ -89,17 +95,25 @@ public class Autonomous3RingsHighGoalPark1Wobble implements AutonomousStateMachi
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
 
+    /**
+     * Place all of the trajectories for the autonomous opmode in this method. This method gets
+     * called from the constructor so that the trajectories are created when the autonomous object
+     * is created.
+     */
+    @Override
+    public void createTrajectories() {
+        trajectoryToShootPosition = robot.mecanum.trajectoryBuilder(START_POSE)
+                .lineTo(Pose2d8863.getVector2d(SHOOTING_POSE))
+                .addTemporalMarker(1, () -> {
+                    robot.shooter.setAngle(angleOfShot);
+                })
+                .build();
 
-    private Trajectory trajectoryToShootPosition = robot.mecanum.trajectoryBuilder(START_POSE)
-            .lineTo(Pose2d8863.getVector2d(SHOOTING_POSE))
-            .addTemporalMarker(1, () -> {
-                robot.shooter.setAngle(angleOfShot);
-            })
-            .build();
+        trajectoryToParkPosition = robot.mecanum.trajectoryBuilder(trajectoryToShootPosition.end())
+                .lineTo(Pose2d8863.getVector2d(PARK_POSE))
+                .build();
+    }
 
-    private Trajectory trajectoryToParkPosition = robot.mecanum.trajectoryBuilder(trajectoryToShootPosition.end())
-            .lineTo(Pose2d8863.getVector2d(PARK_POSE))
-            .build();
 
     //*********************************************************************************************
     //          MAJOR METHODS
@@ -115,7 +129,7 @@ public class Autonomous3RingsHighGoalPark1Wobble implements AutonomousStateMachi
 
     @Override
     public void update() {
-        switch (currentState){
+        switch (currentState) {
             case START:
                 robot.mecanum.setPoseEstimate(START_POSE);
                 // start the movement. Note that this starts the angle change after the movement starts
@@ -123,7 +137,7 @@ public class Autonomous3RingsHighGoalPark1Wobble implements AutonomousStateMachi
                 currentState = States.MOVING_TO_SHOOT_POSITION;
                 break;
             case MOVING_TO_SHOOT_POSITION:
-                if(!robot.mecanum.isBusy() && robot.shooter.isAngleAdjustmentComplete()){
+                if (!robot.mecanum.isBusy() && robot.shooter.isAngleAdjustmentComplete()) {
                     robot.shooterOn();
                     currentState = States.READY_TO_SHOOT;
                 }
@@ -133,32 +147,32 @@ public class Autonomous3RingsHighGoalPark1Wobble implements AutonomousStateMachi
                 currentState = States.SHOOTING_1ST_RING;
                 break;
             case SHOOTING_1ST_RING:
-                if(robot.isIntakeOrFireComplete()) {
+                if (robot.isIntakeOrFireComplete()) {
                     robot.fire1();
                     currentState = States.SHOOTING_2ND_RING;
                 }
                 break;
             case SHOOTING_2ND_RING:
-                if(robot.isIntakeOrFireComplete()) {
+                if (robot.isIntakeOrFireComplete()) {
                     robot.fire1();
                     currentState = States.SHOOTING_3RD_RING;
                 }
                 break;
             case SHOOTING_3RD_RING:
-                if(robot.isIntakeOrFireComplete()) {
+                if (robot.isIntakeOrFireComplete()) {
                     robot.shooterOff();
                     robot.mecanum.followTrajectoryAsync(trajectoryToParkPosition);
                     currentState = States.PARKING;
                 }
                 break;
             case PARKING:
-                if(!robot.mecanum.isBusy()) {
+                if (!robot.mecanum.isBusy()) {
                     robot.dropWobbleGoal();
                     currentState = States.DROPPING_WOBBLE_GOAL;
                 }
                 break;
             case DROPPING_WOBBLE_GOAL:
-                if (robot.wobbleGoalGrabber.isComplete()){
+                if (robot.wobbleGoalGrabber.isComplete()) {
                     currentState = States.COMPLETE;
                     isComplete = true;
                 }
