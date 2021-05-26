@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib;
 
 
+import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -32,6 +34,7 @@ public class Shooter implements FTCRobotSubsystem {
     private final double SHOOTER_LENGTH = 9.25 * 0.0254;//Units are meters
     private final double SHOOTER_HEIGHT_PARALLEL = 5.75 * 0.0254;//Units are meters
     private final double VELOCITY = 10;
+    private final Vector2d offsetShooter = new Vector2d(-11, -5.5);
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -145,5 +148,10 @@ public class Shooter implements FTCRobotSubsystem {
 
     @Override
     public void timedUpdate(double timerValueMsec) {
+    }
+    public Pose2d getShooterPose(Pose2d robotPose){
+        Vector2d rotatedVector = offsetShooter.rotated(robotPose.getHeading());
+        Pose2d shooterPose = new Pose2d(rotatedVector.getX() + robotPose.getX(), rotatedVector.getY() + robotPose.getY(), robotPose.getHeading());
+        return shooterPose;
     }
 }
