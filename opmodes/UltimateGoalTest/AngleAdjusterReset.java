@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.opmodes.UltimateGoalTest;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.AngleChanger;
 import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.PersistantStorage;
 
@@ -31,7 +32,7 @@ public class AngleAdjusterReset extends LinearOpMode {
         waitForStart();
 
         // Put your calls here - they will not run in a loop
-        angleChanger.setAngleNegative(-36);
+        angleChanger.setAngleNegative(AngleUnit.DEGREES, -36);
         while (opModeIsActive() && !angleChanger.isAngleAdjustComplete()) {
 
             // Put your calls that need to run in a loop here

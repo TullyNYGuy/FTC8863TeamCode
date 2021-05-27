@@ -4,6 +4,7 @@ package org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
@@ -32,6 +33,10 @@ public class Shooter implements FTCRobotSubsystem {
     private final double SHOOTER_LENGTH = 9.25 * 0.0254;//Units are meters
     private final double SHOOTER_HEIGHT_PARALLEL = 5.75 * 0.0254;//Units are meters
     private final double VELOCITY = 10;
+
+    //internal units
+    private AngleUnit angleUnit = AngleUnit.RADIANS;
+    private DistanceUnit distanceUnit = DistanceUnit.METER;
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -64,28 +69,29 @@ public class Shooter implements FTCRobotSubsystem {
     //*********************************************************************************************
     public boolean requestFire(double distanceToGoal, DistanceUnit unit, UltimateGoalGoal goal) {
 
-       double distanceToGoalMeters = unit.toMeters(distanceToGoal);
+       double distanceToGoalMeters = distanceUnit.fromUnit(unit, distanceToGoal);
         boolean result = false;
         double angle = 0;
-        angle = firingSolution.calculateShooterAngle(distanceToGoalMeters, goal.getHeight(DistanceUnit.METER), VELOCITY, SHOOTER_HEIGHT_PARALLEL, SHOOTER_LENGTH);
+        // angle is in radians
+        angle = firingSolution.calculateShooterAngle(AngleUnit.RADIANS, distanceToGoalMeters, goal.getHeight(DistanceUnit.METER), VELOCITY, SHOOTER_HEIGHT_PARALLEL, SHOOTER_LENGTH);
         if (angle > 0) {
             result = true;
-            angleChanger.setCurrentAngle(Math.toDegrees(angle));
+            angleChanger.setCurrentAngle(AngleUnit.RADIANS, angle);
         }
         return result;
     }
 
-    public void setAngle (double angle) {
-        angleChanger.setCurrentAngle(Math.toDegrees(angle));
+    public void setAngle (AngleUnit units, double angle) {
+        angleChanger.setCurrentAngle(units, angle);
     }
 
     public boolean isAngleAdjustmentComplete() {
         return angleChanger.isAngleAdjustComplete();
     }
 
-    public double calculateAngle(double distanceToGoal,DistanceUnit unit, UltimateGoalGoal goal) {
-        double distanceToGoalMeters = unit.toMeters(distanceToGoal);
-        return Math.toDegrees(firingSolution.calculateShooterAngle(distanceToGoalMeters, goal.getHeight(DistanceUnit.METER), VELOCITY, SHOOTER_HEIGHT_PARALLEL, SHOOTER_LENGTH));
+    public double calculateAngle(AngleUnit desiredAngleUnits, double distanceToGoal, DistanceUnit distanceUnit, UltimateGoalGoal goal) {
+        double distanceToGoalMeters = distanceUnit.toMeters(distanceToGoal);
+        return desiredAngleUnits.fromRadians(firingSolution.calculateShooterAngle(AngleUnit.RADIANS, distanceToGoalMeters, goal.getHeight(DistanceUnit.METER), VELOCITY, SHOOTER_HEIGHT_PARALLEL, SHOOTER_LENGTH));
     }
 
     public void setSpeed(int motorRPM) {

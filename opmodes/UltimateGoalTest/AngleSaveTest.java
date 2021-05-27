@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.AngleChanger;
 import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.PersistantStorage;
 
@@ -34,7 +35,7 @@ public class AngleSaveTest extends LinearOpMode {
         waitForStart();
 
         // Put your calls here - they will not run in a loop
-        angleChanger.setCurrentAngle(20);
+        angleChanger.setCurrentAngle(AngleUnit.DEGREES, 20);
         while (opModeIsActive() && !angleChanger.isAngleAdjustComplete()) {
 
             // Put your calls that need to run in a loop here
@@ -53,7 +54,7 @@ public class AngleSaveTest extends LinearOpMode {
             idle();
         }
 
-        angleChanger.setCurrentAngle(25);
+        angleChanger.setCurrentAngle(AngleUnit.DEGREES, 25);
         while (opModeIsActive() && !angleChanger.isAngleAdjustComplete()) {
 
             // Put your calls that need to run in a loop here

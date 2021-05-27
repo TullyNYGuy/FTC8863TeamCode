@@ -4,6 +4,7 @@ package org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 
@@ -26,6 +27,9 @@ public class AngleChanger {
     //CURRENT ANGLE IS IN RADIANS
     private double currentAngle;
 
+    // internal units are radians
+    private AngleUnit angleUnit = AngleUnit.RADIANS;
+
     private DcMotor8863 motor;
 
     private final double MAX_ANGLE = Math.toRadians(40);
@@ -38,21 +42,22 @@ public class AngleChanger {
     // getPositionInTermsOfAttachment
     //*********************************************************************************************
 
-    public double getCurrentAngle() {
-        return Math.toDegrees(currentAngle);
+    public double getCurrentAngle(AngleUnit desiredUnits) {
+        
+        return desiredUnits.fromUnit(angleUnit, currentAngle);
     }
 
-    public void setCurrentAngle(double currentAngle) {
-       currentAngle = Math.toRadians(currentAngle);
-        if (currentAngle > MAX_ANGLE) {
-            currentAngle = MAX_ANGLE;
+    public void setCurrentAngle(AngleUnit units, double desiredAngle) {
+       desiredAngle = angleUnit.fromUnit(units, desiredAngle);
+        if (desiredAngle > MAX_ANGLE) {
+            desiredAngle = MAX_ANGLE;
         }
-        if (currentAngle < MIN_ANGLE) {
-            currentAngle = MIN_ANGLE;
+        if (desiredAngle < MIN_ANGLE) {
+            desiredAngle = MIN_ANGLE;
         }
-        this.currentAngle = currentAngle;
+        this.currentAngle = desiredAngle;
 
-        motor.moveToPosition(1, calculateLeadScrewPosition(currentAngle), DcMotor8863.FinishBehavior.HOLD);
+        motor.moveToPosition(1, calculateLeadScrewPosition(angleUnit, desiredAngle), DcMotor8863.FinishBehavior.HOLD);
     }
 
 
@@ -82,10 +87,11 @@ public class AngleChanger {
     //
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
-    private double calculateLeadScrewPosition(double desiredAngleInRadians) {
+    private double calculateLeadScrewPosition(AngleUnit units, double desiredAngle) {
+        double desiredAngleInRadians = angleUnit.fromUnit(units, desiredAngle);
         //constants
         double initialLength = toMM(1.345);
-        double initialAngle = Math.toRadians(9.961);
+        double initialAngle = angleUnit.fromDegrees(9.961);
         //Side A is the bottom side side B is the shooter
         double sideA = toMM(6.593);
         double sideB = toMM(7.207);
@@ -109,14 +115,14 @@ public class AngleChanger {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
-    public void setAngleNegative(double desiredAngleInDegrees){
-        desiredAngleInDegrees = Math.toRadians(desiredAngleInDegrees);
-        if (currentAngle > MAX_ANGLE) {
-            currentAngle = MAX_ANGLE;
+    public void setAngleNegative(AngleUnit units, double desiredAngle){
+        desiredAngle = angleUnit.fromUnit(units, desiredAngle);
+        if (desiredAngle > MAX_ANGLE) {
+            desiredAngle = MAX_ANGLE;
         }
-        this.currentAngle = desiredAngleInDegrees;
+        this.currentAngle = desiredAngle;
 
-        motor.moveToPosition(0.3, calculateLeadScrewPosition(desiredAngleInDegrees), DcMotor8863.FinishBehavior.HOLD);
+        motor.moveToPosition(0.3, calculateLeadScrewPosition(angleUnit, desiredAngle), DcMotor8863.FinishBehavior.HOLD);
 
     }
 

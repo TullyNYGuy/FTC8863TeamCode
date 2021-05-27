@@ -44,7 +44,7 @@ public class AngleChangerPlusShooterTestWithLocalization extends LinearOpMode {
 
         telemetry.addData("distance =", distance);
         telemetry.addData("angleto =", Math.toDegrees(angleBetween));
-        telemetry.addData("Angle", shooter.calculateAngle(distance, DistanceUnit.METER, field.topGoal));
+        telemetry.addData("Angle", shooter.calculateAngle(AngleUnit.DEGREES, distance, DistanceUnit.METER, field.topGoal));
         telemetry.addData(">", "Press Start to run");
         telemetry.update();
 

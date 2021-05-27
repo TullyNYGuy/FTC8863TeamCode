@@ -371,11 +371,11 @@ public class UltimateGoalRobotRoadRunner implements FTCRobot {
     }
 
     public void setGameAngleHighGoal () {
-        this.shooter.setAngle(Math.toRadians(25.5));
+        this.shooter.setAngle(AngleUnit.DEGREES, 25.5);
     }
 
     public void setGameAnglePowerShots () {
-        this.shooter.setAngle(Math.toRadians(21.3));
+        this.shooter.setAngle( AngleUnit.DEGREES, 21.3);
     }
 
     public void dropWobbleGoal () {
