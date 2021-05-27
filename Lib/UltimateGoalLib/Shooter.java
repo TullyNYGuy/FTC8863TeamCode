@@ -102,6 +102,10 @@ public class Shooter implements FTCRobotSubsystem {
         return dualMotorGearBox.getSpeed();
     }
 
+    public boolean isReady () {
+        return true;
+    }
+
     public void stop() {
         dualMotorGearBox.stopGearbox();
     }

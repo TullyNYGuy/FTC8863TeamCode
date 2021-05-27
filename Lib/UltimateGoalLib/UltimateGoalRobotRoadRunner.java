@@ -70,7 +70,8 @@ public class UltimateGoalRobotRoadRunner implements FTCRobot {
         INTAKE_CONTROLLER,
         SHOOTER,
         LOOP_TIMER,
-        WOBBLE_GOAL_GRABBER;
+        WOBBLE_GOAL_GRABBER,
+        FIRE_CONTROLLER;
     }
 
     Set<Subsystem> capabilities;
@@ -102,6 +103,7 @@ public class UltimateGoalRobotRoadRunner implements FTCRobot {
     public Shooter shooter;
     public LoopTimer loopTimer;
     public WobbleGoalGrabber wobbleGoalGrabber;
+    public UltimateGoalFireController fireController;
 
     public UltimateGoalRobotRoadRunner(HardwareMap hardwareMap, Telemetry telemetry, Configuration config, DataLogging dataLog, DistanceUnit units, LinearOpMode opMode) {
         timer = new ElapsedTime();
@@ -159,6 +161,11 @@ public class UltimateGoalRobotRoadRunner implements FTCRobot {
         if (capabilities.contains(Subsystem.WOBBLE_GOAL_GRABBER)) {
             wobbleGoalGrabber = new WobbleGoalGrabber(hardwareMap, telemetry);
             subsystemMap.put(wobbleGoalGrabber.getName(), wobbleGoalGrabber);
+        }
+
+        if (capabilities.contains(Subsystem.FIRE_CONTROLLER)) {
+            fireController = new UltimateGoalFireController(intakeController, shooter);
+            subsystemMap.put(fireController.getName(), fireController);
         }
 
         init();
@@ -303,15 +310,15 @@ public class UltimateGoalRobotRoadRunner implements FTCRobot {
     }
 
     public void fire1() {
-        intakeController.requestFire_1();
+        fireController.requestFire1();
     }
 
     public void fire2() {
-        intakeController.requestFire_2();
+        fireController.requestFire2();
     }
 
     public void fire3() {
-        intakeController.requestFire_3();
+        fireController.requestFire3();
     }
 
     public void eStop() {
@@ -366,8 +373,12 @@ public class UltimateGoalRobotRoadRunner implements FTCRobot {
         intakeController.reset();
     }
 
-    public boolean isIntakeOrFireComplete () {
+    public boolean isIntakeComplete() {
         return intakeController.isComplete();
+    }
+
+    public boolean isFireComplete () {
+        return fireController.isComplete();
     }
 
     public void setGameAngleHighGoal () {

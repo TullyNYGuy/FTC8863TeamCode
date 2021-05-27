@@ -25,9 +25,6 @@ public class Autonomous3RingsHighGoalPark1Wobble implements AutonomousStateMachi
         MOVING_TO_SHOOT_POSITION,
         READY_TO_SHOOT,
         SHOOTING,
-        SHOOTING_1ST_RING,
-        SHOOTING_2ND_RING,
-        SHOOTING_3RD_RING,
         PARKING,
         DROPPING_WOBBLE_GOAL,
         COMPLETE;
@@ -145,22 +142,10 @@ public class Autonomous3RingsHighGoalPark1Wobble implements AutonomousStateMachi
                 break;
             case READY_TO_SHOOT:
                 robot.fire1();
-                currentState = States.SHOOTING_1ST_RING;
+                currentState = States.SHOOTING;
                 break;
-            case SHOOTING_1ST_RING:
-                if (robot.isIntakeOrFireComplete()) {
-                    robot.fire1();
-                    currentState = States.SHOOTING_2ND_RING;
-                }
-                break;
-            case SHOOTING_2ND_RING:
-                if (robot.isIntakeOrFireComplete()) {
-                    robot.fire1();
-                    currentState = States.SHOOTING_3RD_RING;
-                }
-                break;
-            case SHOOTING_3RD_RING:
-                if (robot.isIntakeOrFireComplete()) {
+            case SHOOTING:
+                if (robot.isFireComplete()) {
                     robot.shooterOff();
                     robot.mecanum.followTrajectoryAsync(trajectoryToParkPosition);
                     currentState = States.PARKING;
