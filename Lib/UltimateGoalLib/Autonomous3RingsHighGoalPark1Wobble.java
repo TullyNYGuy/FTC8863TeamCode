@@ -6,6 +6,7 @@ import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.acmerobotics.roadrunner.trajectory.TrajectoryBuilder;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Pose2d8863;
@@ -54,6 +55,7 @@ public class Autonomous3RingsHighGoalPark1Wobble implements AutonomousStateMachi
     private Trajectory trajectoryToParkPosition;
 
     private double distanceToTopGoal = 0;
+    private double distanceToLeftPowerShot = 0;
     private double angleOfShot = 0;
     private boolean isComplete = false;
 
@@ -76,7 +78,7 @@ public class Autonomous3RingsHighGoalPark1Wobble implements AutonomousStateMachi
     // from it
     //*********************************************************************************************
 
-    public Autonomous3RingsHighGoalPark1Wobble(UltimateGoalRobotRoadRunner robot, UltimateGoalField field) {
+    public Autonomous3RingsHighGoalPark1Wobble(UltimateGoalRobotRoadRunner robot, UltimateGoalField field, Telemetry telemetry) {
         this.robot = robot;
         this.field = field;
         currentState = States.IDLE;
@@ -84,7 +86,9 @@ public class Autonomous3RingsHighGoalPark1Wobble implements AutonomousStateMachi
         angleUnits = AngleUnit.DEGREES;
 
         distanceToTopGoal = field.distanceTo(DistanceUnit.METER, SHOOTING_POSE, field.topGoal.getPose2d());
-        angleOfShot = robot.shooter.calculateAngle(distanceToTopGoal, DistanceUnit.METER, field.topGoal);
+        //angleOfShot = robot.shooter.calculateAngle(distanceToTopGoal, DistanceUnit.METER, field.topGoal);
+        angleOfShot = 5.0;
+        telemetry.addData("angle of shot = ", angleOfShot);
 
         createTrajectories();
     }
@@ -104,9 +108,6 @@ public class Autonomous3RingsHighGoalPark1Wobble implements AutonomousStateMachi
     public void createTrajectories() {
         trajectoryToShootPosition = robot.mecanum.trajectoryBuilder(START_POSE)
                 .lineTo(Pose2d8863.getVector2d(SHOOTING_POSE))
-                .addTemporalMarker(1, () -> {
-                    robot.shooter.setAngle(angleOfShot);
-                })
                 .build();
 
         trajectoryToParkPosition = robot.mecanum.trajectoryBuilder(trajectoryToShootPosition.end())
@@ -134,6 +135,7 @@ public class Autonomous3RingsHighGoalPark1Wobble implements AutonomousStateMachi
                 robot.mecanum.setPoseEstimate(START_POSE);
                 // start the movement. Note that this starts the angle change after the movement starts
                 robot.mecanum.followTrajectoryAsync(trajectoryToShootPosition);
+                robot.shooter.setAngle(angleOfShot);
                 currentState = States.MOVING_TO_SHOOT_POSITION;
                 break;
             case MOVING_TO_SHOOT_POSITION:
