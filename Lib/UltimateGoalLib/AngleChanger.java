@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 
@@ -29,11 +30,12 @@ public class AngleChanger {
 
     // internal units are radians
     private AngleUnit angleUnit = AngleUnit.RADIANS;
+    private DistanceUnit distanceUnit = DistanceUnit.METER;
 
     private DcMotor8863 motor;
 
-    private final double MAX_ANGLE = Math.toRadians(40);
-    private final double MIN_ANGLE = Math.toRadians(0);
+    private final double MAX_ANGLE = angleUnit.fromDegrees(40);
+    private final double MIN_ANGLE = angleUnit.fromDegrees(0);
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -44,22 +46,20 @@ public class AngleChanger {
 
     public double getCurrentAngle(AngleUnit desiredUnits) {
         // todo fix the AngleUnit
-        return desiredUnits.fromUnit(PersistantStorage.shooterAngle);
+        return desiredUnits.fromUnit(PersistantStorage.angleUnit, PersistantStorage.shooterAngle);
     }
-
-	// todo add in AngleUnits
-    public void setInitialAngle(double initialAngle){
-        initialAngle = Math.toRadians(initialAngle);
+    
+    public void setInitialAngle(AngleUnit units, double initialAngle){
+        initialAngle = angleUnit.fromUnit(units, initialAngle);
         if (initialAngle > MAX_ANGLE) {
             initialAngle = MAX_ANGLE;
         }
         if (initialAngle < MIN_ANGLE) {
             initialAngle = MIN_ANGLE;
         }
-        PersistantStorage.shooterAngle = initialAngle;
+        PersistantStorage.shooterAngle = PersistantStorage.angleUnit.fromUnit(angleUnit, initialAngle) ;
 	}
-    
-
+	
     public void setCurrentAngle(AngleUnit units, double desiredAngle) {
        desiredAngle = angleUnit.fromUnit(units, desiredAngle);
         if (desiredAngle > MAX_ANGLE) {
@@ -69,7 +69,7 @@ public class AngleChanger {
             desiredAngle = MIN_ANGLE;
         }
 
-        PersistantStorage.shooterAngle = desiredAngle;
+        PersistantStorage.shooterAngle = PersistantStorage.angleUnit.fromUnit(angleUnit, desiredAngle);
 
         motor.moveToPosition(1, calculateLeadScrewPosition(angleUnit, desiredAngle), DcMotor8863.FinishBehavior.HOLD);
     }
@@ -94,25 +94,26 @@ public class AngleChanger {
     public static void clearAngleChanger(){
         PersistantStorage.shooterAngle = null;
     }
+    
     //*********************************************************************************************
     //          Helper Methods
     //
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
     private double calculateLeadScrewPosition(AngleUnit units, double desiredAngle) {
-        double desiredAngleInRadians = angleUnit.fromUnit(units, desiredAngle);
+        desiredAngle = angleUnit.fromUnit(units, desiredAngle);
         //constants
         double initialLength = toMM(1.345);
         double initialAngle = angleUnit.fromDegrees(9.961);
         //Side A is the bottom side side B is the shooter
         double sideA = toMM(6.593);
         double sideB = toMM(7.207);
-        if(desiredAngleInRadians > 0){
-            double leadScrewPosition = Math.sqrt(Math.pow(sideA, 2) + Math.pow(sideB, 2) - 2 * sideA * sideB * Math.cos(desiredAngleInRadians + initialAngle)) - initialLength;
+        if(desiredAngle > 0){
+            double leadScrewPosition = Math.sqrt(Math.pow(sideA, 2) + Math.pow(sideB, 2) - 2 * sideA * sideB * Math.cos(desiredAngle + initialAngle)) - initialLength;
             return leadScrewPosition;
         } else {
-            desiredAngleInRadians = Math.abs(desiredAngleInRadians);
-            double leadScrewPosition = -Math.sqrt(Math.pow(sideA, 2) + Math.pow(sideB, 2) - 2 * sideA * sideB * Math.cos(desiredAngleInRadians + initialAngle)) - initialLength;
+            desiredAngle = Math.abs(desiredAngle);
+            double leadScrewPosition = -Math.sqrt(Math.pow(sideA, 2) + Math.pow(sideB, 2) - 2 * sideA * sideB * Math.cos(desiredAngle + initialAngle)) - initialLength;
             return leadScrewPosition;
         }
 
@@ -135,14 +136,10 @@ public class AngleChanger {
         PersistantStorage.shooterAngle = desiredAngle;
 
         motor.moveToPosition(0.3, calculateLeadScrewPosition(angleUnit, desiredAngle), DcMotor8863.FinishBehavior.HOLD);
-
     }
-
-
 
     public void setAngleReference() {
         PersistantStorage.shooterAngle = 0.0;
-
     }
 
     public void update() {
@@ -151,14 +148,14 @@ public class AngleChanger {
 
     public boolean isAngleAdjustComplete() {
         if (motor.isRotationComplete()) {
-        	// todo check this - should it be commented?
- //           PersistantStorage.shooterAngle = this;
+            // note that since the shooter angle is already stored in PersistantStorage by setCurrentAngle, it is saved for later use
             return true;
         } else {
             return false;
         }
 
     }
+
     public boolean init(Configuration config) {
         return true;
     }
