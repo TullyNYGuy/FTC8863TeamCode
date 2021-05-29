@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -23,9 +24,11 @@ public class Autonomous3RingsPowerShotsPark1Wobble implements AutonomousStateMac
         MOVING_TO_LEFT_POWER_SHOT,
         MOVING_TO_MIDDLE_POWER_SHOT,
         MOVING_TO_RIGHT_POWER_SHOT,
+        MOTOR_SPINUP,
         SHOOTING_AT_LEFT_POWER_SHOT,
         SHOOTING_AT_MIDDLE_POWER_SHOT,
         SHOOTING_AT_RIGHT_POWER_SHOT,
+        IS_THE_SHOOTER_READY,
         PARKING,
         DROPPING_WOBBLE_GOAL,
         COMPLETE;
@@ -45,11 +48,20 @@ public class Autonomous3RingsPowerShotsPark1Wobble implements AutonomousStateMac
     private DistanceUnit distanceUnits;
     private AngleUnit angleUnits;
 
-    private final Pose2d START_POSE = new Pose2d(-62, -18.9, Math.toRadians(180));
-    private final Pose2d SHOOTING_AT_LEFT_POWER_SHOT_POSE = new Pose2d(0, 14.5, Math.toRadians(180));
-    private final Pose2d SHOOTING_AT_MIDDLE_POWER_SHOT_POSE = new Pose2d(0, 12-5.5, Math.toRadians(180));
-    private final Pose2d SHOOTING_AT_RIGHT_POWER_SHOT_POSE = new Pose2d(0, 4.25-5.5, Math.toRadians(180));
+    //we were trying to have the second shot knock down the third as well, saving the third ring to shoot in the high goal
+    private final Pose2d START_POSE = new Pose2d(-61.25, -17, Math.toRadians(180));
+    private final Pose2d SHOOTING_AT_LEFT_POWER_SHOT_POSE = new Pose2d(0, 15.5, Math.toRadians(180));
+    private final Pose2d SHOOTING_AT_MIDDLE_POWER_SHOT_POSE = new Pose2d(0, 5.75, Math.toRadians(180));
+    private final Pose2d SHOOTING_AT_RIGHT_POWER_SHOT_POSE = new Pose2d(0, -.25, Math.toRadians(180));
     private final Pose2d PARK_POSE = new Pose2d(15, -18.9, Math.toRadians(180));
+
+    //these numbers are for dead center on each power shot
+//    private final Pose2d START_POSE = new Pose2d(-61.25, -17, Math.toRadians(180));
+//    private final Pose2d SHOOTING_AT_LEFT_POWER_SHOT_POSE = new Pose2d(0, 15.5, Math.toRadians(180));
+//    private final Pose2d SHOOTING_AT_MIDDLE_POWER_SHOT_POSE = new Pose2d(0, 7, Math.toRadians(180));
+//    private final Pose2d SHOOTING_AT_RIGHT_POWER_SHOT_POSE = new Pose2d(0, -.25, Math.toRadians(180));
+//    private final Pose2d PARK_POSE = new Pose2d(15, -18.9, Math.toRadians(180));
+//
 
     private Trajectory trajectoryToLeftPowerShot;
     private Trajectory trajectoryToMiddlePowerShot;
@@ -60,6 +72,8 @@ public class Autonomous3RingsPowerShotsPark1Wobble implements AutonomousStateMac
     private double distanceToLeftPowerShot = 0;
     private double angleOfShot = 0;
     private boolean isComplete = false;
+
+    private ElapsedTime timer;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -87,8 +101,11 @@ public class Autonomous3RingsPowerShotsPark1Wobble implements AutonomousStateMac
         distanceUnits = DistanceUnit.INCH;
         angleUnits = AngleUnit.DEGREES;
 
+        timer = new ElapsedTime();
+
         distanceToPowerShots = field.distanceTo(DistanceUnit.METER, SHOOTING_AT_LEFT_POWER_SHOT_POSE, field.powerShotLeft.getPose2d());
-        angleOfShot = robot.shooter.calculateAngle(AngleUnit.DEGREES, distanceToPowerShots, DistanceUnit.METER, field.topGoal);
+        //angleOfShot = robot.shooter.calculateAngle(AngleUnit.DEGREES, distanceToPowerShots, DistanceUnit.METER, field.topGoal);
+        angleOfShot=23;
         telemetry.addData("angle of shot = ", angleOfShot);
 
         createTrajectories();
@@ -150,17 +167,41 @@ public class Autonomous3RingsPowerShotsPark1Wobble implements AutonomousStateMac
             case MOVING_TO_LEFT_POWER_SHOT:
                 if (!robot.mecanum.isBusy() && robot.shooter.isAngleAdjustmentComplete()) {
                     robot.shooterOn();
+                    currentState = States.IS_THE_SHOOTER_READY;
+                }
+                break;
+            case IS_THE_SHOOTER_READY:
+                if (robot.shooter.isReady()) {
+                    robot.fire1();
                     currentState = States.SHOOTING_AT_LEFT_POWER_SHOT;
                 }
                 break;
-                //we ended here
             case SHOOTING_AT_LEFT_POWER_SHOT:
-                robot.fire1();
-                currentState = States.PARKING;
+                if (robot.isFireComplete()) {
+                    currentState = States.MOVING_TO_MIDDLE_POWER_SHOT;
+                    robot.mecanum.followTrajectoryAsync(trajectoryToMiddlePowerShot);
+                }
+                break;
+            case MOVING_TO_MIDDLE_POWER_SHOT:
+                if (!robot.mecanum.isBusy()) {
+                    robot.fire1();
+                    currentState = States.SHOOTING_AT_MIDDLE_POWER_SHOT;
+                }
                 break;
             case SHOOTING_AT_MIDDLE_POWER_SHOT:
                 if (robot.isFireComplete()) {
-                    robot.shooterOff();
+                    robot.mecanum.followTrajectoryAsync(trajectoryToRightPowerShot);
+                    currentState = States.MOVING_TO_RIGHT_POWER_SHOT;
+                }
+                break;
+            case MOVING_TO_RIGHT_POWER_SHOT:
+                if (!robot.mecanum.isBusy()) {
+                    robot.fire1();
+                    currentState = States.SHOOTING_AT_RIGHT_POWER_SHOT;
+                }
+                break;
+            case SHOOTING_AT_RIGHT_POWER_SHOT:
+                if (robot.isFireComplete()) {
                     robot.mecanum.followTrajectoryAsync(trajectoryToParkPosition);
                     currentState = States.PARKING;
                 }

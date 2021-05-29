@@ -12,6 +12,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.Autonomous3RingsHighGoalPark1Wobble;
+import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.Autonomous3RingsPowerShotsPark1Wobble;
 import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.AutonomousStateMachine;
 import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.PersistantStorage;
 import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.UltimateGoalField;
@@ -61,7 +62,7 @@ public class AutonomousUsingRoadRunner extends LinearOpMode {
         enableBulkReads(hardwareMap, LynxModule.BulkCachingMode.AUTO);
 
         // todo Change the constructor call to change out to a different autonomous
-        autonomous = new Autonomous3RingsHighGoalPark1Wobble(robot, field, telemetry);
+        autonomous = new Autonomous3RingsPowerShotsPark1Wobble(robot, field, telemetry);
 
         timer.reset();
         robot.loopTimer.startLoopTimer();
