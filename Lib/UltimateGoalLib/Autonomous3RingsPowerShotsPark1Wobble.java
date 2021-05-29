@@ -103,7 +103,15 @@ public class Autonomous3RingsPowerShotsPark1Wobble implements AutonomousStateMac
 
         timer = new ElapsedTime();
 
-        distanceToPowerShots = field.distanceTo(DistanceUnit.METER, SHOOTING_AT_LEFT_POWER_SHOT_POSE, field.powerShotLeft.getPose2d());
+        // The shooter location needs to be used to calculate the distance to the goal, not the robot pose
+        Pose2d shooterPose = robot.shooter.getShooterPose(SHOOTING_AT_LEFT_POWER_SHOT_POSE);
+        distanceToPowerShots = field.distanceTo(DistanceUnit.METER, shooterPose, field.powerShotLeft.getPose2d());
+
+        // We were having trouble with calculated angle (25.5) so we experimentally found what works
+        // However, I now realize that we were calculating the angle based on the robot pose, not
+        // the shooter pose. So we need to see if using the shooter pose instead of the robot pose
+        // gives a better angle calculation
+        // todo - check the new calculation of shooter angle to see if it is closer to 23 degrees
         //angleOfShot = robot.shooter.calculateAngle(AngleUnit.DEGREES, distanceToPowerShots, DistanceUnit.METER, field.topGoal);
         angleOfShot=23;
         telemetry.addData("angle of shot = ", angleOfShot);
