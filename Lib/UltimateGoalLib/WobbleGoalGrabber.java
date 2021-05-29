@@ -27,11 +27,23 @@ public class WobbleGoalGrabber implements FTCRobotSubsystem {
         EXTENDING_ARM,
         OPENING_GRABBER,
         RETRACTING_ARM,
-        GOAL_DROPPED
+        GOAL_DROPPED,
+        //
+        LOWER_ARM,
+        DOWN,
+        CLOSE_GRABBER;
     }
 
     private States currentState = States.GOAL_STORED;
-
+    private enum Commands{
+        NO_COMMAND,
+        DROP_ARM,
+        OPEN_CLAW,
+        CLOSE_CLAW,
+        DROP_N_RETRACT,
+        PICK_UP_ARM;
+    }
+    private Commands currentCoammand = Commands.NO_COMMAND;
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS
     //
@@ -45,7 +57,7 @@ public class WobbleGoalGrabber implements FTCRobotSubsystem {
 
     private Servo8863 armRotationServo;
     private final double ARM_RETRACT_POSITION = .75;
-    private final double ARM_EXTEND_POSITION = .13;
+    private final double ARM_EXTEND_POSITION = .06;
 
     private DataLogging logFile;
     private boolean loggingOn = false;
@@ -145,45 +157,117 @@ public class WobbleGoalGrabber implements FTCRobotSubsystem {
     public void dropGoal() {
         if (commandComplete) {
             commandComplete = false;
-            currentState = States.DROPPING_GOAL;
+            currentState = States.EXTENDING_ARM;
+            currentCoammand = Commands.DROP_N_RETRACT;
+            extendArm();
+            timer.reset();
+        }
+    }
+    public void pickUpArm() {
+        if (commandComplete) {
+            commandComplete = false;
+            currentCoammand = Commands.PICK_UP_ARM;
+            currentState = States.CLOSE_GRABBER;
+            closeGrabber();
+            timer.reset();
+        }
+    }
+    public void dropArm() {
+        if (commandComplete) {
+            commandComplete = false;
+            currentCoammand = Commands.DROP_ARM;
+            currentState = States.EXTENDING_ARM;
+            timer.reset();
+            extendArm();
         }
     }
 
     @Override
     public void update() {
-        switch (currentState) {
-            case HOME:
+        switch (currentCoammand){
+            case NO_COMMAND:
                 break;
-            case GOAL_STORED:
-                break;
-            case DROPPING_GOAL:
-                extendArm();
-                timer.reset();
-                currentState = States.EXTENDING_ARM;
-                break;
-            case EXTENDING_ARM:
-                if (timer.milliseconds() > 1000) {
-                    openGrabber();
-                    timer.reset();
-                    currentState = States.OPENING_GRABBER;
+            case PICK_UP_ARM:
+                switch ( currentState) {
+                    case CLOSE_GRABBER:
+                        if (timer.milliseconds() > 500) {
+                            retractArm();
+                            timer.reset();
+                            currentState = States.RETRACTING_ARM;
+                        }
+                        break;
+                    case RETRACTING_ARM:
+                        if (timer.milliseconds() > 1000) {
+                            timer.reset();
+                            currentState = States.HOME;
+                            currentCoammand = Commands.NO_COMMAND;
+                            commandComplete = true;
+                        }
+                        break;
                 }
                 break;
-            case OPENING_GRABBER:
-                if (timer.milliseconds() > 500) {
-                    retractArm();
-                    timer.reset();
-                    currentState = States.RETRACTING_ARM;
+            case DROP_ARM:
+                switch (currentState) {
+                    case EXTENDING_ARM:
+                        if (timer.milliseconds() > 1500) {
+                            openGrabber();
+                            timer.reset();
+                            currentState = States.OPENING_GRABBER;
+                        }
+                        break;
+                    case OPENING_GRABBER:
+                        if (timer.milliseconds() > 500) {
+                            timer.reset();
+                            currentState = States.DOWN;
+                            currentCoammand = Commands.NO_COMMAND;
+                            commandComplete = true;
+                        }
+                        break;
                 }
                 break;
-            case RETRACTING_ARM:
-                if (timer.milliseconds() > 1000) {
-                    closeGrabber();
-                    timer.reset();
-                    currentState = States.HOME;
-                    commandComplete = true;
+            case OPEN_CLAW:
+                openGrabber();
+                break;
+            case CLOSE_CLAW:
+                closeGrabber();
+                break;
+            case DROP_N_RETRACT:
+                switch (currentState) {
+                    case HOME:
+                        break;
+                    case GOAL_STORED:
+                        break;
+                    case DROPPING_GOAL:
+                        extendArm();
+                        timer.reset();
+                        currentState = States.EXTENDING_ARM;
+                        break;
+                    case EXTENDING_ARM:
+                        if (timer.milliseconds() > 1500) {
+                            openGrabber();
+                            timer.reset();
+                            currentState = States.OPENING_GRABBER;
+                        }
+                        break;
+                    case OPENING_GRABBER:
+                        if (timer.milliseconds() > 500) {
+                            retractArm();
+                            timer.reset();
+                            currentState = States.RETRACTING_ARM;
+                        }
+                        break;
+                    case RETRACTING_ARM:
+                        if (timer.milliseconds() > 1000) {
+                            closeGrabber();
+                            timer.reset();
+                            currentState = States.HOME;
+                            commandComplete = true;
+                        }
+                        break;
                 }
                 break;
         }
+
     }
 
     public boolean isComplete() {

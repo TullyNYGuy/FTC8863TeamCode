@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+
 import java.lang.Math;
 
 public class FiringSolution {
@@ -24,20 +27,26 @@ public class FiringSolution {
     private boolean solutionFail = false;
     private double angle = 45;
 
+    // internal units
+    private AngleUnit angleUnit = AngleUnit.RADIANS;
+    private DistanceUnit distanceUnit = DistanceUnit.METER;
+
     public class FiringSolutionValues {
         private double shooterAngle = 0;
         private double velocity = 0;
 
-        public double getShooterAngle() {
-            return shooterAngle;
+        private AngleUnit angleUnit = AngleUnit.RADIANS;
+
+        public double getShooterAngle(AngleUnit desiredUnits) {
+            return desiredUnits.fromUnit(angleUnit, shooterAngle);
         }
 
         public double getVelocity() {
             return velocity;
         }
 
-        public FiringSolutionValues(double velocity, double shooterAngle) {
-            this.shooterAngle = shooterAngle;
+        public FiringSolutionValues(AngleUnit units, double velocity, double shooterAngle) {
+            this.shooterAngle = angleUnit.fromUnit(units, shooterAngle);
             this.velocity = velocity;
         }
     }
@@ -116,7 +125,7 @@ public FiringSolution(){
      * @param shooterHeightParallelGround The height of the shooter when it is parallel to the ground(m).
      * @return The angle of the shooter in radians. Returns -1 if no valid angle
      */
-    public double calculateShooterAngle(double distanceFromGoal, double goalHeight, double velocity, double shooterHeightParallelGround, double shooterLength) {
+    public double calculateShooterAngle(AngleUnit desiredAngleUnit, double distanceFromGoal, double goalHeight, double velocity, double shooterHeightParallelGround, double shooterLength) {
         double firstCalculation = calculateShooterAngle2(0, distanceFromGoal, goalHeight, velocity, shooterHeightParallelGround);
         if (firstCalculation <= 0) {
             return -1;
@@ -129,15 +138,15 @@ public FiringSolution(){
                 if (thirdCalculation <= 0) {
                     return -1;
                 } else {
-                    return thirdCalculation;
+                    return desiredAngleUnit.fromRadians(thirdCalculation) ;
                 }
             }
         }
     }
 
-    public double calculateMaxRange(double velocity, double shooterAngle, double shooterLength) {
-        return (velocity * Math.cos(shooterAngle)) / GRAVITY * (velocity * Math.sin(shooterAngle) +
-                Math.sqrt(Math.pow(velocity, 2) * Math.pow(Math.sin(shooterAngle), 2) + 2 * GRAVITY * calculateShooterHeight(shooterAngle, shooterLength)));
+    public double calculateMaxRange(DistanceUnit desiredDistanceUnit, double velocity, double shooterAngle, double shooterLength) {
+        return desiredDistanceUnit.fromUnit(distanceUnit, (velocity * Math.cos(shooterAngle)) / GRAVITY * (velocity * Math.sin(shooterAngle) +
+                Math.sqrt(Math.pow(velocity, 2) * Math.pow(Math.sin(shooterAngle), 2) + 2 * GRAVITY * calculateShooterHeight(shooterAngle, shooterLength))));
     }
 
 
@@ -155,16 +164,16 @@ public FiringSolution(){
         FiringSolutionValues result = null;
         while (!solutionFail && velocity > MIN_VELOCITY) {
             //Calculate an angle
-            angle = calculateShooterAngle(distance, heightOfGoal, velocity, shooterHeightParallelGround, shooterLength);
+            angle = calculateShooterAngle(angleUnit, distance, heightOfGoal, velocity, shooterHeightParallelGround, shooterLength);
             //Check if the angle is valid, if not then tell the user to move the robot
             if (angle <= -1) {
-                result = new FiringSolutionValues(0, 0);
+                result = new FiringSolutionValues(angleUnit, 0, 0);
                 solutionFail = true;
             } else {
                 //Check if the angle exceeds the range limit
                 //If it doesn't exceed the range limit then return the solutions
-                if (calculateMaxRange(velocity, angle, shooterLength) <= 16) {
-                    result = new FiringSolutionValues(velocity, angle);
+                if (calculateMaxRange(distanceUnit, velocity, angle, shooterLength) <= 16) {
+                    result = new FiringSolutionValues(angleUnit, velocity, angle);
                 } else {
                     //If it does exceed then reiterate by changing the velocity
                     velocity = velocity - 250;

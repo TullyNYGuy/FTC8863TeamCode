@@ -571,6 +571,10 @@ public class UltimateGoalIntakeController implements FTCRobotSubsystem {
         }
     }
 
+    public boolean isComplete() {
+        return commandComplete;
+    }
+
     @Override
     public String getName() {
         return "intakeController";

@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.UltimateGoalTest;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -10,7 +11,7 @@ import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.UltimateGoalIntake;
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
 @TeleOp(name = "Ultamate Goal Intake Test 2", group = "Test")
-//@Disabled
+@Disabled
 public class IntakeTest2 extends LinearOpMode {
 
     // Put your variable declarations here

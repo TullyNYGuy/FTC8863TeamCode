@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.UltimateGoalRobotRoadR
 
 import java.util.List;
 
-@TeleOp(name = "Teleop Roadrunner", group = "AARun")
+@TeleOp(name = "Teleop Roadrunner", group = "AA")
 //@Disabled
 
 public class TeleopUsingRoadRunner extends LinearOpMode {

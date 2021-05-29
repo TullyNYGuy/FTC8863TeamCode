@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.UltimateGoalIntake;
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
 @TeleOp(name = "Test Intake Switch", group = "Test")
-//@Disabled
+@Disabled
 public class TestIntakeSwitch extends LinearOpMode {
 
     // Put your variable declarations here

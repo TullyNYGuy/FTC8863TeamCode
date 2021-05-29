@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.UltimateGoalTest;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -17,7 +18,7 @@ import static org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.UltimateGoalRob
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
 @TeleOp(name = "AngleTesting Localized", group = "Test")
-//@Disabled
+@Disabled
 public class AngleChangerPlusShooterTestWithLocalization extends LinearOpMode {
 
     // Put your variable declarations her
@@ -43,7 +44,7 @@ public class AngleChangerPlusShooterTestWithLocalization extends LinearOpMode {
 
         telemetry.addData("distance =", distance);
         telemetry.addData("angleto =", Math.toDegrees(angleBetween));
-        telemetry.addData("Angle", shooter.calculateAngle(distance, DistanceUnit.METER, field.topGoal));
+        telemetry.addData("Angle", shooter.calculateAngle(AngleUnit.DEGREES, distance, DistanceUnit.METER, field.topGoal));
         telemetry.addData(">", "Press Start to run");
         telemetry.update();
 
