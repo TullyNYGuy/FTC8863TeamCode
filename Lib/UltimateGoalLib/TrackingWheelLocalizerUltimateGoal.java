@@ -32,8 +32,16 @@ public class TrackingWheelLocalizerUltimateGoal extends ThreeTrackingWheelLocali
     public static double WHEEL_RADIUS = .748; // in
     public static double GEAR_RATIO = 1; // output (wheel) speed / input (encoder) speed
 
-    public static double LATERAL_DISTANCE = 16.506; // in; distance between the left and right wheels
-    public static double FORWARD_OFFSET = -4.976; // in; offset of the lateral wheel
+    // CAD says this
+    //public static double LATERAL_DISTANCE = 16.2205; // in; distance between the left and right wheels
+    // TrackingWheelLateralDistanceTuner says this for slow turning
+    //public static double LATERAL_DISTANCE = 16.094; // in; distance between the left and right wheels
+    // TrackingWheelLateralDistanceTuner says this for fast turning
+    public static double LATERAL_DISTANCE = 16.018; // in; distance between the left and right wheels
+    // CAD says this
+    //public static double FORWARD_OFFSET = -7.380; // in; offset of the lateral wheel
+    //TrackingWheelForwardOffsetTunerUlitmateGoal says this
+    public static double FORWARD_OFFSET = -7.510; // in; offset of the lateral wheel
 
     // use these to adjust for wheel radius differences
     public static double X_MULTIPLIER = .9870; // Multiplier in the X direction
