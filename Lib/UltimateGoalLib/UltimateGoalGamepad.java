@@ -28,7 +28,7 @@ package org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib;
  *    / DPad Right       -
  *    / A                - set game angle1
  *    / B                - set game angle2
- *    / X                -
+ *    / X                - go to zero position
  *    / Y                -
  */
 
@@ -119,6 +119,8 @@ public class UltimateGoalGamepad {
 
     private UltimateGoalRobotRoadRunner robot;
 
+    private AutomaticTeleopFunctions automaticTeleopFunctions;
+
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -134,10 +136,11 @@ public class UltimateGoalGamepad {
     // from it
     //*********************************************************************************************
 
-    public UltimateGoalGamepad(Gamepad gamepad1, Gamepad gamepad2, UltimateGoalRobotRoadRunner robot) {
+    public UltimateGoalGamepad(Gamepad gamepad1, Gamepad gamepad2, UltimateGoalRobotRoadRunner robot, AutomaticTeleopFunctions automaticTeleopFunctions) {
         this.robot = robot;
         this.gamepad1 = gamepad1;
         this.gamepad2 = gamepad2;
+        this.automaticTeleopFunctions = automaticTeleopFunctions;
 
         //
         //YOU WILL HAVE TO CONFIGURE THE GAMEPAD BUTTONS FOR TOGGLING IF YOU WANT THAT. DO THAT HERE.
@@ -404,6 +407,7 @@ public class UltimateGoalGamepad {
         if (gamepad2x.buttonPress(gamepad2.x)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
+            automaticTeleopFunctions.goToZero();
         }
 
         if (gamepad2DpadUp.buttonPress(gamepad2.dpad_up)) {

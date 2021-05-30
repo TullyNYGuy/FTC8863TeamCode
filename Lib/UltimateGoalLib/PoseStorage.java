@@ -18,4 +18,5 @@ public class PoseStorage {
     public static Pose2d SHOOTING_AT_MIDDLE_POWER_SHOT_POSE = new Pose2d(0, 7, Math.toRadians(180));
     public static Pose2d SHOOTING_AT_RIGHT_POWER_SHOT_POSE = new Pose2d(0, -.25, Math.toRadians(180));
     public static Pose2d PARK_POSE = new Pose2d(15, -18.9, Math.toRadians(180));
+    public static Pose2d ZERO_POSE = new Pose2d(0, 0, Math.toRadians(180));
 }
