@@ -22,12 +22,12 @@ package org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib;
  *    / Left JoystickY   -
  *    / Right JoystickX  -
  *    / Right JoystickY  -
- *    / DPad Up          -
- *    / DPad Left        -
+ *    / DPad Up          - angle for high goal
+ *    / DPad Left        - angle for power shots
  *    / DPad Down        -
  *    / DPad Right       -
- *    / A                - set game angle1
- *    / B                - set game angle2
+ *    / A                -
+ *    / B                -
  *    / X                - go to zero position
  *    / Y                -
  */
@@ -277,7 +277,7 @@ public class UltimateGoalGamepad {
         if (gamepad1b.buttonPress(gamepad1.b)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            robot.eStop();
+            robot.fire3();
         }
 
         if (gamepad1y.buttonPress(gamepad1.y)) {
