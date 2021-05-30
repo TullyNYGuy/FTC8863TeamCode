@@ -126,7 +126,60 @@ public class DcMotor8863 {
     /**
      * Holds the desired encoder count for RUN_TO_POSITION
      */
-    private int targetEncoderCount = 0;
+    //private int targetEncoderCount = 0;
+
+    private int baseEncoderCount = 0;
+
+    /**
+     * 05/30/2021
+     * There is a bug when the motor is started up and a base encoder count is set. The targetEncoderCount
+     * needs to be adjusted by the base encoder count. So I'm setting up a virtual encoder count and
+     * and actual encoder count.
+     * motor encoder count - this is the encoder count that the motor reports from the control hub
+     * virtual encoder count - this is the encoder count that the user sees. You can set this when the
+     * motor is created setBaseEncoderCount(). This is helpful when you want the motor to "remember"
+     * where it was when it shut down.
+     * I need to do the same for the target encoder counts.
+     *
+     */
+    private int virtualTargetEncoderCount = 0;
+    private int motorTargetEncoderCount = 0;
+
+    public int getVirtualTargetEncoderCount() {
+        return virtualTargetEncoderCount;
+    }
+
+    private void setVirtualTargetEncoderCount(int motorTargetEncoderCount) {
+        this.virtualTargetEncoderCount = motorTargetEncoderCount + baseEncoderCount;
+    }
+
+    public int getMotorTargetEncoderCount() {
+        return motorTargetEncoderCount;
+    }
+
+    private void setMotorTargetEncoderCount(int motorTargetEncoderCount) {
+        this.motorTargetEncoderCount = motorTargetEncoderCount;
+    }
+
+    private int motorEncoderCount = 0;
+    private int virtualEncoderCount = 0;
+
+    public int getMotorEncoderCount() {
+        return motorEncoderCount;
+    }
+
+
+    private void setMotorEncoderCount(int motorEncoderCount) {
+        this.motorEncoderCount = motorEncoderCount;
+    }
+
+    public int getVirtualEncoderCount() {
+        return virtualEncoderCount;
+    }
+
+    private void setVirtualEncoderCount(int motorEncoderCount) {
+        this.virtualEncoderCount = motorEncoderCount + baseEncoderCount;
+    }
 
     /**
      * The tolerance range for saying if the encoder count target has been reached.
@@ -175,24 +228,6 @@ public class DcMotor8863 {
      * last encoder value
      */
     private int lastEncoderValue = 0;
-
-    /**
-     * current value of the encoder. NOTE: this may not be the same as the encoder value of the
-     * underlying DCMotor. This is a separate copy of the encoder value. It may not be updated with
-     * the value of the encoder on the actual motor so it may not match. Or this value can be
-     * manipulated so that it is set to 0 even though the underlying encoder has not been reset.
-     * Note that for whatever reason the SDK forces the motor to stop when the actual encoder is
-     * reset. If we are just keeping track of a series of movements, we may not want the motor to
-     * stop even though we want the encoder to be set to 0 again.
-     * In essence, this is a virtual encoder.
-     * Setting this value to the actual motor encoder value before starting a movement, and making
-     * the target encoder value = currentEncoderValue + Encoder Ticks needed for movement effectively
-     * implements a relative movement. Like saying go 2 miles to the stop sign, turn right, and then
-     * go 10 miles to
-     */
-    private int currentEncoderValue = 0;
-
-    private int baseEncoderValue = 0;
 
     /**
      * enables whether you detect a stall
@@ -401,13 +436,13 @@ public class DcMotor8863 {
         this.MovementPerRev = MovementPerRev;
     }
 
-    public int getTargetEncoderCount() {
-        return targetEncoderCount;
-    }
-
-    protected void setTargetEncoderCount(int targetEncoderCount) {
-        this.targetEncoderCount = targetEncoderCount;
-    }
+//    public int getTargetEncoderCount() {
+//        return targetEncoderCount;
+//    }
+//
+//    protected void setTargetEncoderCount(int targetEncoderCount) {
+//        this.targetEncoderCount = targetEncoderCount;
+//    }
 
     public int getTargetEncoderTolerance() {
         return targetEncoderTolerance;
@@ -526,12 +561,12 @@ public class DcMotor8863 {
         this.dataLog = dataLog;
     }
 
-    public void setBaseEncoderValue(int baseEncoderValue) {
-        this.baseEncoderValue = baseEncoderValue;
+    public void setBaseEncoderCount(int baseEncoderCount) {
+        this.baseEncoderCount = baseEncoderCount;
     }
 
-    public int getBaseEncoderValue() {
-        return baseEncoderValue;
+    public int getBaseEncoderCount() {
+        return baseEncoderCount;
     }
 
     //*********************************************************************************************
@@ -561,7 +596,8 @@ public class DcMotor8863 {
         setMotorType(MotorType.ANDYMARK_40);
         setMovementPerRev(0);
         setStallDetectionEnabled(false);
-        setTargetEncoderCount(0);
+        setMotorTargetEncoderCount(0);
+        setVirtualTargetEncoderCount(0);
         setTargetEncoderTolerance(10);
         setMotorState(MotorState.IDLE);
         setFinishBehavior(FinishBehavior.FLOAT);
@@ -602,7 +638,7 @@ public class DcMotor8863 {
     static protected Map<String, DcMotor8863> motorsMap = new HashMap<String, DcMotor8863>();
 
     static public void clearMotorsList() {
-            motorsMap.clear();
+        motorsMap.clear();
     }
 
     static public DcMotor8863 createMotorFromFile(Configuration config, String section, HardwareMap hardwareMap) {
@@ -1851,10 +1887,12 @@ public class DcMotor8863 {
         FTCDcMotor.setZeroPowerBehavior(ZeroPowerBehavior);
     }
 
-    public void setTargetPosition(int position) {
+    public void setTargetPosition(int motorTargetPosition) {
+        setMotorTargetEncoderCount(motorTargetPosition);
+        setVirtualTargetEncoderCount(motorTargetPosition);
         // set the field holding the desired rotation
-        setTargetEncoderCount(position);
-        FTCDcMotor.setTargetPosition(position);
+        // setTargetEncoderCount(position);
+        FTCDcMotor.setTargetPosition(getMotorTargetEncoderCount());
     }
 
     /**
@@ -1863,7 +1901,7 @@ public class DcMotor8863 {
      * @return current encoder count
      */
     public int getCurrentPosition() {
-        return FTCDcMotor.getCurrentPosition() - baseEncoderValue;
+        return FTCDcMotor.getCurrentPosition() - baseEncoderCount;
     }
 
     public int getCurrentPositionUnaltered() {

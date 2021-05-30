@@ -591,11 +591,11 @@ public class ExtensionRetractionMechanism {
     }
 
     public void setBaseEncoderValue(int baseEncoderValue) {
-        extensionRetractionMotor.setBaseEncoderValue(baseEncoderValue);
+        extensionRetractionMotor.setBaseEncoderCount(baseEncoderValue);
     }
 
     public int getBaseEncoderValue() {
-        return extensionRetractionMotor.getBaseEncoderValue();
+        return extensionRetractionMotor.getBaseEncoderCount();
     }
 
     //*********************************************************************************************
