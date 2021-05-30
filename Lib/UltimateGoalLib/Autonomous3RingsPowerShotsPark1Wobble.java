@@ -49,11 +49,11 @@ public class Autonomous3RingsPowerShotsPark1Wobble implements AutonomousStateMac
     private AngleUnit angleUnits;
 
     //we were trying to have the second shot knock down the third as well, saving the third ring to shoot in the high goal
-    private final Pose2d START_POSE = new Pose2d(-61.25, -17, Math.toRadians(180));
-    private final Pose2d SHOOTING_AT_LEFT_POWER_SHOT_POSE = new Pose2d(0, 15.5, Math.toRadians(180));
-    private final Pose2d SHOOTING_AT_MIDDLE_POWER_SHOT_POSE = new Pose2d(0, 5.75, Math.toRadians(180));
-    private final Pose2d SHOOTING_AT_RIGHT_POWER_SHOT_POSE = new Pose2d(0, -.25, Math.toRadians(180));
-    private final Pose2d PARK_POSE = new Pose2d(15, -18.9, Math.toRadians(180));
+    //private final Pose2d START_POSE = new Pose2d(-61.25, -17, Math.toRadians(180));
+    //private final Pose2d SHOOTING_AT_LEFT_POWER_SHOT_POSE = new Pose2d(0, 15.5, Math.toRadians(180));
+    //private final Pose2d SHOOTING_AT_MIDDLE_POWER_SHOT_POSE = new Pose2d(0, 5.75, Math.toRadians(180));
+    //private final Pose2d SHOOTING_AT_RIGHT_POWER_SHOT_POSE = new Pose2d(0, -.25, Math.toRadians(180));
+    //private final Pose2d PARK_POSE = new Pose2d(15, -18.9, Math.toRadians(180));
 
     //these numbers are for dead center on each power shot
 //    private final Pose2d START_POSE = new Pose2d(-61.25, -17, Math.toRadians(180));
@@ -104,7 +104,7 @@ public class Autonomous3RingsPowerShotsPark1Wobble implements AutonomousStateMac
         timer = new ElapsedTime();
 
         // The shooter location needs to be used to calculate the distance to the goal, not the robot pose
-        Pose2d shooterPose = robot.shooter.getShooterPose(SHOOTING_AT_LEFT_POWER_SHOT_POSE);
+        Pose2d shooterPose = robot.shooter.getShooterPose(PoseStorage.SHOOTING_AT_LEFT_POWER_SHOT_POSE);
         distanceToPowerShots = field.distanceTo(DistanceUnit.METER, shooterPose, field.powerShotLeft.getPose2d());
 
         // We were having trouble with calculated angle (25.5) so we experimentally found what works
@@ -132,20 +132,20 @@ public class Autonomous3RingsPowerShotsPark1Wobble implements AutonomousStateMac
      */
     @Override
     public void createTrajectories() {
-        trajectoryToLeftPowerShot = robot.mecanum.trajectoryBuilder(START_POSE)
-                .lineTo(Pose2d8863.getVector2d(SHOOTING_AT_LEFT_POWER_SHOT_POSE))
+        trajectoryToLeftPowerShot = robot.mecanum.trajectoryBuilder(PoseStorage.START_POSE)
+                .lineTo(Pose2d8863.getVector2d(PoseStorage.SHOOTING_AT_LEFT_POWER_SHOT_POSE))
                 .build();
 
-        trajectoryToMiddlePowerShot = robot.mecanum.trajectoryBuilder(SHOOTING_AT_LEFT_POWER_SHOT_POSE)
-                .lineTo(Pose2d8863.getVector2d(SHOOTING_AT_MIDDLE_POWER_SHOT_POSE))
+        trajectoryToMiddlePowerShot = robot.mecanum.trajectoryBuilder(PoseStorage.SHOOTING_AT_LEFT_POWER_SHOT_POSE)
+                .lineTo(Pose2d8863.getVector2d(PoseStorage.SHOOTING_AT_MIDDLE_POWER_SHOT_POSE))
                 .build();
 
-        trajectoryToRightPowerShot = robot.mecanum.trajectoryBuilder(SHOOTING_AT_MIDDLE_POWER_SHOT_POSE)
-                .lineTo(Pose2d8863.getVector2d(SHOOTING_AT_RIGHT_POWER_SHOT_POSE))
+        trajectoryToRightPowerShot = robot.mecanum.trajectoryBuilder(PoseStorage.SHOOTING_AT_MIDDLE_POWER_SHOT_POSE)
+                .lineTo(Pose2d8863.getVector2d(PoseStorage.SHOOTING_AT_RIGHT_POWER_SHOT_POSE))
                 .build();
 
         trajectoryToParkPosition = robot.mecanum.trajectoryBuilder(trajectoryToRightPowerShot.end())
-                .lineTo(Pose2d8863.getVector2d(PARK_POSE))
+                .lineTo(Pose2d8863.getVector2d(PoseStorage.PARK_POSE))
                 .build();
     }
 
@@ -166,7 +166,7 @@ public class Autonomous3RingsPowerShotsPark1Wobble implements AutonomousStateMac
     public void update() {
         switch (currentState) {
             case START:
-                robot.mecanum.setPoseEstimate(START_POSE);
+                robot.mecanum.setPoseEstimate(PoseStorage.START_POSE);
                 // start the movement. Note that this starts the angle change after the movement starts
                 robot.mecanum.followTrajectoryAsync(trajectoryToLeftPowerShot);
                 robot.shooter.setAngle(AngleUnit.DEGREES, angleOfShot);
