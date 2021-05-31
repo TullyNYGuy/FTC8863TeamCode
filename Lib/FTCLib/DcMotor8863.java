@@ -199,7 +199,6 @@ public class DcMotor8863 {
 
     private void setMotorTargetEncoderCount(int virtualTargetEncoderCount) {
         this.motorTargetEncoderCount = calculateMotorTargetEncoderCount(virtualTargetEncoderCount);
-        setTargetPosition(motorTargetEncoderCount);
     }
 
     /**
@@ -208,10 +207,8 @@ public class DcMotor8863 {
      * @param virtualTargetEncoderCount The virtual target encoder count. The actual motor target
      *                                  encoder count will be calculated using this.
      */
-    // todo I'll bet this breaks a lot of external code - should probably be replaced with code
-    // to adjust the target position since the user is passing in a virtual target encoder count
     public void setTargetPosition(int virtualTargetEncoderCount) {
-        this.virtualTargetEncoderCount = virtualEncoderCount;
+        this.virtualTargetEncoderCount = virtualTargetEncoderCount;
         // calculate the motor target encoder count and set the private variable
         setMotorTargetEncoderCount(virtualTargetEncoderCount);
         // set the field holding the desired rotation
@@ -1601,7 +1598,7 @@ public class DcMotor8863 {
     // from the overshoot.
     // The new algorithm is to check that it is in position for a specific period of time.
     // Specifically, has the motor been at the target for greater than X mSec.
-    public boolean isRotationComplete() {
+    private boolean isRotationComplete() {
         boolean result = false;
         switch (currentRunMode) {
             case RUN_TO_POSITION:
@@ -1619,7 +1616,7 @@ public class DcMotor8863 {
                         // SOMEHOW THE MOTOR STATE WAS GETTING SET TO MOVING EVEN THOUGH isRotationComplete returned true
                         // So force the state to what we think it should be
                         // todo look into this bug
-                        currentMotorState = MotorState.COMPLETE_HOLD;
+                        //currentMotorState = MotorState.COMPLETE_HOLD;
                     } else {
                         // if on target but the timer is not yet expired just let it run
                     }
@@ -1877,7 +1874,16 @@ public class DcMotor8863 {
      * @return true = movement completed
      */
     // tested
+    @Deprecated
     public boolean isMotorStateComplete() {
+        if (this.currentMotorState == MotorState.COMPLETE_FLOAT || this.currentMotorState == MotorState.COMPLETE_HOLD) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean isMovementComplete() {
         if (this.currentMotorState == MotorState.COMPLETE_FLOAT || this.currentMotorState == MotorState.COMPLETE_HOLD) {
             return true;
         } else {

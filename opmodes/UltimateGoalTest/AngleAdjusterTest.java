@@ -7,12 +7,13 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.AngleChanger;
+import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.PersistantStorage;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
 @TeleOp(name = "Test Angle Adjuster", group = "Test")
-@Disabled
+//@Disabled
 public class AngleAdjusterTest extends LinearOpMode {
 
     // Put your variable declarations here
@@ -25,8 +26,11 @@ public class AngleAdjusterTest extends LinearOpMode {
 
         // Put your initializations here
         angleChanger = new AngleChanger(hardwareMap, telemetry);
+        angleChanger.clearAngleChanger();
+
         timer = new ElapsedTime();
         angleChanger.setAngleReference();
+        double angle = 0.0;
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
@@ -34,90 +38,79 @@ public class AngleAdjusterTest extends LinearOpMode {
         waitForStart();
 
         // Put your calls here - they will not run in a loop
-        angleChanger.setCurrentAngle(AngleUnit.DEGREES, 30);
+        angle = 30.0;
+        angleChanger.setCurrentAngle(AngleUnit.DEGREES, angle);
+        telemetry.addData("Setting angle of shooter to ", angle);
+        telemetry.update();
         while (opModeIsActive() && !angleChanger.isAngleAdjustComplete()) {
-
-            // Put your calls that need to run in a loop here
             angleChanger.update();
-            // Display the current value
-            //telemetry.addData("Motor Speed = ", "%5.2f", powerToRunAt);
-            //telemetry.addData("Encoder Count=", "%5d", motor.getCurrentPosition());
-            telemetry.addData(">", "Press Stop to end test.");
-
-            telemetry.update();
-
             idle();
         }
+
+        telemetry.addData("motor encoder count = ", angleChanger.getMotorEncoderCount());
+        telemetry.update();
         timer.reset();
-        while (opModeIsActive() && timer.milliseconds() < 1000){
+        while (opModeIsActive() && timer.milliseconds() < 5000){
             idle();
         }
-        angleChanger.setCurrentAngle(AngleUnit.DEGREES, 20);
-        while (opModeIsActive() && !angleChanger.isAngleAdjustComplete()) {
 
-            // Put your calls that need to run in a loop here
-            angleChanger.update();
-            // Display the current value
-            //telemetry.addData("Motor Speed = ", "%5.2f", powerToRunAt);
-            //telemetry.addData("Encoder Count=", "%5d", motor.getCurrentPosition());
-            telemetry.addData(">", "Press Stop to end test.");
-
-            telemetry.update();
-
-            idle();
-        }
+        // reset Angle changer
+        angleChanger = null;
+        angleChanger = new AngleChanger(hardwareMap, telemetry);
+        telemetry.addData("resetting angle changer", "!");
+        telemetry.addData("motor encoder count = ", angleChanger.getMotorEncoderCount());
+        telemetry.update();
         timer.reset();
-        while (opModeIsActive() && timer.milliseconds() < 1000){
+        while (opModeIsActive() && timer.milliseconds() < 5000){
             idle();
         }
-        angleChanger.setCurrentAngle(AngleUnit.DEGREES, 25);
+
+        angle = 20.0;
+        angleChanger.setCurrentAngle(AngleUnit.DEGREES, angle);
+        telemetry.addData("Setting angle of shooter to ", angle);
+        telemetry.update();
         while (opModeIsActive() && !angleChanger.isAngleAdjustComplete()) {
-
-            // Put your calls that need to run in a loop here
             angleChanger.update();
-            // Display the current value
-            //telemetry.addData("Motor Speed = ", "%5.2f", powerToRunAt);
-            //telemetry.addData("Encoder Count=", "%5d", motor.getCurrentPosition());
-            telemetry.addData(">", "Press Stop to end test.");
-
-            telemetry.update();
-
             idle();
         }
+
+        // reset Angle changer
+        angleChanger = null;
+        angleChanger = new AngleChanger(hardwareMap, telemetry);
+        telemetry.addData("resetting angle changer", "!");
+        telemetry.addData("motor encoder count = ", angleChanger.getMotorEncoderCount());
+        telemetry.update();
         timer.reset();
-        while (opModeIsActive() && timer.milliseconds() < 1000){
+        while (opModeIsActive() && timer.milliseconds() < 5000){
             idle();
         }
-        angleChanger.setCurrentAngle(AngleUnit.DEGREES, 20);
+
+        angle = 10.0;
+        angleChanger.setCurrentAngle(AngleUnit.DEGREES, angle);
+        telemetry.addData("Setting angle of shooter to ", angle);
+        telemetry.update();
         while (opModeIsActive() && !angleChanger.isAngleAdjustComplete()) {
-
-            // Put your calls that need to run in a loop here
             angleChanger.update();
-            // Display the current value
-            //telemetry.addData("Motor Speed = ", "%5.2f", powerToRunAt);
-            //telemetry.addData("Encoder Count=", "%5d", motor.getCurrentPosition());
-            telemetry.addData(">", "Press Stop to end test.");
-
-            telemetry.update();
-
             idle();
         }
+
+        // reset Angle changer
+        angleChanger = null;
+        angleChanger = new AngleChanger(hardwareMap, telemetry);
+        telemetry.addData("resetting angle changer", "!");
+        telemetry.addData("motor encoder count = ", angleChanger.getMotorEncoderCount());
+        telemetry.update();
         timer.reset();
-        while (opModeIsActive() && timer.milliseconds() < 1000){
+        while (opModeIsActive() && timer.milliseconds() < 5000){
             idle();
         }
-        angleChanger.setCurrentAngle(AngleUnit.DEGREES, 30);
+
+        angle = 30.0;
+        angleChanger.setCurrentAngle(AngleUnit.DEGREES, angle);
+        telemetry.addData("Setting angle of shooter to ", angle);
+        telemetry.update();
         while (opModeIsActive() && !angleChanger.isAngleAdjustComplete()) {
-
-            // Put your calls that need to run in a loop here
             angleChanger.update();
-            // Display the current value
-            //telemetry.addData("Motor Speed = ", "%5.2f", powerToRunAt);
-            //telemetry.addData("Encoder Count=", "%5d", motor.getCurrentPosition());
-            telemetry.addData(">", "Press Stop to end test.");
-
-            telemetry.update();
-
             idle();
         }
 
