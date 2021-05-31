@@ -123,6 +123,9 @@ public class DcMotor8863 {
      */
     private double MovementPerRev = 0;
 
+    // Removed this during re write to properly use base encoder count. Replaced with:
+    // virtualTargetEncoderCount
+    // motorTargetEncoderCount
     /**
      * Holds the desired encoder count for RUN_TO_POSITION
      */
@@ -135,50 +138,124 @@ public class DcMotor8863 {
      * There is a bug when the motor is started up and a base encoder count is set. The targetEncoderCount
      * needs to be adjusted by the base encoder count. So I'm setting up a virtual encoder count and
      * and actual encoder count.
-     * motor encoder count - this is the encoder count that the motor reports from the control hub
-     * virtual encoder count - this is the encoder count that the user sees. You can set this when the
-     * motor is created setBaseEncoderCount(). This is helpful when you want the motor to "remember"
-     * where it was when it shut down.
-     * I need to do the same for the target encoder counts.
+     * motor encoder count - this is the encoder count that the motor reports from the control hub.
+     *    This class manipulates the motor encoder count target behind the scenes. And it adjusts
+     *    the motor encoder count when you ask for it.
+     *    Most of the time, baseEncoderCount will be 0. So the motor encoder and the virtual encoder
+     *    are the same. However, when you set the baseEncoderCount, then the virtual encoder will
+     *    differ from the motor encoder by the baseEncoderCount.
+     *    One use case for setting the virtual encoder count is a restart of the robot after an opmode
+     *    finishes. The motor encoder will be 0 due to the reset of the motor. But if you have a motor
+     *    in a certain position already, and you want the robot to use the motor starting from that
+     *    known position, you can save the encoder count before the opmode shuts down in a static
+     *    variable. Then after the new opmode starts (like teleop after autonomous) you can set the
+     *    baseEncoderCount to the previously saved count. That will make the motor behave as if it
+     *    is starting from the same location before the opmode shutodown.
+     * virtual encoder count - this is the encoder count that the user sees. In other words, the one
+     *    you work with as a user.
      *
+     * Key formulas:
+     *    virtual encoder count = motor encoder count + base encoder count
+     *    motor encoder count = virtual encoder count - base encoder count
      */
+
+    // Here are the virtual target encoder count things
+
     private int virtualTargetEncoderCount = 0;
-    private int motorTargetEncoderCount = 0;
 
     public int getVirtualTargetEncoderCount() {
         return virtualTargetEncoderCount;
     }
 
-    private void setVirtualTargetEncoderCount(int motorTargetEncoderCount) {
-        this.virtualTargetEncoderCount = motorTargetEncoderCount + baseEncoderCount;
+    private int calculateVirtualTargetEncoderCount(int motorTargetEncoderCount) {
+        return motorTargetEncoderCount + baseEncoderCount;
     }
 
-    public int getMotorTargetEncoderCount() {
+    private void setVirtualTargetEncoderCount(int motorTargetEncoderCount) {
+        this.virtualTargetEncoderCount = calculateVirtualTargetEncoderCount(motorTargetEncoderCount);
+    }
+
+    // For backwards compatibilty with older code
+    public int getTargetEncoderCount() {
+        return getVirtualTargetEncoderCount();
+    }
+
+    protected void setTargetEncoderCount(int virtualEncoderCount){
+        this.virtualTargetEncoderCount = virtualEncoderCount;
+    }
+
+    // Here are the motor target encoder count things
+
+    private int motorTargetEncoderCount = 0;
+
+    private int getMotorTargetEncoderCount() {
         return motorTargetEncoderCount;
     }
 
-    private void setMotorTargetEncoderCount(int motorTargetEncoderCount) {
-        this.motorTargetEncoderCount = motorTargetEncoderCount;
+    private int calculateMotorTargetEncoderCount(int virtualTargetEncoderCount) {
+        return virtualTargetEncoderCount - baseEncoderCount;
     }
 
-    private int motorEncoderCount = 0;
+    private void setMotorTargetEncoderCount(int virtualTargetEncoderCount) {
+        this.motorTargetEncoderCount = calculateMotorTargetEncoderCount(virtualTargetEncoderCount);
+        setTargetPosition(motorTargetEncoderCount);
+    }
+
+    /**
+     * Actually sets the target encoder count in the control or expansion hub.
+     * @param virtualTargetEncoderCount The virtual target encoder count. The actual motor target
+     *                                  encoder count will be calculated using this.
+     */
+    // todo I'll bet this breaks a lot of external code - should probably be replaced with code
+    // to adjust the target position since the user is passing in a virtual target encoder count
+    public void setTargetPosition(int virtualTargetEncoderCount) {
+        this.virtualTargetEncoderCount = virtualEncoderCount;
+        // calculate the motor target encoder count and set the private variable
+        setMotorTargetEncoderCount(virtualTargetEncoderCount);
+        // set the field holding the desired rotation
+        // setTargetEncoderCount(position);
+        FTCDcMotor.setTargetPosition(getMotorTargetEncoderCount());
+    }
+
+    // Here are the motor encoder count things
+
+    // The motor encoder count is maintained by the control hub or expansion hub. So we don't need a
+    // variable of our own to hold that.
+    //private int motorEncoderCount = 0; <-- not needed
+
+    /**
+     * Returns the actual motor encoder count. It is not adjusted by the baseEncoderCount
+     * @return
+     */
+    private int getMotorEncoderCount() {
+        return FTCDcMotor.getCurrentPosition();
+    }
+
+
+    // Here are the virtual encoder count things
+
     private int virtualEncoderCount = 0;
 
-    public int getMotorEncoderCount() {
-        return motorEncoderCount;
-    }
-
-
-    private void setMotorEncoderCount(int motorEncoderCount) {
-        this.motorEncoderCount = motorEncoderCount;
-    }
-
-    public int getVirtualEncoderCount() {
+    /**
+     * Get the current encoder count for the motor.
+     *
+     * @return current motor encoder count, adjusted by the baseEncoderCount. I.E virtual encoder count
+     */
+    public int getCurrentPosition() {
+        // get the real motor encoder count from the control hub
+        int motorEncoderCount = FTCDcMotor.getCurrentPosition();
+        // update the virtual encoder count, the one the user sees
+        setVirtualEncoderCount(motorEncoderCount);
+        // and return the encoder count that the user sees
         return virtualEncoderCount;
     }
 
+    private int calculateVirtualEncoderCount(int motorEncoderCount) {
+        return motorEncoderCount + baseEncoderCount;
+    }
+
     private void setVirtualEncoderCount(int motorEncoderCount) {
-        this.virtualEncoderCount = motorEncoderCount + baseEncoderCount;
+        this.virtualEncoderCount = calculateVirtualEncoderCount(motorEncoderCount);
     }
 
     /**
@@ -228,6 +305,15 @@ public class DcMotor8863 {
      * last encoder value
      */
     private int lastEncoderValue = 0;
+
+
+    public int getLastEncoderValue() {
+        return lastEncoderValue;
+    }
+
+    private void setLastEncoderValue(int virtualEncoderCount) {
+        this.lastEncoderValue = virtualEncoderCount;
+    }
 
     /**
      * enables whether you detect a stall
@@ -531,10 +617,6 @@ public class DcMotor8863 {
 
     public void setStallDetectionTolerance(int stallDetectionTolerance) {
         this.stallDetectionTolerance = stallDetectionTolerance;
-    }
-
-    public int getLastEncoderValue() {
-        return lastEncoderValue;
     }
 
     public MotorState getCurrentMotorState() {
@@ -868,7 +950,7 @@ public class DcMotor8863 {
      */
     // tested
     public double getPositionInTermsOfAttachmentRelativeToLast() {
-        return getMovementForEncoderCount(getCurrentPosition() - this.lastEncoderValue);
+        return getMovementForEncoderCount(getCurrentPosition() - getLastEncoderValue());
     }
 
     /**
@@ -879,7 +961,7 @@ public class DcMotor8863 {
      * @return encoder value - encoder value before the last movement started
      */
     public int getCurrentPositionRelativeToLast() {
-        return this.getCurrentPosition() - this.lastEncoderValue;
+        return this.getCurrentPosition() - getLastEncoderValue();
     }
 
 
@@ -1005,7 +1087,7 @@ public class DcMotor8863 {
     public boolean moveToPosition(double power, double targetPosition, FinishBehavior afterCompletion) {
         // figure out what the encoder count is that corresponds to the target position
         int encoderCountForPosition = getEncoderCountForMovement(targetPosition);
-        this.lastEncoderValue = this.getCurrentPosition();
+        setLastEncoderValue(getCurrentPosition());
         return rotateToEncoderCount(power, encoderCountForPosition, afterCompletion);
     }
 
@@ -1046,7 +1128,7 @@ public class DcMotor8863 {
         int encoderCountForMovement = getEncoderCountForMovement(movement);
         // add that to the current encoder count
         int encoderCountForPosition = encoderCountForMovement + currentPosition;
-        this.lastEncoderValue = currentPosition;
+        setLastEncoderValue(currentPosition);
         return rotateToEncoderCount(power, encoderCountForPosition, afterCompletion);
 
     }
@@ -1067,7 +1149,7 @@ public class DcMotor8863 {
         int encoderCountForDegrees = getEncoderCountForDegrees(degrees);
         // add that to the current encoder count
         int encoderCountForPosition = encoderCountForDegrees + currentPosition;
-        this.lastEncoderValue = currentPosition;
+        setLastEncoderValue(currentPosition);
         return rotateToEncoderCount(power, encoderCountForPosition, afterCompletion);
     }
 
@@ -1087,7 +1169,7 @@ public class DcMotor8863 {
         int encoderCountForRevs = getEncoderCountForRevs(revs);
         // add that to the current encoder count
         int encoderCountForPosition = encoderCountForRevs + currentPosition;
-        this.lastEncoderValue = currentPosition;
+        setLastEncoderValue(currentPosition);
         return rotateToEncoderCount(power, encoderCountForPosition, afterCompletion);
     }
 
@@ -1095,7 +1177,7 @@ public class DcMotor8863 {
      * Rotate the motor so the encoder gets to a certain count.
      *
      * @param power           Power input for the motor. Note that it will be clipped to less than +/-0.8.
-     * @param encoderCount    Motor will be rotated so that it results in a movement of this distance.
+     * @param encoderCount    The target for the virtual encoder count
      * @param afterCompletion What to do after this movement is completed: HOLD or COAST
      * @return true if successfully completed
      * <p>
@@ -1455,7 +1537,7 @@ public class DcMotor8863 {
         setStallDetectionTolerance(stallDetectionTolerance);
         setStallTimeLimit(stallTimeLimit);
         stallTimer.reset();
-        this.lastEncoderValue = this.getCurrentPosition();
+        setLastEncoderValue(getCurrentPosition());
     }
 
     public boolean isStalled() {
@@ -1471,7 +1553,7 @@ public class DcMotor8863 {
                 telemetry.addData("checking for a stall", "!");
             }
             // if the motor has not moved since the last time the position was read
-            if (Math.abs(currentEncoderValue - lastEncoderValue) < stallDetectionTolerance) {
+            if (Math.abs(currentEncoderValue - getLastEncoderValue()) < stallDetectionTolerance) {
                 if (telemetry != null) {
                     telemetry.addData("motor is not moving", "!");
                 }
@@ -1495,7 +1577,7 @@ public class DcMotor8863 {
                 stallTimer.reset();
             }
         }
-        this.lastEncoderValue = currentEncoderValue;
+        setLastEncoderValue(currentEncoderValue);
         return false;
     }
 
@@ -1534,11 +1616,11 @@ public class DcMotor8863 {
             case RUN_TO_POSITION:
                 // This is the only mode that will eventually have the motor stop turning. This next
                 // section of code is my replacement for DcMotor.isBusy().
-                // get the current encoder position
+                // get the current encoder position, adjusted by the baseEncoderCount (virtual encoder count)
                 int currentEncoderCount = this.getCurrentPosition();
                 // is the current position within the tolerance limit of the desired position? and
                 // has it been there for longer than the completion timeout?
-                if (Math.abs(targetEncoderCount - currentEncoderCount) < targetEncoderTolerance) {
+                if (Math.abs(getVirtualTargetEncoderCount() - currentEncoderCount) < targetEncoderTolerance) {
                     if (completionTimer.milliseconds() > completionTimeoutInmSec) {
                         // movement is complete
                         result = true;
@@ -1885,27 +1967,6 @@ public class DcMotor8863 {
 
     public void setZeroPowerBehavior(DcMotor.ZeroPowerBehavior ZeroPowerBehavior) {
         FTCDcMotor.setZeroPowerBehavior(ZeroPowerBehavior);
-    }
-
-    public void setTargetPosition(int motorTargetPosition) {
-        setMotorTargetEncoderCount(motorTargetPosition);
-        setVirtualTargetEncoderCount(motorTargetPosition);
-        // set the field holding the desired rotation
-        // setTargetEncoderCount(position);
-        FTCDcMotor.setTargetPosition(getMotorTargetEncoderCount());
-    }
-
-    /**
-     * Get the current encoder count for the motor.
-     *
-     * @return current encoder count
-     */
-    public int getCurrentPosition() {
-        return FTCDcMotor.getCurrentPosition() - baseEncoderCount;
-    }
-
-    public int getCurrentPositionUnaltered() {
-        return FTCDcMotor.getCurrentPosition();
     }
 
     public void setDirection(DcMotor.Direction direction) {
