@@ -89,6 +89,7 @@ public class DcMotor8863 {
      * The name of this motor
      */
     protected String motorName;
+
     public String getMotorName() {
         return motorName;
     }
@@ -139,24 +140,24 @@ public class DcMotor8863 {
      * needs to be adjusted by the base encoder count. So I'm setting up a virtual encoder count and
      * and actual encoder count.
      * motor encoder count - this is the encoder count that the motor reports from the control hub.
-     *    This class manipulates the motor encoder count target behind the scenes. And it adjusts
-     *    the motor encoder count when you ask for it.
-     *    Most of the time, baseEncoderCount will be 0. So the motor encoder and the virtual encoder
-     *    are the same. However, when you set the baseEncoderCount, then the virtual encoder will
-     *    differ from the motor encoder by the baseEncoderCount.
-     *    One use case for setting the virtual encoder count is a restart of the robot after an opmode
-     *    finishes. The motor encoder will be 0 due to the reset of the motor. But if you have a motor
-     *    in a certain position already, and you want the robot to use the motor starting from that
-     *    known position, you can save the encoder count before the opmode shuts down in a static
-     *    variable. Then after the new opmode starts (like teleop after autonomous) you can set the
-     *    baseEncoderCount to the previously saved count. That will make the motor behave as if it
-     *    is starting from the same location before the opmode shutodown.
+     * This class manipulates the motor encoder count target behind the scenes. And it adjusts
+     * the motor encoder count when you ask for it.
+     * Most of the time, baseEncoderCount will be 0. So the motor encoder and the virtual encoder
+     * are the same. However, when you set the baseEncoderCount, then the virtual encoder will
+     * differ from the motor encoder by the baseEncoderCount.
+     * One use case for setting the virtual encoder count is a restart of the robot after an opmode
+     * finishes. The motor encoder will be 0 due to the reset of the motor. But if you have a motor
+     * in a certain position already, and you want the robot to use the motor starting from that
+     * known position, you can save the encoder count before the opmode shuts down in a static
+     * variable. Then after the new opmode starts (like teleop after autonomous) you can set the
+     * baseEncoderCount to the previously saved count. That will make the motor behave as if it
+     * is starting from the same location before the opmode shutodown.
      * virtual encoder count - this is the encoder count that the user sees. In other words, the one
-     *    you work with as a user.
-     *
+     * you work with as a user.
+     * <p>
      * Key formulas:
-     *    virtual encoder count = motor encoder count + base encoder count
-     *    motor encoder count = virtual encoder count - base encoder count
+     * virtual encoder count = motor encoder count + base encoder count
+     * motor encoder count = virtual encoder count - base encoder count
      */
 
     // Here are the virtual target encoder count things
@@ -180,7 +181,7 @@ public class DcMotor8863 {
         return getVirtualTargetEncoderCount();
     }
 
-    protected void setTargetEncoderCount(int virtualEncoderCount){
+    protected void setTargetEncoderCount(int virtualEncoderCount) {
         this.virtualTargetEncoderCount = virtualEncoderCount;
     }
 
@@ -203,6 +204,7 @@ public class DcMotor8863 {
 
     /**
      * Actually sets the target encoder count in the control or expansion hub.
+     *
      * @param virtualTargetEncoderCount The virtual target encoder count. The actual motor target
      *                                  encoder count will be calculated using this.
      */
@@ -225,6 +227,7 @@ public class DcMotor8863 {
 
     /**
      * Returns the actual motor encoder count. It is not adjusted by the baseEncoderCount
+     *
      * @return
      */
     private int getMotorEncoderCount() {
@@ -726,7 +729,7 @@ public class DcMotor8863 {
     static public DcMotor8863 createMotorFromFile(Configuration config, String section, HardwareMap hardwareMap) {
         if (config == null)
             return null;
-        if(motorsMap.containsKey(section))
+        if (motorsMap.containsKey(section))
             return motorsMap.get(section);
         String motorName;
         String motorTypeString;
@@ -736,49 +739,36 @@ public class DcMotor8863 {
         motorName = config.getPropertyString(section + PROP_NAME);
         motorTypeString = config.getPropertyString(section + PROP_TYPE);
         directionString = config.getPropertyString(section + PROP_DIRECTION);
-        if (motorTypeString == null){
+        if (motorTypeString == null) {
             return null;
-        }
-        else if ("NXT".equals(motorTypeString)){
+        } else if ("NXT".equals(motorTypeString)) {
             motorType = MotorType.NXT;
-        }
-        else if ("ANDYMARK_20".equals(motorTypeString)){
+        } else if ("ANDYMARK_20".equals(motorTypeString)) {
             motorType = MotorType.ANDYMARK_20;
-        }
-        else if ("ANDYMARK_40".equals(motorTypeString)){
+        } else if ("ANDYMARK_40".equals(motorTypeString)) {
             motorType = MotorType.ANDYMARK_40;
-        }
-        else if ("ANDYMARK_60".equals(motorTypeString)){
+        } else if ("ANDYMARK_60".equals(motorTypeString)) {
             motorType = MotorType.ANDYMARK_60;
-        }
-        else if ("TETRIX".equals(motorTypeString)){
+        } else if ("TETRIX".equals(motorTypeString)) {
             motorType = MotorType.TETRIX;
-        }
-        else if ("ANDYMARK_20_ORBITAL".equals(motorTypeString)){
+        } else if ("ANDYMARK_20_ORBITAL".equals(motorTypeString)) {
             motorType = MotorType.ANDYMARK_20;
-        }
-        else if ("ANDYMARK_3_7_ORBITAL".equals(motorTypeString)){
+        } else if ("ANDYMARK_3_7_ORBITAL".equals(motorTypeString)) {
             motorType = MotorType.ANDYMARK_3_7_ORBITAL;
-        }
-        else if ("USDIGITAL_360PPR_ENCODER".equals(motorTypeString)){
+        } else if ("USDIGITAL_360PPR_ENCODER".equals(motorTypeString)) {
             motorType = MotorType.USDIGITAL_360PPR_ENCODER;
-        }
-        else if ("GOBILDA_312".equals(motorTypeString)){
+        } else if ("GOBILDA_312".equals(motorTypeString)) {
             motorType = MotorType.GOBILDA_312;
-        }
-        else {
+        } else {
             return null;
         }
-        if (directionString == null){
+        if (directionString == null) {
             return null;
-        }
-        else if ("FORWARD".equals(directionString)){
+        } else if ("FORWARD".equals(directionString)) {
             direction = DcMotorSimple.Direction.FORWARD;
-        }
-        else if ("REVERSE".equals(directionString)){
+        } else if ("REVERSE".equals(directionString)) {
             direction = DcMotorSimple.Direction.REVERSE;
-        }
-        else{
+        } else {
             return null;
         }
 
@@ -873,7 +863,6 @@ public class DcMotor8863 {
     private int getMotorSpeedInEncoderTicksPerSec(int countsPerRev, int motorRPM) {
         return (int) Math.round((double) motorRPM * 1 / 60 * countsPerRev);
     }
-
 
 
     /**
@@ -1354,15 +1343,17 @@ public class DcMotor8863 {
 
     /**
      * Get the current velocity of the motor in RPM
+     *
      * @return
      */
     public double getCurrentRPM() {
         double velocityInDegrees = FTCDcMotor.getVelocity(AngleUnit.DEGREES);
-        return velocityInDegrees/360;
+        return velocityInDegrees / 360;
     }
 
     /**
      * Get the motor motor velocity in counts per second
+     *
      * @return
      */
     public double getCurrentVelocityInCounts() {
