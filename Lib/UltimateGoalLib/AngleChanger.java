@@ -83,6 +83,11 @@ public class AngleChanger {
         if (PersistantStorage.shooterAngle == null) {
             PersistantStorage.shooterAngle = new Double(0);
         }
+        if (PersistantStorage.angleChangerMotorEncoderCount == null) {
+            PersistantStorage.angleChangerMotorEncoderCount = new Integer(0);
+        } else {
+            motor.setBaseEncoderCount(PersistantStorage.angleChangerMotorEncoderCount);
+        }
     }
 
     //*********************************************************************************************
@@ -128,10 +133,15 @@ public class AngleChanger {
 
     public static void clearAngleChanger() {
         PersistantStorage.shooterAngle = null;
+        PersistantStorage.angleChangerMotorEncoderCount = null;
     }
 
     public void setAngleReference() {
         PersistantStorage.shooterAngle = 0.0;
+    }
+
+    public int getMotorEncoderCount() {
+        return motor.getCurrentPosition();
     }
 
     public void update() {
@@ -139,8 +149,9 @@ public class AngleChanger {
     }
 
     public boolean isAngleAdjustComplete() {
-        if (motor.isRotationComplete()) {
+        if (motor.isMovementComplete()) {
             // note that since the shooter angle is already stored in PersistantStorage by setCurrentAngle, it is already saved for later use
+            PersistantStorage.angleChangerMotorEncoderCount = motor.getCurrentPosition();
             return true;
         } else {
             return false;

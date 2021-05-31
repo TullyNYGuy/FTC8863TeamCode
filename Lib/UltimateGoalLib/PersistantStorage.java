@@ -14,6 +14,7 @@ public class PersistantStorage {
     //public static AngleChanger angleChanger;
     public static AngleUnit angleUnit = AngleUnit.RADIANS;
     public static Double shooterAngle = null;
+    public static Integer angleChangerMotorEncoderCount = null;
 
     public static Pose2d robotPose = null;
 }
