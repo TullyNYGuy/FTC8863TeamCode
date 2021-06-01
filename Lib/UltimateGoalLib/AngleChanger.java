@@ -25,7 +25,7 @@ public class AngleChanger {
     // getter and setter methods
     //*********************************************************************************************
     //CURRENT ANGLE IS IN RADIANS
-    private double currentAngle;
+    // double currentAngle;
 
     // internal units are radians
     private AngleUnit angleUnit = AngleUnit.RADIANS;
@@ -40,11 +40,14 @@ public class AngleChanger {
     //
     // allow access to private data fields for example setMotorPower,
     // getPositionInTermsOfAttachment
-    //*********************************************************************************************
+    //********************************************************************************************
+    public double getCurrentAngle (){
+        return PersistantStorage.getShooterAngle();
+    }
 
     public double getCurrentAngle(AngleUnit desiredUnits) {
         
-        return desiredUnits.fromUnit(angleUnit, currentAngle);
+        return desiredUnits.fromUnit(angleUnit, PersistantStorage.getShooterAngle());
     }
 
     public void setCurrentAngle(AngleUnit units, double desiredAngle) {
@@ -55,7 +58,7 @@ public class AngleChanger {
         if (desiredAngle < MIN_ANGLE) {
             desiredAngle = MIN_ANGLE;
         }
-        this.currentAngle = desiredAngle;
+        PersistantStorage.setShooterAngle(desiredAngle);
 
         motor.moveToPosition(1, calculateLeadScrewPosition(angleUnit, desiredAngle), DcMotor8863.FinishBehavior.HOLD);
     }
@@ -67,20 +70,15 @@ public class AngleChanger {
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
-    private AngleChanger(HardwareMap hardwareMap, Telemetry telemetry) {
+    public AngleChanger(HardwareMap hardwareMap, Telemetry telemetry) {
         motor = new DcMotor8863(UltimateGoalRobotRoadRunner.HardwareName.LEAD_SCREW_MOTOR.hwName, hardwareMap, telemetry);
         motor.setMotorType(DcMotor8863.MotorType.ANDYMARK_20_ORBITAL);
         motor.setMovementPerRev(8);
         motor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
     }
-    public static AngleChanger createAngleChanger (HardwareMap hardwareMap, Telemetry telemetry){
-        if(PersistantStorage.angleChanger == null){
-            PersistantStorage.angleChanger = new AngleChanger(hardwareMap, telemetry);
-        }
-        return PersistantStorage.angleChanger;
-    }
+
     public static void clearAngleChanger(){
-        PersistantStorage.angleChanger = null;
+        PersistantStorage.setShooterAngle(0);
     }
     //*********************************************************************************************
     //          Helper Methods
@@ -120,17 +118,15 @@ public class AngleChanger {
         if (desiredAngle > MAX_ANGLE) {
             desiredAngle = MAX_ANGLE;
         }
-        this.currentAngle = desiredAngle;
+        PersistantStorage.setShooterAngle(desiredAngle); ;
 
         motor.moveToPosition(0.3, calculateLeadScrewPosition(angleUnit, desiredAngle), DcMotor8863.FinishBehavior.HOLD);
-
     }
 
 
 
     public void setAngleReference() {
-        currentAngle = 0;
-
+       PersistantStorage.setShooterAngle(0);
     }
 
     public void update() {
@@ -138,13 +134,7 @@ public class AngleChanger {
     }
 
     public boolean isAngleAdjustComplete() {
-        if (motor.isRotationComplete()) {
-            PersistantStorage.angleChanger = this;
-            return true;
-        } else {
-            return false;
-        }
-
+        return (motor.isRotationComplete());
     }
     public boolean init(Configuration config) {
         return true;

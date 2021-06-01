@@ -22,7 +22,7 @@ public class AngleAdjusterReset extends LinearOpMode {
 
 
         // Put your initializations here
-        angleChanger =  AngleChanger.createAngleChanger(hardwareMap, telemetry);
+        angleChanger = new AngleChanger(hardwareMap, telemetry);
 
         angleChanger.setAngleReference();
 

@@ -25,7 +25,7 @@ public class AngleSaveTest extends LinearOpMode {
 
 
         // Put your initializations here
-        angleChanger = PersistantStorage.angleChanger;
+        angleChanger = new AngleChanger(hardwareMap,telemetry);
         timer = new ElapsedTime();
 
 
