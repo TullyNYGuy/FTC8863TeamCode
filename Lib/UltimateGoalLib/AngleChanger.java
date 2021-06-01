@@ -98,7 +98,7 @@ public class AngleChanger {
     private double calculateLeadScrewPosition(AngleUnit units, double desiredAngle) {
         desiredAngle = angleUnit.fromUnit(units, desiredAngle);
         //constants
-        double initialLength = toMM(1.345);
+        double initialLength = DistanceUnit.MM.fromInches(1.345);
         double initialAngle = angleUnit.fromDegrees(9.961);
         //Side A is the bottom side side B is the shooter
         double sideA = toMM(6.593);
@@ -111,10 +111,6 @@ public class AngleChanger {
             double leadScrewPosition = -Math.sqrt(Math.pow(sideA, 2) + Math.pow(sideB, 2) - 2 * sideA * sideB * Math.cos(desiredAngle + initialAngle)) - initialLength;
             return leadScrewPosition;
         }
-    }
-
-    private double toMM(double inches) {
-        return inches * 25.4;
     }
 
     //*********************************************************************************************
