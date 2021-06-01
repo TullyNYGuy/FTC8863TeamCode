@@ -43,7 +43,16 @@ public class TestWobbleGoalGrabber extends LinearOpMode {
 
             idle();
         }
+        sleep(2000);
+        theClaw.pickUpArm();
+        while (opModeIsActive() && !theClaw.isComplete()) {
+            theClaw.update();
+            telemetry.addData(">", "Press Stop to end test.");
+            telemetry.update();
 
+            idle();
+        }
+sleep(3000);
         // Put your cleanup code here - it runs as the application shuts down
         telemetry.addData(">", "Done");
         telemetry.update();

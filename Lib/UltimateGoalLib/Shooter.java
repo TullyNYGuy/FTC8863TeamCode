@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib;
 
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -37,6 +38,8 @@ public class Shooter implements FTCRobotSubsystem {
     //internal units
     private AngleUnit angleUnit = AngleUnit.RADIANS;
     private DistanceUnit distanceUnit = DistanceUnit.METER;
+
+    private ElapsedTime elapsedTime;
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -55,6 +58,7 @@ public class Shooter implements FTCRobotSubsystem {
         dualMotorGearBox = new DualMotorGearBox(leftMotorName, rightMotorName, hardwareMap, telemetry);
         angleChanger =  AngleChanger.createAngleChanger(hardwareMap, telemetry);
         firingSolution = new FiringSolution();
+        elapsedTime= new ElapsedTime();
     }
     //*********************************************************************************************
     //          Helper Methods
@@ -96,6 +100,7 @@ public class Shooter implements FTCRobotSubsystem {
 
     public void setSpeed(int motorRPM) {
         dualMotorGearBox.setSpeed(motorRPM);
+        elapsedTime.reset();
     }
 
     public double getSpeed() {
@@ -103,7 +108,10 @@ public class Shooter implements FTCRobotSubsystem {
     }
 
     public boolean isReady () {
-        return true;
+        if (elapsedTime.milliseconds()>2000) {
+            return true;
+        }
+        else return false;
     }
 
     public void stop() {
