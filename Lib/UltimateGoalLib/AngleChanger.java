@@ -24,6 +24,8 @@ public class AngleChanger {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
+    //CURRENT ANGLE IS IN RADIANS
+    // double currentAngle;
 
     // internal units are radians
     private AngleUnit angleUnit = AngleUnit.RADIANS;
@@ -40,7 +42,10 @@ public class AngleChanger {
     //
     // allow access to private data fields for example setMotorPower,
     // getPositionInTermsOfAttachment
-    //*********************************************************************************************
+    //********************************************************************************************
+    public double getCurrentAngle (){
+        return PersistantStorage.getShooterAngle();
+    }
 
     public double getCurrentAngle(AngleUnit desiredUnits) {
         return desiredUnits.fromUnit(PersistantStorage.angleUnit, PersistantStorage.shooterAngle);
