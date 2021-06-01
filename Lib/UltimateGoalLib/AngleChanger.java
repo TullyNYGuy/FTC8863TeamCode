@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 
@@ -73,6 +74,7 @@ public class AngleChanger {
         motor.setMovementPerRev(8);
         motor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
     }
+
     public static AngleChanger createAngleChanger (HardwareMap hardwareMap, Telemetry telemetry){
         if(PersistantStorage.angleChanger == null){
             PersistantStorage.angleChanger = new AngleChanger(hardwareMap, telemetry);
@@ -90,11 +92,11 @@ public class AngleChanger {
     private double calculateLeadScrewPosition(AngleUnit units, double desiredAngle) {
         double desiredAngleInRadians = angleUnit.fromUnit(units, desiredAngle);
         //constants
-        double initialLength = toMM(1.345);
+        double initialLength = DistanceUnit.MM.fromInches(1.345);
         double initialAngle = angleUnit.fromDegrees(9.961);
         //Side A is the bottom side side B is the shooter
-        double sideA = toMM(6.593);
-        double sideB = toMM(7.207);
+        double sideA = DistanceUnit.MM.fromInches(6.593);
+        double sideB = DistanceUnit.MM.fromInches(7.207);
         if(desiredAngleInRadians > 0){
             double leadScrewPosition = Math.sqrt(Math.pow(sideA, 2) + Math.pow(sideB, 2) - 2 * sideA * sideB * Math.cos(desiredAngleInRadians + initialAngle)) - initialLength;
             return leadScrewPosition;
@@ -104,10 +106,6 @@ public class AngleChanger {
             return leadScrewPosition;
         }
 
-    }
-
-    private double toMM(double inches) {
-        return inches * 25.4;
     }
 
     //*********************************************************************************************
