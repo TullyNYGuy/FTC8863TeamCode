@@ -119,7 +119,7 @@ public class TestDCMotor8863RunConstantSpeed extends LinearOpMode {
             telemetry.addData("feedback = ", "%5.2f", motor.getPositionInTermsOfAttachment());
             telemetry.addData("Encoder Count = ", "%5d", motor.getCurrentPosition());
             telemetry.addData("Elapsed time = ", "%5.0f", runningTimer.milliseconds());
-            telemetry.addData("Rotation complete = ", Boolean.toString(motor.isRotationComplete()));
+            telemetry.addData("Rotation complete = ", Boolean.toString(motor.isMovementComplete()));
             telemetry.addData(">", "Press Stop to end test.");
             telemetry.update();
 
