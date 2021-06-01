@@ -139,7 +139,7 @@ public class AngleChanger {
     }
 
     public boolean isAngleAdjustComplete() {
-        if (motor.isRotationComplete()) {
+        if (motor.isMovementComplete()) {
             // note that since the shooter angle is already stored in PersistantStorage by setCurrentAngle, it is already saved for later use
             return true;
         } else {

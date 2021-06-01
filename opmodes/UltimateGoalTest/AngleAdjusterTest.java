@@ -47,7 +47,7 @@ public class AngleAdjusterTest extends LinearOpMode {
             idle();
         }
 
-        telemetry.addData("motor encoder count = ", angleChanger.getMotorEncoderCount());
+        //telemetry.addData("motor encoder count = ", angleChanger.getMotorEncoderCount());
         telemetry.update();
         timer.reset();
         while (opModeIsActive() && timer.milliseconds() < 5000){
@@ -58,7 +58,7 @@ public class AngleAdjusterTest extends LinearOpMode {
         angleChanger = null;
         angleChanger = new AngleChanger(hardwareMap, telemetry);
         telemetry.addData("resetting angle changer", "!");
-        telemetry.addData("motor encoder count = ", angleChanger.getMotorEncoderCount());
+        //telemetry.addData("motor encoder count = ", angleChanger.getMotorEncoderCount());
         telemetry.update();
         timer.reset();
         while (opModeIsActive() && timer.milliseconds() < 5000){
@@ -78,7 +78,7 @@ public class AngleAdjusterTest extends LinearOpMode {
         angleChanger = null;
         angleChanger = new AngleChanger(hardwareMap, telemetry);
         telemetry.addData("resetting angle changer", "!");
-        telemetry.addData("motor encoder count = ", angleChanger.getMotorEncoderCount());
+        //telemetry.addData("motor encoder count = ", angleChanger.getMotorEncoderCount());
         telemetry.update();
         timer.reset();
         while (opModeIsActive() && timer.milliseconds() < 5000){
@@ -98,7 +98,7 @@ public class AngleAdjusterTest extends LinearOpMode {
         angleChanger = null;
         angleChanger = new AngleChanger(hardwareMap, telemetry);
         telemetry.addData("resetting angle changer", "!");
-        telemetry.addData("motor encoder count = ", angleChanger.getMotorEncoderCount());
+        //telemetry.addData("motor encoder count = ", angleChanger.getMotorEncoderCount());
         telemetry.update();
         timer.reset();
         while (opModeIsActive() && timer.milliseconds() < 5000){
