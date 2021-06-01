@@ -8,6 +8,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.RampControl;
 
 public class AngleChanger {
 
@@ -29,7 +30,7 @@ public class AngleChanger {
     // double currentAngle;
 
     // internal units are radians
-    private AngleUnit angleUnit = AngleUnit.RADIANS;
+   // private AngleUnit angleUnit = AngleUnit.RADIANS;
 
     private DcMotor8863 motor;
 
@@ -43,25 +44,25 @@ public class AngleChanger {
     // getPositionInTermsOfAttachment
     //********************************************************************************************
     public double getCurrentAngle (){
-        return PersistantStorage.getShooterAngle();
+        return PersistantStorage.getShooterAngle(AngleUnit.RADIANS);
     }
 
     public double getCurrentAngle(AngleUnit desiredUnits) {
         
-        return desiredUnits.fromUnit(angleUnit, PersistantStorage.getShooterAngle());
+        return PersistantStorage.getShooterAngle(desiredUnits);
     }
 
     public void setCurrentAngle(AngleUnit units, double desiredAngle) {
-       desiredAngle = angleUnit.fromUnit(units, desiredAngle);
+       desiredAngle = units.toRadians(desiredAngle);
         if (desiredAngle > MAX_ANGLE) {
             desiredAngle = MAX_ANGLE;
         }
         if (desiredAngle < MIN_ANGLE) {
             desiredAngle = MIN_ANGLE;
         }
-        PersistantStorage.setShooterAngle(desiredAngle);
+        PersistantStorage.setShooterAngle(desiredAngle, AngleUnit.RADIANS);
 
-        motor.moveToPosition(1, calculateLeadScrewPosition(angleUnit, desiredAngle), DcMotor8863.FinishBehavior.HOLD);
+        motor.moveToPosition(1, calculateLeadScrewPosition(AngleUnit.RADIANS, desiredAngle), DcMotor8863.FinishBehavior.HOLD);
     }
 
 
@@ -79,7 +80,7 @@ public class AngleChanger {
     }
 
     public static void clearAngleChanger(){
-        PersistantStorage.setShooterAngle(0);
+        PersistantStorage.setShooterAngle(0, AngleUnit.DEGREES);
     }
     //*********************************************************************************************
     //          Helper Methods
@@ -87,10 +88,10 @@ public class AngleChanger {
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
     private double calculateLeadScrewPosition(AngleUnit units, double desiredAngle) {
-        double desiredAngleInRadians = angleUnit.fromUnit(units, desiredAngle);
+        double desiredAngleInRadians = AngleUnit.RADIANS.fromUnit(units, desiredAngle);
         //constants
         double initialLength = DistanceUnit.MM.fromInches(1.345);
-        double initialAngle = angleUnit.fromDegrees(9.961);
+        double initialAngle = AngleUnit.RADIANS.fromDegrees(9.961);
         //Side A is the bottom side side B is the shooter
         double sideA = DistanceUnit.MM.fromInches(6.593);
         double sideB = DistanceUnit.MM.fromInches(7.207);
@@ -111,19 +112,19 @@ public class AngleChanger {
     // public methods that give the class its functionality
     //*********************************************************************************************
     public void setAngleNegative(AngleUnit units, double desiredAngle){
-        desiredAngle = angleUnit.fromUnit(units, desiredAngle);
+        desiredAngle = AngleUnit.RADIANS.fromUnit(units, desiredAngle);
         if (desiredAngle > MAX_ANGLE) {
             desiredAngle = MAX_ANGLE;
         }
-        PersistantStorage.setShooterAngle(desiredAngle); ;
+        PersistantStorage.setShooterAngle( desiredAngle, AngleUnit.RADIANS); ;
 
-        motor.moveToPosition(0.3, calculateLeadScrewPosition(angleUnit, desiredAngle), DcMotor8863.FinishBehavior.HOLD);
+        motor.moveToPosition(0.3, calculateLeadScrewPosition(AngleUnit.RADIANS, desiredAngle), DcMotor8863.FinishBehavior.HOLD);
     }
 
 
 
     public void setAngleReference() {
-       PersistantStorage.setShooterAngle(0);
+       PersistantStorage.setShooterAngle(0, AngleUnit.RADIANS);
     }
 
     public void update() {
