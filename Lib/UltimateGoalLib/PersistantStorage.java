@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+
 import java.security.interfaces.DSAPublicKey;
 
 public class PersistantStorage {
@@ -11,7 +13,7 @@ public class PersistantStorage {
 
     // angle changer object
 
-    public static double getShooterAngle() {
+    public static double getShooterAngle(AngleUnit inputUnits) {
         if (shooterAngle==null){
             shooterAngle=new Double(0);
 
@@ -19,8 +21,8 @@ public class PersistantStorage {
         return shooterAngle;
     }
 
-    public static void setShooterAngle(double shooterAngle) {
-        PersistantStorage.shooterAngle = shooterAngle;
+    public static void setShooterAngle(double shooterAngle, AngleUnit units) {
+        PersistantStorage.shooterAngle = AngleUnit.RADIANS.fromUnit(units, shooterAngle);
     }
 
     private static Double shooterAngle;
