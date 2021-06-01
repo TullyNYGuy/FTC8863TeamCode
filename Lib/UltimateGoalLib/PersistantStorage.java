@@ -13,18 +13,18 @@ public class PersistantStorage {
 
     // angle changer object
 
-    public static double getShooterAngle(AngleUnit inputUnits) {
+    public static double getShooterAngle(AngleUnit units) {
         if (shooterAngle==null){
             shooterAngle=new Double(0);
-
         }
-        return shooterAngle;
+        return units.fromRadians(shooterAngle);
     }
 
     public static void setShooterAngle(double shooterAngle, AngleUnit units) {
         PersistantStorage.shooterAngle = AngleUnit.RADIANS.fromUnit(units, shooterAngle);
     }
-
+    private static Integer motorTicks;
     private static Double shooterAngle;
     public static Pose2d robotPose;
+
 }
