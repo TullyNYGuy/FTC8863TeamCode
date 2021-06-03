@@ -527,7 +527,7 @@ public class DcMotor8863 {
     }
 
     public void setBaseEncoderValue(int baseEncoderValue) {
-        this.baseEncoderValue = baseEncoderValue;
+        this.baseEncoderValue += baseEncoderValue;
     }
 
     public int getBaseEncoderValue() {
