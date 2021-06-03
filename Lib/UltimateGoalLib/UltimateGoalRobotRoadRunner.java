@@ -164,7 +164,7 @@ public class UltimateGoalRobotRoadRunner implements FTCRobot {
         }
 
         if (capabilities.contains(Subsystem.FIRE_CONTROLLER)) {
-            fireController = new UltimateGoalFireController(intakeController, shooter);
+            fireController = new UltimateGoalFireController(intakeController, shooter, intake);
             subsystemMap.put(fireController.getName(), fireController);
         }
 
@@ -320,6 +320,8 @@ public class UltimateGoalRobotRoadRunner implements FTCRobot {
     public void fire3() {
         fireController.requestFire3();
     }
+
+    public void quickFire3 () {fireController.requestQuickFire3();}
 
     public void eStop() {
         intakeController.requestEstop();

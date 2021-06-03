@@ -407,7 +407,7 @@ public class UltimateGoalGamepad {
         if (gamepad2x.buttonPress(gamepad2.x)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            automaticTeleopFunctions.goToZero();
+            automaticTeleopFunctions.goingToHighGoal();
         }
 
         if (gamepad2DpadUp.buttonPress(gamepad2.dpad_up)) {

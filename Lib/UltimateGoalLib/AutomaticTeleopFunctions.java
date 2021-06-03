@@ -16,13 +16,14 @@ public class AutomaticTeleopFunctions {
     private enum States {
         IDLE,
         START,
-        MOVING_TO_ZERO
+        MOVING_TO_HIGH_GOAL,
+        SHOOTING,
     }
 
     private States currentState = States.IDLE;
 
     private enum Commands {
-        MOVE_TO_ZERO,
+        MOVE_TO_HIGH_GOAL,
         NO_COMMAND
     }
 
@@ -64,9 +65,9 @@ public class AutomaticTeleopFunctions {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
-    public void goToZero() {
+    public void goingToHighGoal () {
         if (commandComplete) {
-            currentCommand = Commands.MOVE_TO_ZERO;
+            currentCommand = Commands.MOVE_TO_HIGH_GOAL;
             currentState = States.START;
             commandComplete = false;
         }
@@ -78,20 +79,28 @@ public class AutomaticTeleopFunctions {
 
     public void update() {
         switch (currentCommand) {
-            case MOVE_TO_ZERO:
+            case MOVE_TO_HIGH_GOAL:
                 switch (currentState) {
                     case IDLE:
                         break;
                     case START:
                         trajectory = robot.mecanum.trajectoryBuilder(robot.mecanum.getPoseEstimate())
-                                .lineToLinearHeading(PoseStorage.ZERO_POSE)
+                                .lineToLinearHeading(PoseStorage.SHOOTING_AT_HIGH_GOAL)
                                 .build();
                         robot.mecanum.followTrajectoryAsync(trajectory);
-                        currentState = States.MOVING_TO_ZERO;
+                        if (!robot.shooter.isReady()) {
+                           robot.shooterOn();
+                        }
+                        currentState = States.MOVING_TO_HIGH_GOAL;
                         break;
-                    case MOVING_TO_ZERO:
+                    case MOVING_TO_HIGH_GOAL:
                         if (!robot.mecanum.isBusy()) {
-
+                            robot.quickFire3();
+                            currentState = States.SHOOTING;
+                        }
+                        break;
+                    case SHOOTING:
+                        if (robot.fireController.isComplete()) {
                             commandComplete = true;
                             currentState = States.IDLE;
                             currentCommand = Commands.NO_COMMAND;
@@ -105,10 +114,10 @@ public class AutomaticTeleopFunctions {
                         break;
                     case START:
                         break;
-                    case MOVING_TO_ZERO:
+                    case MOVING_TO_HIGH_GOAL:
                         break;
-
-
+                    case SHOOTING:
+                        break;
                 }
                 break;
         }

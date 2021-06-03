@@ -42,6 +42,8 @@ public class Shooter implements FTCRobotSubsystem {
     private DistanceUnit distanceUnit = DistanceUnit.METER;
 
     private ElapsedTime elapsedTime;
+
+    private boolean shooterOn= false;
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -103,6 +105,7 @@ public class Shooter implements FTCRobotSubsystem {
     public void setSpeed(int motorRPM) {
         dualMotorGearBox.setSpeed(motorRPM);
         elapsedTime.reset();
+        shooterOn= true;
     }
 
     public double getSpeed() {
@@ -110,7 +113,7 @@ public class Shooter implements FTCRobotSubsystem {
     }
 
     public boolean isReady () {
-        if (elapsedTime.milliseconds()>2000) {
+        if (elapsedTime.milliseconds()>2000 && shooterOn) {
             return true;
         }
         else return false;
@@ -118,6 +121,7 @@ public class Shooter implements FTCRobotSubsystem {
 
     public void stop() {
         dualMotorGearBox.stopGearbox();
+        shooterOn= false;
     }
 
     @Override
