@@ -48,10 +48,12 @@ public class AngleChanger {
     }
 
     public double getCurrentAngle(AngleUnit desiredUnits) {
-        
+
         return PersistantStorage.getShooterAngle(desiredUnits);
     }
-
+    public int getMotorTicks(){
+        return motor.getBaseEncoderValue();
+    }
     public void setCurrentAngle(AngleUnit units, double desiredAngle) {
        desiredAngle = units.toRadians(desiredAngle);
         if (desiredAngle > MAX_ANGLE) {
@@ -65,6 +67,9 @@ public class AngleChanger {
         motor.moveToPosition(1, calculateLeadScrewPosition(AngleUnit.RADIANS, desiredAngle), DcMotor8863.FinishBehavior.HOLD);
     }
 
+    public void setMotorticks(int motorTicks){
+        motor.setBaseEncoderValue(motorTicks);
+    }
     //*********************************************************************************************
     //          Constructors
     //
@@ -76,7 +81,7 @@ public class AngleChanger {
         motor.setMotorType(DcMotor8863.MotorType.ANDYMARK_20_ORBITAL);
         motor.setMovementPerRev(8);
         motor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
-    }
+     }
 
     public static void clearAngleChanger(){
         PersistantStorage.setShooterAngle(0, AngleUnit.DEGREES);

@@ -12,7 +12,15 @@ public class PersistantStorage {
     // public static DATA FIELDS that persist between opmodes
 
     // angle changer object
-
+    public static int getMotorTicks (){
+        if (motorTicks == null){
+            motorTicks = new Integer(0);
+        }
+        return motorTicks;
+    }
+    public static void setMotorTicks(int motorTicks){
+        PersistantStorage.motorTicks = motorTicks;
+    }
     public static double getShooterAngle(AngleUnit units) {
         if (shooterAngle==null){
             shooterAngle=new Double(0);

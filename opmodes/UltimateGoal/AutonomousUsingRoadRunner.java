@@ -83,7 +83,7 @@ public class AutonomousUsingRoadRunner extends LinearOpMode {
         }
 
         PersistantStorage.robotPose = robot.mecanum.getPoseEstimate();
-
+        PersistantStorage.setMotorTicks(robot.shooter.getMotorTicks());
         robot.shutdown();
         dataLog.closeDataLog();
         telemetry.addData(">", "Done");
