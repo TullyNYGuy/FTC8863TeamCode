@@ -34,8 +34,8 @@ public class AngleChanger {
     private DcMotor8863 motor;
 
     // The current angle is stored in PersistantStorage.shooterAngle
-    private final double MAX_ANGLE = angleUnit.fromDegrees(40);
-    private final double MIN_ANGLE = angleUnit.fromDegrees(0);
+    private final double MAX_ANGLE = AngleUnit.RADIANS.fromDegrees(40);
+    private final double MIN_ANGLE = AngleUnit.RADIANS.fromDegrees(0);
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
