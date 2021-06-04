@@ -54,13 +54,13 @@ public class AutonomousUsingRoadRunner extends LinearOpMode {
 
         timer = new ElapsedTime();
         field = new UltimateGoalField();
-        PersistantStorage.setShooterAngle( 40,AngleUnit.DEGREES);
+
         // Put your initializations here
         // create the robot and run the init for it
         robot = new UltimateGoalRobotRoadRunner(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, this);
         robot.createRobot();
         enableBulkReads(hardwareMap, LynxModule.BulkCachingMode.AUTO);
-
+        robot.shooter.setMotorTicks(PersistantStorage.getMotorTicks());
         // todo Change the constructor call to change out to a different autonomous
        autonomous= new Autonomous3RingsPowerShotsPark1Wobble(robot, field, telemetry, Autonomous3RingsPowerShotsPark1Wobble.Mode.AUTONOMOUS);
         autonomous = new Autonomous3RingsHighGoalPark1Wobble(robot, field, telemetry);
