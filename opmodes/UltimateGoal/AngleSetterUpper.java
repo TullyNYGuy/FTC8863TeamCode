@@ -60,7 +60,8 @@ public class AngleSetterUpper extends LinearOpMode {
 //        }
         timer = new ElapsedTime();
         //MecanumCommands commands = new MecanumCommands();
-
+        PersistantStorage.setShooterAngle(0,AngleUnit.DEGREES);
+        PersistantStorage.setMotorTicks(0);
         robot = new UltimateGoalRobotRoadRunner(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, this);
 
         // create the robot and run the init for it
@@ -111,14 +112,14 @@ public class AngleSetterUpper extends LinearOpMode {
             multiplier = -1;
         }
 
-        PersistantStorage.setShooterAngle(0,AngleUnit.DEGREES);
-        PersistantStorage.setMotorTicks(0);
+
         waitForStart();
 
         robot.loopTimer.startLoopTimer();
         robot.shooter.setAngle(AngleUnit.DEGREES,20);
-        robot.shooter.setMotorTicks(robot.shooter.getMotorTicks());
-        PersistantStorage.setShooterAngle(20,AngleUnit.DEGREES);
+
+
+
         //*********************************************************************************************
         //             Robot Running after the user hits play on the driver phone
         //*********************************************************************************************
@@ -160,6 +161,7 @@ public class AngleSetterUpper extends LinearOpMode {
 
         // Stop has been hit, shutdown everything. Note that some of the subsystem shutdowns may
         // write to the datalog so we can't close it just yet.
+        PersistantStorage.setMotorTicks(robot.shooter.getMotorTicks());
         robot.shutdown();
         dataLog.closeDataLog();
         telemetry.addData(">", "Done");
