@@ -50,8 +50,12 @@ public class Shooter implements FTCRobotSubsystem {
     // allow access to private data fields for example setMotorPower,
     // getPositionInTermsOfAttachment
     //*********************************************************************************************
-
-
+    public int getMotorTicks(){
+        return angleChanger.getMotorTicks();
+    }
+    public void setMotorTicks(int motorTicks){
+        angleChanger.setMotorticks(motorTicks);
+    }
     //*********************************************************************************************
     //          Constructors
     //

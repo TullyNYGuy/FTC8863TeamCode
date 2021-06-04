@@ -54,7 +54,7 @@ public class AutonomousUsingRoadRunner extends LinearOpMode {
 
         timer = new ElapsedTime();
         field = new UltimateGoalField();
-
+        PersistantStorage.setShooterAngle( 40,AngleUnit.DEGREES);
         // Put your initializations here
         // create the robot and run the init for it
         robot = new UltimateGoalRobotRoadRunner(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, this);
@@ -84,6 +84,7 @@ public class AutonomousUsingRoadRunner extends LinearOpMode {
         }
 
         PersistantStorage.robotPose = robot.mecanum.getPoseEstimate();
+        PersistantStorage.setMotorTicks(robot.shooter.getMotorTicks());
         robot.shutdown();
         dataLog.closeDataLog();
         telemetry.addData(">", "Done");
