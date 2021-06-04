@@ -115,7 +115,7 @@ public class AngleSetterUpper extends LinearOpMode {
         waitForStart();
 
         robot.loopTimer.startLoopTimer();
-        robot.shooter.setAngle(AngleUnit.DEGREES,40);
+        robot.shooter.setAngle(AngleUnit.DEGREES,20);
         robot.shooter.setMotorTicks(robot.shooter.getMotorTicks());
         //*********************************************************************************************
         //             Robot Running after the user hits play on the driver phone
