@@ -182,7 +182,7 @@ public class UltimateGoalGamepad {
         gamepad2LeftBumper = new GamepadButtonMultiPush(1);
         gamepad2a = new GamepadButtonMultiPush(1);
         gamepad2b = new GamepadButtonMultiPush(1);
-        gamepad2y = new GamepadButtonMultiPush(1);
+        gamepad2y = new GamepadButtonMultiPush(2);
         gamepad2x = new GamepadButtonMultiPush(1);
         gamepad2DpadDown = new GamepadButtonMultiPush(1);
         gamepad2DpadUp = new GamepadButtonMultiPush(1);
@@ -399,7 +399,14 @@ public class UltimateGoalGamepad {
         if (gamepad2y.buttonPress(gamepad2.y)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            automaticTeleopFunctions.shootPowerShots();
+            if (gamepad2y.isCommand1()) {
+                // call the first command you want to run
+                automaticTeleopFunctions.moveToLeftPowerShot();
+            }
+            if (gamepad2y.isCommand2()) {
+                // call the 2nd command you want to run
+                automaticTeleopFunctions.shootPowerShots();
+            }
         }
 
         if (gamepad2x.buttonPress(gamepad2.x)) {
