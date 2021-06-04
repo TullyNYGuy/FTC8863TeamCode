@@ -43,7 +43,7 @@ public class Shooter implements FTCRobotSubsystem {
 
     private ElapsedTime elapsedTime;
 
-    private boolean shooterOn= false;
+    private boolean shooterOn = false;
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -128,6 +128,14 @@ public class Shooter implements FTCRobotSubsystem {
         shooterOn= false;
     }
 
+    public void toggleShooter() {
+        if (shooterOn) {
+            stop();
+        } else {
+            // note this is hardwired to 5000 for now
+            setSpeed(5000);
+        }
+    }
     @Override
     public String getName() {
         return "Shooter";

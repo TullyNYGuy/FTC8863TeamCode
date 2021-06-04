@@ -305,6 +305,10 @@ public class UltimateGoalRobotRoadRunner implements FTCRobot {
         intakeController.requestIntake();
     }
 
+    public void intakeToggleOnOff() {
+        intakeController.requestIntakeToggleOnOff();
+    }
+
     public void intakeOff() {
         intakeController.requestOff();
     }

@@ -634,6 +634,14 @@ public class UltimateGoalIntake implements FTCRobotSubsystem {
         turnStage1Off();
     }
 
+    public boolean isOn() {
+        if (currentState == State.OFF) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
     /**
      * Get the state of the switches for each stage and return it
      *

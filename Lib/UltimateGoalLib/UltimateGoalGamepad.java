@@ -159,8 +159,8 @@ public class UltimateGoalGamepad {
         gamepad1LeftStickButton = new GamepadButtonMultiPush(1);
         gamepad1RightStickButton = new GamepadButtonMultiPush(1);
         gamepad1LeftTriggerButton = new GamepadButtonMultiPush(1);
-        gamepad1LeftBumper = new GamepadButtonMultiPush(2);
-        gamepad1RightBumper = new GamepadButtonMultiPush(2);
+        gamepad1LeftBumper = new GamepadButtonMultiPush(1);
+        gamepad1RightBumper = new GamepadButtonMultiPush(1);
 
         // Game Pad 1 joysticks
         gamepad1LeftJoyStickX = new SmartJoystick(gamepad1, SmartJoystick.JoystickSide.LEFT, SmartJoystick.JoystickAxis.X);
@@ -244,27 +244,13 @@ public class UltimateGoalGamepad {
         if (gamepad1RightBumper.buttonPress(gamepad1.right_bumper)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            if (gamepad1RightBumper.isCommand1()) {
-                // call the first command you want to run
-                robot.shooterOn();
-            }
-            if (gamepad1RightBumper.isCommand2()) {
-                // call the 2nd command you want to run
-                robot.shooterOff();
-            }
+            robot.shooter.toggleShooter();
         }
 
         if (gamepad1LeftBumper.buttonPress(gamepad1.left_bumper)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            if (gamepad1LeftBumper.isCommand1()) {
-                // call the first command you want to run
-                robot.intakeOn();
-            }
-            if (gamepad1LeftBumper.isCommand2()) {
-                // call the 2nd command you want to run
-                robot.intakeOff();
-            }
+            robot.intakeToggleOnOff();
         }
 
         if (gamepad1a.buttonPress(gamepad1.a)) {

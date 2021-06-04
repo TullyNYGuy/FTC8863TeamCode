@@ -53,6 +53,7 @@ public class UltimateGoalIntakeController implements FTCRobotSubsystem {
     private Commands previousCommand = currentCommand;
     public UltimateGoalIntake intake;
     private boolean commandComplete = true;
+    private boolean intakeOn = false;
 
     private DataLogging logFile;
     private boolean loggingOn = false;
@@ -540,6 +541,16 @@ public class UltimateGoalIntakeController implements FTCRobotSubsystem {
     public void requestOff() {
         if (commandComplete) {
             currentCommand = Commands.OFF;
+        }
+    }
+
+    public void requestIntakeToggleOnOff() {
+        if (commandComplete) {
+            if (intake.isOn()) {
+                requestIntake();
+            } else {
+                requestOff();
+            }
         }
     }
 
