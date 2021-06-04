@@ -110,6 +110,7 @@ public class AngleSetterUpper extends LinearOpMode {
             robot.mecanum.setPoseEstimate(PersistantStorage.robotPose);
             multiplier = -1;
         }
+
         PersistantStorage.setShooterAngle(0,AngleUnit.DEGREES);
         PersistantStorage.setMotorTicks(0);
         waitForStart();
@@ -117,6 +118,7 @@ public class AngleSetterUpper extends LinearOpMode {
         robot.loopTimer.startLoopTimer();
         robot.shooter.setAngle(AngleUnit.DEGREES,20);
         robot.shooter.setMotorTicks(robot.shooter.getMotorTicks());
+        PersistantStorage.setShooterAngle(20,AngleUnit.DEGREES);
         //*********************************************************************************************
         //             Robot Running after the user hits play on the driver phone
         //*********************************************************************************************
