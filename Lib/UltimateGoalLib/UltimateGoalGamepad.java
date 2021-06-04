@@ -9,11 +9,11 @@ package org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib;
  *    / DPad Up          - reverse stage 1 intake on/off
  *    / DPad Left        - reset intake
  *    / DPad Down        - stage 23 intake on/off
- *    / DPad Right       - 100% power
+ *    / DPad Right       -
  *    / A                - Bump 1
  *    / B                -  EStop
  *    / X                - fire 1
- *    / Y                - fire 2 - does not work
+ *    / Y                - quick fire 3
  *    /Left Bumper       - intake on/off
  *    /Right Bumper      - shooter on/off
  *
@@ -23,13 +23,13 @@ package org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib;
  *    / Right JoystickX  -
  *    / Right JoystickY  -
  *    / DPad Up          - angle for high goal
- *    / DPad Left        - angle for power shots
- *    / DPad Down        -
- *    / DPad Right       -
- *    / A                -
+ *    / DPad Left        -  100% power
+ *    / DPad Down        -angle for power shots
+ *    / DPad Right       - 50% power
+ *    / A                - re-home
  *    / B                -
  *    / X                - go to zero position
- *    / Y                -
+ *    / Y                - endgame power shots
  */
 
 import com.qualcomm.robotcore.hardware.Gamepad;
@@ -121,6 +121,7 @@ public class UltimateGoalGamepad {
 
     private AutomaticTeleopFunctions automaticTeleopFunctions;
 
+    private Autonomous3RingsPowerShotsPark1Wobble powerShots;
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -136,11 +137,12 @@ public class UltimateGoalGamepad {
     // from it
     //*********************************************************************************************
 
-    public UltimateGoalGamepad(Gamepad gamepad1, Gamepad gamepad2, UltimateGoalRobotRoadRunner robot, AutomaticTeleopFunctions automaticTeleopFunctions) {
+    public UltimateGoalGamepad(Gamepad gamepad1, Gamepad gamepad2, UltimateGoalRobotRoadRunner robot, AutomaticTeleopFunctions automaticTeleopFunctions, Autonomous3RingsPowerShotsPark1Wobble powerShots) {
         this.robot = robot;
         this.gamepad1 = gamepad1;
         this.gamepad2 = gamepad2;
         this.automaticTeleopFunctions = automaticTeleopFunctions;
+        this.powerShots= powerShots;
 
         //
         //YOU WILL HAVE TO CONFIGURE THE GAMEPAD BUTTONS FOR TOGGLING IF YOU WANT THAT. DO THAT HERE.
@@ -277,13 +279,13 @@ public class UltimateGoalGamepad {
         if (gamepad1b.buttonPress(gamepad1.b)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            robot.fire3();
+            robot.eStop();
         }
 
         if (gamepad1y.buttonPress(gamepad1.y)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            robot.fire2();
+            robot.quickFire3();
         }
 
         if (gamepad1x.buttonPress(gamepad1.x)) {
@@ -328,10 +330,7 @@ public class UltimateGoalGamepad {
         if (gamepad1DpadRight.buttonPress(gamepad1.dpad_right)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            gamepad1LeftJoyStickX.setFullPower();
-            gamepad1LeftJoyStickY.setFullPower();
-            gamepad1RightJoyStickX.setFullPower();
-            gamepad1RightJoyStickY.setFullPower();
+
         }
 
         if (gamepad1LeftStickButton.buttonPress(gamepad1.left_stick_button)) {
@@ -392,6 +391,7 @@ public class UltimateGoalGamepad {
         if (gamepad2a.buttonPress(gamepad2.a)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
+            robot.mecanum.setPoseEstimate(PoseStorage.SHOOTING_AT_HIGH_GOAL);
         }
 
         if (gamepad2b.buttonPress(gamepad2.b)) {
@@ -402,6 +402,7 @@ public class UltimateGoalGamepad {
         if (gamepad2y.buttonPress(gamepad2.y)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
+            powerShots.start();
         }
 
         if (gamepad2x.buttonPress(gamepad2.x)) {
@@ -413,23 +414,31 @@ public class UltimateGoalGamepad {
         if (gamepad2DpadUp.buttonPress(gamepad2.dpad_up)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            robot.setGameAngleHighGoal();
+           // robot.setGameAngleHighGoal();
         }
 
         if (gamepad2DpadDown.buttonPress(gamepad2.dpad_down)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here\
-            robot.setGameAnglePowerShots();
+           // robot.setGameAnglePowerShots();
         }
 
         if (gamepad2DpadLeft.buttonPress(gamepad2.dpad_left)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
+            gamepad1LeftJoyStickX.setFullPower();
+            gamepad1LeftJoyStickY.setFullPower();
+            gamepad1RightJoyStickX.setFullPower();
+            gamepad1RightJoyStickY.setFullPower();
         }
 
         if (gamepad2DpadRight.buttonPress(gamepad2.dpad_right)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
+            gamepad1LeftJoyStickX.setHalfPower();
+            gamepad1LeftJoyStickY.setHalfPower();
+            gamepad1RightJoyStickX.setHalfPower();
+            gamepad1RightJoyStickY.setHalfPower();
         }
 
         if (gamepad2LeftStickButton.buttonPress(gamepad2.left_stick_button)) {

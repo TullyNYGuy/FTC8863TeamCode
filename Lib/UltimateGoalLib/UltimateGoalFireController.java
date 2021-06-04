@@ -139,6 +139,7 @@ public class UltimateGoalFireController implements FTCRobotSubsystem {
                         break;
                     case QUICK_FIRE_3:
                         if (intakeController.isComplete()) {
+
                             currentState = States.CHECK_SHOOTER_SPEED;
                         }
                         break;
@@ -169,7 +170,7 @@ public class UltimateGoalFireController implements FTCRobotSubsystem {
                         break;
                     case QUICK_FIRE_3:
                         if (shooter.isReady()) {
-                            intake.requestTurnStage123On();
+                            intake.requestTurnStage23On();
                             currentState = States.FIRING;
                             timer.reset();
                         }
@@ -201,6 +202,9 @@ public class UltimateGoalFireController implements FTCRobotSubsystem {
                         }
                         break;
                     case QUICK_FIRE_3:
+                        if (timer.milliseconds()>250) {
+                            intake.requestTurnStage123On();
+                        }
                         if (timer.milliseconds()>2000) {
                             commandComplete= true;
                             currentCommand= Commands.OFF;

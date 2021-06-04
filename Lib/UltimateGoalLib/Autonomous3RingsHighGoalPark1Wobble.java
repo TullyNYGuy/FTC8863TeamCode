@@ -44,10 +44,6 @@ public class Autonomous3RingsHighGoalPark1Wobble implements AutonomousStateMachi
     private DistanceUnit distanceUnits;
     private AngleUnit angleUnits;
 
-    private final Pose2d START_POSE = new Pose2d(-62, -18.9, Math.toRadians(180));
-    private final Pose2d SHOOTING_POSE = new Pose2d(0, -18.9, Math.toRadians(180));
-    private final Pose2d PARK_POSE = new Pose2d(15, -18.9, Math.toRadians(180));
-
     private Trajectory trajectoryToShootPosition;
     private Trajectory trajectoryToParkPosition;
 
@@ -82,7 +78,7 @@ public class Autonomous3RingsHighGoalPark1Wobble implements AutonomousStateMachi
         distanceUnits = DistanceUnit.INCH;
         angleUnits = AngleUnit.DEGREES;
 
-        distanceToTopGoal = field.distanceTo(DistanceUnit.METER, SHOOTING_POSE, field.topGoal.getPose2d());
+        distanceToTopGoal = field.distanceTo(DistanceUnit.METER, PoseStorage.SHOOTING_AT_HIGH_GOAL, field.topGoal.getPose2d());
         angleOfShot = robot.shooter.calculateAngle(AngleUnit.DEGREES, distanceToTopGoal, DistanceUnit.METER, field.topGoal);
         telemetry.addData("angle of shot = ", angleOfShot);
 
@@ -102,12 +98,14 @@ public class Autonomous3RingsHighGoalPark1Wobble implements AutonomousStateMachi
      */
     @Override
     public void createTrajectories() {
-        trajectoryToShootPosition = robot.mecanum.trajectoryBuilder(START_POSE)
-                .lineTo(Pose2d8863.getVector2d(SHOOTING_POSE))
+        trajectoryToShootPosition = robot.mecanum.trajectoryBuilder(PoseStorage.START_POSE, true)
+                .splineTo(Pose2d8863.getVector2d(PoseStorage.HIGH_GOAL_WAY_POINT), Math.toRadians(0.0))
+                .splineTo(Pose2d8863.getVector2d(PoseStorage.SHOOTING_AT_HIGH_GOAL), Math.toRadians(0.0))
+                //.lineTo(Pose2d8863.getVector2d(PoseStorage.SHOOTING_AT_HIGH_GOAL))
                 .build();
 
         trajectoryToParkPosition = robot.mecanum.trajectoryBuilder(trajectoryToShootPosition.end())
-                .lineTo(Pose2d8863.getVector2d(PARK_POSE))
+                .lineTo(Pose2d8863.getVector2d(PoseStorage.PARK_POSE))
                 .build();
     }
 
@@ -128,7 +126,7 @@ public class Autonomous3RingsHighGoalPark1Wobble implements AutonomousStateMachi
     public void update() {
         switch (currentState) {
             case START:
-                robot.mecanum.setPoseEstimate(START_POSE);
+                robot.mecanum.setPoseEstimate(PoseStorage.START_POSE);
                 // start the movement. Note that this starts the angle change after the movement starts
                 robot.mecanum.followTrajectoryAsync(trajectoryToShootPosition);
                 robot.shooter.setAngle(AngleUnit.DEGREES, angleOfShot);
@@ -141,7 +139,7 @@ public class Autonomous3RingsHighGoalPark1Wobble implements AutonomousStateMachi
                 }
                 break;
             case READY_TO_SHOOT:
-                robot.fire3();
+                robot.quickFire3();
                 currentState = States.SHOOTING;
                 break;
             case SHOOTING:

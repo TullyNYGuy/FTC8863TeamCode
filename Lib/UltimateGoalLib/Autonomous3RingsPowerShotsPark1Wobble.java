@@ -34,6 +34,11 @@ public class Autonomous3RingsPowerShotsPark1Wobble implements AutonomousStateMac
         COMPLETE;
     }
 
+    public enum Mode {
+        TELEOP,
+        AUTONOMOUS;
+    }
+
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS
     //
@@ -75,6 +80,8 @@ public class Autonomous3RingsPowerShotsPark1Wobble implements AutonomousStateMac
 
     private ElapsedTime timer;
 
+    private Mode currentMode= Mode.AUTONOMOUS;
+
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -94,12 +101,13 @@ public class Autonomous3RingsPowerShotsPark1Wobble implements AutonomousStateMac
     // from it
     //*********************************************************************************************
 
-    public Autonomous3RingsPowerShotsPark1Wobble(UltimateGoalRobotRoadRunner robot, UltimateGoalField field, Telemetry telemetry) {
+    public Autonomous3RingsPowerShotsPark1Wobble(UltimateGoalRobotRoadRunner robot, UltimateGoalField field, Telemetry telemetry, Mode currentMode) {
         this.robot = robot;
         this.field = field;
         currentState = States.IDLE;
         distanceUnits = DistanceUnit.INCH;
         angleUnits = AngleUnit.DEGREES;
+        this.currentMode= currentMode;
 
         timer = new ElapsedTime();
 
@@ -119,6 +127,7 @@ public class Autonomous3RingsPowerShotsPark1Wobble implements AutonomousStateMac
         createTrajectories();
     }
 
+
     //*********************************************************************************************
     //          Helper Methods
     //
@@ -134,6 +143,8 @@ public class Autonomous3RingsPowerShotsPark1Wobble implements AutonomousStateMac
     public void createTrajectories() {
         trajectoryToLeftPowerShot = robot.mecanum.trajectoryBuilder(PoseStorage.START_POSE)
                 .lineTo(Pose2d8863.getVector2d(PoseStorage.SHOOTING_AT_LEFT_POWER_SHOT_POSE))
+               // .splineTo(Pose2d8863.getVector2d(PoseStorage.WAY_POINT), Math.toRadians(0.0))
+                //.splineTo(Pose2d8863.getVector2d(PoseStorage.SHOOTING_AT_LEFT_POWER_SHOT_POSE), Math.toRadians(0.0))
                 .build();
 
         trajectoryToMiddlePowerShot = robot.mecanum.trajectoryBuilder(PoseStorage.SHOOTING_AT_LEFT_POWER_SHOT_POSE)
@@ -158,18 +169,28 @@ public class Autonomous3RingsPowerShotsPark1Wobble implements AutonomousStateMac
 
     @Override
     public void start() {
-        currentState = States.START;
-        isComplete = false;
+        if (currentMode== Mode.AUTONOMOUS) {
+            currentState = States.START;
+            isComplete = false;
+            robot.mecanum.setPoseEstimate(PoseStorage.START_POSE);
+        }
+
+        if (currentMode== Mode.TELEOP) {
+            trajectoryToLeftPowerShot = robot.mecanum.trajectoryBuilder(robot.mecanum.getPoseEstimate())
+                    .lineTo(Pose2d8863.getVector2d(PoseStorage.SHOOTING_AT_LEFT_POWER_SHOT_POSE))
+                    .build();
+            currentState = States.START;
+            isComplete = false;
+        }
     }
 
     @Override
     public void update() {
         switch (currentState) {
             case START:
-                robot.mecanum.setPoseEstimate(PoseStorage.START_POSE);
                 // start the movement. Note that this starts the angle change after the movement starts
                 robot.mecanum.followTrajectoryAsync(trajectoryToLeftPowerShot);
-                robot.shooter.setAngle(AngleUnit.DEGREES, angleOfShot);
+                //robot.shooter.setAngle(AngleUnit.DEGREES, angleOfShot);
                 currentState = States.MOVING_TO_LEFT_POWER_SHOT;
                 break;
             case MOVING_TO_LEFT_POWER_SHOT:

@@ -11,8 +11,10 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.AutomaticTeleopFunctions;
+import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.Autonomous3RingsPowerShotsPark1Wobble;
 import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.PersistantStorage;
 import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.PoseStorage;
+import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.UltimateGoalField;
 import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.UltimateGoalGamepad;
 import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.UltimateGoalRobotRoadRunner;
 
@@ -30,8 +32,10 @@ public class TeleopUsingRoadRunner extends LinearOpMode {
     public UltimateGoalRobotRoadRunner robot;
     public UltimateGoalGamepad gamepad;
     public Configuration config;
+    public UltimateGoalField field;
 
     public AutomaticTeleopFunctions automaticTeleopFunctions;
+    public Autonomous3RingsPowerShotsPark1Wobble powerShots;
 
     private ElapsedTime timer;
 
@@ -67,7 +71,10 @@ public class TeleopUsingRoadRunner extends LinearOpMode {
 
         enableBulkReads(hardwareMap, LynxModule.BulkCachingMode.AUTO);
 
+        field= new UltimateGoalField();
+
         automaticTeleopFunctions = new AutomaticTeleopFunctions(robot);
+        powerShots= new Autonomous3RingsPowerShotsPark1Wobble (robot, field, telemetry, Autonomous3RingsPowerShotsPark1Wobble.Mode.TELEOP);
         // create the gamepad
         gamepad = new UltimateGoalGamepad(gamepad1, gamepad2, robot, automaticTeleopFunctions);
 

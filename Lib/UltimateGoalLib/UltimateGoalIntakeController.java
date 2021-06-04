@@ -25,7 +25,8 @@ public class UltimateGoalIntakeController implements FTCRobotSubsystem {
         TWO_RING,
         THREE_RING,
         BUMP_STAGE_ONE,
-        WAIT_FOR_BUMP;
+        WAIT_FOR_BUMP,
+        BUMP_STAGE_TWO;
     }
 
     private enum Commands {
@@ -35,7 +36,8 @@ public class UltimateGoalIntakeController implements FTCRobotSubsystem {
         FIRE_1,
         FIRE_2,
         FIRE_3,
-        BUMP_1;
+        BUMP_1,
+        BUMP_2;
     }
 
 
@@ -571,6 +573,13 @@ public class UltimateGoalIntakeController implements FTCRobotSubsystem {
         }
     }
 
+    public void requestBump2() {
+        if (commandComplete) {
+            turnOnTimer.reset();
+            currentCommand = Commands.BUMP_2;
+            currentState = States.BUMP_STAGE_TWO;
+        }
+    }
     public boolean isComplete() {
         return commandComplete;
     }
