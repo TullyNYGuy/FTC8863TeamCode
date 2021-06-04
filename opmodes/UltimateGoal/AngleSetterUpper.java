@@ -19,7 +19,7 @@ import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.UltimateGoalRobotRoadR
 
 import java.util.List;
 
-@TeleOp(name = "Teleop Roadrunner", group = "AA")
+@TeleOp(name = "shooter angle set up", group = "AA")
 //@Disabled
 
 public class AngleSetterUpper extends LinearOpMode {
@@ -71,7 +71,7 @@ public class AngleSetterUpper extends LinearOpMode {
        // automaticTeleopFunctions = new AutomaticTeleopFunctions(robot);
         // create the gamepad
         //gamepad = new UltimateGoalGamepad(gamepad1, gamepad2, robot);
-        robot.shooter.setMotorTicks(PersistantStorage.getMotorTicks());
+       // robot.shooter.setMotorTicks(PersistantStorage.getMotorTicks());
       //  gamepad = new UltimateGoalGamepad(gamepad1, gamepad2, robot, automaticTeleopFunctions);
 
 /*
@@ -116,6 +116,7 @@ public class AngleSetterUpper extends LinearOpMode {
 
         robot.loopTimer.startLoopTimer();
         robot.shooter.setAngle(AngleUnit.DEGREES,40);
+        robot.shooter.setMotorTicks(robot.shooter.getMotorTicks());
         //*********************************************************************************************
         //             Robot Running after the user hits play on the driver phone
         //*********************************************************************************************
