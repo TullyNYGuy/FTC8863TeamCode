@@ -76,7 +76,7 @@ public class Autonomous3RingsPowerShotsPark1Wobble implements AutonomousStateMac
     private double distanceToPowerShots = 0;
     private double distanceToLeftPowerShot = 0;
     private double angleOfShot = 0;
-    private boolean isComplete = false;
+    private boolean isComplete = true;
 
     private ElapsedTime timer;
 
@@ -190,6 +190,7 @@ public class Autonomous3RingsPowerShotsPark1Wobble implements AutonomousStateMac
             case START:
                 // start the movement. Note that this starts the angle change after the movement starts
                 robot.mecanum.followTrajectoryAsync(trajectoryToLeftPowerShot);
+                // todo uncomment this when the angle changer works
                 //robot.shooter.setAngle(AngleUnit.DEGREES, angleOfShot);
                 currentState = States.MOVING_TO_LEFT_POWER_SHOT;
                 break;

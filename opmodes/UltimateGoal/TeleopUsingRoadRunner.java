@@ -30,12 +30,11 @@ public class TeleopUsingRoadRunner extends LinearOpMode {
     //*********************************************************************************************
 
     public UltimateGoalRobotRoadRunner robot;
-    public UltimateGoalGamepad gamepad;
-    public Configuration config;
     public UltimateGoalField field;
+    public UltimateGoalGamepad gamepad;
+    public Configuration config = null;
 
     public AutomaticTeleopFunctions automaticTeleopFunctions;
-    public Autonomous3RingsPowerShotsPark1Wobble powerShots;
 
     private ElapsedTime timer;
 
@@ -73,8 +72,8 @@ public class TeleopUsingRoadRunner extends LinearOpMode {
 
         field= new UltimateGoalField();
 
-        automaticTeleopFunctions = new AutomaticTeleopFunctions(robot);
-        powerShots= new Autonomous3RingsPowerShotsPark1Wobble (robot, field, telemetry, Autonomous3RingsPowerShotsPark1Wobble.Mode.TELEOP);
+        automaticTeleopFunctions = new AutomaticTeleopFunctions(robot, field, telemetry);
+
         // create the gamepad
         gamepad = new UltimateGoalGamepad(gamepad1, gamepad2, robot, automaticTeleopFunctions);
 

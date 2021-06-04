@@ -120,8 +120,6 @@ public class UltimateGoalGamepad {
     private UltimateGoalRobotRoadRunner robot;
 
     private AutomaticTeleopFunctions automaticTeleopFunctions;
-
-    private Autonomous3RingsPowerShotsPark1Wobble powerShots;
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -137,12 +135,11 @@ public class UltimateGoalGamepad {
     // from it
     //*********************************************************************************************
 
-    public UltimateGoalGamepad(Gamepad gamepad1, Gamepad gamepad2, UltimateGoalRobotRoadRunner robot, AutomaticTeleopFunctions automaticTeleopFunctions, Autonomous3RingsPowerShotsPark1Wobble powerShots) {
+    public UltimateGoalGamepad(Gamepad gamepad1, Gamepad gamepad2, UltimateGoalRobotRoadRunner robot, AutomaticTeleopFunctions automaticTeleopFunctions) {
         this.robot = robot;
         this.gamepad1 = gamepad1;
         this.gamepad2 = gamepad2;
         this.automaticTeleopFunctions = automaticTeleopFunctions;
-        this.powerShots= powerShots;
 
         //
         //YOU WILL HAVE TO CONFIGURE THE GAMEPAD BUTTONS FOR TOGGLING IF YOU WANT THAT. DO THAT HERE.
@@ -402,7 +399,7 @@ public class UltimateGoalGamepad {
         if (gamepad2y.buttonPress(gamepad2.y)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            powerShots.start();
+            automaticTeleopFunctions.shootPowerShots();
         }
 
         if (gamepad2x.buttonPress(gamepad2.x)) {

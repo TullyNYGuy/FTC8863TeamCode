@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib;
 
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Pose2d8863;
 
 public class AutomaticTeleopFunctions {
@@ -36,7 +38,10 @@ public class AutomaticTeleopFunctions {
     //*********************************************************************************************
     private boolean commandComplete = true;
     private UltimateGoalRobotRoadRunner robot;
+    public UltimateGoalField field;
     private Trajectory trajectory;
+    public Autonomous3RingsPowerShotsPark1Wobble powerShots;
+
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -51,8 +56,10 @@ public class AutomaticTeleopFunctions {
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
-    public AutomaticTeleopFunctions(UltimateGoalRobotRoadRunner robot) {
+    public AutomaticTeleopFunctions(UltimateGoalRobotRoadRunner robot, UltimateGoalField field, Telemetry telemetry) {
         this.robot = robot;
+        this.field = field;
+        powerShots= new Autonomous3RingsPowerShotsPark1Wobble (robot, field, telemetry, Autonomous3RingsPowerShotsPark1Wobble.Mode.TELEOP);
     }
     //*********************************************************************************************
     //          Helper Methods
@@ -73,11 +80,16 @@ public class AutomaticTeleopFunctions {
         }
     }
 
+    public void shootPowerShots() {
+        powerShots.start();
+    }
+
     public boolean isBusy() {
-        return !commandComplete;
+        return (!commandComplete || !powerShots.isComplete());
     }
 
     public void update() {
+        powerShots.update();
         switch (currentCommand) {
             case MOVE_TO_HIGH_GOAL:
                 switch (currentState) {

@@ -11,6 +11,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.AutomaticTeleopFunctions;
+import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.UltimateGoalField;
 import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.UltimateGoalGamepad;
 import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.UltimateGoalRobotRoadRunner;
 
@@ -27,6 +28,7 @@ public class AutoUsingRoadRunner extends LinearOpMode {
 
     public UltimateGoalRobotRoadRunner robot;
     public UltimateGoalGamepad gamepad;
+    public UltimateGoalField field;
     public Configuration config;
 
     private AutomaticTeleopFunctions automaticTeleopFunctions;
@@ -63,9 +65,10 @@ public class AutoUsingRoadRunner extends LinearOpMode {
 
         enableBulkReads(hardwareMap, LynxModule.BulkCachingMode.AUTO);
 
-        automaticTeleopFunctions = new AutomaticTeleopFunctions(robot);
+        field = new UltimateGoalField();
+        automaticTeleopFunctions = new AutomaticTeleopFunctions(robot, field, telemetry);
         // create the gamepad
-        gamepad = new UltimateGoalGamepad(gamepad1, gamepad2, robot, automaticTeleopFunctions);
+        //gamepad = new UltimateGoalGamepad(gamepad1, gamepad2, robot, automaticTeleopFunctions, );
 
         timer.reset();
 
