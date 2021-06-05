@@ -141,6 +141,7 @@ public class AutomaticTeleopFunctions {
                         break;
                     case MOVING_TO_HIGH_GOAL:
                         if (!robot.mecanum.isBusy() && robot.shooter.isAngleAdjustmentComplete()) {
+                            robot.fire3();
                             robot.quickFire3();
                             currentState = States.SHOOTING;
                         }

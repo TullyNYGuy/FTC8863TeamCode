@@ -270,7 +270,7 @@ public class UltimateGoalGamepad {
         if (gamepad1y.buttonPress(gamepad1.y)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            robot.quickFire3();
+            robot.fire3();
         }
 
         if (gamepad1x.buttonPress(gamepad1.x)) {
