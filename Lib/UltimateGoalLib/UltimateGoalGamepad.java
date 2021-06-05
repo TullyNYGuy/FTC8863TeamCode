@@ -11,7 +11,7 @@ package org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib;
  *    / DPad Down        - stage 23 intake on/off
  *    / DPad Right       -
  *    / A                - Bump 1
- *    / B                -  EStop
+ *    / B                - EStop
  *    / X                - fire 1
  *    / Y                - quick fire 3
  *    /Left Bumper       - intake on/off
@@ -23,13 +23,13 @@ package org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib;
  *    / Right JoystickX  -
  *    / Right JoystickY  -
  *    / DPad Up          - angle for high goal
- *    / DPad Left        -  100% power
- *    / DPad Down        -angle for power shots
+ *    / DPad Left        - 100% power
+ *    / DPad Down        - angle for power shots
  *    / DPad Right       - 50% power
  *    / A                - re-home
  *    / B                -
- *    / X                -  auto shoot high goal
- *    / Y                - endgame power shots
+ *    / X                - auto shoot high goal
+ *    / Y                - auto shoot endgame power shots - 1st press goto location, 2nd press shoot
  *   /Left Bumper        - open/close wobble grabber
  *   /Right Bumper       - extend/retract wobble grabber
  */
@@ -408,13 +408,13 @@ public class UltimateGoalGamepad {
         if (gamepad2DpadUp.buttonPress(gamepad2.dpad_up)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-           // robot.setGameAngleHighGoal();
+            robot.setGameAngleHighGoal();
         }
 
         if (gamepad2DpadDown.buttonPress(gamepad2.dpad_down)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here\
-           // robot.setGameAnglePowerShots();
+            robot.setGameAnglePowerShots();
         }
 
         if (gamepad2DpadLeft.buttonPress(gamepad2.dpad_left)) {

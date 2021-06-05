@@ -4,6 +4,7 @@ package org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Pose2d8863;
 
@@ -135,10 +136,11 @@ public class AutomaticTeleopFunctions {
                         if (!robot.shooter.isReady()) {
                            robot.shooterOn();
                         }
+                        robot.shooter.setAngle(AngleUnit.DEGREES, PersistantStorage.getHighGoalShooterAngle());
                         currentState = States.MOVING_TO_HIGH_GOAL;
                         break;
                     case MOVING_TO_HIGH_GOAL:
-                        if (!robot.mecanum.isBusy()) {
+                        if (!robot.mecanum.isBusy() && robot.shooter.isAngleAdjustmentComplete()) {
                             robot.quickFire3();
                             currentState = States.SHOOTING;
                         }

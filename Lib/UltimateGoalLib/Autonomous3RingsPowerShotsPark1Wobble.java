@@ -121,7 +121,7 @@ public class Autonomous3RingsPowerShotsPark1Wobble implements AutonomousStateMac
         // gives a better angle calculation
         // todo - check the new calculation of shooter angle to see if it is closer to 23 degrees
         //angleOfShot = robot.shooter.calculateAngle(AngleUnit.DEGREES, distanceToPowerShots, DistanceUnit.METER, field.topGoal);
-        angleOfShot=23;
+        angleOfShot=PersistantStorage.getPowerShotShooterAngle();
         telemetry.addData("angle of shot = ", angleOfShot);
 
         createTrajectories();
@@ -190,8 +190,7 @@ public class Autonomous3RingsPowerShotsPark1Wobble implements AutonomousStateMac
             case START:
                 // start the movement. Note that this starts the angle change after the movement starts
                 robot.mecanum.followTrajectoryAsync(trajectoryToLeftPowerShot);
-                // todo uncomment this when the angle changer works
-                //robot.shooter.setAngle(AngleUnit.DEGREES, angleOfShot);
+                robot.shooter.setAngle(AngleUnit.DEGREES, angleOfShot);
                 currentState = States.MOVING_TO_LEFT_POWER_SHOT;
                 break;
             case MOVING_TO_LEFT_POWER_SHOT:

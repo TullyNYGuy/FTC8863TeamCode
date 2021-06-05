@@ -80,7 +80,7 @@ public class Autonomous3RingsHighGoalPark1Wobble implements AutonomousStateMachi
 
         distanceToTopGoal = field.distanceTo(DistanceUnit.METER, PoseStorage.SHOOTING_AT_HIGH_GOAL, field.topGoal.getPose2d());
         //angleOfShot = robot.shooter.calculateAngle(AngleUnit.DEGREES, distanceToTopGoal, DistanceUnit.METER, field.topGoal);
-        angleOfShot = 27.0;
+        angleOfShot = PersistantStorage.getHighGoalShooterAngle();
         telemetry.addData("angle of shot = ", angleOfShot);
 
         createTrajectories();

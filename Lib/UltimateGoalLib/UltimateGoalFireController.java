@@ -140,7 +140,6 @@ public class UltimateGoalFireController implements FTCRobotSubsystem {
                         break;
                     case QUICK_FIRE_3:
                         if (intakeController.isComplete()) {
-
                             currentState = States.CHECK_SHOOTER_SPEED;
                         }
                         break;

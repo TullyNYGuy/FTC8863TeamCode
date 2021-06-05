@@ -9,7 +9,8 @@ public class PersistantStorage {
 
     // public static DATA FIELDS that persist between opmodes
 
-    // angle changer object
+    private static Integer motorTicks;
+
     public static int getMotorTicks (){
         if (motorTicks == null){
             motorTicks = new Integer(0);
@@ -19,6 +20,9 @@ public class PersistantStorage {
     public static void setMotorTicks(int motorTicks){
         PersistantStorage.motorTicks = motorTicks;
     }
+
+    private static Double shooterAngle;
+
     public static double getShooterAngle(AngleUnit units) {
         if (shooterAngle==null){
             shooterAngle=new Double(0);
@@ -29,8 +33,16 @@ public class PersistantStorage {
     public static void setShooterAngle(double shooterAngle, AngleUnit units) {
         PersistantStorage.shooterAngle = AngleUnit.RADIANS.fromUnit(units, shooterAngle);
     }
-    private static Integer motorTicks;
-    private static Double shooterAngle;
 
     public static Pose2d robotPose;
+
+    private final static double HIGH_GOAL_SHOOTER_ANGLE = 27.0;
+    public static double getHighGoalShooterAngle() {
+        return HIGH_GOAL_SHOOTER_ANGLE;
+    }
+
+    private final static double POWER_SHOT_SHOOTER_ANGLE = 25.0;
+    public static double getPowerShotShooterAngle() {
+        return POWER_SHOT_SHOOTER_ANGLE;
+    }
 }
