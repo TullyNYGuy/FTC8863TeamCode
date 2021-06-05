@@ -22,4 +22,8 @@ public class PoseStorage {
     public static Pose2d PARK_POSE = new Pose2d(15, -18.9, Math.toRadians(180));
     public static Pose2d ZERO_POSE = new Pose2d(0, 0, Math.toRadians(180));
     public static Pose2d HIGH_GOAL_WAY_POINT = new Pose2d(-23, 5, Math.toRadians(180.0));
+    public static Pose2d PICKUP_POSE = new Pose2d(-10.5, -11, Math.toRadians(180.0));
+    public static Pose2d PICKUP_POSE_FIRST_RING = new Pose2d(-14, -11, Math.toRadians(180.0));
+    public static Pose2d PICKUP_POSE_SECOND_RING = new Pose2d(-15.5, -11, Math.toRadians(180.0));
+    public static Pose2d PICKUP_POSE_THIRD_RING = new Pose2d(-17, -11, Math.toRadians(180.0));
 }
