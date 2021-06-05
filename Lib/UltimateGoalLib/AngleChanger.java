@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib;
 
 
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -9,6 +10,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.RampControl;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Switch;
 
 public class AngleChanger {
 
@@ -32,6 +34,7 @@ public class AngleChanger {
    // private AngleUnit angleUnit = AngleUnit.RADIANS;
 
     private DcMotor8863 motor;
+    private Switch limitSwitch;
 
     // The current angle is stored in PersistantStorage.shooterAngle
     private final double MAX_ANGLE = AngleUnit.RADIANS.fromDegrees(40);
@@ -54,7 +57,7 @@ public class AngleChanger {
     public int getMotorTicks(){
         return motor.getBaseEncoderCount();
     }
-    public void setCurrentAngle(AngleUnit units, double desiredAngle) {
+     public void setCurrentAngle(AngleUnit units, double desiredAngle) {
        desiredAngle = units.toRadians(desiredAngle);
         if (desiredAngle > MAX_ANGLE) {
             desiredAngle = MAX_ANGLE;
@@ -70,23 +73,33 @@ public class AngleChanger {
     public void setMotorticks(int motorTicks){
         motor.setBaseEncoderCount(motorTicks);
     }
+
+    public void resetMotor() {
+        motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    }
     //*********************************************************************************************
     //          Constructors
     //
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
+    public void angleLower(){
+        setAngleNegative(AngleUnit.DEGREES, -36);
+    }
     public AngleChanger(HardwareMap hardwareMap, Telemetry telemetry) {
         motor = new DcMotor8863(UltimateGoalRobotRoadRunner.HardwareName.LEAD_SCREW_MOTOR.hwName, hardwareMap, telemetry);
         motor.setMotorType(DcMotor8863.MotorType.ANDYMARK_20_ORBITAL);
         motor.setMovementPerRev(8);
         motor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
+        limitSwitch = new Switch(hardwareMap, UltimateGoalRobotRoadRunner.HardwareName.ANGLECHANGERLIMITSWITCH.hwName, Switch.SwitchType.NORMALLY_OPEN);
      }
 
     public static void clearAngleChanger(){
         PersistantStorage.setShooterAngle(0, AngleUnit.DEGREES);
     }
-
+    public boolean isSwitchTriggered(){
+        return limitSwitch.isPressed();
+    }
     //*********************************************************************************************
     //          Helper Methods
     //
