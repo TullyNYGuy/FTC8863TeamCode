@@ -102,14 +102,9 @@ public class AngleSetterUpper extends LinearOpMode {
         telemetry.addData("Press A on gamepad 1 to setup the start angle for the shooter", "!");
         telemetry.update();
 
-        // todo comment this out for real code
-        timer.reset();
-        while(opModeIsActive() && timer.milliseconds() < 3000){
+        while(opModeIsActive() && !gamepad1.a) {
             idle();
         }
-//        while(opModeIsActive() && !gamepad1.a) {
-//            idle();
-//        }
 
         // a has been pressed so change the shooter angle to the start angle
 
@@ -124,15 +119,10 @@ public class AngleSetterUpper extends LinearOpMode {
         telemetry.addData("Press A to end this routine", "!");
         telemetry.update();
 
-        // todo comment this out for real code
-        timer.reset();
-        while(opModeIsActive() && timer.milliseconds() < 3000){
+
+        while(opModeIsActive() && !gamepad1.a) {
             idle();
         }
-
-//        while(opModeIsActive() && !gamepad1.a) {
-//            idle();
-//        }
 
 //        while (opModeIsActive()) {
 //            // update the robot
