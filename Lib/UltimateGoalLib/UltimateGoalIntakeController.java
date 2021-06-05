@@ -547,9 +547,9 @@ public class UltimateGoalIntakeController implements FTCRobotSubsystem {
     public void requestIntakeToggleOnOff() {
         if (commandComplete) {
             if (intake.isOn()) {
-                requestIntake();
-            } else {
                 requestOff();
+            } else {
+                requestIntake();
             }
         }
     }
