@@ -56,7 +56,7 @@ public class UltimateGoalRobotRoadRunner implements FTCRobot {
         STAGE_3_SERVO("stage3servo"),
         GRABBER_SERVO("grabberServo"),
         ARM_ROTATION_SERVO("armRotationServo"),
-        ANGLECHANGERLIMITSWITCH("angleAdjusterSwitch");
+        ANGLE_CHANGER_LIMIT_SWITCH("angleAdjusterSwitch");
         public final String hwName;
 
         HardwareName(String name) {

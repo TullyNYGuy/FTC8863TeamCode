@@ -76,7 +76,8 @@ public class TeleopUsingRoadRunner extends LinearOpMode {
 
         // create the gamepad
         //gamepad = new UltimateGoalGamepad(gamepad1, gamepad2, robot);
-        robot.shooter.setMotorTicks(PersistantStorage.getMotorTicks());
+        //robot.shooter.setMotorTicks(PersistantStorage.getMotorTicks());
+        robot.shooter.restoreAngleInfo();
         gamepad = new UltimateGoalGamepad(gamepad1, gamepad2, robot, automaticTeleopFunctions);
 
 

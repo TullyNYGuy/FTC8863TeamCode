@@ -50,15 +50,7 @@ public class Shooter implements FTCRobotSubsystem {
     // allow access to private data fields for example setMotorPower,
     // getPositionInTermsOfAttachment
     //*********************************************************************************************
-    public int getMotorTicks(){
-        return angleChanger.getMotorTicks();
-    }
-    public void resetMotor(){
-        angleChanger.resetMotor();
-    }
-    public void setMotorTicks(int motorTicks){
-        angleChanger.setMotorticks(motorTicks);
-    }
+
     //*********************************************************************************************
     //          Constructors
     //
@@ -139,6 +131,48 @@ public class Shooter implements FTCRobotSubsystem {
             setSpeed(5000);
         }
     }
+
+    public void resetAngleToZero() {
+        angleChanger.resetAngleToZero();
+    }
+
+    public void setToStartAngle() {
+        angleChanger.setToStartAngle();
+    }
+
+    public boolean isResetToZeroComplete() {
+        return angleChanger.isResetToZeroComplete();
+    }
+
+    public boolean isStartAngleReached() {
+        return angleChanger.isStartAngleReached();
+    }
+
+    public double getStartAngle(AngleUnit desiredUnits) {
+        return angleChanger.getStartAngle(desiredUnits);
+    }
+
+    public void restoreAngleInfo() {
+        angleChanger.restoreAngleInfo();
+    }
+
+    public void saveAngleInfoForLater() {
+        angleChanger.saveAngleInfoForLater();
+    }
+
+//    public int getMotorTicks(){
+//        return angleChanger.getMotorTicks();
+//    }
+//
+//    public void setMotorTicks(int motorTicks){
+//        angleChanger.setMotorticks(motorTicks);
+//    }
+//
+//    public void resetMotor(){
+//        angleChanger.resetMotor();
+//    }
+
+
     @Override
     public String getName() {
         return "Shooter";
@@ -148,12 +182,12 @@ public class Shooter implements FTCRobotSubsystem {
     public boolean isInitComplete() {
         return true;
     }
-    public boolean isSwitchTriggered(){
-        return angleChanger.isSwitchTriggered();
-    }
-    public void angleLower(){
-        angleChanger.angleLower();
-    }
+//    public boolean isSwitchTriggered(){
+//        return angleChanger.isSwitchTriggered();
+//    }
+//    public void angleLower(){
+//        angleChanger.angleLower();
+//    }
     @Override
     public boolean init(Configuration config) {
         dualMotorGearBox.init(config);

@@ -12,6 +12,8 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.RampControl;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Switch;
 
+import java.security.acl.AclNotFoundException;
+
 public class AngleChanger {
 
     //*********************************************************************************************
@@ -20,6 +22,14 @@ public class AngleChanger {
     // user defined types
     //
     //*********************************************************************************************
+
+    private enum States {
+        IDLE,
+        MOVING_TO_ZERO,
+        MOVING_TO_START_ANGLE
+    }
+
+    private States currentState = States.IDLE;
 
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS
@@ -39,7 +49,10 @@ public class AngleChanger {
     // The current angle is stored in PersistantStorage.shooterAngle
     private final double MAX_ANGLE = AngleUnit.RADIANS.fromDegrees(40);
     private final double MIN_ANGLE = AngleUnit.RADIANS.fromDegrees(0);
+    private final double START_ANGLE = AngleUnit.RADIANS.fromDegrees(30);
 
+    private boolean resetToZeroComplete = false;
+    private boolean startAngleReached = false;
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -51,13 +64,30 @@ public class AngleChanger {
     }
 
     public double getCurrentAngle(AngleUnit desiredUnits) {
-
         return PersistantStorage.getShooterAngle(desiredUnits);
     }
+
+    public double getStartAngle (AngleUnit desiredUnits) {
+        return desiredUnits.fromRadians(START_ANGLE);
+    }
+
+    public boolean isResetToZeroComplete() {
+        return resetToZeroComplete;
+    }
+
+    public boolean isStartAngleReached() {
+        return startAngleReached;
+    }
+
     public int getMotorTicks(){
         return motor.getBaseEncoderCount();
     }
-     public void setCurrentAngle(AngleUnit units, double desiredAngle) {
+
+    public void setMotorticks(int motorTicks){
+        motor.setBaseEncoderCount(motorTicks);
+    }
+
+    public void setCurrentAngle(AngleUnit units, double desiredAngle) {
        desiredAngle = units.toRadians(desiredAngle);
         if (desiredAngle > MAX_ANGLE) {
             desiredAngle = MAX_ANGLE;
@@ -70,36 +100,26 @@ public class AngleChanger {
         motor.moveToPosition(1, calculateLeadScrewPosition(AngleUnit.RADIANS, desiredAngle), DcMotor8863.FinishBehavior.HOLD);
     }
 
-    public void setMotorticks(int motorTicks){
-        motor.setBaseEncoderCount(motorTicks);
-    }
 
-    public void resetMotor() {
-        motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-    }
     //*********************************************************************************************
     //          Constructors
     //
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
-    public void angleLower(){
-        setAngleNegative(AngleUnit.DEGREES, -36);
-    }
     public AngleChanger(HardwareMap hardwareMap, Telemetry telemetry) {
         motor = new DcMotor8863(UltimateGoalRobotRoadRunner.HardwareName.LEAD_SCREW_MOTOR.hwName, hardwareMap, telemetry);
         motor.setMotorType(DcMotor8863.MotorType.ANDYMARK_20_ORBITAL);
         motor.setMovementPerRev(8);
         motor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
-        limitSwitch = new Switch(hardwareMap, UltimateGoalRobotRoadRunner.HardwareName.ANGLECHANGERLIMITSWITCH.hwName, Switch.SwitchType.NORMALLY_OPEN);
+        limitSwitch = new Switch(hardwareMap, UltimateGoalRobotRoadRunner.HardwareName.ANGLE_CHANGER_LIMIT_SWITCH.hwName, Switch.SwitchType.NORMALLY_OPEN);
      }
 
     public static void clearAngleChanger(){
         PersistantStorage.setShooterAngle(0, AngleUnit.DEGREES);
+        PersistantStorage.setMotorTicks(0);
     }
-    public boolean isSwitchTriggered(){
-        return limitSwitch.isPressed();
-    }
+
     //*********************************************************************************************
     //          Helper Methods
     //
@@ -138,14 +158,41 @@ public class AngleChanger {
         motor.moveToPosition(0.3, calculateLeadScrewPosition(AngleUnit.RADIANS, desiredAngle), DcMotor8863.FinishBehavior.HOLD);
     }
 
-
-
     public void setAngleReference() {
        PersistantStorage.setShooterAngle(0, AngleUnit.RADIANS);
     }
 
     public void update() {
         motor.update();
+        switch (currentState) {
+            case IDLE:
+                break;
+            case MOVING_TO_ZERO:
+                if (limitSwitch.isPressed()) {
+                    // turn the motor off
+                    motor.setPower(0);
+                    // We are about to reset all info about the motor to 0
+                    PersistantStorage.setMotorTicks(0);
+                    motor.setBaseEncoderCount(0);
+                    // save the angle to persistant storage
+                    PersistantStorage.setShooterAngle(0, AngleUnit.DEGREES);
+                    // reset the motor to zero the encoder kept in the control hub
+                    motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                    // and the movement to zero is complete
+                    resetToZeroComplete = true;
+                    currentState = States.IDLE;
+                }
+                break;
+            case MOVING_TO_START_ANGLE:
+                if (isAngleAdjustComplete()) {
+                    // the shooter has arrived at the desired angle
+                    startAngleReached = true;
+                    // save the encouder count so we can use it later to set the base encoder count
+                    saveAngleInfoForLater();
+                    currentState = States.IDLE;
+                }
+                break;
+        }
     }
 
     public boolean isAngleAdjustComplete() {
@@ -155,4 +202,47 @@ public class AngleChanger {
     public boolean init(Configuration config) {
         return true;
     }
+
+    public void resetAngleToZero() {
+        // set the motor to run under velocity control
+        // We don't want to run to position here because the motor will keep running until it gets reset
+        // Running under velocity control is better
+        // Negative power is decreasing the angle
+        motor.runAtConstantSpeed(-.3);
+        // we are now starting the reset to zero
+        resetToZeroComplete = false;
+        currentState = States.MOVING_TO_ZERO;
+    }
+
+    public void setToStartAngle() {
+        // run the motor in run to position mode
+        // just in case this is called from a point when the angle changes was not at zero
+        motor.setBaseEncoderCount(PersistantStorage.getMotorTicks());
+        // we want the motor to hold its position once it reaches the start angle
+        motor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
+        setCurrentAngle(AngleUnit.RADIANS, START_ANGLE);
+        // we are now starting to move to the start angle
+        startAngleReached = false;
+        currentState = States.MOVING_TO_START_ANGLE;
+    }
+
+    public void restoreAngleInfo() {
+        motor.setBaseEncoderCount(PersistantStorage.getMotorTicks());
+    }
+
+    public void saveAngleInfoForLater() {
+        PersistantStorage.setMotorTicks(motor.getCurrentPosition());
+    }
+
+//    public void resetMotor() {
+//        motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//    }
+
+//    public boolean isSwitchTriggered(){
+//        return limitSwitch.isPressed();
+//    }
+
+//    public void angleLower(){
+//        setAngleNegative(AngleUnit.DEGREES, -36);
+//    }
 }

@@ -60,7 +60,13 @@ public class AutonomousUsingRoadRunner extends LinearOpMode {
         robot = new UltimateGoalRobotRoadRunner(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, this);
         robot.createRobot();
         enableBulkReads(hardwareMap, LynxModule.BulkCachingMode.AUTO);
-        robot.shooter.setMotorTicks(PersistantStorage.getMotorTicks());
+
+        // the angle changer knows how to do this. My opinion is that you should not be down in these
+        // details
+        //robot.shooter.setMotorTicks(PersistantStorage.getMotorTicks());
+        // This is the level of detail you need to know:
+        robot.shooter.restoreAngleInfo();
+
         // todo Change the constructor call to change out to a different autonomous
         autonomous = new Autonomous3RingsPowerShotsPark1Wobble(robot, field, telemetry, Autonomous3RingsPowerShotsPark1Wobble.Mode.AUTONOMOUS);
         //autonomous = new Autonomous3RingsHighGoalPark1Wobble(robot, field, telemetry);
@@ -83,8 +89,15 @@ public class AutonomousUsingRoadRunner extends LinearOpMode {
             autonomous.update();
         }
 
+        // save the pose so we can use it to start out in teleop
         PersistantStorage.robotPose = robot.mecanum.getPoseEstimate();
-        PersistantStorage.setMotorTicks(robot.shooter.getMotorTicks());
+
+        // save the shooter angle so we can use it later in teleop
+        // the angle changer knows how to do this. My opinion is that you should not be down in these
+        // details
+        //PersistantStorage.setMotorTicks(robot.shooter.getMotorTicks());
+        robot.shooter.saveAngleInfoForLater();
+
         robot.shutdown();
         dataLog.closeDataLog();
         telemetry.addData(">", "Done");
