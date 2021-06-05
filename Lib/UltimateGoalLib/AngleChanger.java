@@ -49,7 +49,7 @@ public class AngleChanger {
     // The current angle is stored in PersistantStorage.shooterAngle
     private final double MAX_ANGLE = AngleUnit.RADIANS.fromDegrees(40);
     private final double MIN_ANGLE = AngleUnit.RADIANS.fromDegrees(0);
-    private final double START_ANGLE = AngleUnit.RADIANS.fromDegrees(30);
+    private final double START_ANGLE = AngleUnit.RADIANS.fromDegrees(37);
 
     private boolean resetToZeroComplete = false;
     private boolean startAngleReached = false;
@@ -79,13 +79,16 @@ public class AngleChanger {
         return startAngleReached;
     }
 
-    public int getMotorTicks(){
-        return motor.getBaseEncoderCount();
-    }
-
-    public void setMotorticks(int motorTicks){
-        motor.setBaseEncoderCount(motorTicks);
-    }
+    // It is probably not a good idea to allow the general public to be messing with the motor
+    // base encoder. You can keep this internal to this class by moving all that functionality
+    // into this class.
+//    public int getMotorTicks(){
+//        return motor.getBaseEncoderCount();
+//    }
+//
+//    public void setMotorticks(int motorTicks){
+//        motor.setBaseEncoderCount(motorTicks);
+//    }
 
     public void setCurrentAngle(AngleUnit units, double desiredAngle) {
        desiredAngle = units.toRadians(desiredAngle);
@@ -158,9 +161,9 @@ public class AngleChanger {
         motor.moveToPosition(0.3, calculateLeadScrewPosition(AngleUnit.RADIANS, desiredAngle), DcMotor8863.FinishBehavior.HOLD);
     }
 
-    public void setAngleReference() {
-       PersistantStorage.setShooterAngle(0, AngleUnit.RADIANS);
-    }
+//    public void setAngleReference() {
+//       PersistantStorage.setShooterAngle(0, AngleUnit.RADIANS);
+//    }
 
     public void update() {
         motor.update();
@@ -232,6 +235,18 @@ public class AngleChanger {
 
     public void saveAngleInfoForLater() {
         PersistantStorage.setMotorTicks(motor.getCurrentPosition());
+    }
+
+    public void displaySwitchStatus(Telemetry telemetry) {
+        if (limitSwitch.isPressed()) {
+            telemetry.addData("Angle changer limit switch IS PRESSED", "!");
+        } else {
+            telemetry.addData("Angle changer limit switch IS NOT PRESSED", ".");
+        }
+    }
+
+    public int getMotorEncoderCount() {
+        return motor.getCurrentPosition();
     }
 
 //    public void resetMotor() {

@@ -63,8 +63,13 @@ public class AngleSetterUpper extends LinearOpMode {
         // create the robot and run the init for it
         robot.createRobot();
 
-        PersistantStorage.setShooterAngle(0,AngleUnit.DEGREES);
-        PersistantStorage.setMotorTicks(0);
+        // Exposing the angle changer guts to the world is a bit scary. You just don't know what
+        // Kellen is going to do to it. Instead make those dangerous calls private and only let him
+        // have access in a controlled way. It is
+        // less dangerous - cause he is a dangerous kind of guy!
+        robot.shooter.clearAngleChanger();
+        //PersistantStorage.setShooterAngle(0,AngleUnit.DEGREES);
+        //PersistantStorage.setMotorTicks(0);
 
         enableBulkReads(hardwareMap, LynxModule.BulkCachingMode.AUTO);
 
@@ -97,9 +102,14 @@ public class AngleSetterUpper extends LinearOpMode {
         telemetry.addData("Press A on gamepad 1 to setup the start angle for the shooter", "!");
         telemetry.update();
 
-        while(opModeIsActive() && !gamepad1.a) {
+        // todo comment this out for real code
+        timer.reset();
+        while(opModeIsActive() && timer.milliseconds() < 3000){
             idle();
         }
+//        while(opModeIsActive() && !gamepad1.a) {
+//            idle();
+//        }
 
         // a has been pressed so change the shooter angle to the start angle
 
@@ -111,12 +121,18 @@ public class AngleSetterUpper extends LinearOpMode {
 
         telemetry.addData("Start angle reached = ", robot.shooter.getStartAngle(AngleUnit.DEGREES));
         telemetry.addData("Start angle and motor encoder saved to persistant storage.", "");
-        telemetry.addData("Press a to end this routine", "!");
+        telemetry.addData("Press A to end this routine", "!");
         telemetry.update();
 
-        while(opModeIsActive() && !gamepad1.a) {
+        // todo comment this out for real code
+        timer.reset();
+        while(opModeIsActive() && timer.milliseconds() < 3000){
             idle();
         }
+
+//        while(opModeIsActive() && !gamepad1.a) {
+//            idle();
+//        }
 
 //        while (opModeIsActive()) {
 //            // update the robot

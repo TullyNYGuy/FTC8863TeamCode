@@ -160,6 +160,14 @@ public class Shooter implements FTCRobotSubsystem {
         angleChanger.saveAngleInfoForLater();
     }
 
+    public void clearAngleChanger() {
+        angleChanger.clearAngleChanger();
+    }
+
+    public void displaySwitchStatus(Telemetry telemetry) {
+        angleChanger.displaySwitchStatus(telemetry);
+    }
+
 //    public int getMotorTicks(){
 //        return angleChanger.getMotorTicks();
 //    }
