@@ -98,13 +98,29 @@ public class AngleSetterUpper extends LinearOpMode {
 
 //        robot.shooter.setAngle(AngleUnit.DEGREES,20);
 
+
         telemetry.addData("Shooter angle is now 0", "!");
-        telemetry.addData("Press A on gamepad 1 to setup the start angle for the shooter", "!");
+        telemetry.addData("Press A on gamepad 1 to set start angle", "!");
         telemetry.update();
 
         while(opModeIsActive() && !gamepad1.a) {
             idle();
         }
+
+//        telemetry.addData("Shooter angle is now 0", "!");
+//        telemetry.addData("Press A on gamepad 1 to load rings", "!");
+//        telemetry.update();
+//
+//
+//        robot.intakeOn();
+//        while(opModeIsActive() && !gamepad1.a) {
+//            robot.update();
+//            idle();
+//        }
+
+        telemetry.addData("Shooter angle is now 0", "!");
+        telemetry.addData("Press A on gamepad 1 to set start angle", "!");
+        telemetry.update();
 
         // a has been pressed so change the shooter angle to the start angle
 

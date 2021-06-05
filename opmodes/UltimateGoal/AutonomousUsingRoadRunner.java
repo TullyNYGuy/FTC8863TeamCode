@@ -68,8 +68,8 @@ public class AutonomousUsingRoadRunner extends LinearOpMode {
         robot.shooter.restoreAngleInfo();
 
         // todo Change the constructor call to change out to a different autonomous
-        autonomous = new Autonomous3RingsPowerShotsPark1Wobble(robot, field, telemetry, Autonomous3RingsPowerShotsPark1Wobble.Mode.AUTONOMOUS);
-        //autonomous = new Autonomous3RingsHighGoalPark1Wobble(robot, field, telemetry);
+        //autonomous = new Autonomous3RingsPowerShotsPark1Wobble(robot, field, telemetry, Autonomous3RingsPowerShotsPark1Wobble.Mode.AUTONOMOUS);
+        autonomous = new Autonomous3RingsHighGoalPark1Wobble(robot, field, telemetry);
 
         timer.reset();
         robot.loopTimer.startLoopTimer();
