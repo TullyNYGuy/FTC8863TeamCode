@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.WobbleGoalGrabber;
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
 @TeleOp(name = "Test Wobble Goal Grabber", group = "Test")
-//@Disabled
+@Disabled
 public class TestWobbleGoalGrabber extends LinearOpMode {
 
     // Put your variable declarations here
