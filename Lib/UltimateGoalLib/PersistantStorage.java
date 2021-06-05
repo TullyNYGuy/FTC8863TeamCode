@@ -36,7 +36,7 @@ public class PersistantStorage {
 
     public static Pose2d robotPose;
 
-    private final static double HIGH_GOAL_SHOOTER_ANGLE = 27.0;
+    private final static double HIGH_GOAL_SHOOTER_ANGLE = 31.0;
     public static double getHighGoalShooterAngle() {
         return HIGH_GOAL_SHOOTER_ANGLE;
     }

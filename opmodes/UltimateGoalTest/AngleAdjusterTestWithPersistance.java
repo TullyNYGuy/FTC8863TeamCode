@@ -107,6 +107,7 @@ public class AngleAdjusterTestWithPersistance extends LinearOpMode {
             idle();
         }
 
+        angleChanger.saveAngleInfoForLater();
         // Put your cleanup code here - it runs as the application shuts down
         telemetry.addData(">", "Done");
         telemetry.update();

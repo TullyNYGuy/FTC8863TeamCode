@@ -146,7 +146,7 @@ public class AutomaticTeleopFunctions {
                         }
                         break;
                     case SHOOTING:
-                        if (robot.fireController.isComplete()) {
+                        if (robot.isFireComplete()) {
                             commandComplete = true;
                             currentState = States.IDLE;
                             currentCommand = Commands.NO_COMMAND;
