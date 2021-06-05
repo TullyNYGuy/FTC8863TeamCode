@@ -28,8 +28,10 @@ package org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib;
  *    / DPad Right       - 50% power
  *    / A                - re-home
  *    / B                -
- *    / X                - go to zero position
+ *    / X                -  auto shoot high goal
  *    / Y                - endgame power shots
+ *   /Left Bumper        - open/close wobble grabber
+ *   /Right Bumper       - extend/retract wobble grabber
  */
 
 import com.qualcomm.robotcore.hardware.Gamepad;
@@ -364,11 +366,13 @@ public class UltimateGoalGamepad {
         if (gamepad2RightBumper.buttonPress(gamepad2.right_bumper)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
+            robot.wobbleGoalGrabber.extendOrRetractGrabber();
         }
 
         if (gamepad2LeftBumper.buttonPress(gamepad2.left_bumper)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
+            robot.wobbleGoalGrabber.openOrCloseGrabber();
         }
 
         if (gamepad2a.buttonPress(gamepad2.a)) {

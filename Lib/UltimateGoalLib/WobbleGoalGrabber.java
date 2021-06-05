@@ -65,6 +65,9 @@ public class WobbleGoalGrabber implements FTCRobotSubsystem {
     private boolean commandComplete = true;
     private ElapsedTime timer;
 
+    private boolean wobbleGrabberOpen;
+    private boolean wobbleArmRetracted;
+
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -115,18 +118,40 @@ public class WobbleGoalGrabber implements FTCRobotSubsystem {
     //*********************************************************************************************
     public void extendArm() {
         armRotationServo.goPositionOne();
+        wobbleArmRetracted = false;
     }
 
     public void retractArm() {
         armRotationServo.goHome();
+        wobbleArmRetracted = true;
     }
 
     public void openGrabber() {
         grabberServo.goPositionOne();
+        wobbleGrabberOpen = true;
     }
 
     public void closeGrabber() {
         grabberServo.goHome();
+        wobbleGrabberOpen = false;
+    }
+
+    public void extendOrRetractGrabber(){
+        if(wobbleArmRetracted){
+            extendArm();
+        }
+        else{
+            retractArm();
+        }
+    }
+
+    public void openOrCloseGrabber(){
+        if(wobbleGrabberOpen){
+            closeGrabber();
+        }
+        else{
+            openGrabber();
+        }
     }
 
     //*********************************************************************************************
