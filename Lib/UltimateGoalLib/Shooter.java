@@ -53,6 +53,9 @@ public class Shooter implements FTCRobotSubsystem {
     public int getMotorTicks(){
         return angleChanger.getMotorTicks();
     }
+    public void resetMotor(){
+        angleChanger.resetMotor();
+    }
     public void setMotorTicks(int motorTicks){
         angleChanger.setMotorticks(motorTicks);
     }
@@ -145,7 +148,12 @@ public class Shooter implements FTCRobotSubsystem {
     public boolean isInitComplete() {
         return true;
     }
-
+    public boolean isSwitchTriggered(){
+        return angleChanger.isSwitchTriggered();
+    }
+    public void angleLower(){
+        angleChanger.angleLower();
+    }
     @Override
     public boolean init(Configuration config) {
         dualMotorGearBox.init(config);

@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.opmodes.UltimateGoal;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.util.Angle;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -11,11 +13,13 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Switch;
 import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.AutomaticTeleopFunctions;
 import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.PersistantStorage;
 import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.PoseStorage;
 import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.UltimateGoalGamepad;
 import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.UltimateGoalRobotRoadRunner;
+import org.firstinspires.ftc.teamcode.opmodes.SkystoneDiagnostics.TestDualLiftLimitSwitches;
 
 import java.util.List;
 
@@ -31,7 +35,7 @@ public class AngleSetterUpper extends LinearOpMode {
     public UltimateGoalRobotRoadRunner robot;
    // public UltimateGoalGamepad gamepad;
     public Configuration config;
-
+public Switch limitSwitch;
     //public AutomaticTeleopFunctions automaticTeleopFunctions;
 
     private ElapsedTime timer;
@@ -63,10 +67,13 @@ public class AngleSetterUpper extends LinearOpMode {
         PersistantStorage.setShooterAngle(0,AngleUnit.DEGREES);
         PersistantStorage.setMotorTicks(0);
         robot = new UltimateGoalRobotRoadRunner(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, this);
-
+        FtcDashboard.start();
         // create the robot and run the init for it
         robot.createRobot();
 
+
+        PersistantStorage.setShooterAngle(0,AngleUnit.DEGREES);
+        PersistantStorage.setMotorTicks(0);
         enableBulkReads(hardwareMap, LynxModule.BulkCachingMode.AUTO);
 
        // automaticTeleopFunctions = new AutomaticTeleopFunctions(robot);
@@ -114,7 +121,15 @@ public class AngleSetterUpper extends LinearOpMode {
 
 
         waitForStart();
+        robot.shooter.angleLower();
+        while(!robot.shooter.isSwitchTriggered() && opModeIsActive()){
 
+            robot.update();
+        }
+        PersistantStorage.setShooterAngle( 0,AngleUnit.DEGREES);
+        PersistantStorage.setMotorTicks(0);
+        robot.shooter.resetMotor();
+       // robot.shooter.setMotorTicks(robot.shooter.getMotorTicks());
         robot.loopTimer.startLoopTimer();
         robot.shooter.setAngle(AngleUnit.DEGREES,20);
 
@@ -146,7 +161,7 @@ public class AngleSetterUpper extends LinearOpMode {
             robot.update();
 
             // feedback on the driver station
-            robot.displaySwitches();
+            //robot.displaySwitches();
            //  gamepad.displayGamepad1JoystickValues(telemetry);
 
             telemetry.addData(">", "Press Stop to end.");
