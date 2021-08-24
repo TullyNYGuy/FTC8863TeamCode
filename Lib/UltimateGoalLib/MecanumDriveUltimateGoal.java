@@ -493,4 +493,8 @@ public class MecanumDriveUltimateGoal extends MecanumDrive implements FTCRobotSu
     public boolean init(Configuration config) {
         return true;
     }
+
+    //our methods are below here
+
+    
 }
