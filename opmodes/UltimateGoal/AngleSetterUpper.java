@@ -59,7 +59,7 @@ public class AngleSetterUpper extends LinearOpMode {
         timer = new ElapsedTime();
 
         robot = new UltimateGoalRobotRoadRunner(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, this);
-        FtcDashboard.start();
+        // FtcDashboard.start(); no idea why this was here but with the upgrade to 0.4.3 of dashboard, it now needs a parameter passed to it so I'm deleting this line and crossing my fingers - gb
         // create the robot and run the init for it
         robot.createRobot();
 
