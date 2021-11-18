@@ -188,6 +188,12 @@ public class ExtensionRetractionMechanism {
         this.movementPerRevolution = movementPerRevolution;
     }
 
+    /**
+     * If the motor encoder count is within the target count by this amount, then we are going to
+     * say it has arrived at the desired location. For example, if the target encoder count is 500,
+     * and the targetEncoderTolerance is 10, then if the actual encoder count is between 490 and 510
+     * we say the target has been reached; it is close enough.
+     */
     private int targetEncoderTolerance = 10;
 
     public int getTargetEncoderTolerance() {
@@ -540,11 +546,23 @@ public class ExtensionRetractionMechanism {
     /**
      * This method wraps the equivalent method in the DcMotor8863 class. The reason for this is that
      * I don't want to expose the motor publicly. But other code will need access to this method.
-     *
+     * I did not like the name of this method. Is does not say what it does really. Use
+     * isMovementComplete() instead.
      * @return
      */
+    @Deprecated
     public boolean isMotorStateComplete() {
-        return extensionRetractionMotor.isMotorStateComplete();
+        return extensionRetractionMotor.isMovementComplete();
+    }
+
+    /**
+     * This method wraps the equivalent method in the DcMotor8863 class. The reason for this is that
+     * I don't want to expose the motor publicly. But other code will need access to this method.
+     * I did not like the name of this method. Is does not say what it does really. Use
+     * @return
+     */
+    public boolean isMovementComplete() {
+        return extensionRetractionMotor.isMovementComplete();
     }
 
     /**
@@ -564,6 +582,12 @@ public class ExtensionRetractionMechanism {
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
 
+    /**
+     * Given a value in the units of the mechanism, such as a location in inches, convert it to
+     * encoder counts.
+     * @param mechanismUnits
+     * @return
+     */
     public double convertMechanismUnitsToEncoderCounts(double mechanismUnits) {
         return (mechanismUnits / movementPerRevolution * extensionRetractionMotor.getCountsPerRev());
     }
@@ -645,30 +669,58 @@ public class ExtensionRetractionMechanism {
     //  motor position feedback
     //**********************************************************************************************
 
+    /**
+     * Get the encoder value of the extension retraction motor
+     * @return
+     */
     public int getMotorEncoderValue() {
         return extensionRetractionMotor.getCurrentPosition();
     }
 
+    /**
+     * Put the encoder value of the extension retraction motor into the telemetry buffer. It will
+     * get displayed on the driver station once a telemetry.update() is called.
+     */
     public void displayMotorEncoderValue() {
         telemetry.addData("Encoder = ", getMotorEncoderValue());
     }
 
+    /**
+     * Get the position of the mechanism in the units you are using: inches or mm or whatever.
+     * @return
+     */
     public double getPosition() {
         return extensionRetractionMotor.getPositionInTermsOfAttachment();
     }
 
+    /**
+     * Add the position of the mechanism in the units you are using to the telemetry buffer. It will
+     * get displayed on the driver station once a telemetry.update() is called.
+     */
     public void displayPosition() {
         telemetry.addData(mechanismName + " position (inches) = ", getPosition());
     }
 
+    /**
+     * Add the position that you asked the mechanism to go to to the telemetry display buffer. It will
+     * get displayed on the driver station once a telemetry.update() is called.
+     */
     public void displayRequestedPosition() {
         telemetry.addData(mechanismName + " position requested (inches) = ", desiredPosition);
     }
 
+    /**
+     * Add the motor power to the telemetry display buffer. It will
+     * get displayed on the driver station once a telemetry.update() is called.
+     */
     public void displayPower() {
         telemetry.addData(mechanismName + " power (inches) = ", extensionRetractionPower);
     }
 
+    /**
+     * Add the state of the motor to the telemetry display buffer. It will
+     * get displayed on the driver station once a telemetry.update() is called.
+     */
     public void displayMotorState() {
         telemetry.addData("Motor state = ", extensionRetractionMotor.getCurrentMotorState().toString());
     }
@@ -807,10 +859,15 @@ public class ExtensionRetractionMechanism {
         }
     }
 
+    /**
+     * Get the state of the mechanim's state machine.
+     * @return
+     */
     public ExtensionRetractionStates getExtensionRetractionState() {
 
         return this.extensionRetractionState;
     }
+
     /**
      * Is the mechanism retraction cycle completed?
      *
@@ -922,12 +979,19 @@ public class ExtensionRetractionMechanism {
         return true;
     }
 
+    /**
+     * Start a reset of the mechanism
+     */
     private void moveToReset() {
         extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         setCurrentPower(resetPower);
         log("Resetting mechanism " + mechanismName);
     }
 
+    /**
+     * Is the reset movement is complete?
+     * @return true if yes
+     */
     protected boolean isMoveToResetComplete() {
         boolean result = false;
         // your method of determining whether the movement to the reset is complete must be
@@ -2344,7 +2408,7 @@ public class ExtensionRetractionMechanism {
         int originalEncoderCount = extensionRetractionMotor.getCurrentPosition();
         extensionRetractionMotor.rotateNumberOfRevolutions(.1, 1, DcMotor8863.FinishBehavior.HOLD);
 
-        while (opMode.opModeIsActive() && !extensionRetractionMotor.isMotorStateComplete()) {
+        while (opMode.opModeIsActive() && !extensionRetractionMotor.isMovementComplete()) {
             extensionRetractionMotor.update();
             opMode.telemetry.addData("motor state = ", extensionRetractionMotor.getCurrentMotorState().toString());
             opMode.telemetry.addData("encoder count = ", extensionRetractionMotor.getCurrentPosition());
