@@ -249,6 +249,20 @@ public class ExtensionRetractionMechanism {
         this.resetPower = resetPower;
     }
 
+    /**
+     * After a certain time elaspses, the lift says it has reset, even if the retraction limit
+     * switch has not been tripped. Set that time here. In milli seconds.
+     */
+    private double resetTimerLimitInmSec = 1000;
+
+    public double getResetTimerLimitInmSec() {
+        return resetTimerLimitInmSec;
+    }
+
+    public void setResetTimerLimitInmSec(double resetTimerLimitInmSec) {
+        this.resetTimerLimitInmSec = resetTimerLimitInmSec;
+    }
+
     private ElapsedTime resetTimer;
 
     /**
@@ -648,7 +662,12 @@ public class ExtensionRetractionMechanism {
         return isResetComplete();
     }
 
+    @Deprecated
     public void reverseMotor() {
+        extensionRetractionMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+    }
+
+    public void reverseMotorDirection() {
         extensionRetractionMotor.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
@@ -989,7 +1008,12 @@ public class ExtensionRetractionMechanism {
     }
 
     /**
-     * Is the reset movement is complete?
+     * Is the reset movement is complete? The reset movement is complete when one of these things
+     * happens:
+     * 1 - the retraction limit switch is tripped (if there is a retraction limit switch)
+     * 2 - the retraction encoder position is reached
+     * or
+     * 3 - the timer that times a retraction expires
      * @return true if yes
      */
     protected boolean isMoveToResetComplete() {
@@ -1000,7 +1024,7 @@ public class ExtensionRetractionMechanism {
             log("Retraction limit switch pressed " + mechanismName);
             result = true;
         }
-        if (resetTimer.milliseconds() > 1000) {
+        if (resetTimer.milliseconds() > resetTimerLimitInmSec) {
             log("Retraction timer tripped");
             result = true;
         }
@@ -1156,7 +1180,7 @@ public class ExtensionRetractionMechanism {
      * is assumed to be the least value possible for all of the possible positions of the mechanism.
      *
      * @return true if EITHER extension limit switch is pressed OR if current position is equal to
-     * or less than the extension position.
+     * or less than the retraction position.
      */
     protected boolean isRetractionLimitReached() {
         boolean retractionLimitSwitchReached = false;
@@ -2485,6 +2509,13 @@ public class ExtensionRetractionMechanism {
         telemetry.addData("encoder = ", extensionRetractionMotor.getCurrentPosition());
     }
 
+    /**
+     * This method will test the reset of the mechanism. If it stops moving before the mechanism trips the
+     * retraction limit switch, the reset timer most likely expired. So you will have to increase
+     * the resetTimerLimitInmSec value. If the mechanism moves in the wrong direction, use
+     * reverseMotorDirection() to change the direction of movement.
+     * @param opMode
+     */
     public void testReset(LinearOpMode opMode) {
         ExtensionRetractionStates extensionRetractionState;
         this.reset();
@@ -2505,10 +2536,19 @@ public class ExtensionRetractionMechanism {
 //        }
     }
 
+    /**
+     * This method will test the extension of the mechanism. If the mechanism moves in the wrong
+     * direction, use reverseMotorDirection() to change the direction of movement. Be sure to set
+     * the extension power to something safe so you don't break the lift. Use setExtensionPower()
+     * @param opMode
+     * @return the max encoder value of the motor
+     */
     public int testExtension(LinearOpMode opMode) {
         ExtensionRetractionStates extensionRetractionState;
         int encoderValue = 0;
         int encoderValueMax = 0;
+        // force the mechanism to think it has completed a reset
+        this.extensionRetractionState = ExtensionRetractionStates.RESET_COMPLETE;
         this.goToFullExtend();
         while (opMode.opModeIsActive() && !this.isExtensionComplete()) {
             update();
