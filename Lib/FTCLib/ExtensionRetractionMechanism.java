@@ -2465,6 +2465,11 @@ public class ExtensionRetractionMechanism {
         delay(4000);
     }
 
+    /**
+     * This method is meant to be called from inside the opmode loop. It will display the motor
+     * encoder value and the state of the limit switches. Don't forget to put a telemetry.update()
+     * inside your loop so that the telemetry values are displayed.
+     */
     public void testLimitSwitches() {
         if (retractedLimitSwitch.isPressed()) {
             telemetry.addLine("retracted limit switch pressed");
