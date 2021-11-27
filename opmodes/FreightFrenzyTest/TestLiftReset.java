@@ -40,6 +40,8 @@ public class TestLiftReset extends LinearOpMode {
         // Put your calls here - they will not run in a loop
 
         lift.testReset(this);
+
+        // after the reset is complete just loop so the user can see the state
         while (opModeIsActive()){
             telemetry.addData("state = ", lift.getExtensionRetractionState().toString());
             telemetry.update();

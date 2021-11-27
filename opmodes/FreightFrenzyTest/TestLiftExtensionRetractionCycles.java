@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.opmodes.FreightFrenzyTest;
 
-import android.provider.ContactsContract;
-
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -12,9 +10,9 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Test Lift Extension", group = "Test")
+@TeleOp(name = "Test Lift Extension/Retraction Cycles", group = "Test")
 //@Disabled
-public class TestLiftExtension extends LinearOpMode {
+public class TestLiftExtensionRetractionCycles extends LinearOpMode {
 
     // Put your variable declarations here
     ExtensionRetractionMechanism lift;
@@ -36,9 +34,10 @@ public class TestLiftExtension extends LinearOpMode {
                 21.25/5);
 
         lift.reverseMotorDirection();
-        lift.setResetTimerLimitInmSec(5000);
-        lift.setExtensionPower(0.3);
+        lift.setResetTimerLimitInmSec(25000);
+        lift.setExtensionPower(0.5);
         lift.setExtensionPositionInMechanismUnits(20.0);
+        lift.setRetractionPower(-0.1);
         lift.setDataLog(log);
         lift.enableDataLogging();
 
@@ -47,14 +46,10 @@ public class TestLiftExtension extends LinearOpMode {
         telemetry.update();
         waitForStart();
 
-        // Put your calls here - they will not run in a loop
+        lift.testCycleFullExtensionRetraction(this,4, 3000);
 
-        lift.testExtension(this);
-
-        // after the extension is complete, loop so the user can see the result
+        // after the movement is complete, loop so the user can see the result
         while (opModeIsActive()){
-            telemetry.addData("state = ", lift.getExtensionRetractionState().toString());
-            telemetry.update();
             idle();
         }
 
