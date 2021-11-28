@@ -10,9 +10,9 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Test Lift Retraction with Position Limit", group = "Test")
+@TeleOp(name = "Test Lift Init", group = "Test")
 //@Disabled
-public class TestLiftRetractionWithPositionLimit extends LinearOpMode {
+public class TestLiftInit extends LinearOpMode {
 
     // Put your variable declarations here
     ExtensionRetractionMechanism lift;
@@ -23,7 +23,6 @@ public class TestLiftRetractionWithPositionLimit extends LinearOpMode {
 
 
         // Put your initializations here
-
         log = new DataLogging("LiftLog");
         lift = new ExtensionRetractionMechanism(hardwareMap, telemetry,
                 "Lift",
@@ -35,7 +34,7 @@ public class TestLiftRetractionWithPositionLimit extends LinearOpMode {
 
         lift.reverseMotorDirection();
         lift.setResetTimerLimitInmSec(25000);
-        lift.setExtensionPower(0.5);
+        lift.setExtensionPower(1.0);
         lift.setExtensionPositionInMechanismUnits(20.0);
         lift.setRetractionPower(-0.5);
         lift.setRetractionPositionInMechanismUnits(0.5);
@@ -49,32 +48,15 @@ public class TestLiftRetractionWithPositionLimit extends LinearOpMode {
 
         // Put your calls here - they will not run in a loop
 
-        // reset the lift to set its 0 position
-        lift.init();
-        while (opModeIsActive() && !lift.isInitComplete()){
-            lift.update();
-            telemetry.addData("state = ", lift.getExtensionRetractionState().toString());
-            telemetry.update();
-        }
-        sleep(1000);
+        lift.testInit(this);
 
-        // extend the lift
-        lift.testExtension(this);
-        while (opModeIsActive() && !lift.isExtensionComplete()) {
-            telemetry.addData("state = ", lift.getExtensionRetractionState().toString());
-            telemetry.update();
-        }
-        sleep(1000);
-
-        // retract the lift
-        lift.testRetraction(this);
-
-        // after the movement is complete, loop so the user can see the result
+        // after the reset is complete just loop so the user can see the state
         while (opModeIsActive()){
             telemetry.addData("state = ", lift.getExtensionRetractionState().toString());
             telemetry.update();
             idle();
         }
+
         // Put your cleanup code here - it runs as the application shuts down
         telemetry.addData(">", "Done");
         telemetry.update();

@@ -35,9 +35,10 @@ public class TestLiftExtensionRetractionCycles extends LinearOpMode {
 
         lift.reverseMotorDirection();
         lift.setResetTimerLimitInmSec(25000);
-        lift.setExtensionPower(0.5);
+        lift.setExtensionPower(1.0);
         lift.setExtensionPositionInMechanismUnits(20.0);
-        lift.setRetractionPower(-0.1);
+        lift.setRetractionPower(-1.0);
+        lift.setRetractionPositionInMechanismUnits(3.0);
         lift.setDataLog(log);
         lift.enableDataLogging();
 

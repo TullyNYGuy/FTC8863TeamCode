@@ -48,7 +48,7 @@ public class TestLiftGoToPositions extends LinearOpMode {
 
         // Put your calls here - they will not run in a loop
         double[] positions = new double[]{10.0, 3.0, 15.0};
-        lift.testGoToPositions(this, positions, 0.3);
+        lift.testGoToPositions(this, positions, 1.0);
 
         // after the retraction is complete, loop so the user can see the result
         while (opModeIsActive()){
