@@ -38,7 +38,7 @@ public class TestLiftExtensionRetractionCycles extends LinearOpMode {
         lift.setExtensionPower(1.0);
         lift.setExtensionPositionInMechanismUnits(20.0);
         lift.setRetractionPower(-1.0);
-        lift.setRetractionPositionInMechanismUnits(3.0);
+        lift.setRetractionPositionInMechanismUnits(0.5);
         lift.setDataLog(log);
         lift.enableDataLogging();
 
@@ -47,7 +47,7 @@ public class TestLiftExtensionRetractionCycles extends LinearOpMode {
         telemetry.update();
         waitForStart();
 
-        lift.testCycleFullExtensionRetraction(this,4, 3000);
+        lift.testCycleFullExtensionRetraction(this,10, 3000);
 
         // after the movement is complete, loop so the user can see the result
         while (opModeIsActive()){
