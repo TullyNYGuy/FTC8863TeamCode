@@ -758,7 +758,7 @@ public class ExtensionRetractionMechanism {
      * get displayed on the driver station once a telemetry.update() is called.
      */
     public void displayPower() {
-        telemetry.addData(mechanismName + " power (inches) = ", extensionRetractionPower);
+        telemetry.addData(mechanismName + " power = ", currentPower);
     }
 
     /**
@@ -856,6 +856,7 @@ public class ExtensionRetractionMechanism {
         // set the properties so they can be used later
         this.desiredPosition = position;
         this.moveToPositionPower = moveToPositionPower;
+        this.currentPower = moveToPositionPower;
         // the next execution of the state machine will pick up this new command and execute it
         extensionRetractionCommand = ExtensionRetractionCommands.GO_TO_POSITION;
     }
@@ -1236,8 +1237,7 @@ public class ExtensionRetractionMechanism {
             setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
             extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             extensionRetractionMotor.setTargetPosition(getRetractionPositionInEncoderCounts().intValue());
-            //todo set the power to 1.0
-            setCurrentPower(0.2);
+            setCurrentPower(1.0);
             log("Stopping mechanism, attempting to hold position");
         }
     }
@@ -1584,6 +1584,9 @@ public class ExtensionRetractionMechanism {
                 extensionRetractionCommand = ExtensionRetractionCommands.NO_COMMAND;
             }
              */
+        } else {
+            // it is not ok to joystick
+            setCurrentPower(0.0);
         }
     }
 
