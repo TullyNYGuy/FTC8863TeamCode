@@ -105,7 +105,7 @@ public class IntakeTestGlenn extends LinearOpMode {
                 // do we have something?
                 if (isIntakeFull()) {
                     // yup stop the motor and try to cage the freight
-                    intakeSweeperMotor.setPower(0);
+                    intakeSweeperMotor.setPower(.2);
                     timer.reset();
                     //intakeSweeperMotor.moveToPosition(.3, 300, DcMotor8863.FinishBehavior.HOLD);
                     intakeState = IntakeState.WAIT_FOR_ROTATION;
@@ -127,7 +127,7 @@ public class IntakeTestGlenn extends LinearOpMode {
                 // has the human done his thing?
                 if (timer.milliseconds() > 3500) {
                     // hope so cause I'm about to eject the freight
-                    intakeSweeperMotor.setPower(-.3);
+                    intakeSweeperMotor.setPower(-.1);
                     timer.reset();
                     intakeState = IntakeState.OUTAKE;
                 }
