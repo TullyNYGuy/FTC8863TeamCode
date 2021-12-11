@@ -27,6 +27,8 @@ public class TestShoulderServo extends LinearOpMode {
         shoulderServo = new Servo8863("shoulderServo",hardwareMap, telemetry);
         shoulderServo.setPositionOne(shoulderUpPosition);
         shoulderServo.setPositionTwo(shoulderDownPosition);
+        
+        
 
         timer = new ElapsedTime();
 
@@ -43,7 +45,7 @@ public class TestShoulderServo extends LinearOpMode {
             idle();
         }
 
-        wristUp();
+        shoulderUp();
         timer.reset();
 
         while (opModeIsActive() && timer.milliseconds() < 5000) {
@@ -60,7 +62,7 @@ public class TestShoulderServo extends LinearOpMode {
         shoulderServo.goPositionTwo();
     }
 
-    public void wristUp() {
+    public void shoulderUp() {
         shoulderServo.goPositionOne();
     }
 }
