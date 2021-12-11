@@ -93,22 +93,25 @@ public class IntakeTestGlenn extends LinearOpMode {
             case IDLE: {
                 // do nothing
             }
-
+            break;
             case INTAKE: {
                 // fire up that motor baby! Dang that thing is loud!
-                intakeSweeperMotor.runAtConstantPower(1);
+                intakeSweeperMotor.runAtConstantPower(.6);
                 intakeState = IntakeState.WAIT_FOR_FREIGHT;
             }
+            break;
 
             case WAIT_FOR_FREIGHT: {
                 // do we have something?
                 if (isIntakeFull()) {
                     // yup stop the motor and try to cage the freight
                     intakeSweeperMotor.setPower(0);
-                    intakeSweeperMotor.moveToPosition(.3, 300, DcMotor8863.FinishBehavior.HOLD);
-                    intakeState = IntakeState.HOLD_FREIGHT;
+                    timer.reset();
+                    //intakeSweeperMotor.moveToPosition(.3, 300, DcMotor8863.FinishBehavior.HOLD);
+                    intakeState = IntakeState.WAIT_FOR_ROTATION;
                 }
             }
+            break;
 
             case HOLD_FREIGHT: {
                 // is the caging done?
@@ -118,16 +121,18 @@ public class IntakeTestGlenn extends LinearOpMode {
                     intakeState = IntakeState.WAIT_FOR_ROTATION;
                 }
             }
+            break;
 
             case WAIT_FOR_ROTATION: {
                 // has the human done his thing?
                 if (timer.milliseconds() > 3500) {
                     // hope so cause I'm about to eject the freight
-                    intakeSweeperMotor.runAtConstantSpeed(-.3);
+                    intakeSweeperMotor.setPower(-.3);
                     timer.reset();
                     intakeState = IntakeState.OUTAKE;
                 }
             }
+            break;
 
             case OUTAKE: {
                 // hopefully the freight ejects in this amount of time
@@ -137,6 +142,8 @@ public class IntakeTestGlenn extends LinearOpMode {
                     intakeState = IntakeState.IDLE;
                 }
             }
+            break;
+
         }
     }
 }
