@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmodes.FreightFrenzyTest;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.SwitchableLight;
@@ -42,6 +43,7 @@ public class IntakeTestGlenn extends LinearOpMode {
         intakeSweeperMotor = new DcMotor8863("intakeSweeperMotor", hardwareMap);
         intakeSweeperMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_3_7_ORBITAL);
         intakeSweeperMotor.setMovementPerRev(360);
+        intakeSweeperMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
         timer = new ElapsedTime();
 
@@ -105,7 +107,7 @@ public class IntakeTestGlenn extends LinearOpMode {
                 // do we have something?
                 if (isIntakeFull()) {
                     // yup stop the motor and try to cage the freight
-                    intakeSweeperMotor.setPower(.2);
+                    intakeSweeperMotor.runAtConstantRPM(360);
                     timer.reset();
                     //intakeSweeperMotor.moveToPosition(.3, 300, DcMotor8863.FinishBehavior.HOLD);
                     intakeState = IntakeState.WAIT_FOR_ROTATION;
@@ -127,7 +129,7 @@ public class IntakeTestGlenn extends LinearOpMode {
                 // has the human done his thing?
                 if (timer.milliseconds() > 3500) {
                     // hope so cause I'm about to eject the freight
-                    intakeSweeperMotor.setPower(-.1);
+                    intakeSweeperMotor.runAtConstantRPM(-120);
                     timer.reset();
                     intakeState = IntakeState.OUTAKE;
                 }
