@@ -18,7 +18,7 @@ import java.util.Timer;
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
 @TeleOp(name = " Kellen's incredible Intake test", group = "Test")
-//@Disabled
+@Disabled
 public class IntakeTest extends LinearOpMode {
 
     // Put your variable declarations her
@@ -45,18 +45,19 @@ public class IntakeTest extends LinearOpMode {
         telemetry.addData(">", "Press Start to run");
         telemetry.update();
         waitForStart();
-        intakeSweeperMotor.runAtConstantPower(1);
+
         // Put your calls here - they will not run in a loop
 
-        while (opModeIsActive() && !intakeFull) {
+        while (opModeIsActive() ) {
 
             // Put your calls that need to run in a loop here
 
             if (isIntakeFull()) {
                 timer.reset();
                 intakeSweeperMotor.moveToPosition(0.3, 300, DcMotor8863.FinishBehavior.HOLD);
-                if (intakeSweeperMotor.isMovementComplete())
+                if (intakeSweeperMotor.isMovementComplete()) {
                     intakeSweeperMotor.setPower(0);
+                }
                 //timer.reset();
                 //OOPS! HERE IS A BUG! YOU FORGOT THE SQUIRRELY BRACKETS AND SO YOU SET INTAKE FULL NO MATTER WHAT AND THAT TERMINATES
                 // THE LOOP SO YOU NEVER GET TO WATCH
@@ -66,11 +67,12 @@ public class IntakeTest extends LinearOpMode {
             }
             // PRO TIP: RUN THE MENU COMMAND CODE->REFORMAT CODE. THIS BUG WAS HARD TO SEE BECAUSE YOUR CODE WAS NOT FORMATTED CORRECTLY. ONCE I
             // REFORMATTED YOUR CODE IT WAS IMMEDIATELY OBVIOUS. THIS IS HOW IT LOOKED BEFORE THE REFORMAT:
-            if (intakeSweeperMotor.isMovementComplete())
+            if (intakeSweeperMotor.isMovementComplete() && intakeFull) {
                 intakeSweeperMotor.setPower(0);
+            }
                 // HAHA - AND YOU THOUGHT THIS WAS INSIDE THE IF STATEMENT! NOW GO LOOK AT HOW YOU COULD HAVE WRITTEN IT WITH A SIMPLE STATE MACHINE
                 // SEE IntakeTestGlenn for a truly incredible opmode :-O
-                intakeFull = true;
+
             displaySwitches(telemetry);
             // Display the current value
             //telemetry.addData("Motor Speed = ", "%5.2f", powerToRunAt);

@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
  */
 @TeleOp(name = "Test Lift ExtensionRetraction Cycle", group = "Test")
 //@Disabled
-public class TestLiftExtension extends LinearOpMode {
+public class TestLiftExtensionRetraction extends LinearOpMode {
 
     // Put your variable declarations here
     ExtensionRetractionMechanism lift;

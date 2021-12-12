@@ -19,12 +19,13 @@ public class TestArm extends LinearOpMode {
     double closePosition = .58;
 
     Servo8863 wristServo;
-    double wristUpPosition = 0;
-    double wristDownPosition = .58;
+    double wristUpPosition = .60;
+    double wristMidPosition = .18;
+    double wristDownPosition = .05;
 
     Servo8863 shoulderServo;
-    double shoulderUpPosition = .5;
-    double shoulderDownPosition = .2;
+    double shoulderUpPosition = .63 ;
+    double shoulderDownPosition = .1;
     ElapsedTime timer;
 
     @Override
@@ -32,13 +33,14 @@ public class TestArm extends LinearOpMode {
 
 
         // Put your initializations here
-        clawServo = new Servo8863("ClawServo",hardwareMap, telemetry);
+        clawServo = new Servo8863("clawServo",hardwareMap, telemetry);
         clawServo.setPositionOne(openPosition);
         clawServo.setPositionTwo(closePosition);
 
         wristServo = new Servo8863("wristServo",hardwareMap, telemetry);
         wristServo.setPositionOne(wristUpPosition);
         wristServo.setPositionTwo(wristDownPosition);
+        wristServo.setPositionThree(wristMidPosition);
 
         shoulderServo = new Servo8863("shoulderServo",hardwareMap, telemetry);
         shoulderServo.setPositionOne(shoulderUpPosition);
@@ -68,25 +70,28 @@ public class TestArm extends LinearOpMode {
             }
 
             if (gamepad1.dpad_down) {
-                wristUp();
+                goDown();
                 telemetry.addData("Wrist up", "/");
             }
 
             if (gamepad1.dpad_up) {
-                wristDown();
+                goUp();
                 telemetry.addData("wrist down", "|");
             }
 
             if (gamepad1.dpad_left) {
-                shoulderDown();
+                wristMid();
                 telemetry.addData("shoulder down", "|");
             }
 
             if (gamepad1.dpad_right) {
-                shoulderUp();
+                wristDown();
                 telemetry.addData("shoulder up", "/");
             }
 
+            if (gamepad1.x){
+
+            }
             idle();
         }
 
@@ -108,6 +113,10 @@ public class TestArm extends LinearOpMode {
         wristServo.goPositionOne();
     }
 
+    public void wristMid() {
+        wristServo.goPositionThree();
+    }
+
     public void wristDown() {
         wristServo.goPositionTwo();
     }
@@ -118,6 +127,17 @@ public class TestArm extends LinearOpMode {
 
     public void shoulderDown() {
         shoulderServo.goPositionTwo();
+    }
+
+    public void goDown(){
+        wristUp();
+        shoulderDown();
+        openClaw();
+    }
+
+    public void goUp(){
+        wristMid();
+        shoulderUp();
     }
 
 }
