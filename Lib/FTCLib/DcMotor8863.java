@@ -1226,48 +1226,51 @@ public class DcMotor8863 {
      */
     // tested
     public boolean rotateToEncoderCount(double power, int encoderCount, FinishBehavior afterCompletion) {
+        // 12/12/2021 THIS IS A BUG! If the motor is already running in constant power or constant
+        // RPM or constant speed then you can't interrupt that and do a move to postiion type of
+        // method. I want to change this
+        // behavior so that if they call this method it actually effects the motor.
         // If the motor is already moving then make sure that another movement command cannot be issued.
-        if (!isMotorStateMoving()) {
-            // set what to do after the rotation completes
-            setFinishBehavior(afterCompletion);
-            // set the desired encoder position
-            this.setTargetPosition(encoderCount);
+        //if (!isMotorStateMoving()) {
+        // set what to do after the rotation completes
+        setFinishBehavior(afterCompletion);
+        // set the desired encoder position
+        this.setTargetPosition(encoderCount);
             // set the run mode
-            this.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            // clip the power so that it does not exceed 80% of max. The reason for this is that the
-            // PID controller inside the core motor controller needs to have some room to increase
-            // the power when it makes its PID adjustments. If you set the power to 100% then there is
-            // no room to increase the power if needed and PID control will not work.
-            // 12/12/2021 I'm removing this since the core SDK should be taking care of it - GB
-            //power = Range.clip(power, -.8, .8);
-            // reset the completion timer since we are starting a motor movement that will end
-            // once rotation is detected as complete
-            completionTimer.reset();
-            // reset the stall timer since the motor is about to start moving
-            // this was a bug discovered 1/5/2018. It was not here.
-            stallTimer.reset();
-            // Is there is a power ramp setup to automatically start with the motor is turned on?
-            if (powerRamp.isEnabled()) {
-                // yes there is
-                this.setMotorState(MotorState.MOVING_PID_POWER_RAMP);
-                // if there is a power ramp enabled then the initial power will be from the ramp, not
-                // the one the user passed in.
-                setInitialPower(power);
-            } else {
-                // No power ramp is set to automatically be started.
-                this.setMotorState(MotorState.MOVING_PID_NO_POWER_RAMP);
-                // Turn the motor on
-                this.setPower(power);
-            }
-            logFlag = true;
-            if (dataLog != null) {
-                dataLog.logData("Rotate to encoder count = " + Integer.toString(encoderCount) + " from encoder count = " + Integer.toString(getCurrentPosition()) + " at power " + Double.toString(power) + "in");
-            }
-            return true;
+        this.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        // clip the power so that it does not exceed 80% of max. The reason for this is that the
+        // PID controller inside the core motor controller needs to have some room to increase
+        // the power when it makes its PID adjustments. If you set the power to 100% then there is
+        // no room to increase the power if needed and PID control will not work.
+        // 12/12/2021 I'm removing this since the core SDK should be taking care of it - GB
+        //power = Range.clip(power, -.8, .8);
+        // reset the completion timer since we are starting a motor movement that will end
+        // once rotation is detected as complete
+        completionTimer.reset();
+        // reset the stall timer since the motor is about to start moving
+        // this was a bug discovered 1/5/2018. It was not here.
+        stallTimer.reset();
+        // Is there is a power ramp setup to automatically start with the motor is turned on?
+        if (powerRamp.isEnabled()) {
+            // yes there is
+            this.setMotorState(MotorState.MOVING_PID_POWER_RAMP);
+            // if there is a power ramp enabled then the initial power will be from the ramp, not
+            // the one the user passed in.
+            setInitialPower(power);
         } else {
-            // This method was called again while the movement was taking place. You can't do that.
-            return false;
+            // No power ramp is set to automatically be started.
+            this.setMotorState(MotorState.MOVING_PID_NO_POWER_RAMP);
+            // Turn the motor on
+            this.setPower(power);
         }
+        logFlag = true;
+        if (dataLog != null) {
+            dataLog.logData("Rotate to encoder count = " + Integer.toString(encoderCount) + " from encoder count = " + Integer.toString(getCurrentPosition()) + " at power " + Double.toString(power) + "in");
+        }
+            return true;
+//        } else {
+//            // This method was called again while the movement was taking place. You can't do that.
+//            return false;
 
     }
 
@@ -1317,35 +1320,45 @@ public class DcMotor8863 {
      * Remember that movement cannot complete since this mode runs until specifically stopped.
      * <p>
      * NOTE: You can change the power while the movement is going on by calling setPower().
+     * NOTE: This is NOT a good way to run the motor. The SDK has constants for the motor types that
+     * you configure. But they are wrong in some cases. So use runAtConstantRPM instead.
      *
      * @param power Power input for the motor. Ranges from -1 to +1, which corresponds to -100%
      *              (backwards)to +100% (forwards)
      * @return true if successfully completed
      */
     // tested
+    // Deprecated since the SDK has incorrect constants for some motors and this does not run the
+    // motors at a speed that is proportional to their max RPM.
+    // DO NOT USE! USE runAtConstantRPM() INSTEAD!
+    @Deprecated
     public boolean runAtConstantSpeed(double power) {
+        // 12/12/2021 THIS IS A BUG! If the motor is already running at a constant speed the only
+        // way to change it is to use setPower(). A user may try to call runAtConstantSpeed again
+        // and since the motor is already moving, it will not take effect. I want to change this
+        // behavior so that if they call the method again it actually effects the motor.
         // If the motor is already moving then make sure that another movement command cannot be issued.
-        if (!isMotorStateMoving()) {
-            // set the run mode
-            this.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            // Is there is a power ramp setup to automatically start with the motor is turned on?
-            // Is there is a power ramp setup to automatically start with the motor is turned on?
-            if (powerRamp.isEnabled()) {
-                // yes there is
-                this.setMotorState(MotorState.MOVING_PID_POWER_RAMP);
-                // if there is a power ramp enabled then the initial power will be from the ramp, not
-                // the one the user passed in.
-                setInitialPower(power);
-            } else {
-                // No power ramp is set to automatically be started.
-                this.setMotorState(MotorState.MOVING_PID_NO_POWER_RAMP);
-                // Turn the motor on
-                this.setPower(power);
-            }
-            return true;
+        //if (!isMotorStateMoving()) {
+        // set the run mode - note there is a check in setMode that will not resend the command
+        // to the motor is the motor is already in this mode
+        this.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        // Is there is a power ramp setup to automatically start with the motor is turned on?
+        if (powerRamp.isEnabled()) {
+            // yes there is
+            this.setMotorState(MotorState.MOVING_PID_POWER_RAMP);
+            // if there is a power ramp enabled then the initial power will be from the ramp, not
+            // the one the user passed in.
+            setInitialPower(power);
         } else {
-            return false;
+            // No power ramp is set to automatically be started.
+            this.setMotorState(MotorState.MOVING_PID_NO_POWER_RAMP);
+            // Turn the motor on
+            this.setPower(power);
         }
+        return true;
+//        } else {
+//            return false;
+//        }
     }
 
     /**
@@ -1368,16 +1381,22 @@ public class DcMotor8863 {
      */
     // tested
     public boolean runAtConstantRPM(double motorRPM) {
+        // 12/12/2021 THIS IS A BUG! If the motor is already running at a constant speed the only
+        // way to change it is to use setVelocity(). A user may try to call runAtConstantRPM again
+        // and since the motor is already moving, it will not take effect. I want to change this
+        // behavior so that if they call the method again it actually effects the motor.
         // If the motor is already moving then make sure that another movement command cannot be issued.
-        if (!isMotorStateMoving()) {
-            // set the run mode
-            this.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            this.setMotorState(MotorState.MOVING_PID_NO_POWER_RAMP);
-            FTCDcMotor.setVelocity(getMotorSpeedInEncoderTicksPerSec(getCountsPerRev(), (int) motorRPM));
-            return true;
-        } else {
-            return false;
-        }
+//        if (!isMotorStateMoving()) {
+        // set the run mode - note there is a check in setMode that will not resend the command
+        // to the motor is the motor is already in this mode
+        double angularRateInTickPerSecond = getMotorSpeedInEncoderTicksPerSec(getCountsPerRev(), (int) motorRPM);
+        FTCDcMotor.setVelocity(angularRateInTickPerSecond);
+        this.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        this.setMotorState(MotorState.MOVING_PID_NO_POWER_RAMP);
+        return true;
+//        } else {
+//            return false;
+//        }
     }
 
     /**
@@ -1386,8 +1405,13 @@ public class DcMotor8863 {
      * @return
      */
     public double getCurrentRPM() {
-        double velocityInDegrees = FTCDcMotor.getVelocity(AngleUnit.DEGREES);
-        return velocityInDegrees / 360;
+        // there is a bug in the SDK. It is not returning the proper velocity in deg/sec
+        //double velocityInDegreesPerSec = FTCDcMotor.getVelocity(AngleUnit.DEGREES);
+        double velocityInTicksPerSec = FTCDcMotor.getVelocity();
+        // RPM = velocityInDegreesPerSec * 60 sec / min * 1 rev / 360 degrees = velocityInDegreesPerSec / 60
+        //return velocityInDegreesPerSec / 60;
+        // RPM = velocityInTicksPerSec * 60 sec / min * 1 rev / (ticks / rev)
+        return velocityInTicksPerSec * 60 / getCountsPerRev();
     }
 
     /**
@@ -1435,27 +1459,32 @@ public class DcMotor8863 {
      */
     // tested
     public boolean runAtConstantPower(double power) {
+        // 12/12/2021 THIS IS A BUG! If the motor is already running at a constant speed the only
+        // way to change it is to use setVelocity(). A user may try to call runAtConstantPower again
+        // and since the motor is already moving, it will not take effect. I want to change this
+        // behavior so that if they call the method again it actually effects the motor.
         // If the motor is already moving then make sure that another movement command cannot be issued.
-        if (!isMotorStateMoving()) {
-            // set the run mode
-            this.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            // Is there is a power ramp setup to automatically start with the motor is turned on?
-            if (powerRamp.isEnabled()) {
-                // yes there is
-                this.setMotorState(MotorState.MOVING_NO_PID_POWER_RAMP);
-                // if there is a power ramp enabled then the initial power will be from the ramp, not
-                // the one the user passed in.
-                setInitialPower(power);
-            } else {
-                // No power ramp is set to automatically be started.
-                this.setMotorState(MotorState.MOVING_NO_PID_NO_POWER_RAMP);
-                // Turn the motor on
-                this.setPower(power);
-            }
-            return true;
+        //if (!isMotorStateMoving()) {
+        // set the run mode - note there is a check in setMode that will not resend the command
+        // to the motor is the motor is already in this mode
+        this.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        // Is there is a power ramp setup to automatically start with the motor is turned on?
+        if (powerRamp.isEnabled()) {
+            // yes there is
+            this.setMotorState(MotorState.MOVING_NO_PID_POWER_RAMP);
+            // if there is a power ramp enabled then the initial power will be from the ramp, not
+            // the one the user passed in.
+            setInitialPower(power);
         } else {
-            return false;
+            // No power ramp is set to automatically be started.
+            this.setMotorState(MotorState.MOVING_NO_PID_NO_POWER_RAMP);
+            // Turn the motor on
+            this.setPower(power);
         }
+            return true;
+//        } else {
+//            return false;
+//        }
     }
 
     //*********************************************************************************************
