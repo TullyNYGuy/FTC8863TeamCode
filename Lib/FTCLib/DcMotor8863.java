@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.*;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
@@ -7,7 +8,6 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -32,7 +32,16 @@ public class DcMotor8863 {
         ANDYMARK_3_7_ORBITAL,
         ANDYMARK_3_7_ORBITAL_OLD,
         USDIGITAL_360PPR_ENCODER,
+        GOBILDA_30,
+        GOBILDA_43,
+        GOBILDA_60,
+        GOBILDA_84,
+        GOBILDA_117,
+        GOBILDA_223,
         GOBILDA_312,
+        GOBILDA_435,
+        GOBILDA_1150,
+        GOBILDA_1620,
         GOBILDA_6000
     }
 
@@ -133,6 +142,20 @@ public class DcMotor8863 {
     //private int targetEncoderCount = 0;
 
     private int baseEncoderCount = 0;
+
+    public void setBaseEncoderCount(int baseEncoderCount) {
+        this.baseEncoderCount = baseEncoderCount;
+    }
+
+    public int getBaseEncoderCount() {
+        return baseEncoderCount;
+    }
+
+    // Set the virtual encoder count for this motor to 0. This does not affect the hardware encoder
+    // count maintained by the SDK
+    public void resetEncoder() {
+        baseEncoderCount = 0;
+    }
 
     /**
      * 05/30/2021
@@ -404,42 +427,69 @@ public class DcMotor8863 {
      */
     private int setCountsPerRevForMotorType(MotorType motorType) {
         switch (motorType) {
+            case GOBILDA_6000:
+                this.countsPerRev = 28;
+                break;
+            case ANDYMARK_3_7_ORBITAL_OLD:
+                this.countsPerRev = 44;
+                break;
+            case ANDYMARK_3_7_ORBITAL:
+                this.countsPerRev = 103;
+                break;
+            case GOBILDA_1620:
+                this.countsPerRev = 104;
+                break;
+            case GOBILDA_1150:
+                this.countsPerRev = 145;
+                break;
             case NXT:
                 this.countsPerRev = 360;
+                break;
+            case GOBILDA_435:
+                this.countsPerRev = 385;
+                break;
+            case ANDYMARK_20_ORBITAL:
+                this.countsPerRev = 537;
+                break;
+            case GOBILDA_312:
+                this.countsPerRev = 538;
                 break;
             case ANDYMARK_20:
                 // http://www.andymark.com/NeveRest-20-12V-Gearmotor-p/am-3102.htm
                 this.countsPerRev = 560;
                 break;
+            case GOBILDA_223:
+                this.countsPerRev = 752;
+                break;
             case ANDYMARK_40:
                 // http://www.andymark.com/NeveRest-40-Gearmotor-p/am-2964a.htm
                 this.countsPerRev = 1120;
                 break;
-            case ANDYMARK_60:
-                // http://www.andymark.com/NeveRest-60-Gearmotor-p/am-3103.htm
-                this.countsPerRev = 1680;
+            case GOBILDA_117:
+                this.countsPerRev = 1425;
                 break;
             case TETRIX:
                 // http://www.cougarrobot.com/attachments/328_Tetrix_DC_Motor_V2.pdf
                 this.countsPerRev = 1440;
                 break;
-            case ANDYMARK_20_ORBITAL:
-                this.countsPerRev = 537;
-                break;
-            case ANDYMARK_3_7_ORBITAL:
-                this.countsPerRev = 103;
-                break;
-            case ANDYMARK_3_7_ORBITAL_OLD:
-                this.countsPerRev = 44;
-                break;
             case USDIGITAL_360PPR_ENCODER:
                 this.countsPerRev = 1440;
                 break;
-            case GOBILDA_312:
-                this.countsPerRev = 538;
+            case ANDYMARK_60:
+                // http://www.andymark.com/NeveRest-60-Gearmotor-p/am-3103.htm
+                this.countsPerRev = 1680;
                 break;
-            case GOBILDA_6000:
-                this.countsPerRev = 28;
+            case GOBILDA_84:
+                this.countsPerRev = 1993;
+                break;
+            case GOBILDA_60:
+                this.countsPerRev = 2786;
+                break;
+            case GOBILDA_43:
+                this.countsPerRev = 3896;
+                break;
+            case GOBILDA_30:
+                this.countsPerRev = 5281;
                 break;
             default:
                 this.countsPerRev = 0;
@@ -463,37 +513,64 @@ public class DcMotor8863 {
      */
     private int setNoLoadRPMForMotorType(MotorType motorType) {
         switch (motorType) {
-            case NXT:
-                // http://www.philohome.com/nxtmotor/nxtmotor.htm
-                noLoadRPM = 165;
+            case USDIGITAL_360PPR_ENCODER:
+                noLoadRPM = 60;
                 break;
-            case ANDYMARK_20:
-                // http://www.andymark.com/NeveRest-20-12V-Gearmotor-p/am-3102.htm
-                noLoadRPM = 315;
+            case GOBILDA_30:
+                noLoadRPM = 30;
                 break;
-            case ANDYMARK_40:
-                // http://www.andymark.com/NeveRest-40-Gearmotor-p/am-2964a.htm
-                noLoadRPM = 160;
+            case GOBILDA_43:
+                noLoadRPM = 43;
+                break;
+            case GOBILDA_60:
+                noLoadRPM = 60;
+                break;
+            case GOBILDA_84:
+                noLoadRPM = 84;
                 break;
             case ANDYMARK_60:
                 // http://www.andymark.com/NeveRest-60-Gearmotor-p/am-3103.htm
                 noLoadRPM = 105;
                 break;
+            case GOBILDA_117:
+                noLoadRPM = 117;
+                break;
             case TETRIX:
                 // http://www.cougarrobot.com/attachments/328_Tetrix_DC_Motor_V2.pdf
                 noLoadRPM = 150;
                 break;
-            case ANDYMARK_20_ORBITAL:
-                noLoadRPM = 340;
+            case ANDYMARK_40:
+                // http://www.andymark.com/NeveRest-40-Gearmotor-p/am-2964a.htm
+                noLoadRPM = 160;
                 break;
-            case ANDYMARK_3_7_ORBITAL:
-                noLoadRPM = 1784;
+            case NXT:
+                // http://www.philohome.com/nxtmotor/nxtmotor.htm
+                noLoadRPM = 165;
                 break;
-            case USDIGITAL_360PPR_ENCODER:
-                noLoadRPM = 60;
+            case GOBILDA_223:
+                noLoadRPM = 223;
                 break;
             case GOBILDA_312:
                 noLoadRPM = 312;
+                break;
+            case ANDYMARK_20:
+                // http://www.andymark.com/NeveRest-20-12V-Gearmotor-p/am-3102.htm
+                noLoadRPM = 315;
+                break;
+            case ANDYMARK_20_ORBITAL:
+                noLoadRPM = 340;
+                break;
+            case GOBILDA_435:
+                noLoadRPM = 435;
+                break;
+            case GOBILDA_1150:
+                noLoadRPM = 1150;
+                break;
+            case GOBILDA_1620:
+                noLoadRPM = 1620;
+                break;
+            case ANDYMARK_3_7_ORBITAL:
+                noLoadRPM = 1784;
                 break;
             case GOBILDA_6000:
                 // https://www.gobilda.com/5202-series-yellow-jacket-motor-1-1-ratio-24mm-length-6mm-d-shaft-6000-rpm-3-3-5v-encoder/
@@ -643,14 +720,6 @@ public class DcMotor8863 {
         this.dataLog = dataLog;
     }
 
-    public void setBaseEncoderCount(int baseEncoderCount) {
-        this.baseEncoderCount = baseEncoderCount;
-    }
-
-    public int getBaseEncoderCount() {
-        return baseEncoderCount;
-    }
-
     //*********************************************************************************************
     //          Constructors
     //*********************************************************************************************
@@ -699,7 +768,7 @@ public class DcMotor8863 {
     }
 
     //*********************************************************************************************
-    //          Helper Methods
+    //          Config File Methods
     //*********************************************************************************************
 
     /**
@@ -974,34 +1043,6 @@ public class DcMotor8863 {
     }
 
     /**
-     * If the motor is set for relative movement, the encoder will be reset. But if the motor
-     * is set for absolute movement, the encoder needs to keep track of where the motor is, so
-     * it cannot be reset.
-     */
-    @Deprecated
-    private void resetEncoder() {
-        if (getMotorMoveType() == MotorMoveType.RELATIVE) {
-            this.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        }
-    }
-
-    /**
-     * If true is set, reset the encoder, no matter whether the motor is set for relative or
-     * absolute movement.
-     * Use this method to set the zero point on a motor that will be moved absolute from now on.
-     *
-     * @param override If true, then reset the encoder, no matter what.
-     */
-    @Deprecated
-    private void resetEncoder(boolean override) {
-        if (override) {
-            this.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        } else {
-            resetEncoder();
-        }
-    }
-
-    /**
      * After the motor stops moving it will be able to spin freely
      */
     public void setAfterCompletionToFloat() {
@@ -1197,7 +1238,8 @@ public class DcMotor8863 {
             // PID controller inside the core motor controller needs to have some room to increase
             // the power when it makes its PID adjustments. If you set the power to 100% then there is
             // no room to increase the power if needed and PID control will not work.
-            power = Range.clip(power, -.8, .8);
+            // 12/12/2021 I'm removing this since the core SDK should be taking care of it - GB
+            //power = Range.clip(power, -.8, .8);
             // reset the completion timer since we are starting a motor movement that will end
             // once rotation is detected as complete
             completionTimer.reset();
@@ -1996,4 +2038,85 @@ public class DcMotor8863 {
     public int getMaxSpeed() {
         return FTCDcMotor.getMaxSpeed();
     }*/
+
+
+    //*********************************************************************************************
+    //          Test and Diagnostic Methods
+    //*********************************************************************************************
+
+    /**
+     * Display the encoder count for the motor and its type. To use, rotate the motor shaft one
+     * revolution. Call this method from your opmode outside of any loops after waitForStart(); Pass
+     * the opmode using the keyword "this".
+     * @param opmode
+     */
+    public void testEncoderAndMotorType(LinearOpMode opmode)  {
+        resetEncoder();
+
+        while (opmode.opModeIsActive()) {
+            opmode.telemetry.addData("Test motor encoder and check motor type", ">");
+            opmode.telemetry.addData("Turn motor by hand 1 time around (360 degrees)", ">");
+            opmode.telemetry.addData("Encoder count = ", getCurrentPosition());
+            displayMotorTypeFromEncoderCount(getCurrentPosition(), opmode);
+            opmode.telemetry.update();
+        }
+    }
+
+    /**
+     * Add a telemetry statement displaying the motor type given the encoder count for one
+     * revolution of the output shaft of the motor
+     * @param encoderCount
+     * @param opmode
+     */
+    private void displayMotorTypeFromEncoderCount(int encoderCount, LinearOpMode opmode) {
+        encoderCount = Math.abs(encoderCount);
+        if (encoderCount == 0) {
+            opmode.telemetry.addData("Turn the output shaft of the motor", "!");
+        }
+        if (encoderCount > 0 && encoderCount <= 36) {
+            opmode.telemetry.addData("Motor type = ", "goBilda 6000");
+        }
+        if (encoderCount > 37 && encoderCount <= 74 ) {
+            opmode.telemetry.addData("Motor type = ", "Andymark 3.7 old style");
+        }
+        if (encoderCount > 74 && encoderCount <= 124 ) {
+            opmode.telemetry.addData("Motor type = ", "Andymark 3.7 or goBilda 1620");
+        }
+        if (encoderCount > 124 && encoderCount <= 265 ) {
+            opmode.telemetry.addData("Motor type = ", "goBilda 1150");
+        }
+        if (encoderCount > 265 && encoderCount <= 461 ) {
+            opmode.telemetry.addData("Motor type = ", "goBilda 435");
+        }
+        if (encoderCount > 461 && encoderCount <= 549 ) {
+            opmode.telemetry.addData("Motor type = ", "Andymark Orbital 20 or goBilda 312");
+        }
+        if (encoderCount > 549 && encoderCount <= 656 ) {
+            opmode.telemetry.addData("Motor type = ", "Andymark 20 spur gear");
+        }
+        if (encoderCount > 656 && encoderCount <= 936 ) {
+            opmode.telemetry.addData("Motor type = ", "goBilda 223");
+        }
+        if (encoderCount > 936 && encoderCount <= 1272 ) {
+            opmode.telemetry.addData("Motor type = ", "Andymark 40 spur gear");
+        }
+        if (encoderCount > 1272 && encoderCount <= 1552 ) {
+            opmode.telemetry.addData("Motor type = ", "goBilda 117");
+        }
+        if (encoderCount > 1552 && encoderCount <= 1836 ) {
+            opmode.telemetry.addData("Motor type = ", "Andymark 60 spur gear");
+        }
+        if (encoderCount > 1836 && encoderCount <= 2389 ) {
+            opmode.telemetry.addData("Motor type = ", "goBilda 84");
+        }
+        if (encoderCount > 2389 && encoderCount <= 3341 ) {
+            opmode.telemetry.addData("Motor type = ", "goBilda 60");
+        }
+        if (encoderCount > 3341 && encoderCount <= 4588 ) {
+            opmode.telemetry.addData("Motor type = ", "goBilda 43");
+        }
+        if (encoderCount > 4588 ) {
+            opmode.telemetry.addData("Motor type = ", "goBilda 30");
+        }
+    }
 }
