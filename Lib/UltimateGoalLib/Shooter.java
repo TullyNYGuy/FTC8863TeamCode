@@ -42,13 +42,14 @@ public class Shooter implements FTCRobotSubsystem {
     private DistanceUnit distanceUnit = DistanceUnit.METER;
 
     private ElapsedTime elapsedTime;
+
+    private boolean shooterOn = false;
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
     // allow access to private data fields for example setMotorPower,
     // getPositionInTermsOfAttachment
     //*********************************************************************************************
-
 
     //*********************************************************************************************
     //          Constructors
@@ -102,7 +103,10 @@ public class Shooter implements FTCRobotSubsystem {
 
     public void setSpeed(int motorRPM) {
         dualMotorGearBox.setSpeed(motorRPM);
-        elapsedTime.reset();
+        if (!shooterOn) {
+            elapsedTime.reset();
+        }
+        shooterOn= true;
     }
 
     public double getSpeed() {
@@ -110,7 +114,7 @@ public class Shooter implements FTCRobotSubsystem {
     }
 
     public boolean isReady () {
-        if (elapsedTime.milliseconds()>2000) {
+        if (elapsedTime.milliseconds()>50 && shooterOn) {
             return true;
         }
         else return false;
@@ -118,7 +122,66 @@ public class Shooter implements FTCRobotSubsystem {
 
     public void stop() {
         dualMotorGearBox.stopGearbox();
+        shooterOn= false;
     }
+
+    public void toggleShooter() {
+        if (shooterOn) {
+            stop();
+        } else {
+            // note this is hardwired to 5000 for now
+            setSpeed(5000);
+        }
+    }
+
+    public void resetAngleToZero() {
+        angleChanger.resetAngleToZero();
+    }
+
+    public void setToStartAngle() {
+        angleChanger.setToStartAngle();
+    }
+
+    public boolean isResetToZeroComplete() {
+        return angleChanger.isResetToZeroComplete();
+    }
+
+    public boolean isStartAngleReached() {
+        return angleChanger.isStartAngleReached();
+    }
+
+    public double getStartAngle(AngleUnit desiredUnits) {
+        return angleChanger.getStartAngle(desiredUnits);
+    }
+
+    public void restoreAngleInfo() {
+        angleChanger.restoreAngleInfo();
+    }
+
+    public void saveAngleInfoForLater() {
+        angleChanger.saveAngleInfoForLater();
+    }
+
+    public void clearAngleChanger() {
+        angleChanger.clearAngleChanger();
+    }
+
+    public void displaySwitchStatus(Telemetry telemetry) {
+        angleChanger.displaySwitchStatus(telemetry);
+    }
+
+//    public int getMotorTicks(){
+//        return angleChanger.getMotorTicks();
+//    }
+//
+//    public void setMotorTicks(int motorTicks){
+//        angleChanger.setMotorticks(motorTicks);
+//    }
+//
+//    public void resetMotor(){
+//        angleChanger.resetMotor();
+//    }
+
 
     @Override
     public String getName() {
@@ -129,7 +192,12 @@ public class Shooter implements FTCRobotSubsystem {
     public boolean isInitComplete() {
         return true;
     }
-
+//    public boolean isSwitchTriggered(){
+//        return angleChanger.isSwitchTriggered();
+//    }
+//    public void angleLower(){
+//        angleChanger.angleLower();
+//    }
     @Override
     public boolean init(Configuration config) {
         dualMotorGearBox.init(config);

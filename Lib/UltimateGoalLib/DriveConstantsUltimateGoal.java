@@ -47,7 +47,10 @@ public class DriveConstantsUltimateGoal {
      */
     public static double WHEEL_RADIUS = 1.8898; // in - goBilda mecanum wheels (96mm diam)
     public static double GEAR_RATIO = 1.0; // output (wheel) speed / input (motor) speed
-    public static double TRACK_WIDTH = 15.878; // from cad 403.3mm
+    // this is from CAD
+    //public static double TRACK_WIDTH = 15.878; // from cad 403.3mm
+    // This is from TurnTest
+    public static double TRACK_WIDTH = 17.114; // from cad 403.3mm
 
     /*
      * These are the feedforward parameters used to model the drive motor behavior. If you are using
@@ -56,10 +59,10 @@ public class DriveConstantsUltimateGoal {
      * empirically tuned.
      */
     //public static double kV = 1.0 / rpmToVelocity(MAX_RPM);
-    public static double kV = .0072;
+    public static double kV = 0.0161;
     //public static double kA = .0036;
-    public static double kA = .0025;
-    public static double kStatic = .132567;
+    public static double kA = 0.0020;
+    public static double kStatic = .08306;
 
     /*
      * These values are used to generate the trajectories for you robot. To ensure proper operation,

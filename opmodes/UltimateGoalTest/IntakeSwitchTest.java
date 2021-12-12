@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Ultimate Goal Intake Switch Test", group = "Diagnostics")
+@TeleOp(name = "Test Ultimate Goal Intake Switch", group = "Diagnostics")
 //@Disabled
 public class IntakeSwitchTest extends LinearOpMode {
 

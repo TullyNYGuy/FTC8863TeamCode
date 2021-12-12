@@ -9,11 +9,11 @@ package org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib;
  *    / DPad Up          - reverse stage 1 intake on/off
  *    / DPad Left        - reset intake
  *    / DPad Down        - stage 23 intake on/off
- *    / DPad Right       - 100% power
+ *    / DPad Right       -
  *    / A                - Bump 1
- *    / B                -  EStop
+ *    / B                - EStop
  *    / X                - fire 1
- *    / Y                - fire 2 - does not work
+ *    / Y                - quick fire 3
  *    /Left Bumper       - intake on/off
  *    /Right Bumper      - shooter on/off
  *
@@ -22,14 +22,16 @@ package org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib;
  *    / Left JoystickY   -
  *    / Right JoystickX  -
  *    / Right JoystickY  -
- *    / DPad Up          -
- *    / DPad Left        -
- *    / DPad Down        -
- *    / DPad Right       -
- *    / A                - set game angle1
- *    / B                - set game angle2
- *    / X                -
- *    / Y                -
+ *    / DPad Up          - angle for high goal
+ *    / DPad Left        - 100% power
+ *    / DPad Down        - angle for power shots
+ *    / DPad Right       - 50% power
+ *    / A                - re-home
+ *    / B                -
+ *    / X                - auto shoot high goal
+ *    / Y                - auto shoot endgame power shots - 1st press goto location, 2nd press shoot
+ *   /Left Bumper        - open/close wobble grabber
+ *   /Right Bumper       - extend/retract wobble grabber
  */
 
 import com.qualcomm.robotcore.hardware.Gamepad;
@@ -119,6 +121,7 @@ public class UltimateGoalGamepad {
 
     private UltimateGoalRobotRoadRunner robot;
 
+    private AutomaticTeleopFunctions automaticTeleopFunctions;
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -134,10 +137,11 @@ public class UltimateGoalGamepad {
     // from it
     //*********************************************************************************************
 
-    public UltimateGoalGamepad(Gamepad gamepad1, Gamepad gamepad2, UltimateGoalRobotRoadRunner robot) {
+    public UltimateGoalGamepad(Gamepad gamepad1, Gamepad gamepad2, UltimateGoalRobotRoadRunner robot, AutomaticTeleopFunctions automaticTeleopFunctions) {
         this.robot = robot;
         this.gamepad1 = gamepad1;
         this.gamepad2 = gamepad2;
+        this.automaticTeleopFunctions = automaticTeleopFunctions;
 
         //
         //YOU WILL HAVE TO CONFIGURE THE GAMEPAD BUTTONS FOR TOGGLING IF YOU WANT THAT. DO THAT HERE.
@@ -157,8 +161,8 @@ public class UltimateGoalGamepad {
         gamepad1LeftStickButton = new GamepadButtonMultiPush(1);
         gamepad1RightStickButton = new GamepadButtonMultiPush(1);
         gamepad1LeftTriggerButton = new GamepadButtonMultiPush(1);
-        gamepad1LeftBumper = new GamepadButtonMultiPush(2);
-        gamepad1RightBumper = new GamepadButtonMultiPush(2);
+        gamepad1LeftBumper = new GamepadButtonMultiPush(1);
+        gamepad1RightBumper = new GamepadButtonMultiPush(1);
 
         // Game Pad 1 joysticks
         gamepad1LeftJoyStickX = new SmartJoystick(gamepad1, SmartJoystick.JoystickSide.LEFT, SmartJoystick.JoystickAxis.X);
@@ -180,7 +184,7 @@ public class UltimateGoalGamepad {
         gamepad2LeftBumper = new GamepadButtonMultiPush(1);
         gamepad2a = new GamepadButtonMultiPush(1);
         gamepad2b = new GamepadButtonMultiPush(1);
-        gamepad2y = new GamepadButtonMultiPush(1);
+        gamepad2y = new GamepadButtonMultiPush(2);
         gamepad2x = new GamepadButtonMultiPush(1);
         gamepad2DpadDown = new GamepadButtonMultiPush(1);
         gamepad2DpadUp = new GamepadButtonMultiPush(1);
@@ -242,27 +246,13 @@ public class UltimateGoalGamepad {
         if (gamepad1RightBumper.buttonPress(gamepad1.right_bumper)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            if (gamepad1RightBumper.isCommand1()) {
-                // call the first command you want to run
-                robot.shooterOn();
-            }
-            if (gamepad1RightBumper.isCommand2()) {
-                // call the 2nd command you want to run
-                robot.shooterOff();
-            }
+            robot.shooter.toggleShooter();
         }
 
         if (gamepad1LeftBumper.buttonPress(gamepad1.left_bumper)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            if (gamepad1LeftBumper.isCommand1()) {
-                // call the first command you want to run
-                robot.intakeOn();
-            }
-            if (gamepad1LeftBumper.isCommand2()) {
-                // call the 2nd command you want to run
-                robot.intakeOff();
-            }
+            robot.intakeToggleOnOff();
         }
 
         if (gamepad1a.buttonPress(gamepad1.a)) {
@@ -280,7 +270,7 @@ public class UltimateGoalGamepad {
         if (gamepad1y.buttonPress(gamepad1.y)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            robot.fire2();
+            robot.fire3();
         }
 
         if (gamepad1x.buttonPress(gamepad1.x)) {
@@ -325,10 +315,7 @@ public class UltimateGoalGamepad {
         if (gamepad1DpadRight.buttonPress(gamepad1.dpad_right)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            gamepad1LeftJoyStickX.setFullPower();
-            gamepad1LeftJoyStickY.setFullPower();
-            gamepad1RightJoyStickX.setFullPower();
-            gamepad1RightJoyStickY.setFullPower();
+
         }
 
         if (gamepad1LeftStickButton.buttonPress(gamepad1.left_stick_button)) {
@@ -379,16 +366,19 @@ public class UltimateGoalGamepad {
         if (gamepad2RightBumper.buttonPress(gamepad2.right_bumper)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
+            robot.wobbleGoalGrabber.extendOrRetractGrabber();
         }
 
         if (gamepad2LeftBumper.buttonPress(gamepad2.left_bumper)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
+            robot.wobbleGoalGrabber.openOrCloseGrabber();
         }
 
         if (gamepad2a.buttonPress(gamepad2.a)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
+            robot.mecanum.setPoseEstimate(PoseStorage.SHOOTING_AT_HIGH_GOAL);
         }
 
         if (gamepad2b.buttonPress(gamepad2.b)) {
@@ -399,11 +389,20 @@ public class UltimateGoalGamepad {
         if (gamepad2y.buttonPress(gamepad2.y)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
+            if (gamepad2y.isCommand1()) {
+                // call the first command you want to run
+                automaticTeleopFunctions.moveToLeftPowerShot();
+            }
+            if (gamepad2y.isCommand2()) {
+                // call the 2nd command you want to run
+                automaticTeleopFunctions.shootPowerShots();
+            }
         }
 
         if (gamepad2x.buttonPress(gamepad2.x)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
+            automaticTeleopFunctions.goingToHighGoal();
         }
 
         if (gamepad2DpadUp.buttonPress(gamepad2.dpad_up)) {
@@ -421,11 +420,19 @@ public class UltimateGoalGamepad {
         if (gamepad2DpadLeft.buttonPress(gamepad2.dpad_left)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
+            gamepad1LeftJoyStickX.setFullPower();
+            gamepad1LeftJoyStickY.setFullPower();
+            gamepad1RightJoyStickX.setFullPower();
+            gamepad1RightJoyStickY.setFullPower();
         }
 
         if (gamepad2DpadRight.buttonPress(gamepad2.dpad_right)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
+            gamepad1LeftJoyStickX.setHalfPower();
+            gamepad1LeftJoyStickY.setHalfPower();
+            gamepad1RightJoyStickX.setHalfPower();
+            gamepad1RightJoyStickY.setHalfPower();
         }
 
         if (gamepad2LeftStickButton.buttonPress(gamepad2.left_stick_button)) {

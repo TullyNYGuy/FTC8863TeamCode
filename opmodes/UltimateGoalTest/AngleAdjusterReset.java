@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.UltimateGoalTest;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -11,7 +12,7 @@ import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.PersistantStorage;
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
 @TeleOp(name = "Angle Adjuster Reset", group = "Setup")
-//@Disabled
+@Disabled
 public class AngleAdjusterReset extends LinearOpMode {
 
     // Put your variable declarations here
@@ -23,8 +24,6 @@ public class AngleAdjusterReset extends LinearOpMode {
 
         // Put your initializations here
         angleChanger = new AngleChanger(hardwareMap, telemetry);
-
-        angleChanger.setAngleReference();
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");

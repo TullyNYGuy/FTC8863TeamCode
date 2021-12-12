@@ -91,10 +91,13 @@ public class MecanumDriveUltimateGoal extends MecanumDrive implements FTCRobotSu
 
     // THESE COME FROM THE SAMPLE MECANUM DRIVE CLASS IN road-runner-quickstart
 
-    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(8, 0, 1);
-    public static PIDCoefficients HEADING_PID = new PIDCoefficients(8, 0, 0);
+    //public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(8, 0, 1);
+    //public static PIDCoefficients HEADING_PID = new PIDCoefficients(8, 0, 0);
 
-    public static double LATERAL_MULTIPLIER = 1.978;
+    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(4, 0, .5);
+    public static PIDCoefficients HEADING_PID = new PIDCoefficients(6, 0, 0);
+
+    public static double LATERAL_MULTIPLIER = 1.40;
 
     public static double VX_WEIGHT = 1;
     public static double VY_WEIGHT = 1;
@@ -490,4 +493,8 @@ public class MecanumDriveUltimateGoal extends MecanumDrive implements FTCRobotSu
     public boolean init(Configuration config) {
         return true;
     }
+
+    //our methods are below here
+
+    
 }

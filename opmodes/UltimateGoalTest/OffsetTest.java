@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.UltimateGoalRobotRoadR
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
 @TeleOp(name = "Offset Test", group = "Test")
-//@Disabled
+@Disabled
 public class OffsetTest extends LinearOpMode {
 
     // Put your variable declarations her

@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.PersistantStorage;
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
 @TeleOp(name = "Test Angle Adjuster", group = "Test")
-//@Disabled
+@Disabled
 public class AngleAdjusterTest extends LinearOpMode {
 
     // Put your variable declarations here
@@ -26,10 +26,9 @@ public class AngleAdjusterTest extends LinearOpMode {
 
         // Put your initializations here
         angleChanger = new AngleChanger(hardwareMap, telemetry);
-        angleChanger.clearAngleChanger();
+        angleChanger.restoreAngleInfo();
 
         timer = new ElapsedTime();
-        angleChanger.setAngleReference();
         double angle = 0.0;
 
         // Wait for the start button
@@ -47,7 +46,7 @@ public class AngleAdjusterTest extends LinearOpMode {
             idle();
         }
 
-        telemetry.addData("motor encoder count = ", angleChanger.getMotorEncoderCount());
+        //telemetry.addData("motor encoder count = ", angleChanger.getMotorEncoderCount());
         telemetry.update();
         timer.reset();
         while (opModeIsActive() && timer.milliseconds() < 5000){
@@ -58,7 +57,7 @@ public class AngleAdjusterTest extends LinearOpMode {
         angleChanger = null;
         angleChanger = new AngleChanger(hardwareMap, telemetry);
         telemetry.addData("resetting angle changer", "!");
-        telemetry.addData("motor encoder count = ", angleChanger.getMotorEncoderCount());
+        //telemetry.addData("motor encoder count = ", angleChanger.getMotorEncoderCount());
         telemetry.update();
         timer.reset();
         while (opModeIsActive() && timer.milliseconds() < 5000){
@@ -78,7 +77,7 @@ public class AngleAdjusterTest extends LinearOpMode {
         angleChanger = null;
         angleChanger = new AngleChanger(hardwareMap, telemetry);
         telemetry.addData("resetting angle changer", "!");
-        telemetry.addData("motor encoder count = ", angleChanger.getMotorEncoderCount());
+        //telemetry.addData("motor encoder count = ", angleChanger.getMotorEncoderCount());
         telemetry.update();
         timer.reset();
         while (opModeIsActive() && timer.milliseconds() < 5000){
@@ -98,7 +97,7 @@ public class AngleAdjusterTest extends LinearOpMode {
         angleChanger = null;
         angleChanger = new AngleChanger(hardwareMap, telemetry);
         telemetry.addData("resetting angle changer", "!");
-        telemetry.addData("motor encoder count = ", angleChanger.getMotorEncoderCount());
+        //telemetry.addData("motor encoder count = ", angleChanger.getMotorEncoderCount());
         telemetry.update();
         timer.reset();
         while (opModeIsActive() && timer.milliseconds() < 5000){

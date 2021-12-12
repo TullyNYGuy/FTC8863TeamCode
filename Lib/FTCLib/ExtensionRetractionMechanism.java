@@ -56,6 +56,21 @@ public class ExtensionRetractionMechanism {
         JOYSTICK // under joystick control
     }
 
+    /**
+     * Enum used to say whether the mechanism tripped a limit switch or a position limit. Used to
+     * determine what actions to take when a full retraction has occurred. On a mechanism that works
+     * against gravity, you probably don't want the motor to hold position against a limit switch.
+     * But if there is a retraction limit above the limit switch, you probably do want the mechanism
+     * to hold its position.
+     */
+    private enum LimitTripBy {
+        LIMIT_SWITCH,
+        POSITION,
+        NOT_TRIPPED
+    }
+
+    private LimitTripBy limitTripBy = LimitTripBy.NOT_TRIPPED;
+
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS
     //
@@ -188,6 +203,12 @@ public class ExtensionRetractionMechanism {
         this.movementPerRevolution = movementPerRevolution;
     }
 
+    /**
+     * If the motor encoder count is within the target count by this amount, then we are going to
+     * say it has arrived at the desired location. For example, if the target encoder count is 500,
+     * and the targetEncoderTolerance is 10, then if the actual encoder count is between 490 and 510
+     * we say the target has been reached; it is close enough.
+     */
     private int targetEncoderTolerance = 10;
 
     public int getTargetEncoderTolerance() {
@@ -231,7 +252,8 @@ public class ExtensionRetractionMechanism {
     }
 
     /**
-     * The power to use when resetting the mechanism.
+     * The power to use when resetting the mechanism. Note if the reset occurs when the mechanism
+     * is retracting, then the power should be negative.
      */
     private double resetPower = -0.1;
 
@@ -243,10 +265,24 @@ public class ExtensionRetractionMechanism {
         this.resetPower = resetPower;
     }
 
+    /**
+     * After a certain time elaspses, the lift says it has reset, even if the retraction limit
+     * switch has not been tripped. Set that time here. In milli seconds.
+     */
     private ElapsedTime resetTimer;
+    private double resetTimerLimitInmSec = 0;
+
+    public double getResetTimerLimitInmSec() {
+        return resetTimerLimitInmSec;
+    }
+
+    public void setResetTimerLimitInmSec(double resetTimerLimitInmSec) {
+        this.resetTimerLimitInmSec = resetTimerLimitInmSec;
+    }
+
 
     /**
-     * The power to use when retracting the mechanism
+     * The power to use when retracting the mechanism. It has to be a negative power!
      */
     private double retractionPower = -1.0;
 
@@ -255,6 +291,10 @@ public class ExtensionRetractionMechanism {
     }
 
     public void setRetractionPower(double retractionPower) {
+        // if the user gave a positive power, then make it negative like it should have been
+        if(retractionPower > 0) {
+            retractionPower = -1 * retractionPower;
+        }
         this.retractionPower = retractionPower;
     }
 
@@ -401,7 +441,7 @@ public class ExtensionRetractionMechanism {
     /**
      * A timer that starts when the lift is created and can be used to timestamp data
      */
-    protected ElapsedTime liftTimer;
+    protected ElapsedTime mechanismTimer;
 
     /**
      * The mechanism can be run manually using a joystick as input. The power is stored here.
@@ -409,6 +449,11 @@ public class ExtensionRetractionMechanism {
     private double joystickPower = 0;
 
     private boolean directionOfMovementIsExtending = true;
+
+    /**
+     * Flag to say if the update() method has been run once
+     */
+    private boolean hasUpdateRunBefore = false;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -501,8 +546,8 @@ public class ExtensionRetractionMechanism {
 
         // create the time encoder data list in case it is needed
         timeEncoderValues = new PairedList();
-        liftTimer = new ElapsedTime();
 
+        mechanismTimer = new ElapsedTime();
         resetTimer = new ElapsedTime();
     }
 
@@ -540,11 +585,23 @@ public class ExtensionRetractionMechanism {
     /**
      * This method wraps the equivalent method in the DcMotor8863 class. The reason for this is that
      * I don't want to expose the motor publicly. But other code will need access to this method.
-     *
+     * I did not like the name of this method. Is does not say what it does really. Use
+     * isMovementComplete() instead.
      * @return
      */
+    @Deprecated
     public boolean isMotorStateComplete() {
-        return extensionRetractionMotor.isMotorStateComplete();
+        return extensionRetractionMotor.isMovementComplete();
+    }
+
+    /**
+     * This method wraps the equivalent method in the DcMotor8863 class. The reason for this is that
+     * I don't want to expose the motor publicly. But other code will need access to this method.
+     * I did not like the name of this method. Is does not say what it does really. Use
+     * @return
+     */
+    public boolean isMovementComplete() {
+        return extensionRetractionMotor.isMovementComplete();
     }
 
     /**
@@ -564,6 +621,12 @@ public class ExtensionRetractionMechanism {
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
 
+    /**
+     * Given a value in the units of the mechanism, such as a location in inches, convert it to
+     * encoder counts.
+     * @param mechanismUnits
+     * @return
+     */
     public double convertMechanismUnitsToEncoderCounts(double mechanismUnits) {
         return (mechanismUnits / movementPerRevolution * extensionRetractionMotor.getCountsPerRev());
     }
@@ -611,7 +674,7 @@ public class ExtensionRetractionMechanism {
      */
     public boolean init() {
         log(mechanismName + "Extension retraction system initializing");
-        liftTimer.reset();
+        mechanismTimer.reset();
         if (!isDebugMode()) {
             reset();
         } else {
@@ -624,7 +687,12 @@ public class ExtensionRetractionMechanism {
         return isResetComplete();
     }
 
+    @Deprecated
     public void reverseMotor() {
+        extensionRetractionMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+    }
+
+    public void reverseMotorDirection() {
         extensionRetractionMotor.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
@@ -645,30 +713,58 @@ public class ExtensionRetractionMechanism {
     //  motor position feedback
     //**********************************************************************************************
 
+    /**
+     * Get the encoder value of the extension retraction motor
+     * @return
+     */
     public int getMotorEncoderValue() {
         return extensionRetractionMotor.getCurrentPosition();
     }
 
+    /**
+     * Put the encoder value of the extension retraction motor into the telemetry buffer. It will
+     * get displayed on the driver station once a telemetry.update() is called.
+     */
     public void displayMotorEncoderValue() {
         telemetry.addData("Encoder = ", getMotorEncoderValue());
     }
 
+    /**
+     * Get the position of the mechanism in the units you are using: inches or mm or whatever.
+     * @return
+     */
     public double getPosition() {
         return extensionRetractionMotor.getPositionInTermsOfAttachment();
     }
 
+    /**
+     * Add the position of the mechanism in the units you are using to the telemetry buffer. It will
+     * get displayed on the driver station once a telemetry.update() is called.
+     */
     public void displayPosition() {
         telemetry.addData(mechanismName + " position (inches) = ", getPosition());
     }
 
+    /**
+     * Add the position that you asked the mechanism to go to to the telemetry display buffer. It will
+     * get displayed on the driver station once a telemetry.update() is called.
+     */
     public void displayRequestedPosition() {
         telemetry.addData(mechanismName + " position requested (inches) = ", desiredPosition);
     }
 
+    /**
+     * Add the motor power to the telemetry display buffer. It will
+     * get displayed on the driver station once a telemetry.update() is called.
+     */
     public void displayPower() {
-        telemetry.addData(mechanismName + " power (inches) = ", extensionRetractionPower);
+        telemetry.addData(mechanismName + " power = ", currentPower);
     }
 
+    /**
+     * Add the state of the motor to the telemetry display buffer. It will
+     * get displayed on the driver station once a telemetry.update() is called.
+     */
     public void displayMotorState() {
         telemetry.addData("Motor state = ", extensionRetractionMotor.getCurrentMotorState().toString());
     }
@@ -677,12 +773,36 @@ public class ExtensionRetractionMechanism {
     //  switch feedback
     //**********************************************************************************************
 
+    /**
+     * Is the retraction limit switch pressed?
+     * DO NOT USE THIS METHOD IF YOU ARE WRITING CODE INSIDE THIS CLASS.
+     * USE isRetractionLimitSwitchTripped() instead.
+     * @return true if pressed, folse if not or if not defined
+     */
     public boolean isRetractionLimitSwitchPressed() {
-        return retractedLimitSwitch.isPressed();
+        boolean retractionLimitSwitchPressed = false;
+        if (retractedLimitSwitch != null) {
+            if (retractedLimitSwitch.isPressed()) {
+                retractionLimitSwitchPressed = true;
+            }
+        }
+        return retractionLimitSwitchPressed;
     }
 
+    /**
+     * Is the extension limit switch pressed?
+     * DO NOT USE THIS METHOD IF YOU ARE WRITING CODE INSIDE THIS CLASS.
+     * USE isExtensionLimitSwitchTripped() instead.
+     * @return true if pressed, folse if not or if not defined
+     */
     public boolean isExtensionLimitSwitchPressed() {
-        return extendedLimitSwitch.isPressed();
+        boolean extensionLimitSwitchPressed = false;
+        if (extendedLimitSwitch != null) {
+            if (extendedLimitSwitch.isPressed()) {
+                extensionLimitSwitchPressed = true;
+            }
+        }
+        return extensionLimitSwitchPressed;
     }
     //*********************************************************************************************]
     // mechanism commands - these can come at any time. They are not synced to any state. In
@@ -736,6 +856,7 @@ public class ExtensionRetractionMechanism {
         // set the properties so they can be used later
         this.desiredPosition = position;
         this.moveToPositionPower = moveToPositionPower;
+        this.currentPower = moveToPositionPower;
         // the next execution of the state machine will pick up this new command and execute it
         extensionRetractionCommand = ExtensionRetractionCommands.GO_TO_POSITION;
     }
@@ -807,10 +928,15 @@ public class ExtensionRetractionMechanism {
         }
     }
 
+    /**
+     * Get the state of the mechanim's state machine.
+     * @return
+     */
     public ExtensionRetractionStates getExtensionRetractionState() {
 
         return this.extensionRetractionState;
     }
+
     /**
      * Is the mechanism retraction cycle completed?
      *
@@ -887,12 +1013,40 @@ public class ExtensionRetractionMechanism {
     /**
      * This method is called before the start of a reset sequence to check if the mechanism is
      * ok to reset. Put your code for determining that here. The code here is a suggestion. It
-     * assumes that the reset fully retracts the mechanism.
+     * assumes that the reset fully retracts the mechanism and presses the limit switch.
      *
      * @return
      */
     protected boolean isOKToReset() {
-        return !isRetractionLimitReached();
+        return !isResetLimitReached();
+    }
+
+    /**
+     * Is the reset movement is complete? The reset movement is complete when one of these things
+     * happens:
+     * 1 - the retraction limit switch is tripped (if there is a retraction limit switch)
+     * or
+     * 2 - the timer that times a retraction expires
+     * @return true if yes
+     */
+    protected boolean isMoveToResetComplete() {
+        // This method used to do this:
+        // Is the reset movement is complete? The reset movement is complete when one of these things
+        // happens:
+        // 1 - the retraction limit switch is tripped (if there is a retraction limit switch)
+        // 2 - the retraction encoder position is reached
+        // or
+        // 3 - the timer that times a retraction expires
+        // @return true if yes
+        // BUT
+        // this does not work if a retraction position is set up. The initial encoder is 0 and any
+        // retraction position will be a positive position so this algorithm will always be true.
+        // This means a reset complete will occur immediately. So now it only checks for a limit
+        // switch to be tripped or a time out.
+        boolean result = false;
+        // your method of determining whether the movement to the reset is complete must be
+        // coded here
+        return (isResetLimitReached() || isResetTimerExpired());
     }
 
     /**
@@ -922,25 +1076,13 @@ public class ExtensionRetractionMechanism {
         return true;
     }
 
+    /**
+     * Start a reset of the mechanism
+     */
     private void moveToReset() {
         extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         setCurrentPower(resetPower);
         log("Resetting mechanism " + mechanismName);
-    }
-
-    protected boolean isMoveToResetComplete() {
-        boolean result = false;
-        // your method of determining whether the movement to the reset is complete must be
-        // coded here
-        if (isRetractionLimitReached()) {
-            log("Retraction limit switch pressed " + mechanismName);
-            result = true;
-        }
-        if (resetTimer.milliseconds() > 1000) {
-            log("Retraction timer tripped");
-            result = true;
-        }
-        return result;
     }
 
     protected void performActionsToCompleteResetMovement() {
@@ -977,6 +1119,32 @@ public class ExtensionRetractionMechanism {
         // put your custom code to check whether the actions are complete here
         log("Post reset actions complete " + mechanismName);
         return true;
+    }
+
+    /**
+     * If there is a retraction limit switch set up, check to see if it has been tripped. The method
+     * is not really needed right now. But it is here in case the logic has to be changed in the
+     * future.
+     * @return true if tripped, false if not tripped or if not defined
+     */
+    protected boolean isResetLimitReached() {
+        return isRetractionLimitSwitchTripped();
+    }
+
+    /**
+     * Has the timer for the reset expired?
+     * @return true if expired, false if not or if timer is not set
+     */
+    protected boolean isResetTimerExpired() {
+        boolean result = false;
+        // a timer limit of 0 means the user is not using the timer
+        if (resetTimerLimitInmSec != 0) {
+            if (resetTimer.milliseconds() > resetTimerLimitInmSec) {
+                log("Reset timer expired");
+                result = true;
+            }
+        }
+        return result;
     }
 
 
@@ -1031,6 +1199,8 @@ public class ExtensionRetractionMechanism {
         // this is to fix a bug, when the lift resets, it leaves the motor in float mode. In order
         // for the lift to stay retracted, hold has to be set
         setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
+        // set the limit tripped by to none
+        limitTripBy = LimitTripBy.NOT_TRIPPED;
         setCurrentPower(retractionPower);
     }
 
@@ -1054,10 +1224,22 @@ public class ExtensionRetractionMechanism {
         // actions. You can override these if you need to.
         // Assuming that the full retraction is when the mechanism is at the reset position, there
         // is no need to keep the motor powered and holding that position so float the motor.
-        // NOTE if a full retraction is not on the reset position, then you may have to change this
-        // and actively hold the position.
-        setFinishBehavior(DcMotor8863.FinishBehavior.FLOAT);
-        stopMechanism();
+        // But if the full retraction is when a position limit was reached, then we have to hold
+        // that position.
+        if (limitTripBy == LimitTripBy.LIMIT_SWITCH){
+            setFinishBehavior(DcMotor8863.FinishBehavior.FLOAT);
+            setCurrentPower(0);
+            log("Stopping mechanism, motor set to float");
+        }
+        if (limitTripBy == LimitTripBy.POSITION) {
+            // Since the retraction limit was tripped by a position, set the mechanism to hold at
+            // that limit position
+            setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
+            extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            extensionRetractionMotor.setTargetPosition(getRetractionPositionInEncoderCounts().intValue());
+            setCurrentPower(1.0);
+            log("Stopping mechanism, attempting to hold position");
+        }
     }
 
     /**
@@ -1087,34 +1269,47 @@ public class ExtensionRetractionMechanism {
     }
 
     /**
-     * This method is the default for checking to see if the mechanism is in the retracted position.
-     * You can override it if you have a different method. Note that the retraction limit position
-     * is assumed to be the least value possible for all of the possible positions of the mechanism.
-     *
-     * @return true if EITHER extension limit switch is pressed OR if current position is equal to
-     * or less than the extension position.
+     * If there is a retraction limit switch set up, check to see if it has been tripped
+     * @return true if tripped, false if not tripped or if not defined
      */
-    protected boolean isRetractionLimitReached() {
-        boolean retractionLimitSwitchReached = false;
-        boolean retractionEncoderValueReached = false;
-        // if a limit switch is not present, the retractedLimitSwitch object will be null.
-        // Only check it if it is present.
-        if (retractedLimitSwitch != null) {
-            if (retractedLimitSwitch.isPressed()) {
-                retractionLimitSwitchReached = true;
-                log("Retraction limit switch tripped " + mechanismName);
-            }
+    protected boolean isRetractionLimitSwitchTripped() {
+        boolean retractionLimitSwitchTripped = isRetractionLimitSwitchPressed();
+        if(retractionLimitSwitchTripped) {
+            limitTripBy = LimitTripBy.LIMIT_SWITCH;
+            log("Retraction limit switch tripped " + mechanismName);
         }
+        return retractionLimitSwitchTripped;
+    }
+
+    /**
+     * If a there is a retraction limit position set up, check to see if has been reached.
+     * @return true if reached, false if not reached or if not defined
+     */
+    protected boolean isRetractionLimitPositionReached() {
+        boolean retractionEncoderValueReached = false;
         // If a retraction limit position has been set, it will not be null. If none has been set,
         // its value will be null and the check is skipped. Note that the retractionPositionInEncoderCounts is a
         // Double (class) not a double (primitive).
         if (retractionPositionInEncoderCounts != null) {
             if (extensionRetractionMotor.getCurrentPosition() <= retractionPositionInEncoderCounts) {
                 retractionEncoderValueReached = true;
+                limitTripBy = LimitTripBy.POSITION;
                 log("Retraction encoder limit tripped " + mechanismName);
             }
         }
-        return (retractionLimitSwitchReached || retractionEncoderValueReached);
+        return (retractionEncoderValueReached);
+    }
+
+    /**
+     * This method is the default for checking to see if the mechanism is in the retracted position.
+     * You can override it if you have a different method. Note that the retraction limit position
+     * is assumed to be the least value possible for all of the possible positions of the mechanism.
+     *
+     * @return true if EITHER extension limit switch is pressed OR if current position is equal to
+     * or less than the retraction position.
+     */
+    protected boolean isRetractionLimitReached() {
+        return (isRetractionLimitSwitchTripped() || isRetractionLimitPositionReached());
     }
 
     //**********************************************************************************************
@@ -1221,34 +1416,43 @@ public class ExtensionRetractionMechanism {
     }
 
     /**
+     * Check if there is an extension limit switch defined. If there is, check if it is tripped.
+     * If it is tripped, log that and return true.
+     * @return true if tripped, false if not tripped or if not defined
+     */
+    protected boolean isExtensionLimitSwitchTripped() {
+        boolean extensionLimitSwitchReached = isExtensionLimitSwitchPressed();
+        if (extensionLimitSwitchReached) {
+            log("Extension limit switch pressed. " + mechanismName);
+        }
+        return extensionLimitSwitchReached;
+    }
+
+    /**
+     * Check if there is an extension limit position defined. If there is, check if the mechanism
+     * position is past the limit. If it is, log that and return true.
+     * @return true if reached, false if not reached or if not defined
+     */
+    protected boolean isExtensionLimitPositionReached() {
+        boolean extensionEncoderValueReached = false;
+        if (extensionPositionInEncoderCounts != null) {
+            if (extensionRetractionMotor.getCurrentPosition() >= extensionPositionInEncoderCounts) {
+                extensionEncoderValueReached = true;
+                log("Extension encoder limit pressed. " + mechanismName);
+            }
+        }
+        return extensionEncoderValueReached;
+    }
+
+    /**
      * This method is the default for checking to see if the mechanism is in the extended position.
-     * You can override it if you have a different method. Note that the extension limit position
-     * is assumed to be the greatest value possible for all of the possible positions of the mechanism.
+     * You can override it if you have a different method.
      *
      * @return true if EITHER extension limit switch is pressed OR if current position is equal to
      * or greater than the extension position.
      */
     private boolean isExtensionLimitReached() {
-        boolean extensionLimitSwitchReached = false;
-        boolean extensionEncoderValueReached = false;
-        // if a limit switch is not present, the retractedLimitSwitch object will be null.
-        // Only check it if it is present.
-        if (extendedLimitSwitch != null) {
-            if (extendedLimitSwitch.isPressed()) {
-                extensionLimitSwitchReached = true;
-                log("Extention limit switch tripped. " + mechanismName);
-            }
-        }
-        // If a extension limit position has been set, it will not be null. If none has been set,
-        // its value will be null and the check is skipped. Note that the extensionPositionInEncoderCounts is a
-        // Double (class) not a double (primitive).
-        if (extensionPositionInEncoderCounts != null) {
-            if (extensionRetractionMotor.getCurrentPosition() >= extensionPositionInEncoderCounts) {
-                extensionEncoderValueReached = true;
-                log("Extension encoder limit tripped. " + mechanismName);
-            }
-        }
-        return (extensionLimitSwitchReached || extensionEncoderValueReached);
+        return (isExtensionLimitSwitchTripped() || isExtensionLimitPositionReached());
     }
 
     //**********************************************************************************************
@@ -1313,7 +1517,7 @@ public class ExtensionRetractionMechanism {
      * @return true if complete
      */
     private boolean isMoveToPositionComplete() {
-        return extensionRetractionMotor.isMotorStateComplete();
+        return extensionRetractionMotor.isMovementComplete();
     }
 
     //**********************************************************************************************
@@ -1353,7 +1557,6 @@ public class ExtensionRetractionMechanism {
         // fully extended and fully retracted and it is ok to joystick. That is why the default
         // result is true.
         return result;
-
     }
 
     /**
@@ -1381,6 +1584,9 @@ public class ExtensionRetractionMechanism {
                 extensionRetractionCommand = ExtensionRetractionCommands.NO_COMMAND;
             }
              */
+        } else {
+            // it is not ok to joystick
+            setCurrentPower(0.0);
         }
     }
 
@@ -1402,6 +1608,15 @@ public class ExtensionRetractionMechanism {
             extensionRetractionMotor.setTargetPosition(extensionRetractionMotor.getCurrentPosition());
             setCurrentPower(1.0);
         }
+    }
+
+    /**
+     * Cause the mechanism to stop moving.
+     */
+    protected void emergencyStop() {
+        extensionRetractionMotor.setFinishBehavior(DcMotor8863.FinishBehavior.FLOAT);
+        log("Emergency Stop mechanism, motor set to float");
+        setCurrentPower(0);
     }
 
     /**
@@ -1467,13 +1682,21 @@ public class ExtensionRetractionMechanism {
 
     // public ExtensionRetractionStates update() {
     public void update() {
+
         // update the state machine for the motor
         DcMotor8863.MotorState motorState = extensionRetractionMotor.update();
+
         currentEncoderValue = extensionRetractionMotor.getCurrentPosition();
         if (collectData) {
-            timeEncoderValues.add(liftTimer.milliseconds(), currentEncoderValue);
+            timeEncoderValues.add(mechanismTimer.milliseconds(), currentEncoderValue);
         }
-        logState(extensionRetractionState, extensionRetractionCommand);
+
+        // if this is the first time the update is run, log the state and command. The rest of the
+        // time the logging occurs at the end of the state machine so that any changes are logged
+        if (!hasUpdateRunBefore) {
+            logState(extensionRetractionState, extensionRetractionCommand);
+            hasUpdateRunBefore = true;
+        }
 
         switch (extensionRetractionState) {
 
@@ -2325,7 +2548,7 @@ public class ExtensionRetractionMechanism {
                 }
                 break;
         }
-
+        logState(extensionRetractionState, extensionRetractionCommand);
     }
 
     //*********************************************************************************************]
@@ -2344,7 +2567,7 @@ public class ExtensionRetractionMechanism {
         int originalEncoderCount = extensionRetractionMotor.getCurrentPosition();
         extensionRetractionMotor.rotateNumberOfRevolutions(.1, 1, DcMotor8863.FinishBehavior.HOLD);
 
-        while (opMode.opModeIsActive() && !extensionRetractionMotor.isMotorStateComplete()) {
+        while (opMode.opModeIsActive() && !extensionRetractionMotor.isMovementComplete()) {
             extensionRetractionMotor.update();
             opMode.telemetry.addData("motor state = ", extensionRetractionMotor.getCurrentMotorState().toString());
             opMode.telemetry.addData("encoder count = ", extensionRetractionMotor.getCurrentPosition());
@@ -2401,6 +2624,11 @@ public class ExtensionRetractionMechanism {
         delay(4000);
     }
 
+    /**
+     * This method is meant to be called from inside the opmode loop. It will display the motor
+     * encoder value and the state of the limit switches. Don't forget to put a telemetry.update()
+     * inside your loop so that the telemetry values are displayed.
+     */
     public void testLimitSwitches() {
         if (retractedLimitSwitch.isPressed()) {
             telemetry.addLine("retracted limit switch pressed");
@@ -2416,6 +2644,13 @@ public class ExtensionRetractionMechanism {
         telemetry.addData("encoder = ", extensionRetractionMotor.getCurrentPosition());
     }
 
+    /**
+     * This method will test the reset of the mechanism. If it stops moving before the mechanism trips the
+     * retraction limit switch, the reset timer most likely expired. So you will have to increase
+     * the resetTimerLimitInmSec value. If the mechanism moves in the wrong direction, use
+     * reverseMotorDirection() to change the direction of movement.
+     * @param opMode
+     */
     public void testReset(LinearOpMode opMode) {
         ExtensionRetractionStates extensionRetractionState;
         this.reset();
@@ -2436,10 +2671,79 @@ public class ExtensionRetractionMechanism {
 //        }
     }
 
+    /**
+     * This method will test the init of the mechanism. If it stops moving before the mechanism trips the
+     * retraction limit switch, the reset timer most likely expired. So you will have to increase
+     * the resetTimerLimitInmSec value. If the mechanism moves in the wrong direction, use
+     * reverseMotorDirection() to change the direction of movement.
+     * @param opMode
+     */
+    public void testInit(LinearOpMode opMode) {
+        ExtensionRetractionStates extensionRetractionState;
+        this.init();
+        while (opMode.opModeIsActive() && !isInitComplete()) {
+            update();
+            extensionRetractionState = getExtensionRetractionState();
+            opMode.telemetry.addData("state = ", extensionRetractionState.toString());
+            opMode.telemetry.update();
+            opMode.idle();
+        }
+    }
+
+    /**
+     * This method will test the retraction of the mechanism. If the mechanism moves in the wrong
+     * direction, use reverseMotorDirection() to change the direction of movement. Be sure to set
+     * the retraction power to something safe so you don't break the lift. Use setRetractionPower()
+     * for that. The retraction limit is hit either when the mechanism trips the retraction
+     * limit switch, or when it hits the retraction distance limit. You can test the retraction
+     * distance limit by setRetractionPositionInMechanismUnits() or
+     * setRetractionPositionInEncoderCounts().
+     * @param opMode
+     * @return The minimum encoder value encountered
+     */
+    public int testRetraction(LinearOpMode opMode) {
+        ExtensionRetractionStates extensionRetractionState;
+        // set up to find the minimum encoder value
+        int encoderValue = 0;
+        // initialize it with a crazy high value so that it will get reduced on the first cycle
+        int encoderValueMin = 1000000;
+        // force the mechanism to think it has completed a reset
+        this.extensionRetractionState = ExtensionRetractionStates.RESET_COMPLETE;
+        this.goToFullRetract();
+        while (opMode.opModeIsActive() && !this.isRetractionComplete()) {
+            update();
+            extensionRetractionState = getExtensionRetractionState();
+            encoderValue = extensionRetractionMotor.getCurrentPosition();
+            // if this encoder value is the minimum encountered, then update the min
+            if (encoderValue < encoderValueMin) {
+                encoderValueMin = encoderValue;
+            }
+            opMode.telemetry.addData("state = ", extensionRetractionState.toString());
+            opMode.telemetry.addData("encoder = ", extensionRetractionMotor.getCurrentPosition());
+            opMode.telemetry.update();
+            opMode.idle();
+        }
+        opMode.telemetry.addData("min encoder value = ", encoderValueMin);
+        return encoderValueMin;
+    }
+
+    /**
+     * This method will test the extension of the mechanism. If the mechanism moves in the wrong
+     * direction, use reverseMotorDirection() to change the direction of movement. Be sure to set
+     * the extension power to something safe so you don't break the lift. Use setExtensionPower()
+     * for that. The extension limit is hit either when the mechanism trips the extension
+     * limit switch, or when it hits the extension distance limit. You can test the extension
+     * distance limit by setExtensionPositionInMechanismUnits() or
+     * setExtensionPositionInEncoderCounts().
+     * @param opMode
+     * @return the max encoder value of the motor
+     */
     public int testExtension(LinearOpMode opMode) {
         ExtensionRetractionStates extensionRetractionState;
         int encoderValue = 0;
         int encoderValueMax = 0;
+        // force the mechanism to think it has completed a reset
+        this.extensionRetractionState = ExtensionRetractionStates.RESET_COMPLETE;
         this.goToFullExtend();
         while (opMode.opModeIsActive() && !this.isExtensionComplete()) {
             update();
@@ -2457,39 +2761,34 @@ public class ExtensionRetractionMechanism {
         return encoderValueMax;
     }
 
-    public int testRetraction(LinearOpMode opMode) {
-        ExtensionRetractionStates extensionRetractionState;
-        int encoderValue = 0;
-        int encoderValueMin = 1000000;
-        this.goToFullRetract();
-        while (opMode.opModeIsActive() && !this.isRetractionComplete()) {
-            update();
-            extensionRetractionState = getExtensionRetractionState();
-            encoderValue = extensionRetractionMotor.getCurrentPosition();
-            if (encoderValue < encoderValueMin) {
-                encoderValueMin = encoderValue;
-            }
-            opMode.telemetry.addData("state = ", extensionRetractionState.toString());
-            opMode.telemetry.addData("encoder = ", extensionRetractionMotor.getCurrentPosition());
-            opMode.telemetry.update();
-            opMode.idle();
-        }
-        opMode.telemetry.addData("min encoder value = ", encoderValueMin);
-        return encoderValueMin;
-    }
-
-    public void testCycleFullExtensionRetraction(LinearOpMode opMode, int numberOfCycles) {
+    /**
+     * This method starts by resetting the mechanism, and then it cycles between fully extending
+     * and fully retracting the mechanism as many times as you want it to. It does some error
+     * checking by seeing if the movement completes in less than a certain amount of time. If it
+     * does not complete in less than that time, it is determined to be an error.
+     * @param opMode
+     * @param numberOfCycles number of extension / retraction cycles to run
+     * @param timeoutInMSec the movements must complete in less than this time in milli-seconds
+     *                      or an error occurs
+     */
+    public void testCycleFullExtensionRetraction(
+            LinearOpMode opMode,
+            int numberOfCycles,
+            double timeoutInMSec) {
         boolean extending = false;
         ExtensionRetractionStates extensionRetractionState;
-        double currentCycleNumber = 0;
+        int currentCycleNumber = 0;
         double totalExtensionTime = 0;
+        int numberOfExtensions = 0;
         double totalRetractionTime = 0;
+        int numberOfRetractions = 0;
         boolean errorExists = false;
-        double waitToCheckMovementDelay = 500.0;
         ElapsedTime overallTimer = new ElapsedTime();
         ElapsedTime movementTimer = new ElapsedTime();
 
+        // reset the mechanism
         testReset(opMode);
+        // a little delay to show the user that the reset is complete
         opMode.sleep(1000);
         // start off with an extension
         movementTimer.reset();
@@ -2497,44 +2796,55 @@ public class ExtensionRetractionMechanism {
         goToFullExtend();
         extending = true;
 
-        while (currentCycleNumber < (double) numberOfCycles && !errorExists && opMode.opModeIsActive()) {
+        while (currentCycleNumber < numberOfCycles && !errorExists && opMode.opModeIsActive()) {
             update();
             extensionRetractionState = getExtensionRetractionState();
             switch (extensionRetractionState) {
                 case FULLY_EXTENDED:
                     // reached full extension
                     totalExtensionTime = totalExtensionTime + movementTimer.milliseconds();
+                    numberOfExtensions ++;
+                    opMode.telemetry.addData("extension complete: number = ", numberOfExtensions);
+                    opMode.telemetry.update();
                     opMode.sleep(3000);
                     // reset the timer
                     movementTimer.reset();
-                    currentCycleNumber = currentCycleNumber + 0.5;
-                    opMode.telemetry.addData("cycle number = ", currentCycleNumber);
-                    opMode.telemetry.update();
                     this.goToFullRetract();
                     extending = false;
                     break;
                 case FULLY_RETRACTED:
                     // reached full retraction
                     totalRetractionTime = totalRetractionTime + movementTimer.milliseconds();
+                    currentCycleNumber++;
+                    numberOfRetractions++;
+                    opMode.telemetry.addData("retract complete: number = ", numberOfRetractions);
+                    opMode.telemetry.addData("cycle number = ", currentCycleNumber);
+                    opMode.telemetry.update();
                     opMode.sleep(3000);
                     // reset the timer
                     movementTimer.reset();
-                    currentCycleNumber = currentCycleNumber + 0.5;
-                    opMode.telemetry.addData("cycle number = ", currentCycleNumber);
-                    opMode.telemetry.update();
                     this.goToFullExtend();
                     extending = true;
                     break;
                 default:
-                    if (movementTimer.milliseconds() > waitToCheckMovementDelay) {
-                        if (extending && isRetractionLimitReached()) {
-                            // the mechanism never moved towards extension; it is still on the retraction limit
+                    if (extending) {
+                        opMode.telemetry.addData("extending: cycle = ", numberOfExtensions +1);
+                    } else {
+                        opMode.telemetry.addData("retractions: cycle = ", numberOfRetractions +1);
+                    }
+                    opMode.telemetry.update();
+                    // the mechanism state is something other than fully retracted or fully
+                    // extended. Do some error checking to make sure it is not broken. Check it
+                    // for a time out.
+                    if (movementTimer.milliseconds() > timeoutInMSec) {
+                        if (extending) {
+                            // the mechanism never completed the extension
                             opMode.telemetry.addData("failed to extend after cycle = ", currentCycleNumber);
                             opMode.telemetry.addData("failed after cycle time = ", overallTimer);
                             errorExists = true;
                         }
-                        if (!extending && isExtensionLimitReached()) {
-                            // the mechanism never moved towards retraction; it is still on the extension limit
+                        if (!extending) {
+                            // the mechanism never completed the retraction
                             opMode.telemetry.addData("failed to retract after cycle = ", currentCycleNumber);
                             opMode.telemetry.addData("failed after cycle time = ", overallTimer);
                             errorExists = true;
@@ -2545,15 +2855,112 @@ public class ExtensionRetractionMechanism {
         }
         // the cycling is over
         if (!errorExists) {
-            opMode.telemetry.addData("Mechanism passed at cycles = ", currentCycleNumber);
+            opMode.telemetry.addData("Mechanism passed " + currentCycleNumber, " cycles");
             opMode.telemetry.addData("overall time = ", overallTimer);
-            opMode.telemetry.addData("extension  time: total = ", totalExtensionTime);
-            opMode.telemetry.addData("                 ave   = ", "%.2f", totalExtensionTime / numberOfCycles);
-            opMode.telemetry.addData("retraction time: total = ", totalRetractionTime);
-            opMode.telemetry.addData("                 ave   = ", "%.2f", totalRetractionTime / numberOfCycles);
+            opMode.telemetry.update();
+        } else {
+            // an error was found
+            emergencyStop();
+        }
+        opMode.telemetry.addData("extension  time: total = ", totalExtensionTime);
+        opMode.telemetry.addData("                 ave   = ", "%.2f", totalExtensionTime / numberOfExtensions);
+        opMode.telemetry.addData("retraction time: total = ", totalRetractionTime);
+        opMode.telemetry.addData("                 ave   = ", "%.2f", totalRetractionTime / numberOfRetractions);
+        opMode.telemetry.update();
+    }
+
+    /**
+     * This method resets the mechanism, then moves to the given position.
+     * @param opMode
+     * @param position position to move to
+     * @param power move to the position at this power
+     */
+    public void testGoToPosition(LinearOpMode opMode, double position, double power) {
+        // reset the mechanism to set the 0 location
+        testReset(opMode);
+        opMode.sleep(1000);
+
+        this.goToPosition(position, power);
+        while (opMode.opModeIsActive() && !this.isPositionReached()) {
+            update();
+            extensionRetractionState = getExtensionRetractionState();
+            opMode.telemetry.addData("state = ", extensionRetractionState.toString());
+            opMode.telemetry.addData("position = ", extensionRetractionMotor.getPositionInTermsOfAttachment());
+            opMode.telemetry.update();
+            opMode.idle();
+        }
+        return;
+    }
+
+    /**
+     * This method resets the mechanism, then moves to the given position.
+     * @param opMode
+     * @param positions array of positions to move to
+     * @param power move to the position at this power
+     */
+    public void testGoToPositions(LinearOpMode opMode, double[] positions, double power) {
+        // reset the mechanism to set the 0 location
+        testReset(opMode);
+        opMode.sleep(1000);
+
+        for(int i = 0; i < positions.length; i++ ) {
+            this.goToPosition(positions[i], power);
+            while (opMode.opModeIsActive() && !this.isPositionReached()) {
+                update();
+                extensionRetractionState = getExtensionRetractionState();
+                opMode.telemetry.addData("state = ", extensionRetractionState.toString());
+                opMode.telemetry.addData("position = ", extensionRetractionMotor.getPositionInTermsOfAttachment());
+                opMode.telemetry.update();
+                opMode.idle();
+            }
+            opMode.sleep(3000);
+        }
+
+        return;
+    }
+
+    public void testCycleGoToPosition(
+            LinearOpMode opMode,
+            double[] positions,
+            double power,
+            int numberOfCycles,
+            double timeoutInMSec) {
+
+        boolean extending = false;
+        ExtensionRetractionStates extensionRetractionState;
+        int currentCycleNumber = 0;
+        boolean errorExists = false;
+        ElapsedTime overallTimer = new ElapsedTime();
+        ElapsedTime movementTimer = new ElapsedTime();
+
+        // reset the mechanism
+        testReset(opMode);
+        // a little delay to show the user that the reset is complete
+        opMode.sleep(1000);
+        // start off with an extension
+        movementTimer.reset();
+        overallTimer.reset();
+
+        for (int cycleNumber = 0; cycleNumber < numberOfCycles; cycleNumber++) {
+            for (int i = 0; i < positions.length; i++) {
+                this.goToPosition(positions[i], power);
+                while (!errorExists && opMode.opModeIsActive() && !this.isPositionReached()) {
+                    update();
+                    extensionRetractionState = getExtensionRetractionState();
+                    opMode.telemetry.addData("state = ", extensionRetractionState.toString());
+                    opMode.telemetry.addData("encoder = ", extensionRetractionMotor.getCurrentPosition());
+                    opMode.telemetry.update();
+                    opMode.idle();
+                }
+                opMode.sleep(3000);
+            }
         }
     }
 
+    /**
+     * This enum is used to test moving the mechanism using the joystick. It just gives a sequence
+     * of states to be used in a state machine
+     */
     private enum JoystickTestState {
         ONE,
         TWO,
@@ -2569,6 +2976,11 @@ public class ExtensionRetractionMechanism {
 
     private JoystickTestState joystickTestState;
 
+    /**
+     *
+     * @param opMode
+     * @return
+     */
     public int testJoystick(LinearOpMode opMode) {
         joystickTestState = JoystickTestState.ONE;
         ElapsedTime timer = new ElapsedTime();

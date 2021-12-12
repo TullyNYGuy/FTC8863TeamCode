@@ -55,8 +55,8 @@ public class UltimateGoalRobotRoadRunner implements FTCRobot {
         STAGE_2_SERVO("stage2servo"),
         STAGE_3_SERVO("stage3servo"),
         GRABBER_SERVO("grabberServo"),
-        ARM_ROTATION_SERVO("armRotationServo");
-
+        ARM_ROTATION_SERVO("armRotationServo"),
+        ANGLE_CHANGER_LIMIT_SWITCH("angleAdjusterSwitch");
         public final String hwName;
 
         HardwareName(String name) {
@@ -164,7 +164,7 @@ public class UltimateGoalRobotRoadRunner implements FTCRobot {
         }
 
         if (capabilities.contains(Subsystem.FIRE_CONTROLLER)) {
-            fireController = new UltimateGoalFireController(intakeController, shooter);
+            fireController = new UltimateGoalFireController(intakeController, shooter, intake);
             subsystemMap.put(fireController.getName(), fireController);
         }
 
@@ -305,6 +305,10 @@ public class UltimateGoalRobotRoadRunner implements FTCRobot {
         intakeController.requestIntake();
     }
 
+    public void intakeToggleOnOff() {
+        intakeController.requestIntakeToggleOnOff();
+    }
+
     public void intakeOff() {
         intakeController.requestOff();
     }
@@ -320,6 +324,8 @@ public class UltimateGoalRobotRoadRunner implements FTCRobot {
     public void fire3() {
         fireController.requestFire3();
     }
+
+    public void quickFire3 () {fireController.requestQuickFire3();}
 
     public void eStop() {
         intakeController.requestEstop();
@@ -382,11 +388,12 @@ public class UltimateGoalRobotRoadRunner implements FTCRobot {
     }
 
     public void setGameAngleHighGoal () {
-        this.shooter.setAngle(AngleUnit.DEGREES, 25.5);
+        this.shooter.setAngle(AngleUnit.DEGREES, PersistantStorage.getHighGoalShooterAngle());
     }
 
     public void setGameAnglePowerShots () {
-        this.shooter.setAngle( AngleUnit.DEGREES, 21.3);
+        // was 21.3
+        this.shooter.setAngle( AngleUnit.DEGREES, PersistantStorage.getPowerShotShooterAngle());
     }
 
     public void dropWobbleGoal () {
