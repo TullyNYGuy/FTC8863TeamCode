@@ -34,10 +34,10 @@ public class TestLiftUsingJoystick extends LinearOpMode {
                 "ExtensionLimitSwitch",
                 "RetractionLimitSwitch",
                 "LiftMotor",
-                DcMotor8863.MotorType.ANDYMARK_40,
+                DcMotor8863.MotorType.ANDYMARK_20_ORBITAL,
                 21.3/5.0);
 
-        lift.reverseMotorDirection();
+        //lift.reverseMotorDirection();
         lift.setResetTimerLimitInmSec(25000);
         lift.setExtensionPower(1.0);
         lift.setExtensionPositionInMechanismUnits(19.0);
