@@ -411,6 +411,12 @@ public class ExtensionRetractionMechanism {
 
     protected boolean loggingOn = false;
 
+    // flags to allow us to only log the limit switch and limit positions once in the log file
+    private boolean retractionLimitSwitchLoggedAlready = false;
+    private boolean retractionLimitPositionLoggedAlready = false;
+    private boolean extensionLimitSwitchLoggedAlready = false;
+    private boolean extensionLimitPositionLoggedAlready = false;
+
     /**
      * Collect time vs encoder count data for debug purposes
      */
@@ -1276,7 +1282,14 @@ public class ExtensionRetractionMechanism {
         boolean retractionLimitSwitchTripped = isRetractionLimitSwitchPressed();
         if(retractionLimitSwitchTripped) {
             limitTripBy = LimitTripBy.LIMIT_SWITCH;
-            log("Retraction limit switch tripped " + mechanismName);
+            if (!retractionLimitSwitchLoggedAlready) {
+                // only log the limit switch pressed the first time, not on every call to this method
+                retractionLimitSwitchLoggedAlready = true;
+                log("Retraction limit switch pressed " + mechanismName);
+            }
+        } else {
+            // limit switch is not pressed so make sure it can be logged if it ever is
+            retractionLimitSwitchLoggedAlready = false;
         }
         return retractionLimitSwitchTripped;
     }
@@ -1294,7 +1307,14 @@ public class ExtensionRetractionMechanism {
             if (extensionRetractionMotor.getCurrentPosition() <= retractionPositionInEncoderCounts) {
                 retractionEncoderValueReached = true;
                 limitTripBy = LimitTripBy.POSITION;
-                log("Retraction encoder limit tripped " + mechanismName);
+                // only log the limit position reached the first time, not on every call to this method
+                if (!retractionLimitPositionLoggedAlready) {
+                    retractionLimitPositionLoggedAlready = true;
+                    log("Retraction encoder limit tripped " + mechanismName);
+                }
+            } else {
+                // limit position is not reached so make sure it can be logged if it ever is
+                retractionLimitPositionLoggedAlready = false;
             }
         }
         return (retractionEncoderValueReached);
@@ -1421,11 +1441,19 @@ public class ExtensionRetractionMechanism {
      * @return true if tripped, false if not tripped or if not defined
      */
     protected boolean isExtensionLimitSwitchTripped() {
-        boolean extensionLimitSwitchReached = isExtensionLimitSwitchPressed();
-        if (extensionLimitSwitchReached) {
-            log("Extension limit switch pressed. " + mechanismName);
+        boolean extensionLimitSwitchTripped = isExtensionLimitSwitchPressed();
+        if (extensionLimitSwitchTripped) {
+            limitTripBy = LimitTripBy.LIMIT_SWITCH;
+            if (!extensionLimitSwitchLoggedAlready) {
+                // only log the limit switch pressed the first time, not on every call to this method
+                extensionLimitSwitchLoggedAlready = true;
+                log("Extension limit switch pressed " + mechanismName);
+            }
+        } else {
+            // limit switch is not pressed so make sure it can be logged if it ever is
+            extensionLimitSwitchLoggedAlready = false;
         }
-        return extensionLimitSwitchReached;
+        return extensionLimitSwitchTripped;
     }
 
     /**
@@ -1438,7 +1466,14 @@ public class ExtensionRetractionMechanism {
         if (extensionPositionInEncoderCounts != null) {
             if (extensionRetractionMotor.getCurrentPosition() >= extensionPositionInEncoderCounts) {
                 extensionEncoderValueReached = true;
-                log("Extension encoder limit pressed. " + mechanismName);
+                limitTripBy = LimitTripBy.POSITION;
+                if (!extensionLimitPositionLoggedAlready) {
+                    extensionLimitPositionLoggedAlready = true;
+                    log("Extension encoder limit tripped " + mechanismName);
+                }
+            } else {
+                // limit position is not reached so make sure it can be logged if it ever is
+                extensionLimitPositionLoggedAlready = false;
             }
         }
         return extensionEncoderValueReached;
@@ -1541,6 +1576,7 @@ public class ExtensionRetractionMechanism {
                 result = true;
             } else {
                 // negative so the driver wants it to retract. But it is already fully retracted so we cannot retract more.
+                logFile.logData("Fully retracted. Cannot retract more using joystick. " + mechanismName);
                 result = false;
             }
         }
@@ -1550,6 +1586,7 @@ public class ExtensionRetractionMechanism {
                 result = true;
             } else {
                 // positive so the driver wants it to extend. But it is already fully extended so we cannot extend more.
+                logFile.logData("Fully extended. Cannot extend more using joystick. " + mechanismName);
                 result = false;
             }
         }
@@ -1587,6 +1624,7 @@ public class ExtensionRetractionMechanism {
         } else {
             // it is not ok to joystick
             setCurrentPower(0.0);
+            logFile.logData(mechanismName + " Joystick power automatically set to 0. Position = " + getPosition());
         }
     }
 
