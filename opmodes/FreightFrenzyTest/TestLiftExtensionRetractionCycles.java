@@ -30,15 +30,15 @@ public class TestLiftExtensionRetractionCycles extends LinearOpMode {
                 "ExtensionLimitSwitch",
                 "RetractionLimitSwitch",
                 "LiftMotor",
-                DcMotor8863.MotorType.ANDYMARK_40,
-                21.25/5);
+                DcMotor8863.MotorType.ANDYMARK_20_ORBITAL,
+                3.92);
 
-        lift.reverseMotorDirection();
+        //lift.reverseMotorDirection();
         lift.setResetTimerLimitInmSec(25000);
-        lift.setExtensionPower(1.0);
-        lift.setExtensionPositionInMechanismUnits(20.0);
-        lift.setRetractionPower(-1.0);
-        lift.setRetractionPositionInMechanismUnits(0.5);
+        lift.setExtensionPower(0.3);
+        lift.setExtensionPositionInMechanismUnits(18.0);
+        lift.setRetractionPower(-0.3);
+        lift.setRetractionPositionInMechanismUnits(3.0);
         lift.setDataLog(log);
         lift.enableDataLogging();
 
@@ -47,7 +47,7 @@ public class TestLiftExtensionRetractionCycles extends LinearOpMode {
         telemetry.update();
         waitForStart();
 
-        lift.testCycleFullExtensionRetraction(this,10, 3000);
+        lift.testCycleFullExtensionRetraction(this,10, 10000);
 
         // after the movement is complete, loop so the user can see the result
         while (opModeIsActive()){

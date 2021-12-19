@@ -30,13 +30,13 @@ public class TestLiftGoToPositions extends LinearOpMode {
                 "ExtensionLimitSwitch",
                 "RetractionLimitSwitch",
                 "LiftMotor",
-                DcMotor8863.MotorType.ANDYMARK_40,
-                21.25/5);
+                DcMotor8863.MotorType.ANDYMARK_20_ORBITAL,
+                3.92);
 
-        lift.reverseMotorDirection();
+        //lift.reverseMotorDirection();
         lift.setResetTimerLimitInmSec(25000);
         lift.setExtensionPower(1.0);
-        lift.setExtensionPositionInMechanismUnits(20.0);
+        lift.setExtensionPositionInMechanismUnits(18.0);
         lift.setRetractionPower(-0.5);
         lift.setDataLog(log);
         lift.enableDataLogging();
