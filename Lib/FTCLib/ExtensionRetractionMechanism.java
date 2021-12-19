@@ -69,7 +69,18 @@ public class ExtensionRetractionMechanism {
         NOT_TRIPPED
     }
 
+    /**
+     * Enum that indicates if a limit was reached.
+     */
     private LimitTripBy limitTripBy = LimitTripBy.NOT_TRIPPED;
+
+    private enum LimitReached {
+        RETRACTION,
+        EXTENSION,
+        NONE
+    }
+
+    private LimitReached limitReached = LimitReached.NONE;
 
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS
@@ -224,6 +235,17 @@ public class ExtensionRetractionMechanism {
 
     public int getCurrentEncoderValue() {
         return currentEncoderValue;
+    }
+
+    /**
+     * The current position of the mechanism in mechanism units
+     */
+    private double currentPosition = 0;
+
+    public double getCurrentPosition() {
+        // ask the motor since it knows
+        currentPosition = extensionRetractionMotor.getPositionInTermsOfAttachment();
+        return currentPosition;
     }
 
     /**
@@ -411,11 +433,10 @@ public class ExtensionRetractionMechanism {
 
     protected boolean loggingOn = false;
 
-    // flags to allow us to only log the limit switch and limit positions once in the log file
-    private boolean retractionLimitSwitchLoggedAlready = false;
-    private boolean retractionLimitPositionLoggedAlready = false;
-    private boolean extensionLimitSwitchLoggedAlready = false;
-    private boolean extensionLimitPositionLoggedAlready = false;
+    // save last string sent to log so that it can be used whether to send another string
+    private String lastJoystickLogString = "";
+    private String lastFullExtensionRetractionLogString = "";
+    private String lastLimitLogString = "";
 
     /**
      * Collect time vs encoder count data for debug purposes
@@ -638,13 +659,22 @@ public class ExtensionRetractionMechanism {
     }
 
     /**
+     * Given the encoder count, return the position of the mechanism in mechanism units
+     * @param encoderCount position in encoder counts
+     * @return position in mechanism units
+     */
+    private double convertEncoderCountsToMechanismUnits(int encoderCount) {
+        return (movementPerRevolution * extensionRetractionMotor.getCountsPerRev() * encoderCount);
+    }
+
+    /**
      * Write a string into the logfile.
      *
      * @param stringToLog
      */
     protected void log(String stringToLog) {
         if (logFile != null && loggingOn) {
-            logFile.logData(stringToLog);
+            logFile.logData(mechanismName, stringToLog);
         }
     }
 
@@ -1096,8 +1126,7 @@ public class ExtensionRetractionMechanism {
         // actions.
         // after a reset, there is no reason to keep the motor powered and holding a position of 0
         // so set the motor to float
-        setFinishBehavior(DcMotor8863.FinishBehavior.FLOAT);
-        stopMechanism();
+        stopAndFloat();
         extensionRetractionMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
@@ -1123,7 +1152,7 @@ public class ExtensionRetractionMechanism {
      */
     protected boolean arePostResetActionsComplete() {
         // put your custom code to check whether the actions are complete here
-        log("Post reset actions complete " + mechanismName);
+        log("Post reset actions complete");
         return true;
     }
 
@@ -1191,7 +1220,7 @@ public class ExtensionRetractionMechanism {
      */
     protected boolean arePreRetractActionsComplete() {
         // put your custom code to check whether the actions are complete here
-        log("Pre retract actions complete " + mechanismName);
+        log("Pre retract actions complete");
         return true;
     }
 
@@ -1228,24 +1257,7 @@ public class ExtensionRetractionMechanism {
     protected void performActionsToCompleteRetractMovement() {
         // your actions to complete the retract movement must be coded here. These are suggested
         // actions. You can override these if you need to.
-        // Assuming that the full retraction is when the mechanism is at the reset position, there
-        // is no need to keep the motor powered and holding that position so float the motor.
-        // But if the full retraction is when a position limit was reached, then we have to hold
-        // that position.
-        if (limitTripBy == LimitTripBy.LIMIT_SWITCH){
-            setFinishBehavior(DcMotor8863.FinishBehavior.FLOAT);
-            setCurrentPower(0);
-            log("Stopping mechanism, motor set to float");
-        }
-        if (limitTripBy == LimitTripBy.POSITION) {
-            // Since the retraction limit was tripped by a position, set the mechanism to hold at
-            // that limit position
-            setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
-            extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            extensionRetractionMotor.setTargetPosition(getRetractionPositionInEncoderCounts().intValue());
-            setCurrentPower(1.0);
-            log("Stopping mechanism, attempting to hold position");
-        }
+        stopMechanismAfterLimitReached();
     }
 
     /**
@@ -1270,7 +1282,7 @@ public class ExtensionRetractionMechanism {
      */
     protected boolean arePostRetractActionsComplete() {
         // put your custom code to check whether the actions are complete here
-        log("Post retract actions complete " + mechanismName);
+        log("Post retract actions complete");
         return true;
     }
 
@@ -1282,14 +1294,7 @@ public class ExtensionRetractionMechanism {
         boolean retractionLimitSwitchTripped = isRetractionLimitSwitchPressed();
         if(retractionLimitSwitchTripped) {
             limitTripBy = LimitTripBy.LIMIT_SWITCH;
-            if (!retractionLimitSwitchLoggedAlready) {
-                // only log the limit switch pressed the first time, not on every call to this method
-                retractionLimitSwitchLoggedAlready = true;
-                log("Retraction limit switch pressed " + mechanismName);
-            }
-        } else {
-            // limit switch is not pressed so make sure it can be logged if it ever is
-            retractionLimitSwitchLoggedAlready = false;
+            logLimitOnlyOnce("Retraction limit switch pressed");
         }
         return retractionLimitSwitchTripped;
     }
@@ -1307,14 +1312,7 @@ public class ExtensionRetractionMechanism {
             if (extensionRetractionMotor.getCurrentPosition() <= retractionPositionInEncoderCounts) {
                 retractionEncoderValueReached = true;
                 limitTripBy = LimitTripBy.POSITION;
-                // only log the limit position reached the first time, not on every call to this method
-                if (!retractionLimitPositionLoggedAlready) {
-                    retractionLimitPositionLoggedAlready = true;
-                    log("Retraction encoder limit tripped " + mechanismName);
-                }
-            } else {
-                // limit position is not reached so make sure it can be logged if it ever is
-                retractionLimitPositionLoggedAlready = false;
+                logLimitOnlyOnce("Retraction encoder limit tripped");
             }
         }
         return (retractionEncoderValueReached);
@@ -1329,7 +1327,15 @@ public class ExtensionRetractionMechanism {
      * or less than the retraction position.
      */
     protected boolean isRetractionLimitReached() {
-        return (isRetractionLimitSwitchTripped() || isRetractionLimitPositionReached());
+        boolean result;
+        if (isRetractionLimitSwitchTripped() || isRetractionLimitPositionReached()) {
+            result = true;
+            limitReached = LimitReached.RETRACTION;
+        } else {
+            result = false;
+            limitReached = LimitReached.NONE;
+        }
+        return result;
     }
 
     //**********************************************************************************************
@@ -1369,7 +1375,7 @@ public class ExtensionRetractionMechanism {
      */
     protected boolean arePreExtendActionsComplete() {
         // put your custom code to check whether the actions are complete here
-        log("Pre extend actions complete " + mechanismName);
+        log("Pre extend actions complete");
         return true;
     }
 
@@ -1431,7 +1437,7 @@ public class ExtensionRetractionMechanism {
      */
     protected boolean arePostExtendActionsComplete() {
         // put your custom code to check whether the actions are complete here
-        log("Post extend actions complete " + mechanismName);
+        log("Post extend actions complete");
         return true;
     }
 
@@ -1444,14 +1450,7 @@ public class ExtensionRetractionMechanism {
         boolean extensionLimitSwitchTripped = isExtensionLimitSwitchPressed();
         if (extensionLimitSwitchTripped) {
             limitTripBy = LimitTripBy.LIMIT_SWITCH;
-            if (!extensionLimitSwitchLoggedAlready) {
-                // only log the limit switch pressed the first time, not on every call to this method
-                extensionLimitSwitchLoggedAlready = true;
-                log("Extension limit switch pressed " + mechanismName);
-            }
-        } else {
-            // limit switch is not pressed so make sure it can be logged if it ever is
-            extensionLimitSwitchLoggedAlready = false;
+            logLimitOnlyOnce("Extension limit switch pressed");
         }
         return extensionLimitSwitchTripped;
     }
@@ -1467,13 +1466,7 @@ public class ExtensionRetractionMechanism {
             if (extensionRetractionMotor.getCurrentPosition() >= extensionPositionInEncoderCounts) {
                 extensionEncoderValueReached = true;
                 limitTripBy = LimitTripBy.POSITION;
-                if (!extensionLimitPositionLoggedAlready) {
-                    extensionLimitPositionLoggedAlready = true;
-                    log("Extension encoder limit tripped " + mechanismName);
-                }
-            } else {
-                // limit position is not reached so make sure it can be logged if it ever is
-                extensionLimitPositionLoggedAlready = false;
+                logLimitOnlyOnce("Extension encoder limit tripped");
             }
         }
         return extensionEncoderValueReached;
@@ -1487,7 +1480,22 @@ public class ExtensionRetractionMechanism {
      * or greater than the extension position.
      */
     private boolean isExtensionLimitReached() {
-        return (isExtensionLimitSwitchTripped() || isExtensionLimitPositionReached());
+        boolean result;
+        if (isExtensionLimitSwitchTripped() || isExtensionLimitPositionReached()) {
+            result = true;
+            limitReached = LimitReached.EXTENSION;
+        } else {
+            result = false;
+            limitReached = LimitReached.NONE;
+        }
+        return result;
+    }
+
+    private void logLimitOnlyOnce(String stringToLog) {
+        if (stringToLog != lastLimitLogString) {
+            log(stringToLog);
+            lastLimitLogString = stringToLog;
+        }
     }
 
     //**********************************************************************************************
@@ -1576,7 +1584,7 @@ public class ExtensionRetractionMechanism {
                 result = true;
             } else {
                 // negative so the driver wants it to retract. But it is already fully retracted so we cannot retract more.
-                logFile.logData("Fully retracted. Cannot retract more using joystick. " + mechanismName);
+                logFullExtensionRetractionOnlyOnce("Fully retracted. Cannot retract more using joystick");
                 result = false;
             }
         }
@@ -1586,7 +1594,7 @@ public class ExtensionRetractionMechanism {
                 result = true;
             } else {
                 // positive so the driver wants it to extend. But it is already fully extended so we cannot extend more.
-                logFile.logData("Fully extended. Cannot extend more using joystick. " + mechanismName);
+                logFullExtensionRetractionOnlyOnce("Fully extended. Cannot extend more using joystick");
                 result = false;
             }
         }
@@ -1603,6 +1611,11 @@ public class ExtensionRetractionMechanism {
         if (isOkToJoystick()) {
             extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             setCurrentPower(joystickPower);
+            if (joystickPower > 0) {
+                logJoystickDirectionOnlyOnce("Joysticking to extend");
+            } else {
+                logJoystickDirectionOnlyOnce("Joysticking to retract");
+            }
             // not sure about this anymore since the state machine has completely changed. Need to
             // investigate it.
             /*
@@ -1622,9 +1635,23 @@ public class ExtensionRetractionMechanism {
             }
              */
         } else {
-            // it is not ok to joystick
+            // it is not ok to joystick.
             setCurrentPower(0.0);
-            logFile.logData(mechanismName + " Joystick power automatically set to 0. Position = " + getPosition());
+            log("Joystick power automatically set to 0. Position = " + getPosition());
+        }
+    }
+
+    private void logJoystickDirectionOnlyOnce(String stringToLog) {
+        if (stringToLog != lastJoystickLogString) {
+            log(stringToLog);
+            lastJoystickLogString = stringToLog;
+        }
+    }
+
+    private void logFullExtensionRetractionOnlyOnce(String stringToLog) {
+        if (stringToLog != lastFullExtensionRetractionLogString) {
+            log(stringToLog);
+            lastFullExtensionRetractionLogString = stringToLog;
         }
     }
 
@@ -1633,28 +1660,81 @@ public class ExtensionRetractionMechanism {
     //**********************************************************************************************
 
     /**
-     * Cause the mechanism to stop moving.
+     * Cause the mechanism to stop moving. If the finish behavior is set to hold then setup
+     * to actually hold that position. If not, then float.
      */
     protected void stopMechanism() {
         if (finishBehavior == DcMotor8863.FinishBehavior.FLOAT) {
-            log("Stopping mechanism, motor set to float");
-            setCurrentPower(0);
+            stopAndFloat();
         } else {
             // the motor is going to have to actively hold position
-            log("Stopping mechanism, attempting to hold position");
-            extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            extensionRetractionMotor.setTargetPosition(extensionRetractionMotor.getCurrentPosition());
-            setCurrentPower(1.0);
+            stopAndHoldPosition(extensionRetractionMotor.getCurrentPosition());
         }
+    }
+
+    /**
+     * Stop the mechanism after a limit is reached.
+     * If the mechanism was extending, then it will stop and hold position at the extension limit.
+     * If the mechanism was retracting, then
+     *     if the limit switch was tripped the mechanism will stop and float
+     *     if the limit position was tripped the mechanism will stop and hold at the retraction
+     *     limit
+     */
+    private void stopMechanismAfterLimitReached() {
+        // Assuming that the full retraction is when the mechanism is at the reset position, there
+        // is no need to keep the motor powered and holding that position so float the motor.
+        // But if the full retraction is when a position limit was reached, then we have to hold
+        // that position.
+        int targetPositionInEncoderCounts;
+        if (limitTripBy == LimitTripBy.POSITION){
+            if (limitReached == LimitReached.RETRACTION) {
+                targetPositionInEncoderCounts = getRetractionPositionInEncoderCounts().intValue();
+            } else {
+                targetPositionInEncoderCounts = getExtensionPositionInEncoderCounts().intValue();
+            }
+            // Since the limit was tripped by a position, set the mechanism to hold at
+            // that limit position
+            stopAndHoldPosition(targetPositionInEncoderCounts);
+        }
+
+        if (limitTripBy == LimitTripBy.LIMIT_SWITCH){
+            if (limitReached == LimitReached.RETRACTION ) {
+                stopAndFloat();
+            } else {
+                targetPositionInEncoderCounts = getExtensionPositionInEncoderCounts().intValue();
+                stopAndHoldPosition(targetPositionInEncoderCounts);
+            }
+        }
+    }
+
+    /**
+     * Stop the mechanism and attempt to hold its position at the given position.
+     * @param targetPositionInEncoderCounts
+     */
+    protected void stopAndHoldPosition(int targetPositionInEncoderCounts) {
+        setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
+        extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        extensionRetractionMotor.setTargetPosition(targetPositionInEncoderCounts);
+        setCurrentPower(1.0);
+        log("Stopping mechanism, attempting to hold position at counts = " + convertEncoderCountsToMechanismUnits(targetPositionInEncoderCounts));
+    }
+
+    /**
+     * Stop the mechnanism and float the motor. The position may change after this since the motor
+     * is not holding the position.
+     */
+    protected void stopAndFloat() {
+        setFinishBehavior(DcMotor8863.FinishBehavior.FLOAT);
+        setCurrentPower(0);
+        log("Stopping mechanism, motor set to float");
     }
 
     /**
      * Cause the mechanism to stop moving.
      */
     protected void emergencyStop() {
-        extensionRetractionMotor.setFinishBehavior(DcMotor8863.FinishBehavior.FLOAT);
-        log("Emergency Stop mechanism, motor set to float");
-        setCurrentPower(0);
+        log("Emergency Stop!");
+        stopAndFloat();
     }
 
     /**
