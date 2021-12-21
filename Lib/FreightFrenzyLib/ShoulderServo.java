@@ -26,6 +26,8 @@ public class ShoulderServo {
     private double shoulderUpPosition = .63;
     private double shoulderDownPosition = .1;
     private ElapsedTime timer;
+
+    double timeToCompleteMovement = 0;
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -69,6 +71,14 @@ public class ShoulderServo {
 
     public double add(double number1, double number2) {
         return number1 + number2;
+    }
+
+    public boolean isMovementComplete() {
+        boolean answer = false;
+        if (timer.milliseconds() > timeToCompleteMovement) {
+            answer = true;
+        }
+        return answer;
     }
 
 }
