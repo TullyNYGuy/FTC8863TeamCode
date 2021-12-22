@@ -67,13 +67,13 @@ public class ClawServo {
     public void openClaw() {
         clawServo.goPositionOne();
         timer.reset();
-        timeToCompleteMovement = 500; //milliseconds
+        timeToCompleteMovement = 1000; //milliseconds
     }
 
     public void closeClaw() {
         clawServo.goPositionTwo();
         timer.reset();
-        timeToCompleteMovement = 500; //milliseconds
+        timeToCompleteMovement = 1000; //milliseconds
     }
 
     public boolean isMovementComplete() {

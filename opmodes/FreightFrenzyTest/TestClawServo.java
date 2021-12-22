@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
+import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.ClawServo;
 
 import java.util.Optional;
 
@@ -17,19 +18,15 @@ import java.util.Optional;
 public class TestClawServo extends LinearOpMode {
 
     // Put your variable declarations her
-    Servo8863 clawServo;
-    double openPosition = 0;
-    double closePosition = .58;
+    ClawServo clawServo;
+
     ElapsedTime timer;
 
     @Override
     public void runOpMode() {
 
-
         // Put your initializations here
-        clawServo = new Servo8863("ClawServo",hardwareMap, telemetry);
-        clawServo.setPositionOne(openPosition);
-        clawServo.setPositionTwo(closePosition);
+        clawServo = new ClawServo(hardwareMap, telemetry);
 
         timer = new ElapsedTime();
 
@@ -38,18 +35,19 @@ public class TestClawServo extends LinearOpMode {
         telemetry.update();
         waitForStart();
 
-        timer.reset();
-        openClaw();
+        clawServo.openClaw();
         // Put your calls here - they will not run in a loop
 
-        while (opModeIsActive() && timer.milliseconds() < 2000) {
+        timer.reset();
+
+        while (opModeIsActive() && !clawServo.isMovementComplete()) {
             idle();
         }
 
-        closeClaw();
+        clawServo.closeClaw();
         timer.reset();
 
-        while (opModeIsActive() && timer.milliseconds() < 2000) {
+        while (opModeIsActive() && !clawServo.isMovementComplete()) {
             idle();
         }
 
@@ -57,13 +55,5 @@ public class TestClawServo extends LinearOpMode {
         telemetry.addData(">", "Done");
         telemetry.update();
 
-    }
-
-    public void openClaw() {
-        clawServo.goPositionOne();
-    }
-
-    public void closeClaw() {
-        clawServo.goPositionTwo();
     }
 }
