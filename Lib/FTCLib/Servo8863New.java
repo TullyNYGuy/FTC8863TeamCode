@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.ServoController;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
@@ -61,6 +62,20 @@ public class Servo8863New {
     private ServoPosition activePosition;
 
     private ElapsedTime timer;
+
+    private boolean positionLocked = false;
+
+    public boolean isPositionLocked() {
+        return positionLocked;
+    }
+
+    public void lockPosition() {
+        positionLocked = true;
+    }
+
+    public void unlockPosition() {
+        positionLocked = false;
+    }
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -162,6 +177,13 @@ public class Servo8863New {
         // get the ServoPosition from the hashmap using the position name, just assume that the
         // position is the last one set using setPosition().
         return activePosition.isPositionReached();
+    }
+
+    public void setPositionUsingJoystick(double position) {
+        if (!positionLocked) {
+            position = Range.clip(position, -1.0, 1.0);
+            servo.setPosition(position);
+        }
     }
 
     //*************************************************************************************************
