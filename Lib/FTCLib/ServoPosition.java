@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
 import java.util.concurrent.TimeUnit;
 
@@ -32,7 +33,8 @@ public class ServoPosition {
         return position;
     }
 
-    public void setPosition(double position) {
+    private void setPosition(double position) {
+        Range.clip(position, -1.0, 1.0);
         this.position = position;
     }
 
@@ -45,7 +47,8 @@ public class ServoPosition {
         return timeToReachPosition;
     }
 
-    public void setTimeToReachPosition(double timeToReachPosition) {
+    private void setTimeToReachPosition(double timeToReachPosition, TimeUnit timeUnit) {
+        timeToReachPosition = timeUnitInternal.convert((long)timeToReachPosition, timeUnit);
         this.timeToReachPosition = timeToReachPosition;
     }
 
@@ -79,11 +82,11 @@ public class ServoPosition {
     // from it
     //*********************************************************************************************
 
-    public ServoPosition(double position, long timeToReachPosition, TimeUnit timeUnit) {
+    public ServoPosition(double position, double timeToReachPosition, TimeUnit timeUnit) {
         this.position = position;
         // convert the user supplied timeToPositon from their units to the internal units in this
         // class (milliseconds)
-        this.timeToReachPosition = timeUnitInternal.convert(timeToReachPosition, timeUnit);
+        setTimeToReachPosition(timeToReachPosition, timeUnit);
         timer = new ElapsedTime();
         startedMovement = false;
     }
