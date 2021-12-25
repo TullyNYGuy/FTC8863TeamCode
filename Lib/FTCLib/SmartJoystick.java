@@ -53,15 +53,15 @@ public class SmartJoystick extends JoyStick {
         double joystickValue = 0;
         if (joystickAxis == JoystickAxis.X) {
             if (joystickSide == JoystickSide.LEFT) {
-                joystickValue = gamepad.left_stick_x;
+                joystickValue = scaleInput(gamepad.left_stick_x);
             } else {
-                joystickValue = gamepad.right_stick_x;
+                joystickValue = scaleInput(gamepad.right_stick_x);
             }
         } else {
             if (joystickSide == JoystickSide.LEFT) {
-                joystickValue = gamepad.left_stick_y;
+                joystickValue = scaleInput(gamepad.left_stick_y);
             } else {
-                joystickValue = gamepad.right_stick_y;
+                joystickValue = scaleInput(gamepad.right_stick_y);
             }
         }
         return scaleInput(joystickValue);

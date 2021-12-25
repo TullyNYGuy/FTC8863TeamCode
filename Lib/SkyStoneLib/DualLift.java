@@ -12,6 +12,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.PIDControl;
 
 public class DualLift implements FTCRobotSubsystem {
 
@@ -80,14 +81,52 @@ public class DualLift implements FTCRobotSubsystem {
 
     private int[] encoderValues;
 
+    private int baseEncoderValue = 0;
+
     private boolean collectData = false;
 
     private boolean dataLogging = false;
 
-    public CSVDataFile timeEncoderValueFile = null;
+    public DataLogging timeEncoderValueFile = null;
 
     private ElapsedTime positionReachedTimer;
-    //*********************************************************************************************
+
+    private int liftLeftTensionCompleteEncoderValue;
+
+    public int getLiftLeftTensionCompleteEncoderValue() {
+        return liftLeftTensionCompleteEncoderValue;
+    }
+
+    private int liftRightTensionCompleteEncoderValue;
+
+    public int getLiftRightTensionCompleteEncoderValue() {
+        return liftRightTensionCompleteEncoderValue;
+    }
+
+    public double encoderToInchMath = 1120 / 20.47;
+
+    public int leftBaseEncoderValue = 0;
+
+    public int rightBaseEncoderValue = 0;
+
+    public int rightLiftEncoderValue;
+
+    public int leftLiftEncoderValue;
+
+    private double correction;
+
+    private int correctionMultiplier;
+
+    private double KP;
+
+    private double desiredPower;
+
+    private PIDControl pidControl;
+    private boolean enablePID = false;
+
+    private Telemetry telemetry;
+
+//*********************************************************************************************
     //          GETTER and SETTER Methods
     //
     // allow access to private data fields for example setMotorPower,
@@ -134,6 +173,10 @@ public class DualLift implements FTCRobotSubsystem {
         disableDataLogging();
 
         configureForSkystone();
+
+        pidControl = new PIDControl(KP, -120, 1);
+
+        this.telemetry = telemetry;
     }
 
     private void configureForSkystone() {
@@ -145,9 +188,7 @@ public class DualLift implements FTCRobotSubsystem {
         liftLeft.setExtensionPositionInEncoderCounts(DualLiftConstants.maximumExtensionInEncoderCounts);
         liftLeft.setMovementPerRevolution(DualLiftConstants.movementPerRevolution);
         liftLeft.setResetPower(DualLiftConstants.resetPower);
-
     }
-
 
     //*********************************************************************************************
     //          Helper Methods
@@ -188,10 +229,35 @@ public class DualLift implements FTCRobotSubsystem {
     public void reset() {
         liftRight.reset();
         liftLeft.reset();
+        enablePID = false;
     }
 
     public boolean isResetComplete() {
-        return (liftRight.isResetComplete() && liftLeft.isResetComplete());
+        if (liftRight.isResetComplete() && liftLeft.isResetComplete()) {
+            liftLeftTensionCompleteEncoderValue = liftLeft.getTensionCompleteEncoderValue();
+            liftRightTensionCompleteEncoderValue = liftRight.getTensionCompleteEncoderValue();
+            ////////////////////////////////////////////////////////////////////////////////////////////
+            ////////////////////////////////////////////////////////////////////////////////////////////
+            ////////////////////////////////////////////////////////////////////////////////////////////
+            //Take this out
+            // need to capture the base encoder value before the adjustment, it should be the same as the tension complete value
+            // need to captuer the base encoder value after the adjusetment, it should be the same as tension complete + tweak value
+            leftBaseEncoderValue = liftLeft.getBaseEncoderValue();
+            rightBaseEncoderValue = liftRight.getBaseEncoderValue();
+            //liftRight.setBaseEncoderValue(liftRight.getBaseEncoderValue() + 104);
+            //liftLeft.setBaseEncoderValue(liftLeft.getBaseEncoderValue() + 164);
+            leftLiftEncoderValue = liftLeft.getMotorEncoderValue();
+            rightLiftEncoderValue = liftRight.getMotorEncoderValue();
+
+            // need to capture the altered and unaltered encoder values
+            ////////////////////////////////////////////////////////////////////////////////////////////
+            if (collectData) {
+                timeEncoderValueFile.startTimer();
+            }
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public void goToFullExtend() {
@@ -212,10 +278,23 @@ public class DualLift implements FTCRobotSubsystem {
         return liftRight.isRetractionComplete() && liftLeft.isRetractionComplete();
     }
 
-    public void goToPosition(double positionInInches, double positionPower) {
-        liftRight.goToPosition(positionInInches, positionPower);
-        liftLeft.goToPosition(positionInInches, positionPower);
+    public void goToPosition(double positionInInches, double desiredPower) {
+        this.desiredPower = desiredPower;
+        liftRight.goToPosition(positionInInches, desiredPower);
+        // this is a hardwired cob to see the effect of offsetting the command
+        liftLeft.goToPosition(positionInInches + 3, desiredPower);
         positionReachedState = PositionReachedStates.NONE_REACHED;
+        enablePID = true;
+        logFileBoth.logData("Dual lift PID control enabled");
+        if (liftLeft.convertMechanismUnitsToEncoderCounts(positionInInches) < getCurrentEncoderValueLeft()) {
+            logFileBoth.logData("Dual lift going down, Kp and multiplier set");
+            correctionMultiplier = -1;
+            KP = 0.0002;
+        } else {
+            logFileBoth.logData("Dual lift going up, Kp and multiplier set");
+            correctionMultiplier = 1;
+            KP = 0.002;
+        }
     }
 
     public void setExtensionPositionInMechanismUnits(double heightTimesSlides) {
@@ -230,6 +309,10 @@ public class DualLift implements FTCRobotSubsystem {
                 if (liftLeft.isPositionReached()) {
                     positionReachedTimer.reset();
                     positionReachedState = PositionReachedStates.LEFT_REACHED;
+                }
+                if (liftRight.isPositionReached()) {
+                    positionReachedTimer.reset();
+                    positionReachedState = PositionReachedStates.RIGHT_REACHED;
                 }
                 break;
             case LEFT_REACHED:
@@ -278,17 +361,17 @@ public class DualLift implements FTCRobotSubsystem {
         //go to the block height directed - 1
     }
 
-    public void setRetractionPower(double power){
+    public void setRetractionPower(double power) {
         liftRight.setRetractionPower(power);
         liftLeft.setRetractionPower(power);
     }
 
-    public void setExtensionPower(double power){
+    public void setExtensionPower(double power) {
         liftLeft.setExtensionPower(power);
         liftRight.setExtensionPower(power);
     }
 
-    public void setDataLog(DataLogging logFileBoth){
+    public void setDataLog(DataLogging logFileBoth) {
         this.logFileBoth = logFileBoth;
         liftLeft.setDataLog(logFileBoth);
         liftRight.setDataLog(logFileBoth);
@@ -307,15 +390,12 @@ public class DualLift implements FTCRobotSubsystem {
     }
 
     public void enableCollectData(String filename) {
-        liftLeft.enableCollectData();
-        liftRight.enableCollectData();
-        timeEncoderValueFile = new CSVDataFile(filename);
+        timeEncoderValueFile = new DataLogging(filename);
+        timeEncoderValueFile.headerStrings("left encoder", "right encoder");
         collectData = true;
     }
 
     public void disableCollectData() {
-        liftLeft.enableCollectData();
-        liftRight.enableCollectData();
         collectData = false;
     }
 
@@ -386,12 +466,28 @@ public class DualLift implements FTCRobotSubsystem {
 
     @Override
     public void update() {
+        double currentPowerLeft = 0;
+        double currentPowerRight = 0;
         liftRight.update();
         liftLeft.update();
-        if (collectData) {
-            liftLeft.writeTimerEncoderDataToCSVFile(timeEncoderValueFile);
-            liftRight.writeTimerEncoderDataToCSVFile(timeEncoderValueFile);
+        if (collectData && !enablePID) {
+            timeEncoderValueFile.logData(liftLeft.getCurrentEncoderValue(), liftRight.getCurrentEncoderValue());
         }
+        //////Pid//////////
+        if (enablePID) {
+            correction = pidControl.getCorrection(liftRight.getCurrentEncoderValue() - liftLeft.getCurrentEncoderValue());
+            currentPowerLeft = desiredPower - correction * correctionMultiplier;
+            currentPowerRight = desiredPower + correction * correctionMultiplier;
+            telemetry.addData("correction = ", correction);
+            telemetry.addData("left power = ", currentPowerLeft);
+            telemetry.addData("right power = ", currentPowerRight);
+            liftLeft.setCurrentPower(currentPowerLeft);
+            liftRight.setCurrentPower(currentPowerRight);
+            if (collectData) {
+                timeEncoderValueFile.logData(liftLeft.getCurrentEncoderValue(), liftRight.getCurrentEncoderValue(), correction, currentPowerLeft, currentPowerRight);
+            }
+        }
+
     }
 
     @Override

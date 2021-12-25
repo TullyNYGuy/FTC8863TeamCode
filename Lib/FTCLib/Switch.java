@@ -113,7 +113,7 @@ public class Switch {
 
     public Switch(HardwareMap hardwareMap, String switchName, SwitchType switchType) {
         switchInput = hardwareMap.get(DigitalChannel.class, switchName);
-        switchInput.setMode(DigitalChannelController.Mode.INPUT);
+        switchInput.setMode(DigitalChannel.Mode.INPUT);
         timer = new ElapsedTime();
         timer.reset();
         this.switchType = switchType;

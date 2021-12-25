@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.GenericTest;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -24,7 +25,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
  * below.
  */
 @TeleOp(name = "Calibrate Servo Forward", group = "Test")
-//@Disabled
+@Disabled
 public class CalibrateServoForward extends LinearOpMode {
 
     // Put your variable declarations here

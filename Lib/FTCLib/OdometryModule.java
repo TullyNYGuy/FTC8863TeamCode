@@ -6,6 +6,10 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
 public class OdometryModule {
 
     //*********************************************************************************************
@@ -14,6 +18,14 @@ public class OdometryModule {
     // user defined types
     //
     //*********************************************************************************************
+
+    /**
+     * Defines configuration names
+     */
+    static final private String PROP_MOTOR = ".motor";
+    static final private String PROP_COUNTS_PER_REVOLUTION = ".counts_per_revolution";
+    static final private String PROP_CIRCUMFERENCE = ".circimference";
+    static final private String PROP_CIRCUMFERENCE_UNITS = ".circimference_units";
 
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS
@@ -27,13 +39,15 @@ public class OdometryModule {
 
     private DistanceUnit units;
 
-    private String odometryModuleConfigName;
-
     private DcMotor odometryModule;
 
     private int previousEncoderValue = 0;
 
     private int startingEncoderValue = 0;
+
+    private byte shiftValue = 0;
+    private int maskValue = ~0;
+    private int centerValue = 0;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -66,14 +80,6 @@ public class OdometryModule {
         this.units = units;
     }
 
-    public String getOdometryModuleConfigName() {
-        return odometryModuleConfigName;
-    }
-
-    public void setName(String odometryModuleConfigName) {
-        this.odometryModuleConfigName = odometryModuleConfigName;
-    }
-
     public double getPreviousEncoderValue() {
         return previousEncoderValue;
     }
@@ -82,20 +88,34 @@ public class OdometryModule {
         this.previousEncoderValue = previousEncoderValue;
     }
 
+    public void setShiftValue(byte shiftValue) {
+        this.shiftValue = shiftValue;
+        if(shiftValue > 0) {
+            maskValue = ~((1 << shiftValue) - 1);
+            centerValue = (1 << (shiftValue-1)) - 1;
+        } else {
+            maskValue = ~0;
+            centerValue = 0;
+        }
+    }
+
+    public byte getShiftValue() {
+        return this.shiftValue;
+    }
+
     //*********************************************************************************************
     //          Constructors
     //
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
-    public OdometryModule(int countsPerRevolution, double circumference, DistanceUnit units, String odometryModuleConfigName, HardwareMap hardwareMap) {
+    public OdometryModule(int countsPerRevolution, double circumference, DistanceUnit circumferenceUnits, String odometryModuleConfigName, HardwareMap hardwareMap) {
         this.countsPerRevolution = countsPerRevolution;
         this.circumference = circumference;
 
         // let's pick a unit to use inside this class and do all storage and calculations in that unit
         // When someone wants a different unit we just convert to that unit as the last step
-        this.units = units;
-        this.odometryModuleConfigName = odometryModuleConfigName;
+        this.units = circumferenceUnits;
         //this.name = name;
         //odometryModule = hardwareMap.dcMotor.get(name);
         if(hardwareMap != null)
@@ -106,8 +126,46 @@ public class OdometryModule {
             // Some other code controls that.
             //odometryModule.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             // instead
-            startingEncoderValue = odometryModule.getCurrentPosition();
+            startingEncoderValue = getCurrentEncoderValue();
         }
+    }
+
+    public OdometryModule(int countsPerRevolution, double circumference, DistanceUnit circumferenceUnits, DcMotor motor) {
+        this.countsPerRevolution = countsPerRevolution;
+        this.circumference = circumference;
+        this.units = circumferenceUnits;
+        this.odometryModule = motor;
+        if (odometryModule != null) {
+            startingEncoderValue = getCurrentEncoderValue();
+        }
+    }
+
+    static protected Map<String, OdometryModule> odometryModulesMap = new HashMap<>();
+
+    static public OdometryModule createOdometryModuleFromFile(Configuration config, String section, HardwareMap hardwareMap) {
+        if (config == null)
+            return null;
+        if(odometryModulesMap.containsKey(section))
+            return odometryModulesMap.get(section);
+        String motorName = config.getPropertyString(section + PROP_MOTOR);
+        Integer countsPerRevolution = config.getPropertyInteger(section + PROP_COUNTS_PER_REVOLUTION);
+        Double circumference = config.getPropertyDouble(section + PROP_CIRCUMFERENCE);
+        DistanceUnit circumferenceUnits = config.getPropertyDistanceUnit(section + PROP_CIRCUMFERENCE_UNITS);
+        if(motorName == null || countsPerRevolution == null || circumference == null || circumferenceUnits == null)
+            return null;
+        DcMotor8863 motor = DcMotor8863.createMotorFromFile(config, motorName, hardwareMap);
+        return new OdometryModule(countsPerRevolution, circumference,  circumferenceUnits, motor.getMotorInstance());
+
+    }
+
+    static public boolean saveOdometryModuleConfiguration(Configuration config, String section, String motorName, int countsPerRevolution, double circumference, DistanceUnit circumferenceUnits) {
+        if (config == null)
+            return false;
+        config.setProperty(section + PROP_MOTOR, motorName);
+        config.setProperty(section + PROP_COUNTS_PER_REVOLUTION, String.valueOf(countsPerRevolution));
+        config.setProperty(section + PROP_CIRCUMFERENCE, String.valueOf(circumference));
+        config.setProperty(section + PROP_CIRCUMFERENCE_UNITS, circumferenceUnits);
+        return true;
     }
 
     //*********************************************************************************************
@@ -120,13 +178,18 @@ public class OdometryModule {
         return units.fromUnit(this.units, (double) ticks / 1440.0 * circumference);
     }
 
+    private int getCurrentEncoderValue() {
+        int rawEncoderValue = odometryModule.getCurrentPosition();
+        return (rawEncoderValue - this.centerValue) & this.maskValue;
+    }
+
     //*********************************************************************************************
     //          MAJOR METHODS
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
     public int getEncoderValue() {
-        return odometryModule.getCurrentPosition() - startingEncoderValue;
+        return getCurrentEncoderValue() - startingEncoderValue;
     }
 
     public void resetEncoderValue() {
@@ -135,17 +198,8 @@ public class OdometryModule {
         // Some other code controls that.
         //odometryModule.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         // instead
-        startingEncoderValue = odometryModule.getCurrentPosition();
+        startingEncoderValue = getCurrentEncoderValue();
     }
-
-    //public double getDistanceSinceReset() {
-    //if (units == Units.IN) {
-    //return convertTicksToInches(odometryModule.getCurrentPosition());
-    //} else {
-    // return convertTicksToCm(odometryModule.getCurrentPosition());
-    // }
-
-    //  }
 
     public double getDistanceSinceReset(DistanceUnit units) {
         return convertTicksToUnit(units, getEncoderValue());
@@ -153,7 +207,7 @@ public class OdometryModule {
 
 
     public double getDistanceSinceLastChange(DistanceUnit units) {
-        int currentPosition = odometryModule.getCurrentPosition();
+        int currentPosition = getCurrentEncoderValue();
         double distanceSinceLastChange = convertTicksToUnit(units, currentPosition - previousEncoderValue);
         previousEncoderValue = currentPosition;
         return distanceSinceLastChange;

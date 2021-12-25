@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.GenericTest;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -13,7 +14,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
  * of the major methods are given. Read the comments to understand the example.
  */
 @TeleOp(name = "Test DcMotor8863 Run Constant Speed", group = "Test")
-//@Disabled
+@Disabled
 public class TestDCMotor8863RunConstantSpeed extends LinearOpMode {
 
     //**************************************************************
@@ -118,7 +119,7 @@ public class TestDCMotor8863RunConstantSpeed extends LinearOpMode {
             telemetry.addData("feedback = ", "%5.2f", motor.getPositionInTermsOfAttachment());
             telemetry.addData("Encoder Count = ", "%5d", motor.getCurrentPosition());
             telemetry.addData("Elapsed time = ", "%5.0f", runningTimer.milliseconds());
-            telemetry.addData("Rotation complete = ", Boolean.toString(motor.isRotationComplete()));
+            telemetry.addData("Rotation complete = ", Boolean.toString(motor.isMovementComplete()));
             telemetry.addData(">", "Press Stop to end test.");
             telemetry.update();
 

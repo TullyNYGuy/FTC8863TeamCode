@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.GenericTest;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -20,7 +21,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.StatTracker;
  * I2C device name: IMU
  */
 @TeleOp(name = "Measure Angles", group = "Test")
-//@Disabled
+@Disabled
 public class MeasureAngles extends LinearOpMode {
 
     // Put your variable declarations here

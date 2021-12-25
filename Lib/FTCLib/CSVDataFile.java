@@ -194,7 +194,7 @@ public class CSVDataFile {
     }
 
     /**
-     * Write a piece of data or a debug message into the log file. It will get time stamped.
+     * Write a piece of data or a debug message into the log file.
      *
      * @param dataToWrite
      */
@@ -217,7 +217,7 @@ public class CSVDataFile {
     }
 
     /**
-     * Write a double and and int into the data log. Each piece of data will be followed by a comma and
+     * Write a variable number of strings into the data log. Each piece of data will be followed by a comma and
      * a space.
      *
      * @param args a variable number of strings to write into the file in this line

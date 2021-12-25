@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.GenericTest;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -15,7 +16,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
  * This code assumes a DC motor configured with the name "leftMotor"  and "rightMotor"
  */
 @TeleOp(name = "Test Drive Train Teleop", group = "Test")
-//@Disabled
+@Disabled
 public class TestDriveTrainTeleop extends LinearOpMode {
 
     DriveTrain myDriveTrain;

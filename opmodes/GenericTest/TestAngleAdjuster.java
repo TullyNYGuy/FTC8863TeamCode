@@ -11,8 +11,8 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Test Angle Adjuster", group = "Test")
-//@Disabled
+@TeleOp(name = "Test Angle Adjuster(old)", group = "Test")
+@Disabled
 public class TestAngleAdjuster extends LinearOpMode {
 
     // Put your variable declarations here

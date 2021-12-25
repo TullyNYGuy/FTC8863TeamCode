@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.SkystoneTest;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.robot.Robot;
@@ -25,7 +26,7 @@ import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.SkystoneRobot;
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
 @TeleOp(name = "Test them there state doo hickeys", group = "Test")
-//@Disabled
+@Disabled
 public class TestKellensSuperCoolStateMachines extends LinearOpMode {
     private Configuration config;
     private DataLogging datalog;
@@ -78,9 +79,10 @@ public class TestKellensSuperCoolStateMachines extends LinearOpMode {
                 case START:
                     robot.intakeBlock();
                     action = Actions.INTAKE;
+                    timer.reset();
                     break;
                 case INTAKE:
-                    if (robot.isIntakeBlockComplete()) {
+                    if (timer.milliseconds() > 2000) {
                         robot.gripBlock();
                         action = Actions.GRIP;
                     }
@@ -88,7 +90,7 @@ public class TestKellensSuperCoolStateMachines extends LinearOpMode {
                 case GRIP:
                     if (robot.isGripBlockComplete()) {
                         robot.deportBlock();
-                        action = Actions.DEPORT;
+                        action = Actions.COMPLETE;
                     }
                     break;
                 case DEPORT:
@@ -136,10 +138,11 @@ public class TestKellensSuperCoolStateMachines extends LinearOpMode {
             if (robot.isPrepareIntakeComplete()) {
                 stop();
             }*/
-            telemetry.addData("CurrentStateDeport", robot.getCurrentDeportState());
-            telemetry.addData("CurrentStateLift", robot.getCurrentLiftState());
-            telemetry.addData("CurrentStatePlaceBlock", robot.getCurrentPlaceBlockState());
-            telemetry.addData("CurrentStatePrepareIntake", robot.getCurrentPrepareIntakeState());
+            // telemetry.addData("CurrentStateGrip", robot.getCurrentGripperState());
+            // telemetry.addData("CurrentStateDeport", robot.getCurrentDeportState());
+            //telemetry.addData("CurrentStateLift", robot.getCurrentLiftState());
+            // telemetry.addData("CurrentStatePlaceBlock", robot.getCurrentPlaceBlockState());
+            //telemetry.addData("CurrentStatePrepareIntake", robot.getCurrentPrepareIntakeState());
 
 
             idle();

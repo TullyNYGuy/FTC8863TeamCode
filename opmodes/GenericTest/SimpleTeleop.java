@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.GenericTest;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -16,7 +17,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
  */
 
 @TeleOp(name = "Demo Bot Simple Teleop", group = "Run")
-//@Disabled
+@Disabled
 
 public class SimpleTeleop extends LinearOpMode {
 

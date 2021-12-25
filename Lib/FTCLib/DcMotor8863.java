@@ -1,11 +1,16 @@
 package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.*;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static java.lang.Thread.sleep;
 
@@ -18,15 +23,34 @@ public class DcMotor8863 {
      * Defines the type of motor.
      */
     public enum MotorType {
-        NXT, ANDYMARK_20,
+        NXT,
+        ANDYMARK_20,
         ANDYMARK_40,
         ANDYMARK_60,
         TETRIX,
         ANDYMARK_20_ORBITAL,
         ANDYMARK_3_7_ORBITAL,
         ANDYMARK_3_7_ORBITAL_OLD,
-        USDIGITAL_360PPR_ENCODER
+        USDIGITAL_360PPR_ENCODER,
+        GOBILDA_30,
+        GOBILDA_43,
+        GOBILDA_60,
+        GOBILDA_84,
+        GOBILDA_117,
+        GOBILDA_223,
+        GOBILDA_312,
+        GOBILDA_435,
+        GOBILDA_1150,
+        GOBILDA_1620,
+        GOBILDA_6000
     }
+
+    /**
+     * Defines configuration names
+     */
+    static final private String PROP_NAME = ".name";
+    static final private String PROP_TYPE = ".type";
+    static final private String PROP_DIRECTION = ".direction";
 
     /**
      * Defines the state of the motor. For use in the state machine
@@ -69,10 +93,20 @@ public class DcMotor8863 {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
+
+    /**
+     * The name of this motor
+     */
+    protected String motorName;
+
+    public String getMotorName() {
+        return motorName;
+    }
+
     /**
      * A DcMotor from the qualcomm code
      */
-    protected com.qualcomm.robotcore.hardware.DcMotor FTCDcMotor;
+    protected com.qualcomm.robotcore.hardware.DcMotorEx FTCDcMotor;
 
     /**
      * Type of motor. Controls the encoder counts per revolution
@@ -99,10 +133,153 @@ public class DcMotor8863 {
      */
     private double MovementPerRev = 0;
 
+    // Removed this during re write to properly use base encoder count. Replaced with:
+    // virtualTargetEncoderCount
+    // motorTargetEncoderCount
     /**
      * Holds the desired encoder count for RUN_TO_POSITION
      */
-    private int targetEncoderCount = 0;
+    //private int targetEncoderCount = 0;
+
+    private int baseEncoderCount = 0;
+
+    public void setBaseEncoderCount(int baseEncoderCount) {
+        this.baseEncoderCount = baseEncoderCount;
+    }
+
+    public int getBaseEncoderCount() {
+        return baseEncoderCount;
+    }
+
+    // Set the virtual encoder count for this motor to 0. This does not affect the hardware encoder
+    // count maintained by the SDK
+    public void resetEncoder() {
+        baseEncoderCount = 0;
+    }
+
+    /**
+     * 05/30/2021
+     * There is a bug when the motor is started up and a base encoder count is set. The targetEncoderCount
+     * needs to be adjusted by the base encoder count. So I'm setting up a virtual encoder count and
+     * and actual encoder count.
+     * motor encoder count - this is the encoder count that the motor reports from the control hub.
+     * This class manipulates the motor encoder count target behind the scenes. And it adjusts
+     * the motor encoder count when you ask for it.
+     * Most of the time, baseEncoderCount will be 0. So the motor encoder and the virtual encoder
+     * are the same. However, when you set the baseEncoderCount, then the virtual encoder will
+     * differ from the motor encoder by the baseEncoderCount.
+     * One use case for setting the virtual encoder count is a restart of the robot after an opmode
+     * finishes. The motor encoder will be 0 due to the reset of the motor. But if you have a motor
+     * in a certain position already, and you want the robot to use the motor starting from that
+     * known position, you can save the encoder count before the opmode shuts down in a static
+     * variable. Then after the new opmode starts (like teleop after autonomous) you can set the
+     * baseEncoderCount to the previously saved count. That will make the motor behave as if it
+     * is starting from the same location before the opmode shutodown.
+     * virtual encoder count - this is the encoder count that the user sees. In other words, the one
+     * you work with as a user.
+     * <p>
+     * Key formulas:
+     * virtual encoder count = motor encoder count + base encoder count
+     * motor encoder count = virtual encoder count - base encoder count
+     */
+
+    // Here are the virtual target encoder count things
+
+    private int virtualTargetEncoderCount = 0;
+
+    public int getVirtualTargetEncoderCount() {
+        return virtualTargetEncoderCount;
+    }
+
+    private int calculateVirtualTargetEncoderCount(int motorTargetEncoderCount) {
+        return motorTargetEncoderCount + baseEncoderCount;
+    }
+
+    private void setVirtualTargetEncoderCount(int motorTargetEncoderCount) {
+        this.virtualTargetEncoderCount = calculateVirtualTargetEncoderCount(motorTargetEncoderCount);
+    }
+
+    // For backwards compatibilty with older code
+    public int getTargetEncoderCount() {
+        return getVirtualTargetEncoderCount();
+    }
+
+    protected void setTargetEncoderCount(int virtualEncoderCount) {
+        this.virtualTargetEncoderCount = virtualEncoderCount;
+    }
+
+    // Here are the motor target encoder count things
+
+    private int motorTargetEncoderCount = 0;
+
+    private int getMotorTargetEncoderCount() {
+        return motorTargetEncoderCount;
+    }
+
+    private int calculateMotorTargetEncoderCount(int virtualTargetEncoderCount) {
+        return virtualTargetEncoderCount - baseEncoderCount;
+    }
+
+    private void setMotorTargetEncoderCount(int virtualTargetEncoderCount) {
+        this.motorTargetEncoderCount = calculateMotorTargetEncoderCount(virtualTargetEncoderCount);
+    }
+
+    /**
+     * Actually sets the target encoder count in the control or expansion hub.
+     *
+     * @param virtualTargetEncoderCount The virtual target encoder count. The actual motor target
+     *                                  encoder count will be calculated using this.
+     */
+    public void setTargetPosition(int virtualTargetEncoderCount) {
+        this.virtualTargetEncoderCount = virtualTargetEncoderCount;
+        // calculate the motor target encoder count and set the private variable
+        setMotorTargetEncoderCount(virtualTargetEncoderCount);
+        // set the field holding the desired rotation
+        // setTargetEncoderCount(position);
+        FTCDcMotor.setTargetPosition(getMotorTargetEncoderCount());
+    }
+
+    // Here are the motor encoder count things
+
+    // The motor encoder count is maintained by the control hub or expansion hub. So we don't need a
+    // variable of our own to hold that.
+    //private int motorEncoderCount = 0; <-- not needed
+
+    /**
+     * Returns the actual motor encoder count. It is not adjusted by the baseEncoderCount
+     *
+     * @return
+     */
+    private int getMotorEncoderCount() {
+        return FTCDcMotor.getCurrentPosition();
+    }
+
+
+    // Here are the virtual encoder count things
+
+    private int virtualEncoderCount = 0;
+
+    /**
+     * Get the current encoder count for the motor.
+     *
+     * @return current motor encoder count, adjusted by the baseEncoderCount. I.E virtual encoder count
+     */
+    public int getCurrentPosition() {
+        // get the real motor encoder count from the control hub
+        int motorEncoderCount = FTCDcMotor.getCurrentPosition();
+        // update the virtual encoder count, the one the user sees
+        setVirtualEncoderCount(motorEncoderCount);
+        // and return the encoder count that the user sees
+        return virtualEncoderCount;
+    }
+
+    private int calculateVirtualEncoderCount(int motorEncoderCount) {
+        return motorEncoderCount + baseEncoderCount;
+    }
+
+    private void setVirtualEncoderCount(int motorEncoderCount) {
+        this.virtualEncoderCount = calculateVirtualEncoderCount(motorEncoderCount);
+    }
 
     /**
      * The tolerance range for saying if the encoder count target has been reached.
@@ -152,21 +329,14 @@ public class DcMotor8863 {
      */
     private int lastEncoderValue = 0;
 
-    /**
-     * current value of the encoder. NOTE: this may not be the same as the encoder value of the
-     * underlying DCMotor. This is a separate copy of the encoder value. It may not be updated with
-     * the value of the encoder on the actual motor so it may not match. Or this value can be
-     * manipulated so that it is set to 0 even though the underlying encoder has not been reset.
-     * Note that for whatever reason the SDK forces the motor to stop when the actual encoder is
-     * reset. If we are just keeping track of a series of movements, we may not want the motor to
-     * stop even though we want the encoder to be set to 0 again.
-     * In essence, this is a virtual encoder.
-     * Setting this value to the actual motor encoder value before starting a movement, and making
-     * the target encoder value = currentEncoderValue + Encoder Ticks needed for movement effectively
-     * implements a relative movement. Like saying go 2 miles to the stop sign, turn right, and then
-     * go 10 miles to
-     */
-    private int currentEncoderValue = 0;
+
+    public int getLastEncoderValue() {
+        return lastEncoderValue;
+    }
+
+    private void setLastEncoderValue(int virtualEncoderCount) {
+        this.lastEncoderValue = virtualEncoderCount;
+    }
 
     /**
      * enables whether you detect a stall
@@ -257,36 +427,69 @@ public class DcMotor8863 {
      */
     private int setCountsPerRevForMotorType(MotorType motorType) {
         switch (motorType) {
+            case GOBILDA_6000:
+                this.countsPerRev = 28;
+                break;
+            case ANDYMARK_3_7_ORBITAL_OLD:
+                this.countsPerRev = 44;
+                break;
+            case ANDYMARK_3_7_ORBITAL:
+                this.countsPerRev = 103;
+                break;
+            case GOBILDA_1620:
+                this.countsPerRev = 104;
+                break;
+            case GOBILDA_1150:
+                this.countsPerRev = 145;
+                break;
             case NXT:
                 this.countsPerRev = 360;
+                break;
+            case GOBILDA_435:
+                this.countsPerRev = 385;
+                break;
+            case ANDYMARK_20_ORBITAL:
+                this.countsPerRev = 537;
+                break;
+            case GOBILDA_312:
+                this.countsPerRev = 538;
                 break;
             case ANDYMARK_20:
                 // http://www.andymark.com/NeveRest-20-12V-Gearmotor-p/am-3102.htm
                 this.countsPerRev = 560;
                 break;
+            case GOBILDA_223:
+                this.countsPerRev = 752;
+                break;
             case ANDYMARK_40:
                 // http://www.andymark.com/NeveRest-40-Gearmotor-p/am-2964a.htm
                 this.countsPerRev = 1120;
                 break;
-            case ANDYMARK_60:
-                // http://www.andymark.com/NeveRest-60-Gearmotor-p/am-3103.htm
-                this.countsPerRev = 1680;
+            case GOBILDA_117:
+                this.countsPerRev = 1425;
                 break;
             case TETRIX:
                 // http://www.cougarrobot.com/attachments/328_Tetrix_DC_Motor_V2.pdf
                 this.countsPerRev = 1440;
                 break;
-            case ANDYMARK_20_ORBITAL:
-                this.countsPerRev = 537;
-                break;
-            case ANDYMARK_3_7_ORBITAL:
-                this.countsPerRev = 103;
-                break;
-            case ANDYMARK_3_7_ORBITAL_OLD:
-                this.countsPerRev = 44;
-                break;
             case USDIGITAL_360PPR_ENCODER:
                 this.countsPerRev = 1440;
+                break;
+            case ANDYMARK_60:
+                // http://www.andymark.com/NeveRest-60-Gearmotor-p/am-3103.htm
+                this.countsPerRev = 1680;
+                break;
+            case GOBILDA_84:
+                this.countsPerRev = 1993;
+                break;
+            case GOBILDA_60:
+                this.countsPerRev = 2786;
+                break;
+            case GOBILDA_43:
+                this.countsPerRev = 3896;
+                break;
+            case GOBILDA_30:
+                this.countsPerRev = 5281;
                 break;
             default:
                 this.countsPerRev = 0;
@@ -310,34 +513,68 @@ public class DcMotor8863 {
      */
     private int setNoLoadRPMForMotorType(MotorType motorType) {
         switch (motorType) {
-            case NXT:
-                // http://www.philohome.com/nxtmotor/nxtmotor.htm
-                noLoadRPM = 165;
+            case USDIGITAL_360PPR_ENCODER:
+                noLoadRPM = 60;
                 break;
-            case ANDYMARK_20:
-                // http://www.andymark.com/NeveRest-20-12V-Gearmotor-p/am-3102.htm
-                noLoadRPM = 315;
+            case GOBILDA_30:
+                noLoadRPM = 30;
                 break;
-            case ANDYMARK_40:
-                // http://www.andymark.com/NeveRest-40-Gearmotor-p/am-2964a.htm
-                noLoadRPM = 160;
+            case GOBILDA_43:
+                noLoadRPM = 43;
+                break;
+            case GOBILDA_60:
+                noLoadRPM = 60;
+                break;
+            case GOBILDA_84:
+                noLoadRPM = 84;
                 break;
             case ANDYMARK_60:
                 // http://www.andymark.com/NeveRest-60-Gearmotor-p/am-3103.htm
                 noLoadRPM = 105;
                 break;
+            case GOBILDA_117:
+                noLoadRPM = 117;
+                break;
             case TETRIX:
                 // http://www.cougarrobot.com/attachments/328_Tetrix_DC_Motor_V2.pdf
                 noLoadRPM = 150;
                 break;
+            case ANDYMARK_40:
+                // http://www.andymark.com/NeveRest-40-Gearmotor-p/am-2964a.htm
+                noLoadRPM = 160;
+                break;
+            case NXT:
+                // http://www.philohome.com/nxtmotor/nxtmotor.htm
+                noLoadRPM = 165;
+                break;
+            case GOBILDA_223:
+                noLoadRPM = 223;
+                break;
+            case GOBILDA_312:
+                noLoadRPM = 312;
+                break;
+            case ANDYMARK_20:
+                // http://www.andymark.com/NeveRest-20-12V-Gearmotor-p/am-3102.htm
+                noLoadRPM = 315;
+                break;
             case ANDYMARK_20_ORBITAL:
                 noLoadRPM = 340;
+                break;
+            case GOBILDA_435:
+                noLoadRPM = 435;
+                break;
+            case GOBILDA_1150:
+                noLoadRPM = 1150;
+                break;
+            case GOBILDA_1620:
+                noLoadRPM = 1620;
                 break;
             case ANDYMARK_3_7_ORBITAL:
                 noLoadRPM = 1784;
                 break;
-            case USDIGITAL_360PPR_ENCODER:
-                noLoadRPM = 60;
+            case GOBILDA_6000:
+                // https://www.gobilda.com/5202-series-yellow-jacket-motor-1-1-ratio-24mm-length-6mm-d-shaft-6000-rpm-3-3-5v-encoder/
+                noLoadRPM = 6000;
                 break;
             default:
                 noLoadRPM = 0;
@@ -362,13 +599,13 @@ public class DcMotor8863 {
         this.MovementPerRev = MovementPerRev;
     }
 
-    public int getTargetEncoderCount() {
-        return targetEncoderCount;
-    }
-
-    protected void setTargetEncoderCount(int targetEncoderCount) {
-        this.targetEncoderCount = targetEncoderCount;
-    }
+//    public int getTargetEncoderCount() {
+//        return targetEncoderCount;
+//    }
+//
+//    protected void setTargetEncoderCount(int targetEncoderCount) {
+//        this.targetEncoderCount = targetEncoderCount;
+//    }
 
     public int getTargetEncoderTolerance() {
         return targetEncoderTolerance;
@@ -459,10 +696,6 @@ public class DcMotor8863 {
         this.stallDetectionTolerance = stallDetectionTolerance;
     }
 
-    public int getLastEncoderValue() {
-        return lastEncoderValue;
-    }
-
     public MotorState getCurrentMotorState() {
         return currentMotorState;
     }
@@ -497,7 +730,8 @@ public class DcMotor8863 {
     }
 
     public DcMotor8863(String motorName, HardwareMap hardwareMap) {
-        FTCDcMotor = hardwareMap.dcMotor.get(motorName);
+        this.motorName = motorName;
+        FTCDcMotor = hardwareMap.get(DcMotorEx.class, motorName);
         stallTimer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
         completionTimer = new ElapsedTime();
         powerRamp = new RampControl(0, 0, 0);
@@ -513,7 +747,8 @@ public class DcMotor8863 {
         setMotorType(MotorType.ANDYMARK_40);
         setMovementPerRev(0);
         setStallDetectionEnabled(false);
-        setTargetEncoderCount(0);
+        setMotorTargetEncoderCount(0);
+        setVirtualTargetEncoderCount(0);
         setTargetEncoderTolerance(10);
         setMotorState(MotorState.IDLE);
         setFinishBehavior(FinishBehavior.FLOAT);
@@ -533,13 +768,146 @@ public class DcMotor8863 {
     }
 
     //*********************************************************************************************
+    //          Config File Methods
+    //*********************************************************************************************
+
+    /**
+     * Implements a delay
+     *
+     * @param //mSec delay in milli Seconds
+     */
+    static public boolean saveMotorConfiguration(Configuration config, String section, String motorName, DcMotorSimple.Direction direction, MotorType motorType) {
+        if (config == null)
+            return false;
+        String unitStr;
+        config.setProperty(section + PROP_NAME, String.valueOf(motorName));
+        config.setProperty(section + PROP_TYPE, String.valueOf(motorType));
+        config.setProperty(section + PROP_DIRECTION, String.valueOf(direction));
+        return true;
+    }
+
+    static protected Map<String, DcMotor8863> motorsMap = new HashMap<String, DcMotor8863>();
+
+    static public void clearMotorsList() {
+        motorsMap.clear();
+    }
+
+    static public DcMotor8863 createMotorFromFile(Configuration config, String section, HardwareMap hardwareMap) {
+        if (config == null)
+            return null;
+        if (motorsMap.containsKey(section))
+            return motorsMap.get(section);
+        String motorName;
+        String motorTypeString;
+        String directionString;
+        MotorType motorType;
+        DcMotorSimple.Direction direction;
+        motorName = config.getPropertyString(section + PROP_NAME);
+        motorTypeString = config.getPropertyString(section + PROP_TYPE);
+        directionString = config.getPropertyString(section + PROP_DIRECTION);
+        if (motorTypeString == null) {
+            return null;
+        } else if ("NXT".equals(motorTypeString)) {
+            motorType = MotorType.NXT;
+        } else if ("ANDYMARK_20".equals(motorTypeString)) {
+            motorType = MotorType.ANDYMARK_20;
+        } else if ("ANDYMARK_40".equals(motorTypeString)) {
+            motorType = MotorType.ANDYMARK_40;
+        } else if ("ANDYMARK_60".equals(motorTypeString)) {
+            motorType = MotorType.ANDYMARK_60;
+        } else if ("TETRIX".equals(motorTypeString)) {
+            motorType = MotorType.TETRIX;
+        } else if ("ANDYMARK_20_ORBITAL".equals(motorTypeString)) {
+            motorType = MotorType.ANDYMARK_20;
+        } else if ("ANDYMARK_3_7_ORBITAL".equals(motorTypeString)) {
+            motorType = MotorType.ANDYMARK_3_7_ORBITAL;
+        } else if ("USDIGITAL_360PPR_ENCODER".equals(motorTypeString)) {
+            motorType = MotorType.USDIGITAL_360PPR_ENCODER;
+        } else if ("GOBILDA_312".equals(motorTypeString)) {
+            motorType = MotorType.GOBILDA_312;
+        } else {
+            return null;
+        }
+        if (directionString == null) {
+            return null;
+        } else if ("FORWARD".equals(directionString)) {
+            direction = DcMotorSimple.Direction.FORWARD;
+        } else if ("REVERSE".equals(directionString)) {
+            direction = DcMotorSimple.Direction.REVERSE;
+        } else {
+            return null;
+        }
+
+        DcMotor8863 motor = new DcMotor8863(motorName, hardwareMap);
+
+        // these motors are orbital (planetary gear) motors. The type of motor sets up the number
+        // of encoder ticks per revolution. Since we are not using encoder feedback yet, this is
+        // really not important now. But it will be once we hook up the encoders and set a motor
+        // mode that uses feedback.
+        motor.setMotorType(motorType);
+
+        // The encoder tolerance is used when you give the motor a target encoder tick count to rotate to. 5 is
+        // probably too tight. 10 is pretty good based on experience. Note that 10 is set as the
+        // default when you create a motor object so this statement is not needed.
+        //frontLeft.setTargetEncoderTolerance(10);
+
+        // FLOAT  is also the default when you create a new motor object
+        //frontLeft.setFinishBehavior(DcMotor8863.FinishBehavior.FLOAT);
+
+        // powers are also defaulted to -1 and 1
+        //frontLeft.setMinMotorPower(-1);
+        //frontLeft.setMaxMotorPower(1);
+
+        // This value will get set to some distance traveled per revolution later.
+        motor.setMovementPerRev(360);
+
+        // setDirection() is a software control that controls which direction the motor moves when
+        // you give it a positive power. We may have to change this once we see which direction the
+        // motor actually moves.
+        motor.setDirection(direction);
+
+        // set the running mode for the motor. The motor initializes at STOP_AND_RESET_ENCODER which
+        // resets the encoder count to zero. After this you have to choose a mode that will allow
+        // the motor to run.
+        // In this case, we do not have the encoder connected from the motor. So we only have one
+        // choice. We must run the motor without any feedback (open loop). This call is not really
+        // needed since later I use runAtConstantPower() and that sets the mode too. But since you
+        // are coming up to speed on the motors, I put this here for you to see (like my pun?).
+        // The other 2 options would be:
+        // RUN_TO_POSITION - run until the targeted encoder count is reached using PID
+        // RUN_WITH_ENCODER - run at a velocity controlled by a PID
+        // For more details, see this page and start reading at Running the motor and continue down
+        // https://ftc-tricks.com/dc-motors/
+        motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        // Make sure the motor does not start moving. This is not really needed because
+        // runAtConstantPower(0) below does the same thing. But I put it here so you can see this
+        // call exists.
+        motor.setPower(0);
+
+        // The runAtConstantPower() and runAtConstantSpeed() methods setup the motor to do that.
+        // They are initialzation methods. So they should not be inside the while loop.
+        //
+        // We can't use runAtConstantSpeed because there is no encoder feedback. I suspect this
+        // is why the motor did not turn. runAtConstantSpeed uses the encoder and PID control
+        // to turn the motor at a constant velocity.
+        //frontLeft.runAtConstantSpeed(mecanum.getFrontLeft());
+        //
+        // Instead we will run the motor open loop (without controlling its speed, just feeding
+        // it a power. Initialize the motor power to 0 for now.
+        motor.runAtConstantPower(0);
+        motorsMap.put(section, motor);
+        return motor;
+    }
+
+    //*********************************************************************************************
     //          Helper Methods
     //*********************************************************************************************
 
     /**
      * Implements a delay
      *
-     * @param mSec delay in milli Seconds
+     * @param //mSec delay in milli Seconds
      */
     private void delay(int mSec) {
         try {
@@ -561,6 +929,7 @@ public class DcMotor8863 {
     private int getMotorSpeedInEncoderTicksPerSec(int countsPerRev, int motorRPM) {
         return (int) Math.round((double) motorRPM * 1 / 60 * countsPerRev);
     }
+
 
     /**
      * Calculate the number or motor revolutions needed to move whatever is attached to the motor
@@ -636,7 +1005,7 @@ public class DcMotor8863 {
      */
     // tested
     public double getPositionInTermsOfAttachmentRelativeToLast() {
-        return getMovementForEncoderCount(getCurrentPosition() - this.lastEncoderValue);
+        return getMovementForEncoderCount(getCurrentPosition() - getLastEncoderValue());
     }
 
     /**
@@ -647,7 +1016,7 @@ public class DcMotor8863 {
      * @return encoder value - encoder value before the last movement started
      */
     public int getCurrentPositionRelativeToLast() {
-        return this.getCurrentPosition() - this.lastEncoderValue;
+        return this.getCurrentPosition() - getLastEncoderValue();
     }
 
 
@@ -671,34 +1040,6 @@ public class DcMotor8863 {
     //tested
     public int getEncoderCountForDegrees(double degrees) {
         return (int) Math.round(getCountsPerRev() * degrees / 360);
-    }
-
-    /**
-     * If the motor is set for relative movement, the encoder will be reset. But if the motor
-     * is set for absolute movement, the encoder needs to keep track of where the motor is, so
-     * it cannot be reset.
-     */
-    @Deprecated
-    private void resetEncoder() {
-        if (getMotorMoveType() == MotorMoveType.RELATIVE) {
-            this.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        }
-    }
-
-    /**
-     * If true is set, reset the encoder, no matter whether the motor is set for relative or
-     * absolute movement.
-     * Use this method to set the zero point on a motor that will be moved absolute from now on.
-     *
-     * @param override If true, then reset the encoder, no matter what.
-     */
-    @Deprecated
-    private void resetEncoder(boolean override) {
-        if (override) {
-            this.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        } else {
-            resetEncoder();
-        }
     }
 
     /**
@@ -773,7 +1114,7 @@ public class DcMotor8863 {
     public boolean moveToPosition(double power, double targetPosition, FinishBehavior afterCompletion) {
         // figure out what the encoder count is that corresponds to the target position
         int encoderCountForPosition = getEncoderCountForMovement(targetPosition);
-        this.lastEncoderValue = this.getCurrentPosition();
+        setLastEncoderValue(getCurrentPosition());
         return rotateToEncoderCount(power, encoderCountForPosition, afterCompletion);
     }
 
@@ -814,7 +1155,7 @@ public class DcMotor8863 {
         int encoderCountForMovement = getEncoderCountForMovement(movement);
         // add that to the current encoder count
         int encoderCountForPosition = encoderCountForMovement + currentPosition;
-        this.lastEncoderValue = currentPosition;
+        setLastEncoderValue(currentPosition);
         return rotateToEncoderCount(power, encoderCountForPosition, afterCompletion);
 
     }
@@ -835,7 +1176,7 @@ public class DcMotor8863 {
         int encoderCountForDegrees = getEncoderCountForDegrees(degrees);
         // add that to the current encoder count
         int encoderCountForPosition = encoderCountForDegrees + currentPosition;
-        this.lastEncoderValue = currentPosition;
+        setLastEncoderValue(currentPosition);
         return rotateToEncoderCount(power, encoderCountForPosition, afterCompletion);
     }
 
@@ -855,7 +1196,7 @@ public class DcMotor8863 {
         int encoderCountForRevs = getEncoderCountForRevs(revs);
         // add that to the current encoder count
         int encoderCountForPosition = encoderCountForRevs + currentPosition;
-        this.lastEncoderValue = currentPosition;
+        setLastEncoderValue(currentPosition);
         return rotateToEncoderCount(power, encoderCountForPosition, afterCompletion);
     }
 
@@ -863,7 +1204,7 @@ public class DcMotor8863 {
      * Rotate the motor so the encoder gets to a certain count.
      *
      * @param power           Power input for the motor. Note that it will be clipped to less than +/-0.8.
-     * @param encoderCount    Motor will be rotated so that it results in a movement of this distance.
+     * @param encoderCount    The target for the virtual encoder count
      * @param afterCompletion What to do after this movement is completed: HOLD or COAST
      * @return true if successfully completed
      * <p>
@@ -885,47 +1226,51 @@ public class DcMotor8863 {
      */
     // tested
     public boolean rotateToEncoderCount(double power, int encoderCount, FinishBehavior afterCompletion) {
+        // 12/12/2021 THIS IS A BUG! If the motor is already running in constant power or constant
+        // RPM or constant speed then you can't interrupt that and do a move to postiion type of
+        // method. I want to change this
+        // behavior so that if they call this method it actually effects the motor.
         // If the motor is already moving then make sure that another movement command cannot be issued.
-        if (!isMotorStateMoving()) {
-            // set what to do after the rotation completes
-            setFinishBehavior(afterCompletion);
-            // set the desired encoder position
-            this.setTargetPosition(encoderCount);
+        //if (!isMotorStateMoving()) {
+        // set what to do after the rotation completes
+        setFinishBehavior(afterCompletion);
+        // set the desired encoder position
+        this.setTargetPosition(encoderCount);
             // set the run mode
-            this.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            // clip the power so that it does not exceed 80% of max. The reason for this is that the
-            // PID controller inside the core motor controller needs to have some room to increase
-            // the power when it makes its PID adjustments. If you set the power to 100% then there is
-            // no room to increase the power if needed and PID control will not work.
-            power = Range.clip(power, -.8, .8);
-            // reset the completion timer since we are starting a motor movement that will end
-            // once rotation is detected as complete
-            completionTimer.reset();
-            // reset the stall timer since the motor is about to start moving
-            // this was a bug discovered 1/5/2018. It was not here.
-            stallTimer.reset();
-            // Is there is a power ramp setup to automatically start with the motor is turned on?
-            if (powerRamp.isEnabled()) {
-                // yes there is
-                this.setMotorState(MotorState.MOVING_PID_POWER_RAMP);
-                // if there is a power ramp enabled then the initial power will be from the ramp, not
-                // the one the user passed in.
-                setInitialPower(power);
-            } else {
-                // No power ramp is set to automatically be started.
-                this.setMotorState(MotorState.MOVING_PID_NO_POWER_RAMP);
-                // Turn the motor on
-                this.setPower(power);
-            }
-            logFlag = true;
-            if (dataLog != null) {
-                dataLog.logData("Rotate to encoder count = " + Integer.toString(encoderCount) + " from encoder count = " + Integer.toString(getCurrentPosition()) + " at power " + Double.toString(power) + "in");
-            }
-            return true;
+        this.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        // clip the power so that it does not exceed 80% of max. The reason for this is that the
+        // PID controller inside the core motor controller needs to have some room to increase
+        // the power when it makes its PID adjustments. If you set the power to 100% then there is
+        // no room to increase the power if needed and PID control will not work.
+        // 12/12/2021 I'm removing this since the core SDK should be taking care of it - GB
+        //power = Range.clip(power, -.8, .8);
+        // reset the completion timer since we are starting a motor movement that will end
+        // once rotation is detected as complete
+        completionTimer.reset();
+        // reset the stall timer since the motor is about to start moving
+        // this was a bug discovered 1/5/2018. It was not here.
+        stallTimer.reset();
+        // Is there is a power ramp setup to automatically start with the motor is turned on?
+        if (powerRamp.isEnabled()) {
+            // yes there is
+            this.setMotorState(MotorState.MOVING_PID_POWER_RAMP);
+            // if there is a power ramp enabled then the initial power will be from the ramp, not
+            // the one the user passed in.
+            setInitialPower(power);
         } else {
-            // This method was called again while the movement was taking place. You can't do that.
-            return false;
+            // No power ramp is set to automatically be started.
+            this.setMotorState(MotorState.MOVING_PID_NO_POWER_RAMP);
+            // Turn the motor on
+            this.setPower(power);
         }
+        logFlag = true;
+        if (dataLog != null) {
+            dataLog.logData("Rotate to encoder count = " + Integer.toString(encoderCount) + " from encoder count = " + Integer.toString(getCurrentPosition()) + " at power " + Double.toString(power) + "in");
+        }
+            return true;
+//        } else {
+//            // This method was called again while the movement was taking place. You can't do that.
+//            return false;
 
     }
 
@@ -975,35 +1320,109 @@ public class DcMotor8863 {
      * Remember that movement cannot complete since this mode runs until specifically stopped.
      * <p>
      * NOTE: You can change the power while the movement is going on by calling setPower().
+     * NOTE: This is NOT a good way to run the motor. The SDK has constants for the motor types that
+     * you configure. But they are wrong in some cases. So use runAtConstantRPM instead.
      *
-     * @param power Power input for the motor.
+     * @param power Power input for the motor. Ranges from -1 to +1, which corresponds to -100%
+     *              (backwards)to +100% (forwards)
      * @return true if successfully completed
      */
     // tested
+    // Deprecated since the SDK has incorrect constants for some motors and this does not run the
+    // motors at a speed that is proportional to their max RPM.
+    // DO NOT USE! USE runAtConstantRPM() INSTEAD!
+    @Deprecated
     public boolean runAtConstantSpeed(double power) {
+        // 12/12/2021 THIS IS A BUG! If the motor is already running at a constant speed the only
+        // way to change it is to use setPower(). A user may try to call runAtConstantSpeed again
+        // and since the motor is already moving, it will not take effect. I want to change this
+        // behavior so that if they call the method again it actually effects the motor.
         // If the motor is already moving then make sure that another movement command cannot be issued.
-        if (!isMotorStateMoving()) {
-            // set the run mode
-            this.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            // Is there is a power ramp setup to automatically start with the motor is turned on?
-            // Is there is a power ramp setup to automatically start with the motor is turned on?
-            if (powerRamp.isEnabled()) {
-                // yes there is
-                this.setMotorState(MotorState.MOVING_PID_POWER_RAMP);
-                // if there is a power ramp enabled then the initial power will be from the ramp, not
-                // the one the user passed in.
-                setInitialPower(power);
-            } else {
-                // No power ramp is set to automatically be started.
-                this.setMotorState(MotorState.MOVING_PID_NO_POWER_RAMP);
-                // Turn the motor on
-                this.setPower(power);
-            }
-            return true;
+        //if (!isMotorStateMoving()) {
+        // set the run mode - note there is a check in setMode that will not resend the command
+        // to the motor is the motor is already in this mode
+        this.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        // Is there is a power ramp setup to automatically start with the motor is turned on?
+        if (powerRamp.isEnabled()) {
+            // yes there is
+            this.setMotorState(MotorState.MOVING_PID_POWER_RAMP);
+            // if there is a power ramp enabled then the initial power will be from the ramp, not
+            // the one the user passed in.
+            setInitialPower(power);
         } else {
-            return false;
+            // No power ramp is set to automatically be started.
+            this.setMotorState(MotorState.MOVING_PID_NO_POWER_RAMP);
+            // Turn the motor on
+            this.setPower(power);
         }
+        return true;
+//        } else {
+//            return false;
+//        }
     }
+
+    /**
+     * Run the motor at a constant RPM using encoder feedback. If there is a load on the motor the
+     * power will be increased in an attempt to maintain the speed. Note that a command for a high
+     * speed may require more power than is available to run the motor at that speed. So it may
+     * result in the PID not being able to control the motor and the motor will lose speed under
+     * load.
+     * <p>
+     * This method starts the movement. Once it is started there are 3 ways it can stop:
+     * stop()
+     * interrupt()
+     * motor stalls and stall detection is enabled
+     * Remember that movement cannot complete since this mode runs until specifically stopped.
+     * <p>
+     * NOTE: You can change the power while the movement is going on by calling setPower().
+     *
+     * @param motorRPM the desired RPM for the motor to run at.
+     * @return true if successfully completed
+     */
+    // tested
+    public boolean runAtConstantRPM(double motorRPM) {
+        // 12/12/2021 THIS IS A BUG! If the motor is already running at a constant speed the only
+        // way to change it is to use setVelocity(). A user may try to call runAtConstantRPM again
+        // and since the motor is already moving, it will not take effect. I want to change this
+        // behavior so that if they call the method again it actually effects the motor.
+        // If the motor is already moving then make sure that another movement command cannot be issued.
+//        if (!isMotorStateMoving()) {
+        // set the run mode - note there is a check in setMode that will not resend the command
+        // to the motor is the motor is already in this mode
+        double angularRateInTickPerSecond = getMotorSpeedInEncoderTicksPerSec(getCountsPerRev(), (int) motorRPM);
+        FTCDcMotor.setVelocity(angularRateInTickPerSecond);
+        this.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        this.setMotorState(MotorState.MOVING_PID_NO_POWER_RAMP);
+        return true;
+//        } else {
+//            return false;
+//        }
+    }
+
+    /**
+     * Get the current velocity of the motor in RPM
+     *
+     * @return
+     */
+    public double getCurrentRPM() {
+        // there is a bug in the SDK. It is not returning the proper velocity in deg/sec
+        //double velocityInDegreesPerSec = FTCDcMotor.getVelocity(AngleUnit.DEGREES);
+        double velocityInTicksPerSec = FTCDcMotor.getVelocity();
+        // RPM = velocityInDegreesPerSec * 60 sec / min * 1 rev / 360 degrees = velocityInDegreesPerSec / 60
+        //return velocityInDegreesPerSec / 60;
+        // RPM = velocityInTicksPerSec * 60 sec / min * 1 rev / (ticks / rev)
+        return velocityInTicksPerSec * 60 / getCountsPerRev();
+    }
+
+    /**
+     * Get the motor motor velocity in counts per second
+     *
+     * @return
+     */
+    public double getCurrentVelocityInCounts() {
+        return FTCDcMotor.getVelocity();
+    }
+
 
     //*********************************************************************************************
     //    Methods for rotating the motor without encoders - open loop - run at a constant power
@@ -1040,27 +1459,32 @@ public class DcMotor8863 {
      */
     // tested
     public boolean runAtConstantPower(double power) {
+        // 12/12/2021 THIS IS A BUG! If the motor is already running at a constant speed the only
+        // way to change it is to use setVelocity(). A user may try to call runAtConstantPower again
+        // and since the motor is already moving, it will not take effect. I want to change this
+        // behavior so that if they call the method again it actually effects the motor.
         // If the motor is already moving then make sure that another movement command cannot be issued.
-        if (!isMotorStateMoving()) {
-            // set the run mode
-            this.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            // Is there is a power ramp setup to automatically start with the motor is turned on?
-            if (powerRamp.isEnabled()) {
-                // yes there is
-                this.setMotorState(MotorState.MOVING_NO_PID_POWER_RAMP);
-                // if there is a power ramp enabled then the initial power will be from the ramp, not
-                // the one the user passed in.
-                setInitialPower(power);
-            } else {
-                // No power ramp is set to automatically be started.
-                this.setMotorState(MotorState.MOVING_NO_PID_NO_POWER_RAMP);
-                // Turn the motor on
-                this.setPower(power);
-            }
-            return true;
+        //if (!isMotorStateMoving()) {
+        // set the run mode - note there is a check in setMode that will not resend the command
+        // to the motor is the motor is already in this mode
+        this.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        // Is there is a power ramp setup to automatically start with the motor is turned on?
+        if (powerRamp.isEnabled()) {
+            // yes there is
+            this.setMotorState(MotorState.MOVING_NO_PID_POWER_RAMP);
+            // if there is a power ramp enabled then the initial power will be from the ramp, not
+            // the one the user passed in.
+            setInitialPower(power);
         } else {
-            return false;
+            // No power ramp is set to automatically be started.
+            this.setMotorState(MotorState.MOVING_NO_PID_NO_POWER_RAMP);
+            // Turn the motor on
+            this.setPower(power);
         }
+            return true;
+//        } else {
+//            return false;
+//        }
     }
 
     //*********************************************************************************************
@@ -1172,7 +1596,7 @@ public class DcMotor8863 {
         setStallDetectionTolerance(stallDetectionTolerance);
         setStallTimeLimit(stallTimeLimit);
         stallTimer.reset();
-        this.lastEncoderValue = this.getCurrentPosition();
+        setLastEncoderValue(getCurrentPosition());
     }
 
     public boolean isStalled() {
@@ -1188,7 +1612,7 @@ public class DcMotor8863 {
                 telemetry.addData("checking for a stall", "!");
             }
             // if the motor has not moved since the last time the position was read
-            if (Math.abs(currentEncoderValue - lastEncoderValue) < stallDetectionTolerance) {
+            if (Math.abs(currentEncoderValue - getLastEncoderValue()) < stallDetectionTolerance) {
                 if (telemetry != null) {
                     telemetry.addData("motor is not moving", "!");
                 }
@@ -1212,7 +1636,7 @@ public class DcMotor8863 {
                 stallTimer.reset();
             }
         }
-        this.lastEncoderValue = currentEncoderValue;
+        setLastEncoderValue(currentEncoderValue);
         return false;
     }
 
@@ -1245,20 +1669,25 @@ public class DcMotor8863 {
     // from the overshoot.
     // The new algorithm is to check that it is in position for a specific period of time.
     // Specifically, has the motor been at the target for greater than X mSec.
-    public boolean isRotationComplete() {
+    private boolean isRotationComplete() {
         boolean result = false;
         switch (currentRunMode) {
             case RUN_TO_POSITION:
                 // This is the only mode that will eventually have the motor stop turning. This next
                 // section of code is my replacement for DcMotor.isBusy().
-                // get the current encoder position
+                // get the current encoder position, adjusted by the baseEncoderCount (virtual encoder count)
                 int currentEncoderCount = this.getCurrentPosition();
                 // is the current position within the tolerance limit of the desired position? and
                 // has it been there for longer than the completion timeout?
-                if (Math.abs(targetEncoderCount - currentEncoderCount) < targetEncoderTolerance) {
+                if (Math.abs(getVirtualTargetEncoderCount() - currentEncoderCount) < targetEncoderTolerance) {
                     if (completionTimer.milliseconds() > completionTimeoutInmSec) {
                         // movement is complete
                         result = true;
+                        // THIS IS A COB TO FIX A BUG DISCOVERED FOR ULTIMATE GOAL ANGLE CHANGER
+                        // SOMEHOW THE MOTOR STATE WAS GETTING SET TO MOVING EVEN THOUGH isRotationComplete returned true
+                        // So force the state to what we think it should be
+                        // todo look into this bug
+                        //currentMotorState = MotorState.COMPLETE_HOLD;
                     } else {
                         // if on target but the timer is not yet expired just let it run
                     }
@@ -1516,7 +1945,16 @@ public class DcMotor8863 {
      * @return true = movement completed
      */
     // tested
+    @Deprecated
     public boolean isMotorStateComplete() {
+        if (this.currentMotorState == MotorState.COMPLETE_FLOAT || this.currentMotorState == MotorState.COMPLETE_HOLD) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean isMovementComplete() {
         if (this.currentMotorState == MotorState.COMPLETE_FLOAT || this.currentMotorState == MotorState.COMPLETE_HOLD) {
             return true;
         } else {
@@ -1599,21 +2037,6 @@ public class DcMotor8863 {
         FTCDcMotor.setZeroPowerBehavior(ZeroPowerBehavior);
     }
 
-    public void setTargetPosition(int position) {
-        // set the field holding the desired rotation
-        setTargetEncoderCount(position);
-        FTCDcMotor.setTargetPosition(position);
-    }
-
-    /**
-     * Get the current encoder count for the motor.
-     *
-     * @return current encoder count
-     */
-    public int getCurrentPosition() {
-        return FTCDcMotor.getCurrentPosition();
-    }
-
     public void setDirection(DcMotor.Direction direction) {
         FTCDcMotor.setDirection(direction);
         this.direction = direction;
@@ -1644,4 +2067,85 @@ public class DcMotor8863 {
     public int getMaxSpeed() {
         return FTCDcMotor.getMaxSpeed();
     }*/
+
+
+    //*********************************************************************************************
+    //          Test and Diagnostic Methods
+    //*********************************************************************************************
+
+    /**
+     * Display the encoder count for the motor and its type. To use, rotate the motor shaft one
+     * revolution. Call this method from your opmode outside of any loops after waitForStart(); Pass
+     * the opmode using the keyword "this".
+     * @param opmode
+     */
+    public void testEncoderAndMotorType(LinearOpMode opmode)  {
+        resetEncoder();
+
+        while (opmode.opModeIsActive()) {
+            opmode.telemetry.addData("Test motor encoder and check motor type", ">");
+            opmode.telemetry.addData("Turn motor by hand 1 time around (360 degrees)", ">");
+            opmode.telemetry.addData("Encoder count = ", getCurrentPosition());
+            displayMotorTypeFromEncoderCount(getCurrentPosition(), opmode);
+            opmode.telemetry.update();
+        }
+    }
+
+    /**
+     * Add a telemetry statement displaying the motor type given the encoder count for one
+     * revolution of the output shaft of the motor
+     * @param encoderCount
+     * @param opmode
+     */
+    private void displayMotorTypeFromEncoderCount(int encoderCount, LinearOpMode opmode) {
+        encoderCount = Math.abs(encoderCount);
+        if (encoderCount == 0) {
+            opmode.telemetry.addData("Turn the output shaft of the motor", "!");
+        }
+        if (encoderCount > 0 && encoderCount <= 36) {
+            opmode.telemetry.addData("Motor type = ", "goBilda 6000");
+        }
+        if (encoderCount > 37 && encoderCount <= 74 ) {
+            opmode.telemetry.addData("Motor type = ", "Andymark 3.7 old style");
+        }
+        if (encoderCount > 74 && encoderCount <= 124 ) {
+            opmode.telemetry.addData("Motor type = ", "Andymark 3.7 or goBilda 1620");
+        }
+        if (encoderCount > 124 && encoderCount <= 265 ) {
+            opmode.telemetry.addData("Motor type = ", "goBilda 1150");
+        }
+        if (encoderCount > 265 && encoderCount <= 461 ) {
+            opmode.telemetry.addData("Motor type = ", "goBilda 435");
+        }
+        if (encoderCount > 461 && encoderCount <= 549 ) {
+            opmode.telemetry.addData("Motor type = ", "Andymark Orbital 20 or goBilda 312");
+        }
+        if (encoderCount > 549 && encoderCount <= 656 ) {
+            opmode.telemetry.addData("Motor type = ", "Andymark 20 spur gear");
+        }
+        if (encoderCount > 656 && encoderCount <= 936 ) {
+            opmode.telemetry.addData("Motor type = ", "goBilda 223");
+        }
+        if (encoderCount > 936 && encoderCount <= 1272 ) {
+            opmode.telemetry.addData("Motor type = ", "Andymark 40 spur gear");
+        }
+        if (encoderCount > 1272 && encoderCount <= 1552 ) {
+            opmode.telemetry.addData("Motor type = ", "goBilda 117");
+        }
+        if (encoderCount > 1552 && encoderCount <= 1836 ) {
+            opmode.telemetry.addData("Motor type = ", "Andymark 60 spur gear");
+        }
+        if (encoderCount > 1836 && encoderCount <= 2389 ) {
+            opmode.telemetry.addData("Motor type = ", "goBilda 84");
+        }
+        if (encoderCount > 2389 && encoderCount <= 3341 ) {
+            opmode.telemetry.addData("Motor type = ", "goBilda 60");
+        }
+        if (encoderCount > 3341 && encoderCount <= 4588 ) {
+            opmode.telemetry.addData("Motor type = ", "goBilda 43");
+        }
+        if (encoderCount > 4588 ) {
+            opmode.telemetry.addData("Motor type = ", "goBilda 30");
+        }
+    }
 }

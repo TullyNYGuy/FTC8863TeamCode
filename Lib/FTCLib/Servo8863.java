@@ -11,12 +11,17 @@ import com.qualcomm.robotcore.util.Range;
 
 /**
  * Created by FTC8863 on 12/2/2015.
- * Class allows you to control a servo with one of 6 positions:
- * home, up, down, position1, position2, position3
+ * Class allows you to control a servo with one of these positions:
+ * home, up, down, init, position1, position2, position3, position4, position5
+ *
  * It also allows you to setup an automatic servo "wiggle". This is where the servo will
  * automatically move back and forth between 2 positions for a given period of time. Each movement
  * in the wiggle will wait for a timer to expire and will make sure that the movement has completed.
  * This wiggle is useful for creating a vibration in the object controlled by the servo.
+ *
+ * It also provides a way to determine the position value by stepping the servo from a start position
+ * to an end position in small increments. Using this "calibration" you can determine the position
+ * values for your mechanical setup.
  */
 public class Servo8863 {
 
@@ -222,7 +227,7 @@ public class Servo8863 {
 
 
     //*********************************************************************************************
-    //          GETTER and SETTER Methods
+    //          GETTER and SETTER Methods for positions
     //*********************************************************************************************
 
     public double getHomePosition() {
@@ -306,6 +311,10 @@ public class Servo8863 {
         this.initPosition = initPosition;
     }
 
+    //*********************************************************************************************
+    //          GETTER and SETTER Methods for miscellaneous
+    //*********************************************************************************************
+
     /**
      * readonly
      *
@@ -322,6 +331,10 @@ public class Servo8863 {
     public void setDebug(boolean debug) {
         this.debug = debug;
     }
+
+    //*********************************************************************************************
+    //          GETTER and SETTER Methods for calibration
+    //*********************************************************************************************
 
     public void setServoCalibrationPositionIncrement(double servoCalibrationPositionIncrement) {
         this.servoCalibrationPositionIncrement = servoCalibrationPositionIncrement;
@@ -373,7 +386,7 @@ public class Servo8863 {
     }
 
     //*********************************************************************************************
-    //          Public Methods
+    //          Public Methods for position
     //*********************************************************************************************
 
     public void goUp() {
@@ -416,6 +429,10 @@ public class Servo8863 {
         position = Range.clip(position, 0.0, 1.0);
         teamServo.setPosition(position);
     }
+
+    //*********************************************************************************************
+    //          Public Methods for servo wiggle
+    //*********************************************************************************************
 
     /**
      * Setup a servo wiggle. The servo can wiggle
@@ -552,6 +569,11 @@ public class Servo8863 {
     public double getPosition() {
         return teamServo.getPosition();
     }
+
+
+    //*********************************************************************************************
+    //          Public Methods for calibration
+    //*********************************************************************************************
 
     /**
      * Setup for moving the servo from a start position to an end position by a certain increment with a

@@ -90,14 +90,8 @@ public class TestTensorFlowObjectDetection extends LinearOpMode {
         // first.
         initVuforia();
 
-        // Check if tensor flow object detection (Tfod) can be run on the phone
-        if (ClassFactory.getInstance().canCreateTFObjectDetector()) {
-            // yes it can. Initialize tensor flow object detection
-            initTfod();
-        } else {
-            // no it can't
-            telemetry.addData("Sorry!", "This device is not compatible with TFOD");
-        }
+        // Initialize tensor flow object detection
+        initTfod();
 
         /** Wait for the game to begin */
         telemetry.addData(">", "Press Play to start tracking");

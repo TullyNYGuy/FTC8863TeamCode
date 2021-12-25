@@ -11,7 +11,7 @@ public interface ProfileFunction {
     //*********************************************************************************************
     enum ProfileType {
         RAMP_UP_DOWN,
-        RAMP_UP_DOWN_FLAT_TOP,
+        TRAPEZOIDAL,
         RAMP_UP
     }
 

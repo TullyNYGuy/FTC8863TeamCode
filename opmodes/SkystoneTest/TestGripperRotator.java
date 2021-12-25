@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.SkystoneTest;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -11,7 +12,7 @@ import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.SkystoneRobot;
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
 @TeleOp(name = "Test Gripper Rotator", group = "Test")
-//@Disabled
+@Disabled
 public class TestGripperRotator extends LinearOpMode {
 
     // Put your variable declarations here

@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.GenericTest;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -12,7 +13,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
 @TeleOp(name = "Cycle Extension Retraction Mechanism", group = "Test")
-//@Disabled
+@Disabled
 public class CycleExtensionRetractionMechanism extends LinearOpMode {
 
     // Put your variable declarations here
@@ -48,7 +49,7 @@ public class CycleExtensionRetractionMechanism extends LinearOpMode {
         waitForStart();
 
         // Put your calls here - they will not run in a loop
-        extensionRetractionMechanism.testCycleFullExtensionRetraction(this, 100);
+        extensionRetractionMechanism.testCycleFullExtensionRetraction(this, 100, 3000);
         telemetry.update();
 
         // sit and wait for the user to read the results

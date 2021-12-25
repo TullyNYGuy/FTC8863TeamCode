@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmodes.GenericTest;
 
 import android.app.backup.BackupAgent;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -14,7 +15,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
 @TeleOp(name = "Test Drive Curve + Straight", group = "Test")
-//@Disabled
+@Disabled
 public class TestDriveCurvePlusStraight extends LinearOpMode {
 
     // Put your variable declarations here

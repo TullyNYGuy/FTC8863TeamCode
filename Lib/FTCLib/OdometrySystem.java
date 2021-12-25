@@ -213,18 +213,18 @@ public class OdometrySystem implements FTCRobotSubsystem {
 
 
         // calculate angle of rotation
-        double deltaRotation = (leftEncoderValue - rightEncoderValue) * rotationalMultiplier;
+        double deltaRotation = (rightEncoderValue - leftEncoderValue) * rotationalMultiplier;
 
         // adjust values by canceling rotation
-        double leftVal = leftEncoderValue - deltaRotation * leftMultiplier;
-        double rightVal = rightEncoderValue + deltaRotation * rightMultiplier;
-        double backVal = backEncoderValue - deltaRotation * backMultiplier;
+        double leftVal = leftEncoderValue + deltaRotation * leftMultiplier;
+        double rightVal = rightEncoderValue - deltaRotation * rightMultiplier;
+        double backVal = backEncoderValue + deltaRotation * backMultiplier;
 
         double deltaX = (leftVal + rightVal) / 2.0;
         double deltaY = backVal;
 
-        currentX += deltaX * Math.cos(deltaRotation);
-        currentY += deltaY * Math.sin(deltaRotation);
+        currentX += deltaX * Math.cos(currentRotation) - deltaY * Math.sin(currentRotation);
+        currentY += deltaX * Math.sin(currentRotation) + deltaY * Math.cos(currentRotation);
         currentRotation += deltaRotation;
         leftEncoderOld = leftEncoderNew;
         rightEncoderOld = rightEncoderNew;
@@ -264,9 +264,9 @@ public class OdometrySystem implements FTCRobotSubsystem {
                 double leftEndingValue = left.getDistanceSinceReset(unit);
                 leftMultiplier = (leftEndingValue - leftStartingValue) / rotation;
                 if (leftMultiplier > 0.0) {
-                    leftDirectionMultiplier = 1.0;
-                } else {
                     leftDirectionMultiplier = -1.0;
+                } else {
+                    leftDirectionMultiplier = 1.0;
                     leftMultiplier = -leftMultiplier;
                 }
             }
@@ -274,19 +274,19 @@ public class OdometrySystem implements FTCRobotSubsystem {
                 double rightEndingValue = right.getDistanceSinceReset(unit);
                 rightMultiplier = (rightEndingValue - rightStartingValue) / rotation;
                 if (rightMultiplier < 0.0) {
-                    rightDirectionMultiplier = 1.0;
+                    rightDirectionMultiplier = -1.0;
                     rightMultiplier = -rightMultiplier;
                 } else {
-                    rightDirectionMultiplier = -1.0;
+                    rightDirectionMultiplier = 1.0;
                 }
             }
             if (back != null) {
                 double backEndingValue = back.getDistanceSinceReset(unit);
                 backMultiplier = (backEndingValue - backStartingValue) / rotation;
                 if (backMultiplier > 0.0) {
-                    backDirectionMultiplier = 1.0;
-                } else {
                     backDirectionMultiplier = -1.0;
+                } else {
+                    backDirectionMultiplier = 1.0;
                     backMultiplier = -backMultiplier;
                 }
             }
@@ -322,21 +322,7 @@ public class OdometrySystem implements FTCRobotSubsystem {
     public boolean saveConfiguration(Configuration config) {
         if (config == null)
             return false;
-        String unitStr;
-        switch (unit) {
-            case INCH:
-                unitStr = "in";
-                break;
-            case CM:
-                unitStr = "cm";
-                break;
-            case METER:
-                unitStr = "m";
-                break;
-            default:
-                unitStr = "mm";
-        }
-        config.setProperty(PROP_UNIT, unitStr);
+        config.setProperty(PROP_UNIT, unit);
         config.setProperty(PROP_LEFT_MULTIPLIER, String.valueOf(leftMultiplier));
         config.setProperty(PROP_LEFT_DIRECTION_MULTIPLIER, String.valueOf(leftDirectionMultiplier));
         config.setProperty(PROP_RIGHT_MULTIPLIER, String.valueOf(rightMultiplier));
@@ -349,32 +335,24 @@ public class OdometrySystem implements FTCRobotSubsystem {
     public boolean loadConfiguration(Configuration config) {
         if (config == null)
             return false;
-        Pair<String, Boolean> strVal = config.getPropertyString(PROP_UNIT, "mm");
-        boolean fullConfig = strVal.second;
-        if (strVal.first.equalsIgnoreCase("in"))
-            unit = DistanceUnit.INCH;
-        else if (strVal.first.equalsIgnoreCase("cm"))
-            unit = DistanceUnit.CM;
-        else if (strVal.first.equalsIgnoreCase("m"))
-            unit = DistanceUnit.METER;
-        else
-            unit = DistanceUnit.MM;
-        Pair<Double, Boolean> dblVal = config.getPropertyDouble(PROP_LEFT_MULTIPLIER, 1.0);
+        boolean fullConfig = true;
+        unit = config.getPropertyDistanceUnit(PROP_UNIT, DistanceUnit.MM);
+        Pair<Double, Boolean> dblVal = config.getPropertyDoubleCheck(PROP_LEFT_MULTIPLIER, 1.0);
         leftMultiplier = dblVal.first;
         fullConfig &= dblVal.second;
-        dblVal = config.getPropertyDouble(PROP_LEFT_DIRECTION_MULTIPLIER, 1.0);
+        dblVal = config.getPropertyDoubleCheck(PROP_LEFT_DIRECTION_MULTIPLIER, 1.0);
         leftDirectionMultiplier = dblVal.first;
         fullConfig &= dblVal.second;
-        dblVal = config.getPropertyDouble(PROP_RIGHT_MULTIPLIER, 1.0);
+        dblVal = config.getPropertyDoubleCheck(PROP_RIGHT_MULTIPLIER, 1.0);
         rightMultiplier = dblVal.first;
         fullConfig &= dblVal.second;
-        dblVal = config.getPropertyDouble(PROP_RIGHT_DIRECTION_MULTIPLIER, 1.0);
+        dblVal = config.getPropertyDoubleCheck(PROP_RIGHT_DIRECTION_MULTIPLIER, 1.0);
         rightDirectionMultiplier = dblVal.first;
         fullConfig &= dblVal.second;
-        dblVal = config.getPropertyDouble(PROP_BACK_MULTIPLIER, 1.0);
+        dblVal = config.getPropertyDoubleCheck(PROP_BACK_MULTIPLIER, 1.0);
         backMultiplier = dblVal.first;
         fullConfig &= dblVal.second;
-        dblVal = config.getPropertyDouble(PROP_BACK_DIRECTION_MULTIPLIER, 1.0);
+        dblVal = config.getPropertyDoubleCheck(PROP_BACK_DIRECTION_MULTIPLIER, 1.0);
         backDirectionMultiplier = dblVal.first;
         fullConfig &= dblVal.second;
         initializeInternal();
@@ -394,9 +372,21 @@ public class OdometrySystem implements FTCRobotSubsystem {
         currentY = this.unit.fromUnit(unit, y);
     }
 
+    public void setCurrentPosition(RobotPosition position) {
+        currentRotation = position.angleUnit.toRadians(position.rotation);
+        currentX = this.unit.fromUnit(position.distanceUnit, position.x);
+        currentY = this.unit.fromUnit(position.distanceUnit, position.y);
+    }
+
     public void getCurrentPosition(Position position) {
         position.x = position.unit.fromUnit(unit, currentX);
         position.y = position.unit.fromUnit(unit, currentY);
+    }
+
+    public void getCurrentPosition(RobotPosition position) {
+        position.x = position.distanceUnit.fromUnit(unit, currentX);
+        position.y = position.distanceUnit.fromUnit(unit, currentY);
+        position.rotation = position.angleUnit.fromRadians(currentRotation);
     }
 
     public double getCurrentY(DistanceUnit unit) {

@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.SkystoneTest;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -16,7 +17,7 @@ import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.AutonomousController;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.SkystoneRobot;
 
 @TeleOp(name = "PID Robot Test", group = "ATest")
-//@Disabled
+@Disabled
 
 /*
  * Class for Skystone TeleOp mode
@@ -141,7 +142,9 @@ public class PIDRobotTest extends LinearOpMode {
         // create the robot
         telemetry.addData("Initializing ...", "Wait for it ...");
         telemetry.update();
-
+        double Kp = 0.036;
+        double Ki = 0.05950413223;
+        double Kd = 0.005445;
         dataLog = new DataLogging("Teleop", telemetry);
         config = new Configuration();
         if (!config.load()) {
@@ -153,7 +156,7 @@ public class PIDRobotTest extends LinearOpMode {
 
         robot = new SkystoneRobot(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, this);
 
-        AutonomousController controller = new AutonomousController(robot, dataLog, telemetry);
+        AutonomousController controller = new AutonomousController(robot, dataLog, telemetry, Kp, Ki, Kd);
 
         // create the gamepad 1 buttons and tell each button how many commands it has
         // gamepad1RightBumper = new GamepadButtonMultiPush(1);
@@ -225,7 +228,7 @@ public class PIDRobotTest extends LinearOpMode {
         waitForStart();
 
         controller.startController();
-        controller.moveTo(DistanceUnit.CM, 10, 0);
+        controller.moveTo(DistanceUnit.CM, 50, 0);
 
         //*********************************************************************************************
         //             Robot Running after the user hits play on the driver phone

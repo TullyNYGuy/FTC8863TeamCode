@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.SkystoneTest;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -17,7 +18,7 @@ import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.AutonomousController;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.SkystoneRobot;
 
 @TeleOp(name = "PID move to", group = "ATest")
-//@Disabled
+@Disabled
 
 /*
  * Class for Skystone TeleOp mode
@@ -154,7 +155,7 @@ public class MoveToWithPID extends LinearOpMode {
 
         robot = new SkystoneRobot(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, this);
         robot.enableDataLogging();
-AutonomousController controller = new AutonomousController(robot, dataLog, telemetry);
+AutonomousController controller = new AutonomousController(robot, dataLog, telemetry, .03, 0,0);
 controller.startController();
         // create the gamepad 1 buttons and tell each button how many commands it has
         // gamepad1RightBumper = new GamepadButtonMultiPush(1);
@@ -224,6 +225,7 @@ controller.startController();
         // Wait for the start button
         telemetry.addData(">", "Press start to run Teleop");
         telemetry.update();
+        robot.setPosition(0,0,0);
         waitForStart();
 
         //*********************************************************************************************

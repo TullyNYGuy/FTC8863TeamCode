@@ -9,6 +9,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
+import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
@@ -19,6 +20,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.Mecanum;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometryModule;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometrySystem;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.RobotPosition;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Switch;
 
 import java.util.ArrayList;
@@ -142,7 +144,7 @@ public class SkystoneRobot implements FTCRobot {
         capabilities.remove(Subsystem.INTAKE_PUSHER);
         capabilities.remove(Subsystem.EXT_ARM);
         capabilities.remove(Subsystem.BASE_MOVER);
-        capabilities.remove(Subsystem.ODOMETRY);
+       // capabilities.remove(Subsystem.ODOMETRY);
         capabilities.remove(Subsystem.LIFT);
     }
 
@@ -240,9 +242,9 @@ public class SkystoneRobot implements FTCRobot {
             mecanum = new Mecanum(frontLeft, frontRight, backLeft, backRight, telemetry);
         }
         if (capabilities.contains(Subsystem.ODOMETRY)) {
-            OdometryModule left = new OdometryModule(1440, 3.8, units, HardwareName.ODOMETRY_MODULE_LEFT.hwName, hardwareMap);
-            OdometryModule right = new OdometryModule(1440, 3.8, units, HardwareName.ODOMETRY_MODULE_RIGHT.hwName, hardwareMap);
-            OdometryModule back = new OdometryModule(1440, 3.8, units, HardwareName.ODOMETRY_MODULE_BACK.hwName, hardwareMap);
+            OdometryModule left = new OdometryModule(1440, 3.8*Math.PI, units, HardwareName.ODOMETRY_MODULE_LEFT.hwName, hardwareMap);
+            OdometryModule right = new OdometryModule(1440, 3.8*Math.PI, units, HardwareName.ODOMETRY_MODULE_RIGHT.hwName, hardwareMap);
+            OdometryModule back = new OdometryModule(1440, 3.8*Math.PI, units, HardwareName.ODOMETRY_MODULE_BACK.hwName, hardwareMap);
             odometry = new OdometrySystem(units, left, right, back);
             subsystemMap.put(odometry.getName(), odometry);
         }
@@ -318,29 +320,31 @@ public class SkystoneRobot implements FTCRobot {
 
         //Intake pusher servo
         if (capabilities.contains(Subsystem.INTAKE_PUSHER)) {
-            /*
             intakePusherServos = new IntakePusherServos(
                     hardwareMap,
                     HardwareName.INTAKE_PUSHER_RIGHT_SERVO.hwName,
-                    HardwareName.INTAKE_PUSHER_RIGHT_SERVO.hwName,
+                    HardwareName.INTAKE_PUSHER_LEFT_SERVO.hwName,
                     telemetry);
             subsystemMap.put(intakePusherServos.getName(), intakePusherServos);
-             */
         }
 
-        //Intake pusher servo
-       /* if (capabilities.contains(Subsystem.INTAKE_LIMIT_SW)) {
-            intakePusherServos = new IntakePusherServos(
-                    hardwareMap,
-                    HardwareName.INTAKE_PUSHER_RIGHT_SERVO.hwName,
-                    HardwareName.INTAKE_PUSHER_RIGHT_SERVO.hwName,
-                    telemetry);
-            subsystemMap.put(intakePusherServos.getName(), intakePusherServos);
-        }*/
         init();
         return true;
     }
+public void setPosition(double currentpositionx,double currentPositiionY,double currentPositionRot){
+        if(odometry != null){
 
+            odometry.setCoordinates(units, currentpositionx, currentPositiionY, AngleUnit.DEGREES, currentPositionRot);
+        }else{
+            if(imu != null){
+                //it dodesnt want to work. implement inti thfr imu clas instead of  tnrd bno0ffimu class
+                //imu.stopAccelerationIntegration();
+                Position place = new Position(units, currentpositionx, currentPositiionY, 0, 0);
+                Velocity velocity = new Velocity(units,0,0,0,0);
+                imu.startAccelerationIntegration(place, velocity, 100);
+            }
+        }
+}
     /**
      * Every system has an init. Call it.
      */
@@ -356,12 +360,21 @@ public class SkystoneRobot implements FTCRobot {
             }
         }
 
+        if (mecanum != null && !mecanum.init(config)) {
+            if (dataLoggingEnabled)
+                dataLog.logData("Mecanum initialization failed");
+        }
+
         // inits for the command state machines
         initDeportStateMachine();
         initLiftBlockStateMachine();
         initPlaceBlockStateMachine();
         initPrepareBlockStateMachine();
 
+        // Start IMU-based positioning if Odometry is not enabled
+        if(!capabilities.contains(Subsystem.ODOMETRY)) {
+            imu.startAccelerationIntegration(null, null, 100);
+        }
         // wait until all the updates are complete or until the timer has expired
         timer.reset();
         while (!isInitComplete()) {
@@ -467,6 +480,14 @@ public class SkystoneRobot implements FTCRobot {
         if (odometry != null && odometry.isInitComplete()) {
             odometry.getCurrentPosition(position);
             return true;
+        } else if(imu != null) {
+            Position p = imu.getPosition();
+            position.acquisitionTime = p.acquisitionTime;
+            position.unit = p.unit;
+            position.x = p.x;
+            position.y = p.y;
+            position.z = p.z;
+            return true;
         } else {
             return false;
         }
@@ -484,9 +505,32 @@ public class SkystoneRobot implements FTCRobot {
         else
             return 0;
     }
+    public double getCurrentRotationIMU(AngleUnit unit){
+        return unit.fromDegrees(imu.getHeading());
+    }
+    public boolean getCurrentRobotPosition(RobotPosition position) {
+        if (odometry != null && odometry.isInitComplete()) {
+            odometry.getCurrentPosition(position);
+            return true;
+        } else if (imu != null) {
+            Position p = imu.getPosition();
+            position.x = position.distanceUnit.fromUnit(p.unit, p.x);
+            position.y = position.distanceUnit.fromUnit(p.unit, p.y);
+            position.rotation = position.angleUnit.fromDegrees(imu.getHeading());
+            return true;
+        } else {
+            return false;
+        }
+    }
 
     public void setMovement(MecanumCommands commands) {
-        mecanum.setMotorPower(commands);
+        if (mecanum != null)
+            mecanum.setMotorPower(commands);
+    }
+
+    public void setMaxMovementPower(double maxPower) {
+        if (mecanum != null)
+            mecanum.setMaxMotorPower(maxPower);
     }
 
     //********************************************
@@ -579,7 +623,7 @@ public class SkystoneRobot implements FTCRobot {
 
     public void deportBlock() {
         if (deportState == DeportStates.IDLE || deportState == DeportStates.COMPLETE) {
-            deportHeight = 6.0;
+            deportHeight = 8.0;
             log("Robot commanded to deport stone");
             deportState = DeportStates.START;
         }
@@ -603,17 +647,19 @@ public class SkystoneRobot implements FTCRobot {
                 //nothing just chilling
                 break;
             case START:
-                deportState = DeportStates.LIFT_RAISING;
-                if (lift != null)
+                if (lift != null) {
                     lift.goToPosition(deportHeight, 1);
+                    deportState = DeportStates.LIFT_RAISING;
+                }
                 break;
             case LIFT_RAISING:
-                if (lift != null)
+                if (lift != null) {
                     if (lift.isPositionReached()) {
                         if (extensionArm != null)
                             extensionArm.goToPosition(5, 1);
                         deportState = DeportStates.ARM_EXTENDING;
                     }
+                }
             case ARM_EXTENDING:
                 if (extensionArm != null && extensionArm.isPositionReached()) {
                     if (gripperRotator != null)
