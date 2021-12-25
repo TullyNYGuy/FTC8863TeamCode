@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
 
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.ServoController;
@@ -42,6 +43,14 @@ public class Servo8863New {
      * The servo that this class wraps around
      */
     private Servo servo;
+
+    /**
+     * Return the underlying servo class. The one from the FTC SDK.
+     * @return
+     */
+    public Servo getServo() {
+        return servo;
+    }
 
     /**
      * The direction of the servo
@@ -143,7 +152,7 @@ public class Servo8863New {
      *                            servo movement being reported as complete when it is not.
      * @param timeUnits           - units for the time you are providing
      */
-    public void addPosition(String positionName, double position, long timeToReachPosition, TimeUnit timeUnits) {
+    public void addPosition(String positionName, double position, double timeToReachPosition, TimeUnit timeUnits) {
         ServoPosition servoPosition = new ServoPosition(position, timeToReachPosition, timeUnits);
         positions.put(positionName, servoPosition);
     }
@@ -179,6 +188,13 @@ public class Servo8863New {
         return activePosition.isPositionReached();
     }
 
+    /**
+     * Set the servo position directly. Typically this is done by reading a joystick value and
+     * using that to set the postion of the servo. However you can use this method to directly set
+     * the position of the servo. Effectively you are bypassing the normal position control of
+     * this class (position, the time to reach the position).
+     * @param position
+     */
     public void setPositionUsingJoystick(double position) {
         if (!positionLocked) {
             position = Range.clip(position, -1.0, 1.0);
@@ -216,4 +232,35 @@ public class Servo8863New {
     // the position of the servo. A servo has no position feedback so all it does is return the
     // value of the last setPosition.
     // public double SetPosition()
+
+    //*********************************************************************************************
+    //          TEST METHODS
+    //
+    // methods for testing the class
+    //*********************************************************************************************
+
+    /**
+     * This method will allow you to control the position of the servo using a joystick. To minimize
+     * the code you have to write, all you need to do is pass in the opmode and this method will
+     * use that to control the servo position.
+     * game pad 1 right joystick = servo position
+     * game pad 1 a button = lock the servo position at the current position
+     * game pad 1 b button = unlock the servo and allow it to move again
+     * @param opMode
+     */
+    public void testPositionsUsingJoystick(LinearOpMode opMode) {
+        double position;
+        while (opMode.opModeIsActive()) {
+            position = -opMode.gamepad1.right_stick_y;
+            setPositionUsingJoystick(position);
+            if (opMode.gamepad1.a) {
+                lockPosition();
+            }
+            if (opMode.gamepad1.b) {
+                unlockPosition();
+            }
+            opMode.telemetry.addData("Position = ", position);
+            opMode.idle();
+        }
+    }
 }

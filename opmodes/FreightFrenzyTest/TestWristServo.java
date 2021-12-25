@@ -5,6 +5,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863New;
+import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.WristServo;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
@@ -14,53 +16,37 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
 public class TestWristServo extends LinearOpMode {
 
     // Put your variable declarations her
-    Servo8863 wristServo;
-    double wristUpPosition = 0;
-    double wristDownPosition = .58;
+    WristServo wristServo;
     ElapsedTime timer;
 
     @Override
     public void runOpMode() {
-
-
+        
         // Put your initializations here
-        wristServo = new Servo8863("wristServo",hardwareMap, telemetry);
-        wristServo.setPositionOne(wristUpPosition);
-        wristServo.setPositionTwo(wristDownPosition);
-
-        timer = new ElapsedTime();
+        wristServo = new WristServo(hardwareMap, telemetry);
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
         telemetry.update();
         waitForStart();
 
-        timer.reset();
-        wristDown();
-        // Put your calls here - they will not run in a loop
-
-        while (opModeIsActive() && timer.milliseconds() < 2000) {
+        wristServo.wristDown();
+        while (opModeIsActive() && !wristServo.isPositionReached()) {
             idle();
         }
 
-        wristUp();
-        timer.reset();
+        wristServo.wristMid();
+        while (opModeIsActive() && !wristServo.isPositionReached()) {
+            idle();
+        }
 
-        while (opModeIsActive() && timer.milliseconds() < 2000) {
+        wristServo.wristUp();
+        while (opModeIsActive() && !wristServo.isPositionReached()) {
             idle();
         }
 
         // Put your cleanup code here - it runs as the application shuts down
         telemetry.addData(">", "Done");
         telemetry.update();
-
-    }
-
-    public void wristDown() {
-        wristServo.goPositionTwo();
-    }
-
-    public void wristUp() {
-        wristServo.goPositionOne();
     }
 }
