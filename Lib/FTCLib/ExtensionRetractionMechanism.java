@@ -1584,6 +1584,24 @@ public class ExtensionRetractionMechanism {
     // Joystick control methods - These methods are called by the states in the state machine
     //**********************************************************************************************
 
+    private boolean isJoystickCommandExtension () {
+        if (joystickPower > 0) {
+            return true;
+        } else {
+            // joystick power < 0 or = 0
+            return false;
+        }
+    }
+
+    private boolean isJoystickCommandRetraction () {
+        if (joystickPower < 0) {
+            return true;
+        } else {
+            // joystick power > 0 or = 0
+            return false;
+        }
+    }
+
     /**
      * Check if it is ok for the driver to use a joystick to apply power to the mechanism. It is ok
      * if:
@@ -1597,7 +1615,7 @@ public class ExtensionRetractionMechanism {
         boolean result = true;
         if (isRetractionLimitReached()) {
             // if the mechanism is at the retracted, only allow it to move up
-            if (joystickPower >= 0) {
+            if (isJoystickCommandExtension()) {
                 joystickStatus = JoystickStatus.ENABLE;
                 result = true;
             } else {
@@ -1629,36 +1647,14 @@ public class ExtensionRetractionMechanism {
      * Process a joystick input.
      */
     private void processJoystick() {
-        if (isOkToJoystick()) {
-            extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            setCurrentPower(joystickPower);
-            // output a log file line if the joystick power is not 0
-            if (joystickPower > 0) {
-                logJoystickDirectionOnlyOnce("Joysticking to extend");
-            if (joystickPower < 0)
-                logJoystickDirectionOnlyOnce("Joysticking to retract");
-            }
-            // not sure about this anymore since the state machine has completely changed. Need to
-            // investigate it.
-            /*
-            if (joystickPower != 0) {
-                extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                extensionRetractionMotor.setPower(joystickPower);
-            } else {
-                // the joystick input is 0 so set the mechanism power to 0
-                extensionRetractionMotor.setPower(0);
-                // this fixes a bug: without resetting the command to NO_COMMAND, the command
-                // remains JOYSTICK. A call to isExtensionArmMovementComplete returns false even
-                // though the mechanism is not moving anymore (joystick command is 0). So any other
-                // code that checks for completion of the mechanism movement just sits and
-                // waits for isMovementComplete to return true. It never will. So
-                // we have to do this when the joystick power is 0:
-                extensionRetractionCommand = ExtensionRetractionCommands.NO_COMMAND;
-            }
-             */
-        } else {
-            // it is not ok to joystick.
-            stopMechanismAfterLimitReached();
+        extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        setCurrentPower(joystickPower);
+        // output a log file line if the joystick power is not 0
+        if (joystickPower > 0) {
+            logJoystickDirectionOnlyOnce("Joysticking to extend");
+        }
+        if (joystickPower < 0) {
+            logJoystickDirectionOnlyOnce("Joysticking to retract");
         }
     }
 
@@ -1727,6 +1723,26 @@ public class ExtensionRetractionMechanism {
                 targetPositionInEncoderCounts = getExtensionPositionInEncoderCounts().intValue();
                 stopAndHoldPosition(targetPositionInEncoderCounts);
             }
+        }
+    }
+
+    private void stopAndHoldAtRetraction() {
+        // Assuming that the full retraction is when the mechanism is at the reset position, there
+        // is no need to keep the motor powered and holding that position so float the motor.
+        // But if the full retraction is when a position limit was reached, then we have to hold
+        // that position.
+        int targetPositionInEncoderCounts;
+        // note that if no position limit has been set (it is null), then limitTypeBy will not ever
+        // be = POSITION. So there will not be a null value error within this if block of code.
+        if (getRetractionPositionInEncoderCounts() == null){
+            // the retraction limit position is set by a limit switch so retract to there and float
+                targetPositionInEncoderCounts = getRetractionPositionInEncoderCounts().intValue();
+            } else {
+                targetPositionInEncoderCounts = getExtensionPositionInEncoderCounts().intValue();
+            }
+            // Since the limit was tripped by a position, set the mechanism to hold at
+            // that limit position
+            stopAndHoldPosition(targetPositionInEncoderCounts);
         }
     }
 
@@ -2681,7 +2697,46 @@ public class ExtensionRetractionMechanism {
                         extensionRetractionState = ExtensionRetractionStates.START_GO_TO_POSITION;
                         break;
                     case JOYSTICK:
-                        processJoystick();
+                        // is retraction limit reached
+                        if (isRetractionLimitReached()) {
+                            // yes - is joystick command for retraction or joystick command = 0
+                            if (isJoystickCommandRetraction() || joystickPower == 0) {
+                                // yes - Whoa the mechanism should not be allowed to retract if it is
+                                // already at the retraction limit.
+                                // Start move to retractiom limit sequence and hold there until
+                                // there is a command that extends the mechanism.
+                                extensionRetractionState = ExtensionRetractionStates.START_HOLD_AT_RETRACT_SEQUENCE;
+                            } else {
+                                // joystick command is for extension. No need to worry about the
+                                // retraction limit since the mechanism is supposed to extend.
+                                // Apply the power to the motor
+                                processJoystick();
+                            }
+                        } else {
+                            if (isExtensionLimitReached()) {
+                                // yes - is joystick command for extension or joystick command = 0
+                                if (isJoystickCommandExtension() || joystickPower == 0) {
+                                    // yes - Whoa the mechanism should not be allowed to extend if
+                                    // it is already at the extension limit.
+                                    // Start move to extension limit sequence and hold there until
+                                    // there is a command that retracts the mechanism.
+                                    extensionRetractionState = ExtensionRetractionStates.START_HOLD_AT_EXTENSION_SEQUENCE;
+                                } else {
+                                    // joystick command is for retraction. No need to worry about the
+                                    // extension limit since the mechanism is supposed to retract.
+                                    // Apply the power to the motor
+                                    processJoystick();
+                                }
+                            } else {
+                                // the mechanism is between the retraction and extension limits,
+                                // allow the joystick command to proceed
+                                processJoystick();
+                            }
+                        }
+                        break;
+                    case HOLD_AT_RETRACT:
+                        break;
+                    case HOLD_AT_EXTENSION:
                         break;
                     case NO_COMMAND:
                         // don't do anything, just hang out
@@ -2719,7 +2774,16 @@ public class ExtensionRetractionMechanism {
                         extensionRetractionState = ExtensionRetractionStates.START_GO_TO_POSITION;
                         break;
                     case JOYSTICK:
-                        processJoystick();
+                        // if joystick command is in extension direction then we will process it and
+                        // move back to the regular joysticking mode
+                        if (isJoystickCommandRetraction()) {
+                            extensionRetractionState = ExtensionRetractionStates.JOYSTICK;
+                        } else {
+                            // if the joystick command is retract or 0 then we will proceed with getting
+                            // to the retracted position
+
+                        }
+
                         break;
                     case NO_COMMAND:
                         // don't do anything, just hang out
