@@ -148,6 +148,7 @@ public class ServoPosition {
         // the timer could report a long time has elapsed but no movement was ever started. This
         // would lead to reported a movement as complete that was never started
         if (timer.milliseconds() > timeToReachPosition && startedMovement) {
+            startedMovement = false;
             return true;
         } else {
             return false;

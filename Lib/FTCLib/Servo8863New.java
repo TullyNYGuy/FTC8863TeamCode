@@ -260,6 +260,7 @@ public class Servo8863New {
                 unlockPosition();
             }
             opMode.telemetry.addData("Position = ", position);
+            opMode.telemetry.update();
             opMode.idle();
         }
     }
