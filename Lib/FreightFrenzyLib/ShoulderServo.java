@@ -6,6 +6,9 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863New;
+
+import java.util.concurrent.TimeUnit;
 
 public class ShoulderServo {
 
@@ -22,12 +25,7 @@ public class ShoulderServo {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
-    private Servo8863 shoulderServo;
-    private double shoulderUpPosition = .63;
-    private double shoulderDownPosition = .1;
-    private ElapsedTime timer;
-
-    double timeToCompleteMovement = 0;
+    private Servo8863New shoulderServo;
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -43,12 +41,9 @@ public class ShoulderServo {
     // from it
     //*********************************************************************************************
     public ShoulderServo(HardwareMap hardwareMap, Telemetry telemetry) {
-        shoulderServo = new Servo8863("shoulderServo", hardwareMap, telemetry);
-        shoulderServo.setPositionOne(shoulderUpPosition);
-        shoulderServo.setPositionTwo(shoulderDownPosition);
-
-        timer = new ElapsedTime();
-
+        shoulderServo = new Servo8863New("shoulderServo", hardwareMap, telemetry);
+        shoulderServo.addPosition("up", .63, 1000, TimeUnit.MILLISECONDS);
+        shoulderServo.addPosition("down", .1, 1000, TimeUnit.MILLISECONDS);
     }
     //*********************************************************************************************
     //          Helper Methods
@@ -61,24 +56,16 @@ public class ShoulderServo {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
-    public void shoulderUp() {
-        shoulderServo.goPositionOne();
+
+    public void up() {
+        shoulderServo.setPosition("up");
     }
 
-    public void shoulderDown() {
-        shoulderServo.goPositionTwo();
+    public void down() {
+        shoulderServo.setPosition("down");
     }
-
-    public double add(double number1, double number2) {
-        return number1 + number2;
-    }
-
-    public boolean isMovementComplete() {
-        boolean answer = false;
-        if (timer.milliseconds() > timeToCompleteMovement) {
-            answer = true;
-        }
-        return answer;
+    public boolean isPositionReached() {
+        return shoulderServo.isPositionReached();
     }
 
 }

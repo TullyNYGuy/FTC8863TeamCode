@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib;
 
 
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -50,11 +51,11 @@ public class WristServo {
 
     public WristServo (HardwareMap hardwareMap, Telemetry telemetry) {
         wristServo = new Servo8863New("wristServo",hardwareMap, telemetry);
-        wristServo.addPosition("Up", .60, 1000, TimeUnit.MILLISECONDS);
+        wristServo.addPosition("Up", .60, 2000, TimeUnit.MILLISECONDS);
         //wristServo.setPositionOne(wristUpPosition);
-        wristServo.addPosition("Mid", .18, 1000, TimeUnit.MILLISECONDS);
+        wristServo.addPosition("Mid", .18, 2000, TimeUnit.MILLISECONDS);
         //wristServo.setPositionTwo(wristDownPosition);
-        wristServo.addPosition("Down", .05, 1000, TimeUnit.MILLISECONDS);
+        wristServo.addPosition("Down", .05, 2000, TimeUnit.MILLISECONDS);
         //wristServo.setPositionThree(wristMidPosition);
 
         //timer = new ElapsedTime();
@@ -104,4 +105,8 @@ public class WristServo {
 //        }
 //        return answer;
 //    }
+
+    public void testPositionUsingJoystick(LinearOpMode opmode) {
+        wristServo.testPositionsUsingJoystick(opmode);
+    }
 }

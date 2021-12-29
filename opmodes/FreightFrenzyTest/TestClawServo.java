@@ -35,19 +35,19 @@ public class TestClawServo extends LinearOpMode {
         telemetry.update();
         waitForStart();
 
-        clawServo.openClaw();
+        clawServo.open();
         // Put your calls here - they will not run in a loop
 
         timer.reset();
 
-        while (opModeIsActive() && !clawServo.isMovementComplete()) {
+        while (opModeIsActive() && !clawServo.isPositionReached()) {
             idle();
         }
 
-        clawServo.closeClaw();
+        clawServo.close();
         timer.reset();
 
-        while (opModeIsActive() && !clawServo.isMovementComplete()) {
+        while (opModeIsActive() && !clawServo.isPositionReached()) {
             idle();
         }
 
