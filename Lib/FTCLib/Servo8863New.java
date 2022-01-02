@@ -158,6 +158,26 @@ public class Servo8863New {
     }
 
     /**
+     * Add a position associated with the servo. You can have any number of positions and you can
+     * refer to them by their name. This is one functionality that enhances the normal servo class.
+     * With this method overload you can also set a time to delay the start of the movement to the
+     * position.
+     *
+     * @param positionName        - name associated with this position
+     * @param position            - the value of the position (ranges from 0 to 1)
+     * @param timeToDelayStart    - the delay before starting the movement of the servo
+     * @param timeToReachPosition - a time that is needed for the servo to reach its position. This
+     *                            is an estimate. If the servo experiences a higher than normal
+     *                            load then it will take longer than this time. This can lead to the
+     *                            servo movement being reported as complete when it is not.
+     * @param timeUnits           - units for the time you are providing
+     */
+    public void addPosition(String positionName, double position, double timeToDelayStart, double timeToReachPosition, TimeUnit timeUnits) {
+        ServoPosition servoPosition = new ServoPosition(position, timeToReachPosition, timeUnits);
+        positions.put(positionName, servoPosition);
+    }
+
+    /**
      * I'm using this method to effectively replace the setPosition method of the servo class. The
      * difference is that you are setPosition using a position name.
      *
@@ -165,7 +185,6 @@ public class Servo8863New {
      */
     public void setPosition(String positionName) {
         activePosition = positions.get(positionName);
-        servo.setPosition(activePosition.getPosition());
         activePosition.startMoveToPosition();
     }
 
@@ -178,6 +197,7 @@ public class Servo8863New {
      * to move to the position. This is the other functionality that makes this servo unique from
      * the normal servo class. The position being checked is the last one used in the setPosition()
      * method.
+     * Note that this method is calling an update to the state machine in the Servo Position class.
      *
      * @return
      */
@@ -185,7 +205,40 @@ public class Servo8863New {
         // since this method will be called repeatedly in a loop, it needs to be fast. Rather than
         // get the ServoPosition from the hashmap using the position name, just assume that the
         // position is the last one set using setPosition().
-        return activePosition.isPositionReached();
+        boolean result = false;
+        // examine the state machine running in the ServoPosition. If it is telling us to start the
+        // movement do it. If it is telling us it is complete, then return true. This could be done
+        // with if statements but let's just track the states of the ServoPosition state machine and
+        // react appropriately.
+        switch (activePosition.update()) {
+            case IDLE:
+                // This should never happen. The ServoPosition state machine is telling us that the
+                // servo is idle. So why is the user asking us if position is reached? Maybe they
+                // forgot to call setPosition?
+                result = false;
+                break;
+            case DELAYING:
+                // the ServoPosition state machine is telling us that there is it timing the delay
+                // before the start of the actual servo movement. Wait for the delay to complete.
+                result = false;
+                break;
+            case START_MOVEMENT:
+                // the ServoPosition state machine is telling us it wants us to
+                // actually start the movement of the servo
+                servo.setPosition(activePosition.getPosition());
+                result = false;
+                break;
+            case MOVING:
+                // the ServoPosition state machine is telling us that the servo is still moving
+                result = false;
+                break;
+            case COMPLETE:
+                // the ServoPosition state machine is telling us that the servo has completed its
+                // movement and arrived at the requested position
+                result = true;
+                break;
+        }
+        return result;
     }
 
     /**
