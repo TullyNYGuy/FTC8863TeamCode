@@ -1246,14 +1246,24 @@ public class ExtensionRetractionMechanism {
      * fully retracted position.
      */
     private void moveToFullRetract() {
-        // when the mechanism retracts you may want to do something with whatever is attached to it.
-        extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        // this is to fix a bug, when the lift resets, it leaves the motor in float mode. In order
-        // for the lift to stay retracted, hold has to be set
-        setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
-        // set the limit tripped by to none
-        limitTripBy = LimitTripBy.NOT_TRIPPED;
-        setCurrentPower(retractionPower);
+        if(retractionPositionInEncoderCounts == null) {
+            // when the mechanism retracts you may want to do something with whatever is attached to it.
+            // if the retraction limit is only a limit switch then run the motor until the limit
+            // switch is tripped
+            extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            // this is to fix a bug, when the lift resets, it leaves the motor in float mode. In order
+            // for the lift to stay retracted, hold has to be set
+            setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
+            // set the limit tripped by to none
+            limitTripBy = LimitTripBy.NOT_TRIPPED;
+            setCurrentPower(retractionPower);
+        } else {
+            // the retraction limit is set by a position so tell the motor to go to that position
+            setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
+            double retractionPosition = convertEncoderCountsToMechanismUnits(retractionPositionInEncoderCounts.intValue());
+            extensionRetractionMotor.moveToPosition(retractionPower, retractionPosition, finishBehavior);
+        }
+
     }
 
     /**
@@ -1264,7 +1274,14 @@ public class ExtensionRetractionMechanism {
     protected boolean isMoveToRetractComplete() {
         // your method of determining whether the movement to the retract is complete must be
         // coded here. This code is suggested but you can override it if your situation is different.
-        return isRetractionLimitReached();
+        // If there is not a retraction limit position then the motor is moving towards the switch.
+        if (retractionPositionInEncoderCounts == null) {
+            // use the status of the limit switch
+            return isRetractionLimitReached();
+        } else {
+            // there is a retraction limit position so we are using a motor run to position for that
+            return isMovementComplete();
+        }
     }
 
     /**
@@ -1402,11 +1419,20 @@ public class ExtensionRetractionMechanism {
      */
     private void moveToFullExtend() {
         // when the mechanism extends you may want to do something with whatever is attached to it.
-        extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        // this is to fix a bug, when the lift resets, it leaves the motor in float mode. In order
-        // for the lift to stay extended, hold has to be set
-        setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
-        setCurrentPower(extensionPower);
+        // if the extension limit is only a limit switch then run the motor until the limit
+        // switch is tripped
+        if(extensionPositionInEncoderCounts == null) {
+            extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            // this is to fix a bug, when the lift resets, it leaves the motor in float mode. In order
+            // for the lift to stay extended, hold has to be set
+            setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
+            setCurrentPower(extensionPower);
+        } else {
+            // the retraction limit is set by a position so tell the motor to go to that position
+            setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
+            double extensionPosition = convertEncoderCountsToMechanismUnits(extensionPositionInEncoderCounts.intValue());
+            extensionRetractionMotor.moveToPosition(retractionPower, extensionPosition, finishBehavior);
+        }
     }
 
     /**
@@ -1417,7 +1443,14 @@ public class ExtensionRetractionMechanism {
     protected boolean isMoveToExtendComplete() {
         // your method of determining whether the movement to the extend is complete must be
         // coded here. This code is suggested but you can override it if your situation is different.
-        return isExtensionLimitReached();
+        // If there is not a retraction limit position then the motor is moving towards the switch.
+        if (retractionPositionInEncoderCounts == null) {
+            // use the status of the limit switch
+            return isExtensionLimitReached();
+        } else {
+            // there is a retraction limit position so we are using a motor run to position for that
+            return isMovementComplete();
+        }
     }
 
     /**
@@ -1734,16 +1767,15 @@ public class ExtensionRetractionMechanism {
         int targetPositionInEncoderCounts;
         // note that if no position limit has been set (it is null), then limitTypeBy will not ever
         // be = POSITION. So there will not be a null value error within this if block of code.
-        if (getRetractionPositionInEncoderCounts() == null){
+        if (getRetractionPositionInEncoderCounts() == null) {
             // the retraction limit position is set by a limit switch so retract to there and float
-                targetPositionInEncoderCounts = getRetractionPositionInEncoderCounts().intValue();
-            } else {
-                targetPositionInEncoderCounts = getExtensionPositionInEncoderCounts().intValue();
-            }
-            // Since the limit was tripped by a position, set the mechanism to hold at
-            // that limit position
-            stopAndHoldPosition(targetPositionInEncoderCounts);
+            targetPositionInEncoderCounts = getRetractionPositionInEncoderCounts().intValue();
+        } else {
+            targetPositionInEncoderCounts = getExtensionPositionInEncoderCounts().intValue();
         }
+        // Since the limit was tripped by a position, set the mechanism to hold at
+        // that limit position
+        stopAndHoldPosition(targetPositionInEncoderCounts);
     }
 
     /**
