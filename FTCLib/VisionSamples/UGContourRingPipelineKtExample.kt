@@ -7,15 +7,15 @@ import org.openftc.easyopencv.*
 
 class UGContourRingPipelineKtExample : LinearOpMode() {
     companion object {
-        val CAMERA_WIDTH = 320 // width  of wanted camera resolution
-        val CAMERA_HEIGHT = 240 // height of wanted camera resolution
+        val CAMERA_WIDTH = 1280 // width  of wanted camera resolution
+        val CAMERA_HEIGHT = 720 // height of wanted camera resolution
 
         val HORIZON = 100 // horizon value to tune
 
         val DEBUG = false // if debug is wanted, change to true
 
-        val USING_WEBCAM = false // change to true if using webcam
-        val WEBCAM_NAME = "" // insert webcam name from configuration if using webcam
+        val USING_WEBCAM = true // change to true if using webcam
+        val WEBCAM_NAME = "Webcam 1" // insert webcam name from configuration if using webcam
     }
 
     private lateinit var pipeline: UGContourRingPipeline

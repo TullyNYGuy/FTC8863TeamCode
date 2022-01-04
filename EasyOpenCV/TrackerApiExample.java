@@ -24,6 +24,7 @@ package org.firstinspires.ftc.teamcode.EasyOpenCV;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
@@ -34,6 +35,7 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvInternalCamera;
 import org.openftc.easyopencv.OpenCvTracker;
 import org.openftc.easyopencv.OpenCvTrackerApiPipeline;
+import org.openftc.easyopencv.OpenCvWebcam;
 
 /**
  * In this sample, we demonstrate how to use the {@link OpenCvTrackerApiPipeline()}
@@ -42,7 +44,7 @@ import org.openftc.easyopencv.OpenCvTrackerApiPipeline;
 @TeleOp
 public class TrackerApiExample extends LinearOpMode
 {
-    OpenCvCamera phoneCam;
+    OpenCvWebcam webcam;
     OpenCvTrackerApiPipeline trackerApiPipeline;
     UselessColorBoxDrawingTracker tracker1, tracker2, tracker3;
 
@@ -57,7 +59,7 @@ public class TrackerApiExample extends LinearOpMode
          */
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        phoneCam = OpenCvCameraFactory.getInstance().createInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
+        webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
 
         /**
          * Create an instance of the {@link OpenCvTrackerApiPipeline}
@@ -65,14 +67,14 @@ public class TrackerApiExample extends LinearOpMode
          * to use it.
          */
         trackerApiPipeline = new OpenCvTrackerApiPipeline();
-        phoneCam.setPipeline(trackerApiPipeline);
+        webcam.setPipeline(trackerApiPipeline);
 
-        phoneCam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
+        webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
         {
             @Override
             public void onOpened()
             {
-                phoneCam.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT);
+                webcam.startStreaming(1280, 720, OpenCvCameraRotation.UPRIGHT);
             }
 
             @Override

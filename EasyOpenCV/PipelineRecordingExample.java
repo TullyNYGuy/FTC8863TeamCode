@@ -24,6 +24,7 @@ package org.firstinspires.ftc.teamcode.EasyOpenCV;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
@@ -33,6 +34,7 @@ import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvInternalCamera;
 import org.openftc.easyopencv.OpenCvPipeline;
+import org.openftc.easyopencv.OpenCvWebcam;
 import org.openftc.easyopencv.PipelineRecordingParameters;
 
 /*
@@ -43,7 +45,7 @@ import org.openftc.easyopencv.PipelineRecordingParameters;
 @TeleOp
 public class PipelineRecordingExample extends LinearOpMode
 {
-    OpenCvCamera phoneCam;
+    OpenCvWebcam webcam;
 
     @Override
     public void runOpMode()
@@ -56,17 +58,17 @@ public class PipelineRecordingExample extends LinearOpMode
          */
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        phoneCam = OpenCvCameraFactory.getInstance().createInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
+        webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
 
-        phoneCam.setPipeline(new SamplePipeline());
-        phoneCam.setViewportRenderingPolicy(OpenCvCamera.ViewportRenderingPolicy.OPTIMIZE_VIEW);
-        phoneCam.setViewportRenderer(OpenCvCamera.ViewportRenderer.GPU_ACCELERATED);
-        phoneCam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
+        webcam.setPipeline(new SamplePipeline());
+        webcam.setViewportRenderingPolicy(OpenCvCamera.ViewportRenderingPolicy.OPTIMIZE_VIEW);
+        webcam.setViewportRenderer(OpenCvCamera.ViewportRenderer.GPU_ACCELERATED);
+        webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
         {
             @Override
             public void onOpened()
             {
-                phoneCam.startStreaming(640, 480, OpenCvCameraRotation.SIDEWAYS_LEFT);
+                webcam.startStreaming(1280, 720, OpenCvCameraRotation.UPRIGHT);
             }
 
             @Override
@@ -91,12 +93,12 @@ public class PipelineRecordingExample extends LinearOpMode
             /*
              * Send some stats to the telemetry
              */
-            telemetry.addData("Frame Count", phoneCam.getFrameCount());
-            telemetry.addData("FPS", String.format("%.2f", phoneCam.getFps()));
-            telemetry.addData("Total frame time ms", phoneCam.getTotalFrameTimeMs());
-            telemetry.addData("Pipeline time ms", phoneCam.getPipelineTimeMs());
-            telemetry.addData("Overhead time ms", phoneCam.getOverheadTimeMs());
-            telemetry.addData("Theoretical max FPS", phoneCam.getCurrentPipelineMaxFps());
+            telemetry.addData("Frame Count", webcam.getFrameCount());
+            telemetry.addData("FPS", String.format("%.2f", webcam.getFps()));
+            telemetry.addData("Total frame time ms", webcam.getTotalFrameTimeMs());
+            telemetry.addData("Pipeline time ms", webcam.getPipelineTimeMs());
+            telemetry.addData("Overhead time ms", webcam.getOverheadTimeMs());
+            telemetry.addData("Theoretical max FPS", webcam.getCurrentPipelineMaxFps());
             telemetry.update();
 
             /*
@@ -142,7 +144,7 @@ public class PipelineRecordingExample extends LinearOpMode
                 /*
                  * This is all you need to do to start recording.
                  */
-                phoneCam.startRecordingPipeline(
+                webcam.startRecordingPipeline(
                         new PipelineRecordingParameters.Builder()
                                 .setBitrate(4, PipelineRecordingParameters.BitrateUnits.Mbps)
                                 .setEncoder(PipelineRecordingParameters.Encoder.H264)
@@ -157,7 +159,7 @@ public class PipelineRecordingExample extends LinearOpMode
                  * Note: if you don't stop recording by yourself, it will be automatically
                  * stopped for you at the end of your OpMode
                  */
-                phoneCam.stopRecordingPipeline();
+                webcam.stopRecordingPipeline();
             }
         }
     }

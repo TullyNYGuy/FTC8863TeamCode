@@ -34,7 +34,6 @@ import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
-import org.openftc.easyopencv.OpenCvInternalCamera;
 import org.openftc.easyopencv.OpenCvPipeline;
 import org.openftc.easyopencv.OpenCvWebcam;
 
@@ -44,10 +43,10 @@ import org.openftc.easyopencv.OpenCvWebcam;
  * the sample regions over the first 3 stones.
  */
 @TeleOp
-public class SkystoneDeterminationExample extends LinearOpMode
+public class UltimateGoalPositionFinder extends LinearOpMode
 {
     OpenCvWebcam webcam;
-    SkystoneDeterminationPipeline pipeline;
+    ShippingElementDeterminationPipeline pipeline;
 
     @Override
     public void runOpMode()
@@ -61,7 +60,7 @@ public class SkystoneDeterminationExample extends LinearOpMode
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
-        pipeline = new SkystoneDeterminationPipeline();
+        pipeline = new ShippingElementDeterminationPipeline();
         webcam.setPipeline(pipeline);
 
         // We set the viewport policy to optimized view so the preview doesn't appear 90 deg
@@ -98,12 +97,12 @@ public class SkystoneDeterminationExample extends LinearOpMode
         }
     }
 
-    public static class SkystoneDeterminationPipeline extends OpenCvPipeline
+    public static class ShippingElementDeterminationPipeline extends OpenCvPipeline
     {
         /*
          * An enum to define the skystone position
          */
-        public enum SkystonePosition
+        public enum ShippingPosition
         {
             LEFT,
             CENTER,
@@ -119,9 +118,9 @@ public class SkystoneDeterminationExample extends LinearOpMode
         /*
          * The core values which define the location and size of the sample regions
          */
-        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(109,98);
-        static final Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(181,98);
-        static final Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(253,98);
+        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(350,350);
+        static final Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(550,340);
+        static final Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(860,340);
         static final int REGION_WIDTH = 20;
         static final int REGION_HEIGHT = 20;
 
@@ -164,22 +163,22 @@ public class SkystoneDeterminationExample extends LinearOpMode
         /*
          * Working variables
          */
-        Mat region1_Cb, region2_Cb, region3_Cb;
-        Mat YCrCb = new Mat();
-        Mat Cb = new Mat();
+        Mat region1_L, region2_L, region3_L;
+        Mat Lab = new Mat();
+        Mat L = new Mat();
         int avg1, avg2, avg3;
 
         // Volatile since accessed by OpMode thread w/o synchronization
-        private volatile SkystonePosition position = SkystonePosition.LEFT;
+        private volatile ShippingPosition position = ShippingPosition.LEFT;
 
         /*
          * This function takes the RGB frame, converts to YCrCb,
          * and extracts the Cb channel to the 'Cb' variable
          */
-        void inputToCb(Mat input)
+        void inputToLab(Mat input)
         {
-            Imgproc.cvtColor(input, YCrCb, Imgproc.COLOR_RGB2YCrCb);
-            Core.extractChannel(YCrCb, Cb, 2);
+            Imgproc.cvtColor(input, Lab, Imgproc.COLOR_RGB2Lab);
+            Core.extractChannel(Lab, L, 0);
         }
 
         @Override
@@ -194,16 +193,16 @@ public class SkystoneDeterminationExample extends LinearOpMode
              * buffer would be re-allocated the first time a real frame
              * was crunched)
              */
-            inputToCb(firstFrame);
+            inputToLab(firstFrame);
 
             /*
              * Submats are a persistent reference to a region of the parent
              * buffer. Any changes to the child affect the parent, and the
              * reverse also holds true.
              */
-            region1_Cb = Cb.submat(new Rect(region1_pointA, region1_pointB));
-            region2_Cb = Cb.submat(new Rect(region2_pointA, region2_pointB));
-            region3_Cb = Cb.submat(new Rect(region3_pointA, region3_pointB));
+            region1_L = L.submat(new Rect(region1_pointA, region1_pointB));
+            region2_L = L.submat(new Rect(region2_pointA, region2_pointB));
+            region3_L = L.submat(new Rect(region3_pointA, region3_pointB));
         }
 
         @Override
@@ -247,7 +246,7 @@ public class SkystoneDeterminationExample extends LinearOpMode
             /*
              * Get the Cb channel of the input frame after conversion to YCrCb
              */
-            inputToCb(input);
+            inputToLab(input);
 
             /*
              * Compute the average pixel value of each submat region. We're
@@ -256,9 +255,9 @@ public class SkystoneDeterminationExample extends LinearOpMode
              * pixel value of the 3-channel image, and referenced the value
              * at index 2 here.
              */
-            avg1 = (int) Core.mean(region1_Cb).val[0];
-            avg2 = (int) Core.mean(region2_Cb).val[0];
-            avg3 = (int) Core.mean(region3_Cb).val[0];
+            avg1 = (int) Core.mean(region1_L).val[0];
+            avg2 = (int) Core.mean(region2_L).val[0];
+            avg3 = (int) Core.mean(region3_L).val[0];
 
             /*
              * Draw a rectangle showing sample region 1 on the screen.
@@ -297,16 +296,17 @@ public class SkystoneDeterminationExample extends LinearOpMode
             /*
              * Find the max of the 3 averages
              */
-            int maxOneTwo = Math.max(avg1, avg2);
-            int max = Math.max(maxOneTwo, avg3);
-
+            //double minL = 41;
+            double maxL = 100;
+            int minOneTwo = Math.min(avg1, avg2);
+            int min = Math.min(minOneTwo, avg3);
             /*
              * Now that we found the max, we actually need to go and
              * figure out which sample region that value was from
              */
-            if(max == avg1) // Was it from region 1?
+            if(min == avg1) // Was it from region 1?
             {
-                position = SkystonePosition.LEFT; // Record our analysis
+                position = ShippingPosition.LEFT; // Record our analysis
 
                 /*
                  * Draw a solid rectangle on top of the chosen region.
@@ -319,9 +319,9 @@ public class SkystoneDeterminationExample extends LinearOpMode
                         GREEN, // The color the rectangle is drawn in
                         -1); // Negative thickness means solid fill
             }
-            else if(max == avg2) // Was it from region 2?
+            else if(min == avg2) // Was it from region 2?
             {
-                position = SkystonePosition.CENTER; // Record our analysis
+                position = ShippingPosition.CENTER; // Record our analysis
 
                 /*
                  * Draw a solid rectangle on top of the chosen region.
@@ -334,9 +334,9 @@ public class SkystoneDeterminationExample extends LinearOpMode
                         GREEN, // The color the rectangle is drawn in
                         -1); // Negative thickness means solid fill
             }
-            else if(max == avg3) // Was it from region 3?
+            else if(min == avg3) // Was it from region 3?
             {
-                position = SkystonePosition.RIGHT; // Record our analysis
+                position = ShippingPosition.RIGHT; // Record our analysis
 
                 /*
                  * Draw a solid rectangle on top of the chosen region.
@@ -361,7 +361,7 @@ public class SkystoneDeterminationExample extends LinearOpMode
         /*
          * Call this from the OpMode thread to obtain the latest analysis
          */
-        public SkystonePosition getAnalysis()
+        public ShippingPosition getAnalysis()
         {
             return position;
         }

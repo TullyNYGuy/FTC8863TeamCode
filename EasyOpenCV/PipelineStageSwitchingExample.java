@@ -24,6 +24,7 @@ package org.firstinspires.ftc.teamcode.EasyOpenCV;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
@@ -34,6 +35,7 @@ import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvInternalCamera;
 import org.openftc.easyopencv.OpenCvPipeline;
+import org.openftc.easyopencv.OpenCvWebcam;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +48,7 @@ import java.util.List;
 @TeleOp
 public class PipelineStageSwitchingExample extends LinearOpMode
 {
-    OpenCvCamera phoneCam;
+    OpenCvWebcam webcam;
     StageSwitchingPipeline stageSwitchingPipeline;
 
     @Override
@@ -60,16 +62,17 @@ public class PipelineStageSwitchingExample extends LinearOpMode
          */
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        phoneCam = OpenCvCameraFactory.getInstance().createInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
+        webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
 
         stageSwitchingPipeline = new StageSwitchingPipeline();
-        phoneCam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
+        webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
         {
             @Override
             public void onOpened()
             {
-                phoneCam.setPipeline(stageSwitchingPipeline);
-                phoneCam.startStreaming(640, 480, OpenCvCameraRotation.UPRIGHT);
+                webcam.setPipeline(stageSwitchingPipeline);
+
+                webcam.startStreaming(1280, 720, OpenCvCameraRotation.UPRIGHT);
             }
 
             @Override

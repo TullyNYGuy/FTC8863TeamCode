@@ -68,7 +68,7 @@ public class SwitchableWebcamExample extends LinearOpMode
             public void onOpened()
             {
                 switchableWebcam.setPipeline(new SamplePipeline());
-                switchableWebcam.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT);
+                switchableWebcam.startStreaming(1280, 720, OpenCvCameraRotation.UPRIGHT);
             }
 
             @Override

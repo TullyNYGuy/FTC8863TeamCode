@@ -14,9 +14,9 @@ public class UGContourRingDetectorSample extends LinearOpMode {
 
     private UGContourRingDetector detector;
 
-    private static final boolean USING_WEBCAM = false;
-    private static final int CAMERA_WIDTH = 320;
-    private static final int CAMERA_HEIGHT = 240;
+    private static final boolean USING_WEBCAM = true;
+    private static final int CAMERA_WIDTH = 1280;
+    private static final int CAMERA_HEIGHT = 720;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -27,7 +27,7 @@ public class UGContourRingDetectorSample extends LinearOpMode {
             );
         } else {
             detector = new UGContourRingDetector(
-                    hardwareMap, "webcam", telemetry, true
+                    hardwareMap, "Webcam 1", telemetry, true
             );
         }
 

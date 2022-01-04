@@ -32,12 +32,13 @@ import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
+import org.openftc.easyopencv.OpenCvWebcam;
 import org.openftc.easyopencv.TimestampedOpenCvPipeline;
 
 @TeleOp
 public class TimestampedPipelineExample extends LinearOpMode
 {
-    OpenCvCamera camera;
+    OpenCvWebcam webcam;
 
     @Override
     public void runOpMode()
@@ -50,17 +51,18 @@ public class TimestampedPipelineExample extends LinearOpMode
          */
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
-        camera.setViewportRenderer(OpenCvCamera.ViewportRenderer.GPU_ACCELERATED);
-        camera.setViewportRenderingPolicy(OpenCvCamera.ViewportRenderingPolicy.OPTIMIZE_VIEW);
+        webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
 
-        camera.setPipeline(new SampleTimestampedPipeline());
-        camera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
+        webcam.setViewportRenderer(OpenCvCamera.ViewportRenderer.GPU_ACCELERATED);
+        webcam.setViewportRenderingPolicy(OpenCvCamera.ViewportRenderingPolicy.OPTIMIZE_VIEW);
+
+        webcam.setPipeline(new SampleTimestampedPipeline());
+        webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
         {
             @Override
             public void onOpened()
             {
-                camera.startStreaming(640, 480, OpenCvCameraRotation.UPRIGHT);
+                webcam.startStreaming(1280, 720, OpenCvCameraRotation.UPRIGHT);
             }
 
             @Override
@@ -87,7 +89,7 @@ public class TimestampedPipelineExample extends LinearOpMode
              * Send some stats to the telemetry
              */
             telemetry.addData("System time nanos", System.nanoTime());
-            telemetry.addData("FPS", String.format("%.2f", camera.getFps()));
+            telemetry.addData("FPS", String.format("%.2f", webcam.getFps()));
             telemetry.update();
 
             /*
