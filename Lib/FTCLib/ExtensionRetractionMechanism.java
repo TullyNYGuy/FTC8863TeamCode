@@ -1740,8 +1740,10 @@ public class ExtensionRetractionMechanism {
         // be = POSITION. So there will not be a null value error within this if block of code.
         if (limitTripBy == LimitTripBy.POSITION){
             if (limitReached == LimitReached.RETRACTION) {
+                // retraction limit position reached, get the encoder value for the limit position
                 targetPositionInEncoderCounts = getRetractionPositionInEncoderCounts().intValue();
             } else {
+                // extension limit position reached, get the encoder value for the limit position
                 targetPositionInEncoderCounts = getExtensionPositionInEncoderCounts().intValue();
             }
             // Since the limit was tripped by a position, set the mechanism to hold at
@@ -1751,8 +1753,10 @@ public class ExtensionRetractionMechanism {
 
         if (limitTripBy == LimitTripBy.LIMIT_SWITCH){
             if (limitReached == LimitReached.RETRACTION ) {
+                // restraction limit switch pressed
                 stopAndFloat();
             } else {
+                // extension limit switch pressed, get the encoder count to hold position at
                 targetPositionInEncoderCounts = getExtensionPositionInEncoderCounts().intValue();
                 stopAndHoldPosition(targetPositionInEncoderCounts);
             }
@@ -2729,9 +2733,9 @@ public class ExtensionRetractionMechanism {
                         extensionRetractionState = ExtensionRetractionStates.START_GO_TO_POSITION;
                         break;
                     case JOYSTICK:
-                        // is retraction limit reached
+                        // is retraction limit reached?
                         if (isRetractionLimitReached()) {
-                            // yes - is joystick command for retraction or joystick command = 0
+                            // yes - is joystick command for retraction or joystick command = 0?
                             if (isJoystickCommandRetraction() || joystickPower == 0) {
                                 // yes - Whoa the mechanism should not be allowed to retract if it is
                                 // already at the retraction limit.
@@ -2746,7 +2750,7 @@ public class ExtensionRetractionMechanism {
                             }
                         } else {
                             if (isExtensionLimitReached()) {
-                                // yes - is joystick command for extension or joystick command = 0
+                                // yes - is joystick command for extension or joystick command = 0?
                                 if (isJoystickCommandExtension() || joystickPower == 0) {
                                     // yes - Whoa the mechanism should not be allowed to extend if
                                     // it is already at the extension limit.
@@ -2784,9 +2788,178 @@ public class ExtensionRetractionMechanism {
                 // In case this command is interrupted by another command, and then that command
                 // cannot be run for some reason, save this state and command so that it can be
                 // resumed.
-                previousExtensionRetractionState = ExtensionRetractionStates.START_HOLD_AT_EXTENSION_SEQUENCE;
-                previousExtensionRetractionCommand = ExtensionRetractionCommands.HOLD_AT_RETRACT;
+                previousExtensionRetractionState = ExtensionRetractionStates.START_HOLD_AT_RETRACT_SEQUENCE;
+                previousExtensionRetractionCommand = ExtensionRetractionCommands.JOYSTICK;
 
+                switch (extensionRetractionCommand) {
+                    case RESET:
+                        // a reset can be requested at any time.
+                        previousExtensionRetractionState = extensionRetractionState;
+                        previousExtensionRetractionCommand = extensionRetractionCommand;
+                        extensionRetractionState = ExtensionRetractionStates.START_RESET_SEQUENCE;
+                        break;
+                    // movement to a position can be interrupted by a command to fully extend or
+                    // fully retract
+                    case GO_TO_RETRACTED:
+                        extensionRetractionState = ExtensionRetractionStates.START_RETRACTION_SEQUENCE;
+                        break;
+                    case GO_TO_EXTENDED:
+                        extensionRetractionState = ExtensionRetractionStates.START_EXTENSION_SEQUENCE;
+                        break;
+                    case GO_TO_POSITION:
+                        extensionRetractionState = ExtensionRetractionStates.START_GO_TO_POSITION;
+                        break;
+                    case JOYSTICK:
+                        // if joystick command is in extension direction then we will process it and
+                        // move back to the regular joysticking mode
+                        if (isJoystickCommandExtension()) {
+                            extensionRetractionState = ExtensionRetractionStates.JOYSTICK;
+                        } else {
+                            // if the joystick command is retract or 0 then we will proceed with getting
+                            // to the retracted position
+                            moveToFullRetract();
+                            extensionRetractionState = ExtensionRetractionStates.MOVING_TO_HOLD_AT_RETRACT;
+                        }
+                        break;
+                    case NO_COMMAND:
+                        // don't do anything, just hang out
+                        break;
+                }
+                break;
+            case MOVING_TO_HOLD_AT_RETRACT:
+                // In case this command is interrupted by another command, and then that command
+                // cannot be run for some reason, save this state and command so that it can be
+                // resumed.
+                previousExtensionRetractionState = ExtensionRetractionStates.MOVING_TO_HOLD_AT_RETRACT;
+                previousExtensionRetractionCommand = ExtensionRetractionCommands.JOYSTICK;
+                switch (extensionRetractionCommand) {
+                    case RESET:
+                        // a reset can be requested at any time.
+                        previousExtensionRetractionState = extensionRetractionState;
+                        previousExtensionRetractionCommand = extensionRetractionCommand;
+                        extensionRetractionState = ExtensionRetractionStates.START_RESET_SEQUENCE;
+                        break;
+                    // movement to a position can be interrupted by a command to fully extend or
+                    // fully retract
+                    case GO_TO_RETRACTED:
+                        extensionRetractionState = ExtensionRetractionStates.START_RETRACTION_SEQUENCE;
+                        break;
+                    case GO_TO_EXTENDED:
+                        extensionRetractionState = ExtensionRetractionStates.START_EXTENSION_SEQUENCE;
+                        break;
+                    case GO_TO_POSITION:
+                        extensionRetractionState = ExtensionRetractionStates.START_GO_TO_POSITION;
+                        break;
+                    case JOYSTICK:
+                        // if joystick command is in extension direction then we will process it and
+                        // move back to the regular joysticking mode
+                        if (isJoystickCommandExtension()) {
+                            extensionRetractionState = ExtensionRetractionStates.JOYSTICK;
+                        } else {
+                            // check to see if the mechanism has arrived at full retraction yet
+                            if (isMoveToRetractComplete()) {
+                                logArrivedAtDestination();
+                                performActionsToCompleteRetractMovement();
+                                extensionRetractionState = ExtensionRetractionStates.HOLDING_AT_RETRACT;
+                            }
+                        }
+                        break;
+                    case NO_COMMAND:
+                        // don't do anything, just hang out
+                        break;
+                }
+                break;
+            case HOLDING_AT_RETRACT:
+                // In case this command is interrupted by another command, and then that command
+                // cannot be run for some reason, save this state and command so that it can be
+                // resumed.
+                previousExtensionRetractionState = ExtensionRetractionStates.HOLDING_AT_RETRACT;
+                previousExtensionRetractionCommand = ExtensionRetractionCommands.JOYSTICK;
+                switch (extensionRetractionCommand) {
+                    case RESET:
+                        // a reset can be requested at any time.
+                        previousExtensionRetractionState = extensionRetractionState;
+                        previousExtensionRetractionCommand = extensionRetractionCommand;
+                        extensionRetractionState = ExtensionRetractionStates.START_RESET_SEQUENCE;
+                        break;
+                    // movement to a position can be interrupted by a command to fully extend or
+                    // fully retract
+                    case GO_TO_RETRACTED:
+                        extensionRetractionState = ExtensionRetractionStates.START_RETRACTION_SEQUENCE;
+                        break;
+                    case GO_TO_EXTENDED:
+                        extensionRetractionState = ExtensionRetractionStates.START_EXTENSION_SEQUENCE;
+                        break;
+                    case GO_TO_POSITION:
+                        extensionRetractionState = ExtensionRetractionStates.START_GO_TO_POSITION;
+                        break;
+                    case JOYSTICK:
+                        // if joystick command is in extension direction then we will process it and
+                        // move back to the regular joysticking mode
+                        if (isJoystickCommandExtension()) {
+                            extensionRetractionState = ExtensionRetractionStates.JOYSTICK;
+                        } else {
+                            // if the joystick want the mechanism to retract, just ignore it
+                        }
+                        break;
+                    case NO_COMMAND:
+                        // don't do anything, just hang out
+                        break;
+                }
+                break;
+
+            // -------------------------
+            //   HOLD AT EXTENSION
+            //--------------------------
+
+            case START_HOLD_AT_EXTENSION_SEQUENCE:
+                // In case this command is interrupted by another command, and then that command
+                // cannot be run for some reason, save this state and command so that it can be
+                // resumed.
+                previousExtensionRetractionState = ExtensionRetractionStates.START_HOLD_AT_EXTENSION_SEQUENCE;
+                previousExtensionRetractionCommand = ExtensionRetractionCommands.JOYSTICK;
+
+                switch (extensionRetractionCommand) {
+                    case RESET:
+                        // a reset can be requested at any time.
+                        previousExtensionRetractionState = extensionRetractionState;
+                        previousExtensionRetractionCommand = extensionRetractionCommand;
+                        extensionRetractionState = ExtensionRetractionStates.START_RESET_SEQUENCE;
+                        break;
+                    // movement to a position can be interrupted by a command to fully extend or
+                    // fully retract
+                    case GO_TO_RETRACTED:
+                        extensionRetractionState = ExtensionRetractionStates.START_RETRACTION_SEQUENCE;
+                        break;
+                    case GO_TO_EXTENDED:
+                        extensionRetractionState = ExtensionRetractionStates.START_EXTENSION_SEQUENCE;
+                        break;
+                    case GO_TO_POSITION:
+                        extensionRetractionState = ExtensionRetractionStates.START_GO_TO_POSITION;
+                        break;
+                    case JOYSTICK:
+                        // if joystick command is in retraction direction then we will process it and
+                        // move back to the regular joysticking mode
+                        if (isJoystickCommandRetraction()) {
+                            extensionRetractionState = ExtensionRetractionStates.JOYSTICK;
+                        } else {
+                            // if the joystick command is retract or 0 then we will proceed with getting
+                            // to the retracted position
+                            moveToFullExtend();
+                            extensionRetractionState = ExtensionRetractionStates.MOVING_TO_HOLD_AT_EXTEND;
+                        }
+                        break;
+                    case NO_COMMAND:
+                        // don't do anything, just hang out
+                        break;
+                }
+                break;
+            case MOVING_TO_HOLD_AT_EXTEND:
+                // In case this command is interrupted by another command, and then that command
+                // cannot be run for some reason, save this state and command so that it can be
+                // resumed.
+                previousExtensionRetractionState = ExtensionRetractionStates.MOVING_TO_HOLD_AT_EXTEND;
+                previousExtensionRetractionCommand = ExtensionRetractionCommands.JOYSTICK;
                 switch (extensionRetractionCommand) {
                     case RESET:
                         // a reset can be requested at any time.
@@ -2811,20 +2984,56 @@ public class ExtensionRetractionMechanism {
                         if (isJoystickCommandRetraction()) {
                             extensionRetractionState = ExtensionRetractionStates.JOYSTICK;
                         } else {
-                            // if the joystick command is retract or 0 then we will proceed with getting
-                            // to the retracted position
-
+                            // check to see if the mechanism has arrived at full retraction yet
+                            if (isMoveToExtendComplete()) {
+                                logArrivedAtDestination();
+                                performActionsToCompleteExtendMovement();
+                                extensionRetractionState = ExtensionRetractionStates.HOLDING_AT_EXTEND;
+                            }
                         }
-
                         break;
                     case NO_COMMAND:
                         // don't do anything, just hang out
                         break;
                 }
                 break;
-            case MOVING_TO_HOLD_AT_RETRACT:
-                break;
-            case HOLDING_AT_RETRACT:
+            case HOLDING_AT_EXTEND:
+                // In case this command is interrupted by another command, and then that command
+                // cannot be run for some reason, save this state and command so that it can be
+                // resumed.
+                previousExtensionRetractionState = ExtensionRetractionStates.HOLDING_AT_EXTEND;
+                previousExtensionRetractionCommand = ExtensionRetractionCommands.JOYSTICK;
+                switch (extensionRetractionCommand) {
+                    case RESET:
+                        // a reset can be requested at any time.
+                        previousExtensionRetractionState = extensionRetractionState;
+                        previousExtensionRetractionCommand = extensionRetractionCommand;
+                        extensionRetractionState = ExtensionRetractionStates.START_RESET_SEQUENCE;
+                        break;
+                    // movement to a position can be interrupted by a command to fully extend or
+                    // fully retract
+                    case GO_TO_RETRACTED:
+                        extensionRetractionState = ExtensionRetractionStates.START_RETRACTION_SEQUENCE;
+                        break;
+                    case GO_TO_EXTENDED:
+                        extensionRetractionState = ExtensionRetractionStates.START_EXTENSION_SEQUENCE;
+                        break;
+                    case GO_TO_POSITION:
+                        extensionRetractionState = ExtensionRetractionStates.START_GO_TO_POSITION;
+                        break;
+                    case JOYSTICK:
+                        // if joystick command is in extension direction then we will process it and
+                        // move back to the regular joysticking mode
+                        if (isJoystickCommandRetraction()) {
+                            extensionRetractionState = ExtensionRetractionStates.JOYSTICK;
+                        } else {
+                            // if the joystick want the mechanism to extend, just ignore it
+                        }
+                        break;
+                    case NO_COMMAND:
+                        // don't do anything, just hang out
+                        break;
+                }
                 break;
         }
         logState(extensionRetractionState, extensionRetractionCommand);
