@@ -215,6 +215,8 @@ public class Servo8863New {
             timer.reset();
             servoState = ServoState.DELAYING;
         }
+        // run the state machine once so that if there is no delay the command gets sent to the servo
+        isPositionReached();
     }
 
     /**
