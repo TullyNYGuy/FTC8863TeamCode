@@ -36,14 +36,13 @@ public class TestShoulderServo extends LinearOpMode {
        shoulderServo.down();
         // Put your calls here - they will not run in a loop
 
-        while (opModeIsActive() && timer.milliseconds() < 5000) {
+        while (opModeIsActive() && !shoulderServo.isPositionReached()) {
             idle();
         }
 
        shoulderServo.up();
         timer.reset();
-
-        while (opModeIsActive() && timer.milliseconds() < 5000) {
+        while (opModeIsActive() && !shoulderServo.isPositionReached()) {
             idle();
         }
 
