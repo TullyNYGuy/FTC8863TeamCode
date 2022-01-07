@@ -7,6 +7,13 @@ import com.qualcomm.robotcore.util.Range;
 
 import java.util.concurrent.TimeUnit;
 
+/**
+ * This class holds
+ *     a servo position
+ *     the time to reach that position
+ *     the time to delay before starting the movement to that position
+ * Note that it does not actually cause the servo to move. It just times the movement once it is started.
+ */
 public class ServoPosition {
 
     //*********************************************************************************************
@@ -18,8 +25,6 @@ public class ServoPosition {
 
     public enum State {
         IDLE,
-        DELAYING,
-        START_MOVEMENT,
         MOVING,
         COMPLETE
     }
@@ -51,10 +56,10 @@ public class ServoPosition {
     /**
      * An estimate of how long it will take the servo to reach this position.
      */
-    public double timeToReachPosition;
+    private double timeToReachPosition;
 
-    public double getTimeToReachPosition() {
-        return timeToReachPosition;
+    public double getTimeToReachPosition(TimeUnit timeUnit) {
+        return timeUnit.convert((long)timeToReachPosition, timeUnitInternal);
     }
 
     private void setTimeToReachPosition(double timeToReachPosition, TimeUnit timeUnit) {
@@ -62,13 +67,10 @@ public class ServoPosition {
         this.timeToReachPosition = timeToReachPosition;
     }
 
-    /**
-     * A delay in the start of the movement to the position. This is optional and defaults to 0.
-     */
-    public double timeToDelayStart = 0;
+    private double timeToDelayStart;
 
-    public double getTimeToDelayStart() {
-        return timeToReachPosition;
+    public double getTimeToDelayStart(TimeUnit timeUnit) {
+        return timeUnit.convert((long)timeToDelayStart, timeUnitInternal);
     }
 
     private void setTimeToDelayStart(double timeToDelayStart, TimeUnit timeUnit) {
@@ -101,16 +103,6 @@ public class ServoPosition {
     // from it
     //*********************************************************************************************
 
-    public ServoPosition(double position, double timeToReachPosition, TimeUnit timeUnit) {
-        this.position = position;
-        // convert the user supplied timeToPositon from their units to the internal units in this
-        // class (milliseconds)
-        setTimeToReachPosition(timeToReachPosition, timeUnit);
-        setTimeToDelayStart(0.0, timeUnit);
-        timer = new ElapsedTime();
-        state = State.IDLE;
-    }
-
     public ServoPosition(double position, double timeToDelayStart, double timeToReachPosition, TimeUnit timeUnit) {
         this.position = position;
         // convert the user supplied timeToPositon from their units to the internal units in this
@@ -121,7 +113,6 @@ public class ServoPosition {
         state = State.IDLE;
     }
 
-
     //*********************************************************************************************
     //          Helper Methods
     //
@@ -131,7 +122,6 @@ public class ServoPosition {
     @Override
     public int hashCode() {
         return Double.valueOf(position).hashCode()
-                ^ Double.valueOf(timeToDelayStart).hashCode()
                 ^ Double.valueOf(timeToReachPosition).hashCode()
                 ^ timeUnitInternal.hashCode();
     }
@@ -146,7 +136,6 @@ public class ServoPosition {
             return false;
         ServoPosition pos = (ServoPosition) o;
         return (pos.position == position)
-                && (pos.timeToDelayStart == timeToDelayStart)
                 && (pos.timeToReachPosition == timeToReachPosition)
                 && (pos.timeUnitInternal == timeUnitInternal);
     }
@@ -164,7 +153,7 @@ public class ServoPosition {
      */
     public void startMoveToPosition() {
         timer.reset();
-        state = State.DELAYING;
+        state = State.MOVING;
     }
 
     /**
@@ -176,35 +165,12 @@ public class ServoPosition {
      *
      * @return
      */
-    public State update() {
-//        // make sure the user started a movement so that we know the timer was reset, otherwise
-//        // the timer could report a long time has elapsed but no movement was ever started. This
-//        // would lead to reported a movement as complete that was never started
-//        if (timer.milliseconds() > timeToReachPosition && startedMovement) {
-//            startedMovement = false;
-//            return true;
-//        } else {
-//            return false;
-//        }
+    public boolean isPositionReached() {
+        boolean positionReached = false;
         switch (state) {
             case IDLE:
                 //do nothing. The state will only be idle between the time the servo is initialized
                 // and when the first startMoveToPosition is called.
-                break;
-            case DELAYING:
-                if (timer.milliseconds() > timeToDelayStart) {
-                    // the delay is finished, or the delay was set to 0. Reset the timer and use
-                    // it to time the movement.
-                    timer.reset();
-                    state = State.START_MOVEMENT;
-                    // now the servo should set the servo position. I could put that here, but it
-                    // seems like the servo should be the object setting the position
-                }
-                break;
-            case START_MOVEMENT:
-                // this state is only used to indicate that the servo using this class should start
-                // the servo movement. The assumption is that it actually will issue the command.
-                state = State.MOVING;
                 break;
             case MOVING:
                 if (timer.milliseconds() > timeToReachPosition) {
@@ -213,8 +179,9 @@ public class ServoPosition {
                 break;
             case COMPLETE:
                 // just hang here until a new movement is started
+                positionReached = true;
                 break;
         }
-        return state;
+        return positionReached;
     }
 }

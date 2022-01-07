@@ -32,6 +32,16 @@ public class Servo8863New {
     //
     //*********************************************************************************************
 
+    private enum ServoState {
+        IDLE,
+        DELAYING,
+        START_MOVEMENT,
+        MOVING,
+        COMPLETE
+    }
+
+    private ServoState servoState = ServoState.IDLE;
+
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS
     //
@@ -71,6 +81,11 @@ public class Servo8863New {
     private ServoPosition activePosition;
 
     private ElapsedTime timer;
+
+    /**
+     * The internal units for time in this class.
+     */
+    private TimeUnit timeUnitInternal = TimeUnit.MILLISECONDS;
 
     private boolean positionLocked = false;
 
@@ -113,6 +128,8 @@ public class Servo8863New {
         servo = hardwareMap.get(Servo.class, servoName);
         positions = new HashMap<>();
         timer = new ElapsedTime();
+        servoState = ServoState.IDLE;
+        integrationTimer = new ElapsedTime();
     }
 
     //*********************************************************************************************
@@ -153,7 +170,8 @@ public class Servo8863New {
      * @param timeUnits           - units for the time you are providing
      */
     public void addPosition(String positionName, double position, double timeToReachPosition, TimeUnit timeUnits) {
-        ServoPosition servoPosition = new ServoPosition(position, timeToReachPosition, timeUnits);
+        double timeToDelayStart = 0;
+        ServoPosition servoPosition = new ServoPosition(position, timeToDelayStart, timeToReachPosition, timeUnits);
         positions.put(positionName, servoPosition);
     }
 
@@ -173,7 +191,7 @@ public class Servo8863New {
      * @param timeUnits           - units for the time you are providing
      */
     public void addPosition(String positionName, double position, double timeToDelayStart, double timeToReachPosition, TimeUnit timeUnits) {
-        ServoPosition servoPosition = new ServoPosition(position, timeToReachPosition, timeUnits);
+        ServoPosition servoPosition = new ServoPosition(position, timeToDelayStart, timeToReachPosition, timeUnits);
         positions.put(positionName, servoPosition);
     }
 
@@ -185,7 +203,18 @@ public class Servo8863New {
      */
     public void setPosition(String positionName) {
         activePosition = positions.get(positionName);
-        activePosition.startMoveToPosition();
+        if (activePosition.getTimeToDelayStart(TimeUnit.MILLISECONDS) == 0) {
+            // there is no delay
+            // start the servo position timer
+            activePosition.startMoveToPosition();
+            // since there is no delay, start right into the servo movement
+            servoState = ServoState.START_MOVEMENT;
+        } else {
+            // there is a delay
+            // start the delay timer
+            timer.reset();
+            servoState = ServoState.DELAYING;
+        }
     }
 
     /**
@@ -206,31 +235,34 @@ public class Servo8863New {
         // get the ServoPosition from the hashmap using the position name, just assume that the
         // position is the last one set using setPosition().
         boolean result = false;
-        // examine the state machine running in the ServoPosition. If it is telling us to start the
-        // movement do it. If it is telling us it is complete, then return true. This could be done
-        // with if statements but let's just track the states of the ServoPosition state machine and
-        // react appropriately.
-        switch (activePosition.update()) {
+        activePosition.isPositionReached();
+
+        switch (servoState) {
             case IDLE:
-                // This should never happen. The ServoPosition state machine is telling us that the
-                // servo is idle. So why is the user asking us if position is reached? Maybe they
+                // This should never happen. Why is the user asking us if position is reached? Maybe they
                 // forgot to call setPosition?
                 result = false;
                 break;
             case DELAYING:
-                // the ServoPosition state machine is telling us that there is it timing the delay
-                // before the start of the actual servo movement. Wait for the delay to complete.
+                if (timer.milliseconds() > activePosition.getTimeToDelayStart(TimeUnit.MILLISECONDS)) {
+                    // delay is finished
+                    servoState = ServoState.START_MOVEMENT;
+                }
                 result = false;
                 break;
             case START_MOVEMENT:
-                // the ServoPosition state machine is telling us it wants us to
                 // actually start the movement of the servo
                 servo.setPosition(activePosition.getPosition());
+                servoState = ServoState.MOVING;
                 result = false;
                 break;
             case MOVING:
-                // the ServoPosition state machine is telling us that the servo is still moving
-                result = false;
+                if (activePosition.isPositionReached()) {
+                    servoState = ServoState.COMPLETE;
+                    result = true;
+                } else {
+                    result = false;
+                }
                 break;
             case COMPLETE:
                 // the ServoPosition state machine is telling us that the servo has completed its
@@ -246,12 +278,75 @@ public class Servo8863New {
      * using that to set the postion of the servo. However you can use this method to directly set
      * the position of the servo. Effectively you are bypassing the normal position control of
      * this class (position, the time to reach the position).
+     * This mode is a bit odd to use. The joystick translates to the actual position of the servo.
+     * So joystick = 0 is servo position = 0. Joystick = 1 is servo position = 1.
+     * It really lacks any fine control over the position. See setPositionUsingJoystickAsVelocity
+     * for a mode that might be more intuitive.
      * @param position
      */
     public void setPositionUsingJoystick(double position) {
         if (!positionLocked) {
             position = Range.clip(position, -1.0, 1.0);
             servo.setPosition(position);
+        }
+    }
+
+    private double integratedServoPosition = 0;
+
+    private ElapsedTime integrationTimer;
+    private double sampleInterval = 100;
+    private double joystickScaling = 0.1;
+    private double lastPositionCommand = 0;
+    private double lastJoystickValue = 0;
+
+    private void startUsingJoystickAsVelocity() {
+        integrationTimer.reset();
+        // start the integration with the last command sent to the servo so there is not a big jerk
+        // in the servo position
+        integratedServoPosition = servo.getPosition();
+    }
+
+    /**
+     * In this mode the joystick is controlling the velocity of the servo rather than its position.
+     * The position is integrated from the velocity. This mode may be more natural for the user.
+     * Joystick = 0 means servo position does not change
+     * Joystick = 0.2 means servo position increases at a slow rate
+     * Joystick = -0.2 means servo position decreases at a slow rate
+     * Joystick = 1.0 means servo position increases at a fast rate
+     * Joystick = -1.0 means servo position decreases at a fast rate
+     * @param velocity
+     */
+    public void setPositionUsingJoystickAsVelocity(double velocity) {
+        // when the user leaves the joystick at 0 for a while, they might be using other commands to
+        // change the position of the servo. To avoid a big jump in servo position when a new non zero
+        // joystick is received, reset the servo position to the last one the servo recieved and
+        // start the integration from there
+        if (lastJoystickValue == 0 && velocity != 0) {
+            startUsingJoystickAsVelocity();
+        }
+        integrateJoystick(velocity);
+        if (integratedServoPosition != lastPositionCommand) {
+            lastPositionCommand = integratedServoPosition;
+            servo.setPosition(integratedServoPosition);
+        }
+    }
+
+    /**
+     * Integrate the velocity (joystick) to form a position command for the servo. In order to avoid
+     * building up a position command faster than a human can follow, sample the joystick at a set
+     * interval and scale the joystick down a lot.
+     * @param velocity
+     */
+    private void integrateJoystick(double velocity) {
+        // only sample the joystick every so often. This will avoid saturating the position of the
+        // servo quickly but may appear to the user as a lag in servo response.
+        if (integrationTimer.milliseconds() > sampleInterval) {
+            // scale the joystick down so that it does not saturate the servo position too quickly
+            // With scaling = 0.1 and smaple interval = 100mSec, it takes 1 second to build up to a
+            // servo command of 1
+            integratedServoPosition = velocity * joystickScaling + integratedServoPosition;
+            Range.clip(integratedServoPosition, 0, 1);
+            integrationTimer.reset();
         }
     }
 
