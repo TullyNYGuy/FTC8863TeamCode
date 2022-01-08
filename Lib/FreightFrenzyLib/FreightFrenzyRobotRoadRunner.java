@@ -62,10 +62,7 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
         MECANUM_DRIVE,
         INTAKE,
         INTAKE_CONTROLLER,
-        SHOOTER,
-        LOOP_TIMER,
-        WOBBLE_GOAL_GRABBER,
-        FIRE_CONTROLLER;
+        DUCK_SPINNER
     }
 
     Set<Subsystem> capabilities;
@@ -139,20 +136,20 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
 
         if (capabilities.contains(Subsystem.INTAKE_CONTROLLER)) {
            }
-
+/*
         if (capabilities.contains(Subsystem.SHOOTER)) {
-             }
+             }*/
 
-        if (capabilities.contains(Subsystem.LOOP_TIMER)) {
+      /*  if (capabilities.contains(Subsystem.LOOP_TIMER)) {
             loopTimer = new LoopTimer();
             subsystemMap.put(loopTimer.getName(), loopTimer);
-        }
-
+        }*/
+/*
         if (capabilities.contains(Subsystem.WOBBLE_GOAL_GRABBER)) {
            }
 
         if (capabilities.contains(Subsystem.FIRE_CONTROLLER)) {
-           }
+           }*/
 
         init();
         return true;
