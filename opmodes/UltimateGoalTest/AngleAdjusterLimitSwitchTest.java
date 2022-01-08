@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.opmodes.UltimateGoalTest;
 
-import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;

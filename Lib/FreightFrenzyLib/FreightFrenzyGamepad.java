@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib;
+package org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib;
 
 /*
  * Class for Ultimate Goal TeleOp mode
@@ -40,8 +40,11 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.GamepadButtonMultiPush;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.JoyStick;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.SmartJoystick;
+//import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.AutomaticTeleopFunctions;
+import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.PoseStorage;
+import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyRobotRoadRunner;
 
-public class UltimateGoalGamepad {
+public class FreightFrenzyGamepad {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -117,9 +120,9 @@ public class UltimateGoalGamepad {
     public double gamepad2RightJoyStickXValue = 0;
     public double gamepad2RightJoyStickYValue = 0;
 
-    private UltimateGoalRobotRoadRunner robot;
+    private FreightFrenzyRobotRoadRunner robot;
 
-    private AutomaticTeleopFunctions automaticTeleopFunctions;
+   // private AutomaticTeleopFunctions automaticTeleopFunctions;
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -135,11 +138,11 @@ public class UltimateGoalGamepad {
     // from it
     //*********************************************************************************************
 
-    public UltimateGoalGamepad(Gamepad gamepad1, Gamepad gamepad2, UltimateGoalRobotRoadRunner robot, AutomaticTeleopFunctions automaticTeleopFunctions) {
+    public FreightFrenzyGamepad(Gamepad gamepad1, Gamepad gamepad2, FreightFrenzyRobotRoadRunner robot) {
         this.robot = robot;
         this.gamepad1 = gamepad1;
         this.gamepad2 = gamepad2;
-        this.automaticTeleopFunctions = automaticTeleopFunctions;
+        //this.automaticTeleopFunctions = automaticTeleopFunctions;
 
         //
         //YOU WILL HAVE TO CONFIGURE THE GAMEPAD BUTTONS FOR TOGGLING IF YOU WANT THAT. DO THAT HERE.
@@ -244,7 +247,7 @@ public class UltimateGoalGamepad {
         if (gamepad1RightBumper.buttonPress(gamepad1.right_bumper)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            robot.shooter.toggleShooter();
+           // robot.shooter.toggleShooter();
         }
 
         if (gamepad1LeftBumper.buttonPress(gamepad1.left_bumper)) {
@@ -364,13 +367,13 @@ public class UltimateGoalGamepad {
         if (gamepad2RightBumper.buttonPress(gamepad2.right_bumper)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            robot.wobbleGoalGrabber.extendOrRetractGrabber();
+            //robot.wobbleGoalGrabber.extendOrRetractGrabber();
         }
 
         if (gamepad2LeftBumper.buttonPress(gamepad2.left_bumper)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            robot.wobbleGoalGrabber.openOrCloseGrabber();
+           // robot.wobbleGoalGrabber.openOrCloseGrabber();
         }
 
         if (gamepad2a.buttonPress(gamepad2.a)) {
@@ -389,30 +392,30 @@ public class UltimateGoalGamepad {
             // put the command to be executed here
             if (gamepad2y.isCommand1()) {
                 // call the first command you want to run
-                automaticTeleopFunctions.moveToLeftPowerShot();
+               // automaticTeleopFunctions.moveToLeftPowerShot();
             }
             if (gamepad2y.isCommand2()) {
                 // call the 2nd command you want to run
-                automaticTeleopFunctions.shootPowerShots();
+                //automaticTeleopFunctions.shootPowerShots();
             }
         }
 
         if (gamepad2x.buttonPress(gamepad2.x)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            automaticTeleopFunctions.goingToHighGoal();
+           // automaticTeleopFunctions.goingToHighGoal();
         }
 
         if (gamepad2DpadUp.buttonPress(gamepad2.dpad_up)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            robot.setGameAngleHighGoal();
+            //robot.setGameAngleHighGoal();
         }
 
         if (gamepad2DpadDown.buttonPress(gamepad2.dpad_down)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here\
-            robot.setGameAnglePowerShots();
+           // robot.setGameAnglePowerShots();
         }
 
         if (gamepad2DpadLeft.buttonPress(gamepad2.dpad_left)) {

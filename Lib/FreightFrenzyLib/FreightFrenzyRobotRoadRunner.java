@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib;
+package org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -15,14 +15,15 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobot;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.LoopTimer;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.RobotPosition;
-
+import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.MecanumDriveFreightFrenzy;
+import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.PersistantStorage;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class UltimateGoalRobotRoadRunner implements FTCRobot {
+public class FreightFrenzyRobotRoadRunner implements FTCRobot {
 
     public enum HardwareName {
 
@@ -90,15 +91,15 @@ public class UltimateGoalRobotRoadRunner implements FTCRobot {
     }
 
     private AdafruitIMU8863 imu;
-    public MecanumDriveUltimateGoal mecanum;
-    private UltimateGoalIntake intake;
-    private UltimateGoalIntakeController intakeController;
-    public Shooter shooter;
+    public MecanumDriveFreightFrenzy mecanum;
+    //private UltimateGoalIntake intake;
+    //private UltimateGoalIntakeController intakeController;
+   // public Shooter shooter;
     public LoopTimer loopTimer;
-    public WobbleGoalGrabber wobbleGoalGrabber;
-    public UltimateGoalFireController fireController;
+   // public WobbleGoalGrabber wobbleGoalGrabber;
+    //public UltimateGoalFireController fireController;
 
-    public UltimateGoalRobotRoadRunner(HardwareMap hardwareMap, Telemetry telemetry, Configuration config, DataLogging dataLog, DistanceUnit units, LinearOpMode opMode) {
+    public FreightFrenzyRobotRoadRunner(HardwareMap hardwareMap, Telemetry telemetry, Configuration config, DataLogging dataLog, DistanceUnit units, LinearOpMode opMode) {
         timer = new ElapsedTime();
         this.hardwareMap = hardwareMap;
         this.telemetry = telemetry;
@@ -127,24 +128,20 @@ public class UltimateGoalRobotRoadRunner implements FTCRobot {
     public boolean createRobot() {
         imu = new AdafruitIMU8863(hardwareMap, null, "IMU", HardwareName.IMU.hwName);
         if (capabilities.contains(Subsystem.MECANUM_DRIVE)) {
-            mecanum = new MecanumDriveUltimateGoal(HardwareName.CONFIG_FL_MOTOR.hwName, HardwareName.CONFIG_BL_MOTOR.hwName, HardwareName.CONFIG_FR_MOTOR.hwName, HardwareName.CONFIG_BR_MOTOR.hwName, hardwareMap);
+            mecanum = new MecanumDriveFreightFrenzy(HardwareName.CONFIG_FL_MOTOR.hwName, HardwareName.CONFIG_BL_MOTOR.hwName, HardwareName.CONFIG_FR_MOTOR.hwName, HardwareName.CONFIG_BR_MOTOR.hwName, hardwareMap);
             subsystemMap.put(mecanum.getName(), mecanum);
         }
 
         if (capabilities.contains(Subsystem.INTAKE)) {
-            intake = new UltimateGoalIntake(hardwareMap, telemetry);
-            subsystemMap.put(intake.getName(), intake);
+           // intake = new UltimateGoalIntake(hardwareMap, telemetry);
+            //subsystemMap.put(intake.getName(), intake);
         }
 
         if (capabilities.contains(Subsystem.INTAKE_CONTROLLER)) {
-            intakeController = new UltimateGoalIntakeController(hardwareMap, telemetry, intake);
-            subsystemMap.put(intakeController.getName(), intakeController);
-        }
+           }
 
         if (capabilities.contains(Subsystem.SHOOTER)) {
-            shooter = new Shooter(HardwareName.LEFT_SHOOTER_MOTOR.hwName, HardwareName.RIGHT_SHOOTER_MOTOR.hwName, hardwareMap, telemetry);
-            subsystemMap.put(shooter.getName(), shooter);
-        }
+             }
 
         if (capabilities.contains(Subsystem.LOOP_TIMER)) {
             loopTimer = new LoopTimer();
@@ -152,14 +149,10 @@ public class UltimateGoalRobotRoadRunner implements FTCRobot {
         }
 
         if (capabilities.contains(Subsystem.WOBBLE_GOAL_GRABBER)) {
-            wobbleGoalGrabber = new WobbleGoalGrabber(hardwareMap, telemetry);
-            subsystemMap.put(wobbleGoalGrabber.getName(), wobbleGoalGrabber);
-        }
+           }
 
         if (capabilities.contains(Subsystem.FIRE_CONTROLLER)) {
-            fireController = new UltimateGoalFireController(intakeController, shooter, intake);
-            subsystemMap.put(fireController.getName(), fireController);
-        }
+           }
 
         init();
         return true;
@@ -295,83 +288,74 @@ public class UltimateGoalRobotRoadRunner implements FTCRobot {
     }
 
     public void intakeOn() {
-        intakeController.requestIntake();
+      //  intakeController.requestIntake();
     }
 
     public void intakeToggleOnOff() {
-        intakeController.requestIntakeToggleOnOff();
+      //  intakeController.requestIntakeToggleOnOff();
     }
 
     public void intakeOff() {
-        intakeController.requestOff();
+     //   intakeController.requestOff();
     }
 
     public void fire1() {
-        fireController.requestFire1();
+
     }
 
     public void fire2() {
-        fireController.requestFire2();
+
     }
 
     public void fire3() {
-        fireController.requestFire3();
+
     }
 
-    public void quickFire3 () {fireController.requestQuickFire3();}
+    public void quickFire3 () {
+
+    }
 
     public void eStop() {
-        intakeController.requestEstop();
-        shooter.stop();
+       // intakeController.requestEstop();
+       // shooter.stop();
     }
 
     public void bump1() {
-        intakeController.requestBump1();
+
     }
 
     public void shooterOn() {
-        shooter.setSpeed(5000);
+
     }
 
     public void shooterOff() {
-        shooter.stop();
+
     }
 
     public void displaySwitches() {
-        intake.displaySWitches(telemetry);
+
     }
 
     public void turnStage23On() {
-        intakeController.setDisableUpdate();
-        intake.setDisableUpdate();
-        intake.turnStage2On();
-        intake.turnStage3On();
+
     }
 
     public void turnStage23Off() {
-        intake.turnStage2Off();
-        intake.turnStage3Off();
-        intakeController.setEnableUpdate();
-        intake.setEnableUpdate();
+
     }
 
     public void reverseStage1On() {
-        intakeController.setDisableUpdate();
-        intake.setDisableUpdate();
-        intake.reverseStage1On();
+
     }
 
     public void reverseStage1Off() {
-        intake.reverseStage1Off();
-        intakeController.setEnableUpdate();
-        intake.setEnableUpdate();
+
     }
 
     public void resetIntake() {
-        intake.reset();
-        intakeController.reset();
-    }
 
+    }
+/*
     public boolean isIntakeComplete() {
         return intakeController.isComplete();
     }
@@ -396,5 +380,7 @@ public class UltimateGoalRobotRoadRunner implements FTCRobot {
     public boolean isWobbleGoalDropComplete() {
         return wobbleGoalGrabber.isComplete();
     }
+
+ */
 }
 
