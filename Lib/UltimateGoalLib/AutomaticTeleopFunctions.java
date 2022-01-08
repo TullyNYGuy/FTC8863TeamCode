@@ -5,8 +5,8 @@ import com.acmerobotics.roadrunner.trajectory.Trajectory;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Pose2d8863;
+import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.UltimateGoalRobotRoadRunner;
 
 public class AutomaticTeleopFunctions {
 
@@ -133,25 +133,31 @@ public class AutomaticTeleopFunctions {
                                 .lineToLinearHeading(PoseStorage.SHOOTING_AT_HIGH_GOAL)
                                 .build();
                         robot.mecanum.followTrajectoryAsync(trajectory);
-                        if (!robot.shooter.isReady()) {
-                           robot.shooterOn();
-                        }
-                        robot.shooter.setAngle(AngleUnit.DEGREES, PersistantStorage.getHighGoalShooterAngle());
+                        //if (!robot.shooter.isReady()) {
+                       //    robot.shooterOn();
+                       // }
+                       // robot.shooter.setAngle(AngleUnit.DEGREES, PersistantStorage.getHighGoalShooterAngle());
                         currentState = States.MOVING_TO_HIGH_GOAL;
                         break;
                     case MOVING_TO_HIGH_GOAL:
+                        /*
                         if (!robot.mecanum.isBusy() && robot.shooter.isAngleAdjustmentComplete()) {
                             robot.fire3();
                             robot.quickFire3();
                             currentState = States.SHOOTING;
                         }
+
+                         */
                         break;
                     case SHOOTING:
+                        /*
                         if (robot.isFireComplete()) {
                             commandComplete = true;
                             currentState = States.IDLE;
                             currentCommand = Commands.NO_COMMAND;
                         }
+
+                         */
                         break;
                 }
                 break;
@@ -164,10 +170,12 @@ public class AutomaticTeleopFunctions {
                                 .lineToLinearHeading(PoseStorage.SHOOTING_AT_LEFT_POWER_SHOT_POSE)
                                 .build();
                         robot.mecanum.followTrajectoryAsync(trajectory);
-                        if (!robot.shooter.isReady()) {
+                       /* if (!robot.shooter.isReady()) {
                             robot.shooterOn();
                         }
-                        robot.setGameAnglePowerShots();
+
+                        */
+                       // robot.setGameAnglePowerShots();
                         currentState = States.MOVING_TO_LEFT_POWER_SHOT;
                         break;
                     case MOVING_TO_LEFT_POWER_SHOT:
@@ -182,16 +190,22 @@ public class AutomaticTeleopFunctions {
             case SHOOT_POWER_SHOTS:
                 switch (currentState) {
                     case START:
+                        /*
                         if (robot.shooter.isReady() && robot.shooter.isAngleAdjustmentComplete()) {
                             robot.fire1();
                             currentState = States.SHOOTING_AT_LEFT_POWER_SHOT;
                         }
+
+                         */
                         break;
                     case SHOOTING_AT_LEFT_POWER_SHOT:
+                        /*
                         if (robot.isFireComplete()) {
                             currentState = States.MOVING_TO_MIDDLE_POWER_SHOT;
                             robot.mecanum.followTrajectoryAsync(trajectoryToMiddlePowerShot);
                         }
+
+                         */
                         break;
                     case MOVING_TO_MIDDLE_POWER_SHOT:
                         if (!robot.mecanum.isBusy()) {
@@ -200,10 +214,13 @@ public class AutomaticTeleopFunctions {
                         }
                         break;
                     case SHOOTING_AT_MIDDLE_POWER_SHOT:
+                        /*
                         if (robot.isFireComplete()) {
                             robot.mecanum.followTrajectoryAsync(trajectoryToRightPowerShot);
                             currentState = States.MOVING_TO_RIGHT_POWER_SHOT;
                         }
+
+                         */
                         break;
                     case MOVING_TO_RIGHT_POWER_SHOT:
                         if (!robot.mecanum.isBusy()) {
@@ -212,11 +229,11 @@ public class AutomaticTeleopFunctions {
                         }
                         break;
                     case SHOOTING_AT_RIGHT_POWER_SHOT:
-                        if (robot.isFireComplete()) {
+                       /* if (robot.isFireComplete()) {
                             commandComplete = true;
                             currentState = States.IDLE;
                             currentCommand = Commands.NO_COMMAND;
-                        }
+                        }*/
                         break;
                 }
                 break;
