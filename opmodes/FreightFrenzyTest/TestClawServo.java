@@ -3,42 +3,51 @@ package org.firstinspires.ftc.teamcode.opmodes.FreightFrenzyTest;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
+import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.ClawServo;
+
+import java.util.Optional;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Lift Test", group = "Test")
+@TeleOp(name = "Test Claw Servo", group = "Test")
 //@Disabled
-public class TestLift extends LinearOpMode {
+public class TestClawServo extends LinearOpMode {
 
     // Put your variable declarations her
+    ClawServo clawServo;
+
+    ElapsedTime timer;
 
     @Override
     public void runOpMode() {
 
-
         // Put your initializations here
+        clawServo = new ClawServo(hardwareMap, telemetry);
+
+        timer = new ElapsedTime();
 
         // Wait for the start button
-        telemetry.addData("I'm Tired", "!");
         telemetry.addData(">", "Press Start to run");
         telemetry.update();
         waitForStart();
 
+        clawServo.openClaw();
         // Put your calls here - they will not run in a loop
 
-        while (opModeIsActive()) {
+        timer.reset();
 
-            // Put your calls that need to run in a loop here
+        while (opModeIsActive() && !clawServo.isMovementComplete()) {
+            idle();
+        }
 
-            // Display the current value
-            //telemetry.addData("Motor Speed = ", "%5.2f", powerToRunAt);
-            //telemetry.addData("Encoder Count=", "%5d", motor.getCurrentPosition());
-            telemetry.addData("Hi Melody","!");
-            telemetry.addData(">", "Press Stop to end test.");
+        clawServo.closeClaw();
+        timer.reset();
 
-            telemetry.update();
-
+        while (opModeIsActive() && !clawServo.isMovementComplete()) {
             idle();
         }
 
