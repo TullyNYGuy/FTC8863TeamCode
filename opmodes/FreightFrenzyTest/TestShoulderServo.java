@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
+import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.ShoulderServo;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
@@ -14,9 +15,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
 public class TestShoulderServo extends LinearOpMode {
 
     // Put your variable declarations her
-    Servo8863 shoulderServo;
-    double shoulderUpPosition = .5;
-    double shoulderDownPosition = .2;
+    ShoulderServo shoulderServo;
     ElapsedTime timer;
 
     @Override
@@ -24,11 +23,7 @@ public class TestShoulderServo extends LinearOpMode {
 
 
         // Put your initializations here
-        shoulderServo = new Servo8863("shoulderServo",hardwareMap, telemetry);
-        shoulderServo.setPositionOne(shoulderUpPosition);
-        shoulderServo.setPositionTwo(shoulderDownPosition);
-        
-        
+        shoulderServo = new ShoulderServo(hardwareMap, telemetry);
 
         timer = new ElapsedTime();
 
@@ -38,17 +33,16 @@ public class TestShoulderServo extends LinearOpMode {
         waitForStart();
 
         timer.reset();
-        shoulderDown();
+       shoulderServo.down();
         // Put your calls here - they will not run in a loop
 
-        while (opModeIsActive() && timer.milliseconds() < 5000) {
+        while (opModeIsActive() && !shoulderServo.isPositionReached()) {
             idle();
         }
 
-        shoulderUp();
+       shoulderServo.up();
         timer.reset();
-
-        while (opModeIsActive() && timer.milliseconds() < 5000) {
+        while (opModeIsActive() && !shoulderServo.isPositionReached()) {
             idle();
         }
 
@@ -58,11 +52,4 @@ public class TestShoulderServo extends LinearOpMode {
 
     }
 
-    public void shoulderDown() {
-        shoulderServo.goPositionTwo();
-    }
-
-    public void shoulderUp() {
-        shoulderServo.goPositionOne();
-    }
 }
