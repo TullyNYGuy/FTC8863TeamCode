@@ -5,6 +5,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863New;
+import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.WristServo;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
@@ -14,20 +16,13 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
 public class CalibrateWristServo extends LinearOpMode {
 
     // Put your variable declarations her
-    Servo8863 wristServo;
-    double wristUpPosition = 0;
-    double wristDownPosition = .58;
-    ElapsedTime timer;
+    Servo8863New wristServo;
 
     @Override
     public void runOpMode() {
 
-
         // Put your initializations here
-        wristServo = new Servo8863("wristServo", hardwareMap, telemetry);
-        wristServo.setUpServoCalibration(0, 1, .1, 500);
-
-        timer = new ElapsedTime();
+        wristServo = new Servo8863New("wristServo", hardwareMap, telemetry);
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
@@ -35,9 +30,6 @@ public class CalibrateWristServo extends LinearOpMode {
         waitForStart();
         // Put your calls here - they will not run in a loop
 
-        while (opModeIsActive()) {
-            wristServo.updateServoCalibration();
-            idle();
-        }
+        wristServo.testPositionsUsingJoystick(this);
     }
 }

@@ -40,18 +40,18 @@ public class TestArmGlenn extends LinearOpMode {
         waitForStart();
 
         timer.reset();
-        clawServo.openClaw();
+        clawServo.open();
         // Put your calls here - they will not run in a loop
 
         while (opModeIsActive()) {
 
             if (gamepad1.a) {
-                clawServo.openClaw();
+                clawServo.open();
                 telemetry.addData("Claw open", "V");
             }
 
             if (gamepad1.b) {
-                clawServo.closeClaw();
+                clawServo.close();
                 telemetry.addData("Claw closed", "||");
             }
 
@@ -89,13 +89,13 @@ public class TestArmGlenn extends LinearOpMode {
 
     public void goDown(){
         wristServo.wristUp();
-        shoulderServo.shoulderDown();
-        clawServo.openClaw();
+        shoulderServo.down();
+        clawServo.open();
     }
 
     public void goUp(){
         wristServo.wristMid();
-        shoulderServo.shoulderUp();
+        shoulderServo.up();
     }
 
 }

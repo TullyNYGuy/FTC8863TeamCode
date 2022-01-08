@@ -23,6 +23,7 @@ import com.qualcomm.robotcore.util.Range;
  * to an end position in small increments. Using this "calibration" you can determine the position
  * values for your mechanical setup.
  */
+@Deprecated // USE Servo8863New instead.
 public class Servo8863 {
 
     //*********************************************************************************************
