@@ -255,6 +255,8 @@ public class Servo8863New {
             case START_MOVEMENT:
                 // actually start the movement of the servo
                 servo.setPosition(activePosition.getPosition());
+                // let the servoPosition know that a movement has started
+                activePosition.startMoveToPosition();
                 servoState = ServoState.MOVING;
                 result = false;
                 break;
