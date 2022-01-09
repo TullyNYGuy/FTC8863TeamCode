@@ -28,11 +28,6 @@ public class WristServo {
     // getter and setter methods
     //*********************************************************************************************
     Servo8863New wristServo;
-//    double wristUpPosition = .60;
-//    double wristMidPosition = .18;
-//    double wristDownPosition = .05;
-//    ElapsedTime timer;
-//    double timeToCompleteMovement = 0;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -51,14 +46,9 @@ public class WristServo {
 
     public WristServo (HardwareMap hardwareMap, Telemetry telemetry) {
         wristServo = new Servo8863New("wristServo",hardwareMap, telemetry);
-        wristServo.addPosition("Up", .60, 2000, TimeUnit.MILLISECONDS);
-        //wristServo.setPositionOne(wristUpPosition);
-        wristServo.addPosition("Mid", .18, 2000, TimeUnit.MILLISECONDS);
-        //wristServo.setPositionTwo(wristDownPosition);
+        wristServo.addPosition("Storage", .0, 2000, TimeUnit.MILLISECONDS);
+        wristServo.addPosition("Pickup", .92, 2000, TimeUnit.MILLISECONDS);
         wristServo.addPosition("Down", .05, 2000, TimeUnit.MILLISECONDS);
-        //wristServo.setPositionThree(wristMidPosition);
-
-        //timer = new ElapsedTime();
     }
 
     //*********************************************************************************************
@@ -75,36 +65,19 @@ public class WristServo {
 
     public void wristDown() {
         wristServo.setPosition("Down");
-//        wristServo.goPositionTwo();
-//        timer.reset();
-//        timeToCompleteMovement = 1000; //milliseconds
     }
 
     public void wristUp() {
         wristServo.setPosition("Up");
-//        wristServo.goPositionOne();
-//        timer.reset();
-//        timeToCompleteMovement = 1000; //milliseconds
     }
 
     public void wristMid() {
         wristServo.setPosition("Mid");
-//        wristServo.goPositionThree();
-//        timer.reset();
-//        timeToCompleteMovement = 1000; //milliseconds
     }
 
     public boolean isPositionReached() {
         return wristServo.isPositionReached();
     }
-
-//    public boolean isMovementComplete() {
-//        boolean answer = false;
-//        if (timer.milliseconds() > timeToCompleteMovement) {
-//            answer = true;
-//        }
-//        return answer;
-//    }
 
     public void testPositionUsingJoystick(LinearOpMode opmode) {
         wristServo.testPositionsUsingJoystick(opmode);

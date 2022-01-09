@@ -28,8 +28,6 @@ public class TestClawServo extends LinearOpMode {
         // Put your initializations here
         clawServo = new ClawServo(hardwareMap, telemetry);
 
-        timer = new ElapsedTime();
-
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
         telemetry.update();
@@ -38,14 +36,11 @@ public class TestClawServo extends LinearOpMode {
         clawServo.open();
         // Put your calls here - they will not run in a loop
 
-        timer.reset();
-
         while (opModeIsActive() && !clawServo.isPositionReached()) {
             idle();
         }
 
         clawServo.close();
-        timer.reset();
 
         while (opModeIsActive() && !clawServo.isPositionReached()) {
             idle();
