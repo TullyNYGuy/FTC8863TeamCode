@@ -38,19 +38,11 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
         ODOMETRY_MODULE_LEFT("leftFrontMotor"),
         ODOMETRY_MODULE_RIGHT("rightFrontMotor"),
         ODOMETRY_MODULE_BACK("rightRearMotor"),
-        LEFT_SHOOTER_MOTOR("leftShooterMotor"),
-        RIGHT_SHOOTER_MOTOR("rightShooterMotor"),
-        LEAD_SCREW_MOTOR("leadScrewMotor"),
-        STAGE_1_MOTOR("stage1motor"),
-        STAGE_2A_SWITCH("stage2Aswitch"),
-        STAGE_2B_SWITCH("stage2Bswitch"),
-        STAGE_3_SENSOR ("stage3sensor"),
-        STAGE_1_SENSOR("stage1sensor"),
-        STAGE_2_SERVO("stage2servo"),
-        STAGE_3_SERVO("stage3servo"),
-        GRABBER_SERVO("grabberServo"),
-        ARM_ROTATION_SERVO("armRotationServo"),
-        ANGLE_CHANGER_LIMIT_SWITCH("angleAdjusterSwitch");
+        WEBCAM("Webcam"),
+        DUCK_SPINNER("DuckServo"),
+
+
+        ;
         public final String hwName;
 
         HardwareName(String name) {
@@ -60,9 +52,11 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
 
     public enum Subsystem {
         MECANUM_DRIVE,
+        DUCK_SPINNER,
+        ODOMETRY,
         INTAKE,
-        INTAKE_CONTROLLER,
-        DUCK_SPINNER
+        LIFT,
+        WEBCAM,
     }
 
     Set<Subsystem> capabilities;
@@ -129,13 +123,7 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
             subsystemMap.put(mecanum.getName(), mecanum);
         }
 
-        if (capabilities.contains(Subsystem.INTAKE)) {
-           // intake = new UltimateGoalIntake(hardwareMap, telemetry);
-            //subsystemMap.put(intake.getName(), intake);
-        }
 
-        if (capabilities.contains(Subsystem.INTAKE_CONTROLLER)) {
-           }
 /*
         if (capabilities.contains(Subsystem.SHOOTER)) {
              }*/

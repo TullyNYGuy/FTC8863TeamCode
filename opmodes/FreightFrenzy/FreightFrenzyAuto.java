@@ -10,10 +10,11 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
-import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.AutomaticTeleopFunctions;
-import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.UltimateGoalField;
-import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.UltimateGoalGamepad;
-import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.UltimateGoalRobotRoadRunner;
+import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyField;
+import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyGamepad;
+import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyRobotRoadRunner;
+
+
 import org.openftc.easyopencv.OpenCvWebcam;
 
 import java.util.List;
@@ -27,12 +28,12 @@ public class FreightFrenzyAuto extends LinearOpMode {
     //             Declarations
     //*********************************************************************************************
     public OpenCvWebcam webcam;
-    public UltimateGoalRobotRoadRunner robot;
-    public UltimateGoalGamepad gamepad;
-    public UltimateGoalField field;
+    public FreightFrenzyRobotRoadRunner robot;
+    public FreightFrenzyGamepad gamepad;
+    public FreightFrenzyField field;
     public Configuration config;
 
-    private AutomaticTeleopFunctions automaticTeleopFunctions;
+
 
     private ElapsedTime timer;
 
@@ -60,19 +61,19 @@ public class FreightFrenzyAuto extends LinearOpMode {
         //MecanumCommands commands = new MecanumCommands();
 
 
-        //!!change robot to be freight frenzy robot instead!!
-        robot = new UltimateGoalRobotRoadRunner(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, this);
+
+        robot = new FreightFrenzyRobotRoadRunner(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, this);
 
         // create the robot and run the init for it
         robot.createRobot();
 
         enableBulkReads(hardwareMap, LynxModule.BulkCachingMode.AUTO);
 
-        //!!freight frenzy feild too!!
-        field = new UltimateGoalField();
-        automaticTeleopFunctions = new AutomaticTeleopFunctions(robot, field, telemetry);
+
+        field = new FreightFrenzyField();
+
         // create the gamepad
-        //gamepad = new UltimateGoalGamepad(gamepad1, gamepad2, robot, automaticTeleopFunctions, );
+        gamepad = new FreightFrenzyGamepad(gamepad1, gamepad2, robot );
 
         timer.reset();
 

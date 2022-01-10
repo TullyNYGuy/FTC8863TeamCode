@@ -30,6 +30,7 @@ import java.util.Set;
 public class FreightFrenzyRobot implements FTCRobot {
 
     public enum HardwareName {
+        WEBCAM("Webcam"),
         DUCK_SPINNER("DuckServo"),
         IMU("imu"),
         CONFIG_FL_MOTOR("FLMotor"),
@@ -55,6 +56,9 @@ public class FreightFrenzyRobot implements FTCRobot {
         MECANUM,
         DUCK_SPINNER,
         ODOMETRY,
+        INTAKE,
+        LIFT,
+        WEBCAM,
     }
 
     Set<Subsystem> capabilities;
