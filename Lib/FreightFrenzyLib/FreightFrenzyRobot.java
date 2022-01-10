@@ -30,7 +30,7 @@ import java.util.Set;
 public class FreightFrenzyRobot implements FTCRobot {
 
     public enum HardwareName {
-        SUCK_SPINNER("DuckServo"),
+        DUCK_SPINNER("DuckServo"),
         IMU("imu"),
         CONFIG_FL_MOTOR("FLMotor"),
         CONFIG_FR_MOTOR("FRMotor"),
@@ -95,8 +95,7 @@ public class FreightFrenzyRobot implements FTCRobot {
         this.subsystemMap = new HashMap<String, FTCRobotSubsystem>();
         setCapabilities(Subsystem.values());
 
-       // capabilities.remove(Subsystem.ODOMETRY);
-        // capabilities.remove(Subsystem.LIFT);
+
     }
 
     /*
