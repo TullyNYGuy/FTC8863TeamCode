@@ -4,8 +4,11 @@ package org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
 
-public class FFArm {
+public class FFArm implements FTCRobotSubsystem {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -61,9 +64,6 @@ public class FFArm {
     }
 
     public void carry() {
-        shoulderServo.up();
-        wristServo.carry();
-        clawServo.close();
     }
 
     public void storage() {
@@ -73,9 +73,9 @@ public class FFArm {
     }
 
     public void dropoff() {
-        shoulderServo.up();
-        wristServo.dropOff();
-        clawServo.close();
+    }
+
+    public void hold() {
     }
 
     public boolean isPositionReached() {
@@ -84,6 +84,51 @@ public class FFArm {
             answer = true;
         }
         return answer;
+    }
+
+    @Override
+    public String getName() {
+        return null;
+    }
+
+    @Override
+    public boolean isInitComplete() {
+        return false;
+    }
+
+    @Override
+    public boolean init(Configuration config) {
+        return false;
+    }
+
+    @Override
+    public void update() {
+
+    }
+
+    @Override
+    public void shutdown() {
+
+    }
+
+    @Override
+    public void setDataLog(DataLogging logFile) {
+
+    }
+
+    @Override
+    public void enableDataLogging() {
+
+    }
+
+    @Override
+    public void disableDataLogging() {
+
+    }
+
+    @Override
+    public void timedUpdate(double timerValueMsec) {
+
     }
 }
 
