@@ -44,13 +44,13 @@ public class WristServo {
     // from it
     //*********************************************************************************************
 
-    public WristServo (HardwareMap hardwareMap, Telemetry telemetry) {
-        wristServo = new Servo8863New("wristServo",hardwareMap, telemetry);
+    public WristServo(HardwareMap hardwareMap, Telemetry telemetry) {
+        wristServo = new Servo8863New("wristServo", hardwareMap, telemetry);
         wristServo.addPosition("Storage", .0, 2000, TimeUnit.MILLISECONDS);
-        wristServo.addPosition("Pickup", .92, 2000, TimeUnit.MILLISECONDS);
-        wristServo.addPosition("Down", .05, 2000, TimeUnit.MILLISECONDS);
+        wristServo.addPosition("Pickup", .95,2000, TimeUnit.MILLISECONDS);
+        wristServo.addPosition("Carry", .64, 2000, TimeUnit.MILLISECONDS);
+        wristServo.addPosition("Drop Off", .58, 500, TimeUnit.MILLISECONDS);
     }
-
     //*********************************************************************************************
     //          Helper Methods
     //
@@ -63,18 +63,21 @@ public class WristServo {
     // public methods that give the class its functionality
     //*********************************************************************************************
 
-    public void wristDown() {
-        wristServo.setPosition("Down");
+    public void storage() {
+        wristServo.setPosition("Storage");
     }
 
-    public void wristUp() {
-        wristServo.setPosition("Up");
+    public void pickup() {
+        wristServo.setPosition("Pickup");
     }
 
-    public void wristMid() {
-        wristServo.setPosition("Mid");
+    public void carry() {
+        wristServo.setPosition("Carry");
     }
 
+    public void dropOff() {
+        wristServo.setPosition("Drop Off");
+    }
     public boolean isPositionReached() {
         return wristServo.isPositionReached();
     }

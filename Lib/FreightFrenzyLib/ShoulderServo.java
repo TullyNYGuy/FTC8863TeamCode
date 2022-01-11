@@ -43,8 +43,8 @@ public class ShoulderServo {
     public ShoulderServo(HardwareMap hardwareMap, Telemetry telemetry) {
         shoulderServo = new Servo8863New("shoulderServo", hardwareMap, telemetry);
         shoulderServo.addPosition("up", .56, 2000, TimeUnit.MILLISECONDS);
-        shoulderServo.addPosition("down", .2, 1000, TimeUnit.MILLISECONDS);
-        shoulderServo.addPosition("storage", .13, 1000, TimeUnit.MILLISECONDS);
+        shoulderServo.addPosition("down", .14, 1000, TimeUnit.MILLISECONDS);
+        shoulderServo.addPosition("storage", 1.0, 1000, TimeUnit.MILLISECONDS);
     }
     //*********************************************************************************************
     //          Helper Methods
@@ -67,6 +67,11 @@ public class ShoulderServo {
     }
     public boolean isPositionReached() {
         return shoulderServo.isPositionReached();
+    }
+
+
+    public void storage() {
+        shoulderServo.setPosition("storage");
     }
 
 }
