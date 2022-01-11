@@ -45,6 +45,7 @@ public class ClawServo {
     public ClawServo(HardwareMap hardwareMap, Telemetry telemetry) {
         clawServo = new Servo8863New("clawServo", hardwareMap, telemetry);
         clawServo.addPosition("open", .0, 1000, TimeUnit.MILLISECONDS);
+        clawServo.addPosition("open plus delay", .0, 500, 1000, TimeUnit.MILLISECONDS);
         clawServo.addPosition("close", .58,1000, TimeUnit.MILLISECONDS);
 
     }
@@ -63,6 +64,9 @@ public class ClawServo {
 
     public void open() {
         clawServo.setPosition("open");
+    }
+    public void openPlusDelay() {
+        clawServo.setPosition("open plus delay");
     }
 
     public void close() {
