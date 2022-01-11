@@ -30,21 +30,21 @@ public class TestWristServo extends LinearOpMode {
         telemetry.update();
         waitForStart();
 
-        wristServo.wristDown();
+        wristServo.pickup();
         while (opModeIsActive() && !wristServo.isPositionReached()) {
             telemetry.addData("wrist down", "!");
             telemetry.update();
             idle();
         }
 
-        wristServo.wristMid();
+        wristServo.carry();
         while (opModeIsActive() && !wristServo.isPositionReached()) {
             telemetry.addData("wrist mid", "!");
             telemetry.update();
             idle();
         }
 
-        wristServo.wristUp();
+        wristServo.dropOff();
         while (opModeIsActive() && !wristServo.isPositionReached()) {
             telemetry.addData("wrist up", "!");
             telemetry.update();

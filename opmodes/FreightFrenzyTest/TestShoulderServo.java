@@ -46,6 +46,13 @@ public class TestShoulderServo extends LinearOpMode {
             idle();
         }
 
+        shoulderServo.storage();
+        timer.reset();
+        while (opModeIsActive() && !shoulderServo.isPositionReached()) {
+            idle();
+        }
+
+
         // Put your cleanup code here - it runs as the application shuts down
         telemetry.addData(">", "Done");
         telemetry.update();
