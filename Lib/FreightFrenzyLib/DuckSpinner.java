@@ -44,7 +44,7 @@ public class DuckSpinner implements FTCRobotSubsystem {
 
     @Override
     public boolean init(Configuration config) {
-        return false;
+        return true;
     }
 
     @Override

@@ -43,6 +43,7 @@ public class FreightFrenzyRobot implements FTCRobot {
         ODOMETRY_MODULE_LEFT("FrontLeft"),
         ODOMETRY_MODULE_RIGHT("BackLeft"),
         ODOMETRY_MODULE_BACK("BackRight"),
+        CLAW_SERVO("ClawServo"),
         ;
 
         public final String hwName;
@@ -59,6 +60,7 @@ public class FreightFrenzyRobot implements FTCRobot {
         INTAKE,
         LIFT,
         WEBCAM,
+        CLAW
     }
 
     Set<Subsystem> capabilities;
