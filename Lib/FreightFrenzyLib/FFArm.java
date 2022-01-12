@@ -16,11 +16,7 @@ public class FFArm implements FTCRobotSubsystem {
     // user defined types
     //
     //*********************************************************************************************
-    public enum ArmPart{
-        CLAW,
-        WRIST,
-        SHOULDER
-    }
+
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS AND SETTERS and GETTERS
     //
@@ -30,10 +26,9 @@ public class FFArm implements FTCRobotSubsystem {
     ClawServo clawServo;
     WristServo wristServo;
     ShoulderServo shoulderServo;
-    private final String CLAW_NAME = FreightFrenzyRobot.HardwareName.CLAW_SERVO.hwName;
-    private final String WRIST_NAME = FreightFrenzyRobot.HardwareName.WRIST_SERVO.hwName;
-    private final String SHOULDER_NAME = FreightFrenzyRobot.HardwareName.SHOULDER_SERVO.hwName;
+    private final String ARM_NAME = "Arm";
     private DataLogging logFile;
+    private boolean loggingOn = false;
     private Boolean initComplete = false;
     //*********************************************************************************************
     //          Constructors
@@ -107,19 +102,10 @@ claw is positioned so that it is level with the team shipping hub over it. */
         return answer;
     }
 
-    private String requestedName;
-    //ArmPart requestedPart
+
     @Override
     public String getName() {
-        /*
-        switch(requestedPart){
-            case CLAW: requestedName = CLAW_NAME;
-            case WRIST: requestedName = WRIST_NAME;
-            case SHOULDER: requestedName = SHOULDER_NAME;
-        };
-
-         */
-        return SHOULDER_NAME;
+        return ARM_NAME;
     }
 
     @Override
@@ -144,17 +130,17 @@ claw is positioned so that it is level with the team shipping hub over it. */
 
     @Override
     public void setDataLog(DataLogging logFile) {
-
+        this.logFile = logFile;
     }
 
     @Override
     public void enableDataLogging() {
-
+        this.loggingOn = true;
     }
 
     @Override
     public void disableDataLogging() {
-
+        this.loggingOn = false;
     }
 
     @Override

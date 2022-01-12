@@ -16,18 +16,18 @@ public class DuckSpinner implements FTCRobotSubsystem {
     private DataLogging logFile;
     private boolean loggingOn = false;
     private boolean initComplete = false;
-    private final String  DUCK_SPINNER_NAME = FreightFrenzyRobot.HardwareName.DUCK_SPINNER.hwName;
+    private final String  DUCK_SPINNER_NAME = "Duck Spinner";
 
     public DuckSpinner(HardwareMap hardwareMap, Telemetry telemetry){
        duckSpinner = new CRServo8863(DUCK_SPINNER_NAME, hardwareMap,0.5, 0.5, .1, Servo.Direction.FORWARD, telemetry) ;
        duckSpinner.setSpeed(0);
        initComplete = true;
     }
-
+    // Turns off the duck spinner
     public void TurnOff(){
         duckSpinner.setSpeed(0);
     }
-
+    // Turns on the duck spinner
     public void TurnOn() {
         duckSpinner.setSpeed(1);
     }
