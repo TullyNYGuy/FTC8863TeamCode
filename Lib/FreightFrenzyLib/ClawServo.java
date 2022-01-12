@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863New;
 
 import java.util.concurrent.TimeUnit;
 
-public class ClawServo implements FTCRobotSubsystem {
+public class ClawServo{
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -55,7 +55,7 @@ public class ClawServo implements FTCRobotSubsystem {
         clawServo.addPosition("open plus delay", .0, 500, 1000, TimeUnit.MILLISECONDS);
         clawServo.addPosition("close", .58,1000, TimeUnit.MILLISECONDS);
         close();
-        initComplete = true;
+
     }
 
     //*********************************************************************************************
@@ -85,49 +85,5 @@ public class ClawServo implements FTCRobotSubsystem {
         return clawServo.isPositionReached();
     }
 
-    @Override
-    public String getName() {
-        return CLAW_NAME;
-    }
-
-    @Override
-    public boolean isInitComplete() {
-        return initComplete;
-    }
-
-    @Override
-    public boolean init(Configuration config) {
-        return true;
-    }
-
-    @Override
-    public void update() {
-
-    }
-
-    @Override
-    public void shutdown() {
-    close();
-    }
-
-    @Override
-    public void setDataLog(DataLogging logFile) {
-        this.logFile = logFile;
-    }
-
-    @Override
-    public void enableDataLogging() {
-        this.loggingOn = true;
-    }
-
-    @Override
-    public void disableDataLogging() {
-        this.loggingOn = false;
-    }
-
-    @Override
-    public void timedUpdate(double timerValueMsec) {
-
-    }
 }
 

@@ -16,7 +16,11 @@ public class FFArm implements FTCRobotSubsystem {
     // user defined types
     //
     //*********************************************************************************************
-
+    public enum ArmPart{
+        CLAW,
+        WRIST,
+        SHOULDER
+    }
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS AND SETTERS and GETTERS
     //
@@ -26,7 +30,11 @@ public class FFArm implements FTCRobotSubsystem {
     ClawServo clawServo;
     WristServo wristServo;
     ShoulderServo shoulderServo;
-
+    private final String CLAW_NAME = FreightFrenzyRobot.HardwareName.CLAW_SERVO.hwName;
+    private final String WRIST_NAME = FreightFrenzyRobot.HardwareName.WRIST_SERVO.hwName;
+    private final String SHOULDER_NAME = FreightFrenzyRobot.HardwareName.SHOULDER_SERVO.hwName;
+    private DataLogging logFile;
+    private Boolean initComplete = false;
     //*********************************************************************************************
     //          Constructors
     //
@@ -37,6 +45,7 @@ public class FFArm implements FTCRobotSubsystem {
         clawServo = new ClawServo(hardwareMap, telemetry);
         wristServo = new WristServo(hardwareMap, telemetry);
         shoulderServo = new ShoulderServo(hardwareMap, telemetry);
+        initComplete = true;
     }
     //*********************************************************************************************
     //          Helper Methods
@@ -86,29 +95,39 @@ public class FFArm implements FTCRobotSubsystem {
         return answer;
     }
 
+    private String requestedName;
+    //ArmPart requestedPart
     @Override
     public String getName() {
-        return null;
+        /*
+        switch(requestedPart){
+            case CLAW: requestedName = CLAW_NAME;
+            case WRIST: requestedName = WRIST_NAME;
+            case SHOULDER: requestedName = SHOULDER_NAME;
+        };
+        
+         */
+        return SHOULDER_NAME;
     }
 
     @Override
     public boolean isInitComplete() {
-        return false;
+        return initComplete;
     }
 
     @Override
     public boolean init(Configuration config) {
-        return false;
+        return true;
     }
 
     @Override
     public void update() {
-
+    isPositionReached();
     }
 
     @Override
     public void shutdown() {
-
+    storage();
     }
 
     @Override

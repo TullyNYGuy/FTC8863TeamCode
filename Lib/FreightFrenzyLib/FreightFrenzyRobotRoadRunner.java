@@ -40,7 +40,9 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
         ODOMETRY_MODULE_BACK("rightRearMotor"),
         WEBCAM("Webcam"),
         DUCK_SPINNER("DuckServo"),
-
+        SHOULDER_SERVO("shoulderServo"),
+        WRIST_SERVO("wristServo"),
+        CLAW_SERVO("clawServo"),
 
         ;
         public final String hwName;
@@ -57,6 +59,7 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
         INTAKE,
         LIFT,
         WEBCAM,
+        ARM,
     }
 
     Set<Subsystem> capabilities;
