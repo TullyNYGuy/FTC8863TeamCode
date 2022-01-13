@@ -23,7 +23,6 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometrySystem;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.RobotPosition;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Switch;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -31,7 +30,6 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863.MotorType.ANDYMARK_20_ORBITAL;
-import static org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863.MotorType.ANDYMARK_40;
 
 public class SkystoneRobot implements FTCRobot {
 

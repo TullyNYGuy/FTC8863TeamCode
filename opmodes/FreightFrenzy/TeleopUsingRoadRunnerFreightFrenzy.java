@@ -148,7 +148,7 @@ public class TeleopUsingRoadRunnerFreightFrenzy extends LinearOpMode {
             robot.update();
 
             // feedback on the driver station
-            robot.displaySwitches();
+
             gamepad.displayGamepad1JoystickValues(telemetry);
 
             telemetry.addData(">", "Press Stop to end.");

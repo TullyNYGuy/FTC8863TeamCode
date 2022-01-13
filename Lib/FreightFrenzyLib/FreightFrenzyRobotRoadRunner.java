@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
@@ -15,8 +16,11 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobot;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.LoopTimer;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.RobotPosition;
-import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.MecanumDriveFreightFrenzy;
-import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.PersistantStorage;
+import org.openftc.easyopencv.OpenCvCamera;
+import org.openftc.easyopencv.OpenCvCameraFactory;
+import org.openftc.easyopencv.OpenCvCameraRotation;
+import org.openftc.easyopencv.OpenCvWebcam;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -57,7 +61,6 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
         DUCK_SPINNER,
         ODOMETRY,
         INTAKE,
-        LIFT,
         WEBCAM,
         ARM,
     }
@@ -79,22 +82,22 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
     public boolean isDataLoggingEnabled() {
         return dataLoggingEnabled;
     }
-
+    int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
     boolean isCapableOf(Subsystem subsystem) {
         return capabilities.contains(subsystem);
     }
 
     private AdafruitIMU8863 imu;
     public MecanumDriveFreightFrenzy mecanum;
-    //private UltimateGoalIntake intake;
-    //private UltimateGoalIntakeController intakeController;
-   // public Shooter shooter;
     public LoopTimer loopTimer;
-   // public WobbleGoalGrabber wobbleGoalGrabber;
-    //public UltimateGoalFireController fireController;
+    public DuckSpinner duckSpinner;
+    public FFArm arm;
+    public FFIntake intake;
+    public OpenCvWebcam webcam;
 
     public FreightFrenzyRobotRoadRunner(HardwareMap hardwareMap, Telemetry telemetry, Configuration config, DataLogging dataLog, DistanceUnit units, LinearOpMode opMode) {
         timer = new ElapsedTime();
+
         this.hardwareMap = hardwareMap;
         this.telemetry = telemetry;
         this.units = units;
@@ -127,20 +130,35 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
         }
 
 
-/*
-        if (capabilities.contains(Subsystem.SHOOTER)) {
-             }*/
 
-      /*  if (capabilities.contains(Subsystem.LOOP_TIMER)) {
-            loopTimer = new LoopTimer();
-            subsystemMap.put(loopTimer.getName(), loopTimer);
-        }*/
-/*
-        if (capabilities.contains(Subsystem.WOBBLE_GOAL_GRABBER)) {
-           }
+        if (capabilities.contains(Subsystem.ARM)) {
+            arm = new FFArm(hardwareMap, telemetry);
+             }
 
-        if (capabilities.contains(Subsystem.FIRE_CONTROLLER)) {
-           }*/
+       if (capabilities.contains(Subsystem.DUCK_SPINNER)) {
+           duckSpinner = new DuckSpinner(hardwareMap, telemetry);
+        }
+
+        if (capabilities.contains(Subsystem.WEBCAM)) {
+            webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+            webcam.setMillisecondsPermissionTimeout(2500); // Timeout for obtaining permission is configurable. Set before opening.
+            webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
+                @Override
+                public void onOpened() {
+                    webcam.startStreaming(1280, 720, OpenCvCameraRotation.UPRIGHT);
+                }
+
+                @Override
+                public void onError(int errorCode) {
+
+                }
+            });
+            if(capabilities.contains(Subsystem.INTAKE)){
+                intake = new FFIntake(hardwareMap, telemetry);
+            }
+        }
+
+
 
         init();
         return true;
@@ -169,7 +187,6 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
             if (timer.milliseconds() > 5000) {
                 // something went wrong with the inits. They never finished. Proceed anyway
                 dataLog.logData("Init failed to complete on time. Proceeding anyway!");
-                //How cheerful. How comforting...
                 break;
             }
             telemetry.update();
@@ -276,99 +293,23 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
     }
 
     public void intakeOn() {
-      //  intakeController.requestIntake();
+
     }
 
     public void intakeToggleOnOff() {
-      //  intakeController.requestIntakeToggleOnOff();
+
     }
 
     public void intakeOff() {
-     //   intakeController.requestOff();
-    }
-
-    public void fire1() {
 
     }
 
-    public void fire2() {
 
-    }
-
-    public void fire3() {
-
-    }
-
-    public void quickFire3 () {
-
-    }
 
     public void eStop() {
-       // intakeController.requestEstop();
-       // shooter.stop();
-    }
-
-    public void bump1() {
 
     }
 
-    public void shooterOn() {
 
-    }
-
-    public void shooterOff() {
-
-    }
-
-    public void displaySwitches() {
-
-    }
-
-    public void turnStage23On() {
-
-    }
-
-    public void turnStage23Off() {
-
-    }
-
-    public void reverseStage1On() {
-
-    }
-
-    public void reverseStage1Off() {
-
-    }
-
-    public void resetIntake() {
-
-    }
-/*
-    public boolean isIntakeComplete() {
-        return intakeController.isComplete();
-    }
-
-    public boolean isFireComplete () {
-        return fireController.isComplete();
-    }
-
-    public void setGameAngleHighGoal () {
-        this.shooter.setAngle(AngleUnit.DEGREES, PersistantStorage.getHighGoalShooterAngle());
-    }
-
-    public void setGameAnglePowerShots () {
-        // was 21.3
-        this.shooter.setAngle( AngleUnit.DEGREES, PersistantStorage.getPowerShotShooterAngle());
-    }
-
-    public void dropWobbleGoal () {
-        wobbleGoalGrabber.dropGoal();
-    }
-
-    public boolean isWobbleGoalDropComplete() {
-        return wobbleGoalGrabber.isComplete();
-    }
-
- */
 }
 

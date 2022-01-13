@@ -259,7 +259,7 @@ public class FreightFrenzyGamepad {
         if (gamepad1a.buttonPress(gamepad1.a)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            robot.bump1();
+
         }
 
         if (gamepad1b.buttonPress(gamepad1.b)) {
@@ -271,13 +271,13 @@ public class FreightFrenzyGamepad {
         if (gamepad1y.buttonPress(gamepad1.y)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            robot.fire3();
+
         }
 
         if (gamepad1x.buttonPress(gamepad1.x)) {
             //this was a new button press, not a button held down for a while
             //put the command to be executed here
-            robot.fire1();
+
         }
 
         if (gamepad1DpadUp.buttonPress(gamepad1.dpad_up)) {
@@ -286,11 +286,11 @@ public class FreightFrenzyGamepad {
             // put the command to be executed here
             if (gamepad1DpadUp.isCommand1()) {
                 // call the first command you want to run
-                robot.reverseStage1On();
+
             }
             if (gamepad1DpadUp.isCommand2()) {
                 // call the 2nd command you want to run
-                robot.reverseStage1Off();
+
             }
         }
 
@@ -299,18 +299,18 @@ public class FreightFrenzyGamepad {
             // put the command to be executed here
             if (gamepad1DpadDown.isCommand1()) {
                 // call the first command you want to run
-                robot.turnStage23On();
+
             }
             if (gamepad1DpadDown.isCommand2()) {
                 // call the 2nd command you want to run
-                robot.turnStage23Off();
+
             }
         }
 
         if (gamepad1DpadLeft.buttonPress(gamepad1.dpad_left)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            robot.resetIntake();
+
         }
 
         if (gamepad1DpadRight.buttonPress(gamepad1.dpad_right)) {

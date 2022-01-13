@@ -3,8 +3,6 @@ package org.firstinspires.ftc.teamcode.opmodes.GenericTest;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
@@ -16,9 +14,6 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.HaloControls;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Mecanum;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.SmartJoystick;
-
-import static org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863.MotorType.ANDYMARK_20_ORBITAL;
-import static org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863.MotorType.ANDYMARK_40;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
