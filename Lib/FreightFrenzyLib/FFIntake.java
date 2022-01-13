@@ -10,13 +10,16 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863New;
 
 
 import java.util.concurrent.TimeUnit;
 
-public class FFIntake {
+public class FFIntake implements FTCRobotSubsystem {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -43,7 +46,10 @@ public class FFIntake {
     private DcMotor8863 intakeSweeperMotor;
     private ElapsedTime timer;
     private Servo8863New rotateServo;
-
+    private DataLogging logFile;
+    private boolean loggingOn = false;
+    private Boolean initComplete = false;
+    private final String INTAKE_NAME = "Intake";
     private IntakeState intakeState = IntakeState.IDLE;
     //*********************************************************************************************
     //          Constructors
@@ -65,7 +71,7 @@ public class FFIntake {
         rotateServo.addPosition("intake", .05, 1000, TimeUnit.MILLISECONDS);
         rotateServo.addPosition("deIntakeWithoutDelivery", .165,1500, TimeUnit.MILLISECONDS);
         rotateServo.addPosition("deIntakeWithDelivery", .666,1500, TimeUnit.MILLISECONDS);
-
+        initComplete = true;
     }
     //*********************************************************************************************
     //          Helper Methods
@@ -82,6 +88,22 @@ public class FFIntake {
     public void displaySwitches(Telemetry telemetry) {
         telemetry.addData("distance=", ((DistanceSensor) intakeSensor).getDistance(DistanceUnit.CM));
     }
+
+    @Override
+    public String getName() {
+        return INTAKE_NAME;
+    }
+
+    @Override
+    public boolean isInitComplete() {
+        return initComplete;
+    }
+
+    @Override
+    public boolean init(Configuration config) {
+        return true;
+    }
+
     //*********************************************************************************************
     //          MAJOR METHODS
     //
@@ -154,7 +176,32 @@ public class FFIntake {
              }
          }
 
-         public void EStop(){
+    @Override
+    public void shutdown() {
+    EStop();
+    }
+
+    @Override
+    public void setDataLog(DataLogging logFile) {
+    this.logFile = logFile;
+    }
+
+    @Override
+    public void enableDataLogging() {
+    loggingOn = true;
+    }
+
+    @Override
+    public void disableDataLogging() {
+    loggingOn = false;
+    }
+
+    @Override
+    public void timedUpdate(double timerValueMsec) {
+    update();
+    }
+
+    public void EStop(){
         intakeState = IntakeState.E_STOP;
          }
      }
