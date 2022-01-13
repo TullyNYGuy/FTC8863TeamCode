@@ -33,7 +33,8 @@ public class FFIntake implements FTCRobotSubsystem {
         WAIT_FOR_FREIGHT,
         HOLD_FREIGHT,
         WAIT_FOR_ROTATION,
-        OUTAKE;
+        OUTAKE,
+
     }
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS AND SETTERS and GETTERS
@@ -163,6 +164,7 @@ public class FFIntake implements FTCRobotSubsystem {
                          intakeState = IntakeState.IDLE;
                      }
                  }
+
                  break;
 
              }
