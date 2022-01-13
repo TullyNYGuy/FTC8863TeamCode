@@ -30,7 +30,8 @@ public class FFIntake {
         WAIT_FOR_FREIGHT,
         HOLD_FREIGHT,
         WAIT_FOR_ROTATION,
-        OUTAKE;
+        OUTAKE,
+        E_STOP;
     }
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS AND SETTERS and GETTERS
@@ -143,8 +144,18 @@ public class FFIntake {
                      }
                  }
                  break;
+                 case E_STOP: {
+                     intakeSweeperMotor.setPower(0);
+                     rotateServo.setPosition("intake");
+
+
+                 }
 
              }
+         }
+
+         public void EStop(){
+        intakeState = IntakeState.E_STOP;
          }
      }
 
