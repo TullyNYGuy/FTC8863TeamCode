@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
@@ -20,6 +21,10 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometryModule;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometrySystem;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.RobotPosition;
+import org.openftc.easyopencv.OpenCvCamera;
+import org.openftc.easyopencv.OpenCvCameraFactory;
+import org.openftc.easyopencv.OpenCvCameraRotation;
+import org.openftc.easyopencv.OpenCvWebcam;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -43,6 +48,9 @@ public class FreightFrenzyRobot implements FTCRobot {
         ODOMETRY_MODULE_LEFT("FrontLeft"),
         ODOMETRY_MODULE_RIGHT("BackLeft"),
         ODOMETRY_MODULE_BACK("BackRight"),
+        CLAW_SERVO("ClawServo"),
+        SHOULDER_SERVO("shoulderServo"),
+        WRIST_SERVO("wristServo"),
         ;
 
         public final String hwName;
@@ -59,6 +67,7 @@ public class FreightFrenzyRobot implements FTCRobot {
         INTAKE,
         LIFT,
         WEBCAM,
+        CLAW
     }
 
     Set<Subsystem> capabilities;
@@ -78,6 +87,7 @@ public class FreightFrenzyRobot implements FTCRobot {
     public boolean isDataLoggingEnabled() {
         return dataLoggingEnabled;
     }
+    int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
 
     boolean isCapableOf(Subsystem subsystem) {
         return capabilities.contains(subsystem);
@@ -86,6 +96,10 @@ public class FreightFrenzyRobot implements FTCRobot {
     private AdafruitIMU8863 imu;
     private Mecanum mecanum;
     private OdometrySystem odometry;
+    public DuckSpinner duckSpinner;
+    public FFArm arm;
+    public FFIntake intake;
+    public OpenCvWebcam webcam;
 
     public FreightFrenzyRobot(HardwareMap hardwareMap, Telemetry telemetry, Configuration config, DataLogging dataLog, DistanceUnit units, LinearOpMode opMode) {
         timer = new ElapsedTime();
@@ -127,11 +141,36 @@ public class FreightFrenzyRobot implements FTCRobot {
             OdometryModule back = OdometryModule.createOdometryModuleFromFile(config, HardwareName.CONFIG_BACK_ODOMETRY_MODULE.hwName, hardwareMap);
             odometry = new OdometrySystem(units, left, right, back);
             subsystemMap.put(odometry.getName(), odometry);
-        }
+            if (capabilities.contains(FreightFrenzyRobotRoadRunner.Subsystem.ARM)) {
+                arm = new FFArm(hardwareMap, telemetry);
+            }
 
-        // My preference is to encapsulate as much as possible so that creation code can be reused.
-        // So move this stuff into the IntakeWheels. It should know how to create itself. I should
-        // not have to know that at the robot level.
+            if (capabilities.contains(FreightFrenzyRobotRoadRunner.Subsystem.DUCK_SPINNER)) {
+                duckSpinner = new DuckSpinner(hardwareMap, telemetry);
+            }
+
+            if (capabilities.contains(FreightFrenzyRobotRoadRunner.Subsystem.WEBCAM)) {
+                webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+                webcam.setMillisecondsPermissionTimeout(2500); // Timeout for obtaining permission is configurable. Set before opening.
+                webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
+                    @Override
+                    public void onOpened() {
+                        webcam.startStreaming(1280, 720, OpenCvCameraRotation.UPRIGHT);
+                    }
+
+                    @Override
+                    public void onError(int errorCode) {
+
+                    }
+                });
+                if (capabilities.contains(FreightFrenzyRobotRoadRunner.Subsystem.INTAKE)) {
+                    intake = new FFIntake(hardwareMap, telemetry);
+                }
+            }
+
+            // My preference is to encapsulate as much as possible so that creation code can be reused.
+            // So move this stuff into the IntakeWheels. It should know how to create itself. I should
+            // not have to know that at the robot level.
 
 //        DcMotor8863 rightIntake = new DcMotor8863("intakeMotorRight", hardwareMap);
 //        DcMotor8863 leftIntake = new DcMotor8863("intakeMotorLeft", hardwareMap);
@@ -139,29 +178,46 @@ public class FreightFrenzyRobot implements FTCRobot {
 //        leftIntake.setMotorType(ANDYMARK_20_ORBITAL);
 
 
+            init();
 
-
-
-        init();
+        }
         return true;
     }
-public void setPosition(double currentpositionx,double currentPositiionY,double currentPositionRot){
-        if(odometry != null){
+        public void setPosition ( double currentpositionx, double currentPositiionY,
+        double currentPositionRot){
+            if (odometry != null) {
 
-            odometry.setCoordinates(units, currentpositionx, currentPositiionY, AngleUnit.DEGREES, currentPositionRot);
-        }else{
-            if(imu != null){
-                //it dodesnt want to work. implement inti thfr imu clas instead of  tnrd bno0ffimu class
-                //imu.stopAccelerationIntegration();
-                Position place = new Position(units, currentpositionx, currentPositiionY, 0, 0);
-                Velocity velocity = new Velocity(units,0,0,0,0);
-                imu.startAccelerationIntegration(place, velocity, 100);
+                odometry.setCoordinates(units, currentpositionx, currentPositiionY, AngleUnit.DEGREES, currentPositionRot);
+            } else {
+                if (imu != null) {
+                    //it dodesnt want to work. implement inti thfr imu clas instead of  tnrd bno0ffimu class
+                    //imu.stopAccelerationIntegration();
+                    Position place = new Position(units, currentpositionx, currentPositiionY, 0, 0);
+                    Velocity velocity = new Velocity(units, 0, 0, 0, 0);
+                    imu.startAccelerationIntegration(place, velocity, 100);
+                }
             }
         }
-}
-    /**
-     * Every system has an init. Call it.
-     */
+        /**
+         * Every system has an init. Call it.
+         */
+
+        /*
+         * Every system must tell us when its init is complete. When all of the inits are complete, the
+         * robot init is complete.
+         *
+         * @return
+         */
+
+
+        /**
+         * Every system has an update() method that can be used to run a state machine for that system.
+         * Note that some systems don't have a state machine but the update() method will be there
+         * anyway just in case that changes in the future.
+         */
+
+
+
     @Override
     public void init() {
         dataLog.logData("Init starting");
@@ -182,7 +238,7 @@ public void setPosition(double currentpositionx,double currentPositiionY,double 
         // inits for the command state machines
 
         // Start IMU-based positioning if Odometry is not enabled
-        if(!capabilities.contains(Subsystem.ODOMETRY)) {
+        if (!capabilities.contains(Subsystem.ODOMETRY)) {
             imu.startAccelerationIntegration(null, null, 100);
         }
         // wait until all the updates are complete or until the timer has expired
@@ -201,12 +257,6 @@ public void setPosition(double currentpositionx,double currentPositiionY,double 
         }
     }
 
-    /*
-     * Every system must tell us when its init is complete. When all of the inits are complete, the
-     * robot init is complete.
-     *
-     * @return
-     */
     @Override
     public boolean isInitComplete() {
         boolean result = true;
@@ -229,56 +279,49 @@ public void setPosition(double currentpositionx,double currentPositiionY,double 
         return result;
     }
 
-    /**
-     * Every system has an update() method that can be used to run a state machine for that system.
-     * Note that some systems don't have a state machine but the update() method will be there
-     * anyway just in case that changes in the future.
-     */
     @Override
     public void update() {
         for (FTCRobotSubsystem subsystem : subsystemMap.values()) {
             subsystem.update();
         }
-
-//        if (capabilities.contains(Subsystem.INTAKE_LIMIT_SW))
-//            updateIntakeSwitches();
     }
 
     @Override
-    public void timedUpdate(double timerValueMsec) {
-        for (FTCRobotSubsystem subsystem : subsystemMap.values()) {
-            subsystem.timedUpdate(timerValueMsec);
+        public void timedUpdate ( double timerValueMsec){
+            for (FTCRobotSubsystem subsystem : subsystemMap.values()) {
+                subsystem.timedUpdate(timerValueMsec);
+            }
         }
-    }
 
-    @Override
-    public void shutdown() {
-        for (FTCRobotSubsystem subsystem : subsystemMap.values()) {
-            subsystem.shutdown();
+        @Override
+        public void shutdown () {
+            for (FTCRobotSubsystem subsystem : subsystemMap.values()) {
+                subsystem.shutdown();
+            }
         }
-    }
 
-    /**
-     * For each subsystem that supports logging turn it on.
-     */
-    public void enableDataLogging() {
-        dataLoggingEnabled = true;
-    }
+        /**
+         * For each subsystem that supports logging turn it on.
+         */
 
-    /**
-     * For each subsystem that supports logging, turn it off
-     */
-    public void disableDataLogging() {
-        dataLoggingEnabled = false;
+        public void enableDataLogging () {
+            dataLoggingEnabled = true;
+        }
 
-    }
-
-    private void log(String stringToLog) {
-        if (dataLog != null && dataLoggingEnabled) {
-            dataLog.logData(stringToLog);
+        /**
+         * For each subsystem that supports logging, turn it off
+         */
+        public void disableDataLogging () {
+            dataLoggingEnabled = false;
 
         }
-    }
+
+        private void log (String stringToLog){
+            if (dataLog != null && dataLoggingEnabled) {
+                dataLog.logData(stringToLog);
+
+            }
+        }
 
     public boolean getCurrentPosition(Position position) {
         if (odometry != null && odometry.isInitComplete()) {
@@ -307,7 +350,7 @@ public void setPosition(double currentpositionx,double currentPositiionY,double 
         else if (imu != null)
             return unit.fromDegrees(imu.getHeading());
         else
-            return 0;
+            return 0.0;
     }
     public double getCurrentRotationIMU(AngleUnit unit){
         return unit.fromDegrees(imu.getHeading());

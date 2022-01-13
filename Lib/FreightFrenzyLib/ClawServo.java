@@ -1,16 +1,20 @@
 package org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib;
 
 
+import com.arcrobotics.ftclib.command.Subsystem;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863New;
 
 import java.util.concurrent.TimeUnit;
 
-public class ClawServo {
+public class ClawServo{
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -26,7 +30,10 @@ public class ClawServo {
     // getter and setter methods
     //*********************************************************************************************
     Servo8863New clawServo;
-
+    private DataLogging logFile;
+    private boolean loggingOn = false;
+    private boolean initComplete = false;
+    private final String  CLAW_NAME = FreightFrenzyRobot.HardwareName.CLAW_SERVO.hwName;
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -47,6 +54,7 @@ public class ClawServo {
         clawServo.addPosition("open", .0, 1000, TimeUnit.MILLISECONDS);
         clawServo.addPosition("open plus delay", .0, 500, 1000, TimeUnit.MILLISECONDS);
         clawServo.addPosition("close", .58,1000, TimeUnit.MILLISECONDS);
+        close();
 
     }
 
@@ -76,5 +84,6 @@ public class ClawServo {
     public boolean isPositionReached() {
         return clawServo.isPositionReached();
     }
+
 }
 

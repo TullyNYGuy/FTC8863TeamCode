@@ -40,7 +40,7 @@ import org.openftc.easyopencv.OpenCvPipeline;
 
 public class ShippingElementPipeline extends OpenCvPipeline {
     /*
-     * An enum to define the skystone position
+     * An enum to define the shipping element position
      */
     public enum ShippingPosition {
         LEFT,

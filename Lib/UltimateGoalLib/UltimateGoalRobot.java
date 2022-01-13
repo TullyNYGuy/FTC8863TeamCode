@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -21,23 +20,12 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometryModule;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometrySystem;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.RobotPosition;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.Switch;
-import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.BaseGrabberServo;
-import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.DualLift;
-import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.ExtensionArm;
-import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.ExtensionArmConstants;
-import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.Gripper;
-import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.GripperRotator;
-import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.IntakePusherServos;
-import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.IntakeWheels;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import static org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863.MotorType.ANDYMARK_20_ORBITAL;
 
 public class UltimateGoalRobot implements FTCRobot {
 

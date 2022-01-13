@@ -15,6 +15,7 @@ import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyGamepad;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyRobotRoadRunner;
 
 
+import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.Pipelines.ShippingElementPipeline;
 import org.openftc.easyopencv.OpenCvWebcam;
 
 import java.util.List;
@@ -27,18 +28,23 @@ public class FreightFrenzyAuto extends LinearOpMode {
     //*********************************************************************************************
     //             Declarations
     //*********************************************************************************************
-    public OpenCvWebcam webcam;
+
     public FreightFrenzyRobotRoadRunner robot;
     public FreightFrenzyGamepad gamepad;
     public FreightFrenzyField field;
     public Configuration config;
-
+    ShippingElementPipeline pipeline;
 
 
     private ElapsedTime timer;
 
     DataLogging dataLog = null;
-
+    public enum ShippingPosition {
+        LEFT,
+        CENTER,
+        RIGHT
+    }
+    ShippingPosition position;
     @Override
     public void runOpMode() {
 
@@ -60,13 +66,11 @@ public class FreightFrenzyAuto extends LinearOpMode {
         timer = new ElapsedTime();
         //MecanumCommands commands = new MecanumCommands();
 
-
-
         robot = new FreightFrenzyRobotRoadRunner(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, this);
 
         // create the robot and run the init for it
         robot.createRobot();
-
+        robot.webcam.setPipeline(pipeline);
         enableBulkReads(hardwareMap, LynxModule.BulkCachingMode.AUTO);
 
 
@@ -84,13 +88,13 @@ public class FreightFrenzyAuto extends LinearOpMode {
             robot.update();
             if (timer.milliseconds() > 5000) {
                 // something went wrong with the inits. They never finished. Proceed anyway
-
                 dataLog.logData("Init failed to complete on time. Proceeding anyway!");
                 break;
             }
             idle();
         }
-
+        //initializes the pipeline so the initial image is there
+        //pipeline.init();
         // Wait for the start button
         telemetry.addData(">", "Press start to run Teleop");
         telemetry.update();
@@ -102,10 +106,11 @@ public class FreightFrenzyAuto extends LinearOpMode {
         timer.reset();
         while (opModeIsActive()) {
             //use ShippingElementPipeline to find the position of shipping element (left,right,center)
+            //robot deposits the preloaded blcok onto corresp
             // robot goes to depot
             //robot intakes a thing
             //robot goes to tower
-            //insert SWITCH CASE:
+            //Switch(position):
             //case(left){
             // put into top level of tower}
             //case(right){
@@ -116,7 +121,8 @@ public class FreightFrenzyAuto extends LinearOpMode {
 
             // update the robot
             robot.update();
-
+            //make the pipeline refresh/continue
+           // pipeline.processFrame(robot.webcam.)
             telemetry.addData(">", "Press Stop to end.");
             telemetry.update();
 
