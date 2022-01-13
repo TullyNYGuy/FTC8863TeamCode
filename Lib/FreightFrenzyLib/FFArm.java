@@ -30,6 +30,7 @@ public class FFArm implements FTCRobotSubsystem {
     private DataLogging logFile;
     private boolean loggingOn = false;
     private Boolean initComplete = false;
+
     //*********************************************************************************************
     //          Constructors
     //
@@ -91,6 +92,10 @@ claw is positioned so that it is level with the team shipping hub over it. */
         clawServo.open();
     }
 
+    /**
+     * This is used to hold the team shipping element between the auto and teleop portions of the
+     * game. It is the same as storage except that the wrist is point up to the sky
+     */
     public void hold() {
     }
 
@@ -120,12 +125,12 @@ claw is positioned so that it is level with the team shipping hub over it. */
 
     @Override
     public void update() {
-    isPositionReached();
+        isPositionReached();
     }
 
     @Override
     public void shutdown() {
-    storage();
+        storage();
     }
 
     @Override
