@@ -62,7 +62,9 @@ public class FFIntake {
         }
         rotateServo = new Servo8863New("rotateServo", hardwareMap, telemetry);
         rotateServo.addPosition("intake", .05, 1000, TimeUnit.MILLISECONDS);
-        rotateServo.addPosition("deIntake", 1,1500, TimeUnit.MILLISECONDS);
+        rotateServo.addPosition("deIntakeWithoutDelivery", .165,1500, TimeUnit.MILLISECONDS);
+        rotateServo.addPosition("deIntakeWithDelivery", .666,1500, TimeUnit.MILLISECONDS);
+
     }
     //*********************************************************************************************
     //          Helper Methods
@@ -114,7 +116,7 @@ public class FFIntake {
                      if (intakeSweeperMotor.isMovementComplete()) {
                          // yup, now the human has to rotate the intake because that intake guy has not completed the rotation hardware yet :-)
                          timer.reset();
-                         rotateServo.setPosition("deIntake");
+                         rotateServo.setPosition("deIntakeWithoutDelivery");
                          intakeState = IntakeState.WAIT_FOR_ROTATION;
                      }
                  }
