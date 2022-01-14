@@ -70,8 +70,13 @@ is also positioned down. */
         wristServo.pickup();
         clawServo.openPlusDelay();
     }
+/* The shoulder is in the up position holding the team shipping element while the wrist is in the
+carry position. It is used when we need to drive to the team shipping hub to cap it on top of it. */
 
     public void carry() {
+        shoulderServo.up();
+        wristServo.carry();
+        clawServo.close();
     }
 /* The arm is stored behind the robot supported on a small beam. This is used when we do not need
 to use the arm. */
@@ -97,6 +102,9 @@ claw is positioned so that it is level with the team shipping hub over it. */
      * game. It is the same as storage except that the wrist is point up to the sky
      */
     public void hold() {
+        shoulderServo.storage();
+        wristServo.hold();
+        clawServo.close();
     }
 
     public boolean isPositionReached() {
