@@ -44,7 +44,7 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
         ODOMETRY_MODULE_BACK("rightRearMotor"),
         WEBCAM_LEFT("WebcamL"),
         WEBCAM_RIGHT("WebcamR"),
-        DUCK_SPINNER("DuckServo"),
+        DUCK_SPINNER("duckServo"),
         SHOULDER_SERVO("shoulderServo"),
         WRIST_SERVO("wristServo"),
         CLAW_SERVO("clawServo"),
@@ -84,7 +84,9 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
     public boolean isDataLoggingEnabled() {
         return dataLoggingEnabled;
     }
-    int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+
+    int cameraMonitorViewId;
+
     boolean isCapableOf(Subsystem subsystem) {
         return capabilities.contains(subsystem);
     }
@@ -107,6 +109,7 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
         this.config = config;
         this.dataLog = dataLog;
         this.opMode = opMode;
+        cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         this.subsystemMap = new HashMap<String, FTCRobotSubsystem>();
         setCapabilities(Subsystem.values());
         enableDataLogging();
@@ -132,8 +135,6 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
             subsystemMap.put(mecanum.getName(), mecanum);
         }
 
-
-
         if (capabilities.contains(Subsystem.ARM)) {
             arm = new FFArm(hardwareMap, telemetry);
              }
@@ -156,6 +157,7 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
 
                 }
             });
+
             if (capabilities.contains(Subsystem.WEBCAM_RIGHT)) {
                 webcamRight = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
                 webcamRight.setMillisecondsPermissionTimeout(2500); // Timeout for obtaining permission is configurable. Set before opening.
@@ -170,6 +172,7 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
 
                     }
                 });
+
                 if (capabilities.contains(Subsystem.INTAKE)) {
                     intake = new FFIntake(hardwareMap, telemetry);
                 }
