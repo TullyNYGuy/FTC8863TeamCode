@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.Pipelines;
 
-import org.opencv.calib3d.Calib3d;
+/*import org.opencv.calib3d.Calib3d;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfDouble;
@@ -10,15 +10,13 @@ import org.opencv.core.Point;
 import org.opencv.core.Point3;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
-import org.openftc.apriltag.AprilTagDetection;
-import org.openftc.apriltag.AprilTagDetectorJNI;
 import org.openftc.easyopencv.OpenCvPipeline;
 
 import java.util.ArrayList;
 
 public class AprilTagDetectionPipeline extends OpenCvPipeline
-{
-    private long nativeApriltagPtr;
+{*/
+    /*private long nativeApriltagPtr;
     private Mat grey = new Mat();
     private ArrayList<AprilTagDetection> detections = new ArrayList<>();
 
@@ -131,9 +129,9 @@ public class AprilTagDetectionPipeline extends OpenCvPipeline
             return ret;
         }
     }
-
-    void constructMatrix()
-    {
+*/
+//    void constructMatrix()
+    //{
         //     Construct the camera matrix.
         //
         //      --         --
@@ -143,7 +141,7 @@ public class AprilTagDetectionPipeline extends OpenCvPipeline
         //      --         --
         //
 
-        cameraMatrix = new Mat(3,3, CvType.CV_32FC1);
+        /*cameraMatrix = new Mat(3,3, CvType.CV_32FC1);
 
         cameraMatrix.put(0,0, fx);
         cameraMatrix.put(0,1,0);
@@ -158,7 +156,7 @@ public class AprilTagDetectionPipeline extends OpenCvPipeline
         cameraMatrix.put(2,2,1);
     }
 
-    /**
+    *//**
      * Draw a 3D axis marker on a detection. (Similar to what Vuforia does)
      *
      * @param buf the RGB buffer on which to draw the marker
@@ -166,7 +164,7 @@ public class AprilTagDetectionPipeline extends OpenCvPipeline
      * @param rvec the rotation vector of the detection
      * @param tvec the translation vector of the detection
      * @param cameraMatrix the camera matrix used when finding the detection
-     */
+     *//*
     void drawAxisMarker(Mat buf, double length, int thickness, Mat rvec, Mat tvec, Mat cameraMatrix)
     {
         // The points in 3D space we wish to project onto the 2D image plane.
@@ -232,7 +230,7 @@ public class AprilTagDetectionPipeline extends OpenCvPipeline
         Imgproc.line(buf, projectedPoints[4], projectedPoints[7], green, thickness);
     }
 
-    /**
+    *//**
      * Extracts 6DOF pose from a trapezoid, using a camera intrinsics matrix and the
      * original size of the tag.
      *
@@ -241,7 +239,7 @@ public class AprilTagDetectionPipeline extends OpenCvPipeline
      * @param tagsizeX the original width of the tag
      * @param tagsizeY the original height of the tag
      * @return the 6DOF pose of the camera relative to the tag
-     */
+     *//*
     Pose poseFromTrapezoid(Point[] points, Mat cameraMatrix, double tagsizeX , double tagsizeY)
     {
         // The actual 2d points of the tag detected in the image
@@ -262,10 +260,10 @@ public class AprilTagDetectionPipeline extends OpenCvPipeline
         return pose;
     }
 
-    /*
+    *//*
      * A simple container to hold both rotation and translation
      * vectors, which together form a 6DOF pose.
-     */
+     *//*
     class Pose
     {
         Mat rvec;
@@ -283,4 +281,4 @@ public class AprilTagDetectionPipeline extends OpenCvPipeline
             this.tvec = tvec;
         }
     }
-}
+}*/
