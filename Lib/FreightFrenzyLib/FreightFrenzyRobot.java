@@ -99,7 +99,8 @@ public class FreightFrenzyRobot implements FTCRobot {
     public DuckSpinner duckSpinner;
     public FFArm arm;
     public FFIntake intake;
-    public OpenCvWebcam webcam;
+    public OpenCvWebcam webcamLeft;
+    public OpenCvWebcam webcamRight;
 
     public FreightFrenzyRobot(HardwareMap hardwareMap, Telemetry telemetry, Configuration config, DataLogging dataLog, DistanceUnit units, LinearOpMode opMode) {
         timer = new ElapsedTime();
@@ -149,13 +150,13 @@ public class FreightFrenzyRobot implements FTCRobot {
                 duckSpinner = new DuckSpinner(hardwareMap, telemetry);
             }
 
-            if (capabilities.contains(FreightFrenzyRobotRoadRunner.Subsystem.WEBCAM)) {
-                webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
-                webcam.setMillisecondsPermissionTimeout(2500); // Timeout for obtaining permission is configurable. Set before opening.
-                webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
+            if (capabilities.contains(FreightFrenzyRobotRoadRunner.Subsystem.WEBCAM_LEFT)) {
+                webcamLeft = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+                webcamLeft.setMillisecondsPermissionTimeout(2500); // Timeout for obtaining permission is configurable. Set before opening.
+                webcamLeft.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
                     @Override
                     public void onOpened() {
-                        webcam.startStreaming(1280, 720, OpenCvCameraRotation.UPRIGHT);
+                        webcamLeft.startStreaming(1280, 720, OpenCvCameraRotation.UPRIGHT);
                     }
 
                     @Override
@@ -163,10 +164,24 @@ public class FreightFrenzyRobot implements FTCRobot {
 
                     }
                 });
+                if (capabilities.contains(FreightFrenzyRobotRoadRunner.Subsystem.WEBCAM_RIGHT)) {
+                    webcamRight = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+                    webcamRight.setMillisecondsPermissionTimeout(2500); // Timeout for obtaining permission is configurable. Set before opening.
+                    webcamRight.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
+                        @Override
+                        public void onOpened() {
+                            webcamRight.startStreaming(1280, 720, OpenCvCameraRotation.UPRIGHT);
+                        }
+
+                        @Override
+                        public void onError(int errorCode) {
+
+                        }
+                    });
                 if (capabilities.contains(FreightFrenzyRobotRoadRunner.Subsystem.INTAKE)) {
                     intake = new FFIntake(hardwareMap, telemetry);
                 }
-            }
+            }}
 
             // My preference is to encapsulate as much as possible so that creation code can be reused.
             // So move this stuff into the IntakeWheels. It should know how to create itself. I should

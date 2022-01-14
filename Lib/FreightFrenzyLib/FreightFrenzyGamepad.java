@@ -253,7 +253,7 @@ public class FreightFrenzyGamepad {
         if (gamepad1LeftBumper.buttonPress(gamepad1.left_bumper)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            robot.intakeToggleOnOff();
+
         }
 
         if (gamepad1a.buttonPress(gamepad1.a)) {
@@ -265,7 +265,7 @@ public class FreightFrenzyGamepad {
         if (gamepad1b.buttonPress(gamepad1.b)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            robot.eStop();
+
         }
 
         if (gamepad1y.buttonPress(gamepad1.y)) {
