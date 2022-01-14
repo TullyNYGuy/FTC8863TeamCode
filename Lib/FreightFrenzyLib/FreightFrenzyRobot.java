@@ -36,7 +36,7 @@ public class FreightFrenzyRobot implements FTCRobot {
 
     public enum HardwareName {
         WEBCAM("Webcam"),
-        DUCK_SPINNER("DuckServo"),
+        DUCK_SPINNER("duckServo"),
         IMU("imu"),
         CONFIG_FL_MOTOR("FLMotor"),
         CONFIG_FR_MOTOR("FRMotor"),

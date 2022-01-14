@@ -27,8 +27,8 @@ public class WristServo {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
-    Servo8863New wristServo;
-
+    private Servo8863New wristServo;
+    private final String WRIST_SERVO_NAME = FreightFrenzyRobotRoadRunner.HardwareName.WRIST_SERVO.hwName;
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -45,7 +45,7 @@ public class WristServo {
     //*********************************************************************************************
 
     public WristServo(HardwareMap hardwareMap, Telemetry telemetry) {
-        wristServo = new Servo8863New("wristServo", hardwareMap, telemetry);
+        wristServo = new Servo8863New(WRIST_SERVO_NAME, hardwareMap, telemetry);
         wristServo.addPosition("Storage", .0, 2000, TimeUnit.MILLISECONDS);
         wristServo.addPosition("Pickup", .95,2000, TimeUnit.MILLISECONDS);
         wristServo.addPosition("Carry", .64, 2000, TimeUnit.MILLISECONDS);

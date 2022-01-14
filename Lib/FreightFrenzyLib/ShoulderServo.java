@@ -26,6 +26,7 @@ public class ShoulderServo {
     // getter and setter methods
     //*********************************************************************************************
     private Servo8863New shoulderServo;
+    private final String SHOULDER_SERVO_NAME = FreightFrenzyRobotRoadRunner.HardwareName.SHOULDER_SERVO.hwName;
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -41,7 +42,7 @@ public class ShoulderServo {
     // from it
     //*********************************************************************************************
     public ShoulderServo(HardwareMap hardwareMap, Telemetry telemetry) {
-        shoulderServo = new Servo8863New("shoulderServo", hardwareMap, telemetry);
+        shoulderServo = new Servo8863New(SHOULDER_SERVO_NAME, hardwareMap, telemetry);
         shoulderServo.addPosition("up", .56, 2000, TimeUnit.MILLISECONDS);
         shoulderServo.addPosition("down", .14, 1000, TimeUnit.MILLISECONDS);
         shoulderServo.addPosition("storage", 1.0, 1000, TimeUnit.MILLISECONDS);
@@ -65,13 +66,12 @@ public class ShoulderServo {
     public void down() {
         shoulderServo.setPosition("down");
     }
-    public boolean isPositionReached() {
-        return shoulderServo.isPositionReached();
-    }
-
 
     public void storage() {
         shoulderServo.setPosition("storage");
     }
 
+    public boolean isPositionReached() {
+        return shoulderServo.isPositionReached();
+    }
 }
