@@ -13,17 +13,14 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyField;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyGamepad;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyRobotRoadRunner;
-
-
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.Pipelines.ShippingElementPipeline;
-import org.openftc.easyopencv.OpenCvWebcam;
 
 import java.util.List;
 
-@Autonomous(name = "Auto Roadrunner Freight Frenzy", group = "AARun")
+@Autonomous(name = "Auto Roadrunner Freight Frenzy - RED", group = "AARun")
 @Disabled
 
-public class FreightFrenzyAuto extends LinearOpMode {
+public class FreightFrenzyAutoRed extends LinearOpMode {
 
     //*********************************************************************************************
     //             Declarations
@@ -70,7 +67,7 @@ public class FreightFrenzyAuto extends LinearOpMode {
 
         // create the robot and run the init for it
         robot.createRobot();
-        robot.webcam.setPipeline(pipeline);
+        robot.webcamRight.setPipeline(pipeline);
         enableBulkReads(hardwareMap, LynxModule.BulkCachingMode.AUTO);
 
 

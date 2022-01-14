@@ -6,32 +6,32 @@ package org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib;
  *    / Left JoystickX   - robot moves left/right
  *    / Left JoystickY   - robot moves forward/backward
  *    / Right JoystickX  - robot rotation
- *    / DPad Up          -
- *    / DPad Left        -
- *    / DPad Down        -
+ *    / DPad Up          - reverse stage 1 intake on/off
+ *    / DPad Left        - reset intake
+ *    / DPad Down        - stage 23 intake on/off
  *    / DPad Right       -
- *    / A                - Arm pickup position
- *    / B                - Arm Carry position
- *    / X                - Arm storage position
- *    / Y                - Arm Dropoff position
- *    /Left Bumper       -
- *    /Right Bumper      - Arm Hold position
+ *    / A                - Bump 1
+ *    / B                - EStop
+ *    / X                - fire 1
+ *    / Y                - quick fire 3
+ *    /Left Bumper       - intake on/off
+ *    /Right Bumper      - shooter on/off
  *
  *  Gamepad 2 layout
  *    / Left JoystickX   -
  *    / Left JoystickY   -
  *    / Right JoystickX  -
  *    / Right JoystickY  -
- *    / DPad Up          -
- *    / DPad Left        -
- *    / DPad Down        -
- *    / DPad Right       -
- *    / A                -
+ *    / DPad Up          - angle for high goal
+ *    / DPad Left        - 100% power
+ *    / DPad Down        - angle for power shots
+ *    / DPad Right       - 50% power
+ *    / A                - re-home
  *    / B                -
- *    / X                -
- *    / Y                -
- *   /Left Bumper        -
- *   /Right Bumper       -
+ *    / X                - auto shoot high goal
+ *    / Y                - auto shoot endgame power shots - 1st press goto location, 2nd press shoot
+ *   /Left Bumper        - open/close wobble grabber
+ *   /Right Bumper       - extend/retract wobble grabber
  */
 
 import com.qualcomm.robotcore.hardware.Gamepad;
@@ -247,39 +247,36 @@ public class FreightFrenzyGamepad {
         if (gamepad1RightBumper.buttonPress(gamepad1.right_bumper)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            robot.arm.hold();
+           // robot.shooter.toggleShooter();
         }
 
         if (gamepad1LeftBumper.buttonPress(gamepad1.left_bumper)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            robot.intakeToggleOnOff();
+
         }
 
         if (gamepad1a.buttonPress(gamepad1.a)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            robot.arm.pickup();
 
         }
 
         if (gamepad1b.buttonPress(gamepad1.b)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            robot.arm.carry();
+
         }
 
         if (gamepad1y.buttonPress(gamepad1.y)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            robot.arm.dropoff();
 
         }
 
         if (gamepad1x.buttonPress(gamepad1.x)) {
             //this was a new button press, not a button held down for a while
             //put the command to be executed here
-            robot.arm.storage();
 
         }
 
