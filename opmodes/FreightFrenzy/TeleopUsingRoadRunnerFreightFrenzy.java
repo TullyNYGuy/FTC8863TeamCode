@@ -11,11 +11,10 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyField;
+import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyRobotMode;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyRobotRoadRunner;
 //import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.AutomaticTeleopFunctions;
 //import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.PersistantStorage;
-import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.PoseStorage;
-import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyField;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyGamepad;
 
 
@@ -34,6 +33,8 @@ public class TeleopUsingRoadRunnerFreightFrenzy extends LinearOpMode {
     public FreightFrenzyField field;
     public FreightFrenzyGamepad gamepad;
     public Configuration config = null;
+
+    public FreightFrenzyRobotMode robotMode = FreightFrenzyRobotMode.TELEOP;
 
    // public AutomaticTeleopFunctions automaticTeleopFunctions;
 
@@ -64,7 +65,7 @@ public class TeleopUsingRoadRunnerFreightFrenzy extends LinearOpMode {
         timer = new ElapsedTime();
         //MecanumCommands commands = new MecanumCommands();
 
-        robot = new FreightFrenzyRobotRoadRunner(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, this);
+        robot = new FreightFrenzyRobotRoadRunner(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, FreightFrenzyRobotMode.TELEOP, this);
 
         // create the robot and run the init for it
         robot.createRobot();

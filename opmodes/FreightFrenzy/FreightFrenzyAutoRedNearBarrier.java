@@ -12,18 +12,16 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyField;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyGamepad;
+import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyRobotMode;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyRobotRoadRunner;
-
-
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.Pipelines.ShippingElementPipeline;
-import org.openftc.easyopencv.OpenCvWebcam;
 
 import java.util.List;
 
-@Autonomous(name = "Auto Roadrunner Freight Frenzy - BLUE", group = "AARun")
+@Autonomous(name = "Auto Freight Frenzy - RED near barrier", group = "AARun")
 @Disabled
 
-public class FreightFrenzyAutoBlue extends LinearOpMode {
+public class FreightFrenzyAutoRedNearBarrier extends LinearOpMode {
 
     //*********************************************************************************************
     //             Declarations
@@ -35,6 +33,7 @@ public class FreightFrenzyAutoBlue extends LinearOpMode {
     public Configuration config;
     ShippingElementPipeline pipeline;
 
+    public FreightFrenzyRobotMode robotMode = FreightFrenzyRobotMode.AUTO_RED_NEAR_BARRIERS;
 
     private ElapsedTime timer;
 
@@ -66,11 +65,14 @@ public class FreightFrenzyAutoBlue extends LinearOpMode {
         timer = new ElapsedTime();
         //MecanumCommands commands = new MecanumCommands();
 
-        robot = new FreightFrenzyRobotRoadRunner(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, this);
+        robot = new FreightFrenzyRobotRoadRunner(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, robotMode,this);
 
         // create the robot and run the init for it
         robot.createRobot();
-        robot.webcamLeft.setPipeline(pipeline);
+        pipeline = new ShippingElementPipeline();
+        pipeline.setRobotMode(robotMode);
+
+        robot.webcamRight.setPipeline(pipeline);
         enableBulkReads(hardwareMap, LynxModule.BulkCachingMode.AUTO);
 
 
@@ -94,6 +96,13 @@ public class FreightFrenzyAutoBlue extends LinearOpMode {
             idle();
         }
         //initializes the pipeline so the initial image is there
+
+        // THE SHIPPING ELEMENT DETECTION SHOULD TAKE PLACE HERE, NOT AFTER waitForStart()
+        // THE WEBCAM SHOULD BE SHUT DOWN AFTER THE ELEMENT IS LOCATED SO IT DOES NOT TAKE UP
+        // RESOURCES
+        //webcam.stopStreaming();
+        //webcam.closeCameraDevice();
+
         //pipeline.init();
         // Wait for the start button
         telemetry.addData(">", "Press start to run Teleop");

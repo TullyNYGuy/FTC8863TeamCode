@@ -30,7 +30,6 @@ import java.util.Set;
 public class FreightFrenzyRobotRoadRunner implements FTCRobot {
 
     public enum HardwareName {
-
         IMU("imu"),
         CONFIG_FL_MOTOR("leftFrontMotor"),
         CONFIG_FR_MOTOR("rightFrontMotor"),
@@ -48,7 +47,9 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
         SHOULDER_SERVO("shoulderServo"),
         WRIST_SERVO("wristServo"),
         CLAW_SERVO("clawServo"),
-
+        INTAKE_SWEEPER_MOTOR("intakeSweeperMotor"),
+        INTAKE_SENSOR("intakeSensor"),
+        INTAKE_ROTATE_SERVO("intakeRotateServo")
         ;
         public final String hwName;
 
@@ -74,6 +75,7 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
     DistanceUnit units;
     Configuration config;
     private DataLogging dataLog;
+    private FreightFrenzyRobotMode robotMode;
     Map<String, FTCRobotSubsystem> subsystemMap;
 
     private ElapsedTime timer;
@@ -100,7 +102,7 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
     public OpenCvWebcam webcamLeft;
     public OpenCvWebcam webcamRight;
 
-    public FreightFrenzyRobotRoadRunner(HardwareMap hardwareMap, Telemetry telemetry, Configuration config, DataLogging dataLog, DistanceUnit units, LinearOpMode opMode) {
+    public FreightFrenzyRobotRoadRunner(HardwareMap hardwareMap, Telemetry telemetry, Configuration config, DataLogging dataLog, DistanceUnit units, FreightFrenzyRobotMode robotMode, LinearOpMode opMode) {
         timer = new ElapsedTime();
 
         this.hardwareMap = hardwareMap;
@@ -109,6 +111,7 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
         this.config = config;
         this.dataLog = dataLog;
         this.opMode = opMode;
+        this.robotMode = robotMode;
         cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         this.subsystemMap = new HashMap<String, FTCRobotSubsystem>();
         setCapabilities(Subsystem.values());
@@ -137,13 +140,15 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
 
         if (capabilities.contains(Subsystem.ARM)) {
             arm = new FFArm(hardwareMap, telemetry);
-             }
-
-       if (capabilities.contains(Subsystem.DUCK_SPINNER)) {
-           duckSpinner = new DuckSpinner(hardwareMap, telemetry);
         }
 
-        if (capabilities.contains(Subsystem.WEBCAM_LEFT)) {
+        if (capabilities.contains(Subsystem.DUCK_SPINNER)) {
+            duckSpinner = new DuckSpinner(hardwareMap, telemetry);
+        }
+
+        // THE WEBCAM PROCESSING TAKES UP A BUNCH OF RESOURCES. PROBABLY NOT A GOOD IDEA TO RUN THIS IN TELEOP
+
+        if (capabilities.contains(Subsystem.WEBCAM_LEFT) && robotMode != FreightFrenzyRobotMode.TELEOP) {
             webcamLeft = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
             webcamLeft.setMillisecondsPermissionTimeout(2500); // Timeout for obtaining permission is configurable. Set before opening.
             webcamLeft.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
@@ -157,27 +162,26 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
 
                 }
             });
+        }
 
-            if (capabilities.contains(Subsystem.WEBCAM_RIGHT)) {
-                webcamRight = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
-                webcamRight.setMillisecondsPermissionTimeout(2500); // Timeout for obtaining permission is configurable. Set before opening.
-                webcamRight.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
-                    @Override
-                    public void onOpened() {
-                        webcamRight.startStreaming(1280, 720, OpenCvCameraRotation.UPRIGHT);
-                    }
-
-                    @Override
-                    public void onError(int errorCode) {
-
-                    }
-                });
-
-                if (capabilities.contains(Subsystem.INTAKE)) {
-                    intake = new FFIntake(hardwareMap, telemetry);
+        if (capabilities.contains(Subsystem.WEBCAM_RIGHT) && robotMode != FreightFrenzyRobotMode.TELEOP) {
+            webcamRight = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+            webcamRight.setMillisecondsPermissionTimeout(2500); // Timeout for obtaining permission is configurable. Set before opening.
+            webcamRight.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
+                @Override
+                public void onOpened() {
+                    webcamRight.startStreaming(1280, 720, OpenCvCameraRotation.UPRIGHT);
                 }
-            }
 
+                @Override
+                public void onError(int errorCode) {
+
+                }
+            });
+        }
+
+        if (capabilities.contains(Subsystem.INTAKE)) {
+            intake = new FFIntake(hardwareMap, telemetry);
         }
 
         init();
@@ -223,8 +227,6 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
     @Override
     public boolean isInitComplete() {
         boolean result = true;
-        // put the isInitComplete for each subsystem here. In other words repeat this block of code
-        // for each subsystem
         for (FTCRobotSubsystem subsystem : subsystemMap.values()) {
             if (subsystem.isInitComplete()) {
                 if (dataLoggingEnabled) {
@@ -311,21 +313,5 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
     public boolean getCurrentRobotPosition(RobotPosition position) {
         return true;
     }
-
-    public void intakeOn() {
-    //intake.
-    }
-
-
-
-    public void intakeOff() {
-    intake.EStop();
-    }
-
-
-
-
-
-
 }
 
