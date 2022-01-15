@@ -6,32 +6,33 @@ package org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib;
  *    / Left JoystickX   - robot moves left/right
  *    / Left JoystickY   - robot moves forward/backward
  *    / Right JoystickX  - robot rotation
- *    / DPad Up          - reverse stage 1 intake on/off
- *    / DPad Left        - reset intake
- *    / DPad Down        - stage 23 intake on/off
+ *    / Right JoystickY  -
+ *    / DPad Up          -
+ *    / DPad Left        -
+ *    / DPad Down        -
  *    / DPad Right       -
- *    / A                - Bump 1
- *    / B                - EStop
- *    / X                - fire 1
- *    / Y                - quick fire 3
- *    /Left Bumper       - intake on/off
- *    /Right Bumper      - shooter on/off
+ *    / A                -
+ *    / B                -
+ *    / X                -
+ *    / Y                -
+ *    /Left Bumper       -
+ *    /Right Bumper      -
  *
  *  Gamepad 2 layout
  *    / Left JoystickX   -
  *    / Left JoystickY   -
  *    / Right JoystickX  -
  *    / Right JoystickY  -
- *    / DPad Up          - angle for high goal
- *    / DPad Left        - 100% power
- *    / DPad Down        - angle for power shots
- *    / DPad Right       - 50% power
- *    / A                - re-home
+ *    / DPad Up          -
+ *    / DPad Left        -
+ *    / DPad Down        -
+ *    / DPad Right       -
+ *    / A                -
  *    / B                -
- *    / X                - auto shoot high goal
- *    / Y                - auto shoot endgame power shots - 1st press goto location, 2nd press shoot
- *   /Left Bumper        - open/close wobble grabber
- *   /Right Bumper       - extend/retract wobble grabber
+ *    / X                -
+ *    / Y                -
+ *   /Left Bumper        -
+ *   /Right Bumper       -
  */
 
 import com.qualcomm.robotcore.hardware.Gamepad;
