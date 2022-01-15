@@ -43,7 +43,7 @@ public class IntakeTestGlenn extends LinearOpMode {
         intakeSweeperMotor = new DcMotor8863("intakeSweeperMotor", hardwareMap);
         intakeSweeperMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_3_7_ORBITAL);
         intakeSweeperMotor.setMovementPerRev(360);
-        intakeSweeperMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        intakeSweeperMotor.setDirection(DcMotorSimple.Direction.FORWARD);
 
         timer = new ElapsedTime();
 

@@ -23,7 +23,7 @@ public class ClawServo{
     // getter and setter methods
     //*********************************************************************************************
     Servo8863New clawServo;
-    private final String  CLAW_SERVO_NAME = FreightFrenzyRobot.HardwareName.CLAW_SERVO.hwName;
+    private final String  CLAW_SERVO_NAME = FreightFrenzyRobotRoadRunner.HardwareName.CLAW_SERVO.hwName;
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //

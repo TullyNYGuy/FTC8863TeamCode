@@ -104,7 +104,7 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
 
     public FreightFrenzyRobotRoadRunner(HardwareMap hardwareMap, Telemetry telemetry, Configuration config, DataLogging dataLog, DistanceUnit units, FreightFrenzyRobotMode robotMode, LinearOpMode opMode) {
         timer = new ElapsedTime();
-
+        loopTimer = new LoopTimer();
         this.hardwareMap = hardwareMap;
         this.telemetry = telemetry;
         this.units = units;

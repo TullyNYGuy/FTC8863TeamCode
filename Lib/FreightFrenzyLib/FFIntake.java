@@ -66,7 +66,7 @@ public class FFIntake implements FTCRobotSubsystem {
         intakeSweeperMotor = new DcMotor8863(INTAKE_SWEEPER_MOTOR_NAME, hardwareMap);
         intakeSweeperMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_3_7_ORBITAL);
         intakeSweeperMotor.setMovementPerRev(360);
-        intakeSweeperMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        intakeSweeperMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         timer = new ElapsedTime();
         intakeSensor = hardwareMap.get(NormalizedColorSensor.class, INTAKE_SENSOR_NAME);
         if (intakeSensor instanceof SwitchableLight) {

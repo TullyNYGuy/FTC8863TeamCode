@@ -48,7 +48,7 @@ public class FreightFrenzyRobot implements FTCRobot {
         ODOMETRY_MODULE_LEFT("FrontLeft"),
         ODOMETRY_MODULE_RIGHT("BackLeft"),
         ODOMETRY_MODULE_BACK("BackRight"),
-        CLAW_SERVO("ClawServo"),
+        CLAW_SERVO("clawServo"),
         SHOULDER_SERVO("shoulderServo"),
         WRIST_SERVO("wristServo"),
         ;

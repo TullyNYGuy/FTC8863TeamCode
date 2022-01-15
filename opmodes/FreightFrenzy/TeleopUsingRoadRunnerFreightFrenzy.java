@@ -10,12 +10,15 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyField;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyRobotMode;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyRobotRoadRunner;
 //import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.AutomaticTeleopFunctions;
 //import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.PersistantStorage;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyGamepad;
+import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.PersistantStorage;
+import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.PoseStorage;
 
 
 import java.util.List;
@@ -57,16 +60,16 @@ public class TeleopUsingRoadRunnerFreightFrenzy extends LinearOpMode {
 
         dataLog = new DataLogging("Teleop", telemetry);
         config = null;
-//        config = new Configuration();
-//        if (!config.load()) {
-//            telemetry.addData("ERROR", "Couldn't load config file");
-//            telemetry.update();
-//        }
+        config = new Configuration();
+        if (!config.load()) {
+            telemetry.addData("ERROR", "Couldn't load config file");
+            telemetry.update();
+        }
         timer = new ElapsedTime();
-        //MecanumCommands commands = new MecanumCommands();
+        MecanumCommands commands = new MecanumCommands();
 
         robot = new FreightFrenzyRobotRoadRunner(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, FreightFrenzyRobotMode.TELEOP, this);
-
+        gamepad = new FreightFrenzyGamepad(gamepad1, gamepad2, robot);
         // create the robot and run the init for it
         robot.createRobot();
 
@@ -82,13 +85,13 @@ public class TeleopUsingRoadRunnerFreightFrenzy extends LinearOpMode {
         //robot.shooter.restoreAngleInfo();
         //gamepad = new FreightFrenzyGamepad(gamepad1, gamepad2, robot, automaticTeleopFunctions);
 
-/*
+
         if (PersistantStorage.robotPose != null) {
             startPose = PersistantStorage.robotPose;
         } else {
             startPose = PoseStorage.START_POSE;
         }
-*/
+
         robot.mecanum.setPoseEstimate(startPose);
         timer.reset();
 
@@ -111,7 +114,7 @@ public class TeleopUsingRoadRunnerFreightFrenzy extends LinearOpMode {
         // Wait for the start button
         telemetry.addData(">", "Press start to run Teleop");
         telemetry.update();
-        double multiplier = -1;
+        double multiplier = 1;
         /*
         if (PersistantStorage.robotPose != null) {
             robot.mecanum.setPoseEstimate(PersistantStorage.robotPose);

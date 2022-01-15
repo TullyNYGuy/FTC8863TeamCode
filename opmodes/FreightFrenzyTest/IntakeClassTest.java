@@ -18,7 +18,7 @@ public class IntakeClassTest extends LinearOpMode {
     @Override
     public void runOpMode() {
 
-
+ffIntake = new FFIntake(hardwareMap, telemetry);
         // Put your initializations here
 
         // Wait for the start button
@@ -31,7 +31,7 @@ public class IntakeClassTest extends LinearOpMode {
         while (opModeIsActive()) {
 
             // Put your calls that need to run in a loop here
-
+            ffIntake.update();
             // Display the current value
             //telemetry.addData("Motor Speed = ", "%5.2f", powerToRunAt);
             //telemetry.addData("Encoder Count=", "%5d", motor.getCurrentPosition());
