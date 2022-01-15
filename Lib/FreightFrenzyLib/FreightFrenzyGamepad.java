@@ -247,7 +247,7 @@ public class FreightFrenzyGamepad {
         if (gamepad1RightBumper.buttonPress(gamepad1.right_bumper)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-           // robot.shooter.toggleShooter();
+
         }
 
         if (gamepad1LeftBumper.buttonPress(gamepad1.left_bumper)) {
@@ -366,13 +366,13 @@ public class FreightFrenzyGamepad {
         if (gamepad2RightBumper.buttonPress(gamepad2.right_bumper)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            //robot.wobbleGoalGrabber.extendOrRetractGrabber();
+
         }
 
         if (gamepad2LeftBumper.buttonPress(gamepad2.left_bumper)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-           // robot.wobbleGoalGrabber.openOrCloseGrabber();
+
         }
 
         if (gamepad2a.buttonPress(gamepad2.a)) {
@@ -395,13 +395,13 @@ public class FreightFrenzyGamepad {
         if (gamepad2DpadUp.buttonPress(gamepad2.dpad_up)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            //robot.setGameAngleHighGoal();
+
         }
 
         if (gamepad2DpadDown.buttonPress(gamepad2.dpad_down)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here\
-           // robot.setGameAnglePowerShots();
+           
         }
 
         if (gamepad2DpadLeft.buttonPress(gamepad2.dpad_left)) {
