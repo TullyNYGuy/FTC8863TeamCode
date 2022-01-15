@@ -179,13 +179,13 @@ public class FFIntake implements FTCRobotSubsystem {
                 intakeSweeperMotor.setPower(0);
                 rotateServo.setPosition("intake");
             }
-
+            break;
         }
     }
 
     @Override
     public void shutdown() {
-        EStop();
+        turnOff();
     }
 
     @Override
@@ -208,8 +208,9 @@ public class FFIntake implements FTCRobotSubsystem {
         update();
     }
 
-    public void EStop() {
+    public void turnOff() {
         intakeState = IntakeState.E_STOP;
     }
+    public void turnOn(){intakeState = IntakeState.INTAKE;}
 }
 

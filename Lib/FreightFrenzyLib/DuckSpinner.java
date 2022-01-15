@@ -14,7 +14,11 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
 import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.UltimateGoalRobotRoadRunner;
 
 public class DuckSpinner implements FTCRobotSubsystem {
-
+    private enum SpinnerState{
+        ON,
+        OFF,
+    }
+    SpinnerState spinnerState = SpinnerState.OFF;
     private CRServo duckSpinner;
     private DataLogging logFile;
     private boolean loggingOn = false;
@@ -28,14 +32,20 @@ public class DuckSpinner implements FTCRobotSubsystem {
        initComplete = true;
     }
     // Turns off the duck spinner
-    public void TurnOff(){
+    public void turnOff(){
         duckSpinner.setPower(0);
+        spinnerState = SpinnerState.OFF;
     }
     // Turns on the duck spinner
-    public void TurnOn() {
+    public void turnOn() {
         duckSpinner.setPower(1);
+        spinnerState = SpinnerState.ON;
     }
-
+    //toggles the duck spinner
+    public void toggleDuckSpinner(){
+        if (spinnerState == SpinnerState.OFF){turnOn();}
+        if (spinnerState == SpinnerState.ON){turnOff();}
+    }
     @Override
     public String getName() {
         return DUCK_SPINNER_NAME;
