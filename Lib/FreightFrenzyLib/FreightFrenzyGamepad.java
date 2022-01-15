@@ -183,7 +183,7 @@ public class FreightFrenzyGamepad {
         //create the gamepad 2 buttons and tell each button how many commands it has
         gamepad2RightBumper = new GamepadButtonMultiPush(1);
         gamepad2LeftBumper = new GamepadButtonMultiPush(1);
-        gamepad2a = new GamepadButtonMultiPush(1);
+        gamepad2a = new GamepadButtonMultiPush(2);
         gamepad2b = new GamepadButtonMultiPush(1);
         gamepad2y = new GamepadButtonMultiPush(2);
         gamepad2x = new GamepadButtonMultiPush(1);
@@ -257,13 +257,13 @@ public class FreightFrenzyGamepad {
         }
 
         if (gamepad1a.buttonPress(gamepad1.a)) {
-            robot.duckSpinner.TurnOn();
+        robot.intake.turnOn();
 
         }
 
         if (gamepad1b.buttonPress(gamepad1.b)) {
-            robot.duckSpinner.TurnOff();
 
+            robot.intake.turnOff();
 
         }
 
@@ -376,33 +376,20 @@ public class FreightFrenzyGamepad {
         }
 
         if (gamepad2a.buttonPress(gamepad2.a)) {
-            // this was a new button press, not a button held down for a while
-            // put the command to be executed here
-            robot.mecanum.setPoseEstimate(PoseStorage.SHOOTING_AT_HIGH_GOAL);
+            robot.duckSpinner.toggleDuckSpinner();
         }
 
         if (gamepad2b.buttonPress(gamepad2.b)) {
-            // this was a new button press, not a button held down for a while
-            // put the command to be executed here
+            robot.arm.carry();
         }
 
         if (gamepad2y.buttonPress(gamepad2.y)) {
-            // this was a new button press, not a button held down for a while
-            // put the command to be executed here
-            if (gamepad2y.isCommand1()) {
-                // call the first command you want to run
-               // automaticTeleopFunctions.moveToLeftPowerShot();
-            }
-            if (gamepad2y.isCommand2()) {
-                // call the 2nd command you want to run
-                //automaticTeleopFunctions.shootPowerShots();
-            }
+            robot.arm.pickup();
+
         }
 
         if (gamepad2x.buttonPress(gamepad2.x)) {
-            // this was a new button press, not a button held down for a while
-            // put the command to be executed here
-           // automaticTeleopFunctions.goingToHighGoal();
+            robot.arm.dropoff();
         }
 
         if (gamepad2DpadUp.buttonPress(gamepad2.dpad_up)) {

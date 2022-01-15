@@ -16,7 +16,13 @@ public class FFArm implements FTCRobotSubsystem {
     // user defined types
     //
     //*********************************************************************************************
-
+    private enum NextCommand{
+        PICKUP,
+        STORAGE,
+        CARRY,
+        DROPOFF,
+        HOLD,
+    }
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS AND SETTERS and GETTERS
     //
@@ -30,7 +36,7 @@ public class FFArm implements FTCRobotSubsystem {
     private DataLogging logFile;
     private boolean loggingOn = false;
     private Boolean initComplete = false;
-
+    private NextCommand nextCommand;
     //*********************************************************************************************
     //          Constructors
     //
@@ -42,6 +48,7 @@ public class FFArm implements FTCRobotSubsystem {
         wristServo = new WristServo(hardwareMap, telemetry);
         shoulderServo = new ShoulderServo(hardwareMap, telemetry);
         initComplete = true;
+        storage();
     }
     //*********************************************************************************************
     //          Helper Methods
@@ -106,7 +113,7 @@ claw is positioned so that it is level with the team shipping hub over it. */
         wristServo.hold();
         clawServo.close();
     }
-
+//make a command backlog thing?
     public boolean isPositionReached() {
         boolean answer = false;
         if (shoulderServo.isPositionReached() && wristServo.isPositionReached() && clawServo.isPositionReached()) {
@@ -133,7 +140,7 @@ claw is positioned so that it is level with the team shipping hub over it. */
 
     @Override
     public void update() {
-        isPositionReached();
+
     }
 
     @Override
