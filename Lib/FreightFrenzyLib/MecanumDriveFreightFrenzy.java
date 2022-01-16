@@ -40,6 +40,8 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.AxisDirection;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.BNO055IMUUtil;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
@@ -162,7 +164,7 @@ public class MecanumDriveFreightFrenzy extends MecanumDrive implements FTCRobotS
 
         // TODO: if your hub is mounted vertically, remap the IMU axes so that the z-axis points
         // upward (normal to the floor) using a command like the following:
-        //BNO055IMUUtil.remapAxes(imu, AxesOrder.XYZ, AxesSigns.NPN);
+        BNO055IMUUtil.remapZAxis(imu, AxisDirection.NEG_X);
 
         //WE CHANGED THE MOTOR NAME PARAMETERS IN THE NEXT 4 LINES
 

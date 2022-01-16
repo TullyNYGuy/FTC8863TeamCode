@@ -32,7 +32,6 @@ public class BNO055IMUUtil {
      * @param order axes order
      * @param signs axes signs
      */
-    /*
     public static void swapThenFlipAxes(BNO055IMU imu, AxesOrder order, AxesSigns signs) {
         try {
             // the indices correspond with the 2-bit axis encodings specified in the datasheet
@@ -79,7 +78,7 @@ public class BNO055IMUUtil {
             Thread.currentThread().interrupt();
         }
     }
-*/
+
     /**
      * Remaps the IMU coordinate system so that the remapped +Z faces the provided
      * {@link AxisDirection}. See {@link #swapThenFlipAxes} for details about the remapping.
@@ -87,7 +86,6 @@ public class BNO055IMUUtil {
      * @param imu IMU
      * @param direction axis direction
      */
-    /*
     public static void remapZAxis(BNO055IMU imu, AxisDirection direction) {
         switch (direction) {
             case POS_X:
@@ -110,7 +108,6 @@ public class BNO055IMUUtil {
                 break;
         }
     }
-*/
     /**
      * Now deprecated due to unintuitive parameter order.
      * Use {@link #swapThenFlipAxes} or {@link #remapZAxis} instead.
@@ -119,7 +116,6 @@ public class BNO055IMUUtil {
      * @param order axes order
      * @param signs axes signs
      */
-    /*
     @Deprecated
     public static void remapAxes(BNO055IMU imu, AxesOrder order, AxesSigns signs) {
         AxesOrder adjustedAxesOrder = order.reverse();
@@ -129,5 +125,4 @@ public class BNO055IMUUtil {
 
         swapThenFlipAxes(imu, adjustedAxesOrder, adjustedAxesSigns);
     }
-     */
 }
