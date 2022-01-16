@@ -73,9 +73,10 @@ public class FFIntake implements FTCRobotSubsystem {
             ((SwitchableLight) intakeSensor).enableLight(true);
         }
         rotateServo = new Servo8863New(INTAKE_ROTATOR_SERVO_NAME, hardwareMap, telemetry);
-        rotateServo.addPosition("intake", .05, 1000, TimeUnit.MILLISECONDS);
-        rotateServo.addPosition("deIntakeWithoutDelivery", .165, 1500, TimeUnit.MILLISECONDS);
-        rotateServo.addPosition("deIntakeWithDelivery", .666, 1500, TimeUnit.MILLISECONDS);
+        rotateServo.addPosition("Intake", .02, 1000, TimeUnit.MILLISECONDS);
+        rotateServo.addPosition("Level 1", .23, 1000, TimeUnit.MILLISECONDS);
+        rotateServo.addPosition("Vertical", .5, 1000, TimeUnit.MILLISECONDS);
+        rotateServo.addPosition("Deliver", 1.0, 1000, TimeUnit.MILLISECONDS);
      }
 
     //*********************************************************************************************
@@ -127,6 +128,7 @@ public class FFIntake implements FTCRobotSubsystem {
             case INTAKE: {
                 // fire up that motor baby! Dang that thing is loud!
                 intakeSweeperMotor.runAtConstantPower(.6);
+                rotateServo.setPosition("Intake");
                 intakeState = IntakeState.WAIT_FOR_FREIGHT;
             }
             break;
@@ -148,7 +150,7 @@ public class FFIntake implements FTCRobotSubsystem {
                 if (intakeSweeperMotor.isMovementComplete()) {
                     // yup, now the human has to rotate the intake because that intake guy has not completed the rotation hardware yet :-)
                     timer.reset();
-                    rotateServo.setPosition("deIntakeWithoutDelivery");
+                    rotateServo.setPosition("Vertical");
                     intakeState = IntakeState.WAIT_FOR_ROTATION;
                 }
             }
@@ -156,31 +158,31 @@ public class FFIntake implements FTCRobotSubsystem {
 
             case WAIT_FOR_ROTATION: {
                 // has the human done his thing?
-                if (timer.milliseconds() > 3500) {
+                if (rotateServo.isPositionReached()) {
                     // hope so cause I'm about to eject the freight
-                    intakeSweeperMotor.runAtConstantRPM(-120);
-                    timer.reset();
-                    intakeState = IntakeState.OUTAKE;
-                }
-            }
-            break;
-
-            case OUTAKE: {
-                // hopefully the freight ejects in this amount of time
-                if (timer.milliseconds() > 3500) {
-                    // done ejecting, time to go back to sleep
                     intakeSweeperMotor.setPower(0);
-                    rotateServo.setPosition("intake");
+                    timer.reset();
                     intakeState = IntakeState.IDLE;
                 }
             }
             break;
+//
+//            case OUTAKE: {
+//                // hopefully the freight ejects in this amount of time
+//                if (timer.milliseconds() > 3500) {
+//                    // done ejecting, time to go back to sleep
+//                    intakeSweeperMotor.setPower(0);
+//                    rotateServo.setPosition("intake");
+//                    intakeState = IntakeState.IDLE;
+//                }
+//            }
+//            break;
 
-            case E_STOP: {
-                intakeSweeperMotor.setPower(0);
-                rotateServo.setPosition("intake");
-            }
-            break;
+//            case E_STOP: {
+//                intakeSweeperMotor.setPower(0);
+//                rotateServo.setPosition("intake");
+//            }
+//            break;
         }
     }
 
