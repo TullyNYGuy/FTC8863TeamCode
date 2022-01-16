@@ -19,7 +19,7 @@ public class IMUAxisDisplay extends LinearOpMode {
 
     public FreightFrenzyRobotMode robotMode = FreightFrenzyRobotMode.TELEOP;
     DataLogging dataLog = null;
-    FreightFrenzyRobotRoadRunner robot = new FreightFrenzyRobotRoadRunner(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, FreightFrenzyRobotMode.TELEOP,this );
+
     @Override
     public void runOpMode() {
 
@@ -32,6 +32,7 @@ public class IMUAxisDisplay extends LinearOpMode {
             telemetry.addData("ERROR", "Couldn't load config file");
             telemetry.update();
         }
+        FreightFrenzyRobotRoadRunner robot = new FreightFrenzyRobotRoadRunner(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, FreightFrenzyRobotMode.TELEOP,this );
         // Wait for the start button
         robot.createRobot();
         telemetry.addData(">", "Press Start to run");
@@ -55,9 +56,9 @@ public class IMUAxisDisplay extends LinearOpMode {
             idle();
         }
 
-        // Put your cleanup code here - it runs as the application shuts down
+        robot.shutdown();
+        dataLog.closeDataLog();
         telemetry.addData(">", "Done");
         telemetry.update();
-
     }
 }
