@@ -128,7 +128,7 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
         capabilities = new HashSet<Subsystem>(Arrays.asList(subsystems));
     }
 
-    public void toggleMode(){
+    /*public void toggleMode(){
         if(currentMode == RobotMode.DRIVER_MODE){
             setMode(RobotMode.ROBOT_MODE);
         }
@@ -143,7 +143,7 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
     public void setMode(RobotMode mode){
         currentMode = mode;
 
-    }
+    }*/
     public void setColor(FreightFrenzyColor color) {
         this.color = color;
     }

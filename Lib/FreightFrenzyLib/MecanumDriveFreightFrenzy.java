@@ -164,7 +164,7 @@ public class MecanumDriveFreightFrenzy extends MecanumDrive implements FTCRobotS
 
         // TODO: if your hub is mounted vertically, remap the IMU axes so that the z-axis points
         // upward (normal to the floor) using a command like the following:
-        BNO055IMUUtil.remapZAxis(imu, AxisDirection.NEG_Y);
+        //BNO055IMUUtil.remapZAxis(imu, AxisDirection.NEG_Y);
 
         //WE CHANGED THE MOTOR NAME PARAMETERS IN THE NEXT 4 LINES
 
@@ -449,7 +449,7 @@ public class MecanumDriveFreightFrenzy extends MecanumDrive implements FTCRobotS
         );
         //NOTE that the teleop or other calling code must call the drive update() method.
     }
-    public void calculateMotorCommandsDriverCentric(double translationJoystickYValue, double translationJoystickXValue, double rotationJoystickXValue) {
+    /*public void calculateMotorCommandsDriverCentric(double translationJoystickYValue, double translationJoystickXValue, double rotationJoystickXValue) {
         // Read pose
 
 
@@ -468,14 +468,14 @@ public class MecanumDriveFreightFrenzy extends MecanumDrive implements FTCRobotS
         );
         //NOTE that the teleop or other calling code must call the drive update() method.
     }
-    /**
+    *//**
      * Calculate motor powers for driving in teleop using a joystick (x and y) that controls the direction of
      * movement of the robot (translation) and a joystick (x) that controls the heading of the robot.
      * The movement is relative to the robot.
      * @param translationJoystickYValue
      * @param translationJoystickXValue
      * @param rotationJoystickXValue
-     */
+     *//*
     public void calculateMotorCommandsRobotCentric(double translationJoystickYValue, double translationJoystickXValue, double rotationJoystickXValue) {
         setWeightedDrivePower(
                 new Pose2d(
@@ -485,7 +485,7 @@ public class MecanumDriveFreightFrenzy extends MecanumDrive implements FTCRobotS
                 )
         );
         //NOTE that the teleop or other calling code must call the drive update() method.
-    }
+    }*/
 
     @Override
     public String getName() {

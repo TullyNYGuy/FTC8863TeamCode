@@ -278,13 +278,13 @@ public class FreightFrenzyGamepad {
             // this was a new button press, not a
             //button held down for a while
             // put the command to be executed here
-           robot.mecanum.resetAdjustAngle();
+           //robot.mecanum.resetAdjustAngle();
         }
 
         if (gamepad1DpadDown.buttonPress(gamepad1.dpad_down)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            robot.toggleMode();
+           // robot.toggleMode();
         }
 
         if (gamepad1DpadLeft.buttonPress(gamepad1.dpad_left)) {
