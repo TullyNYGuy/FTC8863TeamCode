@@ -23,6 +23,10 @@ public class FFArm implements FTCRobotSubsystem {
         DROPOFF,
         HOLD,
     }
+    private enum ClawState{
+        OPEN,
+        CLOSE,
+    }
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS AND SETTERS and GETTERS
     //
@@ -37,6 +41,7 @@ public class FFArm implements FTCRobotSubsystem {
     private boolean loggingOn = false;
     private Boolean initComplete = false;
     private NextCommand nextCommand;
+    private ClawState clawState;
     //*********************************************************************************************
     //          Constructors
     //
@@ -47,8 +52,7 @@ public class FFArm implements FTCRobotSubsystem {
         clawServo = new ClawServo(hardwareMap, telemetry);
         wristServo = new WristServo(hardwareMap, telemetry);
         shoulderServo = new ShoulderServo(hardwareMap, telemetry);
-        initComplete = true;
-        storage();
+
     }
     //*********************************************************************************************
     //          Helper Methods
@@ -63,10 +67,17 @@ public class FFArm implements FTCRobotSubsystem {
     //*********************************************************************************************
     public void openClaw() {
         clawServo.open();
+        clawState = ClawState.OPEN;
     }
 
     public void closeClaw() {
         clawServo.close();
+        clawState = ClawState.CLOSE;
+    }
+
+    public void toggleClaw(){
+        if (clawState == ClawState.OPEN){closeClaw();}
+        else if(clawState == ClawState.CLOSE){openClaw();}
     }
 /* This is used when we are going to pick up the team shipping element. The claw is lined up with the
 top of the team shipping element at a flat angle. The shoulder is positioned downwards and the wrist
@@ -76,14 +87,16 @@ is also positioned down. */
         shoulderServo.down();
         wristServo.pickup();
         clawServo.openPlusDelay();
+        clawState = ClawState.OPEN;
     }
 /* The shoulder is in the up position holding the team shipping element while the wrist is in the
 carry position. It is used when we need to drive to the team shipping hub to cap it on top of it. */
 
     public void carry() {
         shoulderServo.up();
-        wristServo.carry();
+        wristServo.hold();
         clawServo.close();
+        clawState = ClawState.CLOSE;
     }
 /* The arm is stored behind the robot supported on a small beam. This is used when we do not need
 to use the arm. */
@@ -92,16 +105,17 @@ to use the arm. */
         shoulderServo.storage();
         wristServo.storage();
         clawServo.close();
-
+        clawState = ClawState.CLOSE;
     }
 /* The shoulder is positioned in a upward direction over the team shipping hub so that the claw may
 open to release the team shipping element. The wrist is positioned in a downward position, and the
 claw is positioned so that it is level with the team shipping hub over it. */
 
     public void dropoff() {
-        shoulderServo.down();
+        shoulderServo.up();
         wristServo.dropOff();
         clawServo.open();
+        clawState = ClawState.OPEN;
     }
 
     /**
@@ -112,6 +126,7 @@ claw is positioned so that it is level with the team shipping hub over it. */
         shoulderServo.storage();
         wristServo.hold();
         clawServo.close();
+        clawState = ClawState.CLOSE;
     }
 //make a command backlog thing?
     public boolean isPositionReached() {
@@ -130,17 +145,19 @@ claw is positioned so that it is level with the team shipping hub over it. */
 
     @Override
     public boolean isInitComplete() {
-        return initComplete;
+        return isPositionReached();
     }
 
     @Override
     public boolean init(Configuration config) {
-        return true;
+        storage();
+        initComplete = isPositionReached();
+        return initComplete;
     }
 
     @Override
     public void update() {
-
+    //isPositionReached();
     }
 
     @Override

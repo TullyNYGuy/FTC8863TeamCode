@@ -32,26 +32,36 @@ public class TestWristServo extends LinearOpMode {
 
         wristServo.pickup();
         while (opModeIsActive() && !wristServo.isPositionReached()) {
-            telemetry.addData("wrist down", "!");
+            telemetry.addData("wrist pickup", "!");
             telemetry.update();
             idle();
         }
 
         wristServo.carry();
         while (opModeIsActive() && !wristServo.isPositionReached()) {
-            telemetry.addData("wrist mid", "!");
+            telemetry.addData("wrist carry", "!");
             telemetry.update();
             idle();
         }
 
         wristServo.dropOff();
         while (opModeIsActive() && !wristServo.isPositionReached()) {
-            telemetry.addData("wrist up", "!");
+            telemetry.addData("wrist drop", "!");
             telemetry.update();
             idle();
         }
 
-        wristServo.testPositionUsingJoystick(this);
+        wristServo.hold();
+        while (opModeIsActive() && !wristServo.isPositionReached()) {
+            telemetry.addData("wrist hold", "!");
+            telemetry.update();
+            idle();
+        }
+
+        while (opModeIsActive()) {
+            idle();
+        }
+        //wristServo.testPositionUsingJoystick(this);
 
         // Put your cleanup code here - it runs as the application shuts down
         telemetry.addData(">", "Done");

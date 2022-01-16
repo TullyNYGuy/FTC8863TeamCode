@@ -50,7 +50,7 @@ public class WristServo {
         wristServo.addPosition("Pickup", .95,2000, TimeUnit.MILLISECONDS);
         wristServo.addPosition("Carry", .64, 2000, TimeUnit.MILLISECONDS);
         wristServo.addPosition("Drop Off", .58, 500, TimeUnit.MILLISECONDS);
-        wristServo.addPosition("Hold", .58, 500, TimeUnit.MILLISECONDS);
+        wristServo.addPosition("Hold", .3, 500, TimeUnit.MILLISECONDS);
     }
     //*********************************************************************************************
     //          Helper Methods

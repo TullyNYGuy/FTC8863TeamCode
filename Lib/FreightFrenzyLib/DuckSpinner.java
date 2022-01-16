@@ -18,18 +18,24 @@ public class DuckSpinner implements FTCRobotSubsystem {
         ON,
         OFF,
     }
-    SpinnerState spinnerState = SpinnerState.OFF;
+    SpinnerState spinnerState;
     private CRServo duckSpinner;
     private DataLogging logFile;
     private boolean loggingOn = false;
     private boolean initComplete = false;
+    private FreightFrenzyColor color = PersistantStorage.getColor();
     private final String  DUCK_SPINNER_NAME = "Duck Spinner";
-
     public DuckSpinner(HardwareMap hardwareMap, Telemetry telemetry){
         duckSpinner = hardwareMap.get(CRServo.class,FreightFrenzyRobotRoadRunner.HardwareName.DUCK_SPINNER.hwName);
-        duckSpinner.setDirection(DcMotorSimple.Direction.FORWARD);
+        if(color == FreightFrenzyColor.BLUE){
+            duckSpinner.setDirection(DcMotorSimple.Direction.FORWARD);
+            }
+        if(color == FreightFrenzyColor.RED){
+            duckSpinner.setDirection(DcMotorSimple.Direction.REVERSE);}
         duckSpinner.setPower(0);
        initComplete = true;
+       spinnerState = SpinnerState.OFF;
+
     }
     // Turns off the duck spinner
     public void turnOff(){
@@ -44,8 +50,9 @@ public class DuckSpinner implements FTCRobotSubsystem {
     //toggles the duck spinner
     public void toggleDuckSpinner(){
         if (spinnerState == SpinnerState.OFF){turnOn();}
-        if (spinnerState == SpinnerState.ON){turnOff();}
+        else if (spinnerState == SpinnerState.ON){turnOff();}
     }
+
     @Override
     public String getName() {
         return DUCK_SPINNER_NAME;

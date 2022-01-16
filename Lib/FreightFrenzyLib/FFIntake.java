@@ -76,8 +76,7 @@ public class FFIntake implements FTCRobotSubsystem {
         rotateServo.addPosition("intake", .05, 1000, TimeUnit.MILLISECONDS);
         rotateServo.addPosition("deIntakeWithoutDelivery", .165, 1500, TimeUnit.MILLISECONDS);
         rotateServo.addPosition("deIntakeWithDelivery", .666, 1500, TimeUnit.MILLISECONDS);
-        initComplete = true;
-    }
+     }
 
     //*********************************************************************************************
     //          Helper Methods
@@ -108,6 +107,8 @@ public class FFIntake implements FTCRobotSubsystem {
 
     @Override
     public boolean init(Configuration config) {
+        rotateServo.setPosition("intake");
+        initComplete = true;
         return true;
     }
 

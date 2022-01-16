@@ -11,8 +11,8 @@ package org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib;
  *    / DPad Left        -
  *    / DPad Down        -
  *    / DPad Right       -
- *    / A                -
- *    / B                -
+ *    / A                - turn intake on
+ *    / B                - turn intake off
  *    / X                -
  *    / Y                -
  *    /Left Bumper       -
@@ -27,12 +27,12 @@ package org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib;
  *    / DPad Left        -
  *    / DPad Down        -
  *    / DPad Right       -
- *    / A                -
- *    / B                -
- *    / X                -
- *    / Y                -
- *   /Left Bumper        -
- *   /Right Bumper       -
+ *    / A                - TSE arm storage TSE
+ *    / B                - TSE arm carry TSE
+ *    / X                - TSE arm drop TSE
+ *    / Y                - TSE arm pickup TSE
+ *   /Left Bumper        - toggle duck spinner
+ *   /Right Bumper       - Toggle claw
  */
 
 import com.qualcomm.robotcore.hardware.Gamepad;
@@ -123,7 +123,7 @@ public class FreightFrenzyGamepad {
 
     private FreightFrenzyRobotRoadRunner robot;
 
-   // private AutomaticTeleopFunctions automaticTeleopFunctions;
+    // private AutomaticTeleopFunctions automaticTeleopFunctions;
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -258,14 +258,11 @@ public class FreightFrenzyGamepad {
         }
 
         if (gamepad1a.buttonPress(gamepad1.a)) {
-        robot.intake.turnOn();
-
+            robot.intake.turnOn();
         }
 
         if (gamepad1b.buttonPress(gamepad1.b)) {
-
             robot.intake.turnOff();
-
         }
 
         if (gamepad1y.buttonPress(gamepad1.y)) {
@@ -365,19 +362,31 @@ public class FreightFrenzyGamepad {
 //        }
 
         if (gamepad2RightBumper.buttonPress(gamepad2.right_bumper)) {
-            // this was a new button press, not a button held down for a while
-            // put the command to be executed here
-
+            /*
+            if (gamepad2RightBumper.isCommand1()) {
+                robot.arm.openClaw();
+            }
+            if (gamepad2RightBumper.isCommand2()) {
+                robot.arm.closeClaw();
+            }
+             */
+            robot.arm.toggleClaw();
         }
 
         if (gamepad2LeftBumper.buttonPress(gamepad2.left_bumper)) {
-            // this was a new button press, not a button held down for a while
-            // put the command to be executed here
-
+            /*
+            if (gamepad2LeftBumper.isCommand1()) {
+               robot.duckSpinner.turnOn();
+            }
+            if (gamepad2LeftBumper.isCommand2()) {
+                robot.duckSpinner.turnOff();
+            }
+             */
+            robot.duckSpinner.toggleDuckSpinner();
         }
 
         if (gamepad2a.buttonPress(gamepad2.a)) {
-            robot.duckSpinner.toggleDuckSpinner();
+           robot.arm.storage();
         }
 
         if (gamepad2b.buttonPress(gamepad2.b)) {
@@ -402,7 +411,7 @@ public class FreightFrenzyGamepad {
         if (gamepad2DpadDown.buttonPress(gamepad2.dpad_down)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here\
-           
+
         }
 
         if (gamepad2DpadLeft.buttonPress(gamepad2.dpad_left)) {

@@ -10,7 +10,15 @@ public class PersistantStorage {
     // public static DATA FIELDS that persist between opmodes
 
     private static Integer motorTicks;
+    private static FreightFrenzyColor color;
 
+    public static FreightFrenzyColor getColor(){
+        return color;
+    }
+
+    public static void setColor(FreightFrenzyColor colorInput) {
+        color = colorInput;
+    }
     public static int getMotorTicks (){
         if (motorTicks == null){
             motorTicks = new Integer(0);

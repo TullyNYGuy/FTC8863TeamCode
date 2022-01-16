@@ -41,8 +41,8 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
         ODOMETRY_MODULE_LEFT("leftFrontMotor"),
         ODOMETRY_MODULE_RIGHT("rightFrontMotor"),
         ODOMETRY_MODULE_BACK("rightRearMotor"),
-        WEBCAM_LEFT("WebcamL"),
-        WEBCAM_RIGHT("WebcamR"),
+        WEBCAM_LEFT("WebcamLeft"),
+        WEBCAM_RIGHT("WebcamRight"),
         DUCK_SPINNER("duckServo"),
         SHOULDER_SERVO("shoulderServo"),
         WRIST_SERVO("wristServo"),
@@ -77,6 +77,7 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
     private DataLogging dataLog;
     private FreightFrenzyRobotMode robotMode;
     Map<String, FTCRobotSubsystem> subsystemMap;
+    private FreightFrenzyColor color;
 
     private ElapsedTime timer;
     private LinearOpMode opMode;
@@ -125,11 +126,18 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
         capabilities = new HashSet<Subsystem>(Arrays.asList(subsystems));
     }
 
+    public void setColor(FreightFrenzyColor color) {
+        this.color = color;
+    }
+    public FreightFrenzyColor getColor(){
+        return color;
+    }
     /**
      * Create the robot should be called from the teleop or auto opmode.
      *
      * @return
      */
+
     @Override
     public boolean createRobot() {
         imu = new AdafruitIMU8863(hardwareMap, null, "IMU", HardwareName.IMU.hwName);
@@ -140,16 +148,18 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
 
         if (capabilities.contains(Subsystem.ARM)) {
             arm = new FFArm(hardwareMap, telemetry);
+            subsystemMap.put(arm.getName(), arm);
         }
 
         if (capabilities.contains(Subsystem.DUCK_SPINNER)) {
             duckSpinner = new DuckSpinner(hardwareMap, telemetry);
+            subsystemMap.put(duckSpinner.getName(), duckSpinner);
         }
 
         // THE WEBCAM PROCESSING TAKES UP A BUNCH OF RESOURCES. PROBABLY NOT A GOOD IDEA TO RUN THIS IN TELEOP
 
         if (capabilities.contains(Subsystem.WEBCAM_LEFT) && robotMode != FreightFrenzyRobotMode.TELEOP) {
-            webcamLeft = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+            webcamLeft = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "WebcamLeft"), cameraMonitorViewId);
             webcamLeft.setMillisecondsPermissionTimeout(2500); // Timeout for obtaining permission is configurable. Set before opening.
             webcamLeft.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
                 @Override
@@ -165,7 +175,7 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
         }
 
         if (capabilities.contains(Subsystem.WEBCAM_RIGHT) && robotMode != FreightFrenzyRobotMode.TELEOP) {
-            webcamRight = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+            webcamRight = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "WebcamRight"), cameraMonitorViewId);
             webcamRight.setMillisecondsPermissionTimeout(2500); // Timeout for obtaining permission is configurable. Set before opening.
             webcamRight.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
                 @Override
@@ -182,6 +192,7 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
 
         if (capabilities.contains(Subsystem.INTAKE)) {
             intake = new FFIntake(hardwareMap, telemetry);
+            subsystemMap.put(intake.getName(), intake);
         }
 
         init();

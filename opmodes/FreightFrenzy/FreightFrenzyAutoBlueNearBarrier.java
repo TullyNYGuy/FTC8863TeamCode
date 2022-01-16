@@ -10,18 +10,20 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
+import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyColor;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyField;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyGamepad;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyRobotMode;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyRobotRoadRunner;
 
 
+import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.PersistantStorage;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.Pipelines.ShippingElementPipeline;
 
 import java.util.List;
 
 @Autonomous(name = "Auto Freight Frenzy - BLUE near Barrier", group = "AARun")
-@Disabled
+
 
 public class FreightFrenzyAutoBlueNearBarrier extends LinearOpMode {
 
@@ -145,6 +147,7 @@ public class FreightFrenzyAutoBlueNearBarrier extends LinearOpMode {
         // ************************************************************************************
 
         // Stop has been hit, shutdown everything
+        PersistantStorage.setColor(FreightFrenzyColor.BLUE);
         dataLog.closeDataLog();
         robot.shutdown();
         telemetry.addData(">", "Done");

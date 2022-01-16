@@ -11,6 +11,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
+import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyColor;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyField;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyRobotMode;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyRobotRoadRunner;
@@ -40,7 +41,8 @@ public class TeleopUsingRoadRunnerFreightFrenzy extends LinearOpMode {
     public FreightFrenzyRobotMode robotMode = FreightFrenzyRobotMode.TELEOP;
 
    // public AutomaticTeleopFunctions automaticTeleopFunctions;
-
+    //set color for each game
+    private FreightFrenzyColor color = FreightFrenzyColor.RED;
     private ElapsedTime timer;
 
     DataLogging dataLog = null;
@@ -121,6 +123,7 @@ public class TeleopUsingRoadRunnerFreightFrenzy extends LinearOpMode {
             multiplier = -1;
         }
 */
+        robot.setColor(color);
         waitForStart();
 
         robot.loopTimer.startLoopTimer();
