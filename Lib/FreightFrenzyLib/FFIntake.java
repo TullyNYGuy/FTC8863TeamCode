@@ -34,6 +34,11 @@ public class FFIntake implements FTCRobotSubsystem {
         HOLD_FREIGHT,
         WAIT_FOR_ROTATION,
         OUTAKE,
+        TO_LEVEL_ONE,
+        WAIT_FOR_LEVEL_ONE,
+        EJECT_INTO_LEVEL_ONE,
+        WAIT_FOR_EJECT,
+        BACK_TO_HOLD_FREIGHT,
         E_STOP;
     }
 
