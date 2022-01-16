@@ -43,7 +43,7 @@ public class ShoulderServo {
     //*********************************************************************************************
     public ShoulderServo(HardwareMap hardwareMap, Telemetry telemetry) {
         shoulderServo = new Servo8863New(SHOULDER_SERVO_NAME, hardwareMap, telemetry);
-        shoulderServo.addPosition("up", .56, 2000, TimeUnit.MILLISECONDS);
+        shoulderServo.addPosition("up", .64, 2000, TimeUnit.MILLISECONDS);
         shoulderServo.addPosition("down", .14, 1000, TimeUnit.MILLISECONDS);
         shoulderServo.addPosition("storage", 1.0, 1000, TimeUnit.MILLISECONDS);
     }

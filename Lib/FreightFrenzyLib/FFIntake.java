@@ -81,7 +81,7 @@ public class FFIntake implements FTCRobotSubsystem {
             ((SwitchableLight) intakeSensor).enableLight(true);
         }
         rotateServo = new Servo8863New(INTAKE_ROTATOR_SERVO_NAME, hardwareMap, telemetry);
-        rotateServo.addPosition("Intake", .02, 1000, TimeUnit.MILLISECONDS);
+        rotateServo.addPosition("Intake", .01, 1000, TimeUnit.MILLISECONDS);
         rotateServo.addPosition("Level 1", .23, 1000, TimeUnit.MILLISECONDS);
         rotateServo.addPosition("Vertical", .5, 1000, TimeUnit.MILLISECONDS);
         rotateServo.addPosition("Deliver", 1.0, 1000, TimeUnit.MILLISECONDS);
@@ -93,7 +93,7 @@ public class FFIntake implements FTCRobotSubsystem {
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
     public boolean isIntakeFull() {
-        if (((DistanceSensor) intakeSensor).getDistance(DistanceUnit.CM) < 3) {
+        if (((DistanceSensor) intakeSensor).getDistance(DistanceUnit.CM) < 4.5) {
             return true;
         } else {
             return false;

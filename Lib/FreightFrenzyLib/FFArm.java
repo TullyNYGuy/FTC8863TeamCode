@@ -86,7 +86,7 @@ is also positioned down. */
     public void pickup() {
         shoulderServo.down();
         wristServo.pickup();
-        clawServo.openPlusDelay();
+        clawServo.open();
         clawState = ClawState.OPEN;
     }
 /* The shoulder is in the up position holding the team shipping element while the wrist is in the
@@ -98,12 +98,28 @@ carry position. It is used when we need to drive to the team shipping hub to cap
         clawServo.close();
         clawState = ClawState.CLOSE;
     }
+
+
+    public void lineUp() {
+        shoulderServo.up();
+        wristServo.lineUp();
+        clawServo.close();
+        clawState = ClawState.CLOSE;
+    }
 /* The arm is stored behind the robot supported on a small beam. This is used when we do not need
 to use the arm. */
 
     public void storage() {
         shoulderServo.storage();
         wristServo.storage();
+        clawServo.close();
+        clawState = ClawState.CLOSE;
+    }
+
+
+    public void storageWithElement() {
+        shoulderServo.storage();
+        wristServo.hold();
         clawServo.close();
         clawState = ClawState.CLOSE;
     }
@@ -128,6 +144,9 @@ claw is positioned so that it is level with the team shipping hub over it. */
         clawServo.close();
         clawState = ClawState.CLOSE;
     }
+
+
+
 //make a command backlog thing?
     public boolean isPositionReached() {
         boolean answer = false;

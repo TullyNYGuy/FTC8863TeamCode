@@ -15,17 +15,17 @@ package org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib;
  *    / B                - turn intake off
  *    / X                - eject into level 1
  *    / Y                - eject at intake position
- *    /Left Bumper       -
- *    /Right Bumper      -
+ *    /Left Bumper       - Half Power
+ *    /Right Bumper      - Full Power
  *
  *  Gamepad 2 layout
  *    / Left JoystickX   -
  *    / Left JoystickY   -
  *    / Right JoystickX  -
  *    / Right JoystickY  -
- *    / DPad Up          -
+ *    / DPad Up          - TSE arm storage with TSE
  *    / DPad Left        -
- *    / DPad Down        -
+ *    / DPad Down        -  TSE line up
  *    / DPad Right       -
  *    / A                - TSE arm storage TSE
  *    / B                - TSE arm carry TSE
@@ -248,13 +248,19 @@ public class FreightFrenzyGamepad {
         if (gamepad1RightBumper.buttonPress(gamepad1.right_bumper)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-
+            gamepad1LeftJoyStickX.setFullPower();
+            gamepad1LeftJoyStickY.setFullPower();
+            gamepad1RightJoyStickX.setFullPower();
+            gamepad1RightJoyStickY.setFullPower();
         }
 
         if (gamepad1LeftBumper.buttonPress(gamepad1.left_bumper)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-
+            gamepad1LeftJoyStickX.setHalfPower();
+            gamepad1LeftJoyStickY.setHalfPower();
+            gamepad1RightJoyStickX.setHalfPower();
+            gamepad1RightJoyStickY.setHalfPower();
         }
 
         if (gamepad1a.buttonPress(gamepad1.a)) {
@@ -378,7 +384,7 @@ public class FreightFrenzyGamepad {
                 robot.duckSpinner.turnOff();
             }
              */
-            robot.duckSpinner.toggleDuckSpinner();
+
         }
 
         if (gamepad2a.buttonPress(gamepad2.a)) {
@@ -401,31 +407,25 @@ public class FreightFrenzyGamepad {
         if (gamepad2DpadUp.buttonPress(gamepad2.dpad_up)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-
+            robot.arm.storageWithElement();
         }
 
         if (gamepad2DpadDown.buttonPress(gamepad2.dpad_down)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here\
-
+            robot.arm.lineUp();
         }
 
         if (gamepad2DpadLeft.buttonPress(gamepad2.dpad_left)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            gamepad1LeftJoyStickX.setFullPower();
-            gamepad1LeftJoyStickY.setFullPower();
-            gamepad1RightJoyStickX.setFullPower();
-            gamepad1RightJoyStickY.setFullPower();
+            robot.duckSpinner.turnOn();
         }
 
         if (gamepad2DpadRight.buttonPress(gamepad2.dpad_right)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            gamepad1LeftJoyStickX.setHalfPower();
-            gamepad1LeftJoyStickY.setHalfPower();
-            gamepad1RightJoyStickX.setHalfPower();
-            gamepad1RightJoyStickY.setHalfPower();
+            robot.duckSpinner.turnOff();
         }
 
         if (gamepad2LeftStickButton.buttonPress(gamepad2.left_stick_button)) {

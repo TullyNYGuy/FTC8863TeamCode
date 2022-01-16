@@ -49,6 +49,7 @@ public class WristServo {
         wristServo.addPosition("Storage", .0, 2000, TimeUnit.MILLISECONDS);
         wristServo.addPosition("Pickup", .95,2000, TimeUnit.MILLISECONDS);
         wristServo.addPosition("Carry", .64, 2000, TimeUnit.MILLISECONDS);
+        wristServo.addPosition("Line Up", .75, 2000, TimeUnit.MILLISECONDS);
         wristServo.addPosition("Drop Off", .58, 500, TimeUnit.MILLISECONDS);
         wristServo.addPosition("Hold", .3, 500, TimeUnit.MILLISECONDS);
     }
@@ -82,6 +83,10 @@ public class WristServo {
 
     public void hold() {
         wristServo.setPosition("Hold");
+    }
+
+    public void lineUp() {
+        wristServo.setPosition("Line Up");
     }
 
     public boolean isPositionReached() {
