@@ -13,7 +13,7 @@ package org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib;
  *    / DPad Right       -
  *    / A                - turn intake on
  *    / B                - turn intake off
- *    / X                -
+ *    / X                - eject into level 1
  *    / Y                -
  *    /Left Bumper       -
  *    /Right Bumper      -
@@ -272,9 +272,7 @@ public class FreightFrenzyGamepad {
         }
 
         if (gamepad1x.buttonPress(gamepad1.x)) {
-            //this was a new button press, not a button held down for a while
-            //put the command to be executed here
-
+            robot.intake.ejectIntoLevel1();
         }
 
         if (gamepad1DpadUp.buttonPress(gamepad1.dpad_up)) {

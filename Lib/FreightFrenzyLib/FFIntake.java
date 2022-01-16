@@ -37,9 +37,8 @@ public class FFIntake implements FTCRobotSubsystem {
         TO_LEVEL_ONE,
         WAIT_FOR_LEVEL_ONE,
         EJECT_INTO_LEVEL_ONE,
-        WAIT_FOR_EJECT,
         BACK_TO_HOLD_FREIGHT,
-        E_STOP;
+        STOP;
     }
 
     //*********************************************************************************************
@@ -113,7 +112,7 @@ public class FFIntake implements FTCRobotSubsystem {
 
     @Override
     public boolean init(Configuration config) {
-        rotateServo.setPosition("intake");
+        rotateServo.setPosition("Vertical");
         initComplete = true;
         return true;
     }
@@ -143,7 +142,7 @@ public class FFIntake implements FTCRobotSubsystem {
                 if (isIntakeFull()) {
                     // yup stop the motor and try to cage the freight
                     intakeSweeperMotor.runAtConstantRPM(180);
-                    timer.reset();
+                    rotateServo.setPosition("Vertical");
                     //intakeSweeperMotor.moveToPosition(.3, 300, DcMotor8863.FinishBehavior.HOLD);
                     intakeState = IntakeState.WAIT_FOR_ROTATION;
                 }
@@ -154,8 +153,7 @@ public class FFIntake implements FTCRobotSubsystem {
                 // is the caging done?
                 if (intakeSweeperMotor.isMovementComplete()) {
                     // yup, now the human has to rotate the intake because that intake guy has not completed the rotation hardware yet :-)
-                    timer.reset();
-                    rotateServo.setPosition("Vertical");
+
                     intakeState = IntakeState.WAIT_FOR_ROTATION;
                 }
             }
@@ -166,11 +164,45 @@ public class FFIntake implements FTCRobotSubsystem {
                 if (rotateServo.isPositionReached()) {
                     // hope so cause I'm about to eject the freight
                     intakeSweeperMotor.setPower(0);
-                    timer.reset();
                     intakeState = IntakeState.IDLE;
                 }
             }
             break;
+
+            case TO_LEVEL_ONE: {
+                // move to shoot into the first level of the shipping hub
+                rotateServo.setPosition("Level 1");
+                intakeState = IntakeState.WAIT_FOR_LEVEL_ONE;
+            }
+            break;
+
+            case WAIT_FOR_LEVEL_ONE: {
+                // wait for the intake to reach position
+                if (rotateServo.isPositionReached()) {
+                    intakeSweeperMotor.runAtConstantRPM(-480);
+                    intakeState = IntakeState.EJECT_INTO_LEVEL_ONE;
+                }
+
+            }
+            break;
+
+            case EJECT_INTO_LEVEL_ONE: {
+                // shooty shooty into level 1 of the shipping hub
+                if (!isIntakeFull()) {
+                    intakeSweeperMotor.setPower(0);
+                    intakeState = IntakeState.BACK_TO_HOLD_FREIGHT;
+                }
+            }
+            break;
+
+            case BACK_TO_HOLD_FREIGHT: {
+                //back to hold position
+                rotateServo.setPosition("Vertical");
+                intakeState = IntakeState.IDLE;
+            }
+            break;
+
+
 //
 //            case OUTAKE: {
 //                // hopefully the freight ejects in this amount of time
@@ -183,11 +215,11 @@ public class FFIntake implements FTCRobotSubsystem {
 //            }
 //            break;
 
-//            case E_STOP: {
-//                intakeSweeperMotor.setPower(0);
-//                rotateServo.setPosition("intake");
-//            }
-//            break;
+            case STOP: {
+                intakeSweeperMotor.setPower(0);
+                rotateServo.setPosition("Intake");
+            }
+            break;
         }
     }
 
@@ -217,8 +249,12 @@ public class FFIntake implements FTCRobotSubsystem {
     }
 
     public void turnOff() {
-        intakeState = IntakeState.E_STOP;
+        intakeState = IntakeState.STOP;
     }
+
     public void turnOn(){intakeState = IntakeState.INTAKE;}
+
+    public void ejectIntoLevel1(){intakeState = IntakeState.TO_LEVEL_ONE;}
+
 }
 
