@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
-
+import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.RobotMode;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -128,6 +128,22 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
         capabilities = new HashSet<Subsystem>(Arrays.asList(subsystems));
     }
 
+    public void toggleMode(){
+        if(currentMode == RobotMode.DRIVER_MODE){
+            setMode(RobotMode.ROBOT_MODE);
+        }
+        else if (currentMode == RobotMode.ROBOT_MODE){
+            setMode(RobotMode.DRIVER_MODE);
+        }
+    }
+    private RobotMode currentMode;
+    public RobotMode getMode(){
+        return currentMode;
+    }
+    public void setMode(RobotMode mode){
+        currentMode = mode;
+
+    }
     public void setColor(FreightFrenzyColor color) {
         this.color = color;
     }

@@ -13,6 +13,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyColor;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyField;
+import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyRobot;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyRobotMode;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyRobotRoadRunner;
 //import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.AutomaticTeleopFunctions;
@@ -21,6 +22,7 @@ import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyGamepad;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.MecanumDriveFreightFrenzy;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.PersistantStorage;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.PoseStorage;
+import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.RobotMode;
 
 
 import java.util.List;
@@ -49,26 +51,9 @@ public class TeleopUsingRoadRunnerFreightFrenzy extends LinearOpMode {
     DataLogging dataLog = null;
 
     private Pose2d startPose;
-    public enum RobotMode{
-        DRIVER_MODE,
-        ROBOT_MODE,
-    }
-    private RobotMode currentMode;
-    public RobotMode getMode(){
-        return currentMode;
-    }
-    public void setMode(RobotMode mode){
-        currentMode = mode;
 
-    }
-    public void toggleMode(){
-        if(currentMode == RobotMode.DRIVER_MODE){
-            setMode(RobotMode.ROBOT_MODE);
-        }
-        else if (currentMode == RobotMode.ROBOT_MODE){
-            setMode(RobotMode.DRIVER_MODE);
-        }
-    }
+
+
     @Override
     public void runOpMode() {
 
@@ -116,7 +101,7 @@ public class TeleopUsingRoadRunnerFreightFrenzy extends LinearOpMode {
 
         robot.mecanum.setPoseEstimate(startPose);
         timer.reset();
-
+        RobotMode mode = robot.getMode();
         // the inits are run as part of createRobot(). They should not be needed here.
 //        // run the state machines associated with the subsystems to allow the inits to complete
 //        // NOTE, if a subsystem does not complete the init, it will hang the robot, so that is what
@@ -161,19 +146,19 @@ public class TeleopUsingRoadRunnerFreightFrenzy extends LinearOpMode {
 
             // The following code uses road runner to move the robot in a driver (field) centric
             // drive
-                if(currentMode == RobotMode.ROBOT_MODE){robot.mecanum.calculateMotorCommandsFieldCentric(
+                if(robot.getMode() == RobotMode.ROBOT_MODE){robot.mecanum.calculateMotorCommandsFieldCentric(
                     gamepad.gamepad1LeftJoyStickYValue * multiplier,
                     gamepad.gamepad1LeftJoyStickXValue * multiplier,
                     gamepad.gamepad1RightJoyStickXValue);}
-                else if (currentMode == RobotMode.DRIVER_MODE){
+                else if (robot.getMode() == RobotMode.DRIVER_MODE){
             robot.mecanum.calculateMotorCommandsDriverCentric(
                     gamepad.gamepad1LeftJoyStickYValue * multiplier,
                     gamepad.gamepad1LeftJoyStickXValue * multiplier,
                     gamepad.gamepad1RightJoyStickXValue
             );}
             // update the robot
-            telemetry.addData("current mode", currentMode);
-                telemetry.update();
+            telemetry.addData("current mode", robot.getMode());
+            telemetry.update();
             robot.update();
 
             // feedback on the driver station

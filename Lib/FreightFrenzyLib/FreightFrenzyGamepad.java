@@ -7,9 +7,9 @@ package org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib;
  *    / Left JoystickY   - robot moves forward/backward
  *    / Right JoystickX  - robot rotation
  *    / Right JoystickY  -
- *    / DPad Up          -
+ *    / DPad Up          - reset heading for driver mode
  *    / DPad Left        -
- *    / DPad Down        -
+ *    / DPad Down        - toggle mode (driver or robot)
  *    / DPad Right       -
  *    / A                - turn intake on
  *    / B                - turn intake off
@@ -44,6 +44,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.SmartJoystick;
 //import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.AutomaticTeleopFunctions;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.PoseStorage;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyRobotRoadRunner;
+import org.firstinspires.ftc.teamcode.opmodes.FreightFrenzy.TeleopUsingRoadRunnerFreightFrenzy;
 
 public class FreightFrenzyGamepad {
 
@@ -283,14 +284,7 @@ public class FreightFrenzyGamepad {
         if (gamepad1DpadDown.buttonPress(gamepad1.dpad_down)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            if (gamepad1DpadDown.isCommand1()) {
-                // call the first command you want to run
-
-            }
-            if (gamepad1DpadDown.isCommand2()) {
-                // call the 2nd command you want to run
-
-            }
+            robot.toggleMode();
         }
 
         if (gamepad1DpadLeft.buttonPress(gamepad1.dpad_left)) {
