@@ -14,6 +14,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobot;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.HaloControls;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.LoopTimer;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.RobotPosition;
 import org.openftc.easyopencv.OpenCvCamera;
@@ -102,7 +103,8 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
     public FFIntake intake;
     public OpenCvWebcam webcamLeft;
     public OpenCvWebcam webcamRight;
-
+    private double heading = mecanum.getExternalHeading();
+    private double adjustmentAngle = 0;
     public FreightFrenzyRobotRoadRunner(HardwareMap hardwareMap, Telemetry telemetry, Configuration config, DataLogging dataLog, DistanceUnit units, FreightFrenzyRobotMode robotMode, LinearOpMode opMode) {
         timer = new ElapsedTime();
         loopTimer = new LoopTimer();

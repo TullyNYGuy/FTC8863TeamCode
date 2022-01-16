@@ -277,14 +277,7 @@ public class FreightFrenzyGamepad {
             // this was a new button press, not a
             //button held down for a while
             // put the command to be executed here
-            if (gamepad1DpadUp.isCommand1()) {
-                // call the first command you want to run
-
-            }
-            if (gamepad1DpadUp.isCommand2()) {
-                // call the 2nd command you want to run
-
-            }
+           robot.mecanum.resetAdjustAngle();
         }
 
         if (gamepad1DpadDown.buttonPress(gamepad1.dpad_down)) {
