@@ -164,7 +164,7 @@ public class MecanumDriveFreightFrenzy extends MecanumDrive implements FTCRobotS
 
         // TODO: if your hub is mounted vertically, remap the IMU axes so that the z-axis points
         // upward (normal to the floor) using a command like the following:
-        BNO055IMUUtil.remapZAxis(imu, AxisDirection.NEG_X);
+        BNO055IMUUtil.remapZAxis(imu, AxisDirection.NEG_Y);
 
         //WE CHANGED THE MOTOR NAME PARAMETERS IN THE NEXT 4 LINES
 
