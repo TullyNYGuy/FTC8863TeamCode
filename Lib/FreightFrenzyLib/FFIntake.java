@@ -38,6 +38,10 @@ public class FFIntake implements FTCRobotSubsystem {
         WAIT_FOR_LEVEL_ONE,
         EJECT_INTO_LEVEL_ONE,
         BACK_TO_HOLD_FREIGHT,
+        //in these cases the "intake" is the position name
+        TO_INTAKE,
+        WAIT_FOR_INTAKE,
+        EJECT_AT_INTAKE,
         STOP;
     }
 
@@ -112,7 +116,7 @@ public class FFIntake implements FTCRobotSubsystem {
 
     @Override
     public boolean init(Configuration config) {
-        rotateServo.setPosition("Vertical");
+        rotateServo.setPosition("Deliver");
         initComplete = true;
         return true;
     }
@@ -202,6 +206,30 @@ public class FFIntake implements FTCRobotSubsystem {
             }
             break;
 
+            case TO_INTAKE: {
+                //back to hold position
+                rotateServo.setPosition("Intake");
+                intakeState = IntakeState.WAIT_FOR_INTAKE;
+            }
+            break;
+
+            case WAIT_FOR_INTAKE: {
+                //back to hold position
+                if (rotateServo.isPositionReached()) {
+                    intakeSweeperMotor.runAtConstantRPM(-300);
+                    intakeState = IntakeState.EJECT_AT_INTAKE;
+                }
+            }
+            break;
+
+            case EJECT_AT_INTAKE: {
+                //back to hold position
+                rotateServo.setPosition("Vertical");
+                intakeState = IntakeState.IDLE;
+            }
+            break;
+
+
 
 //
 //            case OUTAKE: {
@@ -255,6 +283,8 @@ public class FFIntake implements FTCRobotSubsystem {
     public void turnOn(){intakeState = IntakeState.INTAKE;}
 
     public void ejectIntoLevel1(){intakeState = IntakeState.TO_LEVEL_ONE;}
+
+    public void ejectAtIntake(){intakeState = IntakeState.TO_INTAKE;}
 
 }
 
