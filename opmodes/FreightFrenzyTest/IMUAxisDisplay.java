@@ -25,7 +25,13 @@ public class IMUAxisDisplay extends LinearOpMode {
 
 
         // Put your initializations here
-
+        dataLog = new DataLogging("imu heading display", telemetry);
+        config = null;
+        config = new Configuration();
+        if (!config.load()) {
+            telemetry.addData("ERROR", "Couldn't load config file");
+            telemetry.update();
+        }
         // Wait for the start button
         robot.createRobot();
         telemetry.addData(">", "Press Start to run");
