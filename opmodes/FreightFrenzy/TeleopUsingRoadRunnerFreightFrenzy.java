@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyColor;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyField;
-import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyRobotMode;
+import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyMatchInfo;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyRobotRoadRunner;
 //import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.AutomaticTeleopFunctions;
 //import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.PersistantStorage;
@@ -38,8 +38,6 @@ public class TeleopUsingRoadRunnerFreightFrenzy extends LinearOpMode {
     public FreightFrenzyGamepad gamepad;
     public Configuration config = null;
 
-    public FreightFrenzyRobotMode robotMode = FreightFrenzyRobotMode.TELEOP;
-
    // public AutomaticTeleopFunctions automaticTeleopFunctions;
     //set color for each game
     private FreightFrenzyColor color = FreightFrenzyColor.RED;
@@ -60,6 +58,9 @@ public class TeleopUsingRoadRunnerFreightFrenzy extends LinearOpMode {
         telemetry.addData("Initializing ...", "Wait for it ...");
         telemetry.update();
 
+        // set the persistant storage variable saying this is the teleop phase
+        FreightFrenzyMatchInfo.setMatchPhase(FreightFrenzyMatchInfo.MatchPhase.TELEOP);
+
         dataLog = new DataLogging("Teleop", telemetry);
         config = null;
         config = new Configuration();
@@ -70,7 +71,7 @@ public class TeleopUsingRoadRunnerFreightFrenzy extends LinearOpMode {
         timer = new ElapsedTime();
         MecanumCommands commands = new MecanumCommands();
 
-        robot = new FreightFrenzyRobotRoadRunner(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, FreightFrenzyRobotMode.TELEOP, this);
+        robot = new FreightFrenzyRobotRoadRunner(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, this);
         gamepad = new FreightFrenzyGamepad(gamepad1, gamepad2, robot);
         // create the robot and run the init for it
         robot.createRobot();

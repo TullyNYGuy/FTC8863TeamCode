@@ -22,7 +22,7 @@
 package org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.Pipelines;
 
 
-import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyRobotMode;
+import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyMatchInfo;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
@@ -50,11 +50,7 @@ public class ShippingElementPipeline extends OpenCvPipeline {
     }
 
     // default, change this is EOCVSim to test other modes
-    private FreightFrenzyRobotMode robotMode = FreightFrenzyRobotMode.AUTO_RED_NEAR_BARRIERS;
-
-    public void setRobotMode(FreightFrenzyRobotMode robotMode) {
-        this.robotMode = robotMode;
-    }
+    private FreightFrenzyMatchInfo.StartLocation startLocation = FreightFrenzyMatchInfo.getStartLocation();
 
     /*
      * Some color constants

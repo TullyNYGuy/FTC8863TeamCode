@@ -6,8 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
-import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FFIntake;
-import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyRobotMode;
+import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyMatchInfo;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyRobotRoadRunner;
 
 @TeleOp(name = "IMU axis display", group = "Test")
@@ -16,8 +15,7 @@ public class IMUAxisDisplay extends LinearOpMode {
 
     // Put your variable declarations her
     public Configuration config = null;
-
-    public FreightFrenzyRobotMode robotMode = FreightFrenzyRobotMode.TELEOP;
+    
     DataLogging dataLog = null;
 
     @Override
@@ -32,7 +30,7 @@ public class IMUAxisDisplay extends LinearOpMode {
             telemetry.addData("ERROR", "Couldn't load config file");
             telemetry.update();
         }
-        FreightFrenzyRobotRoadRunner robot = new FreightFrenzyRobotRoadRunner(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, FreightFrenzyRobotMode.TELEOP,this );
+        FreightFrenzyRobotRoadRunner robot = new FreightFrenzyRobotRoadRunner(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM,this );
         // Wait for the start button
         robot.createRobot();
         telemetry.addData(">", "Press Start to run");

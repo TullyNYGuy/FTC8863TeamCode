@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.opmodes.FreightFrenzy;
 
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -13,7 +12,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyColor;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyField;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyGamepad;
-import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyRobotMode;
+import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyMatchInfo;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyRobotRoadRunner;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.PersistantStorage;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.Pipelines.ShippingElementPipeline;
@@ -34,8 +33,6 @@ public class FreightFrenzyAutoRedNearBarrier extends LinearOpMode {
     public FreightFrenzyField field;
     public Configuration config;
     ShippingElementPipeline pipeline;
-
-    public FreightFrenzyRobotMode robotMode = FreightFrenzyRobotMode.AUTO_RED_NEAR_BARRIERS;
 
     private ElapsedTime timer;
 
@@ -67,12 +64,11 @@ public class FreightFrenzyAutoRedNearBarrier extends LinearOpMode {
         timer = new ElapsedTime();
         //MecanumCommands commands = new MecanumCommands();
 
-        robot = new FreightFrenzyRobotRoadRunner(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, robotMode,this);
+        robot = new FreightFrenzyRobotRoadRunner(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM,this);
 
         // create the robot and run the init for it
         robot.createRobot();
         pipeline = new ShippingElementPipeline();
-        pipeline.setRobotMode(robotMode);
 
         robot.webcamRight.setPipeline(pipeline);
         enableBulkReads(hardwareMap, LynxModule.BulkCachingMode.AUTO);
