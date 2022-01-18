@@ -376,14 +376,14 @@ public class FreightFrenzyGamepad {
         }
 
         if (gamepad2LeftBumper.buttonPress(gamepad2.left_bumper)) {
-            /*
+
             if (gamepad2LeftBumper.isCommand1()) {
                robot.duckSpinner.turnOn();
             }
             if (gamepad2LeftBumper.isCommand2()) {
                 robot.duckSpinner.turnOff();
             }
-             */
+
 
         }
 
