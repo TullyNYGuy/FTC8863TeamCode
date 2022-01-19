@@ -1,11 +1,11 @@
 package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
 
-import com.qualcomm.robotcore.hardware.DigitalChannel;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-public class RevLED {
+import java.util.EventListener;
+
+public class OnOffCycler {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -14,22 +14,12 @@ public class RevLED {
     //
     //*********************************************************************************************
 
-    public enum Color {
-        RED,
-        GREEN,
-        AMBER
+    public enum State {
+        ON,
+        OFF
     }
 
-    // default color is red
-    private Color color = Color.RED;
-
-    public Color getColor() {
-        return color;
-    }
-
-    public void setColor(Color color) {
-        this.color = color;
-    }
+    private State state = State.OFF;
 
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS AND SETTERS and GETTERS
@@ -37,21 +27,39 @@ public class RevLED {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
-    private DigitalChannel revLEDPort1;
-    private DigitalChannel revLEDPort2;
 
+    /**
+     * The frequency of the on-off cycle in number of cycles per second - hertz
+     */
+    private double frequency = 1;
+
+    public double getFrequency() {
+        return frequency;
+    }
+
+    public void setFrequency(double frequency) {
+        this.frequency = frequency;
+    }
+
+    /**
+     * The time between changes in state in milliseconds
+     */
+    private double interval;
+
+    private ElapsedTime timer;
     //*********************************************************************************************
     //          Constructors
     //
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
-     public RevLED (HardwareMap hardwareMap, String port1Name, String port2Name) {
-         revLEDPort1 = hardwareMap.get(DigitalChannel.class, port1Name);
-         revLEDPort2 = hardwareMap.get(DigitalChannel.class, port2Name);
-         revLEDPort1.setMode(DigitalChannel.Mode.OUTPUT);
-         revLEDPort2.setMode(DigitalChannel.Mode.OUTPUT);
-     }
+
+    public OnOffCycler(double frequency) {
+        this.frequency = frequency;
+        // the time between a change in state (in milliseconds)
+        interval = 1 / frequency * 1000;
+        timer = new ElapsedTime();
+    }
 
     //*********************************************************************************************
     //          Helper Methods
@@ -59,40 +67,25 @@ public class RevLED {
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
 
-    private void outputColor() {
-         switch (color) {
-             case RED:
-                 revLEDPort1.setState(false);
-                 revLEDPort2.setState(true);
-                 break;
-             case GREEN:
-                 revLEDPort1.setState(true);
-                 revLEDPort2.setState(false);
-                 break;
-             case AMBER:
-                 revLEDPort1.setState(false);
-                 revLEDPort2.setState(false);
-                 break;
-         }
-    }
-
     //*********************************************************************************************
     //          MAJOR METHODS
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
+     public void start() {
+        timer.reset();
+     }
 
-    public void turnOff() {
-        revLEDPort1.setState(true);
-        revLEDPort2.setState(true);
-    }
+     public State getState() {
+        if (state == State.OFF & timer.milliseconds() > interval) {
+            state = State.ON;
+            timer.reset();
+        }
+        if (state == State.ON && timer.milliseconds() > interval) {
+            state = State.OFF;
+            timer.reset();
+        }
+        return state;
+     }
 
-    public void turnOn() {
-         outputColor();
-    }
-
-    public void turnOn(Color color) {
-         setColor(color);
-         turnOn();
-    }
 }
