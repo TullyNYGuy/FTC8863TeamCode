@@ -51,6 +51,7 @@ public class RevLED {
          revLEDPort2 = hardwareMap.get(DigitalChannel.class, port2Name);
          revLEDPort1.setMode(DigitalChannel.Mode.OUTPUT);
          revLEDPort2.setMode(DigitalChannel.Mode.OUTPUT);
+         off();
      }
 
     //*********************************************************************************************
@@ -82,17 +83,17 @@ public class RevLED {
     // public methods that give the class its functionality
     //*********************************************************************************************
 
-    public void turnOff() {
+    public void off() {
         revLEDPort1.setState(true);
         revLEDPort2.setState(true);
     }
 
-    public void turnOn() {
+    public void on() {
          outputColor();
     }
 
-    public void turnOn(Color color) {
+    public void on(Color color) {
          setColor(color);
-         turnOn();
+         on();
     }
 }

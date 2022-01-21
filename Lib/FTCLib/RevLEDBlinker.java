@@ -63,16 +63,20 @@ public class RevLEDBlinker {
         blinker.setFrequency(frequency);
     }
 
+    public void off() {
+        led.off();
+    }
+
     public void start() {
         blinker.start();
     }
 
     public void update() {
         if(blinker.getState() == OnOffCycler.State.ON) {
-            led.turnOn();
+            led.on();
         }
         if (blinker.getState() == OnOffCycler.State.OFF) {
-            led.turnOff();
+            led.off();
         }
     }
 

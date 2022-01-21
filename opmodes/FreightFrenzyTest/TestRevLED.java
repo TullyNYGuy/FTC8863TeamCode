@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.opmodes.FreightFrenzyTest;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -11,12 +10,12 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.RevLEDBlinker;
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Test Rev LED Blinker", group = "Test")
+@TeleOp(name = "Test Rev LED", group = "Test")
 //@Disabled
-public class TestRevLEDBlinker extends LinearOpMode {
+public class TestRevLED extends LinearOpMode {
 
     // Put your variable declarations her
-    RevLEDBlinker led;
+    RevLED led;
     ElapsedTime timer;
 
     @Override
@@ -24,7 +23,7 @@ public class TestRevLEDBlinker extends LinearOpMode {
 
 
         // Put your initializations here
-        led = new RevLEDBlinker(1, RevLED.Color.GREEN, hardwareMap, "ledPort1", "ledPort2");
+        led = new RevLED(hardwareMap,  "ledPort1", "ledPort2");
         timer = new ElapsedTime();
 
         led.off();
@@ -35,43 +34,30 @@ public class TestRevLEDBlinker extends LinearOpMode {
         waitForStart();
 
         // Put your calls here - they will not run in a loop
+        led.on(RevLED.Color.GREEN);
         timer.reset();
         while (opModeIsActive() && timer.milliseconds() < 5000) {
             telemetry.addData("LED is ", "green");
             telemetry.addData(">", "Press Stop to end test.");
             telemetry.update();
-            led.update();
             idle();
         }
 
         timer.reset();
-        led.setColor(RevLED.Color.RED);
+        led.on(RevLED.Color.RED);
         while (opModeIsActive() && timer.milliseconds() < 5000) {
             telemetry.addData("LED is ", "red");
             telemetry.addData(">", "Press Stop to end test.");
             telemetry.update();
-            led.update();
             idle();
         }
 
         timer.reset();
-        led.setColor(RevLED.Color.AMBER);
+        led.on(RevLED.Color.AMBER);
         while (opModeIsActive() && timer.milliseconds() < 5000) {
             telemetry.addData("LED is ", "amber");
             telemetry.addData(">", "Press Stop to end test.");
             telemetry.update();
-            led.update();
-            idle();
-        }
-
-        timer.reset();
-        led.setColor(RevLED.Color.AMBER);
-        led.setFrequency(4.0);
-        while (opModeIsActive() && timer.milliseconds() < 5000) {
-            telemetry.addData("LED is ", "amber fast");
-            telemetry.addData(">", "Press Stop to end test.");
-            telemetry.update();
-            led.update();
             idle();
         }
 

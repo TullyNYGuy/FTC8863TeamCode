@@ -39,6 +39,7 @@ public class OnOffCycler {
 
     public void setFrequency(double frequency) {
         this.frequency = frequency;
+        interval = 1 / frequency * 1000;
     }
 
     /**
@@ -55,9 +56,8 @@ public class OnOffCycler {
     //*********************************************************************************************
 
     public OnOffCycler(double frequency) {
-        this.frequency = frequency;
+        setFrequency(frequency);
         // the time between a change in state (in milliseconds)
-        interval = 1 / frequency * 1000;
         timer = new ElapsedTime();
     }
 
