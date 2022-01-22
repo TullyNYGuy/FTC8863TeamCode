@@ -164,7 +164,7 @@ public class MecanumDriveFreightFrenzy extends MecanumDrive implements FTCRobotS
 
         // TODO: if your hub is mounted vertically, remap the IMU axes so that the z-axis points
         // upward (normal to the floor) using a command like the following:
-        BNO055IMUUtil.remapZAxis(imu, AxisDirection.NEG_Y);
+        //BNO055IMUUtil.remapZAxis(imu, AxisDirection.NEG_Y);
 
         //WE CHANGED THE MOTOR NAME PARAMETERS IN THE NEXT 4 LINES
 
@@ -200,8 +200,15 @@ public class MecanumDriveFreightFrenzy extends MecanumDrive implements FTCRobotS
         setLocalizer(new TrackingWheelLocalizerFreightFrenzy(hardwareMap));
 
         trajectorySequenceRunner = new TrajectorySequenceRunner(follower, HEADING_PID);
+        this.setExternalHeading(0.0);
     }
+    private Double heading = getExternalHeading();
+    private Double adjustmentAngle = 0.0;
 
+
+    public void resetAdjustAngle(){
+        setExternalHeading(imu.getAngularOrientation().thirdAngle);
+    }
     //*********************************************************************************************
     //          Helper Methods
     //
@@ -442,16 +449,16 @@ public class MecanumDriveFreightFrenzy extends MecanumDrive implements FTCRobotS
         );
         //NOTE that the teleop or other calling code must call the drive update() method.
     }
+    /*public void calculateMotorCommandsDriverCentric(double translationJoystickYValue, double translationJoystickXValue, double rotationJoystickXValue) {
+        // Read pose
 
-    /**
-     * Calculate motor powers for driving in teleop using a joystick (x and y) that controls the direction of
-     * movement of the robot (translation) and a joystick (x) that controls the heading of the robot.
-     * The movement is relative to the robot.
-     * @param translationJoystickYValue
-     * @param translationJoystickXValue
-     * @param rotationJoystickXValue
-     */
-    public void calculateMotorCommandsRobotCentric(double translationJoystickYValue, double translationJoystickXValue, double rotationJoystickXValue) {
+
+        // Create a vector from the gamepad x/y inputs
+        // Then, rotate that vector by the inverse of that heading
+
+
+        // Pass in the rotated input + right stick value for rotation
+        // Rotation is not part of the rotated input thus must be passed in separately
         setWeightedDrivePower(
                 new Pose2d(
                         translationJoystickYValue,
@@ -461,6 +468,24 @@ public class MecanumDriveFreightFrenzy extends MecanumDrive implements FTCRobotS
         );
         //NOTE that the teleop or other calling code must call the drive update() method.
     }
+    *//**
+     * Calculate motor powers for driving in teleop using a joystick (x and y) that controls the direction of
+     * movement of the robot (translation) and a joystick (x) that controls the heading of the robot.
+     * The movement is relative to the robot.
+     * @param translationJoystickYValue
+     * @param translationJoystickXValue
+     * @param rotationJoystickXValue
+     *//*
+    public void calculateMotorCommandsRobotCentric(double translationJoystickYValue, double translationJoystickXValue, double rotationJoystickXValue) {
+        setWeightedDrivePower(
+                new Pose2d(
+                        translationJoystickYValue,
+                        translationJoystickXValue,
+                        -rotationJoystickXValue
+                )
+        );
+        //NOTE that the teleop or other calling code must call the drive update() method.
+    }*/
 
     @Override
     public String getName() {
