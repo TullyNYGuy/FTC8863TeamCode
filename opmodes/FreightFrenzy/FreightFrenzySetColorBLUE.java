@@ -12,7 +12,6 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyColor;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyField;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyGamepad;
-import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyRobotMode;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyRobotRoadRunner;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.PersistantStorage;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.Pipelines.ShippingElementPipeline;
