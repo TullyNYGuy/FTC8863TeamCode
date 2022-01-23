@@ -202,7 +202,7 @@ public class MecanumDriveFreightFrenzy extends MecanumDrive implements FTCRobotS
         trajectorySequenceRunner = new TrajectorySequenceRunner(follower, HEADING_PID);
         this.setExternalHeading(0.0);
     }
-    private Double heading = getExternalHeading();
+//    private Double heading = getExternalHeading();
     private Double adjustmentAngle = 0.0;
 
 
