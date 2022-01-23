@@ -34,6 +34,7 @@ public class FFIntake implements FTCRobotSubsystem {
         HOLD_FREIGHT,
         WAIT_FOR_ROTATION,
         OUTAKE,
+        WAIT_FOR_OUTAKE,
         TO_LEVEL_ONE,
         WAIT_FOR_LEVEL_ONE,
         EJECT_INTO_LEVEL_ONE,
@@ -157,19 +158,33 @@ public class FFIntake implements FTCRobotSubsystem {
                 // has the human done his thing?
                 if (rotateServo.isPositionReached()) {
                     // hope so cause I'm about to eject the freight
-                    intakeSweeperMotor.runAtConstantRPM(-300);
+                    intakeSweeperMotor.runAtConstantRPM(-200);
                     intakeState = IntakeState.OUTAKE;
+                    timer.reset();
                 }
             }
             break;
 
             case OUTAKE: {
                 // hopefully the freight ejects in this amount of time
-                if (timer.milliseconds() > 3500) {
-                    // done ejecting, time to go back to sleep
+                if (!isIntakeFull() && timer.milliseconds() > 1000) {
                     intakeSweeperMotor.setPower(0);
-                    rotateServo.setPosition("intake");
-                    intakeState = IntakeState.IDLE;
+                    timer.reset();
+                    intakeState = IntakeState.WAIT_FOR_OUTAKE;
+                }
+            }
+            break;
+
+            case WAIT_FOR_OUTAKE: {
+                if (timer.milliseconds() > 2000) {
+                    if (isIntakeFull()){
+                        intakeState = IntakeState.WAIT_FOR_ROTATION;
+                    }
+                    else {
+                        // done ejecting, time to go back to sleep
+                        rotateServo.setPosition("Vertical");
+                        intakeState = IntakeState.IDLE;
+                    }
                 }
             }
             break;
