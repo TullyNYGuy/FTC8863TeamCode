@@ -30,12 +30,14 @@ public class TestLiftRetraction extends LinearOpMode {
                 "ExtensionLimitSwitch",
                 "RetractionLimitSwitch",
                 "LiftMotor",
-                DcMotor8863.MotorType.ANDYMARK_20_ORBITAL,
-                3.92);
+                DcMotor8863.MotorType.GOBILDA_435,
+                4.517);
+        lift.reverseMotorDirection();
+
 
         //lift.reverseMotorDirection();
         lift.setResetTimerLimitInmSec(25000);
-        lift.setExtensionPower(1.0);
+        lift.setExtensionPower(0.3);
         lift.setExtensionPositionInMechanismUnits(15);
         lift.setRetractionPower(-0.2);
         lift.setDataLog(log);
