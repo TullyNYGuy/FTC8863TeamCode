@@ -681,7 +681,7 @@ public class ExtensionRetractionMechanism {
      * @return position in mechanism units
      */
     private double convertEncoderCountsToMechanismUnits(int encoderCount) {
-        return (movementPerRevolution * extensionRetractionMotor.getCountsPerRev() * encoderCount);
+        return (movementPerRevolution / extensionRetractionMotor.getCountsPerRev() * encoderCount);
     }
 
     /**
@@ -1431,7 +1431,7 @@ public class ExtensionRetractionMechanism {
             // the retraction limit is set by a position so tell the motor to go to that position
             setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
             double extensionPosition = convertEncoderCountsToMechanismUnits(extensionPositionInEncoderCounts.intValue());
-            extensionRetractionMotor.moveToPosition(retractionPower, extensionPosition, finishBehavior);
+            extensionRetractionMotor.moveToPosition(extensionPower, extensionPosition, finishBehavior);
         }
     }
 
@@ -2115,7 +2115,7 @@ public class ExtensionRetractionMechanism {
                         // do nothing. This command should never be active in this state.
                         break;
                 }
-
+                break;
                 // You can perform actions before the retraction movement starts. For example, if you have
                 // another mechanism attached to this one, and it has to turn a certain way in order
                 // to avoid a collision with part of the robot while this mechanism moves to the retraction
@@ -2339,7 +2339,7 @@ public class ExtensionRetractionMechanism {
                         // do nothing. This command should never be active in this state.
                         break;
                 }
-
+                break;
                 // You can perform actions before the extension movement starts. For example, if you have
                 // another mechanism attached to this one, and it has to turn a certain way in order
                 // to avoid a collision with part of the robot while this mechanism moves to the extension
@@ -3130,6 +3130,7 @@ public class ExtensionRetractionMechanism {
             telemetry.addLine("extension limit switch NOT pressed");
         }
         telemetry.addData("encoder = ", extensionRetractionMotor.getCurrentPosition());
+        telemetry.addData("position = ", extensionRetractionMotor.getPositionInTermsOfAttachment());
     }
 
     /**
