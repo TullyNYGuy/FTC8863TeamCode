@@ -641,7 +641,6 @@ public class ExtensionRetractionMechanism {
     /**
      * This method wraps the equivalent method in the DcMotor8863 class. The reason for this is that
      * I don't want to expose the motor publicly. But other code will need access to this method.
-     * I did not like the name of this method. Is does not say what it does really. Use
      * @return
      */
     public boolean isMovementComplete() {
@@ -1246,19 +1245,20 @@ public class ExtensionRetractionMechanism {
      * fully retracted position.
      */
     private void moveToFullRetract() {
+        // figure out how to move to the retraction limit.
         if(retractionPositionInEncoderCounts == null) {
-            // when the mechanism retracts you may want to do something with whatever is attached to it.
-            // if the retraction limit is only a limit switch then run the motor until the limit
-            // switch is tripped
+            // There is no retraction limit position. The limit is set by a limit switch. So run the
+            // motor. It will stop when the limit swtich is tripped.
             extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             // this is to fix a bug, when the lift resets, it leaves the motor in float mode. In order
             // for the lift to stay retracted, hold has to be set
             setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
-            // set the limit tripped by to none
+            // reset the limit tripped by
             limitTripBy = LimitTripBy.NOT_TRIPPED;
             setCurrentPower(retractionPower);
         } else {
-            // the retraction limit is set by a position so tell the motor to go to that position
+            // The retraction limit is set by a position. Rather than run the motor until a limit
+            // switch is tripped, we can just tell the motor to go to the retraction position.
             setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
             double retractionPosition = convertEncoderCountsToMechanismUnits(retractionPositionInEncoderCounts.intValue());
             extensionRetractionMotor.moveToPosition(retractionPower, retractionPosition, finishBehavior);
@@ -1274,14 +1274,7 @@ public class ExtensionRetractionMechanism {
     protected boolean isMoveToRetractComplete() {
         // your method of determining whether the movement to the retract is complete must be
         // coded here. This code is suggested but you can override it if your situation is different.
-        // If there is not a retraction limit position then the motor is moving towards the switch.
-        if (retractionPositionInEncoderCounts == null) {
-            // use the status of the limit switch
-            return isRetractionLimitReached();
-        } else {
-            // there is a retraction limit position so we are using a motor run to position for that
-            return isMovementComplete();
-        }
+        return isRetractionLimitReached();
     }
 
     /**
@@ -1443,14 +1436,7 @@ public class ExtensionRetractionMechanism {
     protected boolean isMoveToExtendComplete() {
         // your method of determining whether the movement to the extend is complete must be
         // coded here. This code is suggested but you can override it if your situation is different.
-        // If there is not a retraction limit position then the motor is moving towards the switch.
-        if (retractionPositionInEncoderCounts == null) {
-            // use the status of the limit switch
-            return isExtensionLimitReached();
-        } else {
-            // there is a retraction limit position so we are using a motor run to position for that
-            return isMovementComplete();
-        }
+        return isExtensionLimitReached();
     }
 
     /**
@@ -2984,7 +2970,7 @@ public class ExtensionRetractionMechanism {
                         if (isJoystickCommandRetraction()) {
                             extensionRetractionState = ExtensionRetractionStates.JOYSTICK;
                         } else {
-                            // check to see if the mechanism has arrived at full retraction yet
+                            // check to see if the mechanism has arrived at full extension yet
                             if (isMoveToExtendComplete()) {
                                 logArrivedAtDestination();
                                 performActionsToCompleteExtendMovement();
