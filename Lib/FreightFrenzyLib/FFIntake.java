@@ -34,6 +34,7 @@ public class FFIntake implements FTCRobotSubsystem {
         HOLD_FREIGHT,
         WAIT_FOR_ROTATION,
         OUTAKE,
+        WAIT_FOR_OUTAKE,
         TO_LEVEL_ONE,
         WAIT_FOR_LEVEL_ONE,
         EJECT_INTO_LEVEL_ONE,
@@ -146,18 +147,8 @@ public class FFIntake implements FTCRobotSubsystem {
                 if (isIntakeFull()) {
                     // yup stop the motor and try to cage the freight
                     intakeSweeperMotor.runAtConstantRPM(180);
-                    rotateServo.setPosition("Vertical");
+                    rotateServo.setPosition("Deliver");
                     //intakeSweeperMotor.moveToPosition(.3, 300, DcMotor8863.FinishBehavior.HOLD);
-                    intakeState = IntakeState.WAIT_FOR_ROTATION;
-                }
-            }
-            break;
-
-            case HOLD_FREIGHT: {
-                // is the caging done?
-                if (intakeSweeperMotor.isMovementComplete()) {
-                    // yup, now the human has to rotate the intake because that intake guy has not completed the rotation hardware yet :-)
-
                     intakeState = IntakeState.WAIT_FOR_ROTATION;
                 }
             }
@@ -167,44 +158,37 @@ public class FFIntake implements FTCRobotSubsystem {
                 // has the human done his thing?
                 if (rotateServo.isPositionReached()) {
                     // hope so cause I'm about to eject the freight
+                    intakeSweeperMotor.runAtConstantRPM(-200);
+                    intakeState = IntakeState.OUTAKE;
+                    timer.reset();
+                }
+            }
+            break;
+
+            case OUTAKE: {
+                // hopefully the freight ejects in this amount of time
+                if (!isIntakeFull() && timer.milliseconds() > 1000) {
                     intakeSweeperMotor.setPower(0);
-                    intakeState = IntakeState.IDLE;
+                    timer.reset();
+                    intakeState = IntakeState.WAIT_FOR_OUTAKE;
                 }
             }
             break;
 
-            case TO_LEVEL_ONE: {
-                // move to shoot into the first level of the shipping hub
-                rotateServo.setPosition("Level 1");
-                intakeState = IntakeState.WAIT_FOR_LEVEL_ONE;
-            }
-            break;
-
-            case WAIT_FOR_LEVEL_ONE: {
-                // wait for the intake to reach position
-                if (rotateServo.isPositionReached()) {
-                    intakeSweeperMotor.runAtConstantRPM(-480);
-                    intakeState = IntakeState.EJECT_INTO_LEVEL_ONE;
-                }
-
-            }
-            break;
-
-            case EJECT_INTO_LEVEL_ONE: {
-                // shooty shooty into level 1 of the shipping hub
-                if (!isIntakeFull()) {
-                    intakeSweeperMotor.setPower(0);
-                    intakeState = IntakeState.BACK_TO_HOLD_FREIGHT;
+            case WAIT_FOR_OUTAKE: {
+                if (timer.milliseconds() > 2000) {
+                    if (isIntakeFull()){
+                        intakeState = IntakeState.WAIT_FOR_ROTATION;
+                    }
+                    else {
+                        // done ejecting, time to go back to sleep
+                        rotateServo.setPosition("Vertical");
+                        intakeState = IntakeState.IDLE;
+                    }
                 }
             }
             break;
-
-            case BACK_TO_HOLD_FREIGHT: {
-                //back to hold position
-                rotateServo.setPosition("Vertical");
-                intakeState = IntakeState.IDLE;
-            }
-            break;
+//the following three steps are for ejecting a freight that gets stuck in the intake. so it goes to intake position and outakes.
 
             case TO_INTAKE: {
                 //back to hold position
@@ -231,17 +215,6 @@ public class FFIntake implements FTCRobotSubsystem {
 
 
 
-//
-//            case OUTAKE: {
-//                // hopefully the freight ejects in this amount of time
-//                if (timer.milliseconds() > 3500) {
-//                    // done ejecting, time to go back to sleep
-//                    intakeSweeperMotor.setPower(0);
-//                    rotateServo.setPosition("intake");
-//                    intakeState = IntakeState.IDLE;
-//                }
-//            }
-//            break;
 
             case STOP: {
                 intakeSweeperMotor.setPower(0);
@@ -249,6 +222,54 @@ public class FFIntake implements FTCRobotSubsystem {
             }
             break;
         }
+        //Old states from before we had delivery
+
+            /* case TO_LEVEL_ONE: {
+                // move to shoot into the first level of the shipping hub
+                rotateServo.setPosition("Level 1");
+                intakeState = IntakeState.WAIT_FOR_LEVEL_ONE;
+            }
+            break;
+
+            case WAIT_FOR_LEVEL_ONE: {
+                // wait for the intake to reach position
+                if (rotateServo.isPositionReached()) {
+                    intakeSweeperMotor.runAtConstantRPM(-480);
+                    intakeState = IntakeState.EJECT_INTO_LEVEL_ONE;
+                }
+
+            }
+            break;
+
+            case EJECT_INTO_LEVEL_ONE: {
+                // shooty shooty into level 1 of the shipping hub
+                if (!isIntakeFull()) {
+                    intakeSweeperMotor.setPower(0);
+                    intakeState = IntakeState.BACK_TO_HOLD_FREIGHT;
+                }
+            }
+            break;
+
+
+            case BACK_TO_HOLD_FREIGHT: {
+                //back to hold position
+                rotateServo.setPosition("Vertical");
+                intakeState = IntakeState.IDLE;
+            }
+            break;
+
+            case HOLD_FREIGHT: {
+                // is the caging done?
+                if (intakeSweeperMotor.isMovementComplete()) {
+                    // yup, now the human has to rotate the intake because that intake guy has not completed the rotation hardware yet :-)
+
+                    intakeState = IntakeState.WAIT_FOR_ROTATION;
+                }
+            }
+            break;
+
+
+*/
     }
 
     @Override

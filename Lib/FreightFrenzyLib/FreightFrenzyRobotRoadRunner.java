@@ -45,6 +45,7 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
         WEBCAM_RIGHT("WebcamRight"),
         DUCK_SPINNER("duckServo"),
         SHOULDER_SERVO("shoulderServo"),
+        SHOULDER_MOTOR("shoulderMotor"),
         WRIST_SERVO("wristServo"),
         CLAW_SERVO("clawServo"),
         INTAKE_SWEEPER_MOTOR("intakeSweeperMotor"),
