@@ -6,11 +6,23 @@ import com.acmerobotics.roadrunner.geometry.Vector2d;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.UltimateGoalGoal;
+import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyGoal;
 
 public class FreightFrenzyField {
 
-    //         top = new UltimateGoalGoal(35.5 * 0.0254, new Pose2d(71 * 0.0254, -12 * 0.0254, 0));
+           FreightFrenzyGoal topPassageRed = new FreightFrenzyGoal(DistanceUnit.INCH, 1, new Pose2d(47, 0));
+    FreightFrenzyGoal freightRed = new FreightFrenzyGoal(DistanceUnit.INCH, 1, new Pose2d(61, -61));
+    FreightFrenzyGoal hubRed = new FreightFrenzyGoal(DistanceUnit.INCH, 1, new Pose2d(-11.75, -17.625));
+    FreightFrenzyGoal duckSpinnerRed = new FreightFrenzyGoal(DistanceUnit.INCH, 1, new Pose2d(-58.75, -58.75));
+    FreightFrenzyGoal storageRed = new FreightFrenzyGoal(DistanceUnit.INCH, 1, new Pose2d(-58.75, -35.25));
+    FreightFrenzyGoal sidePassageRed = new FreightFrenzyGoal(DistanceUnit.INCH, 1, new Pose2d(23.5, -64.5));
+    FreightFrenzyGoal sharedHubRed = new FreightFrenzyGoal(DistanceUnit.INCH, 1, new Pose2d(46, 0));
+
+
+
+
+
+
 //         powerShotLeft = new UltimateGoalGoal(30 * 0.0254, new Pose2d(71 * 0.0254, 20 * 0.0254, 0));
 //         powerShotMid = new UltimateGoalGoal(30 * 0.0254, new Pose2d(71 * 0.0254, 12 * 0.0254, 0));
 //         powerShotRight = new UltimateGoalGoal(30 * 0.0254, new Pose2d(71 * 0.0254, 4.25 * 0.0254, 0));
