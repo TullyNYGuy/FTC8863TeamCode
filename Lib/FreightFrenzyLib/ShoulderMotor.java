@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib;
 
 
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -49,7 +50,7 @@ public class ShoulderMotor {
         shoulderMotor = new DcMotor8863(SHOULDER_MOTOR_NAME, hardwareMap);
         shoulderMotor.setMotorType(DcMotor8863.MotorType.GOBILDA_117); // this sets the type of motor we are using
         shoulderMotor.setMovementPerRev(360); // 360 degrees per revolution, our position will be in degrees
-        shoulderMotor.setDirection(DcMotorSimple.Direction.FORWARD); // says which direction (clockwise or counter clockwise) is considered a positive rotation
+        shoulderMotor.setDirection(DcMotorSimple.Direction.REVERSE); // says which direction (clockwise or counter clockwise) is considered a positive rotation
     }
     //*********************************************************************************************
     //          Helper Methods
@@ -67,15 +68,15 @@ public class ShoulderMotor {
         // power ranges from -1.0 (backwards rotation) to +1.0 (forwards rotation). Example: 0.5 is forwards 50% power
         // position is in degrees. 0 is the starting position (on the stop)
         // HOLD tells the motor to hold its position when it reaches the target position
-        shoulderMotor.moveToPosition(1.0,135.0, DcMotor8863.FinishBehavior.HOLD);
+        shoulderMotor.moveToPosition(.5,145, DcMotor8863.FinishBehavior.HOLD);
     }
 
     public void down() {
-        shoulderMotor.moveToPosition( 1.0,225.0, DcMotor8863. FinishBehavior.HOLD);
+        shoulderMotor.moveToPosition( .25,254.4, DcMotor8863. FinishBehavior.HOLD);
     }
 
     public void storage() {
-        shoulderMotor.moveToPosition(  1.0,0, DcMotor8863. FinishBehavior.HOLD);
+        shoulderMotor.moveToPosition(  .5,6.5, DcMotor8863. FinishBehavior.HOLD);
     }
 
     public boolean isPositionReached() {
@@ -88,5 +89,10 @@ public class ShoulderMotor {
 
     public void update() {
         shoulderMotor.update();
+    }
+
+    public void displayPosition(Telemetry telemetry) {
+        telemetry.addData("encoder position = ", shoulderMotor.getCurrentPosition());
+        telemetry.addData("position in degrees = ", shoulderMotor.getPositionInTermsOfAttachment());
     }
 }

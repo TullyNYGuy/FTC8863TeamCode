@@ -33,60 +33,72 @@ public class TestFFArm extends LinearOpMode {
 
         arm.storage();
         while (opModeIsActive() && !arm.isPositionReached()) {
+            arm.update();
+            telemetry.addData("moving to storage position","!");
+            telemetry.update();
             idle();
         }
 
         timer.reset();
         while (opModeIsActive() && timer.milliseconds() < 2000) {
+            arm.update();
+            telemetry.addData("at storage position","!");
+            telemetry.update();
             idle();
         }
 
         arm.carry();
         while (opModeIsActive() && !arm.isPositionReached()) {
+            arm.update();
+            telemetry.addData("moving to carry position","!");
+            telemetry.update();
             idle();
         }
 
         timer.reset();
         while (opModeIsActive() && timer.milliseconds() < 2000) {
+            arm.update();
+            telemetry.addData("at carry position","!");
+            telemetry.update();
             idle();
         }
 
-        arm.pickup();
-        while (opModeIsActive() && !arm.isPositionReached()) {
-            idle();
-        }
-
-
-        timer.reset();
-        while (opModeIsActive() && timer.milliseconds() < 2000) {
-            idle();
-        }
-
-        arm.carry();
-        while (opModeIsActive() && !arm.isPositionReached()) {
-            idle();
-        }
-
-        timer.reset();
-        while (opModeIsActive() && timer.milliseconds() < 2000) {
-            idle();
-        }
-
-        arm.dropoff();
-        while (opModeIsActive() && !arm.isPositionReached()) {
-            idle();
-        }
-
-        timer.reset();
-        while (opModeIsActive() && timer.milliseconds() < 2000) {
-            idle();
-        }
-
-        arm.openClaw();
-
-        while (opModeIsActive()) {
-            idle();
-        }
+//        arm.pickup();
+//        while (opModeIsActive() && !arm.isPositionReached()) {
+//            idle();
+//        }
+//
+//
+//        timer.reset();
+//        while (opModeIsActive() && timer.milliseconds() < 2000) {
+//            idle();
+//        }
+//
+//        arm.carry();
+//        while (opModeIsActive() && !arm.isPositionReached()) {
+//            idle();
+//        }
+//
+//        timer.reset();
+//        while (opModeIsActive() && timer.milliseconds() < 2000) {
+//            idle();
+//        }
+//
+//        arm.dropoff();
+//        while (opModeIsActive() && !arm.isPositionReached()) {
+//            idle();
+//        }
+//
+//        timer.reset();
+//        while (opModeIsActive() && timer.milliseconds() < 2000) {
+//            idle();
+//        }
+//
+//        arm.openClaw();
+//
+//        while (opModeIsActive()) {
+//            idle();
+//        }
 
         // Put your cleanup code here - it runs as the application shuts down
         telemetry.addData(">", "Done");
