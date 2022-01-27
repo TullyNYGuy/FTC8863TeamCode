@@ -78,9 +78,15 @@ public class ShoulderMotor {
     public void storage() {
         shoulderMotor.moveToPosition(  1,6.5, DcMotor8863. FinishBehavior.HOLD);
     }
-    public void hold() {
-        shoulderMotor.moveToPosition(  1,20, DcMotor8863. FinishBehavior.HOLD);
+
+    public void holdFinalPosition() {
+        shoulderMotor.moveToPosition(  .25,20, DcMotor8863. FinishBehavior.HOLD);
     }
+
+    public void holdPrePosition() {
+        shoulderMotor.moveToPosition(  1,40, DcMotor8863. FinishBehavior.HOLD);
+    }
+
     public boolean isPositionReached() {
         return shoulderMotor.isMovementComplete();
     }

@@ -29,6 +29,19 @@ public class FFArm implements FTCRobotSubsystem {
         CLOSE,
     }
 
+    private enum State {
+        // states for returning to hold position (storage with element)
+        // the idea is to get the arm to slow down before it arrives at the hold position so it
+        // does not overshoot as badly and bang into the robot
+        IDLE,
+        MOVING_TO_HOLD_PRE_POSITION,
+        AT_HOLD_PRE_POSITION,
+        MOVING_TO_HOLD_FINAL_POSITION,
+        AT_HOLD_POSITION
+    }
+
+    private State state;
+
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS AND SETTERS and GETTERS
     //
@@ -55,7 +68,7 @@ public class FFArm implements FTCRobotSubsystem {
         clawServo = new ClawServo(hardwareMap, telemetry);
         wristServo = new WristServo(hardwareMap, telemetry);
         shoulderMotor = new ShoulderMotor(hardwareMap, telemetry);
-
+        state = State.IDLE;
     }
     //*********************************************************************************************
     //          Helper Methods
@@ -133,7 +146,11 @@ to use the arm. */
 
 
     public void storageWithElement() {
-        shoulderMotor.hold();
+        //shoulderMotor.hold();
+        // start the movement of the shoulder motor to the hold preposition
+        shoulderMotor.holdPrePosition();
+        // setup to run the state machine associated with this command
+        state = State.MOVING_TO_HOLD_PRE_POSITION;
         wristServo.hold();
         clawServo.close();
         clawState = ClawState.CLOSE;
@@ -164,7 +181,11 @@ claw is positioned so that it is level with the team shipping hub over it. */
     //make a command backlog thing?
     public boolean isPositionReached() {
         boolean answer = false;
-        if (shoulderMotor.isPositionReached() && wristServo.isPositionReached() && clawServo.isPositionReached()) {
+        // the state machine being IDLE means that any state machine associated with a command has
+        // finished running. Since some commands have state machines and other commands do not, we
+        // need to check both isPositionReached (for the commands without state machines) and
+        // state == IDLE (for the commands that have a state machine)
+        if (shoulderMotor.isPositionReached() && state == State.IDLE && wristServo.isPositionReached() && clawServo.isPositionReached()) {
             answer = true;
         }
         return answer;
@@ -191,6 +212,39 @@ claw is positioned so that it is level with the team shipping hub over it. */
     @Override
     public void update() {
         shoulderMotor.update();
+        switch (state) {
+            case IDLE:
+                // we just be hanging out in this state waiting for someone to tell us to do
+                // somethin
+                break;
+
+            // These next states are to implement to the command storageWithElement()
+            // The idea is to move the arm to a position that is higher than the shoulder motor
+            // hold position, let it arrive there and once it does arrive there, then move it more
+            // slowly into the final hold position. Hopefully this eliminates the overshoot that the
+            // arm has when moving to the hold position. The better way to do this would be to
+            // implement a PIDF with F accounting for the force of gravity. But there is only so
+            // much time ...
+            case MOVING_TO_HOLD_PRE_POSITION:
+                // is the hold pre-position reached yet?
+                if (shoulderMotor.isPositionReached()) {
+                    // yes so now command the shoulder motor to go to the final hold position
+                    shoulderMotor.holdFinalPosition();
+                    state = State.MOVING_TO_HOLD_FINAL_POSITION;
+                }
+                // if not then just keep looping in this state until the pre position is reached
+                break;
+            case MOVING_TO_HOLD_FINAL_POSITION:
+                if (shoulderMotor.isPositionReached()) {
+                    // yes so the arm has arrived at the final hold position. The shoulder is now
+                    // at IDLE waiting for a new command
+                    state = State.IDLE;
+                }
+                // if not then just keep looping in this state until the hold position is reached
+                break;
+
+                // any states associated with other commands will get inserted into the state machine
+        }
     }
 
     @Override
