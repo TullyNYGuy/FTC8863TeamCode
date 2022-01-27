@@ -8,6 +8,8 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
 
+import java.util.Timer;
+
 public class FFArm implements FTCRobotSubsystem {
 
     //*********************************************************************************************
@@ -16,12 +18,10 @@ public class FFArm implements FTCRobotSubsystem {
     // user defined types
     //
     //*********************************************************************************************
-    private enum NextCommand {
-        PICKUP,
-        STORAGE,
-        CARRY,
-        DROPOFF,
-        HOLD,
+    private enum ArmCommand {
+        DOWN,
+        UP,
+
     }
 
     private enum ClawState {
@@ -42,7 +42,7 @@ public class FFArm implements FTCRobotSubsystem {
     private DataLogging logFile;
     private boolean loggingOn = false;
     private Boolean initComplete = false;
-    private NextCommand nextCommand;
+    private ArmCommand armCommand;
     private ClawState clawState;
 
     //*********************************************************************************************
@@ -89,21 +89,30 @@ public class FFArm implements FTCRobotSubsystem {
 top of the team shipping element at a flat angle. The shoulder is positioned downwards and the wrist
 is also positioned down. */
 
+
+    public void closeAndUp(){
+        switch(armCommand) {
+            case DOWN:
+
+            case UP:
+        }
+    }
     public void pickup() {
         shoulderMotor.down();
         wristServo.pickup();
         clawServo.open();
         clawState = ClawState.OPEN;
+
     }
 /* The shoulder is in the up position holding the team shipping element while the wrist is in the
 carry position. It is used when we need to drive to the team shipping hub to cap it on top of it. */
 
-    public void carry() {
+   /* public void carry() {
         shoulderMotor.up();
         wristServo.hold();
         clawServo.close();
         clawState = ClawState.CLOSE;
-    }
+    }*/
 
 
     public void lineUp() {
@@ -124,7 +133,7 @@ to use the arm. */
 
 
     public void storageWithElement() {
-        shoulderMotor.storage();
+        shoulderMotor.hold();
         wristServo.hold();
         clawServo.close();
         clawState = ClawState.CLOSE;

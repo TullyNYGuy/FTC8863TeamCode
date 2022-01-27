@@ -68,7 +68,7 @@ public class ShoulderMotor {
         // power ranges from -1.0 (backwards rotation) to +1.0 (forwards rotation). Example: 0.5 is forwards 50% power
         // position is in degrees. 0 is the starting position (on the stop)
         // HOLD tells the motor to hold its position when it reaches the target position
-        shoulderMotor.moveToPosition(.5,145, DcMotor8863.FinishBehavior.HOLD);
+        shoulderMotor.moveToPosition(1,145, DcMotor8863.FinishBehavior.HOLD);
     }
 
     public void down() {
@@ -76,9 +76,11 @@ public class ShoulderMotor {
     }
 
     public void storage() {
-        shoulderMotor.moveToPosition(  .5,6.5, DcMotor8863. FinishBehavior.HOLD);
+        shoulderMotor.moveToPosition(  1,6.5, DcMotor8863. FinishBehavior.HOLD);
     }
-
+    public void hold() {
+        shoulderMotor.moveToPosition(  1,20, DcMotor8863. FinishBehavior.HOLD);
+    }
     public boolean isPositionReached() {
         return shoulderMotor.isMovementComplete();
     }

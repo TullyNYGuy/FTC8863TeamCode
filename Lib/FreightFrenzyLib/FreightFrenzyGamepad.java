@@ -153,13 +153,13 @@ public class FreightFrenzyGamepad {
         // create the gamepad 1 buttons and tell each button how many commands it has
         gamepad1RightBumper = new GamepadButtonMultiPush(1);
         gamepad1LeftBumper = new GamepadButtonMultiPush(1);
-        gamepad1a = new GamepadButtonMultiPush(1);
+        gamepad1a = new GamepadButtonMultiPush(2);
         gamepad1b = new GamepadButtonMultiPush(1);
         gamepad1y = new GamepadButtonMultiPush(1);
         gamepad1x = new GamepadButtonMultiPush(1);
         gamepad1DpadUp = new GamepadButtonMultiPush(2);
         gamepad1DpadDown = new GamepadButtonMultiPush(2);
-        gamepad1DpadLeft = new GamepadButtonMultiPush(1);
+        gamepad1DpadLeft = new GamepadButtonMultiPush(2);
         gamepad1DpadRight = new GamepadButtonMultiPush(1);
         gamepad1LeftStickButton = new GamepadButtonMultiPush(1);
         gamepad1RightStickButton = new GamepadButtonMultiPush(1);
@@ -192,7 +192,7 @@ public class FreightFrenzyGamepad {
         gamepad2DpadDown = new GamepadButtonMultiPush(1);
         gamepad2DpadUp = new GamepadButtonMultiPush(1);
         gamepad2DpadLeft = new GamepadButtonMultiPush(1);
-        gamepad2DpadRight = new GamepadButtonMultiPush(1);
+        gamepad2DpadRight = new GamepadButtonMultiPush(2);
         gamepad2LeftStickButton = new GamepadButtonMultiPush(1);
         gamepad2RightStickButton = new GamepadButtonMultiPush(1);
 
@@ -249,27 +249,26 @@ public class FreightFrenzyGamepad {
         if (gamepad1RightBumper.buttonPress(gamepad1.right_bumper)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            gamepad1LeftJoyStickX.setFullPower();
-            gamepad1LeftJoyStickY.setFullPower();
-            gamepad1RightJoyStickX.setFullPower();
-            gamepad1RightJoyStickY.setFullPower();
+
         }
 
         if (gamepad1LeftBumper.buttonPress(gamepad1.left_bumper)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            gamepad1LeftJoyStickX.setHalfPower();
-            gamepad1LeftJoyStickY.setHalfPower();
-            gamepad1RightJoyStickX.setHalfPower();
-            gamepad1RightJoyStickY.setHalfPower();
+
         }
 
         if (gamepad1a.buttonPress(gamepad1.a)) {
+            if (gamepad1a.isCommand1()) {
             robot.intake.turnOn();
+            }
+            if (gamepad1a.isCommand2()) {
+                robot.intake.turnOff();
+            }
         }
 
         if (gamepad1b.buttonPress(gamepad1.b)) {
-            robot.intake.turnOff();
+            robot.arm.toggleClaw();
         }
 
         if (gamepad1y.buttonPress(gamepad1.y)) {
@@ -281,10 +280,7 @@ public class FreightFrenzyGamepad {
         }
 
         if (gamepad1DpadUp.buttonPress(gamepad1.dpad_up)) {
-            // this was a new button press, not a
-            //button held down for a while
-            // put the command to be executed here
-           //robot.mecanum.resetAdjustAngle();
+
         }
 
         if (gamepad1DpadDown.buttonPress(gamepad1.dpad_down)) {
@@ -294,9 +290,18 @@ public class FreightFrenzyGamepad {
         }
 
         if (gamepad1DpadLeft.buttonPress(gamepad1.dpad_left)) {
-            // this was a new button press, not a button held down for a while
-            // put the command to be executed here
-
+            if (gamepad1DpadLeft.isCommand1()) {
+                gamepad1LeftJoyStickX.setFullPower();
+                gamepad1LeftJoyStickY.setFullPower();
+                gamepad1RightJoyStickX.setFullPower();
+                gamepad1RightJoyStickY.setFullPower();
+            }
+            if (gamepad1DpadLeft.isCommand2()) {
+                gamepad1LeftJoyStickX.setHalfPower();
+                gamepad1LeftJoyStickY.setHalfPower();
+                gamepad1RightJoyStickX.setHalfPower();
+                gamepad1RightJoyStickY.setHalfPower();
+            }
         }
 
         if (gamepad1DpadRight.buttonPress(gamepad1.dpad_right)) {
@@ -359,18 +364,10 @@ public class FreightFrenzyGamepad {
                 robot.arm.closeClaw();
             }
              */
-            robot.arm.toggleClaw();
+
         }
 
         if (gamepad2LeftBumper.buttonPress(gamepad2.left_bumper)) {
-
-            if (gamepad2LeftBumper.isCommand1()) {
-               robot.duckSpinner.turnOn();
-            }
-            if (gamepad2LeftBumper.isCommand2()) {
-                robot.duckSpinner.turnOff();
-            }
-
 
         }
 
@@ -379,7 +376,7 @@ public class FreightFrenzyGamepad {
         }
 
         if (gamepad2b.buttonPress(gamepad2.b)) {
-            robot.arm.carry();
+
         }
 
         if (gamepad2y.buttonPress(gamepad2.y)) {
@@ -406,13 +403,13 @@ public class FreightFrenzyGamepad {
         if (gamepad2DpadLeft.buttonPress(gamepad2.dpad_left)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            robot.duckSpinner.turnOn();
+
         }
 
         if (gamepad2DpadRight.buttonPress(gamepad2.dpad_right)) {
-            // this was a new button press, not a button held down for a while
-            // put the command to be executed here
-            robot.duckSpinner.turnOff();
+            if(gamepad2DpadRight.isCommand1()){robot.duckSpinner.turnOn();}
+            if(gamepad2DpadRight.isCommand2()){robot.duckSpinner.turnOff();}
+
         }
 
         if (gamepad2LeftStickButton.buttonPress(gamepad2.left_stick_button)) {

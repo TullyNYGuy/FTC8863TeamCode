@@ -470,24 +470,24 @@ public class MecanumDriveFreightFrenzy extends MecanumDrive implements FTCRobotS
         );
         //NOTE that the teleop or other calling code must call the drive update() method.
     }
-    *//**
+   /**
      * Calculate motor powers for driving in teleop using a joystick (x and y) that controls the direction of
      * movement of the robot (translation) and a joystick (x) that controls the heading of the robot.
      * The movement is relative to the robot.
      * @param translationJoystickYValue
      * @param translationJoystickXValue
      * @param rotationJoystickXValue
-     *//*
+     */
     public void calculateMotorCommandsRobotCentric(double translationJoystickYValue, double translationJoystickXValue, double rotationJoystickXValue) {
         setWeightedDrivePower(
                 new Pose2d(
-                        translationJoystickYValue,
-                        translationJoystickXValue,
+                        -translationJoystickYValue,
+                        -translationJoystickXValue,
                         -rotationJoystickXValue
                 )
         );
         //NOTE that the teleop or other calling code must call the drive update() method.
-    }*/
+    }
 
     @Override
     public String getName() {
