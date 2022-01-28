@@ -11,7 +11,7 @@ package org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib;
  *    / DPad Left        -
  *    / DPad Down        - toggle mode (driver or robot)
  *    / DPad Right       -
- *    / A                - turn intake on
+ *    / A                - turn intake on and deliver
  *    / B                - turn intake off
  *    / X                - eject into level 1
  *    / Y                - eject at intake position
@@ -260,7 +260,7 @@ public class FreightFrenzyGamepad {
 
         if (gamepad1a.buttonPress(gamepad1.a)) {
             if (gamepad1a.isCommand1()) {
-            robot.intake.turnOn();
+                robot.intake.intakeAndHold();
             }
             if (gamepad1a.isCommand2()) {
                 robot.intake.turnOff();
@@ -272,7 +272,7 @@ public class FreightFrenzyGamepad {
         }
 
         if (gamepad1y.buttonPress(gamepad1.y)) {
-            robot.intake.ejectAtIntake();
+            robot.intake.ejectOntoFloor();
         }
 
         if (gamepad1x.buttonPress(gamepad1.x)) {

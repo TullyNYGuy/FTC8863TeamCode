@@ -1,27 +1,29 @@
 package org.firstinspires.ftc.teamcode.opmodes.FreightFrenzyTest;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Test Lift Switches", group = "Test")
+@TeleOp(name = "Test Lift Init", group = "Test")
 //@Disabled
-public class TestLiftLimitSwitches extends LinearOpMode {
+public class TestLiftInit extends LinearOpMode {
 
     // Put your variable declarations here
     ExtensionRetractionMechanism lift;
+    DataLogging log;
 
     @Override
     public void runOpMode() {
 
 
         // Put your initializations here
+        log = new DataLogging("LiftLog");
         lift = new ExtensionRetractionMechanism(hardwareMap, telemetry,
                 "Lift",
                 "ExtensionLimitSwitch",
@@ -31,6 +33,16 @@ public class TestLiftLimitSwitches extends LinearOpMode {
                 4.517);
         lift.reverseMotorDirection();
 
+
+        //lift.reverseMotorDirection();
+        lift.setResetTimerLimitInmSec(25000);
+        lift.setExtensionPower(1.0);
+        lift.setExtensionPositionInMechanismUnits(20.0);
+        lift.setRetractionPower(-0.2);
+        lift.setRetractionPositionInMechanismUnits(2.0);
+        lift.setDataLog(log);
+        lift.enableDataLogging();
+
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
         telemetry.update();
@@ -38,14 +50,12 @@ public class TestLiftLimitSwitches extends LinearOpMode {
 
         // Put your calls here - they will not run in a loop
 
-        while (opModeIsActive()) {
+        lift.testInit(this);
 
-            // Put your calls that need to run in a loop here
-
-            lift.testLimitSwitches();
-            telemetry.addData(">", "Press Stop to end test.");
+        // after the reset is complete just loop so the user can see the state
+        while (opModeIsActive()){
+            telemetry.addData("state = ", lift.getExtensionRetractionState().toString());
             telemetry.update();
-
             idle();
         }
 
