@@ -38,12 +38,8 @@ public class TrackingWheelLocalizerFreightFrenzy extends ThreeTrackingWheelLocal
     // TrackingWheelLateralDistanceTuner says this for slow turning
     //public static double LATERAL_DISTANCE = 16.094; // in; distance between the left and right wheels
     // TrackingWheelLateralDistanceTuner says this for fast turning
-    public static double LATERAL_DISTANCE = 16.018; // in; distance between the left and right wheels
-    // CAD says this
-    //public static double FORWARD_OFFSET = -7.380; // in; offset of the lateral wheel
-    //TrackingWheelForwardOffsetTunerUlitmateGoal says this
-    public static double FORWARD_OFFSET = -7.510; // in; offset of the lateral wheel
-
+    public static double LATERAL_DISTANCE = 10.7969; // in; distance between the left and right wheels
+    public static double FORWARD_OFFSET = -5.5; // in; offset of the lateral wheel
     // use these to adjust for wheel radius differences
     public static double X_MULTIPLIER = .9870; // Multiplier in the X direction
     public static double Y_MULTIPLIER = .9926; // Multiplier in the Y direction
