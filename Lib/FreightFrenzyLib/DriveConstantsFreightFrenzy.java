@@ -59,10 +59,9 @@ public class DriveConstantsFreightFrenzy {
      * empirically tuned.
      */
     //public static double kV = 1.0 / rpmToVelocity(MAX_RPM);
-    public static double kV = 0.0161;
-    //public static double kA = .0036;
-    public static double kA = 0.0020;
-    public static double kStatic = .08306;
+    public static double kV = .016;
+    public static double kA = 0.00375365;
+    public static double kStatic = 0.075;
 
     /*
      * These values are used to generate the trajectories for you robot. To ensure proper operation,

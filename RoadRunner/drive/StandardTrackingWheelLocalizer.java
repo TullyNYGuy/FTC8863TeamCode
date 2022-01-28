@@ -36,8 +36,12 @@ public class StandardTrackingWheelLocalizer extends ThreeTrackingWheelLocalizer 
 
     // use these to adjust for wheel radius differences
     //public static double X_MULTIPLIER = 1.0149; // Multiplier in the X direction
-    public static double LEFT_X_MULTIPLIER = 1.0171605; // Multiplier in the X direction
-    public static double RIGHT_X_MULTIPLIER = 1.0149; // Multiplier in the X direction
+    public static double LEFT_X_MULTIPLIER = 1.00722888; // Multiplier in the X direction
+    public static double RIGHT_X_MULTIPLIER = 1.010419368; // Multiplier in the X direction
+    // original multipliers
+   // public static double LEFT_X_MULTIPLIER = 1.0171605; // Multiplier in the X direction
+  // public static double RIGHT_X_MULTIPLIER = 1.0149; // Multiplier in the X direction
+
     //public static double Y_MULTIPLIER = 1.0243; // Multiplier in the Y direction
     public static double Y_MULTIPLIER = 1.006938983050; // Multiplier in the Y direction
 
@@ -62,7 +66,7 @@ public class StandardTrackingWheelLocalizer extends ThreeTrackingWheelLocalizer 
                 new Pose2d(FORWARD_OFFSET, 0, Math.toRadians(90)) // front
         ));
 
-        leftEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "leftFrontMotor"));
+        leftEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "rightFrontMotor"));
         rightEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "leftRearMotor"));
         frontEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "rightRearMotor"));
 

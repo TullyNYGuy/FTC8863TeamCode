@@ -38,15 +38,13 @@ public class TrackingWheelLocalizerFreightFrenzy extends ThreeTrackingWheelLocal
     // TrackingWheelLateralDistanceTuner says this for slow turning
     //public static double LATERAL_DISTANCE = 16.094; // in; distance between the left and right wheels
     // TrackingWheelLateralDistanceTuner says this for fast turning
-    public static double LATERAL_DISTANCE = 16.018; // in; distance between the left and right wheels
-    // CAD says this
-    //public static double FORWARD_OFFSET = -7.380; // in; offset of the lateral wheel
-    //TrackingWheelForwardOffsetTunerUlitmateGoal says this
-    public static double FORWARD_OFFSET = -7.510; // in; offset of the lateral wheel
+    public static double LATERAL_DISTANCE = 10.7969; // in; distance between the left and right wheels
+    public static double FORWARD_OFFSET = -5.5; // in; offset of the lateral wheel
 
     // use these to adjust for wheel radius differences
-    public static double X_MULTIPLIER = .9870; // Multiplier in the X direction
-    public static double Y_MULTIPLIER = .9926; // Multiplier in the Y direction
+    public static double LEFT_X_MULTIPLIER = 1.00722888; // Multiplier in the X direction
+    public static double RIGHT_X_MULTIPLIER = 1.010419368; // Multiplier in the X direction
+    public static double Y_MULTIPLIER = 1.006938983050; // Multiplier in the Y direction
 
     private Encoder leftEncoder, rightEncoder, frontEncoder;
 
@@ -69,9 +67,9 @@ public class TrackingWheelLocalizerFreightFrenzy extends ThreeTrackingWheelLocal
                 new Pose2d(FORWARD_OFFSET, 0, Math.toRadians(90)) // front
         ));
 
-        leftEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, FreightFrenzyRobotRoadRunner.HardwareName.CONFIG_FL_MOTOR.hwName));
-        rightEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, FreightFrenzyRobotRoadRunner.HardwareName.CONFIG_BL_MOTOR.hwName));
-        frontEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, FreightFrenzyRobotRoadRunner.HardwareName.CONFIG_BR_MOTOR.hwName));
+        leftEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "rightFrontMotor"));
+        rightEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "leftRearMotor"));
+        frontEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "rightRearMotor"));
 
         // TODO: reverse any encoders using Encoder.setDirection(Encoder.Direction.REVERSE)
         frontEncoder.setDirection(Encoder.Direction.REVERSE);
@@ -88,8 +86,8 @@ public class TrackingWheelLocalizerFreightFrenzy extends ThreeTrackingWheelLocal
     @Override
     public List<Double> getWheelPositions() {
         return Arrays.asList(
-                encoderTicksToInches(leftEncoder.getCurrentPosition()) * X_MULTIPLIER,
-                encoderTicksToInches(rightEncoder.getCurrentPosition()) * X_MULTIPLIER,
+                encoderTicksToInches(leftEncoder.getCurrentPosition()) * LEFT_X_MULTIPLIER,
+                encoderTicksToInches(rightEncoder.getCurrentPosition()) * RIGHT_X_MULTIPLIER,
                 encoderTicksToInches(frontEncoder.getCurrentPosition()) * Y_MULTIPLIER
         );
     }
@@ -102,8 +100,8 @@ public class TrackingWheelLocalizerFreightFrenzy extends ThreeTrackingWheelLocal
         //  compensation method
 
         return Arrays.asList(
-                encoderTicksToInches(leftEncoder.getCorrectedVelocity()) * X_MULTIPLIER,
-                encoderTicksToInches(rightEncoder.getCorrectedVelocity()) * X_MULTIPLIER,
+                encoderTicksToInches(leftEncoder.getCorrectedVelocity()) * LEFT_X_MULTIPLIER,
+                encoderTicksToInches(rightEncoder.getCorrectedVelocity()) * RIGHT_X_MULTIPLIER,
                 encoderTicksToInches(frontEncoder.getCorrectedVelocity()) * Y_MULTIPLIER
         );
     }
