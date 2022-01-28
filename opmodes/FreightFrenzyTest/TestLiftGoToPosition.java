@@ -34,11 +34,9 @@ public class TestLiftGoToPosition extends LinearOpMode {
                 4.517);
         lift.reverseMotorDirection();
 
-
-        //lift.reverseMotorDirection();
         lift.setResetTimerLimitInmSec(25000);
-        lift.setExtensionPower(1.0);
-        lift.setExtensionPositionInMechanismUnits(18.0);
+        lift.setExtensionPower(0.9);
+        lift.setExtensionPositionInMechanismUnits(31.0);
         lift.setRetractionPower(-0.5);
         lift.setRetractionPositionInMechanismUnits(3.0);
         lift.setDataLog(log);
@@ -51,7 +49,7 @@ public class TestLiftGoToPosition extends LinearOpMode {
 
         // Put your calls here - they will not run in a loop
 
-        lift.testGoToPosition(this, 10.0, 1.0);
+        lift.testGoToPosition(this, 30.0, 1.0);
 
         // after the retraction is complete, loop so the user can see the result
         while (opModeIsActive()){
