@@ -27,7 +27,9 @@ public class ExtensionRetractionMechanism {
         GO_TO_EXTENDED, // extend fully
         GO_TO_POSITION, // go to a specified position between fully extended and fully retracted
         RESET, // it is assumed that a reset moves the mechanism to a retracted position
-        JOYSTICK // run under joystick control
+        JOYSTICK, // run under joystick control
+        HOLD_AT_RETRACT, // internal command not publicly accessible, used to limit the joystick travel
+        HOLD_AT_EXTENSION // internal command not publicly accessible, used to limit the joystick travel
     }
 
     /**
@@ -53,7 +55,13 @@ public class ExtensionRetractionMechanism {
         MOVING_TO_POSITION, // moving to a specified position
         AT_POSITION, // arrived at the specified position
         START_JOYSTICK, //
-        JOYSTICK // under joystick control
+        JOYSTICK, // under joystick control
+        START_HOLD_AT_RETRACT_SEQUENCE, // internal state not publicly accessible, used to limit the joystick travel
+        MOVING_TO_HOLD_AT_RETRACT,
+        HOLDING_AT_RETRACT,
+        START_HOLD_AT_EXTENSION_SEQUENCE, // internal state not publicly accessible, used to limit the joystick travel
+        MOVING_TO_HOLD_AT_EXTEND,
+        HOLDING_AT_EXTEND;
     }
 
     /**
@@ -69,7 +77,27 @@ public class ExtensionRetractionMechanism {
         NOT_TRIPPED
     }
 
+    /**
+     * Enum that indicates if a limit was reached.
+     */
     private LimitTripBy limitTripBy = LimitTripBy.NOT_TRIPPED;
+
+    private enum LimitReached {
+        RETRACTION,
+        EXTENSION,
+        NONE
+    }
+
+    private LimitReached limitReached = LimitReached.NONE;
+
+    private enum JoystickStatus {
+        DISABLE_RETRACTION,
+        DISABLE_EXTENSION,
+        DISABLE_BOTH_DIRECTIONS,
+        ENABLE
+    }
+
+    private JoystickStatus joystickStatus = JoystickStatus.DISABLE_BOTH_DIRECTIONS;
 
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS
@@ -224,6 +252,17 @@ public class ExtensionRetractionMechanism {
 
     public int getCurrentEncoderValue() {
         return currentEncoderValue;
+    }
+
+    /**
+     * The current position of the mechanism in mechanism units
+     */
+    private double currentPosition = 0;
+
+    public double getCurrentPosition() {
+        // ask the motor since it knows
+        currentPosition = extensionRetractionMotor.getPositionInTermsOfAttachment();
+        return currentPosition;
     }
 
     /**
@@ -411,6 +450,11 @@ public class ExtensionRetractionMechanism {
 
     protected boolean loggingOn = false;
 
+    // save last string sent to log so that it can be used whether to send another string
+    private String lastJoystickLogString = "";
+    private String lastFullExtensionRetractionLogString = "";
+    private String lastLimitLogString = "";
+
     /**
      * Collect time vs encoder count data for debug purposes
      */
@@ -597,7 +641,6 @@ public class ExtensionRetractionMechanism {
     /**
      * This method wraps the equivalent method in the DcMotor8863 class. The reason for this is that
      * I don't want to expose the motor publicly. But other code will need access to this method.
-     * I did not like the name of this method. Is does not say what it does really. Use
      * @return
      */
     public boolean isMovementComplete() {
@@ -632,13 +675,22 @@ public class ExtensionRetractionMechanism {
     }
 
     /**
+     * Given the encoder count, return the position of the mechanism in mechanism units
+     * @param encoderCount position in encoder counts
+     * @return position in mechanism units
+     */
+    private double convertEncoderCountsToMechanismUnits(int encoderCount) {
+        return (movementPerRevolution / extensionRetractionMotor.getCountsPerRev() * encoderCount);
+    }
+
+    /**
      * Write a string into the logfile.
      *
      * @param stringToLog
      */
     protected void log(String stringToLog) {
         if (logFile != null && loggingOn) {
-            logFile.logData(stringToLog);
+            logFile.logData(mechanismName, stringToLog);
         }
     }
 
@@ -1090,8 +1142,7 @@ public class ExtensionRetractionMechanism {
         // actions.
         // after a reset, there is no reason to keep the motor powered and holding a position of 0
         // so set the motor to float
-        setFinishBehavior(DcMotor8863.FinishBehavior.FLOAT);
-        stopMechanism();
+        stopAndFloat();
         extensionRetractionMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
@@ -1117,7 +1168,7 @@ public class ExtensionRetractionMechanism {
      */
     protected boolean arePostResetActionsComplete() {
         // put your custom code to check whether the actions are complete here
-        log("Post reset actions complete " + mechanismName);
+        log("Post reset actions complete");
         return true;
     }
 
@@ -1185,7 +1236,7 @@ public class ExtensionRetractionMechanism {
      */
     protected boolean arePreRetractActionsComplete() {
         // put your custom code to check whether the actions are complete here
-        log("Pre retract actions complete " + mechanismName);
+        log("Pre retract actions complete");
         return true;
     }
 
@@ -1194,14 +1245,25 @@ public class ExtensionRetractionMechanism {
      * fully retracted position.
      */
     private void moveToFullRetract() {
-        // when the mechanism retracts you may want to do something with whatever is attached to it.
-        extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        // this is to fix a bug, when the lift resets, it leaves the motor in float mode. In order
-        // for the lift to stay retracted, hold has to be set
-        setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
-        // set the limit tripped by to none
-        limitTripBy = LimitTripBy.NOT_TRIPPED;
-        setCurrentPower(retractionPower);
+        // figure out how to move to the retraction limit.
+        if(retractionPositionInEncoderCounts == null) {
+            // There is no retraction limit position. The limit is set by a limit switch. So run the
+            // motor. It will stop when the limit swtich is tripped.
+            extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            // this is to fix a bug, when the lift resets, it leaves the motor in float mode. In order
+            // for the lift to stay retracted, hold has to be set
+            setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
+            // reset the limit tripped by
+            limitTripBy = LimitTripBy.NOT_TRIPPED;
+            setCurrentPower(retractionPower);
+        } else {
+            // The retraction limit is set by a position. Rather than run the motor until a limit
+            // switch is tripped, we can just tell the motor to go to the retraction position.
+            setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
+            double retractionPosition = convertEncoderCountsToMechanismUnits(retractionPositionInEncoderCounts.intValue());
+            extensionRetractionMotor.moveToPosition(retractionPower, retractionPosition, finishBehavior);
+        }
+
     }
 
     /**
@@ -1222,24 +1284,7 @@ public class ExtensionRetractionMechanism {
     protected void performActionsToCompleteRetractMovement() {
         // your actions to complete the retract movement must be coded here. These are suggested
         // actions. You can override these if you need to.
-        // Assuming that the full retraction is when the mechanism is at the reset position, there
-        // is no need to keep the motor powered and holding that position so float the motor.
-        // But if the full retraction is when a position limit was reached, then we have to hold
-        // that position.
-        if (limitTripBy == LimitTripBy.LIMIT_SWITCH){
-            setFinishBehavior(DcMotor8863.FinishBehavior.FLOAT);
-            setCurrentPower(0);
-            log("Stopping mechanism, motor set to float");
-        }
-        if (limitTripBy == LimitTripBy.POSITION) {
-            // Since the retraction limit was tripped by a position, set the mechanism to hold at
-            // that limit position
-            setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
-            extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            extensionRetractionMotor.setTargetPosition(getRetractionPositionInEncoderCounts().intValue());
-            setCurrentPower(1.0);
-            log("Stopping mechanism, attempting to hold position");
-        }
+        stopMechanismAfterLimitReached();
     }
 
     /**
@@ -1264,7 +1309,7 @@ public class ExtensionRetractionMechanism {
      */
     protected boolean arePostRetractActionsComplete() {
         // put your custom code to check whether the actions are complete here
-        log("Post retract actions complete " + mechanismName);
+        log("Post retract actions complete");
         return true;
     }
 
@@ -1276,7 +1321,7 @@ public class ExtensionRetractionMechanism {
         boolean retractionLimitSwitchTripped = isRetractionLimitSwitchPressed();
         if(retractionLimitSwitchTripped) {
             limitTripBy = LimitTripBy.LIMIT_SWITCH;
-            log("Retraction limit switch tripped " + mechanismName);
+            logLimitOnlyOnce("Retraction limit switch pressed");
         }
         return retractionLimitSwitchTripped;
     }
@@ -1294,7 +1339,7 @@ public class ExtensionRetractionMechanism {
             if (extensionRetractionMotor.getCurrentPosition() <= retractionPositionInEncoderCounts) {
                 retractionEncoderValueReached = true;
                 limitTripBy = LimitTripBy.POSITION;
-                log("Retraction encoder limit tripped " + mechanismName);
+                logLimitOnlyOnce("Retraction encoder limit tripped");
             }
         }
         return (retractionEncoderValueReached);
@@ -1309,7 +1354,15 @@ public class ExtensionRetractionMechanism {
      * or less than the retraction position.
      */
     protected boolean isRetractionLimitReached() {
-        return (isRetractionLimitSwitchTripped() || isRetractionLimitPositionReached());
+        boolean result;
+        if (isRetractionLimitSwitchTripped() || isRetractionLimitPositionReached()) {
+            result = true;
+            limitReached = LimitReached.RETRACTION;
+        } else {
+            result = false;
+            limitReached = LimitReached.NONE;
+        }
+        return result;
     }
 
     //**********************************************************************************************
@@ -1349,7 +1402,7 @@ public class ExtensionRetractionMechanism {
      */
     protected boolean arePreExtendActionsComplete() {
         // put your custom code to check whether the actions are complete here
-        log("Pre extend actions complete " + mechanismName);
+        log("Pre extend actions complete");
         return true;
     }
 
@@ -1359,11 +1412,20 @@ public class ExtensionRetractionMechanism {
      */
     private void moveToFullExtend() {
         // when the mechanism extends you may want to do something with whatever is attached to it.
-        extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        // this is to fix a bug, when the lift resets, it leaves the motor in float mode. In order
-        // for the lift to stay extended, hold has to be set
-        setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
-        setCurrentPower(extensionPower);
+        // if the extension limit is only a limit switch then run the motor until the limit
+        // switch is tripped
+        if(extensionPositionInEncoderCounts == null) {
+            extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            // this is to fix a bug, when the lift resets, it leaves the motor in float mode. In order
+            // for the lift to stay extended, hold has to be set
+            setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
+            setCurrentPower(extensionPower);
+        } else {
+            // the retraction limit is set by a position so tell the motor to go to that position
+            setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
+            double extensionPosition = convertEncoderCountsToMechanismUnits(extensionPositionInEncoderCounts.intValue());
+            extensionRetractionMotor.moveToPosition(extensionPower, extensionPosition, finishBehavior);
+        }
     }
 
     /**
@@ -1411,7 +1473,7 @@ public class ExtensionRetractionMechanism {
      */
     protected boolean arePostExtendActionsComplete() {
         // put your custom code to check whether the actions are complete here
-        log("Post extend actions complete " + mechanismName);
+        log("Post extend actions complete");
         return true;
     }
 
@@ -1421,11 +1483,12 @@ public class ExtensionRetractionMechanism {
      * @return true if tripped, false if not tripped or if not defined
      */
     protected boolean isExtensionLimitSwitchTripped() {
-        boolean extensionLimitSwitchReached = isExtensionLimitSwitchPressed();
-        if (extensionLimitSwitchReached) {
-            log("Extension limit switch pressed. " + mechanismName);
+        boolean extensionLimitSwitchTripped = isExtensionLimitSwitchPressed();
+        if (extensionLimitSwitchTripped) {
+            limitTripBy = LimitTripBy.LIMIT_SWITCH;
+            logLimitOnlyOnce("Extension limit switch pressed");
         }
-        return extensionLimitSwitchReached;
+        return extensionLimitSwitchTripped;
     }
 
     /**
@@ -1438,7 +1501,8 @@ public class ExtensionRetractionMechanism {
         if (extensionPositionInEncoderCounts != null) {
             if (extensionRetractionMotor.getCurrentPosition() >= extensionPositionInEncoderCounts) {
                 extensionEncoderValueReached = true;
-                log("Extension encoder limit pressed. " + mechanismName);
+                limitTripBy = LimitTripBy.POSITION;
+                logLimitOnlyOnce("Extension encoder limit tripped");
             }
         }
         return extensionEncoderValueReached;
@@ -1452,7 +1516,22 @@ public class ExtensionRetractionMechanism {
      * or greater than the extension position.
      */
     private boolean isExtensionLimitReached() {
-        return (isExtensionLimitSwitchTripped() || isExtensionLimitPositionReached());
+        boolean result;
+        if (isExtensionLimitSwitchTripped() || isExtensionLimitPositionReached()) {
+            result = true;
+            limitReached = LimitReached.EXTENSION;
+        } else {
+            result = false;
+            limitReached = LimitReached.NONE;
+        }
+        return result;
+    }
+
+    private void logLimitOnlyOnce(String stringToLog) {
+        if (stringToLog != lastLimitLogString) {
+            log(stringToLog);
+            lastLimitLogString = stringToLog;
+        }
     }
 
     //**********************************************************************************************
@@ -1524,6 +1603,24 @@ public class ExtensionRetractionMechanism {
     // Joystick control methods - These methods are called by the states in the state machine
     //**********************************************************************************************
 
+    private boolean isJoystickCommandExtension () {
+        if (joystickPower > 0) {
+            return true;
+        } else {
+            // joystick power < 0 or = 0
+            return false;
+        }
+    }
+
+    private boolean isJoystickCommandRetraction () {
+        if (joystickPower < 0) {
+            return true;
+        } else {
+            // joystick power > 0 or = 0
+            return false;
+        }
+    }
+
     /**
      * Check if it is ok for the driver to use a joystick to apply power to the mechanism. It is ok
      * if:
@@ -1537,19 +1634,25 @@ public class ExtensionRetractionMechanism {
         boolean result = true;
         if (isRetractionLimitReached()) {
             // if the mechanism is at the retracted, only allow it to move up
-            if (joystickPower >= 0) {
+            if (isJoystickCommandExtension()) {
+                joystickStatus = JoystickStatus.ENABLE;
                 result = true;
             } else {
                 // negative so the driver wants it to retract. But it is already fully retracted so we cannot retract more.
+                logFullExtensionRetractionOnlyOnce("Fully retracted. Cannot retract more using joystick");
+                joystickStatus = JoystickStatus.DISABLE_RETRACTION;
                 result = false;
             }
         }
         if (isExtensionLimitReached()) {
             // if the mechanism is at the retracted, only allow it to move up
             if (joystickPower <= 0) {
+                joystickStatus = JoystickStatus.ENABLE;
                 result = true;
             } else {
                 // positive so the driver wants it to extend. But it is already fully extended so we cannot extend more.
+                logFullExtensionRetractionOnlyOnce("Fully extended. Cannot extend more using joystick");
+                joystickStatus = JoystickStatus.DISABLE_EXTENSION;
                 result = false;
             }
         }
@@ -1563,30 +1666,28 @@ public class ExtensionRetractionMechanism {
      * Process a joystick input.
      */
     private void processJoystick() {
-        if (isOkToJoystick()) {
-            extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            setCurrentPower(joystickPower);
-            // not sure about this anymore since the state machine has completely changed. Need to
-            // investigate it.
-            /*
-            if (joystickPower != 0) {
-                extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                extensionRetractionMotor.setPower(joystickPower);
-            } else {
-                // the joystick input is 0 so set the mechanism power to 0
-                extensionRetractionMotor.setPower(0);
-                // this fixes a bug: without resetting the command to NO_COMMAND, the command
-                // remains JOYSTICK. A call to isExtensionArmMovementComplete returns false even
-                // though the mechanism is not moving anymore (joystick command is 0). So any other
-                // code that checks for completion of the mechanism movement just sits and
-                // waits for isMovementComplete to return true. It never will. So
-                // we have to do this when the joystick power is 0:
-                extensionRetractionCommand = ExtensionRetractionCommands.NO_COMMAND;
-            }
-             */
-        } else {
-            // it is not ok to joystick
-            setCurrentPower(0.0);
+        extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        setCurrentPower(joystickPower);
+        // output a log file line if the joystick power is not 0
+        if (joystickPower > 0) {
+            logJoystickDirectionOnlyOnce("Joysticking to extend");
+        }
+        if (joystickPower < 0) {
+            logJoystickDirectionOnlyOnce("Joysticking to retract");
+        }
+    }
+
+    private void logJoystickDirectionOnlyOnce(String stringToLog) {
+        if (stringToLog != lastJoystickLogString) {
+            log(stringToLog);
+            lastJoystickLogString = stringToLog;
+        }
+    }
+
+    private void logFullExtensionRetractionOnlyOnce(String stringToLog) {
+        if (stringToLog != lastFullExtensionRetractionLogString) {
+            log(stringToLog);
+            lastFullExtensionRetractionLogString = stringToLog;
         }
     }
 
@@ -1595,28 +1696,106 @@ public class ExtensionRetractionMechanism {
     //**********************************************************************************************
 
     /**
-     * Cause the mechanism to stop moving.
+     * Cause the mechanism to stop moving. If the finish behavior is set to hold then setup
+     * to actually hold that position. If not, then float.
      */
     protected void stopMechanism() {
         if (finishBehavior == DcMotor8863.FinishBehavior.FLOAT) {
-            log("Stopping mechanism, motor set to float");
-            setCurrentPower(0);
+            stopAndFloat();
         } else {
             // the motor is going to have to actively hold position
-            log("Stopping mechanism, attempting to hold position");
-            extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            extensionRetractionMotor.setTargetPosition(extensionRetractionMotor.getCurrentPosition());
-            setCurrentPower(1.0);
+            stopAndHoldPosition(extensionRetractionMotor.getCurrentPosition());
         }
+    }
+
+    /**
+     * Stop the mechanism after a limit is reached.
+     * If the mechanism was extending, then it will stop and hold position at the extension limit.
+     * If the mechanism was retracting, then
+     *     if the limit switch was tripped the mechanism will stop and float
+     *     if the limit position was tripped the mechanism will stop and hold at the retraction
+     *     limit
+     */
+    private void stopMechanismAfterLimitReached() {
+        // Assuming that the full retraction is when the mechanism is at the reset position, there
+        // is no need to keep the motor powered and holding that position so float the motor.
+        // But if the full retraction is when a position limit was reached, then we have to hold
+        // that position.
+        int targetPositionInEncoderCounts;
+        // note that if no position limit has been set (it is null), then limitTypeBy will not ever
+        // be = POSITION. So there will not be a null value error within this if block of code.
+        if (limitTripBy == LimitTripBy.POSITION){
+            if (limitReached == LimitReached.RETRACTION) {
+                // retraction limit position reached, get the encoder value for the limit position
+                targetPositionInEncoderCounts = getRetractionPositionInEncoderCounts().intValue();
+            } else {
+                // extension limit position reached, get the encoder value for the limit position
+                targetPositionInEncoderCounts = getExtensionPositionInEncoderCounts().intValue();
+            }
+            // Since the limit was tripped by a position, set the mechanism to hold at
+            // that limit position
+            stopAndHoldPosition(targetPositionInEncoderCounts);
+        }
+
+        if (limitTripBy == LimitTripBy.LIMIT_SWITCH){
+            if (limitReached == LimitReached.RETRACTION ) {
+                // restraction limit switch pressed
+                stopAndFloat();
+            } else {
+                // extension limit switch pressed, get the encoder count to hold position at
+                targetPositionInEncoderCounts = getExtensionPositionInEncoderCounts().intValue();
+                stopAndHoldPosition(targetPositionInEncoderCounts);
+            }
+        }
+    }
+
+    private void stopAndHoldAtRetraction() {
+        // Assuming that the full retraction is when the mechanism is at the reset position, there
+        // is no need to keep the motor powered and holding that position so float the motor.
+        // But if the full retraction is when a position limit was reached, then we have to hold
+        // that position.
+        int targetPositionInEncoderCounts;
+        // note that if no position limit has been set (it is null), then limitTypeBy will not ever
+        // be = POSITION. So there will not be a null value error within this if block of code.
+        if (getRetractionPositionInEncoderCounts() == null) {
+            // the retraction limit position is set by a limit switch so retract to there and float
+            targetPositionInEncoderCounts = getRetractionPositionInEncoderCounts().intValue();
+        } else {
+            targetPositionInEncoderCounts = getExtensionPositionInEncoderCounts().intValue();
+        }
+        // Since the limit was tripped by a position, set the mechanism to hold at
+        // that limit position
+        stopAndHoldPosition(targetPositionInEncoderCounts);
+    }
+
+    /**
+     * Stop the mechanism and attempt to hold its position at the given position.
+     * @param targetPositionInEncoderCounts
+     */
+    protected void stopAndHoldPosition(int targetPositionInEncoderCounts) {
+        setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
+        extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        extensionRetractionMotor.setTargetPosition(targetPositionInEncoderCounts);
+        setCurrentPower(1.0);
+        log("Stopping mechanism, attempting to hold position at = " + convertEncoderCountsToMechanismUnits(targetPositionInEncoderCounts));
+    }
+
+    /**
+     * Stop the mechnanism and float the motor. The position may change after this since the motor
+     * is not holding the position.
+     */
+    protected void stopAndFloat() {
+        setFinishBehavior(DcMotor8863.FinishBehavior.FLOAT);
+        setCurrentPower(0);
+        log("Stopping mechanism, motor set to float");
     }
 
     /**
      * Cause the mechanism to stop moving.
      */
     protected void emergencyStop() {
-        extensionRetractionMotor.setFinishBehavior(DcMotor8863.FinishBehavior.FLOAT);
-        log("Emergency Stop mechanism, motor set to float");
-        setCurrentPower(0);
+        log("Emergency Stop!");
+        stopAndFloat();
     }
 
     /**
@@ -1922,13 +2101,13 @@ public class ExtensionRetractionMechanism {
                         // do nothing. This command should never be active in this state.
                         break;
                 }
-
-                // You can perform actions before the retraction movement starts. For example, if you have
-                // another mechanism attached to this one, and it has to turn a certain way in order
-                // to avoid a collision with part of the robot while this mechanism moves to the retraction
-                // position, you can perform that turn and then watch for its completion here. This is
-                // optional. If you don't have any actions, just make arePreResetActionsComplete() return
-                // true in all cases.
+                break;
+            // You can perform actions before the retraction movement starts. For example, if you have
+            // another mechanism attached to this one, and it has to turn a certain way in order
+            // to avoid a collision with part of the robot while this mechanism moves to the retraction
+            // position, you can perform that turn and then watch for its completion here. This is
+            // optional. If you don't have any actions, just make arePreResetActionsComplete() return
+            // true in all cases.
             case PERFORMING_PRE_RETRACTION_ACTIONS:
                 // In case this command is interrupted by another command, and then that command
                 // cannot be run for some reason, save this state and command so that it can be
@@ -2146,13 +2325,13 @@ public class ExtensionRetractionMechanism {
                         // do nothing. This command should never be active in this state.
                         break;
                 }
-
-                // You can perform actions before the extension movement starts. For example, if you have
-                // another mechanism attached to this one, and it has to turn a certain way in order
-                // to avoid a collision with part of the robot while this mechanism moves to the extension
-                // position, you can perform that turn and then watch for its completion here. This is
-                // optional. If you don't have any actions, just make arePreResetActionsComplete() return
-                // true in all cases.
+                break;
+            // You can perform actions before the extension movement starts. For example, if you have
+            // another mechanism attached to this one, and it has to turn a certain way in order
+            // to avoid a collision with part of the robot while this mechanism moves to the extension
+            // position, you can perform that turn and then watch for its completion here. This is
+            // optional. If you don't have any actions, just make arePreResetActionsComplete() return
+            // true in all cases.
             case PERFORMING_PRE_EXTENSION_ACTIONS:
                 // In case this command is interrupted by another command, and then that command
                 // cannot be run for some reason, save this state and command so that it can be
@@ -2540,7 +2719,302 @@ public class ExtensionRetractionMechanism {
                         extensionRetractionState = ExtensionRetractionStates.START_GO_TO_POSITION;
                         break;
                     case JOYSTICK:
-                        processJoystick();
+                        // is retraction limit reached?
+                        if (isRetractionLimitReached()) {
+                            // yes - is joystick command for retraction or joystick command = 0?
+                            if (isJoystickCommandRetraction() || joystickPower == 0) {
+                                // yes - Whoa the mechanism should not be allowed to retract if it is
+                                // already at the retraction limit.
+                                // Start move to retractiom limit sequence and hold there until
+                                // there is a command that extends the mechanism.
+                                extensionRetractionState = ExtensionRetractionStates.START_HOLD_AT_RETRACT_SEQUENCE;
+                            } else {
+                                // joystick command is for extension. No need to worry about the
+                                // retraction limit since the mechanism is supposed to extend.
+                                // Apply the power to the motor
+                                processJoystick();
+                            }
+                        } else {
+                            if (isExtensionLimitReached()) {
+                                // yes - is joystick command for extension or joystick command = 0?
+                                if (isJoystickCommandExtension() || joystickPower == 0) {
+                                    // yes - Whoa the mechanism should not be allowed to extend if
+                                    // it is already at the extension limit.
+                                    // Start move to extension limit sequence and hold there until
+                                    // there is a command that retracts the mechanism.
+                                    extensionRetractionState = ExtensionRetractionStates.START_HOLD_AT_EXTENSION_SEQUENCE;
+                                } else {
+                                    // joystick command is for retraction. No need to worry about the
+                                    // extension limit since the mechanism is supposed to retract.
+                                    // Apply the power to the motor
+                                    processJoystick();
+                                }
+                            } else {
+                                // the mechanism is between the retraction and extension limits,
+                                // allow the joystick command to proceed
+                                processJoystick();
+                            }
+                        }
+                        break;
+                    case HOLD_AT_RETRACT:
+                        break;
+                    case HOLD_AT_EXTENSION:
+                        break;
+                    case NO_COMMAND:
+                        // don't do anything, just hang out
+                        break;
+                }
+                break;
+
+            // -------------------------
+            //   HOLD AT RETRACTION
+            //--------------------------
+
+            case START_HOLD_AT_RETRACT_SEQUENCE:
+                // In case this command is interrupted by another command, and then that command
+                // cannot be run for some reason, save this state and command so that it can be
+                // resumed.
+                previousExtensionRetractionState = ExtensionRetractionStates.START_HOLD_AT_RETRACT_SEQUENCE;
+                previousExtensionRetractionCommand = ExtensionRetractionCommands.JOYSTICK;
+
+                switch (extensionRetractionCommand) {
+                    case RESET:
+                        // a reset can be requested at any time.
+                        previousExtensionRetractionState = extensionRetractionState;
+                        previousExtensionRetractionCommand = extensionRetractionCommand;
+                        extensionRetractionState = ExtensionRetractionStates.START_RESET_SEQUENCE;
+                        break;
+                    // movement to a position can be interrupted by a command to fully extend or
+                    // fully retract
+                    case GO_TO_RETRACTED:
+                        extensionRetractionState = ExtensionRetractionStates.START_RETRACTION_SEQUENCE;
+                        break;
+                    case GO_TO_EXTENDED:
+                        extensionRetractionState = ExtensionRetractionStates.START_EXTENSION_SEQUENCE;
+                        break;
+                    case GO_TO_POSITION:
+                        extensionRetractionState = ExtensionRetractionStates.START_GO_TO_POSITION;
+                        break;
+                    case JOYSTICK:
+                        // if joystick command is in extension direction then we will process it and
+                        // move back to the regular joysticking mode
+                        if (isJoystickCommandExtension()) {
+                            extensionRetractionState = ExtensionRetractionStates.JOYSTICK;
+                        } else {
+                            // if the joystick command is retract or 0 then we will proceed with getting
+                            // to the retracted position
+                            moveToFullRetract();
+                            extensionRetractionState = ExtensionRetractionStates.MOVING_TO_HOLD_AT_RETRACT;
+                        }
+                        break;
+                    case NO_COMMAND:
+                        // don't do anything, just hang out
+                        break;
+                }
+                break;
+            case MOVING_TO_HOLD_AT_RETRACT:
+                // In case this command is interrupted by another command, and then that command
+                // cannot be run for some reason, save this state and command so that it can be
+                // resumed.
+                previousExtensionRetractionState = ExtensionRetractionStates.MOVING_TO_HOLD_AT_RETRACT;
+                previousExtensionRetractionCommand = ExtensionRetractionCommands.JOYSTICK;
+                switch (extensionRetractionCommand) {
+                    case RESET:
+                        // a reset can be requested at any time.
+                        previousExtensionRetractionState = extensionRetractionState;
+                        previousExtensionRetractionCommand = extensionRetractionCommand;
+                        extensionRetractionState = ExtensionRetractionStates.START_RESET_SEQUENCE;
+                        break;
+                    // movement to a position can be interrupted by a command to fully extend or
+                    // fully retract
+                    case GO_TO_RETRACTED:
+                        extensionRetractionState = ExtensionRetractionStates.START_RETRACTION_SEQUENCE;
+                        break;
+                    case GO_TO_EXTENDED:
+                        extensionRetractionState = ExtensionRetractionStates.START_EXTENSION_SEQUENCE;
+                        break;
+                    case GO_TO_POSITION:
+                        extensionRetractionState = ExtensionRetractionStates.START_GO_TO_POSITION;
+                        break;
+                    case JOYSTICK:
+                        // if joystick command is in extension direction then we will process it and
+                        // move back to the regular joysticking mode
+                        if (isJoystickCommandExtension()) {
+                            extensionRetractionState = ExtensionRetractionStates.JOYSTICK;
+                        } else {
+                            // check to see if the mechanism has arrived at full retraction yet
+                            if (isMoveToRetractComplete()) {
+                                logArrivedAtDestination();
+                                performActionsToCompleteRetractMovement();
+                                extensionRetractionState = ExtensionRetractionStates.HOLDING_AT_RETRACT;
+                            }
+                        }
+                        break;
+                    case NO_COMMAND:
+                        // don't do anything, just hang out
+                        break;
+                }
+                break;
+            case HOLDING_AT_RETRACT:
+                // In case this command is interrupted by another command, and then that command
+                // cannot be run for some reason, save this state and command so that it can be
+                // resumed.
+                previousExtensionRetractionState = ExtensionRetractionStates.HOLDING_AT_RETRACT;
+                previousExtensionRetractionCommand = ExtensionRetractionCommands.JOYSTICK;
+                switch (extensionRetractionCommand) {
+                    case RESET:
+                        // a reset can be requested at any time.
+                        previousExtensionRetractionState = extensionRetractionState;
+                        previousExtensionRetractionCommand = extensionRetractionCommand;
+                        extensionRetractionState = ExtensionRetractionStates.START_RESET_SEQUENCE;
+                        break;
+                    // movement to a position can be interrupted by a command to fully extend or
+                    // fully retract
+                    case GO_TO_RETRACTED:
+                        extensionRetractionState = ExtensionRetractionStates.START_RETRACTION_SEQUENCE;
+                        break;
+                    case GO_TO_EXTENDED:
+                        extensionRetractionState = ExtensionRetractionStates.START_EXTENSION_SEQUENCE;
+                        break;
+                    case GO_TO_POSITION:
+                        extensionRetractionState = ExtensionRetractionStates.START_GO_TO_POSITION;
+                        break;
+                    case JOYSTICK:
+                        // if joystick command is in extension direction then we will process it and
+                        // move back to the regular joysticking mode
+                        if (isJoystickCommandExtension()) {
+                            extensionRetractionState = ExtensionRetractionStates.JOYSTICK;
+                        } else {
+                            // if the joystick want the mechanism to retract, just ignore it
+                        }
+                        break;
+                    case NO_COMMAND:
+                        // don't do anything, just hang out
+                        break;
+                }
+                break;
+
+            // -------------------------
+            //   HOLD AT EXTENSION
+            //--------------------------
+
+            case START_HOLD_AT_EXTENSION_SEQUENCE:
+                // In case this command is interrupted by another command, and then that command
+                // cannot be run for some reason, save this state and command so that it can be
+                // resumed.
+                previousExtensionRetractionState = ExtensionRetractionStates.START_HOLD_AT_EXTENSION_SEQUENCE;
+                previousExtensionRetractionCommand = ExtensionRetractionCommands.JOYSTICK;
+
+                switch (extensionRetractionCommand) {
+                    case RESET:
+                        // a reset can be requested at any time.
+                        previousExtensionRetractionState = extensionRetractionState;
+                        previousExtensionRetractionCommand = extensionRetractionCommand;
+                        extensionRetractionState = ExtensionRetractionStates.START_RESET_SEQUENCE;
+                        break;
+                    // movement to a position can be interrupted by a command to fully extend or
+                    // fully retract
+                    case GO_TO_RETRACTED:
+                        extensionRetractionState = ExtensionRetractionStates.START_RETRACTION_SEQUENCE;
+                        break;
+                    case GO_TO_EXTENDED:
+                        extensionRetractionState = ExtensionRetractionStates.START_EXTENSION_SEQUENCE;
+                        break;
+                    case GO_TO_POSITION:
+                        extensionRetractionState = ExtensionRetractionStates.START_GO_TO_POSITION;
+                        break;
+                    case JOYSTICK:
+                        // if joystick command is in retraction direction then we will process it and
+                        // move back to the regular joysticking mode
+                        if (isJoystickCommandRetraction()) {
+                            extensionRetractionState = ExtensionRetractionStates.JOYSTICK;
+                        } else {
+                            // if the joystick command is retract or 0 then we will proceed with getting
+                            // to the retracted position
+                            moveToFullExtend();
+                            extensionRetractionState = ExtensionRetractionStates.MOVING_TO_HOLD_AT_EXTEND;
+                        }
+                        break;
+                    case NO_COMMAND:
+                        // don't do anything, just hang out
+                        break;
+                }
+                break;
+            case MOVING_TO_HOLD_AT_EXTEND:
+                // In case this command is interrupted by another command, and then that command
+                // cannot be run for some reason, save this state and command so that it can be
+                // resumed.
+                previousExtensionRetractionState = ExtensionRetractionStates.MOVING_TO_HOLD_AT_EXTEND;
+                previousExtensionRetractionCommand = ExtensionRetractionCommands.JOYSTICK;
+                switch (extensionRetractionCommand) {
+                    case RESET:
+                        // a reset can be requested at any time.
+                        previousExtensionRetractionState = extensionRetractionState;
+                        previousExtensionRetractionCommand = extensionRetractionCommand;
+                        extensionRetractionState = ExtensionRetractionStates.START_RESET_SEQUENCE;
+                        break;
+                    // movement to a position can be interrupted by a command to fully extend or
+                    // fully retract
+                    case GO_TO_RETRACTED:
+                        extensionRetractionState = ExtensionRetractionStates.START_RETRACTION_SEQUENCE;
+                        break;
+                    case GO_TO_EXTENDED:
+                        extensionRetractionState = ExtensionRetractionStates.START_EXTENSION_SEQUENCE;
+                        break;
+                    case GO_TO_POSITION:
+                        extensionRetractionState = ExtensionRetractionStates.START_GO_TO_POSITION;
+                        break;
+                    case JOYSTICK:
+                        // if joystick command is in extension direction then we will process it and
+                        // move back to the regular joysticking mode
+                        if (isJoystickCommandRetraction()) {
+                            extensionRetractionState = ExtensionRetractionStates.JOYSTICK;
+                        } else {
+                            // check to see if the mechanism has arrived at full extension yet
+                            if (isMoveToExtendComplete()) {
+                                logArrivedAtDestination();
+                                performActionsToCompleteExtendMovement();
+                                extensionRetractionState = ExtensionRetractionStates.HOLDING_AT_EXTEND;
+                            }
+                        }
+                        break;
+                    case NO_COMMAND:
+                        // don't do anything, just hang out
+                        break;
+                }
+                break;
+            case HOLDING_AT_EXTEND:
+                // In case this command is interrupted by another command, and then that command
+                // cannot be run for some reason, save this state and command so that it can be
+                // resumed.
+                previousExtensionRetractionState = ExtensionRetractionStates.HOLDING_AT_EXTEND;
+                previousExtensionRetractionCommand = ExtensionRetractionCommands.JOYSTICK;
+                switch (extensionRetractionCommand) {
+                    case RESET:
+                        // a reset can be requested at any time.
+                        previousExtensionRetractionState = extensionRetractionState;
+                        previousExtensionRetractionCommand = extensionRetractionCommand;
+                        extensionRetractionState = ExtensionRetractionStates.START_RESET_SEQUENCE;
+                        break;
+                    // movement to a position can be interrupted by a command to fully extend or
+                    // fully retract
+                    case GO_TO_RETRACTED:
+                        extensionRetractionState = ExtensionRetractionStates.START_RETRACTION_SEQUENCE;
+                        break;
+                    case GO_TO_EXTENDED:
+                        extensionRetractionState = ExtensionRetractionStates.START_EXTENSION_SEQUENCE;
+                        break;
+                    case GO_TO_POSITION:
+                        extensionRetractionState = ExtensionRetractionStates.START_GO_TO_POSITION;
+                        break;
+                    case JOYSTICK:
+                        // if joystick command is in extension direction then we will process it and
+                        // move back to the regular joysticking mode
+                        if (isJoystickCommandRetraction()) {
+                            extensionRetractionState = ExtensionRetractionStates.JOYSTICK;
+                        } else {
+                            // if the joystick want the mechanism to extend, just ignore it
+                        }
                         break;
                     case NO_COMMAND:
                         // don't do anything, just hang out
@@ -2642,6 +3116,7 @@ public class ExtensionRetractionMechanism {
             telemetry.addLine("extension limit switch NOT pressed");
         }
         telemetry.addData("encoder = ", extensionRetractionMotor.getCurrentPosition());
+        telemetry.addData("position = ", extensionRetractionMotor.getPositionInTermsOfAttachment());
     }
 
     /**
