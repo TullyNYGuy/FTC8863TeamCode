@@ -314,8 +314,10 @@ public class FFIntake implements FTCRobotSubsystem {
             case WAIT_FOR_VERTICAL: {
                 if (rotateServo.isPositionReached()) {
                     intakeState = IntakeState.IDLE;
+                    intakeSweeperMotor.setPower(0);
                 }
             }
+            break;
 
             // **********************************
             // States to eject into level 2
@@ -366,7 +368,6 @@ public class FFIntake implements FTCRobotSubsystem {
                 }
             }
             break;
-
         }
     }
 

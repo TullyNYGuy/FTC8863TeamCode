@@ -260,7 +260,7 @@ public class FreightFrenzyGamepad {
 
         if (gamepad1a.buttonPress(gamepad1.a)) {
             if (gamepad1a.isCommand1()) {
-                robot.intake.intakeAndDeliver();
+                robot.intake.intakeAndHold();
             }
             if (gamepad1a.isCommand2()) {
                 robot.intake.turnOff();
