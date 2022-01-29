@@ -287,10 +287,10 @@ public class FreightFrenzyGamepad {
         }
 
         if (gamepad1x.buttonPress(gamepad1.x)) {
-            if (gamepad1a.isCommand1()) {
+            if (gamepad1x.isCommand1()) {
                 robot.intake.lineUpToEjectIntoLevel1();
             }
-            if (gamepad1a.isCommand2()) {
+            if (gamepad1x.isCommand2()) {
                 robot.intake.ejectIntoLevel1();
             }
         }
