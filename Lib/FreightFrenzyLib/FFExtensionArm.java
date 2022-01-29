@@ -26,17 +26,17 @@ public class FFExtensionArm {
 private enum LiftState {
         IDLE,
         //WAITING_FOR_INTAKE,
-        EXTEND_TO_1,
-        EXTENDED_1,
-        EXTEND_TO_2,
-        EXTENDED_2,
-        EXTEND_TO_3,
-        EXTENDED_3,
+        EXTEND_TO_1ST_POSITION,
+        EXTENDED_AT_1ST_POSITION,
+        EXTEND_TO_2ND_POSITION,
+        EXTENDED_AT_2ND_POSTION,
+        EXTEND_TO_FINAL_POSITION,
+        EXTENDED_AT_FINAL_POSITION,
         WAITING_TO_DUMP,
         DUMP,
         RETRACT_TO_2,
         RETRACTED_2,
-        RETRACT_TO_1,
+        RETRACT_TO_1ST_POSITION,
         RETRACTED_1,
         RETRACT_TO_0,
         RETRACTED_0
@@ -117,15 +117,30 @@ private enum LiftState {
             }
             break;
 
+            // YOU NEED TO THINK ABOUT HOW YOU ARE GOING TO HANDLE 3 DIFFERENT ARM/SERVO COMBINATIONS
+            // EXTENDING / ROTATING THE ARM TO:
+            //    LEVEL 3 OF THE SHIPPING HUB
+            //    LEVEL 2 OF THE SHIPPING HUB
+            //    LEVEL 1 OF THE SHIPPING HUB
 
-            case EXTEND_TO_1: {
+            // AND 3 DIFFERENT RETRACT / ROTATION SEQUENCES IN THE OPPOSITE DIRECTIONS
+
+            // AND THE DIFFERENT DUMPS - DON'T FORGET THE DRIVER MAY WANT TO LINE UP, THEN DUMP
+
+            // I'M NOT SEEING THE DIFFERENCES BETWEEN THEM IN THE CODE BELOW.
+            
+            case EXTEND_TO_1ST_POSITION: {
                 //starts the extension to 1.5 inches
                 ffExtensionArm.goToPosition(1.5, 0.3);
+                // DON'T YOU NEED A SEPARATE STATE FOR THIS? YOU WILL BE ISSUING THE ABOVE COMMAND
+                // ABOUT A BAZILLION TIMES WHILE THIS STATE SITS AND WAITS FOR THE POSITION TO BE
+                // REACHED. PROBABLY BETTER TO ONLY ISSUE IT ONCE AND THEN MOVE TO A NEW STATE TO
+                // CEHCK FOR THE POSITION TO BE REACHED.
                 if (ffExtensionArm.isPositionReached()) {
                     //the arm has extended to 1.5 so now the servo moves to the correct position
                     deliveryServo.setPosition("1.5 Extension");
                     timer.reset();
-                    liftState = LiftState.EXTENDED_1;
+                    liftState = LiftState.EXTENDED_AT_1ST_POSITION;
                 }
 
 
@@ -133,12 +148,16 @@ private enum LiftState {
             break;
 
 
-            case EXTENDED_1: {
+            case EXTENDED_AT_1ST_POSITION: {
                 // this is to make sure the servo has moved. the time delay is a testing thing.
                 //this also starts the movement to 3 inches
+                // THE SERVO HAS A BUILT IN TIMER TO ALLOW FOR ITS MOVEMENT. SO THE STATEMENT BELOW
+                // REALLY BOILS DOWN TO WHICH IS THE LONGER TIME, THE SERVO TIMER, OR THE TIMER YOU
+                // STARTED. THE LENGTH OF TIME IS NOT THE SUM OF THE SERVO TIMER AND YOUR TIMER.
+                // THIS MAY BE WHAT YOU INTEND BUT I WANTED TO POINT IT OUT.
                 if (deliveryServo.isPositionReached() && timer.milliseconds() > 3000) {
                     ffExtensionArm.goToPosition(3, 0.3);
-                    liftState = LiftState.EXTEND_TO_2;
+                    liftState = LiftState.EXTEND_TO_2ND_POSITION;
                 }
 
 
@@ -146,29 +165,29 @@ private enum LiftState {
             break;
 
 
-            case EXTEND_TO_2: {
+            case EXTEND_TO_2ND_POSITION: {
                 // if the extension arm has made it to 3 inches, it starts the servo movement
                 if (ffExtensionArm.isPositionReached()) {
                     deliveryServo.setPosition("3 Extension");
                     timer.reset();
-                    liftState = LiftState.EXTENDED_2;
+                    liftState = LiftState.EXTENDED_AT_2ND_POSTION;
                 }
             }
             break;
 
 
-            case EXTENDED_2: {
+            case EXTENDED_AT_2ND_POSTION: {
                 //once again checks servo movement and the timer is for testing. starts movement to top level extension.
                 if (deliveryServo.isPositionReached() && timer.milliseconds() > 3000) {
                     ffExtensionArm.goToPosition(24.75, 0.3);
-                    liftState = LiftState.EXTEND_TO_3;
+                    liftState = LiftState.EXTEND_TO_FINAL_POSITION;
                     timer.reset();
                 }
             }
             break;
 
 
-            case EXTEND_TO_3: {
+            case EXTEND_TO_FINAL_POSITION: {
                 // checks extension and the timer is for testing
                 if (ffExtensionArm.isPositionReached() && timer.milliseconds() > 5000) {
                     liftState = LiftState.WAITING_TO_DUMP;
@@ -206,7 +225,7 @@ private enum LiftState {
             break;
 
 
-            case RETRACT_TO_1: {
+            case RETRACT_TO_1ST_POSITION: {
             //move servo to 1.5 inch
             }
             break;
