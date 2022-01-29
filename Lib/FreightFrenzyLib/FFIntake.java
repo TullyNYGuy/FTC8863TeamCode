@@ -100,7 +100,7 @@ public class FFIntake implements FTCRobotSubsystem {
         }
         rotateServo = new Servo8863New(INTAKE_ROTATOR_SERVO_NAME, hardwareMap, telemetry);
         rotateServo.addPosition("Intake", .01, 1000, TimeUnit.MILLISECONDS);
-        rotateServo.addPosition("Level 1", .23, 2500, TimeUnit.MILLISECONDS);
+        rotateServo.addPosition("Level 1", .23, 1000, TimeUnit.MILLISECONDS);
         rotateServo.addPosition("Vertical", .5, 1000, TimeUnit.MILLISECONDS);
         rotateServo.addPosition("Deliver", 1.0, 1000, TimeUnit.MILLISECONDS);
         rotateServo.addPosition("Level 2", .45, 1000, TimeUnit.MILLISECONDS);
