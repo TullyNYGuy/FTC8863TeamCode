@@ -211,10 +211,10 @@ public class MecanumDriveFreightFrenzy extends MecanumDrive implements FTCRobotS
         // upward (normal to the floor) using a command like the following:
         // BNO055IMUUtil.remapAxes(imu, AxesOrder.XYZ, AxesSigns.NPN);
 
-        leftFront = hardwareMap.get(DcMotorEx.class, "leftFrontMotor");
-        leftRear = hardwareMap.get(DcMotorEx.class, "leftRearMotor");
-        rightRear = hardwareMap.get(DcMotorEx.class, "rightRearMotor");
-        rightFront = hardwareMap.get(DcMotorEx.class, "rightFrontMotor");
+        leftFront = hardwareMap.get(DcMotorEx.class, frontLeftMotorName);
+        leftRear = hardwareMap.get(DcMotorEx.class, backLeftMotorName);
+        rightRear = hardwareMap.get(DcMotorEx.class, backRightMotorName);
+        rightFront = hardwareMap.get(DcMotorEx.class, frontRightMotorName);
 
         motors = Arrays.asList(leftFront, leftRear, rightRear, rightFront);
 
@@ -240,7 +240,7 @@ public class MecanumDriveFreightFrenzy extends MecanumDrive implements FTCRobotS
 
         // TODO: if desired, use setLocalizer() to change the localization method
         // for instance, setLocalizer(new ThreeTrackingWheelLocalizer(...));
-        setLocalizer(new StandardTrackingWheelLocalizer(hardwareMap));
+        setLocalizer(new TrackingWheelLocalizerFreightFrenzy(hardwareMap));
     }
 
     // todo TANYA - WE COMMENTED THIS OUT BECAUSE IT WAS CAUSING A CRASH
