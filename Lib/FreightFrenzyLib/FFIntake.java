@@ -100,7 +100,7 @@ public class FFIntake implements FTCRobotSubsystem {
         }
         rotateServo = new Servo8863New(INTAKE_ROTATOR_SERVO_NAME, hardwareMap, telemetry);
         rotateServo.addPosition("Intake", .01, 1000, TimeUnit.MILLISECONDS);
-        rotateServo.addPosition("Level 1", .23, 1000, TimeUnit.MILLISECONDS);
+        rotateServo.addPosition("Level 1", .23, 2500, TimeUnit.MILLISECONDS);
         rotateServo.addPosition("Vertical", .5, 1000, TimeUnit.MILLISECONDS);
         rotateServo.addPosition("Deliver", 1.0, 1000, TimeUnit.MILLISECONDS);
         rotateServo.addPosition("Level 2", .45, 1000, TimeUnit.MILLISECONDS);
@@ -266,15 +266,17 @@ public class FFIntake implements FTCRobotSubsystem {
             case TO_LEVEL_ONE: {
                 // move to shoot into the first level of the shipping hub
                 rotateServo.setPosition("Level 1");
-                intakeState = IntakeState.IDLE;
+                //timer.reset();
+                intakeState = IntakeState.WAIT_FOR_LEVEL_ONE;
             }
             break;
 
             case WAIT_FOR_LEVEL_ONE: {
                 // wait for the intake to reach position
                 if (rotateServo.isPositionReached()) {
-                    intakeSweeperMotor.runAtConstantRPM(-480);
-                    intakeState = IntakeState.EJECT_INTO_LEVEL_ONE;
+                    //intakeSweeperMotor.runAtConstantRPM(-480);
+                    //intakeState = IntakeState.EJECT_INTO_LEVEL_ONE;
+                    intakeState = IntakeState.IDLE;
                 }
 
             }

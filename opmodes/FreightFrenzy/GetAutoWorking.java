@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.FreightFrenzy;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -13,17 +14,18 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyField;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyGamepad;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyRobotRoadRunner;
+import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.MecanumDriveFreightFrenzy;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.TestAuto;
-import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.PersistantStorage;
+import org.firstinspires.ftc.teamcode.RoadRunner.drive.SampleMecanumDrive;
 
 import java.util.List;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@Autonomous(name = "Test Auto", group = "AA")
+@Autonomous(name = "auto work plz", group = "AA")
 //@Disabled
-public class TestAutoLauch extends LinearOpMode {
+public class GetAutoWorking extends LinearOpMode {
 
     // Put your variable declarations her
     public FreightFrenzyRobotRoadRunner robot;
@@ -54,9 +56,8 @@ public class TestAutoLauch extends LinearOpMode {
 
         // Put your initializations here
         // create the robot and run the init for it
-        robot = new FreightFrenzyRobotRoadRunner(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, this);
-        robot.createRobot();
-        enableBulkReads(hardwareMap, LynxModule.BulkCachingMode.AUTO);
+        SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
+        //enableBulkReads(hardwareMap, LynxModule.BulkCachingMode.AUTO);
 
         // the angle changer knows how to do this. My opinion is that you should not be down in these
         // details
@@ -66,11 +67,13 @@ public class TestAutoLauch extends LinearOpMode {
 
         // todo Change the constructor call to change out to a different autonomous
         //autonomous = new Autonomous3RingsPowerShotsPark1Wobble(robot, field, telemetry, Autonomous3RingsPowerShotsPark1Wobble.Mode.AUTONOMOUS);
-        autonomous = new TestAuto(robot,field, telemetry);
+        //autonomous = new TestAuto(robot,field, telemetry);
 
         timer.reset();
-        robot.loopTimer.startLoopTimer();
-
+        //robot.loopTimer.startLoopTimer();
+       Trajectory trajectoryTest = drive.trajectoryBuilder(new Pose2d(-17.5,63.75,Math.toRadians(270)))
+                .lineToLinearHeading(new Pose2d(-12, 49, Math.toRadians(270)))
+                .build();
 
         telemetry.addData(">", "Press Start to run");
         telemetry.update();
@@ -79,14 +82,14 @@ public class TestAutoLauch extends LinearOpMode {
         waitForStart();
 
         // Put your calls here - they will not run in a loop
-        autonomous.start();
+       // autonomous.start();
+        drive.followTrajectory(trajectoryTest);
+        while (opModeIsActive()) {
+           // telemetry.addData("current auto state", autonomous.getState());
 
-        while (opModeIsActive() && !autonomous.isComplete()) {
-            telemetry.addData("current auto state", autonomous.getState());
             telemetry.update();
-            robot.update();
-            // TANYA - need the idle so we don't hog all the CPU
-            idle();
+            //robot.update();
+
             //autonomous.update();
         }
 
@@ -99,8 +102,8 @@ public class TestAutoLauch extends LinearOpMode {
         //PersistantStorage.setMotorTicks(robot.shooter.getMotorTicks());
 
 
-        robot.shutdown();
-        dataLog.closeDataLog();
+        //robot.shutdown();
+        //dataLog.closeDataLog();
         telemetry.addData(">", "Done");
         telemetry.update();
     }

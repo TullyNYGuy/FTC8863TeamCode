@@ -21,6 +21,10 @@ public class TestAuto implements AutonomousStateMachineFreightFrenzy {
         IDLE,
         START,
         MOVING,
+        MOVING_2,
+        MOVING_3,
+        MOVING_4,
+        MOVING_5,
         COMPLETE;
     }
 
@@ -38,9 +42,11 @@ public class TestAuto implements AutonomousStateMachineFreightFrenzy {
     private DistanceUnit distanceUnits;
     private AngleUnit angleUnits;
 
-    private Trajectory trajectoryTest;
-    private Trajectory trajectoryToDucks;
-    private Trajectory trajectoryToDepot;
+    private Trajectory TrajectoryToShippingHub;
+    private Trajectory TrajectoryToCarousel;
+    private Trajectory TrajectoryToWarehouseWaypoint1;
+    private Trajectory TrajectoryToWarehouseWaypoint2;
+    private Trajectory TrajectoryToWarehouseFinalDestination;
 
     private double distanceToTopGoal = 0;
     private double distanceToLeftPowerShot = 0;
@@ -72,9 +78,6 @@ public class TestAuto implements AutonomousStateMachineFreightFrenzy {
         currentState = States.IDLE;
         distanceUnits = DistanceUnit.INCH;
         angleUnits = AngleUnit.DEGREES;
-
-
-
         createTrajectories();
     }
 
@@ -91,11 +94,19 @@ public class TestAuto implements AutonomousStateMachineFreightFrenzy {
      */
     @Override
     public void createTrajectories() {
-        trajectoryTest = robot.mecanum.trajectoryBuilder(org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.PoseStorageFF.START_POSE, false)
-                .lineToLinearHeading(new Pose2d(-12, 49, Math.toRadians(-90)))
+        TrajectoryToShippingHub = robot.mecanum.trajectoryBuilder(org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.PoseStorageFF.START_POSE)
+                .lineToLinearHeading(new Pose2d(-12, 49, Math.toRadians(270)))
+                .build();
+        TrajectoryToCarousel = robot.mecanum.trajectoryBuilder(TrajectoryToShippingHub.end())
                 .lineToLinearHeading(new Pose2d(-59.75, 56.75, Math.toRadians(90)))
+                .build();
+        TrajectoryToWarehouseWaypoint1 = robot.mecanum.trajectoryBuilder(TrajectoryToCarousel.end())
                 .lineToLinearHeading(new Pose2d(-20, 60, Math.toRadians(0)))
+                .build();
+        TrajectoryToWarehouseWaypoint2 = robot.mecanum.trajectoryBuilder(TrajectoryToWarehouseWaypoint1.end())
                 .lineToLinearHeading(new Pose2d(8.75, 65, Math.toRadians(0)))
+                .build();
+        TrajectoryToWarehouseFinalDestination = robot.mecanum.trajectoryBuilder(TrajectoryToWarehouseWaypoint2.end())
                 .lineToLinearHeading(new Pose2d(60, 65, Math.toRadians(0)))
                 .build();
     }
@@ -106,6 +117,9 @@ public class TestAuto implements AutonomousStateMachineFreightFrenzy {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
+    public String getState(){
+        return currentState.toString();
+    }
 
     @Override
     public void start() {
@@ -122,10 +136,35 @@ public class TestAuto implements AutonomousStateMachineFreightFrenzy {
                 //robot.mecanum.followTrajectoryAsync(trajectoryToShootPosition);
 
                 currentState = States.MOVING;
+
                 break;
             case MOVING:
-                robot.mecanum.followTrajectoryAsync(trajectoryTest);
-                if(!robot.mecanum.isBusy()){
+                robot.mecanum.followTrajectory(TrajectoryToShippingHub);
+                if (!robot.mecanum.isBusy()) {
+                    currentState = States.MOVING_2;
+                }
+                break;
+            case MOVING_2:
+                robot.mecanum.followTrajectoryAsync(TrajectoryToCarousel);
+                if (!robot.mecanum.isBusy()) {
+                    currentState = States.MOVING_3;
+                }
+                break;
+            case MOVING_3:
+                robot.mecanum.followTrajectoryAsync(TrajectoryToWarehouseWaypoint1);
+                if (!robot.mecanum.isBusy()) {
+                    currentState = States.MOVING_4;
+                }
+                break;
+            case MOVING_4:
+                robot.mecanum.followTrajectoryAsync(TrajectoryToWarehouseWaypoint2);
+                if (!robot.mecanum.isBusy()) {
+                    currentState = States.MOVING_5;
+                }
+                break;
+            case MOVING_5:
+                robot.mecanum.followTrajectoryAsync(TrajectoryToWarehouseFinalDestination);
+                if (!robot.mecanum.isBusy()) {
                     currentState = States.COMPLETE;
                 }
                 break;
