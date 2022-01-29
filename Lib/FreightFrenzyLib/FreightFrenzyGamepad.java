@@ -167,7 +167,7 @@ public class FreightFrenzyGamepad {
         gamepad1a = new GamepadButtonMultiPush(2);
         gamepad1b = new GamepadButtonMultiPush(1);
         gamepad1y = new GamepadButtonMultiPush(1);
-        gamepad1x = new GamepadButtonMultiPush(1);
+        gamepad1x = new GamepadButtonMultiPush(2);
         gamepad1DpadUp = new GamepadButtonMultiPush(2);
         gamepad1DpadDown = new GamepadButtonMultiPush(2);
         gamepad1DpadLeft = new GamepadButtonMultiPush(2);
@@ -287,7 +287,12 @@ public class FreightFrenzyGamepad {
         }
 
         if (gamepad1x.buttonPress(gamepad1.x)) {
-            robot.intake.ejectIntoLevel1();
+            if (gamepad1a.isCommand1()) {
+                robot.intake.lineUpToEjectIntoLevel1();
+            }
+            if (gamepad1a.isCommand2()) {
+                robot.intake.ejectIntoLevel1();
+            }
         }
 
         if (gamepad1DpadUp.buttonPress(gamepad1.dpad_up)) {

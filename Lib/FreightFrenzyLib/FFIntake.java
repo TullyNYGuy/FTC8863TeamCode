@@ -266,7 +266,7 @@ public class FFIntake implements FTCRobotSubsystem {
             case TO_LEVEL_ONE: {
                 // move to shoot into the first level of the shipping hub
                 rotateServo.setPosition("Level 1");
-                intakeState = IntakeState.WAIT_FOR_LEVEL_ONE;
+                intakeState = IntakeState.IDLE;
             }
             break;
 
@@ -413,6 +413,11 @@ public class FFIntake implements FTCRobotSubsystem {
     }
 
     public void ejectIntoLevel1(){
+        intakeSweeperMotor.runAtConstantRPM(-480);
+        intakeState = IntakeState.WAIT_FOR_EJECT_INTO_LEVEL_ONE;
+    }
+
+    public void lineUpToEjectIntoLevel1() {
         intakeState = IntakeState.TO_LEVEL_ONE;
     }
 
