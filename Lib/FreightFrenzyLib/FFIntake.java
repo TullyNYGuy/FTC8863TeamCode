@@ -414,7 +414,7 @@ public class FFIntake implements FTCRobotSubsystem {
 
     public void ejectIntoLevel1(){
         intakeSweeperMotor.runAtConstantRPM(-480);
-        intakeState = IntakeState.WAIT_FOR_EJECT_INTO_LEVEL_ONE;
+        intakeState = IntakeState.EJECT_INTO_LEVEL_ONE;
     }
 
     public void lineUpToEjectIntoLevel1() {
