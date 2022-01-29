@@ -48,6 +48,17 @@ import org.firstinspires.ftc.teamcode.opmodes.FreightFrenzy.TeleopUsingRoadRunne
 
 public class FreightFrenzyGamepad {
 
+    public enum ControlPad  {
+        ONE,
+        TWO
+    }
+    ControlPad controlPad = ControlPad.ONE;
+    public void setControlPad(ControlPad controlTo){
+        controlPad = controlTo;
+    }
+    public FreightFrenzyGamepad.ControlPad getControlPad(){
+        return controlPad;
+    }
     //*********************************************************************************************
     //          ENUMERATED TYPES
     //
@@ -284,9 +295,8 @@ public class FreightFrenzyGamepad {
         }
 
         if (gamepad1DpadDown.buttonPress(gamepad1.dpad_down)) {
-            // this was a new button press, not a button held down for a while
-            // put the command to be executed here
-           // robot.toggleMode();
+
+            setControlPad(ControlPad.TWO);
         }
 
         if (gamepad1DpadLeft.buttonPress(gamepad1.dpad_left)) {
@@ -324,12 +334,19 @@ public class FreightFrenzyGamepad {
         // Gamepad 1 joysticks
         //**************************************************************************************
 
-        gamepad1LeftJoyStickXValue = gamepad1LeftJoyStickX.getValue();
-        gamepad1LeftJoyStickYValue = gamepad1LeftJoyStickY.getValue();
+        if(controlPad == ControlPad.ONE) {
+            gamepad1LeftJoyStickXValue = gamepad1LeftJoyStickX.getValue();
+            gamepad1LeftJoyStickYValue = gamepad1LeftJoyStickY.getValue();
 
-        gamepad1RightJoyStickXValue = gamepad1RightJoyStickX.getValue();
-        gamepad1RightJoyStickYValue = gamepad1RightJoyStickY.getValue();
+            gamepad1RightJoyStickXValue = gamepad1RightJoyStickX.getValue();
+            gamepad1RightJoyStickYValue = gamepad1RightJoyStickY.getValue();
+        } else {
+            gamepad1LeftJoyStickXValue = gamepad2LeftJoyStickX.getValue();
+            gamepad1LeftJoyStickYValue = gamepad2LeftJoyStickY.getValue();
 
+            gamepad1RightJoyStickXValue = gamepad2RightJoyStickX.getValue();
+            gamepad1RightJoyStickYValue = gamepad2RightJoyStickY.getValue();
+        }
         //**************************************************************************************
         // Gamepad 2 buttons
         //**************************************************************************************
@@ -401,8 +418,8 @@ public class FreightFrenzyGamepad {
         }
 
         if (gamepad2DpadLeft.buttonPress(gamepad2.dpad_left)) {
-            // this was a new button press, not a button held down for a while
-            // put the command to be executed here
+
+                setControlPad(ControlPad.ONE);
 
         }
 
@@ -426,11 +443,20 @@ public class FreightFrenzyGamepad {
         // Gamepad 2 joysticks
         //**************************************************************************************
 
-        gamepad2LeftJoyStickXValue = gamepad2LeftJoyStickX.getValue();
-        gamepad2LeftJoyStickYValue = gamepad2LeftJoyStickY.getValue();
+        if(controlPad == ControlPad.ONE) {
+            gamepad2LeftJoyStickXValue = gamepad2LeftJoyStickX.getValue();
+            gamepad2LeftJoyStickYValue = gamepad2LeftJoyStickY.getValue();
 
-        gamepad2RightJoyStickXValue = gamepad2RightJoyStickX.getValue();
-        gamepad2RightJoyStickYValue = gamepad2RightJoyStickY.getValue();
+            gamepad2RightJoyStickXValue = gamepad2RightJoyStickX.getValue();
+            gamepad2RightJoyStickYValue = gamepad2RightJoyStickY.getValue();
+        } else {
+            gamepad2LeftJoyStickXValue = gamepad1LeftJoyStickX.getValue();
+            gamepad2LeftJoyStickYValue = gamepad1LeftJoyStickY.getValue();
+
+            gamepad2RightJoyStickXValue = gamepad1RightJoyStickX.getValue();
+            gamepad2RightJoyStickYValue = gamepad1RightJoyStickY.getValue();
+
+        }
     }
 
     public void displayGamepad1JoystickValues(Telemetry telemetry) {
@@ -446,6 +472,7 @@ public class FreightFrenzyGamepad {
         telemetry.addData("2-rightJoyStickY = ", gamepad2RightJoyStickYValue);
         telemetry.addData("2-rightJoyStickX = ", gamepad2RightJoyStickXValue);
     }
+
 
 }
 

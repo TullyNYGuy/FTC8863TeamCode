@@ -9,7 +9,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyGoal;
 
 public class FreightFrenzyField {
-
+    FreightFrenzyGoal start = new FreightFrenzyGoal(DistanceUnit.INCH, 1, new Pose2d(-17.5, 63.75, Math.toRadians(270)));
            FreightFrenzyGoal topPassageRed = new FreightFrenzyGoal(DistanceUnit.INCH, 1, new Pose2d(47, 0));
     FreightFrenzyGoal freightRed = new FreightFrenzyGoal(DistanceUnit.INCH, 1, new Pose2d(61, -61));
     FreightFrenzyGoal hubRed = new FreightFrenzyGoal(DistanceUnit.INCH, 1, new Pose2d(-11.75, -17.625));
@@ -17,6 +17,14 @@ public class FreightFrenzyField {
     FreightFrenzyGoal storageRed = new FreightFrenzyGoal(DistanceUnit.INCH, 1, new Pose2d(-58.75, -35.25));
     FreightFrenzyGoal sidePassageRed = new FreightFrenzyGoal(DistanceUnit.INCH, 1, new Pose2d(23.5, -64.5));
     FreightFrenzyGoal sharedHubRed = new FreightFrenzyGoal(DistanceUnit.INCH, 1, new Pose2d(46, 0));
+
+    FreightFrenzyGoal topPassageBlue = new FreightFrenzyGoal(DistanceUnit.INCH, 1, new Pose2d(47, 0));
+    FreightFrenzyGoal freightBlue = new FreightFrenzyGoal(DistanceUnit.INCH, 1, new Pose2d(61, 61));
+    FreightFrenzyGoal hubBlue = new FreightFrenzyGoal(DistanceUnit.INCH, 1, new Pose2d(-11.75, 17.625));
+    FreightFrenzyGoal duckSpinnerBlue = new FreightFrenzyGoal(DistanceUnit.INCH, 1, new Pose2d(-58.75, 58.75));
+    FreightFrenzyGoal storageBlue = new FreightFrenzyGoal(DistanceUnit.INCH, 1, new Pose2d(-58.75, 35.25));
+    FreightFrenzyGoal sidePassageBlue = new FreightFrenzyGoal(DistanceUnit.INCH, 1, new Pose2d(23.5, 64.5));
+    FreightFrenzyGoal sharedHubBlue = new FreightFrenzyGoal(DistanceUnit.INCH, 1, new Pose2d(46, 0));
 
 
 
