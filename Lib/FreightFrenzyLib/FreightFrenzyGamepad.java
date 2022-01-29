@@ -8,9 +8,9 @@ package org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib;
  *    / Right JoystickX  - robot rotation
  *    / Right JoystickY  -
  *    / DPad Up          - reset heading for driver mode
- *    / DPad Left        -
- *    / DPad Down        - toggle mode (driver or robot)
- *    / DPad Right       -
+ *    / DPad Left        -full power
+ *    / DPad Down        - set control pad 2
+ *    / DPad Right       -half power
  *    / A                - turn intake on and deliver
  *    / B                - turn intake off
  *    / X                - eject into level 1
@@ -28,7 +28,7 @@ package org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib;
  *    / DPad Down        -  TSE line up
  *    / DPad Right       -
  *    / A                - TSE arm storage TSE
- *    / B                - TSE arm carry TSE
+ *    / B                -
  *    / X                - TSE arm drop TSE
  *    / Y                - TSE arm pickup TSE
  *   /Left Bumper        - toggle duck spinner
@@ -197,7 +197,7 @@ public class FreightFrenzyGamepad {
         gamepad2RightBumper = new GamepadButtonMultiPush(1);
         gamepad2LeftBumper = new GamepadButtonMultiPush(1);
         gamepad2a = new GamepadButtonMultiPush(2);
-        gamepad2b = new GamepadButtonMultiPush(1);
+        gamepad2b = new GamepadButtonMultiPush(2);
         gamepad2y = new GamepadButtonMultiPush(2);
         gamepad2x = new GamepadButtonMultiPush(1);
         gamepad2DpadDown = new GamepadButtonMultiPush(1);
@@ -398,7 +398,8 @@ public class FreightFrenzyGamepad {
         }
 
         if (gamepad2b.buttonPress(gamepad2.b)) {
-
+            if(gamepad2DpadRight.isCommand1()){robot.duckSpinner.turnOn();}
+            if(gamepad2DpadRight.isCommand2()){robot.duckSpinner.turnOff();}
         }
 
         if (gamepad2y.buttonPress(gamepad2.y)) {
@@ -429,8 +430,7 @@ public class FreightFrenzyGamepad {
         }
 
         if (gamepad2DpadRight.buttonPress(gamepad2.dpad_right)) {
-            if(gamepad2DpadRight.isCommand1()){robot.duckSpinner.turnOn();}
-            if(gamepad2DpadRight.isCommand2()){robot.duckSpinner.turnOff();}
+
 
         }
 

@@ -51,6 +51,7 @@ public class AutonomousLowLoadDuckSpinParkDepot implements AutonomousStateMachin
 
     private Trajectory trajectoryToHub;
     private Trajectory trajectoryToDucks;
+    private Trajectory trajectoryToDucksTwo;
     private Trajectory trajectoryToDepot;
 
     private double distanceToTopGoal = 0;
@@ -109,6 +110,8 @@ public class AutonomousLowLoadDuckSpinParkDepot implements AutonomousStateMachin
 
         trajectoryToDucks = robot.mecanum.trajectoryBuilder(trajectoryToHub.end())
                 .lineTo(Pose2d8863.getVector2d(PoseStorageFF.START_POSE))
+                .build();
+        trajectoryToDucksTwo = robot.mecanum.trajectoryBuilder(trajectoryToDucks.end())
                 .lineTo(Pose2d8863.getVector2d(PoseStorageFF.DUCK_SPINNER_BLUE))
                 .build();
         trajectoryToDepot = robot.mecanum.trajectoryBuilder(trajectoryToDucks.end())
