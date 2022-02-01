@@ -7,12 +7,10 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.Autonomous3RingsHighGoalPark1Wobble;
-import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.Autonomous3RingsPowerShotsPark1Wobble;
 import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.AutonomousStateMachine;
 import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.PersistantStorage;
 import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.UltimateGoalField;

@@ -11,7 +11,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.AutomaticTeleopFunctions;
-import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.Autonomous3RingsPowerShotsPark1Wobble;
 import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.PersistantStorage;
 import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.PoseStorage;
 import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.UltimateGoalField;

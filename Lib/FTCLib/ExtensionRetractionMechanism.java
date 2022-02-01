@@ -2102,12 +2102,12 @@ public class ExtensionRetractionMechanism {
                         break;
                 }
                 break;
-                // You can perform actions before the retraction movement starts. For example, if you have
-                // another mechanism attached to this one, and it has to turn a certain way in order
-                // to avoid a collision with part of the robot while this mechanism moves to the retraction
-                // position, you can perform that turn and then watch for its completion here. This is
-                // optional. If you don't have any actions, just make arePreResetActionsComplete() return
-                // true in all cases.
+            // You can perform actions before the retraction movement starts. For example, if you have
+            // another mechanism attached to this one, and it has to turn a certain way in order
+            // to avoid a collision with part of the robot while this mechanism moves to the retraction
+            // position, you can perform that turn and then watch for its completion here. This is
+            // optional. If you don't have any actions, just make arePreResetActionsComplete() return
+            // true in all cases.
             case PERFORMING_PRE_RETRACTION_ACTIONS:
                 // In case this command is interrupted by another command, and then that command
                 // cannot be run for some reason, save this state and command so that it can be
@@ -2326,12 +2326,12 @@ public class ExtensionRetractionMechanism {
                         break;
                 }
                 break;
-                // You can perform actions before the extension movement starts. For example, if you have
-                // another mechanism attached to this one, and it has to turn a certain way in order
-                // to avoid a collision with part of the robot while this mechanism moves to the extension
-                // position, you can perform that turn and then watch for its completion here. This is
-                // optional. If you don't have any actions, just make arePreResetActionsComplete() return
-                // true in all cases.
+            // You can perform actions before the extension movement starts. For example, if you have
+            // another mechanism attached to this one, and it has to turn a certain way in order
+            // to avoid a collision with part of the robot while this mechanism moves to the extension
+            // position, you can perform that turn and then watch for its completion here. This is
+            // optional. If you don't have any actions, just make arePreResetActionsComplete() return
+            // true in all cases.
             case PERFORMING_PRE_EXTENSION_ACTIONS:
                 // In case this command is interrupted by another command, and then that command
                 // cannot be run for some reason, save this state and command so that it can be

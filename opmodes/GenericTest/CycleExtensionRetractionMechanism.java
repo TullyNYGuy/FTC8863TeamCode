@@ -49,7 +49,7 @@ public class CycleExtensionRetractionMechanism extends LinearOpMode {
         waitForStart();
 
         // Put your calls here - they will not run in a loop
-        extensionRetractionMechanism.testCycleFullExtensionRetraction(this, 100, 2000);
+        extensionRetractionMechanism.testCycleFullExtensionRetraction(this, 100, 3000);
         telemetry.update();
 
         // sit and wait for the user to read the results

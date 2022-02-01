@@ -23,7 +23,6 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometrySystem;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.RobotPosition;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Switch;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -31,7 +30,6 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863.MotorType.ANDYMARK_20_ORBITAL;
-import static org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863.MotorType.ANDYMARK_40;
 
 public class SkystoneRobot implements FTCRobot {
 
@@ -589,66 +587,6 @@ public void setPosition(double currentpositionx,double currentPositiionY,double 
         else
             return false;
     }
-
-    public Gripper.State getCurrentGripperState() {
-        if (gripper != null)
-            return gripper.getGripperState();
-        else
-            return Gripper.State.IDLE;
-    }
-
-    /*
-    public enum GripStates {
-        IDLE,
-        START,
-        GRIPPING,
-        COMPLETE
-    }
-
-    private GripStates gripState = GripStates.IDLE;
-
-    public void initGripStateMachine() {
-        gripState = GripStates.IDLE;
-    }
-
-    public void gripBlock() {
-        gripState = GripStates.START;
-    }
-
-    public void gripStateUpdate() {
-        switch (gripState) {
-            case IDLE:
-                //nothing just chilling
-                break;
-            case START:
-                gripper.grip();
-                gripState = GripStates.GRIPPING;
-                break;
-
-            case GRIPPING:
-                if (gripper.isGripComplete()) {
-                    gripState = GripStates.COMPLETE;
-                }
-                break;
-            case COMPLETE:
-                //we chillin'
-                break;
-        }
-    }
-
-    public boolean isGripBlockComplete() {
-        if (gripState == GripStates.COMPLETE) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public GripStates getCurrentGripperState() {
-        return gripState;
-    }
-    */
-
 
     //*********************************************
     //BLOCK DEPORTATION//
