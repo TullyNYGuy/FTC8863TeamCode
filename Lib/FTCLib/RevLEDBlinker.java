@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.teamcode.opmodes.UltimateGoalTest.OffsetTest;
+
 public class RevLEDBlinker {
 
     //*********************************************************************************************
@@ -11,7 +13,12 @@ public class RevLEDBlinker {
     // user defined types
     //
     //*********************************************************************************************
+    private enum State {
+        STARTED,
+        STOPPED;
+    }
 
+    private State state = State.STOPPED;
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS AND SETTERS and GETTERS
     //
@@ -46,7 +53,32 @@ public class RevLEDBlinker {
         onOffRepeater.setFrequency(frequency);
     }
 
-    public void setColor(RevLEDDriver.Color color){
-        revLED.setColor( color);
+    public void setColor(RevLEDDriver.Color color) {
+        revLED.setColor(color);
+    }
+
+    public void update() {
+        onOffRepeater.update();
+
+        if (state == State.STARTED) {
+            if (onOffRepeater.getOnOff() == OnOffRepeater.State.OFF) {
+                revLED.off();
+            }
+
+            if (onOffRepeater.getOnOff() == OnOffRepeater.State.ON) {
+                revLED.on();
+            }
+        }
+        if (state == State.STOPPED) {
+            revLED.off();
+        }
+    }
+
+    public void start() {
+        state = State.STARTED;
+    }
+
+    public void stop() {
+        state = State.STOPPED;
     }
 }

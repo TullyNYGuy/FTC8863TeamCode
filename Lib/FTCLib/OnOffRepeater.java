@@ -59,7 +59,7 @@ public class OnOffRepeater {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
-    private void update() {
+    public void update() {
         switch (state) {
             case OFF:
                 if (intervalTimer.seconds() > 0.5 * interval) {
