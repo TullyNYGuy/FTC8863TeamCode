@@ -1057,6 +1057,30 @@ public class DcMotor8863 {
     }
 
     //*********************************************************************************************
+    //          Methods for holding the motor at a desired position
+    //*********************************************************************************************
+
+    /**
+     * Hold the motor at the position given.
+     * @param position - position in terms of what is attached to the motor. It could be inches,
+     *                 degrees, whatever.
+     */
+    public void holdAtPosition(double position) {
+        holdAtEncoderCount(getEncoderCountForMovement(position));
+    }
+
+    /**
+     * Hold the motor at the encoder count given.
+     * @param encoderCount
+     */
+    public void holdAtEncoderCount(int encoderCount) {
+        setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
+        setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        setTargetPosition(encoderCount);
+        setPower(1.0);
+    }
+
+    //*********************************************************************************************
     //          Methods for rotating the motor to a desired position
     //*********************************************************************************************
 
