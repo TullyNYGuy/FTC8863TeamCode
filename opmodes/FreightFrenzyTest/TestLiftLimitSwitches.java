@@ -27,7 +27,7 @@ public class TestLiftLimitSwitches extends LinearOpMode {
                 "ExtensionLimitSwitch",
                 "RetractionLimitSwitch",
                 "LiftMotor",
-                DcMotor8863.MotorType.GOBILDA_435,
+                 DcMotor8863.MotorType.GOBILDA_435,
                 4.517);
         lift.reverseMotorDirection();
 

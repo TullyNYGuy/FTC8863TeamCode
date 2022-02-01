@@ -66,4 +66,3 @@ public class TestLiftExtension extends LinearOpMode {
 
     }
 }
-
