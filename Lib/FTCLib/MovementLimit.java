@@ -35,12 +35,13 @@ public interface MovementLimit {
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
 
+
     //*********************************************************************************************
     //          MAJOR METHODS
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
 
-    public boolean isLimitReached();
-    public boolean isOkToMove();
+    public boolean isLimitReached(double currentPosition);
+    public boolean isOkToMove(double currentPosition, double proposedPosition);
 }

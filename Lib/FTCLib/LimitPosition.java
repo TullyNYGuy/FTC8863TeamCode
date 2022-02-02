@@ -125,22 +125,34 @@ public class LimitPosition implements MovementLimit{
     }
 
     @Override
-    public boolean isOkToMove(double proposedPosition) {
+    public boolean isOkToMove(double currentPosition, double proposedPosition) {
         boolean result = false;
-        if (limitDirection == Direction.LIMIT_DECREASING_POSITIONS) {
-            if (proposedPosition <= limitPosition) {
-                result = false;
-            } else {
-                result = true;
+        if (!isLimitReached(currentPosition)) {
+            result = true;
+        } else {
+            // the position limit is reached. It may be possible to move, as long as the movement
+            // is not past the position limit. It has to be in the direction opposite of the limit.
+
+            // if this limit position is limiting movement that decreases in position (ie below it)
+            // then the only permitted movement is above the limit.
+            if (limitDirection == Direction.LIMIT_DECREASING_POSITIONS) {
+                if (proposedPosition <= limitPosition) {
+                    result = false;
+                } else {
+                    result = true;
+                }
+            }
+            // if this limit position is limiting movement that increase in position (ie above it)
+            // then the only permitted movement is below the limit.
+            if (limitDirection == Direction.LIMIT_INCREASING_POSITIONS) {
+                if (proposedPosition >= limitPosition) {
+                    result = false;
+                } else {
+                    result = true;
+                }
             }
         }
-        if (limitDirection == Direction.LIMIT_INCREASING_POSITIONS) {
-            if (proposedPosition >= limitPosition) {
-                result = false;
-            } else {
-                result = true;
-            }
-        }
+
         return result;
     }
 }

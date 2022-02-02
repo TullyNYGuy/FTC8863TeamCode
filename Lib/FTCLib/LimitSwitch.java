@@ -50,12 +50,42 @@ public class LimitSwitch implements MovementLimit{
     }
 
     @Override
-    public boolean isLimitReached() {
+    public boolean isLimitReached(double currentPosition) {
+        // don't really care about the current position. Just check the switch. The only reason for
+        // passing the currentPosition is to satisfy the interface
         return limitSwitch.isPressed();
     }
 
     @Override
-    public boolean isOkToMove() {
-        return !limitSwitch.isPressed();
+    public boolean isOkToMove(double currentPosition, double proposedPosition) {
+        boolean result = false;
+        if(!limitSwitch.isPressed()) {
+            result = true;
+        } else {
+            // The limit switch is tripped. It may be possible to move, as long as the movement
+            // is not past the limit switch. It has to be in the direction opposite of the limit.
+
+            // if this limit switch is limiting movement that decreases in position (ie below it)
+            // then the only permitted movement is above the limit. Note that since the limit switch
+            // is tripped, the current position is the position of the limit switch.
+            if (limitDirection == Direction.LIMIT_DECREASING_POSITIONS) {
+                if (proposedPosition <= currentPosition) {
+                    result = false;
+                } else {
+                    result = true;
+                }
+            }
+            // if this limit switch is limiting movement that increase in position (ie above it)
+            // then the only permitted movement is below the limit. Note that since the limit switch
+            // is tripped, the current position is the position of the limit switch.
+            if (limitDirection == Direction.LIMIT_INCREASING_POSITIONS) {
+                if (proposedPosition >= currentPosition) {
+                    result = false;
+                } else {
+                    result = true;
+                }
+            }
+        }
+        return result;
     }
 }
