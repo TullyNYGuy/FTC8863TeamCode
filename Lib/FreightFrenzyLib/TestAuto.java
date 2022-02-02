@@ -94,7 +94,7 @@ public class TestAuto implements AutonomousStateMachineFreightFrenzy {
      */
     @Override
     public void createTrajectories() {
-        TrajectoryToShippingHub = robot.mecanum.trajectoryBuilder(org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.PoseStorageFF.START_POSE)
+        TrajectoryToShippingHub = robot.mecanum.trajectoryBuilder(PoseStorageFF.START_POSE_RED_NEAR_WALL)
                 .lineToLinearHeading(new Pose2d(-12, 49, Math.toRadians(270)))
                 .build();
         TrajectoryToCarousel = robot.mecanum.trajectoryBuilder(TrajectoryToShippingHub.end())

@@ -2,18 +2,14 @@ package org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib;
 
 
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Pose2d8863;
-import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.AutonomousStateMachineFreightFrenzy;
-import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.PersistantStorage;
-import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.PoseStorageFF;
-import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyField;
-import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyRobotRoadRunner;
 
-public class AutonomousLowLoadDuckSpinParkDepot implements AutonomousStateMachineFreightFrenzy {
+public class AutonomousLowLoadDuckSpinParkDepotBlueNearWall implements AutonomousStateMachineFreightFrenzy {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -29,9 +25,10 @@ public class AutonomousLowLoadDuckSpinParkDepot implements AutonomousStateMachin
         MOVING_TO_DUCKS,
         AT_DUCK,
         DUCK_SPINNING,
-        MOVING_TO_DEPOT,
-        AT_DEPOT,
+        APPROACHING_SIDE,
+        GOING_TO_PASSAGE,
         DEPOSITING,
+        GO_TO_WAREHOUSE,
         COMPLETE;
     }
 
@@ -45,14 +42,15 @@ public class AutonomousLowLoadDuckSpinParkDepot implements AutonomousStateMachin
     private States currentState;
     private FreightFrenzyRobotRoadRunner robot;
     private FreightFrenzyField field;
-
+    private ElapsedTime timer;
     private DistanceUnit distanceUnits;
     private AngleUnit angleUnits;
 
     private Trajectory trajectoryToHub;
     private Trajectory trajectoryToDucks;
-    private Trajectory trajectoryToDucksTwo;
-    private Trajectory trajectoryToDepot;
+    private Trajectory trajectoryToPassageApproach;
+    private Trajectory trajectoryToPassage;
+    private Trajectory trajectoryToWarehoue;
 
     private double distanceToTopGoal = 0;
     private double distanceToLeftPowerShot = 0;
@@ -78,13 +76,13 @@ public class AutonomousLowLoadDuckSpinParkDepot implements AutonomousStateMachin
     // from it
     //*********************************************************************************************
 
-    public AutonomousLowLoadDuckSpinParkDepot(FreightFrenzyRobotRoadRunner robot, FreightFrenzyField field, Telemetry telemetry) {
+    public AutonomousLowLoadDuckSpinParkDepotBlueNearWall(FreightFrenzyRobotRoadRunner robot, FreightFrenzyField field, Telemetry telemetry) {
         this.robot = robot;
         this.field = field;
         currentState = States.IDLE;
         distanceUnits = DistanceUnit.INCH;
         angleUnits = AngleUnit.DEGREES;
-
+        timer = new ElapsedTime();
 
 
         createTrajectories();
@@ -103,19 +101,22 @@ public class AutonomousLowLoadDuckSpinParkDepot implements AutonomousStateMachin
      */
     @Override
     public void createTrajectories() {
-        trajectoryToHub = robot.mecanum.trajectoryBuilder(org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.PoseStorage.START_POSE, false)
-                .lineTo(Pose2d8863.getVector2d(org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.PoseStorageFF.HUB_BLUE))
+        trajectoryToHub = robot.mecanum.trajectoryBuilder(PoseStorageFF.START_POSE_BLUE_NEAR_WALL)
+                .lineTo(Pose2d8863.getVector2d(PoseStorageFF.HUB_BLUE))
                                //.lineTo(Pose2d8863.getVector2d(PoseStorage.SHOOTING_AT_HIGH_GOAL))
                 .build();
 
         trajectoryToDucks = robot.mecanum.trajectoryBuilder(trajectoryToHub.end())
-                .lineTo(Pose2d8863.getVector2d(PoseStorageFF.START_POSE))
-                .build();
-        trajectoryToDucksTwo = robot.mecanum.trajectoryBuilder(trajectoryToDucks.end())
                 .lineTo(Pose2d8863.getVector2d(PoseStorageFF.DUCK_SPINNER_BLUE))
                 .build();
-        trajectoryToDepot = robot.mecanum.trajectoryBuilder(trajectoryToDucks.end())
-                .lineTo(Pose2d8863.getVector2d(org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.PoseStorage.PARK_POSE))
+        trajectoryToPassageApproach = robot.mecanum.trajectoryBuilder(trajectoryToDucks.end())
+                .lineTo(Pose2d8863.getVector2d(PoseStorageFF.BLUE_SIDE_PASSAGE_APPROACH))
+                .build();
+        trajectoryToPassage = robot.mecanum.trajectoryBuilder(trajectoryToPassageApproach.end())
+                .lineTo(Pose2d8863.getVector2d(PoseStorageFF.SIDE_PASSAGE_BLUE))
+                .build();
+        trajectoryToWarehoue = robot.mecanum.trajectoryBuilder(trajectoryToPassage.end())
+                .lineTo(Pose2d8863.getVector2d(PoseStorageFF.FREIGHT_BLUE))
                 .build();
     }
 
@@ -136,9 +137,9 @@ public class AutonomousLowLoadDuckSpinParkDepot implements AutonomousStateMachin
     public void update() {
         switch (currentState) {
             case START:
-                robot.mecanum.setPoseEstimate(PoseStorage.START_POSE);
-                // start the movement. Note that this starts the angle change after the movement starts
-                //robot.mecanum.followTrajectoryAsync(trajectoryToShootPosition);
+                isComplete = false;
+                robot.mecanum.setPoseEstimate(PoseStorageFF.START_POSE_BLUE_NEAR_WALL);
+                robot.mecanum.followTrajectory(trajectoryToHub);
 
                 currentState = States.MOVING_TO_HUB;
                 break;
@@ -153,6 +154,8 @@ public class AutonomousLowLoadDuckSpinParkDepot implements AutonomousStateMachin
                 break;
             case DEPOSITING:
                 if(!robot.intake.isComplete()){
+                    robot.intake.getOutOfWay();
+                    robot.mecanum.followTrajectory(trajectoryToDucks);
                     currentState = States.MOVING_TO_DUCKS;
                 }
                     break;
@@ -160,27 +163,40 @@ public class AutonomousLowLoadDuckSpinParkDepot implements AutonomousStateMachin
                 if (!robot.mecanum.isBusy()) {
                     robot.duckSpinner.turnOn();
                     //robot.mecanum.followTrajectoryAsync(trajectoryToParkPosition);
-                    //currentState = States.PARKING;
+                    currentState = States.AT_DUCK;
                 }
                 break;
             case AT_DUCK:
                 if (!robot.mecanum.isBusy()) {
-
-                    ///currentState = States.DROPPING_WOBBLE_GOAL;
+                    timer.reset();
+                    currentState = States.DUCK_SPINNING;
                 }
                 break;
             case DUCK_SPINNING:
-                //if () {
+                if (timer.milliseconds()>2500) {
+                    robot.duckSpinner.turnOff();
+                    currentState = States.APPROACHING_SIDE;
+                }
+                break;
+            case APPROACHING_SIDE:
+                robot.mecanum.followTrajectory(trajectoryToPassageApproach);
+                if(!robot.mecanum.isBusy()){
+                    currentState = States.GOING_TO_PASSAGE;
+                }
+                break;
+            case GOING_TO_PASSAGE:
+                robot.mecanum.followTrajectory(trajectoryToPassage);
+                if(!robot.mecanum.isBusy()){
+                    currentState = States.GO_TO_WAREHOUSE;
+                }
+                break;
+            case GO_TO_WAREHOUSE:
+                if(!robot.mecanum.isBusy()){
                     currentState = States.COMPLETE;
-                    isComplete = true;
-                //}
-                break;
-            case AT_DEPOT:
-                break;
-            case MOVING_TO_DEPOT:
+                }
                 break;
             case COMPLETE:
-                break;
+                isComplete = true;
         }
     }
 }

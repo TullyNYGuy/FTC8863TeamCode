@@ -16,6 +16,7 @@ import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyField;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyGamepad;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyRobotRoadRunner;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.MecanumDriveFreightFrenzy;
+import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.PoseStorageFF;
 import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.Autonomous3RingsHighGoalPark1Wobble;
 import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.PoseStorage;
 import org.firstinspires.ftc.teamcode.RoadRunner.drive.SampleMecanumDrive;
@@ -93,7 +94,7 @@ public class SimpleMovementTest extends LinearOpMode {
                 .lineToLinearHeading(new Pose2d(10, 0, Math.toRadians(270)))
                 .build();
 
-        TrajectoryToShippingHub = robot.mecanum.trajectoryBuilder(org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.PoseStorageFF.START_POSE)
+        TrajectoryToShippingHub = robot.mecanum.trajectoryBuilder(PoseStorageFF.START_POSE_BLUE_NEAR_WALL)
                 .lineToLinearHeading(new Pose2d(-12, 44, Math.toRadians(270)))
                 .build();
         TrajectoryToCarousel = robot.mecanum.trajectoryBuilder(TrajectoryToShippingHub.end())
@@ -111,7 +112,7 @@ public class SimpleMovementTest extends LinearOpMode {
     public void update() {
         switch (currentState) {
             case START:
-                robot.mecanum.setPoseEstimate(org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.PoseStorageFF.START_POSE);
+                robot.mecanum.setPoseEstimate(PoseStorageFF.START_POSE_RED_NEAR_WALL);
                 currentState = States.MOVING_TO_SHIPPING_HUB;
                 break;
             case MOVING_TO_SHIPPING_HUB:

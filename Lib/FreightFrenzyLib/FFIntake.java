@@ -431,5 +431,7 @@ public class FFIntake implements FTCRobotSubsystem {
         intakeState = IntakeState.TO_INTAKE;
     }
 
+    public void getOutOfWay(){rotateServo.setPosition("Vertical");}
+
 }
 
