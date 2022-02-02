@@ -1236,7 +1236,7 @@ public class DcMotor8863 {
         setFinishBehavior(afterCompletion);
         // set the desired encoder position
         this.setTargetPosition(encoderCount);
-            // set the run mode
+        // set the run mode
         this.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         // clip the power so that it does not exceed 80% of max. The reason for this is that the
         // PID controller inside the core motor controller needs to have some room to increase
@@ -1267,7 +1267,7 @@ public class DcMotor8863 {
         if (dataLog != null) {
             dataLog.logData("Rotate to encoder count = " + Integer.toString(encoderCount) + " from encoder count = " + Integer.toString(getCurrentPosition()) + " at power " + Double.toString(power) + "in");
         }
-            return true;
+        return true;
 //        } else {
 //            // This method was called again while the movement was taking place. You can't do that.
 //            return false;
@@ -1481,7 +1481,7 @@ public class DcMotor8863 {
             // Turn the motor on
             this.setPower(power);
         }
-            return true;
+        return true;
 //        } else {
 //            return false;
 //        }
