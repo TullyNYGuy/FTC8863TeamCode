@@ -28,6 +28,11 @@ public class RevLEDDriver {
     private DigitalChannel port2;
     private Color color = Color.AMBER;
 
+    public void setColor(Color color) {
+        this.color = color;
+    }
+
+
     //*********************************************************************************************
     //          Constructors
     //
@@ -47,28 +52,26 @@ public class RevLEDDriver {
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
 
+    private void sendColor() {
+        if (color == Color.GREEN) {
+            port1.setState(true);
+            port2.setState(false);
+        }
+        if (color == Color.RED) {
+            port1.setState(false);
+            port2.setState(true);
+        }
+        if (color == Color.AMBER) {
+            port1.setState(false);
+            port2.setState(false);
+        }
+    }
+
     //*********************************************************************************************
     //          MAJOR METHODS
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
-    public void setColor(Color color) {
-        if (color == Color.GREEN) {
-            port1.setState(true);
-            port2.setState(false);
-            color = Color.GREEN;
-        }
-        if (color == Color.RED) {
-            port1.setState(false);
-            port2.setState(true);
-            color = Color.RED;
-        }
-        if (color == Color.AMBER) {
-            port1.setState(false);
-            port2.setState(false);
-            color = Color.AMBER;
-        }
-    }
 
     public Color getColor() {
         return color;
@@ -80,10 +83,11 @@ public class RevLEDDriver {
     }
 
     public void on() {
-        setColor(color);
+        sendColor();
     }
 
     public void on(Color color) {
         setColor(color);
+        sendColor();
     }
 }

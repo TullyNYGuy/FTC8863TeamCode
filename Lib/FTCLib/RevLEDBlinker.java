@@ -75,6 +75,7 @@ public class RevLEDBlinker {
     }
 
     public void start() {
+        onOffRepeater.start();
         state = State.STARTED;
     }
 

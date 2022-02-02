@@ -10,9 +10,9 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.RevLEDDriver;
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Rev LED Test Code", group = "Test")
+@TeleOp(name = "Test Rev LED Blinker", group = "Test")
 //@Disabled
-public class TestLEDBlinker extends LinearOpMode {
+public class TestRevLEDBlinker extends LinearOpMode {
 
     // Put your variable declarations her
     RevLEDBlinker LEDBlinker;
@@ -22,7 +22,7 @@ public class TestLEDBlinker extends LinearOpMode {
 
 
         // Put your initializations here
-        LEDBlinker = new RevLEDBlinker("Kaleb's LED Blinker", "The 2nd LED blinker port", hardwareMap);
+        LEDBlinker = new RevLEDBlinker("LEDport1", "LEDport2", hardwareMap);
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
@@ -31,7 +31,7 @@ public class TestLEDBlinker extends LinearOpMode {
 
         // Put your calls here - they will not run in a loop
 
-        LEDBlinker.setColor(RevLEDDriver.Color.GREEN);
+        LEDBlinker.setColor(RevLEDDriver.Color.RED);
         LEDBlinker.setfrequency(1);
         LEDBlinker.start();
         while (opModeIsActive()) {
