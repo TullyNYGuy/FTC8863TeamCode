@@ -78,7 +78,7 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
     private DataLogging dataLog;
     private FreightFrenzyMatchInfo robotMode;
     Map<String, FTCRobotSubsystem> subsystemMap;
-    private FreightFrenzyColor color;
+    private FreightFrenzyStartSpot color;
 
     private ElapsedTime timer;
     private LinearOpMode opMode;
@@ -125,11 +125,15 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
     public void setCapabilities(Subsystem[] subsystems) {
         capabilities = new HashSet<Subsystem>(Arrays.asList(subsystems));
     }
-
-    public void setColor(FreightFrenzyColor color) {
+    public FreightFrenzyStartSpot retrieveStartSpotFromPersistentStorage(){
+        color = PersistantStorage.getStartSpot();
+        return color;
+    }
+    public void setColor(FreightFrenzyStartSpot color) {
         this.color = color;
     }
-    public FreightFrenzyColor getColor(){
+    public FreightFrenzyStartSpot getColor(){
+
         return color;
     }
     /**

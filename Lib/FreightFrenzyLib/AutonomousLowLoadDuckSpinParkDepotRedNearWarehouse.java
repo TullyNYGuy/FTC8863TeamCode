@@ -9,7 +9,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Pose2d8863;
 
-public class AutonomousLowLoadDuckSpinParkDepotBlueNearWall implements AutonomousStateMachineFreightFrenzy {
+public class AutonomousLowLoadDuckSpinParkDepotRedNearWarehouse implements AutonomousStateMachineFreightFrenzy {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -76,7 +76,7 @@ public class AutonomousLowLoadDuckSpinParkDepotBlueNearWall implements Autonomou
     // from it
     //*********************************************************************************************
 
-    public AutonomousLowLoadDuckSpinParkDepotBlueNearWall(FreightFrenzyRobotRoadRunner robot, FreightFrenzyField field, Telemetry telemetry) {
+    public AutonomousLowLoadDuckSpinParkDepotRedNearWarehouse(FreightFrenzyRobotRoadRunner robot, FreightFrenzyField field, Telemetry telemetry) {
         this.robot = robot;
         this.field = field;
         currentState = States.IDLE;
@@ -101,22 +101,22 @@ public class AutonomousLowLoadDuckSpinParkDepotBlueNearWall implements Autonomou
      */
     @Override
     public void createTrajectories() {
-        trajectoryToHub = robot.mecanum.trajectoryBuilder(PoseStorageFF.START_POSE_BLUE_NEAR_WALL)
-                .lineTo(Pose2d8863.getVector2d(PoseStorageFF.HUB_BLUE_INTAKE_DUMP))
+        trajectoryToHub = robot.mecanum.trajectoryBuilder(PoseStorageFF.START_POSE_RED_NEAR_WAREHOUSE)
+                .lineTo(Pose2d8863.getVector2d(PoseStorageFF.HUB_RED_INTAKE_DUMP))
                                //.lineTo(Pose2d8863.getVector2d(PoseStorage.SHOOTING_AT_HIGH_GOAL))
                 .build();
 
         trajectoryToDucks = robot.mecanum.trajectoryBuilder(trajectoryToHub.end())
-                .lineTo(Pose2d8863.getVector2d(PoseStorageFF.DUCK_SPINNER_BLUE))
+                .lineTo(Pose2d8863.getVector2d(PoseStorageFF.DUCK_SPINNER_RED))
                 .build();
         trajectoryToPassageApproach = robot.mecanum.trajectoryBuilder(trajectoryToDucks.end())
-                .lineTo(Pose2d8863.getVector2d(PoseStorageFF.BLUE_SIDE_PASSAGE_APPROACH))
+                .lineTo(Pose2d8863.getVector2d(PoseStorageFF.RED_SIDE_PASSAGE_APPROACH))
                 .build();
         trajectoryToPassage = robot.mecanum.trajectoryBuilder(trajectoryToPassageApproach.end())
-                .lineTo(Pose2d8863.getVector2d(PoseStorageFF.SIDE_PASSAGE_BLUE))
+                .lineTo(Pose2d8863.getVector2d(PoseStorageFF.SIDE_PASSAGE_RED))
                 .build();
         trajectoryToWarehoue = robot.mecanum.trajectoryBuilder(trajectoryToPassage.end())
-                .lineTo(Pose2d8863.getVector2d(PoseStorageFF.FREIGHT_BLUE))
+                .lineTo(Pose2d8863.getVector2d(PoseStorageFF.FREIGHT_RED))
                 .build();
     }
 
@@ -138,7 +138,7 @@ public class AutonomousLowLoadDuckSpinParkDepotBlueNearWall implements Autonomou
         switch (currentState) {
             case START:
                 isComplete = false;
-                robot.mecanum.setPoseEstimate(PoseStorageFF.START_POSE_BLUE_NEAR_WALL);
+                robot.mecanum.setPoseEstimate(PoseStorageFF.START_POSE_RED_NEAR_WAREHOUSE);
                 robot.mecanum.followTrajectory(trajectoryToHub);
 
                 currentState = States.MOVING_TO_HUB;

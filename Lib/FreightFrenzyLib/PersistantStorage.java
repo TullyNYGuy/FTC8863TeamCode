@@ -3,21 +3,19 @@ package org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-
 public class PersistantStorage {
 
     // public static DATA FIELDS that persist between opmodes
 
     private static Integer motorTicks;
-    private static FreightFrenzyColor color;
+    private static FreightFrenzyStartSpot startSpot;
 
-    public static FreightFrenzyColor getColor(){
-        return color;
+    public static FreightFrenzyStartSpot getStartSpot(){
+        return startSpot;
     }
 
-    public static void setColor(FreightFrenzyColor colorInput) {
-        color = colorInput;
+    public static void setStartSpot(FreightFrenzyStartSpot inputStart) {
+        startSpot = inputStart;
     }
     public static int getMotorTicks (){
         if (motorTicks == null){

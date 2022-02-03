@@ -8,13 +8,6 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Pose2d8863;
-import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.AutonomousStateMachineFreightFrenzy;
-import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.PersistantStorage;
-import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.PoseStorageFF;
-import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyField;
-import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyRobotRoadRunner;
-
-import java.util.Timer;
 
 public class AutonomousLowLoadDuckSpinParkDepotRedNearWall implements AutonomousStateMachineFreightFrenzy {
 
@@ -109,7 +102,7 @@ public class AutonomousLowLoadDuckSpinParkDepotRedNearWall implements Autonomous
     @Override
     public void createTrajectories() {
         trajectoryToHub = robot.mecanum.trajectoryBuilder(PoseStorageFF.START_POSE_RED_NEAR_WALL)
-                .lineTo(Pose2d8863.getVector2d(org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.PoseStorageFF.HUB_RED))
+                .lineTo(Pose2d8863.getVector2d(org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.PoseStorageFF.HUB_RED_INTAKE_DUMP))
                                //.lineTo(Pose2d8863.getVector2d(PoseStorage.SHOOTING_AT_HIGH_GOAL))
                 .build();
 

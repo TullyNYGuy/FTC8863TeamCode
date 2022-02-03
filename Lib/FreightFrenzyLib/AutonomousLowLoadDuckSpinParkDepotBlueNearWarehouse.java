@@ -9,7 +9,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Pose2d8863;
 
-public class AutonomousLowLoadDuckSpinParkDepotBlueNearWall implements AutonomousStateMachineFreightFrenzy {
+public class AutonomousLowLoadDuckSpinParkDepotBlueNearWarehouse implements AutonomousStateMachineFreightFrenzy {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -76,7 +76,7 @@ public class AutonomousLowLoadDuckSpinParkDepotBlueNearWall implements Autonomou
     // from it
     //*********************************************************************************************
 
-    public AutonomousLowLoadDuckSpinParkDepotBlueNearWall(FreightFrenzyRobotRoadRunner robot, FreightFrenzyField field, Telemetry telemetry) {
+    public AutonomousLowLoadDuckSpinParkDepotBlueNearWarehouse(FreightFrenzyRobotRoadRunner robot, FreightFrenzyField field, Telemetry telemetry) {
         this.robot = robot;
         this.field = field;
         currentState = States.IDLE;
@@ -101,7 +101,7 @@ public class AutonomousLowLoadDuckSpinParkDepotBlueNearWall implements Autonomou
      */
     @Override
     public void createTrajectories() {
-        trajectoryToHub = robot.mecanum.trajectoryBuilder(PoseStorageFF.START_POSE_BLUE_NEAR_WALL)
+        trajectoryToHub = robot.mecanum.trajectoryBuilder(PoseStorageFF.START_POSE_BLUE_NEAR_WAREHOUSE)
                 .lineTo(Pose2d8863.getVector2d(PoseStorageFF.HUB_BLUE_INTAKE_DUMP))
                                //.lineTo(Pose2d8863.getVector2d(PoseStorage.SHOOTING_AT_HIGH_GOAL))
                 .build();
@@ -138,7 +138,7 @@ public class AutonomousLowLoadDuckSpinParkDepotBlueNearWall implements Autonomou
         switch (currentState) {
             case START:
                 isComplete = false;
-                robot.mecanum.setPoseEstimate(PoseStorageFF.START_POSE_BLUE_NEAR_WALL);
+                robot.mecanum.setPoseEstimate(PoseStorageFF.START_POSE_BLUE_NEAR_WAREHOUSE);
                 robot.mecanum.followTrajectory(trajectoryToHub);
 
                 currentState = States.MOVING_TO_HUB;
