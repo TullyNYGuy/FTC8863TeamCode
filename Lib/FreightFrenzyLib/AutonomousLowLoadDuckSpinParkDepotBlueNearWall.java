@@ -85,7 +85,7 @@ public class AutonomousLowLoadDuckSpinParkDepotBlueNearWall implements Autonomou
         angleUnits = AngleUnit.DEGREES;
         timer = new ElapsedTime();
         START_POSE = PersistantStorage.getStartPosition();
-
+        PoseStorageFF.retreiveStartPose();
         createTrajectories();
     }
 
@@ -103,7 +103,7 @@ public class AutonomousLowLoadDuckSpinParkDepotBlueNearWall implements Autonomou
     @Override
     public void createTrajectories() {
 
-        trajectoryToHub = robot.mecanum.trajectoryBuilder(START_POSE)
+        trajectoryToHub = robot.mecanum.trajectoryBuilder(PoseStorageFF.START_POSE)
                 .lineTo(Pose2d8863.getVector2d(PoseStorageFF.HUB_BLUE_INTAKE_DUMP))
                                //.lineTo(Pose2d8863.getVector2d(PoseStorage.SHOOTING_AT_HIGH_GOAL))
                 .build();
@@ -140,7 +140,7 @@ public class AutonomousLowLoadDuckSpinParkDepotBlueNearWall implements Autonomou
         switch (currentState) {
             case START:
                 isComplete = false;
-                robot.mecanum.setPoseEstimate(START_POSE);
+                robot.mecanum.setPoseEstimate(PoseStorageFF.START_POSE);
                 robot.mecanum.followTrajectory(trajectoryToHub);
 
                 currentState = States.MOVING_TO_HUB;
