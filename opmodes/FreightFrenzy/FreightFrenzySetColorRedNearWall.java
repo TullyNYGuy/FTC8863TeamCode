@@ -27,16 +27,16 @@ public class FreightFrenzySetColorRedNearWall extends LinearOpMode {
         //*********************************************************************************************
 
         // create the robot
-        telemetry.addData("press init", "now");
+        telemetry.addData("press start", "now");
         telemetry.update();
-
+        waitForStart();
 
 
         //*********************************************************************************************
         //             Robot Running after the user hits play on the driver phone
         //*********************************************************************************************
 
-        
+
             PersistantStorage.setStartSpot(FreightFrenzyStartSpot.RED_WALL);
             telemetry.addData(">", "Color set as red. Spot as near wall");
             telemetry.update();

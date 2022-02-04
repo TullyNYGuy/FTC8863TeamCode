@@ -70,7 +70,7 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
     }
 
     Set<Subsystem> capabilities;
-
+    public OpenCvCamera activeWebcam;
     HardwareMap hardwareMap;
     Telemetry telemetry;
     DistanceUnit units;
@@ -117,6 +117,7 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
         this.subsystemMap = new HashMap<String, FTCRobotSubsystem>();
         setCapabilities(Subsystem.values());
         enableDataLogging();
+        color = retrieveStartSpotFromPersistentStorage();
     }
 
     /*
@@ -162,38 +163,23 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
 
         // THE WEBCAM PROCESSING TAKES UP A BUNCH OF RESOURCES. PROBABLY NOT A GOOD IDEA TO RUN THIS IN TELEOP
 
-        if (capabilities.contains(Subsystem.WEBCAM_LEFT) && FreightFrenzyMatchInfo.getMatchPhase() == FreightFrenzyMatchInfo.MatchPhase.AUTONOMOUS) {
-            webcamLeft = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "WebcamLeft"), cameraMonitorViewId);
+        if (capabilities.contains(Subsystem.WEBCAM_LEFT) && color == FreightFrenzyStartSpot.RED_WALL && FreightFrenzyMatchInfo.getMatchPhase() == FreightFrenzyMatchInfo.MatchPhase.AUTONOMOUS) {
             webcamLeft.setMillisecondsPermissionTimeout(2500); // Timeout for obtaining permission is configurable. Set before opening.
-            webcamLeft.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
-                @Override
-                public void onOpened() {
-                    webcamLeft.startStreaming(1280, 720, OpenCvCameraRotation.UPRIGHT);
-                }
-
-                @Override
-                public void onError(int errorCode) {
-
-                }
-            });
+            activeWebcam = webcamLeft;
+        }
+        if (capabilities.contains(Subsystem.WEBCAM_LEFT) && color == FreightFrenzyStartSpot.RED_WAREHOUSE && FreightFrenzyMatchInfo.getMatchPhase() == FreightFrenzyMatchInfo.MatchPhase.AUTONOMOUS) {
+            webcamLeft.setMillisecondsPermissionTimeout(2500); // Timeout for obtaining permission is configurable. Set before opening.
+            activeWebcam = webcamLeft;
         }
 
-        if (capabilities.contains(Subsystem.WEBCAM_RIGHT) && FreightFrenzyMatchInfo.getMatchPhase() == FreightFrenzyMatchInfo.MatchPhase.AUTONOMOUS) {
-            webcamRight = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "WebcamRight"), cameraMonitorViewId);
+        if (capabilities.contains(Subsystem.WEBCAM_RIGHT) && color == FreightFrenzyStartSpot.BLUE_WALL && FreightFrenzyMatchInfo.getMatchPhase() == FreightFrenzyMatchInfo.MatchPhase.AUTONOMOUS) {
+           webcamRight.setMillisecondsPermissionTimeout(2500);
+            activeWebcam = webcamRight;
+        }
+        if (capabilities.contains(Subsystem.WEBCAM_RIGHT) && color == FreightFrenzyStartSpot.BLUE_WAREHOUSE && FreightFrenzyMatchInfo.getMatchPhase() == FreightFrenzyMatchInfo.MatchPhase.AUTONOMOUS) {
             webcamRight.setMillisecondsPermissionTimeout(2500); // Timeout for obtaining permission is configurable. Set before opening.
-            webcamRight.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
-                @Override
-                public void onOpened() {
-                    webcamRight.startStreaming(1280, 720, OpenCvCameraRotation.UPRIGHT);
-                }
-
-                @Override
-                public void onError(int errorCode) {
-
-                }
-            });
+            activeWebcam = webcamRight;
         }
-
         if (capabilities.contains(Subsystem.INTAKE)) {
             intake = new FFIntake(hardwareMap, telemetry);
             subsystemMap.put(intake.getName(), intake);

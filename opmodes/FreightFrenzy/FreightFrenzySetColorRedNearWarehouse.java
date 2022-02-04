@@ -27,9 +27,9 @@ public class FreightFrenzySetColorRedNearWarehouse extends LinearOpMode {
         //*********************************************************************************************
 
         // create the robot
-        telemetry.addData("press init", "now");
+        telemetry.addData("press start", "now");
         telemetry.update();
-
+        waitForStart();
 
 
         //*********************************************************************************************
