@@ -16,6 +16,7 @@ import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyField;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyGamepad;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyRobotRoadRunner;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.MecanumDriveFreightFrenzy;
+import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.PersistantStorage;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.PoseStorageFF;
 import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.Autonomous3RingsHighGoalPark1Wobble;
 import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.PoseStorage;
@@ -42,7 +43,7 @@ import java.util.List;
 @Config
 @Autonomous(group = "remote auto")
 public class SimpleMovementTest extends LinearOpMode {
-
+    private Pose2d START_POSE;
     public enum States {
         START,
         MOVING_TO_SHIPPING_HUB,
@@ -74,6 +75,7 @@ public class SimpleMovementTest extends LinearOpMode {
     public boolean isComplete;
 
     public void startAuto() {
+        START_POSE = PersistantStorage.getStartPosition();
         currentState = States.START;
         isComplete = false;
     }
@@ -94,7 +96,7 @@ public class SimpleMovementTest extends LinearOpMode {
                 .lineToLinearHeading(new Pose2d(10, 0, Math.toRadians(270)))
                 .build();
 
-        TrajectoryToShippingHub = robot.mecanum.trajectoryBuilder(PoseStorageFF.START_POSE_BLUE_NEAR_WALL)
+        TrajectoryToShippingHub = robot.mecanum.trajectoryBuilder(START_POSE)
                 .lineToLinearHeading(new Pose2d(-12, 44, Math.toRadians(270)))
                 .build();
         TrajectoryToCarousel = robot.mecanum.trajectoryBuilder(TrajectoryToShippingHub.end())
@@ -112,7 +114,7 @@ public class SimpleMovementTest extends LinearOpMode {
     public void update() {
         switch (currentState) {
             case START:
-                robot.mecanum.setPoseEstimate(PoseStorageFF.START_POSE_RED_NEAR_WALL);
+                robot.mecanum.setPoseEstimate(START_POSE);
                 currentState = States.MOVING_TO_SHIPPING_HUB;
                 break;
             case MOVING_TO_SHIPPING_HUB:

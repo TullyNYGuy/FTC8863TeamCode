@@ -41,7 +41,7 @@ public class TestAuto implements AutonomousStateMachineFreightFrenzy {
 
     private DistanceUnit distanceUnits;
     private AngleUnit angleUnits;
-
+    private Pose2d START_POSE;
     private Trajectory TrajectoryToShippingHub;
     private Trajectory TrajectoryToCarousel;
     private Trajectory TrajectoryToWarehouseWaypoint1;
@@ -78,6 +78,7 @@ public class TestAuto implements AutonomousStateMachineFreightFrenzy {
         currentState = States.IDLE;
         distanceUnits = DistanceUnit.INCH;
         angleUnits = AngleUnit.DEGREES;
+        START_POSE = PersistantStorage.getStartPosition();
         createTrajectories();
     }
 
@@ -94,7 +95,7 @@ public class TestAuto implements AutonomousStateMachineFreightFrenzy {
      */
     @Override
     public void createTrajectories() {
-        TrajectoryToShippingHub = robot.mecanum.trajectoryBuilder(PoseStorageFF.START_POSE_RED_NEAR_WALL)
+        TrajectoryToShippingHub = robot.mecanum.trajectoryBuilder(START_POSE)
                 .lineToLinearHeading(new Pose2d(-12, 49, Math.toRadians(270)))
                 .build();
         TrajectoryToCarousel = robot.mecanum.trajectoryBuilder(TrajectoryToShippingHub.end())
@@ -131,7 +132,7 @@ public class TestAuto implements AutonomousStateMachineFreightFrenzy {
     public void update() {
         switch (currentState) {
             case START:
-                robot.mecanum.setPoseEstimate(PoseStorage.START_POSE);
+                robot.mecanum.setPoseEstimate(START_POSE);
                 // start the movement. Note that this starts the angle change after the movement starts
                 //robot.mecanum.followTrajectoryAsync(trajectoryToShootPosition);
 

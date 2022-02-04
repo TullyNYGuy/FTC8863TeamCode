@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib;
 
 
+import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -38,7 +39,7 @@ public class AutonomousLowLoadDuckSpinParkDepotBlueNearWall implements Autonomou
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
-
+    private Pose2d START_POSE;
     private States currentState;
     private FreightFrenzyRobotRoadRunner robot;
     private FreightFrenzyField field;
@@ -83,7 +84,7 @@ public class AutonomousLowLoadDuckSpinParkDepotBlueNearWall implements Autonomou
         distanceUnits = DistanceUnit.INCH;
         angleUnits = AngleUnit.DEGREES;
         timer = new ElapsedTime();
-
+        START_POSE = PersistantStorage.getStartPosition();
 
         createTrajectories();
     }
@@ -101,7 +102,8 @@ public class AutonomousLowLoadDuckSpinParkDepotBlueNearWall implements Autonomou
      */
     @Override
     public void createTrajectories() {
-        trajectoryToHub = robot.mecanum.trajectoryBuilder(PoseStorageFF.START_POSE_BLUE_NEAR_WALL)
+
+        trajectoryToHub = robot.mecanum.trajectoryBuilder(START_POSE)
                 .lineTo(Pose2d8863.getVector2d(PoseStorageFF.HUB_BLUE_INTAKE_DUMP))
                                //.lineTo(Pose2d8863.getVector2d(PoseStorage.SHOOTING_AT_HIGH_GOAL))
                 .build();
@@ -138,7 +140,7 @@ public class AutonomousLowLoadDuckSpinParkDepotBlueNearWall implements Autonomou
         switch (currentState) {
             case START:
                 isComplete = false;
-                robot.mecanum.setPoseEstimate(PoseStorageFF.START_POSE_BLUE_NEAR_WALL);
+                robot.mecanum.setPoseEstimate(START_POSE);
                 robot.mecanum.followTrajectory(trajectoryToHub);
 
                 currentState = States.MOVING_TO_HUB;
