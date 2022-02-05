@@ -49,8 +49,10 @@ public class ArmMotor {
         this.armMotor = new DcMotor8863(motorName, hardwareMap, telemetry);
         armMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
         armMotor.setMovementPerRev(360); // 360 degrees per revolution, our position will be in degrees
-        armMotor.setDirection(DcMotorSimple.Direction.REVERSE); // says which direction (clockwise or counter clockwise) is considered a positive rotation
-        mechanismUnits = new MechanismUnits(360, AngleUnit.DEGREES, MotorType.ANDYMARK_40);
+        armMotor.setDirection(DcMotorSimple.Direction.FORWARD); // says which direction (clockwise or counter clockwise) is considered a positive rotation
+        // this code is a hybrid of the MotorType built into the DcMotor8863 and the new MotorType enum. Just for testing purposes and just for now.
+        // Long term the DcMotor8863 will get the new MotorType enum incorporated into it
+        mechanismUnits = new MechanismUnits(360.0, AngleUnit.DEGREES, armMotor.getCountsPerRev());
 
         dashboard = FtcDashboard.getInstance();
         dashboard.setTelemetryTransmissionInterval(25);

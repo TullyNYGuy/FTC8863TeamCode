@@ -66,11 +66,14 @@ public class MechanismUnits {
      * Use this constructor for a mechanism that moves in a linear fashion.
      * @param distanceForOneRevolution - linear movement of the mechanism per motor revolution
      * @param units - units associated with the distance
-     * @param motorType - the type of motor will be used to look up the encoder counts per motor
+     //* @param motorType - the type of motor will be used to look up the encoder counts per motor
      *                  revolution
      */
-    public MechanismUnits(double distanceForOneRevolution, DistanceUnit units, MotorType motorType) {
-        setMechanismUnitPerEncoderCount(distanceForOneRevolution, motorType.getCountsPerRev());
+    public MechanismUnits(double distanceForOneRevolution, DistanceUnit units, int countsPerRev) {
+        //public MechanismUnits(double distanceForOneRevolution, DistanceUnit units, MotorType motorType) {
+        // todo This next line crashes the controller hub
+        //setMechanismUnitPerEncoderCount(distanceForOneRevolution, MotorType.getCountsPerRev(motorType));
+        setMechanismUnitPerEncoderCount(distanceForOneRevolution, (double) countsPerRev);
         this.distanceUnit = units;
         // for emphasis
         this.angleUnit = null;
@@ -82,11 +85,14 @@ public class MechanismUnits {
      *                                 360 degrees (2PI) of rotation of the mechanism per motor
      *                                 revolution
      * @param units - units associated with the rotation
-     * @param motorType - the type of motor will be used to look up the encoder counts per motor
+     //* @param motorType - the type of motor will be used to look up the encoder counts per motor
      *                  revolution
      */
-    public MechanismUnits(double rotationForOneRevolution, AngleUnit units, MotorType motorType) {
-        setMechanismUnitPerEncoderCount(rotationForOneRevolution, motorType.getCountsPerRev());
+    public MechanismUnits(double rotationForOneRevolution, AngleUnit units, int countsPerRev) {
+        //public MechanismUnits(double rotationForOneRevolution, AngleUnit units, MotorType motorType) {
+        // todo This next line crashes the controller hub
+        //setMechanismUnitPerEncoderCount(rotationForOneRevolution, motorType.getCountsPerRev());
+        setMechanismUnitPerEncoderCount(rotationForOneRevolution, (double) countsPerRev);
         this.angleUnit = units;
         // for emphasis
         this.distanceUnit = null;
