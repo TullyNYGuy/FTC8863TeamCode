@@ -151,10 +151,12 @@ public class DcMotor8863 {
         return baseEncoderCount;
     }
 
-    // Set the virtual encoder count for this motor to 0. This does not affect the hardware encoder
-    // count maintained by the SDK
+    /**
+     * Reset the virtual encoder to 0. Do this by changing the baseEncoderCount to the current motor
+     * encoder count.
+     */
     public void resetEncoder() {
-        baseEncoderCount = 0;
+        baseEncoderCount = FTCDcMotor.getCurrentPosition();
     }
 
     /**
@@ -274,7 +276,7 @@ public class DcMotor8863 {
     }
 
     private int calculateVirtualEncoderCount(int motorEncoderCount) {
-        return motorEncoderCount + baseEncoderCount;
+        return motorEncoderCount - baseEncoderCount;
     }
 
     private void setVirtualEncoderCount(int motorEncoderCount) {
