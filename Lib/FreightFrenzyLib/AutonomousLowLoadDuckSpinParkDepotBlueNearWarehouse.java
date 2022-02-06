@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib;
 
 
+import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -51,7 +52,7 @@ public class AutonomousLowLoadDuckSpinParkDepotBlueNearWarehouse implements Auto
     private Trajectory trajectoryToPassageApproach;
     private Trajectory trajectoryToPassage;
     private Trajectory trajectoryToWarehoue;
-
+    private Pose2d START_POSE;
     private double distanceToTopGoal = 0;
     private double distanceToLeftPowerShot = 0;
     private double angleOfShot = 0;
@@ -83,8 +84,8 @@ public class AutonomousLowLoadDuckSpinParkDepotBlueNearWarehouse implements Auto
         distanceUnits = DistanceUnit.INCH;
         angleUnits = AngleUnit.DEGREES;
         timer = new ElapsedTime();
-
-
+        START_POSE = PersistantStorage.getStartPosition();
+        PoseStorageFF.retreiveStartPose();
         createTrajectories();
     }
 
@@ -101,7 +102,7 @@ public class AutonomousLowLoadDuckSpinParkDepotBlueNearWarehouse implements Auto
      */
     @Override
     public void createTrajectories() {
-        trajectoryToHub = robot.mecanum.trajectoryBuilder(PoseStorageFF.START_POSE_BLUE_NEAR_WAREHOUSE)
+        trajectoryToHub = robot.mecanum.trajectoryBuilder(PoseStorageFF.START_POSE)
                 .lineTo(Pose2d8863.getVector2d(PoseStorageFF.HUB_BLUE_INTAKE_DUMP))
                                //.lineTo(Pose2d8863.getVector2d(PoseStorage.SHOOTING_AT_HIGH_GOAL))
                 .build();
@@ -138,7 +139,7 @@ public class AutonomousLowLoadDuckSpinParkDepotBlueNearWarehouse implements Auto
         switch (currentState) {
             case START:
                 isComplete = false;
-                robot.mecanum.setPoseEstimate(PoseStorageFF.START_POSE_BLUE_NEAR_WAREHOUSE);
+                robot.mecanum.setPoseEstimate(PoseStorageFF.START_POSE);
                 robot.mecanum.followTrajectory(trajectoryToHub);
 
                 currentState = States.MOVING_TO_HUB;

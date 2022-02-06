@@ -11,10 +11,7 @@ public class PoseStorageFF {
 
     //public static AngleChanger angleChanger;
 
-    public static Pose2d START_POSE_BLUE_NEAR_WALL = new Pose2d(-17.5, 63.75, Math.toRadians(0));
-    public static Pose2d START_POSE_RED_NEAR_WALL = new Pose2d(-17.5, -63.75, Math.toRadians(0));
-    public static Pose2d START_POSE_BLUE_NEAR_WAREHOUSE = new Pose2d(12.5, 63.75, Math.toRadians(0));
-    public static Pose2d START_POSE_RED_NEAR_WAREHOUSE = new Pose2d(12.5, -63.75, Math.toRadians(0));
+    public static Pose2d START_POSE;
     //public static Pose2d START_POSE = new Pose2d(-61.25, -17, Math.toRadians(180));
     public static Pose2d DELIVER_TO_MID_AND_LOW_HUB_RED = new Pose2d(-12, -29, Math.toRadians(0)); // <- test this
     public static Pose2d DELIVER_TO_MID_AND_LOW_HUB_BLUE = new Pose2d(-12, 29, Math.toRadians(0)); // <- test this
@@ -36,4 +33,9 @@ public class PoseStorageFF {
     public static Pose2d FREIGHT_RED = new Pose2d(60, -65, Math.toRadians(0));
     public static Pose2d SIDE_PASSAGE_RED = new Pose2d(8.75,-65,Math.toRadians(0));
     public static Pose2d SHARED_HUB_BLUE = new Pose2d(46, 0); // <- need test
+
+
+    public static void retreiveStartPose(){
+        START_POSE = PersistantStorage.getStartPosition();
+    }
 }

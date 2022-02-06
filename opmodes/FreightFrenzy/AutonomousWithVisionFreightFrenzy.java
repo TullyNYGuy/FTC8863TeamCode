@@ -15,11 +15,14 @@ import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.AutonomousLowLoadDuck
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.AutonomousLowLoadDuckSpinParkDepotRedNearWall;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.AutonomousLowLoadDuckSpinParkDepotRedNearWarehouse;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.AutonomousStateMachineFreightFrenzy;
-import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyStartSpot;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyField;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyGamepad;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyRobotRoadRunner;
+import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyStartSpot;
+import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.PersistantStorage;
+import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.Pipelines.ShippingElementPipeline;
 import org.openftc.easyopencv.OpenCvCamera;
+import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
 import java.util.List;
@@ -27,9 +30,9 @@ import java.util.List;
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@Autonomous(name = "Auto - make sure you ran appropriate position set before", group = "AA")
+@Autonomous(name = "testing some vision in opmodes", group = "AA")
 //@Disabled
-public class AutonomousFreightFrenzy extends LinearOpMode {
+public class AutonomousWithVisionFreightFrenzy extends LinearOpMode {
 
     // Put your variable declarations her
     public FreightFrenzyRobotRoadRunner robot;
@@ -38,15 +41,18 @@ public class AutonomousFreightFrenzy extends LinearOpMode {
     public FreightFrenzyStartSpot startSpot;
     private ElapsedTime timer;
     public boolean autoDone;
+    private ShippingElementPipeline.ShippingPosition position;
     DataLogging dataLog = null;
     int cameraMonitorViewId;
     public FreightFrenzyField field;
     public double distance = 0;
     public double angleBetween = 0;
     private AutonomousStateMachineFreightFrenzy autonomous;
+    private ShippingElementPipeline pipeline;
 
     @Override
     public void runOpMode() {
+        pipeline = new ShippingElementPipeline();
         telemetry.addData("Initializing ...", "Wait for it ...");
         telemetry.update();
         dataLog = new DataLogging("Autonomous", telemetry);
@@ -58,7 +64,25 @@ public class AutonomousFreightFrenzy extends LinearOpMode {
         robot.createRobot();
         startSpot = robot.retrieveStartSpotFromPersistentStorage();
 
+        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        robot.activeWebcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "WebcamRight"), cameraMonitorViewId);
+        //robot.activeWebcam .setMillisecondsPermissionTimeout(2500); // Timeout for obtaining permission is configurable. Set before opening.
+        robot.activeWebcam .openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
+            @Override
+            public void onOpened() {
+                robot.activeWebcam.startStreaming(1280, 720, OpenCvCameraRotation.UPRIGHT);
+            }
 
+            @Override
+            public void onError(int errorCode) {
+
+            }
+        });
+        robot.activeWebcam.setPipeline(pipeline);
+        position = pipeline.getAnalysis();
+        PersistantStorage.setShippingElementPosition(position);
+        telemetry.addData("shipping element postion is", position);
+        telemetry.update();
        /* switch(startSpot){
             case BLUE_WALL:
                 cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
@@ -125,8 +149,7 @@ public class AutonomousFreightFrenzy extends LinearOpMode {
 
         // Put your initializations here
         // create the robot and run the init for it
-        robot = new FreightFrenzyRobotRoadRunner(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, this);
-        robot.createRobot();
+
         enableBulkReads(hardwareMap, LynxModule.BulkCachingMode.AUTO);
        switch (startSpot) {
            case RED_WALL: autonomous = new AutonomousLowLoadDuckSpinParkDepotRedNearWall(robot, field, telemetry);
@@ -145,10 +168,11 @@ public class AutonomousFreightFrenzy extends LinearOpMode {
 
         telemetry.addData(">", "Press Start to run");
         telemetry.update();
-
+        telemetry.addData("shipping element postion is", position);
+        telemetry.update();
         // Wait for the start button
         waitForStart();
-
+        robot.activeWebcam.closeCameraDevice();
         // Put your calls here - they will not run in a loop
 
 

@@ -19,12 +19,21 @@
  * SOFTWARE.
  */
 
-package org.firstinspires.ftc.teamcode.EasyOpenCV;
+package org.firstinspires.ftc.teamcode.opmodes.FreightFrenzy;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.EasyOpenCV.PipelineStageSwitchingExample;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
+import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyField;
+import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyGamepad;
+import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyRobotRoadRunner;
+import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.Pipelines.ShippingElementPipeline;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
@@ -36,13 +45,33 @@ import org.openftc.easyopencv.OpenCvPipeline;
 import org.openftc.easyopencv.OpenCvWebcam;
 
 @TeleOp
-public class WebcamExample extends LinearOpMode
+public class WebcamPositioning extends LinearOpMode
 {
+    public FreightFrenzyRobotRoadRunner robot;
+    public FreightFrenzyField field;
+    public FreightFrenzyGamepad gamepad;
+    public Configuration config = null;
+    private ElapsedTime timer;
     OpenCvWebcam webcam;
+    DataLogging dataLog = null;
 
     @Override
     public void runOpMode()
     {
+        telemetry.addData("Initializing ...", "Wait for it ...");
+        telemetry.update();
+        dataLog = new DataLogging("Teleop", telemetry);
+        config = null;
+        config = new Configuration();
+        if (!config.load()) {
+            telemetry.addData("ERROR", "Couldn't load config file");
+            telemetry.update();
+        }
+        timer = new ElapsedTime();
+        robot = new FreightFrenzyRobotRoadRunner(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, this);
+
+        // create the robot and run the init for it
+        robot.createRobot();
         /*
          * Instantiate an OpenCvCamera object for the camera we'll be using.
          * In this sample, we're using a webcam. Note that you will need to
@@ -54,8 +83,21 @@ public class WebcamExample extends LinearOpMode
          * single-parameter constructor instead (commented out below)
          */
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "WebcamLeft"), cameraMonitorViewId);
+        robot.activeWebcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "WebcamRight"), cameraMonitorViewId);
+        //robot.activeWebcam .setMillisecondsPermissionTimeout(2500); // Timeout for obtaining permission is configurable. Set before opening.
+        robot.activeWebcam .openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
+            @Override
+            public void onOpened() {
+                robot.activeWebcam.startStreaming(1280, 720, OpenCvCameraRotation.UPRIGHT);
+            }
 
+            @Override
+            public void onError(int errorCode) {
+
+            }
+        });
+        telemetry.addData("Use this to positon the robot's camera", "Instead of pressing start, go to the 3 dots and press camera stream option");
+        telemetry.update();
         // OR...  Do Not Activate the Camera Monitor View
         //webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"));
 
@@ -64,7 +106,7 @@ public class WebcamExample extends LinearOpMode
          * of a frame from the camera. Note that switching pipelines on-the-fly
          * (while a streaming session is in flight) *IS* supported.
          */
-        webcam.setPipeline(new SamplePipeline());
+        robot.activeWebcam.setPipeline(new ShippingElementPipeline());
 
         /*
          * Open the connection to the camera device. New in v1.4.0 is the ability
@@ -75,41 +117,10 @@ public class WebcamExample extends LinearOpMode
          *
          * If you really want to open synchronously, the old method is still available.
          */
-        webcam.setMillisecondsPermissionTimeout(2500); // Timeout for obtaining permission is configurable. Set before opening.
-        webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
-        {
-            @Override
-            public void onOpened()
-            {
-                /*
-                 * Tell the webcam to start streaming images to us! Note that you must make sure
-                 * the resolution you specify is supported by the camera. If it is not, an exception
-                 * will be thrown.
-                 *
-                 * Keep in mind that the SDK's UVC driver (what OpenCvWebcam uses under the hood) only
-                 * supports streaming from the webcam in the uncompressed YUV image format. This means
-                 * that the maximum resolution you can stream at and still get up to 30FPS is 480p (640x480).
-                 * Streaming at e.g. 720p will limit you to up to 10FPS and so on and so forth.
-                 *
-                 * Also, we specify the rotation that the webcam is used in. This is so that the image
-                 * from the camera sensor can be rotated such that it is always displayed with the image upright.
-                 * For a front facing camera, rotation is defined assuming the user is looking at the screen.
-                 * For a rear facing camera or a webcam, rotation is defined assuming the camera is facing
-                 * away from the user.
-                 */
-                webcam.startStreaming(1280, 720, OpenCvCameraRotation.UPRIGHT);
-            }
 
-            @Override
-            public void onError(int errorCode)
-            {
-                /*
-                 * This will be called if the camera could not be opened
-                 */
-            }
-        });
 
-        telemetry.addLine("Waiting for start");
+
+        telemetry.addLine("don't press start unless you want a whole bunch of numbers and confusion");
         telemetry.update();
 
         /*
@@ -122,12 +133,12 @@ public class WebcamExample extends LinearOpMode
             /*
              * Send some stats to the telemetry
              */
-            telemetry.addData("Frame Count", webcam.getFrameCount());
-            telemetry.addData("FPS", String.format("%.2f", webcam.getFps()));
-            telemetry.addData("Total frame time ms", webcam.getTotalFrameTimeMs());
-            telemetry.addData("Pipeline time ms", webcam.getPipelineTimeMs());
-            telemetry.addData("Overhead time ms", webcam.getOverheadTimeMs());
-            telemetry.addData("Theoretical max FPS", webcam.getCurrentPipelineMaxFps());
+            telemetry.addData("Frame Count", robot.activeWebcam.getFrameCount());
+            telemetry.addData("FPS", String.format("%.2f", robot.activeWebcam.getFps()));
+            telemetry.addData("Total frame time ms", robot.activeWebcam.getTotalFrameTimeMs());
+            telemetry.addData("Pipeline time ms", robot.activeWebcam.getPipelineTimeMs());
+            telemetry.addData("Overhead time ms", robot.activeWebcam.getOverheadTimeMs());
+            telemetry.addData("Theoretical max FPS", robot.activeWebcam.getCurrentPipelineMaxFps());
             telemetry.update();
 
             /*
@@ -156,7 +167,7 @@ public class WebcamExample extends LinearOpMode
                  * time. Of course, this comment is irrelevant in light of the use case described in
                  * the above "important note".
                  */
-                webcam.stopStreaming();
+                robot.activeWebcam.stopStreaming();
                 //webcam.closeCameraDevice();
             }
 
@@ -249,11 +260,11 @@ public class WebcamExample extends LinearOpMode
 
             if(viewportPaused)
             {
-                webcam.pauseViewport();
+                robot.activeWebcam.pauseViewport();
             }
             else
             {
-                webcam.resumeViewport();
+                robot.activeWebcam.resumeViewport();
             }
         }
     }
