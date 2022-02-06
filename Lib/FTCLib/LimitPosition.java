@@ -114,6 +114,7 @@ public class LimitPosition implements MovementLimit{
     @Override
     public boolean isLimitReached(double currentPosition) {
         boolean limitReached = false;
+        if (limitDirection == Direction.LIMIT_INCREASING_POSITIONS) {
             if (currentPosition >= limitPosition) {
                 limitReached = true;
                 logLimitOnlyOnce(directionString + " position limit tripped");
@@ -121,6 +122,16 @@ public class LimitPosition implements MovementLimit{
                 limitReached = false;
                 logLimitOnlyOnce(directionString + " position limit cleared");
             }
+        } else {
+            // the limit applies to decreasing positions
+            if (currentPosition <= limitPosition) {
+                limitReached = true;
+                logLimitOnlyOnce(directionString + " position limit tripped");
+            } else {
+                limitReached = false;
+                logLimitOnlyOnce(directionString + " position limit cleared");
+            }
+        }
         return limitReached;
     }
 
