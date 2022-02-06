@@ -21,14 +21,13 @@ public class TestLiftExtensionRetraction extends LinearOpMode {
 
 
         // Put your initializations here
-        lift = new ExtensionRetractionMechanism(hardwareMap,
-                telemetry,
-                "lift",
-                "ExtensionLimitSwitch",
-                "RetractionLimitSwitch",
-                "LiftMotor",
-                DcMotor8863.MotorType.ANDYMARK_20_ORBITAL,
-                3.926);
+        lift = new ExtensionRetractionMechanism(hardwareMap, telemetry,
+                "Lift",
+                "extensionLimitSwitch",
+                "retractionLimitSwitch",
+                "extensionArmMotor",
+                DcMotor8863.MotorType.GOBILDA_435,
+                4.517);
 
       //  lift.reverseMotorDirection();
         lift.setExtensionPower(1);

@@ -26,9 +26,9 @@ public class TestLiftInit extends LinearOpMode {
         log = new DataLogging("LiftLog");
         lift = new ExtensionRetractionMechanism(hardwareMap, telemetry,
                 "Lift",
-                "ExtensionLimitSwitch",
-                "RetractionLimitSwitch",
-                "LiftMotor",
+                "extensionLimitSwitch",
+                "retractionLimitSwitch",
+                "extensionArmMotor",
                 DcMotor8863.MotorType.GOBILDA_435,
                 4.517);
         lift.reverseMotorDirection();
