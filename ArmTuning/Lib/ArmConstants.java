@@ -22,7 +22,7 @@ public class ArmConstants {
      * These come from the opmode ArmTuningSetupPositions. They are angles in degrees with 0 degrees
      * corresponding to the start position of the arm. These should be positive values.
      */
-    public static final double HORIZONTAL_POSITION = 0;
+    public static final double HORIZONTAL_POSITION = 45.3; // degrees
 
     public static double getHorizontalPosition(AngleUnit units) {
         if (units == AngleUnit.DEGREES) {
@@ -32,7 +32,7 @@ public class ArmConstants {
         }
     }
 
-    public static final double VERTICAL_POSITION = 0;
+    public static final double VERTICAL_POSITION = 134.7; // degrees
 
     public static double getVerticalPosition(AngleUnit units) {
         if (units == AngleUnit.DEGREES) {
@@ -76,20 +76,17 @@ public class ArmConstants {
 //    public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(0, 0, 0,
 //            getMotorVelocityF(MAX_RPM / 60 * TICKS_PER_REV));
 
-    /*
-     * These are physical constants that can be determined from your robot (including the track
-     * width; it will be tune empirically later although a rough estimate is important). Users are
-     * free to chose whichever linear distance unit they would like so long as it is consistently
-     * used. The default values were selected with inches in mind. Road runner uses radians for
-     * angular distances although most angular parameters are wrapped in Math.toRadians() for
-     * convenience. Make sure to exclude any gear ratio included in MOTOR_CONFIG from GEAR_RATIO.
-     */
-    public static double WHEEL_RADIUS = 1.8898; // in - goBilda mecanum wheels (96mm diam)
-    public static double GEAR_RATIO = 1.0; // output (wheel) speed / input (motor) speed
-    // this is from CAD
-    //public static double TRACK_WIDTH = 15.878; // from cad 403.3mm
-    // This is from TurnTest
-    public static double TRACK_WIDTH = 17.114; // from cad 403.3mm
+    public static double kS = 0.09;
+    //public static double kSPluskG = 0.14; // with no weights
+    public static double kSPluskG = 0.30; // with weights
+
+    public static double getKg() {
+        if (kSPluskG - kS < 0) {
+            return 0;
+        } else {
+            return kSPluskG - kS;
+        }
+    }
 
     /*
      * These are the feedforward parameters used to model the drive motor behavior. If you are using

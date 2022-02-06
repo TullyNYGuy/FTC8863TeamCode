@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.teamcode.ArmTuning.Lib.ArmMotor;
+import org.firstinspires.ftc.teamcode.ArmTuning.Lib.SampleArm;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.ArmTuning.Lib.ArmMotor;
 public class ArmTuningSetupPositions extends LinearOpMode {
 
     // Put your variable declarations her
-    ArmMotor armMotor;
+    SampleArm sampleArm;
     double angleWhenArmIsHorizontal = 0;
     double angleWhenArmIsVertical = 0;
 
@@ -23,8 +23,8 @@ public class ArmTuningSetupPositions extends LinearOpMode {
     public void runOpMode() {
 
         // Put your initializations here
-        armMotor = new ArmMotor(hardwareMap, telemetry);
-        armMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        sampleArm = new SampleArm(hardwareMap, telemetry);
+        sampleArm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
@@ -40,7 +40,7 @@ public class ArmTuningSetupPositions extends LinearOpMode {
         }
         // reset the encoder to 0 since the arm is at its starting position
         if (gamepad1.a) {
-            armMotor.resetEncoder();
+            sampleArm.resetEncoder();
             //eat the rest of the gamepad a press
             while (opModeIsActive() && gamepad1.a) {
                 idle();
@@ -51,14 +51,14 @@ public class ArmTuningSetupPositions extends LinearOpMode {
 
         while (opModeIsActive() && !gamepad1.a) {
             telemetry.addData("Move the arm to the closest horizontal position from the start position. ", "Press A when completed");
-            telemetry.addData("Arm position (degrees) = ", armMotor.getPosition(AngleUnit.DEGREES));
-            telemetry.addData("Arm encoder count = ", armMotor.getCounts());
+            telemetry.addData("Arm position (degrees) = ", sampleArm.getPosition(AngleUnit.DEGREES));
+            telemetry.addData("Arm encoder count = ", sampleArm.getCounts());
             telemetry.update();
             idle();
         }
         // The arm is at horizontal relative to the ground. Get the position.
         if (gamepad1.a) {
-            angleWhenArmIsHorizontal = armMotor.getPosition(AngleUnit.DEGREES);
+            angleWhenArmIsHorizontal = sampleArm.getPosition(AngleUnit.DEGREES);
             while (opModeIsActive() && gamepad1.a) {
                 //eat the rest of the gamepad a press
                 idle();
@@ -83,14 +83,14 @@ public class ArmTuningSetupPositions extends LinearOpMode {
         //Finally the arm position needs to be determined when the arm is vertical to the ground.
         while (opModeIsActive() && !gamepad1.a) {
             telemetry.addData("Move the arm to the vertical position. ", "Press A when completed");
-            telemetry.addData("Arm position (degrees) = ", armMotor.getPosition(AngleUnit.DEGREES));
-            telemetry.addData("Arm encoder count = ", armMotor.getCounts());
+            telemetry.addData("Arm position (degrees) = ", sampleArm.getPosition(AngleUnit.DEGREES));
+            telemetry.addData("Arm encoder count = ", sampleArm.getCounts());
             telemetry.update();
             idle();
         }
         // The arm is at vertical relative to the ground. Get the position.
         if (gamepad1.a) {
-            angleWhenArmIsVertical = armMotor.getPosition(AngleUnit.DEGREES);
+            angleWhenArmIsVertical = sampleArm.getPosition(AngleUnit.DEGREES);
             //eat the rest of the gamepad a press
             while (opModeIsActive() && gamepad1.a) {
                 idle();

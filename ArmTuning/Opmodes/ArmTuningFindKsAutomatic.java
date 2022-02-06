@@ -7,18 +7,18 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.teamcode.ArmTuning.Lib.ArmConstants;
 import org.firstinspires.ftc.teamcode.ArmTuning.Lib.SampleArm;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.LimitPosition;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MovementLimit;
-import org.firstinspires.ftc.teamcode.ArmTuning.Lib.ArmConstants;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
 @Config
-@TeleOp(name = "Find Kg - Automatic", group = "Arm Tuning")
+@TeleOp(name = "Find Ks - Automatic", group = "Arm Tuning")
 //@Disabled
-public class ArmTuningFindKgAutomatic extends LinearOpMode {
+public class ArmTuningFindKsAutomatic extends LinearOpMode {
 
     // Put your variable declarations here
 
@@ -26,7 +26,7 @@ public class ArmTuningFindKgAutomatic extends LinearOpMode {
         IDLE,
         INCREASE_POWER,
         LOOK_FOR_MOVEMENT,
-        LOOK_FOR_STATIC_POSITION,
+        WAITING_TO_HIT_POSITION_LIMIT,
         OFF_STOP;
     }
     States state = States.IDLE;
@@ -43,7 +43,7 @@ public class ArmTuningFindKgAutomatic extends LinearOpMode {
     double angleWhenArmIsVertical = 0;
     double armPower = 0;
 
-    LimitPosition limitPositionAtVertical;
+    LimitPosition limitPositionAtHorizontal;
 
     // The following are public static so that the FTC Dashboard can be used to change them on the
     // fly.
@@ -59,8 +59,9 @@ public class ArmTuningFindKgAutomatic extends LinearOpMode {
 
     /**
      * A guess about the starting arm power. You can save some time with a decent guess.
+     * THIS NEEDS TO BE A NEGATIVE NUMBER!
      */
-    public static double STARTING_ARM_POWER = .05;
+    public static double STARTING_ARM_POWER = 0.0;
     /**
      * The amount to increase/decrease the arm motor power by
      */
@@ -76,7 +77,7 @@ public class ArmTuningFindKgAutomatic extends LinearOpMode {
         sampleArm = new SampleArm(hardwareMap, telemetry);
         sampleArm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         timer = new ElapsedTime();
-        limitPositionAtVertical = new LimitPosition(ArmConstants.VERTICAL_POSITION, MovementLimit.Direction.LIMIT_INCREASING_POSITIONS, "Vertical limit" );
+        limitPositionAtHorizontal = new LimitPosition(ArmConstants.HORIZONTAL_POSITION, MovementLimit.Direction.LIMIT_DECREASING_POSITIONS, "Horizontal limit" );
 
 
         // Wait for the start button
@@ -100,9 +101,46 @@ public class ArmTuningFindKgAutomatic extends LinearOpMode {
             }
         }
 
+        while (opModeIsActive() && !gamepad1.a) {
+            telemetry.addData("The arm should be in its starting position", ".");
+            telemetry.addData("Move the arm to the vertical position from the start position. ", "Press A when completed");
+            telemetry.addData("Arm position (degrees) = ", sampleArm.getPosition(AngleUnit.DEGREES));
+            telemetry.addData("Arm encoder count = ", sampleArm.getCounts());
+            telemetry.update();
+            idle();
+        }
+        // The arm is at vertical relative to the ground.
+        if (gamepad1.a) {
+            while (opModeIsActive() && gamepad1.a) {
+                //eat the rest of the gamepad a press
+                idle();
+            }
+        }
+
+        while (opModeIsActive() && !gamepad1.a) {
+            telemetry.addData("You have rotated the arm to vertical", ".");
+            telemetry.addData("Get people away from the arm. ", "Press A when completed");
+            telemetry.update();
+            idle();
+        }
+        // It is safe to move the arm now. Start the automatic procedure.
+        lastPosition = sampleArm.getPosition(AngleUnit.DEGREES);
+        if (gamepad1.a) {
+            while (opModeIsActive() && gamepad1.a) {
+                //eat the rest of the gamepad a press
+                idle();
+            }
+        }
+
         while (opModeIsActive()) {
-            if(limitPositionAtVertical.isLimitReached(sampleArm.getPosition(AngleUnit.DEGREES))) {
-                sampleArm.holdAtVertical();
+            // if the arm hits the horizontal position stop it there
+            currentPosition = sampleArm.getPosition(AngleUnit.DEGREES);
+            // todo there is a bug where the arm hits the limit before I think it should
+            if(limitPositionAtHorizontal.isLimitReached(currentPosition)) {
+                // todo temp line for debug
+                sampleArm.setPower(0);
+                // todo there is a bug the is sending the arm in the wrong direction to the limit
+                sampleArm.holdAtHorizontal();
                 reasonForStop = ReasonForStop.LIMIT_TRIPPED;
                 break;
             }
@@ -110,7 +148,8 @@ public class ArmTuningFindKgAutomatic extends LinearOpMode {
                 case IDLE:
                     break;
                 case INCREASE_POWER:
-                    armPower = armPower + POWER_INCREMENT;
+                    // rotate the arm back towards the starting position
+                    armPower = armPower - POWER_INCREMENT;
                     sampleArm.setPower(armPower);
                     telemetry.addData("Arm power increased to ", armPower);
                     telemetry.addData("Angle of arm = ", currentPosition);
@@ -127,36 +166,27 @@ public class ArmTuningFindKgAutomatic extends LinearOpMode {
                                 state = States.INCREASE_POWER;
                             }
                         } else {
-                            // there was movement, see if the arm hangs out at this position
+                            // there was movement, let the arm rotate until it hits the limit position
+                            // or until the user kills the program
                             timer.reset();
                             lastPosition = currentPosition;
-                            state = States.LOOK_FOR_STATIC_POSITION;
+                            state = States.WAITING_TO_HIT_POSITION_LIMIT;
                         }
                     break;
-                case LOOK_FOR_STATIC_POSITION:
+                case WAITING_TO_HIT_POSITION_LIMIT:
                     currentPosition = sampleArm.getPosition(AngleUnit.DEGREES);
                     telemetry.addData("Arm power = ", armPower);
                     telemetry.addData("Angle of arm = ", currentPosition);
-                    if (!hasMoved(currentPosition)) {
-                        if (timer.milliseconds() > TIME_TO_LOOK_FOR_MOVEMENT) {
-                            // there was no movement within the time window
-                            // record this as a power, position data point
-                            state = States.INCREASE_POWER;
-                        }
-                    } else {
-                        // there was movement. The arm has not stabilized at a position. Keep looking
-                        // for a stable position
-                        timer.reset();
-                        lastPosition = currentPosition;
-                        state = States.LOOK_FOR_STATIC_POSITION; // just reset the timer and stay in this state
-                    }
+                    telemetry.addData("Ks = ", Math.abs(armPower));
                     break;
             }
             idle();
             telemetry.update();
         }
         if (reasonForStop == ReasonForStop.LIMIT_TRIPPED) {
-            telemetry.addData("Position limit was tripped. Aborting", "!");
+            telemetry.addData("Complete", "!");
+            telemetry.addData("Ks = ", Math.abs(armPower));
+            telemetry.addData("Change KSTATIC constant in arm constants file", "!");
             telemetry.update();
         }
         while (opModeIsActive()) {

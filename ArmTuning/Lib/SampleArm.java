@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MechanismUnits;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MotorType;
 
-public class ArmMotor {
+public class SampleArm {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -45,7 +45,7 @@ public class ArmMotor {
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
-    public ArmMotor(HardwareMap hardwareMap, Telemetry telemetry) {
+    public SampleArm(HardwareMap hardwareMap, Telemetry telemetry) {
         this.armMotor = new DcMotor8863(motorName, hardwareMap, telemetry);
         armMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40);
         armMotor.setMovementPerRev(360); // 360 degrees per revolution, our position will be in degrees
@@ -88,12 +88,21 @@ public class ArmMotor {
         armMotor.holdAtPosition(ArmConstants.VERTICAL_POSITION);
     }
 
+    public void holdAtHorizontal() {
+        armMotor.holdAtPosition(ArmConstants.HORIZONTAL_POSITION);
+    }
+
     public void setMode(DcMotor.RunMode mode) {
         armMotor.setMode(mode);
     }
 
     public void setPower(double power) {
         armMotor.setPower(power);
+    }
+
+    // todo check the signs in all quadrants for compensatedkG
+    public double calculateCompensatedkG() {
+        return (ArmConstants.getKg() * Math.cos(ArmConstants.getAngleToHorizontal(getPosition(AngleUnit.RADIANS),AngleUnit.RADIANS)));
     }
 
     public TelemetryPacket putPosition(TelemetryPacket packet, int encoderCount, double position) {

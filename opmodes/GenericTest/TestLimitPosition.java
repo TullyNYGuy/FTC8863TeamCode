@@ -1,14 +1,12 @@
 package org.firstinspires.ftc.teamcode.opmodes.GenericTest;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.ArmTuning.Lib.ArmConstants;
-import org.firstinspires.ftc.teamcode.ArmTuning.Lib.ArmMotor;
-import org.firstinspires.ftc.teamcode.ArmTuning.Opmodes.ArmTuningFindKgManual;
+import org.firstinspires.ftc.teamcode.ArmTuning.Lib.SampleArm;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.LimitPosition;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MovementLimit;
 
@@ -16,11 +14,11 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.MovementLimit;
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
 @TeleOp(name = "Test Limit Position", group = "Arm Tuning")
-@Disabled
+//@Disabled
 public class TestLimitPosition extends LinearOpMode {
 
     // Put your variable declarations her
-    ArmMotor armMotor;
+    SampleArm sampleArm;
     LimitPosition limitPositionAtVertical;
 
     @Override
@@ -28,8 +26,8 @@ public class TestLimitPosition extends LinearOpMode {
 
 
         // Put your initializations here
-        armMotor = new ArmMotor(hardwareMap, telemetry);
-        armMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        sampleArm = new SampleArm(hardwareMap, telemetry);
+        sampleArm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         limitPositionAtVertical = new LimitPosition(ArmConstants.VERTICAL_POSITION, MovementLimit.Direction.LIMIT_INCREASING_POSITIONS, "Vertical limit" );
 
@@ -43,10 +41,13 @@ public class TestLimitPosition extends LinearOpMode {
         telemetry.update();
 
         while (opModeIsActive()) {
-            if(!limitPositionAtVertical.isLimitReached(armMotor.getPosition(AngleUnit.DEGREES))) {
-                armMotor.holdAtVertical();
+            if(limitPositionAtVertical.isLimitReached(sampleArm.getPosition(AngleUnit.DEGREES))) {
+                sampleArm.holdAtVertical();
                 break;
             }
+            telemetry.addData("Arm position (degrees) = ", sampleArm.getPosition(AngleUnit.DEGREES));
+            telemetry.addData("Arm encoder count = ", sampleArm.getCounts());
+            telemetry.update();
             idle();
         }
 

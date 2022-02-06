@@ -2,18 +2,13 @@ package org.firstinspires.ftc.teamcode.ArmTuning.Opmodes;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.teamcode.ArmTuning.Lib.ArmConstants;
-import org.firstinspires.ftc.teamcode.ArmTuning.Lib.ArmMotor;
+import org.firstinspires.ftc.teamcode.ArmTuning.Lib.SampleArm;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.LimitPosition;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.MovementLimit;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
@@ -24,7 +19,7 @@ public class ArmTuningGoToPosition extends LinearOpMode {
 
     // Put your variable declarations here
 
-    ArmMotor armMotor;
+    SampleArm sampleArm;
     ElapsedTime timer;
     double angleWhenArmIsHorizontal = 0;
     double angleWhenArmIsVertical = 0;
@@ -42,7 +37,7 @@ public class ArmTuningGoToPosition extends LinearOpMode {
     public void runOpMode() {
 
         // Put your initializations here
-        armMotor = new ArmMotor(hardwareMap, telemetry);
+        sampleArm = new SampleArm(hardwareMap, telemetry);
         timer = new ElapsedTime();
 
         // Get the instance of the running FTC Dashboard
@@ -56,9 +51,9 @@ public class ArmTuningGoToPosition extends LinearOpMode {
         telemetry.update();
         waitForStart();
 
-        armMotor.armMotor.moveToPosition(ARM_POWER, TARGET_POSITION, DcMotor8863.FinishBehavior.HOLD);
+        sampleArm.armMotor.moveToPosition(ARM_POWER, TARGET_POSITION, DcMotor8863.FinishBehavior.HOLD);
         while (opModeIsActive()) {
-            position = armMotor.getPosition(AngleUnit.DEGREES);
+            position = sampleArm.getPosition(AngleUnit.DEGREES);
             error = TARGET_POSITION - position;
             // putting these values to telemetry, specifically the FTC Dashboard telemetry, allows
             // them to be graphed in the FTC Dashboard
