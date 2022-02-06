@@ -523,6 +523,49 @@ public class MecanumDriveFreightFrenzy extends MecanumDrive implements FTCRobotS
 
         return (double) imu.getAngularVelocity().zRotationRate;
     }
+
+    // THE NEXT TWO METHODS ARE USED FOR TELEOP DRIVING THE ROBOT. THEY ARE ARE ADDITIONS
+
+    /**
+     * Calculate motor powers for driving in teleop using a joystick (x and y) that controls the direction of
+     * movement of the robot (translation) and a joystick (x) that controls the heading of the robot.
+     * The movement is relative to the driver or field (field centric or driver centric), not relative
+     * to the robot.
+     * @param translationJoystickYValue
+     * @param translationJoystickXValue
+     * @param rotationJoystickXValue
+     */
+    public void calculateMotorCommandsFieldCentric(double translationJoystickYValue, double translationJoystickXValue, double rotationJoystickXValue) {
+        // Read pose
+        Pose2d poseEstimate = getPoseEstimate();
+
+        // Create a vector from the gamepad x/y inputs
+        // Then, rotate that vector by the inverse of that heading
+        Vector2d input = new Vector2d(
+                translationJoystickYValue,
+                translationJoystickXValue
+        ).rotated(-poseEstimate.getHeading());
+
+        // Pass in the rotated input + right stick value for rotation
+        // Rotation is not part of the rotated input thus must be passed in separately
+        setWeightedDrivePower(
+                new Pose2d(
+                        input.getX(),
+                        input.getY(),
+                        -rotationJoystickXValue
+                )
+        );
+        //NOTE that the teleop or other calling code must call the drive update() method.
+    }
+
+    /**
+     * Calculate motor powers for driving in teleop using a joystick (x and y) that controls the direction of
+     * movement of the robot (translation) and a joystick (x) that controls the heading of the robot.
+     * The movement is relative to the robot.
+     * @param translationJoystickYValue
+     * @param translationJoystickXValue
+     * @param rotationJoystickXValue
+     */
     public void calculateMotorCommandsRobotCentric(double translationJoystickYValue, double translationJoystickXValue, double rotationJoystickXValue) {
         setWeightedDrivePower(
                 new Pose2d(
