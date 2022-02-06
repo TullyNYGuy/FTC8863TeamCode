@@ -67,9 +67,9 @@ public class TrackingWheelLocalizerFreightFrenzy extends ThreeTrackingWheelLocal
                 new Pose2d(FORWARD_OFFSET, 0, Math.toRadians(90)) // front
         ));
 
-        leftEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "rightFrontMotor"));
-        rightEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "leftRearMotor"));
-        frontEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "rightRearMotor"));
+        leftEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, FreightFrenzyRobotRoadRunner.HardwareName.ODOMETRY_MODULE_LEFT.hwName));
+        rightEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, FreightFrenzyRobotRoadRunner.HardwareName.ODOMETRY_MODULE_RIGHT.hwName));
+        frontEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, FreightFrenzyRobotRoadRunner.HardwareName.ODOMETRY_MODULE_BACK.hwName));
 
         // TODO: reverse any encoders using Encoder.setDirection(Encoder.Direction.REVERSE)
         frontEncoder.setDirection(Encoder.Direction.REVERSE);
