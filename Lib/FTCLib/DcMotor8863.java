@@ -1077,8 +1077,8 @@ public class DcMotor8863 {
      */
     public void holdAtEncoderCount(int encoderCount) {
         setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
-        setMode(DcMotor.RunMode.RUN_TO_POSITION);
         setTargetPosition(encoderCount);
+        setMode(DcMotor.RunMode.RUN_TO_POSITION);
         setPower(1.0);
     }
 
