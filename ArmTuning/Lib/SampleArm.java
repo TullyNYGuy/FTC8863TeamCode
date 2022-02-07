@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.ArmTuning.Lib;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.util.Angle;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -72,6 +73,7 @@ public class SampleArm {
     //*********************************************************************************************
     public double getPosition(AngleUnit units) {
         encoderCounts = armMotor.getCurrentPosition();
+        // todo return the position in 0 to 360 rather than -180 to 180
         position = mechanismUnits.toMechanism(encoderCounts, units);
         return position;
     }
@@ -98,6 +100,14 @@ public class SampleArm {
 
     public void setPower(double power) {
         armMotor.setPower(power);
+    }
+
+    public void setSDKkF(double kF, DcMotor.RunMode runMode) {
+        armMotor.setVelocityFCoefficient(kF, runMode);
+    }
+
+    public void setSDKkG() {
+        setSDKkF(calculateCompensatedkG(), DcMotor.RunMode.RUN_TO_POSITION);
     }
 
     // todo check the signs in all quadrants for compensatedkG

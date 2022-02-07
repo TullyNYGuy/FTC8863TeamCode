@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.ArmTuning.Opmodes;
 
 import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -13,6 +14,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
+@Config
 @TeleOp(name = "Go to position", group = "Arm Tuning")
 //@Disabled
 public class ArmTuningGoToPosition extends LinearOpMode {
@@ -29,6 +31,7 @@ public class ArmTuningGoToPosition extends LinearOpMode {
     public static double TARGET_POSITION = 0; // in degrees
 
     double error = 0;
+    double maxError = 0;
     double position = 0;
 
     private FtcDashboard dashboard;
@@ -53,13 +56,20 @@ public class ArmTuningGoToPosition extends LinearOpMode {
 
         sampleArm.armMotor.moveToPosition(ARM_POWER, TARGET_POSITION, DcMotor8863.FinishBehavior.HOLD);
         while (opModeIsActive()) {
+            // this did not seem to work. It actually made the overshoot slightly greater
+            //sampleArm.setSDKkG();
             position = sampleArm.getPosition(AngleUnit.DEGREES);
             error = TARGET_POSITION - position;
+            // look for the max overshoot. Overshoot is when position > TARGET_POSITION
+            if (error < 0 && error < maxError) {
+                maxError = error;
+            }
             // putting these values to telemetry, specifically the FTC Dashboard telemetry, allows
             // them to be graphed in the FTC Dashboard
             telemetry.addData("Target", TARGET_POSITION);
             telemetry.addData("Position", position);
             telemetry.addData("Error", error);
+            telemetry.addData("Max error", maxError);
             telemetry.update();
             idle();
         }
