@@ -52,6 +52,11 @@ public class FindExtensionArmPositions extends LinearOpMode {
         delivery = new FFExtensionArm(hardwareMap, telemetry);
         timer = new ElapsedTime();
 
+        // Wait for the start button
+        telemetry.addData(">", "Press Start to run");
+        telemetry.update();
+        waitForStart();
+
         // Init the delivery extension arm and servo
         delivery.init();
         while (opModeIsActive() && !delivery.isInitComplete()) {
@@ -69,23 +74,25 @@ public class FindExtensionArmPositions extends LinearOpMode {
             idle();
         }
 
-        // Wait for the start button
-        telemetry.addData(">", "Press Start to run");
+        telemetry.addData("Ready to accept new positions", ".");
         telemetry.update();
-        waitForStart();
-
-
 
         // now loop. Check to see if the constant has been updated from the FTC Dashboard and if so
         // output the new position.
         while (opModeIsActive()) {
+            // UH Yeah, this is kind of key. The extension arm has to be updated for it to do anything
+            // OOPS!
+            delivery.update();
             // is there a change in the position?
             if (EXTENSION_ARM_POSITION != lastArmPosition) {
                 // yup
                 // update the last position to the new one so we can use it later
-                lastArmPosition = EXTENSION_ARM_POSITION;
-                delivery.extendToPosition(EXTENSION_ARM_POSITION, EXTENSION_ARM_POWER);
-                telemetry.addData("Extending to position = ", EXTENSION_ARM_POSITION);
+                if (EXTENSION_ARM_POSITION > 0 && EXTENSION_ARM_POSITION < 30) {
+                    lastArmPosition = EXTENSION_ARM_POSITION;
+                    delivery.extendToPosition(EXTENSION_ARM_POSITION, EXTENSION_ARM_POWER);
+                    telemetry.addData("Extending to position = ", EXTENSION_ARM_POSITION);
+                }
+
             }
             if (delivery.isExtensionMovementComplete()) {
                 telemetry.addData("Extension position = ", EXTENSION_ARM_POSITION);
@@ -94,11 +101,11 @@ public class FindExtensionArmPositions extends LinearOpMode {
             telemetry.addData(">", "Press Stop to end test.");
             telemetry.update();
 
-            if(SERVO_POSITION != lastServoPosition) {
-                lastServoPosition = SERVO_POSITION;
-                delivery.rotateToPosition(SERVO_POSITION);
-                telemetry.addData("Rotating to position = ", SERVO_POSITION);
-            }
+//            if(SERVO_POSITION != lastServoPosition) {
+//                lastServoPosition = SERVO_POSITION;
+//                delivery.rotateToPosition(SERVO_POSITION);
+//                telemetry.addData("Rotating to position = ", SERVO_POSITION);
+//            }
 
             idle();
         }

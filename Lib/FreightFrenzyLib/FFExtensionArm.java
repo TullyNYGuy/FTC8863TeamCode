@@ -12,6 +12,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863New;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Switch;
 import org.firstinspires.ftc.teamcode.opmodes.FreightFrenzy.TeleopUsingRoadRunnerFreightFrenzy;
 
+import java.io.PipedOutputStream;
 import java.util.Timer;
 import java.util.concurrent.TimeUnit;
 
@@ -113,19 +114,36 @@ private enum LiftState {
 
     public void init(){
        ffExtensionArm.init();
+        // TEMPORARILY COMMENTED OUT UNTIL WE GET THE SERVO STRAIGHTENED OUT
        //deliveryServo.setPosition("Transfer");
     }
 
     public boolean isInitComplete(){
-       if(ffExtensionArm.isInitComplete() && deliveryServo.isPositionReached()){
+       // TEMPORARILY COMMENTED OUT UNTIL WE GET THE SERVO STRAIGHTENED OUT
+       //if(ffExtensionArm.isInitComplete() && deliveryServo.isPositionReached()){
+        if(ffExtensionArm.isInitComplete()){
            return true;
        }
        else{
            return false;
        }
-
     }
 
+    public void deliveryServoToTransferPosition() {
+       deliveryServo.setPosition("Transfer");
+    }
+
+    public void deliveryServoToDumpPosition() {
+        deliveryServo.setPosition("Dump");
+    }
+
+    public void deliveryServoToParallelPosition() {
+        deliveryServo.setPosition("Parallel");
+    }
+
+    public boolean isDeliverServoPositionReached() {
+       return deliveryServo.isPositionReached();
+    }
 
     public void dump(){
        //this commnad is the button press for dumping freight into the hub
@@ -141,9 +159,13 @@ private enum LiftState {
     }
 
     public void rotateToPosition(double position){
-       deliveryServo.addPosition("position", position, 500, TimeUnit.MILLISECONDS);
-       deliveryServo.setPosition("position");
+       // this is probably not the best way to do this
+       //deliveryServo.addPosition("position", position, 500, TimeUnit.MILLISECONDS);
+       //deliveryServo.setPosition("position");
+        // I added a method in Servo8863New to expose the setPosition(double position)
+        deliveryServo.setPosition(position);
     }
+
 
     public boolean isExtensionMovementComplete() {
        return ffExtensionArm.isMovementComplete();
