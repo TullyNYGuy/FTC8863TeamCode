@@ -113,7 +113,7 @@ private enum LiftState {
 
     public void init(){
        ffExtensionArm.init();
-       deliveryServo.setPosition("Transfer");
+       //deliveryServo.setPosition("Transfer");
     }
 
     public boolean isInitComplete(){
@@ -138,6 +138,11 @@ private enum LiftState {
 
     public void extendToPosition(double position, double power) {
        ffExtensionArm.goToPosition(position, power);
+    }
+
+    public void rotateToPosition(double position){
+       deliveryServo.addPosition("position", position, 500, TimeUnit.MILLISECONDS);
+       deliveryServo.setPosition("position");
     }
 
     public boolean isExtensionMovementComplete() {

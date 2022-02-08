@@ -32,7 +32,7 @@ import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FFExtensionArm;
 //@Disabled
 public class FindExtensionArmPositions extends LinearOpMode {
 
-    // Put your variable declarations her
+    // Put your variable declarations here
     FFExtensionArm delivery;
     ElapsedTime timer;
 
@@ -40,8 +40,10 @@ public class FindExtensionArmPositions extends LinearOpMode {
     // constant public static and it appears on the dashboard and can be changed on the fly.
     public static double EXTENSION_ARM_POSITION = 0;
     public static double EXTENSION_ARM_POWER = 0.2;
+    public static double SERVO_POSITION = 0.97;
 
     double lastArmPosition = EXTENSION_ARM_POSITION;
+    double lastServoPosition = SERVO_POSITION;
 
     @Override
     public void runOpMode() {
@@ -50,16 +52,12 @@ public class FindExtensionArmPositions extends LinearOpMode {
         delivery = new FFExtensionArm(hardwareMap, telemetry);
         timer = new ElapsedTime();
 
-        // Wait for the start button
-        telemetry.addData(">", "Press Start to run");
-        telemetry.update();
-        waitForStart();
-
         // Init the delivery extension arm and servo
         delivery.init();
         while (opModeIsActive() && !delivery.isInitComplete()) {
             telemetry.addData("Initing ...", ".");
             telemetry.update();
+            delivery.update();
             idle();
         }
         telemetry.addData("Init complete", ".");
@@ -70,6 +68,13 @@ public class FindExtensionArmPositions extends LinearOpMode {
         while (opModeIsActive() && timer.seconds() < 5) {
             idle();
         }
+
+        // Wait for the start button
+        telemetry.addData(">", "Press Start to run");
+        telemetry.update();
+        waitForStart();
+
+
 
         // now loop. Check to see if the constant has been updated from the FTC Dashboard and if so
         // output the new position.
@@ -88,6 +93,12 @@ public class FindExtensionArmPositions extends LinearOpMode {
 
             telemetry.addData(">", "Press Stop to end test.");
             telemetry.update();
+
+            if(SERVO_POSITION != lastServoPosition) {
+                lastServoPosition = SERVO_POSITION;
+                delivery.rotateToPosition(SERVO_POSITION);
+                telemetry.addData("Rotating to position = ", SERVO_POSITION);
+            }
 
             idle();
         }
