@@ -24,7 +24,7 @@ public class TestRevLEDBlinker extends LinearOpMode {
 
 
         // Put your initializations here
-        led = new RevLEDBlinker(1, RevLED.Color.GREEN, hardwareMap, "ledPort1", "ledPort2");
+        led = new RevLEDBlinker(8, RevLED.Color.GREEN, hardwareMap, "ledPort1", "ledPort2");
         timer = new ElapsedTime();
 
         led.off();
@@ -36,6 +36,7 @@ public class TestRevLEDBlinker extends LinearOpMode {
 
         // Put your calls here - they will not run in a loop
         timer.reset();
+        led.setColor(RevLED.Color.GREEN);
         while (opModeIsActive() && timer.milliseconds() < 5000) {
             telemetry.addData("LED is ", "green");
             telemetry.addData(">", "Press Stop to end test.");
@@ -46,7 +47,7 @@ public class TestRevLEDBlinker extends LinearOpMode {
 
         timer.reset();
         led.setColor(RevLED.Color.RED);
-        while (opModeIsActive() && timer.milliseconds() < 5000) {
+        while (opModeIsActive() && timer.milliseconds() < 6000) {
             telemetry.addData("LED is ", "red");
             telemetry.addData(">", "Press Stop to end test.");
             telemetry.update();
@@ -56,7 +57,7 @@ public class TestRevLEDBlinker extends LinearOpMode {
 
         timer.reset();
         led.setColor(RevLED.Color.AMBER);
-        while (opModeIsActive() && timer.milliseconds() < 5000) {
+        while (opModeIsActive() && timer.milliseconds() < 4000) {
             telemetry.addData("LED is ", "amber");
             telemetry.addData(">", "Press Stop to end test.");
             telemetry.update();
