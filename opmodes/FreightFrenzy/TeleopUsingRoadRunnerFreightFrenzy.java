@@ -116,7 +116,7 @@ public class TeleopUsingRoadRunnerFreightFrenzy extends LinearOpMode {
 
         // Wait for the start button
 
-        telemetry.addData(">", "Press start to run Teleop");
+        telemetry.addData(">", "Press start to run Teleop (make sure you ran the position setter first!)");
         telemetry.update();
         double multiplier = 1;
         /*
