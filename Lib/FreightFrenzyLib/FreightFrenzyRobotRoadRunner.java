@@ -117,7 +117,10 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
         this.subsystemMap = new HashMap<String, FTCRobotSubsystem>();
         setCapabilities(Subsystem.values());
         enableDataLogging();
-        color = retrieveStartSpotFromPersistentStorage();
+        color = FreightFrenzyStartSpot.BLUE_WALL;
+        if(PersistantStorage.getStartSpot() != null){color = PersistantStorage.getStartSpot();
+        }else{ color = FreightFrenzyStartSpot.BLUE_WALL;}
+
     }
 
     /*
@@ -126,10 +129,7 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
     public void setCapabilities(Subsystem[] subsystems) {
         capabilities = new HashSet<Subsystem>(Arrays.asList(subsystems));
     }
-    public FreightFrenzyStartSpot retrieveStartSpotFromPersistentStorage(){
-        color = PersistantStorage.getStartSpot();
-        return color;
-    }
+
     public void setColor(FreightFrenzyStartSpot color) {
         this.color = color;
     }

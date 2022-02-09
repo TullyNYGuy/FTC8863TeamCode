@@ -19,6 +19,7 @@ import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyStartSpo
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyField;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyGamepad;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyRobotRoadRunner;
+import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.PersistantStorage;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
@@ -56,7 +57,7 @@ public class AutonomousFreightFrenzy extends LinearOpMode {
         field = new FreightFrenzyField();
         robot = new FreightFrenzyRobotRoadRunner(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, this);
         robot.createRobot();
-        startSpot = robot.retrieveStartSpotFromPersistentStorage();
+        startSpot = PersistantStorage.getStartSpot();
 
 
        /* switch(startSpot){

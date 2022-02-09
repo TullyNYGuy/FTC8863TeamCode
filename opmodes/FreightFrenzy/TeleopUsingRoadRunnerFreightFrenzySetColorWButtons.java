@@ -34,10 +34,10 @@ public class TeleopUsingRoadRunnerFreightFrenzySetColorWButtons extends LinearOp
     public FreightFrenzyField field;
     public FreightFrenzyGamepad gamepad;
     public Configuration config = null;
-
+    public boolean colorSet;
    // public AutomaticTeleopFunctions automaticTeleopFunctions;
     //set color for each game
-    private FreightFrenzyStartSpot color = robot.retrieveStartSpotFromPersistentStorage();
+    private FreightFrenzyStartSpot color = PersistantStorage.getStartSpot();
     private ElapsedTime timer;
 
     DataLogging dataLog = null;
@@ -54,7 +54,7 @@ public class TeleopUsingRoadRunnerFreightFrenzySetColorWButtons extends LinearOp
         // create the robot
         telemetry.addData("Initializing ...", "Wait for it ...");
         telemetry.update();
-
+        colorSet = false;
         // set the persistant storage variable saying this is the teleop phase
         FreightFrenzyMatchInfo.setMatchPhase(FreightFrenzyMatchInfo.MatchPhase.TELEOP);
 
@@ -71,6 +71,27 @@ public class TeleopUsingRoadRunnerFreightFrenzySetColorWButtons extends LinearOp
         robot = new FreightFrenzyRobotRoadRunner(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, this);
         gamepad = new FreightFrenzyGamepad(gamepad1, gamepad2, robot);
         // create the robot and run the init for it
+        telemetry.addData("press gamepad 1 A for red","Press gamepad 1 B for blue");
+        telemetry.update();
+        while(!colorSet) {
+            if (gamepad1.a) {
+                robot.setColor(FreightFrenzyStartSpot.RED_WALL);
+                PersistantStorage.setStartSpot(FreightFrenzyStartSpot.RED_WALL);
+                colorSet = true;
+            }
+            if (gamepad1.b) {
+                robot.setColor(FreightFrenzyStartSpot.BLUE_WALL);
+                PersistantStorage.setStartSpot(FreightFrenzyStartSpot.BLUE_WALL);
+                colorSet = true;
+            }
+            idle();
+        }
+
+        /*if(!opModeIsActive()){
+            robot.shutdown();
+            dataLog.closeDataLog();
+            return;
+        }*/
         robot.createRobot();
 
         enableBulkReads(hardwareMap, LynxModule.BulkCachingMode.AUTO);
@@ -125,6 +146,10 @@ public class TeleopUsingRoadRunnerFreightFrenzySetColorWButtons extends LinearOp
 */
 
        // robot.setColor(color);
+
+
+        telemetry.addData("setup done", "press start");
+        telemetry.update();
         waitForStart();
 
         robot.loopTimer.startLoopTimer();
@@ -132,12 +157,7 @@ public class TeleopUsingRoadRunnerFreightFrenzySetColorWButtons extends LinearOp
         //*********************************************************************************************
         //             Robot Running after the user hits play on the driver phone
         //*********************************************************************************************
-           if( gamepad1.a){
-               robot.setColor(FreightFrenzyStartSpot.RED_WALL);
-           }
-        if( gamepad1.b){
-            robot.setColor(FreightFrenzyStartSpot.BLUE_WALL);
-        }
+
         while (opModeIsActive()) {
 
             // update the gamepad. It has the commands to be run when a button is pressed so the

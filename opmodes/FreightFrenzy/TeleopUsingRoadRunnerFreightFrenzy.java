@@ -40,7 +40,7 @@ public class TeleopUsingRoadRunnerFreightFrenzy extends LinearOpMode {
 
    // public AutomaticTeleopFunctions automaticTeleopFunctions;
     //set color for each game
-    private FreightFrenzyStartSpot color = robot.retrieveStartSpotFromPersistentStorage();
+    private FreightFrenzyStartSpot color = PersistantStorage.getStartSpot();
     private ElapsedTime timer;
 
     DataLogging dataLog = null;
@@ -74,6 +74,7 @@ public class TeleopUsingRoadRunnerFreightFrenzy extends LinearOpMode {
         robot = new FreightFrenzyRobotRoadRunner(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, this);
         gamepad = new FreightFrenzyGamepad(gamepad1, gamepad2, robot);
         // create the robot and run the init for it
+
         robot.createRobot();
 
         enableBulkReads(hardwareMap, LynxModule.BulkCachingMode.AUTO);
