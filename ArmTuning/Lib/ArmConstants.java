@@ -1,6 +1,10 @@
 package org.firstinspires.ftc.teamcode.ArmTuning.Lib;
 
+import android.view.accessibility.AccessibilityNodeInfo;
+
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.roadrunner.control.PIDCoefficients;
+import com.acmerobotics.roadrunner.util.Angle;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -25,21 +29,35 @@ public class ArmConstants {
     public static final double HORIZONTAL_POSITION = 45.3; // degrees
 
     public static double getHorizontalPosition(AngleUnit units) {
-        if (units == AngleUnit.DEGREES) {
-            return HORIZONTAL_POSITION;
-        } else {
-            return Math.toRadians(HORIZONTAL_POSITION);
-        }
+        return convertAngle(HORIZONTAL_POSITION, units);
     }
 
     public static final double VERTICAL_POSITION = 134.7; // degrees
 
     public static double getVerticalPosition(AngleUnit units) {
-        if (units == AngleUnit.DEGREES) {
-            return VERTICAL_POSITION;
-        } else {
-            return Math.toRadians(VERTICAL_POSITION);
-        }
+        return convertAngle(VERTICAL_POSITION, units);
+    }
+
+    /**
+     * This position is the largest postiion that the arm will travel to. It is assumed that this is
+     * a positive angle and is less than 360 degrees.
+     */
+    public static double LARGEST_POSITION = 180; // degrees
+
+    public static double getLargestPosition(AngleUnit units) {
+        return convertAngle(LARGEST_POSITION, units);
+    }
+
+    public static double MAX_ANGULAR_VELOCITY = 360; // degrees per second
+
+    public static double getMaxAngularVelocity(AngleUnit units) {
+        return convertAngle(MAX_ANGULAR_VELOCITY, units);
+    }
+
+    public static double MAX_ANGULAR_ACCELERATION = 60; // degrees per second^2
+
+    public static double getMaxAngularAcceleration(AngleUnit units) {
+        return convertAngle(MAX_ANGULAR_ACCELERATION, units);
     }
 
     /**
@@ -51,11 +69,7 @@ public class ArmConstants {
      * @return - angle from horizontal. Negative = below horizontal. Positive = above horizontal
      */
     public static double getAngleToHorizontal(double currentAngle, AngleUnit units) {
-        if (units == AngleUnit.DEGREES) {
-            return currentAngle - getHorizontalPosition(AngleUnit.DEGREES);
-        } else {
-            return currentAngle - getHorizontalPosition(AngleUnit.RADIANS);
-        }
+        return convertAngle((units.toDegrees(currentAngle) - getHorizontalPosition(AngleUnit.DEGREES)), units);
     }
 
     /**
@@ -66,10 +80,14 @@ public class ArmConstants {
      *           Positive = arm on side opposite starting position
      */
     public static double getAngleToVertical(double currentAngle, AngleUnit units) {
+        return convertAngle((units.toDegrees(currentAngle) - getVerticalPosition(AngleUnit.DEGREES)), units);
+    }
+
+    private static double convertAngle(double angle, AngleUnit units) {
         if (units == AngleUnit.DEGREES) {
-            return currentAngle - getVerticalPosition(AngleUnit.DEGREES);
+            return angle;
         } else {
-            return currentAngle - getVerticalPosition(AngleUnit.RADIANS);
+            return Math.toRadians(angle);
         }
     }
 
@@ -87,6 +105,12 @@ public class ArmConstants {
             return kSPluskG - kS;
         }
     }
+
+    public static double calculateFeedForward(double position, AngleUnit units) {
+        return kS + getKg() * Math.cos(units.toRadians(getAngleToHorizontal(position, units)));
+    }
+
+    public static PIDCoefficients ARM_PID_COEFFICIENTS = new PIDCoefficients(0, 0, 0);
 
     /*
      * These are the feedforward parameters used to model the drive motor behavior. If you are using
