@@ -22,7 +22,6 @@ private FFExtensionArm delivery;
         // Put your initializations here
         delivery.init();
         while(!delivery.isInitComplete()){
-            delivery.update();
             idle();
         }
         // Wait for the start button

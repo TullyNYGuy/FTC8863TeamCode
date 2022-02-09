@@ -101,11 +101,11 @@ public class FindExtensionArmPositions extends LinearOpMode {
             telemetry.addData(">", "Press Stop to end test.");
             telemetry.update();
 
-//            if(SERVO_POSITION != lastServoPosition) {
-//                lastServoPosition = SERVO_POSITION;
-//                delivery.rotateToPosition(SERVO_POSITION);
-//                telemetry.addData("Rotating to position = ", SERVO_POSITION);
-//            }
+            if(SERVO_POSITION != lastServoPosition) {
+                lastServoPosition = SERVO_POSITION;
+                delivery.rotateToPosition(SERVO_POSITION);
+              telemetry.addData("Rotating to position = ", SERVO_POSITION);
+            }
 
             idle();
         }
