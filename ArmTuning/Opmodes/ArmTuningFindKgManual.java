@@ -83,9 +83,10 @@ public class ArmTuningFindKgManual extends LinearOpMode {
                 break;
             }
 
-            // You will gradually increase the arm power until the arm is holding its position
-            // horizontal to the ground.
-            // When the arm hits and holds horizontal, Kg is the motor power set to get it there.
+            // You will gradually increase the arm power, using the FTC Dashboard, until the arm is
+            // holding its position horizontal to the ground.
+            // When the arm hits and holds horizontal, that motor power is Kg + Kstatic. Record Kg
+            // in the ArmConstants file. Kg = motor power - Kstatic.
             sampleArm.setPower(ARM_POWER);
 
             // Output the position to telemetry
