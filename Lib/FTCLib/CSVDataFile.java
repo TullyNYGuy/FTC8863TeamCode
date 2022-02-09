@@ -10,6 +10,7 @@ import java.io.FileNotFoundException;
 import java.io.PrintStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 public class CSVDataFile {
@@ -41,6 +42,11 @@ public class CSVDataFile {
 
     private boolean status;
 
+    private String pathName;
+
+    public String getPathName() {
+        return pathName;
+    }
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -119,8 +125,9 @@ public class CSVDataFile {
 
         try {
             csvDataFile = new PrintStream(new File(CSVDataFilePath));
+            pathName = CSVDataFilePath;
         } catch (FileNotFoundException exception) {
-            telemetry.addData("Could not create log file: ", CSVDataFilePath);
+            telemetry.addData("Could not create csv file: ", CSVDataFilePath);
             csvDataFile = null;
             result = false;
         }
@@ -163,7 +170,7 @@ public class CSVDataFile {
 
     /**
      * Write a header line into the log file. You can use this to give a column label to each data
-     * field. The time header will automatically be inserted into the line.
+     * field.
      *
      * @param headerLine
      */
@@ -173,7 +180,7 @@ public class CSVDataFile {
 
     /**
      * Write a series of header strings into the log file. You can use this to give a column label
-     * to each data field. The time header will automatically be inserted into the line.
+     * to each data field.
      *
      * @param args
      */
@@ -262,6 +269,19 @@ public class CSVDataFile {
         }
         // print a newline
         csvDataFile.println();
+    }
+
+    /**
+     * Writes a csv data file using parallel lists of sample data. It is assumed that the lists are
+     * the same length.
+     * @param samples1List
+     * @param samples2List
+     * @param samples3List
+     */
+    public void writeData(List<Double> samples1List, List<Double> samples2List, List<Double> samples3List) {
+        for (int i = 0; i < samples1List.size(); i ++) {
+            writeData(samples1List.get(i), samples2List.get(i), samples3List.get(i));
+        }
     }
 
     /**
