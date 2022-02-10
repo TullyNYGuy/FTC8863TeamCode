@@ -50,7 +50,11 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
         CLAW_SERVO("clawServo"),
         INTAKE_SWEEPER_MOTOR("intakeSweeperMotor"),
         INTAKE_SENSOR("intakeSensor"),
-        INTAKE_ROTATE_SERVO("intakeRotateServo")
+        INTAKE_ROTATE_SERVO("intakeRotateServo"),
+        LIFT_MOTOR("extensionArmMotor"),
+        LIFT_LIMIT_SWITCH_R("retractionLimitSwitch"),
+        LIFT_SERVO("deliveryServo")
+
         ;
         public final String hwName;
 
@@ -67,6 +71,7 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
         WEBCAM_LEFT,
         WEBCAM_RIGHT,
         ARM,
+        LIFT
     }
 
     Set<Subsystem> capabilities;
@@ -103,6 +108,7 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
     public FFIntake intake;
     public OpenCvWebcam webcamLeft;
     public OpenCvWebcam webcamRight;
+    public FFExtensionArm lift;
 
     public FreightFrenzyRobotRoadRunner(HardwareMap hardwareMap, Telemetry telemetry, Configuration config, DataLogging dataLog, DistanceUnit units, LinearOpMode opMode) {
         timer = new ElapsedTime();
@@ -161,6 +167,10 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
             subsystemMap.put(duckSpinner.getName(), duckSpinner);
         }
 
+        if (capabilities.contains(Subsystem.LIFT)) {
+            lift = new FFExtensionArm(hardwareMap, telemetry);
+            subsystemMap.put(lift.getName(), lift);
+        }
         // THE WEBCAM PROCESSING TAKES UP A BUNCH OF RESOURCES. PROBABLY NOT A GOOD IDEA TO RUN THIS IN TELEOP
 
         if (capabilities.contains(Subsystem.WEBCAM_LEFT) && color == FreightFrenzyStartSpot.RED_WALL && FreightFrenzyMatchInfo.getMatchPhase() == FreightFrenzyMatchInfo.MatchPhase.AUTONOMOUS) {

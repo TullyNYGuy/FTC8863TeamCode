@@ -380,10 +380,14 @@ public class Servo8863New {
         servo.scaleRange(min, max);
     }
 
+    public void setPosition(double position) {
+        servo.setPosition(position);
+    }
+
     // I am not going to wrap the getPosition call. It is very misleading since it does not return
     // the position of the servo. A servo has no position feedback so all it does is return the
     // value of the last setPosition.
-    // public double SetPosition()
+    // public double getPosition()
 
     //*********************************************************************************************
     //          TEST METHODS
