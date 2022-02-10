@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.ArmTuning.Lib.ArmConstants;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.AngleUtilities;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MechanismUnits;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MotorType;
@@ -71,25 +72,51 @@ public class SampleArm {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
+
+    /**
+     * Get the position of the arm as an angle from 0-360 or radians from 0-2*PI
+     * @param units - your desired units; degrees or radians
+     * @return - angle normalized to the range and in the requested units
+     */
     public double getPosition(AngleUnit units) {
         encoderCounts = armMotor.getCurrentPosition();
-        // todo return the position in 0 to 360 rather than -180 to 180
-        position = mechanismUnits.toMechanism(encoderCounts, units);
+        switch (units) {
+            case DEGREES:
+                position = AngleUtilities.to0to360(mechanismUnits.toMechanism(encoderCounts, units), units);
+                break;
+            case RADIANS:
+                position = AngleUtilities.to0to2PI(mechanismUnits.toMechanism(encoderCounts, units), units);
+                break;
+        }
+
         return position;
     }
 
+    /**
+     * Get the value of the motor encoder for the arm
+     * @return counts
+     */
     public int getCounts() {
         return armMotor.getCurrentPosition();
     }
 
+    /**
+     * Reset the motor encoder to 0. Effectively makes the current location of the arm 0 degrees.
+     */
     public void resetEncoder() {
         armMotor.resetEncoder();
     }
 
+    /**
+     * Hold the arm at the vertical position.
+     */
     public void holdAtVertical() {
         armMotor.holdAtPosition(ArmConstants.VERTICAL_POSITION);
     }
 
+    /**
+     * Hold the arm at the horizontal position that is closest to its 0 position.
+     */
     public void holdAtHorizontal() {
         armMotor.holdAtPosition(ArmConstants.HORIZONTAL_POSITION);
     }
