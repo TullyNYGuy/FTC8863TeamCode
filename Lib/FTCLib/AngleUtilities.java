@@ -76,4 +76,13 @@ public class AngleUtilities {
         return angle;
     }
 
+
+    public static double convertAngle(double angle, AngleUnit units) {
+        if (units == AngleUnit.DEGREES) {
+            return angle;
+        } else {
+            return Math.toRadians(angle);
+        }
+    }
+
 }

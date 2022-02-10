@@ -176,6 +176,15 @@ public class MechanismUnits {
         }
     }
 
+    public double fromCounts(double counts, AngleUnit desiredUnits) {
+        double angleInOurUnits = counts * mechanismUnitPerEncoderCount;
+        if (angleUnit != null) {
+            return desiredUnits.fromUnit(angleUnit, angleInOurUnits);
+        } else {
+            throw new NullPointerException("Asked to convert encoder counts to mechanism rotational angle but mechanism was specified as linear, not rotational");
+        }
+    }
+
     /**
      * Convert from encoder counts to a mechanism position in a distance unit. This is applicable to
      * mechanisms that move in a linear fashion.
@@ -195,6 +204,10 @@ public class MechanismUnits {
      * @return
      */
     public double toMechanism(int counts, AngleUnit desiredUnits){
+        return fromCounts(counts, desiredUnits);
+    }
+
+    public double toMechanism(double counts, AngleUnit desiredUnits){
         return fromCounts(counts, desiredUnits);
     }
 
