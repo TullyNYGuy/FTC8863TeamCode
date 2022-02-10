@@ -29,7 +29,7 @@ import static org.firstinspires.ftc.teamcode.RoadRunner.drive.DriveConstants.MAX
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
 @Config
-@TeleOp(name = "Go to position", group = "Arm Tuning")
+@TeleOp(name = "Go to position - feedfoward", group = "Arm Tuning")
 //@Disabled
 public class ArmTuningGoToPositionFeedForwardPIDF extends LinearOpMode {
 
@@ -47,6 +47,7 @@ public class ArmTuningGoToPositionFeedForwardPIDF extends LinearOpMode {
     double correction = 0;
     double maxError = 0;
     double position = 0;
+    double velocity = 0;
     double startTime = 0;
     double elapsedTime = 0;
 
@@ -85,7 +86,7 @@ public class ArmTuningGoToPositionFeedForwardPIDF extends LinearOpMode {
         rotationController = new PIDFController(ArmConstants.ARM_PID_COEFFICIENTS, 0, 0, 0, new Function2<Double, Double, Double>() {
             @Override
             public Double invoke(Double position, Double velocity) {
-                return ArmConstants.calculateFeedForward(position, AngleUnit.RADIANS);
+                return ArmConstants.calculateFeedForward(position, AngleUnit.RADIANS, velocity);
             }
         });
 
@@ -96,13 +97,13 @@ public class ArmTuningGoToPositionFeedForwardPIDF extends LinearOpMode {
 
         startTime = clock.seconds();
         while (opModeIsActive()) {
-            // this did not seem to work. It actually made the overshoot slightly greater
-            //sampleArm.setSDKkG();
+
             elapsedTime = clock.seconds() - startTime;
             MotionState targetState = motionProfile.get(elapsedTime);
             rotationController.setTargetPosition(targetState.getX());
             position = sampleArm.getPosition(AngleUnit.RADIANS);
-            correction = rotationController.update(position);
+            velocity = sampleArm.getVelocity(AngleUnit.RADIANS);
+            correction = rotationController.update(position, velocity);
             sampleArm.armMotor.setPower(correction);
 
             position = Math.toDegrees(position);
@@ -121,13 +122,13 @@ public class ArmTuningGoToPositionFeedForwardPIDF extends LinearOpMode {
             telemetry.addData("Position", position);
             telemetry.addData("Error", error);
             telemetry.addData("Max error", maxError);
-            telemetry.addData("Write CSV file ", csvDataFile.getPathName());
             telemetry.update();
             idle();
         }
 
         csvDataFile.headerStrings("Time", "Position", "Error");
         csvDataFile.writeData(timeSamples, positionSamples, errorSamples);
+        telemetry.addData("Write CSV file ", csvDataFile.getPathName());
         csvDataFile.closeDataLog();
     }
 }

@@ -40,6 +40,7 @@ public class SampleArm {
 
     private int encoderCounts;
     private double position;
+    private double encoderVelocity;
 
     //*********************************************************************************************
     //          Constructors
@@ -92,6 +93,20 @@ public class SampleArm {
         return position;
     }
 
+    public double getVelocity(AngleUnit units) {
+        encoderVelocity = armMotor.getCurrentVelocityInCounts();
+        switch (units) {
+            case DEGREES:
+                position = AngleUtilities.to0to360(mechanismUnits.toMechanism(encoderVelocity, units), units);
+                break;
+            case RADIANS:
+                position = AngleUtilities.to0to2PI(mechanismUnits.toMechanism(encoderVelocity, units), units);
+                break;
+        }
+
+        return position;
+    }
+
     /**
      * Get the value of the motor encoder for the arm
      * @return counts
@@ -119,6 +134,10 @@ public class SampleArm {
      */
     public void holdAtHorizontal() {
         armMotor.holdAtPosition(ArmConstants.HORIZONTAL_POSITION);
+    }
+
+    public void holdAtPosition(double position, AngleUnit units) {
+        armMotor.holdAtPosition(AngleUtilities.to0to360(position, units));
     }
 
     public void setMode(DcMotor.RunMode mode) {

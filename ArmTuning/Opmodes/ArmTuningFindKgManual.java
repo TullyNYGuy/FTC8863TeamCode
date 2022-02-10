@@ -94,6 +94,13 @@ public class ArmTuningFindKgManual extends LinearOpMode {
             telemetry.addData("When angle to horizontal = 0, kgPluskS is the arm power", ".");
             telemetry.addData("Angle to horizontal ", angleToHorizontal);
             telemetry.addData("Arm motor Power ", ARM_POWER);
+            telemetry.update();
+            idle();
+        }
+
+        // if the loop stopped then the arm hit the limit
+        // hold it there
+        while (opModeIsActive()) {
             idle();
         }
     }

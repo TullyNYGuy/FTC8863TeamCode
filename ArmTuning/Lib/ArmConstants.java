@@ -7,7 +7,9 @@ import com.acmerobotics.roadrunner.control.PIDCoefficients;
 import com.acmerobotics.roadrunner.util.Angle;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.AngleUtilities;
 
 /*
  * Constants shared between multiple drive types.
@@ -29,13 +31,13 @@ public class ArmConstants {
     public static final double HORIZONTAL_POSITION = 45.3; // degrees
 
     public static double getHorizontalPosition(AngleUnit units) {
-        return convertAngle(HORIZONTAL_POSITION, units);
+        return AngleUtilities.convertAngle(HORIZONTAL_POSITION, units);
     }
 
     public static final double VERTICAL_POSITION = 134.7; // degrees
 
     public static double getVerticalPosition(AngleUnit units) {
-        return convertAngle(VERTICAL_POSITION, units);
+        return AngleUtilities.convertAngle(VERTICAL_POSITION, units);
     }
 
     /**
@@ -45,19 +47,19 @@ public class ArmConstants {
     public static double LARGEST_POSITION = 180; // degrees
 
     public static double getLargestPosition(AngleUnit units) {
-        return convertAngle(LARGEST_POSITION, units);
+        return AngleUtilities.convertAngle(LARGEST_POSITION, units);
     }
 
     public static double MAX_ANGULAR_VELOCITY = 360; // degrees per second
 
     public static double getMaxAngularVelocity(AngleUnit units) {
-        return convertAngle(MAX_ANGULAR_VELOCITY, units);
+        return AngleUtilities.convertAngle(MAX_ANGULAR_VELOCITY, units);
     }
 
     public static double MAX_ANGULAR_ACCELERATION = 60; // degrees per second^2
 
     public static double getMaxAngularAcceleration(AngleUnit units) {
-        return convertAngle(MAX_ANGULAR_ACCELERATION, units);
+        return AngleUtilities.convertAngle(MAX_ANGULAR_ACCELERATION, units);
     }
 
     /**
@@ -69,7 +71,7 @@ public class ArmConstants {
      * @return - angle from horizontal. Negative = below horizontal. Positive = above horizontal
      */
     public static double getAngleToHorizontal(double currentAngle, AngleUnit units) {
-        return convertAngle((units.toDegrees(currentAngle) - getHorizontalPosition(AngleUnit.DEGREES)), units);
+        return AngleUtilities.convertAngle((AngleUtilities.to0to360(currentAngle, units) - getHorizontalPosition(AngleUnit.DEGREES)), units);
     }
 
     /**
@@ -80,21 +82,25 @@ public class ArmConstants {
      *           Positive = arm on side opposite starting position
      */
     public static double getAngleToVertical(double currentAngle, AngleUnit units) {
-        return convertAngle((units.toDegrees(currentAngle) - getVerticalPosition(AngleUnit.DEGREES)), units);
-    }
-
-    private static double convertAngle(double angle, AngleUnit units) {
-        if (units == AngleUnit.DEGREES) {
-            return angle;
-        } else {
-            return Math.toRadians(angle);
-        }
+        return AngleUtilities.convertAngle((AngleUtilities.to0to360(currentAngle, units) - getVerticalPosition(AngleUnit.DEGREES)), units);
     }
 
 //    public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(0, 0, 0,
 //            getMotorVelocityF(MAX_RPM / 60 * TICKS_PER_REV));
 
     public static double kS = 0.09;
+
+    public static double getKs(double velocity) {
+        // Ks always opposes the motion of the arm
+        // if the motion is positive (positive velocity), then motor power needed to counteract Ks is positive
+        // if the motion is negative (negative velocity), then the motor power needed to counteract Ks is negative
+        if (velocity < 0) {
+            return -kS;
+        } else {
+            // if velocity is 0 kS will oppose the motion
+            return kS;
+        }
+    }
     //public static double kSPluskG = 0.14; // with no weights
     public static double kSPluskG = 0.30; // with weights
 
@@ -106,8 +112,22 @@ public class ArmConstants {
         }
     }
 
-    public static double calculateFeedForward(double position, AngleUnit units) {
-        return kS + getKg() * Math.cos(units.toRadians(getAngleToHorizontal(position, units)));
+    public static double calculateFeedForward(double position, AngleUnit units, double velocity) {
+        double angleToHorizontal = getAngleToHorizontal(position, units);
+        double KsAdjustedForDirectionOfTravel = getKs(velocity);
+        return KsAdjustedForDirectionOfTravel + getKg() * Math.cos(units.toRadians(angleToHorizontal));
+    }
+
+    public static double calculateFeedForwardDebug(double position, AngleUnit units, double velocity, Telemetry telemetry) {
+        double angleToHorizontal = getAngleToHorizontal(position, units);
+        double KsAdjustedForDirectionOfTravel = getKs(velocity);
+        double adjustedKg = getKg() * Math.cos(units.toRadians(angleToHorizontal));
+        double ff =  KsAdjustedForDirectionOfTravel + adjustedKg;
+        telemetry.addData("Angle to horizontal = ", Math.toDegrees(angleToHorizontal));
+        telemetry.addData("Ks = ", KsAdjustedForDirectionOfTravel);
+        telemetry.addData("Kg = ", adjustedKg);
+        telemetry.addData("FF = ", ff);
+        return ff;
     }
 
     public static PIDCoefficients ARM_PID_COEFFICIENTS = new PIDCoefficients(0, 0, 0);
@@ -119,9 +139,9 @@ public class ArmConstants {
      * empirically tuned.
      */
     //public static double kV = 1.0 / rpmToVelocity(MAX_RPM);
-    public static double kV = .016;
-    public static double kA = 0.00375365;
-    public static double kStatic = 0.075;
+//    public static double kV = .016;
+//    public static double kA = 0.00375365;
+//    public static double kStatic = 0.075;
 
     /*
      * These values are used to generate the trajectories for you robot. To ensure proper operation,
@@ -130,13 +150,13 @@ public class ArmConstants {
      * small and gradually increase them later after everything is working. All distance units are
      * inches.
      */
-    public static double MAX_VEL = 30; // measured 101 using MaxVelocityTuner Kf = 15.97
-    public static double MAX_ACCEL = 30;
-    public static double MAX_ANG_VEL = Math.toRadians(60); //measured 475 using MaxAngularVeloTuner
-    public static double MAX_ANG_ACCEL = Math.toRadians(60);
-
-    public static double getMotorVelocityF(double ticksPerSecond) {
-        // see https://docs.google.com/document/d/1tyWrXDfMidwYyP_5H4mZyVgaEswhOC35gvdmP-V-5hA/edit#heading=h.61g9ixenznbx
-        return 32767 / ticksPerSecond;
-    }
+//    public static double MAX_VEL = 30; // measured 101 using MaxVelocityTuner Kf = 15.97
+//    public static double MAX_ACCEL = 30;
+//    public static double MAX_ANG_VEL = Math.toRadians(60); //measured 475 using MaxAngularVeloTuner
+//    public static double MAX_ANG_ACCEL = Math.toRadians(60);
+//
+//    public static double getMotorVelocityF(double ticksPerSecond) {
+//        // see https://docs.google.com/document/d/1tyWrXDfMidwYyP_5H4mZyVgaEswhOC35gvdmP-V-5hA/edit#heading=h.61g9ixenznbx
+//        return 32767 / ticksPerSecond;
+//    }
 }

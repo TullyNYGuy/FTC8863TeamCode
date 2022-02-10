@@ -20,7 +20,7 @@ import java.util.List;
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
 @Config
-@TeleOp(name = "Go to position", group = "Arm Tuning")
+@TeleOp(name = "Go to position internal pid", group = "Arm Tuning")
 //@Disabled
 public class ArmTuningGoToPositionInternalPID extends LinearOpMode {
 
@@ -33,6 +33,7 @@ public class ArmTuningGoToPositionInternalPID extends LinearOpMode {
     // These variables will appear in the FTC Dashboard and can be changed via the dashboard
     public static double ARM_POWER = 0.2;
     public static double TARGET_POSITION = 0; // in degrees
+    public static double TIMEOUT = 3; // in seconds
 
     double error = 0;
     double maxError = 0;
@@ -69,12 +70,13 @@ public class ArmTuningGoToPositionInternalPID extends LinearOpMode {
 
         startTime = clock.seconds();
         sampleArm.armMotor.moveToPosition(ARM_POWER, TARGET_POSITION, DcMotor8863.FinishBehavior.HOLD);
-        while (opModeIsActive()) {
+        while (opModeIsActive() && !sampleArm.armMotor.isMovementComplete() && elapsedTime < TIMEOUT) {
             // this did not seem to work. It actually made the overshoot slightly greater
             //sampleArm.setSDKkG();
+            sampleArm.armMotor.update();
             elapsedTime = clock.seconds() - startTime;
             position = sampleArm.getPosition(AngleUnit.DEGREES);
-            error = TARGET_POSITION - position;
+            error = position - TARGET_POSITION;
             timeSamples.add(elapsedTime);
             positionSamples.add(position);
             errorSamples.add(error);
@@ -97,5 +99,10 @@ public class ArmTuningGoToPositionInternalPID extends LinearOpMode {
         csvDataFile.headerStrings("Time", "Position", "Error");
         csvDataFile.writeData(timeSamples, positionSamples, errorSamples);
         csvDataFile.closeDataLog();
+
+        // hold the arm at poaition until the user hits stop
+        while (opModeIsActive()) {
+            idle();
+        }
     }
 }
