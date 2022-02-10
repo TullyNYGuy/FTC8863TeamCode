@@ -5,9 +5,11 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863New;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Switch;
 import org.firstinspires.ftc.teamcode.opmodes.FreightFrenzy.TeleopUsingRoadRunnerFreightFrenzy;
@@ -16,7 +18,7 @@ import java.io.PipedOutputStream;
 import java.util.Timer;
 import java.util.concurrent.TimeUnit;
 
-public class FFExtensionArm {
+public class FFExtensionArm implements FTCRobotSubsystem {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -82,10 +84,10 @@ private enum InitState {
     //*********************************************************************************************
    public FFExtensionArm(HardwareMap hardwareMap, Telemetry telemetry){
        ffExtensionArm = new ExtensionRetractionMechanism(hardwareMap, telemetry,
-               "Lift",
-               "ExtensionLimitSwitch",
-               "RetractionLimitSwitch",
-               "LiftMotor",
+               "lift",
+               "extensionLimitSwitch",
+               "retractionLimitSwitch",
+               "extensionArmMotor",
                DcMotor8863.MotorType.GOBILDA_435,
                4.517);
        ffExtensionArm.reverseMotorDirection();
@@ -116,6 +118,38 @@ private enum InitState {
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
 
+    @Override
+    public String getName() {
+        return "lift";
+    }
+
+
+
+    @Override
+    public void shutdown() {
+    retract();
+    }
+
+    @Override
+    public void setDataLog(DataLogging logFile) {
+
+    }
+
+    @Override
+    public void enableDataLogging() {
+
+    }
+
+    @Override
+    public void disableDataLogging() {
+
+    }
+
+    @Override
+    public void timedUpdate(double timerValueMsec) {
+
+    }
+
     //*********************************************************************************************
     //          MAJOR METHODS
     //
@@ -125,9 +159,11 @@ private enum InitState {
        return liftState.toString();
     }
 
-    public void init(){
+    @Override
+    public boolean init(Configuration config) {
         ffExtensionArm.init();
         initState = InitState.ONE;
+        return false;
     }
 
     public boolean isInitComplete(){
@@ -188,6 +224,11 @@ private enum InitState {
     public void extend(){
        //command to start extension
        liftState = LiftState.EXTEND;
+    }
+
+    public void retract(){
+        //command to start extension
+        liftState = LiftState.RETRACT_TO_BUFFER;
     }
 
 
@@ -281,12 +322,10 @@ private enum InitState {
 
             case WAITING_TO_DUMP: {
                 //this is essentially just Idle with a different name. waiting for driver to line up & push dump button
-                // also resets a timer constantly for use in dump state
 
-                ///for testing purposes i just set this to dump after like 3 seconds. this needs to be removed
-                if(timer.milliseconds() > 3000){
-                    liftState = LiftState.DUMP;
-                }
+
+
+
             }
             break;
 
@@ -310,7 +349,7 @@ private enum InitState {
 
             case RETRACT_TO_BUFFER: {
                 // starts retraction
-                    ffExtensionArm.goToPosition(8, 1);
+                    ffExtensionArm.goToPosition(14, 1);
                     liftState = LiftState.MOVE_SERVO_TO_3R;
             }
             break;

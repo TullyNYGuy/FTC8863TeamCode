@@ -10,10 +10,10 @@ package org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib;
  *    / DPad Up          - reset heading for driver mode
  *    / DPad Left        -
  *    / DPad Down        - toggle mode (driver or robot)
- *    / DPad Right       -
+ *    / DPad Right       - eject into level 1
  *    / A                - turn intake on and deliver
  *    / B                - turn intake off
- *    / X                - eject into level 1
+ *    / X                - delivery extend/dump
  *    / Y                - eject at intake position
  *    /Left Bumper       - Half Power
  *    /Right Bumper      - Full Power
@@ -25,7 +25,7 @@ package org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib;
  *    / Right JoystickY  -
  *    / DPad Up          - TSE arm storage with TSE
  *    / DPad Left        -
- *    / DPad Down        -  TSE line up
+ *    / DPad Down        - TSE line up
  *    / DPad Right       -
  *    / A                - TSE arm storage TSE
  *    / B                - TSE arm carry TSE
@@ -156,7 +156,7 @@ public class FreightFrenzyGamepad {
         gamepad1a = new GamepadButtonMultiPush(2);
         gamepad1b = new GamepadButtonMultiPush(1);
         gamepad1y = new GamepadButtonMultiPush(1);
-        gamepad1x = new GamepadButtonMultiPush(1);
+        gamepad1x = new GamepadButtonMultiPush(2);
         gamepad1DpadUp = new GamepadButtonMultiPush(2);
         gamepad1DpadDown = new GamepadButtonMultiPush(2);
         gamepad1DpadLeft = new GamepadButtonMultiPush(2);
@@ -276,7 +276,12 @@ public class FreightFrenzyGamepad {
         }
 
         if (gamepad1x.buttonPress(gamepad1.x)) {
-            robot.intake.ejectIntoLevel1();
+            if (gamepad1a.isCommand1()) {
+                robot.lift.extend();
+            }
+            if (gamepad1a.isCommand2()) {
+                robot.lift.dump();
+            }
         }
 
         if (gamepad1DpadUp.buttonPress(gamepad1.dpad_up)) {
@@ -307,6 +312,7 @@ public class FreightFrenzyGamepad {
         if (gamepad1DpadRight.buttonPress(gamepad1.dpad_right)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
+            robot.intake.ejectIntoLevel1();
 
         }
 

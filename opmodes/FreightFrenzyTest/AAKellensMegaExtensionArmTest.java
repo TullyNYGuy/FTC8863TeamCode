@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FFExtensionArm;
 
 /**
@@ -12,7 +13,7 @@ import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FFExtensionArm;
 @TeleOp(name = "AA kellens mega lift test ", group = "Test")
 //@Disabled
 public class AAKellensMegaExtensionArmTest extends LinearOpMode {
-
+public Configuration config;
     // Put your variable declarations her
 private FFExtensionArm delivery;
     @Override
@@ -20,7 +21,7 @@ private FFExtensionArm delivery;
         delivery = new FFExtensionArm(hardwareMap, telemetry);
 
         // Put your initializations here
-        delivery.init();
+        delivery.init(config );
         while(!delivery.isInitComplete()){
             idle();
         }

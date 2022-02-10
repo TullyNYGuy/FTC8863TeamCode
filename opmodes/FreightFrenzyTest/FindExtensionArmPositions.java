@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FFExtensionArm;
 
 /**
@@ -31,7 +32,7 @@ import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FFExtensionArm;
 @TeleOp(name = "Find Extension Arm Positions", group = "Test")
 //@Disabled
 public class FindExtensionArmPositions extends LinearOpMode {
-
+public Configuration config;
     // Put your variable declarations here
     FFExtensionArm delivery;
     ElapsedTime timer;
@@ -58,7 +59,7 @@ public class FindExtensionArmPositions extends LinearOpMode {
         waitForStart();
 
         // Init the delivery extension arm and servo
-        delivery.init();
+        delivery.init(config);
         while (opModeIsActive() && !delivery.isInitComplete()) {
             telemetry.addData("Initing ...", ".");
             telemetry.update();
