@@ -28,26 +28,30 @@ private enum LiftState {
         IDLE,
         //WAITING_FOR_INTAKE,
 
-        EXTEND_TO_1ST_POSITION,
+        EXTEND,
         MOVE_SERVO_TO_1,
-        EXTEND_TO_2ND_POSITION,
+        //EXTEND_TO_2ND_POSITION,
         MOVE_SERVO_TO_2,
-        EXTEND_TO_3RD_POSITION,
+        //EXTEND_TO_3RD_POSITION,
         MOVE_SERVO_TO_3,
-        EXTEND_TO_FINAL_POSITION,
+       // EXTEND_TO_FINAL_POSITION,
         EXTENDED_AT_FINAL_POSITION,
         WAITING_TO_DUMP,
         DUMP,
         IS_DUMPED,
+        RETRACT_TO_BUFFER,
         MOVE_SERVO_TO_3R,
-        RETRACT_TO_3RD_POSITION,
+       // RETRACT_TO_3RD_POSITION,
+        RETRACT_TO_TRANSFER,
         MOVE_SERVO_TO_2R,
-        RETRACT_TO_2ND_POSITION,
+       // RETRACT_TO_2ND_POSITION,
         MOVE_SERVO_TO_1R,
-        RETRACT_TO_1ST_POSITION,
+        //RETRACT_TO_1ST_POSITION,
         MOVE_SERVO_TO_TRANSFER,
-        RETRACT_TO_0,
+        //RETRACT_TO_0,
     }
+
+
 
 private enum InitState {
     IDLE,
@@ -183,8 +187,9 @@ private enum InitState {
     }
     public void extend(){
        //command to start extension
-       liftState = LiftState.EXTEND_TO_1ST_POSITION;
+       liftState = LiftState.EXTEND;
     }
+
 
     public void extendToPosition(double position, double power) {
        ffExtensionArm.goToPosition(position, power);
@@ -226,9 +231,163 @@ private enum InitState {
             // AND THE DIFFERENT DUMPS - DON'T FORGET THE DRIVER MAY WANT TO LINE UP, THEN DUMP
 
             // I'M NOT SEEING THE DIFFERENCES BETWEEN THEM IN THE CODE BELOW.
+            case EXTEND: {
+                //starts the extension to 1.5 inches the positions are a little weird but this goes to actually 1.5
+                ffExtensionArm.goToPosition(25.7, 0.9);
+                liftState = liftState.MOVE_SERVO_TO_1;
+
+            }
+            break;
+
+
+            case MOVE_SERVO_TO_1: {
+                if (ffExtensionArm.getPosition() > 2.9) {
+                    //the arm has extended to 1.5 so now the servo moves to the correct position
+                    deliveryServo.setPosition("1.5 Extension");
+                    liftState = LiftState.MOVE_SERVO_TO_2;
+                }
+            }
+            break;
+
+
+            case MOVE_SERVO_TO_2: {
+                // if the extension arm has made it to 3 inches, it starts the servo movement
+                if (ffExtensionArm.getPosition() > 3.8 ) {
+                    deliveryServo.setPosition("3 Extension");
+                    liftState = LiftState.MOVE_SERVO_TO_3;
+                }
+            }
+            break;
+
+
+            case MOVE_SERVO_TO_3: {
+                // if the extension arm has made it to 5 inches, it starts the servo movement
+                if (ffExtensionArm.getPosition() > 6) {
+                    deliveryServo.setPosition("5 Extension");
+                    liftState = LiftState.EXTENDED_AT_FINAL_POSITION;
+                }
+            }
+            break;
+
+
+            case EXTENDED_AT_FINAL_POSITION: {
+                // checks extension and the timer is for testing
+                if (ffExtensionArm.isPositionReached()) {
+                    liftState = LiftState.WAITING_TO_DUMP;
+                }
+            }
+            break;
+
+
+            case WAITING_TO_DUMP: {
+                //this is essentially just Idle with a different name. waiting for driver to line up & push dump button
+                // also resets a timer constantly for use in dump state
+
+                ///for testing purposes i just set this to dump after like 3 seconds. this needs to be removed
+                if(timer.milliseconds() > 3000){
+                    liftState = LiftState.DUMP;
+                }
+            }
+            break;
+
+
+            case DUMP: {
+                // dump freight into top level. here the timer does serve the purpose of making sure the delivery is clear,
+                // but the time can probably be shortened
+                deliveryServo.setPosition("Dump");
+                liftState = LiftState.IS_DUMPED;
+                timer.reset();
+            }
+            break;
+
+            case IS_DUMPED: {
+                //checks if dump was did or not
+                if (deliveryServo.isPositionReached() && timer.milliseconds() > 3000) {
+                    liftState = LiftState.RETRACT_TO_BUFFER;
+                }
+            }
+            break;
+
+            case RETRACT_TO_BUFFER: {
+                // starts retraction
+                    ffExtensionArm.goToPosition(8, 1);
+                    liftState = LiftState.MOVE_SERVO_TO_3R;
+            }
+            break;
+
+            case MOVE_SERVO_TO_3R: {
+                // move servo to 5 inch positon
+                deliveryServo.setPosition("5 Extension");
+                liftState = LiftState.RETRACT_TO_TRANSFER;
+                timer.reset();
+            }
+            break;
+
+            case RETRACT_TO_TRANSFER: {
+                // starts retraction
+                if(ffExtensionArm.isPositionReached() && timer.milliseconds() > 1500){
+                    ffExtensionArm.goToPosition(0.5, 0.5);
+                    liftState = LiftState.MOVE_SERVO_TO_2R;
+                }
+
+            }
+            break;
+
+
+            case MOVE_SERVO_TO_2R: {
+              // move servo to 3 inch positon
+                if(ffExtensionArm.getPosition() < 8){
+                    deliveryServo.setPosition("3 Extension");
+                    liftState = LiftState.MOVE_SERVO_TO_1R;
+                }
+            }
+            break;
+
+
+            case MOVE_SERVO_TO_1R: {
+            //move servo to 1.5 inch
+                if (ffExtensionArm.getPosition() < 5.8 ){
+                    deliveryServo.setPosition("1.5 Extension");
+                    liftState = LiftState.MOVE_SERVO_TO_TRANSFER;
+                }
+            }
+            break;
+
+
+            case MOVE_SERVO_TO_TRANSFER: {
+            // move servo to transfer  position
+                if (ffExtensionArm.getPosition() < 4.2){
+                    deliveryServo.setPosition("Transfer");
+                    liftState = LiftState.IDLE;
+                }
+            }
+            break;
+
+        }
+    }
+//this is just an extra copy of the state machine from before it was continuous. basically a back up in case things break.
+    /*public void update() {
+        ffExtensionArm.update();
+        switch (liftState) {
+            case IDLE: {
+                // do nothing
+            }
+            break;
+
+            // YOU NEED TO THINK ABOUT HOW YOU ARE GOING TO HANDLE 3 DIFFERENT ARM/SERVO COMBINATIONS
+            // EXTENDING / ROTATING THE ARM TO:
+            //    LEVEL 3 OF THE SHIPPING HUB
+            //    LEVEL 2 OF THE SHIPPING HUB
+            //    LEVEL 1 OF THE SHIPPING HUB
+
+            // AND 3 DIFFERENT RETRACT / ROTATION SEQUENCES IN THE OPPOSITE DIRECTIONS
+
+            // AND THE DIFFERENT DUMPS - DON'T FORGET THE DRIVER MAY WANT TO LINE UP, THEN DUMP
+
+            // I'M NOT SEEING THE DIFFERENCES BETWEEN THEM IN THE CODE BELOW.
             case EXTEND_TO_1ST_POSITION: {
                 //starts the extension to 1.5 inches the positions are a little weird but this goes to actually 1.5
-                ffExtensionArm.goToPosition(2.2, 0.3);
+                ffExtensionArm.goToPosition(2.9, 0.3);
                 liftState = liftState.MOVE_SERVO_TO_1;
 
             }
@@ -359,7 +518,7 @@ private enum InitState {
                 // retract to 3 inch
                 if (deliveryServo.isPositionReached() && timer.milliseconds() > 3000) {
                     ffExtensionArm.goToPosition(6.0, 0.3);
-                    liftState = LiftState.MOVE_SERVO_TO_1R;
+                    liftState = LiftState.MOVE_SERVO_TO_2R;
                     timer.reset();
                 }
             }
@@ -367,7 +526,7 @@ private enum InitState {
 
 
             case MOVE_SERVO_TO_2R: {
-              // move servo to 3 inch positon
+                // move servo to 3 inch positon
                 deliveryServo.setPosition("3 Extension");
                 timer.reset();
                 liftState = LiftState.RETRACT_TO_2ND_POSITION;
@@ -376,18 +535,18 @@ private enum InitState {
 
 
             case RETRACT_TO_2ND_POSITION: {
-            // retract to 3 inch
+                // retract to 3 inch
                 if (deliveryServo.isPositionReached() && timer.milliseconds() > 3000) {
                     ffExtensionArm.goToPosition(3.8, 0.3);
                     liftState = LiftState.MOVE_SERVO_TO_1R;
                     timer.reset();
-                     }
                 }
+            }
             break;
 
 
             case MOVE_SERVO_TO_1R: {
-            //move servo to 1.5 inch
+                //move servo to 1.5 inch
                 if (ffExtensionArm.isPositionReached() && timer.milliseconds() > 3000){
                     deliveryServo.setPosition("1.5 Extension");
                     liftState = LiftState.RETRACT_TO_1ST_POSITION;
@@ -398,7 +557,7 @@ private enum InitState {
 
 
             case RETRACT_TO_1ST_POSITION: {
-            // retract to 1.5 inch
+                // retract to 1.5 inch
                 if(deliveryServo.isPositionReached() && timer.milliseconds() > 3000){
                     ffExtensionArm.goToPosition(2.2, 0.3);
                     liftState = LiftState.MOVE_SERVO_TO_TRANSFER;
@@ -409,7 +568,7 @@ private enum InitState {
 
 
             case MOVE_SERVO_TO_TRANSFER: {
-            // move servo to transfer  position
+                // move servo to transfer  position
                 if (ffExtensionArm.isPositionReached() && timer.milliseconds() > 3000){
                     deliveryServo.setPosition("Transfer");
                     liftState = LiftState.RETRACT_TO_0;
@@ -419,7 +578,7 @@ private enum InitState {
             break;
 
             case RETRACT_TO_0: {
-            //retract to transfer
+                //retract to transfer
                 if(deliveryServo.isPositionReached() && timer.milliseconds() > 3000){
                     ffExtensionArm.goToPosition(0.5, 0.3);
                     liftState = LiftState.IDLE;
@@ -428,5 +587,5 @@ private enum InitState {
             break;
         }
     }
-
+*/
 }
