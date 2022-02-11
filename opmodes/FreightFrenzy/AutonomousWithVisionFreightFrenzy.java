@@ -17,6 +17,7 @@ import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.AutonomousLowLoadDuck
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.AutonomousStateMachineFreightFrenzy;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyField;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyGamepad;
+import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyMatchInfo;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyRobotRoadRunner;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyStartSpot;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.PersistantStorage;
@@ -52,20 +53,21 @@ public class AutonomousWithVisionFreightFrenzy extends LinearOpMode {
 
     @Override
     public void runOpMode() {
+        FreightFrenzyMatchInfo.setMatchPhase(FreightFrenzyMatchInfo.MatchPhase.AUTONOMOUS);
         pipeline = new ShippingElementPipeline();
         telemetry.addData("Initializing ...", "Wait for it ...");
         telemetry.update();
         dataLog = new DataLogging("Autonomous", telemetry);
         config = null;
-        cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        //cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         timer = new ElapsedTime();
         field = new FreightFrenzyField();
         robot = new FreightFrenzyRobotRoadRunner(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, this);
         robot.createRobot();
         startSpot = PersistantStorage.getStartSpot();
 
-        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        robot.activeWebcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "WebcamRight"), cameraMonitorViewId);
+        //int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        //robot.activeWebcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, robot.getCameraName()), cameraMonitorViewId);
         //robot.activeWebcam .setMillisecondsPermissionTimeout(2500); // Timeout for obtaining permission is configurable. Set before opening.
         robot.activeWebcam .openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
@@ -79,6 +81,13 @@ public class AutonomousWithVisionFreightFrenzy extends LinearOpMode {
             }
         });
         robot.activeWebcam.setPipeline(pipeline);
+        timer.reset();
+        while (timer.milliseconds() < 500) {
+            // TANYA - need the idle so we don't hog all the CPU
+            idle();
+            //autonomous.update();
+        }
+
         position = pipeline.getAnalysis();
         PersistantStorage.setShippingElementPosition(position);
         telemetry.addData("shipping element postion is", position);
