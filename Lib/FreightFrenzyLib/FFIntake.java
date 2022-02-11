@@ -140,7 +140,7 @@ public class FFIntake implements FTCRobotSubsystem {
 
     @Override
     public boolean init(Configuration config) {
-        rotateServo.setPosition("Deliver");
+        rotateServo.setPosition("Vertical");
         return true;
     }
 
