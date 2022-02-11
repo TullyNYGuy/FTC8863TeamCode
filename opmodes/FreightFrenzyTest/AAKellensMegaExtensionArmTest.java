@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
+import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.AllianceColor;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FFExtensionArm;
 
 /**
@@ -18,7 +19,7 @@ public Configuration config;
 private FFExtensionArm delivery;
     @Override
     public void runOpMode() {
-        delivery = new FFExtensionArm(hardwareMap, telemetry);
+        delivery = new FFExtensionArm(AllianceColor.BLUE, hardwareMap, telemetry);
 
         // Put your initializations here
         delivery.init(config );

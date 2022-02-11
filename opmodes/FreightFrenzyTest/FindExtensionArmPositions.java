@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
+import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.AllianceColor;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FFExtensionArm;
 
 /**
@@ -50,7 +51,7 @@ public Configuration config;
     public void runOpMode() {
 
         // Put your initializations here
-        delivery = new FFExtensionArm(hardwareMap, telemetry);
+        delivery = new FFExtensionArm(AllianceColor.BLUE, hardwareMap, telemetry);
         timer = new ElapsedTime();
 
         // Wait for the start button
