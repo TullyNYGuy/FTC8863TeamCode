@@ -58,7 +58,7 @@ public class TestDeliveryServo extends LinearOpMode {
             idle();
         }
 
-        delivery.deliveryServoToDumpPosition();
+        delivery.deliveryServoToDumpIntoTopPosition();
         while (opModeIsActive() && !delivery.isDeliverServoPositionReached()) {
             telemetry.addData("Moving to Dump position", ".");
             telemetry.update();

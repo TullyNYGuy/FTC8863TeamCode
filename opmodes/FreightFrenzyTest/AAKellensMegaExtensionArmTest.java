@@ -32,7 +32,7 @@ private FFExtensionArm delivery;
         waitForStart();
 
         // Put your calls here - they will not run in a loop
-            delivery.extend();
+            delivery.extendToTop();
         while (opModeIsActive()) {
 
             // Put your calls that need to run in a loop here

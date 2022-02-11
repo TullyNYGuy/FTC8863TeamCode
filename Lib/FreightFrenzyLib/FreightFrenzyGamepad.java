@@ -13,7 +13,7 @@ package org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib;
  *    / DPad Right       - eject into level 1
  *    / A                - turn intake on and deliver
  *    / B                - turn intake off
- *    / X                - delivery extend/dump
+ *    / X                - delivery extend/dump to top level
  *    / Y                - eject at intake position
  *    /Left Bumper       - Half Power
  *    /Right Bumper      - Full Power
@@ -277,7 +277,7 @@ public class FreightFrenzyGamepad {
 
         if (gamepad1x.buttonPress(gamepad1.x)) {
             if (gamepad1x.isCommand1()) {
-                robot.lift.extend();
+                robot.lift.extendToTop();
             }
             if (gamepad1x.isCommand2()) {
                 robot.lift.dump();
