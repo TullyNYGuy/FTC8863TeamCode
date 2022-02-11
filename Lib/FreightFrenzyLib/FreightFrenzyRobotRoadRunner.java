@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -22,6 +25,7 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvWebcam;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -53,9 +57,7 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
         INTAKE_ROTATE_SERVO("intakeRotateServo"),
         LIFT_MOTOR("extensionArmMotor"),
         LIFT_LIMIT_SWITCH_R("retractionLimitSwitch"),
-        LIFT_SERVO("deliveryServo")
-
-        ;
+        LIFT_SERVO("deliveryServo");
         public final String hwName;
 
         HardwareName(String name) {
@@ -124,8 +126,11 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
         setCapabilities(Subsystem.values());
         enableDataLogging();
         color = FreightFrenzyStartSpot.BLUE_WALL;
-        if(PersistantStorage.getStartSpot() != null){color = PersistantStorage.getStartSpot();
-        }else{ color = FreightFrenzyStartSpot.BLUE_WALL;}
+        if (PersistantStorage.getStartSpot() != null) {
+            color = PersistantStorage.getStartSpot();
+        } else {
+            color = FreightFrenzyStartSpot.BLUE_WALL;
+        }
 
     }
 
@@ -139,10 +144,12 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
     public void setColor(FreightFrenzyStartSpot color) {
         this.color = color;
     }
-    public FreightFrenzyStartSpot getColor(){
+
+    public FreightFrenzyStartSpot getColor() {
 
         return color;
     }
+
     /**
      * Create the robot should be called from the teleop or auto opmode.
      *
@@ -173,27 +180,27 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
             subsystemMap.put(lift.getName(), lift);
         }
         // THE WEBCAM PROCESSING TAKES UP A BUNCH OF RESOURCES. PROBABLY NOT A GOOD IDEA TO RUN THIS IN TELEOP
-        if(FreightFrenzyMatchInfo.getMatchPhase() == FreightFrenzyMatchInfo.MatchPhase.AUTONOMOUS)
-            switch(color){
+        if (FreightFrenzyMatchInfo.getMatchPhase() == FreightFrenzyMatchInfo.MatchPhase.AUTONOMOUS)
+            switch (color) {
                 case RED_WALL:
                 case RED_WAREHOUSE:
-                   if( capabilities.contains(Subsystem.WEBCAM_LEFT)){
-                    webcamLeft.setMillisecondsPermissionTimeout(2500); // Timeout for obtaining permission is configurable. Set before opening.
-                    activeWebcam = webcamLeft;
-                       int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-                       webcamLeft = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "WebcamLeft"), cameraMonitorViewId);
+                    if (capabilities.contains(Subsystem.WEBCAM_LEFT)) {
+                        webcamLeft.setMillisecondsPermissionTimeout(2500); // Timeout for obtaining permission is configurable. Set before opening.
+                        activeWebcam = webcamLeft;
+                        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+                        webcamLeft = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "WebcamLeft"), cameraMonitorViewId);
                         activeWebcamName = "webcamLeft";
-                   }
+                    }
                     break;
                 case BLUE_WAREHOUSE:
                 case BLUE_WALL:
-                if(capabilities.contains(Subsystem.WEBCAM_RIGHT)){
-                    webcamRight.setMillisecondsPermissionTimeout(2500);
-                    activeWebcam = webcamRight;
-                    int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-                    webcamRight = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "WebcamRight"), cameraMonitorViewId);
-                    activeWebcamName = "webcamRight";
-                }
+                    if (capabilities.contains(Subsystem.WEBCAM_RIGHT)) {
+                        webcamRight.setMillisecondsPermissionTimeout(2500);
+                        activeWebcam = webcamRight;
+                        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+                        webcamRight = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "WebcamRight"), cameraMonitorViewId);
+                        activeWebcamName = "webcamRight";
+                    }
                     break;
             }
 
@@ -212,9 +219,28 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
     @Override
     public void init() {
         dataLog.logData("Init starting");
-        initPartOne();
-        if(initPartOne()) {
-        for (FTCRobotSubsystem subsystem : subsystemMap.values()) {
+        lift.setDataLog(dataLog);
+        lift.enableDataLogging();
+        if (!lift.init(config)) {
+            if (dataLoggingEnabled)
+                dataLog.logData(lift.getName() + " initialization failed");
+        }
+        timer.reset();
+        while (!lift.isInitComplete()) {
+            update();
+
+            if (timer.milliseconds() > 5000) {
+                // something went wrong with the inits. They never finished. Proceed anyway
+                dataLog.logData("Init failed to complete on time. Proceeding anyway!");
+                break;
+            }
+            telemetry.update();
+            opMode.idle();
+        }
+        Map<String, FTCRobotSubsystem> subsystemMapNew = new HashMap<String, FTCRobotSubsystem>(subsystemMap);
+        subsystemMapNew.remove(lift.getName());
+
+        for (FTCRobotSubsystem subsystem : subsystemMapNew.values()) {
             subsystem.setDataLog(dataLog);
             subsystem.enableDataLogging();
             if (!subsystem.init(config)) {
@@ -225,34 +251,33 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
 
         // wait until all the updates are complete or until the timer has expired
 
-            timer.reset();
-            while (!isInitComplete()) {
-                update();
+        timer.reset();
+        while (!isInitComplete()) {
+            update();
 
-                if (timer.milliseconds() > 5000) {
-                    // something went wrong with the inits. They never finished. Proceed anyway
-                    dataLog.logData("Init failed to complete on time. Proceeding anyway!");
-                    break;
-                }
-                telemetry.update();
-                opMode.idle();
+            if (timer.milliseconds() > 5000) {
+                // something went wrong with the inits. They never finished. Proceed anyway
+                dataLog.logData("Init failed to complete on time. Proceeding anyway!");
+                break;
             }
+            telemetry.update();
+            opMode.idle();
         }
     }
+
     boolean isLiftInit;
-    public boolean initPartOne(){
+
+    public boolean initPartOne() {
         isLiftInit = false;
         lift.init(config);
-        while(!lift.isInitComplete()){
+        while (!lift.isInitComplete()) {
             lift.update();
         }
-       if(lift.isInitComplete()){
-           isLiftInit = true;
-       }
-       return isLiftInit;
+        if (lift.isInitComplete()) {
+            isLiftInit = true;
+        }
+        return isLiftInit;
     }
-
-
 
 
     /*
@@ -350,7 +375,8 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
     public boolean getCurrentRobotPosition(RobotPosition position) {
         return true;
     }
-    public String getWebcamName(){
+
+    public String getWebcamName() {
         return activeWebcamName;
     }
 }
