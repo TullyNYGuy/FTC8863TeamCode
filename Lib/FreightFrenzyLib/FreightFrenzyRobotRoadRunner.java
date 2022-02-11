@@ -84,7 +84,7 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
     private FreightFrenzyMatchInfo robotMode;
     Map<String, FTCRobotSubsystem> subsystemMap;
     private FreightFrenzyStartSpot color;
-
+    private String activeWebcamName;
     private ElapsedTime timer;
     private LinearOpMode opMode;
 
@@ -152,6 +152,7 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
     @Override
     public boolean createRobot() {
         imu = new AdafruitIMU8863(hardwareMap, null, "IMU", HardwareName.IMU.hwName);
+        color = PersistantStorage.getStartSpot();
         if (capabilities.contains(Subsystem.MECANUM_DRIVE)) {
             mecanum = new MecanumDriveFreightFrenzy(HardwareName.CONFIG_FL_MOTOR.hwName, HardwareName.CONFIG_BL_MOTOR.hwName, HardwareName.CONFIG_FR_MOTOR.hwName, HardwareName.CONFIG_BR_MOTOR.hwName, hardwareMap);
             subsystemMap.put(mecanum.getName(), mecanum);
@@ -172,24 +173,30 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
             subsystemMap.put(lift.getName(), lift);
         }
         // THE WEBCAM PROCESSING TAKES UP A BUNCH OF RESOURCES. PROBABLY NOT A GOOD IDEA TO RUN THIS IN TELEOP
+        if(FreightFrenzyMatchInfo.getMatchPhase() == FreightFrenzyMatchInfo.MatchPhase.AUTONOMOUS)
+            switch(color){
+                case RED_WALL:
+                case RED_WAREHOUSE:
+                   if( capabilities.contains(Subsystem.WEBCAM_LEFT)){
+                    webcamLeft.setMillisecondsPermissionTimeout(2500); // Timeout for obtaining permission is configurable. Set before opening.
+                    activeWebcam = webcamLeft;
+                       int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+                       webcamLeft = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "WebcamLeft"), cameraMonitorViewId);
+                        activeWebcamName = "webcamLeft";
+                   }
+                    break;
+                case BLUE_WAREHOUSE:
+                case BLUE_WALL:
+                if(capabilities.contains(Subsystem.WEBCAM_RIGHT)){
+                    webcamRight.setMillisecondsPermissionTimeout(2500);
+                    activeWebcam = webcamRight;
+                    int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+                    webcamRight = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "WebcamRight"), cameraMonitorViewId);
+                    activeWebcamName = "webcamRight";
+                }
+                    break;
+            }
 
-        if (capabilities.contains(Subsystem.WEBCAM_LEFT) && color == FreightFrenzyStartSpot.RED_WALL && FreightFrenzyMatchInfo.getMatchPhase() == FreightFrenzyMatchInfo.MatchPhase.AUTONOMOUS) {
-            webcamLeft.setMillisecondsPermissionTimeout(2500); // Timeout for obtaining permission is configurable. Set before opening.
-            activeWebcam = webcamLeft;
-        }
-        if (capabilities.contains(Subsystem.WEBCAM_LEFT) && color == FreightFrenzyStartSpot.RED_WAREHOUSE && FreightFrenzyMatchInfo.getMatchPhase() == FreightFrenzyMatchInfo.MatchPhase.AUTONOMOUS) {
-            webcamLeft.setMillisecondsPermissionTimeout(2500); // Timeout for obtaining permission is configurable. Set before opening.
-            activeWebcam = webcamLeft;
-        }
-
-        if (capabilities.contains(Subsystem.WEBCAM_RIGHT) && color == FreightFrenzyStartSpot.BLUE_WALL && FreightFrenzyMatchInfo.getMatchPhase() == FreightFrenzyMatchInfo.MatchPhase.AUTONOMOUS) {
-           webcamRight.setMillisecondsPermissionTimeout(2500);
-            activeWebcam = webcamRight;
-        }
-        if (capabilities.contains(Subsystem.WEBCAM_RIGHT) && color == FreightFrenzyStartSpot.BLUE_WAREHOUSE && FreightFrenzyMatchInfo.getMatchPhase() == FreightFrenzyMatchInfo.MatchPhase.AUTONOMOUS) {
-            webcamRight.setMillisecondsPermissionTimeout(2500); // Timeout for obtaining permission is configurable. Set before opening.
-            activeWebcam = webcamRight;
-        }
         if (capabilities.contains(Subsystem.INTAKE)) {
             intake = new FFIntake(hardwareMap, telemetry);
             subsystemMap.put(intake.getName(), intake);
@@ -323,6 +330,9 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
 
     public boolean getCurrentRobotPosition(RobotPosition position) {
         return true;
+    }
+    public String getWebcamName(){
+        return activeWebcamName;
     }
 }
 
