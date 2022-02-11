@@ -26,7 +26,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
     // user defined types
     //
     //*********************************************************************************************
-private enum LiftState {
+    private enum LiftState {
         IDLE,
         //WAITING_FOR_INTAKE,
 
@@ -36,17 +36,17 @@ private enum LiftState {
         MOVE_SERVO_TO_2,
         //EXTEND_TO_3RD_POSITION,
         MOVE_SERVO_TO_3,
-       // EXTEND_TO_FINAL_POSITION,
+        // EXTEND_TO_FINAL_POSITION,
         EXTENDED_AT_FINAL_POSITION,
         WAITING_TO_DUMP,
         DUMP,
         IS_DUMPED,
         RETRACT_TO_BUFFER,
         MOVE_SERVO_TO_3R,
-       // RETRACT_TO_3RD_POSITION,
+        // RETRACT_TO_3RD_POSITION,
         RETRACT_TO_TRANSFER,
         MOVE_SERVO_TO_2R,
-       // RETRACT_TO_2ND_POSITION,
+        // RETRACT_TO_2ND_POSITION,
         MOVE_SERVO_TO_1R,
         //RETRACT_TO_1ST_POSITION,
         MOVE_SERVO_TO_TRANSFER,
@@ -55,12 +55,13 @@ private enum LiftState {
 
 
 
-private enum InitState {
-    IDLE,
-    ONE,
-    TWO,
-    DONE,
-}
+    private enum InitState {
+        IDLE,
+        ONE,
+        TWO,
+        DELIVERY_SERVO_MOVING,
+        DONE,
+    }
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS AND SETTERS and GETTERS
     //
@@ -82,35 +83,35 @@ private enum InitState {
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
-   public FFExtensionArm(HardwareMap hardwareMap, Telemetry telemetry){
-       ffExtensionArm = new ExtensionRetractionMechanism(hardwareMap, telemetry,
-               "lift",
-               "extensionLimitSwitch",
-               "retractionLimitSwitch",
-               "extensionArmMotor",
-               DcMotor8863.MotorType.GOBILDA_435,
-               4.517);
-       ffExtensionArm.reverseMotorDirection();
+    public FFExtensionArm(HardwareMap hardwareMap, Telemetry telemetry){
+        ffExtensionArm = new ExtensionRetractionMechanism(hardwareMap, telemetry,
+                "lift",
+                "extensionLimitSwitch",
+                "retractionLimitSwitch",
+                "extensionArmMotor",
+                DcMotor8863.MotorType.GOBILDA_435,
+                4.517);
+        ffExtensionArm.reverseMotorDirection();
 
-       ffExtensionArm.setResetTimerLimitInmSec(25000);
-       ffExtensionArm.setExtensionPower(0.9);
-       ffExtensionArm.setExtensionPositionInMechanismUnits(31.0);
-       ffExtensionArm.setRetractionPower(-0.5);
-       ffExtensionArm.setRetractionPositionInMechanismUnits(0.5);
-       ffExtensionArm.setDataLog(log);
-       ffExtensionArm.enableDataLogging();
+        ffExtensionArm.setResetTimerLimitInmSec(25000);
+        ffExtensionArm.setExtensionPower(0.9);
+        ffExtensionArm.setExtensionPositionInMechanismUnits(31.0);
+        ffExtensionArm.setRetractionPower(-0.5);
+        ffExtensionArm.setRetractionPositionInMechanismUnits(0.5);
+        ffExtensionArm.setDataLog(log);
+        ffExtensionArm.enableDataLogging();
 
-       deliveryServo = new Servo8863New("deliveryServo" , hardwareMap, telemetry);
-       deliveryServo.addPosition( "1.5 Extension",0.96,500, TimeUnit.MILLISECONDS);
-       deliveryServo.addPosition( "3 Extension",0.90,500, TimeUnit.MILLISECONDS);
-       deliveryServo.addPosition( "5 Extension",0.85,500, TimeUnit.MILLISECONDS);
-       deliveryServo.addPosition( "Transfer",0.98,500, TimeUnit.MILLISECONDS);
-       deliveryServo.addPosition( "Init",1,500, TimeUnit.MILLISECONDS);
-       deliveryServo.addPosition( "Parallel",0.83,500, TimeUnit.MILLISECONDS);
-       deliveryServo.addPosition( "Dump",0.05,500, TimeUnit.MILLISECONDS);
+        deliveryServo = new Servo8863New("deliveryServo" , hardwareMap, telemetry);
+        deliveryServo.addPosition( "1.5 Extension",0.96,500, TimeUnit.MILLISECONDS);
+        deliveryServo.addPosition( "3 Extension",0.90,500, TimeUnit.MILLISECONDS);
+        deliveryServo.addPosition( "5 Extension",0.85,500, TimeUnit.MILLISECONDS);
+        deliveryServo.addPosition( "Transfer",0.98,500, TimeUnit.MILLISECONDS);
+        deliveryServo.addPosition( "Init",1,500, TimeUnit.MILLISECONDS);
+        deliveryServo.addPosition( "Parallel",0.83,500, TimeUnit.MILLISECONDS);
+        deliveryServo.addPosition( "Dump",0.05,500, TimeUnit.MILLISECONDS);
 
-       timer = new ElapsedTime();
-   }
+        timer = new ElapsedTime();
+    }
 
     //*********************************************************************************************
     //          Helper Methods
@@ -127,7 +128,7 @@ private enum InitState {
 
     @Override
     public void shutdown() {
-    retract();
+        retract();
     }
 
     @Override
@@ -156,7 +157,7 @@ private enum InitState {
     // public methods that give the class its functionality
     //*********************************************************************************************
     public String getLiftState(){
-       return liftState.toString();
+        return liftState.toString();
     }
 
     @Override
@@ -167,7 +168,7 @@ private enum InitState {
     }
 
     public boolean isInitComplete(){
- boolean result = false;
+        boolean result = false;
         ffExtensionArm.update();
         switch (initState) {
             case IDLE: {
@@ -187,11 +188,17 @@ private enum InitState {
             case TWO: {
                 if(ffExtensionArm.isPositionReached()){
                     deliveryServo.setPosition("Transfer");
-                    initState = InitState.DONE;
+                    initState = InitState.DELIVERY_SERVO_MOVING;
                 }
 
             }
             break;
+
+            case DELIVERY_SERVO_MOVING:
+                if (deliveryServo.isPositionReached()) {
+                    initState  = InitState.DONE;
+                }
+                break;
 
             case DONE: {
                 result = true;
@@ -199,10 +206,10 @@ private enum InitState {
             break;
         }
         return result;
-   }
+    }
 
     public void deliveryServoToTransferPosition() {
-       deliveryServo.setPosition("Transfer");
+        deliveryServo.setPosition("Transfer");
     }
 
     public void deliveryServoToDumpPosition() {
@@ -214,16 +221,16 @@ private enum InitState {
     }
 
     public boolean isDeliverServoPositionReached() {
-       return deliveryServo.isPositionReached();
+        return deliveryServo.isPositionReached();
     }
 
     public void dump(){
-       //this commnad is the button press for dumping freight into the hub
-       liftState = LiftState.DUMP;
+        //this commnad is the button press for dumping freight into the hub
+        liftState = LiftState.DUMP;
     }
     public void extend(){
-       //command to start extension
-       liftState = LiftState.EXTEND;
+        //command to start extension
+        liftState = LiftState.EXTEND;
     }
 
     public void retract(){
@@ -233,20 +240,20 @@ private enum InitState {
 
 
     public void extendToPosition(double position, double power) {
-       ffExtensionArm.goToPosition(position, power);
+        ffExtensionArm.goToPosition(position, power);
     }
 
     public void rotateToPosition(double position){
-       // this is probably not the best way to do this
-       //deliveryServo.addPosition("position", position, 500, TimeUnit.MILLISECONDS);
-       //deliveryServo.setPosition("position");
+        // this is probably not the best way to do this
+        //deliveryServo.addPosition("position", position, 500, TimeUnit.MILLISECONDS);
+        //deliveryServo.setPosition("position");
         // I added a method in Servo8863New to expose the setPosition(double position)
         deliveryServo.setPosition(position);
     }
 
 
     public boolean isExtensionMovementComplete() {
-       return ffExtensionArm.isMovementComplete();
+        return ffExtensionArm.isMovementComplete();
     }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -254,7 +261,7 @@ private enum InitState {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public void update() {
-       ffExtensionArm.update();
+        ffExtensionArm.update();
         switch (liftState) {
             case IDLE: {
                 // do nothing
@@ -349,8 +356,8 @@ private enum InitState {
 
             case RETRACT_TO_BUFFER: {
                 // starts retraction
-                    ffExtensionArm.goToPosition(14, 1);
-                    liftState = LiftState.MOVE_SERVO_TO_3R;
+                ffExtensionArm.goToPosition(14, 1);
+                liftState = LiftState.MOVE_SERVO_TO_3R;
             }
             break;
 
@@ -374,7 +381,7 @@ private enum InitState {
 
 
             case MOVE_SERVO_TO_2R: {
-              // move servo to 3 inch positon
+                // move servo to 3 inch positon
                 if(ffExtensionArm.getPosition() < 8){
                     deliveryServo.setPosition("3 Extension");
                     liftState = LiftState.MOVE_SERVO_TO_1R;
@@ -384,7 +391,7 @@ private enum InitState {
 
 
             case MOVE_SERVO_TO_1R: {
-            //move servo to 1.5 inch
+                //move servo to 1.5 inch
                 if (ffExtensionArm.getPosition() < 5.8 ){
                     deliveryServo.setPosition("1.5 Extension");
                     liftState = LiftState.MOVE_SERVO_TO_TRANSFER;
@@ -394,7 +401,7 @@ private enum InitState {
 
 
             case MOVE_SERVO_TO_TRANSFER: {
-            // move servo to transfer  position
+                // move servo to transfer  position
                 if (ffExtensionArm.getPosition() < 4.2){
                     deliveryServo.setPosition("Transfer");
                     liftState = LiftState.IDLE;

@@ -104,7 +104,7 @@ public class FFIntake implements FTCRobotSubsystem {
         rotateServo.addPosition("Vertical", .5, 1000, TimeUnit.MILLISECONDS);
         rotateServo.addPosition("Deliver", 1.0, 1000, TimeUnit.MILLISECONDS);
         rotateServo.addPosition("Level 2", .45, 1000, TimeUnit.MILLISECONDS);
-     }
+    }
 
     //*********************************************************************************************
     //          Helper Methods
@@ -130,13 +130,17 @@ public class FFIntake implements FTCRobotSubsystem {
 
     @Override
     public boolean isInitComplete() {
-        return initComplete;
+        if (rotateServo.isPositionReached()) {
+            initComplete = true;
+            return true;
+        } else {
+            return false;
+        }
     }
 
     @Override
     public boolean init(Configuration config) {
         rotateServo.setPosition("Deliver");
-        initComplete = true;
         return true;
     }
 
