@@ -5,7 +5,7 @@ import android.graphics.Xfermode;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-public class RevLEDBlinker {
+public class RevLEDBlinker implements FTCRobotSubsystem{
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -13,6 +13,12 @@ public class RevLEDBlinker {
     // user defined types
     //
     //*********************************************************************************************
+
+    private enum Mode {
+        BLINKING,
+        STEADY
+    }
+    private Mode mode = Mode.STEADY;
 
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS AND SETTERS and GETTERS
@@ -34,7 +40,8 @@ public class RevLEDBlinker {
         led = new RevLED(hardwareMap, port1Name, port2Name);
         led.setColor(color);
         blinker = new OnOffCycler(frequency);
-        blinker.start();
+        mode = Mode.STEADY;
+        off();
     }
 
     public RevLEDBlinker(double frequency, RevLED led) {
@@ -67,17 +74,82 @@ public class RevLEDBlinker {
         led.off();
     }
 
-    public void start() {
+    public void steadyRed() {
+        mode = Mode.STEADY;
+        led.on(RevLED.Color.RED);
+    }
+
+    public void steadyAmber() {
+        mode = Mode.STEADY;
+        led.on(RevLED.Color.AMBER);
+    }
+
+    public void steadyGreen() {
+        mode = Mode.STEADY;
+        led.on(RevLED.Color.GREEN);
+    }
+
+    public void startBlinking() {
+        mode = Mode.BLINKING;
         blinker.start();
     }
 
+    public void startBlinking(RevLED.Color color, double frequency) {
+        setColor(color);
+        setFrequency(frequency);
+        startBlinking();
+    }
+
+    @Override
     public void update() {
-        if(blinker.getState() == OnOffCycler.State.ON) {
-            led.on();
-        }
-        if (blinker.getState() == OnOffCycler.State.OFF) {
-            led.off();
+        if (mode == Mode.BLINKING) {
+            if (blinker.getState() == OnOffCycler.State.ON) {
+                led.on();
+            }
+            if (blinker.getState() == OnOffCycler.State.OFF) {
+                led.off();
+            }
         }
     }
 
+    @Override
+    public String getName() {
+        return "LED";
+    }
+
+    @Override
+    public boolean isInitComplete() {
+        return true;
+    }
+
+    @Override
+    public boolean init(Configuration config) {
+        off();
+        return true;
+    }
+
+    @Override
+    public void shutdown() {
+        off();
+    }
+
+    @Override
+    public void setDataLog(DataLogging logFile) {
+
+    }
+
+    @Override
+    public void enableDataLogging() {
+
+    }
+
+    @Override
+    public void disableDataLogging() {
+
+    }
+
+    @Override
+    public void timedUpdate(double timerValueMsec) {
+
+    }
 }
