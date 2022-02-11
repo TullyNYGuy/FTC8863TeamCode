@@ -79,7 +79,6 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
     private FreightFrenzyMatchInfo robotMode;
     Map<String, FTCRobotSubsystem> subsystemMap;
     private FreightFrenzyStartSpot color;
-
     private ElapsedTime timer;
     private LinearOpMode opMode;
 
@@ -103,6 +102,7 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
     public FFIntake intake;
     public OpenCvWebcam webcamLeft;
     public OpenCvWebcam webcamRight;
+    private String activeWebcamName;
 
     public FreightFrenzyRobotRoadRunner(HardwareMap hardwareMap, Telemetry telemetry, Configuration config, DataLogging dataLog, DistanceUnit units, LinearOpMode opMode) {
         timer = new ElapsedTime();
@@ -162,23 +162,33 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
         }
 
         // THE WEBCAM PROCESSING TAKES UP A BUNCH OF RESOURCES. PROBABLY NOT A GOOD IDEA TO RUN THIS IN TELEOP
+        if( FreightFrenzyMatchInfo.getMatchPhase() == FreightFrenzyMatchInfo.MatchPhase.AUTONOMOUS) {
+            switch (color) {
+                case RED_WALL:
+                case RED_WAREHOUSE:
+                    if (capabilities.contains(Subsystem.WEBCAM_LEFT)) {
+                        activeWebcamName = HardwareName.WEBCAM_LEFT.hwName;
+                        WebcamName webcam = hardwareMap.get(WebcamName.class, activeWebcamName);
+                        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+                        webcamLeft = OpenCvCameraFactory.getInstance().createWebcam(webcam, cameraMonitorViewId);
 
-        if (capabilities.contains(Subsystem.WEBCAM_LEFT) && color == FreightFrenzyStartSpot.RED_WALL && FreightFrenzyMatchInfo.getMatchPhase() == FreightFrenzyMatchInfo.MatchPhase.AUTONOMOUS) {
-            webcamLeft.setMillisecondsPermissionTimeout(2500); // Timeout for obtaining permission is configurable. Set before opening.
-            activeWebcam = webcamLeft;
-        }
-        if (capabilities.contains(Subsystem.WEBCAM_LEFT) && color == FreightFrenzyStartSpot.RED_WAREHOUSE && FreightFrenzyMatchInfo.getMatchPhase() == FreightFrenzyMatchInfo.MatchPhase.AUTONOMOUS) {
-            webcamLeft.setMillisecondsPermissionTimeout(2500); // Timeout for obtaining permission is configurable. Set before opening.
-            activeWebcam = webcamLeft;
-        }
+                        webcamLeft.setMillisecondsPermissionTimeout(2500); // Timeout for obtaining permission is configurable. Set before opening.
+                        activeWebcam = webcamLeft;
+                    }
+                    break;
+                case BLUE_WALL:
+                case BLUE_WAREHOUSE:
+                    if (capabilities.contains(Subsystem.WEBCAM_RIGHT)) {
+                        activeWebcamName = HardwareName.WEBCAM_RIGHT.hwName;
+                        WebcamName webcam = hardwareMap.get(WebcamName.class, activeWebcamName);
+                        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+                        webcamRight = OpenCvCameraFactory.getInstance().createWebcam(webcam, cameraMonitorViewId);
 
-        if (capabilities.contains(Subsystem.WEBCAM_RIGHT) && color == FreightFrenzyStartSpot.BLUE_WALL && FreightFrenzyMatchInfo.getMatchPhase() == FreightFrenzyMatchInfo.MatchPhase.AUTONOMOUS) {
-           webcamRight.setMillisecondsPermissionTimeout(2500);
-            activeWebcam = webcamRight;
-        }
-        if (capabilities.contains(Subsystem.WEBCAM_RIGHT) && color == FreightFrenzyStartSpot.BLUE_WAREHOUSE && FreightFrenzyMatchInfo.getMatchPhase() == FreightFrenzyMatchInfo.MatchPhase.AUTONOMOUS) {
-            webcamRight.setMillisecondsPermissionTimeout(2500); // Timeout for obtaining permission is configurable. Set before opening.
-            activeWebcam = webcamRight;
+                        webcamRight.setMillisecondsPermissionTimeout(2500);
+                        activeWebcam = webcamRight;
+                    }
+                    break;
+            }
         }
         if (capabilities.contains(Subsystem.INTAKE)) {
             intake = new FFIntake(hardwareMap, telemetry);
@@ -218,7 +228,9 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
             opMode.idle();
         }
     }
-
+    public String getCameraName(){
+        return activeWebcamName;
+    }
     /*
      * Every system must tell us when its init is complete. When all of the inits are complete, the
      * robot init is complete.
