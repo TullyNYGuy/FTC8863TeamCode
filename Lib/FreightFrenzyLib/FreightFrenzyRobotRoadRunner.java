@@ -213,6 +213,7 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
     public void init() {
         dataLog.logData("Init starting");
         initPartOne();
+        if(initPartOne()) {
         for (FTCRobotSubsystem subsystem : subsystemMap.values()) {
             subsystem.setDataLog(dataLog);
             subsystem.enableDataLogging();
@@ -223,17 +224,19 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
         }
 
         // wait until all the updates are complete or until the timer has expired
-        timer.reset();
-        while (!isInitComplete() && !initPartOne()) {
-            update();
 
-            if (timer.milliseconds() > 5000) {
-                // something went wrong with the inits. They never finished. Proceed anyway
-                dataLog.logData("Init failed to complete on time. Proceeding anyway!");
-                break;
+            timer.reset();
+            while (!isInitComplete()) {
+                update();
+
+                if (timer.milliseconds() > 5000) {
+                    // something went wrong with the inits. They never finished. Proceed anyway
+                    dataLog.logData("Init failed to complete on time. Proceeding anyway!");
+                    break;
+                }
+                telemetry.update();
+                opMode.idle();
             }
-            telemetry.update();
-            opMode.idle();
         }
     }
     boolean isLiftInit;
