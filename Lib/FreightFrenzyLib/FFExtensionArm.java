@@ -40,6 +40,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
         MOVE_SERVO_TO_3,
         // EXTEND_TO_FINAL_POSITION,
         EXTENDED_AT_FINAL_POSITION,
+        LINING_UP_DUMP,
         WAITING_TO_DUMP,
         DUMP_INTO_TOP,
         DUMP_INTO_MIDDLE,
@@ -143,6 +144,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
         deliveryServo.addPosition( "DumpIntoTop",0.05,500, TimeUnit.MILLISECONDS);
         deliveryServo.addPosition( "DumpIntoMiddle",0.1,500, TimeUnit.MILLISECONDS);
         deliveryServo.addPosition( "DumpIntoBottom",0.13,500, TimeUnit.MILLISECONDS);
+        deliveryServo.addPosition( "LineUpDump",0.2,500, TimeUnit.MILLISECONDS);
 
         timer = new ElapsedTime();
         
@@ -268,6 +270,10 @@ public class FFExtensionArm implements FTCRobotSubsystem {
 
     public void deliveryServoToParallelPosition() {
         deliveryServo.setPosition("Parallel");
+    }
+
+    private void deliveryServoToLineUpDumpPosition() {
+        deliveryServo.setPosition("LineUpDump");
     }
 
     public boolean isDeliverServoPositionReached() {
@@ -509,14 +515,23 @@ public class FFExtensionArm implements FTCRobotSubsystem {
                             break;
                         case EXTEND_TO_MIDDLE:
                             currentDeliverBucketLocation = DeliveryBucketLocation.MIDDLE;
+                            // help the driver line up the dump
+                            deliveryServoToLineUpDumpPosition();
                             break;
                         case EXTEND_TO_BOTTOM:
                             currentDeliverBucketLocation = DeliveryBucketLocation.BOTTOM;
+                            // help the driver line up the dump
+                            deliveryServoToLineUpDumpPosition();
                             break;
                     }
+                    liftState = LiftState.LINING_UP_DUMP;
+                }
+            }
+            break;
+
+            case LINING_UP_DUMP: {
+                if (isDeliverServoPositionReached()) {
                     liftState = LiftState.WAITING_TO_DUMP;
-                    // unlock the commands so a new command will be acted upon
-                    commandComplete = true;
                 }
             }
             break;
@@ -524,6 +539,8 @@ public class FFExtensionArm implements FTCRobotSubsystem {
 
             case WAITING_TO_DUMP: {
                 //this is essentially just Idle with a different name. waiting for driver to line up & push dump button
+                // unlock the commands so a new command will be acted upon
+                commandComplete = true;
             }
             break;
 
