@@ -77,21 +77,26 @@ public class FFExtensionArm implements FTCRobotSubsystem {
     private FFExtensionArm.InitState initState = InitState.IDLE;
     private Servo8863New deliveryServo;
     private ElapsedTime timer;
+    private AllianceColor allianceColor;
     //*********************************************************************************************
     //          Constructors
     //
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
-    public FFExtensionArm(HardwareMap hardwareMap, Telemetry telemetry){
+    public FFExtensionArm(AllianceColor allianceColor, HardwareMap hardwareMap, Telemetry telemetry){
+        this.allianceColor = allianceColor;
+
         ffExtensionArm = new ExtensionRetractionMechanism(hardwareMap, telemetry,
                 "lift",
-                "extensionLimitSwitch",
-                "retractionLimitSwitch",
-                "extensionArmMotor",
+                FreightFrenzyRobotRoadRunner.HardwareName.LIFT_LIMIT_SWITCH_EXTENSION.hwName,
+                FreightFrenzyRobotRoadRunner.HardwareName.LIFT_LIMIT_SWITCH_RETRACTION.hwName,
+                FreightFrenzyRobotRoadRunner.HardwareName.LIFT_MOTOR.hwName,
                 DcMotor8863.MotorType.GOBILDA_435,
                 4.517);
-        ffExtensionArm.reverseMotorDirection();
+        if (allianceColor == AllianceColor.BLUE) {
+            ffExtensionArm.reverseMotorDirection();
+        }
 
         ffExtensionArm.setResetTimerLimitInmSec(25000);
         ffExtensionArm.setExtensionPower(0.9);
@@ -228,6 +233,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
         //this commnad is the button press for dumping freight into the hub
         liftState = LiftState.DUMP;
     }
+
     public void extend(){
         //command to start extension
         liftState = LiftState.EXTEND;
@@ -329,10 +335,6 @@ public class FFExtensionArm implements FTCRobotSubsystem {
 
             case WAITING_TO_DUMP: {
                 //this is essentially just Idle with a different name. waiting for driver to line up & push dump button
-
-
-
-
             }
             break;
 

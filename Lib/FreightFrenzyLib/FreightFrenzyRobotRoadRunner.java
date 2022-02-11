@@ -52,7 +52,8 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
         INTAKE_SENSOR("intakeSensor"),
         INTAKE_ROTATE_SERVO("intakeRotateServo"),
         LIFT_MOTOR("extensionArmMotor"),
-        LIFT_LIMIT_SWITCH_R("retractionLimitSwitch"),
+        LIFT_LIMIT_SWITCH_RETRACTION("retractionLimitSwitch"),
+        LIFT_LIMIT_SWITCH_EXTENSION("extensionLimitSwitch"),
         LIFT_SERVO("deliveryServo")
 
         ;
@@ -84,6 +85,7 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
     private FreightFrenzyMatchInfo robotMode;
     Map<String, FTCRobotSubsystem> subsystemMap;
     private FreightFrenzyStartSpot color;
+    private AllianceColor allianceColor;
 
     private ElapsedTime timer;
     private LinearOpMode opMode;
@@ -124,9 +126,12 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
         setCapabilities(Subsystem.values());
         enableDataLogging();
         color = FreightFrenzyStartSpot.BLUE_WALL;
-        if(PersistantStorage.getStartSpot() != null){color = PersistantStorage.getStartSpot();
-        }else{ color = FreightFrenzyStartSpot.BLUE_WALL;}
-
+        if(PersistantStorage.getStartSpot() != null){
+            color = PersistantStorage.getStartSpot();
+        }else{
+            color = FreightFrenzyStartSpot.BLUE_WALL;
+        }
+        allianceColor = AllianceColor.getAllianceColor(color);
     }
 
     /*
@@ -138,9 +143,10 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
 
     public void setColor(FreightFrenzyStartSpot color) {
         this.color = color;
+        allianceColor = AllianceColor.getAllianceColor(color);
     }
-    public FreightFrenzyStartSpot getColor(){
 
+    public FreightFrenzyStartSpot getColor(){
         return color;
     }
     /**
@@ -168,7 +174,8 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
         }
 
         if (capabilities.contains(Subsystem.LIFT)) {
-            lift = new FFExtensionArm(hardwareMap, telemetry);
+            // the extension arm needs to know what the alliance color is because motors and servos have to get reversed
+            lift = new FFExtensionArm(allianceColor, hardwareMap, telemetry);
             subsystemMap.put(lift.getName(), lift);
         }
         // THE WEBCAM PROCESSING TAKES UP A BUNCH OF RESOURCES. PROBABLY NOT A GOOD IDEA TO RUN THIS IN TELEOP
