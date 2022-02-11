@@ -8,12 +8,12 @@ package org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib;
  *    / Right JoystickX  - robot rotation
  *    / Right JoystickY  -
  *    / DPad Up          - reset heading for driver mode
- *    / DPad Left        -full power
- *    / DPad Down        - set control pad 2
- *    / DPad Right       -half power
+ *    / DPad Left        -
+ *    / DPad Down        - toggle mode (driver or robot)
+ *    / DPad Right       - eject into level 1
  *    / A                - turn intake on and deliver
  *    / B                - turn intake off
- *    / X                - eject into level 1
+ *    / X                - delivery extend/dump
  *    / Y                - eject at intake position
  *    /Left Bumper       - Half Power
  *    /Right Bumper      - Full Power
@@ -25,10 +25,10 @@ package org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib;
  *    / Right JoystickY  -
  *    / DPad Up          - TSE arm storage with TSE
  *    / DPad Left        -
- *    / DPad Down        -  TSE line up
+ *    / DPad Down        - TSE line up
  *    / DPad Right       -
  *    / A                - TSE arm storage TSE
- *    / B                -
+ *    / B                - TSE arm carry TSE
  *    / X                - TSE arm drop TSE
  *    / Y                - TSE arm pickup TSE
  *   /Left Bumper        - toggle duck spinner
@@ -48,17 +48,6 @@ import org.firstinspires.ftc.teamcode.opmodes.FreightFrenzy.TeleopUsingRoadRunne
 
 public class FreightFrenzyGamepad {
 
-    public enum ControlPad  {
-        ONE,
-        TWO
-    }
-    ControlPad controlPad = ControlPad.ONE;
-    public void setControlPad(ControlPad controlTo){
-        controlPad = controlTo;
-    }
-    public FreightFrenzyGamepad.ControlPad getControlPad(){
-        return controlPad;
-    }
     //*********************************************************************************************
     //          ENUMERATED TYPES
     //
@@ -197,7 +186,7 @@ public class FreightFrenzyGamepad {
         gamepad2RightBumper = new GamepadButtonMultiPush(1);
         gamepad2LeftBumper = new GamepadButtonMultiPush(1);
         gamepad2a = new GamepadButtonMultiPush(2);
-        gamepad2b = new GamepadButtonMultiPush(2);
+        gamepad2b = new GamepadButtonMultiPush(1);
         gamepad2y = new GamepadButtonMultiPush(2);
         gamepad2x = new GamepadButtonMultiPush(1);
         gamepad2DpadDown = new GamepadButtonMultiPush(1);
@@ -271,7 +260,7 @@ public class FreightFrenzyGamepad {
 
         if (gamepad1a.buttonPress(gamepad1.a)) {
             if (gamepad1a.isCommand1()) {
-                robot.intake.intakeAndHold();
+                robot.intake.intakeAndDeliver();
             }
             if (gamepad1a.isCommand2()) {
                 robot.intake.turnOff();
@@ -288,10 +277,10 @@ public class FreightFrenzyGamepad {
 
         if (gamepad1x.buttonPress(gamepad1.x)) {
             if (gamepad1x.isCommand1()) {
-                robot.intake.lineUpToEjectIntoLevel1();
+                robot.lift.extend();
             }
             if (gamepad1x.isCommand2()) {
-                robot.intake.ejectIntoLevel1();
+                robot.lift.dump();
             }
         }
 
@@ -300,8 +289,9 @@ public class FreightFrenzyGamepad {
         }
 
         if (gamepad1DpadDown.buttonPress(gamepad1.dpad_down)) {
-
-            setControlPad(ControlPad.TWO);
+            // this was a new button press, not a button held down for a while
+            // put the command to be executed here
+            // robot.toggleMode();
         }
 
         if (gamepad1DpadLeft.buttonPress(gamepad1.dpad_left)) {
@@ -322,6 +312,7 @@ public class FreightFrenzyGamepad {
         if (gamepad1DpadRight.buttonPress(gamepad1.dpad_right)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
+            robot.intake.ejectIntoLevel1();
 
         }
 
@@ -339,19 +330,12 @@ public class FreightFrenzyGamepad {
         // Gamepad 1 joysticks
         //**************************************************************************************
 
-        if(controlPad == ControlPad.ONE) {
-            gamepad1LeftJoyStickXValue = gamepad1LeftJoyStickX.getValue();
-            gamepad1LeftJoyStickYValue = gamepad1LeftJoyStickY.getValue();
+        gamepad1LeftJoyStickXValue = gamepad1LeftJoyStickX.getValue();
+        gamepad1LeftJoyStickYValue = gamepad1LeftJoyStickY.getValue();
 
-            gamepad1RightJoyStickXValue = gamepad1RightJoyStickX.getValue();
-            gamepad1RightJoyStickYValue = gamepad1RightJoyStickY.getValue();
-        } else {
-            gamepad1LeftJoyStickXValue = gamepad2LeftJoyStickX.getValue();
-            gamepad1LeftJoyStickYValue = gamepad2LeftJoyStickY.getValue();
+        gamepad1RightJoyStickXValue = gamepad1RightJoyStickX.getValue();
+        gamepad1RightJoyStickYValue = gamepad1RightJoyStickY.getValue();
 
-            gamepad1RightJoyStickXValue = gamepad2RightJoyStickX.getValue();
-            gamepad1RightJoyStickYValue = gamepad2RightJoyStickY.getValue();
-        }
         //**************************************************************************************
         // Gamepad 2 buttons
         //**************************************************************************************
@@ -394,12 +378,11 @@ public class FreightFrenzyGamepad {
         }
 
         if (gamepad2a.buttonPress(gamepad2.a)) {
-           robot.arm.storage();
+            robot.arm.storage();
         }
 
         if (gamepad2b.buttonPress(gamepad2.b)) {
-            if(gamepad2DpadRight.isCommand1()){robot.duckSpinner.turnOn();}
-            if(gamepad2DpadRight.isCommand2()){robot.duckSpinner.turnOff();}
+
         }
 
         if (gamepad2y.buttonPress(gamepad2.y)) {
@@ -424,13 +407,14 @@ public class FreightFrenzyGamepad {
         }
 
         if (gamepad2DpadLeft.buttonPress(gamepad2.dpad_left)) {
-
-                setControlPad(ControlPad.ONE);
+            // this was a new button press, not a button held down for a while
+            // put the command to be executed here
 
         }
 
         if (gamepad2DpadRight.buttonPress(gamepad2.dpad_right)) {
-
+            if(gamepad2DpadRight.isCommand1()){robot.duckSpinner.turnOn();}
+            if(gamepad2DpadRight.isCommand2()){robot.duckSpinner.turnOff();}
 
         }
 
@@ -448,20 +432,11 @@ public class FreightFrenzyGamepad {
         // Gamepad 2 joysticks
         //**************************************************************************************
 
-        if(controlPad == ControlPad.ONE) {
-            gamepad2LeftJoyStickXValue = gamepad2LeftJoyStickX.getValue();
-            gamepad2LeftJoyStickYValue = gamepad2LeftJoyStickY.getValue();
+        gamepad2LeftJoyStickXValue = gamepad2LeftJoyStickX.getValue();
+        gamepad2LeftJoyStickYValue = gamepad2LeftJoyStickY.getValue();
 
-            gamepad2RightJoyStickXValue = gamepad2RightJoyStickX.getValue();
-            gamepad2RightJoyStickYValue = gamepad2RightJoyStickY.getValue();
-        } else {
-            gamepad2LeftJoyStickXValue = gamepad1LeftJoyStickX.getValue();
-            gamepad2LeftJoyStickYValue = gamepad1LeftJoyStickY.getValue();
-
-            gamepad2RightJoyStickXValue = gamepad1RightJoyStickX.getValue();
-            gamepad2RightJoyStickYValue = gamepad1RightJoyStickY.getValue();
-
-        }
+        gamepad2RightJoyStickXValue = gamepad2RightJoyStickX.getValue();
+        gamepad2RightJoyStickYValue = gamepad2RightJoyStickY.getValue();
     }
 
     public void displayGamepad1JoystickValues(Telemetry telemetry) {
@@ -477,7 +452,6 @@ public class FreightFrenzyGamepad {
         telemetry.addData("2-rightJoyStickY = ", gamepad2RightJoyStickYValue);
         telemetry.addData("2-rightJoyStickX = ", gamepad2RightJoyStickXValue);
     }
-
 
 }
 

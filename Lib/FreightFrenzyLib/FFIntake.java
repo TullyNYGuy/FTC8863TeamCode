@@ -61,7 +61,7 @@ public class FFIntake implements FTCRobotSubsystem {
         HOLD_IT
     }
 
-    private WhatToDoWithFreight whatToDoWithFreight = WhatToDoWithFreight.HOLD_IT;
+    private WhatToDoWithFreight whatToDoWithFreight = WhatToDoWithFreight.DELIVER_TO_BUCKET;
 
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS AND SETTERS and GETTERS
