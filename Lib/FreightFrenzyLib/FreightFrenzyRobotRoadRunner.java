@@ -236,12 +236,17 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
             opMode.idle();
         }
     }
+    boolean isLiftInit;
     public boolean initPartOne(){
+        isLiftInit = false;
         lift.init(config);
         while(!lift.isInitComplete()){
-            update();
+            lift.update();
         }
-       return true;
+       if(lift.isInitComplete()){
+           isLiftInit = true;
+       }
+       return isLiftInit;
     }
 
 
