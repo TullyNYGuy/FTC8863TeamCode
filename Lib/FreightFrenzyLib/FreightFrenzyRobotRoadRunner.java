@@ -212,6 +212,7 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
     @Override
     public void init() {
         dataLog.logData("Init starting");
+        initPartOne();
         for (FTCRobotSubsystem subsystem : subsystemMap.values()) {
             subsystem.setDataLog(dataLog);
             subsystem.enableDataLogging();
@@ -223,7 +224,7 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
 
         // wait until all the updates are complete or until the timer has expired
         timer.reset();
-        while (!isInitComplete()) {
+        while (!isInitComplete() && !initPartOne()) {
             update();
 
             if (timer.milliseconds() > 5000) {
@@ -235,6 +236,16 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
             opMode.idle();
         }
     }
+    public boolean initPartOne(){
+        lift.init(config);
+        while(!lift.isInitComplete()){
+            update();
+        }
+       return true;
+    }
+
+
+
 
     /*
      * Every system must tell us when its init is complete. When all of the inits are complete, the
