@@ -8,31 +8,31 @@ package org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib;
  *    / Right JoystickX  - robot rotation
  *    / Right JoystickY  -
  *    / DPad Up          - reset heading for driver mode
- *    / DPad Left        -
+ *    / DPad Left        - full power (1st press), half power (2nd press)
  *    / DPad Down        - toggle mode (driver or robot)
  *    / DPad Right       - eject into level 1
- *    / A                - turn intake on and deliver
- *    / B                - turn intake off
+ *    / A                - turn intake on and deliver, second press turn intake off
+ *    / B                - open/close claw toggle
  *    / X                - delivery extend/dump
  *    / Y                - eject at intake position
- *    /Left Bumper       - Half Power
- *    /Right Bumper      - Full Power
+ *    /Left Bumper       -
+ *    /Right Bumper      -
  *
  *  Gamepad 2 layout
  *    / Left JoystickX   -
  *    / Left JoystickY   -
  *    / Right JoystickX  -
  *    / Right JoystickY  -
- *    / DPad Up          - TSE arm storage with TSE
+ *    / DPad Up          - arm stores element
  *    / DPad Left        -
- *    / DPad Down        - TSE line up
- *    / DPad Right       -
- *    / A                - TSE arm storage TSE
- *    / B                - TSE arm carry TSE
- *    / X                - TSE arm drop TSE
- *    / Y                - TSE arm pickup TSE
- *   /Left Bumper        - toggle duck spinner
- *   /Right Bumper       - Toggle claw
+ *    / DPad Down        - arm lines up team shipping element (prepare for drop off)
+ *    / DPad Right       - duck spinner on (1), duck spinner off (2)
+ *    / A                - arm folds away without shipping element
+ *    / B                -
+ *    / X                - arm lowers team shipping element to drop off position
+ *    / Y                - arm goes to position to pick up team shipping element
+ *   /Left Bumper        -
+ *   /Right Bumper       -
  */
 
 import com.qualcomm.robotcore.hardware.Gamepad;
