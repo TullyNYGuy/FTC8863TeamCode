@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.opmodes.FreightFrenzyTest;
 
-import android.graphics.HardwareRenderer;
-
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -12,7 +10,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Test Lift Limit Switches", group = "Test")
+@TeleOp(name = "Test Lift Switches", group = "Test")
 //@Disabled
 public class TestLiftLimitSwitches extends LinearOpMode {
 
@@ -24,15 +22,18 @@ public class TestLiftLimitSwitches extends LinearOpMode {
 
 
         // Put your initializations here
-        lift = new ExtensionRetractionMechanism(hardwareMap,
-                telemetry,
-                "lift",
-                "ExtensionLimitSwitch",
-                "RetractionLimitSwitch",
-                "LiftMotor",
-                DcMotor8863.MotorType.ANDYMARK_40,
-                3.9375);
+        lift = new ExtensionRetractionMechanism(hardwareMap, telemetry,
+                "Lift",
+                "extensionLimitSwitch",
+                "retractionLimitSwitch",
+                "extensionArmMotor",
+                DcMotor8863.MotorType.GOBILDA_435,
+                4.517);
+        // This is for the blue alliance
+        //lift.reverseMotorDirection();
 
+        // this is for the red alliance
+        lift.forwardMotorDirection();
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
@@ -41,10 +42,14 @@ public class TestLiftLimitSwitches extends LinearOpMode {
 
         // Put your calls here - they will not run in a loop
 
-
         while (opModeIsActive()) {
+
+            // Put your calls that need to run in a loop here
+
             lift.testLimitSwitches();
+            telemetry.addData(">", "Press Stop to end test.");
             telemetry.update();
+
             idle();
         }
 

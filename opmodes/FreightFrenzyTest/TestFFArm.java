@@ -33,58 +33,91 @@ public class TestFFArm extends LinearOpMode {
 
         arm.storage();
         while (opModeIsActive() && !arm.isPositionReached()) {
+            arm.update();
+            telemetry.addData("moving to storage position","!");
+            telemetry.update();
             idle();
         }
 
         timer.reset();
         while (opModeIsActive() && timer.milliseconds() < 2000) {
+            arm.update();
+            telemetry.addData("at storage position","!");
+            telemetry.update();
             idle();
         }
 
-        arm.carry();
+        /*arm.carry();
         while (opModeIsActive() && !arm.isPositionReached()) {
+            arm.update();
+            telemetry.addData("moving to carry position","!");
+            telemetry.update();
             idle();
         }
 
         timer.reset();
         while (opModeIsActive() && timer.milliseconds() < 2000) {
+            arm.update();
+            telemetry.addData("at carry position","!");
+            telemetry.update();
             idle();
-        }
+        }*/
 
         arm.pickup();
         while (opModeIsActive() && !arm.isPositionReached()) {
+            arm.update();
+            telemetry.addData("moving to pickup position","!");
+            telemetry.update();
             idle();
         }
 
 
         timer.reset();
         while (opModeIsActive() && timer.milliseconds() < 2000) {
+            arm.update();
+            telemetry.addData("at pickup position","!");
+            telemetry.update();
             idle();
         }
 
-        arm.carry();
+        /*arm.carry();
         while (opModeIsActive() && !arm.isPositionReached()) {
+            arm.update();
+            telemetry.addData("moving to carry position","!");
+            telemetry.update();
             idle();
         }
 
         timer.reset();
         while (opModeIsActive() && timer.milliseconds() < 2000) {
+            arm.update();
+            telemetry.addData("at carry position","!");
+            telemetry.update();
             idle();
         }
-
+*/
         arm.dropoff();
         while (opModeIsActive() && !arm.isPositionReached()) {
+        arm.update();
+        telemetry.addData("moving to dropoff position","!");
+        telemetry.update();
             idle();
         }
 
         timer.reset();
         while (opModeIsActive() && timer.milliseconds() < 2000) {
+              arm.update();
+            telemetry.addData("at dropoff position","!");
+          telemetry.update();
             idle();
         }
 
-        arm.openClaw();
+        arm.closeClaw();
 
         while (opModeIsActive()) {
+              arm.update();
+            telemetry.addData("claw closing","!");
+          telemetry.update();
             idle();
         }
 

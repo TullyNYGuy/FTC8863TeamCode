@@ -3,15 +3,11 @@ package org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.CRServo8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863;
-import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.UltimateGoalRobotRoadRunner;
 
 public class DuckSpinner implements FTCRobotSubsystem {
     private enum SpinnerState{
@@ -23,15 +19,20 @@ public class DuckSpinner implements FTCRobotSubsystem {
     private DataLogging logFile;
     private boolean loggingOn = false;
     private boolean initComplete = false;
-    private FreightFrenzyColor color = PersistantStorage.getColor();
+    private FreightFrenzyStartSpot color = PersistantStorage.getStartSpot();
     private final String  DUCK_SPINNER_NAME = "Duck Spinner";
     public DuckSpinner(HardwareMap hardwareMap, Telemetry telemetry){
         duckSpinner = hardwareMap.get(CRServo.class,FreightFrenzyRobotRoadRunner.HardwareName.DUCK_SPINNER.hwName);
-        if(color == FreightFrenzyColor.BLUE){
-            duckSpinner.setDirection(DcMotorSimple.Direction.FORWARD);
-            }
-        if(color == FreightFrenzyColor.RED){
-            duckSpinner.setDirection(DcMotorSimple.Direction.REVERSE);}
+        switch(color){
+            case BLUE_WAREHOUSE:duckSpinner.setDirection(DcMotorSimple.Direction.FORWARD);
+            break;
+            case RED_WAREHOUSE:duckSpinner.setDirection(DcMotorSimple.Direction.REVERSE);
+            break;
+            case RED_WALL:duckSpinner.setDirection(DcMotorSimple.Direction.REVERSE);
+            break;
+            case BLUE_WALL:duckSpinner.setDirection(DcMotorSimple.Direction.FORWARD);
+            break;
+        }
         duckSpinner.setPower(0);
        initComplete = true;
        spinnerState = SpinnerState.OFF;

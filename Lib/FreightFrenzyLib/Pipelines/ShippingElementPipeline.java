@@ -23,6 +23,7 @@ package org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.Pipelines;
 
 
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyMatchInfo;
+import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.PersistantStorage;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
@@ -46,7 +47,8 @@ public class ShippingElementPipeline extends OpenCvPipeline {
     public enum ShippingPosition {
         LEFT,
         CENTER,
-        RIGHT
+        RIGHT,
+        UNKNOWN
     }
 
     // default, change this is EOCVSim to test other modes
@@ -61,11 +63,14 @@ public class ShippingElementPipeline extends OpenCvPipeline {
     /*
      * The core values which define the location and size of the sample regions
      */
-    static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(350, 350);
-    static final Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(550, 340);
-    static final Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(860, 340);
-    static final int REGION_WIDTH = 100;
-    static final int REGION_HEIGHT = 100;
+    static final Point REGION1_TOPLEFT_ANCHOR_POINT_LEFT_CAM = new Point(140, 350);
+    static final Point REGION2_TOPLEFT_ANCHOR_POINT_LEFT_CAM = new Point(650, 350);
+    static final Point REGION3_TOPLEFT_ANCHOR_POINT_LEFT_CAM = new Point(1100, 350);
+    static final Point REGION1_TOPLEFT_ANCHOR_POINT_RIGHT_CAM = new Point(100, 350);
+    static final Point REGION2_TOPLEFT_ANCHOR_POINT_RIGHT_CAM = new Point(600, 350);
+    static final Point REGION3_TOPLEFT_ANCHOR_POINT_RIGHT_CAM = new Point(1100, 350);
+    static final int REGION_WIDTH = 50;
+    static final int REGION_HEIGHT = 50;
 
     /*
      * Points which actually define the sample region rectangles, derived from above values
@@ -84,24 +89,15 @@ public class ShippingElementPipeline extends OpenCvPipeline {
      *   ------------------------------------
      *
      */
-    Point region1_pointA = new Point(
-            REGION1_TOPLEFT_ANCHOR_POINT.x,
-            REGION1_TOPLEFT_ANCHOR_POINT.y);
-    Point region1_pointB = new Point(
-            REGION1_TOPLEFT_ANCHOR_POINT.x + REGION_WIDTH,
-            REGION1_TOPLEFT_ANCHOR_POINT.y + REGION_HEIGHT);
-    Point region2_pointA = new Point(
-            REGION2_TOPLEFT_ANCHOR_POINT.x,
-            REGION2_TOPLEFT_ANCHOR_POINT.y);
-    Point region2_pointB = new Point(
-            REGION2_TOPLEFT_ANCHOR_POINT.x + REGION_WIDTH,
-            REGION2_TOPLEFT_ANCHOR_POINT.y + REGION_HEIGHT);
-    Point region3_pointA = new Point(
-            REGION3_TOPLEFT_ANCHOR_POINT.x,
-            REGION3_TOPLEFT_ANCHOR_POINT.y);
-    Point region3_pointB = new Point(
-            REGION3_TOPLEFT_ANCHOR_POINT.x + REGION_WIDTH,
-            REGION3_TOPLEFT_ANCHOR_POINT.y + REGION_HEIGHT);
+
+
+
+        Point region1_pointA;
+        Point region1_pointB;
+        Point region2_pointA;
+        Point region2_pointB;
+        Point region3_pointA;
+        Point region3_pointB;
 
     /*
      * Working variables
@@ -112,7 +108,7 @@ public class ShippingElementPipeline extends OpenCvPipeline {
     int avg1, avg2, avg3;
 
     // Volatile since accessed by OpMode thread w/o synchronization
-    private volatile ShippingPosition position = ShippingPosition.LEFT;
+    private volatile ShippingPosition position = ShippingPosition.UNKNOWN;
 
     /*
      * This function takes the RGB frame, converts to YCrCb,
@@ -125,6 +121,54 @@ public class ShippingElementPipeline extends OpenCvPipeline {
 
     @Override
     public void init(Mat firstFrame) {
+        switch(PersistantStorage.getStartSpot()) {
+            case BLUE_WAREHOUSE:
+
+            case BLUE_WALL:
+                region1_pointA = new Point(
+                        REGION1_TOPLEFT_ANCHOR_POINT_RIGHT_CAM.x,
+                        REGION1_TOPLEFT_ANCHOR_POINT_RIGHT_CAM.y);
+                region1_pointB = new Point(
+                        REGION1_TOPLEFT_ANCHOR_POINT_RIGHT_CAM.x + REGION_WIDTH,
+                        REGION1_TOPLEFT_ANCHOR_POINT_RIGHT_CAM.y + REGION_HEIGHT);
+                region2_pointA = new Point(
+                        REGION2_TOPLEFT_ANCHOR_POINT_RIGHT_CAM.x,
+                        REGION2_TOPLEFT_ANCHOR_POINT_RIGHT_CAM.y);
+                region2_pointB = new Point(
+                        REGION2_TOPLEFT_ANCHOR_POINT_RIGHT_CAM.x + REGION_WIDTH,
+                        REGION2_TOPLEFT_ANCHOR_POINT_RIGHT_CAM.y + REGION_HEIGHT);
+                region3_pointA = new Point(
+                        REGION3_TOPLEFT_ANCHOR_POINT_RIGHT_CAM.x,
+                        REGION3_TOPLEFT_ANCHOR_POINT_RIGHT_CAM.y);
+                region3_pointB = new Point(
+                        REGION3_TOPLEFT_ANCHOR_POINT_RIGHT_CAM.x + REGION_WIDTH,
+                        REGION3_TOPLEFT_ANCHOR_POINT_RIGHT_CAM.y + REGION_HEIGHT);
+                break;
+            case RED_WAREHOUSE:
+
+            case RED_WALL:
+                region1_pointA = new Point(
+                        REGION1_TOPLEFT_ANCHOR_POINT_LEFT_CAM.x,
+                        REGION1_TOPLEFT_ANCHOR_POINT_LEFT_CAM.y);
+                region1_pointB = new Point(
+                        REGION1_TOPLEFT_ANCHOR_POINT_LEFT_CAM.x + REGION_WIDTH,
+                        REGION1_TOPLEFT_ANCHOR_POINT_LEFT_CAM.y + REGION_HEIGHT);
+                region2_pointA = new Point(
+                        REGION2_TOPLEFT_ANCHOR_POINT_LEFT_CAM.x,
+                        REGION2_TOPLEFT_ANCHOR_POINT_LEFT_CAM.y);
+                region2_pointB = new Point(
+                        REGION2_TOPLEFT_ANCHOR_POINT_LEFT_CAM.x + REGION_WIDTH,
+                        REGION2_TOPLEFT_ANCHOR_POINT_LEFT_CAM.y + REGION_HEIGHT);
+                region3_pointA = new Point(
+                        REGION3_TOPLEFT_ANCHOR_POINT_LEFT_CAM.x,
+                        REGION3_TOPLEFT_ANCHOR_POINT_LEFT_CAM.y);
+                region3_pointB = new Point(
+                        REGION3_TOPLEFT_ANCHOR_POINT_LEFT_CAM.x + REGION_WIDTH,
+                        REGION3_TOPLEFT_ANCHOR_POINT_LEFT_CAM.y + REGION_HEIGHT);
+                break;
+
+
+        }
         /*
          * We need to call this in order to make sure the 'Cb'
          * object is initialized, so that the submats we make

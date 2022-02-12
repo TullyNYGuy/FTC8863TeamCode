@@ -44,6 +44,7 @@ public class ClawServo{
         clawServo.addPosition("open", .0, 1000, TimeUnit.MILLISECONDS);
         clawServo.addPosition("open plus delay", .0, 500, 1000, TimeUnit.MILLISECONDS);
         clawServo.addPosition("close", .58,1000, TimeUnit.MILLISECONDS);
+        clawServo.addPosition("close plus delay", .58, 500, 1000, TimeUnit.MILLISECONDS);
         close();
 
     }
@@ -71,6 +72,8 @@ public class ClawServo{
     public void close() {
         clawServo.setPosition("close");
     }
+
+    public void closePlusDelay(){clawServo.setPosition("close plus delay");}
 
     public boolean isPositionReached() {
         return clawServo.isPositionReached();

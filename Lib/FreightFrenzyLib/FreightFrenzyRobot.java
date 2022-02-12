@@ -21,6 +21,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometryModule;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometrySystem;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.RobotPosition;
+import org.firstinspires.ftc.teamcode.opmodes.FreightFrenzy.TeleopUsingRoadRunnerFreightFrenzy;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
@@ -272,6 +273,22 @@ public class FreightFrenzyRobot implements FTCRobot {
         }
     }
 
+    public void toggleMode(){
+        if(currentMode == RobotMode.DRIVER_MODE){
+            setMode(RobotMode.ROBOT_MODE);
+        }
+        else if (currentMode == RobotMode.ROBOT_MODE){
+            setMode(RobotMode.DRIVER_MODE);
+        }
+    }
+    private RobotMode currentMode;
+    public RobotMode getMode(){
+        return currentMode;
+    }
+    public void setMode(RobotMode mode){
+        currentMode = mode;
+
+    }
     @Override
     public boolean isInitComplete() {
         boolean result = true;

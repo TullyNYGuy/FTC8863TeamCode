@@ -11,7 +11,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
-import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyColor;
+import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyStartSpot;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyField;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyMatchInfo;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyRobotRoadRunner;
@@ -40,7 +40,7 @@ public class TeleopUsingRoadRunnerFreightFrenzy extends LinearOpMode {
 
    // public AutomaticTeleopFunctions automaticTeleopFunctions;
     //set color for each game
-    private FreightFrenzyColor color = FreightFrenzyColor.RED;
+    private FreightFrenzyStartSpot color = PersistantStorage.getStartSpot();
     private ElapsedTime timer;
 
     DataLogging dataLog = null;
@@ -74,6 +74,7 @@ public class TeleopUsingRoadRunnerFreightFrenzy extends LinearOpMode {
         robot = new FreightFrenzyRobotRoadRunner(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, this);
         gamepad = new FreightFrenzyGamepad(gamepad1, gamepad2, robot);
         // create the robot and run the init for it
+
         robot.createRobot();
 
         enableBulkReads(hardwareMap, LynxModule.BulkCachingMode.AUTO);
@@ -115,7 +116,8 @@ public class TeleopUsingRoadRunnerFreightFrenzy extends LinearOpMode {
 //        }
 
         // Wait for the start button
-        telemetry.addData(">", "Press start to run Teleop");
+
+        telemetry.addData(">", "Press start to run Teleop (make sure you ran the position setter first!)");
         telemetry.update();
         double multiplier = 1;
         /*
@@ -123,7 +125,9 @@ public class TeleopUsingRoadRunnerFreightFrenzy extends LinearOpMode {
             robot.mecanum.setPoseEstimate(PersistantStorage.robotPose);
             multiplier = -1;
         }
+
 */
+
         robot.setColor(color);
         waitForStart();
 
@@ -142,7 +146,9 @@ public class TeleopUsingRoadRunnerFreightFrenzy extends LinearOpMode {
 
             // The following code uses road runner to move the robot in a driver (field) centric
             // drive
-                robot.mecanum.calculateMotorCommandsFieldCentric(
+
+                robot.mecanum.calculateMotorCommandsRobotCentric(
+
                         gamepad.gamepad1LeftJoyStickYValue * multiplier,
                         gamepad.gamepad1LeftJoyStickXValue * multiplier,
                         gamepad.gamepad1RightJoyStickXValue

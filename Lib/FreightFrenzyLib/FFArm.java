@@ -8,6 +8,8 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
 
+import java.util.Timer;
+
 public class FFArm implements FTCRobotSubsystem {
 
     //*********************************************************************************************
@@ -16,17 +18,30 @@ public class FFArm implements FTCRobotSubsystem {
     // user defined types
     //
     //*********************************************************************************************
-    private enum NextCommand{
-        PICKUP,
-        STORAGE,
-        CARRY,
-        DROPOFF,
-        HOLD,
+    private enum ArmCommand {
+        DOWN,
+        UP,
+
     }
-    private enum ClawState{
+
+    private enum ClawState {
         OPEN,
         CLOSE,
     }
+
+    private enum State {
+        // states for returning to hold position (storage with element)
+        // the idea is to get the arm to slow down before it arrives at the hold position so it
+        // does not overshoot as badly and bang into the robot
+        IDLE,
+        MOVING_TO_HOLD_PRE_POSITION,
+        AT_HOLD_PRE_POSITION,
+        MOVING_TO_HOLD_FINAL_POSITION,
+        AT_HOLD_POSITION
+    }
+
+    private State state;
+
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS AND SETTERS and GETTERS
     //
@@ -35,13 +50,14 @@ public class FFArm implements FTCRobotSubsystem {
     //*********************************************************************************************
     ClawServo clawServo;
     WristServo wristServo;
-    ShoulderServo shoulderServo;
+    ShoulderMotor shoulderMotor;
     private final String ARM_NAME = "Arm";
     private DataLogging logFile;
     private boolean loggingOn = false;
     private Boolean initComplete = false;
-    private NextCommand nextCommand;
+    private ArmCommand armCommand;
     private ClawState clawState;
+
     //*********************************************************************************************
     //          Constructors
     //
@@ -51,8 +67,8 @@ public class FFArm implements FTCRobotSubsystem {
     public FFArm(HardwareMap hardwareMap, Telemetry telemetry) {
         clawServo = new ClawServo(hardwareMap, telemetry);
         wristServo = new WristServo(hardwareMap, telemetry);
-        shoulderServo = new ShoulderServo(hardwareMap, telemetry);
-
+        shoulderMotor = new ShoulderMotor(hardwareMap, telemetry);
+        state = State.IDLE;
     }
     //*********************************************************************************************
     //          Helper Methods
@@ -75,33 +91,45 @@ public class FFArm implements FTCRobotSubsystem {
         clawState = ClawState.CLOSE;
     }
 
-    public void toggleClaw(){
-        if (clawState == ClawState.OPEN){closeClaw();}
-        else if(clawState == ClawState.CLOSE){openClaw();}
+    public void toggleClaw() {
+        if (clawState == ClawState.OPEN) {
+            closeClaw();
+        } else if (clawState == ClawState.CLOSE) {
+            openClaw();
+        }
     }
 /* This is used when we are going to pick up the team shipping element. The claw is lined up with the
 top of the team shipping element at a flat angle. The shoulder is positioned downwards and the wrist
 is also positioned down. */
 
+
+    public void closeAndUp(){
+        switch(armCommand) {
+            case DOWN:
+
+            case UP:
+        }
+    }
     public void pickup() {
-        shoulderServo.down();
+        shoulderMotor.down();
         wristServo.pickup();
         clawServo.open();
         clawState = ClawState.OPEN;
+
     }
 /* The shoulder is in the up position holding the team shipping element while the wrist is in the
 carry position. It is used when we need to drive to the team shipping hub to cap it on top of it. */
 
-    public void carry() {
-        shoulderServo.up();
+   /* public void carry() {
+        shoulderMotor.up();
         wristServo.hold();
         clawServo.close();
         clawState = ClawState.CLOSE;
-    }
+    }*/
 
 
     public void lineUp() {
-        shoulderServo.up();
+        shoulderMotor.up();
         wristServo.lineUp();
         clawServo.close();
         clawState = ClawState.CLOSE;
@@ -110,7 +138,7 @@ carry position. It is used when we need to drive to the team shipping hub to cap
 to use the arm. */
 
     public void storage() {
-        shoulderServo.storage();
+        shoulderMotor.storage();
         wristServo.storage();
         clawServo.close();
         clawState = ClawState.CLOSE;
@@ -118,7 +146,11 @@ to use the arm. */
 
 
     public void storageWithElement() {
-        shoulderServo.storage();
+        //shoulderMotor.hold();
+        // start the movement of the shoulder motor to the hold preposition
+        shoulderMotor.holdPrePosition();
+        // setup to run the state machine associated with this command
+        state = State.MOVING_TO_HOLD_PRE_POSITION;
         wristServo.hold();
         clawServo.close();
         clawState = ClawState.CLOSE;
@@ -128,7 +160,7 @@ open to release the team shipping element. The wrist is positioned in a downward
 claw is positioned so that it is level with the team shipping hub over it. */
 
     public void dropoff() {
-        shoulderServo.up();
+        shoulderMotor.up();
         wristServo.dropOff();
         clawServo.open();
         clawState = ClawState.OPEN;
@@ -139,18 +171,21 @@ claw is positioned so that it is level with the team shipping hub over it. */
      * game. It is the same as storage except that the wrist is point up to the sky
      */
     public void hold() {
-        shoulderServo.storage();
+        shoulderMotor.storage();
         wristServo.hold();
         clawServo.close();
         clawState = ClawState.CLOSE;
     }
 
 
-
-//make a command backlog thing?
+    //make a command backlog thing?
     public boolean isPositionReached() {
         boolean answer = false;
-        if (shoulderServo.isPositionReached() && wristServo.isPositionReached() && clawServo.isPositionReached()) {
+        // the state machine being IDLE means that any state machine associated with a command has
+        // finished running. Since some commands have state machines and other commands do not, we
+        // need to check both isPositionReached (for the commands without state machines) and
+        // state == IDLE (for the commands that have a state machine)
+        if (shoulderMotor.isPositionReached() && state == State.IDLE && wristServo.isPositionReached() && clawServo.isPositionReached()) {
             answer = true;
         }
         return answer;
@@ -176,7 +211,40 @@ claw is positioned so that it is level with the team shipping hub over it. */
 
     @Override
     public void update() {
-    //isPositionReached();
+        shoulderMotor.update();
+        switch (state) {
+            case IDLE:
+                // we just be hanging out in this state waiting for someone to tell us to do
+                // somethin
+                break;
+
+            // These next states are to implement to the command storageWithElement()
+            // The idea is to move the arm to a position that is higher than the shoulder motor
+            // hold position, let it arrive there and once it does arrive there, then move it more
+            // slowly into the final hold position. Hopefully this eliminates the overshoot that the
+            // arm has when moving to the hold position. The better way to do this would be to
+            // implement a PIDF with F accounting for the force of gravity. But there is only so
+            // much time ...
+            case MOVING_TO_HOLD_PRE_POSITION:
+                // is the hold pre-position reached yet?
+                if (shoulderMotor.isPositionReached()) {
+                    // yes so now command the shoulder motor to go to the final hold position
+                    shoulderMotor.holdFinalPosition();
+                    state = State.MOVING_TO_HOLD_FINAL_POSITION;
+                }
+                // if not then just keep looping in this state until the pre position is reached
+                break;
+            case MOVING_TO_HOLD_FINAL_POSITION:
+                if (shoulderMotor.isPositionReached()) {
+                    // yes so the arm has arrived at the final hold position. The shoulder is now
+                    // at IDLE waiting for a new command
+                    state = State.IDLE;
+                }
+                // if not then just keep looping in this state until the hold position is reached
+                break;
+
+                // any states associated with other commands will get inserted into the state machine
+        }
     }
 
     @Override
