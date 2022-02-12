@@ -23,7 +23,7 @@ public class TestDeliveryServo extends LinearOpMode {
     public void runOpMode() {
 
         // Put your initializations here
-        delivery = new FFExtensionArm(AllianceColor.BLUE, hardwareMap, telemetry);
+        delivery = new FFExtensionArm(AllianceColor.RED, hardwareMap, telemetry);
         timer = new ElapsedTime();
 
         // Wait for the start button
@@ -39,37 +39,40 @@ public class TestDeliveryServo extends LinearOpMode {
             idle();
         }
 
-        timer.reset();
-        while (opModeIsActive() && timer.seconds() < 5) {
+        while (opModeIsActive()) {
             idle();
         }
-
-        delivery.deliveryServoToParallelPosition();
-        while (opModeIsActive() && !delivery.isDeliverServoPositionReached()) {
-            telemetry.addData("Moving to Parallel position", ".");
-            telemetry.update();
-            delivery.update();
-            idle();
-        }
-
-
-        timer.reset();
-        while (opModeIsActive() && timer.seconds() < 30) {
-            idle();
-        }
-
-        delivery.deliveryServoToDumpPosition();
-        while (opModeIsActive() && !delivery.isDeliverServoPositionReached()) {
-            telemetry.addData("Moving to Dump position", ".");
-            telemetry.update();
-            delivery.update();
-            idle();
-        }
-
-        timer.reset();
-        while (opModeIsActive() && timer.seconds() < 5) {
-            idle();
-        }
+//        timer.reset();
+//        while (opModeIsActive() && timer.seconds() < 5) {
+//            idle();
+//        }
+//
+//        delivery.deliveryServoToParallelPosition();
+//        while (opModeIsActive() && !delivery.isDeliverServoPositionReached()) {
+//            telemetry.addData("Moving to Parallel position", ".");
+//            telemetry.update();
+//            delivery.update();
+//            idle();
+//        }
+//
+//
+//        timer.reset();
+//        while (opModeIsActive() && timer.seconds() < 5) {
+//            idle();
+//        }
+//
+//        delivery.deliveryServoToDumpIntoTopPosition();
+//        while (opModeIsActive() && !delivery.isDeliverServoPositionReached()) {
+//            telemetry.addData("Moving to Dump position", ".");
+//            telemetry.update();
+//            delivery.update();
+//            idle();
+//        }
+//
+//        timer.reset();
+//        while (opModeIsActive() && timer.seconds() < 5) {
+//            idle();
+//        }
 
         // Put your cleanup code here - it runs as the application shuts down
         telemetry.addData(">", "Done");

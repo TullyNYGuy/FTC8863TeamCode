@@ -748,6 +748,10 @@ public class ExtensionRetractionMechanism {
         extensionRetractionMotor.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
+    public void forwardMotorDirection() {
+        extensionRetractionMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+    }
+
     /**
      * This method is called as part of the shutdown sequence of the robot. You will need to fill
      * in your code here. The code that is here is a suggestion. It also blocks any other method

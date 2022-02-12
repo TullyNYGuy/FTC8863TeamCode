@@ -51,7 +51,7 @@ public Configuration config;
     public void runOpMode() {
 
         // Put your initializations here
-        delivery = new FFExtensionArm(AllianceColor.BLUE, hardwareMap, telemetry);
+        delivery = new FFExtensionArm(AllianceColor.RED, hardwareMap, telemetry);
         timer = new ElapsedTime();
 
         // Wait for the start button
