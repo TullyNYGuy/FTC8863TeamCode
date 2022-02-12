@@ -108,6 +108,7 @@ public class FFIntake implements FTCRobotSubsystem {
         rotateServo.addPosition("Deliver", 1.0, 1000, TimeUnit.MILLISECONDS);
         rotateServo.addPosition("Level 2", .45, 1000, TimeUnit.MILLISECONDS);
         ledBlinker.off();
+        PersistantStorage.isDeliveryFull = true;
     }
 
     //*********************************************************************************************
@@ -185,6 +186,7 @@ public class FFIntake implements FTCRobotSubsystem {
             case WAIT_FOR_FREIGHT: {
                 // do we have something?
                 if (isIntakeFull()) {
+                    PersistantStorage.isDeliveryFull = false;
                     ledBlinker.steadyAmber();
                     // yup stop the motor and try to cage the freight
                     intakeSweeperMotor.runAtConstantRPM(180);
@@ -228,6 +230,7 @@ public class FFIntake implements FTCRobotSubsystem {
                     }
                     else {
                         // done ejecting, time to go back to sleep
+                        PersistantStorage.isDeliveryFull = true;
                         rotateServo.setPosition("Vertical");
                         ledBlinker.steadyGreen();
                         intakeState = IntakeState.IDLE;

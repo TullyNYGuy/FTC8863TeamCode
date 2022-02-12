@@ -8,7 +8,7 @@ import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.Pipelines.ShippingEle
 public class PersistantStorage {
 
     // public static DATA FIELDS that persist between opmodes
-
+    public static boolean isDeliveryFull;
     private static Pose2d startPostion;
     private static Integer motorTicks;
     private static FreightFrenzyStartSpot startSpot;

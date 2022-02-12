@@ -42,9 +42,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.GamepadButtonMultiPush;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.JoyStick;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.SmartJoystick;
 //import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.AutomaticTeleopFunctions;
-import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.PoseStorage;
-import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyRobotRoadRunner;
-import org.firstinspires.ftc.teamcode.opmodes.FreightFrenzy.TeleopUsingRoadRunnerFreightFrenzy;
+
 
 public class FreightFrenzyGamepad {
 
@@ -377,8 +375,11 @@ public class FreightFrenzyGamepad {
         }
 
         if (gamepad2b.buttonPress(gamepad2.b)) {
-            robot.lift.extendToTop();
-            robot.arm.storageWithElement();
+            if(PersistantStorage.isDeliveryFull = true) {
+                robot.lift.extendToTop();
+                robot.arm.storageWithElement();
+                PersistantStorage.isDeliveryFull = false;
+            }
         }
 
         if (gamepad2y.buttonPress(gamepad2.y)) {

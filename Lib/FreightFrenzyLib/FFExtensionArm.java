@@ -233,6 +233,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
 
             case TWO: {
                 if(ffExtensionArm.isPositionReached()){
+
                     deliveryServoToTransferPosition();
                     initState = InitState.DELIVERY_SERVO_MOVING;
                 }
