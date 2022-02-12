@@ -84,7 +84,7 @@ public class AutonomousWithVisionFreightFrenzy extends LinearOpMode {
         timer.reset();
         while (pipeline.getAnalysis() == ShippingElementPipeline.ShippingPosition.UNKNOWN) {
             // TANYA - need the idle so we don't hog all the CPU
-            pipeline.getAnalysis();
+            //pipeline.getAnalysis();
             idle();
             //autonomous.update();
         }
