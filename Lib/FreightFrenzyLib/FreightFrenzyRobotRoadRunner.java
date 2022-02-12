@@ -185,21 +185,25 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
                 case RED_WALL:
                 case RED_WAREHOUSE:
                     if (capabilities.contains(Subsystem.WEBCAM_LEFT)) {
-                        webcamLeft.setMillisecondsPermissionTimeout(2500); // Timeout for obtaining permission is configurable. Set before opening.
-                        activeWebcam = webcamLeft;
+                        // Timeout for obtaining permission is configurable. Set before opening.
+                        //activeWebcam = webcamLeft;
                         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
                         webcamLeft = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "WebcamLeft"), cameraMonitorViewId);
+                        activeWebcam = webcamLeft;
                         activeWebcamName = "webcamLeft";
+                        webcamLeft.setMillisecondsPermissionTimeout(2500);
                     }
                     break;
                 case BLUE_WAREHOUSE:
                 case BLUE_WALL:
                     if (capabilities.contains(Subsystem.WEBCAM_RIGHT)) {
-                        webcamRight.setMillisecondsPermissionTimeout(2500);
-                        activeWebcam = webcamRight;
+
+
                         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
                         webcamRight = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "WebcamRight"), cameraMonitorViewId);
+                        activeWebcam = webcamRight;
                         activeWebcamName = "webcamRight";
+                        webcamRight.setMillisecondsPermissionTimeout(2500);
                     }
                     break;
             }
