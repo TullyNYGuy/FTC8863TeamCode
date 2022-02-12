@@ -13,7 +13,7 @@ package org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib;
  *    / DPad Right       - eject into level 1
  *    / A                - turn intake on and deliver, second press turn intake off
  *    / B                - open/close claw toggle
- *    / X                - delivery extend/dump (also sends the claw to storage with shipping element so that the claw is out of the way)
+ *    / X                - dump
  *    / Y                - eject at intake position
  *    /Left Bumper       -
  *    /Right Bumper      -
@@ -28,7 +28,7 @@ package org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib;
  *    / DPad Down        - arm lines up team shipping element (prepare for drop off)
  *    / DPad Right       - duck spinner on (1), duck spinner off (2)
  *    / A                - arm folds away without shipping element
- *    / B                -
+ *    / B                - delivery extend (also sends the claw to storage with shipping element so that the claw is out of the way)
  *    / X                - arm lowers team shipping element to drop off position
  *    / Y                - arm goes to position to pick up team shipping element
  *   /Left Bumper        -
@@ -156,7 +156,7 @@ public class FreightFrenzyGamepad {
         gamepad1a = new GamepadButtonMultiPush(2);
         gamepad1b = new GamepadButtonMultiPush(1);
         gamepad1y = new GamepadButtonMultiPush(1);
-        gamepad1x = new GamepadButtonMultiPush(2);
+        gamepad1x = new GamepadButtonMultiPush(1);
         gamepad1DpadUp = new GamepadButtonMultiPush(2);
         gamepad1DpadDown = new GamepadButtonMultiPush(2);
         gamepad1DpadLeft = new GamepadButtonMultiPush(2);
@@ -276,13 +276,7 @@ public class FreightFrenzyGamepad {
         }
 
         if (gamepad1x.buttonPress(gamepad1.x)) {
-            if (gamepad1x.isCommand1()) {
-                robot.lift.extendToTop();
-                robot.arm.storageWithElement();
-            }
-            if (gamepad1x.isCommand2()) {
                 robot.lift.dump();
-            }
         }
 
         if (gamepad1DpadUp.buttonPress(gamepad1.dpad_up)) {
@@ -383,7 +377,8 @@ public class FreightFrenzyGamepad {
         }
 
         if (gamepad2b.buttonPress(gamepad2.b)) {
-
+            robot.lift.extendToTop();
+            robot.arm.storageWithElement();
         }
 
         if (gamepad2y.buttonPress(gamepad2.y)) {

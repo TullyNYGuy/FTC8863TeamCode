@@ -72,7 +72,7 @@ public class ShoulderMotor {
     }
 
     public void down() {
-        shoulderMotor.moveToPosition( .25,254.4, DcMotor8863. FinishBehavior.HOLD);
+        shoulderMotor.moveToPosition( .25,259.4, DcMotor8863. FinishBehavior.HOLD);
     }
 
     public void storage() {
