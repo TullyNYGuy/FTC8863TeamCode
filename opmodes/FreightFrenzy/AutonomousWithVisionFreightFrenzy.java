@@ -69,7 +69,7 @@ public class AutonomousWithVisionFreightFrenzy extends LinearOpMode {
         //int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         //robot.activeWebcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, robot.getCameraName()), cameraMonitorViewId);
         //robot.activeWebcam .setMillisecondsPermissionTimeout(2500); // Timeout for obtaining permission is configurable. Set before opening.
-        robot.activeWebcam .openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
+        robot.activeWebcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
             public void onOpened() {
                 robot.activeWebcam.startStreaming(1280, 720, OpenCvCameraRotation.UPRIGHT);
@@ -82,8 +82,9 @@ public class AutonomousWithVisionFreightFrenzy extends LinearOpMode {
         });
         robot.activeWebcam.setPipeline(pipeline);
         timer.reset();
-        while (timer.milliseconds() < 500) {
+        while (pipeline.getAnalysis() == ShippingElementPipeline.ShippingPosition.UNKNOWN) {
             // TANYA - need the idle so we don't hog all the CPU
+            pipeline.getAnalysis();
             idle();
             //autonomous.update();
         }

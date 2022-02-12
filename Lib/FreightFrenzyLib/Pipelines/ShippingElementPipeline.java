@@ -47,7 +47,8 @@ public class ShippingElementPipeline extends OpenCvPipeline {
     public enum ShippingPosition {
         LEFT,
         CENTER,
-        RIGHT
+        RIGHT,
+        UNKNOWN
     }
 
     // default, change this is EOCVSim to test other modes
@@ -62,12 +63,12 @@ public class ShippingElementPipeline extends OpenCvPipeline {
     /*
      * The core values which define the location and size of the sample regions
      */
-    static final Point REGION1_TOPLEFT_ANCHOR_POINT_LEFT_CAM = new Point(140, 250);
-    static final Point REGION2_TOPLEFT_ANCHOR_POINT_LEFT_CAM = new Point(650, 250);
-    static final Point REGION3_TOPLEFT_ANCHOR_POINT_LEFT_CAM = new Point(1100, 250);
-    static final Point REGION1_TOPLEFT_ANCHOR_POINT_RIGHT_CAM = new Point(100, 250);
-    static final Point REGION2_TOPLEFT_ANCHOR_POINT_RIGHT_CAM = new Point(600, 250);
-    static final Point REGION3_TOPLEFT_ANCHOR_POINT_RIGHT_CAM = new Point(1100, 250);
+    static final Point REGION1_TOPLEFT_ANCHOR_POINT_LEFT_CAM = new Point(140, 350);
+    static final Point REGION2_TOPLEFT_ANCHOR_POINT_LEFT_CAM = new Point(650, 350);
+    static final Point REGION3_TOPLEFT_ANCHOR_POINT_LEFT_CAM = new Point(1100, 350);
+    static final Point REGION1_TOPLEFT_ANCHOR_POINT_RIGHT_CAM = new Point(100, 350);
+    static final Point REGION2_TOPLEFT_ANCHOR_POINT_RIGHT_CAM = new Point(600, 350);
+    static final Point REGION3_TOPLEFT_ANCHOR_POINT_RIGHT_CAM = new Point(1100, 350);
     static final int REGION_WIDTH = 50;
     static final int REGION_HEIGHT = 50;
 
@@ -107,7 +108,7 @@ public class ShippingElementPipeline extends OpenCvPipeline {
     int avg1, avg2, avg3;
 
     // Volatile since accessed by OpMode thread w/o synchronization
-    private volatile ShippingPosition position = ShippingPosition.LEFT;
+    private volatile ShippingPosition position = ShippingPosition.UNKNOWN;
 
     /*
      * This function takes the RGB frame, converts to YCrCb,
