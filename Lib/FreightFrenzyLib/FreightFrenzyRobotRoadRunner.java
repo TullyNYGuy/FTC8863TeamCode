@@ -60,7 +60,7 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
         LIFT_LIMIT_SWITCH_EXTENSION("extensionLimitSwitch"),
         LIFT_SERVO("deliveryServo");
 
-        ;
+
         public final String hwName;
 
         HardwareName(String name) {
