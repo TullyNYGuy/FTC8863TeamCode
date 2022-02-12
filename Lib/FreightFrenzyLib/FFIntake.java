@@ -14,6 +14,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.RevLEDBlinker;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863New;
 
 
@@ -81,6 +82,7 @@ public class FFIntake implements FTCRobotSubsystem {
     private final String INTAKE_SWEEPER_MOTOR_NAME = FreightFrenzyRobotRoadRunner.HardwareName.INTAKE_SWEEPER_MOTOR.hwName;
     private final String INTAKE_SENSOR_NAME = FreightFrenzyRobotRoadRunner.HardwareName.INTAKE_SENSOR.hwName;
     private final String INTAKE_ROTATOR_SERVO_NAME = FreightFrenzyRobotRoadRunner.HardwareName.INTAKE_ROTATE_SERVO.hwName;
+    private RevLEDBlinker ledBlinker;
 
     //*********************************************************************************************
     //          Constructors
@@ -88,12 +90,13 @@ public class FFIntake implements FTCRobotSubsystem {
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
-    public FFIntake(HardwareMap hardwareMap, Telemetry telemetry) {
+    public FFIntake(HardwareMap hardwareMap, Telemetry telemetry, RevLEDBlinker ledBlinker) {
         intakeSweeperMotor = new DcMotor8863(INTAKE_SWEEPER_MOTOR_NAME, hardwareMap);
         intakeSweeperMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_3_7_ORBITAL);
         intakeSweeperMotor.setMovementPerRev(360);
         intakeSweeperMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         timer = new ElapsedTime();
+        this.ledBlinker= ledBlinker;
         intakeSensor = hardwareMap.get(NormalizedColorSensor.class, INTAKE_SENSOR_NAME);
         if (intakeSensor instanceof SwitchableLight) {
             ((SwitchableLight) intakeSensor).enableLight(true);
@@ -104,6 +107,7 @@ public class FFIntake implements FTCRobotSubsystem {
         rotateServo.addPosition("Vertical", .5, 1000, TimeUnit.MILLISECONDS);
         rotateServo.addPosition("Deliver", 1.0, 1000, TimeUnit.MILLISECONDS);
         rotateServo.addPosition("Level 2", .45, 1000, TimeUnit.MILLISECONDS);
+        ledBlinker.off();
     }
 
     //*********************************************************************************************
@@ -173,6 +177,7 @@ public class FFIntake implements FTCRobotSubsystem {
                 // fire up that motor baby! Dang that thing is loud!
                 intakeSweeperMotor.runAtConstantPower(.6);
                 rotateServo.setPosition("Intake");
+                ledBlinker.steadyRed();
                 intakeState = IntakeState.WAIT_FOR_FREIGHT;
             }
             break;
@@ -180,6 +185,7 @@ public class FFIntake implements FTCRobotSubsystem {
             case WAIT_FOR_FREIGHT: {
                 // do we have something?
                 if (isIntakeFull()) {
+                    ledBlinker.steadyAmber();
                     // yup stop the motor and try to cage the freight
                     intakeSweeperMotor.runAtConstantRPM(180);
                     if (whatToDoWithFreight == WhatToDoWithFreight.DELIVER_TO_BUCKET) {
@@ -223,6 +229,7 @@ public class FFIntake implements FTCRobotSubsystem {
                     else {
                         // done ejecting, time to go back to sleep
                         rotateServo.setPosition("Vertical");
+                        ledBlinker.steadyGreen();
                         intakeState = IntakeState.IDLE;
                     }
                 }

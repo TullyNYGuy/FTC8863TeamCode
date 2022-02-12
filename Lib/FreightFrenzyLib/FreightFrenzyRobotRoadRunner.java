@@ -18,6 +18,8 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobot;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.LoopTimer;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.RevLED;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.RevLEDBlinker;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.RobotPosition;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
@@ -58,7 +60,9 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
         LIFT_MOTOR("extensionArmMotor"),
         LIFT_LIMIT_SWITCH_RETRACTION("retractionLimitSwitch"),
         LIFT_LIMIT_SWITCH_EXTENSION("extensionLimitSwitch"),
-        LIFT_SERVO("deliveryServo");
+        LIFT_SERVO("deliveryServo"),
+        LED_PORT1("ledPort1"),
+        LED_PORT2("ledPort2");
 
 
         public final String hwName;
@@ -76,7 +80,8 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
         WEBCAM_LEFT,
         WEBCAM_RIGHT,
         ARM,
-        LIFT
+        LIFT,
+        LED_BLINKER
     }
 
     Set<Subsystem> capabilities;
@@ -90,7 +95,7 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
     Map<String, FTCRobotSubsystem> subsystemMap;
     private FreightFrenzyStartSpot color;
     private String activeWebcamName;
-  private AllianceColor allianceColor;
+    private AllianceColor allianceColor;
     private ElapsedTime timer;
     private LinearOpMode opMode;
 
@@ -115,6 +120,7 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
     public OpenCvWebcam webcamLeft;
     public OpenCvWebcam webcamRight;
     public FFExtensionArm lift;
+    public RevLEDBlinker ledBlinker;
 
     public FreightFrenzyRobotRoadRunner(HardwareMap hardwareMap, Telemetry telemetry, Configuration config, DataLogging dataLog, DistanceUnit units, LinearOpMode opMode) {
         timer = new ElapsedTime();
@@ -154,6 +160,7 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
 
         return color;
     }
+
     /**
      * Create the robot should be called from the teleop or auto opmode.
      *
@@ -213,8 +220,14 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
                     break;
             }
 
+        if (capabilities.contains(Subsystem.LED_BLINKER)) {
+            ledBlinker = new RevLEDBlinker(2, RevLED.Color.GREEN, hardwareMap,
+                    HardwareName.LED_PORT1.hwName, HardwareName.LED_PORT2.hwName);
+            subsystemMap.put(ledBlinker.getName(), ledBlinker);
+        }
+
         if (capabilities.contains(Subsystem.INTAKE)) {
-            intake = new FFIntake(hardwareMap, telemetry);
+            intake = new FFIntake(hardwareMap, telemetry, ledBlinker);
             subsystemMap.put(intake.getName(), intake);
         }
 
