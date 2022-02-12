@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib;
 
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -122,9 +123,6 @@ public class FFExtensionArm implements FTCRobotSubsystem {
                 FreightFrenzyRobotRoadRunner.HardwareName.LIFT_MOTOR.hwName,
                 DcMotor8863.MotorType.GOBILDA_435,
                 4.517);
-        if (allianceColor == AllianceColor.BLUE) {
-            ffExtensionArm.reverseMotorDirection();
-        }
 
         ffExtensionArm.setResetTimerLimitInmSec(25000);
         ffExtensionArm.setExtensionPower(0.9);
@@ -145,6 +143,15 @@ public class FFExtensionArm implements FTCRobotSubsystem {
         deliveryServo.addPosition( "DumpIntoMiddle",0.1,500, TimeUnit.MILLISECONDS);
         deliveryServo.addPosition( "DumpIntoBottom",0.13,500, TimeUnit.MILLISECONDS);
         deliveryServo.addPosition( "LineUpDump",0.2,500, TimeUnit.MILLISECONDS);
+
+        if (allianceColor == AllianceColor.BLUE) {
+            ffExtensionArm.reverseMotorDirection();
+            deliveryServo.setDirection(Servo.Direction.FORWARD);
+        } else {
+            // alliance is RED
+            ffExtensionArm.forwardMotorDirection();
+            deliveryServo.setDirection(Servo.Direction.REVERSE);
+        }
 
         timer = new ElapsedTime();
         

@@ -29,7 +29,11 @@ public class TestLiftLimitSwitches extends LinearOpMode {
                 "extensionArmMotor",
                 DcMotor8863.MotorType.GOBILDA_435,
                 4.517);
-        lift.reverseMotorDirection();
+        // This is for the blue alliance
+        //lift.reverseMotorDirection();
+
+        // this is for the red alliance
+        lift.forwardMotorDirection();
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
