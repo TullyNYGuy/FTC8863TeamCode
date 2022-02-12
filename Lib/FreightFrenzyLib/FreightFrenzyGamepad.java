@@ -13,7 +13,7 @@ package org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib;
  *    / DPad Right       - eject into level 1
  *    / A                - turn intake on and deliver, second press turn intake off
  *    / B                - open/close claw toggle
- *    / X                - delivery extend/dump
+ *    / X                - delivery extend/dump (also sends the claw to storage with shipping element so that the claw is out of the way)
  *    / Y                - eject at intake position
  *    /Left Bumper       -
  *    /Right Bumper      -
@@ -277,7 +277,8 @@ public class FreightFrenzyGamepad {
 
         if (gamepad1x.buttonPress(gamepad1.x)) {
             if (gamepad1x.isCommand1()) {
-                robot.lift.extend();
+                robot.lift.extendToTop();
+                robot.arm.storageWithElement();
             }
             if (gamepad1x.isCommand2()) {
                 robot.lift.dump();
