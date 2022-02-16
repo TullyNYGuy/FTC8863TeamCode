@@ -9,8 +9,9 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Pose2d8863;
+import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.Pipelines.ShippingElementPipeline;
 
-public class AutonomousLowLoadDuckSpinNoParkBlueNearWall implements AutonomousStateMachineFreightFrenzy {
+public class AutonomousVisionLoadDuckSpinNoParkNearWall implements AutonomousStateMachineFreightFrenzy {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -22,6 +23,8 @@ public class AutonomousLowLoadDuckSpinNoParkBlueNearWall implements AutonomousSt
         IDLE,
         START,
         MOVING_TO_HUB,
+        EXTENDING_LIFT,
+        DEPOSIT_DONE,
         READY_TO_DEPOSIT,
         MOVING_TO_DUCKS,
         AT_DUCK,
@@ -52,7 +55,7 @@ public class AutonomousLowLoadDuckSpinNoParkBlueNearWall implements AutonomousSt
     private Trajectory trajectoryToPassageApproach;
     private Trajectory trajectoryToPassage;
     private Trajectory trajectoryToWarehoue;
-
+    private Pose2d hubDumpPose;
     private double distanceToTopGoal = 0;
     private double distanceToLeftPowerShot = 0;
     private double angleOfShot = 0;
@@ -77,9 +80,26 @@ public class AutonomousLowLoadDuckSpinNoParkBlueNearWall implements AutonomousSt
     // from it
     //*********************************************************************************************
 
-    public AutonomousLowLoadDuckSpinNoParkBlueNearWall(FreightFrenzyRobotRoadRunner robot, FreightFrenzyField field, Telemetry telemetry) {
+    public AutonomousVisionLoadDuckSpinNoParkNearWall(FreightFrenzyRobotRoadRunner robot, FreightFrenzyField field, Telemetry telemetry) {
         this.robot = robot;
         this.field = field;
+        switch(PersistantStorage.getShippingElementPosition()){
+            case CENTER:
+            case LEFT:
+                if(PersistantStorage.getAllianceColor() == AllianceColor.BLUE){
+                    hubDumpPose = PoseStorageFF.DELIVER_TO_MID_AND_LOW_HUB_BLUE;
+                }else if(PersistantStorage.getAllianceColor() == AllianceColor.RED){
+                    hubDumpPose = PoseStorageFF.DELIVER_TO_MID_AND_LOW_HUB_RED;
+                }
+                break;
+            case RIGHT:
+                if(PersistantStorage.getAllianceColor() == AllianceColor.BLUE){
+                    hubDumpPose = PoseStorageFF.DELIVER_TO_HIGH_HUB_BLUE;
+                }else if(PersistantStorage.getAllianceColor() == AllianceColor.RED){
+                    hubDumpPose = PoseStorageFF.DELIVER_TO_HIGH_HUB_RED;
+                }
+                break;
+        }
         currentState = States.IDLE;
         distanceUnits = DistanceUnit.INCH;
         angleUnits = AngleUnit.DEGREES;
@@ -104,14 +124,16 @@ public class AutonomousLowLoadDuckSpinNoParkBlueNearWall implements AutonomousSt
     public void createTrajectories() {
 
         trajectoryToHub = robot.mecanum.trajectoryBuilder(PoseStorageFF.START_POSE)
-                .lineTo(Pose2d8863.getVector2d(PoseStorageFF.HUB_BLUE_INTAKE_DUMP))
+                .lineTo(Pose2d8863.getVector2d(hubDumpPose))
                 //.lineTo(Pose2d8863.getVector2d(PoseStorage.SHOOTING_AT_HIGH_GOAL))
                 .build();
-
+    if(PersistantStorage.getAllianceColor() == AllianceColor.BLUE) {
         trajectoryToDucks = robot.mecanum.trajectoryBuilder(trajectoryToHub.end())
                 .lineTo(Pose2d8863.getVector2d(PoseStorageFF.DUCK_SPINNER_BLUE))
                 .build();
-
+    }else {trajectoryToDucks = robot.mecanum.trajectoryBuilder(trajectoryToHub.end())
+            .lineTo(Pose2d8863.getVector2d(PoseStorageFF.DUCK_SPINNER_RED))
+            .build();}
     }
 
 
@@ -142,18 +164,39 @@ public class AutonomousLowLoadDuckSpinNoParkBlueNearWall implements AutonomousSt
                     currentState = States.READY_TO_DEPOSIT;
                 }
                 break;
-            case READY_TO_DEPOSIT:
-                robot.intake.ejectIntoLevel1();
+            case EXTENDING_LIFT:
+                switch(PersistantStorage.getShippingElementPosition()){
+                    case CENTER:
+                        robot.lift.extendToMiddle();
+                        break;
+                    case LEFT:
+                        robot.lift.extendToBottom();
+                        break;
+                    case RIGHT:
+                        robot.lift.extendToTop();
+                        break;
+                }
                 currentState = States.DEPOSITING;
                 break;
             case DEPOSITING:
-                if(!robot.intake.isComplete()){
+                if(robot.lift.isExtensionMovementComplete()){
+                    if(PersistantStorage.getShippingElementPosition() == ShippingElementPipeline.ShippingPosition.RIGHT){
+                        robot.lift.deliveryServoToDumpIntoTopPosition();
+                    }else{
+                    robot.lift.dump();
+                    }
                     robot.intake.getOutOfWay();
-                    robot.mecanum.followTrajectory(trajectoryToDucks);
+                    currentState = States.DEPOSIT_DONE;
+                }
+                break;
+            case DEPOSIT_DONE:
+                if(robot.lift.isDeliverServoPositionReached()){
+                    robot.lift.retract();
                     currentState = States.MOVING_TO_DUCKS;
                 }
                 break;
             case MOVING_TO_DUCKS:
+                robot.mecanum.followTrajectory(trajectoryToDucks);
                 if (!robot.mecanum.isBusy()) {
                     robot.duckSpinner.turnOn();
                     //robot.mecanum.followTrajectoryAsync(trajectoryToParkPosition);

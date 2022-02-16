@@ -6,14 +6,12 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
-import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.AutonomousLowLoadDuckSpinParkDepotBlueNearWall;
-import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.AutonomousLowLoadDuckSpinParkDepotBlueNearWarehouse;
-import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.AutonomousLowLoadDuckSpinParkDepotRedNearWall;
-import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.AutonomousLowLoadDuckSpinParkDepotRedNearWarehouse;
+import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.AutonomousVisionLoadDuckSpinParkDepot;
+
+import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.AutonomousVisionLoadDuckSpinParkDepot;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.AutonomousStateMachineFreightFrenzy;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyField;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyGamepad;
@@ -23,7 +21,6 @@ import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyStartSpo
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.PersistantStorage;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.Pipelines.ShippingElementPipeline;
 import org.openftc.easyopencv.OpenCvCamera;
-import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
 import java.util.List;
@@ -161,16 +158,7 @@ public class AutonomousWithVisionFreightFrenzy extends LinearOpMode {
         // create the robot and run the init for it
 
         enableBulkReads(hardwareMap, LynxModule.BulkCachingMode.AUTO);
-       switch (startSpot) {
-           case RED_WALL: autonomous = new AutonomousLowLoadDuckSpinParkDepotRedNearWall(robot, field, telemetry);
-           break;
-           case BLUE_WALL:autonomous = new AutonomousLowLoadDuckSpinParkDepotBlueNearWall(robot, field, telemetry);
-           break;
-           case RED_WAREHOUSE:autonomous = new AutonomousLowLoadDuckSpinParkDepotRedNearWarehouse(robot, field, telemetry);
-           break;
-           case BLUE_WAREHOUSE:autonomous = new AutonomousLowLoadDuckSpinParkDepotBlueNearWarehouse(robot, field, telemetry);
-           break;
-       }
+       autonomous = new AutonomousVisionLoadDuckSpinParkDepot(robot, field, telemetry);
 
         timer.reset();
         robot.loopTimer.startLoopTimer();

@@ -11,6 +11,7 @@ public class PersistantStorage {
     public static boolean isDeliveryFull;
     private static Pose2d startPostion;
     private static Integer motorTicks;
+    private static AllianceColor allianceColor;
     private static FreightFrenzyStartSpot startSpot;
     private static ShippingElementPipeline.ShippingPosition positionOfElement;
 
@@ -21,7 +22,12 @@ public class PersistantStorage {
     public static Pose2d getStartPosition() {
         return startPostion;
     }
-
+    public static void setAllianceColor(AllianceColor inputColor){
+        allianceColor = inputColor;
+    }
+    public static AllianceColor getAllianceColor(){
+        return allianceColor;
+    }
     public static void setShippingElementPosition(ShippingElementPipeline.ShippingPosition elementPalce){
         positionOfElement =  elementPalce;
     }
@@ -35,12 +41,16 @@ public class PersistantStorage {
         switch(startSpot){
             case RED_WALL:
                 startPostion = new Pose2d(-17.5, -63.75, Math.toRadians(0));
+                setAllianceColor(AllianceColor.RED);
                 break;
             case BLUE_WALL:startPostion = new Pose2d(-17.5, 63.75, Math.toRadians(0));
+                setAllianceColor(AllianceColor.BLUE);
                 break;
             case RED_WAREHOUSE:startPostion = new Pose2d(12.5, -63.75, Math.toRadians(0));
+                setAllianceColor(AllianceColor.RED);
                 break;
             case BLUE_WAREHOUSE:startPostion = new Pose2d(12.5, 63.75, Math.toRadians(0));
+                setAllianceColor(AllianceColor.BLUE);
                 break;
         }
     }

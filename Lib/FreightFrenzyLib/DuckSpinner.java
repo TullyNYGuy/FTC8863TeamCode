@@ -19,18 +19,14 @@ public class DuckSpinner implements FTCRobotSubsystem {
     private DataLogging logFile;
     private boolean loggingOn = false;
     private boolean initComplete = false;
-    private FreightFrenzyStartSpot color = PersistantStorage.getStartSpot();
+    private AllianceColor color = PersistantStorage.getAllianceColor();
     private final String  DUCK_SPINNER_NAME = "Duck Spinner";
     public DuckSpinner(HardwareMap hardwareMap, Telemetry telemetry){
         duckSpinner = hardwareMap.get(CRServo.class,FreightFrenzyRobotRoadRunner.HardwareName.DUCK_SPINNER.hwName);
         switch(color){
-            case BLUE_WAREHOUSE:duckSpinner.setDirection(DcMotorSimple.Direction.FORWARD);
+            case BLUE:duckSpinner.setDirection(DcMotorSimple.Direction.FORWARD);
             break;
-            case RED_WAREHOUSE:duckSpinner.setDirection(DcMotorSimple.Direction.REVERSE);
-            break;
-            case RED_WALL:duckSpinner.setDirection(DcMotorSimple.Direction.REVERSE);
-            break;
-            case BLUE_WALL:duckSpinner.setDirection(DcMotorSimple.Direction.FORWARD);
+            case RED:duckSpinner.setDirection(DcMotorSimple.Direction.REVERSE);
             break;
         }
         duckSpinner.setPower(0);
