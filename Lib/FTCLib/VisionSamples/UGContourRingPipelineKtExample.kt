@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.FTCLib.VisionSamples;
+package org.firstinspires.ftc.teamcode.Lib.FTCLib.VisionSamples;
 
 import com.arcrobotics.ftclib.vision.UGContourRingPipeline
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode

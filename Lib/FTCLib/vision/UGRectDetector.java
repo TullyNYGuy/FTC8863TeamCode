@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.FTCLib.vision;
+package org.firstinspires.ftc.teamcode.Lib.FTCLib.vision;
 
 import com.arcrobotics.ftclib.vision.UGRectRingPipeline;
 import com.qualcomm.robotcore.hardware.HardwareMap;
