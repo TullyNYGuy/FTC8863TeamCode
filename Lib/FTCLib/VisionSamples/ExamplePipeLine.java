@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.FTCLib.VisionSamples;
+package org.firstinspires.ftc.teamcode.Lib.FTCLib.VisionSamples;
 
 /**
  * This is an example of vision using EasyOpenCv.This example will show

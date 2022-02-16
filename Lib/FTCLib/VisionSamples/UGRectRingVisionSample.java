@@ -1,12 +1,12 @@
-package org.firstinspires.ftc.teamcode.FTCLib.VisionSamples;
+package org.firstinspires.ftc.teamcode.Lib.FTCLib.VisionSamples;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.firstinspires.ftc.teamcode.FTCLib.vision.UGRectDetector;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.vision.UGRectDetector;
 
 public class UGRectRingVisionSample extends LinearOpMode {
 
-    org.firstinspires.ftc.teamcode.FTCLib.vision.UGRectDetector UGRectDetector;
+    org.firstinspires.ftc.teamcode.Lib.FTCLib.vision.UGRectDetector UGRectDetector;
 
     @Override
     public void runOpMode() {

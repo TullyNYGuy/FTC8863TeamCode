@@ -1,5 +1,6 @@
-package com.arcrobotics.ftclib.vision;
+package org.firstinspires.ftc.teamcode.Lib.FTCLib.vision;
 
+import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.Pipelines.UGBasicHighGoalPipeline;
 import org.opencv.core.Mat;
 import org.opencv.core.Rect;
 
