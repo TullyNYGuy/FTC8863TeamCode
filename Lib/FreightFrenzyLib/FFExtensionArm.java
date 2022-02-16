@@ -145,11 +145,11 @@ public class FFExtensionArm implements FTCRobotSubsystem {
         deliveryServo.addPosition( "LineUpDump",0.2,500, TimeUnit.MILLISECONDS);
 
         if (allianceColor == AllianceColor.BLUE) {
-            ffExtensionArm.reverseMotorDirection();
+            ffExtensionArm.forwardMotorDirection();
             deliveryServo.setDirection(Servo.Direction.FORWARD);
         } else {
             // alliance is RED
-            ffExtensionArm.forwardMotorDirection();
+            ffExtensionArm.reverseMotorDirection();
             deliveryServo.setDirection(Servo.Direction.REVERSE);
         }
 
