@@ -63,12 +63,19 @@ public class ShippingElementPipeline extends OpenCvPipeline {
     /*
      * The core values which define the location and size of the sample regions
      */
-    static final Point REGION1_TOPLEFT_ANCHOR_POINT_LEFT_CAM = new Point(140, 350);
-    static final Point REGION2_TOPLEFT_ANCHOR_POINT_LEFT_CAM = new Point(650, 350);
-    static final Point REGION3_TOPLEFT_ANCHOR_POINT_LEFT_CAM = new Point(1100, 350);
-    static final Point REGION1_TOPLEFT_ANCHOR_POINT_RIGHT_CAM = new Point(100, 350);
-    static final Point REGION2_TOPLEFT_ANCHOR_POINT_RIGHT_CAM = new Point(600, 350);
-    static final Point REGION3_TOPLEFT_ANCHOR_POINT_RIGHT_CAM = new Point(1100, 350);
+    static final Point REGION1_TOPLEFT_ANCHOR_POINT_BLUE_WALL = new Point(140, 390);
+    static final Point REGION2_TOPLEFT_ANCHOR_POINT_BLUE_WALL = new Point(650, 390);
+    static final Point REGION3_TOPLEFT_ANCHOR_POINT_BLUE_WALL = new Point(1100, 390);
+    static final Point REGION1_TOPLEFT_ANCHOR_POINT_RED_WALL = new Point(160, 390);
+    static final Point REGION2_TOPLEFT_ANCHOR_POINT_RED_WALL = new Point(590, 390);
+    static final Point REGION3_TOPLEFT_ANCHOR_POINT_RED_WALL = new Point(1000, 390);
+    static final Point REGION1_TOPLEFT_ANCHOR_POINT_BLUE_WAREHOUSE = new Point(1100, 390);
+    static final Point REGION2_TOPLEFT_ANCHOR_POINT_BLUE_WAREHOUSE = new Point(1100, 390);
+    static final Point REGION3_TOPLEFT_ANCHOR_POINT_BLUE_WAREHOUSE = new Point(1100, 390);
+    static final Point REGION1_TOPLEFT_ANCHOR_POINT_RED_WAREHOUSE = new Point(220, 390);
+    static final Point REGION2_TOPLEFT_ANCHOR_POINT_RED_WAREHOUSE = new Point(650, 390);
+    static final Point REGION3_TOPLEFT_ANCHOR_POINT_RED_WAREHOUSE = new Point(1050, 390);
+
     static final int REGION_WIDTH = 50;
     static final int REGION_HEIGHT = 50;
 
@@ -123,48 +130,84 @@ public class ShippingElementPipeline extends OpenCvPipeline {
     public void init(Mat firstFrame) {
         switch(PersistantStorage.getStartSpot()) {
             case BLUE_WAREHOUSE:
-
+                region1_pointA = new Point(
+                        REGION1_TOPLEFT_ANCHOR_POINT_BLUE_WAREHOUSE.x,
+                        REGION1_TOPLEFT_ANCHOR_POINT_BLUE_WAREHOUSE.y);
+                region1_pointB = new Point(
+                        REGION1_TOPLEFT_ANCHOR_POINT_BLUE_WAREHOUSE.x + REGION_WIDTH,
+                        REGION1_TOPLEFT_ANCHOR_POINT_BLUE_WAREHOUSE.y + REGION_HEIGHT);
+                region2_pointA = new Point(
+                        REGION2_TOPLEFT_ANCHOR_POINT_BLUE_WAREHOUSE.x,
+                        REGION2_TOPLEFT_ANCHOR_POINT_BLUE_WAREHOUSE.y);
+                region2_pointB = new Point(
+                        REGION2_TOPLEFT_ANCHOR_POINT_BLUE_WAREHOUSE.x + REGION_WIDTH,
+                        REGION2_TOPLEFT_ANCHOR_POINT_BLUE_WAREHOUSE.y + REGION_HEIGHT);
+                region3_pointA = new Point(
+                        REGION3_TOPLEFT_ANCHOR_POINT_BLUE_WAREHOUSE.x,
+                        REGION3_TOPLEFT_ANCHOR_POINT_BLUE_WAREHOUSE.y);
+                region3_pointB = new Point(
+                        REGION3_TOPLEFT_ANCHOR_POINT_BLUE_WAREHOUSE.x + REGION_WIDTH,
+                        REGION3_TOPLEFT_ANCHOR_POINT_BLUE_WAREHOUSE.y + REGION_HEIGHT);
+                break;
             case BLUE_WALL:
                 region1_pointA = new Point(
-                        REGION1_TOPLEFT_ANCHOR_POINT_RIGHT_CAM.x,
-                        REGION1_TOPLEFT_ANCHOR_POINT_RIGHT_CAM.y);
+                        REGION1_TOPLEFT_ANCHOR_POINT_BLUE_WALL.x,
+                        REGION1_TOPLEFT_ANCHOR_POINT_BLUE_WALL.y);
                 region1_pointB = new Point(
-                        REGION1_TOPLEFT_ANCHOR_POINT_RIGHT_CAM.x + REGION_WIDTH,
-                        REGION1_TOPLEFT_ANCHOR_POINT_RIGHT_CAM.y + REGION_HEIGHT);
+                        REGION1_TOPLEFT_ANCHOR_POINT_BLUE_WALL.x + REGION_WIDTH,
+                        REGION1_TOPLEFT_ANCHOR_POINT_BLUE_WALL.y + REGION_HEIGHT);
                 region2_pointA = new Point(
-                        REGION2_TOPLEFT_ANCHOR_POINT_RIGHT_CAM.x,
-                        REGION2_TOPLEFT_ANCHOR_POINT_RIGHT_CAM.y);
+                        REGION2_TOPLEFT_ANCHOR_POINT_BLUE_WALL.x,
+                        REGION2_TOPLEFT_ANCHOR_POINT_BLUE_WALL.y);
                 region2_pointB = new Point(
-                        REGION2_TOPLEFT_ANCHOR_POINT_RIGHT_CAM.x + REGION_WIDTH,
-                        REGION2_TOPLEFT_ANCHOR_POINT_RIGHT_CAM.y + REGION_HEIGHT);
+                        REGION2_TOPLEFT_ANCHOR_POINT_BLUE_WALL.x + REGION_WIDTH,
+                        REGION2_TOPLEFT_ANCHOR_POINT_BLUE_WALL.y + REGION_HEIGHT);
                 region3_pointA = new Point(
-                        REGION3_TOPLEFT_ANCHOR_POINT_RIGHT_CAM.x,
-                        REGION3_TOPLEFT_ANCHOR_POINT_RIGHT_CAM.y);
+                        REGION3_TOPLEFT_ANCHOR_POINT_BLUE_WALL.x,
+                        REGION3_TOPLEFT_ANCHOR_POINT_BLUE_WALL.y);
                 region3_pointB = new Point(
-                        REGION3_TOPLEFT_ANCHOR_POINT_RIGHT_CAM.x + REGION_WIDTH,
-                        REGION3_TOPLEFT_ANCHOR_POINT_RIGHT_CAM.y + REGION_HEIGHT);
+                        REGION3_TOPLEFT_ANCHOR_POINT_BLUE_WALL.x + REGION_WIDTH,
+                        REGION3_TOPLEFT_ANCHOR_POINT_BLUE_WALL.y + REGION_HEIGHT);
                 break;
             case RED_WAREHOUSE:
-
+                region1_pointA = new Point(
+                        REGION1_TOPLEFT_ANCHOR_POINT_RED_WAREHOUSE.x,
+                        REGION1_TOPLEFT_ANCHOR_POINT_RED_WAREHOUSE.y);
+                region1_pointB = new Point(
+                        REGION1_TOPLEFT_ANCHOR_POINT_RED_WAREHOUSE.x + REGION_WIDTH,
+                        REGION1_TOPLEFT_ANCHOR_POINT_RED_WAREHOUSE.y + REGION_HEIGHT);
+                region2_pointA = new Point(
+                        REGION2_TOPLEFT_ANCHOR_POINT_RED_WAREHOUSE.x,
+                        REGION2_TOPLEFT_ANCHOR_POINT_RED_WAREHOUSE.y);
+                region2_pointB = new Point(
+                        REGION2_TOPLEFT_ANCHOR_POINT_RED_WAREHOUSE.x + REGION_WIDTH,
+                        REGION2_TOPLEFT_ANCHOR_POINT_RED_WAREHOUSE.y + REGION_HEIGHT);
+                region3_pointA = new Point(
+                        REGION3_TOPLEFT_ANCHOR_POINT_RED_WAREHOUSE.x,
+                        REGION3_TOPLEFT_ANCHOR_POINT_RED_WAREHOUSE.y);
+                region3_pointB = new Point(
+                        REGION3_TOPLEFT_ANCHOR_POINT_RED_WAREHOUSE.x + REGION_WIDTH,
+                        REGION3_TOPLEFT_ANCHOR_POINT_RED_WAREHOUSE.y + REGION_HEIGHT);
+                break;
             case RED_WALL:
                 region1_pointA = new Point(
-                        REGION1_TOPLEFT_ANCHOR_POINT_LEFT_CAM.x,
-                        REGION1_TOPLEFT_ANCHOR_POINT_LEFT_CAM.y);
+                        REGION1_TOPLEFT_ANCHOR_POINT_RED_WALL.x,
+                        REGION1_TOPLEFT_ANCHOR_POINT_RED_WALL.y);
                 region1_pointB = new Point(
-                        REGION1_TOPLEFT_ANCHOR_POINT_LEFT_CAM.x + REGION_WIDTH,
-                        REGION1_TOPLEFT_ANCHOR_POINT_LEFT_CAM.y + REGION_HEIGHT);
+                        REGION1_TOPLEFT_ANCHOR_POINT_RED_WALL.x + REGION_WIDTH,
+                        REGION1_TOPLEFT_ANCHOR_POINT_RED_WALL.y + REGION_HEIGHT);
                 region2_pointA = new Point(
-                        REGION2_TOPLEFT_ANCHOR_POINT_LEFT_CAM.x,
-                        REGION2_TOPLEFT_ANCHOR_POINT_LEFT_CAM.y);
+                        REGION2_TOPLEFT_ANCHOR_POINT_RED_WALL.x,
+                        REGION2_TOPLEFT_ANCHOR_POINT_RED_WALL.y);
                 region2_pointB = new Point(
-                        REGION2_TOPLEFT_ANCHOR_POINT_LEFT_CAM.x + REGION_WIDTH,
-                        REGION2_TOPLEFT_ANCHOR_POINT_LEFT_CAM.y + REGION_HEIGHT);
+                        REGION2_TOPLEFT_ANCHOR_POINT_RED_WALL.x + REGION_WIDTH,
+                        REGION2_TOPLEFT_ANCHOR_POINT_RED_WALL.y + REGION_HEIGHT);
                 region3_pointA = new Point(
-                        REGION3_TOPLEFT_ANCHOR_POINT_LEFT_CAM.x,
-                        REGION3_TOPLEFT_ANCHOR_POINT_LEFT_CAM.y);
+                        REGION3_TOPLEFT_ANCHOR_POINT_RED_WALL.x,
+                        REGION3_TOPLEFT_ANCHOR_POINT_RED_WALL.y);
                 region3_pointB = new Point(
-                        REGION3_TOPLEFT_ANCHOR_POINT_LEFT_CAM.x + REGION_WIDTH,
-                        REGION3_TOPLEFT_ANCHOR_POINT_LEFT_CAM.y + REGION_HEIGHT);
+                        REGION3_TOPLEFT_ANCHOR_POINT_RED_WALL.x + REGION_WIDTH,
+                        REGION3_TOPLEFT_ANCHOR_POINT_RED_WALL.y + REGION_HEIGHT);
                 break;
 
 

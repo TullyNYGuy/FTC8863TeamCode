@@ -11,7 +11,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Pose2d8863;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.Pipelines.ShippingElementPipeline;
 
-public class AutonomousVisionLoadDuckSpinParkDepot implements AutonomousStateMachineFreightFrenzy {
+public class AutonomousMovesOnly implements AutonomousStateMachineFreightFrenzy {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -34,6 +34,7 @@ public class AutonomousVisionLoadDuckSpinParkDepot implements AutonomousStateMac
         COMPLETE,
         EXTENDING_LIFT,
         DEPOSIT_DONE,
+        PARKED,
     }
 
     //*********************************************************************************************
@@ -80,7 +81,7 @@ public class AutonomousVisionLoadDuckSpinParkDepot implements AutonomousStateMac
     // from it
     //*********************************************************************************************
 
-    public AutonomousVisionLoadDuckSpinParkDepot(FreightFrenzyRobotRoadRunner robot, FreightFrenzyField field, Telemetry telemetry) {
+    public AutonomousMovesOnly(FreightFrenzyRobotRoadRunner robot, FreightFrenzyField field, Telemetry telemetry) {
         this.robot = robot;
         this.field = field;
         switch (PersistantStorage.getShippingElementPosition()) {
@@ -174,9 +175,9 @@ public class AutonomousVisionLoadDuckSpinParkDepot implements AutonomousStateMac
                 case START:
                     isComplete = false;
                     robot.mecanum.setPoseEstimate(PoseStorageFF.START_POSE);
-                    robot.mecanum.followTrajectory(trajectoryToHub);
+                    robot.mecanum.followTrajectory(trajectoryToDucks);
 
-                    currentState = States.MOVING_TO_HUB;
+                    currentState = States.MOVING_TO_DUCKS;
                     break;
                 case MOVING_TO_HUB:
                     if (!robot.mecanum.isBusy()) {
@@ -184,42 +185,24 @@ public class AutonomousVisionLoadDuckSpinParkDepot implements AutonomousStateMac
                     }
                     break;
                 case EXTENDING_LIFT:
-                    switch (PersistantStorage.getShippingElementPosition()) {
-                        case CENTER:
-                            //robot.lift.extendToMiddle();
-                            break;
-                        case LEFT:
-                           // robot.lift.extendToBottom();
-                            break;
-                        case RIGHT:
-                            //robot.lift.extendToTop();
-                            break;
-                    }
+
                     currentState = States.DEPOSITING;
                     break;
                 case DEPOSITING:
-                    if (robot.lift.isExtensionMovementComplete()) {
-                        if (PersistantStorage.getShippingElementPosition() == ShippingElementPipeline.ShippingPosition.RIGHT) {
-                           // robot.lift.deliveryServoToDumpIntoTopPosition();
-                        } else {
-                           // robot.lift.dump();
-                        }
-                        robot.intake.getOutOfWay();
+
                         currentState = States.DEPOSIT_DONE;
-                    }
+
                     break;
                 case DEPOSIT_DONE:
-                   // if (robot.lift.isDeliverServoPositionReached()) {
-                        //robot.lift.retract();
-                        currentState = States.MOVING_TO_DUCKS;
-                   // }
+
+
+                        currentState = States.APPROACHING_SIDE;
+
                     break;
                 case MOVING_TO_DUCKS:
-                    robot.mecanum.followTrajectory(trajectoryToDucks);
+                    //robot.mecanum.followTrajectory(trajectoryToDucks);
                     if (!robot.mecanum.isBusy()) {
-                        robot.duckSpinner.turnOn();
-                        //robot.mecanum.followTrajectoryAsync(trajectoryToParkPosition);
-                        currentState = States.AT_DUCK;
+                       currentState = States.AT_DUCK;
                     }
                     break;
                 case AT_DUCK:
@@ -230,27 +213,35 @@ public class AutonomousVisionLoadDuckSpinParkDepot implements AutonomousStateMac
                     break;
                 case DUCK_SPINNING:
                     if (timer.milliseconds() > 2500) {
-                        robot.duckSpinner.turnOff();
-                        currentState = States.APPROACHING_SIDE;
+
+                        currentState = States.MOVING_TO_HUB;
                     }
                     break;
                 case APPROACHING_SIDE:
-                    robot.mecanum.followTrajectory(trajectoryToPassageApproach);
-                    if (!robot.mecanum.isBusy()) {
+
+
+                        robot.mecanum.followTrajectory(trajectoryToPassageApproach);
                         currentState = States.GOING_TO_PASSAGE;
-                    }
+
                     break;
                 case GOING_TO_PASSAGE:
-                    robot.mecanum.followTrajectory(trajectoryToPassage);
+
                     if (!robot.mecanum.isBusy()) {
+                        robot.mecanum.followTrajectory(trajectoryToPassage);
                         currentState = States.GO_TO_WAREHOUSE;
                     }
                     break;
                 case GO_TO_WAREHOUSE:
                     if (!robot.mecanum.isBusy()) {
-                        currentState = States.COMPLETE;
+                        robot.mecanum.followTrajectory(trajectoryToWarehoue);
+                        currentState = States.PARKED;
                     }
                     break;
+
+                case PARKED:
+                    if(!robot.mecanum.isBusy()){
+                        currentState = States.COMPLETE;
+                    }
                 case COMPLETE:
                     isComplete = true;
             }

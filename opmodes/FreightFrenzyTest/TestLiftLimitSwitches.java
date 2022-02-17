@@ -33,7 +33,7 @@ public class TestLiftLimitSwitches extends LinearOpMode {
         //lift.reverseMotorDirection();
 
         // this is for the red alliance
-        lift.forwardMotorDirection();
+        lift.reverseMotorDirection();
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");

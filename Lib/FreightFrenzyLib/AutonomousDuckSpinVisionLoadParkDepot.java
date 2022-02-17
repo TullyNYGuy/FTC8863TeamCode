@@ -34,6 +34,7 @@ public class AutonomousDuckSpinVisionLoadParkDepot implements AutonomousStateMac
         COMPLETE,
         EXTENDING_LIFT,
         DEPOSIT_DONE,
+        PARKED,
     }
 
     //*********************************************************************************************
@@ -174,13 +175,13 @@ public class AutonomousDuckSpinVisionLoadParkDepot implements AutonomousStateMac
                 case START:
                     isComplete = false;
                     robot.mecanum.setPoseEstimate(PoseStorageFF.START_POSE);
-                    robot.mecanum.followTrajectory(trajectoryToHub);
+                    robot.mecanum.followTrajectory(trajectoryToDucks);
 
-                    currentState = States.MOVING_TO_HUB;
+                    currentState = States.MOVING_TO_DUCKS;
                     break;
                 case MOVING_TO_HUB:
                     if (!robot.mecanum.isBusy()) {
-                        currentState = States.READY_TO_DEPOSIT;
+                        currentState = States.EXTENDING_LIFT;
                     }
                     break;
                 case EXTENDING_LIFT:
@@ -215,11 +216,11 @@ public class AutonomousDuckSpinVisionLoadParkDepot implements AutonomousStateMac
                     }
                     break;
                 case MOVING_TO_DUCKS:
-                    robot.mecanum.followTrajectory(trajectoryToDucks);
+                    //robot.mecanum.followTrajectory(trajectoryToDucks);
                     if (!robot.mecanum.isBusy()) {
                         robot.duckSpinner.turnOn();
                         //robot.mecanum.followTrajectoryAsync(trajectoryToParkPosition);
-                        currentState = States.MOVING_TO_HUB;
+                        currentState = States.AT_DUCK;
                     }
                     break;
                 case AT_DUCK:
@@ -231,26 +232,34 @@ public class AutonomousDuckSpinVisionLoadParkDepot implements AutonomousStateMac
                 case DUCK_SPINNING:
                     if (timer.milliseconds() > 2500) {
                         robot.duckSpinner.turnOff();
-                        currentState = States.APPROACHING_SIDE;
+                        currentState = States.MOVING_TO_HUB;
                     }
                     break;
                 case APPROACHING_SIDE:
-                    robot.mecanum.followTrajectory(trajectoryToPassageApproach);
-                    if (!robot.mecanum.isBusy()) {
+
+                    if (robot.lift.isExtensionMovementComplete()) {
+                        robot.mecanum.followTrajectory(trajectoryToPassageApproach);
                         currentState = States.GOING_TO_PASSAGE;
                     }
                     break;
                 case GOING_TO_PASSAGE:
-                    robot.mecanum.followTrajectory(trajectoryToPassage);
+
                     if (!robot.mecanum.isBusy()) {
+                        robot.mecanum.followTrajectory(trajectoryToPassage);
                         currentState = States.GO_TO_WAREHOUSE;
                     }
                     break;
                 case GO_TO_WAREHOUSE:
                     if (!robot.mecanum.isBusy()) {
-                        currentState = States.COMPLETE;
+                        robot.mecanum.followTrajectory(trajectoryToWarehoue);
+                        currentState = States.PARKED;
                     }
                     break;
+
+                case PARKED:
+                    if(!robot.mecanum.isBusy()){
+                        currentState = States.COMPLETE;
+                    }
                 case COMPLETE:
                     isComplete = true;
             }

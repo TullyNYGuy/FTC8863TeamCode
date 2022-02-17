@@ -83,7 +83,7 @@ public class WebcamPositioning extends LinearOpMode
          * single-parameter constructor instead (commented out below)
          */
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        robot.activeWebcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "WebcamRight"), cameraMonitorViewId);
+        robot.activeWebcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "WebcamLeft"), cameraMonitorViewId);
         //robot.activeWebcam .setMillisecondsPermissionTimeout(2500); // Timeout for obtaining permission is configurable. Set before opening.
         robot.activeWebcam .openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override

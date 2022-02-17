@@ -39,17 +39,18 @@ public class PersistantStorage {
     public static void setStartSpot(FreightFrenzyStartSpot inputStart) {
         startSpot = inputStart;
         switch(startSpot){
+            //TODO: adjust all the start positions to match reality
             case RED_WALL:
-                startPostion = new Pose2d(-17.5, -63.75, Math.toRadians(0));
+                startPostion = new Pose2d(-35.25, -62.6, Math.toRadians(0));
                 setAllianceColor(AllianceColor.RED);
                 break;
-            case BLUE_WALL:startPostion = new Pose2d(-17.5, 63.75, Math.toRadians(0));
+            case BLUE_WALL:startPostion = new Pose2d(-29.75, 62.6, Math.toRadians(0));
                 setAllianceColor(AllianceColor.BLUE);
                 break;
-            case RED_WAREHOUSE:startPostion = new Pose2d(12.5, -63.75, Math.toRadians(0));
+            case RED_WAREHOUSE:startPostion = new Pose2d(10.75, -62.6, Math.toRadians(0));
                 setAllianceColor(AllianceColor.RED);
                 break;
-            case BLUE_WAREHOUSE:startPostion = new Pose2d(12.5, 63.75, Math.toRadians(0));
+            case BLUE_WAREHOUSE:startPostion = new Pose2d(17, 62.6, Math.toRadians(0));
                 setAllianceColor(AllianceColor.BLUE);
                 break;
         }
