@@ -11,7 +11,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Pose2d8863;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.Pipelines.ShippingElementPipeline;
 
-public class AutonomousVisionLoadDuckSpinParkDepot implements AutonomousStateMachineFreightFrenzy {
+public class AutonomousDuckSpinVisionLoadParkDepot implements AutonomousStateMachineFreightFrenzy {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -80,7 +80,7 @@ public class AutonomousVisionLoadDuckSpinParkDepot implements AutonomousStateMac
     // from it
     //*********************************************************************************************
 
-    public AutonomousVisionLoadDuckSpinParkDepot(FreightFrenzyRobotRoadRunner robot, FreightFrenzyField field, Telemetry telemetry) {
+    public AutonomousDuckSpinVisionLoadParkDepot(FreightFrenzyRobotRoadRunner robot, FreightFrenzyField field, Telemetry telemetry) {
         this.robot = robot;
         this.field = field;
         switch (PersistantStorage.getShippingElementPosition()) {
@@ -186,13 +186,13 @@ public class AutonomousVisionLoadDuckSpinParkDepot implements AutonomousStateMac
                 case EXTENDING_LIFT:
                     switch (PersistantStorage.getShippingElementPosition()) {
                         case CENTER:
-                            //robot.lift.extendToMiddle();
+                            robot.lift.extendToMiddle();
                             break;
                         case LEFT:
-                           // robot.lift.extendToBottom();
+                            robot.lift.extendToBottom();
                             break;
                         case RIGHT:
-                            //robot.lift.extendToTop();
+                            robot.lift.extendToTop();
                             break;
                     }
                     currentState = States.DEPOSITING;
@@ -200,26 +200,26 @@ public class AutonomousVisionLoadDuckSpinParkDepot implements AutonomousStateMac
                 case DEPOSITING:
                     if (robot.lift.isExtensionMovementComplete()) {
                         if (PersistantStorage.getShippingElementPosition() == ShippingElementPipeline.ShippingPosition.RIGHT) {
-                           // robot.lift.deliveryServoToDumpIntoTopPosition();
+                            robot.lift.deliveryServoToDumpIntoTopPosition();
                         } else {
-                           // robot.lift.dump();
+                            robot.lift.dump();
                         }
                         robot.intake.getOutOfWay();
                         currentState = States.DEPOSIT_DONE;
                     }
                     break;
                 case DEPOSIT_DONE:
-                   // if (robot.lift.isDeliverServoPositionReached()) {
-                        //robot.lift.retract();
-                        currentState = States.MOVING_TO_DUCKS;
-                   // }
+                    if (robot.lift.isDeliverServoPositionReached()) {
+                        robot.lift.retract();
+                        currentState = States.APPROACHING_SIDE;
+                    }
                     break;
                 case MOVING_TO_DUCKS:
                     robot.mecanum.followTrajectory(trajectoryToDucks);
                     if (!robot.mecanum.isBusy()) {
                         robot.duckSpinner.turnOn();
                         //robot.mecanum.followTrajectoryAsync(trajectoryToParkPosition);
-                        currentState = States.AT_DUCK;
+                        currentState = States.MOVING_TO_HUB;
                     }
                     break;
                 case AT_DUCK:
