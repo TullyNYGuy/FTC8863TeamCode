@@ -288,19 +288,6 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
 
     boolean isLiftInit;
 
-    public boolean initPartOne() {
-        isLiftInit = false;
-        lift.init(config);
-        while (!lift.isInitComplete()) {
-            lift.update();
-        }
-        if (lift.isInitComplete()) {
-            isLiftInit = true;
-        }
-        return isLiftInit;
-    }
-
-
     /*
      * Every system must tell us when its init is complete. When all of the inits are complete, the
      * robot init is complete.

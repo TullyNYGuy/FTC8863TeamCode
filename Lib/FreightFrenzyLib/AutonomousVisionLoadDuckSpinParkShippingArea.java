@@ -123,7 +123,10 @@ public class AutonomousVisionLoadDuckSpinParkShippingArea implements AutonomousS
     @Override
     public void createTrajectories() {
 
+        //  THIS IS LOOKING GOOD TANYA. A COUPLE OF COMMENTS (in the form of // todo).
+
         trajectoryToHub = robot.mecanum.trajectoryBuilder(PoseStorageFF.START_POSE)
+                // todo What about heading? Will it always stay the same?
                 .lineTo(Pose2d8863.getVector2d(hubDumpPose))
                 .build();
         if (PersistantStorage.getAllianceColor() == AllianceColor.BLUE) {
@@ -164,12 +167,16 @@ public class AutonomousVisionLoadDuckSpinParkShippingArea implements AutonomousS
             case START:
                 isComplete = false;
                 robot.mecanum.setPoseEstimate(PoseStorageFF.START_POSE);
+                // todo It is very likely that the location of the robot, when it deposits into the
+                // shipping hub, is going to be different for the top level vs the middle and bottom
+                // levels.
                 robot.mecanum.followTrajectory(trajectoryToHub);
 
                 currentState = States.MOVING_TO_HUB;
                 break;
             case MOVING_TO_HUB:
                 if (!robot.mecanum.isBusy()) {
+                    // todo Check the next state. Is it correct?
                     currentState = States.READY_TO_DEPOSIT;
                 }
                 break;
@@ -189,6 +196,11 @@ public class AutonomousVisionLoadDuckSpinParkShippingArea implements AutonomousS
                 break;
             case DEPOSITING:
                 if (robot.lift.isExtensionMovementComplete()) {
+                    // todo I know it is confusing since the delivery servo position commands are public
+                    // but they are that way only to support some tests. The FFExtensionArm is smart
+                    // enough to know where it should dump. You essentially told it where when you
+                    // gave it extendToMiddle(), extendToBottom() or extendToTop(). All you have to do
+                    // is tell FFExtensionArm to dump(). It knows where.
                     if (PersistantStorage.getShippingElementPosition() == ShippingElementPipeline.ShippingPosition.RIGHT) {
                         robot.lift.deliveryServoToDumpIntoTopPosition();
                     } else {
@@ -213,6 +225,14 @@ public class AutonomousVisionLoadDuckSpinParkShippingArea implements AutonomousS
                 }
                 break;
             case AT_DUCK:
+                // todo We should alter the DuckSpinner class so that it knows how to auto spin a
+                // duck off the carousel. It should do that and tell you when it is complete. In
+                // other words, it should control how long it spins, not you. Why? Suppose we determine
+                // a timer is not a good way to go. Maybe we build in a sensor of some kind into the duck
+                // spinner. Then we change
+                // the implementation of spin is complete in the DuckSpinner. Your auto code does not have to
+                // change. All you are looking for is the DuckSpinner to say it is complete. You don't
+                // care how the determination of complete is made.
                 if (!robot.mecanum.isBusy()) {
                     timer.reset();
                     currentState = States.DUCK_SPINNING;
