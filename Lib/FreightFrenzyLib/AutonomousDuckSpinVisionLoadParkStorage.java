@@ -9,7 +9,6 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Pose2d8863;
-import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.Pipelines.ShippingElementPipeline;
 
 public class AutonomousDuckSpinVisionLoadParkStorage implements AutonomousStateMachineFreightFrenzy {
 
@@ -28,7 +27,7 @@ public class AutonomousDuckSpinVisionLoadParkStorage implements AutonomousStateM
         AT_DUCK,
         DUCK_SPINNING,
         APPROACHING_STORAGE,
-        Ready_TO_PARK,
+        READY_TO_PARK,
         DEPOSITING,
 
         COMPLETE,
@@ -164,8 +163,8 @@ public class AutonomousDuckSpinVisionLoadParkStorage implements AutonomousStateM
                 case START:
                     isComplete = false;
                     robot.mecanum.setPoseEstimate(PoseStorageFF.START_POSE);
-                    robot.mecanum.followTrajectory(trajectoryToHub);
-
+                    robot.mecanum.followTrajectory(trajectoryToDucks);
+                    robot.intake.getOutOfWay();
                     currentState = States.MOVING_TO_DUCKS;
                     break;
                 case MOVING_TO_HUB:
@@ -189,11 +188,8 @@ public class AutonomousDuckSpinVisionLoadParkStorage implements AutonomousStateM
                     break;
                 case DEPOSITING:
                     if (robot.lift.isExtensionMovementComplete()) {
-                        if (PersistantStorage.getShippingElementPosition() == ShippingElementPipeline.ShippingPosition.RIGHT) {
-                            robot.lift.deliveryServoToDumpIntoTopPosition();
-                        } else {
-                            robot.lift.dump();
-                        }
+                           robot.lift.dump();
+
                         robot.intake.getOutOfWay();
                         currentState = States.DEPOSIT_DONE;
                     }
@@ -205,7 +201,7 @@ public class AutonomousDuckSpinVisionLoadParkStorage implements AutonomousStateM
                     }
                     break;
                 case MOVING_TO_DUCKS:
-                    robot.mecanum.followTrajectory(trajectoryToDucks);
+
                     if (!robot.mecanum.isBusy()) {
                         robot.duckSpinner.turnOn();
                         //robot.mecanum.followTrajectoryAsync(trajectoryToParkPosition);
@@ -213,23 +209,25 @@ public class AutonomousDuckSpinVisionLoadParkStorage implements AutonomousStateM
                     }
                     break;
                 case AT_DUCK:
-                    if (!robot.mecanum.isBusy()) {
-                        timer.reset();
+                    if (robot.duckSpinner.spinTimeReached()) {
+                        robot.duckSpinner.turnOff();
                         currentState = States.DUCK_SPINNING;
                     }
                     break;
                 case DUCK_SPINNING:
-                    if (timer.milliseconds() > 2500) {
-                        robot.duckSpinner.turnOff();
+
+                        robot.mecanum.followTrajectory(trajectoryToHub);
                         currentState = States.MOVING_TO_HUB;
-                    }
-                    break;
-                case APPROACHING_STORAGE:
-                    if(!robot.mecanum.isBusy()){
-                    robot.mecanum.followTrajectory(trajectoryToStorage);}
 
                     break;
-                case Ready_TO_PARK:
+                case APPROACHING_STORAGE:
+                    if(robot.lift.isExtensionMovementComplete()){
+                    robot.mecanum.followTrajectory(trajectoryToStorage);
+                    currentState = States.READY_TO_PARK;
+                    }
+
+                    break;
+                case READY_TO_PARK:
                     if (!robot.mecanum.isBusy()) {
                         currentState = States.COMPLETE;
                     }

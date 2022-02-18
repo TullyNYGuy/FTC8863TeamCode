@@ -264,7 +264,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
         deliveryServo.setPosition("Transfer");
     }
 
-    public void deliveryServoToDumpIntoTopPosition() {
+    private void deliveryServoToDumpIntoTopPosition() {
         deliveryServo.setPosition("DumpIntoTop");
     }
 

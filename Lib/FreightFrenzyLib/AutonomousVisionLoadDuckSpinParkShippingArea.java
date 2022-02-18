@@ -82,20 +82,20 @@ public class AutonomousVisionLoadDuckSpinParkShippingArea implements AutonomousS
     public AutonomousVisionLoadDuckSpinParkShippingArea(FreightFrenzyRobotRoadRunner robot, FreightFrenzyField field, Telemetry telemetry) {
         this.robot = robot;
         this.field = field;
-        switch(PersistantStorage.getShippingElementPosition()){
+        switch (PersistantStorage.getShippingElementPosition()) {
             case CENTER:
             case LEFT:
-                if(PersistantStorage.getAllianceColor() == AllianceColor.BLUE){
+                if (PersistantStorage.getAllianceColor() == AllianceColor.BLUE) {
                     hubDumpPose = PoseStorageFF.DELIVER_TO_MID_AND_LOW_HUB_BLUE;
-                }else if(PersistantStorage.getAllianceColor() == AllianceColor.RED){
+                } else if (PersistantStorage.getAllianceColor() == AllianceColor.RED) {
                     hubDumpPose = PoseStorageFF.DELIVER_TO_MID_AND_LOW_HUB_RED;
                 }
 
                 break;
             case RIGHT:
-                if(PersistantStorage.getAllianceColor() == AllianceColor.BLUE){
+                if (PersistantStorage.getAllianceColor() == AllianceColor.BLUE) {
                     hubDumpPose = PoseStorageFF.DELIVER_TO_HIGH_HUB_BLUE;
-                }else if(PersistantStorage.getAllianceColor() == AllianceColor.RED){
+                } else if (PersistantStorage.getAllianceColor() == AllianceColor.RED) {
                     hubDumpPose = PoseStorageFF.DELIVER_TO_HIGH_HUB_RED;
                 }
                 break;
@@ -127,6 +127,8 @@ public class AutonomousVisionLoadDuckSpinParkShippingArea implements AutonomousS
 
         trajectoryToHub = robot.mecanum.trajectoryBuilder(PoseStorageFF.START_POSE)
                 // todo What about heading? Will it always stay the same?
+                //considering we put in a specific arm and a specific camera is used for each side, I'd say that
+                //the heading will stay constant
                 .lineTo(Pose2d8863.getVector2d(hubDumpPose))
                 .build();
         if (PersistantStorage.getAllianceColor() == AllianceColor.BLUE) {
@@ -170,6 +172,8 @@ public class AutonomousVisionLoadDuckSpinParkShippingArea implements AutonomousS
                 // todo It is very likely that the location of the robot, when it deposits into the
                 // shipping hub, is going to be different for the top level vs the middle and bottom
                 // levels.
+                //this is addressed in the constructor. Depending on the shipping element position the target spot for
+                //the hub is different
                 robot.mecanum.followTrajectory(trajectoryToHub);
 
                 currentState = States.MOVING_TO_HUB;
@@ -177,7 +181,7 @@ public class AutonomousVisionLoadDuckSpinParkShippingArea implements AutonomousS
             case MOVING_TO_HUB:
                 if (!robot.mecanum.isBusy()) {
                     // todo Check the next state. Is it correct?
-                    currentState = States.READY_TO_DEPOSIT;
+                    currentState = States.EXTENDING_LIFT;
                 }
                 break;
             case EXTENDING_LIFT:
@@ -201,11 +205,9 @@ public class AutonomousVisionLoadDuckSpinParkShippingArea implements AutonomousS
                     // enough to know where it should dump. You essentially told it where when you
                     // gave it extendToMiddle(), extendToBottom() or extendToTop(). All you have to do
                     // is tell FFExtensionArm to dump(). It knows where.
-                    if (PersistantStorage.getShippingElementPosition() == ShippingElementPipeline.ShippingPosition.RIGHT) {
-                        robot.lift.deliveryServoToDumpIntoTopPosition();
-                    } else {
-                        robot.lift.dump();
-                    }
+
+                    robot.lift.dump();
+
                     robot.intake.getOutOfWay();
                     currentState = States.DEPOSIT_DONE;
                 }
@@ -213,46 +215,41 @@ public class AutonomousVisionLoadDuckSpinParkShippingArea implements AutonomousS
             case DEPOSIT_DONE:
                 if (robot.lift.isDeliverServoPositionReached()) {
                     robot.lift.retract();
-                    currentState =States. MOVING_TO_DUCKS;
+
+                    currentState = States.MOVING_TO_DUCKS;
                 }
                 break;
             case MOVING_TO_DUCKS:
-                robot.mecanum.followTrajectory(trajectoryToDucks);
-                if (!robot.mecanum.isBusy()) {
-                    robot.duckSpinner.turnOn();
+
+                if (robot.lift.isExtensionMovementComplete()) {
+                    robot.mecanum.followTrajectory(trajectoryToDucks);
+
                     //robot.mecanum.followTrajectoryAsync(trajectoryToParkPosition);
                     currentState = States.AT_DUCK;
                 }
                 break;
             case AT_DUCK:
-                // todo We should alter the DuckSpinner class so that it knows how to auto spin a
-                // duck off the carousel. It should do that and tell you when it is complete. In
-                // other words, it should control how long it spins, not you. Why? Suppose we determine
-                // a timer is not a good way to go. Maybe we build in a sensor of some kind into the duck
-                // spinner. Then we change
-                // the implementation of spin is complete in the DuckSpinner. Your auto code does not have to
-                // change. All you are looking for is the DuckSpinner to say it is complete. You don't
-                // care how the determination of complete is made.
                 if (!robot.mecanum.isBusy()) {
-                    timer.reset();
+                    robot.duckSpinner.turnOn();
                     currentState = States.DUCK_SPINNING;
                 }
                 break;
             case DUCK_SPINNING:
-                if (timer.milliseconds() > 2500) {
+                if (robot.duckSpinner.spinTimeReached()) {
                     robot.duckSpinner.turnOff();
+                    robot.mecanum.followTrajectory(trajectoryToShippingArea);
                     currentState = States.APPROACHING_STORAGE;
                 }
                 break;
             case APPROACHING_STORAGE:
-                robot.mecanum.followTrajectory(trajectoryToShippingArea);
-                if(!robot.mecanum.isBusy()){
+                if (!robot.mecanum.isBusy()) {
                     currentState = States.COMPLETE;
                 }
                 break;
 
             case COMPLETE:
                 isComplete = true;
+                break;
         }
     }
 }

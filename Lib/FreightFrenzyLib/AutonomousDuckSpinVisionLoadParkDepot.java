@@ -174,6 +174,7 @@ public class AutonomousDuckSpinVisionLoadParkDepot implements AutonomousStateMac
             switch (currentState) {
                 case START:
                     isComplete = false;
+                    robot.intake.getOutOfWay();
                     robot.mecanum.setPoseEstimate(PoseStorageFF.START_POSE);
                     robot.mecanum.followTrajectory(trajectoryToDucks);
 
@@ -200,12 +201,8 @@ public class AutonomousDuckSpinVisionLoadParkDepot implements AutonomousStateMac
                     break;
                 case DEPOSITING:
                     if (robot.lift.isExtensionMovementComplete()) {
-                        if (PersistantStorage.getShippingElementPosition() == ShippingElementPipeline.ShippingPosition.RIGHT) {
-                            robot.lift.deliveryServoToDumpIntoTopPosition();
-                        } else {
-                            robot.lift.dump();
-                        }
-                        robot.intake.getOutOfWay();
+                        robot.lift.dump();
+
                         currentState = States.DEPOSIT_DONE;
                     }
                     break;
@@ -224,13 +221,12 @@ public class AutonomousDuckSpinVisionLoadParkDepot implements AutonomousStateMac
                     }
                     break;
                 case AT_DUCK:
-                    if (!robot.mecanum.isBusy()) {
-                        timer.reset();
+
                         currentState = States.DUCK_SPINNING;
-                    }
+
                     break;
                 case DUCK_SPINNING:
-                    if (timer.milliseconds() > 2500) {
+                    if (robot.duckSpinner.spinTimeReached()) {
                         robot.duckSpinner.turnOff();
                         currentState = States.MOVING_TO_HUB;
                     }

@@ -161,7 +161,7 @@ public class AutonomousVisionLoadDuckSpinNoParkNearWall implements AutonomousSta
                 break;
             case MOVING_TO_HUB:
                 if (!robot.mecanum.isBusy()) {
-                    currentState = States.READY_TO_DEPOSIT;
+                    currentState = States.EXTENDING_LIFT;
                 }
                 break;
             case EXTENDING_LIFT:
@@ -179,15 +179,12 @@ public class AutonomousVisionLoadDuckSpinNoParkNearWall implements AutonomousSta
                 currentState = States.DEPOSITING;
                 break;
             case DEPOSITING:
-                if(robot.lift.isExtensionMovementComplete()){
-                    if(PersistantStorage.getShippingElementPosition() == ShippingElementPipeline.ShippingPosition.RIGHT){
-                        robot.lift.deliveryServoToDumpIntoTopPosition();
-                    }else{
-                    robot.lift.dump();
-                    }
-                    robot.intake.getOutOfWay();
-                    currentState = States.DEPOSIT_DONE;
-                }
+               if(robot.lift.isExtensionMovementComplete()) {
+                   robot.lift.dump();
+
+                   robot.intake.getOutOfWay();
+                   currentState = States.DEPOSIT_DONE;
+               }
                 break;
             case DEPOSIT_DONE:
                 if(robot.lift.isDeliverServoPositionReached()){
@@ -196,21 +193,20 @@ public class AutonomousVisionLoadDuckSpinNoParkNearWall implements AutonomousSta
                 }
                 break;
             case MOVING_TO_DUCKS:
-                robot.mecanum.followTrajectory(trajectoryToDucks);
-                if (!robot.mecanum.isBusy()) {
-                    robot.duckSpinner.turnOn();
-                    //robot.mecanum.followTrajectoryAsync(trajectoryToParkPosition);
+                if(robot.lift.isExtensionMovementComplete()){
+                    robot.mecanum.followTrajectory(trajectoryToDucks);
                     currentState = States.AT_DUCK;
                 }
+
                 break;
             case AT_DUCK:
                 if (!robot.mecanum.isBusy()) {
-                    timer.reset();
+                    robot.duckSpinner.turnOn();
                     currentState = States.DUCK_SPINNING;
                 }
                 break;
             case DUCK_SPINNING:
-                if (timer.milliseconds()>2500) {
+                if (robot.duckSpinner.spinTimeReached()) {
                     robot.duckSpinner.turnOff();
                     currentState = States.COMPLETE;
                 }

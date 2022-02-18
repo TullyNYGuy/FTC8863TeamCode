@@ -3,11 +3,14 @@ package org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.internal.tfod.Timer;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.LoopTimer;
 
 public class DuckSpinner implements FTCRobotSubsystem {
     private enum SpinnerState{
@@ -22,6 +25,7 @@ public class DuckSpinner implements FTCRobotSubsystem {
     private AllianceColor color = PersistantStorage.getAllianceColor();
     private final String  DUCK_SPINNER_NAME = "Duck Spinner";
     public DuckSpinner(HardwareMap hardwareMap, Telemetry telemetry){
+        timer = new ElapsedTime();
         duckSpinner = hardwareMap.get(CRServo.class,FreightFrenzyRobotRoadRunner.HardwareName.DUCK_SPINNER.hwName);
         switch(color){
             case BLUE:duckSpinner.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -32,17 +36,27 @@ public class DuckSpinner implements FTCRobotSubsystem {
         duckSpinner.setPower(0);
        initComplete = true;
        spinnerState = SpinnerState.OFF;
-
     }
     // Turns off the duck spinner
     public void turnOff(){
         duckSpinner.setPower(0);
         spinnerState = SpinnerState.OFF;
+        duckDone = true;
     }
     // Turns on the duck spinner
     public void turnOn() {
         duckSpinner.setPower(1);
         spinnerState = SpinnerState.ON;
+        duckDone = false;
+        timer.reset();
+    }
+    private ElapsedTime timer;
+    private boolean duckDone;
+    public boolean spinTimeReached(){
+        if(timer.milliseconds() > 3000){
+            duckDone = true;
+        }
+        return duckDone;
     }
     //toggles the duck spinner
     public void toggleDuckSpinner(){
