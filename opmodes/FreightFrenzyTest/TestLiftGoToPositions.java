@@ -31,8 +31,8 @@ public class TestLiftGoToPositions extends LinearOpMode {
                 "retractionLimitSwitch",
                 "extensionArmMotor",
                 DcMotor8863.MotorType.GOBILDA_435,
-                6.3238);
-        lift.forwardMotorDirection();
+                5.713);
+        lift.reverseMotorDirection();
 
 
         //lift.reverseMotorDirection();

@@ -116,22 +116,6 @@ public class FFExtensionArm implements FTCRobotSubsystem {
     public FFExtensionArm(AllianceColor allianceColor, HardwareMap hardwareMap, Telemetry telemetry){
         this.allianceColor = allianceColor;
 
-        ffExtensionArm = new ExtensionRetractionMechanism(hardwareMap, telemetry,
-                "lift",
-                FreightFrenzyRobotRoadRunner.HardwareName.LIFT_LIMIT_SWITCH_EXTENSION.hwName,
-                FreightFrenzyRobotRoadRunner.HardwareName.LIFT_LIMIT_SWITCH_RETRACTION.hwName,
-                FreightFrenzyRobotRoadRunner.HardwareName.LIFT_MOTOR.hwName,
-                DcMotor8863.MotorType.GOBILDA_435,
-                6.3238);
-
-        ffExtensionArm.setResetTimerLimitInmSec(25000);
-        ffExtensionArm.setExtensionPower(0.9);
-        ffExtensionArm.setExtensionPositionInMechanismUnits(31.0);
-        ffExtensionArm.setRetractionPower(-0.5);
-        ffExtensionArm.setRetractionPositionInMechanismUnits(0.5);
-        ffExtensionArm.setDataLog(log);
-        ffExtensionArm.enableDataLogging();
-
         deliveryServo = new Servo8863New("deliveryServo" , hardwareMap, telemetry);
         deliveryServo.addPosition( "1.5 Extension",0.96,500, TimeUnit.MILLISECONDS);
         deliveryServo.addPosition( "3 Extension",0.90,500, TimeUnit.MILLISECONDS);
@@ -142,16 +126,39 @@ public class FFExtensionArm implements FTCRobotSubsystem {
         deliveryServo.addPosition( "DumpIntoTop",0.05,500, TimeUnit.MILLISECONDS);
         deliveryServo.addPosition( "DumpIntoMiddle",0.1,500, TimeUnit.MILLISECONDS);
         deliveryServo.addPosition( "DumpIntoBottom",0.13,500, TimeUnit.MILLISECONDS);
-        deliveryServo.addPosition( "LineUpDump",0.2,500, TimeUnit.MILLISECONDS);
+        deliveryServo.addPosition( "LineUpDump",0.17,500, TimeUnit.MILLISECONDS);
 
         if (allianceColor == AllianceColor.BLUE) {
+            ffExtensionArm = new ExtensionRetractionMechanism(hardwareMap, telemetry,
+                    "lift",
+                    FreightFrenzyRobotRoadRunner.HardwareName.LIFT_LIMIT_SWITCH_EXTENSION.hwName,
+                    FreightFrenzyRobotRoadRunner.HardwareName.LIFT_LIMIT_SWITCH_RETRACTION.hwName,
+                    FreightFrenzyRobotRoadRunner.HardwareName.LIFT_MOTOR.hwName,
+                    DcMotor8863.MotorType.GOBILDA_435,
+                    6.3238);
             ffExtensionArm.forwardMotorDirection();
             deliveryServo.setDirection(Servo.Direction.FORWARD);
         } else {
             // alliance is RED
+            ffExtensionArm = new ExtensionRetractionMechanism(hardwareMap, telemetry,
+                    "lift",
+                    FreightFrenzyRobotRoadRunner.HardwareName.LIFT_LIMIT_SWITCH_EXTENSION.hwName,
+                    FreightFrenzyRobotRoadRunner.HardwareName.LIFT_LIMIT_SWITCH_RETRACTION.hwName,
+                    FreightFrenzyRobotRoadRunner.HardwareName.LIFT_MOTOR.hwName,
+                    DcMotor8863.MotorType.GOBILDA_435,
+                    5.713);
             ffExtensionArm.reverseMotorDirection();
             deliveryServo.setDirection(Servo.Direction.REVERSE);
         }
+
+        ffExtensionArm.setResetTimerLimitInmSec(25000);
+        ffExtensionArm.setExtensionPower(0.9);
+        ffExtensionArm.setExtensionPositionInMechanismUnits(31.0);
+        ffExtensionArm.setRetractionPower(-0.5);
+        ffExtensionArm.setRetractionPositionInMechanismUnits(0.5);
+        ffExtensionArm.setDataLog(log);
+        ffExtensionArm.enableDataLogging();
+
 
         timer = new ElapsedTime();
         
@@ -469,7 +476,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
             // same as middle right now but may need to change later so make it separate from middle
             case EXTEND_TO_BOTTOM: {
                 //starts the extension to 1.5 inches the positions are a little weird but this goes to actually 1.5
-                ffExtensionArm.goToPosition(6.5, 0.9);
+                ffExtensionArm.goToPosition(6.5, 1.0);
                 // rest of the movements are the same as the extend to top
                 liftState = liftState.MOVE_SERVO_TO_1;
             }
@@ -501,8 +508,8 @@ public class FFExtensionArm implements FTCRobotSubsystem {
 
             case MOVE_SERVO_TO_3: {
                 // if the extension arm has made it to 5 inches, it starts the servo movement
-                if (ffExtensionArm.getPosition() > 6) {
-                    deliveryServo.setPosition("5 Extension");
+                if (ffExtensionArm.getPosition() > 8) {
+                    deliveryServoToLineUpDumpPosition ();
                     liftState = LiftState.EXTENDED_AT_FINAL_POSITION;
                 }
             }
@@ -567,7 +574,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
 
             case IS_DUMPED_INTO_TOP: {
                 //checks if dump was did or not
-                if (deliveryServo.isPositionReached() && timer.milliseconds() > 3000) {
+                if (deliveryServo.isPositionReached() && timer.milliseconds() > 1200) {
                     liftState = LiftState.RETRACT_FROM_TOP;
                 }
             }
