@@ -109,18 +109,16 @@ public class DuckSpinner implements FTCRobotSubsystem {
     @Override
     public void update() {
         switch (spinnerState) {
-            case ON: {
-            }
-            break;
-            case OFF: {
-            }
-            break;
-            case AUTO_SPIN: {
+            case ON:
+                break;
+            case OFF:
+                break;
+            case AUTO_SPIN:
                 if (timer.milliseconds() < 3000) {
                     // turnOff() also modifies the state to OFF so we don't need to do that here
                     turnOff();
                 }
-            }
+                break;
         }
     }
 
