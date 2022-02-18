@@ -28,7 +28,7 @@ public class TestLiftLimitSwitches extends LinearOpMode {
                 "retractionLimitSwitch",
                 "extensionArmMotor",
                 DcMotor8863.MotorType.GOBILDA_435,
-                4.517);
+                6.3238);
         // This is for the blue alliance
         //lift.reverseMotorDirection();
 

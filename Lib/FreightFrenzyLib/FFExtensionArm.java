@@ -122,7 +122,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
                 FreightFrenzyRobotRoadRunner.HardwareName.LIFT_LIMIT_SWITCH_RETRACTION.hwName,
                 FreightFrenzyRobotRoadRunner.HardwareName.LIFT_MOTOR.hwName,
                 DcMotor8863.MotorType.GOBILDA_435,
-                4.517);
+                6.3238);
 
         ffExtensionArm.setResetTimerLimitInmSec(25000);
         ffExtensionArm.setExtensionPower(0.9);
