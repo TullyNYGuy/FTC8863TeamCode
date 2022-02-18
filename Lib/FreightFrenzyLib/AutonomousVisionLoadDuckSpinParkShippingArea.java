@@ -230,13 +230,20 @@ public class AutonomousVisionLoadDuckSpinParkShippingArea implements AutonomousS
                 break;
             case AT_DUCK:
                 if (!robot.mecanum.isBusy()) {
-                    robot.duckSpinner.turnOn();
+                    // todo you should not have to know anything about how the duck spinner operates
+                    // It knows how to do that.
+                    //robot.duckSpinner.turnOn();
+                    robot.duckSpinner.autoSpin();
                     currentState = States.DUCK_SPINNING;
                 }
                 break;
             case DUCK_SPINNING:
-                if (robot.duckSpinner.spinTimeReached()) {
-                    robot.duckSpinner.turnOff();
+                // todo you should not have to know anything about how the duck spinner operates
+                // It knows how to do that. So you should don't have to know about times or how it
+                // does it's thing. All you need to know is that it did its thing and it is done.
+                //if (robot.duckSpinner.spinTimeReached()) {
+                    //robot.duckSpinner.turnOff();
+                if (robot.duckSpinner.isComplete()) {
                     robot.mecanum.followTrajectory(trajectoryToShippingArea);
                     currentState = States.APPROACHING_STORAGE;
                 }

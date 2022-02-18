@@ -16,6 +16,7 @@ public class DuckSpinner implements FTCRobotSubsystem {
     private enum SpinnerState{
         ON,
         OFF,
+        AUTO_SPIN
     }
     SpinnerState spinnerState;
     private CRServo duckSpinner;
@@ -50,6 +51,30 @@ public class DuckSpinner implements FTCRobotSubsystem {
         duckDone = false;
         timer.reset();
     }
+
+    /**
+     * Spin the duck spinner and automatically turn it off when complete. The determination of
+     * complete is based on a timer.
+     */
+    public void autoSpin() {
+        timer.reset();
+        turnOn();
+        spinnerState = SpinnerState.AUTO_SPIN;
+    }
+
+    /**
+     * Is the duck spinner complete?
+     * @return
+     */
+    public boolean isComplete() {
+        boolean result = false;
+        if (spinnerState == SpinnerState.OFF) {
+            result =  true;
+        }
+        return result;
+    }
+
+
     private ElapsedTime timer;
     private boolean duckDone;
     public boolean spinTimeReached(){
@@ -58,6 +83,8 @@ public class DuckSpinner implements FTCRobotSubsystem {
         }
         return duckDone;
     }
+
+
     //toggles the duck spinner
     public void toggleDuckSpinner(){
         if (spinnerState == SpinnerState.OFF){turnOn();}
@@ -81,7 +108,20 @@ public class DuckSpinner implements FTCRobotSubsystem {
 
     @Override
     public void update() {
-
+        switch (spinnerState) {
+            case ON: {
+            }
+            break;
+            case OFF: {
+            }
+            break;
+            case AUTO_SPIN: {
+                if (timer.milliseconds() < 3000) {
+                    // turnOff() also modifies the state to OFF so we don't need to do that here
+                    turnOff();
+                }
+            }
+        }
     }
 
     @Override
