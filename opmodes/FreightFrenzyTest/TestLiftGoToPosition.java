@@ -31,8 +31,8 @@ public class TestLiftGoToPosition extends LinearOpMode {
                 "retractionLimitSwitch",
                 "extensionArmMotor",
                 DcMotor8863.MotorType.GOBILDA_435,
-                4.517);
-        lift.reverseMotorDirection();
+                6.3238);
+        lift.forwardMotorDirection();
 
         lift.setResetTimerLimitInmSec(25000);
         lift.setExtensionPower(0.9);
@@ -49,7 +49,7 @@ public class TestLiftGoToPosition extends LinearOpMode {
 
         // Put your calls here - they will not run in a loop
 
-        lift.testGoToPosition(this, 30.0, 1.0);
+        lift.testGoToPosition(this, 26, 1);
 
         // after the retraction is complete, loop so the user can see the result
         while (opModeIsActive()){
