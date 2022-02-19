@@ -62,7 +62,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
         MOVE_SERVO_TO_TRANSFER,
         //RETRACT_TO_0,
     }
-    
+
     private enum InitState {
         IDLE,
         ONE,
@@ -78,6 +78,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
         MIDDLE,
         BOTTOM
     }
+
     private DeliveryBucketLocation currentDeliverBucketLocation = DeliveryBucketLocation.TRANSFER;
 
     // so we can remember which extend command was given
@@ -87,6 +88,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
         EXTEND_TO_MIDDLE,
         EXTEND_TO_BOTTOM
     }
+
     private ExtendCommand extendCommand = ExtendCommand.NONE;
 
     private boolean commandComplete = true;
@@ -107,26 +109,27 @@ public class FFExtensionArm implements FTCRobotSubsystem {
     private Servo8863New deliveryServo;
     private ElapsedTime timer;
     private AllianceColor allianceColor;
+
     //*********************************************************************************************
     //          Constructors
     //
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
-    public FFExtensionArm(AllianceColor allianceColor, HardwareMap hardwareMap, Telemetry telemetry){
+    public FFExtensionArm(AllianceColor allianceColor, HardwareMap hardwareMap, Telemetry telemetry) {
         this.allianceColor = allianceColor;
 
-        deliveryServo = new Servo8863New("deliveryServo" , hardwareMap, telemetry);
-        deliveryServo.addPosition( "1.5 Extension",0.96,500, TimeUnit.MILLISECONDS);
-        deliveryServo.addPosition( "3 Extension",0.90,500, TimeUnit.MILLISECONDS);
-        deliveryServo.addPosition( "5 Extension",0.85,500, TimeUnit.MILLISECONDS);
-        deliveryServo.addPosition( "Transfer",0.98,500, TimeUnit.MILLISECONDS);
-        deliveryServo.addPosition( "Init",1,500, TimeUnit.MILLISECONDS);
-        deliveryServo.addPosition( "Parallel",0.83,500, TimeUnit.MILLISECONDS);
-        deliveryServo.addPosition( "DumpIntoTop",0.05,500, TimeUnit.MILLISECONDS);
-        deliveryServo.addPosition( "DumpIntoMiddle",0.04,500, TimeUnit.MILLISECONDS);
-        deliveryServo.addPosition( "DumpIntoBottom",0.13,500, TimeUnit.MILLISECONDS);
-        deliveryServo.addPosition( "LineUpDump",0.17,500, TimeUnit.MILLISECONDS);
+        deliveryServo = new Servo8863New("deliveryServo", hardwareMap, telemetry);
+        deliveryServo.addPosition("1.5 Extension", 0.96, 500, TimeUnit.MILLISECONDS);
+        deliveryServo.addPosition("3 Extension", 0.90, 500, TimeUnit.MILLISECONDS);
+        deliveryServo.addPosition("5 Extension", 0.85, 500, TimeUnit.MILLISECONDS);
+        deliveryServo.addPosition("Transfer", 0.98, 500, TimeUnit.MILLISECONDS);
+        deliveryServo.addPosition("Init", 1, 500, TimeUnit.MILLISECONDS);
+        deliveryServo.addPosition("Parallel", 0.83, 500, TimeUnit.MILLISECONDS);
+        deliveryServo.addPosition("DumpIntoTop", 0.05, 500, TimeUnit.MILLISECONDS);
+        deliveryServo.addPosition("DumpIntoMiddle", 0.04, 500, TimeUnit.MILLISECONDS);
+        deliveryServo.addPosition("DumpIntoBottom", 0.13, 500, TimeUnit.MILLISECONDS);
+        deliveryServo.addPosition("LineUpDump", 0.17, 500, TimeUnit.MILLISECONDS);
 
         if (allianceColor == AllianceColor.BLUE) {
             ffExtensionArm = new ExtensionRetractionMechanism(hardwareMap, telemetry,
@@ -161,7 +164,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
 
 
         timer = new ElapsedTime();
-        
+
         currentDeliverBucketLocation = DeliveryBucketLocation.TRANSFER;
         liftState = LiftState.IDLE;
     }
@@ -176,7 +179,6 @@ public class FFExtensionArm implements FTCRobotSubsystem {
     public String getName() {
         return "lift";
     }
-
 
 
     @Override
@@ -209,7 +211,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
-    public String getLiftState(){
+    public String getLiftState() {
         return liftState.toString();
     }
 
@@ -220,7 +222,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
         return false;
     }
 
-    public boolean isInitComplete(){
+    public boolean isInitComplete() {
         boolean result = false;
         ffExtensionArm.update();
         switch (initState) {
@@ -230,28 +232,27 @@ public class FFExtensionArm implements FTCRobotSubsystem {
             break;
 
             case ONE: {
-                if(ffExtensionArm.isInitComplete()){
+                if (ffExtensionArm.isInitComplete()) {
                     ffExtensionArm.goToPosition(0.5, 0.3);
                     initState = InitState.TWO;
                 }
-
             }
             break;
 
             case TWO: {
-                if(ffExtensionArm.isPositionReached()){
+                if (ffExtensionArm.isPositionReached()) {
                     deliveryServoToTransferPosition();
                     initState = InitState.DELIVERY_SERVO_MOVING;
                 }
-
             }
             break;
 
-            case DELIVERY_SERVO_MOVING:
+            case DELIVERY_SERVO_MOVING: {
                 if (deliveryServo.isPositionReached()) {
-                    initState  = InitState.DONE;
+                    initState = InitState.DONE;
                 }
-                break;
+            }
+            break;
 
             case DONE: {
                 result = true;
@@ -298,7 +299,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
     // Public commands for controlling the extension arm / delivery bucket
     //********************************************************************************
 
-    public void dump(){
+    public void dump() {
         // lockout for double hits on a command button. Downside is that the driver better hit the
         // right button the first time or they are toast
         if (commandComplete) {
@@ -325,7 +326,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
         }
     }
 
-    public void extendToTop(){
+    public void extendToTop() {
         // lockout for double hits on a command button. Downside is that the driver better hit the
         // right button the first time or they are toast
         if (commandComplete) {
@@ -339,7 +340,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
         }
     }
 
-    public void extendToMiddle(){
+    public void extendToMiddle() {
         // lockout for double hits on a command button. Downside is that the driver better hit the
         // right button the first time or they are toast
         if (commandComplete) {
@@ -353,7 +354,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
         }
     }
 
-    public void extendToBottom(){
+    public void extendToBottom() {
         // lockout for double hits on a command button. Downside is that the driver better hit the
         // right button the first time or they are toast
         if (commandComplete) {
@@ -367,27 +368,27 @@ public class FFExtensionArm implements FTCRobotSubsystem {
         }
     }
 
-    public void retract(){
+    public void retract() {
         // lockout for double hits on a command button. Downside is that the driver better hit the
         // right button the first time or they are toast
         if (commandComplete) {
             commandComplete = false;
-        // Find where the bucket is located and then start the retract
-        switch (currentDeliverBucketLocation) {
-            case TRANSFER:
-                // if you get a RETRACT command and the bucket is still in the transfer location 
-                // ignore the command
-                break;
-            case TOP:
-                liftState = LiftState.RETRACT_FROM_TOP;
-                break;
-            case MIDDLE:
-                liftState = LiftState.RETRACT_FROM_MIDDLE;
-                break;
-            case BOTTOM:
-                liftState = LiftState.RETRACT_FROM_BOTTOM;
-                break;
-        }
+            // Find where the bucket is located and then start the retract
+            switch (currentDeliverBucketLocation) {
+                case TRANSFER:
+                    // if you get a RETRACT command and the bucket is still in the transfer location
+                    // ignore the command
+                    break;
+                case TOP:
+                    liftState = LiftState.RETRACT_FROM_TOP;
+                    break;
+                case MIDDLE:
+                    liftState = LiftState.RETRACT_FROM_MIDDLE;
+                    break;
+                case BOTTOM:
+                    liftState = LiftState.RETRACT_FROM_BOTTOM;
+                    break;
+            }
         } else {
             // you can't start a new command when the old one is not finished
         }
@@ -398,22 +399,20 @@ public class FFExtensionArm implements FTCRobotSubsystem {
     // Public commands for testing the extension arm / delivery bucket
     //********************************************************************************
 
-    public boolean isStateWaitingToDump(){
+    public boolean isStateWaitingToDump() {
         //this is just for use in the freight system.
-        if(liftState == LiftState.WAITING_TO_DUMP){
+        if (liftState == LiftState.WAITING_TO_DUMP) {
             return true;
-        }
-        else{
+        } else {
             return false;
         }
     }
 
-    public boolean isStateIdle(){
+    public boolean isStateIdle() {
         //this is just for use in the freight system.
-        if(liftState == LiftState.IDLE){
+        if (liftState == LiftState.IDLE) {
             return true;
-        }
-        else{
+        } else {
             return false;
         }
     }
@@ -422,7 +421,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
         ffExtensionArm.goToPosition(position, power);
     }
 
-    public void rotateToPosition(double position){
+    public void rotateToPosition(double position) {
         // this is probably not the best way to do this
         //deliveryServo.addPosition("position", position, 500, TimeUnit.MILLISECONDS);
         //deliveryServo.setPosition("position");
@@ -516,7 +515,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
 
             case MOVE_SERVO_TO_2: {
                 // if the extension arm has made it to 3 inches, it starts the servo movement
-                if (ffExtensionArm.getPosition() > 3.8 ) {
+                if (ffExtensionArm.getPosition() > 3.8) {
                     deliveryServo.setPosition("3 Extension");
                     liftState = LiftState.MOVE_SERVO_TO_3;
                 }
@@ -527,7 +526,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
             case MOVE_SERVO_TO_3: {
                 // if the extension arm has made it to 5 inches, it starts the servo movement
                 if (ffExtensionArm.getPosition() > 8) {
-                    deliveryServoToLineUpDumpPosition ();
+                    deliveryServoToLineUpDumpPosition();
                     liftState = LiftState.EXTENDED_AT_FINAL_POSITION;
                 }
             }
@@ -577,7 +576,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
             //********************************************************************************
             // DUMP INTO TOP states
             //********************************************************************************
-            
+
             case DUMP_INTO_TOP: {
                 // dump freight into top level. here the timer does serve the purpose of making sure the delivery is clear,
                 // but the time can probably be shortened
@@ -598,7 +597,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
             //********************************************************************************
             // DUMP INTO MIDDLE states
             //********************************************************************************
-            
+
             case DUMP_INTO_MIDDLE: {
                 // dump freight into middle level. here the timer does serve the purpose of making sure the delivery is clear,
                 // but the time can probably be shortened
@@ -636,7 +635,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
                 }
             }
             break;
-            
+
             //********************************************************************************
             // RETRACT from top states
             //********************************************************************************
@@ -694,7 +693,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
 
             case RETRACT_TO_TRANSFER: {
                 // starts retraction
-                if(ffExtensionArm.isPositionReached() && timer.milliseconds() > 1500){
+                if (ffExtensionArm.isPositionReached() && timer.milliseconds() > 1500) {
                     ffExtensionArm.goToPosition(0.5, 0.5);
                     liftState = LiftState.MOVE_SERVO_TO_2R;
                 }
@@ -705,7 +704,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
 
             case MOVE_SERVO_TO_2R: {
                 // move servo to 3 inch positon
-                if(ffExtensionArm.getPosition() < 8){
+                if (ffExtensionArm.getPosition() < 8) {
                     deliveryServo.setPosition("3 Extension");
                     liftState = LiftState.MOVE_SERVO_TO_1R;
                 }
@@ -715,7 +714,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
 
             case MOVE_SERVO_TO_1R: {
                 //move servo to 1.5 inch
-                if (ffExtensionArm.getPosition() < 5.8 ){
+                if (ffExtensionArm.getPosition() < 5.8) {
                     deliveryServo.setPosition("1.5 Extension");
                     liftState = LiftState.MOVE_SERVO_TO_TRANSFER;
                 }
@@ -725,7 +724,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
 
             case MOVE_SERVO_TO_TRANSFER: {
                 // move servo to transfer  position
-                if (ffExtensionArm.getPosition() < 4.2){
+                if (ffExtensionArm.getPosition() < 4.2) {
                     deliveryServoToTransferPosition();
                     currentDeliverBucketLocation = DeliveryBucketLocation.TRANSFER;
                     // commandComplete is set to true in IDLE state

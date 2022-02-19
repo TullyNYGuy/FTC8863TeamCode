@@ -25,7 +25,7 @@ public class FFFreightSystem implements FTCRobotSubsystem {
         WAIT_FOR_ARM_INIT,
         INIT_INTAKE,
         WAIT_FOR_INTAKE_INIT,
-        INIT_DONE
+        INIT_DONZO
     }
 
     private enum Mode {
@@ -158,7 +158,7 @@ public class FFFreightSystem implements FTCRobotSubsystem {
 
             case WAIT_FOR_INTAKE_INIT: {
                 if (ffIntake.isInitComplete()) {
-                    state = State.INIT_DONE;
+                    state = State.INIT_DONZO;
                 }
             }
             break;
