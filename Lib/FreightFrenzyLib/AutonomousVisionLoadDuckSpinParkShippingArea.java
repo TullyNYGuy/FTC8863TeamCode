@@ -60,6 +60,8 @@ public class AutonomousVisionLoadDuckSpinParkShippingArea implements AutonomousS
     private double angleOfShot = 0;
     private boolean isComplete = false;
 
+    private boolean debugPositions = false;
+
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -185,18 +187,26 @@ public class AutonomousVisionLoadDuckSpinParkShippingArea implements AutonomousS
                 }
                 break;
             case EXTENDING_LIFT:
-                switch (PersistantStorage.getShippingElementPosition()) {
-                    case CENTER:
-                        robot.lift.extendToMiddle();
-                        break;
-                    case LEFT:
-                        robot.lift.extendToBottom();
-                        break;
-                    case RIGHT:
-                        robot.lift.extendToTop();
-                        break;
+                if (!debugPositions) {
+                    // if we are not debugging positions, then run the extension
+                    switch (PersistantStorage.getShippingElementPosition()) {
+                        case CENTER:
+                            robot.lift.extendToMiddle();
+                            break;
+                        case LEFT:
+                            robot.lift.extendToBottom();
+                            break;
+                        case RIGHT:
+                            robot.lift.extendToTop();
+                            break;
+                    }
+                    currentState = States.DEPOSITING;
+                } else {
+                    // we are debugging positions so the only thing we want the robot to do is follow
+                    // trajectories. Skip the extension arm and delivery
+                    robot.mecanum.followTrajectory(trajectoryToDucks);
+                    currentState = States.AT_DUCK;
                 }
-                currentState = States.DEPOSITING;
                 break;
             case DEPOSITING:
                 if (robot.lift.isExtensionMovementComplete()) {
@@ -233,8 +243,13 @@ public class AutonomousVisionLoadDuckSpinParkShippingArea implements AutonomousS
                     // todo you should not have to know anything about how the duck spinner operates
                     // It knows how to do that.
                     //robot.duckSpinner.turnOn();
-                    robot.duckSpinner.autoSpin();
-                    currentState = States.DUCK_SPINNING;
+                    if (!debugPositions) {
+                        robot.duckSpinner.autoSpin();
+                        currentState = States.DUCK_SPINNING;
+                    } else {
+                        robot.mecanum.followTrajectory(trajectoryToShippingArea);
+                        currentState = States.APPROACHING_STORAGE;
+                    }
                 }
                 break;
             case DUCK_SPINNING:
