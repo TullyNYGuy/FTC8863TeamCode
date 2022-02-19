@@ -13,10 +13,20 @@ public class PoseStorageFF {
 
     public static Pose2d START_POSE;
     //public static Pose2d START_POSE = new Pose2d(-61.25, -17, Math.toRadians(180));
-    public static Pose2d DELIVER_TO_MID_AND_LOW_HUB_RED = new Pose2d(-12, -29, Math.toRadians(0)); // <- test this
-    public static Pose2d DELIVER_TO_MID_AND_LOW_HUB_BLUE = new Pose2d(-12, 29, Math.toRadians(0)); // <- test this
-    public static Pose2d DELIVER_TO_HIGH_HUB_RED = new Pose2d(-12, -63.75, Math.toRadians(0)); // <- test this
-    public static Pose2d DELIVER_TO_HIGH_HUB_BLUE = new Pose2d(-12, 63.75, Math.toRadians(0)); // <- test this
+    public static Pose2d DELIVER_TO_LOW_RED_WALL = new Pose2d();
+    public static Pose2d DELIVER_TO_LOW_RED_WAREHOUSE= new Pose2d();
+    public static Pose2d DELIVER_TO_LOW_BLUE_WALL= new Pose2d();
+    public static Pose2d DELIVER_TO_LOW_BLUE_WAREHOUSE= new Pose2d();
+    public static Pose2d DELIVER_TO_MID_RED_WALL= new Pose2d(-35,-44.5, Math.toRadians(-44.4));
+    public static Pose2d DELIVER_TO_MID_RED_WAREHOUSE = new Pose2d(5.75,-49, Math.toRadians(-321.4));
+    public static Pose2d DELIVER_TO_MID_BLUE_WALL = new Pose2d(-35,44.5, Math.toRadians(44.4));
+    public static Pose2d DELIVER_TO_MID_BLUE_WAREHOUSE= new Pose2d(5.75,49, Math.toRadians(321.4));
+    public static Pose2d DELIVER_TO_HIGH_HUB_RED_WALL= new Pose2d();
+    public static Pose2d DELIVER_TO_HIGH_HUB_RED_WAREHOUSE= new Pose2d();
+    public static Pose2d DELIVER_TO_HIGH_HUB_BLUE_WALL= new Pose2d();
+    public static Pose2d DELIVER_TO_HIGH_HUB_BLUE_WAREHOUSE= new Pose2d();
+    public static Pose2d DELIVER_TO_HIGH_HUB_BLUE_STORAGE= new Pose2d();
+    public static Pose2d DELIVER_TO_HIGH_HUB_RED_STORAGE= new Pose2d();
     public static Pose2d TOP_PASSAGE_RED = new Pose2d(47, 0); // <- need test
     public static Pose2d FREIGHT_BLUE =  new Pose2d(60, 65, Math.toRadians(0));
     public static Pose2d HUB_BLUE_INTAKE_DUMP = new Pose2d(-12, 49,Math.toRadians(270));
@@ -37,5 +47,6 @@ public class PoseStorageFF {
 
     public static void retreiveStartPose(){
         START_POSE = PersistantStorage.getStartPosition();
+
     }
 }

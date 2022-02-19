@@ -67,6 +67,7 @@ import org.openftc.easyopencv.OpenCvPipeline;
 import org.openftc.easyopencv.OpenCvWebcam;
 
 @TeleOp
+@Disabled
 public class EOCVWebcamTest extends LinearOpMode {
     OpenCvWebcam webcam;
 
