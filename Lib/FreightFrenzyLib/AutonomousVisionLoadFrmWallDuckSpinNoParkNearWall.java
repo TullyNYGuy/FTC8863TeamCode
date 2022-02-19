@@ -11,7 +11,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Pose2d8863;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.Pipelines.ShippingElementPipeline;
 
-public class AutonomousMovesOnly implements AutonomousStateMachineFreightFrenzy {
+public class AutonomousVisionLoadFrmWallDuckSpinNoParkNearWall implements AutonomousStateMachineFreightFrenzy {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -23,6 +23,8 @@ public class AutonomousMovesOnly implements AutonomousStateMachineFreightFrenzy 
         IDLE,
         START,
         MOVING_TO_HUB,
+        EXTENDING_LIFT,
+        DEPOSIT_DONE,
         READY_TO_DEPOSIT,
         MOVING_TO_DUCKS,
         AT_DUCK,
@@ -31,10 +33,7 @@ public class AutonomousMovesOnly implements AutonomousStateMachineFreightFrenzy 
         GOING_TO_PASSAGE,
         DEPOSITING,
         GO_TO_WAREHOUSE,
-        COMPLETE,
-        EXTENDING_LIFT,
-        DEPOSIT_DONE,
-        PARKED,
+        COMPLETE;
     }
 
     //*********************************************************************************************
@@ -50,13 +49,13 @@ public class AutonomousMovesOnly implements AutonomousStateMachineFreightFrenzy 
     private ElapsedTime timer;
     private DistanceUnit distanceUnits;
     private AngleUnit angleUnits;
-    private Pose2d hubDumpPose;
+
     private Trajectory trajectoryToHub;
     private Trajectory trajectoryToDucks;
     private Trajectory trajectoryToPassageApproach;
     private Trajectory trajectoryToPassage;
     private Trajectory trajectoryToWarehoue;
-
+    private Pose2d hubDumpPose;
     private double distanceToTopGoal = 0;
     private double distanceToLeftPowerShot = 0;
     private double angleOfShot = 0;
@@ -81,10 +80,10 @@ public class AutonomousMovesOnly implements AutonomousStateMachineFreightFrenzy 
     // from it
     //*********************************************************************************************
 
-    public AutonomousMovesOnly(FreightFrenzyRobotRoadRunner robot, FreightFrenzyField field, Telemetry telemetry) {
+    public AutonomousVisionLoadFrmWallDuckSpinNoParkNearWall(FreightFrenzyRobotRoadRunner robot, FreightFrenzyField field, Telemetry telemetry) {
         this.robot = robot;
         this.field = field;
-        switch (PersistantStorage.getShippingElementPosition()) {
+        switch(PersistantStorage.getShippingElementPosition()){
             case CENTER:
                 if (PersistantStorage.getAllianceColor() == AllianceColor.BLUE) {
                     hubDumpPose = PoseStorageFF.DELIVER_TO_MID_BLUE_WALL;
@@ -134,123 +133,94 @@ public class AutonomousMovesOnly implements AutonomousStateMachineFreightFrenzy 
 
         trajectoryToHub = robot.mecanum.trajectoryBuilder(PoseStorageFF.START_POSE)
                 .lineToLinearHeading(hubDumpPose)
+                //.lineTo(Pose2d8863.getVector2d(PoseStorage.SHOOTING_AT_HIGH_GOAL))
                 .build();
-        if (PersistantStorage.getAllianceColor() == AllianceColor.BLUE) {
-            trajectoryToDucks = robot.mecanum.trajectoryBuilder(trajectoryToHub.end())
-                    .lineToLinearHeading(PoseStorageFF.DUCK_SPINNER_BLUE)
-                    .build();
-            trajectoryToPassageApproach = robot.mecanum.trajectoryBuilder(trajectoryToDucks.end())
-                    .lineToLinearHeading(PoseStorageFF.BLUE_SIDE_PASSAGE_APPROACH)
-                    .build();
-            trajectoryToPassage = robot.mecanum.trajectoryBuilder(trajectoryToPassageApproach.end())
-                    .lineToLinearHeading(PoseStorageFF.SIDE_PASSAGE_BLUE)
-                    .build();
-            trajectoryToWarehoue = robot.mecanum.trajectoryBuilder(trajectoryToPassage.end())
-                    .lineToLinearHeading(PoseStorageFF.FREIGHT_BLUE)
-                    .build();
-        } else {
-            trajectoryToDucks = robot.mecanum.trajectoryBuilder(trajectoryToHub.end())
-                    .lineToLinearHeading(PoseStorageFF.DUCK_SPINNER_RED)
-                    .build();
-            trajectoryToPassageApproach = robot.mecanum.trajectoryBuilder(trajectoryToDucks.end())
-                    .lineToLinearHeading(PoseStorageFF.RED_SIDE_PASSAGE_APPROACH)
-                    .build();
-            trajectoryToPassage = robot.mecanum.trajectoryBuilder(trajectoryToPassageApproach.end())
-                    .lineToLinearHeading(PoseStorageFF.SIDE_PASSAGE_RED)
-                    .build();
-            trajectoryToWarehoue = robot.mecanum.trajectoryBuilder(trajectoryToPassage.end())
-                    .lineToLinearHeading(PoseStorageFF.FREIGHT_RED)
-                    .build();
-        }
+    if(PersistantStorage.getAllianceColor() == AllianceColor.BLUE) {
+        trajectoryToDucks = robot.mecanum.trajectoryBuilder(trajectoryToHub.end())
+                .lineToLinearHeading(PoseStorageFF.DUCK_SPINNER_BLUE)
+                .build();
+    }else {trajectoryToDucks = robot.mecanum.trajectoryBuilder(trajectoryToHub.end())
+            .lineToLinearHeading(PoseStorageFF.DUCK_SPINNER_RED)
+            .build();}
     }
 
-        //*********************************************************************************************
-        //          MAJOR METHODS
-        //
-        // public methods that give the class its functionality
-        //*********************************************************************************************
 
-        @Override
-        public void start () {
-            currentState = States.START;
-            isComplete = false;
-        }
+    //*********************************************************************************************
+    //          MAJOR METHODS
+    //
+    // public methods that give the class its functionality
+    //*********************************************************************************************
 
-        @Override
-        public void update () {
-            switch (currentState) {
-                case START:
-                    isComplete = false;
-                    robot.mecanum.setPoseEstimate(PoseStorageFF.START_POSE);
-                    robot.mecanum.followTrajectory(trajectoryToDucks);
+    @Override
+    public void start() {
+        currentState = States.START;
+        isComplete = false;
+    }
 
+    @Override
+    public void update() {
+        switch (currentState) {
+            case START:
+                isComplete = false;
+                robot.mecanum.setPoseEstimate(PoseStorageFF.START_POSE);
+                robot.mecanum.followTrajectory(trajectoryToHub);
+
+                currentState = States.MOVING_TO_HUB;
+                break;
+            case MOVING_TO_HUB:
+                if (!robot.mecanum.isBusy()) {
+                    currentState = States.EXTENDING_LIFT;
+                }
+                break;
+            case EXTENDING_LIFT:
+                switch(PersistantStorage.getShippingElementPosition()){
+                    case CENTER:
+                        robot.lift.extendToMiddle();
+                        break;
+                    case LEFT:
+                        robot.lift.extendToBottom();
+                        break;
+                    case RIGHT:
+                        robot.lift.extendToTop();
+                        break;
+                }
+                currentState = States.DEPOSITING;
+                break;
+            case DEPOSITING:
+               if(robot.lift.isExtensionMovementComplete()) {
+                   robot.lift.dump();
+
+                   robot.intake.getOutOfWay();
+                   currentState = States.DEPOSIT_DONE;
+               }
+                break;
+            case DEPOSIT_DONE:
+                if(robot.lift.isDeliverServoPositionReached()){
+                    robot.lift.retract();
                     currentState = States.MOVING_TO_DUCKS;
-                    break;
-                case MOVING_TO_HUB:
-                    if (!robot.mecanum.isBusy()) {
-                        currentState = States.EXTENDING_LIFT;
-                    }
-                    break;
-                case EXTENDING_LIFT:
+                }
+                break;
+            case MOVING_TO_DUCKS:
+                if(robot.lift.isExtensionMovementComplete()){
+                    robot.mecanum.followTrajectory(trajectoryToDucks);
+                    currentState = States.AT_DUCK;
+                }
 
-                    currentState = States.DEPOSITING;
-                    break;
-                case DEPOSITING:
-
-                        currentState = States.DEPOSIT_DONE;
-
-                    break;
-                case DEPOSIT_DONE:
-
-
-                        currentState = States.APPROACHING_SIDE;
-
-                    break;
-                case MOVING_TO_DUCKS:
-                    //robot.mecanum.followTrajectory(trajectoryToDucks);
-                    if (!robot.mecanum.isBusy()) {
-                       currentState = States.AT_DUCK;
-                    }
-                    break;
-                case AT_DUCK:
-                    if (!robot.mecanum.isBusy()) {
-                        timer.reset();
-                        currentState = States.DUCK_SPINNING;
-                    }
-                    break;
-                case DUCK_SPINNING:
-                    if (timer.milliseconds() > 2500) {
-
-                        currentState = States.MOVING_TO_HUB;
-                    }
-                    break;
-                case APPROACHING_SIDE:
-
-
-                        robot.mecanum.followTrajectory(trajectoryToPassageApproach);
-                        currentState = States.GOING_TO_PASSAGE;
-
-                    break;
-                case GOING_TO_PASSAGE:
-
-                    if (!robot.mecanum.isBusy()) {
-                        robot.mecanum.followTrajectory(trajectoryToPassage);
-                        currentState = States.GO_TO_WAREHOUSE;
-                    }
-                    break;
-                case GO_TO_WAREHOUSE:
-                    if (!robot.mecanum.isBusy()) {
-                        robot.mecanum.followTrajectory(trajectoryToWarehoue);
-                        currentState = States.PARKED;
-                    }
-                    break;
-
-                case PARKED:
-                    if(!robot.mecanum.isBusy()){
-                        currentState = States.COMPLETE;
-                    }
-                case COMPLETE:
-                    isComplete = true;
-            }
+                break;
+            case AT_DUCK:
+                if (!robot.mecanum.isBusy()) {
+                    robot.duckSpinner.turnOn();
+                    currentState = States.DUCK_SPINNING;
+                }
+                break;
+            case DUCK_SPINNING:
+                if (robot.duckSpinner.spinTimeReached()) {
+                    robot.duckSpinner.turnOff();
+                    currentState = States.COMPLETE;
+                }
+                break;
+            case COMPLETE:
+                isComplete = true;
         }
     }
+}

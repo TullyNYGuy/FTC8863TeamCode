@@ -11,7 +11,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Pose2d8863;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.Pipelines.ShippingElementPipeline;
 
-public class AutonomousMovesOnly implements AutonomousStateMachineFreightFrenzy {
+public class AutonomousDuckSpinVisionLoadFrmWallParkDepot implements AutonomousStateMachineFreightFrenzy {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -81,7 +81,7 @@ public class AutonomousMovesOnly implements AutonomousStateMachineFreightFrenzy 
     // from it
     //*********************************************************************************************
 
-    public AutonomousMovesOnly(FreightFrenzyRobotRoadRunner robot, FreightFrenzyField field, Telemetry telemetry) {
+    public AutonomousDuckSpinVisionLoadFrmWallParkDepot(FreightFrenzyRobotRoadRunner robot, FreightFrenzyField field, Telemetry telemetry) {
         this.robot = robot;
         this.field = field;
         switch (PersistantStorage.getShippingElementPosition()) {
@@ -181,6 +181,7 @@ public class AutonomousMovesOnly implements AutonomousStateMachineFreightFrenzy 
             switch (currentState) {
                 case START:
                     isComplete = false;
+                    robot.intake.getOutOfWay();
                     robot.mecanum.setPoseEstimate(PoseStorageFF.START_POSE);
                     robot.mecanum.followTrajectory(trajectoryToDucks);
 
@@ -192,44 +193,57 @@ public class AutonomousMovesOnly implements AutonomousStateMachineFreightFrenzy 
                     }
                     break;
                 case EXTENDING_LIFT:
-
+                    switch (PersistantStorage.getShippingElementPosition()) {
+                        case CENTER:
+                            robot.lift.extendToMiddle();
+                            break;
+                        case LEFT:
+                            robot.lift.extendToBottom();
+                            break;
+                        case RIGHT:
+                            robot.lift.extendToTop();
+                            break;
+                    }
                     currentState = States.DEPOSITING;
                     break;
                 case DEPOSITING:
+                    if (robot.lift.isExtensionMovementComplete()) {
+                        robot.lift.dump();
 
                         currentState = States.DEPOSIT_DONE;
-
+                    }
                     break;
                 case DEPOSIT_DONE:
-
-
+                    if (robot.lift.isDeliverServoPositionReached()) {
+                        robot.lift.retract();
                         currentState = States.APPROACHING_SIDE;
-
+                    }
                     break;
                 case MOVING_TO_DUCKS:
                     //robot.mecanum.followTrajectory(trajectoryToDucks);
                     if (!robot.mecanum.isBusy()) {
-                       currentState = States.AT_DUCK;
+                        robot.duckSpinner.turnOn();
+                        //robot.mecanum.followTrajectoryAsync(trajectoryToParkPosition);
+                        currentState = States.AT_DUCK;
                     }
                     break;
                 case AT_DUCK:
-                    if (!robot.mecanum.isBusy()) {
-                        timer.reset();
+
                         currentState = States.DUCK_SPINNING;
-                    }
+
                     break;
                 case DUCK_SPINNING:
-                    if (timer.milliseconds() > 2500) {
-
+                    if (robot.duckSpinner.spinTimeReached()) {
+                        robot.duckSpinner.turnOff();
                         currentState = States.MOVING_TO_HUB;
                     }
                     break;
                 case APPROACHING_SIDE:
 
-
+                    if (robot.lift.isExtensionMovementComplete()) {
                         robot.mecanum.followTrajectory(trajectoryToPassageApproach);
                         currentState = States.GOING_TO_PASSAGE;
-
+                    }
                     break;
                 case GOING_TO_PASSAGE:
 

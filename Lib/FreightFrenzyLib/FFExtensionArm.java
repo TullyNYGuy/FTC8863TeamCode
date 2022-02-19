@@ -140,9 +140,9 @@ public class FFExtensionArm implements FTCRobotSubsystem {
         deliveryServo.addPosition( "Init",1,500, TimeUnit.MILLISECONDS);
         deliveryServo.addPosition( "Parallel",0.83,500, TimeUnit.MILLISECONDS);
         deliveryServo.addPosition( "DumpIntoTop",0.05,500, TimeUnit.MILLISECONDS);
-        deliveryServo.addPosition( "DumpIntoMiddle",0.1,500, TimeUnit.MILLISECONDS);
+        deliveryServo.addPosition( "DumpIntoMiddle",0.04,500, TimeUnit.MILLISECONDS);
         deliveryServo.addPosition( "DumpIntoBottom",0.13,500, TimeUnit.MILLISECONDS);
-        deliveryServo.addPosition( "LineUpDump",0.2,500, TimeUnit.MILLISECONDS);
+        deliveryServo.addPosition( "LineUpDump",0.17,500, TimeUnit.MILLISECONDS);
 
         if (allianceColor == AllianceColor.BLUE) {
             ffExtensionArm.reverseMotorDirection();
