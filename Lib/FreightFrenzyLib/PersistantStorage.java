@@ -50,13 +50,13 @@ public class PersistantStorage {
                 startPostion = new Pose2d(-35.25, -62.6, Math.toRadians(0));
                 setAllianceColor(AllianceColor.RED);
                 break;
-            case BLUE_WALL:startPostion = new Pose2d(-29.75, 62.6, Math.toRadians(0));
+            case BLUE_WALL:startPostion = new Pose2d(-35.25, 62.6, Math.toRadians(0));
                 setAllianceColor(AllianceColor.BLUE);
                 break;
             case RED_WAREHOUSE:startPostion = new Pose2d(10.75, -62.6, Math.toRadians(0));
                 setAllianceColor(AllianceColor.RED);
                 break;
-            case BLUE_WAREHOUSE:startPostion = new Pose2d(17, 62.6, Math.toRadians(0));
+            case BLUE_WAREHOUSE:startPostion = new Pose2d(11.5, 62.6, Math.toRadians(0));
                 setAllianceColor(AllianceColor.BLUE);
                 break;
         }

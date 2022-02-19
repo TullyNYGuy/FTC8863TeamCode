@@ -63,15 +63,15 @@ public class ShippingElementPipeline extends OpenCvPipeline {
     /*
      * The core values which define the location and size of the sample regions
      */
-    static final Point REGION1_TOPLEFT_ANCHOR_POINT_BLUE_WALL = new Point(140, 390);
-    static final Point REGION2_TOPLEFT_ANCHOR_POINT_BLUE_WALL = new Point(650, 390);
-    static final Point REGION3_TOPLEFT_ANCHOR_POINT_BLUE_WALL = new Point(1100, 390);
+    static final Point REGION1_TOPLEFT_ANCHOR_POINT_BLUE_WALL = new Point(200, 400);
+    static final Point REGION2_TOPLEFT_ANCHOR_POINT_BLUE_WALL = new Point(610, 400);
+    static final Point REGION3_TOPLEFT_ANCHOR_POINT_BLUE_WALL = new Point(1030, 400);
     static final Point REGION1_TOPLEFT_ANCHOR_POINT_RED_WALL = new Point(160, 390);
     static final Point REGION2_TOPLEFT_ANCHOR_POINT_RED_WALL = new Point(590, 390);
     static final Point REGION3_TOPLEFT_ANCHOR_POINT_RED_WALL = new Point(1000, 390);
-    static final Point REGION1_TOPLEFT_ANCHOR_POINT_BLUE_WAREHOUSE = new Point(1100, 390);
-    static final Point REGION2_TOPLEFT_ANCHOR_POINT_BLUE_WAREHOUSE = new Point(1100, 390);
-    static final Point REGION3_TOPLEFT_ANCHOR_POINT_BLUE_WAREHOUSE = new Point(1100, 390);
+    static final Point REGION1_TOPLEFT_ANCHOR_POINT_BLUE_WAREHOUSE = new Point(155, 400);
+    static final Point REGION2_TOPLEFT_ANCHOR_POINT_BLUE_WAREHOUSE = new Point(570, 400);
+    static final Point REGION3_TOPLEFT_ANCHOR_POINT_BLUE_WAREHOUSE = new Point(980, 400);
     static final Point REGION1_TOPLEFT_ANCHOR_POINT_RED_WAREHOUSE = new Point(220, 390);
     static final Point REGION2_TOPLEFT_ANCHOR_POINT_RED_WAREHOUSE = new Point(650, 390);
     static final Point REGION3_TOPLEFT_ANCHOR_POINT_RED_WAREHOUSE = new Point(1050, 390);
