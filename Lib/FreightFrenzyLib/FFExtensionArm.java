@@ -399,6 +399,16 @@ public class FFExtensionArm implements FTCRobotSubsystem {
     // Public commands for testing the extension arm / delivery bucket
     //********************************************************************************
 
+    public boolean isStateIdle(){
+        //this is just for use in the freight system.
+        if(liftState == LiftState.IDLE){
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+
     public void extendToPosition(double position, double power) {
         ffExtensionArm.goToPosition(position, power);
     }

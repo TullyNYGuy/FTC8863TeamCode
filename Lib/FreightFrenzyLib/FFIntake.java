@@ -53,7 +53,7 @@ public class FFIntake implements FTCRobotSubsystem {
         WAIT_FOR_LEVEL_TWO,
         EJECT_INTO_LEVEL_TWO,
         WAIT_FOR_EJECT_INTO_LEVEL_TWO,
-        STOP;
+        STOP,
     }
 
     // This tells us what do once we intake a freight
@@ -71,6 +71,7 @@ public class FFIntake implements FTCRobotSubsystem {
     // getter and setter methods
     //*********************************************************************************************
     private NormalizedColorSensor intakeSensor;
+    private NormalizedColorSensor transferSensor;
     private DcMotor8863 intakeSweeperMotor;
     private ElapsedTime timer;
     private Servo8863New rotateServo;
@@ -82,6 +83,7 @@ public class FFIntake implements FTCRobotSubsystem {
     private final String INTAKE_SWEEPER_MOTOR_NAME = FreightFrenzyRobotRoadRunner.HardwareName.INTAKE_SWEEPER_MOTOR.hwName;
     private final String INTAKE_SENSOR_NAME = FreightFrenzyRobotRoadRunner.HardwareName.INTAKE_SENSOR.hwName;
     private final String INTAKE_ROTATOR_SERVO_NAME = FreightFrenzyRobotRoadRunner.HardwareName.INTAKE_ROTATE_SERVO.hwName;
+    private final String TRANSFER_SENSOR_NAME = FreightFrenzyRobotRoadRunner.HardwareName.TRANSFER_SENSOR.hwName;
     private RevLEDBlinker ledBlinker;
 
     //*********************************************************************************************
@@ -98,9 +100,16 @@ public class FFIntake implements FTCRobotSubsystem {
         timer = new ElapsedTime();
         this.ledBlinker= ledBlinker;
         intakeSensor = hardwareMap.get(NormalizedColorSensor.class, INTAKE_SENSOR_NAME);
+        transferSensor = hardwareMap.get(NormalizedColorSensor.class, TRANSFER_SENSOR_NAME);
+
         if (intakeSensor instanceof SwitchableLight) {
             ((SwitchableLight) intakeSensor).enableLight(true);
         }
+
+        if (transferSensor instanceof SwitchableLight) {
+            ((SwitchableLight) transferSensor).enableLight(true);
+        }
+
         rotateServo = new Servo8863New(INTAKE_ROTATOR_SERVO_NAME, hardwareMap, telemetry);
         rotateServo.addPosition("Intake", .01, 1000, TimeUnit.MILLISECONDS);
         rotateServo.addPosition("Level 1", .23, 1000, TimeUnit.MILLISECONDS);
@@ -148,12 +157,21 @@ public class FFIntake implements FTCRobotSubsystem {
         rotateServo.setPosition("Deliver");
         return true;
     }
+    //this checks the transfer sensor to see whether or not the object has been transfered. in the robot code this should be used to start the extension.
+    public boolean isTransferComplete(){
+        if (((DistanceSensor) transferSensor).getDistance(DistanceUnit.CM) < 7) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
     //*********************************************************************************************
     //          MAJOR METHODS
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
+
 
     public boolean isComplete() {
         if (intakeState == IntakeState.IDLE) {
@@ -176,8 +194,8 @@ public class FFIntake implements FTCRobotSubsystem {
 
             case INTAKE: {
                 // fire up that motor baby! Dang that thing is loud!
-                intakeSweeperMotor.runAtConstantPower(.6);
                 rotateServo.setPosition("Intake");
+                intakeSweeperMotor.runAtConstantPower(.6);
                 ledBlinker.steadyRed();
                 intakeState = IntakeState.WAIT_FOR_FREIGHT;
             }
@@ -213,7 +231,33 @@ public class FFIntake implements FTCRobotSubsystem {
             }
             break;
 
+
+
+            //this is the version that uses the transfer sensor
+
             case OUTAKE: {
+                if(isTransferComplete()){
+                    //transfer is done time to chill
+                    PersistantStorage.isDeliveryFull = true;
+                    rotateServo.setPosition("Vertical");
+                    ledBlinker.steadyGreen();
+                    intakeSweeperMotor.setPower(0);
+                    intakeState = IntakeState.IDLE;
+                }
+                else{
+                    if(timer.milliseconds() > 5000){
+                        // uh oh spaghetti-o something broke. it was probably dade's fault.
+                        // the intake goes back to vertical so that the driver can spit out the freight onto the ground.
+                        rotateServo.setPosition("Vertical");
+                        intakeSweeperMotor.setPower(0);
+                        intakeState = IntakeState.IDLE;
+                    }
+                }
+            }
+            break;
+
+            //original non transfer sensor version
+            /*case OUTAKE: {
                 // hopefully the freight ejects in this amount of time
                 if (!isIntakeFull() && timer.milliseconds() > 1000) {
                     intakeSweeperMotor.setPower(0);
@@ -221,9 +265,12 @@ public class FFIntake implements FTCRobotSubsystem {
                     intakeState = IntakeState.WAIT_FOR_OUTAKE;
                 }
             }
-            break;
+            break;*/
 
-            case WAIT_FOR_OUTAKE: {
+
+
+            //this is the original just in case the sensor version doesn't work
+          /*  case WAIT_FOR_OUTAKE: {
                 if (timer.milliseconds() > 2000) {
                     if (isIntakeFull()){
                         intakeState = IntakeState.WAIT_FOR_ROTATION;
@@ -237,7 +284,7 @@ public class FFIntake implements FTCRobotSubsystem {
                     }
                 }
             }
-            break;
+            break;*/
 
             // **********************************
             //States for ejecting onto the floor in case freight is stuck in the intake

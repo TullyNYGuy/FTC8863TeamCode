@@ -56,6 +56,7 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
         CLAW_SERVO("clawServo"),
         INTAKE_SWEEPER_MOTOR("intakeSweeperMotor"),
         INTAKE_SENSOR("intakeSensor"),
+        TRANSFER_SENSOR("transferSensor"),
         INTAKE_ROTATE_SERVO("intakeRotateServo"),
         LIFT_MOTOR("extensionArmMotor"),
         LIFT_LIMIT_SWITCH_RETRACTION("retractionLimitSwitch"),
@@ -81,7 +82,8 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
         WEBCAM_RIGHT,
         ARM,
         LIFT,
-        LED_BLINKER
+        LED_BLINKER,
+        FREIGHT_SYSTEM
     }
 
     Set<Subsystem> capabilities;
@@ -121,6 +123,7 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
     public OpenCvWebcam webcamRight;
     public FFExtensionArm lift;
     public RevLEDBlinker ledBlinker;
+    public FFFreightSystem freightSystem;
 
     public FreightFrenzyRobotRoadRunner(HardwareMap hardwareMap, Telemetry telemetry, Configuration config, DataLogging dataLog, DistanceUnit units, LinearOpMode opMode) {
         timer = new ElapsedTime();
@@ -229,6 +232,11 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
         if (capabilities.contains(Subsystem.INTAKE)) {
             intake = new FFIntake(hardwareMap, telemetry, ledBlinker);
             subsystemMap.put(intake.getName(), intake);
+        }
+
+        if (capabilities.contains(Subsystem.FREIGHT_SYSTEM)) {
+            freightSystem = new FFFreightSystem(intake, lift, hardwareMap, telemetry, allianceColor, ledBlinker);
+            subsystemMap.put(freightSystem.getName(), freightSystem);
         }
 
         init();
