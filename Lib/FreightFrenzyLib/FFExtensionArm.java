@@ -124,7 +124,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
         deliveryServo.addPosition( "Init",1,500, TimeUnit.MILLISECONDS);
         deliveryServo.addPosition( "Parallel",0.83,500, TimeUnit.MILLISECONDS);
         deliveryServo.addPosition( "DumpIntoTop",0.05,500, TimeUnit.MILLISECONDS);
-        deliveryServo.addPosition( "DumpIntoMiddle",0.1,500, TimeUnit.MILLISECONDS);
+        deliveryServo.addPosition( "DumpIntoMiddle",0.04,500, TimeUnit.MILLISECONDS);
         deliveryServo.addPosition( "DumpIntoBottom",0.13,500, TimeUnit.MILLISECONDS);
         deliveryServo.addPosition( "LineUpDump",0.17,500, TimeUnit.MILLISECONDS);
 
@@ -408,6 +408,16 @@ public class FFExtensionArm implements FTCRobotSubsystem {
         }
     }
 
+    public boolean isStateIdle(){
+        //this is just for use in the freight system.
+        if(liftState == LiftState.IDLE){
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+
     public void extendToPosition(double position, double power) {
         ffExtensionArm.goToPosition(position, power);
     }
@@ -460,7 +470,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
 
             case EXTEND_TO_TOP: {
                 //starts the extension to 1.5 inches the positions are a little weird but this goes to actually 1.5
-                ffExtensionArm.goToPosition(25.7, 0.9);
+                ffExtensionArm.goToPosition(25.7, 1.0);
                 liftState = liftState.MOVE_SERVO_TO_1;
 
             }
@@ -471,8 +481,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
             //********************************************************************************
 
             case EXTEND_TO_MIDDLE: {
-                //starts the extension to 1.5 inches the positions are a little weird but this goes to actually 1.5
-                ffExtensionArm.goToPosition(6.5, 0.9);
+                ffExtensionArm.goToPosition(16, 1.0);
                 // rest of the movements are the same as the extend to top
                 liftState = liftState.MOVE_SERVO_TO_1;
             }
@@ -538,14 +547,11 @@ public class FFExtensionArm implements FTCRobotSubsystem {
                             currentDeliverBucketLocation = DeliveryBucketLocation.TOP;
                             break;
                         case EXTEND_TO_MIDDLE:
+                            ffExtensionArm.goToPosition(12, 1.0);
                             currentDeliverBucketLocation = DeliveryBucketLocation.MIDDLE;
-                            // help the driver line up the dump
-                            deliveryServoToLineUpDumpPosition();
                             break;
                         case EXTEND_TO_BOTTOM:
                             currentDeliverBucketLocation = DeliveryBucketLocation.BOTTOM;
-                            // help the driver line up the dump
-                            deliveryServoToLineUpDumpPosition();
                             break;
                     }
                     liftState = LiftState.LINING_UP_DUMP;
@@ -554,7 +560,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
             break;
 
             case LINING_UP_DUMP: {
-                if (isDeliverServoPositionReached()) {
+                if (isDeliverServoPositionReached() && ffExtensionArm.isPositionReached()) {
                     liftState = LiftState.WAITING_TO_DUMP;
                 }
             }

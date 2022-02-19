@@ -20,6 +20,7 @@ public class FFFreightSystem implements FTCRobotSubsystem {
     private enum State {
         INTAKE_STUFF,
         DELIVERY_STUFF,
+        RETRACT_EXTENSION_ARM,
 
         WAIT_FOR_ARM_INIT,
         INIT_INTAKE,
@@ -111,22 +112,23 @@ public class FFFreightSystem implements FTCRobotSubsystem {
 
     }
 
-    public void sportMode(){
+    public void sportMode() {
         mode = Mode.AUTO;
     }
 
-    public void manualMode(){
+    public void manualMode() {
         mode = Mode.MANUAL;
     }
 
-    public String getMode(){
+    public String getMode() {
         return mode.toString();
     }
-    public String getState(){
+
+    public String getState() {
         return state.toString();
     }
 
-    public void start(){
+    public void start() {
         //puts the state machine into the actual freight loop
         state = State.INTAKE_STUFF;
     }
@@ -169,7 +171,7 @@ public class FFFreightSystem implements FTCRobotSubsystem {
             //running states
             case INTAKE_STUFF: {
                 //AUTO MODE//
-                if(mode == Mode.AUTO) {
+                if (mode == Mode.AUTO) {
                     //the intake is doing intake stuff. not our problem until the transfer happens
                     if (ffIntake.isTransferComplete()) {
                         state = State.DELIVERY_STUFF;
@@ -177,7 +179,7 @@ public class FFFreightSystem implements FTCRobotSubsystem {
                     }
                 }
                 //MANUAL MODE//
-                if(mode == Mode.MANUAL){
+                if (mode == Mode.MANUAL) {
                     //still runs the state machine to make sure that we are in the right state if/when we switch to auto mode
                     if (ffIntake.isTransferComplete()) {
                         state = State.DELIVERY_STUFF;
@@ -190,19 +192,29 @@ public class FFFreightSystem implements FTCRobotSubsystem {
                 //the delivery is doing delivery stuff. not our problem until it gets back
                 //if the state is idle then we know that the delivery process is complete
                 //AUTO MODE//
-                if(mode == Mode.AUTO)
-                if (ffExtensionArm.isStateWaitingToDump()) {
-                    state = State.INTAKE_STUFF;
+                if (mode == Mode.AUTO) {
+                    if (ffExtensionArm.isStateWaitingToDump()) {
+                        state = State.RETRACT_EXTENSION_ARM;
+                    }
                 }
                 //for the moment these two are identical, but we might want to change one of them eventually.
                 // i just made two for the sake of symmetry
                 //MANUAL MODE//
-                if(mode == Mode.MANUAL){
+                if (mode == Mode.MANUAL) {
                     if (ffExtensionArm.isStateWaitingToDump()) {
-                        state = State.INTAKE_STUFF;
+                        state = State.RETRACT_EXTENSION_ARM;
                     }
                 }
             }
+
+            //we need a state that waits for the arm to be pulled in or else the distance sensor
+            // will put the mode directly back to delivery stuff. No extending for you :/
+            case RETRACT_EXTENSION_ARM: {
+                if (ffExtensionArm.isStateIdle()) {
+                    state = State.INTAKE_STUFF;
+                }
+            }
+            break;
         }
         telemetry.addData("state = ", state.toString());
     }
