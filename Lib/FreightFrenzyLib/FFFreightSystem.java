@@ -24,7 +24,12 @@ public class FFFreightSystem implements FTCRobotSubsystem {
         WAIT_FOR_ARM_INIT,
         INIT_INTAKE,
         WAIT_FOR_INTAKE_INIT,
-        INIT_DONZO
+        INIT_DONE
+    }
+
+    private enum Mode {
+        AUTO,
+        MANUAL,
     }
 
     //*********************************************************************************************
@@ -34,6 +39,7 @@ public class FFFreightSystem implements FTCRobotSubsystem {
     // getter and setter methods
     //*********************************************************************************************
     private State state = State.INTAKE_STUFF;
+    private Mode mode = Mode.MANUAL;
     private FFExtensionArm ffExtensionArm;
     private FFIntake ffIntake;
     private final String FREIGHT_SYSTEM_NAME = "FreightSystem";
@@ -64,7 +70,7 @@ public class FFFreightSystem implements FTCRobotSubsystem {
 
     @Override
     public boolean isInitComplete() {
-        if (state == State.INIT_DONZO) {
+        if (state == State.INIT_DONE) {
             return true;
         } else {
             return false;
@@ -105,6 +111,26 @@ public class FFFreightSystem implements FTCRobotSubsystem {
 
     }
 
+    public void sportMode(){
+        mode = Mode.AUTO;
+    }
+
+    public void manualMode(){
+        mode = Mode.MANUAL;
+    }
+
+    public Mode getMode(){
+        return mode;
+    }
+    public State getState(){
+        return state;
+    }
+
+    public void start(){
+        //puts the state machine into the actual freight loop
+        state = State.INTAKE_STUFF;
+    }
+
     //*********************************************************************************************
     //          MAJOR METHODS
     //
@@ -128,22 +154,32 @@ public class FFFreightSystem implements FTCRobotSubsystem {
 
             case WAIT_FOR_INTAKE_INIT: {
                 if (ffIntake.isInitComplete()) {
-                    state = State.INIT_DONZO;
+                    state = State.INIT_DONE;
                 }
             }
             break;
 
-            case INIT_DONZO: {
+            case INIT_DONE: {
                 // does nothing. we just hanging out
             }
             break;
 
             //running states
             case INTAKE_STUFF: {
-                //the intake is doing intake stuff. not our problem until the transfer happens
-                if (ffIntake.isTransferComplete()) {
-                    state = State.DELIVERY_STUFF;
-                    ffExtensionArm.extendToTop();
+                //AUTO MODE//
+                if(mode == Mode.AUTO) {
+                    //the intake is doing intake stuff. not our problem until the transfer happens
+                    if (ffIntake.isTransferComplete()) {
+                        state = State.DELIVERY_STUFF;
+                        ffExtensionArm.extendToTop();
+                    }
+                }
+                //MANUAL MODE//
+                if(mode == Mode.MANUAL){
+                    //still runs the state machine to make sure that we are in the right state if/when we switch to auto mode
+                    if (ffIntake.isTransferComplete()) {
+                        state = State.DELIVERY_STUFF;
+                    }
                 }
             }
             break;
@@ -151,8 +187,18 @@ public class FFFreightSystem implements FTCRobotSubsystem {
             case DELIVERY_STUFF: {
                 //the delivery is doing delivery stuff. not our problem until it gets back
                 //if the state is idle then we know that the delivery process is complete
+                //AUTO MODE//
+                if(mode == Mode.AUTO)
                 if (ffExtensionArm.isStateWaitingToDump()) {
                     state = State.INTAKE_STUFF;
+                }
+                //for the moment these two are identical, but we might want to change one of them eventually.
+                // i just made two for the sake of symmetry
+                //MANUAL MODE//
+                if(mode == Mode.MANUAL){
+                    if (ffExtensionArm.isStateWaitingToDump()) {
+                        state = State.INTAKE_STUFF;
+                    }
                 }
             }
         }

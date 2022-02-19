@@ -16,7 +16,7 @@ package org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib;
  *    / X                - dump
  *    / Y                - eject at intake position
  *    /Left Bumper       -
- *    /Right Bumper      -
+ *    /Right Bumper      - 1 freight system auto(sport mode)    2 freight system manual
  *
  *  Gamepad 2 layout
  *    / Left JoystickX   -
@@ -149,7 +149,7 @@ public class FreightFrenzyGamepad {
         //
 
         // create the gamepad 1 buttons and tell each button how many commands it has
-        gamepad1RightBumper = new GamepadButtonMultiPush(1);
+        gamepad1RightBumper = new GamepadButtonMultiPush(2);
         gamepad1LeftBumper = new GamepadButtonMultiPush(1);
         gamepad1a = new GamepadButtonMultiPush(2);
         gamepad1b = new GamepadButtonMultiPush(1);
@@ -247,6 +247,12 @@ public class FreightFrenzyGamepad {
         if (gamepad1RightBumper.buttonPress(gamepad1.right_bumper)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
+            if (gamepad1a.isCommand1()) {
+                robot.freightSystem.sportMode();
+            }
+            if (gamepad1a.isCommand2()) {
+                robot.freightSystem.manualMode();
+            }
 
         }
 

@@ -136,7 +136,7 @@ public class TeleopUsingRoadRunnerFreightFrenzy extends LinearOpMode {
         //*********************************************************************************************
         //             Robot Running after the user hits play on the driver phone
         //*********************************************************************************************
-
+        robot.freightSystem.start();
         while (opModeIsActive()) {
 
             // update the gamepad. It has the commands to be run when a button is pressed so the
@@ -160,6 +160,10 @@ public class TeleopUsingRoadRunnerFreightFrenzy extends LinearOpMode {
             // feedback on the driver station
 
             gamepad.displayGamepad1JoystickValues(telemetry);
+
+            telemetry.addData(">", "freightSystem mode =", robot.freightSystem.getMode());
+            telemetry.addData(">", "freightSystem state =", robot.freightSystem.getState());
+
 
             telemetry.addData(">", "Press Stop to end.");
             telemetry.update();
