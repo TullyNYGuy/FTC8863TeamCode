@@ -164,7 +164,7 @@ public class AutonomousVisionLoadFrmWallDuckSpinNoParkNearWall implements Autono
                 isComplete = false;
                 robot.mecanum.setPoseEstimate(PoseStorageFF.START_POSE);
                 robot.mecanum.followTrajectory(trajectoryToHub);
-
+                robot.intake.getOutOfWay();
                 currentState = States.MOVING_TO_HUB;
                 break;
             case MOVING_TO_HUB:

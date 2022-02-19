@@ -216,6 +216,7 @@ public class AutonomousDuckSpinVisionLoadFrmWallParkDepot implements AutonomousS
                 case DEPOSIT_DONE:
                     if (robot.lift.isDeliverServoPositionReached()) {
                         robot.lift.retract();
+                        robot.intake.getOutOfWay();
                         currentState = States.APPROACHING_SIDE;
                     }
                     break;
@@ -246,7 +247,7 @@ public class AutonomousDuckSpinVisionLoadFrmWallParkDepot implements AutonomousS
                     }
                     break;
                 case GOING_TO_PASSAGE:
-
+                    robot.intake.getOutOfWay();
                     if (!robot.mecanum.isBusy()) {
                         robot.mecanum.followTrajectory(trajectoryToPassage);
                         currentState = States.GO_TO_WAREHOUSE;

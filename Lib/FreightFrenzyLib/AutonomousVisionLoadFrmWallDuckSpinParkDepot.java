@@ -182,7 +182,7 @@ public class AutonomousVisionLoadFrmWallDuckSpinParkDepot implements AutonomousS
                     isComplete = false;
                     robot.mecanum.setPoseEstimate(PoseStorageFF.START_POSE);
                     robot.mecanum.followTrajectory(trajectoryToHub);
-
+                    robot.intake.getOutOfWay();
                     currentState = States.MOVING_TO_HUB;
                     break;
                 case MOVING_TO_HUB:
@@ -216,6 +216,7 @@ public class AutonomousVisionLoadFrmWallDuckSpinParkDepot implements AutonomousS
                 case DEPOSIT_DONE:
                     if (robot.lift.isDeliverServoPositionReached()) {
                         robot.lift.retract();
+                        robot.intake.getOutOfWay();
                         currentState = States.MOVING_TO_DUCKS;
                     }
                     break;
@@ -228,7 +229,7 @@ public class AutonomousVisionLoadFrmWallDuckSpinParkDepot implements AutonomousS
                     break;
                 case AT_DUCK:
                     if (!robot.mecanum.isBusy()) {
-
+                        robot.intake.getOutOfWay();
                         robot.duckSpinner.turnOn();
                         currentState = States.DUCK_SPINNING;
                     }

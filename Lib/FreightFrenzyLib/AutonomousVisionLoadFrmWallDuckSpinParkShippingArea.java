@@ -174,6 +174,7 @@ public class AutonomousVisionLoadFrmWallDuckSpinParkShippingArea implements Auto
             case START:
                 isComplete = false;
                 robot.mecanum.setPoseEstimate(PoseStorageFF.START_POSE);
+                robot.intake.getOutOfWay();
                 // todo It is very likely that the location of the robot, when it deposits into the
                 // shipping hub, is going to be different for the top level vs the middle and bottom
                 // levels.

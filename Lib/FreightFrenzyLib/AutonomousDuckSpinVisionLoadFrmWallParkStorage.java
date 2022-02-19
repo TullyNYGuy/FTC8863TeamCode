@@ -204,6 +204,7 @@ public class AutonomousDuckSpinVisionLoadFrmWallParkStorage implements Autonomou
                 case DEPOSIT_DONE:
                     if (robot.lift.isDeliverServoPositionReached()) {
                         robot.lift.retract();
+                        robot.intake.getOutOfWay();
                         currentState = States.APPROACHING_STORAGE;
                     }
                     break;

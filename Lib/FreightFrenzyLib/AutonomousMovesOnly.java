@@ -183,7 +183,7 @@ public class AutonomousMovesOnly implements AutonomousStateMachineFreightFrenzy 
                     isComplete = false;
                     robot.mecanum.setPoseEstimate(PoseStorageFF.START_POSE);
                     robot.mecanum.followTrajectory(trajectoryToDucks);
-
+                    robot.intake.getOutOfWay();
                     currentState = States.MOVING_TO_DUCKS;
                     break;
                 case MOVING_TO_HUB:

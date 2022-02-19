@@ -214,6 +214,7 @@ public class AutonomousDuckSpinVisionLoadFrmWarehouseParkDepot implements Autono
                 case DEPOSIT_DONE:
                     if (robot.lift.isDeliverServoPositionReached()) {
                         robot.lift.retract();
+                        robot.intake.getOutOfWay();
                         currentState = States.APPROACHING_SIDE;
                     }
                     break;
@@ -234,6 +235,7 @@ public class AutonomousDuckSpinVisionLoadFrmWarehouseParkDepot implements Autono
                     if (robot.duckSpinner.spinTimeReached()) {
                         robot.duckSpinner.turnOff();
                         currentState = States.MOVING_TO_HUB;
+                        robot.intake.getOutOfWay();
                     }
                     break;
                 case APPROACHING_SIDE:

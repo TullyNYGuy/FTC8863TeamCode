@@ -204,6 +204,7 @@ public class AutonomousDuckSpinVisionLoadFrmWarehouseParkStorage implements Auto
                     if (robot.lift.isDeliverServoPositionReached()) {
                         robot.lift.retract();
                         currentState = States.APPROACHING_STORAGE;
+                        robot.intake.getOutOfWay();
                     }
                     break;
                 case MOVING_TO_DUCKS:
