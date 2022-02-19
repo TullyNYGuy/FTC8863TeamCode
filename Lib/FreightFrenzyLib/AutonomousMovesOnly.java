@@ -220,7 +220,7 @@ public class AutonomousMovesOnly implements AutonomousStateMachineFreightFrenzy 
                     break;
                 case DUCK_SPINNING:
                     if (timer.milliseconds() > 2500) {
-
+                        robot.mecanum.followTrajectory(trajectoryToHub);
                         currentState = States.MOVING_TO_HUB;
                     }
                     break;

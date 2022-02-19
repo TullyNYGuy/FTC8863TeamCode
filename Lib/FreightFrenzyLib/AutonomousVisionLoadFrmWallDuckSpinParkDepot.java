@@ -252,6 +252,7 @@ public class AutonomousVisionLoadFrmWallDuckSpinParkDepot implements AutonomousS
                     }
                     break;
                 case GO_TO_WAREHOUSE:
+                    robot.mecanum.followTrajectory(trajectoryToWarehoue);
                     if (!robot.mecanum.isBusy()) {
                         currentState = States.COMPLETE;
                     }

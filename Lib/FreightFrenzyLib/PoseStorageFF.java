@@ -30,7 +30,7 @@ public class PoseStorageFF {
     public static Pose2d TOP_PASSAGE_RED = new Pose2d(47, 0); // <- need test
     public static Pose2d FREIGHT_BLUE =  new Pose2d(60, 65, Math.toRadians(0));
     public static Pose2d HUB_BLUE_INTAKE_DUMP = new Pose2d(-12, 49,Math.toRadians(270));
-    public static Pose2d DUCK_SPINNER_BLUE = new Pose2d(-59,57.5,Math.toRadians(90));
+    public static Pose2d DUCK_SPINNER_BLUE = new Pose2d(-58.5,57.5,Math.toRadians(90));
     public static Pose2d STORAGE_RED = new Pose2d(-58.75, -35.25); // <- need test
     public static Pose2d BLUE_SIDE_PASSAGE_APPROACH = new Pose2d(-20,60,Math.toRadians(0));
     public static Pose2d RED_SIDE_PASSAGE_APPROACH = new Pose2d(-20,-60,Math.toRadians(0));
