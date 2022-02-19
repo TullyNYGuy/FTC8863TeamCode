@@ -101,6 +101,7 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
     private ElapsedTime timer;
     private LinearOpMode opMode;
 
+
     private boolean dataLoggingEnabled = true;
 
     public boolean isDataLoggingEnabled() {
