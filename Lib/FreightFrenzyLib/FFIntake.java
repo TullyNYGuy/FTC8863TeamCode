@@ -31,6 +31,7 @@ public class FFIntake implements FTCRobotSubsystem {
     private enum IntakeState {
         IDLE,
         INTAKE,
+        WAIT_FOR_INTAKE_POSITION_FLOOR,
         WAIT_FOR_FREIGHT,
         HOLD_FREIGHT,
         WAIT_FOR_ROTATION,
@@ -195,11 +196,17 @@ public class FFIntake implements FTCRobotSubsystem {
             case INTAKE: {
                 // fire up that motor baby! Dang that thing is loud!
                 rotateServo.setPosition("Intake");
-                intakeSweeperMotor.runAtConstantPower(.6);
-                ledBlinker.steadyRed();
-                intakeState = IntakeState.WAIT_FOR_FREIGHT;
+                intakeState = IntakeState.WAIT_FOR_INTAKE_POSITION_FLOOR;
             }
             break;
+
+            case WAIT_FOR_INTAKE_POSITION_FLOOR: {
+                if (rotateServo.isPositionReached()) {
+                    intakeSweeperMotor.runAtConstantPower(.6);
+                    ledBlinker.steadyRed();
+                    intakeState = IntakeState.WAIT_FOR_FREIGHT;
+                }
+            }
 
             case WAIT_FOR_FREIGHT: {
                 // do we have something?

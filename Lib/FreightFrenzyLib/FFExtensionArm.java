@@ -240,7 +240,6 @@ public class FFExtensionArm implements FTCRobotSubsystem {
 
             case TWO: {
                 if(ffExtensionArm.isPositionReached()){
-
                     deliveryServoToTransferPosition();
                     initState = InitState.DELIVERY_SERVO_MOVING;
                 }
@@ -399,9 +398,9 @@ public class FFExtensionArm implements FTCRobotSubsystem {
     // Public commands for testing the extension arm / delivery bucket
     //********************************************************************************
 
-    public boolean isStateIdle(){
+    public boolean isStateWaitingToDump(){
         //this is just for use in the freight system.
-        if(liftState == LiftState.IDLE){
+        if(liftState == LiftState.WAITING_TO_DUMP){
             return true;
         }
         else{

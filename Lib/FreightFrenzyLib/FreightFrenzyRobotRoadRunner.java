@@ -251,24 +251,27 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
         dataLog.logData("Init starting");
         lift.setDataLog(dataLog);
         lift.enableDataLogging();
-        if (!lift.init(config)) {
-            if (dataLoggingEnabled)
-                dataLog.logData(lift.getName() + " initialization failed");
-        }
+//        if (!lift.init(config)) {
+//            if (dataLoggingEnabled)
+//                dataLog.logData(lift.getName() + " initialization failed");
+//        }
         timer.reset();
-        while (!lift.isInitComplete()) {
-            update();
+//        while (!lift.isInitComplete()) {
+//            update();
+//
+//            if (timer.milliseconds() > 5000) {
+//                // something went wrong with the inits. They never finished. Proceed anyway
+//                dataLog.logData("Init failed to complete on time. Proceeding anyway!");
+//                break;
+//            }
+//            telemetry.update();
+//            opMode.idle();
+//        }
 
-            if (timer.milliseconds() > 5000) {
-                // something went wrong with the inits. They never finished. Proceed anyway
-                dataLog.logData("Init failed to complete on time. Proceeding anyway!");
-                break;
-            }
-            telemetry.update();
-            opMode.idle();
-        }
+       // we are making a temporary subsystem list to remove the lift and intake when initing the other systems
         Map<String, FTCRobotSubsystem> subsystemMapNew = new HashMap<String, FTCRobotSubsystem>(subsystemMap);
         subsystemMapNew.remove(lift.getName());
+        subsystemMapNew.remove(intake.getName());
 
         for (FTCRobotSubsystem subsystem : subsystemMapNew.values()) {
             subsystem.setDataLog(dataLog);

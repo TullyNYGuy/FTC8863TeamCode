@@ -26,7 +26,7 @@ public class DistanceSensorTest extends LinearOpMode {
 
         // Put your initializations here
 
-        stage1Sensor = hardwareMap.get(NormalizedColorSensor.class, "sensor");
+        stage1Sensor = hardwareMap.get(NormalizedColorSensor.class, "transferSensor");
         if (stage1Sensor instanceof SwitchableLight) {
             ((SwitchableLight) stage1Sensor).enableLight(true);
         }
