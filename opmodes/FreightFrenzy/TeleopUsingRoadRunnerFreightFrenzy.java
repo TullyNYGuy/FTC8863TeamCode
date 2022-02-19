@@ -161,8 +161,8 @@ public class TeleopUsingRoadRunnerFreightFrenzy extends LinearOpMode {
 
             gamepad.displayGamepad1JoystickValues(telemetry);
 
-            telemetry.addData(">", "freightSystem mode =", robot.freightSystem.getMode());
-            telemetry.addData(">", "freightSystem state =", robot.freightSystem.getState());
+            telemetry.addData( "freightSystem mode =", robot.freightSystem.getMode());
+            telemetry.addData( "freightSystem state =", robot.freightSystem.getState());
 
 
             telemetry.addData(">", "Press Stop to end.");

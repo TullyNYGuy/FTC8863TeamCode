@@ -247,10 +247,10 @@ public class FreightFrenzyGamepad {
         if (gamepad1RightBumper.buttonPress(gamepad1.right_bumper)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            if (gamepad1a.isCommand1()) {
+            if (gamepad1RightBumper.isCommand1()) {
                 robot.freightSystem.sportMode();
             }
-            if (gamepad1a.isCommand2()) {
+            if (gamepad1RightBumper.isCommand2()) {
                 robot.freightSystem.manualMode();
             }
 

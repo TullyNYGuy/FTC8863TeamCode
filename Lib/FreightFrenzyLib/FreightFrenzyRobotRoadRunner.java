@@ -77,11 +77,11 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
         MECANUM_DRIVE,
         DUCK_SPINNER,
         ODOMETRY,
-        INTAKE,
+       // INTAKE,
         WEBCAM_LEFT,
         WEBCAM_RIGHT,
         ARM,
-        LIFT,
+       // LIFT,
         LED_BLINKER,
         FREIGHT_SYSTEM
     }
@@ -189,11 +189,11 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
             subsystemMap.put(duckSpinner.getName(), duckSpinner);
         }
 
-        if (capabilities.contains(Subsystem.LIFT)) {
+
             // the extension arm needs to know what the alliance color is because motors and servos have to get reversed
             lift = new FFExtensionArm(allianceColor, hardwareMap, telemetry);
             subsystemMap.put(lift.getName(), lift);
-        }
+
         // THE WEBCAM PROCESSING TAKES UP A BUNCH OF RESOURCES. PROBABLY NOT A GOOD IDEA TO RUN THIS IN TELEOP
         if (FreightFrenzyMatchInfo.getMatchPhase() == FreightFrenzyMatchInfo.MatchPhase.AUTONOMOUS)
             switch (color) {
@@ -229,10 +229,10 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
             subsystemMap.put(ledBlinker.getName(), ledBlinker);
         }
 
-        if (capabilities.contains(Subsystem.INTAKE)) {
+
             intake = new FFIntake(hardwareMap, telemetry, ledBlinker);
             subsystemMap.put(intake.getName(), intake);
-        }
+
 
         if (capabilities.contains(Subsystem.FREIGHT_SYSTEM)) {
             freightSystem = new FFFreightSystem(intake, lift, hardwareMap, telemetry, allianceColor, ledBlinker);
@@ -269,11 +269,11 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
 //        }
 
        // we are making a temporary subsystem list to remove the lift and intake when initing the other systems
-        Map<String, FTCRobotSubsystem> subsystemMapNew = new HashMap<String, FTCRobotSubsystem>(subsystemMap);
-        subsystemMapNew.remove(lift.getName());
-        subsystemMapNew.remove(intake.getName());
+      //  Map<String, FTCRobotSubsystem> subsystemMapNew = new HashMap<String, FTCRobotSubsystem>(subsystemMap);
+        //subsystemMapNew.remove(lift.getName());
+        //subsystemMapNew.remove(intake.getName());
 
-        for (FTCRobotSubsystem subsystem : subsystemMapNew.values()) {
+        for (FTCRobotSubsystem subsystem : subsystemMap.values()) {
             subsystem.setDataLog(dataLog);
             subsystem.enableDataLogging();
             if (!subsystem.init(config)) {

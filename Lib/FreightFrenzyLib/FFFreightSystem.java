@@ -119,11 +119,11 @@ public class FFFreightSystem implements FTCRobotSubsystem {
         mode = Mode.MANUAL;
     }
 
-    public Mode getMode(){
-        return mode;
+    public String getMode(){
+        return mode.toString();
     }
-    public State getState(){
-        return state;
+    public String getState(){
+        return state.toString();
     }
 
     public void start(){
@@ -137,6 +137,8 @@ public class FFFreightSystem implements FTCRobotSubsystem {
     // public methods that give the class its functionality
     //*********************************************************************************************
     public void update() {
+        ffIntake.update();
+        ffExtensionArm.update();
         switch (state) {
             //init states
             case WAIT_FOR_ARM_INIT: {
