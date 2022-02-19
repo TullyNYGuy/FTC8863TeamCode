@@ -20,6 +20,7 @@ public class FFFreightSystem implements FTCRobotSubsystem {
     private enum State {
         INTAKE_STUFF,
         DELIVERY_STUFF,
+        RETRACT_EXTENSION_ARM,
 
         WAIT_FOR_ARM_INIT,
         INIT_INTAKE,
@@ -192,17 +193,26 @@ public class FFFreightSystem implements FTCRobotSubsystem {
                 //AUTO MODE//
                 if(mode == Mode.AUTO)
                 if (ffExtensionArm.isStateWaitingToDump()) {
-                    state = State.INTAKE_STUFF;
+                    state = State.RETRACT_EXTENSION_ARM;
                 }
                 //for the moment these two are identical, but we might want to change one of them eventually.
                 // i just made two for the sake of symmetry
                 //MANUAL MODE//
                 if(mode == Mode.MANUAL){
                     if (ffExtensionArm.isStateWaitingToDump()) {
-                        state = State.INTAKE_STUFF;
+                        state = State.RETRACT_EXTENSION_ARM;
                     }
                 }
             }
+
+            //we need a state that waits for the arm to be pulled in or else the distance sensor
+            // will put the mode directly back to delivery stuff. No extending for you :/
+            case RETRACT_EXTENSION_ARM: {
+                if (ffExtensionArm.isStateIdle()) {
+                    state = State.INTAKE_STUFF;
+                }
+            }
+            break;
         }
         telemetry.addData("state = ", state.toString());
     }
