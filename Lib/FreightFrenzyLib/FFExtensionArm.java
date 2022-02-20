@@ -438,7 +438,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
     }
 
     public boolean isDumpComplete() {
-        if(deliveryServo.isPositionReached() && timer.milliseconds() > 250){
+        if(deliveryServo.isPositionReached() ){
             return true;
         }
         else{

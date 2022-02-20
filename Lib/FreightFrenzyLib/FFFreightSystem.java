@@ -86,10 +86,12 @@ public class FFFreightSystem implements FTCRobotSubsystem {
     private FFExtensionArm extensionArm;
     private FFIntake intake;
     private final String FREIGHT_SYSTEM_NAME = "FreightSystem";
+    private boolean isClawInTheWay = true;
 
     private ElapsedTime timer;
     private Telemetry telemetry;
     private Configuration configuration;
+    private Boolean aaa;
 
 
     //*********************************************************************************************
@@ -104,6 +106,7 @@ public class FFFreightSystem implements FTCRobotSubsystem {
         this.extensionArm = ffExtensionArm;
         this.intake = ffIntake;
         this.telemetry = telemetry;
+        timer = new ElapsedTime();
     }
 
     //*********************************************************************************************
@@ -216,7 +219,8 @@ public class FFFreightSystem implements FTCRobotSubsystem {
         if(state == State.WAITING_TO_DUMP){
             extensionArm.dump();
             state = State.WAITING_FOR_DUMP;
-
+            timer.reset();
+            aaa = true;
         }
         else{
             //you are a loser who pushed the button on accident. so we arent doing anything
@@ -257,6 +261,16 @@ public class FFFreightSystem implements FTCRobotSubsystem {
         level = Level.BOTTOM;
     }
 
+    public String getAAA() {
+        if(aaa == true){
+            return ("dumped");
+        }
+        else{
+            return ("not dumped");
+
+        }
+    }
+
 
     //*********************************************************************************************
     //          MAJOR METHODS
@@ -264,9 +278,6 @@ public class FFFreightSystem implements FTCRobotSubsystem {
     // public methods that give the class its functionality
     //*********************************************************************************************
 
-    public void intakeAndTransfer() {
-        intake.intakeAndTransfer();
-    }
 
 
     public void update() {
@@ -295,24 +306,40 @@ public class FFFreightSystem implements FTCRobotSubsystem {
 
             case READY_TO_CYCLE: {
                 //just chillin
+                aaa = false;
 
             }
             break;
 
             case START_CYCLE: {
-                if (phase == Phase.AUTONOMUS) {
-                    state = State.WAITING_FOR_TRANSFER;
+                if (isClawInTheWay){
+                    if (phase == Phase.AUTONOMUS) {
+                        arm.storageWithElement();
+                        state = State.WAITING_FOR_TRANSFER;
+                        isClawInTheWay = false;
+                    }
+                    if (phase == Phase.TELEOP) {
+                        arm.storageWithElement();
+                        intake.intakeAndTransfer();
+                        state = State.WAITING_FOR_TRANSFER;
+                        isClawInTheWay = false;
+                    }
                 }
-                if (phase == Phase.TELEOP) {
-                    intake.intakeAndTransfer();
-                    state = State.WAITING_FOR_TRANSFER;
+                else {
+                    if (phase == Phase.AUTONOMUS) {
+                        state = State.WAITING_FOR_TRANSFER;
+                    }
+                    if (phase == Phase.TELEOP) {
+                        intake.intakeAndTransfer();
+                        state = State.WAITING_FOR_TRANSFER;
+                    }
                 }
+
             }
             break;
 
             case WAITING_FOR_TRANSFER: {
                 if (intake.isTransferComplete()) {
-                    arm.storageWithElement();
                     state = State.WAITING_FOR_CLAW_REPOSITION;
                 }
             }
@@ -348,7 +375,7 @@ public class FFFreightSystem implements FTCRobotSubsystem {
             break;
 
             case WAITING_FOR_DUMP: {
-                if(extensionArm.isDumpComplete()){
+                if(extensionArm.isDumpComplete() ){
                     state = State.WAITING_FOR_RETRACTION;
                 }
             }
