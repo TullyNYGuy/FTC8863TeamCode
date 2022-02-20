@@ -135,13 +135,9 @@ public class FFIntake implements FTCRobotSubsystem {
         rotateServo.setPosition("Level 1");
     }
 
-    private void toVerticalPosition() {
-        rotateServo.setPosition("Vertical");
-    }
 
-    private void toTransferPosition() {
-        rotateServo.setPosition("Transfer");
-    }
+
+
 
     private void toLevel2Position() {
         rotateServo.setPosition("Level 2");
@@ -152,7 +148,22 @@ public class FFIntake implements FTCRobotSubsystem {
     //
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
+    public void toTransferPosition() {
+        rotateServo.setPosition("Transfer");
+    }
 
+    public void toVerticalPosition() {
+        rotateServo.setPosition("Vertical");
+    }
+
+    public boolean isRotationComplete(){
+        if (rotateServo.isPositionReached()){
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
 
     //*********************************************************************************************
     //          STATUS METHODS

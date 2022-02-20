@@ -236,7 +236,7 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
 
 
         if (capabilities.contains(Subsystem.FREIGHT_SYSTEM)) {
-            freightSystem = new FFFreightSystem(intake, lift, hardwareMap, telemetry, allianceColor, ledBlinker);
+            freightSystem = new FFFreightSystem(arm, intake, lift, hardwareMap, telemetry, allianceColor, ledBlinker);
             subsystemMap.put(freightSystem.getName(), freightSystem);
         }
 

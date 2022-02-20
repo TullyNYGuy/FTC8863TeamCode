@@ -7,15 +7,15 @@ package org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib;
  *    / Left JoystickY   - robot moves forward/backward
  *    / Right JoystickX  - robot rotation
  *    / Right JoystickY  -
- *    / DPad Up          -
- *    / DPad Left        -
- *    / DPad Down        - full power (1st press), half power (2nd press)
- *    / DPad Right       -
+ *    / DPad Up          - sets deliver target top
+ *    / DPad Left        - full power (1st press), half power (2nd press)
+ *    / DPad Down        - sets deliver target bottom
+ *    / DPad Right       - sets deliver target middle
  *    / A                - turn intake on and deliver
  *    / B                - open/close claw toggle
  *    / X                -
  *    / Y                - eject on floor
- *    /Left Bumper       -
+ *    /Left Bumper       - stops intake (for some reason)
  *    /Right Bumper      - 1 freight system auto(sport mode)    2 freight system manual
  *
  *  Gamepad 2 layout
@@ -27,10 +27,10 @@ package org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib;
  *    / DPad Left        - arm lines up team shipping element (prepare for drop off)
  *    / DPad Down        - pickup team element position
  *    / DPad Right       - drop team element
- *    / A                - deliver to bottom/level 1
+ *    / A                -
  *    / B                - duck spinner on (1), duck spinner off (2)
- *    / X                -dump
- *    / Y                -delivery extend top (also sends the claw to storage with shipping element so that the claw is out of the way)
+ *    / X                - dump (manual)
+ *    / Y                - delivery extend
  *   /Left Bumper        -
  *   /Right Bumper       -
  */
@@ -156,8 +156,8 @@ public class FreightFrenzyGamepad {
         gamepad1y = new GamepadButtonMultiPush(1);
         gamepad1x = new GamepadButtonMultiPush(1);
         gamepad1DpadUp = new GamepadButtonMultiPush(1);
-        gamepad1DpadDown = new GamepadButtonMultiPush(2);
-        gamepad1DpadLeft = new GamepadButtonMultiPush(1);
+        gamepad1DpadDown = new GamepadButtonMultiPush(1);
+        gamepad1DpadLeft = new GamepadButtonMultiPush(2);
         gamepad1DpadRight = new GamepadButtonMultiPush(1);
         gamepad1LeftStickButton = new GamepadButtonMultiPush(1);
         gamepad1RightStickButton = new GamepadButtonMultiPush(1);
@@ -257,11 +257,11 @@ public class FreightFrenzyGamepad {
         }
 
         if (gamepad1LeftBumper.buttonPress(gamepad1.left_bumper)) {
-            robot.intake.turnOff();
+            robot.freightSystem.intakeShutoff();
         }
 
         if (gamepad1a.buttonPress(gamepad1.a)) {
-                robot.intake.intakeAndTransfer();
+            robot.freightSystem.intakeAndTransfer();
         }
 
         if (gamepad1b.buttonPress(gamepad1.b)) {
@@ -269,7 +269,7 @@ public class FreightFrenzyGamepad {
         }
 
         if (gamepad1y.buttonPress(gamepad1.y)) {
-            robot.intake.ejectOntoFloor();
+            robot.freightSystem.ejectOntoFLoor();
         }
 
         if (gamepad1x.buttonPress(gamepad1.x)) {
@@ -277,10 +277,14 @@ public class FreightFrenzyGamepad {
         }
 
         if (gamepad1DpadUp.buttonPress(gamepad1.dpad_up)) {
-
+            robot.freightSystem.setTop();
         }
 
         if (gamepad1DpadDown.buttonPress(gamepad1.dpad_down)) {
+            robot.freightSystem.setBottom();
+        }
+
+        if (gamepad1DpadLeft.buttonPress(gamepad1.dpad_left)) {
             if (gamepad1DpadLeft.isCommand1()) {
                 gamepad1LeftJoyStickX.setFullPower();
                 gamepad1LeftJoyStickY.setFullPower();
@@ -296,12 +300,8 @@ public class FreightFrenzyGamepad {
             // dunno what this is so it still be here just in case... robot.toggleMode();
         }
 
-        if (gamepad1DpadLeft.buttonPress(gamepad1.dpad_left)) {
-
-        }
-
         if (gamepad1DpadRight.buttonPress(gamepad1.dpad_right)) {
-
+            robot.freightSystem.setMiddle();
         }
 
         if (gamepad1LeftStickButton.buttonPress(gamepad1.left_stick_button)) {
@@ -359,8 +359,7 @@ public class FreightFrenzyGamepad {
         }
 
         if (gamepad2a.buttonPress(gamepad2.a)) {
-            //bottom delivery
-            robot.lift.extendToBottom();
+
         }
 
         if (gamepad2b.buttonPress(gamepad2.b)) {
@@ -373,16 +372,19 @@ public class FreightFrenzyGamepad {
         }
 
         if (gamepad2y.buttonPress(gamepad2.y)) {
-            //top delivery
-            if (PersistantStorage.isDeliveryFull = true) {
+            // delivery
+            robot.freightSystem.extend();
+
+
+            /*if (PersistantStorage.isDeliveryFull = true) {
                 robot.lift.extendToTop();
                 robot.arm.storageWithElement();
                 PersistantStorage.isDeliveryFull = false;
-            }
+            }*/
         }
 
         if (gamepad2x.buttonPress(gamepad2.x)) {
-            robot.lift.dump();
+            robot.freightSystem.dump();
         }
 
         if (gamepad2DpadUp.buttonPress(gamepad2.dpad_up)) {
