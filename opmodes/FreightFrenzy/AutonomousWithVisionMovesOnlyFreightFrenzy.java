@@ -9,11 +9,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
-import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.AutonomousDuckSpinVisionLoadFrmWallParkStorage;
-import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.AutonomousVisionLoadFrmWallDuckSpinParkDepot;
-
+import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.AutonomousMovesOnly;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.AutonomousStateMachineFreightFrenzy;
-import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.AutonomousVisionLoadFrmWarehouseDuckSpinParkDepot;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyField;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyGamepad;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyMatchInfo;
@@ -29,9 +26,11 @@ import java.util.List;
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@Autonomous(name = "Autonomous Freight Frenzy", group = "AA")
+//@Autonomous(name = "auto TEST - only moves", group = "AA")
+@Autonomous
+//@Autonomous(name = "AA T")
 //@Disabled
-public class AutonomousWithVisionFreightFrenzy extends LinearOpMode {
+public class AutonomousWithVisionMovesOnlyFreightFrenzy extends LinearOpMode {
 
     // Put your variable declarations her
     public FreightFrenzyRobotRoadRunner robot;
@@ -159,7 +158,7 @@ public class AutonomousWithVisionFreightFrenzy extends LinearOpMode {
         // create the robot and run the init for it
 
         enableBulkReads(hardwareMap, LynxModule.BulkCachingMode.AUTO);
-       autonomous = new AutonomousVisionLoadFrmWarehouseDuckSpinParkDepot(robot, field, telemetry);
+       autonomous = new AutonomousMovesOnly(robot, field, telemetry);
 
         timer.reset();
         robot.loopTimer.startLoopTimer();

@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.UltimateGoal;
 
 import com.qualcomm.hardware.lynx.LynxModule;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -16,7 +17,7 @@ import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.UltimateGoalRobotRoadR
 import java.util.List;
 
 @TeleOp(name = "Shooter angle set up", group = "Setup")
-//@Disabled
+@Disabled
 
 public class AngleSetterUpper extends LinearOpMode {
 

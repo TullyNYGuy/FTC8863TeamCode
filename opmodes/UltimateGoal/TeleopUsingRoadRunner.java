@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmodes.UltimateGoal;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.hardware.lynx.LynxModule;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -20,7 +21,7 @@ import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.UltimateGoalRobotRoadR
 import java.util.List;
 
 @TeleOp(name = "Teleop Roadrunner", group = "AA")
-//@Disabled
+@Disabled
 
 public class TeleopUsingRoadRunner extends LinearOpMode {
 

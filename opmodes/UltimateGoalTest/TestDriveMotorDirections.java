@@ -20,7 +20,7 @@ import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.SkystoneRobot;
  * were traveling forward.
  */
 @TeleOp(name = "Test Drive Motor Directions", group = "Diagnostics")
-//@Disabled
+@Disabled
 public class TestDriveMotorDirections extends LinearOpMode {
     private Configuration config = new Configuration();
     private boolean configLoaded = false;
