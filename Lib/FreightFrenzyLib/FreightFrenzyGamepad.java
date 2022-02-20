@@ -261,7 +261,7 @@ public class FreightFrenzyGamepad {
         }
 
         if (gamepad1a.buttonPress(gamepad1.a)) {
-                robot.intake.intakeAndDeliver();
+                robot.intake.intakeAndTransfer();
         }
 
         if (gamepad1b.buttonPress(gamepad1.b)) {
