@@ -289,6 +289,11 @@ public class FFFreightSystem implements FTCRobotSubsystem {
             }
             break;
 
+
+            //********************************************************************************
+            // INIT states
+            //********************************************************************************
+
             case WAITING_FOR_ARM_INIT: {
                 if (extensionArm.isInitComplete()) {
                     intake.init(configuration);
@@ -311,10 +316,19 @@ public class FFFreightSystem implements FTCRobotSubsystem {
             }
             break;
 
+
+            //********************************************************************************
+            // RUNNING states
+            //********************************************************************************
+
+            // todo, Now that I am thinking about it, why not just have the pickup arm move the
+            // claw as soon as play is pressed?
+
             case START_CYCLE: {
                 if (isClawInTheWay){
                     if (phase == Phase.AUTONOMUS) {
                         arm.storageWithElement();
+                        // todo are you sure this is the state for autonomous?
                         state = State.WAITING_FOR_TRANSFER;
                         isClawInTheWay = false;
                     }
@@ -327,6 +341,7 @@ public class FFFreightSystem implements FTCRobotSubsystem {
                 }
                 else {
                     if (phase == Phase.AUTONOMUS) {
+                        // todo are you sure this is the state for autonomous?
                         state = State.WAITING_FOR_TRANSFER;
                     }
                     if (phase == Phase.TELEOP) {
@@ -382,6 +397,10 @@ public class FFFreightSystem implements FTCRobotSubsystem {
             break;
 
             case  WAITING_FOR_RETRACTION: {
+                // todo this seems sketchy. IDLE state in the extension arm can mean a couple of
+                // different things. It would be better to nail down exactly when retraction is complete.
+                // So maybe a different way for the extension arm to tell you is has retracted? Like
+                // the delivery box is ready for a transfer?
                 if(extensionArm.isStateIdle()){
                     switch (phase) {
                         case TELEOP: {
