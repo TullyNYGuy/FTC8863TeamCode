@@ -111,6 +111,11 @@ public class FFExtensionArm implements FTCRobotSubsystem {
 
     private boolean initComplete = false;
 
+
+    private boolean dumpComplete = false;
+    private boolean retractionComplete = false;
+    private boolean isReadyToDump = false;
+
     //*********************************************************************************************
     //          Constructors
     //
@@ -176,6 +181,31 @@ public class FFExtensionArm implements FTCRobotSubsystem {
     //
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
+
+
+    public boolean isDumpComplete(){
+        return dumpComplete;
+    }
+
+    public void resetDump(){
+        dumpComplete = false;
+    }
+
+    public boolean isRetractionComplete(){
+        return retractionComplete;
+    }
+
+    public void resetRetraction(){
+        retractionComplete = false;
+    }
+
+    public boolean isReadyToDump(){
+        return isReadyToDump;
+    }
+
+
+
+
 
     @Override
     public String getName() {
@@ -433,15 +463,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
     // called at any time. You have no idea what position has been reached. You should set a flag
     // in the state associated with dump complete and return that value. Then reset the flag at the
     // appropriate time, like when the extension arm starts to retract.
-    public boolean isDumpComplete() {
-        // what position has been reached? It all depends on when isDumpComplete() called.
-        if(deliveryServo.isPositionReached() ){
-            return true;
-        }
-        else{
-            return false;
-        }
-    }
+
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////state machine//////////////////////////////////////////
@@ -605,6 +627,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
             case LINING_UP_DUMP: {
                 if (isDeliverServoPositionReached() && ffExtensionArm.isPositionReached()) {
                     liftState = LiftState.WAITING_TO_DUMP;
+                    isReadyToDump = true;
                 }
             }
             break;
@@ -627,13 +650,16 @@ public class FFExtensionArm implements FTCRobotSubsystem {
                 deliveryServoToDumpIntoTopPosition();
                 liftState = LiftState.IS_DUMPED_INTO_TOP;
                 timer.reset();
+                isReadyToDump = false;
+
             }
             break;
 
             case IS_DUMPED_INTO_TOP: {
                 //checks if dump was did or not
-                if (deliveryServo.isPositionReached() && timer.milliseconds() > 1200) {
+                if (deliveryServo.isPositionReached() && timer.milliseconds() > 600) {
                     liftState = LiftState.RETRACT_FROM_TOP;
+                    dumpComplete = true;
                 }
             }
             break;
@@ -648,6 +674,8 @@ public class FFExtensionArm implements FTCRobotSubsystem {
                 deliveryServoToDumpIntoMiddlePosition();
                 liftState = LiftState.IS_DUMPED_INTO_MIDDLE;
                 timer.reset();
+                isReadyToDump = false;
+
             }
             break;
 
@@ -655,6 +683,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
                 //checks if dump was did or not
                 if (deliveryServo.isPositionReached() && timer.milliseconds() > 3000) {
                     liftState = LiftState.RETRACT_FROM_MIDDLE;
+                    dumpComplete = true;
                 }
             }
             break;
@@ -669,6 +698,8 @@ public class FFExtensionArm implements FTCRobotSubsystem {
                 deliveryServoToDumpIntoBottomPosition();
                 liftState = LiftState.IS_DUMPED_INTO_BOTTOM;
                 timer.reset();
+                isReadyToDump = false;
+
             }
             break;
 
@@ -677,6 +708,8 @@ public class FFExtensionArm implements FTCRobotSubsystem {
                 if (deliveryServo.isPositionReached() && timer.milliseconds() > 3000) {
                     liftState = LiftState.RETRACT_FROM_BOTTOM;
                 }
+                dumpComplete = true;
+
             }
             break;
 
@@ -772,6 +805,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
                     deliveryServoToTransferPosition();
                     currentDeliverBucketLocation = DeliveryBucketLocation.TRANSFER;
                     // commandComplete is set to true in IDLE state
+                    retractionComplete = true;
                     liftState = LiftState.IDLE;
                 }
             }

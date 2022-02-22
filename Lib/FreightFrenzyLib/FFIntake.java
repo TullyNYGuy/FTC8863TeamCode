@@ -87,6 +87,10 @@ public class FFIntake implements FTCRobotSubsystem {
     private final String TRANSFER_SENSOR_NAME = FreightFrenzyRobotRoadRunner.HardwareName.TRANSFER_SENSOR.hwName;
     private RevLEDBlinker ledBlinker;
 
+
+    private boolean hasIntakeIntaked = false;
+    private boolean Uh_Oh = false;
+
     //*********************************************************************************************
     //          Constructors
     //
@@ -112,10 +116,10 @@ public class FFIntake implements FTCRobotSubsystem {
         }
 
         rotateServo = new Servo8863New(INTAKE_ROTATOR_SERVO_NAME, hardwareMap, telemetry);
-        rotateServo.addPosition("Intake", .01, 1000, TimeUnit.MILLISECONDS);
+        rotateServo.addPosition("Intake", .01, 500, TimeUnit.MILLISECONDS);
         rotateServo.addPosition("Level 1", .23, 1000, TimeUnit.MILLISECONDS);
-        rotateServo.addPosition("Vertical", .5, 1000, TimeUnit.MILLISECONDS);
-        rotateServo.addPosition("Transfer", 1.0, 1000, TimeUnit.MILLISECONDS);
+        rotateServo.addPosition("Vertical", .5, 500, TimeUnit.MILLISECONDS);
+        rotateServo.addPosition("Transfer", 1.0, 750, TimeUnit.MILLISECONDS);
         rotateServo.addPosition("Level 2", .45, 1000, TimeUnit.MILLISECONDS);
         ledBlinker.off();
         PersistantStorage.isDeliveryFull = true;
@@ -200,12 +204,25 @@ public class FFIntake implements FTCRobotSubsystem {
     //this checks the transfer sensor to see whether or not the object has been transfered.
     // In the robot code this should be used to start the extension.
     public boolean isTransferComplete(){
-        if (((DistanceSensor) transferSensor).getDistance(DistanceUnit.CM) < 7) {
+        if (((DistanceSensor) transferSensor).getDistance(DistanceUnit.CM) < 7 && hasIntakeIntaked) {
             return true;
         } else {
             return false;
         }
     }
+
+    public boolean Uh_Oh(){
+        //theoretically this is pointless. it should only be used if somehow the intake goes to transfer with nothing in it or
+        //something gets stuck in the intake and wont transfer. this tells the freight system that the transfer isn't going to happen basically.
+        return Uh_Oh;
+    }
+
+    public void everythingIsOk(){
+        //part of the Uh-Oh emergency process. resets things back to normal so that we arent constantly reseting the state.
+        Uh_Oh = false;
+    }
+
+
 
     //*********************************************************************************************
     //          PUBLIC COMMANDs
@@ -213,8 +230,11 @@ public class FFIntake implements FTCRobotSubsystem {
     // public methods that give the class its functionality
     //*********************************************************************************************
 
+
+
     @Override
     public boolean init(Configuration config) {
+        logCommand("init");
         toTransferPosition();
         return true;
     }
@@ -224,16 +244,19 @@ public class FFIntake implements FTCRobotSubsystem {
     }
 
     public void intakeAndTransfer(){
+        logCommand("intakeAndTransfer");
         intakeState = IntakeState.INTAKE;
         whatToDoWithFreight = WhatToDoWithFreight.DELIVER_TO_BUCKET;
     }
 
     public void intakeAndHold() {
+        logCommand("intakeAndHold");
         intakeState = IntakeState.INTAKE;
         whatToDoWithFreight = WhatToDoWithFreight.HOLD_IT;
     }
 
     public void ejectIntoLevel1(){
+        logCommand("eject into level 1");
         intakeSweeperMotor.runAtConstantRPM(-480);
         intakeState = IntakeState.EJECT_INTO_LEVEL_ONE;
     }
@@ -247,6 +270,7 @@ public class FFIntake implements FTCRobotSubsystem {
     }
 
     public void ejectOntoFloor(){
+        logCommand("eject onto floor");
         intakeState = IntakeState.TO_INTAKE;
     }
 
@@ -254,6 +278,7 @@ public class FFIntake implements FTCRobotSubsystem {
     // positioning of the intake. No other code should touch it.
     @Deprecated
     public void getOutOfWay(){
+        logCommand("get out of the way");
         toVerticalPosition();
     }
 
@@ -278,8 +303,10 @@ public class FFIntake implements FTCRobotSubsystem {
     //*********************************************************************************************
 
     public void update() {
+        logState();
         switch (intakeState) {
             case IDLE: {
+                hasIntakeIntaked = false;
                 // do nothing
             }
             break;
@@ -306,6 +333,7 @@ public class FFIntake implements FTCRobotSubsystem {
             case WAIT_FOR_FREIGHT: {
                 // do we have something?
                 if (isIntakeFull()) {
+                    hasIntakeIntaked = true;
                     PersistantStorage.isDeliveryFull = false;
                     ledBlinker.steadyAmber();
                     // yup stop the motor and try to cage the freight
@@ -325,7 +353,7 @@ public class FFIntake implements FTCRobotSubsystem {
             case WAIT_FOR_ROTATION: {
                 if (rotateServo.isPositionReached()) {
                     // eject the freight
-                    intakeSweeperMotor.runAtConstantRPM(-200);
+                    intakeSweeperMotor.runAtConstantRPM(-400);
                     intakeState = IntakeState.OUTAKE;
                     timer.reset();
                 }
@@ -344,12 +372,13 @@ public class FFIntake implements FTCRobotSubsystem {
                     intakeState = IntakeState.IDLE;
                 }
                 else{
-                    if(timer.milliseconds() > 5000){
+                    if(timer.milliseconds() > 3000){
                         // uh oh spaghetti-o something broke. it was probably dade's fault.
                         // the intake goes back to vertical so that the driver can spit out the freight onto the ground.
                         toVerticalPosition();;
                         intakeSweeperMotor.setPower(0);
                         intakeState = IntakeState.IDLE;
+                        Uh_Oh = true;
                     }
                 }
             }
@@ -536,6 +565,7 @@ public class FFIntake implements FTCRobotSubsystem {
     @Override
     public void setDataLog(DataLogging logFile) {
         this.logFile = logFile;
+
     }
 
     @Override
@@ -551,6 +581,18 @@ public class FFIntake implements FTCRobotSubsystem {
     @Override
     public void timedUpdate(double timerValueMsec) {
         update();
+    }
+
+    private void logState() {
+        if (loggingOn && logFile != null) {
+            logFile.logOnChange(getName() + " state = " + intakeState.toString());
+        }
+    }
+
+    private void logCommand(String command) {
+        if (loggingOn && logFile != null) {
+            logFile.logOnChange(getName() + " command = " + command);
+        }
     }
 
     // These are the public commands for the intake

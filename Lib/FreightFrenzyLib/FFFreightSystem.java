@@ -91,7 +91,7 @@ public class FFFreightSystem implements FTCRobotSubsystem {
     private ElapsedTime timer;
     private Telemetry telemetry;
     private Configuration configuration;
-    private Boolean aaa;
+
 
 
     //*********************************************************************************************
@@ -216,11 +216,10 @@ public class FFFreightSystem implements FTCRobotSubsystem {
     }
 
     public void dump() {
-        if(state == State.WAITING_TO_DUMP){
+        if(state == State.WAITING_TO_DUMP ){
             extensionArm.dump();
             state = State.WAITING_FOR_DUMP;
             timer.reset();
-            aaa = true;
         }
         else{
             //you are a loser who pushed the button on accident. so we arent doing anything
@@ -261,15 +260,12 @@ public class FFFreightSystem implements FTCRobotSubsystem {
         level = Level.BOTTOM;
     }
 
-    public String getAAA() {
-        if(aaa == true){
-            return ("dumped");
-        }
-        else{
-            return ("not dumped");
 
-        }
-    }
+    //methods for testing// used for telemtry in teleop
+
+
+
+
 
 
     //*********************************************************************************************
@@ -310,9 +306,12 @@ public class FFFreightSystem implements FTCRobotSubsystem {
             break;
 
             case READY_TO_CYCLE: {
-                //just chillin
-                aaa = false;
+                extensionArm.resetDump();
+                extensionArm.resetRetraction();
+                //just chillin and resetin some variables
 
+                intake.everythingIsOk();
+                //this is just in case things go horribly wrong. hopefully it wont ever do anything.
             }
             break;
 
@@ -354,31 +353,41 @@ public class FFFreightSystem implements FTCRobotSubsystem {
             break;
 
             case WAITING_FOR_TRANSFER: {
-                if (intake.isTransferComplete()) {
-                    state = State.WAITING_FOR_CLAW_REPOSITION;
+                if(intake.Uh_Oh()){
+                    //for emergencies only. should do nothing usually
+                    state = State.READY_TO_CYCLE;
                 }
-            }
-            break;
-
-            case WAITING_FOR_CLAW_REPOSITION: {
-                if (arm.isPositionReached()) {
-                    switch (mode) {
-                        case AUTO: {
-                           extend();
-                        }
-                        break;
-                        case MANUAL: {
-                            //just chillin
-                        }
-                        break;
-
+                else {
+                    if (intake.isTransferComplete()) {
+                        state = State.WAITING_FOR_CLAW_REPOSITION;
                     }
                 }
+
+            }
+            break;
+            // the name of this state is innacurate, but i am too lazy to change it.
+            case WAITING_FOR_CLAW_REPOSITION: {
+                   if(phase == Phase.AUTONOMUS){
+                       //just hanging out waiting for tanya to extend the delivery
+                   }
+                   else{
+                       switch (mode) {
+                           case AUTO: {
+                               extend();
+                           }
+                           break;
+                           case MANUAL: {
+                               //just chillin
+                           }
+                           break;
+
+                       }
+                   }
             }
             break;
 
             case WAITING_FOR_EXTENSION: {
-                if(extensionArm.isExtensionMovementComplete()){
+                if(extensionArm.isReadyToDump()){
                     state = State.WAITING_TO_DUMP;
                 }
             }
@@ -401,7 +410,7 @@ public class FFFreightSystem implements FTCRobotSubsystem {
                 // different things. It would be better to nail down exactly when retraction is complete.
                 // So maybe a different way for the extension arm to tell you is has retracted? Like
                 // the delivery box is ready for a transfer?
-                if(extensionArm.isStateIdle()){
+                if(extensionArm.isRetractionComplete()){
                     switch (phase) {
                         case TELEOP: {
                             //all done time to chill
