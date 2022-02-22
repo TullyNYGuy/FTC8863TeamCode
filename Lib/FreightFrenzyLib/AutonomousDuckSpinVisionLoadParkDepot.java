@@ -8,8 +8,10 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Pose2d8863;
+import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.Pipelines.ShippingElementPipeline;
 
-public class AutonomousDuckSpinVisionLoadFrmWarehouseParkStorage implements AutonomousStateMachineFreightFrenzy {
+public class AutonomousDuckSpinVisionLoadParkDepot implements AutonomousStateMachineFreightFrenzy {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -25,13 +27,14 @@ public class AutonomousDuckSpinVisionLoadFrmWarehouseParkStorage implements Auto
         MOVING_TO_DUCKS,
         AT_DUCK,
         DUCK_SPINNING,
-        APPROACHING_STORAGE,
-        READY_TO_PARK,
+        APPROACHING_SIDE,
+        GOING_TO_PASSAGE,
         DEPOSITING,
-
+        GO_TO_WAREHOUSE,
         COMPLETE,
         EXTENDING_LIFT,
         DEPOSIT_DONE,
+        PARKED,
     }
 
     //*********************************************************************************************
@@ -50,9 +53,9 @@ public class AutonomousDuckSpinVisionLoadFrmWarehouseParkStorage implements Auto
     private Pose2d hubDumpPose;
     private Trajectory trajectoryToHub;
     private Trajectory trajectoryToDucks;
-    private Trajectory trajectoryToStorage;
-
-
+    private Trajectory trajectoryToPassageApproach;
+    private Trajectory trajectoryToPassage;
+    private Trajectory trajectoryToWarehoue;
 
     private double distanceToTopGoal = 0;
     private double distanceToLeftPowerShot = 0;
@@ -78,31 +81,59 @@ public class AutonomousDuckSpinVisionLoadFrmWarehouseParkStorage implements Auto
     // from it
     //*********************************************************************************************
 
-    public AutonomousDuckSpinVisionLoadFrmWarehouseParkStorage(FreightFrenzyRobotRoadRunner robot, FreightFrenzyField field, Telemetry telemetry) {
+    public AutonomousDuckSpinVisionLoadParkDepot(FreightFrenzyRobotRoadRunner robot, FreightFrenzyField field, Telemetry telemetry) {
         this.robot = robot;
         this.field = field;
         switch (PersistantStorage.getShippingElementPosition()) {
             case CENTER:
-                if (PersistantStorage.getAllianceColor() == AllianceColor.BLUE) {
-                    hubDumpPose = PoseStorageFF.DELIVER_TO_MID_BLUE_WAREHOUSE;
-                } else if (PersistantStorage.getAllianceColor() == AllianceColor.RED) {
-                    hubDumpPose = PoseStorageFF.DELIVER_TO_MID_RED_WAREHOUSE;
+                robot.freightSystem.setMiddle();
+                switch(PersistantStorage.getStartSpot()){
+                    case BLUE_WALL:
+                        hubDumpPose = PoseStorageFF.DELIVER_TO_MID_BLUE_WALL;
+                        break;
+                    case RED_WALL:
+                        hubDumpPose = PoseStorageFF.DELIVER_TO_MID_RED_WALL;
+                        break;
+                    case BLUE_WAREHOUSE:
+                        hubDumpPose = PoseStorageFF.DELIVER_TO_MID_BLUE_WAREHOUSE;
+                        break;
+                    case RED_WAREHOUSE:
+                        hubDumpPose = PoseStorageFF.DELIVER_TO_MID_RED_WAREHOUSE;
+                        break;
                 }
-
                 break;
             case LEFT:
-                if (PersistantStorage.getAllianceColor() == AllianceColor.BLUE) {
-                    hubDumpPose = PoseStorageFF.DELIVER_TO_LOW_BLUE_WAREHOUSE;
-                } else if (PersistantStorage.getAllianceColor() == AllianceColor.RED) {
-                    hubDumpPose = PoseStorageFF.DELIVER_TO_LOW_RED_WAREHOUSE;
+                robot.freightSystem.setBottom();
+                switch(PersistantStorage.getStartSpot()){
+                    case BLUE_WALL:
+                        hubDumpPose = PoseStorageFF.DELIVER_TO_LOW_BLUE_WALL;
+                        break;
+                    case RED_WALL:
+                        hubDumpPose = PoseStorageFF.DELIVER_TO_LOW_RED_WALL;
+                        break;
+                    case BLUE_WAREHOUSE:
+                        hubDumpPose = PoseStorageFF.DELIVER_TO_LOW_BLUE_WAREHOUSE;
+                        break;
+                    case RED_WAREHOUSE:
+                        hubDumpPose = PoseStorageFF.DELIVER_TO_LOW_RED_WAREHOUSE;
+                        break;
                 }
-
                 break;
             case RIGHT:
-                if (PersistantStorage.getAllianceColor() == AllianceColor.BLUE) {
-                    hubDumpPose = PoseStorageFF.DELIVER_TO_HIGH_HUB_BLUE_WAREHOUSE;
-                } else if (PersistantStorage.getAllianceColor() == AllianceColor.RED) {
-                    hubDumpPose = PoseStorageFF.DELIVER_TO_HIGH_HUB_RED_WAREHOUSE;
+                robot.freightSystem.setTop();
+                switch(PersistantStorage.getStartSpot()){
+                    case BLUE_WALL:
+                        hubDumpPose = PoseStorageFF.DELIVER_TO_HIGH_HUB_BLUE_WALL;
+                        break;
+                    case RED_WALL:
+                        hubDumpPose = PoseStorageFF.DELIVER_TO_HIGH_HUB_RED_WALL;
+                        break;
+                    case BLUE_WAREHOUSE:
+                        hubDumpPose = PoseStorageFF.DELIVER_TO_HIGH_HUB_BLUE_WAREHOUSE;
+                        break;
+                    case RED_WAREHOUSE:
+                        hubDumpPose = PoseStorageFF.DELIVER_TO_HIGH_HUB_RED_WAREHOUSE;
+                        break;
                 }
                 break;
         }
@@ -136,18 +167,28 @@ public class AutonomousDuckSpinVisionLoadFrmWarehouseParkStorage implements Auto
             trajectoryToDucks = robot.mecanum.trajectoryBuilder(trajectoryToHub.end())
                     .lineToLinearHeading(PoseStorageFF.DUCK_SPINNER_BLUE)
                     .build();
-            trajectoryToStorage = robot.mecanum.trajectoryBuilder(trajectoryToDucks.end())
-                    .lineToLinearHeading(PoseStorageFF.STORAGE_BLUE)
+            trajectoryToPassageApproach = robot.mecanum.trajectoryBuilder(trajectoryToDucks.end())
+                    .lineToLinearHeading(PoseStorageFF.BLUE_SIDE_PASSAGE_APPROACH)
                     .build();
-
+            trajectoryToPassage = robot.mecanum.trajectoryBuilder(trajectoryToPassageApproach.end())
+                    .lineToLinearHeading(PoseStorageFF.SIDE_PASSAGE_BLUE)
+                    .build();
+            trajectoryToWarehoue = robot.mecanum.trajectoryBuilder(trajectoryToPassage.end())
+                    .lineToLinearHeading(PoseStorageFF.FREIGHT_BLUE)
+                    .build();
         } else {
             trajectoryToDucks = robot.mecanum.trajectoryBuilder(trajectoryToHub.end())
                     .lineToLinearHeading(PoseStorageFF.DUCK_SPINNER_RED)
                     .build();
-            trajectoryToStorage = robot.mecanum.trajectoryBuilder(trajectoryToDucks.end())
-                    .lineToLinearHeading(PoseStorageFF.STORAGE_RED)
+            trajectoryToPassageApproach = robot.mecanum.trajectoryBuilder(trajectoryToDucks.end())
+                    .lineToLinearHeading(PoseStorageFF.RED_SIDE_PASSAGE_APPROACH)
                     .build();
-
+            trajectoryToPassage = robot.mecanum.trajectoryBuilder(trajectoryToPassageApproach.end())
+                    .lineToLinearHeading(PoseStorageFF.SIDE_PASSAGE_RED)
+                    .build();
+            trajectoryToWarehoue = robot.mecanum.trajectoryBuilder(trajectoryToPassage.end())
+                    .lineToLinearHeading(PoseStorageFF.FREIGHT_RED)
+                    .build();
         }
     }
 
@@ -168,9 +209,10 @@ public class AutonomousDuckSpinVisionLoadFrmWarehouseParkStorage implements Auto
             switch (currentState) {
                 case START:
                     isComplete = false;
+
                     robot.mecanum.setPoseEstimate(PoseStorageFF.START_POSE);
                     robot.mecanum.followTrajectory(trajectoryToDucks);
-                    robot.intake.getOutOfWay();
+
                     currentState = States.MOVING_TO_DUCKS;
                     break;
                 case MOVING_TO_HUB:
@@ -179,36 +221,25 @@ public class AutonomousDuckSpinVisionLoadFrmWarehouseParkStorage implements Auto
                     }
                     break;
                 case EXTENDING_LIFT:
-                    switch (PersistantStorage.getShippingElementPosition()) {
-                        case CENTER:
-                            robot.lift.extendToMiddle();
-                            break;
-                        case LEFT:
-                            robot.lift.extendToBottom();
-                            break;
-                        case RIGHT:
-                            robot.lift.extendToTop();
-                            break;
-                    }
+                    robot.freightSystem.extend();
                     currentState = States.DEPOSITING;
                     break;
                 case DEPOSITING:
                     if (robot.lift.isExtensionMovementComplete()) {
-                           robot.lift.dump();
+                        robot.freightSystem.dump();
 
-                        robot.intake.getOutOfWay();
                         currentState = States.DEPOSIT_DONE;
                     }
                     break;
                 case DEPOSIT_DONE:
                     if (robot.lift.isDeliverServoPositionReached()) {
                         robot.lift.retract();
-                        currentState = States.APPROACHING_STORAGE;
                         robot.intake.getOutOfWay();
+                        currentState = States.APPROACHING_SIDE;
                     }
                     break;
                 case MOVING_TO_DUCKS:
-
+                    //robot.mecanum.followTrajectory(trajectoryToDucks);
                     if (!robot.mecanum.isBusy()) {
                         robot.duckSpinner.turnOn();
                         //robot.mecanum.followTrajectoryAsync(trajectoryToParkPosition);
@@ -216,29 +247,41 @@ public class AutonomousDuckSpinVisionLoadFrmWarehouseParkStorage implements Auto
                     }
                     break;
                 case AT_DUCK:
-                    if (robot.duckSpinner.spinTimeReached()) {
-                        robot.duckSpinner.turnOff();
+
                         currentState = States.DUCK_SPINNING;
-                    }
+
                     break;
                 case DUCK_SPINNING:
-
-                        robot.mecanum.followTrajectory(trajectoryToHub);
+                    if (robot.duckSpinner.spinTimeReached()) {
+                        robot.duckSpinner.turnOff();
                         currentState = States.MOVING_TO_HUB;
-
-                    break;
-                case APPROACHING_STORAGE:
-                    if(robot.lift.isExtensionMovementComplete()){
-                    robot.mecanum.followTrajectory(trajectoryToStorage);
-                    currentState = States.READY_TO_PARK;
                     }
-
                     break;
-                case READY_TO_PARK:
+                case APPROACHING_SIDE:
+
+                    if (robot.lift.isExtensionMovementComplete()) {
+                        robot.mecanum.followTrajectory(trajectoryToPassageApproach);
+                        currentState = States.GOING_TO_PASSAGE;
+                    }
+                    break;
+                case GOING_TO_PASSAGE:
+                    robot.intake.getOutOfWay();
                     if (!robot.mecanum.isBusy()) {
+                        robot.mecanum.followTrajectory(trajectoryToPassage);
+                        currentState = States.GO_TO_WAREHOUSE;
+                    }
+                    break;
+                case GO_TO_WAREHOUSE:
+                    if (!robot.mecanum.isBusy()) {
+                        robot.mecanum.followTrajectory(trajectoryToWarehoue);
+                        currentState = States.PARKED;
+                    }
+                    break;
+
+                case PARKED:
+                    if(!robot.mecanum.isBusy()){
                         currentState = States.COMPLETE;
                     }
-                    break;
                 case COMPLETE:
                     isComplete = true;
             }

@@ -11,7 +11,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Pose2d8863;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.Pipelines.ShippingElementPipeline;
 
-public class AutonomousVisionLoadFrmWallDuckSpinNoParkNearWall implements AutonomousStateMachineFreightFrenzy {
+public class AutonomousVisionLoadDuckSpinParkShippingArea implements AutonomousStateMachineFreightFrenzy {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -23,16 +23,15 @@ public class AutonomousVisionLoadFrmWallDuckSpinNoParkNearWall implements Autono
         IDLE,
         START,
         MOVING_TO_HUB,
-        EXTENDING_LIFT,
-        DEPOSIT_DONE,
         READY_TO_DEPOSIT,
         MOVING_TO_DUCKS,
         AT_DUCK,
         DUCK_SPINNING,
-        APPROACHING_SIDE,
-        GOING_TO_PASSAGE,
+        APPROACHING_STORAGE,
         DEPOSITING,
-        GO_TO_WAREHOUSE,
+        GO_TO_SHIPPING_AREA,
+        EXTENDING_LIFT,
+        DEPOSIT_DONE,
         COMPLETE;
     }
 
@@ -49,13 +48,13 @@ public class AutonomousVisionLoadFrmWallDuckSpinNoParkNearWall implements Autono
     private ElapsedTime timer;
     private DistanceUnit distanceUnits;
     private AngleUnit angleUnits;
-
+    private Pose2d hubDumpPose;
     private Trajectory trajectoryToHub;
     private Trajectory trajectoryToDucks;
-    private Trajectory trajectoryToPassageApproach;
+    private Trajectory trajectoryToShippingArea;
     private Trajectory trajectoryToPassage;
     private Trajectory trajectoryToWarehoue;
-    private Pose2d hubDumpPose;
+
     private double distanceToTopGoal = 0;
     private double distanceToLeftPowerShot = 0;
     private double angleOfShot = 0;
@@ -80,31 +79,59 @@ public class AutonomousVisionLoadFrmWallDuckSpinNoParkNearWall implements Autono
     // from it
     //*********************************************************************************************
 
-    public AutonomousVisionLoadFrmWallDuckSpinNoParkNearWall(FreightFrenzyRobotRoadRunner robot, FreightFrenzyField field, Telemetry telemetry) {
+    public AutonomousVisionLoadDuckSpinParkShippingArea(FreightFrenzyRobotRoadRunner robot, FreightFrenzyField field, Telemetry telemetry) {
         this.robot = robot;
         this.field = field;
-        switch(PersistantStorage.getShippingElementPosition()){
+        switch (PersistantStorage.getShippingElementPosition()) {
             case CENTER:
-                if (PersistantStorage.getAllianceColor() == AllianceColor.BLUE) {
-                    hubDumpPose = PoseStorageFF.DELIVER_TO_MID_BLUE_WALL;
-                } else if (PersistantStorage.getAllianceColor() == AllianceColor.RED) {
-                    hubDumpPose = PoseStorageFF.DELIVER_TO_MID_RED_WALL;
+                robot.freightSystem.setMiddle();
+                switch(PersistantStorage.getStartSpot()){
+                    case BLUE_WALL:
+                        hubDumpPose = PoseStorageFF.DELIVER_TO_MID_BLUE_WALL;
+                        break;
+                    case RED_WALL:
+                        hubDumpPose = PoseStorageFF.DELIVER_TO_MID_RED_WALL;
+                        break;
+                    case BLUE_WAREHOUSE:
+                        hubDumpPose = PoseStorageFF.DELIVER_TO_MID_BLUE_WAREHOUSE;
+                        break;
+                    case RED_WAREHOUSE:
+                        hubDumpPose = PoseStorageFF.DELIVER_TO_MID_RED_WAREHOUSE;
+                        break;
                 }
-
                 break;
             case LEFT:
-                if (PersistantStorage.getAllianceColor() == AllianceColor.BLUE) {
-                    hubDumpPose = PoseStorageFF.DELIVER_TO_LOW_BLUE_WALL;
-                } else if (PersistantStorage.getAllianceColor() == AllianceColor.RED) {
-                    hubDumpPose = PoseStorageFF.DELIVER_TO_LOW_RED_WALL;
+                robot.freightSystem.setBottom();
+                switch(PersistantStorage.getStartSpot()){
+                    case BLUE_WALL:
+                        hubDumpPose = PoseStorageFF.DELIVER_TO_LOW_BLUE_WALL;
+                        break;
+                    case RED_WALL:
+                        hubDumpPose = PoseStorageFF.DELIVER_TO_LOW_RED_WALL;
+                        break;
+                    case BLUE_WAREHOUSE:
+                        hubDumpPose = PoseStorageFF.DELIVER_TO_LOW_BLUE_WAREHOUSE;
+                        break;
+                    case RED_WAREHOUSE:
+                        hubDumpPose = PoseStorageFF.DELIVER_TO_LOW_RED_WAREHOUSE;
+                        break;
                 }
-
                 break;
             case RIGHT:
-                if (PersistantStorage.getAllianceColor() == AllianceColor.BLUE) {
-                    hubDumpPose = PoseStorageFF.DELIVER_TO_HIGH_HUB_BLUE_WALL;
-                } else if (PersistantStorage.getAllianceColor() == AllianceColor.RED) {
-                    hubDumpPose = PoseStorageFF.DELIVER_TO_HIGH_HUB_RED_WALL;
+                robot.freightSystem.setTop();
+                switch(PersistantStorage.getStartSpot()){
+                    case BLUE_WALL:
+                        hubDumpPose = PoseStorageFF.DELIVER_TO_HIGH_HUB_BLUE_WALL;
+                        break;
+                    case RED_WALL:
+                        hubDumpPose = PoseStorageFF.DELIVER_TO_HIGH_HUB_RED_WALL;
+                        break;
+                    case BLUE_WAREHOUSE:
+                        hubDumpPose = PoseStorageFF.DELIVER_TO_HIGH_HUB_BLUE_WAREHOUSE;
+                        break;
+                    case RED_WAREHOUSE:
+                        hubDumpPose = PoseStorageFF.DELIVER_TO_HIGH_HUB_RED_WAREHOUSE;
+                        break;
                 }
                 break;
         }
@@ -131,19 +158,31 @@ public class AutonomousVisionLoadFrmWallDuckSpinNoParkNearWall implements Autono
     @Override
     public void createTrajectories() {
 
-        trajectoryToHub = robot.mecanum.trajectoryBuilder(PoseStorageFF.START_POSE)
-                .lineToLinearHeading(hubDumpPose)
-                //.lineTo(Pose2d8863.getVector2d(PoseStorage.SHOOTING_AT_HIGH_GOAL))
-                .build();
-    if(PersistantStorage.getAllianceColor() == AllianceColor.BLUE) {
-        trajectoryToDucks = robot.mecanum.trajectoryBuilder(trajectoryToHub.end())
-                .lineToLinearHeading(PoseStorageFF.DUCK_SPINNER_BLUE)
-                .build();
-    }else {trajectoryToDucks = robot.mecanum.trajectoryBuilder(trajectoryToHub.end())
-            .lineToLinearHeading(PoseStorageFF.DUCK_SPINNER_RED)
-            .build();}
-    }
+        //  THIS IS LOOKING GOOD TANYA. A COUPLE OF COMMENTS (in the form of // todo).
 
+        trajectoryToHub = robot.mecanum.trajectoryBuilder(PoseStorageFF.START_POSE)
+                // todo What about heading? Will it always stay the same?
+                .lineToLinearHeading(hubDumpPose)
+                .build();
+        if (PersistantStorage.getAllianceColor() == AllianceColor.BLUE) {
+            trajectoryToDucks = robot.mecanum.trajectoryBuilder(trajectoryToHub.end())
+                    .lineToLinearHeading(PoseStorageFF.DUCK_SPINNER_BLUE)
+                    .build();
+            trajectoryToShippingArea = robot.mecanum.trajectoryBuilder(trajectoryToDucks.end())
+                    .lineToLinearHeading(PoseStorageFF.STORAGE_BLUE)
+                    .build();
+
+
+        } else {
+            trajectoryToDucks = robot.mecanum.trajectoryBuilder(trajectoryToHub.end())
+                    .lineToLinearHeading(PoseStorageFF.DUCK_SPINNER_RED)
+                    .build();
+            trajectoryToShippingArea = robot.mecanum.trajectoryBuilder(trajectoryToDucks.end())
+                    .lineToLinearHeading(PoseStorageFF.STORAGE_RED)
+                    .build();
+
+        }
+    }
 
     //*********************************************************************************************
     //          MAJOR METHODS
@@ -164,63 +203,70 @@ public class AutonomousVisionLoadFrmWallDuckSpinNoParkNearWall implements Autono
                 isComplete = false;
                 robot.mecanum.setPoseEstimate(PoseStorageFF.START_POSE);
                 robot.mecanum.followTrajectory(trajectoryToHub);
-                robot.intake.getOutOfWay();
+
                 currentState = States.MOVING_TO_HUB;
                 break;
             case MOVING_TO_HUB:
                 if (!robot.mecanum.isBusy()) {
+                    // todo Check the next state. Is it correct?
                     currentState = States.EXTENDING_LIFT;
                 }
                 break;
             case EXTENDING_LIFT:
-                switch(PersistantStorage.getShippingElementPosition()){
-                    case CENTER:
-                        robot.lift.extendToMiddle();
-                        break;
-                    case LEFT:
-                        robot.lift.extendToBottom();
-                        break;
-                    case RIGHT:
-                        robot.lift.extendToTop();
-                        break;
-                }
+               robot.freightSystem.extend();
                 currentState = States.DEPOSITING;
                 break;
             case DEPOSITING:
-               if(robot.lift.isExtensionMovementComplete()) {
-                   robot.lift.dump();
-
-                   robot.intake.getOutOfWay();
-                   currentState = States.DEPOSIT_DONE;
-               }
+                if (robot.lift.isExtensionMovementComplete()) {
+                    robot.freightSystem.dump();
+                    currentState = States.DEPOSIT_DONE;
+                }
                 break;
             case DEPOSIT_DONE:
-                if(robot.lift.isDeliverServoPositionReached()){
+                if (robot.lift.isDeliverServoPositionReached()) {
                     robot.lift.retract();
+
                     currentState = States.MOVING_TO_DUCKS;
                 }
                 break;
             case MOVING_TO_DUCKS:
-                if(robot.lift.isExtensionMovementComplete()){
+
+                if (robot.lift.isExtensionMovementComplete()) {
                     robot.mecanum.followTrajectory(trajectoryToDucks);
+
+                    //robot.mecanum.followTrajectoryAsync(trajectoryToParkPosition);
                     currentState = States.AT_DUCK;
                 }
-
                 break;
             case AT_DUCK:
                 if (!robot.mecanum.isBusy()) {
-                    robot.duckSpinner.turnOn();
+                    // todo you should not have to know anything about how the duck spinner operates
+                    // It knows how to do that.
+                    //robot.duckSpinner.turnOn();
+                    robot.duckSpinner.autoSpin();
                     currentState = States.DUCK_SPINNING;
                 }
                 break;
             case DUCK_SPINNING:
-                if (robot.duckSpinner.spinTimeReached()) {
-                    robot.duckSpinner.turnOff();
+                // todo you should not have to know anything about how the duck spinner operates
+                // It knows how to do that. So you should don't have to know about times or how it
+                // does it's thing. All you need to know is that it did its thing and it is done.
+                //if (robot.duckSpinner.spinTimeReached()) {
+                    //robot.duckSpinner.turnOff();
+                if (robot.duckSpinner.isComplete()) {
+                    robot.mecanum.followTrajectory(trajectoryToShippingArea);
+                    currentState = States.APPROACHING_STORAGE;
+                }
+                break;
+            case APPROACHING_STORAGE:
+                if (!robot.mecanum.isBusy()) {
                     currentState = States.COMPLETE;
                 }
                 break;
+
             case COMPLETE:
                 isComplete = true;
+                break;
         }
     }
 }

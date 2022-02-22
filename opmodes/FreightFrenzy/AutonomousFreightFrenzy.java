@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
-import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.AutonomousVisionLoadFrmWallDuckSpinParkDepot;
+import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.AutonomousVisionLoadDuckSpinParkDepot;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.AutonomousStateMachineFreightFrenzy;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyStartSpot;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyField;
@@ -124,7 +124,7 @@ public class AutonomousFreightFrenzy extends LinearOpMode {
         robot = new FreightFrenzyRobotRoadRunner(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, this);
         robot.createRobot();
         enableBulkReads(hardwareMap, LynxModule.BulkCachingMode.AUTO);
-       autonomous = new AutonomousVisionLoadFrmWallDuckSpinParkDepot(robot, field, telemetry);
+       autonomous = new AutonomousVisionLoadDuckSpinParkDepot(robot, field, telemetry);
 
         timer.reset();
         robot.loopTimer.startLoopTimer();
