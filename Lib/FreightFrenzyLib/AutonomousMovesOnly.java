@@ -86,26 +86,51 @@ public class AutonomousMovesOnly implements AutonomousStateMachineFreightFrenzy 
         this.field = field;
         switch (PersistantStorage.getShippingElementPosition()) {
             case CENTER:
-                if (PersistantStorage.getAllianceColor() == AllianceColor.BLUE) {
-                    hubDumpPose = PoseStorageFF.DELIVER_TO_MID_BLUE_WALL;
-                } else if (PersistantStorage.getAllianceColor() == AllianceColor.RED) {
-                    hubDumpPose = PoseStorageFF.DELIVER_TO_MID_RED_WALL;
+                switch(PersistantStorage.getStartSpot()){
+                    case BLUE_WALL:
+                        hubDumpPose = PoseStorageFF.DELIVER_TO_MID_BLUE_WALL;
+                        break;
+                    case RED_WALL:
+                        hubDumpPose = PoseStorageFF.DELIVER_TO_MID_RED_WALL;
+                        break;
+                    case BLUE_WAREHOUSE:
+                        hubDumpPose = PoseStorageFF.DELIVER_TO_MID_BLUE_WAREHOUSE;
+                        break;
+                    case RED_WAREHOUSE:
+                        hubDumpPose = PoseStorageFF.DELIVER_TO_MID_RED_WAREHOUSE;
+                        break;
                 }
-
                 break;
             case LEFT:
-                if (PersistantStorage.getAllianceColor() == AllianceColor.BLUE) {
-                    hubDumpPose = PoseStorageFF.DELIVER_TO_LOW_BLUE_WALL;
-                } else if (PersistantStorage.getAllianceColor() == AllianceColor.RED) {
-                    hubDumpPose = PoseStorageFF.DELIVER_TO_LOW_RED_WALL;
+                switch(PersistantStorage.getStartSpot()){
+                    case BLUE_WALL:
+                        hubDumpPose = PoseStorageFF.DELIVER_TO_LOW_BLUE_WALL;
+                        break;
+                    case RED_WALL:
+                        hubDumpPose = PoseStorageFF.DELIVER_TO_LOW_RED_WALL;
+                        break;
+                    case BLUE_WAREHOUSE:
+                        hubDumpPose = PoseStorageFF.DELIVER_TO_LOW_BLUE_WAREHOUSE;
+                        break;
+                    case RED_WAREHOUSE:
+                        hubDumpPose = PoseStorageFF.DELIVER_TO_LOW_RED_WAREHOUSE;
+                        break;
                 }
-
                 break;
             case RIGHT:
-                if (PersistantStorage.getAllianceColor() == AllianceColor.BLUE) {
-                    hubDumpPose = PoseStorageFF.DELIVER_TO_HIGH_HUB_BLUE_WALL;
-                } else if (PersistantStorage.getAllianceColor() == AllianceColor.RED) {
-                    hubDumpPose = PoseStorageFF.DELIVER_TO_HIGH_HUB_RED_WALL;
+                switch(PersistantStorage.getStartSpot()){
+                    case BLUE_WALL:
+                        hubDumpPose = PoseStorageFF.DELIVER_TO_HIGH_HUB_BLUE_WALL;
+                        break;
+                    case RED_WALL:
+                        hubDumpPose = PoseStorageFF.DELIVER_TO_HIGH_HUB_RED_WALL;
+                        break;
+                    case BLUE_WAREHOUSE:
+                        hubDumpPose = PoseStorageFF.DELIVER_TO_HIGH_HUB_BLUE_WAREHOUSE;
+                        break;
+                    case RED_WAREHOUSE:
+                        hubDumpPose = PoseStorageFF.DELIVER_TO_HIGH_HUB_RED_WAREHOUSE;
+                        break;
                 }
                 break;
         }

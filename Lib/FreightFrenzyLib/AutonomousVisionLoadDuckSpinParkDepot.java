@@ -11,7 +11,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Pose2d8863;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.Pipelines.ShippingElementPipeline;
 
-public class AutonomousVisionLoadFrmWallDuckSpinParkDepot implements AutonomousStateMachineFreightFrenzy {
+public class AutonomousVisionLoadDuckSpinParkDepot implements AutonomousStateMachineFreightFrenzy {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -80,31 +80,59 @@ public class AutonomousVisionLoadFrmWallDuckSpinParkDepot implements AutonomousS
     // from it
     //*********************************************************************************************
 
-    public AutonomousVisionLoadFrmWallDuckSpinParkDepot(FreightFrenzyRobotRoadRunner robot, FreightFrenzyField field, Telemetry telemetry) {
+    public AutonomousVisionLoadDuckSpinParkDepot(FreightFrenzyRobotRoadRunner robot, FreightFrenzyField field, Telemetry telemetry) {
         this.robot = robot;
         this.field = field;
         switch (PersistantStorage.getShippingElementPosition()) {
             case CENTER:
-                if (PersistantStorage.getAllianceColor() == AllianceColor.BLUE) {
-                    hubDumpPose = PoseStorageFF.DELIVER_TO_MID_BLUE_WALL;
-                } else if (PersistantStorage.getAllianceColor() == AllianceColor.RED) {
-                    hubDumpPose = PoseStorageFF.DELIVER_TO_MID_RED_WALL;
+                robot.freightSystem.setMiddle();
+                switch(PersistantStorage.getStartSpot()){
+                    case BLUE_WALL:
+                        hubDumpPose = PoseStorageFF.DELIVER_TO_MID_BLUE_WALL;
+                        break;
+                    case RED_WALL:
+                        hubDumpPose = PoseStorageFF.DELIVER_TO_MID_RED_WALL;
+                        break;
+                    case BLUE_WAREHOUSE:
+                        hubDumpPose = PoseStorageFF.DELIVER_TO_MID_BLUE_WAREHOUSE;
+                        break;
+                    case RED_WAREHOUSE:
+                        hubDumpPose = PoseStorageFF.DELIVER_TO_MID_RED_WAREHOUSE;
+                        break;
                 }
-
                 break;
             case LEFT:
-                if (PersistantStorage.getAllianceColor() == AllianceColor.BLUE) {
-                    hubDumpPose = PoseStorageFF.DELIVER_TO_LOW_BLUE_WALL;
-                } else if (PersistantStorage.getAllianceColor() == AllianceColor.RED) {
-                    hubDumpPose = PoseStorageFF.DELIVER_TO_LOW_RED_WALL;
+                robot.freightSystem.setBottom();
+                switch(PersistantStorage.getStartSpot()){
+                    case BLUE_WALL:
+                        hubDumpPose = PoseStorageFF.DELIVER_TO_LOW_BLUE_WALL;
+                        break;
+                    case RED_WALL:
+                        hubDumpPose = PoseStorageFF.DELIVER_TO_LOW_RED_WALL;
+                        break;
+                    case BLUE_WAREHOUSE:
+                        hubDumpPose = PoseStorageFF.DELIVER_TO_LOW_BLUE_WAREHOUSE;
+                        break;
+                    case RED_WAREHOUSE:
+                        hubDumpPose = PoseStorageFF.DELIVER_TO_LOW_RED_WAREHOUSE;
+                        break;
                 }
-
                 break;
             case RIGHT:
-                if (PersistantStorage.getAllianceColor() == AllianceColor.BLUE) {
-                    hubDumpPose = PoseStorageFF.DELIVER_TO_HIGH_HUB_BLUE_WALL;
-                } else if (PersistantStorage.getAllianceColor() == AllianceColor.RED) {
-                    hubDumpPose = PoseStorageFF.DELIVER_TO_HIGH_HUB_RED_WALL;
+                robot.freightSystem.setTop();
+                switch(PersistantStorage.getStartSpot()){
+                    case BLUE_WALL:
+                        hubDumpPose = PoseStorageFF.DELIVER_TO_HIGH_HUB_BLUE_WALL;
+                        break;
+                    case RED_WALL:
+                        hubDumpPose = PoseStorageFF.DELIVER_TO_HIGH_HUB_RED_WALL;
+                        break;
+                    case BLUE_WAREHOUSE:
+                        hubDumpPose = PoseStorageFF.DELIVER_TO_HIGH_HUB_BLUE_WAREHOUSE;
+                        break;
+                    case RED_WAREHOUSE:
+                        hubDumpPose = PoseStorageFF.DELIVER_TO_HIGH_HUB_RED_WAREHOUSE;
+                        break;
                 }
                 break;
         }
@@ -191,25 +219,13 @@ public class AutonomousVisionLoadFrmWallDuckSpinParkDepot implements AutonomousS
                     }
                     break;
                 case EXTENDING_LIFT:
-                    switch (PersistantStorage.getShippingElementPosition()) {
-                        case CENTER:
-                            robot.lift.extendToMiddle();
-                            break;
-                        case LEFT:
-                            robot.lift.extendToBottom();
-                            break;
-                        case RIGHT:
-                            robot.lift.extendToTop();
-                            break;
-                    }
+                    robot.freightSystem.extend();
                     currentState = States.DEPOSITING;
                     break;
                 case DEPOSITING:
                     if (robot.lift.isExtensionMovementComplete()) {
 
-                           robot.lift.dump();
-
-                        robot.intake.getOutOfWay();
+                        robot.freightSystem.dump();
                         currentState = States.DEPOSIT_DONE;
                     }
                     break;
