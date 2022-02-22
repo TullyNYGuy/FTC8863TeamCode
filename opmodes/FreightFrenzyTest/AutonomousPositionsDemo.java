@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmodes.FreightFrenzyTest;
 
 import static org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.PoseStorageAutonomousPositionsDemo.DELIVER_TO_MID_AND_LOW_HUB_BLUE;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.hardware.lynx.LynxModule;
@@ -35,21 +36,30 @@ import java.util.List;
  */
 @Autonomous(name = "Autonomous Positions Demo", group = "AA")
 //@Disabled
+@Config
 public class AutonomousPositionsDemo extends LinearOpMode {
 
     // Put your variable declarations her
-    public FreightFrenzyRobotRoadRunner robot;
-    public FreightFrenzyGamepad gamepad;
-    public Configuration config;
-    public FreightFrenzyStartSpot startSpot;
+    private FreightFrenzyRobotRoadRunner robot;
+    private FreightFrenzyGamepad gamepad;
+    private Configuration config;
+    private FreightFrenzyStartSpot startSpot;
     private ElapsedTime timer;
     public boolean autoDone;
     DataLogging dataLog = null;
     int cameraMonitorViewId;
     public FreightFrenzyField field;
-    public double distance = 0;
-    public double angleBetween = 0;
+    private double distance = 0;
+    private double angleBetween = 0;
     private AutonomousStateMachineFreightFrenzy autonomous;
+    public static double startX;
+    public static double startY;
+    public static double startHeadingDegrees;
+    public static double destinationX;
+    public static double destinationY;
+    public static double destinationHeadingDegrees;
+    private Pose2d start;
+    private Pose2d destination;
 
     @Override
     public void runOpMode() {
@@ -65,20 +75,20 @@ public class AutonomousPositionsDemo extends LinearOpMode {
 
         timer.reset();
         robot.loopTimer.startLoopTimer();
-
+        start = new Pose2d(startX, startY, Math.toRadians(startHeadingDegrees));
+        destination = new Pose2d(destinationX, destinationY, Math.toRadians(destinationHeadingDegrees));
         // Build the trajectories using the constants defined in PoseStorageAutonomousPositionsDemo. Since those constants
         // are accessible from the FTC Dashboard, you can change them on the fly, without a download of new code. This makes
         // tweaking the positions very fast. Once you have them dialed in, you can alter the constants in the
         // Pose storage class and make the positions permanent.
-        Trajectory trajectoryToHub = robot.mecanum.trajectoryBuilder(PoseStorageFF.START_POSE)
-                .lineToLinearHeading(PoseStorageAutonomousPositionsDemo.DELIVER_TO_MID_AND_LOW_HUB_BLUE)
+
+        Trajectory trajectoryTodestination = robot.mecanum.trajectoryBuilder(start)
+                .lineToLinearHeading(destination)
                 .build();
 
-        Trajectory trajectoryToDuckSpinner = robot.mecanum.trajectoryBuilder(trajectoryToHub.end())
-                .lineToLinearHeading(PoseStorageAutonomousPositionsDemo.DUCK_SPINNER_BLUE)
-                .build();
 
-        robot.mecanum.setPoseEstimate(PoseStorageFF.START_POSE);
+
+        robot.mecanum.setPoseEstimate(start);
 
 
         telemetry.addData(">", "Press Start to run");
@@ -88,8 +98,8 @@ public class AutonomousPositionsDemo extends LinearOpMode {
         waitForStart();
 
         // run the trajectories
-        robot.mecanum.followTrajectory(trajectoryToHub);
-        robot.mecanum.followTrajectory(trajectoryToDuckSpinner);
+        robot.mecanum.followTrajectory(trajectoryTodestination);
+
 
         robot.shutdown();
         dataLog.closeDataLog();
