@@ -119,10 +119,10 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
     public LoopTimer loopTimer;
     public DuckSpinner duckSpinner;
     public FFArm arm;
-    public FFIntake intake;
+    private FFIntake intake;
     public OpenCvWebcam webcamLeft;
     public OpenCvWebcam webcamRight;
-    public FFExtensionArm lift;
+    private FFExtensionArm deliverySystem;
     public RevLEDBlinker ledBlinker;
     public FFFreightSystem freightSystem;
 
@@ -191,9 +191,9 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
         }
 
         // the extension arm needs to know what the alliance color is because motors and servos have to get reversed
-        lift = new FFExtensionArm(allianceColor, hardwareMap, telemetry);
+        deliverySystem = new FFExtensionArm(allianceColor, hardwareMap, telemetry);
         // DO NOT PUT THE lift / extension arm into the subsystem map. The FFFreightSystem should control its init and updates
-        //subsystemMap.put(lift.getName(), lift);
+        //subsystemMap.put(deliverySystem.getName(), deliverySystem);
 
         // THE WEBCAM PROCESSING TAKES UP A BUNCH OF RESOURCES. PROBABLY NOT A GOOD IDEA TO RUN THIS IN TELEOP
         if (FreightFrenzyMatchInfo.getMatchPhase() == FreightFrenzyMatchInfo.MatchPhase.AUTONOMOUS)
@@ -235,7 +235,7 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
         //subsystemMap.put(intake.getName(), intake);
 
         if (capabilities.contains(Subsystem.FREIGHT_SYSTEM)) {
-            freightSystem = new FFFreightSystem(arm, intake, lift, hardwareMap, telemetry, allianceColor, ledBlinker);
+            freightSystem = new FFFreightSystem(arm, intake, deliverySystem, hardwareMap, telemetry, allianceColor, ledBlinker);
             subsystemMap.put(freightSystem.getName(), freightSystem);
         }
 
@@ -249,29 +249,7 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
     @Override
     public void init() {
         dataLog.logData("Init starting");
-        lift.setDataLog(dataLog);
-        lift.enableDataLogging();
-//        if (!lift.init(config)) {
-//            if (dataLoggingEnabled)
-//                dataLog.logData(lift.getName() + " initialization failed");
-//        }
         timer.reset();
-//        while (!lift.isInitComplete()) {
-//            update();
-//
-//            if (timer.milliseconds() > 5000) {
-//                // something went wrong with the inits. They never finished. Proceed anyway
-//                dataLog.logData("Init failed to complete on time. Proceeding anyway!");
-//                break;
-//            }
-//            telemetry.update();
-//            opMode.idle();
-//        }
-
-       // we are making a temporary subsystem list to remove the lift and intake when initing the other systems
-      //  Map<String, FTCRobotSubsystem> subsystemMapNew = new HashMap<String, FTCRobotSubsystem>(subsystemMap);
-        //subsystemMapNew.remove(lift.getName());
-        //subsystemMapNew.remove(intake.getName());
 
         for (FTCRobotSubsystem subsystem : subsystemMap.values()) {
             subsystem.setDataLog(dataLog);
@@ -296,8 +274,6 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
             opMode.idle();
         }
     }
-
-    boolean isLiftInit;
 
     /*
      * Every system must tell us when its init is complete. When all of the inits are complete, the
