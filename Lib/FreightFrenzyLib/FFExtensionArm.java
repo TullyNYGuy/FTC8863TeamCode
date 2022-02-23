@@ -134,8 +134,8 @@ public class FFExtensionArm implements FTCRobotSubsystem {
         deliveryServo.addPosition("Parallel", 0.83, 500, TimeUnit.MILLISECONDS);
         deliveryServo.addPosition("DumpIntoTop", 0.05, 500, TimeUnit.MILLISECONDS);
         deliveryServo.addPosition("DumpIntoMiddle", 0.04, 500, TimeUnit.MILLISECONDS);
-        deliveryServo.addPosition("DumpIntoBottom", 0.13, 500, TimeUnit.MILLISECONDS);
-        deliveryServo.addPosition("LineUpDump", 0.17, 500, TimeUnit.MILLISECONDS);
+        deliveryServo.addPosition("DumpIntoBottom", 0, 500, TimeUnit.MILLISECONDS);
+        deliveryServo.addPosition("LineUpDump", 0.17, 250, TimeUnit.MILLISECONDS);
 
         if (allianceColor == AllianceColor.BLUE) {
             ffExtensionArm = new ExtensionRetractionMechanism(hardwareMap, telemetry,
@@ -535,7 +535,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
 
             case EXTEND_TO_TOP: {
                 //starts the extension to 1.5 inches the positions are a little weird but this goes to actually 1.5
-                ffExtensionArm.goToPosition(25.7, 1.0);
+                ffExtensionArm.goToPosition(27.7, 1.0);
                 liftState = LiftState.MOVE_SERVO_TO_1;
 
             }
@@ -546,7 +546,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
             //********************************************************************************
 
             case EXTEND_TO_MIDDLE: {
-                ffExtensionArm.goToPosition(16, 1.0);
+                ffExtensionArm.goToPosition(15, 1.0);
                 // rest of the movements are the same as the extend to top
                 liftState = LiftState.MOVE_SERVO_TO_1;
             }
@@ -559,7 +559,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
             // same as middle right now but may need to change later so make it separate from middle
             case EXTEND_TO_BOTTOM: {
                 //starts the extension to 1.5 inches the positions are a little weird but this goes to actually 1.5
-                ffExtensionArm.goToPosition(6.5, 1.0);
+                ffExtensionArm.goToPosition(15, 1.0);
                 // rest of the movements are the same as the extend to top
                 liftState = LiftState.MOVE_SERVO_TO_1;
             }
@@ -612,10 +612,11 @@ public class FFExtensionArm implements FTCRobotSubsystem {
                             currentDeliverBucketLocation = DeliveryBucketLocation.TOP;
                             break;
                         case EXTEND_TO_MIDDLE:
-                            ffExtensionArm.goToPosition(12, 1.0);
+                            ffExtensionArm.goToPosition(12, .6);
                             currentDeliverBucketLocation = DeliveryBucketLocation.MIDDLE;
                             break;
                         case EXTEND_TO_BOTTOM:
+                            ffExtensionArm.goToPosition(6, .6);
                             currentDeliverBucketLocation = DeliveryBucketLocation.BOTTOM;
                             break;
                     }
@@ -722,7 +723,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
             // efficient.
             case RETRACT_FROM_TOP: {
                 // starts retraction
-                ffExtensionArm.goToPosition(14, 1);
+                ffExtensionArm.goToPosition(15, 1);
                 liftState = LiftState.MOVE_SERVO_TO_3R;
             }
             break;
@@ -770,7 +771,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
 
             case RETRACT_TO_TRANSFER: {
                 // starts retraction
-                if (ffExtensionArm.isPositionReached() && timer.milliseconds() > 1500) {
+                if (ffExtensionArm.isPositionReached() && timer.milliseconds() > 1250) {
                     ffExtensionArm.goToPosition(0.5, 0.5);
                     liftState = LiftState.MOVE_SERVO_TO_2R;
                 }

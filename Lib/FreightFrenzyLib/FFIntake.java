@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib;
 
 
+import android.provider.ContactsContract;
+
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -37,6 +39,7 @@ public class FFIntake implements FTCRobotSubsystem {
         WAIT_FOR_ROTATION,
         OUTAKE,
         WAIT_FOR_OUTAKE,
+        WAITING_FOR_VERTICAL,
         // states for rotate to vertical
         BACK_TO_HOLD_FREIGHT,
         WAIT_FOR_VERTICAL,
@@ -368,8 +371,7 @@ public class FFIntake implements FTCRobotSubsystem {
                     PersistantStorage.isDeliveryFull = true;
                     toVerticalPosition();;
                     ledBlinker.steadyGreen();
-                    intakeSweeperMotor.setPower(0);
-                    intakeState = IntakeState.IDLE;
+                    intakeState = IntakeState.WAIT_FOR_VERTICAL;
                 }
                 else{
                     if(timer.milliseconds() > 3000){
@@ -383,6 +385,14 @@ public class FFIntake implements FTCRobotSubsystem {
                 }
             }
             break;
+
+
+            case WAITING_FOR_VERTICAL:{
+                if(rotateServo.isPositionReached()){
+                    intakeSweeperMotor.setPower(0);
+                    intakeState = IntakeState.IDLE;
+                }
+            }
 
             //original non transfer sensor version
             /*case OUTAKE: {

@@ -226,7 +226,7 @@ public class FFFreightSystem implements FTCRobotSubsystem {
         }
     }
 
-    public void ejectOntoFLoor(){
+    public void  ejectOntoFLoor(){
         if(state == State.WAITING_FOR_TRANSFER){
             intake.ejectOntoFloor();
             timer.reset();
