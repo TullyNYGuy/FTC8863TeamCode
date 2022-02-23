@@ -160,14 +160,15 @@ public class AutonomousDuckSpinVisionLoadParkDepot implements AutonomousStateMac
     @Override
     public void createTrajectories() {
 
-        trajectoryToHub = robot.mecanum.trajectoryBuilder(PoseStorageFF.START_POSE)
-                .lineToLinearHeading(hubDumpPose)
-                .build();
+
         if (PersistantStorage.getAllianceColor() == AllianceColor.BLUE) {
-            trajectoryToDucks = robot.mecanum.trajectoryBuilder(trajectoryToHub.end())
+            trajectoryToDucks = robot.mecanum.trajectoryBuilder(PoseStorageFF.START_POSE)
                     .lineToLinearHeading(PoseStorageFF.DUCK_SPINNER_BLUE)
                     .build();
-            trajectoryToPassageApproach = robot.mecanum.trajectoryBuilder(trajectoryToDucks.end())
+            trajectoryToHub = robot.mecanum.trajectoryBuilder(trajectoryToDucks.end())
+                    .lineToLinearHeading(hubDumpPose)
+                    .build();
+            trajectoryToPassageApproach = robot.mecanum.trajectoryBuilder(trajectoryToHub.end())
                     .lineToLinearHeading(PoseStorageFF.BLUE_SIDE_PASSAGE_APPROACH)
                     .build();
             trajectoryToPassage = robot.mecanum.trajectoryBuilder(trajectoryToPassageApproach.end())
@@ -180,6 +181,9 @@ public class AutonomousDuckSpinVisionLoadParkDepot implements AutonomousStateMac
             trajectoryToDucks = robot.mecanum.trajectoryBuilder(trajectoryToHub.end())
                     .lineToLinearHeading(PoseStorageFF.DUCK_SPINNER_RED)
                     .build();
+            trajectoryToHub = robot.mecanum.trajectoryBuilder(trajectoryToDucks.end())
+                    .lineToLinearHeading(hubDumpPose)
+                    .build();
             trajectoryToPassageApproach = robot.mecanum.trajectoryBuilder(trajectoryToDucks.end())
                     .lineToLinearHeading(PoseStorageFF.RED_SIDE_PASSAGE_APPROACH)
                     .build();
@@ -190,6 +194,7 @@ public class AutonomousDuckSpinVisionLoadParkDepot implements AutonomousStateMac
                     .lineToLinearHeading(PoseStorageFF.FREIGHT_RED)
                     .build();
         }
+
     }
 
         //*********************************************************************************************
@@ -234,7 +239,7 @@ public class AutonomousDuckSpinVisionLoadParkDepot implements AutonomousStateMac
                 case DEPOSIT_DONE:
                     if (robot.lift.isDeliverServoPositionReached()) {
                         robot.lift.retract();
-                        robot.intake.getOutOfWay();
+
                         currentState = States.APPROACHING_SIDE;
                     }
                     break;
@@ -254,6 +259,7 @@ public class AutonomousDuckSpinVisionLoadParkDepot implements AutonomousStateMac
                 case DUCK_SPINNING:
                     if (robot.duckSpinner.spinTimeReached()) {
                         robot.duckSpinner.turnOff();
+                        robot.mecanum.followTrajectory(trajectoryToHub);
                         currentState = States.MOVING_TO_HUB;
                     }
                     break;
@@ -265,7 +271,6 @@ public class AutonomousDuckSpinVisionLoadParkDepot implements AutonomousStateMac
                     }
                     break;
                 case GOING_TO_PASSAGE:
-                    robot.intake.getOutOfWay();
                     if (!robot.mecanum.isBusy()) {
                         robot.mecanum.followTrajectory(trajectoryToPassage);
                         currentState = States.GO_TO_WAREHOUSE;
