@@ -190,10 +190,10 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
             subsystemMap.put(duckSpinner.getName(), duckSpinner);
         }
 
-
-            // the extension arm needs to know what the alliance color is because motors and servos have to get reversed
-            lift = new FFExtensionArm(allianceColor, hardwareMap, telemetry);
-            subsystemMap.put(lift.getName(), lift);
+        // the extension arm needs to know what the alliance color is because motors and servos have to get reversed
+        lift = new FFExtensionArm(allianceColor, hardwareMap, telemetry);
+        // DO NOT PUT THE lift / extension arm into the subsystem map. The FFFreightSystem should control its init and updates
+        //subsystemMap.put(lift.getName(), lift);
 
         // THE WEBCAM PROCESSING TAKES UP A BUNCH OF RESOURCES. PROBABLY NOT A GOOD IDEA TO RUN THIS IN TELEOP
         if (FreightFrenzyMatchInfo.getMatchPhase() == FreightFrenzyMatchInfo.MatchPhase.AUTONOMOUS)
@@ -230,10 +230,9 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
             subsystemMap.put(ledBlinker.getName(), ledBlinker);
         }
 
-
-            intake = new FFIntake(hardwareMap, telemetry, ledBlinker);
-            subsystemMap.put(intake.getName(), intake);
-
+        intake = new FFIntake(hardwareMap, telemetry, ledBlinker);
+        // DO NOT PUT THE intake into the subsystem map. The FFFreightSystem should control its init and updates
+        //subsystemMap.put(intake.getName(), intake);
 
         if (capabilities.contains(Subsystem.FREIGHT_SYSTEM)) {
             freightSystem = new FFFreightSystem(arm, intake, lift, hardwareMap, telemetry, allianceColor, ledBlinker);

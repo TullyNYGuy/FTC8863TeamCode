@@ -45,6 +45,8 @@ public class DataLogging {
 
     private boolean status;
 
+    private String previousString = null;
+
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -349,6 +351,18 @@ public class DataLogging {
         }
         // print a newline
         dataLog.println();
+    }
+
+    /**
+     * Compares the string you provide to a previous string. If there is a difference it logs it.
+     * If not then the string you provide is not logged. Useful for logging states in a state
+     * machine where you only care about state changes.
+     * @param string
+     */
+    public void logOnChange(String string) {
+        if (previousString != string) {
+            logData(string);
+        }
     }
 
     /**

@@ -163,7 +163,9 @@ public class TeleopUsingRoadRunnerFreightFrenzy extends LinearOpMode {
 
             telemetry.addData( "freightSystem mode =", robot.freightSystem.getMode());
             telemetry.addData( "freightSystem state =", robot.freightSystem.getState());
-            telemetry.addData("is it dumped?  =", robot.freightSystem.getAAA());
+
+
+
 
 
             telemetry.addData(">", "Press Stop to end.");
