@@ -152,15 +152,8 @@ public class AutonomousWithVisionFreightFrenzy extends LinearOpMode {
                 break;
         }*/
 
-
-
-
-
-        // Put your initializations here
-        // create the robot and run the init for it
-
         enableBulkReads(hardwareMap, LynxModule.BulkCachingMode.AUTO);
-       autonomous = new AutonomousDuckSpinVisionLoadParkStorage(robot, field, telemetry);
+        autonomous = new AutonomousDuckSpinVisionLoadParkStorage(robot, field, telemetry);
 
         timer.reset();
         robot.loopTimer.startLoopTimer();
@@ -176,14 +169,12 @@ public class AutonomousWithVisionFreightFrenzy extends LinearOpMode {
         // Put your calls here - they will not run in a loop
 
 
-       autonomous.start();
+        autonomous.start();
         while (opModeIsActive() && !autonomous.isComplete()) {
             autonomous.update();
             telemetry.update();
             robot.update();
-            // TANYA - need the idle so we don't hog all the CPU
             idle();
-            //autonomous.update();
         }
 
         // save the pose so we can use it to start out in teleop
