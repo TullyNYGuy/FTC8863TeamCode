@@ -95,9 +95,8 @@ public class FFIntake implements FTCRobotSubsystem {
 
     // says if the intake has freight in it
     private boolean hasIntakeIntaked = false;
-    // todo I hate the name. I had to read the code to figure out what this is. Maybe rename it?
     // the intake failed to eject freight
-    private boolean Uh_Oh = false;
+    private boolean didTransferFail = false;
 
     //*********************************************************************************************
     //          Constructors
@@ -191,7 +190,6 @@ public class FFIntake implements FTCRobotSubsystem {
     }
 
     @Override
-    // todo this will need to change for the new FFFreightSystem state machine
     public boolean isInitComplete() {
         if (rotateServo.isPositionReached()) {
             initComplete = true;
@@ -221,19 +219,15 @@ public class FFIntake implements FTCRobotSubsystem {
         }
     }
 
-    // todo Unreadable code. The comments make clear what it does. But the name is not readable when looking through code that
-    // uses the call. How about didTransferFail()?
-    public boolean Uh_Oh(){
+
+    public boolean didTransferFail(){
         //theoretically this is pointless. it should only be used if somehow the intake goes to transfer with nothing in it or
         //something gets stuck in the intake and wont transfer. this tells the freight system that the transfer isn't going to happen basically.
-        return Uh_Oh;
+        return didTransferFail;
     }
 
-    // todo I don't understand why another class has access to the internal workings of the intake. What does this do?
-    public void everythingIsOk(){
-        //part of the Uh-Oh emergency process. resets things back to normal so that we arent constantly reseting the state.
-        Uh_Oh = false;
-    }
+
+
 
 
 
@@ -287,18 +281,16 @@ public class FFIntake implements FTCRobotSubsystem {
         intakeState = IntakeState.TO_INTAKE;
     }
 
-    // todo This call should no longer be used by other classes since you eliminated it from Tanya's code.
     // Best to make it private or eliminate it.
     @Deprecated
-    public void getOutOfWay(){
+    private void getOutOfWay(){
         logCommand("get out of the way");
         toVerticalPosition();
     }
 
-    // todo This call should no longer be used by other classes since you eliminated it from Tanya's code.
     // Best to make it private or eliminate it.
     @Deprecated
-    public boolean isComplete() {
+    private boolean isComplete() {
         if (intakeState == IntakeState.IDLE) {
             return true;
         } else {
@@ -330,6 +322,7 @@ public class FFIntake implements FTCRobotSubsystem {
 
             case INTAKE: {
                 // rotate to the floor
+                didTransferFail = false;
                 toIntakePosition();
                 intakeState = IntakeState.WAIT_FOR_INTAKE_POSITION_FLOOR;
             }
@@ -364,11 +357,19 @@ public class FFIntake implements FTCRobotSubsystem {
             break;
 
             case WAIT_FOR_ROTATION: {
-                if (rotateServo.isPositionReached()) {
-                    // eject the freight
-                    intakeSweeperMotor.runAtConstantRPM(-400);
-                    intakeState = IntakeState.OUTAKE;
-                    timer.reset();
+                //checking to make sure we arent getting some sort of false posititive on is intake full. if there really is something it
+                //goes to transfer, but if not it goes back to intaking
+                if(isIntakeFull()){
+                    if (rotateServo.isPositionReached()) {
+                        // eject the freight
+                        intakeSweeperMotor.runAtConstantRPM(-400);
+                        intakeState = IntakeState.OUTAKE;
+                        timer.reset();
+                    }
+                }
+                else{
+                    intakeState = IntakeState.INTAKE;
+
                 }
             }
             break;
@@ -385,22 +386,12 @@ public class FFIntake implements FTCRobotSubsystem {
                 }
                 else{
                     if(timer.milliseconds() > 3000){
-                        // uh oh spaghetti-o something broke. it was probably dade's fault.
-                        // todo Could we be smarter about how we handle this?
-                        // possible causes:
-                        //    nothing was in the intake so there was nothing to eject. The way this is
-                        //          code is written, we have to wait 3 seconds just to find out there may not be
-                        //          anything in the intake. Seems like you could know about this earlier in
-                        //          the intake process and do something smarter like put the intake right back
-                        //          onto the floor with the sweeper running.
-                        //    something was jammed in the intake so it could not eject
-                        //          This has not happened before but I guess it is possible. What action is best?
-
+                        //this is only for if something is jammed in the intake.
                         // the intake goes back to vertical so that the driver can spit out the freight onto the ground.
                         toVerticalPosition();;
                         intakeSweeperMotor.setPower(0);
                         intakeState = IntakeState.IDLE;
-                        Uh_Oh = true;
+                        didTransferFail = true;
                     }
                 }
             }

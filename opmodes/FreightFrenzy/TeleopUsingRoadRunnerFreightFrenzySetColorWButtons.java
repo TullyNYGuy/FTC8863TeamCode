@@ -157,7 +157,8 @@ public class TeleopUsingRoadRunnerFreightFrenzySetColorWButtons extends LinearOp
         //*********************************************************************************************
         //             Robot Running after the user hits play on the driver phone
         //*********************************************************************************************
-
+        robot.freightSystem.setPhaseTeleop();
+        robot.arm.storageWithElement();
         while (opModeIsActive()) {
 
             // update the gamepad. It has the commands to be run when a button is pressed so the

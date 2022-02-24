@@ -66,6 +66,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
         MOVE_SERVO_TO_1R,
         //RETRACT_TO_1ST_POSITION,
         MOVE_SERVO_TO_TRANSFER,
+        WAITING_FOR_RETRACTION_COMPLETE,
         //RETRACT_TO_0,
     }
 
@@ -119,6 +120,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
     private boolean retractionComplete = false;
     // ready and waiting to dump into the shipping hub
     private boolean isReadyToDump = false;
+
 
     //*********************************************************************************************
     //          Constructors
@@ -191,11 +193,8 @@ public class FFExtensionArm implements FTCRobotSubsystem {
         return dumpComplete;
     }
 
-    // todo Danger Will Robinson - do you really want someone else to be able to resetDump? I dont' think you
-    // want this method available to another class.
-    // You want the extension arm to manage itself. It is smart enough to know when the dump is complete. Some other
-    // class should not be telling the arm when it's own dump is complete.
-    public void resetDump(){
+
+    private void resetDump(){
         dumpComplete = false;
     }
 
@@ -203,19 +202,12 @@ public class FFExtensionArm implements FTCRobotSubsystem {
         return retractionComplete;
     }
 
-    // todo Danger Will Robinson - do you really want someone else to be able to resetRetraction? I dont' think you
-    // want this method available to another class.
-    // You want the extension arm to manage itself. It is smart enough to know when the dump is complete. Some other
-    // class should not be telling the arm when it's retractionComplete should be set to false.
-    public void resetRetraction(){
+
+    private void resetRetraction(){
         retractionComplete = false;
     }
 
-    // todo Danger Will Robinson - do you really want someone else to be able to retractionComplete? I dont' think you
-    // want this method available to another class.
-    // You want the extension arm to manage itself. It is smart enough to know when the dump is complete. Some other
-    // class should not be telling the arm when it's retractionComplete should be set to true.
-    public void retractionComplete(){
+    private void retractionComplete(){
         retractionComplete = true;
     }
 
@@ -366,6 +358,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
         // lockout for double hits on a command button. Downside is that the driver better hit the
         // right button the first time or they are toast
         if (commandComplete) {
+            resetRetraction();
             commandComplete = false;
             //command to start extension
             liftState = LiftState.EXTEND_TO_TOP;
@@ -381,6 +374,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
         // lockout for double hits on a command button. Downside is that the driver better hit the
         // right button the first time or they are toast
         if (commandComplete) {
+            resetRetraction();
             commandComplete = false;
             //command to start extension
             liftState = LiftState.EXTEND_TO_MIDDLE;
@@ -396,6 +390,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
         // lockout for double hits on a command button. Downside is that the driver better hit the
         // right button the first time or they are toast
         if (commandComplete) {
+            resetRetraction();
             commandComplete = false;
             //command to start extension
             liftState = LiftState.EXTEND_TO_BOTTOM;
@@ -722,10 +717,8 @@ public class FFExtensionArm implements FTCRobotSubsystem {
                 //checks if dump was did or not
                 if (deliveryServo.isPositionReached() && timer.milliseconds() > 3000) {
                     liftState = LiftState.RETRACT_FROM_BOTTOM;
+                    dumpComplete = true;
                 }
-                // todo this should be inside the if statement right?
-                dumpComplete = true;
-
             }
             break;
 
@@ -740,6 +733,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
                 // starts retraction
                 ffExtensionArm.goToPosition(15, 1);
                 liftState = LiftState.MOVE_SERVO_TO_3R;
+                dumpComplete = false;
             }
             break;
 
@@ -754,6 +748,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
                 // starts retraction
                 ffExtensionArm.goToPosition(14, 1);
                 liftState = LiftState.MOVE_SERVO_TO_3R;
+                dumpComplete = false;
             }
             break;
 
@@ -768,6 +763,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
                 // starts retraction
                 ffExtensionArm.goToPosition(14, 1);
                 liftState = LiftState.MOVE_SERVO_TO_3R;
+                dumpComplete = false;
             }
             break;
 
@@ -821,14 +817,18 @@ public class FFExtensionArm implements FTCRobotSubsystem {
                 if (ffExtensionArm.getPosition() < 4.2) {
                     deliveryServoToTransferPosition();
                     currentDeliverBucketLocation = DeliveryBucketLocation.TRANSFER;
-                    // todo whao! The extension arm is still extended. Is retraction
-                    // complete? What about checking to see if the arm reaches position?
-                    // commandComplete is set to true in IDLE state
-                    retractionComplete = true;
-                    liftState = LiftState.IDLE;
+                    liftState = LiftState.WAITING_FOR_RETRACTION_COMPLETE;
                 }
             }
             break;
+
+            case WAITING_FOR_RETRACTION_COMPLETE: {
+                if (ffExtensionArm.isRetractionComplete() && deliveryServo.isPositionReached()){
+                    retractionComplete = true;
+                    liftState = LiftState.IDLE;
+
+                }
+            }
         }
     }
 //this is just an extra copy of the state machine from before it was continuous. basically a back up in case things break.

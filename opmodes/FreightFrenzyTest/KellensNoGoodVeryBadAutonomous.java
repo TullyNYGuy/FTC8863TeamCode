@@ -31,15 +31,16 @@ public class KellensNoGoodVeryBadAutonomous extends LinearOpMode {
     public FreightFrenzyRobotRoadRunner robot;
     public FreightFrenzyGamepad gamepad;
     public Configuration config;
-    public FreightFrenzyStartSpot startSpot;
-    private ElapsedTime timer;
+    //public FreightFrenzyStartSpot startSpot;
+    // todo I got rid of the detrious we don't need. Keep it simple and it should be easier to debug
+    //private ElapsedTime timer;
     public boolean autoDone;
     DataLogging dataLog = null;
-    int cameraMonitorViewId;
-    public FreightFrenzyField field;
-    public double distance = 0;
-    public double angleBetween = 0;
-    private AutonomousStateMachineFreightFrenzy autonomous;
+    //int cameraMonitorViewId;
+    //public FreightFrenzyField field;
+    //public double distance = 0;
+    //public double angleBetween = 0;
+    //private AutonomousStateMachineFreightFrenzy autonomous;
 
 
     private enum State {
@@ -57,88 +58,19 @@ public class KellensNoGoodVeryBadAutonomous extends LinearOpMode {
         dataLog = new DataLogging("Autonomous", telemetry);
         config = null;
      //   cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        timer = new ElapsedTime();
-        field = new FreightFrenzyField();
+        //timer = new ElapsedTime();
+        //field = new FreightFrenzyField();
         robot = new FreightFrenzyRobotRoadRunner(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, this);
         robot.createRobot();
-        startSpot = PersistantStorage.getStartSpot();
+        //startSpot = PersistantStorage.getStartSpot();
+
+        // I deleted all of hte commented out code. Hmmmm ....
 
 
-       /* switch(startSpot){
-            case BLUE_WALL:
-                cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-                robot.webcamLeft.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
-                @Override
-                public void onOpened() {
-                    robot.webcamLeft.startStreaming(1280, 720, OpenCvCameraRotation.UPRIGHT);
-                }
-
-                @Override
-                public void onError(int errorCode) {
-
-                }
-            });
-
-                break;
-            case RED_WALL:
-                cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-                robot.webcamRight.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
-                @Override
-                public void onOpened() {
-                    robot.webcamLeft.startStreaming(1280, 720, OpenCvCameraRotation.UPRIGHT);
-                }
-
-                @Override
-                public void onError(int errorCode) {
-
-                }
-            });
-                break;
-            case BLUE_WAREHOUSE:
-                cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-                robot.webcamLeft.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
-                @Override
-                public void onOpened() {
-                    robot.webcamLeft.startStreaming(1280, 720, OpenCvCameraRotation.UPRIGHT);
-                }
-
-                @Override
-                public void onError(int errorCode) {
-
-                }
-            });
-                break;
-            case RED_WAREHOUSE:
-                cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-                robot.webcamRight.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
-                @Override
-                public void onOpened() {
-                    robot.webcamLeft.startStreaming(1280, 720, OpenCvCameraRotation.UPRIGHT);
-                }
-
-                @Override
-                public void onError(int errorCode) {
-
-                }
-            });
-                break;
-        }*/
-
-
-
-
-
-
-
-        // Put your initializations here
-        // create the robot and run the init for it
-        robot = new FreightFrenzyRobotRoadRunner(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, this);
-        robot.createRobot();
        // autonomous = new AutonomousVisionLoadDuckSpinParkDepot(robot, field, telemetry);
 
-        timer.reset();
-        robot.loopTimer.startLoopTimer();
-
+        //timer.reset();
+        //robot.loopTimer.startLoopTimer();
 
         telemetry.addData(">", "Press Start to run");
         telemetry.update();
@@ -149,24 +81,12 @@ public class KellensNoGoodVeryBadAutonomous extends LinearOpMode {
         // Put your calls here - they will not run in a loop
         robot.freightSystem.setMiddle();
 
-
-
         while (opModeIsActive() ) {
             update();
             telemetry.update();
             robot.update();
-            // TANYA - need the idle so we don't hog all the CPU
             idle();
-            //autonomous.update();
         }
-
-        // save the pose so we can use it to start out in teleop
-
-
-        // save the shooter angle so we can use it later in teleop
-        // the angle changer knows how to do this. My opinion is that you should not be down in these
-        // details
-        //PersistantStorage.setMotorTicks(robot.shooter.getMotorTicks());
 
 
         robot.shutdown();
@@ -174,6 +94,8 @@ public class KellensNoGoodVeryBadAutonomous extends LinearOpMode {
         telemetry.addData(">", "Done");
         telemetry.update();
     }
+
+
     public void update() {
         switch (state){
 
