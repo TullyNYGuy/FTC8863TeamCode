@@ -91,7 +91,12 @@ public class FFIntake implements FTCRobotSubsystem {
     private RevLEDBlinker ledBlinker;
 
 
+    // flags used in this class
+
+    // says if the intake has freight in it
     private boolean hasIntakeIntaked = false;
+    // todo I hate the name. I had to read the code to figure out what this is. Maybe rename it?
+    // the intake failed to eject freight
     private boolean Uh_Oh = false;
 
     //*********************************************************************************************
@@ -206,6 +211,8 @@ public class FFIntake implements FTCRobotSubsystem {
 
     //this checks the transfer sensor to see whether or not the object has been transfered.
     // In the robot code this should be used to start the extension.
+    // The reason for checking if the intake has freight is to elminate a false trigger of the sensor
+    // when the bucket wall is flopping around while lining up.
     public boolean isTransferComplete(){
         if (((DistanceSensor) transferSensor).getDistance(DistanceUnit.CM) < 7 && hasIntakeIntaked) {
             return true;
@@ -214,12 +221,15 @@ public class FFIntake implements FTCRobotSubsystem {
         }
     }
 
+    // todo Unreadable code. The comments make clear what it does. But the name is not readable when looking through code that
+    // uses the call. How about didTransferFail()?
     public boolean Uh_Oh(){
         //theoretically this is pointless. it should only be used if somehow the intake goes to transfer with nothing in it or
         //something gets stuck in the intake and wont transfer. this tells the freight system that the transfer isn't going to happen basically.
         return Uh_Oh;
     }
 
+    // todo I don't understand why another class has access to the internal workings of the intake. What does this do?
     public void everythingIsOk(){
         //part of the Uh-Oh emergency process. resets things back to normal so that we arent constantly reseting the state.
         Uh_Oh = false;
@@ -277,16 +287,16 @@ public class FFIntake implements FTCRobotSubsystem {
         intakeState = IntakeState.TO_INTAKE;
     }
 
-    // Autonomous calls this. It should not. The new FFFreightSystem state machine will handle
-    // positioning of the intake. No other code should touch it.
+    // todo This call should no longer be used by other classes since you eliminated it from Tanya's code.
+    // Best to make it private or eliminate it.
     @Deprecated
     public void getOutOfWay(){
         logCommand("get out of the way");
         toVerticalPosition();
     }
 
-    // todo this should not be called anymore. isTransferComplete() should be used instead. And that
-    // should only be called by FFFreightSubsystem
+    // todo This call should no longer be used by other classes since you eliminated it from Tanya's code.
+    // Best to make it private or eliminate it.
     @Deprecated
     public boolean isComplete() {
         if (intakeState == IntakeState.IDLE) {
@@ -376,6 +386,16 @@ public class FFIntake implements FTCRobotSubsystem {
                 else{
                     if(timer.milliseconds() > 3000){
                         // uh oh spaghetti-o something broke. it was probably dade's fault.
+                        // todo Could we be smarter about how we handle this?
+                        // possible causes:
+                        //    nothing was in the intake so there was nothing to eject. The way this is
+                        //          code is written, we have to wait 3 seconds just to find out there may not be
+                        //          anything in the intake. Seems like you could know about this earlier in
+                        //          the intake process and do something smarter like put the intake right back
+                        //          onto the floor with the sweeper running.
+                        //    something was jammed in the intake so it could not eject
+                        //          This has not happened before but I guess it is possible. What action is best?
+
                         // the intake goes back to vertical so that the driver can spit out the freight onto the ground.
                         toVerticalPosition();;
                         intakeSweeperMotor.setPower(0);

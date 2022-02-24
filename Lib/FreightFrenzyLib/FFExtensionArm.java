@@ -109,11 +109,15 @@ public class FFExtensionArm implements FTCRobotSubsystem {
     private ElapsedTime timer;
     private AllianceColor allianceColor;
 
+    // flags used in this class
+
+    // initialization is complete
     private boolean initComplete = false;
-
-
+    // dump into shipping hub is complete
     private boolean dumpComplete = false;
+    // arm is fully retracted
     private boolean retractionComplete = false;
+    // ready and waiting to dump into the shipping hub
     private boolean isReadyToDump = false;
 
     //*********************************************************************************************
@@ -187,6 +191,10 @@ public class FFExtensionArm implements FTCRobotSubsystem {
         return dumpComplete;
     }
 
+    // todo Danger Will Robinson - do you really want someone else to be able to resetDump? I dont' think you
+    // want this method available to another class.
+    // You want the extension arm to manage itself. It is smart enough to know when the dump is complete. Some other
+    // class should not be telling the arm when it's own dump is complete.
     public void resetDump(){
         dumpComplete = false;
     }
@@ -195,10 +203,18 @@ public class FFExtensionArm implements FTCRobotSubsystem {
         return retractionComplete;
     }
 
+    // todo Danger Will Robinson - do you really want someone else to be able to resetRetraction? I dont' think you
+    // want this method available to another class.
+    // You want the extension arm to manage itself. It is smart enough to know when the dump is complete. Some other
+    // class should not be telling the arm when it's retractionComplete should be set to false.
     public void resetRetraction(){
         retractionComplete = false;
     }
 
+    // todo Danger Will Robinson - do you really want someone else to be able to retractionComplete? I dont' think you
+    // want this method available to another class.
+    // You want the extension arm to manage itself. It is smart enough to know when the dump is complete. Some other
+    // class should not be telling the arm when it's retractionComplete should be set to true.
     public void retractionComplete(){
         retractionComplete = true;
     }
@@ -463,12 +479,6 @@ public class FFExtensionArm implements FTCRobotSubsystem {
         return commandComplete;
     }
 
-    // todo this is not a good way to check if the dump is complete. isDumpComplete() can be
-    // called at any time. You have no idea what position has been reached. You should set a flag
-    // in the state associated with dump complete and return that value. Then reset the flag at the
-    // appropriate time, like when the extension arm starts to retract.
-
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////state machine//////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -713,6 +723,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
                 if (deliveryServo.isPositionReached() && timer.milliseconds() > 3000) {
                     liftState = LiftState.RETRACT_FROM_BOTTOM;
                 }
+                // todo this should be inside the if statement right?
                 dumpComplete = true;
 
             }
@@ -774,7 +785,8 @@ public class FFExtensionArm implements FTCRobotSubsystem {
 
 
             case RETRACT_TO_TRANSFER: {
-                // starts retraction
+                // starts rest of retraction to transfer, othewise the timer is so the delivery box
+                // can stop swinging before
                 if (ffExtensionArm.isPositionReached() && timer.milliseconds() > 1250) {
                     ffExtensionArm.goToPosition(0.5, 0.5);
                     liftState = LiftState.MOVE_SERVO_TO_2R;
@@ -809,6 +821,8 @@ public class FFExtensionArm implements FTCRobotSubsystem {
                 if (ffExtensionArm.getPosition() < 4.2) {
                     deliveryServoToTransferPosition();
                     currentDeliverBucketLocation = DeliveryBucketLocation.TRANSFER;
+                    // todo whao! The extension arm is still extended. Is retraction
+                    // complete? What about checking to see if the arm reaches position?
                     // commandComplete is set to true in IDLE state
                     retractionComplete = true;
                     liftState = LiftState.IDLE;
