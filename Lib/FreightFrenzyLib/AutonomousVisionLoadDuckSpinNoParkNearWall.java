@@ -192,7 +192,8 @@ public class AutonomousVisionLoadDuckSpinNoParkNearWall implements AutonomousSta
                 isComplete = false;
                 robot.mecanum.setPoseEstimate(PoseStorageFF.START_POSE);
                 robot.mecanum.followTrajectory(trajectoryToHub);
-                robot.intake.getOutOfWay();
+                // the intake probably gets out of the way on its own. - kellen
+                //robot.intake.getOutOfWay();
                 currentState = States.MOVING_TO_HUB;
                 break;
             case MOVING_TO_HUB:
@@ -205,19 +206,23 @@ public class AutonomousVisionLoadDuckSpinNoParkNearWall implements AutonomousSta
                 currentState = States.DEPOSITING;
                 break;
             case DEPOSITING:
-               if(robot.lift.isExtensionMovementComplete()) {
+               if(robot.freightSystem.isReadyToDump()) {
                    robot.freightSystem.dump();
                    currentState = States.DEPOSIT_DONE;
                }
                 break;
             case DEPOSIT_DONE:
-                if(robot.lift.isDeliverServoPositionReached()){
+                currentState = States.MOVING_TO_DUCKS;
+
+
+                //not necesary... see other autos for more detail
+                /*if(robot.lift.isDeliverServoPositionReached()){
                     robot.lift.retract();
                     currentState = States.MOVING_TO_DUCKS;
-                }
+                }*/
                 break;
             case MOVING_TO_DUCKS:
-                if(robot.lift.isExtensionMovementComplete()){
+                if(robot.freightSystem.isRetractionComplete()){
                     robot.mecanum.followTrajectory(trajectoryToDucks);
                     currentState = States.AT_DUCK;
                 }

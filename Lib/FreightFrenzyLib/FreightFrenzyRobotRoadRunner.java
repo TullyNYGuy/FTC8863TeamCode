@@ -119,12 +119,16 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
     public LoopTimer loopTimer;
     public DuckSpinner duckSpinner;
     public FFArm arm;
-    private FFIntake intake;
     public OpenCvWebcam webcamLeft;
     public OpenCvWebcam webcamRight;
-    private FFExtensionArm deliverySystem;
     public RevLEDBlinker ledBlinker;
     public FFFreightSystem freightSystem;
+
+//these are private so that tanya has to use the freight system//
+    private FFIntake intake;
+    private FFExtensionArm lift;
+
+
 
     public FreightFrenzyRobotRoadRunner(HardwareMap hardwareMap, Telemetry telemetry, Configuration config, DataLogging dataLog, DistanceUnit units, LinearOpMode opMode) {
         timer = new ElapsedTime();
@@ -191,7 +195,7 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
         }
 
         // the extension arm needs to know what the alliance color is because motors and servos have to get reversed
-        deliverySystem = new FFExtensionArm(allianceColor, hardwareMap, telemetry);
+        lift = new FFExtensionArm(allianceColor, hardwareMap, telemetry);
         // DO NOT PUT THE lift / extension arm into the subsystem map. The FFFreightSystem should control its init and updates
         //subsystemMap.put(deliverySystem.getName(), deliverySystem);
 
@@ -235,7 +239,7 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
         //subsystemMap.put(intake.getName(), intake);
 
         if (capabilities.contains(Subsystem.FREIGHT_SYSTEM)) {
-            freightSystem = new FFFreightSystem(arm, intake, deliverySystem, hardwareMap, telemetry, allianceColor, ledBlinker);
+            freightSystem = new FFFreightSystem(arm, intake, lift, hardwareMap, telemetry, allianceColor, ledBlinker);
             subsystemMap.put(freightSystem.getName(), freightSystem);
         }
 

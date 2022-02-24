@@ -125,23 +125,26 @@ public class SimpleMovementTest extends LinearOpMode {
                 break;
             case AT_HUB:
                 if (!robot.mecanum.isBusy()) {
-                    robot.intake.lineUpToEjectIntoLevel1();
+                    //no
+                    //robot.intake.lineUpToEjectIntoLevel1();
                     currentState = States.AT_HUB_LINEDUP;
                 }
                 break;
             case AT_HUB_LINEDUP:
-                if (robot.intake.isComplete()) {
+                //nope
+               /* if (robot.intake.isComplete()) {
                     robot.intake.ejectIntoLevel1();
                     currentState = States.MOVING_TO_CAROUSEL;
-                }
+                }*/
                 break;
 
 
             case MOVING_TO_CAROUSEL:
-                if (robot.intake.isComplete()) {
+                //nope
+                /*if (robot.intake.isComplete()) {
                     robot.mecanum.followTrajectory(TrajectoryToCarousel);
                     currentState = States.AT_CAROUSEL;
-                }
+                }*/
                 break;
             case AT_CAROUSEL:
                 if (!robot.mecanum.isBusy()) {

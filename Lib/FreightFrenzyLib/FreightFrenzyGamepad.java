@@ -350,8 +350,7 @@ public class FreightFrenzyGamepad {
 //        }
 
         if (gamepad2RightBumper.buttonPress(gamepad2.right_bumper)) {
-            //deliver in level 2/middle
-            robot.lift.extendToMiddle();
+           
         }
 
         if (gamepad2LeftBumper.buttonPress(gamepad2.left_bumper)) {

@@ -217,21 +217,25 @@ public class AutonomousVisionLoadDuckSpinParkShippingArea implements AutonomousS
                 currentState = States.DEPOSITING;
                 break;
             case DEPOSITING:
-                if (robot.lift.isExtensionMovementComplete()) {
+                if (robot.freightSystem.isReadyToDump()) {
                     robot.freightSystem.dump();
                     currentState = States.DEPOSIT_DONE;
                 }
                 break;
             case DEPOSIT_DONE:
-                if (robot.lift.isDeliverServoPositionReached()) {
+
+                currentState = States.MOVING_TO_DUCKS;
+                //no. bad. the lift automatically retracts you dont need to tell it to//
+/*
+                if (robot.freightSystem.isDumpComplete()) {
                     robot.lift.retract();
 
                     currentState = States.MOVING_TO_DUCKS;
-                }
+                }*/
                 break;
             case MOVING_TO_DUCKS:
 
-                if (robot.lift.isExtensionMovementComplete()) {
+                if (robot.freightSystem.isRetractionComplete()) {
                     robot.mecanum.followTrajectory(trajectoryToDucks);
 
                     //robot.mecanum.followTrajectoryAsync(trajectoryToParkPosition);

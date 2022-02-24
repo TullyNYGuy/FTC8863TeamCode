@@ -210,7 +210,7 @@ public class AutonomousVisionLoadDuckSpinParkDepot implements AutonomousStateMac
                     isComplete = false;
                     robot.mecanum.setPoseEstimate(PoseStorageFF.START_POSE);
                     robot.mecanum.followTrajectory(trajectoryToHub);
-                    robot.intake.getOutOfWay();
+                    // there was something unecesary here. it is gone now. - kellen
                     currentState = States.MOVING_TO_HUB;
                     break;
                 case MOVING_TO_HUB:
@@ -223,21 +223,25 @@ public class AutonomousVisionLoadDuckSpinParkDepot implements AutonomousStateMac
                     currentState = States.DEPOSITING;
                     break;
                 case DEPOSITING:
-                    if (robot.lift.isExtensionMovementComplete()) {
+                    if (robot.freightSystem.isReadyToDump()) {
 
                         robot.freightSystem.dump();
                         currentState = States.DEPOSIT_DONE;
                     }
                     break;
                 case DEPOSIT_DONE:
-                    if (robot.lift.isDeliverServoPositionReached()) {
+                    currentState = States.MOVING_TO_DUCKS;
+
+
+                    //no
+                    /*if (robot.lift.isDeliverServoPositionReached()) {
                         robot.lift.retract();
                         robot.intake.getOutOfWay();
                         currentState = States.MOVING_TO_DUCKS;
-                    }
+                    }*/
                     break;
                 case MOVING_TO_DUCKS:
-                    if(robot.lift.isExtensionMovementComplete()) {
+                    if(robot.freightSystem.isRetractionComplete()) {
                         robot.mecanum.followTrajectory(trajectoryToDucks);
                         currentState = States.AT_DUCK;
                     }
@@ -245,7 +249,7 @@ public class AutonomousVisionLoadDuckSpinParkDepot implements AutonomousStateMac
                     break;
                 case AT_DUCK:
                     if (!robot.mecanum.isBusy()) {
-                        robot.intake.getOutOfWay();
+                        // there was something unecesary here. it is gone now. - kellen
                         robot.duckSpinner.turnOn();
                         currentState = States.DUCK_SPINNING;
                     }

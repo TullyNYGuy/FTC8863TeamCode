@@ -230,18 +230,24 @@ public class AutonomousDuckSpinVisionLoadParkDepot implements AutonomousStateMac
                     currentState = States.DEPOSITING;
                     break;
                 case DEPOSITING:
-                    if (robot.lift.isExtensionMovementComplete()) {
+                    if (robot.freightSystem.isReadyToDump()) {
                         robot.freightSystem.dump();
 
                         currentState = States.DEPOSIT_DONE;
                     }
                     break;
                 case DEPOSIT_DONE:
-                    if (robot.lift.isDeliverServoPositionReached()) {
-                        robot.lift.retract();
 
                         currentState = States.APPROACHING_SIDE;
-                    }
+
+
+                    //this is not necesary. the arm retracts automatically
+                  /*  if (robot.freightSystem.isDumpComplete()) {
+                        robot.freightSystem.retract();
+
+                        currentState = States.APPROACHING_SIDE;
+                    }*/
+
                     break;
                 case MOVING_TO_DUCKS:
                     //robot.mecanum.followTrajectory(trajectoryToDucks);
@@ -264,11 +270,14 @@ public class AutonomousDuckSpinVisionLoadParkDepot implements AutonomousStateMac
                     }
                     break;
                 case APPROACHING_SIDE:
+                    robot.mecanum.followTrajectory(trajectoryToPassageApproach);
+                    currentState = States.GOING_TO_PASSAGE;
 
-                    if (robot.lift.isExtensionMovementComplete()) {
+                        // why are you looking for an extension here? - kellen
+                   /* if (robot.lift.isExtensionMovementComplete()) {
                         robot.mecanum.followTrajectory(trajectoryToPassageApproach);
                         currentState = States.GOING_TO_PASSAGE;
-                    }
+                    }*/
                     break;
                 case GOING_TO_PASSAGE:
                     if (!robot.mecanum.isBusy()) {

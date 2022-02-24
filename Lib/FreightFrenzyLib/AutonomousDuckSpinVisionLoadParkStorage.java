@@ -203,7 +203,7 @@ public class AutonomousDuckSpinVisionLoadParkStorage implements AutonomousStateM
                     isComplete = false;
                     robot.mecanum.setPoseEstimate(PoseStorageFF.START_POSE);
                     robot.mecanum.followTrajectory(trajectoryToDucks);
-                    robot.intake.getOutOfWay();
+                    // there was something unecesary here. it is gone now. - kellen
                     currentState = States.MOVING_TO_DUCKS;
                     break;
                 case MOVING_TO_HUB:
@@ -216,17 +216,19 @@ public class AutonomousDuckSpinVisionLoadParkStorage implements AutonomousStateM
                     currentState = States.DEPOSITING;
                     break;
                 case DEPOSITING:
-                    if (robot.lift.isExtensionMovementComplete()) {
+                    if (robot.freightSystem.isReadyToDump()) {
                         robot.freightSystem.dump();
                         currentState = States.DEPOSIT_DONE;
                     }
                     break;
                 case DEPOSIT_DONE:
-                    if (robot.lift.isDeliverServoPositionReached()) {
+                    currentState = States.APPROACHING_STORAGE;
+                    //stop it
+                   /* if (robot.lift.isDeliverServoPositionReached()) {
                         robot.lift.retract();
-                        robot.intake.getOutOfWay();
+                        // there was something unecesary here. it is gone now. - kellen
                         currentState = States.APPROACHING_STORAGE;
-                    }
+                    }*/
                     break;
                 case MOVING_TO_DUCKS:
 
@@ -249,10 +251,14 @@ public class AutonomousDuckSpinVisionLoadParkStorage implements AutonomousStateM
 
                     break;
                 case APPROACHING_STORAGE:
-                    if (robot.lift.isExtensionMovementComplete()) {
+                    robot.mecanum.followTrajectory(trajectoryToStorage);
+                    currentState = States.READY_TO_PARK;
+
+                    //why
+                    /*if (robot.lift.isExtensionMovementComplete()) {
                         robot.mecanum.followTrajectory(trajectoryToStorage);
                         currentState = States.READY_TO_PARK;
-                    }
+                    }*/
 
                     break;
                 case READY_TO_PARK:

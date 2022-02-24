@@ -24,6 +24,7 @@ public class FFFreightSystem implements FTCRobotSubsystem {
         WAITING_FOR_INTAKE_INIT,
         READY_TO_CYCLE,
         START_CYCLE,
+        HOLD_FREIGHT,
         WAITING_FOR_TRANSFER,
         WAITING_FOR_CLAW_REPOSITION,
         WAITING_FOR_EXTENSION,
@@ -31,8 +32,13 @@ public class FFFreightSystem implements FTCRobotSubsystem {
         WAITING_FOR_DUMP,
         WAITING_FOR_RETRACTION,
 
-        //ONLY IN AUTO STATES//
-        WAITING_FOR_INTAKE_REPOSITION,
+        START_INTAKE,
+
+
+
+        WAITING_FOR_INTAKE_REPOSITION1,
+        WAITING_FOR_INTAKE_REPOSITION2,
+
 
         //Uh-Oh states//
         EMERGENCY_EJECT,
@@ -87,10 +93,13 @@ public class FFFreightSystem implements FTCRobotSubsystem {
     private FFIntake intake;
     private final String FREIGHT_SYSTEM_NAME = "FreightSystem";
     private boolean isClawInTheWay = true;
+    private boolean readyToExtend = false;
 
     private ElapsedTime timer;
     private Telemetry telemetry;
     private Configuration configuration;
+    private boolean loggingOn;
+    private DataLogging logFile;
 
 
 
@@ -148,13 +157,29 @@ public class FFFreightSystem implements FTCRobotSubsystem {
 
     @Override
     public void enableDataLogging() {
-
+        loggingOn = true;
     }
 
     @Override
     public void disableDataLogging() {
-
+        loggingOn = false;
     }
+
+
+
+    private void logState() {
+        if (loggingOn && logFile != null) {
+            logFile.logOnChange(getName() + " state = " + state.toString());
+        }
+    }
+
+    private void logCommand(String command) {
+        if (loggingOn && logFile != null) {
+            logFile.logOnChange(getName() + " command = " + command);
+        }
+    }
+
+
 
     @Override
     public void timedUpdate(double timerValueMsec) {
@@ -178,6 +203,8 @@ public class FFFreightSystem implements FTCRobotSubsystem {
     }
 
     public void start() {
+        extensionArm.retractionComplete();
+        logCommand("start");
         //puts the state machine into the actual freight loop
         if(state == State.READY_TO_CYCLE){
             state = State.START_CYCLE;
@@ -188,8 +215,12 @@ public class FFFreightSystem implements FTCRobotSubsystem {
         }
     }
 
+
+
     public void extend(){
         if(state == State.WAITING_FOR_CLAW_REPOSITION){
+            logCommand("extend(manual)");
+            extensionArm.resetRetraction();
             switch (level) {
                 case TOP: {
                     extensionArm.extendToTop();
@@ -217,6 +248,7 @@ public class FFFreightSystem implements FTCRobotSubsystem {
 
     public void dump() {
         if(state == State.WAITING_TO_DUMP ){
+            logCommand("dump");
             extensionArm.dump();
             state = State.WAITING_FOR_DUMP;
             timer.reset();
@@ -228,6 +260,7 @@ public class FFFreightSystem implements FTCRobotSubsystem {
 
     public void  ejectOntoFLoor(){
         if(state == State.WAITING_FOR_TRANSFER){
+            logCommand("emergency eject");
             intake.ejectOntoFloor();
             timer.reset();
             state = State.EMERGENCY_EJECT;
@@ -263,7 +296,22 @@ public class FFFreightSystem implements FTCRobotSubsystem {
 
     //methods for testing// used for telemtry in teleop
 
+    public boolean isReadyToDump(){
+        return extensionArm.isReadyToDump();
+    }
 
+    public boolean isDumpComplete(){
+        return extensionArm.isDumpComplete();
+    }
+
+    public boolean isRetractionComplete(){
+        return extensionArm.isRetractionComplete();
+    }
+
+    //Autonomus
+    public boolean isReadyToExtend(){
+        return readyToExtend;
+    }
 
 
 
@@ -279,6 +327,7 @@ public class FFFreightSystem implements FTCRobotSubsystem {
     public void update() {
         intake.update();
         extensionArm.update();
+        logState();
         switch (state) {
             case IDLE: {
                 //just chillin
@@ -307,7 +356,7 @@ public class FFFreightSystem implements FTCRobotSubsystem {
 
             case READY_TO_CYCLE: {
                 extensionArm.resetDump();
-                extensionArm.resetRetraction();
+                readyToExtend = false;
                 //just chillin and resetin some variables
 
                 intake.everythingIsOk();
@@ -327,30 +376,50 @@ public class FFFreightSystem implements FTCRobotSubsystem {
                 if (isClawInTheWay){
                     if (phase == Phase.AUTONOMUS) {
                         arm.storageWithElement();
+                        intake.toVerticalPosition();
                         // todo are you sure this is the state for autonomous?
-                        state = State.WAITING_FOR_TRANSFER;
+                        state = State.WAITING_FOR_INTAKE_REPOSITION1;
                         isClawInTheWay = false;
                     }
                     if (phase == Phase.TELEOP) {
                         arm.storageWithElement();
                         intake.intakeAndTransfer();
-                        state = State.WAITING_FOR_TRANSFER;
+                        if(extensionArm.isRetractionComplete()){
+                            state = State.WAITING_FOR_TRANSFER;
+                        }
+                        else{
+                            state = State.HOLD_FREIGHT;
+                        }
                         isClawInTheWay = false;
                     }
                 }
                 else {
                     if (phase == Phase.AUTONOMUS) {
+                        intake.toVerticalPosition();
                         // todo are you sure this is the state for autonomous?
-                        state = State.WAITING_FOR_TRANSFER;
+                        state = State.WAITING_FOR_INTAKE_REPOSITION1;
                     }
                     if (phase == Phase.TELEOP) {
                         intake.intakeAndTransfer();
-                        state = State.WAITING_FOR_TRANSFER;
+                        if(extensionArm.isRetractionComplete()){
+                            state = State.WAITING_FOR_TRANSFER;
+                        }
+                        else{
+                            state = State.HOLD_FREIGHT;
+                        }
                     }
                 }
 
             }
             break;
+
+            case HOLD_FREIGHT:{
+                if(extensionArm.isRetractionComplete()){
+                    state = State.WAITING_FOR_TRANSFER;
+                }
+            }
+            break;
+
 
             case WAITING_FOR_TRANSFER: {
                 if(intake.Uh_Oh()){
@@ -365,6 +434,16 @@ public class FFFreightSystem implements FTCRobotSubsystem {
 
             }
             break;
+
+            case WAITING_FOR_INTAKE_REPOSITION1: {
+                if(intake.isRotationComplete()){
+                    state = State.WAITING_FOR_CLAW_REPOSITION;
+                    readyToExtend = true;
+                }
+            }
+            break;
+
+
             // the name of this state is innacurate, but i am too lazy to change it.
             case WAITING_FOR_CLAW_REPOSITION: {
                    if(phase == Phase.AUTONOMUS){
@@ -414,14 +493,19 @@ public class FFFreightSystem implements FTCRobotSubsystem {
                     switch (phase) {
                         case TELEOP: {
                             //all done time to chill
-                            state = State.READY_TO_CYCLE;
+                            if(mode == Mode.AUTO) {
+                                state = State.START_INTAKE;
+                            }
+                            if(mode == Mode.MANUAL){
+                                state = State.READY_TO_CYCLE;
+                            }
                         }
                         break;
 
                         case AUTONOMUS: {
                             //gotta do something with the intake. probably just tuck it back in to transfer position
                             intake.toTransferPosition();
-                            state = State.WAITING_FOR_INTAKE_REPOSITION;
+                            state = State.WAITING_FOR_INTAKE_REPOSITION2;
                         }
                         break;
                     }
@@ -429,12 +513,17 @@ public class FFFreightSystem implements FTCRobotSubsystem {
             }
             break;
 
-            case WAITING_FOR_INTAKE_REPOSITION: {
+            case WAITING_FOR_INTAKE_REPOSITION2: {
                 if (intake.isRotationComplete()){
                     state = State.READY_TO_CYCLE;
                 }
             }
             break;
+
+            case START_INTAKE: {
+                intake.intakeAndTransfer();
+                state = State.START_CYCLE;
+            }
 
 
             ////////////////////////////  Uh-Oh states //////////////////////////////
