@@ -54,7 +54,8 @@ public class AutonomousVisionLoadDuckSpinParkShippingArea implements AutonomousS
     private Trajectory trajectoryToShippingArea;
     private Trajectory trajectoryToPassage;
     private Trajectory trajectoryToWarehoue;
-
+    private Trajectory trajectoryToWaypoint;
+    private Trajectory trajectoryToWaypointReturn;
     private double distanceToTopGoal = 0;
     private double distanceToLeftPowerShot = 0;
     private double angleOfShot = 0;
@@ -160,12 +161,19 @@ public class AutonomousVisionLoadDuckSpinParkShippingArea implements AutonomousS
 
         //  THIS IS LOOKING GOOD TANYA. A COUPLE OF COMMENTS (in the form of // todo).
 
-        trajectoryToHub = robot.mecanum.trajectoryBuilder(PoseStorageFF.START_POSE)
-                // todo What about heading? Will it always stay the same?
-                .lineToLinearHeading(hubDumpPose)
-                .build();
+
         if (PersistantStorage.getAllianceColor() == AllianceColor.BLUE) {
-            trajectoryToDucks = robot.mecanum.trajectoryBuilder(trajectoryToHub.end())
+            trajectoryToWaypoint = robot.mecanum.trajectoryBuilder(PoseStorageFF.START_POSE)
+                    .lineToLinearHeading(PoseStorageFF.WAYPOINT_BLUE_HUB)
+                    .build();
+            trajectoryToHub = robot.mecanum.trajectoryBuilder(trajectoryToWaypoint.end())
+                    // todo What about heading? Will it always stay the same?
+                    .lineToLinearHeading(hubDumpPose)
+                    .build();
+            trajectoryToWaypointReturn = robot.mecanum.trajectoryBuilder(trajectoryToHub.end())
+                    .lineToLinearHeading(PoseStorageFF.WAYPOINT_BLUE_HUB)
+                    .build();
+            trajectoryToDucks = robot.mecanum.trajectoryBuilder(trajectoryToWaypointReturn.end())
                     .lineToLinearHeading(PoseStorageFF.DUCK_SPINNER_BLUE)
                     .build();
             trajectoryToShippingArea = robot.mecanum.trajectoryBuilder(trajectoryToDucks.end())
@@ -174,7 +182,17 @@ public class AutonomousVisionLoadDuckSpinParkShippingArea implements AutonomousS
 
 
         } else {
-            trajectoryToDucks = robot.mecanum.trajectoryBuilder(trajectoryToHub.end())
+            trajectoryToWaypoint = robot.mecanum.trajectoryBuilder(PoseStorageFF.START_POSE)
+                    .lineToLinearHeading(PoseStorageFF.WAYPOINT_RED_HUB)
+                    .build();
+            trajectoryToHub = robot.mecanum.trajectoryBuilder(trajectoryToWaypoint.end())
+                    // todo What about heading? Will it always stay the same?
+                    .lineToLinearHeading(hubDumpPose)
+                    .build();
+            trajectoryToWaypointReturn = robot.mecanum.trajectoryBuilder(trajectoryToHub.end())
+                    .lineToLinearHeading(PoseStorageFF.WAYPOINT_RED_HUB)
+                    .build();
+            trajectoryToDucks = robot.mecanum.trajectoryBuilder(trajectoryToWaypointReturn.end())
                     .lineToLinearHeading(PoseStorageFF.DUCK_SPINNER_RED)
                     .build();
             trajectoryToShippingArea = robot.mecanum.trajectoryBuilder(trajectoryToDucks.end())
@@ -202,19 +220,22 @@ public class AutonomousVisionLoadDuckSpinParkShippingArea implements AutonomousS
             case START:
                 isComplete = false;
                 robot.mecanum.setPoseEstimate(PoseStorageFF.START_POSE);
-                robot.mecanum.followTrajectory(trajectoryToHub);
+                robot.mecanum.followTrajectory(trajectoryToWaypoint);
 
                 currentState = States.MOVING_TO_HUB;
                 break;
             case MOVING_TO_HUB:
                 if (!robot.mecanum.isBusy()) {
+                    robot.mecanum.followTrajectory(trajectoryToHub);
                     // todo Check the next state. Is it correct?
                     currentState = States.EXTENDING_LIFT;
                 }
                 break;
             case EXTENDING_LIFT:
-               robot.freightSystem.extend();
-                currentState = States.DEPOSITING;
+                if(!robot.mecanum.isBusy()) {
+                    robot.freightSystem.extend();
+                    currentState = States.DEPOSITING;
+                }
                 break;
             case DEPOSITING:
                 if (robot.freightSystem.isReadyToDump()) {
@@ -223,8 +244,10 @@ public class AutonomousVisionLoadDuckSpinParkShippingArea implements AutonomousS
                 }
                 break;
             case DEPOSIT_DONE:
-
-                currentState = States.MOVING_TO_DUCKS;
+                if(robot.freightSystem.isRetractionComplete()) {
+                    robot.mecanum.followTrajectory(trajectoryToWaypointReturn);
+                    currentState = States.MOVING_TO_DUCKS;
+                }
                 //no. bad. the lift automatically retracts you dont need to tell it to//
 /*
                 if (robot.freightSystem.isDumpComplete()) {
@@ -235,7 +258,7 @@ public class AutonomousVisionLoadDuckSpinParkShippingArea implements AutonomousS
                 break;
             case MOVING_TO_DUCKS:
 
-                if (robot.freightSystem.isRetractionComplete()) {
+                if (robot.freightSystem.isRetractionComplete() &&!robot.mecanum.isBusy()) {
                     robot.mecanum.followTrajectory(trajectoryToDucks);
 
                     //robot.mecanum.followTrajectoryAsync(trajectoryToParkPosition);

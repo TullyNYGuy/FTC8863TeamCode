@@ -43,7 +43,8 @@ public class PoseStorageFF {
     public static Pose2d FREIGHT_RED = new Pose2d(60, -65, Math.toRadians(0));
     public static Pose2d SIDE_PASSAGE_RED = new Pose2d(8.75,-68,Math.toRadians(0));
     public static Pose2d SHARED_HUB_BLUE = new Pose2d(63, 8.5,Math.toRadians(270.0));
-
+    public static Pose2d WAYPOINT_BLUE_HUB = new Pose2d(-50,20,0);
+    public static Pose2d WAYPOINT_RED_HUB = new Pose2d(-50,-20,0);
 
     public static void retreiveStartPose(){
         START_POSE = PersistantStorage.getStartPosition();
