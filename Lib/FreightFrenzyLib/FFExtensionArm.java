@@ -117,7 +117,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
     // dump into shipping hub is complete
     private boolean dumpComplete = false;
     // arm is fully retracted
-    private boolean retractionComplete = false;
+    private boolean retractionComplete = true;
     // ready and waiting to dump into the shipping hub
     private boolean isReadyToDump = false;
 

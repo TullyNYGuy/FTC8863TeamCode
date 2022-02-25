@@ -366,17 +366,14 @@ public class FFFreightSystem implements FTCRobotSubsystem {
                 }
                 if (phase == Phase.TELEOP) {
                     intake.intakeAndTransfer();
-                    if (extensionArm.isRetractionComplete()) {
-                        state = State.WAITING_FOR_TRANSFER;
-                    } else {
-                        state = State.HOLD_FREIGHT;
-                    }
+                    state = State.WAITING_FOR_TRANSFER;
                 }
             }
             break;
 
             case HOLD_FREIGHT: {
                 if (extensionArm.isRetractionComplete()) {
+                    intake.transfer();
                     state = State.WAITING_FOR_TRANSFER;
                 }
             }
@@ -440,8 +437,8 @@ public class FFFreightSystem implements FTCRobotSubsystem {
             case WAITING_FOR_DUMP_COMPLETE: {
                 if (extensionArm.isDumpComplete()) {
 
-                    //this stuff is for dades auto intake. it doesn't work yet so i commented it out for this commit
-                   /* if (mode == Mode.AUTO) {
+
+                    if (mode == Mode.AUTO) {
                         // todo This is not quite what Dade was asking for. You have the automatic
                         // start of the intake. But can the intake
                         // be down and running WHILE the retraction is taking place? Not after
@@ -464,11 +461,10 @@ public class FFFreightSystem implements FTCRobotSubsystem {
                         // intake just calls isRetractionComplete() from the extension arm. Be careful with
                         // initializing the communication.
                         state = State.START_INTAKE;
-                    }
-                    else{
+                    } else {
                         state = State.WAITING_FOR_RETRACTION;
-                    }*/
-                    state = State.WAITING_FOR_RETRACTION;
+                    }
+
                 }
             }
             break;
@@ -478,12 +474,6 @@ public class FFFreightSystem implements FTCRobotSubsystem {
                     switch (phase) {
                         case TELEOP: {
                             //all done time to chill
-
-                            //dades auto stuff
-                            /*if (mode == Mode.MANUAL) {
-                                state = State.READY_TO_CYCLE;
-                            }*/
-
                             state = State.READY_TO_CYCLE;
                         }
                         break;
@@ -505,10 +495,10 @@ public class FFFreightSystem implements FTCRobotSubsystem {
                 }
             }
             break;
-            //dades auto stuff. this one shouldn't be problematic so i left it.
+
             case START_INTAKE: {
-                intake.intakeAndTransfer();
-                state = State.START_CYCLE;
+                intake.intakeAndHold();
+                state = State.HOLD_FREIGHT;
             }
 
 

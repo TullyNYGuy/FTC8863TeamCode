@@ -35,14 +35,14 @@ public class FFIntake implements FTCRobotSubsystem {
         INTAKE,
         WAIT_FOR_INTAKE_POSITION_FLOOR,
         WAIT_FOR_FREIGHT,
-        HOLD_FREIGHT,
+        WAIT_FOR_FREIGHT_TO_SETTLE,
         WAIT_FOR_ROTATION,
         OUTAKE,
         WAIT_FOR_OUTAKE,
-        WAITING_FOR_VERTICAL,
         // states for rotate to vertical
         BACK_TO_HOLD_FREIGHT,
         WAIT_FOR_VERTICAL,
+        HOLDING_FREIGHT,
         // states for ejecting into level 1
         TO_LEVEL_ONE,
         WAIT_FOR_LEVEL_ONE,
@@ -174,6 +174,12 @@ public class FFIntake implements FTCRobotSubsystem {
         else{
             return false;
         }
+    }
+    //in order for this to work properly(at least in my mind) I cant have it check to see if position is reached, or if a state is reached
+    //as a result of this, someone *cough* tanya *cough* could use this inncorrectly and break a lot of stuff. so you know... dont.
+    public void transfer(){
+        toTransferPosition();
+        intakeState = IntakeState.WAIT_FOR_ROTATION;
     }
 
     //*********************************************************************************************
@@ -339,6 +345,15 @@ public class FFIntake implements FTCRobotSubsystem {
             case WAIT_FOR_FREIGHT: {
                 // do we have something?
                 if (isIntakeFull()) {
+                    //resets timer for the next state so that we can make sure the freight is actually in the intake.
+                    timer.reset();
+                    intakeState = IntakeState.WAIT_FOR_FREIGHT_TO_SETTLE;
+                }
+            }
+            break;
+
+            case WAIT_FOR_FREIGHT_TO_SETTLE: {
+                if(timer.milliseconds() > 250){
                     hasIntakeIntaked = true;
                     PersistantStorage.isDeliveryFull = false;
                     ledBlinker.steadyAmber();
@@ -398,12 +413,8 @@ public class FFIntake implements FTCRobotSubsystem {
             break;
 
 
-            case WAITING_FOR_VERTICAL:{
-                if(rotateServo.isPositionReached()){
-                    intakeSweeperMotor.setPower(0);
-                    intakeState = IntakeState.IDLE;
-                }
-            }
+
+
 
             //original non transfer sensor version
             /*case OUTAKE: {
@@ -525,11 +536,15 @@ public class FFIntake implements FTCRobotSubsystem {
             // need this wait in order to say to the user that the move is complete
             case WAIT_FOR_VERTICAL: {
                 if (rotateServo.isPositionReached()) {
-                    intakeState = IntakeState.IDLE;
+                    intakeState = IntakeState.HOLDING_FREIGHT;
                     intakeSweeperMotor.setPower(0);
                 }
             }
             break;
+
+            case HOLDING_FREIGHT: {
+                //just waiting for someone to transfer the freight
+            }
 
             // **********************************
             // States to eject into level 2
@@ -567,16 +582,6 @@ public class FFIntake implements FTCRobotSubsystem {
                 if (timer.milliseconds() > 500) {
                     intakeSweeperMotor.setPower(0);
                     intakeState = IntakeState.BACK_TO_HOLD_FREIGHT;
-                }
-            }
-            break;
-
-            case HOLD_FREIGHT: {
-                // is the caging done?
-                if (intakeSweeperMotor.isMovementComplete()) {
-                    // yup, now the human has to rotate the intake because that intake guy has not completed the rotation hardware yet :-)
-
-                    intakeState = IntakeState.WAIT_FOR_ROTATION;
                 }
             }
             break;
