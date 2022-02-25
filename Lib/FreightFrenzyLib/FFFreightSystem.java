@@ -27,7 +27,7 @@ public class FFFreightSystem implements FTCRobotSubsystem {
         HOLD_FREIGHT,
         WAITING_FOR_TRANSFER,
         WAITING_TO_EXTEND,
-        WAITING_FOR_EXTENSION,
+        WAITING_FOR_EXTENSION_COMPLETE,
         WAITING_TO_DUMP,
         WAITING_FOR_DUMP_COMPLETE,
         WAITING_FOR_RETRACTION,
@@ -222,19 +222,19 @@ public class FFFreightSystem implements FTCRobotSubsystem {
             switch (level) {
                 case TOP: {
                     extensionArm.extendToTop();
-                    state = State.WAITING_FOR_EXTENSION;
+                    state = State.WAITING_FOR_EXTENSION_COMPLETE;
                 }
                 break;
 
                 case MIDDLE: {
                     extensionArm.extendToMiddle();
-                    state = State.WAITING_FOR_EXTENSION;
+                    state = State.WAITING_FOR_EXTENSION_COMPLETE;
                 }
                 break;
 
                 case BOTTOM: {
                     extensionArm.extendToBottom();
-                    state = State.WAITING_FOR_EXTENSION;
+                    state = State.WAITING_FOR_EXTENSION_COMPLETE;
                 }
                 break;
             }
@@ -347,16 +347,15 @@ public class FFFreightSystem implements FTCRobotSubsystem {
             }
             break;
 
-            case READY_TO_CYCLE: {
-                readyToExtend = false;
-                //just chillin and resetin a variable
-            }
-            break;
-
-
             //********************************************************************************
             // RUNNING states
             //********************************************************************************
+
+            case READY_TO_CYCLE: {
+                readyToExtend = false;
+                //just chillin waitin for a command
+            }
+            break;
 
             case START_CYCLE: {
 
@@ -401,8 +400,6 @@ public class FFFreightSystem implements FTCRobotSubsystem {
             }
             break;
 
-
-            // the name of this state is innacurate, but i am too lazy to change it.
             case WAITING_TO_EXTEND: {
                 if (phase == Phase.AUTONOMUS) {
                     //just hanging out waiting for tanya to extend the delivery
@@ -422,7 +419,7 @@ public class FFFreightSystem implements FTCRobotSubsystem {
             }
             break;
 
-            case WAITING_FOR_EXTENSION: {
+            case WAITING_FOR_EXTENSION_COMPLETE: {
                 if (extensionArm.isReadyToDump()) {
                     state = State.WAITING_TO_DUMP;
                 }
@@ -436,7 +433,6 @@ public class FFFreightSystem implements FTCRobotSubsystem {
 
             case WAITING_FOR_DUMP_COMPLETE: {
                 if (extensionArm.isDumpComplete()) {
-
 
                     if (mode == Mode.AUTO) {
                         // todo This is not quite what Dade was asking for. You have the automatic
