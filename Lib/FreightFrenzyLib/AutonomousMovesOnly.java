@@ -73,6 +73,10 @@ public class AutonomousMovesOnly implements AutonomousStateMachineFreightFrenzy 
     public boolean isComplete() {
         return isComplete;
     }
+    @Override
+    public String getCurrentState(){
+        return currentState.toString();
+    }
 
     //*********************************************************************************************
     //          Constructors

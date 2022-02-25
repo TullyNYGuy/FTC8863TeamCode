@@ -213,6 +213,10 @@ public class AutonomousVisionLoadDuckSpinParkShippingArea implements AutonomousS
         currentState = States.START;
         isComplete = false;
     }
+    @Override
+    public String getCurrentState(){
+        return currentState.toString();
+    }
 
     @Override
     public void update() {

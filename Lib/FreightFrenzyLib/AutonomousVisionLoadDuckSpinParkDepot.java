@@ -74,6 +74,10 @@ public class AutonomousVisionLoadDuckSpinParkDepot implements AutonomousStateMac
     public boolean isComplete() {
         return isComplete;
     }
+    @Override
+    public String getCurrentState(){
+        return currentState.toString();
+    }
 
     //*********************************************************************************************
     //          Constructors

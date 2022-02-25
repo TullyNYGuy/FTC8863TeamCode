@@ -71,6 +71,10 @@ public class TestAuto implements AutonomousStateMachineFreightFrenzy {
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
+    @Override
+    public String getCurrentState(){
+        return currentState.toString();
+    }
 
     public TestAuto(FreightFrenzyRobotRoadRunner robot, FreightFrenzyField field, Telemetry telemetry) {
         this.robot = robot;

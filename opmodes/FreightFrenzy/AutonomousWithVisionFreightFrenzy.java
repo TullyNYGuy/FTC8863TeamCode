@@ -163,6 +163,8 @@ public class AutonomousWithVisionFreightFrenzy extends LinearOpMode {
         telemetry.update();
         telemetry.addData("shipping element postion is", position);
         telemetry.update();
+        robot.freightSystem.setPhaseAutonomus();
+        robot.freightSystem.start();
         // Wait for the start button
         waitForStart();
         robot.activeWebcam.closeCameraDevice();
@@ -172,6 +174,7 @@ public class AutonomousWithVisionFreightFrenzy extends LinearOpMode {
         autonomous.start();
         while (opModeIsActive() && !autonomous.isComplete()) {
             autonomous.update();
+            telemetry.addData("current state is", autonomous.getCurrentState());
             telemetry.update();
             robot.update();
             idle();

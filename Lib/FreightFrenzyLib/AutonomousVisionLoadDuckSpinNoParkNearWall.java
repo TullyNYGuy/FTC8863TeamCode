@@ -73,6 +73,10 @@ public class AutonomousVisionLoadDuckSpinNoParkNearWall implements AutonomousSta
     public boolean isComplete() {
         return isComplete;
     }
+    @Override
+    public String getCurrentState(){
+        return currentState.toString();
+    }
 
     //*********************************************************************************************
     //          Constructors

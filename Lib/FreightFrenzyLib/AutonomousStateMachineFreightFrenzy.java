@@ -10,7 +10,7 @@ public interface AutonomousStateMachineFreightFrenzy {
      * your class uses a state machine to sequence your auto, then this method should start the
      * state machine
      */
-    public void start();
+     void start();
 
     /**
      * This method will contain statements that create all of the road runner trajectories for your
@@ -18,16 +18,19 @@ public interface AutonomousStateMachineFreightFrenzy {
      * about 1/2 second to generate so generating them all before you actually run the auto saves
      * time.
      */
-    public void createTrajectories();
+     void createTrajectories();
 
     /**
      * This method will typically run the state machine for your auto.
      */
-    public void update();
+     void update();
 
     /**
      * This method will tell the user if your auto is finished or not.
      * @return - true if complete, false if still running
      */
-    public boolean isComplete();
+     boolean isComplete();
+
+     String getCurrentState();
+
 }

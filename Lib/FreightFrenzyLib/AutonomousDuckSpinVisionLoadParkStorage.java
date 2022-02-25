@@ -71,6 +71,11 @@ public class AutonomousDuckSpinVisionLoadParkStorage implements AutonomousStateM
         return isComplete;
     }
 
+    @Override
+    public String getCurrentState(){
+        return currentState.toString();
+    }
+
     //*********************************************************************************************
     //          Constructors
     //
@@ -237,8 +242,10 @@ public class AutonomousDuckSpinVisionLoadParkStorage implements AutonomousStateM
                     }
                     break;
                 case DEPOSIT_DONE:
-                    robot.mecanum.followTrajectory(trajectoryToWaypointReturn);
-                    currentState = States.APPROACHING_STORAGE;
+                    if(robot.freightSystem.isRetractionComplete()) {
+                        robot.mecanum.followTrajectory(trajectoryToWaypointReturn);
+                        currentState = States.APPROACHING_STORAGE;
+                    }
                     //stop it
                    /* if (robot.lift.isDeliverServoPositionReached()) {
                         robot.lift.retract();
