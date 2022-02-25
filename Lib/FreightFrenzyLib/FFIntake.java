@@ -215,7 +215,7 @@ public class FFIntake implements FTCRobotSubsystem {
 
     //this checks the transfer sensor to see whether or not the object has been transfered.
     // In the robot code this should be used to start the extension.
-    // The reason for checking if the intake has freight is to elminate a false trigger of the sensor
+    // The reason for checking if the intake has intaked freight is to elminate a false trigger of the sensor
     // when the bucket wall is flopping around while lining up.
     public boolean isTransferComplete(){
         if (((DistanceSensor) transferSensor).getDistance(DistanceUnit.CM) < 7 && hasIntakeIntaked) {
@@ -384,7 +384,6 @@ public class FFIntake implements FTCRobotSubsystem {
                 }
                 else{
                     intakeState = IntakeState.INTAKE;
-
                 }
             }
             break;
@@ -395,15 +394,16 @@ public class FFIntake implements FTCRobotSubsystem {
                 if(isTransferComplete()){
                     //transfer is done time to chill
                     PersistantStorage.isDeliveryFull = true;
-                    toVerticalPosition();;
+                    toVerticalPosition();
                     ledBlinker.steadyGreen();
                     intakeState = IntakeState.WAIT_FOR_VERTICAL;
+                    didTransferFail = false;
                 }
                 else{
                     if(timer.milliseconds() > 3000){
                         //this is only for if something is jammed in the intake.
                         // the intake goes back to vertical so that the driver can spit out the freight onto the ground.
-                        toVerticalPosition();;
+                        toVerticalPosition();
                         intakeSweeperMotor.setPower(0);
                         intakeState = IntakeState.IDLE;
                         didTransferFail = true;
@@ -438,7 +438,7 @@ public class FFIntake implements FTCRobotSubsystem {
                     else {
                         // done ejecting, time to go back to sleep
                         PersistantStorage.isDeliveryFull = true;
-                        toVerticalPosition();;
+                        toVerticalPosition();
                         ledBlinker.steadyGreen();
                         intakeState = IntakeState.IDLE;
                     }
@@ -465,7 +465,7 @@ public class FFIntake implements FTCRobotSubsystem {
             break;
 
             case EJECT_AT_INTAKE: {
-                toVerticalPosition();;
+                toVerticalPosition();
                 intakeState = IntakeState.IDLE;
             }
             break;
