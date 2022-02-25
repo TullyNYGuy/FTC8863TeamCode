@@ -52,8 +52,8 @@ public class AutonomousDuckSpinVisionLoadParkStorage implements AutonomousStateM
     private Trajectory trajectoryToHub;
     private Trajectory trajectoryToDucks;
     private Trajectory trajectoryToStorage;
-
-
+    private Trajectory trajectoryToWaypoint;
+    private Trajectory trajectoryToWaypointReturn;
     private double distanceToTopGoal = 0;
     private double distanceToLeftPowerShot = 0;
     private double angleOfShot = 0;
@@ -162,22 +162,34 @@ public class AutonomousDuckSpinVisionLoadParkStorage implements AutonomousStateM
             trajectoryToDucks = robot.mecanum.trajectoryBuilder(PoseStorageFF.START_POSE)
                     .lineToLinearHeading(PoseStorageFF.DUCK_SPINNER_BLUE)
                     .build();
-            trajectoryToHub = robot.mecanum.trajectoryBuilder(trajectoryToDucks.end())
+            trajectoryToWaypoint= robot.mecanum.trajectoryBuilder(trajectoryToDucks.end())
+                    .lineToLinearHeading(PoseStorageFF.WAYPOINT_BLUE_HUB)
+                    .build();
+            trajectoryToHub = robot.mecanum.trajectoryBuilder(trajectoryToWaypoint.end())
                     .lineToLinearHeading(hubDumpPose)
                     .build();
-            trajectoryToStorage = robot.mecanum.trajectoryBuilder(trajectoryToDucks.end())
+            trajectoryToWaypointReturn = robot.mecanum.trajectoryBuilder(trajectoryToHub.end())
+                    .lineToLinearHeading(PoseStorageFF.WAYPOINT_BLUE_HUB)
+                    .build();
+            trajectoryToStorage = robot.mecanum.trajectoryBuilder(trajectoryToWaypointReturn.end())
                     .lineToLinearHeading(PoseStorageFF.STORAGE_BLUE)
                     .build();
 
 
         } else {
-            trajectoryToDucks = robot.mecanum.trajectoryBuilder(trajectoryToHub.end())
+            trajectoryToDucks = robot.mecanum.trajectoryBuilder(PoseStorageFF.START_POSE)
                     .lineToLinearHeading(PoseStorageFF.DUCK_SPINNER_RED)
                     .build();
-            trajectoryToHub = robot.mecanum.trajectoryBuilder(trajectoryToDucks.end())
+            trajectoryToWaypoint= robot.mecanum.trajectoryBuilder(trajectoryToDucks.end())
+                    .lineToLinearHeading(PoseStorageFF.WAYPOINT_RED_HUB)
+                    .build();
+            trajectoryToHub = robot.mecanum.trajectoryBuilder(trajectoryToWaypoint.end())
                     .lineToLinearHeading(hubDumpPose)
                     .build();
-            trajectoryToStorage = robot.mecanum.trajectoryBuilder(trajectoryToDucks.end())
+            trajectoryToWaypointReturn = robot.mecanum.trajectoryBuilder(trajectoryToHub.end())
+                    .lineToLinearHeading(PoseStorageFF.WAYPOINT_RED_HUB)
+                    .build();
+            trajectoryToStorage = robot.mecanum.trajectoryBuilder(trajectoryToWaypointReturn.end())
                     .lineToLinearHeading(PoseStorageFF.STORAGE_RED)
                     .build();
 
@@ -208,12 +220,15 @@ public class AutonomousDuckSpinVisionLoadParkStorage implements AutonomousStateM
                     break;
                 case MOVING_TO_HUB:
                     if (!robot.mecanum.isBusy()) {
+                        robot.mecanum.followTrajectory(trajectoryToHub);
                         currentState = States.EXTENDING_LIFT;
                     }
                     break;
                 case EXTENDING_LIFT:
-                    robot.freightSystem.extend();
-                    currentState = States.DEPOSITING;
+                    if(!robot.mecanum.isBusy()) {
+                        robot.freightSystem.extend();
+                        currentState = States.DEPOSITING;
+                    }
                     break;
                 case DEPOSITING:
                     if (robot.freightSystem.isReadyToDump()) {
@@ -222,6 +237,7 @@ public class AutonomousDuckSpinVisionLoadParkStorage implements AutonomousStateM
                     }
                     break;
                 case DEPOSIT_DONE:
+                    robot.mecanum.followTrajectory(trajectoryToWaypointReturn);
                     currentState = States.APPROACHING_STORAGE;
                     //stop it
                    /* if (robot.lift.isDeliverServoPositionReached()) {
@@ -246,14 +262,15 @@ public class AutonomousDuckSpinVisionLoadParkStorage implements AutonomousStateM
                     break;
                 case DUCK_SPINNING:
 
-                    robot.mecanum.followTrajectory(trajectoryToHub);
+                    robot.mecanum.followTrajectory(trajectoryToWaypoint);
                     currentState = States.MOVING_TO_HUB;
 
                     break;
                 case APPROACHING_STORAGE:
-                    robot.mecanum.followTrajectory(trajectoryToStorage);
-                    currentState = States.READY_TO_PARK;
-
+                    if(!robot.mecanum.isBusy()) {
+                        robot.mecanum.followTrajectory(trajectoryToStorage);
+                        currentState = States.READY_TO_PARK;
+                    }
                     //why
                     /*if (robot.lift.isExtensionMovementComplete()) {
                         robot.mecanum.followTrajectory(trajectoryToStorage);
