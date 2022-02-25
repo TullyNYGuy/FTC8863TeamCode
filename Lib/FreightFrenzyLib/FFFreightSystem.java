@@ -456,11 +456,8 @@ public class FFFreightSystem implements FTCRobotSubsystem {
                         // methods to set retraction status which FFFreightSystem can call. Or perhaps
                         // intake just calls isRetractionComplete() from the extension arm. Be careful with
                         // initializing the communication.
-                        state = State.START_INTAKE;
-                    } else {
                         state = State.WAITING_FOR_RETRACTION;
                     }
-
                 }
             }
             break;
