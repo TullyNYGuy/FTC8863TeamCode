@@ -28,10 +28,11 @@ public class FFExtensionArm implements FTCRobotSubsystem {
     //
     //*********************************************************************************************
     private enum LiftState {
-        IDLE,
+        FULLY_RETRACTED_READY_FOR_ACTION,
         //WAITING_FOR_INTAKE,
 
         // INIT STATES
+        PRE_INIT,
         WAITING_FOR_EXTENSION_RETRACTION_MECHANISM_INIT_TO_COMPLETE,
         WAITING_FOR_EXTENSION_ARM_HOME_POSITION_REACHED,
         WAITING_FOR_BUCKET_INIT_POSITION_REACHED,
@@ -70,7 +71,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
         //RETRACT_TO_0,
     }
 
-    private LiftState liftState = LiftState.IDLE;
+    private LiftState liftState = LiftState.PRE_INIT;
 
     // so we can remember where the delivery bucket is located
     private enum DeliveryBucketLocation {
@@ -119,7 +120,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
     // arm is fully retracted
     private boolean retractionComplete = true;
     // ready and waiting to dump into the shipping hub
-    private boolean isReadyToDump = false;
+    private boolean readyToDump = false;
 
 
     //*********************************************************************************************
@@ -175,7 +176,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
         timer = new ElapsedTime();
 
         currentDeliverBucketLocation = DeliveryBucketLocation.TRANSFER;
-        liftState = LiftState.IDLE;
+        liftState = LiftState.PRE_INIT;
         // init has not been started yet
         initComplete = false;
         // the lift can be commanded to do something, like the init
@@ -193,37 +194,18 @@ public class FFExtensionArm implements FTCRobotSubsystem {
         return dumpComplete;
     }
 
-
-    private void resetDump(){
-        dumpComplete = false;
-    }
-
     public boolean isRetractionComplete(){
         return retractionComplete;
     }
 
-
-    private void resetRetraction(){
-        retractionComplete = false;
-    }
-
-    private void retractionComplete(){
-        retractionComplete = true;
-    }
-
     public boolean isReadyToDump(){
-        return isReadyToDump;
+        return readyToDump;
     }
-
-
-
-
 
     @Override
     public String getName() {
         return "DeliverSystem";
     }
-
 
     @Override
     public void shutdown() {
@@ -358,7 +340,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
         // lockout for double hits on a command button. Downside is that the driver better hit the
         // right button the first time or they are toast
         if (commandComplete) {
-            resetRetraction();
+            retractionComplete = false;
             commandComplete = false;
             //command to start extension
             liftState = LiftState.EXTEND_TO_TOP;
@@ -374,7 +356,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
         // lockout for double hits on a command button. Downside is that the driver better hit the
         // right button the first time or they are toast
         if (commandComplete) {
-            resetRetraction();
+            retractionComplete = false;
             commandComplete = false;
             //command to start extension
             liftState = LiftState.EXTEND_TO_MIDDLE;
@@ -390,7 +372,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
         // lockout for double hits on a command button. Downside is that the driver better hit the
         // right button the first time or they are toast
         if (commandComplete) {
-            resetRetraction();
+            retractionComplete = false;
             commandComplete = false;
             //command to start extension
             liftState = LiftState.EXTEND_TO_BOTTOM;
@@ -447,7 +429,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
 
     public boolean isStateIdle() {
         //this is just for use in the freight system.
-        if (liftState == LiftState.IDLE) {
+        if (liftState == LiftState.FULLY_RETRACTED_READY_FOR_ACTION) {
             return true;
         } else {
             return false;
@@ -482,13 +464,6 @@ public class FFExtensionArm implements FTCRobotSubsystem {
         ffExtensionArm.update();
         logState();
         switch (liftState) {
-            case IDLE: {
-                // unlock the commands so a new command will be acted upon
-                commandComplete = true;
-                // do nothing
-            }
-            break;
-
             // YOU NEED TO THINK ABOUT HOW YOU ARE GOING TO HANDLE 3 DIFFERENT ARM/SERVO COMBINATIONS
             // EXTENDING / ROTATING THE ARM TO:
             //    LEVEL 3 OF THE SHIPPING HUB
@@ -505,6 +480,13 @@ public class FFExtensionArm implements FTCRobotSubsystem {
             //********************************************************************************
             // INIT states
             //********************************************************************************
+
+            case PRE_INIT: {
+                // unlock the commands so a new command will be acted upon
+                commandComplete = true;
+                // do nothing, waiting to get the init command
+            }
+            break;
 
             case WAITING_FOR_EXTENSION_RETRACTION_MECHANISM_INIT_TO_COMPLETE: {
                 if (ffExtensionArm.isInitComplete()) {
@@ -533,10 +515,21 @@ public class FFExtensionArm implements FTCRobotSubsystem {
             break;
 
             case INIT_COMPLETE: {
-                // chillin til someone tells delivery system to do something
+                // the extension arm is now ready to go
+                liftState = LiftState.FULLY_RETRACTED_READY_FOR_ACTION;
             }
             break;
 
+            //********************************************************************************
+            // The normal ready to go to work state of the delivery system
+            //********************************************************************************
+
+            case FULLY_RETRACTED_READY_FOR_ACTION: {
+                // unlock the commands so a new command will be acted upon
+                commandComplete = true;
+                // do nothing
+            }
+            break;
 
             //********************************************************************************
             // Extend to top level states
@@ -637,7 +630,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
             case LINING_UP_DUMP: {
                 if (isDeliverServoPositionReached() && ffExtensionArm.isPositionReached()) {
                     liftState = LiftState.WAITING_TO_DUMP;
-                    isReadyToDump = true;
+                    readyToDump = true;
                 }
             }
             break;
@@ -660,7 +653,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
                 deliveryServoToDumpIntoTopPosition();
                 liftState = LiftState.IS_DUMPED_INTO_TOP;
                 timer.reset();
-                isReadyToDump = false;
+                readyToDump = false;
 
             }
             break;
@@ -684,7 +677,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
                 deliveryServoToDumpIntoMiddlePosition();
                 liftState = LiftState.IS_DUMPED_INTO_MIDDLE;
                 timer.reset();
-                isReadyToDump = false;
+                readyToDump = false;
 
             }
             break;
@@ -708,7 +701,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
                 deliveryServoToDumpIntoBottomPosition();
                 liftState = LiftState.IS_DUMPED_INTO_BOTTOM;
                 timer.reset();
-                isReadyToDump = false;
+                readyToDump = false;
 
             }
             break;
@@ -733,7 +726,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
                 // starts retraction
                 ffExtensionArm.goToPosition(15, 1);
                 liftState = LiftState.MOVE_SERVO_TO_3R;
-                dumpComplete = false;
+                //dumpComplete = false;
             }
             break;
 
@@ -748,7 +741,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
                 // starts retraction
                 ffExtensionArm.goToPosition(14, 1);
                 liftState = LiftState.MOVE_SERVO_TO_3R;
-                dumpComplete = false;
+                //dumpComplete = false;
             }
             break;
 
@@ -763,7 +756,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
                 // starts retraction
                 ffExtensionArm.goToPosition(14, 1);
                 liftState = LiftState.MOVE_SERVO_TO_3R;
-                dumpComplete = false;
+                //dumpComplete = false;
             }
             break;
 
@@ -824,18 +817,20 @@ public class FFExtensionArm implements FTCRobotSubsystem {
 
             case WAITING_FOR_RETRACTION_COMPLETE: {
                 if (ffExtensionArm.isRetractionComplete() && deliveryServo.isPositionReached()){
+                    // reset dump complete flag
+                    dumpComplete = false;
                     retractionComplete = true;
-                    liftState = LiftState.IDLE;
-
+                    liftState = LiftState.FULLY_RETRACTED_READY_FOR_ACTION;
                 }
             }
+            break;
         }
     }
 //this is just an extra copy of the state machine from before it was continuous. basically a back up in case things break.
     /*public void update() {
         ffExtensionArm.update();
         switch (liftState) {
-            case IDLE: {
+            case FULLY_RETRACTED_READY_FOR_ACTION: {
                 // do nothing
             }
             break;
@@ -1047,7 +1042,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
                 //retract to transfer
                 if(deliveryServo.isPositionReached() && timer.milliseconds() > 3000){
                     ffExtensionArm.goToPosition(0.5, 0.3);
-                    liftState = LiftState.IDLE;
+                    liftState = LiftState.FULLY_RETRACTED_READY_FOR_ACTION;
                 }
             }
             break;
