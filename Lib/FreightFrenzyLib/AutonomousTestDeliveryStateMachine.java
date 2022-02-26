@@ -100,7 +100,7 @@ public class AutonomousTestDeliveryStateMachine implements AutonomousStateMachin
         @Override
         public void update () {
             switch (currentState) {
-                
+
                 case IDLE:
                     break;
 
