@@ -18,13 +18,20 @@ public class DuckSpinner implements FTCRobotSubsystem {
         OFF,
         AUTO_SPIN
     }
-    SpinnerState spinnerState;
+    private SpinnerState spinnerState;
+
     private CRServo duckSpinner;
     private DataLogging logFile;
     private boolean loggingOn = false;
     private boolean initComplete = false;
     private AllianceColor color = PersistantStorage.getAllianceColor();
     private final String  DUCK_SPINNER_NAME = "Duck Spinner";
+
+    // flags used by this class
+
+    // says if the automatic duck spin is complete
+    private boolean autoSpinComplete = false;
+
     public DuckSpinner(HardwareMap hardwareMap, Telemetry telemetry){
         timer = new ElapsedTime();
         duckSpinner = hardwareMap.get(CRServo.class,FreightFrenzyRobotRoadRunner.HardwareName.DUCK_SPINNER.hwName);
@@ -37,13 +44,16 @@ public class DuckSpinner implements FTCRobotSubsystem {
         duckSpinner.setPower(0);
        initComplete = true;
        spinnerState = SpinnerState.OFF;
+       autoSpinComplete = false;
     }
+
     // Turns off the duck spinner
     public void turnOff(){
         duckSpinner.setPower(0);
         spinnerState = SpinnerState.OFF;
         duckDone = true;
     }
+
     // Turns on the duck spinner
     public void turnOn() {
         duckSpinner.setPower(1);
@@ -57,6 +67,7 @@ public class DuckSpinner implements FTCRobotSubsystem {
      * complete is based on a timer.
      */
     public void autoSpin() {
+        autoSpinComplete = false;
         timer.reset();
         turnOn();
         spinnerState = SpinnerState.AUTO_SPIN;
@@ -67,11 +78,7 @@ public class DuckSpinner implements FTCRobotSubsystem {
      * @return
      */
     public boolean isComplete() {
-        boolean result = false;
-        if (spinnerState == SpinnerState.OFF) {
-            result =  true;
-        }
-        return result;
+        return autoSpinComplete;
     }
 
 
@@ -114,8 +121,9 @@ public class DuckSpinner implements FTCRobotSubsystem {
             case OFF:
                 break;
             case AUTO_SPIN:
-                if (timer.milliseconds() < 3000) {
+                if (timer.milliseconds() > 3000) {
                     // turnOff() also modifies the state to OFF so we don't need to do that here
+                    autoSpinComplete = true;
                     turnOff();
                 }
                 break;
