@@ -63,6 +63,7 @@ public class AutonomousWithVisionFreightFrenzy extends LinearOpMode {
         field = new FreightFrenzyField();
         robot = new FreightFrenzyRobotRoadRunner(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, this);
         robot.createRobot();
+        robot.freightSystem.setPhaseAutonomus();
         startSpot = PersistantStorage.getStartSpot();
 
         //int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
@@ -164,12 +165,10 @@ public class AutonomousWithVisionFreightFrenzy extends LinearOpMode {
         telemetry.addData("shipping element postion is", position);
         telemetry.update();
         robot.freightSystem.setPhaseAutonomus();
-        robot.freightSystem.start();
+
         // Wait for the start button
         waitForStart();
         robot.activeWebcam.closeCameraDevice();
-        // Put your calls here - they will not run in a loop
-
 
         autonomous.start();
         while (opModeIsActive() && !autonomous.isComplete()) {
@@ -179,15 +178,6 @@ public class AutonomousWithVisionFreightFrenzy extends LinearOpMode {
             robot.update();
             idle();
         }
-
-        // save the pose so we can use it to start out in teleop
-
-
-        // save the shooter angle so we can use it later in teleop
-        // the angle changer knows how to do this. My opinion is that you should not be down in these
-        // details
-        //PersistantStorage.setMotorTicks(robot.shooter.getMotorTicks());
-
 
         robot.shutdown();
         dataLog.closeDataLog();

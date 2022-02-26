@@ -53,6 +53,7 @@ public class AutonomousFreightFrenzy extends LinearOpMode {
         robot = new FreightFrenzyRobotRoadRunner(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, this);
         robot.createRobot();
         startSpot = PersistantStorage.getStartSpot();
+        robot.freightSystem.setPhaseAutonomus();
 
 
        /* switch(startSpot){
@@ -115,48 +116,24 @@ public class AutonomousFreightFrenzy extends LinearOpMode {
                 break;
         }*/
 
-
-
-
-
-        // Put your initializations here
-        // create the robot and run the init for it
-        robot = new FreightFrenzyRobotRoadRunner(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, this);
-        robot.createRobot();
         enableBulkReads(hardwareMap, LynxModule.BulkCachingMode.AUTO);
-       autonomous = new AutonomousVisionLoadDuckSpinParkDepot(robot, field, telemetry);
+        autonomous = new AutonomousVisionLoadDuckSpinParkDepot(robot, field, telemetry);
 
         timer.reset();
         robot.loopTimer.startLoopTimer();
-
-
         telemetry.addData(">", "Press Start to run");
         telemetry.update();
 
         // Wait for the start button
         waitForStart();
 
-        // Put your calls here - they will not run in a loop
-
-
-       autonomous.start();
+        autonomous.start();
         while (opModeIsActive() && !autonomous.isComplete()) {
             autonomous.update();
             telemetry.update();
             robot.update();
-            // TANYA - need the idle so we don't hog all the CPU
             idle();
-            //autonomous.update();
         }
-
-        // save the pose so we can use it to start out in teleop
-
-
-        // save the shooter angle so we can use it later in teleop
-        // the angle changer knows how to do this. My opinion is that you should not be down in these
-        // details
-        //PersistantStorage.setMotorTicks(robot.shooter.getMotorTicks());
-
 
         robot.shutdown();
         dataLog.closeDataLog();
