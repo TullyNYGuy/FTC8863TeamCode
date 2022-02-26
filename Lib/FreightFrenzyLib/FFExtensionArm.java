@@ -697,7 +697,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
 
             case IS_DUMPED_INTO_MIDDLE: {
                 //checks if dump was did or not
-                if (deliveryServo.isPositionReached() && timer.milliseconds() > 3000) {
+                if (deliveryServo.isPositionReached() && timer.milliseconds() > 600) {
                     liftState = LiftState.RETRACT_FROM_MIDDLE;
                     dumpComplete = true;
                 }
@@ -721,7 +721,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
 
             case IS_DUMPED_INTO_BOTTOM: {
                 //checks if dump was did or not
-                if (deliveryServo.isPositionReached() && timer.milliseconds() > 3000) {
+                if (deliveryServo.isPositionReached() && timer.milliseconds() > 600) {
                     liftState = LiftState.RETRACT_FROM_BOTTOM;
                     dumpComplete = true;
                 }
