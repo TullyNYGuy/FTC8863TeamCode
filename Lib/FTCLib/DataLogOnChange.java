@@ -44,8 +44,9 @@ public class DataLogOnChange {
     //*********************************************************************************************
 
     public void log(String stringToLog) {
-        if (stringToLog != previousStringToLog){
+        if (stringToLog.equals(previousStringToLog)){
             logFile.logData(stringToLog);
+            previousStringToLog = stringToLog;
         }
     }
 }
