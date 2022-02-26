@@ -325,15 +325,15 @@ public class FFExtensionArm implements FTCRobotSubsystem {
                     break;
                 case TOP:
                     liftState = LiftState.DUMP_INTO_TOP;
-                    logCommand("Dump");
+                    logCommand("Dump into top");
                     break;
                 case MIDDLE:
                     liftState = LiftState.DUMP_INTO_MIDDLE;
-                    logCommand("Dump");
+                    logCommand("Dump into middle");
                     break;
                 case BOTTOM:
                     liftState = LiftState.DUMP_INTO_BOTTOM;
-                    logCommand("Dump");
+                    logCommand("Dump into bottom");
                     break;
             }
         } else {
@@ -346,6 +346,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
         // lockout for double hits on a command button. Downside is that the driver better hit the
         // right button the first time or they are toast
         if (commandComplete) {
+            logCommand("Extend to top");
             retractionComplete = false;
             commandComplete = false;
             //command to start extension
@@ -362,6 +363,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
         // lockout for double hits on a command button. Downside is that the driver better hit the
         // right button the first time or they are toast
         if (commandComplete) {
+            logCommand("Extend to middle");
             retractionComplete = false;
             commandComplete = false;
             //command to start extension
@@ -378,6 +380,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
         // lockout for double hits on a command button. Downside is that the driver better hit the
         // right button the first time or they are toast
         if (commandComplete) {
+            logCommand("Extend to bottom");
             retractionComplete = false;
             commandComplete = false;
             //command to start extension
@@ -403,15 +406,15 @@ public class FFExtensionArm implements FTCRobotSubsystem {
                     break;
                 case TOP:
                     liftState = LiftState.RETRACT_FROM_TOP;
-                    logCommand("Retract");
+                    logCommand("Retract from top");
                     break;
                 case MIDDLE:
                     liftState = LiftState.RETRACT_FROM_MIDDLE;
-                    logCommand("Retract");
+                    logCommand("Retract from middle");
                     break;
                 case BOTTOM:
                     liftState = LiftState.RETRACT_FROM_BOTTOM;
-                    logCommand("Retract");
+                    logCommand("Retract from bottom");
                     break;
             }
         } else {
