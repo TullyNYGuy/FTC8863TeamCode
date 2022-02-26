@@ -33,7 +33,7 @@ public class FFFreightSystem implements FTCRobotSubsystem {
         WAITING_FOR_EXTENSION_COMPLETE,
         WAITING_TO_DUMP,
         WAITING_FOR_DUMP_COMPLETE,
-        WAITING_FOR_RETRACTION,
+        WAITING_FOR_RETRACTION_COMPLETE,
 
         START_INTAKE,
 
@@ -102,6 +102,9 @@ public class FFFreightSystem implements FTCRobotSubsystem {
 
     // indicates if the arm is ready to be extended (which means that the intake is out of the way) specifically for autonomous
     private boolean readyToExtend = false;
+
+    // indicates if the delivery system is ready to cycle
+    private boolean readyToCycle = false;
 
     private ElapsedTime timer;
     private Telemetry telemetry;
@@ -330,6 +333,10 @@ public class FFFreightSystem implements FTCRobotSubsystem {
         return readyToExtend;
     }
 
+    public boolean isReadyToCycle() {
+        return readyToCycle;
+    }
+
 
     //*********************************************************************************************
     //          MAJOR METHODS
@@ -507,15 +514,15 @@ public class FFFreightSystem implements FTCRobotSubsystem {
                         // methods to set retraction status which FFFreightSystem can call. Or perhaps
                         // intake just calls isRetractionComplete() from the extension arm. Be careful with
                         // initializing the communication.
-                        state = State.WAITING_FOR_RETRACTION;
+                        state = State.WAITING_FOR_RETRACTION_COMPLETE;
                     } else {
-                        state = State.WAITING_FOR_RETRACTION;
+                        state = State.WAITING_FOR_RETRACTION_COMPLETE;
                     }
                 }
             }
             break;
 
-            case WAITING_FOR_RETRACTION: {
+            case WAITING_FOR_RETRACTION_COMPLETE: {
                 if (extensionArm.isRetractionComplete()) {
                     switch (phase) {
                         case TELEOP: {
