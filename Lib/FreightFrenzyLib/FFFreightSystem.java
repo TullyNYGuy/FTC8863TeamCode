@@ -27,6 +27,8 @@ public class FFFreightSystem implements FTCRobotSubsystem {
         HOLD_FREIGHT,
         WAITING_FOR_TRANSFER,
         WAITING_TO_EXTEND,
+        WAITING_FOR_INTAKE_TO_VERTICAL_AUTONOMOUS,
+        EXTEND_AUTONOMOUS,
         WAITING_FOR_EXTENSION_COMPLETE,
         WAITING_TO_DUMP,
         WAITING_FOR_DUMP_COMPLETE,
@@ -36,7 +38,7 @@ public class FFFreightSystem implements FTCRobotSubsystem {
 
 
         WAITING_FOR_INTAKE_REPOSITION1,
-        WAITING_FOR_INTAKE_REPOSITION2,
+        WAITING_FOR_INTAKE_TO_TRANSFER_POSITION_AUTONOMOUS,
 
 
         //Uh-Oh states//
@@ -218,26 +220,34 @@ public class FFFreightSystem implements FTCRobotSubsystem {
 
     public void extend() {
         if (state == State.WAITING_TO_EXTEND) {
-            logCommand("extend(manual)");
-            switch (level) {
-                case TOP: {
-                    extensionArm.extendToTop();
-                    state = State.WAITING_FOR_EXTENSION_COMPLETE;
-                }
-                break;
+            if (phase == Phase.TELEOP) {
+                logCommand("extend(teleop)");
+                switch (level) {
+                    case TOP: {
+                        extensionArm.extendToTop();
+                        state = State.WAITING_FOR_EXTENSION_COMPLETE;
+                    }
+                    break;
 
-                case MIDDLE: {
-                    extensionArm.extendToMiddle();
-                    state = State.WAITING_FOR_EXTENSION_COMPLETE;
-                }
-                break;
+                    case MIDDLE: {
+                        extensionArm.extendToMiddle();
+                        state = State.WAITING_FOR_EXTENSION_COMPLETE;
+                    }
+                    break;
 
-                case BOTTOM: {
-                    extensionArm.extendToBottom();
-                    state = State.WAITING_FOR_EXTENSION_COMPLETE;
+                    case BOTTOM: {
+                        extensionArm.extendToBottom();
+                        state = State.WAITING_FOR_EXTENSION_COMPLETE;
+                    }
+                    break;
                 }
-                break;
             }
+            if (phase == Phase.AUTONOMUS) {
+                logCommand("extend(teleop)");
+                intake.toVerticalPosition();
+                state = State.WAITING_FOR_INTAKE_TO_VERTICAL_AUTONOMOUS;
+            }
+
         } else {
             //you are a loser who pushed the button on accident. so we arent doing anything
         }
@@ -290,7 +300,7 @@ public class FFFreightSystem implements FTCRobotSubsystem {
     }
 
 
-    //methods for testing// used for telemtry in teleop
+    //methods for testing// used for telemtry in teleop and autonomous
 
     public boolean isReadyToDump() {
         return extensionArm.isReadyToDump();
@@ -342,7 +352,12 @@ public class FFFreightSystem implements FTCRobotSubsystem {
 
             case WAITING_FOR_INTAKE_INIT: {
                 if (intake.isInitComplete()) {
-                    state = State.READY_TO_CYCLE;
+                    if (phase == Phase.AUTONOMUS) {
+                        state = State.WAITING_TO_EXTEND;
+                    }
+                    if (phase == Phase.TELEOP) {
+                        state = State.READY_TO_CYCLE;
+                    }
                 }
             }
             break;
@@ -419,6 +434,32 @@ public class FFFreightSystem implements FTCRobotSubsystem {
             }
             break;
 
+            case WAITING_FOR_INTAKE_TO_VERTICAL_AUTONOMOUS: {
+                if (intake.isRotationComplete()) {
+                    // intake is vertical, now extend the arm
+                    switch (level) {
+                        case TOP: {
+                            extensionArm.extendToTop();
+                            state = State.WAITING_FOR_EXTENSION_COMPLETE;
+                        }
+                        break;
+
+                        case MIDDLE: {
+                            extensionArm.extendToMiddle();
+                            state = State.WAITING_FOR_EXTENSION_COMPLETE;
+                        }
+                        break;
+
+                        case BOTTOM: {
+                            extensionArm.extendToBottom();
+                            state = State.WAITING_FOR_EXTENSION_COMPLETE;
+                        }
+                        break;
+                    }
+                }
+            }
+            break;
+
             case WAITING_FOR_EXTENSION_COMPLETE: {
                 if (extensionArm.isReadyToDump()) {
                     state = State.WAITING_TO_DUMP;
@@ -433,7 +474,6 @@ public class FFFreightSystem implements FTCRobotSubsystem {
 
             case WAITING_FOR_DUMP_COMPLETE: {
                 if (extensionArm.isDumpComplete()) {
-
                     if (mode == Mode.AUTO) {
                         // todo This is not quite what Dade was asking for. You have the automatic
                         // start of the intake. But can the intake
@@ -457,6 +497,8 @@ public class FFFreightSystem implements FTCRobotSubsystem {
                         // intake just calls isRetractionComplete() from the extension arm. Be careful with
                         // initializing the communication.
                         state = State.WAITING_FOR_RETRACTION;
+                    } else {
+                        state = State.WAITING_FOR_RETRACTION;
                     }
                 }
             }
@@ -474,7 +516,7 @@ public class FFFreightSystem implements FTCRobotSubsystem {
                         case AUTONOMUS: {
                             //gotta do something with the intake. probably just tuck it back in to transfer position
                             intake.toTransferPosition();
-                            state = State.WAITING_FOR_INTAKE_REPOSITION2;
+                            state = State.WAITING_FOR_INTAKE_TO_TRANSFER_POSITION_AUTONOMOUS;
                         }
                         break;
                     }
@@ -482,7 +524,7 @@ public class FFFreightSystem implements FTCRobotSubsystem {
             }
             break;
 
-            case WAITING_FOR_INTAKE_REPOSITION2: {
+            case WAITING_FOR_INTAKE_TO_TRANSFER_POSITION_AUTONOMOUS: {
                 if (intake.isRotationComplete()) {
                     state = State.READY_TO_CYCLE;
                 }
