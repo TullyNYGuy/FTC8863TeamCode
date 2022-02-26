@@ -21,18 +21,16 @@ public class AutonomousDuckSpinVisionLoadParkStorage implements AutonomousStateM
     public enum States {
         IDLE,
         START,
-        MOVING_TO_HUB,
-        READY_TO_DEPOSIT,
         MOVING_TO_DUCKS,
-        AT_DUCK,
         DUCK_SPINNING,
-        APPROACHING_STORAGE,
-        READY_TO_PARK,
-        DEPOSITING,
-
-        COMPLETE,
+        MOVING_TO_WAYPOINT_BEFORE_HUB,
+        WAITING_TO_EXTEND,
+        MOVING_TO_HUB,
         EXTENDING_LIFT,
-        DEPOSIT_DONE,
+        DUMPING,
+        MOVING_TO_WAYPOINT_BEFORE_PARK,
+        MOVING_TO_PARK,
+        COMPLETE
     }
 
     //*********************************************************************************************
@@ -51,9 +49,9 @@ public class AutonomousDuckSpinVisionLoadParkStorage implements AutonomousStateM
     private Pose2d hubDumpPose;
     private Trajectory trajectoryToHub;
     private Trajectory trajectoryToDucks;
-    private Trajectory trajectoryToStorage;
+    private Trajectory trajectoryToParkInStorage;
     private Trajectory trajectoryToWaypoint;
-    private Trajectory trajectoryToWaypointReturn;
+    private Trajectory trajectoryToWaypointBeforePark;
     private double distanceToTopGoal = 0;
     private double distanceToLeftPowerShot = 0;
     private double angleOfShot = 0;
@@ -173,10 +171,10 @@ public class AutonomousDuckSpinVisionLoadParkStorage implements AutonomousStateM
             trajectoryToHub = robot.mecanum.trajectoryBuilder(trajectoryToWaypoint.end())
                     .lineToLinearHeading(hubDumpPose)
                     .build();
-            trajectoryToWaypointReturn = robot.mecanum.trajectoryBuilder(trajectoryToHub.end())
-                    .lineToLinearHeading(PoseStorageFF.WAYPOINT_BLUE_HUB)
-                    .build();
-            trajectoryToStorage = robot.mecanum.trajectoryBuilder(trajectoryToWaypointReturn.end())
+//            trajectoryToWaypointBeforePark = robot.mecanum.trajectoryBuilder(trajectoryToHub.end())
+//                    .lineToLinearHeading(PoseStorageFF.WAYPOINT_BLUE_HUB)
+//                    .build();
+            trajectoryToParkInStorage = robot.mecanum.trajectoryBuilder(trajectoryToHub.end())
                     .lineToLinearHeading(PoseStorageFF.STORAGE_BLUE)
                     .build();
 
@@ -191,10 +189,10 @@ public class AutonomousDuckSpinVisionLoadParkStorage implements AutonomousStateM
             trajectoryToHub = robot.mecanum.trajectoryBuilder(trajectoryToWaypoint.end())
                     .lineToLinearHeading(hubDumpPose)
                     .build();
-            trajectoryToWaypointReturn = robot.mecanum.trajectoryBuilder(trajectoryToHub.end())
+            trajectoryToWaypointBeforePark = robot.mecanum.trajectoryBuilder(trajectoryToHub.end())
                     .lineToLinearHeading(PoseStorageFF.WAYPOINT_RED_HUB)
                     .build();
-            trajectoryToStorage = robot.mecanum.trajectoryBuilder(trajectoryToWaypointReturn.end())
+            trajectoryToParkInStorage = robot.mecanum.trajectoryBuilder(trajectoryToWaypointBeforePark.end())
                     .lineToLinearHeading(PoseStorageFF.STORAGE_RED)
                     .build();
 
@@ -220,78 +218,67 @@ public class AutonomousDuckSpinVisionLoadParkStorage implements AutonomousStateM
                     isComplete = false;
                     robot.mecanum.setPoseEstimate(PoseStorageFF.START_POSE);
                     robot.mecanum.followTrajectory(trajectoryToDucks);
-                    // there was something unecesary here. it is gone now. - kellen
                     currentState = States.MOVING_TO_DUCKS;
                     break;
-                case MOVING_TO_HUB:
-                    if (!robot.mecanum.isBusy()) {
-                        robot.mecanum.followTrajectory(trajectoryToHub);
-                        currentState = States.EXTENDING_LIFT;
-                    }
-                    break;
-                case EXTENDING_LIFT:
-                    if(!robot.mecanum.isBusy()) {
-                        robot.freightSystem.extend();
-                        currentState = States.DEPOSITING;
-                    }
-                    break;
-                case DEPOSITING:
-                    if (robot.freightSystem.isReadyToDump()) {
-                        robot.freightSystem.dump();
-                        currentState = States.DEPOSIT_DONE;
-                    }
-                    break;
-                case DEPOSIT_DONE:
-                    if(robot.freightSystem.isRetractionComplete()) {
-                        robot.mecanum.followTrajectory(trajectoryToWaypointReturn);
-                        currentState = States.APPROACHING_STORAGE;
-                    }
-                    //stop it
-                   /* if (robot.lift.isDeliverServoPositionReached()) {
-                        robot.lift.retract();
-                        // there was something unecesary here. it is gone now. - kellen
-                        currentState = States.APPROACHING_STORAGE;
-                    }*/
-                    break;
-                case MOVING_TO_DUCKS:
 
+                case MOVING_TO_DUCKS:
                     if (!robot.mecanum.isBusy()) {
-                        robot.duckSpinner.turnOn();
-                        //robot.mecanum.followTrajectoryAsync(trajectoryToParkPosition);
-                        currentState = States.AT_DUCK;
-                    }
-                    break;
-                case AT_DUCK:
-                    if (robot.duckSpinner.spinTimeReached()) {
-                        robot.duckSpinner.turnOff();
+                        robot.duckSpinner.autoSpin();
                         currentState = States.DUCK_SPINNING;
                     }
                     break;
+
                 case DUCK_SPINNING:
-
-                    robot.mecanum.followTrajectory(trajectoryToWaypoint);
-                    currentState = States.MOVING_TO_HUB;
-
-                    break;
-                case APPROACHING_STORAGE:
-                    if(!robot.mecanum.isBusy()) {
-                        robot.mecanum.followTrajectory(trajectoryToStorage);
-                        currentState = States.READY_TO_PARK;
+                    if (robot.duckSpinner.isComplete()) {
+                        robot.mecanum.followTrajectory(trajectoryToWaypoint);
+                        currentState = States.MOVING_TO_WAYPOINT_BEFORE_HUB;
                     }
-                    //why
-                    /*if (robot.lift.isExtensionMovementComplete()) {
-                        robot.mecanum.followTrajectory(trajectoryToStorage);
-                        currentState = States.READY_TO_PARK;
-                    }*/
-
                     break;
-                case READY_TO_PARK:
+
+                case MOVING_TO_WAYPOINT_BEFORE_HUB:
+                    if(!robot.mecanum.isBusy()) {
+                        robot.freightSystem.extend();
+                        currentState = States.WAITING_TO_EXTEND;
+                    }
+                    break;
+
+                case WAITING_TO_EXTEND:
+                    if (robot.freightSystem.isReadyToDump()) {
+                        robot.mecanum.followTrajectory(trajectoryToHub);
+                        currentState = States.MOVING_TO_HUB;
+                    }
+                    break;
+
+                case MOVING_TO_HUB:
                     if (!robot.mecanum.isBusy()) {
+                        robot.freightSystem.dump();
+                        currentState = States.DUMPING;
+                    }
+                    break;
+
+                case DUMPING:
+                    if (robot.freightSystem.isDumpComplete()) {
+                        robot.mecanum.followTrajectory(trajectoryToParkInStorage);
+                        currentState = States.MOVING_TO_PARK;
+                    }
+                    break;
+
+//                case MOVING_TO_WAYPOINT_BEFORE_PARK:
+//                    if(!robot.mecanum.isBusy()) {
+//                        robot.mecanum.followTrajectory(trajectoryToParkInStorage);
+//                        currentState = States.MOVING_TO_PARK;
+//                    }
+//                    break;
+
+                case MOVING_TO_PARK:
+                    if (!robot.mecanum.isBusy() && robot.freightSystem.isReadyToCycle()) {
                         currentState = States.COMPLETE;
                     }
                     break;
+
                 case COMPLETE:
                     isComplete = true;
+                    break;
             }
         }
     }
