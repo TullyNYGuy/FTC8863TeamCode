@@ -8,8 +8,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.Pose2d8863;
-import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.Pipelines.ShippingElementPipeline;
 
 public class AutonomousVisionLoadDuckSpinParkDepot implements AutonomousStateMachineFreightFrenzy {
 
@@ -128,16 +126,16 @@ public class AutonomousVisionLoadDuckSpinParkDepot implements AutonomousStateMac
                 robot.freightSystem.setTop();
                 switch(PersistantStorage.getStartSpot()){
                     case BLUE_WALL:
-                        hubDumpPose = PoseStorageFF.DELIVER_TO_HIGH_HUB_BLUE_WALL;
+                        hubDumpPose = PoseStorageFF.DELIVER_TO_TOP_BLUE_WALL;
                         break;
                     case RED_WALL:
-                        hubDumpPose = PoseStorageFF.DELIVER_TO_HIGH_HUB_RED_WALL;
+                        hubDumpPose = PoseStorageFF.DELIVER_TO_TOP_RED_WALL;
                         break;
                     case BLUE_WAREHOUSE:
-                        hubDumpPose = PoseStorageFF.DELIVER_TO_HIGH_HUB_BLUE_WAREHOUSE;
+                        hubDumpPose = PoseStorageFF.DELIVER_TO_TOP_BLUE_WAREHOUSE;
                         break;
                     case RED_WAREHOUSE:
-                        hubDumpPose = PoseStorageFF.DELIVER_TO_HIGH_HUB_RED_WAREHOUSE;
+                        hubDumpPose = PoseStorageFF.DELIVER_TO_TOP_RED_WAREHOUSE;
                         break;
                 }
                 break;
