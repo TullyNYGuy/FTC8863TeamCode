@@ -339,6 +339,7 @@ public class FFIntake implements FTCRobotSubsystem {
     // IN other words only FFFreightSystem should use this call.
     public void transfer(){
         // todo this should be only allowed if the intake is in the proper state
+        logCommand("Transfer");
         toTransferPosition();
         intakeState = IntakeState.WAIT_FOR_ROTATION;
     }
@@ -364,7 +365,9 @@ public class FFIntake implements FTCRobotSubsystem {
     
     @Override
     public void shutdown() {
-        turnOff();
+        logCommand("Shutdown");
+        intakeSweeperMotor.setPower(0);
+        toTransferPosition();
     }
 
     //*********************************************************************************************
