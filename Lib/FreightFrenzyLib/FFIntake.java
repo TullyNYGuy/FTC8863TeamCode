@@ -13,6 +13,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogOnChange;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
@@ -94,8 +95,12 @@ public class FFIntake implements FTCRobotSubsystem {
     private DcMotor8863 intakeSweeperMotor;
     private ElapsedTime timer;
     private Servo8863New rotateServo;
+
     private DataLogging logFile;
     private boolean loggingOn = false;
+    private DataLogOnChange logStateOnChange;
+    private DataLogOnChange logCommandOnchange;
+
     private final String INTAKE_NAME = "Intake";
     private IntakeState intakeState = IntakeState.PRE_INIT;
     private final String INTAKE_SWEEPER_MOTOR_NAME = FreightFrenzyRobotRoadRunner.HardwareName.INTAKE_SWEEPER_MOTOR.hwName;
@@ -175,6 +180,41 @@ public class FFIntake implements FTCRobotSubsystem {
     //
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
+
+    @Override
+    public void setDataLog(DataLogging logFile) {
+        this.logFile = logFile;
+        logCommandOnchange = new DataLogOnChange(logFile);
+        logStateOnChange = new DataLogOnChange(logFile);
+    }
+
+    @Override
+    public void enableDataLogging() {
+        loggingOn = true;
+    }
+
+    @Override
+    public void disableDataLogging() {
+        loggingOn = false;
+    }
+
+    @Override
+    public void timedUpdate(double timerValueMsec) {
+        update();
+    }
+
+    private void logState() {
+        if (loggingOn && logFile != null) {
+            logStateOnChange.log(getName() + " state = " + intakeState.toString());
+        }
+    }
+
+    private void logCommand(String command) {
+        if (loggingOn && logFile != null) {
+            logCommandOnchange.log(getName() + " command = " + command);
+        }
+    }
+
     public void toTransferPosition() {
         rotateServo.setPosition("Transfer");
     }
@@ -645,38 +685,6 @@ public class FFIntake implements FTCRobotSubsystem {
         }
     }
 
-    @Override
-    public void setDataLog(DataLogging logFile) {
-        this.logFile = logFile;
-
-    }
-
-    @Override
-    public void enableDataLogging() {
-        loggingOn = true;
-    }
-
-    @Override
-    public void disableDataLogging() {
-        loggingOn = false;
-    }
-
-    @Override
-    public void timedUpdate(double timerValueMsec) {
-        update();
-    }
-
-    private void logState() {
-        if (loggingOn && logFile != null) {
-            logFile.logOnChange(getName() + " state = " + intakeState.toString());
-        }
-    }
-
-    private void logCommand(String command) {
-        if (loggingOn && logFile != null) {
-            logFile.logOnChange(getName() + " command = " + command);
-        }
-    }
 
     // These are the public commands for the intake
 

@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogOnChange;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.RevLEDBlinker;
@@ -107,6 +108,8 @@ public class FFFreightSystem implements FTCRobotSubsystem {
     private Configuration configuration;
     private boolean loggingOn;
     private DataLogging logFile;
+    private DataLogOnChange logStateOnChange;
+    private DataLogOnChange logCommandOnchange;
 
 
     //*********************************************************************************************
@@ -158,29 +161,37 @@ public class FFFreightSystem implements FTCRobotSubsystem {
 
     @Override
     public void setDataLog(DataLogging logFile) {
-
+        logCommandOnchange = new DataLogOnChange(logFile);
+        logStateOnChange = new DataLogOnChange(logFile);
+        intake.setDataLog(logFile);
+        extensionArm.setDataLog(logFile);
+        this.logFile = logFile;
     }
 
     @Override
     public void enableDataLogging() {
+        intake.enableDataLogging();
+        extensionArm.enableDataLogging();
         loggingOn = true;
     }
 
     @Override
     public void disableDataLogging() {
+        intake.disableDataLogging();
+        extensionArm.disableDataLogging();
         loggingOn = false;
     }
 
 
     private void logState() {
         if (loggingOn && logFile != null) {
-            logFile.logOnChange(getName() + " state = " + state.toString());
+            logStateOnChange.log(getName() + " state = " + state.toString());
         }
     }
 
     private void logCommand(String command) {
         if (loggingOn && logFile != null) {
-            logFile.logOnChange(getName() + " command = " + command);
+            logCommandOnchange.log(getName() + " command = " + command);
         }
     }
 
@@ -243,7 +254,7 @@ public class FFFreightSystem implements FTCRobotSubsystem {
                 }
             }
             if (phase == Phase.AUTONOMUS) {
-                logCommand("extend(teleop)");
+                logCommand("extend(autonomous)");
                 intake.toVerticalPosition();
                 state = State.WAITING_FOR_INTAKE_TO_VERTICAL_AUTONOMOUS;
             }

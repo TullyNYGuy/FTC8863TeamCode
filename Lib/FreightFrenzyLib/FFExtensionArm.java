@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogOnChange;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
@@ -47,7 +48,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
         //EXTEND_TO_3RD_POSITION,
         MOVE_SERVO_TO_3,
         // EXTEND_TO_FINAL_POSITION,
-        EXTENDED_AT_FINAL_POSITION,
+        WAITING_FOR_EXTENSION_COMPLETE,
         LINING_UP_DUMP,
         WAITING_TO_DUMP,
         DUMP_INTO_TOP,
@@ -105,6 +106,8 @@ public class FFExtensionArm implements FTCRobotSubsystem {
     private ExtensionRetractionMechanism ffExtensionArm;
     private DataLogging logFile;
     private boolean enableLogging = false;
+    private DataLogOnChange logStateOnChange;
+    private DataLogOnChange logCommandOnchange;
 
 
     private Servo8863New deliveryServo;
@@ -204,7 +207,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
 
     @Override
     public String getName() {
-        return "DeliverSystem";
+        return "DeliverySystem";
     }
 
     @Override
@@ -215,6 +218,8 @@ public class FFExtensionArm implements FTCRobotSubsystem {
     @Override
     public void setDataLog(DataLogging logFile) {
         this.logFile = logFile;
+        logCommandOnchange = new DataLogOnChange(logFile);
+        logStateOnChange = new DataLogOnChange(logFile);
         ffExtensionArm.setDataLog(logFile);
     }
 
@@ -237,13 +242,13 @@ public class FFExtensionArm implements FTCRobotSubsystem {
 
     private void logState() {
         if (enableLogging && logFile != null) {
-            logFile.logOnChange(getName() + " state = " + liftState.toString());
+            logStateOnChange.log(getName() + " state = " + liftState.toString());
         }
     }
 
     private void logCommand(String command) {
         if (enableLogging && logFile != null) {
-            logFile.logOnChange(getName() + " command = " + command);
+            logCommandOnchange.log(getName() + " command = " + command);
         }
     }
 
@@ -332,6 +337,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
                     break;
             }
         } else {
+            logCommand("Dump command ignored");
             // you can't start a new command when the old one is not finished
         }
     }
@@ -410,6 +416,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
             }
         } else {
             // you can't start a new command when the old one is not finished
+            logCommand("Retract command ignored");
         }
     }
 
@@ -595,13 +602,13 @@ public class FFExtensionArm implements FTCRobotSubsystem {
                 // if the extension arm has made it to 5 inches, it starts the servo movement
                 if (ffExtensionArm.getPosition() > 8) {
                     deliveryServoToLineUpDumpPosition();
-                    liftState = LiftState.EXTENDED_AT_FINAL_POSITION;
+                    liftState = LiftState.WAITING_FOR_EXTENSION_COMPLETE;
                 }
             }
             break;
 
 
-            case EXTENDED_AT_FINAL_POSITION: {
+            case WAITING_FOR_EXTENSION_COMPLETE: {
                 // checks extension and the timer is for testing
                 if (ffExtensionArm.isPositionReached()) {
                     // figure out where we are extended to, and set the location of the delivery bucket
@@ -630,7 +637,6 @@ public class FFExtensionArm implements FTCRobotSubsystem {
             case LINING_UP_DUMP: {
                 if (isDeliverServoPositionReached() && ffExtensionArm.isPositionReached()) {
                     liftState = LiftState.WAITING_TO_DUMP;
-                    readyToDump = true;
                 }
             }
             break;
@@ -640,6 +646,10 @@ public class FFExtensionArm implements FTCRobotSubsystem {
                 //this is essentially just Idle with a different name. waiting for driver to line up & push dump button
                 // unlock the commands so a new command will be acted upon
                 commandComplete = true;
+                // readyToDump was previously set in the LINING_UP_DUMP state but that caused a bug.
+                // The dump command is only accepted if the state is WAITING_TO_DUMP so it has to be
+                // set in this state.
+                readyToDump = true;
             }
             break;
 
@@ -919,14 +929,14 @@ public class FFExtensionArm implements FTCRobotSubsystem {
                 //once again checks servo movement and the timer is for testing. starts movement to top level extension.
                 if (deliveryServo.isPositionReached() && timer.milliseconds() > 3000) {
                     ffExtensionArm.goToPosition(25.25, 0.3);
-                    liftState = LiftState.EXTENDED_AT_FINAL_POSITION;
+                    liftState = LiftState.WAITING_FOR_EXTENSION_COMPLETE;
                     timer.reset();
                 }
             }
             break;
 
 
-            case EXTENDED_AT_FINAL_POSITION: {
+            case WAITING_FOR_EXTENSION_COMPLETE: {
                 // checks extension and the timer is for testing
                 if (ffExtensionArm.isPositionReached() && timer.milliseconds() > 5000) {
                     liftState = LiftState.WAITING_TO_DUMP;
