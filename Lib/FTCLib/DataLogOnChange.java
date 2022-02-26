@@ -17,7 +17,7 @@ public class DataLogOnChange {
     // getter and setter methods
     //*********************************************************************************************
 
-    private String previousStringToLog = null;
+    private String previousStringToLog = "";
     private DataLogging logFile;
 
     //*********************************************************************************************
@@ -44,7 +44,7 @@ public class DataLogOnChange {
     //*********************************************************************************************
 
     public void log(String stringToLog) {
-        if (stringToLog.equals(previousStringToLog)){
+        if (!stringToLog.equals(previousStringToLog)){
             logFile.logData(stringToLog);
             previousStringToLog = stringToLog;
         }
