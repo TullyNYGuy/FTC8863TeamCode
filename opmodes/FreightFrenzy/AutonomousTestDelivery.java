@@ -41,9 +41,12 @@ public class AutonomousTestDelivery extends LinearOpMode {
 
     @Override
     public void runOpMode() {
+
         telemetry.addData("Initializing ...", "Wait for it ...");
         telemetry.update();
+
         dataLog = new DataLogging("Autonomous", telemetry);
+
         config = null;
         field = new FreightFrenzyField();
         robot = new FreightFrenzyRobotRoadRunner(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, this);
@@ -66,6 +69,11 @@ public class AutonomousTestDelivery extends LinearOpMode {
             robot.update();
             telemetry.addData("current state is", autonomous.getCurrentState());
             telemetry.update();
+            idle();
+        }
+
+        while (opModeIsActive()) {
+            robot.update();
             idle();
         }
 

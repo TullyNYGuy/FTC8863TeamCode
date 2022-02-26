@@ -25,6 +25,7 @@ public class AutonomousTestDeliveryStateMachine implements AutonomousStateMachin
         START,
         WAITING_FOR_EXTEND_COMPLETE,
         WAITING_FOR_DUMP_COMPLETE,
+        WAITING_FOR_RETRACTION_COMPLETE,
         COMPLETE
     }
     private States currentState;
@@ -119,6 +120,12 @@ public class AutonomousTestDeliveryStateMachine implements AutonomousStateMachin
 
                 case WAITING_FOR_DUMP_COMPLETE:
                     if (robot.freightSystem.isDumpComplete()) {
+                        currentState = States.WAITING_FOR_RETRACTION_COMPLETE;
+                    }
+                    break;
+
+                case WAITING_FOR_RETRACTION_COMPLETE:
+                    if (robot.freightSystem.isRetractionComplete()){
                         currentState = States.COMPLETE;
                     }
                     break;
