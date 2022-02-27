@@ -9,7 +9,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
-public class AutonomousDuckSpinVisionLoadParkStorage implements AutonomousStateMachineFreightFrenzy {
+public class AutonomousWallVisionDuckSpinDeliverParkStorage implements AutonomousStateMachineFreightFrenzy {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -80,7 +80,7 @@ public class AutonomousDuckSpinVisionLoadParkStorage implements AutonomousStateM
     // from it
     //*********************************************************************************************
 
-    public AutonomousDuckSpinVisionLoadParkStorage(FreightFrenzyRobotRoadRunner robot, FreightFrenzyField field, Telemetry telemetry) {
+    public AutonomousWallVisionDuckSpinDeliverParkStorage(FreightFrenzyRobotRoadRunner robot, FreightFrenzyField field, Telemetry telemetry) {
         this.robot = robot;
         this.field = field;
         switch (PersistantStorage.getShippingElementPosition()) {
