@@ -210,6 +210,9 @@ public class AutonomousWallVisionDuckSpinDeliverParkStorage implements Autonomou
             isComplete = false;
         }
 
+        // todo make the followTrajectory() followTrajectoryAsync() where needed so we can run
+        // actions in parallel. For example, see the DUCK_SPINNING state. Once that is done, it
+        // may be possible to combine some movements into a single trajectory.
         @Override
         public void update () {
             switch (currentState) {
@@ -229,14 +232,18 @@ public class AutonomousWallVisionDuckSpinDeliverParkStorage implements Autonomou
 
                 case DUCK_SPINNING:
                     if (robot.duckSpinner.isComplete()) {
-                        robot.mecanum.followTrajectory(trajectoryToWaypoint);
+                        // The extend can be run in parallel with the trajectory due to the
+                        // followTrajectoryAsync()
+                        robot.freightSystem.extend();
+                        //robot.mecanum.followTrajectory(trajectoryToWaypoint);
+                        robot.mecanum.followTrajectoryAsync(trajectoryToWaypoint);
                         currentState = States.MOVING_TO_WAYPOINT_BEFORE_HUB;
                     }
                     break;
 
                 case MOVING_TO_WAYPOINT_BEFORE_HUB:
                     if(!robot.mecanum.isBusy()) {
-                        robot.freightSystem.extend();
+                        //robot.freightSystem.extend();
                         currentState = States.WAITING_TO_EXTEND;
                     }
                     break;
@@ -270,7 +277,6 @@ public class AutonomousWallVisionDuckSpinDeliverParkStorage implements Autonomou
 //                    break;
 
                 case MOVING_TO_PARK:
-                    // todo Arm retracts here. Why?
                     // todo This state never completes. Why?
                     if (!robot.mecanum.isBusy() && robot.freightSystem.isReadyToCycle()) {
                         currentState = States.COMPLETE;
