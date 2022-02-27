@@ -8,7 +8,6 @@ public class PoseStorageFF {
     // public static DATA FIELDS that persist between opmodes
 
     public static Pose2d START_POSE;
-    //public static Pose2d START_POSE = new Pose2d(-61.25, -17, Math.toRadians(180));
 
     //***********************************************************************
     // BLUE WALL SIDE
@@ -28,11 +27,11 @@ public class PoseStorageFF {
     //***********************************************************************
     // BLUE WAREHOUSE SIDE
     //***********************************************************************
-    public static Pose2d BLUE_WAREHOUSE_START_POSE = new Pose2d(10.75, 62.6, Math.toRadians(0));
+    public static Pose2d BLUE_WAREHOUSE_START_POSE = new Pose2d(11.20, 62.6, Math.toRadians(0));
 
-    public static Pose2d DELIVER_TO_LOW_BLUE_WAREHOUSE= new Pose2d(3.75,46,Math.toRadians(315));
-    public static Pose2d DELIVER_TO_MID_BLUE_WAREHOUSE= new Pose2d(5.75,49, Math.toRadians(321.4));
-    public static Pose2d DELIVER_TO_TOP_BLUE_WAREHOUSE = new Pose2d(-13.75,63.75, Math.toRadians(0));
+    public static Pose2d DELIVER_TO_LOW_BLUE_WAREHOUSE= new Pose2d(-.20,45.76,Math.toRadians(328));
+    public static Pose2d DELIVER_TO_MID_BLUE_WAREHOUSE= new Pose2d(1.92,49.15, Math.toRadians(328));
+    public static Pose2d DELIVER_TO_TOP_BLUE_WAREHOUSE = new Pose2d(7.88,58.69, Math.toRadians(328));
 
     public static Pose2d BLUE_SIDE_PASSAGE_APPROACH = new Pose2d(-20,60,Math.toRadians(0));
     public static Pose2d BLUE_ENTRY_TO_WAREHOUSE_WAYPOINT = new Pose2d(32,64,Math.toRadians(0));

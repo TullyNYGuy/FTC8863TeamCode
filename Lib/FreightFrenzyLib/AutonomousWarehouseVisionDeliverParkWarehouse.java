@@ -176,16 +176,16 @@ public class AutonomousWarehouseVisionDeliverParkWarehouse implements Autonomous
      */
     @Override
     public void createTrajectories() {
-        
+
         if (PersistantStorage.getAllianceColor() == AllianceColor.BLUE) {
             trajectoryToDeliveryPose = robot.mecanum.trajectoryBuilder(startpose)
                     .lineToLinearHeading(hubDumpPose)
                     .build();
-            trajectoryToParkInWarehouse = robot.mecanum.trajectoryBuilder(trajectoryToDeliveryPose.end())
-                    .lineToLinearHeading(PoseStorageFF.BLUE_ENTRY_TO_WAREHOUSE_WAYPOINT)
-                    .lineToLinearHeading(PoseStorageFF.BLUE_WAREHOUSE_PARK_WAYPOINT)
-                    .lineToLinearHeading(PoseStorageFF.BLUE_WAREHOUSE_PARK)
-                    .build();
+//            trajectoryToParkInWarehouse = robot.mecanum.trajectoryBuilder(trajectoryToDeliveryPose.end())
+//                    .lineToLinearHeading(PoseStorageFF.BLUE_ENTRY_TO_WAREHOUSE_WAYPOINT)
+//                    .lineToLinearHeading(PoseStorageFF.BLUE_WAREHOUSE_PARK_WAYPOINT)
+//                    .lineToLinearHeading(PoseStorageFF.BLUE_WAREHOUSE_PARK)
+//                    .build();
         } else {
             // red
             trajectoryToDeliveryPose = robot.mecanum.trajectoryBuilder(PoseStorageFF.START_POSE)
@@ -216,13 +216,13 @@ public class AutonomousWarehouseVisionDeliverParkWarehouse implements Autonomous
                 case START:
                     isComplete = false;
                     robot.mecanum.setPoseEstimate(startpose);
-                    robot.mecanum.followTrajectory(trajectoryToDeliveryPose);
+                    robot.mecanum.followTrajectoryAsync(trajectoryToDeliveryPose);
                     robot.freightSystem.extend();
                     currentState = States.MOVING_TO_DELIVERY_POSE_WHILE_EXTENDING;
                     break;
 
                 case MOVING_TO_DELIVERY_POSE_WHILE_EXTENDING:
-                    if(!robot.mecanum.isBusy() && !robot.freightSystem.isReadyToDump()) {
+                    if(!robot.mecanum.isBusy() && robot.freightSystem.isReadyToDump()) {
                         robot.freightSystem.dump();
                         currentState = States.WAITING_FOR_DUMP_COMPLETE;
                     }
@@ -230,7 +230,7 @@ public class AutonomousWarehouseVisionDeliverParkWarehouse implements Autonomous
 
                 case WAITING_FOR_DUMP_COMPLETE:
                     if (robot.freightSystem.isDumpComplete()) {
-                        robot.mecanum.followTrajectory(trajectoryToParkInWarehouse);
+                        //robot.mecanum.followTrajectory(trajectoryToParkInWarehouse);
                         currentState = States.MOVING_TO_PARK;
                     }
                     break;

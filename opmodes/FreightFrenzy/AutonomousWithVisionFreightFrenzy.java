@@ -13,6 +13,7 @@ import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.AutonomousWallVisionD
 
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.AutonomousStateMachineFreightFrenzy;
 
+import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.AutonomousWarehouseVisionDeliverParkWarehouse;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyField;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyGamepad;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyMatchInfo;
@@ -152,7 +153,8 @@ public class AutonomousWithVisionFreightFrenzy extends LinearOpMode {
         }*/
 
         enableBulkReads(hardwareMap, LynxModule.BulkCachingMode.AUTO);
-        autonomous = new AutonomousWallVisionDuckSpinDeliverParkStorage(robot, field, telemetry);
+        //autonomous = new AutonomousWallVisionDuckSpinDeliverParkStorage(robot, field, telemetry);
+        autonomous = new AutonomousWarehouseVisionDeliverParkWarehouse(robot, field, telemetry);
 
         timer.reset();
         robot.loopTimer.startLoopTimer();
