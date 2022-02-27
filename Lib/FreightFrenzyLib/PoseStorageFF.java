@@ -4,10 +4,9 @@ package org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 
 public class PoseStorageFF {
+    public static Pose2d START_POSE;
 
     // public static DATA FIELDS that persist between opmodes
-
-    public static Pose2d START_POSE;
 
     //***********************************************************************
     // BLUE WALL SIDE
@@ -34,9 +33,9 @@ public class PoseStorageFF {
     public static Pose2d DELIVER_TO_TOP_BLUE_WAREHOUSE = new Pose2d(7.88,58.69, Math.toRadians(328));
 
     public static Pose2d BLUE_SIDE_PASSAGE_APPROACH = new Pose2d(-20,60,Math.toRadians(0));
-    public static Pose2d BLUE_ENTRY_TO_WAREHOUSE_WAYPOINT = new Pose2d(32,64,Math.toRadians(0));
-    public static Pose2d BLUE_WAREHOUSE_PARK_WAYPOINT = new Pose2d(47,64,Math.toRadians(0));
-    public static Pose2d BLUE_WAREHOUSE_PARK = new Pose2d(47,38.25,Math.toRadians(0));
+    public static Pose2d BLUE_ENTRY_TO_WAREHOUSE_WAYPOINT = new Pose2d(11.20, 63.6, Math.toRadians(0));
+    public static Pose2d BLUE_WAREHOUSE_PARK_WAYPOINT = new Pose2d(38,63.6,Math.toRadians(0));
+    public static Pose2d BLUE_WAREHOUSE_PARK = new Pose2d(44,42,Math.toRadians(45));
     public static Pose2d SIDE_PASSAGE_BLUE = new Pose2d(8.75,67,Math.toRadians(0));
 
     public static Pose2d FREIGHT_BLUE =  new Pose2d(60, 67, Math.toRadians(0));
