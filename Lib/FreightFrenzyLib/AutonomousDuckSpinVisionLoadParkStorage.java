@@ -188,10 +188,10 @@ public class AutonomousDuckSpinVisionLoadParkStorage implements AutonomousStateM
             trajectoryToHub = robot.mecanum.trajectoryBuilder(trajectoryToWaypoint.end())
                     .lineToLinearHeading(hubDumpPose)
                     .build();
-            trajectoryToWaypointBeforePark = robot.mecanum.trajectoryBuilder(trajectoryToHub.end())
-                    .lineToLinearHeading(PoseStorageFF.WAYPOINT_RED_HUB)
-                    .build();
-            trajectoryToParkInStorage = robot.mecanum.trajectoryBuilder(trajectoryToWaypointBeforePark.end())
+//            trajectoryToWaypointBeforePark = robot.mecanum.trajectoryBuilder(trajectoryToHub.end())
+//                    .lineToLinearHeading(PoseStorageFF.WAYPOINT_RED_HUB)
+//                    .build();
+            trajectoryToParkInStorage = robot.mecanum.trajectoryBuilder(trajectoryToHub.end())
                     .lineToLinearHeading(PoseStorageFF.STORAGE_RED)
                     .build();
 
