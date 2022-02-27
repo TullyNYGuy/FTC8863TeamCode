@@ -47,16 +47,19 @@ public class PersistantStorage {
         switch(startSpot){
             //TODO: adjust all the start positions to match reality
             case RED_WALL:
-                startPostion = new Pose2d(-35.25, -62.6, Math.toRadians(0));
+                startPostion = PoseStorageFF.RED_WALL_START_POSE;
                 setAllianceColor(AllianceColor.RED);
                 break;
-            case BLUE_WALL:startPostion = new Pose2d(-35.25, 62.6, Math.toRadians(0));
+            case BLUE_WALL:
+                startPostion = PoseStorageFF.BLUE_WALL_START_POSE;
                 setAllianceColor(AllianceColor.BLUE);
                 break;
-            case RED_WAREHOUSE:startPostion = new Pose2d(10.75, -62.6, Math.toRadians(0));
+            case RED_WAREHOUSE:
+                startPostion = PoseStorageFF.RED_WAREHOUSE_START_POSE;
                 setAllianceColor(AllianceColor.RED);
                 break;
-            case BLUE_WAREHOUSE:startPostion = new Pose2d(10.75, 62.6, Math.toRadians(0));
+            case BLUE_WAREHOUSE:
+                startPostion = PoseStorageFF.BLUE_WAREHOUSE_START_POSE;
                 setAllianceColor(AllianceColor.BLUE);
                 break;
         }

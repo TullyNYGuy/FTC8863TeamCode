@@ -13,6 +13,7 @@ public class PoseStorageFF {
     //***********************************************************************
     // BLUE WALL SIDE
     //***********************************************************************
+    public static Pose2d BLUE_WALL_START_POSE = new Pose2d(-35.25, 62.6, Math.toRadians(0));
 
     public static Pose2d DUCK_SPINNER_BLUE = new Pose2d(-58.5,57.5,Math.toRadians(90));
 
@@ -27,12 +28,16 @@ public class PoseStorageFF {
     //***********************************************************************
     // BLUE WAREHOUSE SIDE
     //***********************************************************************
+    public static Pose2d BLUE_WAREHOUSE_START_POSE = new Pose2d(10.75, 62.6, Math.toRadians(0));
 
     public static Pose2d DELIVER_TO_LOW_BLUE_WAREHOUSE= new Pose2d(3.75,46,Math.toRadians(315));
     public static Pose2d DELIVER_TO_MID_BLUE_WAREHOUSE= new Pose2d(5.75,49, Math.toRadians(321.4));
     public static Pose2d DELIVER_TO_TOP_BLUE_WAREHOUSE = new Pose2d(-13.75,63.75, Math.toRadians(0));
 
     public static Pose2d BLUE_SIDE_PASSAGE_APPROACH = new Pose2d(-20,60,Math.toRadians(0));
+    public static Pose2d BLUE_ENTRY_TO_WAREHOUSE_WAYPOINT = new Pose2d(32,64,Math.toRadians(0));
+    public static Pose2d BLUE_WAREHOUSE_PARK_WAYPOINT = new Pose2d(47,64,Math.toRadians(0));
+    public static Pose2d BLUE_WAREHOUSE_PARK = new Pose2d(47,38.25,Math.toRadians(0));
     public static Pose2d SIDE_PASSAGE_BLUE = new Pose2d(8.75,67,Math.toRadians(0));
 
     public static Pose2d FREIGHT_BLUE =  new Pose2d(60, 67, Math.toRadians(0));
@@ -40,6 +45,7 @@ public class PoseStorageFF {
     //***********************************************************************
     // RED WALL SIDE
     //***********************************************************************
+    public static Pose2d RED_WALL_START_POSE = new Pose2d(-35.25, -62.6, Math.toRadians(0));
 
     public static Pose2d DUCK_SPINNER_RED = new Pose2d(-59,56,Math.toRadians(90));
 
@@ -54,6 +60,7 @@ public class PoseStorageFF {
     //***********************************************************************
     // RED WAREHOUSE SIDE
     //***********************************************************************
+    public static Pose2d RED_WAREHOUSE_START_POSE = new Pose2d(10.75, -62.6, Math.toRadians(0));
 
     public static Pose2d DELIVER_TO_LOW_RED_WAREHOUSE= new Pose2d();
     public static Pose2d DELIVER_TO_MID_RED_WAREHOUSE = new Pose2d(9,-49, Math.toRadians(51));
