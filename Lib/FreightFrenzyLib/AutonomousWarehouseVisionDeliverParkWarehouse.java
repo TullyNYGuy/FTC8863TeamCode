@@ -260,7 +260,6 @@ public class AutonomousWarehouseVisionDeliverParkWarehouse implements Autonomous
                     break;
 
                 case MOVING_TO_PARK:
-                    // todo Arm retracts here. Why?
                     // todo This state never completes. Why?
                     if (!robot.mecanum.isBusy() && robot.freightSystem.isReadyToCycle()) {
                         currentState = States.COMPLETE;
