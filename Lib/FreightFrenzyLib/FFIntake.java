@@ -507,6 +507,7 @@ public class FFIntake implements FTCRobotSubsystem {
 
             case WAITING_FOR_READY_POSITION: {
                 if (rotateServo.isPositionReached()) {
+                    intakeSweeperMotor.setPower(0);
                     intakeState = IntakeState.READY_TO_INTAKE;
                 }
             }
