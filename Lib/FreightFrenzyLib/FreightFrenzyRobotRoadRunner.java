@@ -240,6 +240,12 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
 
         if (capabilities.contains(Subsystem.FREIGHT_SYSTEM)) {
             freightSystem = new FFFreightSystem(arm, intake, lift, hardwareMap, telemetry, allianceColor, ledBlinker);
+            // The freight system has to know whether this autonomous or telelop before the init is run.
+            if (FreightFrenzyMatchInfo.getMatchPhase() == FreightFrenzyMatchInfo.MatchPhase.AUTONOMOUS) {
+                freightSystem.setPhaseAutonomus();
+            } else {
+                freightSystem.setPhaseTeleop();
+            }
             subsystemMap.put(freightSystem.getName(), freightSystem);
         }
 

@@ -136,7 +136,6 @@ public class TeleopUsingRoadRunnerFreightFrenzy extends LinearOpMode {
         //*********************************************************************************************
         //             Robot Running after the user hits play on the driver phone
         //*********************************************************************************************
-       robot.freightSystem.setPhaseTeleop();
        robot.arm.storageWithElement();
         while (opModeIsActive()) {
 

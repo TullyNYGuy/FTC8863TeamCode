@@ -62,7 +62,6 @@ public class AutonomousWithVisionFreightFrenzy extends LinearOpMode {
         field = new FreightFrenzyField();
         robot = new FreightFrenzyRobotRoadRunner(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, this);
         robot.createRobot();
-        robot.freightSystem.setPhaseAutonomus();
         startSpot = PersistantStorage.getStartSpot();
 
         //int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
