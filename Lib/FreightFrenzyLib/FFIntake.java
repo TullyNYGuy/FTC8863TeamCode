@@ -457,6 +457,8 @@ public class FFIntake implements FTCRobotSubsystem {
             case WAIT_FOR_ROTATION: {
                 //checking to make sure we arent getting some sort of false posititive on is intake full. if there really is something it
                 //goes to transfer, but if not it goes back to intaking
+                // todo having this double check of the intake is here is not efficient. And it is going to cause you problems. What happens if
+                // freight moves around in the intake while the intake is rotating? 
                 if(isIntakeFull()){
                     if (rotateServo.isPositionReached()) {
                         // eject the freight
@@ -650,6 +652,7 @@ public class FFIntake implements FTCRobotSubsystem {
             case HOLDING_FREIGHT: {
                 //just waiting for someone to transfer the freight
             }
+            // todo maybe you want a break statement here ;-)
 
             // **********************************
             // States to eject into level 2
