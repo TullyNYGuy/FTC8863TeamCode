@@ -339,6 +339,7 @@ public class FFIntake implements FTCRobotSubsystem {
     // IN other words only FFFreightSystem should use this call.
     public void transfer(){
         // todo this should be only allowed if the intake is in the proper state
+        if(intakeState == IntakeState.HOLDING_FREIGHT  )
         logCommand("Transfer");
         toTransferPosition();
         intakeState = IntakeState.WAIT_FOR_ROTATION;
@@ -438,12 +439,16 @@ public class FFIntake implements FTCRobotSubsystem {
                     ledBlinker.steadyAmber();
                     // yup stop the motor and try to cage the freight
                     intakeSweeperMotor.runAtConstantRPM(180);
+                    toVerticalPosition();
+                    intakeState = IntakeState.WAIT_FOR_VERTICAL;
+
+
                     if (whatToDoWithFreight == WhatToDoWithFreight.DELIVER_TO_BUCKET) {
                         toTransferPosition();
                         intakeState = IntakeState.WAIT_FOR_ROTATION;
                     }
-                    if (whatToDoWithFreight == WhatToDoWithFreight.HOLD_IT) {
-                        intakeState = IntakeState.BACK_TO_HOLD_FREIGHT;
+                   if (whatToDoWithFreight == WhatToDoWithFreight.HOLD_IT) {
+                       intakeState = IntakeState.BACK_TO_HOLD_FREIGHT;
                     }
                     //intakeSweeperMotor.moveToPosition(.3, 300, DcMotor8863.FinishBehavior.HOLD);
                 }
