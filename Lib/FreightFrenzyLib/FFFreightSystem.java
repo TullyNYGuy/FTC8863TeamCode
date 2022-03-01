@@ -385,12 +385,13 @@ public class FFFreightSystem implements FTCRobotSubsystem {
             //********************************************************************************
 
             case READY_TO_CYCLE: {
-                readyToExtend = false;
                 //just chillin waitin for a command
             }
             break;
 
             case START_CYCLE: {
+                //we have to reset variables here because this is the first state it goes to the second+ times
+                readyToExtend = false;
 
                 if (phase == Phase.AUTONOMUS) {
                     intake.toVerticalPosition();
@@ -411,11 +412,7 @@ public class FFFreightSystem implements FTCRobotSubsystem {
             break;
 
             case HOLD_FREIGHT: {
-                // todo Don't you need to check to see if the intake has freight and is holding it?
-                // If you don't then you could tell the intake to transfer and it won't have any
-                // freight in it. Then the transfer() gets dropped on the floor and you are stuck
-                // in WAITING_FOR_TRANSFER forever.
-                if (extensionArm.isRetractionComplete()) {
+                if (extensionArm.isRetractionComplete() && intake.hasIntakeIntaked()) {
                     intake.transfer();
                     state = State.WAITING_FOR_TRANSFER;
                 }
@@ -503,7 +500,7 @@ public class FFFreightSystem implements FTCRobotSubsystem {
 
             case WAITING_FOR_DUMP_COMPLETE: {
                 if (extensionArm.isDumpComplete()) {
-                        // todo This is not quite what Dade was asking for. You have the automatic
+                        //  This is not quite what Dade was asking for. You have the automatic
                         // start of the intake. But can the intake
                         // be down and running WHILE the retraction is taking place? Not after
                         // the retraction is finished. Sometimes Dade was already in the warehouse
