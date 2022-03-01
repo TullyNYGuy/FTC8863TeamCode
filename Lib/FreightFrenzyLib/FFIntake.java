@@ -338,7 +338,6 @@ public class FFIntake implements FTCRobotSubsystem {
     //as a result of this, someone *cough* tanya *cough* could use this inncorrectly and break a lot of stuff. so you know... dont.
     // IN other words only FFFreightSystem should use this call.
     public void transfer(){
-        // todo this should be only allowed if the intake is in the proper state
         if(intakeState == IntakeState.HOLDING_FREIGHT  )
         logCommand("Transfer");
         toTransferPosition();

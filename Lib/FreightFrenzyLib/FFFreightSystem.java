@@ -411,6 +411,10 @@ public class FFFreightSystem implements FTCRobotSubsystem {
             break;
 
             case HOLD_FREIGHT: {
+                // todo Don't you need to check to see if the intake has freight and is holding it?
+                // If you don't then you could tell the intake to transfer and it won't have any
+                // freight in it. Then the transfer() gets dropped on the floor and you are stuck
+                // in WAITING_FOR_TRANSFER forever.
                 if (extensionArm.isRetractionComplete()) {
                     intake.transfer();
                     state = State.WAITING_FOR_TRANSFER;
@@ -450,7 +454,7 @@ public class FFFreightSystem implements FTCRobotSubsystem {
                         }
                         break;
                         case MANUAL: {
-                            //just chillin
+                            //just chillin waitin for the driver to push the button for extend
                         }
                         break;
 
