@@ -70,7 +70,8 @@ public class FFFreightSystem implements FTCRobotSubsystem {
     private enum Level {
         TOP,
         MIDDLE,
-        BOTTOM
+        BOTTOM,
+        SHARED
     }
 
     private enum Mode {
@@ -85,7 +86,7 @@ public class FFFreightSystem implements FTCRobotSubsystem {
     // getter and setter methods
     //*********************************************************************************************
     private State state = State.IDLE;
-    private Mode mode = Mode.MANUAL;
+    private Mode mode = Mode.AUTO;
     private Phase phase = Phase.AUTONOMUS;
     private Level level = Level.TOP;
 
@@ -220,6 +221,11 @@ public class FFFreightSystem implements FTCRobotSubsystem {
         return state.toString();
     }
 
+    public String getLevel() {
+        return level.toString();
+    }
+
+
     public void start() {
         logCommand("start");
         //puts the state machine into the actual freight loop
@@ -251,6 +257,12 @@ public class FFFreightSystem implements FTCRobotSubsystem {
 
                     case BOTTOM: {
                         extensionArm.extendToBottom();
+                        state = State.WAITING_FOR_EXTENSION_COMPLETE;
+                    }
+                    break;
+
+                    case SHARED: {
+                        extensionArm.extendToShared();
                         state = State.WAITING_FOR_EXTENSION_COMPLETE;
                     }
                     break;
@@ -312,6 +324,12 @@ public class FFFreightSystem implements FTCRobotSubsystem {
     public void setBottom() {
         level = Level.BOTTOM;
     }
+
+    public void setShared() {
+        level = Level.SHARED;
+    }
+
+
 
 
     //methods for testing// used for telemtry in teleop and autonomous
@@ -478,6 +496,12 @@ public class FFFreightSystem implements FTCRobotSubsystem {
 
                         case BOTTOM: {
                             extensionArm.extendToBottom();
+                            state = State.WAITING_FOR_EXTENSION_COMPLETE;
+                        }
+                        break;
+
+                        case SHARED: {
+                            extensionArm.extendToShared();
                             state = State.WAITING_FOR_EXTENSION_COMPLETE;
                         }
                         break;

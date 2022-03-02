@@ -157,9 +157,9 @@ public class FreightFrenzyGamepad {
         gamepad1x = new GamepadButtonMultiPush(1);
         gamepad1DpadUp = new GamepadButtonMultiPush(1);
         gamepad1DpadDown = new GamepadButtonMultiPush(1);
-        gamepad1DpadLeft = new GamepadButtonMultiPush(2);
+        gamepad1DpadLeft = new GamepadButtonMultiPush(1);
         gamepad1DpadRight = new GamepadButtonMultiPush(1);
-        gamepad1LeftStickButton = new GamepadButtonMultiPush(1);
+        gamepad1LeftStickButton = new GamepadButtonMultiPush(2);
         gamepad1RightStickButton = new GamepadButtonMultiPush(1);
         gamepad1LeftTriggerButton = new GamepadButtonMultiPush(1);
         gamepad1LeftBumper = new GamepadButtonMultiPush(1);
@@ -248,10 +248,11 @@ public class FreightFrenzyGamepad {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
             if (gamepad1RightBumper.isCommand1()) {
-                robot.freightSystem.sportMode();
+                robot.freightSystem.manualMode();
+
             }
             if (gamepad1RightBumper.isCommand2()) {
-                robot.freightSystem.manualMode();
+                robot.freightSystem.sportMode();
             }
 
         }
@@ -285,18 +286,7 @@ public class FreightFrenzyGamepad {
         }
 
         if (gamepad1DpadLeft.buttonPress(gamepad1.dpad_left)) {
-            if (gamepad1DpadLeft.isCommand1()) {
-                gamepad1LeftJoyStickX.setFullPower();
-                gamepad1LeftJoyStickY.setFullPower();
-                gamepad1RightJoyStickX.setFullPower();
-                gamepad1RightJoyStickY.setFullPower();
-            }
-            if (gamepad1DpadLeft.isCommand2()) {
-                gamepad1LeftJoyStickX.setHalfPower();
-                gamepad1LeftJoyStickY.setHalfPower();
-                gamepad1RightJoyStickX.setHalfPower();
-                gamepad1RightJoyStickY.setHalfPower();
-            }
+           robot.freightSystem.setShared();
             // dunno what this is so it still be here just in case... robot.toggleMode();
         }
 
@@ -305,6 +295,18 @@ public class FreightFrenzyGamepad {
         }
 
         if (gamepad1LeftStickButton.buttonPress(gamepad1.left_stick_button)) {
+            if (gamepad1LeftStickButton.isCommand1()) {
+                gamepad1LeftJoyStickX.setFullPower();
+                gamepad1LeftJoyStickY.setFullPower();
+                gamepad1RightJoyStickX.setFullPower();
+                gamepad1RightJoyStickY.setFullPower();
+            }
+            if (gamepad1LeftStickButton.isCommand2()) {
+                gamepad1LeftJoyStickX.setHalfPower();
+                gamepad1LeftJoyStickY.setHalfPower();
+                gamepad1RightJoyStickX.setHalfPower();
+                gamepad1RightJoyStickY.setHalfPower();
+            }
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
         }

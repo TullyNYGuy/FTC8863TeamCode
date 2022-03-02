@@ -163,6 +163,8 @@ public class TeleopUsingRoadRunnerFreightFrenzy extends LinearOpMode {
 
             telemetry.addData( "freightSystem mode =", robot.freightSystem.getMode());
             telemetry.addData( "freightSystem state =", robot.freightSystem.getState());
+            telemetry.addData( "freightSystem target =", robot.freightSystem.getLevel());
+
 
 
 

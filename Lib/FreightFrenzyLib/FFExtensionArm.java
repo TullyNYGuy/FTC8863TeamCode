@@ -42,6 +42,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
         EXTEND_TO_TOP,
         EXTEND_TO_MIDDLE,
         EXTEND_TO_BOTTOM,
+        EXTEND_TO_SHARED,
         MOVE_SERVO_TO_1,
         //EXTEND_TO_2ND_POSITION,
         MOVE_SERVO_TO_2,
@@ -54,12 +55,15 @@ public class FFExtensionArm implements FTCRobotSubsystem {
         DUMP_INTO_TOP,
         DUMP_INTO_MIDDLE,
         DUMP_INTO_BOTTOM,
+        DUMP_INTO_SHARED,
         IS_DUMPED_INTO_TOP,
         IS_DUMPED_INTO_MIDDLE,
         IS_DUMPED_INTO_BOTTOM,
+        IS_DUMPED_INTO_SHARED,
         RETRACT_FROM_TOP,
         RETRACT_FROM_MIDDLE,
         RETRACT_FROM_BOTTOM,
+        RETRACT_FROM_SHARED,
         MOVE_SERVO_TO_3R,
         // RETRACT_TO_3RD_POSITION,
         RETRACT_TO_TRANSFER,
@@ -79,7 +83,8 @@ public class FFExtensionArm implements FTCRobotSubsystem {
         TRANSFER,
         TOP,
         MIDDLE,
-        BOTTOM
+        BOTTOM,
+        SHARED
     }
 
     private DeliveryBucketLocation currentDeliverBucketLocation = DeliveryBucketLocation.TRANSFER;
@@ -89,7 +94,8 @@ public class FFExtensionArm implements FTCRobotSubsystem {
         NONE,
         EXTEND_TO_TOP,
         EXTEND_TO_MIDDLE,
-        EXTEND_TO_BOTTOM
+        EXTEND_TO_BOTTOM,
+        EXTEND_TO_SHARED
     }
 
     private ExtendCommand extendCommand = ExtendCommand.NONE;
@@ -145,6 +151,8 @@ public class FFExtensionArm implements FTCRobotSubsystem {
         deliveryServo.addPosition("DumpIntoTop", 0.05, 500, TimeUnit.MILLISECONDS);
         deliveryServo.addPosition("DumpIntoMiddle", 0.04, 500, TimeUnit.MILLISECONDS);
         deliveryServo.addPosition("DumpIntoBottom", 0, 500, TimeUnit.MILLISECONDS);
+        deliveryServo.addPosition("DumpIntoShared", 0, 500, TimeUnit.MILLISECONDS);
+
         deliveryServo.addPosition("LineUpDump", 0.17, 10, TimeUnit.MILLISECONDS);
 
         if (allianceColor == AllianceColor.BLUE) {
@@ -294,6 +302,10 @@ public class FFExtensionArm implements FTCRobotSubsystem {
     private void deliveryServoToDumpIntoBottomPosition() {
         deliveryServo.setPosition("DumpIntoBottom");
     }
+    private void deliveryServoToDumpIntoSharedPosition() {
+        deliveryServo.setPosition("DumpIntoShared");
+    }
+
 
     public void deliveryServoToParallelPosition() {
         deliveryServo.setPosition("Parallel");
@@ -335,6 +347,9 @@ public class FFExtensionArm implements FTCRobotSubsystem {
                     liftState = LiftState.DUMP_INTO_BOTTOM;
                     logCommand("Dump into bottom");
                     break;
+                case SHARED:
+                    liftState = LiftState.DUMP_INTO_SHARED;
+                    logCommand("dump into shared");
             }
         } else {
             logCommand("Dump command ignored");
@@ -393,6 +408,23 @@ public class FFExtensionArm implements FTCRobotSubsystem {
         }
     }
 
+    public void extendToShared() {
+        // lockout for double hits on a command button. Downside is that the driver better hit the
+        // right button the first time or they are toast
+        if (commandComplete) {
+            logCommand("Extend to shared");
+            retractionComplete = false;
+            commandComplete = false;
+            //command to start extension
+            liftState = LiftState.EXTEND_TO_SHARED;
+            // remember the command for later
+            extendCommand = ExtendCommand.EXTEND_TO_SHARED;
+            logCommand(extendCommand.toString());
+        } else {
+            // you can't start a new command when the old one is not finished
+        }
+    }
+
     public void retract() {
         // lockout for double hits on a command button. Downside is that the driver better hit the
         // right button the first time or they are toast
@@ -415,6 +447,10 @@ public class FFExtensionArm implements FTCRobotSubsystem {
                 case BOTTOM:
                     liftState = LiftState.RETRACT_FROM_BOTTOM;
                     logCommand("Retract from bottom");
+                    break;
+                case SHARED:
+                    liftState = LiftState.RETRACT_FROM_SHARED;
+                    logCommand("Retract from shared");
                     break;
             }
         } else {
@@ -578,6 +614,20 @@ public class FFExtensionArm implements FTCRobotSubsystem {
             break;
 
             //********************************************************************************
+            // Extend to Shared level states
+            //********************************************************************************
+
+            // same as middle right now but may need to change later so make it separate from middle
+            case EXTEND_TO_SHARED: {
+                //starts the extension to 1.5 inches the positions are a little weird but this goes to actually 1.5
+                ffExtensionArm.goToPosition(15, 1.0);
+                // rest of the movements are the same as the extend to top
+                liftState = LiftState.MOVE_SERVO_TO_1;
+            }
+            break;
+
+
+            //********************************************************************************
             // Sequence to extend the arm and get the delivery bucket out of the robot
             //********************************************************************************
 
@@ -630,6 +680,10 @@ public class FFExtensionArm implements FTCRobotSubsystem {
                         case EXTEND_TO_BOTTOM:
                             ffExtensionArm.goToPosition(6, .6);
                             currentDeliverBucketLocation = DeliveryBucketLocation.BOTTOM;
+                            break;
+                        case EXTEND_TO_SHARED:
+                            ffExtensionArm.goToPosition(2, .6);
+                            currentDeliverBucketLocation = DeliveryBucketLocation.SHARED;
                             break;
                     }
                     liftState = LiftState.LINING_UP_DUMP;
@@ -728,6 +782,32 @@ public class FFExtensionArm implements FTCRobotSubsystem {
             }
             break;
 
+
+
+            //********************************************************************************
+            // DUMP INTO SHARED states
+            //********************************************************************************
+
+            case DUMP_INTO_SHARED: {
+                // dump freight into shared level. here the timer does serve the purpose of making sure the delivery is clear,
+                // but the time can probably be shortened
+                deliveryServoToDumpIntoSharedPosition();
+                liftState = LiftState.IS_DUMPED_INTO_SHARED;
+                timer.reset();
+                readyToDump = false;
+
+            }
+            break;
+
+            case IS_DUMPED_INTO_SHARED: {
+                //checks if dump was did or not
+                if (deliveryServo.isPositionReached() && timer.milliseconds() > 600) {
+                    liftState = LiftState.RETRACT_FROM_SHARED;
+                    dumpComplete = true;
+                }
+            }
+            break;
+
             //********************************************************************************
             // RETRACT from top states
             //********************************************************************************
@@ -766,6 +846,24 @@ public class FFExtensionArm implements FTCRobotSubsystem {
             // the proper movements. Eventually they should probably be different so we are more
             // efficient.
             case RETRACT_FROM_BOTTOM: {
+                // starts retraction
+                ffExtensionArm.goToPosition(14, 1);
+                liftState = LiftState.MOVE_SERVO_TO_3R;
+                //dumpComplete = false;
+            }
+            break;
+
+
+
+
+            //********************************************************************************
+            // RETRACT from shared states
+            //********************************************************************************
+
+            // The retraction sequences are all the same for now because we don't have time to figure out
+            // the proper movements. Eventually they should probably be different so we are more
+            // efficient.
+            case RETRACT_FROM_SHARED: {
                 // starts retraction
                 ffExtensionArm.goToPosition(14, 1);
                 liftState = LiftState.MOVE_SERVO_TO_3R;
