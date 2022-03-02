@@ -385,26 +385,34 @@ public class FFFreightSystem implements FTCRobotSubsystem {
             //********************************************************************************
 
             case READY_TO_CYCLE: {
-                readyToExtend = false;
                 //just chillin waitin for a command
             }
             break;
 
             case START_CYCLE: {
+                //we have to reset variables here because this is the first state it goes to the second+ times
+                readyToExtend = false;
 
                 if (phase == Phase.AUTONOMUS) {
                     intake.toVerticalPosition();
                     state = State.WAITING_FOR_INTAKE_REPOSITION1;
                 }
                 if (phase == Phase.TELEOP) {
-                    intake.intakeAndTransfer();
-                    state = State.WAITING_FOR_TRANSFER;
+
+                    if(isRetractionComplete()){
+                        intake.intakeAndTransfer();
+                        state = State.WAITING_FOR_TRANSFER;
+                    }
+                    else{
+                        intake.intakeAndHold();
+                        state = State.HOLD_FREIGHT;
+                    }
                 }
             }
             break;
 
             case HOLD_FREIGHT: {
-                if (extensionArm.isRetractionComplete()) {
+                if (extensionArm.isRetractionComplete() && intake.hasIntakeIntaked()) {
                     intake.transfer();
                     state = State.WAITING_FOR_TRANSFER;
                 }
@@ -443,7 +451,7 @@ public class FFFreightSystem implements FTCRobotSubsystem {
                         }
                         break;
                         case MANUAL: {
-                            //just chillin
+                            //just chillin waitin for the driver to push the button for extend
                         }
                         break;
 
@@ -492,8 +500,7 @@ public class FFFreightSystem implements FTCRobotSubsystem {
 
             case WAITING_FOR_DUMP_COMPLETE: {
                 if (extensionArm.isDumpComplete()) {
-                    if (mode == Mode.AUTO) {
-                        // todo This is not quite what Dade was asking for. You have the automatic
+                        //  This is not quite what Dade was asking for. You have the automatic
                         // start of the intake. But can the intake
                         // be down and running WHILE the retraction is taking place? Not after
                         // the retraction is finished. Sometimes Dade was already in the warehouse
@@ -514,30 +521,18 @@ public class FFFreightSystem implements FTCRobotSubsystem {
                         // methods to set retraction status which FFFreightSystem can call. Or perhaps
                         // intake just calls isRetractionComplete() from the extension arm. Be careful with
                         // initializing the communication.
-                        state = State.WAITING_FOR_RETRACTION_COMPLETE;
-                    } else {
-                        state = State.WAITING_FOR_RETRACTION_COMPLETE;
-                    }
+
+                        state = State.START_CYCLE;
                 }
             }
             break;
 
-            case WAITING_FOR_RETRACTION_COMPLETE: {
+            case WAITING_FOR_RETRACTION_COMPLETE: { /// autonomous only
                 if (extensionArm.isRetractionComplete()) {
-                    switch (phase) {
-                        case TELEOP: {
-                            //all done time to chill
-                            state = State.READY_TO_CYCLE;
-                        }
-                        break;
 
-                        case AUTONOMUS: {
-                            //gotta do something with the intake. probably just tuck it back in to transfer position
+                    //gotta do something with the intake. probably just tuck it back in to transfer position
                             intake.toTransferPosition();
                             state = State.WAITING_FOR_INTAKE_TO_TRANSFER_POSITION_AUTONOMOUS;
-                        }
-                        break;
-                    }
                 }
             }
             break;
@@ -549,10 +544,7 @@ public class FFFreightSystem implements FTCRobotSubsystem {
             }
             break;
 
-            case START_INTAKE: {
-                intake.intakeAndHold();
-                state = State.HOLD_FREIGHT;
-            }
+
 
 
             ////////////////////////////  Uh-Oh states //////////////////////////////

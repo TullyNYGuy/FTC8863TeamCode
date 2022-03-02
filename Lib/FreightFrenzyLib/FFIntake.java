@@ -148,8 +148,8 @@ public class FFIntake implements FTCRobotSubsystem {
         rotateServo = new Servo8863New(INTAKE_ROTATOR_SERVO_NAME, hardwareMap, telemetry);
         rotateServo.addPosition("Intake", .01, 500, TimeUnit.MILLISECONDS);
         rotateServo.addPosition("Level 1", .23, 1000, TimeUnit.MILLISECONDS);
-        rotateServo.addPosition("Vertical", .5, 500, TimeUnit.MILLISECONDS);
-        rotateServo.addPosition("Transfer", 1.0, 750, TimeUnit.MILLISECONDS);
+        rotateServo.addPosition("Vertical", .5, 250, TimeUnit.MILLISECONDS);
+        rotateServo.addPosition("Transfer", 1.0, 300, TimeUnit.MILLISECONDS);
         rotateServo.addPosition("Level 2", .45, 1000, TimeUnit.MILLISECONDS);
         ledBlinker.off();
         PersistantStorage.isDeliveryFull = true;
@@ -241,6 +241,10 @@ public class FFIntake implements FTCRobotSubsystem {
         else{
             return false;
         }
+    }
+
+    public boolean hasIntakeIntaked(){
+        return  hasIntakeIntaked;
     }
 
     //*********************************************************************************************
@@ -338,7 +342,7 @@ public class FFIntake implements FTCRobotSubsystem {
     //as a result of this, someone *cough* tanya *cough* could use this inncorrectly and break a lot of stuff. so you know... dont.
     // IN other words only FFFreightSystem should use this call.
     public void transfer(){
-        // todo this should be only allowed if the intake is in the proper state
+        if(intakeState == IntakeState.HOLDING_FREIGHT  )
         logCommand("Transfer");
         toTransferPosition();
         intakeState = IntakeState.WAIT_FOR_ROTATION;
@@ -437,15 +441,17 @@ public class FFIntake implements FTCRobotSubsystem {
                     PersistantStorage.isDeliveryFull = false;
                     ledBlinker.steadyAmber();
                     // yup stop the motor and try to cage the freight
-                    intakeSweeperMotor.runAtConstantRPM(180);
-                    if (whatToDoWithFreight == WhatToDoWithFreight.DELIVER_TO_BUCKET) {
-                        toTransferPosition();
-                        intakeState = IntakeState.WAIT_FOR_ROTATION;
+                    if(isIntakeFull()) {
+                        intakeSweeperMotor.runAtConstantRPM(180);
+                        if (whatToDoWithFreight == WhatToDoWithFreight.DELIVER_TO_BUCKET) {
+                            toTransferPosition();
+                            intakeState = IntakeState.WAIT_FOR_ROTATION;
+                        }
+                        if (whatToDoWithFreight == WhatToDoWithFreight.HOLD_IT) {
+                            intakeState = IntakeState.BACK_TO_HOLD_FREIGHT;
+                        }
+                        //intakeSweeperMotor.moveToPosition(.3, 300, DcMotor8863.FinishBehavior.HOLD);
                     }
-                    if (whatToDoWithFreight == WhatToDoWithFreight.HOLD_IT) {
-                        intakeState = IntakeState.BACK_TO_HOLD_FREIGHT;
-                    }
-                    //intakeSweeperMotor.moveToPosition(.3, 300, DcMotor8863.FinishBehavior.HOLD);
                 }
             }
             break;
@@ -453,17 +459,12 @@ public class FFIntake implements FTCRobotSubsystem {
             case WAIT_FOR_ROTATION: {
                 //checking to make sure we arent getting some sort of false posititive on is intake full. if there really is something it
                 //goes to transfer, but if not it goes back to intaking
-                if(isIntakeFull()){
                     if (rotateServo.isPositionReached()) {
                         // eject the freight
                         intakeSweeperMotor.runAtConstantRPM(-400);
                         intakeState = IntakeState.OUTAKE;
                         timer.reset();
                     }
-                }
-                else{
-                    intakeState = IntakeState.INTAKE;
-                }
             }
             break;
             
@@ -646,6 +647,7 @@ public class FFIntake implements FTCRobotSubsystem {
             case HOLDING_FREIGHT: {
                 //just waiting for someone to transfer the freight
             }
+            break;
 
             // **********************************
             // States to eject into level 2

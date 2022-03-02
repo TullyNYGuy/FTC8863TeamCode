@@ -145,7 +145,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
         deliveryServo.addPosition("DumpIntoTop", 0.05, 500, TimeUnit.MILLISECONDS);
         deliveryServo.addPosition("DumpIntoMiddle", 0.04, 500, TimeUnit.MILLISECONDS);
         deliveryServo.addPosition("DumpIntoBottom", 0, 500, TimeUnit.MILLISECONDS);
-        deliveryServo.addPosition("LineUpDump", 0.17, 125, TimeUnit.MILLISECONDS);
+        deliveryServo.addPosition("LineUpDump", 0.17, 10, TimeUnit.MILLISECONDS);
 
         if (allianceColor == AllianceColor.BLUE) {
             ffExtensionArm = new ExtensionRetractionMechanism(hardwareMap, telemetry,
