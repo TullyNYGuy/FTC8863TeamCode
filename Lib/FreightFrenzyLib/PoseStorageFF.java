@@ -66,6 +66,9 @@ public class PoseStorageFF {
 
     public static Pose2d RED_SIDE_PASSAGE_APPROACH = new Pose2d(-20,-60,Math.toRadians(0));
     public static Pose2d SIDE_PASSAGE_RED = new Pose2d(8.75,-68,Math.toRadians(0));
+    public static Pose2d RED_ENTRY_TO_WAREHOUSE_WAYPOINT = new Pose2d(11.20, -63.6, Math.toRadians(0));
+    public static Pose2d RED_WAREHOUSE_PARK_WAYPOINT = new Pose2d(38,-63.6,Math.toRadians(0));
+    public static Pose2d RED_WAREHOUSE_PARK = new Pose2d(44,-42,Math.toRadians(315));
 
     public static Pose2d FREIGHT_RED = new Pose2d(60, -65, Math.toRadians(0));
 
