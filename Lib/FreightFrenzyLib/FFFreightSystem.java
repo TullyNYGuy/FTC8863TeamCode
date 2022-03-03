@@ -244,24 +244,28 @@ public class FFFreightSystem implements FTCRobotSubsystem {
                 logCommand("extend(teleop)");
                 switch (level) {
                     case TOP: {
+                        logCommand("(teleop)extending to top");
                         extensionArm.extendToTop();
                         state = State.WAITING_FOR_EXTENSION_COMPLETE;
                     }
                     break;
 
                     case MIDDLE: {
+                        logCommand("(teleop)extending to middle");
                         extensionArm.extendToMiddle();
                         state = State.WAITING_FOR_EXTENSION_COMPLETE;
                     }
                     break;
 
                     case BOTTOM: {
+                        logCommand("(teleop)extending to bottom");
                         extensionArm.extendToBottom();
                         state = State.WAITING_FOR_EXTENSION_COMPLETE;
                     }
                     break;
 
                     case SHARED: {
+                        logCommand("(teleop)extending to shared");
                         extensionArm.extendToShared();
                         state = State.WAITING_FOR_EXTENSION_COMPLETE;
                     }
@@ -380,6 +384,7 @@ public class FFFreightSystem implements FTCRobotSubsystem {
 
             case WAITING_FOR_ARM_INIT: {
                 if (extensionArm.isInitComplete()) {
+                    logCommand("extension arm init complete. waiting for intake init");
                     intake.init(configuration);
                     state = State.WAITING_FOR_INTAKE_INIT;
                 }
@@ -388,6 +393,7 @@ public class FFFreightSystem implements FTCRobotSubsystem {
 
             case WAITING_FOR_INTAKE_INIT: {
                 if (intake.isInitComplete()) {
+                    logCommand("intake init complete");
                     if (phase == Phase.AUTONOMUS) {
                         state = State.WAITING_TO_EXTEND;
                     }
@@ -412,16 +418,19 @@ public class FFFreightSystem implements FTCRobotSubsystem {
                 readyToExtend = false;
 
                 if (phase == Phase.AUTONOMUS) {
+                    logCommand("(auto)moving to vertical position");
                     intake.toVerticalPosition();
                     state = State.WAITING_FOR_INTAKE_REPOSITION1;
                 }
                 if (phase == Phase.TELEOP) {
 
                     if(isRetractionComplete()){
+                        logCommand("(teleop)retraction complete. intaking and transferring...");
                         intake.intakeAndTransfer();
                         state = State.WAITING_FOR_TRANSFER;
                     }
                     else{
+                        logCommand("(teleop)intaking and holding...");
                         intake.intakeAndHold();
                         state = State.HOLD_FREIGHT;
                     }
@@ -431,6 +440,7 @@ public class FFFreightSystem implements FTCRobotSubsystem {
 
             case HOLD_FREIGHT: {
                 if (extensionArm.isRetractionComplete() && intake.hasIntakeIntaked()) {
+                    logCommand("retraction and intake complete. transferring...");
                     intake.transfer();
                     state = State.WAITING_FOR_TRANSFER;
                 }
@@ -440,10 +450,12 @@ public class FFFreightSystem implements FTCRobotSubsystem {
 
             case WAITING_FOR_TRANSFER: {
                 if (intake.didTransferFail()) {
+                    logCommand("transfer failed!");
                     //for emergencies only. should do nothing usually
                     state = State.READY_TO_CYCLE;
                 } else {
                     if (intake.isTransferComplete()) {
+                        logCommand("transfer completed. waiting for extension...");
                         state = State.WAITING_TO_EXTEND;
                     }
                 }
@@ -453,6 +465,7 @@ public class FFFreightSystem implements FTCRobotSubsystem {
 
             case WAITING_FOR_INTAKE_REPOSITION1: {
                 if (intake.isRotationComplete()) {
+                    logCommand("rotation completed. waiting for extension...");
                     state = State.WAITING_TO_EXTEND;
                     readyToExtend = true;
                 }
@@ -465,6 +478,7 @@ public class FFFreightSystem implements FTCRobotSubsystem {
                 } else {
                     switch (mode) {
                         case AUTO: {
+                            logCommand("auto mode. extending...");
                             extend();
                         }
                         break;
@@ -483,24 +497,28 @@ public class FFFreightSystem implements FTCRobotSubsystem {
                     // intake is vertical, now extend the arm
                     switch (level) {
                         case TOP: {
+                            logCommand("rotation complete. extending to top...");
                             extensionArm.extendToTop();
                             state = State.WAITING_FOR_EXTENSION_COMPLETE;
                         }
                         break;
 
                         case MIDDLE: {
+                            logCommand("rotation complete. extending to middle...");
                             extensionArm.extendToMiddle();
                             state = State.WAITING_FOR_EXTENSION_COMPLETE;
                         }
                         break;
 
                         case BOTTOM: {
+                            logCommand("rotation complete. extending to bottom...");
                             extensionArm.extendToBottom();
                             state = State.WAITING_FOR_EXTENSION_COMPLETE;
                         }
                         break;
 
                         case SHARED: {
+                            logCommand("rotation complete. extending to shared...");
                             extensionArm.extendToShared();
                             state = State.WAITING_FOR_EXTENSION_COMPLETE;
                         }
@@ -512,6 +530,7 @@ public class FFFreightSystem implements FTCRobotSubsystem {
 
             case WAITING_FOR_EXTENSION_COMPLETE: {
                 if (extensionArm.isReadyToDump()) {
+                    logCommand("ready to dump");
                     state = State.WAITING_TO_DUMP;
                 }
             }
@@ -546,6 +565,7 @@ public class FFFreightSystem implements FTCRobotSubsystem {
                         // intake just calls isRetractionComplete() from the extension arm. Be careful with
                         // initializing the communication.
 
+                        logCommand("dump complete. starting new cycle...");
                         state = State.START_CYCLE;
                 }
             }
@@ -554,6 +574,7 @@ public class FFFreightSystem implements FTCRobotSubsystem {
             case WAITING_FOR_RETRACTION_COMPLETE: { /// autonomous only
                 if (extensionArm.isRetractionComplete()) {
 
+                    logCommand("retraction complete. intake to transfer position...");
                     //gotta do something with the intake. probably just tuck it back in to transfer position
                             intake.toTransferPosition();
                             state = State.WAITING_FOR_INTAKE_TO_TRANSFER_POSITION_AUTONOMOUS;
@@ -563,6 +584,7 @@ public class FFFreightSystem implements FTCRobotSubsystem {
 
             case WAITING_FOR_INTAKE_TO_TRANSFER_POSITION_AUTONOMOUS: {
                 if (intake.isRotationComplete()) {
+                    logCommand("rotation complete. ready for a new cycle...");
                     state = State.READY_TO_CYCLE;
                 }
             }
@@ -575,6 +597,7 @@ public class FFFreightSystem implements FTCRobotSubsystem {
 
             case EMERGENCY_EJECT: {
                 if (!intake.isIntakeFull() && timer.milliseconds() > 500) {
+                    logCommand("intake is empty. moving to vertical position...");
                     intake.toVerticalPosition();
                     state = State.EJECT_COMPLETE;
                 }
@@ -583,6 +606,7 @@ public class FFFreightSystem implements FTCRobotSubsystem {
 
             case EJECT_COMPLETE: {
                 if (intake.isRotationComplete()) {
+                    logCommand("rotation complete. ready for a new cycle...");
                     state = State.READY_TO_CYCLE;
                 }
             }
