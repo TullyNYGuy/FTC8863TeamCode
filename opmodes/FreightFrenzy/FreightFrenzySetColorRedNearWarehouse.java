@@ -37,8 +37,8 @@ public class FreightFrenzySetColorRedNearWarehouse extends LinearOpMode {
         //*********************************************************************************************
 
 
-            PersistantStorage.setStartSpot(FreightFrenzyStartSpot.BLUE_WAREHOUSE);
-            telemetry.addData(">", "Color set as blue. Spot as near wall");
+            PersistantStorage.setStartSpot(FreightFrenzyStartSpot.RED_WAREHOUSE);
+            telemetry.addData(">", "Color set as red. Spot as near wall");
             telemetry.update();
             timer.reset();
             while(opModeIsActive() && timer.seconds() < 5){
