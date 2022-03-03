@@ -272,6 +272,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
     @Override
     public boolean init(Configuration config) {
         // start the init for the extension retraction mechanism
+        logCommand("Init starting");
         ffExtensionArm.init();
         commandComplete = false;
         liftState = LiftState.WAITING_FOR_EXTENSION_RETRACTION_MECHANISM_INIT_TO_COMPLETE;
@@ -280,6 +281,9 @@ public class FFExtensionArm implements FTCRobotSubsystem {
     }
 
     public boolean isInitComplete() {
+        if (initComplete) {
+            logCommand("Init complete");
+        }
         return initComplete;
     }
 

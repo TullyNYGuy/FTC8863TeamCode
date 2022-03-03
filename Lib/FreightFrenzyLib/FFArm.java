@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogOnChange;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
 
@@ -52,8 +53,11 @@ public class FFArm implements FTCRobotSubsystem {
     WristServo wristServo;
     ShoulderMotor shoulderMotor;
     private final String ARM_NAME = "Arm";
+
     private DataLogging logFile;
     private boolean loggingOn = false;
+    private DataLogOnChange logCommandOnchange;
+
     private Boolean initComplete = false;
     private ArmCommand armCommand;
     private ClawState clawState;
@@ -199,11 +203,15 @@ claw is positioned so that it is level with the team shipping hub over it. */
 
     @Override
     public boolean isInitComplete() {
+        if (isPositionReached()) {
+            logCommand("Init complete");
+        }
         return isPositionReached();
     }
 
     @Override
     public boolean init(Configuration config) {
+        logCommand("Init starting");
         storage();
         initComplete = isPositionReached();
         return initComplete;
@@ -255,6 +263,7 @@ claw is positioned so that it is level with the team shipping hub over it. */
     @Override
     public void setDataLog(DataLogging logFile) {
         this.logFile = logFile;
+        logCommandOnchange = new DataLogOnChange(logFile);
     }
 
     @Override
@@ -265,6 +274,12 @@ claw is positioned so that it is level with the team shipping hub over it. */
     @Override
     public void disableDataLogging() {
         this.loggingOn = false;
+    }
+
+    private void logCommand(String command) {
+        if (loggingOn && logFile != null) {
+            logCommandOnchange.log(getName() + " command = " + command);
+        }
     }
 
     @Override

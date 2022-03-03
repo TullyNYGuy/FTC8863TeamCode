@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.internal.tfod.Timer;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogOnChange;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.LoopTimer;
@@ -21,8 +22,11 @@ public class DuckSpinner implements FTCRobotSubsystem {
     private SpinnerState spinnerState;
 
     private CRServo duckSpinner;
+
     private DataLogging logFile;
     private boolean loggingOn = false;
+    private DataLogOnChange logCommandOnchange;
+
     private boolean initComplete = false;
     private AllianceColor color = PersistantStorage.getAllianceColor();
     private final String  DUCK_SPINNER_NAME = "Duck Spinner";
@@ -105,11 +109,15 @@ public class DuckSpinner implements FTCRobotSubsystem {
 
     @Override
     public boolean isInitComplete() {
+        if (initComplete) {
+            logCommand("Init complete");
+        }
         return initComplete;
     }
 
     @Override
     public boolean init(Configuration config) {
+        logCommand("Init starting");
         return true;
     }
 
@@ -138,6 +146,7 @@ public class DuckSpinner implements FTCRobotSubsystem {
     @Override
     public void setDataLog(DataLogging logFile) {
         this.logFile = logFile;
+        logCommandOnchange = new DataLogOnChange(logFile);
     }
 
     @Override
@@ -148,6 +157,12 @@ public class DuckSpinner implements FTCRobotSubsystem {
     @Override
     public void disableDataLogging() {
         this.loggingOn = false;
+    }
+
+    private void logCommand(String command) {
+        if (loggingOn && logFile != null) {
+            logCommandOnchange.log(getName() + " command = " + command);
+        }
     }
 
     @Override

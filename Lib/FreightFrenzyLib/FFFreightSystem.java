@@ -143,6 +143,7 @@ public class FFFreightSystem implements FTCRobotSubsystem {
     @Override
     public boolean isInitComplete() {
         if (state == State.READY_TO_CYCLE) {
+            logCommand("Init complete");
             return true;
         } else {
             return false;
@@ -152,6 +153,7 @@ public class FFFreightSystem implements FTCRobotSubsystem {
 
     @Override
     public boolean init(Configuration config) {
+        logCommand("Init starting");
         this.configuration = config;
         extensionArm.init(config);
         state = State.WAITING_FOR_ARM_INIT;

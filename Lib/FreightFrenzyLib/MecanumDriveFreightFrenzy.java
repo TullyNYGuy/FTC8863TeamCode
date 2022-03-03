@@ -51,6 +51,7 @@ import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigu
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AxisDirection;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.BNO055IMUUtil;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogOnChange;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
 import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.TrackingWheelLocalizerUltimateGoal;
@@ -140,6 +141,7 @@ public class MecanumDriveFreightFrenzy extends MecanumDrive implements FTCRobotS
 
     private DataLogging logFile = null;
     private boolean loggingOn = false;
+    private DataLogOnChange logCommandOnchange;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -151,6 +153,7 @@ public class MecanumDriveFreightFrenzy extends MecanumDrive implements FTCRobotS
     @Override
     public void setDataLog(DataLogging logFile) {
         this.logFile = logFile;
+        logCommandOnchange = new DataLogOnChange(logFile);
     }
 
     @Override
@@ -161,6 +164,12 @@ public class MecanumDriveFreightFrenzy extends MecanumDrive implements FTCRobotS
     @Override
     public void disableDataLogging() {
         this.loggingOn = false;
+    }
+
+    private void logCommand(String command) {
+        if (loggingOn && logFile != null) {
+            logCommandOnchange.log(getName() + " command = " + command);
+        }
     }
 
     //*********************************************************************************************
@@ -584,6 +593,7 @@ public class MecanumDriveFreightFrenzy extends MecanumDrive implements FTCRobotS
 
     @Override
     public boolean isInitComplete() {
+        logCommand("Init Complete");
         return true;
     }
 
@@ -597,6 +607,7 @@ public class MecanumDriveFreightFrenzy extends MecanumDrive implements FTCRobotS
 
     @Override
     public boolean init(Configuration config) {
+        logCommand("Init starting");
         return true;
     }
 

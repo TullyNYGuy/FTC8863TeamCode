@@ -29,6 +29,11 @@ public class RevLEDBlinker implements FTCRobotSubsystem{
 
     private RevLED led;
     private OnOffCycler blinker;
+
+    private DataLogging logFile;
+    private boolean loggingOn = false;
+    private DataLogOnChange logCommandOnchange;
+
     //*********************************************************************************************
     //          Constructors
     //
@@ -119,11 +124,13 @@ public class RevLEDBlinker implements FTCRobotSubsystem{
 
     @Override
     public boolean isInitComplete() {
+        logCommand("Init complete");
         return true;
     }
 
     @Override
     public boolean init(Configuration config) {
+        logCommand("Init starting");
         off();
         return true;
     }
@@ -135,17 +142,24 @@ public class RevLEDBlinker implements FTCRobotSubsystem{
 
     @Override
     public void setDataLog(DataLogging logFile) {
-
+        this.logFile = logFile;
+        logCommandOnchange = new DataLogOnChange(logFile);
     }
 
     @Override
     public void enableDataLogging() {
-
+        this.loggingOn = true;
     }
 
     @Override
     public void disableDataLogging() {
+        this.loggingOn = false;
+    }
 
+    private void logCommand(String command) {
+        if (loggingOn && logFile != null) {
+            logCommandOnchange.log(getName() + " command = " + command);
+        }
     }
 
     @Override

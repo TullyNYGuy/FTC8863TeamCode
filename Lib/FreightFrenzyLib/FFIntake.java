@@ -262,6 +262,9 @@ public class FFIntake implements FTCRobotSubsystem {
 
     @Override
     public boolean isInitComplete() {
+        if (initComplete) {
+            logCommand("Init complete");
+        }
         return initComplete;
     }
 
@@ -305,7 +308,7 @@ public class FFIntake implements FTCRobotSubsystem {
 
     @Override
     public boolean init(Configuration config) {
-        logCommand("init");
+        logCommand("Init starting");
         toTransferPosition();
         intakeState = IntakeState.WAIT_FOR_INIT_POSITION;
         return true;

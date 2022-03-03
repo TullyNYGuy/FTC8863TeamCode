@@ -261,7 +261,7 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
      */
     @Override
     public void init() {
-        dataLog.logData("Init starting");
+        dataLog.logData("Robot Init starting");
         timer.reset();
 
         for (FTCRobotSubsystem subsystem : subsystemMap.values()) {
@@ -298,18 +298,20 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
     public boolean isInitComplete() {
         boolean result = true;
         for (FTCRobotSubsystem subsystem : subsystemMap.values()) {
-            if (subsystem.isInitComplete()) {
-                if (dataLoggingEnabled) {
-                    dataLog.logData("Init complete for " + subsystem.getName());
-                }
-
-            } else {
-                dataLog.logData("Init is not complete for " + subsystem.getName());
-            }
+            // the subsystems now take care of their own logging for init and init completion
+            // This is so we don't dump huge amounts of repetitive data into the log file.
+//            if (subsystem.isInitComplete()) {
+//                if (dataLoggingEnabled) {
+//                    dataLog.logData("Init complete for " + subsystem.getName());
+//                }
+//
+//            } else {
+//                dataLog.logData("Init is not complete for " + subsystem.getName());
+//            }
             result &= subsystem.isInitComplete();
         }
         if (dataLoggingEnabled && result == true) {
-            dataLog.logData("Init complete");
+            dataLog.logData("Robot init complete");
         }
         return result;
     }
