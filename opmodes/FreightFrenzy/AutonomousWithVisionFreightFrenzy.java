@@ -9,11 +9,15 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.GamepadButtonMultiPush;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.ListChooser;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.AutonomousDuckSpinVisionLoadFrmWallParkStorage;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.AutonomousVisionLoadFrmWallDuckSpinParkDepot;
 
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.AutonomousStateMachineFreightFrenzy;
+import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.AutonomousVisionLoadFrmWarehouseDuckSpinNoParkNearWall;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.AutonomousVisionLoadFrmWarehouseDuckSpinParkDepot;
+import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.AutonomousVisionLoadFrmWarehouseDuckSpinParkShippingArea;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyField;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyGamepad;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyMatchInfo;
@@ -24,7 +28,11 @@ import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.Pipelines.ShippingEle
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
@@ -159,7 +167,13 @@ public class AutonomousWithVisionFreightFrenzy extends LinearOpMode {
         // create the robot and run the init for it
 
         enableBulkReads(hardwareMap, LynxModule.BulkCachingMode.AUTO);
-       autonomous = new AutonomousVisionLoadFrmWarehouseDuckSpinParkDepot(robot, field, telemetry);
+        Map<String, AutonomousStateMachineFreightFrenzy> stateMachines = new HashMap<>();
+        stateMachines.put("WarehouseDuckParkDepot", new AutonomousVisionLoadFrmWarehouseDuckSpinParkDepot(robot, field, telemetry));
+        stateMachines.put("WarehouseDuckParkShipping", new AutonomousVisionLoadFrmWarehouseDuckSpinParkShippingArea(robot, field, telemetry));
+        stateMachines.put("WarehouseDuckNoPark", new AutonomousVisionLoadFrmWarehouseDuckSpinNoParkNearWall(robot, field, telemetry));
+        ListChooser chooser = new ListChooser(telemetry, gamepad1, new ArrayList<String>(stateMachines.keySet()));
+        String selected = chooser.getSelection();
+        autonomous = stateMachines.get(selected);
 
         timer.reset();
         robot.loopTimer.startLoopTimer();
