@@ -131,6 +131,15 @@ public class FFExtensionArm implements FTCRobotSubsystem {
     // ready and waiting to dump into the shipping hub
     private boolean readyToDump = false;
 
+    //extension arm positions
+    private double topPosition;
+    private double midPosition;
+    private double bottomPosition;
+    private double sharedPosition;
+
+
+
+
 
     //*********************************************************************************************
     //          Constructors
@@ -165,6 +174,10 @@ public class FFExtensionArm implements FTCRobotSubsystem {
                     6.3238);
             ffExtensionArm.forwardMotorDirection();
             deliveryServo.setDirection(Servo.Direction.FORWARD);
+            topPosition = 27.7;
+            midPosition = 12;
+            bottomPosition = 6;
+            sharedPosition = 2;
         } else {
             // alliance is RED
             ffExtensionArm = new ExtensionRetractionMechanism(hardwareMap, telemetry,
@@ -176,6 +189,10 @@ public class FFExtensionArm implements FTCRobotSubsystem {
                     5.713);
             ffExtensionArm.reverseMotorDirection();
             deliveryServo.setDirection(Servo.Direction.REVERSE);
+            topPosition = 25.7;
+            midPosition = 11.25;
+            bottomPosition = 5.75;
+            sharedPosition = 1.75;
         }
 
         ffExtensionArm.setResetTimerLimitInmSec(25000);
@@ -587,7 +604,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
 
             case EXTEND_TO_TOP: {
                 //starts the extension to 1.5 inches the positions are a little weird but this goes to actually 1.5
-                ffExtensionArm.goToPosition(27.7, 1.0);
+                ffExtensionArm.goToPosition(topPosition, 1.0);
                 liftState = LiftState.MOVE_SERVO_TO_1;
 
             }
@@ -678,15 +695,15 @@ public class FFExtensionArm implements FTCRobotSubsystem {
                             currentDeliverBucketLocation = DeliveryBucketLocation.TOP;
                             break;
                         case EXTEND_TO_MIDDLE:
-                            ffExtensionArm.goToPosition(12, .6);
+                            ffExtensionArm.goToPosition(midPosition, .6);
                             currentDeliverBucketLocation = DeliveryBucketLocation.MIDDLE;
                             break;
                         case EXTEND_TO_BOTTOM:
-                            ffExtensionArm.goToPosition(6, .6);
+                            ffExtensionArm.goToPosition(bottomPosition, .6);
                             currentDeliverBucketLocation = DeliveryBucketLocation.BOTTOM;
                             break;
                         case EXTEND_TO_SHARED:
-                            ffExtensionArm.goToPosition(2, .6);
+                            ffExtensionArm.goToPosition(sharedPosition, .6);
                             currentDeliverBucketLocation = DeliveryBucketLocation.SHARED;
                             break;
                     }

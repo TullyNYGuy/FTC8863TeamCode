@@ -198,11 +198,17 @@ public class AutonomousWarehouseVisionDeliverParkWarehouse implements Autonomous
 
         } else {
             // red
-            trajectoryToDeliveryPose = robot.mecanum.trajectoryBuilder(PoseStorageFF.START_POSE)
+            trajectoryToDeliveryPose = robot.mecanum.trajectoryBuilder(startpose)
                     .lineToLinearHeading(hubDumpPose)
                     .build();
-            trajectoryToParkInWarehouse = robot.mecanum.trajectoryBuilder(trajectoryToDeliveryPose.end())
-                    .lineToLinearHeading(PoseStorageFF.WAYPOINT_BLUE_HUB)
+            trajectoryToEntryToWarehouse = robot.mecanum.trajectoryBuilder(trajectoryToDeliveryPose.end())
+                    .lineToLinearHeading(PoseStorageFF.RED_ENTRY_TO_WAREHOUSE_WAYPOINT)
+                    .build();
+            trajectoryToParkInWarehouseWaypoint = robot.mecanum.trajectoryBuilder(trajectoryToEntryToWarehouse.end())
+                    .lineToLinearHeading(PoseStorageFF.RED_WAREHOUSE_PARK_WAYPOINT)
+                    .build();
+            trajectoryToParkInWarehouse = robot.mecanum.trajectoryBuilder(trajectoryToParkInWarehouseWaypoint.end())
+                    .lineToLinearHeading(PoseStorageFF.RED_WAREHOUSE_PARK)
                     .build();
 
         }
