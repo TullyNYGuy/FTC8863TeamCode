@@ -6,7 +6,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 import java.util.List;
 
-public class ListChooser {
+public class ListSelector {
     private Telemetry telemetry;
     private Gamepad gamepad;
     private List<String> list;
@@ -18,20 +18,21 @@ public class ListChooser {
     private boolean select_event = false;
 
 
-    public ListChooser(Telemetry telemetry, Gamepad gamepad, List<String> list) {
+    public ListSelector(Telemetry telemetry, Gamepad gamepad, List<String> list) {
         this.gamepad = gamepad;
         this.list = list;
+        this.telemetry = telemetry;
     }
 
     private void processEvents() {
         boolean val = gamepad.dpad_up;
-        up_event = (val ^ dpad_up_pressed);
+        up_event = val && !dpad_up_pressed;
         dpad_up_pressed = val;
         val = gamepad.dpad_down;
-        down_event = (val ^ dpad_down_pressed);
+        down_event = val && !dpad_down_pressed;
         dpad_down_pressed = val;
         val = gamepad.a;
-        select_event = (val ^ a_pressed);
+        select_event = val && !a_pressed;
         a_pressed = val;
     }
 
@@ -48,6 +49,7 @@ public class ListChooser {
                 currentSelection--;
             if(down_event && currentSelection < list.size() - 1)
                 currentSelection++;
+            Thread.yield();
         } while (!select_event);
         return list.get(currentSelection);
     }
