@@ -14,6 +14,8 @@ import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.AutonomousWallVisionD
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.AutonomousStateMachineFreightFrenzy;
 
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.AutonomousWarehouseVisionDeliverParkWarehouse;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.ListSelector;
+
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyField;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyGamepad;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyMatchInfo;
@@ -24,7 +26,10 @@ import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.Pipelines.ShippingEle
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
@@ -152,8 +157,17 @@ public class AutonomousWithVisionFreightFrenzy extends LinearOpMode {
         }*/
 
         enableBulkReads(hardwareMap, LynxModule.BulkCachingMode.AUTO);
-        //autonomous = new AutonomousWallVisionDuckSpinDeliverParkStorage(robot, field, telemetry);
-        autonomous = new AutonomousWarehouseVisionDeliverParkWarehouse(robot, field, telemetry);
+        Map<String, AutonomousStateMachineFreightFrenzy> stateMachines = new HashMap<>();
+/*
+        stateMachines.put("WarehouseDuckParkDepot", new AutonomousVisionLoadFrmWarehouseDuckSpinParkDepot(robot, field, telemetry));
+        stateMachines.put("WarehouseDuckParkShipping", new AutonomousVisionLoadFrmWarehouseDuckSpinParkShippingArea(robot, field, telemetry));
+        stateMachines.put("WarehouseDuckNoPark", new AutonomousVisionLoadFrmWarehouseDuckSpinNoParkNearWall(robot, field, telemetry));
+ */
+        stateMachines.put("WarehouseDeliverParkWarehouse", new AutonomousWarehouseVisionDeliverParkWarehouse(robot, field, telemetry));
+        stateMachines.put("WallDuckDeliverParkStorage", new AutonomousWallVisionDuckSpinDeliverParkStorage(robot, field, telemetry));
+        ListSelector selector = new ListSelector(telemetry, gamepad1, new ArrayList<String>(stateMachines.keySet()));
+        String selected = selector.getSelection();
+        autonomous = stateMachines.get(selected);
 
         timer.reset();
         robot.loopTimer.startLoopTimer();
