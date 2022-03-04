@@ -253,14 +253,14 @@ public class AutonomousWallVisionDuckSpinDeliverParkStorage implements Autonomou
                         if(PersistantStorage.getAllianceColor() == AllianceColor.RED) {
                             robot.freightSystem.extend();
                         }
+                        currentState = States.WAITING_TO_EXTEND;
                     }
-                    currentState = States.WAITING_TO_EXTEND;
                     break;
 
                 case WAITING_TO_EXTEND:
-                    if(PersistantStorage.getAllianceColor() == AllianceColor.RED) {
-                        robot.freightSystem.extend();
-                    }
+//                    if(PersistantStorage.getAllianceColor() == AllianceColor.RED) {
+//                        robot.freightSystem.extend();
+//                    }
                     if (robot.freightSystem.isReadyToDump()) {
                         robot.mecanum.followTrajectory(trajectoryToHub);
                         currentState = States.MOVING_TO_HUB;

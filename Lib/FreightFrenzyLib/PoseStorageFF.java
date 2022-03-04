@@ -49,9 +49,9 @@ public class PoseStorageFF {
 
     public static Pose2d WAYPOINT_RED_HUB = new Pose2d(-56.32, -11.8, Math.toRadians(256));
 
-    public static Pose2d DELIVER_TO_LOW_RED_WALL = new Pose2d(-35.52, -15.51, Math.toRadians(256));
-    public static Pose2d DELIVER_TO_MID_RED_WALL = new Pose2d(-39.4, -14.82, Math.toRadians(256));
-    public static Pose2d DELIVER_TO_TOP_RED_WALL = new Pose2d(-52.3, -11.82, Math.toRadians(256));
+    public static Pose2d DELIVER_TO_LOW_RED_WALL = new Pose2d(-32.61, -16.24, Math.toRadians(256));
+    public static Pose2d DELIVER_TO_MID_RED_WALL = new Pose2d(-37.46, -15.03, Math.toRadians(256));
+    public static Pose2d DELIVER_TO_TOP_RED_WALL = new Pose2d(-49.11, -12.12, Math.toRadians(256));
 
     public static Pose2d WAYPOINT_RED_PARK = new Pose2d(-56.32, -16.8, Math.toRadians(256));
 
