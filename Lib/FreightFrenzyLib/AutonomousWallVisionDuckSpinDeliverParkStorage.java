@@ -27,6 +27,7 @@ public class AutonomousWallVisionDuckSpinDeliverParkStorage implements Autonomou
         MOVING_TO_HUB,
         EXTENDING_LIFT,
         DUMPING,
+        GOING_TO_WAYPOINT,
         MOVING_TO_WAYPOINT_BEFORE_PARK,
         MOVING_TO_PARK,
         COMPLETE
@@ -50,6 +51,7 @@ public class AutonomousWallVisionDuckSpinDeliverParkStorage implements Autonomou
     private Trajectory trajectoryToDucks;
     private Trajectory trajectoryToParkInStorage;
     private Trajectory trajectoryToWaypoint;
+    private Trajectory trajectoryToParkInStorageWaypoint;
     private Trajectory trajectoryToWaypointBeforePark;
     private double distanceToTopGoal = 0;
     private double distanceToLeftPowerShot = 0;
@@ -191,10 +193,12 @@ public class AutonomousWallVisionDuckSpinDeliverParkStorage implements Autonomou
 //            trajectoryToWaypointBeforePark = robot.mecanum.trajectoryBuilder(trajectoryToHub.end())
 //                    .lineToLinearHeading(PoseStorageFF.WAYPOINT_RED_HUB)
 //                    .build();
-            trajectoryToParkInStorage = robot.mecanum.trajectoryBuilder(trajectoryToHub.end())
-                    .lineToLinearHeading(PoseStorageFF.STORAGE_RED)
+            trajectoryToParkInStorageWaypoint = robot.mecanum.trajectoryBuilder(trajectoryToHub.end())
+            .splineToLinearHeading(PoseStorageFF.WAYPOINT_RED_PARK, Math.toRadians(-100))
                     .build();
-
+            trajectoryToParkInStorage = robot.mecanum.trajectoryBuilder(trajectoryToParkInStorageWaypoint.end())
+                    .splineToLinearHeading(PoseStorageFF.STORAGE_RED, Math.toRadians(-100))
+                    .build();
         }
     }
 
@@ -226,7 +230,9 @@ public class AutonomousWallVisionDuckSpinDeliverParkStorage implements Autonomou
                 case MOVING_TO_DUCKS:
                     if (!robot.mecanum.isBusy()) {
                         robot.duckSpinner.autoSpin();
-                        robot.freightSystem.extend();
+                        if(PersistantStorage.getAllianceColor() == AllianceColor.BLUE){
+                            robot.freightSystem.extend();
+                        }
                         currentState = States.DUCK_SPINNING;
                     }
                     break;
@@ -244,8 +250,11 @@ public class AutonomousWallVisionDuckSpinDeliverParkStorage implements Autonomou
                 case MOVING_TO_WAYPOINT_BEFORE_HUB:
                     if(!robot.mecanum.isBusy()) {
                         //robot.freightSystem.extend();
-                        currentState = States.WAITING_TO_EXTEND;
+                        if(PersistantStorage.getAllianceColor() == AllianceColor.RED) {
+                            robot.freightSystem.extend();
+                        }
                     }
+                    currentState = States.WAITING_TO_EXTEND;
                     break;
 
                 case WAITING_TO_EXTEND:
@@ -264,9 +273,16 @@ public class AutonomousWallVisionDuckSpinDeliverParkStorage implements Autonomou
 
                 case DUMPING:
                     if (robot.freightSystem.isDumpComplete()) {
-                        robot.mecanum.followTrajectoryAsync(trajectoryToParkInStorage);
-                        currentState = States.MOVING_TO_PARK;
+                        if(PersistantStorage.getAllianceColor() == AllianceColor.RED){
+                            robot.mecanum.followTrajectoryAsync(trajectoryToParkInStorageWaypoint);
+                            currentState = States.GOING_TO_WAYPOINT;
+                        }else {
+                            robot.mecanum.followTrajectoryAsync(trajectoryToParkInStorage);
+                            currentState = States.MOVING_TO_PARK;
+                        }
+
                     }
+
                     break;
 
 //                case MOVING_TO_WAYPOINT_BEFORE_PARK:
@@ -275,7 +291,12 @@ public class AutonomousWallVisionDuckSpinDeliverParkStorage implements Autonomou
 //                        currentState = States.MOVING_TO_PARK;
 //                    }
 //                    break;
-
+                case GOING_TO_WAYPOINT:
+                    if(!robot.mecanum.isBusy()){
+                        robot.mecanum.followTrajectoryAsync(trajectoryToParkInStorage);
+                        currentState = States.MOVING_TO_PARK;
+                    }
+                    break;
                 case MOVING_TO_PARK:
                     // todo This state never completes. Why?
                     if (!robot.mecanum.isBusy() && robot.freightSystem.isReadyToCycle()) {

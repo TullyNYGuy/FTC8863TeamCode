@@ -152,8 +152,8 @@ public class AutonomousWithVisionFreightFrenzy extends LinearOpMode {
         }*/
 
         enableBulkReads(hardwareMap, LynxModule.BulkCachingMode.AUTO);
-        //autonomous = new AutonomousWallVisionDuckSpinDeliverParkStorage(robot, field, telemetry);
-        autonomous = new AutonomousWarehouseVisionDeliverParkWarehouse(robot, field, telemetry);
+        autonomous = new AutonomousWallVisionDuckSpinDeliverParkStorage(robot, field, telemetry);
+        //autonomous = new AutonomousWarehouseVisionDeliverParkWarehouse(robot, field, telemetry);
         timer.reset();
         robot.loopTimer.startLoopTimer();
 
