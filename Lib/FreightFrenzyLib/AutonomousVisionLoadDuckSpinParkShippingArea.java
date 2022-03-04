@@ -165,7 +165,6 @@ public class AutonomousVisionLoadDuckSpinParkShippingArea implements AutonomousS
                     .lineToLinearHeading(PoseStorageFF.WAYPOINT_BLUE_HUB)
                     .build();
             trajectoryToHub = robot.mecanum.trajectoryBuilder(trajectoryToWaypoint.end())
-                    // todo What about heading? Will it always stay the same?
                     .lineToLinearHeading(hubDumpPose)
                     .build();
             trajectoryToWaypointReturn = robot.mecanum.trajectoryBuilder(trajectoryToHub.end())
@@ -184,7 +183,6 @@ public class AutonomousVisionLoadDuckSpinParkShippingArea implements AutonomousS
                     .lineToLinearHeading(PoseStorageFF.WAYPOINT_RED_HUB)
                     .build();
             trajectoryToHub = robot.mecanum.trajectoryBuilder(trajectoryToWaypoint.end())
-                    // todo What about heading? Will it always stay the same?
                     .lineToLinearHeading(hubDumpPose)
                     .build();
             trajectoryToWaypointReturn = robot.mecanum.trajectoryBuilder(trajectoryToHub.end())
@@ -229,7 +227,6 @@ public class AutonomousVisionLoadDuckSpinParkShippingArea implements AutonomousS
             case MOVING_TO_HUB:
                 if (!robot.mecanum.isBusy()) {
                     robot.mecanum.followTrajectory(trajectoryToHub);
-                    // todo Check the next state. Is it correct?
                     currentState = States.EXTENDING_LIFT;
                 }
                 break;
@@ -269,19 +266,11 @@ public class AutonomousVisionLoadDuckSpinParkShippingArea implements AutonomousS
                 break;
             case AT_DUCK:
                 if (!robot.mecanum.isBusy()) {
-                    // todo you should not have to know anything about how the duck spinner operates
-                    // It knows how to do that.
-                    //robot.duckSpinner.turnOn();
                     robot.duckSpinner.autoSpin();
                     currentState = States.DUCK_SPINNING;
                 }
                 break;
             case DUCK_SPINNING:
-                // todo you should not have to know anything about how the duck spinner operates
-                // It knows how to do that. So you should don't have to know about times or how it
-                // does it's thing. All you need to know is that it did its thing and it is done.
-                //if (robot.duckSpinner.spinTimeReached()) {
-                    //robot.duckSpinner.turnOff();
                 if (robot.duckSpinner.isComplete()) {
                     robot.mecanum.followTrajectory(trajectoryToShippingArea);
                     currentState = States.APPROACHING_STORAGE;

@@ -239,9 +239,6 @@ public class AutonomousWallVisionDuckSpinDeliverParkStorage implements Autonomou
 
                 case DUCK_SPINNING:
                     if (robot.duckSpinner.isComplete()) {
-                        // The extend can be run in parallel with the trajectory due to the
-                        // followTrajectoryAsync()
-                        //robot.mecanum.followTrajectory(trajectoryToWaypoint);
                         robot.mecanum.followTrajectoryAsync(trajectoryToWaypoint);
                         currentState = States.MOVING_TO_WAYPOINT_BEFORE_HUB;
                     }

@@ -137,10 +137,6 @@ public class FFExtensionArm implements FTCRobotSubsystem {
     private double bottomPosition;
     private double sharedPosition;
 
-
-
-
-
     //*********************************************************************************************
     //          Constructors
     //

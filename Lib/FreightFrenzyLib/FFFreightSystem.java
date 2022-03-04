@@ -296,6 +296,51 @@ public class FFFreightSystem implements FTCRobotSubsystem {
         }
     }
 
+    // todo MAKE A NEW BRANCH BEFORE ATTEMPTING ANY OF THE FOLLOWING
+
+    // todo We need a command to prepare the freight system for shutting down. And a method for
+    // checking when the preparation is complete. At the end of autonomous, the intake is vertical
+    // and the arm is at 1/2" extension. Currently, when the robot loses power, the intake rotates
+    // down to the floor, causing problems with "completely inside" the park zone. It does this due
+    // to the balance of the intake causing it to rotate when it starts out vertical with no power.
+    // A command to prepare for shutdown would move the intake to the transfer position so that it
+    // has a pretty good chance of staying there once it loses power. We might also consider moving
+    // the extension arm to the reset position just to save a bit of time once the freight system
+    // has to init for teleop. Moving the extension arm to reset would require an addition to the
+    // FFExtensionArm class to give it a way to reset the extension arm position. I don't think
+    // moving the arm to the reset is super important so it may be that the extra complexity is worth
+    // it.
+
+    // todo Currently in autonomous, when we dump into the low level, the arm has to extend out in
+    // order to start the retraction sequence. The arm is hitting the shipping hub when it extends.
+    // We currently have no control over when the arm retraction starts. It just happens automatically.
+    // We are going to have to back away from the hub before the extension arm starts to retract if we
+    // are going to avoid hitting it. So
+    // we need a way of telling FFExtensionArm to wait to start the retraction until it is told to do
+    // it. It looks like it is pretty easy make this change in the FFExtensionArm state machine.
+    //
+    // In FFExtensionArm you would have to:
+    //    provide a method that FFFreightSystem can use to set a mode in the FFExtensionArm that holds
+    //        off the retraction until FFFreightSystem tells FFExtensionArm to retract
+    //    provide a command in FFExtensionArm that FFFreightSystem can use to trigger the retraction.
+    //    alter the state machine to add a state where it is waiting for a retraction command
+    //
+    // In FFFreightSystem you would have to:
+    //    provide a method that an autonomous state machine can use to set the mode for holding off
+    //        the retraction
+    //    provide a command that an autonomous state machine can use to trigger the retraction
+    //    you may or may not want to add a state to the FFFreightSystem state machine that is entered
+    //       once the dump is complete and when a retraction is waiting to be triggered. I can see
+    //       it being useful for double checking the command to trigger a retraction is issued at
+    //       at the proper time. And also for logging the state in the log file. But looking at the
+    //       current state machine, I don't think it is actually needed.
+    //
+    // Once you have this new functionality, the autonomous state machine can use it. It can be used
+    // during a movement, such as a lineToHeading, by adding a displacemment Marker to the trajectory
+    // that triggers the retraction after the robot has moved a certain distance into the trajectory.
+    // See the section titled Global Displacement Markers on this page:
+    // https://learnroadrunner.com/markers.html#displacement-markers-basics
+
     public void ejectOntoFLoor() {
         if (state == State.WAITING_FOR_TRANSFER) {
             logCommand("emergency eject");
@@ -309,7 +354,6 @@ public class FFFreightSystem implements FTCRobotSubsystem {
     public void intakeShutoff() {
         intake.shutdown();
     }
-
 
     public void setPhaseTeleop() {
         phase = Phase.TELEOP;
@@ -545,28 +589,6 @@ public class FFFreightSystem implements FTCRobotSubsystem {
 
             case WAITING_FOR_DUMP_COMPLETE: {
                 if (extensionArm.isDumpComplete()) {
-                        //  This is not quite what Dade was asking for. You have the automatic
-                        // start of the intake. But can the intake
-                        // be down and running WHILE the retraction is taking place? Not after
-                        // the retraction is finished. Sometimes Dade was already in the warehouse
-                        // and waiting for the intake to be available while the arm was still
-                        // retracting. If he could intake while the retraction was finishing,
-                        // and the intake just held the freight in vertical position until
-                        // retraction complete, he could save some time. Before you attempt this
-                        // I would fix other problems, commit and then start this. It is going
-                        // to take a mod to the intake state machine to make this happen. If you get
-                        // into trouble you can roll back to the commit.
-                        // FFFreightSystem will have to tell the intake what the status of the
-                        // retraction is. Or the intake will have to ask the extension arm directly.
-                        // Intake will then have to either hold the freight until
-                        // retraction is complete, or transfer it right away if retraction is
-                        // already complete. Essentially, before this, intake just did its thing without having
-                        // to take any other system into consideration. Now it has to listen to
-                        // what FFFreightSystem is telling it. You can do this by intake providing
-                        // methods to set retraction status which FFFreightSystem can call. Or perhaps
-                        // intake just calls isRetractionComplete() from the extension arm. Be careful with
-                        // initializing the communication.
-
                         logCommand("dump complete. starting new cycle...");
                         state = State.START_CYCLE;
                 }
@@ -575,7 +597,6 @@ public class FFFreightSystem implements FTCRobotSubsystem {
 
             case WAITING_FOR_RETRACTION_COMPLETE: { /// autonomous only
                 if (extensionArm.isRetractionComplete()) {
-
                     logCommand("retraction complete. intake to transfer position...");
                     //gotta do something with the intake. probably just tuck it back in to transfer position
                             intake.toTransferPosition();
@@ -591,9 +612,6 @@ public class FFFreightSystem implements FTCRobotSubsystem {
                 }
             }
             break;
-
-
-
 
             ////////////////////////////  Uh-Oh states //////////////////////////////
 
