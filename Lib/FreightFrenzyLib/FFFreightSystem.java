@@ -587,7 +587,7 @@ public class FFFreightSystem implements FTCRobotSubsystem {
             break;
 
             case WAITING_TO_DUMP: {
-                ledStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
+                ledStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.VIOLET);
                 //just chillin waiting for someone to tell me to dump
             }
             break;

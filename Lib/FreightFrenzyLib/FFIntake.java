@@ -449,7 +449,7 @@ public class FFIntake implements FTCRobotSubsystem {
                     // yup stop the motor and try to cage the freight
                     if(isIntakeFull()) {
                         ledBlinker.steadyAmber();
-                        ledStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.ORANGE);
+                        ledStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
                         intakeSweeperMotor.runAtConstantRPM(180);
                         if (whatToDoWithFreight == WhatToDoWithFreight.DELIVER_TO_BUCKET) {
                             toTransferPosition();
@@ -485,7 +485,7 @@ public class FFIntake implements FTCRobotSubsystem {
                     // The ready position will be transfer position in auto, vertical in teleop.
                     toReadyPosition();
                     ledBlinker.steadyGreen();
-                    ledStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
+                    ledStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
                     intakeState = IntakeState.WAITING_FOR_READY_POSITION;
                     didTransferFail = false;
                 }
