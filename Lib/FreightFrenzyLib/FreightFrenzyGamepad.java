@@ -162,8 +162,6 @@ public class FreightFrenzyGamepad {
         gamepad1LeftStickButton = new GamepadButtonMultiPush(2);
         gamepad1RightStickButton = new GamepadButtonMultiPush(1);
         gamepad1LeftTriggerButton = new GamepadButtonMultiPush(1);
-        gamepad1LeftBumper = new GamepadButtonMultiPush(1);
-        gamepad1RightBumper = new GamepadButtonMultiPush(1);
 
         // Game Pad 1 joysticks
         gamepad1LeftJoyStickX = new SmartJoystick(gamepad1, SmartJoystick.JoystickSide.LEFT, SmartJoystick.JoystickAxis.X);
