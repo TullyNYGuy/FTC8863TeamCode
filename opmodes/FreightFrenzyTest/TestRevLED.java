@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.FreightFrenzyTest;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -11,7 +12,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.RevLEDBlinker;
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
 @TeleOp(name = "Test Rev LED", group = "Test")
-//@Disabled
+@Disabled
 public class TestRevLED extends LinearOpMode {
 
     // Put your variable declarations her

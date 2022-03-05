@@ -77,6 +77,11 @@ public class AutonomousVisionLoadDuckSpinParkDepot implements AutonomousStateMac
         return currentState.toString();
     }
 
+    @Override
+    public void checkShippingPositionAgain() {
+
+    }
+
     //*********************************************************************************************
     //          Constructors
     //

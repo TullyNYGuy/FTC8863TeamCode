@@ -21,6 +21,7 @@
 
 package org.firstinspires.ftc.teamcode.EasyOpenCV;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -49,6 +50,7 @@ import java.util.List;
  * OpenCV on an internal camera, and Vuforia on a webcam
  */
 @TeleOp
+@Disabled
 public class MultipleCameraExampleOpenCvAlongsideVuforia extends LinearOpMode
 {
     OpenCvCamera phoneCam;

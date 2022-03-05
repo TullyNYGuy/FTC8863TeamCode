@@ -76,6 +76,11 @@ public class TestAuto implements AutonomousStateMachineFreightFrenzy {
         return currentState.toString();
     }
 
+    @Override
+    public void checkShippingPositionAgain() {
+
+    }
+
     public TestAuto(FreightFrenzyRobotRoadRunner robot, FreightFrenzyField field, Telemetry telemetry) {
         this.robot = robot;
         this.field = field;

@@ -33,4 +33,6 @@ public interface AutonomousStateMachineFreightFrenzy {
 
      String getCurrentState();
 
+     void checkShippingPositionAgain();
+
 }

@@ -76,6 +76,11 @@ public class AutonomousVisionLoadDuckSpinNoParkNearWall implements AutonomousSta
         return currentState.toString();
     }
 
+    @Override
+    public void checkShippingPositionAgain() {
+
+    }
+
     //*********************************************************************************************
     //          Constructors
     //

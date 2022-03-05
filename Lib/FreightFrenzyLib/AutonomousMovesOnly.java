@@ -76,6 +76,11 @@ public class AutonomousMovesOnly implements AutonomousStateMachineFreightFrenzy 
         return currentState.toString();
     }
 
+    @Override
+    public void checkShippingPositionAgain() {
+
+    }
+
     //*********************************************************************************************
     //          Constructors
     //

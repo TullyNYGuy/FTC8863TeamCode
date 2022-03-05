@@ -57,6 +57,11 @@ public class AutonomousTestDeliveryStateMachine implements AutonomousStateMachin
         return currentState.toString();
     }
 
+    @Override
+    public void checkShippingPositionAgain() {
+
+    }
+
     //*********************************************************************************************
     //          Constructors
     //
