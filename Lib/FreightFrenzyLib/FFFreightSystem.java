@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib;
 
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -296,7 +297,10 @@ public class FFFreightSystem implements FTCRobotSubsystem {
         }
     }
 
-    // todo MAKE A NEW BRANCH BEFORE ATTEMPTING ANY OF THE FOLLOWING
+    public void retract(){
+        extensionArm.retract();
+    }
+
 
     // todo We need a command to prepare the freight system for shutting down. And a method for
     // checking when the preparation is complete. At the end of autonomous, the intake is vertical
@@ -419,6 +423,7 @@ public class FFFreightSystem implements FTCRobotSubsystem {
         logState();
         switch (state) {
             case IDLE: {
+
                 //just chillin
             }
             break;
@@ -429,6 +434,12 @@ public class FFFreightSystem implements FTCRobotSubsystem {
             //********************************************************************************
 
             case WAITING_FOR_ARM_INIT: {
+                if(phase == Phase.AUTONOMUS){
+                    extensionArm.setPhaseAutonomous();
+                }
+                if(phase == Phase.TELEOP){
+                    extensionArm.setPhaseTeleop();
+                }
                 if (extensionArm.isInitComplete()) {
                     logCommand("extension arm init complete. waiting for intake init");
                     intake.init(configuration);
@@ -590,7 +601,13 @@ public class FFFreightSystem implements FTCRobotSubsystem {
             case WAITING_FOR_DUMP_COMPLETE: {
                 if (extensionArm.isDumpComplete()) {
                         logCommand("dump complete. starting new cycle...");
-                        state = State.START_CYCLE;
+
+                        if(phase == Phase.AUTONOMUS){
+                            state = State.WAITING_FOR_RETRACTION_COMPLETE;
+                        }
+                        else {
+                            state = State.START_CYCLE;
+                        }
                 }
             }
             break;

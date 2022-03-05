@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.Pipelines.ShippingElementPipeline;
 
 public class AutonomousWallVisionDuckSpinDeliverParkStorage implements AutonomousStateMachineFreightFrenzy {
 
@@ -182,9 +183,19 @@ public class AutonomousWallVisionDuckSpinDeliverParkStorage implements Autonomou
 //            trajectoryToWaypointBeforePark = robot.mecanum.trajectoryBuilder(trajectoryToHub.end())
 //                    .lineToLinearHeading(PoseStorageFF.WAYPOINT_BLUE_HUB)
 //                    .build();
-            trajectoryToParkInStorage = robot.mecanum.trajectoryBuilder(trajectoryToHub.end())
-                    .lineToLinearHeading(PoseStorageFF.STORAGE_BLUE)
-                    .build();
+            if(PersistantStorage.getShippingElementPosition() == ShippingElementPipeline.ShippingPosition.RIGHT){
+                trajectoryToParkInStorage = robot.mecanum.trajectoryBuilder(trajectoryToHub.end())
+                        .lineToLinearHeading(PoseStorageFF.STORAGE_BLUE)
+                        .addDisplacementMarker(5,() ->{
+                            robot.freightSystem.retract();
+                        })
+                        .build();
+            }
+            if(PersistantStorage.getShippingElementPosition() == ShippingElementPipeline.ShippingPosition.CENTER || PersistantStorage.getShippingElementPosition() == ShippingElementPipeline.ShippingPosition.LEFT) {
+                trajectoryToParkInStorage = robot.mecanum.trajectoryBuilder(trajectoryToHub.end())
+                        .lineToLinearHeading(PoseStorageFF.STORAGE_BLUE)
+                        .build();
+            }
 
 
         } else {
@@ -200,9 +211,22 @@ public class AutonomousWallVisionDuckSpinDeliverParkStorage implements Autonomou
 //            trajectoryToWaypointBeforePark = robot.mecanum.trajectoryBuilder(trajectoryToHub.end())
 //                    .lineToLinearHeading(PoseStorageFF.WAYPOINT_RED_HUB)
 //                    .build();
-            trajectoryToParkInStorageWaypoint = robot.mecanum.trajectoryBuilder(trajectoryToHub.end())
-            .splineToLinearHeading(PoseStorageFF.WAYPOINT_RED_PARK, Math.toRadians(-100))
-                    .build();
+            if(PersistantStorage.getShippingElementPosition() == ShippingElementPipeline.ShippingPosition.LEFT) {
+                trajectoryToParkInStorageWaypoint = robot.mecanum.trajectoryBuilder(trajectoryToHub.end())
+                        .splineToLinearHeading(PoseStorageFF.WAYPOINT_RED_PARK, Math.toRadians(-100))
+                        .addDisplacementMarker(5, () -> {
+                            robot.freightSystem.retract();
+                        })
+                        .build();
+            }
+            if(PersistantStorage.getShippingElementPosition() == ShippingElementPipeline.ShippingPosition.CENTER || PersistantStorage.getShippingElementPosition() == ShippingElementPipeline.ShippingPosition.RIGHT) {
+                trajectoryToParkInStorageWaypoint = robot.mecanum.trajectoryBuilder(trajectoryToHub.end())
+                        .splineToLinearHeading(PoseStorageFF.WAYPOINT_RED_PARK, Math.toRadians(-100))
+                        .addDisplacementMarker(5, () -> {
+                            robot.freightSystem.retract();
+                        })
+                        .build();
+            }
             trajectoryToParkInStorage = robot.mecanum.trajectoryBuilder(trajectoryToParkInStorageWaypoint.end())
                     .splineToLinearHeading(PoseStorageFF.STORAGE_RED, Math.toRadians(-100))
                     .build();
