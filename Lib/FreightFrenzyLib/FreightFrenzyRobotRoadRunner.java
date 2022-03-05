@@ -295,6 +295,7 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
             telemetry.update();
             opMode.idle();
         }
+        ledStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.COLOR_WAVES_FOREST_PALETTE);
     }
 
     /*
