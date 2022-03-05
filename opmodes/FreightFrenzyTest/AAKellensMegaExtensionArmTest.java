@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FFExtensionArm;
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
 @TeleOp(name = "AA kellens mega lift test ", group = "Test")
-//@Disabled
+@Disabled
 public class AAKellensMegaExtensionArmTest extends LinearOpMode {
 public Configuration config;
     // Put your variable declarations her

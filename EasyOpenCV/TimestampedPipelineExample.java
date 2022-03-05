@@ -21,6 +21,7 @@
 
 package org.firstinspires.ftc.teamcode.EasyOpenCV;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -36,6 +37,7 @@ import org.openftc.easyopencv.OpenCvWebcam;
 import org.openftc.easyopencv.TimestampedOpenCvPipeline;
 
 @TeleOp
+@Disabled
 public class TimestampedPipelineExample extends LinearOpMode
 {
     OpenCvWebcam webcam;

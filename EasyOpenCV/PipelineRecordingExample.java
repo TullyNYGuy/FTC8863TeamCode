@@ -21,6 +21,7 @@
 
 package org.firstinspires.ftc.teamcode.EasyOpenCV;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -43,6 +44,7 @@ import org.openftc.easyopencv.PipelineRecordingParameters;
  * recording is active.
  */
 @TeleOp
+@Disabled
 public class PipelineRecordingExample extends LinearOpMode
 {
     OpenCvWebcam webcam;

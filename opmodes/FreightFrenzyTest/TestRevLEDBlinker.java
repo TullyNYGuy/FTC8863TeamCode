@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.RevLEDBlinker;
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
 @TeleOp(name = "Test Rev LED Blinker", group = "Test")
-//@Disabled
+@Disabled
 public class TestRevLEDBlinker extends LinearOpMode {
 
     // Put your variable declarations her
