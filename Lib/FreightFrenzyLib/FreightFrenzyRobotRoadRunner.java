@@ -38,9 +38,9 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
 
     public enum HardwareName {
         IMU("imu"),
-        RIGHT_SERVO("rightRaiserServo"),
-        LEFT_SERVO("leftRaiserServo"),
-        BACK_SERVO("backRaiserServo"),
+        LANDING_GEAR_RIGHT_SERVO("rightLandingGearServo"),
+        LANDING_GEAR_LEFT_SERVO("leftLandingGearServo"),
+        LANDING_GEAR_BACK_SERVO("backLandingGearServo"),
         CONFIG_FL_MOTOR("leftFrontMotor"),
         CONFIG_FR_MOTOR("rightFrontMotor"),
         CONFIG_BL_MOTOR("leftRearMotor"),
