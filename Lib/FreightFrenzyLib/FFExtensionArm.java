@@ -1001,11 +1001,15 @@ public class FFExtensionArm implements FTCRobotSubsystem {
             break;
 
             case WAITING_FOR_RETRACTION_COMPLETE: {
-                if (ffExtensionArm.isRetractionComplete() && deliveryServo.isPositionReached()){
-                    // reset dump complete flag
-                    dumpComplete = false;
+                if (ffExtensionArm.isPositionReached() || ffExtensionArm.isRetractionComplete()){
+                    logCommand("retraction Complete");
                     retractionComplete = true;
-                    liftState = LiftState.FULLY_RETRACTED_READY_FOR_ACTION;
+                    if(deliveryServo.isPositionReached()){
+                        logCommand("bucket in position");
+                        // reset dump complete flag
+                        dumpComplete = false;
+                        liftState = LiftState.FULLY_RETRACTED_READY_FOR_ACTION;
+                    }
                 }
             }
             break;

@@ -147,7 +147,7 @@ public class TeleopUsingRoadRunnerFreightFrenzy extends LinearOpMode {
             // The following code uses road runner to move the robot in a driver (field) centric
             // drive
 
-                robot.mecanum.calculateMotorCommandsFieldCentric(
+                robot.mecanum.calculateMotorCommandsRobotCentric(
                         gamepad.gamepad1LeftJoyStickYValue * multiplier,
                         gamepad.gamepad1LeftJoyStickXValue * multiplier,
                         gamepad.gamepad1RightJoyStickXValue

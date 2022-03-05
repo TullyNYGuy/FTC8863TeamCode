@@ -444,10 +444,10 @@ public class FFIntake implements FTCRobotSubsystem {
 
             case WAIT_FOR_FREIGHT_TO_SETTLE: {
                 if(timer.milliseconds() > 250){
-                    hasIntakeIntaked = true;
-                    PersistantStorage.isDeliveryFull = false;
                     // yup stop the motor and try to cage the freight
                     if(isIntakeFull()) {
+                        hasIntakeIntaked = true;
+                        PersistantStorage.isDeliveryFull = false;
                         ledBlinker.steadyAmber();
                         ledStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
                         intakeSweeperMotor.runAtConstantRPM(180);

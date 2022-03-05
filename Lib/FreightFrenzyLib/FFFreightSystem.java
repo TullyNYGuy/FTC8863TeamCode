@@ -510,7 +510,7 @@ public class FFFreightSystem implements FTCRobotSubsystem {
 
 
             case WAITING_FOR_TRANSFER: {
-                if (intake.didTransferFail()) {
+                if (intake.didTransferFail() || intake.isFreightLost()) {
                     logCommand("transfer failed!");
                     //for emergencies only. should do nothing usually
                     state = State.READY_TO_CYCLE;
