@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
+import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -83,6 +84,7 @@ public class AutonomousWarehouseVisionDeliverParkWarehouse implements Autonomous
         switch (PersistantStorage.getShippingElementPosition()) {
             case CENTER:
                 robot.freightSystem.setMiddle();
+                robot.ledStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
                 switch (PersistantStorage.getStartSpot()) {
                     case BLUE_WALL:
                         hubDumpPose = PoseStorageFF.DELIVER_TO_MID_BLUE_WALL;
@@ -100,6 +102,7 @@ public class AutonomousWarehouseVisionDeliverParkWarehouse implements Autonomous
                 break;
             case LEFT:
                 robot.freightSystem.setBottom();
+                robot.ledStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
                 switch (PersistantStorage.getStartSpot()) {
                     case BLUE_WALL:
                         hubDumpPose = PoseStorageFF.DELIVER_TO_LOW_BLUE_WALL;
@@ -117,6 +120,7 @@ public class AutonomousWarehouseVisionDeliverParkWarehouse implements Autonomous
                 break;
             case RIGHT:
                 robot.freightSystem.setTop();
+                robot.ledStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
                 switch (PersistantStorage.getStartSpot()) {
                     case BLUE_WALL:
                         hubDumpPose = PoseStorageFF.DELIVER_TO_TOP_BLUE_WALL;

@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib;
 
 
+import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -114,6 +115,7 @@ public class FFFreightSystem implements FTCRobotSubsystem {
     private DataLogging logFile;
     private DataLogOnChange logStateOnChange;
     private DataLogOnChange logCommandOnchange;
+    private FFBlinkinLed ledStrip;
 
 
     //*********************************************************************************************
@@ -122,13 +124,15 @@ public class FFFreightSystem implements FTCRobotSubsystem {
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
-    public FFFreightSystem(FFArm ffArm, FFIntake ffIntake, FFExtensionArm ffExtensionArm, HardwareMap hardwareMap, Telemetry telemetry, AllianceColor allianceColor, RevLEDBlinker ledBlinker) {
+    public FFFreightSystem(FFArm ffArm, FFIntake ffIntake, FFExtensionArm ffExtensionArm, HardwareMap hardwareMap, Telemetry telemetry, AllianceColor allianceColor, RevLEDBlinker ledBlinker,
+                           FFBlinkinLed ledStrip) {
         state = State.IDLE;
         this.arm = ffArm;
         this.extensionArm = ffExtensionArm;
         this.intake = ffIntake;
         this.telemetry = telemetry;
         timer = new ElapsedTime();
+        this.ledStrip= ledStrip;
     }
 
     //*********************************************************************************************
@@ -583,6 +587,7 @@ public class FFFreightSystem implements FTCRobotSubsystem {
             break;
 
             case WAITING_TO_DUMP: {
+                ledStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
                 //just chillin waiting for someone to tell me to dump
             }
             break;
