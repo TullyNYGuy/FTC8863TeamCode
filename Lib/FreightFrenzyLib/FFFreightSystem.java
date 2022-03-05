@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib;
 
 
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -115,6 +116,7 @@ public class FFFreightSystem implements FTCRobotSubsystem {
     private DataLogging logFile;
     private DataLogOnChange logStateOnChange;
     private DataLogOnChange logCommandOnchange;
+
     private FFBlinkinLed ledStrip;
 
 
@@ -124,15 +126,14 @@ public class FFFreightSystem implements FTCRobotSubsystem {
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
-    public FFFreightSystem(FFArm ffArm, FFIntake ffIntake, FFExtensionArm ffExtensionArm, HardwareMap hardwareMap, Telemetry telemetry, AllianceColor allianceColor, RevLEDBlinker ledBlinker,
-                           FFBlinkinLed ledStrip) {
+    public FFFreightSystem(FFArm ffArm, FFIntake ffIntake, FFExtensionArm ffExtensionArm, HardwareMap hardwareMap, Telemetry telemetry, AllianceColor allianceColor, RevLEDBlinker ledBlinker, FFBlinkinLed ledStrip) {
         state = State.IDLE;
         this.arm = ffArm;
         this.extensionArm = ffExtensionArm;
         this.intake = ffIntake;
         this.telemetry = telemetry;
+        this.ledStrip = ledStrip;
         timer = new ElapsedTime();
-        this.ledStrip= ledStrip;
     }
 
     //*********************************************************************************************
@@ -300,7 +301,10 @@ public class FFFreightSystem implements FTCRobotSubsystem {
         }
     }
 
-    // todo MAKE A NEW BRANCH BEFORE ATTEMPTING ANY OF THE FOLLOWING
+    public void retract(){
+        extensionArm.retract();
+    }
+
 
     // todo We need a command to prepare the freight system for shutting down. And a method for
     // checking when the preparation is complete. At the end of autonomous, the intake is vertical
@@ -423,6 +427,7 @@ public class FFFreightSystem implements FTCRobotSubsystem {
         logState();
         switch (state) {
             case IDLE: {
+
                 //just chillin
             }
             break;
@@ -433,6 +438,12 @@ public class FFFreightSystem implements FTCRobotSubsystem {
             //********************************************************************************
 
             case WAITING_FOR_ARM_INIT: {
+                if(phase == Phase.AUTONOMUS){
+                    extensionArm.setPhaseAutonomous();
+                }
+                if(phase == Phase.TELEOP){
+                    extensionArm.setPhaseTeleop();
+                }
                 if (extensionArm.isInitComplete()) {
                     logCommand("extension arm init complete. waiting for intake init");
                     intake.init(configuration);
@@ -594,8 +605,14 @@ public class FFFreightSystem implements FTCRobotSubsystem {
 
             case WAITING_FOR_DUMP_COMPLETE: {
                 if (extensionArm.isDumpComplete()) {
-                        logCommand("dump complete. starting new cycle...");
+                    logCommand("dump complete. starting new cycle...");
+
+                    if(phase == Phase.AUTONOMUS){
+                        state = State.WAITING_FOR_RETRACTION_COMPLETE;
+                    }
+                    else {
                         state = State.START_CYCLE;
+                    }
                 }
             }
             break;
@@ -604,8 +621,8 @@ public class FFFreightSystem implements FTCRobotSubsystem {
                 if (extensionArm.isRetractionComplete()) {
                     logCommand("retraction complete. intake to transfer position...");
                     //gotta do something with the intake. probably just tuck it back in to transfer position
-                            intake.toTransferPosition();
-                            state = State.WAITING_FOR_INTAKE_TO_TRANSFER_POSITION_AUTONOMOUS;
+                    intake.toTransferPosition();
+                    state = State.WAITING_FOR_INTAKE_TO_TRANSFER_POSITION_AUTONOMOUS;
                 }
             }
             break;
