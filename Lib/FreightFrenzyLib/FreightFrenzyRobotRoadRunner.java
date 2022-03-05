@@ -246,12 +246,12 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
             subsystemMap.put(ledStrip.getName(), ledStrip);
         }
 
-        intake = new FFIntake(hardwareMap, telemetry, ledBlinker);
+        intake = new FFIntake(hardwareMap, telemetry, ledBlinker, ledStrip);
         // DO NOT PUT THE intake into the subsystem map. The FFFreightSystem should control its init and updates
         //subsystemMap.put(intake.getName(), intake);
 
         if (capabilities.contains(Subsystem.FREIGHT_SYSTEM)) {
-            freightSystem = new FFFreightSystem(arm, intake, lift, hardwareMap, telemetry, allianceColor, ledBlinker);
+            freightSystem = new FFFreightSystem(arm, intake, lift, hardwareMap, telemetry, allianceColor, ledBlinker, ledStrip);
             // The freight system has to know whether this autonomous or telelop before the init is run.
             if (FreightFrenzyMatchInfo.getMatchPhase() == FreightFrenzyMatchInfo.MatchPhase.AUTONOMOUS) {
                 freightSystem.setPhaseAutonomus();

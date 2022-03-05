@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.RevLED;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.RevLEDBlinker;
+import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FFBlinkinLed;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FFIntake;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyRobotRoadRunner;
 
@@ -19,13 +20,14 @@ public class IntakeClassTest extends LinearOpMode {
     // Put your variable declarations her
     public FFIntake ffIntake;
     public RevLEDBlinker ledBlinker;
+    public FFBlinkinLed ledStrip;
 
     @Override
     public void runOpMode() {
         ledBlinker = new RevLEDBlinker(2, RevLED.Color.GREEN, hardwareMap,
                 FreightFrenzyRobotRoadRunner.HardwareName.LED_PORT1.hwName,
                 FreightFrenzyRobotRoadRunner.HardwareName.LED_PORT2.hwName);
-        ffIntake = new FFIntake(hardwareMap, telemetry, ledBlinker);
+        ffIntake = new FFIntake(hardwareMap, telemetry, ledBlinker, ledStrip);
         // Put your initializations here
 
         // Wait for the start button
