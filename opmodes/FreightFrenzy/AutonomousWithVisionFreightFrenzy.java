@@ -93,7 +93,7 @@ public class AutonomousWithVisionFreightFrenzy extends LinearOpMode {
         }
 
         position = pipeline.getAnalysis();
-        PersistantStorage.setShippingElementPosition(position);
+        //PersistantStorage.setShippingElementPosition(position);
         telemetry.addData("shipping element postion is", position);
         telemetry.update();
        /* switch(startSpot){
@@ -181,7 +181,28 @@ public class AutonomousWithVisionFreightFrenzy extends LinearOpMode {
 
         // Wait for the start button
         waitForStart();
+        pipeline.setPosition(ShippingElementPipeline.ShippingPosition.UNKNOWN);
+        robot.activeWebcam.setPipeline(pipeline);
+
+        while (pipeline.getAnalysis() == ShippingElementPipeline.ShippingPosition.UNKNOWN) {
+            // TANYA - need the idle so we don't hog all the CPU
+            //pipeline.getAnalysis();
+            telemetry.addData("position is" , position.toString());
+            telemetry.update();
+            idle();
+            //autonomous.update();
+        }
+
+
+        position = pipeline.getAnalysis();
+        PersistantStorage.setShippingElementPosition(position);
         robot.activeWebcam.closeCameraDevice();
+
+        /*while(opModeIsActive()){
+            telemetry.addData("position is" , position.toString());
+            telemetry.update();
+            idle();
+        }*/
 
         autonomous.start();
         while (opModeIsActive() && !autonomous.isComplete()) {

@@ -386,6 +386,11 @@ public class ShippingElementPipeline extends OpenCvPipeline {
     /*
      * Call this from the OpMode thread to obtain the latest analysis
      */
+
+    public void setPosition(ShippingPosition position) {
+        this.position = position;
+    }
+
     public ShippingPosition getAnalysis() {
         return position;
     }

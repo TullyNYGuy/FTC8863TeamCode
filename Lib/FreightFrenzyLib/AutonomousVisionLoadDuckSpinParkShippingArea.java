@@ -215,6 +215,11 @@ public class AutonomousVisionLoadDuckSpinParkShippingArea implements AutonomousS
     }
 
     @Override
+    public void checkShippingPositionAgain() {
+
+    }
+
+    @Override
     public void update() {
         switch (currentState) {
             case START:

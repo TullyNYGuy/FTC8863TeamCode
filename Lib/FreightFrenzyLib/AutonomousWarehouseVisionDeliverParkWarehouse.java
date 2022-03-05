@@ -78,34 +78,11 @@ public class AutonomousWarehouseVisionDeliverParkWarehouse implements Autonomous
         return currentState.toString();
     }
 
-    //*********************************************************************************************
-    //          Constructors
-    //
-    // the function that builds the class when an object is created
-    // from it
-    //*********************************************************************************************
-
-    public AutonomousWarehouseVisionDeliverParkWarehouse(FreightFrenzyRobotRoadRunner robot, FreightFrenzyField field, Telemetry telemetry) {
-        this.robot = robot;
-        this.field = field;
-        switch (PersistantStorage.getStartSpot()) {
-            case BLUE_WALL:
-                startpose = PoseStorageFF.BLUE_WALL_START_POSE;
-                break;
-            case BLUE_WAREHOUSE:
-                startpose = PoseStorageFF.BLUE_WAREHOUSE_START_POSE;
-                break;
-            case RED_WALL:
-                startpose = PoseStorageFF.RED_WALL_START_POSE;
-                break;
-            case RED_WAREHOUSE:
-                startpose = PoseStorageFF.RED_WAREHOUSE_START_POSE;
-                break;
-        }
+    @Override
+    public void checkShippingPositionAgain() {
         switch (PersistantStorage.getShippingElementPosition()) {
             case CENTER:
                 robot.freightSystem.setMiddle();
-                hubLevel = HubLevel.MIDDLE;
                 switch (PersistantStorage.getStartSpot()) {
                     case BLUE_WALL:
                         hubDumpPose = PoseStorageFF.DELIVER_TO_MID_BLUE_WALL;
@@ -122,7 +99,6 @@ public class AutonomousWarehouseVisionDeliverParkWarehouse implements Autonomous
                 }
                 break;
             case LEFT:
-                hubLevel = HubLevel.BOTTOM;
                 robot.freightSystem.setBottom();
                 switch (PersistantStorage.getStartSpot()) {
                     case BLUE_WALL:
@@ -140,7 +116,6 @@ public class AutonomousWarehouseVisionDeliverParkWarehouse implements Autonomous
                 }
                 break;
             case RIGHT:
-                hubLevel = HubLevel.TOP;
                 robot.freightSystem.setTop();
                 switch (PersistantStorage.getStartSpot()) {
                     case BLUE_WALL:
@@ -158,13 +133,28 @@ public class AutonomousWarehouseVisionDeliverParkWarehouse implements Autonomous
                 }
                 break;
         }
+        createTrajectories();
+    }
+
+    //*********************************************************************************************
+    //          Constructors
+    //
+    // the function that builds the class when an object is created
+    // from it
+    //*********************************************************************************************
+
+    public AutonomousWarehouseVisionDeliverParkWarehouse(FreightFrenzyRobotRoadRunner robot, FreightFrenzyField field, Telemetry telemetry) {
+        this.robot = robot;
+        this.field = field;
+
         currentState = States.IDLE;
         distanceUnits = DistanceUnit.INCH;
         angleUnits = AngleUnit.DEGREES;
         timer = new ElapsedTime();
+        robot.freightSystem.setPhaseAutonomus();
         START_POSE = PersistantStorage.getStartPosition();
         PoseStorageFF.retreiveStartPose();
-        createTrajectories();
+
     }
 
     //*********************************************************************************************
@@ -222,6 +212,7 @@ public class AutonomousWarehouseVisionDeliverParkWarehouse implements Autonomous
 
         @Override
         public void start () {
+            checkShippingPositionAgain();
             currentState = States.START;
             isComplete = false;
         }

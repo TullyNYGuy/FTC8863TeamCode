@@ -75,16 +75,8 @@ public class AutonomousWallVisionDuckSpinDeliverParkStorage implements Autonomou
         return currentState.toString();
     }
 
-    //*********************************************************************************************
-    //          Constructors
-    //
-    // the function that builds the class when an object is created
-    // from it
-    //*********************************************************************************************
-
-    public AutonomousWallVisionDuckSpinDeliverParkStorage(FreightFrenzyRobotRoadRunner robot, FreightFrenzyField field, Telemetry telemetry) {
-        this.robot = robot;
-        this.field = field;
+    @Override
+    public void checkShippingPositionAgain() {
         switch (PersistantStorage.getShippingElementPosition()) {
             case CENTER:
                 robot.freightSystem.setMiddle();
@@ -138,13 +130,28 @@ public class AutonomousWallVisionDuckSpinDeliverParkStorage implements Autonomou
                 }
                 break;
         }
+        createTrajectories();
+    }
+
+    //*********************************************************************************************
+    //          Constructors
+    //
+    // the function that builds the class when an object is created
+    // from it
+    //*********************************************************************************************
+
+    public AutonomousWallVisionDuckSpinDeliverParkStorage(FreightFrenzyRobotRoadRunner robot, FreightFrenzyField field, Telemetry telemetry) {
+        this.robot = robot;
+        this.field = field;
+
         currentState = States.IDLE;
         distanceUnits = DistanceUnit.INCH;
         angleUnits = AngleUnit.DEGREES;
         timer = new ElapsedTime();
+        robot.freightSystem.setPhaseAutonomus();
         START_POSE = PersistantStorage.getStartPosition();
         PoseStorageFF.retreiveStartPose();
-        createTrajectories();
+
     }
 
     //*********************************************************************************************
@@ -210,6 +217,7 @@ public class AutonomousWallVisionDuckSpinDeliverParkStorage implements Autonomou
 
         @Override
         public void start () {
+            checkShippingPositionAgain();
             currentState = States.START;
             isComplete = false;
         }
