@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib;
 
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -296,7 +297,6 @@ public class FFFreightSystem implements FTCRobotSubsystem {
         }
     }
 
-    // todo MAKE A NEW BRANCH BEFORE ATTEMPTING ANY OF THE FOLLOWING
 
     // todo We need a command to prepare the freight system for shutting down. And a method for
     // checking when the preparation is complete. At the end of autonomous, the intake is vertical
@@ -590,7 +590,13 @@ public class FFFreightSystem implements FTCRobotSubsystem {
             case WAITING_FOR_DUMP_COMPLETE: {
                 if (extensionArm.isDumpComplete()) {
                         logCommand("dump complete. starting new cycle...");
-                        state = State.START_CYCLE;
+
+                        if(phase == Phase.AUTONOMUS){
+                            state = State.WAITING_FOR_RETRACTION_COMPLETE;
+                        }
+                        else {
+                            state = State.START_CYCLE;
+                        }
                 }
             }
             break;
