@@ -297,6 +297,10 @@ public class FFFreightSystem implements FTCRobotSubsystem {
         }
     }
 
+    public void retract(){
+        extensionArm.retract();
+    }
+
 
     // todo We need a command to prepare the freight system for shutting down. And a method for
     // checking when the preparation is complete. At the end of autonomous, the intake is vertical
@@ -419,6 +423,7 @@ public class FFFreightSystem implements FTCRobotSubsystem {
         logState();
         switch (state) {
             case IDLE: {
+
                 //just chillin
             }
             break;
@@ -429,6 +434,12 @@ public class FFFreightSystem implements FTCRobotSubsystem {
             //********************************************************************************
 
             case WAITING_FOR_ARM_INIT: {
+                if(phase == Phase.AUTONOMUS){
+                    extensionArm.setPhaseAutonomous();
+                }
+                if(phase == Phase.TELEOP){
+                    extensionArm.setPhaseTeleop();
+                }
                 if (extensionArm.isInitComplete()) {
                     logCommand("extension arm init complete. waiting for intake init");
                     intake.init(configuration);

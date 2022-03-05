@@ -60,6 +60,7 @@ public class FFExtensionArm implements FTCRobotSubsystem {
         IS_DUMPED_INTO_MIDDLE,
         IS_DUMPED_INTO_BOTTOM,
         IS_DUMPED_INTO_SHARED,
+        WAITING_FOR_RETRACT_COMMAND,
         RETRACT_FROM_TOP,
         RETRACT_FROM_MIDDLE,
         RETRACT_FROM_BOTTOM,
@@ -74,6 +75,11 @@ public class FFExtensionArm implements FTCRobotSubsystem {
         MOVE_SERVO_TO_TRANSFER,
         WAITING_FOR_RETRACTION_COMPLETE,
         //RETRACT_TO_0,
+    }
+
+    private enum Phase{
+        TELEOP,
+        AUTONOMOUS
     }
 
     private LiftState liftState = LiftState.PRE_INIT;
@@ -136,6 +142,8 @@ public class FFExtensionArm implements FTCRobotSubsystem {
     private double midPosition;
     private double bottomPosition;
     private double sharedPosition;
+
+    private Phase phase = Phase.TELEOP;
 
     //*********************************************************************************************
     //          Constructors
@@ -298,6 +306,14 @@ public class FFExtensionArm implements FTCRobotSubsystem {
             logCommand("Init complete");
         }
         return initComplete;
+    }
+
+    public void setPhaseAutonomous(){
+        phase = Phase.AUTONOMOUS;
+    }
+
+    public void setPhaseTeleop(){
+        phase = Phase.TELEOP;
     }
 
     //********************************************************************************
@@ -744,9 +760,19 @@ public class FFExtensionArm implements FTCRobotSubsystem {
 
             case IS_DUMPED_INTO_TOP: {
                 //checks if dump was did or not
-                if (deliveryServo.isPositionReached() && timer.milliseconds() > 600) {
-                    liftState = LiftState.RETRACT_FROM_TOP;
-                    dumpComplete = true;
+                if(phase == Phase.TELEOP) {
+                    if (deliveryServo.isPositionReached() && timer.milliseconds() > 600) {
+                        liftState = LiftState.RETRACT_FROM_TOP;
+                        dumpComplete = true;
+                    }
+                }
+                else{
+                    if (deliveryServo.isPositionReached() && timer.milliseconds() > 600) {
+                        liftState = LiftState.WAITING_FOR_RETRACT_COMMAND;
+                        dumpComplete = true;
+                        commandComplete = true;
+
+                    }
                 }
             }
             break;
@@ -768,9 +794,19 @@ public class FFExtensionArm implements FTCRobotSubsystem {
 
             case IS_DUMPED_INTO_MIDDLE: {
                 //checks if dump was did or not
-                if (deliveryServo.isPositionReached() && timer.milliseconds() > 600) {
-                    liftState = LiftState.RETRACT_FROM_MIDDLE;
-                    dumpComplete = true;
+                if(phase == Phase.TELEOP) {
+                    if (deliveryServo.isPositionReached() && timer.milliseconds() > 600) {
+                        liftState = LiftState.RETRACT_FROM_MIDDLE;
+                        dumpComplete = true;
+                    }
+                }
+                else{
+                    if (deliveryServo.isPositionReached() && timer.milliseconds() > 600) {
+                        liftState = LiftState.WAITING_FOR_RETRACT_COMMAND;
+                        dumpComplete = true;
+                        commandComplete = true;
+
+                    }
                 }
             }
             break;
@@ -792,9 +828,18 @@ public class FFExtensionArm implements FTCRobotSubsystem {
 
             case IS_DUMPED_INTO_BOTTOM: {
                 //checks if dump was did or not
-                if (deliveryServo.isPositionReached() && timer.milliseconds() > 600) {
-                    liftState = LiftState.RETRACT_FROM_BOTTOM;
-                    dumpComplete = true;
+                if(phase == Phase.TELEOP) {
+                    if (deliveryServo.isPositionReached() && timer.milliseconds() > 600) {
+                        liftState = LiftState.RETRACT_FROM_BOTTOM;
+                        dumpComplete = true;
+                    }
+                }
+                else{
+                    if (deliveryServo.isPositionReached() && timer.milliseconds() > 600) {
+                        liftState = LiftState.WAITING_FOR_RETRACT_COMMAND;
+                        dumpComplete = true;
+                        commandComplete = true;
+                    }
                 }
             }
             break;
@@ -824,6 +869,18 @@ public class FFExtensionArm implements FTCRobotSubsystem {
                 }
             }
             break;
+
+
+            //********************************************************************************
+            // Autonomous waiting to retract state from top states
+            //********************************************************************************
+
+            case WAITING_FOR_RETRACT_COMMAND: {
+                // just hanging out
+            }
+            break;
+
+
 
             //********************************************************************************
             // RETRACT from top states
