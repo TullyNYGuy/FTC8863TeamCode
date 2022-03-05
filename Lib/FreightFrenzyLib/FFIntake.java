@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib;
 
 import android.provider.ContactsContract;
 
+import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -108,6 +109,7 @@ public class FFIntake implements FTCRobotSubsystem {
     private final String INTAKE_ROTATOR_SERVO_NAME = FreightFrenzyRobotRoadRunner.HardwareName.INTAKE_ROTATE_SERVO.hwName;
     private final String TRANSFER_SENSOR_NAME = FreightFrenzyRobotRoadRunner.HardwareName.TRANSFER_SENSOR.hwName;
     private RevLEDBlinker ledBlinker;
+    private FFBlinkinLed ledStrip;
 
     // flags used in this class
 
@@ -127,13 +129,14 @@ public class FFIntake implements FTCRobotSubsystem {
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
-    public FFIntake(HardwareMap hardwareMap, Telemetry telemetry, RevLEDBlinker ledBlinker) {
+    public FFIntake(HardwareMap hardwareMap, Telemetry telemetry, RevLEDBlinker ledBlinker, FFBlinkinLed ledStrip) {
         intakeSweeperMotor = new DcMotor8863(INTAKE_SWEEPER_MOTOR_NAME, hardwareMap);
         intakeSweeperMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_3_7_ORBITAL);
         intakeSweeperMotor.setMovementPerRev(360);
         intakeSweeperMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         timer = new ElapsedTime();
         this.ledBlinker= ledBlinker;
+        this.ledStrip= ledStrip;
         intakeSensor = hardwareMap.get(NormalizedColorSensor.class, INTAKE_SENSOR_NAME);
         transferSensor = hardwareMap.get(NormalizedColorSensor.class, TRANSFER_SENSOR_NAME);
 
@@ -424,6 +427,7 @@ public class FFIntake implements FTCRobotSubsystem {
                 if (rotateServo.isPositionReached()) {
                     intakeSweeperMotor.runAtConstantPower(.6);
                     ledBlinker.steadyRed();
+                    ledStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
                     intakeState = IntakeState.WAIT_FOR_FREIGHT;
                 }
             }
@@ -442,9 +446,10 @@ public class FFIntake implements FTCRobotSubsystem {
                 if(timer.milliseconds() > 250){
                     hasIntakeIntaked = true;
                     PersistantStorage.isDeliveryFull = false;
-                    ledBlinker.steadyAmber();
                     // yup stop the motor and try to cage the freight
                     if(isIntakeFull()) {
+                        ledBlinker.steadyAmber();
+                        ledStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
                         intakeSweeperMotor.runAtConstantRPM(180);
                         if (whatToDoWithFreight == WhatToDoWithFreight.DELIVER_TO_BUCKET) {
                             toTransferPosition();
@@ -480,6 +485,7 @@ public class FFIntake implements FTCRobotSubsystem {
                     // The ready position will be transfer position in auto, vertical in teleop.
                     toReadyPosition();
                     ledBlinker.steadyGreen();
+                    ledStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
                     intakeState = IntakeState.WAITING_FOR_READY_POSITION;
                     didTransferFail = false;
                 }

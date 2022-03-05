@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.FreightFrenzy;
 
 import com.qualcomm.hardware.lynx.LynxModule;
+import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -212,7 +213,7 @@ public class AutonomousWithVisionFreightFrenzy extends LinearOpMode {
             robot.update();
             idle();
         }
-
+        robot.ledStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.RAINBOW_RAINBOW_PALETTE);
         robot.shutdown();
         dataLog.closeDataLog();
         telemetry.addData(">", "Done");

@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -66,7 +67,8 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
         LIFT_LIMIT_SWITCH_EXTENSION("extensionLimitSwitch"),
         LIFT_SERVO("deliveryServo"),
         LED_PORT1("ledPort1"),
-        LED_PORT2("ledPort2");
+        LED_PORT2("ledPort2"),
+        LED_STRIP("ledStrip");
 
 
         public final String hwName;
@@ -86,6 +88,7 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
         ARM,
        // LIFT,
         LED_BLINKER,
+        LED_STRIP,
         FREIGHT_SYSTEM
     }
 
@@ -125,6 +128,7 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
     public OpenCvWebcam webcamLeft;
     public OpenCvWebcam webcamRight;
     public RevLEDBlinker ledBlinker;
+    public FFBlinkinLed ledStrip;
     public FFFreightSystem freightSystem;
 
 //these are private so that tanya has to use the freight system//
@@ -237,12 +241,17 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
             subsystemMap.put(ledBlinker.getName(), ledBlinker);
         }
 
-        intake = new FFIntake(hardwareMap, telemetry, ledBlinker);
+        if (capabilities.contains(Subsystem.LED_STRIP)) {
+            ledStrip = new FFBlinkinLed(hardwareMap);
+            subsystemMap.put(ledStrip.getName(), ledStrip);
+        }
+
+        intake = new FFIntake(hardwareMap, telemetry, ledBlinker, ledStrip);
         // DO NOT PUT THE intake into the subsystem map. The FFFreightSystem should control its init and updates
         //subsystemMap.put(intake.getName(), intake);
 
         if (capabilities.contains(Subsystem.FREIGHT_SYSTEM)) {
-            freightSystem = new FFFreightSystem(arm, intake, lift, hardwareMap, telemetry, allianceColor, ledBlinker);
+            freightSystem = new FFFreightSystem(arm, intake, lift, hardwareMap, telemetry, allianceColor, ledBlinker, ledStrip);
             // The freight system has to know whether this autonomous or telelop before the init is run.
             if (FreightFrenzyMatchInfo.getMatchPhase() == FreightFrenzyMatchInfo.MatchPhase.AUTONOMOUS) {
                 freightSystem.setPhaseAutonomus();
@@ -286,6 +295,7 @@ public class FreightFrenzyRobotRoadRunner implements FTCRobot {
             telemetry.update();
             opMode.idle();
         }
+        ledStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.COLOR_WAVES_FOREST_PALETTE);
     }
 
     /*
