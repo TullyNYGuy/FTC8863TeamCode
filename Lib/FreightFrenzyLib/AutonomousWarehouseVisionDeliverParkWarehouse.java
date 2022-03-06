@@ -177,7 +177,8 @@ public class AutonomousWarehouseVisionDeliverParkWarehouse implements Autonomous
     public void createTrajectories() {
 
         if (PersistantStorage.getAllianceColor() == AllianceColor.BLUE) {
-            trajectoryToDeliveryPose = robot.mecanum.trajectoryBuilder(startpose)
+            startpose = PoseStorageFF.BLUE_WAREHOUSE_START_POSE;
+            trajectoryToDeliveryPose = robot.mecanum.trajectoryBuilder(PoseStorageFF.BLUE_WAREHOUSE_START_POSE)
                     .lineToLinearHeading(hubDumpPose)
                     .build();
             if(PersistantStorage.getShippingElementPosition() == ShippingElementPipeline.ShippingPosition.RIGHT) {
@@ -188,9 +189,13 @@ public class AutonomousWarehouseVisionDeliverParkWarehouse implements Autonomous
                         })
                         .build();
             }
-            if(PersistantStorage.getShippingElementPosition() == ShippingElementPipeline.ShippingPosition.LEFT || PersistantStorage.getShippingElementPosition() == ShippingElementPipeline.ShippingPosition.CENTER) {
+            if(PersistantStorage.getShippingElementPosition() == ShippingElementPipeline.ShippingPosition.LEFT ||
+                    PersistantStorage.getShippingElementPosition() == ShippingElementPipeline.ShippingPosition.CENTER) {
                 trajectoryToEntryToWarehouse = robot.mecanum.trajectoryBuilder(trajectoryToDeliveryPose.end())
                         .lineToLinearHeading(PoseStorageFF.BLUE_ENTRY_TO_WAREHOUSE_WAYPOINT)
+                        .addDisplacementMarker(5, () -> {
+                            robot.freightSystem.retract();
+                        })
                         .build();
             }
                 trajectoryToParkInWarehouseWaypoint = robot.mecanum.trajectoryBuilder(trajectoryToEntryToWarehouse.end())
@@ -203,7 +208,8 @@ public class AutonomousWarehouseVisionDeliverParkWarehouse implements Autonomous
 
         } else {
             // red
-            trajectoryToDeliveryPose = robot.mecanum.trajectoryBuilder(startpose)
+            startpose = PoseStorageFF.RED_WAREHOUSE_START_POSE;
+            trajectoryToDeliveryPose = robot.mecanum.trajectoryBuilder(PoseStorageFF.RED_WAREHOUSE_START_POSE)
                     .lineToLinearHeading(hubDumpPose)
                     .build();
             if(PersistantStorage.getShippingElementPosition() == ShippingElementPipeline.ShippingPosition.LEFT) {
@@ -214,9 +220,13 @@ public class AutonomousWarehouseVisionDeliverParkWarehouse implements Autonomous
                         })
                         .build();
             }
-            if(PersistantStorage.getShippingElementPosition() == ShippingElementPipeline.ShippingPosition.RIGHT || PersistantStorage.getShippingElementPosition() == ShippingElementPipeline.ShippingPosition.CENTER) {
+            if(PersistantStorage.getShippingElementPosition() == ShippingElementPipeline.ShippingPosition.RIGHT ||
+                    PersistantStorage.getShippingElementPosition() == ShippingElementPipeline.ShippingPosition.CENTER) {
                 trajectoryToEntryToWarehouse = robot.mecanum.trajectoryBuilder(trajectoryToDeliveryPose.end())
                         .lineToLinearHeading(PoseStorageFF.RED_ENTRY_TO_WAREHOUSE_WAYPOINT)
+                        .addDisplacementMarker(5, () -> {
+                            robot.freightSystem.retract();
+                        })
                         .build();
             }
             trajectoryToParkInWarehouseWaypoint = robot.mecanum.trajectoryBuilder(trajectoryToEntryToWarehouse.end())

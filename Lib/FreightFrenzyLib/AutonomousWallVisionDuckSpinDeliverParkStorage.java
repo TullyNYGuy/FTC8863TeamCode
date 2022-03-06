@@ -195,9 +195,13 @@ public class AutonomousWallVisionDuckSpinDeliverParkStorage implements Autonomou
                         })
                         .build();
             }
-            if(PersistantStorage.getShippingElementPosition() == ShippingElementPipeline.ShippingPosition.CENTER || PersistantStorage.getShippingElementPosition() == ShippingElementPipeline.ShippingPosition.LEFT) {
+            if(PersistantStorage.getShippingElementPosition() == ShippingElementPipeline.ShippingPosition.CENTER ||
+                    PersistantStorage.getShippingElementPosition() == ShippingElementPipeline.ShippingPosition.LEFT) {
                 trajectoryToParkInStorage = robot.mecanum.trajectoryBuilder(trajectoryToHub.end())
                         .lineToLinearHeading(PoseStorageFF.STORAGE_BLUE)
+                        .addDisplacementMarker(5, () -> {
+                            robot.freightSystem.retract();
+                        })
                         .build();
             }
 
@@ -223,7 +227,8 @@ public class AutonomousWallVisionDuckSpinDeliverParkStorage implements Autonomou
                         })
                         .build();
             }
-            if(PersistantStorage.getShippingElementPosition() == ShippingElementPipeline.ShippingPosition.CENTER || PersistantStorage.getShippingElementPosition() == ShippingElementPipeline.ShippingPosition.RIGHT) {
+            if(PersistantStorage.getShippingElementPosition() == ShippingElementPipeline.ShippingPosition.CENTER ||
+                    PersistantStorage.getShippingElementPosition() == ShippingElementPipeline.ShippingPosition.RIGHT) {
                 trajectoryToParkInStorageWaypoint = robot.mecanum.trajectoryBuilder(trajectoryToHub.end())
                         .splineToLinearHeading(PoseStorageFF.WAYPOINT_RED_PARK, Math.toRadians(-100))
                         .addDisplacementMarker(5, () -> {
