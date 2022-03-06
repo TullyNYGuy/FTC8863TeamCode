@@ -13,7 +13,7 @@ public class PoseStorageFF {
     //***********************************************************************
     public static Pose2d BLUE_WALL_START_POSE = new Pose2d(-35.5, 62.6, Math.toRadians(0));
 
-    public static Pose2d DUCK_SPINNER_BLUE = new Pose2d(-58.5, 57.5, Math.toRadians(90));
+    public static Pose2d DUCK_SPINNER_BLUE = new Pose2d(-59, 57.5, Math.toRadians(90));
 
     public static Pose2d WAYPOINT_BLUE_HUB = new Pose2d(-56.32, 11.8, Math.toRadians(104));
 
