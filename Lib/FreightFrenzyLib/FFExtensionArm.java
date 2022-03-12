@@ -155,20 +155,22 @@ public class FFExtensionArm implements FTCRobotSubsystem {
         this.allianceColor = allianceColor;
 
         deliveryServo = new Servo8863New("deliveryServo", hardwareMap, telemetry);
-        deliveryServo.addPosition("1.5 Extension", 0.96, 500, TimeUnit.MILLISECONDS);
-        deliveryServo.addPosition("3 Extension", 0.90, 500, TimeUnit.MILLISECONDS);
-        deliveryServo.addPosition("5 Extension", 0.85, 500, TimeUnit.MILLISECONDS);
-        deliveryServo.addPosition("Transfer", 0.98, 500, TimeUnit.MILLISECONDS);
+
+        deliveryServo.addPosition("Transfer", 1, 500, TimeUnit.MILLISECONDS);
         deliveryServo.addPosition("Init", 1, 500, TimeUnit.MILLISECONDS);
         deliveryServo.addPosition("Parallel", 0.83, 500, TimeUnit.MILLISECONDS);
-        deliveryServo.addPosition("DumpIntoTop", 0.05, 500, TimeUnit.MILLISECONDS);
+
         deliveryServo.addPosition("DumpIntoMiddle", 0.04, 500, TimeUnit.MILLISECONDS);
         deliveryServo.addPosition("DumpIntoBottom", 0, 500, TimeUnit.MILLISECONDS);
         deliveryServo.addPosition("DumpIntoShared", 0, 500, TimeUnit.MILLISECONDS);
 
-        deliveryServo.addPosition("LineUpDump", 0.17, 10, TimeUnit.MILLISECONDS);
+        deliveryServo.addPosition("LineUpDump", 0.30, 10, TimeUnit.MILLISECONDS);
 
         if (allianceColor == AllianceColor.BLUE) {
+            deliveryServo.addPosition("DumpIntoTop", 0.01, 500, TimeUnit.MILLISECONDS);
+            deliveryServo.addPosition("1.5 Extension", 0.96, 500, TimeUnit.MILLISECONDS);
+            deliveryServo.addPosition("3 Extension", 0.90, 500, TimeUnit.MILLISECONDS);
+            deliveryServo.addPosition("5 Extension", 0.85, 500, TimeUnit.MILLISECONDS);
             ffExtensionArm = new ExtensionRetractionMechanism(hardwareMap, telemetry,
                     "lift",
                     FreightFrenzyRobotRoadRunner.HardwareName.LIFT_LIMIT_SWITCH_EXTENSION.hwName,
@@ -183,6 +185,10 @@ public class FFExtensionArm implements FTCRobotSubsystem {
             bottomPosition = 6;
             sharedPosition = 2;
         } else {
+            deliveryServo.addPosition("DumpIntoTop", 0.03, 500, TimeUnit.MILLISECONDS);
+            deliveryServo.addPosition("1.5 Extension", 0.98, 500, TimeUnit.MILLISECONDS);
+            deliveryServo.addPosition("3 Extension", 0.92, 500, TimeUnit.MILLISECONDS);
+            deliveryServo.addPosition("5 Extension", 0.89, 500, TimeUnit.MILLISECONDS);
             // alliance is RED
             ffExtensionArm = new ExtensionRetractionMechanism(hardwareMap, telemetry,
                     "lift",
@@ -761,13 +767,13 @@ public class FFExtensionArm implements FTCRobotSubsystem {
             case IS_DUMPED_INTO_TOP: {
                 //checks if dump was did or not
                 if(phase == Phase.TELEOP) {
-                    if (deliveryServo.isPositionReached() && timer.milliseconds() > 600) {
+                    if (deliveryServo.isPositionReached() && timer.milliseconds() > 900) {
                         liftState = LiftState.RETRACT_FROM_TOP;
                         dumpComplete = true;
                     }
                 }
                 else{
-                    if (deliveryServo.isPositionReached() && timer.milliseconds() > 600) {
+                    if (deliveryServo.isPositionReached() && timer.milliseconds() > 900) {
                         liftState = LiftState.WAITING_FOR_RETRACT_COMMAND;
                         dumpComplete = true;
                         commandComplete = true;
@@ -795,13 +801,13 @@ public class FFExtensionArm implements FTCRobotSubsystem {
             case IS_DUMPED_INTO_MIDDLE: {
                 //checks if dump was did or not
                 if(phase == Phase.TELEOP) {
-                    if (deliveryServo.isPositionReached() && timer.milliseconds() > 600) {
+                    if (deliveryServo.isPositionReached() && timer.milliseconds() > 900) {
                         liftState = LiftState.RETRACT_FROM_MIDDLE;
                         dumpComplete = true;
                     }
                 }
                 else{
-                    if (deliveryServo.isPositionReached() && timer.milliseconds() > 600) {
+                    if (deliveryServo.isPositionReached() && timer.milliseconds() > 900) {
                         liftState = LiftState.WAITING_FOR_RETRACT_COMMAND;
                         dumpComplete = true;
                         commandComplete = true;
@@ -829,13 +835,13 @@ public class FFExtensionArm implements FTCRobotSubsystem {
             case IS_DUMPED_INTO_BOTTOM: {
                 //checks if dump was did or not
                 if(phase == Phase.TELEOP) {
-                    if (deliveryServo.isPositionReached() && timer.milliseconds() > 600) {
+                    if (deliveryServo.isPositionReached() && timer.milliseconds() > 900) {
                         liftState = LiftState.RETRACT_FROM_BOTTOM;
                         dumpComplete = true;
                     }
                 }
                 else{
-                    if (deliveryServo.isPositionReached() && timer.milliseconds() > 600) {
+                    if (deliveryServo.isPositionReached() && timer.milliseconds() > 900) {
                         liftState = LiftState.WAITING_FOR_RETRACT_COMMAND;
                         dumpComplete = true;
                         commandComplete = true;

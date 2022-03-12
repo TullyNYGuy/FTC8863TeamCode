@@ -8,7 +8,7 @@ package org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib;
  *    / Right JoystickX  - robot rotation
  *    / Right JoystickY  -
  *    / DPad Up          - sets deliver target top
- *    / DPad Left        - full power (1st press), half power (2nd press)
+ *    / DPad Left        - sets deliver target shared
  *    / DPad Down        - sets deliver target bottom
  *    / DPad Right       - sets deliver target middle
  *    / A                - turn intake on and deliver
@@ -17,6 +17,7 @@ package org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib;
  *    / Y                - eject on floor
  *    /Left Bumper       - stops intake (for some reason)
  *    /Right Bumper      - 1 freight system auto(sport mode)    2 freight system manual
+ *    /Left stick button - full power (1st press), half power (2nd press)
  *
  *  Gamepad 2 layout
  *    / Left JoystickX   -
@@ -362,10 +363,10 @@ public class FreightFrenzyGamepad {
         }
 
         if (gamepad2b.buttonPress(gamepad2.b)) {
-            if (gamepad2DpadRight.isCommand1()) {
+            if (gamepad2b.isCommand1()) {
                 robot.duckSpinner.turnOn();
             }
-            if (gamepad2DpadRight.isCommand2()) {
+            if (gamepad2b.isCommand2()) {
                 robot.duckSpinner.turnOff();
             }
         }
