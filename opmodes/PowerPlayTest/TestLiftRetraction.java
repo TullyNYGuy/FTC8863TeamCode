@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.opmodes.PowerPlayTest;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -11,12 +10,12 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Test Extension Arm Extension", group = "Test")
+@TeleOp(name = "Test PP Lift Retraction", group = "Test")
 //@Disabled
-public class TestArmExtension extends LinearOpMode {
+public class TestLiftRetraction extends LinearOpMode {
 
     // Put your variable declarations here
-    ExtensionRetractionMechanism arm;
+    ExtensionRetractionMechanism lift;
     DataLogging log;
 
     @Override
@@ -25,23 +24,24 @@ public class TestArmExtension extends LinearOpMode {
 
         // Put your initializations here
 
-        log = new DataLogging("ArmLog");
-        arm = new ExtensionRetractionMechanism(hardwareMap, telemetry,
+        log = new DataLogging("LiftLog");
+        lift = new ExtensionRetractionMechanism(hardwareMap, telemetry,
                 "Arm",
-                "extensionLimitSwitch",
-                "retractionLimitSwitch",
-                "extensionArmMotor",
+                "leftLiftExtensionLimitSwitch",
+                "leftLiftRetractionLimitSwitch",
+                "leftLiftMotor",
                 DcMotor8863.MotorType.GOBILDA_435,
                 5.713);
-        //arm.reverseMotorDirection();
+        //lift.reverseMotorDirection();
 
 
-        //arm.reverseMotorDirection();
-        arm.setResetTimerLimitInmSec(5000);
-        arm.setExtensionPower(1.0);
-        arm.setExtensionPositionInMechanismUnits(48.0);
-        arm.setDataLog(log);
-        arm.enableDataLogging();
+        //lift.reverseMotorDirection();
+        lift.setResetTimerLimitInmSec(25000);
+        lift.setExtensionPower(0.1);
+        lift.setExtensionPositionInMechanismUnits(15);
+        lift.setRetractionPower(-0.75);
+        lift.setDataLog(log);
+        lift.enableDataLogging();
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
@@ -50,11 +50,11 @@ public class TestArmExtension extends LinearOpMode {
 
         // Put your calls here - they will not run in a loop
 
-        arm.testExtension(this);
+        lift.testRetraction(this);
 
-        // after the extension is complete, loop so the user can see the result
+        // after the retraction is complete, loop so the user can see the result
         while (opModeIsActive()){
-            telemetry.addData("state = ", arm.getExtensionRetractionState().toString());
+            telemetry.addData("state = ", lift.getExtensionRetractionState().toString());
             telemetry.update();
             idle();
         }

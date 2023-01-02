@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmodes.FreightFrenzy;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.hardware.lynx.LynxModule;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -22,7 +23,7 @@ import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.PoseStorage;
 import java.util.List;
 
 @TeleOp(name = "Teleop Freight Frenzy but you pick color with a button", group = "AA")
-//@Disabled
+@Disabled
 
 public class TeleopUsingRoadRunnerFreightFrenzySetColorWButtons extends LinearOpMode {
 

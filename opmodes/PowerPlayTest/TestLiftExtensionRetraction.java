@@ -9,31 +9,31 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Test Arm Switches", group = "Test")
+@TeleOp(name = "Test PP Lift ExtensionRetraction Cycle", group = "Test")
 //@Disabled
-public class TestArmLimitSwitches extends LinearOpMode {
+public class TestLiftExtensionRetraction extends LinearOpMode {
 
     // Put your variable declarations here
-    ExtensionRetractionMechanism arm;
+    ExtensionRetractionMechanism lift;
 
     @Override
     public void runOpMode() {
 
 
         // Put your initializations here
-        arm = new ExtensionRetractionMechanism(hardwareMap, telemetry,
+        lift = new ExtensionRetractionMechanism(hardwareMap, telemetry,
                 "Arm",
-                "extensionLimitSwitch",
-                "retractionLimitSwitch",
-                "extensionArmMotor",
+                "leftLiftExtensionLimitSwitch",
+                "leftLiftRetractionLimitSwitch",
+                "leftLiftMotor",
                 DcMotor8863.MotorType.GOBILDA_435,
                 5.713);
-        // This is for the blue alliance
-        //arm.reverseMotorDirection();
 
-        // this is for the red alliance
-        //arm.reverseMotorDirection();
-
+      //  lift.reverseMotorDirection();
+        lift.setExtensionPower(.1);
+        lift.setExtensionPositionInMechanismUnits(17);
+        lift.setRetractionPower(.1);
+        lift.setRetractionPositionInMechanismUnits(1);
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
         telemetry.update();
@@ -41,14 +41,9 @@ public class TestArmLimitSwitches extends LinearOpMode {
 
         // Put your calls here - they will not run in a loop
 
+        lift.testCycleFullExtensionRetraction(this,10,3000);
+
         while (opModeIsActive()) {
-
-            // Put your calls that need to run in a loop here
-
-            arm.testLimitSwitches();
-            telemetry.addData(">", "Press Stop to end test.");
-            telemetry.update();
-
             idle();
         }
 
