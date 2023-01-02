@@ -16,20 +16,16 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobot;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.LoopTimer;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.RevLED;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.RevLEDBlinker;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.RobotPosition;
-import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.AllianceColor;
-import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.DuckSpinner;
-import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FFArm;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FFBlinkinLed;
-import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FFExtensionArm;
-import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FFFreightSystem;
-import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FFIntake;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyMatchInfo;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyStartSpot;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.MecanumDriveFreightFrenzy;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.PersistantStorage;
+
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvWebcam;
@@ -100,7 +96,6 @@ public class PowerPlayRobot implements FTCRobot {
     private DataLogging dataLog;
     private FreightFrenzyMatchInfo robotMode;
     Map<String, FTCRobotSubsystem> subsystemMap;
-    private FreightFrenzyStartSpot color;
     private String activeWebcamName;
     private AllianceColor allianceColor;
     private ElapsedTime timer;
@@ -129,7 +124,7 @@ public class PowerPlayRobot implements FTCRobot {
     //public RevLEDBlinker ledBlinker;
     //public FFBlinkinLed ledStrip;
 
-    public PowerPlayRobot(HardwareMap hardwareMap, Telemetry telemetry, Configuration config, DataLogging dataLog, DistanceUnit units, LinearOpMode opMode) {
+    public PowerPlayRobot(HardwareMap hardwareMap, Telemetry telemetry, Configuration config, DataLogging dataLog, DistanceUnit units, LinearOpMode opMode, AllianceColor allianceColor) {
         timer = new ElapsedTime();
         loopTimer = new LoopTimer();
         this.hardwareMap = hardwareMap;
@@ -138,16 +133,11 @@ public class PowerPlayRobot implements FTCRobot {
         this.config = config;
         this.dataLog = dataLog;
         this.opMode = opMode;
+        this.allianceColor = allianceColor;
         cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         this.subsystemMap = new HashMap<String, FTCRobotSubsystem>();
         setCapabilities(Subsystem.values());
         enableDataLogging();
-        if (PersistantStorage.getStartSpot() != null) {
-            color = PersistantStorage.getStartSpot();
-        } else {
-            color = FreightFrenzyStartSpot.BLUE_WALL;
-        }
-        allianceColor = AllianceColor.getAllianceColor(color);
     }
 
     /*
@@ -155,16 +145,6 @@ public class PowerPlayRobot implements FTCRobot {
      */
     public void setCapabilities(Subsystem[] subsystems) {
         capabilities = new HashSet<Subsystem>(Arrays.asList(subsystems));
-    }
-
-    public void setColor(FreightFrenzyStartSpot color) {
-        this.color = color;
-        allianceColor = AllianceColor.getAllianceColor(color);
-    }
-
-    public FreightFrenzyStartSpot getColor() {
-
-        return color;
     }
 
     /**
@@ -176,7 +156,6 @@ public class PowerPlayRobot implements FTCRobot {
     @Override
     public boolean createRobot() {
         imu = new AdafruitIMU8863(hardwareMap, null, "IMU", HardwareName.IMU.hwName);
-        color = PersistantStorage.getStartSpot();
         if (capabilities.contains(Subsystem.MECANUM_DRIVE)) {
             mecanum = new MecanumDriveFreightFrenzy(HardwareName.CONFIG_FL_MOTOR.hwName, HardwareName.CONFIG_BL_MOTOR.hwName, HardwareName.CONFIG_FR_MOTOR.hwName, HardwareName.CONFIG_BR_MOTOR.hwName, hardwareMap);
             subsystemMap.put(mecanum.getName(), mecanum);

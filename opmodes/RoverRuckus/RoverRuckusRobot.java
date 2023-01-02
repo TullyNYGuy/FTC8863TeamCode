@@ -89,7 +89,7 @@ public class RoverRuckusRobot {
     // from it
     //*********************************************************************************************
 
-    private RoverRuckusRobot(HardwareMap hardwareMap, RobotMode robotMode, Telemetry telemetry, AllianceColor.TeamColor teamColor, DataLogging logFile) {
+    private RoverRuckusRobot(HardwareMap hardwareMap, RobotMode robotMode, Telemetry telemetry, AllianceColor teamColor, DataLogging logFile) {
         this.telemetry = telemetry;
 
         collector = new Collector(hardwareMap, telemetry);
@@ -118,12 +118,12 @@ public class RoverRuckusRobot {
         init(telemetry);
     }
 
-    public static RoverRuckusRobot createRobotForAutonomous(HardwareMap hardwareMap, Telemetry telemetry, AllianceColor.TeamColor teamColor, DataLogging dataLog) {
+    public static RoverRuckusRobot createRobotForAutonomous(HardwareMap hardwareMap, Telemetry telemetry, AllianceColor teamColor, DataLogging dataLog) {
         RoverRuckusRobot robot = new RoverRuckusRobot(hardwareMap, RobotMode.AUTONOMOUS, telemetry, teamColor, dataLog);
         return robot;
     }
 
-    public static RoverRuckusRobot createRobotForTeleop(HardwareMap hardwareMap, Telemetry telemetry, AllianceColor.TeamColor teamColor, DataLogging dataLog) {
+    public static RoverRuckusRobot createRobotForTeleop(HardwareMap hardwareMap, Telemetry telemetry, AllianceColor teamColor, DataLogging dataLog) {
         RoverRuckusRobot robot = new RoverRuckusRobot(hardwareMap, RobotMode.TELEOP, telemetry, teamColor, dataLog);
         return robot;
     }

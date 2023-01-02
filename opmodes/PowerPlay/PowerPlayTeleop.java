@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
@@ -70,10 +71,10 @@ public class PowerPlayTeleop extends LinearOpMode {
         timer = new ElapsedTime();
         MecanumCommands commands = new MecanumCommands();
 
-        robot = new PowerPlayRobot(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, this);
+        robot = new PowerPlayRobot(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, this, AllianceColor.RED);
         gamepad = new PowerPlayGamepad(gamepad1, gamepad2, robot);
-        // create the robot and run the init for it
 
+        // create the robot and run the init for it
         robot.createRobot();
 
         enableBulkReads(hardwareMap, LynxModule.BulkCachingMode.AUTO);

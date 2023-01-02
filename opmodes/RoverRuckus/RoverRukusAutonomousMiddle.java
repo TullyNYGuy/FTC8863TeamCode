@@ -55,7 +55,7 @@ public class RoverRukusAutonomousMiddle extends LinearOpMode {
 //        driveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap, telemetry);
 //        driveTrain.setCmPerRotation(31.9); // cm
         logFile = new DataLogging("Autonomous", telemetry);
-        robot = RoverRuckusRobot.createRobotForAutonomous(hardwareMap, telemetry, AllianceColor.TeamColor.RED, logFile);
+        robot = RoverRuckusRobot.createRobotForAutonomous(hardwareMap, telemetry, AllianceColor.RED, logFile);
 
         // 12/10/2017 for some reason this line is causing the robot controller app to crash
         //systemStatus = imu.getSystemStatus();

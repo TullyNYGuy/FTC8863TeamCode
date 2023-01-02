@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
 
-public class AllianceColor {
+
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -9,10 +9,10 @@ public class AllianceColor {
     // user defined types
     //
     //*********************************************************************************************
-    public enum TeamColor {
+    public enum AllianceColor {
         RED,
-        BLUE
-    }
+        BLUE;
+
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS
     //

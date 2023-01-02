@@ -30,7 +30,7 @@ public class gefTeacherAutonomousWithIMU extends LinearOpMode {
 
         logFile = new DataLogging("Autonomous", telemetry);
 
-        robot = RoverRuckusRobot.createRobotForAutonomous(hardwareMap, telemetry, AllianceColor.TeamColor.RED, logFile);
+        robot = RoverRuckusRobot.createRobotForAutonomous(hardwareMap, telemetry, AllianceColor.RED, logFile);
         // set the imu angles to 0 when the robot is placed on the ground in front of the lander
         robot.driveTrain.imu.resetAngleReferences();
 

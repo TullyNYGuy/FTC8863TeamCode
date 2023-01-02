@@ -111,7 +111,7 @@ public class DumpServoLimitTest extends LinearOpMode {
         telemetry.update();
 
         dataLog = new DataLogging("Teleop", telemetry);
-        robot = robot.createRobotForTeleop(hardwareMap, telemetry, AllianceColor.TeamColor.RED, dataLog);
+        robot = robot.createRobotForTeleop(hardwareMap, telemetry, AllianceColor.RED, dataLog);
 
         // create the gamepad 1 buttons and tell each button how many commands it has
         gamepad1RightBumper = new GamepadButtonMultiPush(1);

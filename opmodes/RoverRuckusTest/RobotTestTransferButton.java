@@ -66,7 +66,7 @@ public class RobotTestTransferButton extends LinearOpMode {
         telemetry.update();
 
         dataLog = new DataLogging("Teleop", telemetry);
-        robot = robot.createRobotForTeleop(hardwareMap, telemetry, AllianceColor.TeamColor.RED, dataLog);
+        robot = robot.createRobotForTeleop(hardwareMap, telemetry, AllianceColor.RED, dataLog);
         robot.enableDataLogging();
 
         timer = new ElapsedTime();
