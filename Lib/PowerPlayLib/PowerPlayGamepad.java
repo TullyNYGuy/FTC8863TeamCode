@@ -15,8 +15,8 @@ package org.firstinspires.ftc.teamcode.Lib.PowerPlayLib;
  *    / B                -
  *    / X                -
  *    / Y                -
- *    /Left Bumper       -
- *    /Right Bumper      -
+ *    /Left Bumper       - driving mode = robot centric
+ *    /Right Bumper      - driving mode = field centric
  *    /Left stick button - full power (1st press), half power (2nd press)
  *
  *  Gamepad 2 layout
@@ -39,6 +39,7 @@ package org.firstinspires.ftc.teamcode.Lib.PowerPlayLib;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DrivingMode;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.GamepadButtonMultiPush;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.JoyStick;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.SmartJoystick;
@@ -124,6 +125,12 @@ public class PowerPlayGamepad {
 
     private PowerPlayRobot robot;
 
+    private DrivingMode drivingMode = DrivingMode.ROBOT_CENTRIC;
+
+    public DrivingMode getDrivingMode() {
+        return drivingMode;
+    }
+
     // private AutomaticTeleopFunctions automaticTeleopFunctions;
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -151,7 +158,7 @@ public class PowerPlayGamepad {
         //
 
         // create the gamepad 1 buttons and tell each button how many commands it has
-        gamepad1RightBumper = new GamepadButtonMultiPush(2);
+        gamepad1RightBumper = new GamepadButtonMultiPush(1);
         gamepad1LeftBumper = new GamepadButtonMultiPush(1);
         gamepad1a = new GamepadButtonMultiPush(1);
         gamepad1b = new GamepadButtonMultiPush(2);
@@ -245,15 +252,11 @@ public class PowerPlayGamepad {
 //        }
 
         if (gamepad1RightBumper.buttonPress(gamepad1.right_bumper)) {
-            // this was a new button press, not a button held down for a while
-            // put the command to be executed here
-            if (gamepad1RightBumper.isCommand1()) {
-            }
-            if (gamepad1RightBumper.isCommand2()) {
-            }
+            drivingMode = DrivingMode.FIELD_CENTRIC;
         }
 
         if (gamepad1LeftBumper.buttonPress(gamepad1.left_bumper)) {
+            drivingMode = DrivingMode.ROBOT_CENTRIC;
         }
 
         if (gamepad1a.buttonPress(gamepad1.a)) {

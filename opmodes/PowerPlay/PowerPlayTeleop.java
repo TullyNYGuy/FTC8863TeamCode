@@ -11,6 +11,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DrivingMode;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyField;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyGamepad;
@@ -115,11 +116,20 @@ public class PowerPlayTeleop extends LinearOpMode {
             // The following code uses road runner to move the robot in a driver (field) centric
             // drive
 
+            if (gamepad.getDrivingMode() == DrivingMode.ROBOT_CENTRIC) {
                 robot.mecanum.calculateMotorCommandsRobotCentric(
                         gamepad.gamepad1LeftJoyStickYValue,
                         gamepad.gamepad1LeftJoyStickXValue,
                         gamepad.gamepad1RightJoyStickXValue
                 );
+            }
+            if (gamepad.getDrivingMode() == DrivingMode.FIELD_CENTRIC) {
+                robot.mecanum.calculateMotorCommandsFieldCentric(
+                        gamepad.gamepad1LeftJoyStickYValue,
+                        gamepad.gamepad1LeftJoyStickXValue,
+                        gamepad.gamepad1RightJoyStickXValue
+                );
+            }
 
             // update the robot
             robot.update();
