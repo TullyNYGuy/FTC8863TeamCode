@@ -34,11 +34,9 @@ public class TestLiftExtension extends LinearOpMode {
                 5.713);
         //arm.reverseMotorDirection();
 
-
-        //arm.reverseMotorDirection();
         arm.setResetTimerLimitInmSec(5000);
         arm.setExtensionPower(1.0);
-        arm.setExtensionPositionInMechanismUnits(48.0);
+        arm.setExtensionPositionInMechanismUnits(35.0);
         arm.setDataLog(log);
         arm.enableDataLogging();
 

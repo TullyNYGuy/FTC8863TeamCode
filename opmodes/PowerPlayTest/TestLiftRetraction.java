@@ -21,7 +21,6 @@ public class TestLiftRetraction extends LinearOpMode {
     @Override
     public void runOpMode() {
 
-
         // Put your initializations here
 
         log = new DataLogging("LiftLog");
@@ -34,8 +33,6 @@ public class TestLiftRetraction extends LinearOpMode {
                 5.713);
         //lift.reverseMotorDirection();
 
-
-        //lift.reverseMotorDirection();
         lift.setResetTimerLimitInmSec(25000);
         lift.setExtensionPower(0.1);
         lift.setExtensionPositionInMechanismUnits(15);

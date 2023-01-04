@@ -30,10 +30,10 @@ public class TestLiftExtensionRetraction extends LinearOpMode {
                 5.713);
 
       //  lift.reverseMotorDirection();
-        lift.setExtensionPower(.1);
-        lift.setExtensionPositionInMechanismUnits(17);
-        lift.setRetractionPower(.1);
-        lift.setRetractionPositionInMechanismUnits(1);
+        lift.setExtensionPower(.75);
+        lift.setExtensionPositionInMechanismUnits(35);
+        lift.setRetractionPower(.75);
+        lift.setRetractionPositionInMechanismUnits(2);
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
         telemetry.update();
@@ -41,7 +41,7 @@ public class TestLiftExtensionRetraction extends LinearOpMode {
 
         // Put your calls here - they will not run in a loop
 
-        lift.testCycleFullExtensionRetraction(this,10,3000);
+        lift.testCycleFullExtensionRetraction(this,2,3000);
 
         while (opModeIsActive()) {
             idle();
