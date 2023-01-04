@@ -43,10 +43,10 @@ public class ConeGrabberArmServo {
 
     public ConeGrabberArmServo(HardwareMap hardwareMap, Telemetry telemetry) {
         coneGrabberArmServo = new Servo8863New(CONE_GRABBER_ARM_SERVO_NAME, hardwareMap, telemetry);
-        coneGrabberArmServo.addPosition("Init", 0.0, 2000, TimeUnit.MILLISECONDS);
-        coneGrabberArmServo.addPosition("Storage", .95,2000, TimeUnit.MILLISECONDS);
-        coneGrabberArmServo.addPosition("GrabOrRelease", .64, 2000, TimeUnit.MILLISECONDS);
-        coneGrabberArmServo.addPosition("Carry", .75, 2000, TimeUnit.MILLISECONDS);
+        coneGrabberArmServo.addPosition("Init", .22, 2000, TimeUnit.MILLISECONDS);
+        coneGrabberArmServo.addPosition("Storage", .37,2000, TimeUnit.MILLISECONDS);
+        coneGrabberArmServo.addPosition("GrabOrRelease", .80, 2000, TimeUnit.MILLISECONDS);
+        coneGrabberArmServo.addPosition("Carry", .37, 2000, TimeUnit.MILLISECONDS);
     }
     //*********************************************************************************************
     //          Helper Methods
