@@ -12,6 +12,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DrivingMode;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.MatchPhase;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyField;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyGamepad;
@@ -20,7 +21,9 @@ import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyRobotRoa
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyStartSpot;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.PersistantStorage;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.PoseStorage;
+import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayField;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayGamepad;
+import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayPersistantStorage;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayRobot;
 
 import java.util.List;
@@ -35,9 +38,9 @@ public class PowerPlayTeleop extends LinearOpMode {
     //*********************************************************************************************
 
     public PowerPlayRobot robot;
-    //public FreightFrenzyField field;
     public PowerPlayGamepad gamepad;
     public Configuration config = null;
+    public PowerPlayField field;
 
     // public AutomaticTeleopFunctions automaticTeleopFunctions;
     //set color for each game
@@ -60,7 +63,7 @@ public class PowerPlayTeleop extends LinearOpMode {
         telemetry.update();
 
         // set the persistant storage variable saying this is the teleop phase
-        //FreightFrenzyMatchInfo.setMatchPhase(FreightFrenzyMatchInfo.MatchPhase.TELEOP);
+        PowerPlayPersistantStorage.setMatchPhase(MatchPhase.TELEOP);
 
         dataLog = new DataLogging("Teleop", telemetry);
         config = null;
@@ -74,20 +77,19 @@ public class PowerPlayTeleop extends LinearOpMode {
 
         robot = new PowerPlayRobot(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, this, AllianceColor.RED);
         gamepad = new PowerPlayGamepad(gamepad1, gamepad2, robot);
+        field = new PowerPlayField(PowerPlayPersistantStorage.getAllianceColor(), PowerPlayPersistantStorage.getTeamLocation());
 
         // create the robot and run the init for it
         robot.createRobot();
 
         enableBulkReads(hardwareMap, LynxModule.BulkCachingMode.AUTO);
 
-        //field= new FreightFrenzyField();
-
         //automaticTeleopFunctions = new AutomaticTeleopFunctions(robot, field, telemetry);
 
-        if (PersistantStorage.robotPose != null) {
+        if (PersistantStorage.robotPose == null) {
             startPose = PersistantStorage.robotPose;
         } else {
-            startPose = PoseStorage.START_POSE;
+            startPose = field.getStartPose();
         }
 
         robot.mecanum.setPoseEstimate(startPose);
