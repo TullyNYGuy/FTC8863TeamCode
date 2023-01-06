@@ -86,14 +86,13 @@ public class PowerPlayTeleop extends LinearOpMode {
 
         //automaticTeleopFunctions = new AutomaticTeleopFunctions(robot, field, telemetry);
 
-        if (PersistantStorage.robotPose == null) {
+        if (PersistantStorage.robotPose != null) {
             startPose = PersistantStorage.robotPose;
         } else {
             startPose = field.getStartPose();
         }
-
-        // This is causing a crash due to a null value
-        //robot.mecanum.setPoseEstimate(startPose);
+        
+        robot.mecanum.setPoseEstimate(startPose);
         timer.reset();
 
         // Wait for the start button

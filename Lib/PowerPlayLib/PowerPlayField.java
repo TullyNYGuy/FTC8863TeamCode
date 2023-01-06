@@ -80,24 +80,24 @@ public class PowerPlayField {
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
 
-    // red left = -x -y
-    // red right = +x -y
-    // blue left = +x +y
-    // blue right = -x +y
+    // red left = -x -y, 90
+    // red right = +x -y 90
+    // blue left = +x +y 270
+    // blue right = -x +y 270
 
     public Pose2d determinestartPose2d(AllianceColor allianceColor, TeamLocation teamLocation) {
         Pose2d pose2dLocation = new Pose2d(0,0,Math.toRadians(0));
         if (allianceColor == AllianceColor.RED && teamLocation == TeamLocation.LEFT) {
-            pose2dLocation = new Pose2d(-36, -65, Math.toRadians(0));
+            pose2dLocation = new Pose2d(-36, -65, Math.toRadians(90));
         }
         if (allianceColor == AllianceColor.RED && teamLocation == TeamLocation.RIGHT) {
-            pose2dLocation = new Pose2d(36, -65, Math.toRadians(0));
+            pose2dLocation = new Pose2d(36, -65, Math.toRadians(90));
         }
         if (allianceColor == AllianceColor.BLUE && teamLocation == TeamLocation.LEFT) {
-            pose2dLocation = new Pose2d(36, 65, Math.toRadians(0));
+            pose2dLocation = new Pose2d(36, 65, Math.toRadians(270));
         }
         if (allianceColor == AllianceColor.BLUE && teamLocation == TeamLocation.RIGHT) {
-            pose2dLocation = new Pose2d(-36, 65, Math.toRadians(0));
+            pose2dLocation = new Pose2d(-36, 65, Math.toRadians(270));
         }
         return pose2dLocation;
     }
