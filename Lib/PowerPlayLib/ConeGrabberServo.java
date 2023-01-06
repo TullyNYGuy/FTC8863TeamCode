@@ -47,7 +47,7 @@ public class ConeGrabberServo {
         coneGrabberServo.addPosition("Init", 0.0, 2000, TimeUnit.MILLISECONDS);
         coneGrabberServo.addPosition("Storage", .95,2000, TimeUnit.MILLISECONDS);
         coneGrabberServo.addPosition("Open", 1.00, 2000, TimeUnit.MILLISECONDS);
-        coneGrabberServo.addPosition("Close", .35, 2000, TimeUnit.MILLISECONDS);
+        coneGrabberServo.addPosition("Close", .40, 2000, TimeUnit.MILLISECONDS);
     }
     //*********************************************************************************************
     //          Helper Methods

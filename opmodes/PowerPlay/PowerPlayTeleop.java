@@ -92,7 +92,8 @@ public class PowerPlayTeleop extends LinearOpMode {
             startPose = field.getStartPose();
         }
 
-        robot.mecanum.setPoseEstimate(startPose);
+        // This is causing a crash due to a null value
+        //robot.mecanum.setPoseEstimate(startPose);
         timer.reset();
 
         // Wait for the start button

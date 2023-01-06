@@ -11,9 +11,9 @@ package org.firstinspires.ftc.teamcode.Lib.PowerPlayLib;
  *    / DPad Left        -
  *    / DPad Down        -
  *    / DPad Right       -
- *    / A                -
- *    / B                -
- *    / X                -
+ *    / A                - toggle grab and release
+ *    / B                - cone grabber arm to carry
+ *    / X                - cone grabber arm to pickup/release
  *    / Y                -
  *    /Left Bumper       - driving mode = robot centric
  *    /Right Bumper      - driving mode = field centric
@@ -24,11 +24,11 @@ package org.firstinspires.ftc.teamcode.Lib.PowerPlayLib;
  *    / Left JoystickY   -
  *    / Right JoystickX  -
  *    / Right JoystickY  -
- *    / DPad Up          -
- *    / DPad Left        -
- *    / DPad Down        -
- *    / DPad Right       -
- *    / A                -
+ *    / DPad Up          - Move lift to high
+ *    / DPad Left        - Move lift to low
+ *    / DPad Down        - Move lift to ground
+ *    / DPad Right       - Move lift to medium
+ *    / A                - Move lift to pickup
  *    / B                -
  *    / X                -
  *    / Y                -
@@ -160,8 +160,8 @@ public class PowerPlayGamepad {
         // create the gamepad 1 buttons and tell each button how many commands it has
         gamepad1RightBumper = new GamepadButtonMultiPush(1);
         gamepad1LeftBumper = new GamepadButtonMultiPush(1);
-        gamepad1a = new GamepadButtonMultiPush(1);
-        gamepad1b = new GamepadButtonMultiPush(2);
+        gamepad1a = new GamepadButtonMultiPush(2);
+        gamepad1b = new GamepadButtonMultiPush(1);
         gamepad1y = new GamepadButtonMultiPush(1);
         gamepad1x = new GamepadButtonMultiPush(1);
         gamepad1DpadUp = new GamepadButtonMultiPush(1);
@@ -260,15 +260,23 @@ public class PowerPlayGamepad {
         }
 
         if (gamepad1a.buttonPress(gamepad1.a)) {
+            if (gamepad2b.isCommand1()) {
+                robot.coneGrabber.readyToGrab();
+            }
+            if (gamepad2b.isCommand2()) {
+                robot.coneGrabber.grab();
+            }
         }
 
         if (gamepad1b.buttonPress(gamepad1.b)) {
+            robot.coneGrabber.carry();
         }
 
         if (gamepad1y.buttonPress(gamepad1.y)) {
         }
 
         if (gamepad1x.buttonPress(gamepad1.x)) {
+            robot.coneGrabber.readyToRelease();
 
         }
 
@@ -350,6 +358,7 @@ public class PowerPlayGamepad {
         }
 
         if (gamepad2a.buttonPress(gamepad2.a)) {
+            robot.leftLift.moveToPickup();
 
         }
 
@@ -367,15 +376,19 @@ public class PowerPlayGamepad {
         }
 
         if (gamepad2DpadUp.buttonPress(gamepad2.dpad_up)) {
+            robot.leftLift.moveToHigh();
         }
 
         if (gamepad2DpadDown.buttonPress(gamepad2.dpad_down)) {
+            robot.leftLift.moveToGround();
         }
 
         if (gamepad2DpadLeft.buttonPress(gamepad2.dpad_left)) {
+            robot.leftLift.moveToLow();
         }
 
         if (gamepad2DpadRight.buttonPress(gamepad2.dpad_right)) {
+            robot.leftLift.moveToMedium();
         }
 
         if (gamepad2LeftStickButton.buttonPress(gamepad2.left_stick_button)) {

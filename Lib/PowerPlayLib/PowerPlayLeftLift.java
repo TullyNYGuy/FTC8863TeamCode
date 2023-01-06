@@ -121,28 +121,28 @@ public class PowerPlayLeftLift implements FTCRobotSubsystem {
         //*********************************************
         // SET the lift positions here
         //*********************************************
-        highPosition = 27.7;
-        mediumPosition = 12;
-        lowPosition = 6;
-        groundPosition = 2;
-        pickupPosition = 0.5;
-        initPosition = 0.1;
+        highPosition = 35.0;
+        mediumPosition = 25.0;
+        lowPosition = 15.5;
+        groundPosition = 3.0;
+        pickupPosition = 1.0;
+        initPosition = 1.0;
         homePosition = 0.5;
 
         //*********************************************
         // SET the lift powers here
         //*********************************************
-        initPower = 0.3;
-        extendPower = 0.9;
-        retractPower = -0.5;
+        initPower = .2;
+        extendPower = .5;
+        retractPower = -.4;
         leftLift.setExtensionPower(extendPower);
         leftLift.setRetractionPower(retractPower);
         
         //*********************************************
         // SET the lift max and min positions here
         //*********************************************
-        leftLift.setExtensionPositionInMechanismUnits(31.0);
-        leftLift.setRetractionPositionInMechanismUnits(0.5);
+        leftLift.setExtensionPositionInMechanismUnits(36.0);
+        leftLift.setRetractionPositionInMechanismUnits(0.04);
 
         leftLift.setResetTimerLimitInmSec(5000);
         timer = new ElapsedTime();
