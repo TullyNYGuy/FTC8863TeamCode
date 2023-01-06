@@ -44,8 +44,8 @@ public class ConeGrabberArmServo {
     public ConeGrabberArmServo(HardwareMap hardwareMap, Telemetry telemetry) {
         coneGrabberArmServo = new Servo8863New(CONE_GRABBER_ARM_SERVO_NAME, hardwareMap, telemetry);
         coneGrabberArmServo.addPosition("Init", .22, 2000, TimeUnit.MILLISECONDS);
-        coneGrabberArmServo.addPosition("Storage", .37,2000, TimeUnit.MILLISECONDS);
-        coneGrabberArmServo.addPosition("GrabOrRelease", .80, 2000, TimeUnit.MILLISECONDS);
+        coneGrabberArmServo.addPosition("Release", .80, 2000, TimeUnit.MILLISECONDS);
+        coneGrabberArmServo.addPosition("Pickup", .80, 2000, TimeUnit.MILLISECONDS);;
         coneGrabberArmServo.addPosition("Carry", .37, 2000, TimeUnit.MILLISECONDS);
     }
     //*********************************************************************************************
@@ -64,15 +64,15 @@ public class ConeGrabberArmServo {
         coneGrabberArmServo.setPosition("Init");
     }
     
-    public void store() {
-        coneGrabberArmServo.setPosition("Storage");
+    public void releasePosition() {
+        coneGrabberArmServo.setPosition("Release");
     }
 
-    public void grabOrRelease() {
-        coneGrabberArmServo.setPosition("GrabOrRelease");
+    public void pickupPosition() {
+        coneGrabberArmServo.setPosition("Pickup");
     }
 
-    public void carry() {
+    public void carryPosition() {
         coneGrabberArmServo.setPosition("Carry");
     }
 

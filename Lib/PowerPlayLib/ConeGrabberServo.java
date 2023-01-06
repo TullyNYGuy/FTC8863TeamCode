@@ -44,8 +44,7 @@ public class ConeGrabberServo {
 
     public ConeGrabberServo(HardwareMap hardwareMap, Telemetry telemetry) {
         coneGrabberServo = new Servo8863New(CONE_GRABBER_SERVO_NAME, hardwareMap, telemetry);
-        coneGrabberServo.addPosition("Init", 0.0, 2000, TimeUnit.MILLISECONDS);
-        coneGrabberServo.addPosition("Storage", .95,2000, TimeUnit.MILLISECONDS);
+        coneGrabberServo.addPosition("Init", .40, 2000, TimeUnit.MILLISECONDS);
         coneGrabberServo.addPosition("Open", 1.00, 2000, TimeUnit.MILLISECONDS);
         coneGrabberServo.addPosition("Close", .40, 2000, TimeUnit.MILLISECONDS);
     }
@@ -63,10 +62,6 @@ public class ConeGrabberServo {
 
     public void init() {
         coneGrabberServo.setPosition("Init");
-    }
-
-    public void store() {
-        coneGrabberServo.setPosition("Storage");
     }
 
     public void open() {

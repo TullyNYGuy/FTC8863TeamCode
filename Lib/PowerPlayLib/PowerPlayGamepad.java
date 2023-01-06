@@ -11,10 +11,10 @@ package org.firstinspires.ftc.teamcode.Lib.PowerPlayLib;
  *    / DPad Left        -
  *    / DPad Down        -
  *    / DPad Right       -
- *    / A                - toggle grab and release
+ *    / A                - cone grabber open
  *    / B                - cone grabber arm to carry
  *    / X                - cone grabber arm to pickup/release
- *    / Y                -
+ *    / Y                - cone grabber close
  *    /Left Bumper       - driving mode = robot centric
  *    /Right Bumper      - driving mode = field centric
  *    /Left stick button - full power (1st press), half power (2nd press)
@@ -160,7 +160,7 @@ public class PowerPlayGamepad {
         // create the gamepad 1 buttons and tell each button how many commands it has
         gamepad1RightBumper = new GamepadButtonMultiPush(1);
         gamepad1LeftBumper = new GamepadButtonMultiPush(1);
-        gamepad1a = new GamepadButtonMultiPush(2);
+        gamepad1a = new GamepadButtonMultiPush(1);
         gamepad1b = new GamepadButtonMultiPush(1);
         gamepad1y = new GamepadButtonMultiPush(1);
         gamepad1x = new GamepadButtonMultiPush(1);
@@ -260,23 +260,19 @@ public class PowerPlayGamepad {
         }
 
         if (gamepad1a.buttonPress(gamepad1.a)) {
-            if (gamepad2b.isCommand1()) {
-                robot.coneGrabber.readyToGrab();
-            }
-            if (gamepad2b.isCommand2()) {
-                robot.coneGrabber.grab();
-            }
+            robot.coneGrabber.open();
         }
 
         if (gamepad1b.buttonPress(gamepad1.b)) {
-            robot.coneGrabber.carry();
+            robot.coneGrabber.carryPosition();
         }
 
         if (gamepad1y.buttonPress(gamepad1.y)) {
+            robot.coneGrabber.close();
         }
 
         if (gamepad1x.buttonPress(gamepad1.x)) {
-            robot.coneGrabber.readyToRelease();
+            robot.coneGrabber.pickupPosition();
 
         }
 
@@ -350,7 +346,7 @@ public class PowerPlayGamepad {
 //        }
 
         if (gamepad2RightBumper.buttonPress(gamepad2.right_bumper)) {
-           
+
         }
 
         if (gamepad2LeftBumper.buttonPress(gamepad2.left_bumper)) {

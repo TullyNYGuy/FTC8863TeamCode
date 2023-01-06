@@ -28,17 +28,19 @@ public class PowerPlayConeGrabber implements FTCRobotSubsystem {
         WAITING_FOR_CONE_GRABBER_INIT_TO_COMPLETE,
         INIT_COMPLETE,
 
-        // moving states
-        MOVING_TO_CARRY,
-
+        // cone grabber servo states
         MOVING_TO_OPEN,
-        MOVING_TO_READY_TO_GRAB,
+        MOVING_TO_CLOSE,
 
-        MOVING_TO_GRAB,
-        MOVING_TO_READY_TO_RELEASE,
-
+        // arm position states
+        MOVING_TO_CARRY,
+        MOVING_TO_PICKUP,
         MOVING_TO_RELEASE,
-        MOVING_TO_POST_RELEASE
+
+        // combination of arm position and grabber movements
+        MOVING_TO_OPEN_BEFORE_PICKUP, // prepare for a pickup
+        MOVING_TO_CLOSE_BEFORE_CARRY, // pickup a cone
+        MOVING_TO_OPEN_BEFORE_CARRY // release a cone
     }
 
     private ConeGrabberState coneGrabberState = ConeGrabberState.PRE_INIT;
@@ -110,8 +112,8 @@ public class PowerPlayConeGrabber implements FTCRobotSubsystem {
 
     @Override
     public void shutdown() {
-        coneGrabberServo.store();
-        coneGrabberArmServo.store();
+        coneGrabberServo.close();
+        coneGrabberArmServo.carryPosition();
     }
 
     @Override
@@ -196,93 +198,147 @@ public class PowerPlayConeGrabber implements FTCRobotSubsystem {
     // Public commands for controlling the CONE GRABBER
     //********************************************************************************
 
-    /**
-     * Move the arm to carry position
-     */
-    public void carry() {
+    public void open() {
         // lockout for double hits on a command button. Downside is that the driver better hit the
         // right button the first time or they are toast
         if (commandComplete) {
-            logCommand("cone grabber to carry");
-            commandComplete = false;
-            //command to start extension
-            coneGrabberState = ConeGrabberState.MOVING_TO_CARRY;
-            coneGrabberArmServo.carry();
-        } else {
-            // you can't start a new command when the old one is not finished
-            logCommand("Carry command ignored");
-        }
-    }
-
-    /**
-     * Open the grabber, then move the arm to the position where it can grab
-     */
-    public void readyToGrab() {
-        // lockout for double hits on a command button. Downside is that the driver better hit the
-        // right button the first time or they are toast
-        if (commandComplete) {
-            logCommand("cone grabber to ready to grab");
+            logCommand("cone grabber open");
             commandComplete = false;
             //command to start extension
             coneGrabberState = ConeGrabberState.MOVING_TO_OPEN;
             coneGrabberServo.open();
         } else {
             // you can't start a new command when the old one is not finished
-            logCommand("ready to grab command ignored");
+            logCommand("open command ignored");
         }
     }
 
     /**
      * Close the grabber
      */
-    public void grab() {
+    public void close() {
         // lockout for double hits on a command button. Downside is that the driver better hit the
         // right button the first time or they are toast
         if (commandComplete) {
-            logCommand("cone grabber to grab");
+            logCommand("cone grabber close");
             commandComplete = false;
             //command to start extension
-            coneGrabberState = ConeGrabberState.MOVING_TO_GRAB;
+            coneGrabberState = ConeGrabberState.MOVING_TO_CLOSE;
             coneGrabberServo.close();
         } else {
             // you can't start a new command when the old one is not finished
-            logCommand("grab command ignored");
+            logCommand("close command ignored");
         }
     }
 
     /**
-     * Move the arm to position where it can release the cone, but still hold the cone
+     * Move the arm to carry position (carry the cone around while driving)
      */
-    public void readyToRelease() {
+    public void carryPosition() {
         // lockout for double hits on a command button. Downside is that the driver better hit the
         // right button the first time or they are toast
         if (commandComplete) {
-            logCommand("cone grabber to ready to release");
+            logCommand("grabber to carry position");
             commandComplete = false;
             //command to start extension
-            coneGrabberState = ConeGrabberState.MOVING_TO_READY_TO_RELEASE;
-            coneGrabberArmServo.grabOrRelease();
+            coneGrabberState = ConeGrabberState.MOVING_TO_CARRY;
+            coneGrabberArmServo.carryPosition();
         } else {
             // you can't start a new command when the old one is not finished
-            logCommand("ready to release command ignored");
+            logCommand("Carry position command ignored");
         }
     }
 
     /**
-     * Release the cone, then move the arm to the carry position
+     * Move the arm to release position (where you can release the cone)
      */
-    public void release() {
+    public void releasePosition() {
         // lockout for double hits on a command button. Downside is that the driver better hit the
         // right button the first time or they are toast
         if (commandComplete) {
-            logCommand("cone grabber to release");
+            logCommand("cone grabber to release position");
             commandComplete = false;
             //command to start extension
             coneGrabberState = ConeGrabberState.MOVING_TO_RELEASE;
+            coneGrabberArmServo.releasePosition();
+        } else {
+            // you can't start a new command when the old one is not finished
+            logCommand("Release position command ignored");
+        }
+    }
+
+    /**
+     * Move the arm to position where it can pickup the cone
+     */
+    public void pickupPosition() {
+        // lockout for double hits on a command button. Downside is that the driver better hit the
+        // right button the first time or they are toast
+        if (commandComplete) {
+            logCommand("cone grabber to pickup position");
+            commandComplete = false;
+            //command to start extension
+            coneGrabberState = ConeGrabberState.MOVING_TO_PICKUP;
+            coneGrabberArmServo.pickupPosition();
+        } else {
+            // you can't start a new command when the old one is not finished
+            logCommand("Pickup position command ignored");
+        }
+    }
+
+    /**
+     * Open the grabber, then move the arm to the position where it can grab.
+     * This prepares for a pickup.
+     */
+    public void openThenPickupPosition() {
+        // lockout for double hits on a command button. Downside is that the driver better hit the
+        // right button the first time or they are toast
+        if (commandComplete) {
+            logCommand("cone grabber open then pickup position");
+            commandComplete = false;
+            //command to start extension
+            coneGrabberState = ConeGrabberState.MOVING_TO_OPEN_BEFORE_PICKUP;
             coneGrabberServo.open();
         } else {
             // you can't start a new command when the old one is not finished
-            logCommand("ready to grab command ignored");
+            logCommand("cone grabber open then pickup command ignored");
+        }
+    }
+
+    /**
+     * Release the cone, then move the arm to the carry position.
+     * This prepares to lower the lift after releasing the cone.
+     */
+    public void openThenCarryPosition() {
+        // lockout for double hits on a command button. Downside is that the driver better hit the
+        // right button the first time or they are toast
+        if (commandComplete) {
+            logCommand("cone grabber open then to carry position");
+            commandComplete = false;
+            //command to start extension
+            coneGrabberState = ConeGrabberState.MOVING_TO_OPEN_BEFORE_CARRY;
+            coneGrabberServo.open();
+        } else {
+            // you can't start a new command when the old one is not finished
+            logCommand("cone grabber open then to carry command ignored");
+        }
+    }
+
+    /**
+     * Pickup the cone, then move the arm to the carry position.
+     * This prepares for driving after a pickup.
+     */
+    public void closeThenCarryPosition() {
+        // lockout for double hits on a command button. Downside is that the driver better hit the
+        // right button the first time or they are toast
+        if (commandComplete) {
+            logCommand("cone grabber close then to carry position");
+            commandComplete = false;
+            //command to start extension
+            coneGrabberState = ConeGrabberState.MOVING_TO_CLOSE_BEFORE_CARRY;
+            coneGrabberServo.close();
+        } else {
+            // you can't start a new command when the old one is not finished
+            logCommand("cone grabber close then to carry command ignored");
         }
     }
 
@@ -322,42 +378,10 @@ public class PowerPlayConeGrabber implements FTCRobotSubsystem {
             break;
 
             //********************************************************************************
-            // carry states
+            // cone grabber movement only states
             //********************************************************************************
-
-            case MOVING_TO_CARRY: {
-                if (coneGrabberArmServo.isPositionReached()) {
-                    commandComplete = true;
-                    coneGrabberState = ConeGrabberState.READY;
-                }
-            }
-            break;
-
-            //********************************************************************************
-            // ready to grab states
-            //********************************************************************************
-
-            case MOVING_TO_OPEN: {
-                if (coneGrabberServo.isPositionReached()) {
-                    coneGrabberArmServo.grabOrRelease();
-                    coneGrabberState = ConeGrabberState.MOVING_TO_READY_TO_GRAB;
-                }
-            }
-            break;
-
-            case MOVING_TO_READY_TO_GRAB: {
-                if (coneGrabberArmServo.isPositionReached()) {
-                    commandComplete = true;
-                    coneGrabberState = ConeGrabberState.READY;
-                }
-            }
-            break;
-
-            //********************************************************************************
-            // grab states
-            //********************************************************************************
-
-            case MOVING_TO_GRAB: {
+            case MOVING_TO_OPEN:
+            case MOVING_TO_CLOSE: {
                 if (coneGrabberServo.isPositionReached()) {
                     commandComplete = true;
                     coneGrabberState = ConeGrabberState.READY;
@@ -366,10 +390,12 @@ public class PowerPlayConeGrabber implements FTCRobotSubsystem {
             break;
 
             //********************************************************************************
-            // ready to release states
+            // arm movement only states
             //********************************************************************************
 
-            case MOVING_TO_READY_TO_RELEASE: {
+            case MOVING_TO_CARRY:
+            case MOVING_TO_RELEASE:
+            case MOVING_TO_PICKUP: {
                 if (coneGrabberArmServo.isPositionReached()) {
                     commandComplete = true;
                     coneGrabberState = ConeGrabberState.READY;
@@ -378,21 +404,22 @@ public class PowerPlayConeGrabber implements FTCRobotSubsystem {
             break;
 
             //********************************************************************************
-            // release states
+            // combination of arm movement and grabber movement states
             //********************************************************************************
 
-            case MOVING_TO_RELEASE: {
+            case MOVING_TO_OPEN_BEFORE_PICKUP: {
                 if (coneGrabberServo.isPositionReached()) {
-                    coneGrabberArmServo.carry();
-                    coneGrabberState = ConeGrabberState.MOVING_TO_POST_RELEASE;
+                    coneGrabberArmServo.pickupPosition();
+                    coneGrabberState = ConeGrabberState.MOVING_TO_PICKUP;
                 }
             }
             break;
 
-            case MOVING_TO_POST_RELEASE: {
-                if (coneGrabberArmServo.isPositionReached()) {
-                    commandComplete = true;
-                    coneGrabberState = ConeGrabberState.READY;
+            case MOVING_TO_OPEN_BEFORE_CARRY:
+            case MOVING_TO_CLOSE_BEFORE_CARRY: {
+                if (coneGrabberServo.isPositionReached()) {
+                    coneGrabberArmServo.carryPosition();
+                    coneGrabberState = ConeGrabberState.MOVING_TO_CARRY;
                 }
             }
             break;

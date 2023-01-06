@@ -125,8 +125,8 @@ public class PowerPlayLeftLift implements FTCRobotSubsystem {
         mediumPosition = 25.0;
         lowPosition = 15.5;
         groundPosition = 3.0;
-        pickupPosition = 1.0;
-        initPosition = 1.0;
+        pickupPosition = 0.25;
+        initPosition = 0.25;
         homePosition = 0.5;
 
         //*********************************************
