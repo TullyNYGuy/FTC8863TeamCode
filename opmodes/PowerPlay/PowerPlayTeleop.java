@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColorTeamLocation;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DrivingMode;
@@ -75,9 +76,9 @@ public class PowerPlayTeleop extends LinearOpMode {
         timer = new ElapsedTime();
         MecanumCommands commands = new MecanumCommands();
 
-        robot = new PowerPlayRobot(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, this, AllianceColor.RED);
+        robot = new PowerPlayRobot(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, this);
         gamepad = new PowerPlayGamepad(gamepad1, gamepad2, robot);
-        field = new PowerPlayField(PowerPlayPersistantStorage.getAllianceColor(), PowerPlayPersistantStorage.getTeamLocation());
+        field = new PowerPlayField(PowerPlayPersistantStorage.getColorLocation());
 
         // create the robot and run the init for it
         robot.createRobot();
@@ -91,7 +92,7 @@ public class PowerPlayTeleop extends LinearOpMode {
         } else {
             startPose = field.getStartPose();
         }
-        
+
         robot.mecanum.setPoseEstimate(startPose);
         timer.reset();
 

@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColorTeamLocation;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.TeamLocation;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayPersistantStorage;
 
@@ -37,6 +38,7 @@ public class SetBlueAllianceTeamPositionRight extends LinearOpMode {
 
         PowerPlayPersistantStorage.setAllianceColor(AllianceColor.BLUE);
         PowerPlayPersistantStorage.setTeamLocation(TeamLocation.RIGHT);
+        PowerPlayPersistantStorage.setColorLocation(AllianceColorTeamLocation.getColorLocation(AllianceColor.BLUE, TeamLocation.RIGHT));
         telemetry.addData(">", "Blue Alliance, Right side");
         telemetry.update();
         timer.reset();

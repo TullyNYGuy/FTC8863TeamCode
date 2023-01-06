@@ -7,6 +7,7 @@ import com.acmerobotics.roadrunner.geometry.Vector2d;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColorTeamLocation;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.TeamLocation;
 import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.UltimateGoalGoal;
 
@@ -65,13 +66,13 @@ public class PowerPlayField {
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
-    public PowerPlayField(AllianceColor allianceColor, TeamLocation teamLocation) {
+    public PowerPlayField(AllianceColorTeamLocation.ColorLocation colorLocation) {
         // default field units will be inches
-        units = DistanceUnit.INCH;
-        startPose = determinestartPose2d(allianceColor, teamLocation);
-        parkingPoseLocation1 = determineParkLocation1(allianceColor, teamLocation);
-        parkingPoseLocation2 = determineParkLocation2(allianceColor, teamLocation);
-        parkingPoseLocation3 = determineParkLocation3(allianceColor, teamLocation);
+        this.units = DistanceUnit.INCH;
+        this.startPose = determinestartPose2d(colorLocation);
+        this.parkingPoseLocation1 = determineParkLocation1(colorLocation);
+        this.parkingPoseLocation2 = determineParkLocation2(colorLocation);
+        this.parkingPoseLocation3 = determineParkLocation3(colorLocation);
     }
 
     //*********************************************************************************************
@@ -85,70 +86,78 @@ public class PowerPlayField {
     // blue left = +x +y 270
     // blue right = -x +y 270
 
-    public Pose2d determinestartPose2d(AllianceColor allianceColor, TeamLocation teamLocation) {
+    private Pose2d determinestartPose2d(AllianceColorTeamLocation.ColorLocation colorLocation) {
         Pose2d pose2dLocation = new Pose2d(0,0,Math.toRadians(0));
-        if (allianceColor == AllianceColor.RED && teamLocation == TeamLocation.LEFT) {
-            pose2dLocation = new Pose2d(-36, -65, Math.toRadians(90));
-        }
-        if (allianceColor == AllianceColor.RED && teamLocation == TeamLocation.RIGHT) {
-            pose2dLocation = new Pose2d(36, -65, Math.toRadians(90));
-        }
-        if (allianceColor == AllianceColor.BLUE && teamLocation == TeamLocation.LEFT) {
-            pose2dLocation = new Pose2d(36, 65, Math.toRadians(270));
-        }
-        if (allianceColor == AllianceColor.BLUE && teamLocation == TeamLocation.RIGHT) {
-            pose2dLocation = new Pose2d(-36, 65, Math.toRadians(270));
-        }
-        return pose2dLocation;
-    }
-
-    public Pose2d determineParkLocation1(AllianceColor allianceColor, TeamLocation teamLocation) {
-        Pose2d pose2dLocation = new Pose2d(0,0,0);
-        if (allianceColor == AllianceColor.RED && teamLocation == TeamLocation.LEFT) {
-            pose2dLocation = new Pose2d(24, 24, Math.toRadians(270));
-        }
-        if (allianceColor == AllianceColor.RED && teamLocation == TeamLocation.RIGHT) {
-            pose2dLocation = new Pose2d(24, 24, Math.toRadians(270));
-        }
-        if (allianceColor == AllianceColor.BLUE && teamLocation == TeamLocation.LEFT) {
-            pose2dLocation = new Pose2d(24, 24, Math.toRadians(270));
-        }
-        if (allianceColor == AllianceColor.BLUE && teamLocation == TeamLocation.RIGHT) {
-            pose2dLocation = new Pose2d(24, 24, Math.toRadians(270));
+        switch (colorLocation) {
+            case RED_LEFT:
+                pose2dLocation = new Pose2d(-36, -65, Math.toRadians(90));
+                break;
+            case RED_RIGHT:
+                pose2dLocation = new Pose2d(36, -65, Math.toRadians(90));
+                break;
+            case BLUE_LEFT:
+                pose2dLocation = new Pose2d(36, 65, Math.toRadians(270));
+                break;
+            case BLUE_RIGHT:
+                pose2dLocation = new Pose2d(-36, 65, Math.toRadians(270));
+                break;
         }
         return pose2dLocation;
     }
 
-    public Pose2d determineParkLocation2(AllianceColor allianceColor, TeamLocation teamLocation) {
+    private Pose2d determineParkLocation1(AllianceColorTeamLocation.ColorLocation colorLocation) {
         Pose2d pose2dLocation = new Pose2d(0,0,0);
-        if (allianceColor == AllianceColor.RED && teamLocation == TeamLocation.LEFT) {
-            pose2dLocation = new Pose2d(24, 24, Math.toRadians(270));
-        }
-        if (allianceColor == AllianceColor.RED && teamLocation == TeamLocation.RIGHT) {
-            pose2dLocation = new Pose2d(24, 24, Math.toRadians(270));
-        }
-        if (allianceColor == AllianceColor.BLUE && teamLocation == TeamLocation.LEFT) {
-            pose2dLocation = new Pose2d(24, 24, Math.toRadians(270));
-        }
-        if (allianceColor == AllianceColor.BLUE && teamLocation == TeamLocation.RIGHT) {
-            pose2dLocation = new Pose2d(24, 24, Math.toRadians(270));
+        switch (colorLocation) {
+            case RED_LEFT:
+                pose2dLocation = new Pose2d(24, 24, Math.toRadians(270));
+                break;
+            case RED_RIGHT:
+                pose2dLocation = new Pose2d(24, 24, Math.toRadians(270));
+                break;
+            case BLUE_LEFT:
+                pose2dLocation = new Pose2d(24, 24, Math.toRadians(270));
+                break;
+            case BLUE_RIGHT:
+                pose2dLocation = new Pose2d(24, 24, Math.toRadians(270));
+                break;
         }
         return pose2dLocation;
     }
 
-    public Pose2d determineParkLocation3(AllianceColor allianceColor, TeamLocation teamLocation) {
+    private Pose2d determineParkLocation2(AllianceColorTeamLocation.ColorLocation colorLocation) {
         Pose2d pose2dLocation = new Pose2d(0,0,0);
-        if (allianceColor == AllianceColor.RED && teamLocation == TeamLocation.LEFT) {
-            pose2dLocation = new Pose2d(24, 24, Math.toRadians(270));
+        switch (colorLocation) {
+            case RED_LEFT:
+                pose2dLocation = new Pose2d(24, 24, Math.toRadians(270));
+                break;
+            case RED_RIGHT:
+                pose2dLocation = new Pose2d(24, 24, Math.toRadians(270));
+                break;
+            case BLUE_LEFT:
+                pose2dLocation = new Pose2d(24, 24, Math.toRadians(270));
+                break;
+            case BLUE_RIGHT:
+                pose2dLocation = new Pose2d(24, 24, Math.toRadians(270));
+                break;
         }
-        if (allianceColor == AllianceColor.RED && teamLocation == TeamLocation.RIGHT) {
-            pose2dLocation = new Pose2d(24, 24, Math.toRadians(270));
-        }
-        if (allianceColor == AllianceColor.BLUE && teamLocation == TeamLocation.LEFT) {
-            pose2dLocation = new Pose2d(24, 24, Math.toRadians(270));
-        }
-        if (allianceColor == AllianceColor.BLUE && teamLocation == TeamLocation.RIGHT) {
-            pose2dLocation = new Pose2d(24, 24, Math.toRadians(270));
+        return pose2dLocation;
+    }
+
+    private Pose2d determineParkLocation3(AllianceColorTeamLocation.ColorLocation colorLocation) {
+        Pose2d pose2dLocation = new Pose2d(0,0,0);
+        switch (colorLocation) {
+            case RED_LEFT:
+                pose2dLocation = new Pose2d(24, 24, Math.toRadians(270));
+                break;
+            case RED_RIGHT:
+                pose2dLocation = new Pose2d(24, 24, Math.toRadians(270));
+                break;
+            case BLUE_LEFT:
+                pose2dLocation = new Pose2d(24, 24, Math.toRadians(270));
+                break;
+            case BLUE_RIGHT:
+                pose2dLocation = new Pose2d(24, 24, Math.toRadians(270));
+                break;
         }
         return pose2dLocation;
     }

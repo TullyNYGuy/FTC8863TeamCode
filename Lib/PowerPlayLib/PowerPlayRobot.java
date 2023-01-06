@@ -11,6 +11,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColorTeamLocation;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobot;
@@ -20,6 +21,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.RevLED;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.RevLEDBlinker;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.RobotPosition;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.TeamLocation;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FFBlinkinLed;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyMatchInfo;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyStartSpot;
@@ -97,7 +99,6 @@ public class PowerPlayRobot implements FTCRobot {
     private FreightFrenzyMatchInfo robotMode;
     Map<String, FTCRobotSubsystem> subsystemMap;
     private String activeWebcamName;
-    private AllianceColor allianceColor;
     private ElapsedTime timer;
     private LinearOpMode opMode;
 
@@ -124,7 +125,8 @@ public class PowerPlayRobot implements FTCRobot {
     //public RevLEDBlinker ledBlinker;
     //public FFBlinkinLed ledStrip;
 
-    public PowerPlayRobot(HardwareMap hardwareMap, Telemetry telemetry, Configuration config, DataLogging dataLog, DistanceUnit units, LinearOpMode opMode, AllianceColor allianceColor) {
+    public PowerPlayRobot(HardwareMap hardwareMap, Telemetry telemetry, Configuration config,
+                          DataLogging dataLog, DistanceUnit units, LinearOpMode opMode) {
         timer = new ElapsedTime();
         loopTimer = new LoopTimer();
         this.hardwareMap = hardwareMap;
@@ -133,7 +135,6 @@ public class PowerPlayRobot implements FTCRobot {
         this.config = config;
         this.dataLog = dataLog;
         this.opMode = opMode;
-        this.allianceColor = allianceColor;
         cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         this.subsystemMap = new HashMap<String, FTCRobotSubsystem>();
         setCapabilities(Subsystem.values());
