@@ -79,6 +79,7 @@ public class Servo8863New {
      * moving to.
      */
     private ServoPosition activePosition;
+    private String activePositionName;
 
     private ElapsedTime timer;
 
@@ -202,18 +203,28 @@ public class Servo8863New {
      * @param positionName
      */
     public void setPosition(String positionName) {
-        activePosition = positions.get(positionName);
-        if (activePosition.getTimeToDelayStart(TimeUnit.MILLISECONDS) == 0) {
-            // there is no delay
-            // start the servo position timer
-            activePosition.startMoveToPosition();
-            // since there is no delay, start right into the servo movement
-            servoState = ServoState.START_MOVEMENT;
+        if (positionName == activePositionName) {
+            // The servo position that is requested is the same as the last one that was requested.
+            // There is nothing to do. Shortcut the request by telling the state machine that the
+            // movement is complete.
+            servoState = ServoState.COMPLETE;
         } else {
-            // there is a delay
-            // start the delay timer
-            timer.reset();
-            servoState = ServoState.DELAYING;
+            // The servo position that is requested is different than the last one. So set the new
+            // position.
+            activePositionName = positionName;
+            activePosition = positions.get(positionName);
+            if (activePosition.getTimeToDelayStart(TimeUnit.MILLISECONDS) == 0) {
+                // there is no delay
+                // start the servo position timer
+                activePosition.startMoveToPosition();
+                // since there is no delay, start right into the servo movement
+                servoState = ServoState.START_MOVEMENT;
+            } else {
+                // there is a delay
+                // start the delay timer
+                timer.reset();
+                servoState = ServoState.DELAYING;
+            }
         }
         // run the state machine once so that if there is no delay the command gets sent to the servo
         isPositionReached();
