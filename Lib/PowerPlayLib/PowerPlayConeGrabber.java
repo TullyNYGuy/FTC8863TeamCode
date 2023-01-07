@@ -184,6 +184,14 @@ public class PowerPlayConeGrabber implements FTCRobotSubsystem {
         return initComplete;
     }
 
+    public boolean isPositionReached() {
+        if (coneGrabberState == ConeGrabberState.READY) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public boolean isCommandComplete() {
         return commandComplete;
     }

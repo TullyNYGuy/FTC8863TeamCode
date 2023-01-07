@@ -239,6 +239,14 @@ public class PowerPlayLeftLift implements FTCRobotSubsystem {
         return initComplete;
     }
 
+    public boolean isPositionReached() {
+        if (liftState == LiftState.READY) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public void setPhaseAutonomous() {
         phase = Phase.AUTONOMOUS;
     }
