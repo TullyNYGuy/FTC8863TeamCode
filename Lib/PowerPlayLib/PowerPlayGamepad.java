@@ -7,14 +7,14 @@ package org.firstinspires.ftc.teamcode.Lib.PowerPlayLib;
  *    / Left JoystickY   - robot moves forward/backward
  *    / Right JoystickX  - robot rotation
  *    / Right JoystickY  -
- *    / DPad Up          -
+ *    / DPad Up          - open
  *    / DPad Left        -
- *    / DPad Down        -
+ *    / DPad Down        - close
  *    / DPad Right       -
- *    / A                - cone grabber open
- *    / B                - cone grabber arm to carry
- *    / X                - cone grabber arm to pickup/release
- *    / Y                - cone grabber close
+ *    / A                - ready to pickup
+ *    / B                - Pickup
+ *    / X                - ready to drop
+ *    / Y                - drop
  *    /Left Bumper       - driving mode = robot centric
  *    /Right Bumper      - driving mode = field centric
  *    /Left stick button - full power (1st press), half power (2nd press)
@@ -260,26 +260,28 @@ public class PowerPlayGamepad {
         }
 
         if (gamepad1a.buttonPress(gamepad1.a)) {
-            robot.coneGrabber.open();
+            robot.coneGrabber.openThenPickupPosition();
         }
 
         if (gamepad1b.buttonPress(gamepad1.b)) {
-            robot.coneGrabber.carryPosition();
+            robot.coneGrabber.closeThenCarryPosition();
         }
 
         if (gamepad1y.buttonPress(gamepad1.y)) {
-            robot.coneGrabber.close();
+            robot.coneGrabber.openThenCarryPosition();
         }
 
         if (gamepad1x.buttonPress(gamepad1.x)) {
-            robot.coneGrabber.pickupPosition();
+            robot.coneGrabber.releasePosition();
 
         }
 
         if (gamepad1DpadUp.buttonPress(gamepad1.dpad_up)) {
+            robot.coneGrabber.open();
         }
 
         if (gamepad1DpadDown.buttonPress(gamepad1.dpad_down)) {
+            robot.coneGrabber.close();
         }
 
         if (gamepad1DpadLeft.buttonPress(gamepad1.dpad_left)) {

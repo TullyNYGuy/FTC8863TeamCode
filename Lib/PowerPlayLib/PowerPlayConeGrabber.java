@@ -306,6 +306,7 @@ public class PowerPlayConeGrabber implements FTCRobotSubsystem {
 
     /**
      * Release the cone, then move the arm to the carry position.
+     * drop the cone
      * This prepares to lower the lift after releasing the cone.
      */
     public void openThenCarryPosition() {
