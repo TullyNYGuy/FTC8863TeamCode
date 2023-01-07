@@ -24,7 +24,7 @@ import java.util.List;
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
 @Autonomous(name = "Kellen's auto", group = "AA")
-//@Disabled
+@Disabled
 public class KellensNoGoodVeryBadAutonomous extends LinearOpMode {
 
     // Put your variable declarations her

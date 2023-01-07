@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.FreightFrenzy;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -8,7 +9,7 @@ import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyStartSpo
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.PersistantStorage;
 
 @Autonomous(name = "@persistentStorage: You better work you little punk", group = "AARun")
-
+@Disabled
 
 public class seePersistentStorage extends LinearOpMode {
 

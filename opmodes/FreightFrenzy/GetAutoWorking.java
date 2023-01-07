@@ -4,6 +4,7 @@ import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -24,7 +25,7 @@ import java.util.List;
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
 @Autonomous(name = "auto work plz", group = "AA")
-//@Disabled
+@Disabled
 public class GetAutoWorking extends LinearOpMode {
 
     // Put your variable declarations her

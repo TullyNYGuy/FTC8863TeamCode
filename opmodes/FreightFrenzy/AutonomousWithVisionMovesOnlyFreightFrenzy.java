@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmodes.FreightFrenzy;
 
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -29,7 +30,7 @@ import java.util.List;
 //@Autonomous(name = "auto TEST - only moves", group = "AA")
 @Autonomous
 //@Autonomous(name = "AA T")
-//@Disabled
+@Disabled
 public class AutonomousWithVisionMovesOnlyFreightFrenzy extends LinearOpMode {
 
     // Put your variable declarations her
