@@ -125,7 +125,7 @@ public class PowerPlayLeftLift implements FTCRobotSubsystem {
         mediumPosition = 25.0;
         lowPosition = 15.5;
         groundPosition = 3.0;
-        pickupPosition = 0.25;
+        pickupPosition = 1.0;
         initPosition = 0.25;
         homePosition = 0.5;
 
@@ -133,8 +133,8 @@ public class PowerPlayLeftLift implements FTCRobotSubsystem {
         // SET the lift powers here
         //*********************************************
         initPower = .2;
-        extendPower = .5;
-        retractPower = -.4;
+        extendPower = 1.0;
+        retractPower = -1.0;
         leftLift.setExtensionPower(extendPower);
         leftLift.setRetractionPower(retractPower);
         
