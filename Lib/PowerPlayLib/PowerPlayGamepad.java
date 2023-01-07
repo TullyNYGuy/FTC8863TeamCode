@@ -8,12 +8,12 @@ package org.firstinspires.ftc.teamcode.Lib.PowerPlayLib;
  *    / Right JoystickX  - robot rotation
  *    / Right JoystickY  -
  *    / DPad Up          - open
- *    / DPad Left        -
+ *    / DPad Left        - replacement position
  *    / DPad Down        - close
  *    / DPad Right       -
  *    / A                - ready to pickup
  *    / B                - Pickup
- *    / X                - ready to drop
+ *    / X                - Lineup for pickup
  *    / Y                - drop
  *    /Left Bumper       - driving mode = robot centric
  *    /Right Bumper      - driving mode = field centric
@@ -268,12 +268,12 @@ public class PowerPlayGamepad {
         }
 
         if (gamepad1y.buttonPress(gamepad1.y)) {
-            robot.coneGrabber.openThenCarryPosition();
+            //robot.coneGrabber.openThenCarryPosition();
+            robot.coneGrabberArmController.releaseThenMoveToPickup();
         }
 
         if (gamepad1x.buttonPress(gamepad1.x)) {
-            robot.coneGrabber.releasePosition();
-
+            robot.coneGrabber.openThenLineupForPickupPosition();
         }
 
         if (gamepad1DpadUp.buttonPress(gamepad1.dpad_up)) {
@@ -285,9 +285,11 @@ public class PowerPlayGamepad {
         }
 
         if (gamepad1DpadLeft.buttonPress(gamepad1.dpad_left)) {
+            //robot.coneGrabber.replacment();
         }
 
         if (gamepad1DpadRight.buttonPress(gamepad1.dpad_right)) {
+
         }
 
         if (gamepad1LeftStickButton.buttonPress(gamepad1.left_stick_button)) {
@@ -374,19 +376,23 @@ public class PowerPlayGamepad {
         }
 
         if (gamepad2DpadUp.buttonPress(gamepad2.dpad_up)) {
-            robot.leftLift.moveToHigh();
+            //robot.leftLift.moveToHigh();
+            robot.coneGrabberArmController.moveToHighThenPrepareToRelease();
         }
 
         if (gamepad2DpadDown.buttonPress(gamepad2.dpad_down)) {
-            robot.leftLift.moveToGround();
+            //robot.leftLift.moveToGround();
+            robot.coneGrabberArmController.moveToGroundThenPrepareToRelease();
         }
 
         if (gamepad2DpadLeft.buttonPress(gamepad2.dpad_left)) {
-            robot.leftLift.moveToLow();
+            //robot.leftLift.moveToLow();
+            robot.coneGrabberArmController.moveToLowThenPrepareToRelease();
         }
 
         if (gamepad2DpadRight.buttonPress(gamepad2.dpad_right)) {
-            robot.leftLift.moveToMedium();
+            //robot.leftLift.moveToMedium();
+            robot.coneGrabberArmController.moveToMediumThenPrepareToRelease();
         }
 
         if (gamepad2LeftStickButton.buttonPress(gamepad2.left_stick_button)) {

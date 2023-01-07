@@ -105,6 +105,7 @@ public class PowerPlayTeleop extends LinearOpMode {
         waitForStart();
 
         robot.loopTimer.startLoopTimer();
+        robot.leftLift.moveToPickup();
 
         //*********************************************************************************************
         //             Robot Running after the user hits play on the driver phone

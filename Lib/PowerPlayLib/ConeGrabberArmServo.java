@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Lib.PowerPlayLib;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863New;
@@ -43,11 +44,13 @@ public class ConeGrabberArmServo {
 
     public ConeGrabberArmServo(HardwareMap hardwareMap, Telemetry telemetry) {
         coneGrabberArmServo = new Servo8863New(CONE_GRABBER_ARM_SERVO_NAME, hardwareMap, telemetry);
-        coneGrabberArmServo.addPosition("Init", .22, 2000, TimeUnit.MILLISECONDS);
-        coneGrabberArmServo.addPosition("Release", .80, 2000, TimeUnit.MILLISECONDS);
-        coneGrabberArmServo.addPosition("Pickup", .850, 2000, TimeUnit.MILLISECONDS);;
-        coneGrabberArmServo.addPosition("LineupForPickup", .70, 2000, TimeUnit.MILLISECONDS);
-        coneGrabberArmServo.addPosition("Carry", .37, 2000, TimeUnit.MILLISECONDS);
+        coneGrabberArmServo.addPosition("Init", .22, 1000, TimeUnit.MILLISECONDS);
+        coneGrabberArmServo.addPosition("Release", .85, 1000, TimeUnit.MILLISECONDS);
+        coneGrabberArmServo.addPosition("Pickup", .87, 1000, TimeUnit.MILLISECONDS);;
+        coneGrabberArmServo.addPosition("LineupForPickup", .80, 1000, TimeUnit.MILLISECONDS);
+        coneGrabberArmServo.addPosition("Carry", .37, 500, TimeUnit.MILLISECONDS);
+        coneGrabberArmServo.addPosition("Replacement", 1.0, 1000, TimeUnit.MILLISECONDS);
+        //coneGrabberArmServo.setDirection(Servo.Direction.REVERSE);
     }
     //*********************************************************************************************
     //          Helper Methods
@@ -81,9 +84,15 @@ public class ConeGrabberArmServo {
         coneGrabberArmServo.setPosition("Carry");
     }
 
+    public void replacementPosition() {
+        coneGrabberArmServo.setPosition("Replacement");
+    }
+
     public boolean isPositionReached() {
         return coneGrabberArmServo.isPositionReached();
     }
+
+
 
     public void testPositionUsingJoystick(LinearOpMode opmode) {
         coneGrabberArmServo.testPositionsUsingJoystick(opmode);

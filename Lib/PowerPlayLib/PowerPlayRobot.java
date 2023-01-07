@@ -84,7 +84,8 @@ public class PowerPlayRobot implements FTCRobot {
         WEBCAM_LEFT,
         WEBCAM_RIGHT,
         LEFT_LIFT,
-        CONE_GRABBER
+        CONE_GRABBER,
+        CONE_GRABBER_ARM_CONTROLLER
         //LED_BLINKER,
         //LED_STRIP,
     }
@@ -122,6 +123,7 @@ public class PowerPlayRobot implements FTCRobot {
     public OpenCvWebcam webcamRight;
     public PowerPlayLeftLift leftLift;
     public PowerPlayConeGrabber coneGrabber;
+    public PowerPlayConeGrabberArmController coneGrabberArmController;
     //public RevLEDBlinker ledBlinker;
     //public FFBlinkinLed ledStrip;
 
@@ -199,6 +201,11 @@ public class PowerPlayRobot implements FTCRobot {
         if (capabilities.contains(Subsystem.CONE_GRABBER)) {
             coneGrabber = new PowerPlayConeGrabber(hardwareMap, telemetry);
             subsystemMap.put(coneGrabber.getName(), coneGrabber);
+        }
+
+        if (capabilities.contains(Subsystem.CONE_GRABBER_ARM_CONTROLLER)) {
+            coneGrabberArmController = new PowerPlayConeGrabberArmController(coneGrabber,leftLift);
+            subsystemMap.put(coneGrabberArmController.getName(), coneGrabberArmController);
         }
 
 //        if (capabilities.contains(Subsystem.LED_BLINKER)) {
