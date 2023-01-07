@@ -46,6 +46,7 @@ public class ConeGrabberArmServo {
         coneGrabberArmServo.addPosition("Init", .22, 2000, TimeUnit.MILLISECONDS);
         coneGrabberArmServo.addPosition("Release", .80, 2000, TimeUnit.MILLISECONDS);
         coneGrabberArmServo.addPosition("Pickup", .850, 2000, TimeUnit.MILLISECONDS);;
+        coneGrabberArmServo.addPosition("LineupForPickup", .70, 2000, TimeUnit.MILLISECONDS);
         coneGrabberArmServo.addPosition("Carry", .37, 2000, TimeUnit.MILLISECONDS);
     }
     //*********************************************************************************************
@@ -66,6 +67,10 @@ public class ConeGrabberArmServo {
     
     public void releasePosition() {
         coneGrabberArmServo.setPosition("Release");
+    }
+
+    public void lineupForPickupPosition() {
+        coneGrabberArmServo.setPosition("LineupForPickup");
     }
 
     public void pickupPosition() {

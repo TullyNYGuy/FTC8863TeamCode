@@ -34,10 +34,12 @@ public class PowerPlayConeGrabber implements FTCRobotSubsystem {
 
         // arm position states
         MOVING_TO_CARRY,
+        MOVING_TO_LINEUP_FOR_PICKUP,
         MOVING_TO_PICKUP,
         MOVING_TO_RELEASE,
 
         // combination of arm position and grabber movements
+        MOVING_TO_CLOSE_BEFORE_LINEUP_FOR_PICKUP, // line up the arm above the code so driver can see if he is positioned correctly
         MOVING_TO_OPEN_BEFORE_PICKUP, // prepare for a pickup
         MOVING_TO_CLOSE_BEFORE_CARRY, // pickup a cone
         MOVING_TO_OPEN_BEFORE_CARRY // release a cone
@@ -289,6 +291,25 @@ public class PowerPlayConeGrabber implements FTCRobotSubsystem {
      * Open the grabber, then move the arm to the position where it can grab.
      * This prepares for a pickup.
      */
+    public void closeThenLineupForPickupPosition() {
+        // lockout for double hits on a command button. Downside is that the driver better hit the
+        // right button the first time or they are toast
+        if (commandComplete) {
+            logCommand("cone grabber close then line up for pickup position");
+            commandComplete = false;
+            //command to start extension
+            coneGrabberState = ConeGrabberState.MOVING_TO_CLOSE_BEFORE_LINEUP_FOR_PICKUP;
+            coneGrabberServo.close();
+        } else {
+            // you can't start a new command when the old one is not finished
+            logCommand("cone grabber close then lineup for pickup command ignored");
+        }
+    }
+
+    /**
+     * Open the grabber, then move the arm to the position where it can grab.
+     * This prepares for a pickup.
+     */
     public void openThenPickupPosition() {
         // lockout for double hits on a command button. Downside is that the driver better hit the
         // right button the first time or they are toast
@@ -396,6 +417,7 @@ public class PowerPlayConeGrabber implements FTCRobotSubsystem {
 
             case MOVING_TO_CARRY:
             case MOVING_TO_RELEASE:
+            case MOVING_TO_LINEUP_FOR_PICKUP:
             case MOVING_TO_PICKUP: {
                 if (coneGrabberArmServo.isPositionReached()) {
                     commandComplete = true;
@@ -407,6 +429,14 @@ public class PowerPlayConeGrabber implements FTCRobotSubsystem {
             //********************************************************************************
             // combination of arm movement and grabber movement states
             //********************************************************************************
+
+            case MOVING_TO_CLOSE_BEFORE_LINEUP_FOR_PICKUP: {
+                if (coneGrabberServo.isPositionReached()) {
+                    coneGrabberArmServo.lineupForPickupPosition();
+                    coneGrabberState = ConeGrabberState.MOVING_TO_LINEUP_FOR_PICKUP;
+                }
+            }
+            break;
 
             case MOVING_TO_OPEN_BEFORE_PICKUP: {
                 if (coneGrabberServo.isPositionReached()) {
