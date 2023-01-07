@@ -90,16 +90,16 @@ public class PowerPlayField {
         Pose2d pose2dLocation = new Pose2d(0,0,Math.toRadians(0));
         switch (colorLocation) {
             case RED_LEFT:
-                pose2dLocation = new Pose2d(-36, -65, Math.toRadians(90));
+                pose2dLocation = PowerPlayPoseStorage.RED_LEFT_START_POSE;
                 break;
             case RED_RIGHT:
-                pose2dLocation = new Pose2d(36, -65, Math.toRadians(90));
+                pose2dLocation = PowerPlayPoseStorage.RED_RIGHT_START_POSE;
                 break;
             case BLUE_LEFT:
-                pose2dLocation = new Pose2d(36, 65, Math.toRadians(270));
+                pose2dLocation = PowerPlayPoseStorage.BLUE_LEFT_START_POSE;
                 break;
             case BLUE_RIGHT:
-                pose2dLocation = new Pose2d(-36, 65, Math.toRadians(270));
+                pose2dLocation = PowerPlayPoseStorage.BLUE_RIGHT_START_POSE;
                 break;
         }
         return pose2dLocation;
