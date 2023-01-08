@@ -471,6 +471,13 @@ public class JoyStick {
     }
 
     /**
+     * Set the power to 75%
+     */
+    public void set75PercentPower() {
+        reductionFactor = .75;
+    }
+
+    /**
      * Set the power to 50%
      */
     public void setHalfPower() {

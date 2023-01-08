@@ -350,6 +350,20 @@ public class PowerPlayLeftLift implements FTCRobotSubsystem {
         }
     }
 
+    public void testTheDrop() {
+        // lockout for double hits on a command button. Downside is that the driver better hit the
+        // right button the first time or they are toast
+        double currentLiftPosition = leftLift.getCurrentPosition();
+        if (commandComplete) {
+            logCommand("test the drop");
+            retractionComplete = false;
+            commandComplete = true;
+            leftLift.goToPosition(currentLiftPosition-4.0, extendPower);
+        } else {
+            // you can't start a new command when the old one is not finished
+        }
+    }
+
     public void retract() {
         // lockout for double hits on a command button. Downside is that the driver better hit the
         // right button the first time or they are toast

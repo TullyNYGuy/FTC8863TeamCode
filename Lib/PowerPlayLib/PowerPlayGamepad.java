@@ -28,7 +28,7 @@ package org.firstinspires.ftc.teamcode.Lib.PowerPlayLib;
  *    / DPad Left        - Move lift to low
  *    / DPad Down        - Move lift to ground
  *    / DPad Right       - Move lift to medium
- *    / A                - Move lift to pickup
+ *    / A                - Test the drop
  *    / B                -
  *    / X                -
  *    / Y                -
@@ -300,10 +300,10 @@ public class PowerPlayGamepad {
                 gamepad1RightJoyStickY.setFullPower();
             }
             if (gamepad1LeftStickButton.isCommand2()) {
-                gamepad1LeftJoyStickX.setHalfPower();
-                gamepad1LeftJoyStickY.setHalfPower();
-                gamepad1RightJoyStickX.setHalfPower();
-                gamepad1RightJoyStickY.setHalfPower();
+                gamepad1LeftJoyStickX.set75PercentPower();
+                gamepad1LeftJoyStickY.set75PercentPower();
+                gamepad1RightJoyStickX.set75PercentPower();
+                gamepad1RightJoyStickY.set75PercentPower();
             }
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
@@ -358,7 +358,7 @@ public class PowerPlayGamepad {
         }
 
         if (gamepad2a.buttonPress(gamepad2.a)) {
-            robot.leftLift.moveToPickup();
+            robot.leftLift.testTheDrop();
 
         }
 
