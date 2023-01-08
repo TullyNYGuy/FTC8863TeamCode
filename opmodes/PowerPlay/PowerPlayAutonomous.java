@@ -14,6 +14,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.MatchPhase;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.PersistantStorage;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayAutonomousNoVisionParkLocationOneOrThreeStateMachine;
+import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayAutonomousNoVisionParkLocationTwo;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayAutonomousStateMachine;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayField;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayGamepad;
@@ -68,19 +69,19 @@ public class PowerPlayAutonomous extends LinearOpMode {
         MecanumCommands commands = new MecanumCommands();
 
         robot = new PowerPlayRobot(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, this);
-        gamepad = new PowerPlayGamepad(gamepad1, gamepad2, robot);
-        field = new PowerPlayField(PowerPlayPersistantStorage.getColorLocation());
-        autonomousStateMachine = new PowerPlayAutonomousNoVisionParkLocationOneOrThreeStateMachine(robot, field, telemetry);
-
         // create the robot and run the init for it
         robot.createRobot();
+        gamepad = new PowerPlayGamepad(gamepad1, gamepad2, robot);
+        field = new PowerPlayField(PowerPlayPersistantStorage.getColorLocation());
+        autonomousStateMachine = new PowerPlayAutonomousNoVisionParkLocationTwo(robot, field, telemetry);
+
 
         enableBulkReads(hardwareMap, LynxModule.BulkCachingMode.AUTO);
 
         //automaticTeleopFunctions = new AutomaticTeleopFunctions(robot, field, telemetry);
 
-        if (PersistantStorage.robotPose != null) {
-            startPose = PersistantStorage.robotPose;
+        if (PowerPlayPersistantStorage.getRobotPose() != null) {
+            startPose = PowerPlayPersistantStorage.getRobotPose();
         } else {
             startPose = field.getStartPose();
         }
@@ -90,7 +91,7 @@ public class PowerPlayAutonomous extends LinearOpMode {
 
         // Wait for the start button
 
-        telemetry.addData(">", "Press start to run Teleop (make sure you ran the position setter first!)");
+        telemetry.addData(">", "Press start to run Auto (make sure you ran the position setter first!)");
         telemetry.update();
 
         waitForStart();
@@ -100,6 +101,7 @@ public class PowerPlayAutonomous extends LinearOpMode {
         //*********************************************************************************************
         //             Robot Running after the user hits play on the driver phone
         //*********************************************************************************************
+        robot.coneGrabber.carryPosition();
         autonomousStateMachine.start();
         while (opModeIsActive() && !autonomousStateMachine.isComplete()) {
             autonomousStateMachine.update();
