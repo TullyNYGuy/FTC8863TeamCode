@@ -551,8 +551,8 @@ public class MecanumDriveFreightFrenzy extends MecanumDrive implements FTCRobotS
         // Create a vector from the gamepad x/y inputs
         // Then, rotate that vector by the inverse of that heading
         Vector2d input = new Vector2d(
-                translationJoystickYValue,
-                translationJoystickXValue
+                -translationJoystickYValue,
+                -translationJoystickXValue
         ).rotated(-poseEstimate.getHeading());
 
         // Pass in the rotated input + right stick value for rotation
