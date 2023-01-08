@@ -93,7 +93,8 @@ public class PowerPlayTeleop extends LinearOpMode {
             startPose = field.getStartPose();
         }
 
-        robot.mecanum.setPoseEstimate(startPose);
+        // Setting the pose makes field centric drive 90 degrees out.
+        //robot.mecanum.setPoseEstimate(startPose);
         timer.reset();
 
         // Wait for the start button
@@ -121,6 +122,7 @@ public class PowerPlayTeleop extends LinearOpMode {
             // drive
 
             if (gamepad.getDrivingMode() == DrivingMode.ROBOT_CENTRIC) {
+                telemetry.addData("ROBOT CENTRIC driving", "!");
                 robot.mecanum.calculateMotorCommandsRobotCentric(
                         gamepad.gamepad1LeftJoyStickYValue,
                         gamepad.gamepad1LeftJoyStickXValue,
@@ -128,6 +130,7 @@ public class PowerPlayTeleop extends LinearOpMode {
                 );
             }
             if (gamepad.getDrivingMode() == DrivingMode.FIELD_CENTRIC) {
+                telemetry.addData("FIELD CENTRIC driving", "!");
                 robot.mecanum.calculateMotorCommandsFieldCentric(
                         gamepad.gamepad1LeftJoyStickYValue,
                         gamepad.gamepad1LeftJoyStickXValue,
