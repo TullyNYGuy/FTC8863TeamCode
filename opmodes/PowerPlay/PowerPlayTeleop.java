@@ -88,7 +88,7 @@ public class PowerPlayTeleop extends LinearOpMode {
         //automaticTeleopFunctions = new AutomaticTeleopFunctions(robot, field, telemetry);
 
         if (PersistantStorage.robotPose != null) {
-            startPose = PersistantStorage.robotPose;
+            startPose = PowerPlayPersistantStorage.getRobotPose();
         } else {
             startPose = field.getStartPose();
         }
