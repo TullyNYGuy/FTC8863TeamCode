@@ -70,9 +70,9 @@ public class PowerPlayField {
         // default field units will be inches
         this.units = DistanceUnit.INCH;
         this.startPose = determinestartPose2d(colorLocation);
-        this.parkingPoseLocation1 = determineParkLocation1(colorLocation);
+        //this.parkingPoseLocation1 = determineParkLocation1(colorLocation);
         this.parkingPoseLocation2 = determineParkLocation2(colorLocation);
-        this.parkingPoseLocation3 = determineParkLocation3(colorLocation);
+        //this.parkingPoseLocation3 = determineParkLocation3(colorLocation);
     }
 
     //*********************************************************************************************
@@ -90,77 +90,77 @@ public class PowerPlayField {
         Pose2d pose2dLocation = new Pose2d(0,0,Math.toRadians(0));
         switch (colorLocation) {
             case RED_LEFT:
-                pose2dLocation = new Pose2d(-36, -65, Math.toRadians(90));
+                pose2dLocation = PowerPlayPoseStorage.RED_LEFT_START_POSE;
                 break;
             case RED_RIGHT:
-                pose2dLocation = new Pose2d(36, -65, Math.toRadians(90));
+                pose2dLocation = PowerPlayPoseStorage.RED_RIGHT_START_POSE;
                 break;
             case BLUE_LEFT:
-                pose2dLocation = new Pose2d(36, 65, Math.toRadians(270));
+                pose2dLocation = PowerPlayPoseStorage.BLUE_LEFT_START_POSE;
                 break;
             case BLUE_RIGHT:
-                pose2dLocation = new Pose2d(-36, 65, Math.toRadians(270));
+                pose2dLocation = PowerPlayPoseStorage.BLUE_RIGHT_START_POSE;
                 break;
         }
         return pose2dLocation;
     }
 
-    private Pose2d determineParkLocation1(AllianceColorTeamLocation.ColorLocation colorLocation) {
-        Pose2d pose2dLocation = new Pose2d(0,0,0);
-        switch (colorLocation) {
-            case RED_LEFT:
-                pose2dLocation = new Pose2d(24, 24, Math.toRadians(270));
-                break;
-            case RED_RIGHT:
-                pose2dLocation = new Pose2d(24, 24, Math.toRadians(270));
-                break;
-            case BLUE_LEFT:
-                pose2dLocation = new Pose2d(24, 24, Math.toRadians(270));
-                break;
-            case BLUE_RIGHT:
-                pose2dLocation = new Pose2d(24, 24, Math.toRadians(270));
-                break;
-        }
-        return pose2dLocation;
-    }
+//    private Pose2d determineParkLocation1(AllianceColorTeamLocation.ColorLocation colorLocation) {
+//        Pose2d pose2dLocation = new Pose2d(0,0,0);
+//        switch (colorLocation) {
+//            case RED_LEFT:
+//                pose2dLocation = PowerPlayPoseStorage.RED_LEFT_PARK_LOCATION_1;
+//                break;
+//            case RED_RIGHT:
+//                pose2dLocation = PowerPlayPoseStorage.RED_RIGHT_PARK_LOCATION_1;
+//                break;
+//            case BLUE_LEFT:
+//                pose2dLocation = PowerPlayPoseStorage.BLUE_LEFT_PARK_LOCATION_1;
+//                break;
+//            case BLUE_RIGHT:
+//                pose2dLocation = PowerPlayPoseStorage.BLUE_RIGHT_PARK_LOCATION_1;
+//                break;
+//        }
+//        return pose2dLocation;
+//    }
 
     private Pose2d determineParkLocation2(AllianceColorTeamLocation.ColorLocation colorLocation) {
         Pose2d pose2dLocation = new Pose2d(0,0,0);
         switch (colorLocation) {
             case RED_LEFT:
-                pose2dLocation = new Pose2d(24, 24, Math.toRadians(270));
+                pose2dLocation = PowerPlayPoseStorage.RED_LEFT_PARK_LOCATION_2;
                 break;
             case RED_RIGHT:
-                pose2dLocation = new Pose2d(24, 24, Math.toRadians(270));
+                pose2dLocation = PowerPlayPoseStorage.RED_RIGHT_PARK_LOCATION_2;
                 break;
             case BLUE_LEFT:
-                pose2dLocation = new Pose2d(24, 24, Math.toRadians(270));
+                pose2dLocation = PowerPlayPoseStorage.BLUE_LEFT_PARK_LOCATION_2;
                 break;
             case BLUE_RIGHT:
-                pose2dLocation = new Pose2d(24, 24, Math.toRadians(270));
+                pose2dLocation = PowerPlayPoseStorage.BLUE_RIGHT_PARK_LOCATION_2;
                 break;
         }
         return pose2dLocation;
     }
 
-    private Pose2d determineParkLocation3(AllianceColorTeamLocation.ColorLocation colorLocation) {
-        Pose2d pose2dLocation = new Pose2d(0,0,0);
-        switch (colorLocation) {
-            case RED_LEFT:
-                pose2dLocation = new Pose2d(24, 24, Math.toRadians(270));
-                break;
-            case RED_RIGHT:
-                pose2dLocation = new Pose2d(24, 24, Math.toRadians(270));
-                break;
-            case BLUE_LEFT:
-                pose2dLocation = new Pose2d(24, 24, Math.toRadians(270));
-                break;
-            case BLUE_RIGHT:
-                pose2dLocation = new Pose2d(24, 24, Math.toRadians(270));
-                break;
-        }
-        return pose2dLocation;
-    }
+//    private Pose2d determineParkLocation3(AllianceColorTeamLocation.ColorLocation colorLocation) {
+//        Pose2d pose2dLocation = new Pose2d(0,0,0);
+//        switch (colorLocation) {
+//            case RED_LEFT:
+//                pose2dLocation = PowerPlayPoseStorage.RED_LEFT_PARK_LOCATION_3;
+//                break;
+//            case RED_RIGHT:
+//                pose2dLocation = PowerPlayPoseStorage.RED_RIGHT_PARK_LOCATION_3;
+//                break;
+//            case BLUE_LEFT:
+//                pose2dLocation = PowerPlayPoseStorage.BLUE_LEFT_PARK_LOCATION_3;
+//                break;
+//            case BLUE_RIGHT:
+//                pose2dLocation = PowerPlayPoseStorage.BLUE_RIGHT_PARK_LOCATION_3;
+//                break;
+//        }
+//        return pose2dLocation;
+//    }
 
 
     /**
