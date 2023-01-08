@@ -137,6 +137,7 @@ public class PowerPlayAutonomousNoVisionParkLocationTwo implements PowerPlayAuto
 
             case COMPLETE: {
                 isComplete = true;
+                robot.coneGrabber.close();
             }
             break;
         }
