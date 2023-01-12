@@ -44,12 +44,8 @@ public class RectangleAdjustmentPipeline extends OpenCvPipeline {
     // adjust your sample region, then grab the values for use in a real pipeline.
     public double rectangleXOrigin = 0;
     public double rectangleYOrigin = 0;
-    private Point region1TopLeftAnchorPoint = new Point(rectangleXOrigin, rectangleYOrigin);
-
-    static final Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(181, 98);
-    static final Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(253, 98);
-    static final int REGION_WIDTH = 20;
-    static final int REGION_HEIGHT = 20;
+    public double rectangleWidth = 20;
+    public double rectangleHeight = 20;
 
     /*
      * Points which actually define the sample region rectangles, derived from above values
@@ -68,23 +64,10 @@ public class RectangleAdjustmentPipeline extends OpenCvPipeline {
      *   ------------------------------------
      *
      */
-
-    Point region1_pointB = new Point(
-            region1TopLeftAnchorPoint.x + REGION_WIDTH,
-            region1TopLeftAnchorPoint.y + REGION_HEIGHT);
-
-    Point region2_pointA = new Point(
-            REGION2_TOPLEFT_ANCHOR_POINT.x,
-            REGION2_TOPLEFT_ANCHOR_POINT.y);
-    Point region2_pointB = new Point(
-            REGION2_TOPLEFT_ANCHOR_POINT.x + REGION_WIDTH,
-            REGION2_TOPLEFT_ANCHOR_POINT.y + REGION_HEIGHT);
-    Point region3_pointA = new Point(
-            REGION3_TOPLEFT_ANCHOR_POINT.x,
-            REGION3_TOPLEFT_ANCHOR_POINT.y);
-    Point region3_pointB = new Point(
-            REGION3_TOPLEFT_ANCHOR_POINT.x + REGION_WIDTH,
-            REGION3_TOPLEFT_ANCHOR_POINT.y + REGION_HEIGHT);
+    private Point rectangleTopLeftPoint = new Point(rectangleXOrigin, rectangleYOrigin);
+    Point rectangleBottomRightPoint = new Point(
+            rectangleTopLeftPoint.x + rectangleWidth,
+            rectangleTopLeftPoint.y + rectangleHeight);
 
     @Override
     public Mat processFrame(Mat input) {
@@ -95,10 +78,10 @@ public class RectangleAdjustmentPipeline extends OpenCvPipeline {
          * entering new values. I'm sure you can use the same technique to dynamically change
          * the rectangle size. Or maybe even setup the rectangles for all 3 regions.
          */
-        region1TopLeftAnchorPoint = new Point(rectangleXOrigin, rectangleYOrigin);
-        region1_pointB = new Point(
-                region1TopLeftAnchorPoint.x + REGION_WIDTH,
-                region1TopLeftAnchorPoint.y + REGION_HEIGHT);
+        rectangleTopLeftPoint = new Point(rectangleXOrigin, rectangleYOrigin);
+        rectangleBottomRightPoint = new Point(
+                rectangleTopLeftPoint.x + rectangleWidth,
+                rectangleTopLeftPoint.y + rectangleHeight);
 
         /*
          * Draw a rectangle showing sample region 1 on the screen.
@@ -106,8 +89,8 @@ public class RectangleAdjustmentPipeline extends OpenCvPipeline {
          */
         Imgproc.rectangle(
                 input, // Buffer to draw on
-                region1TopLeftAnchorPoint, // First point which defines the rectangle
-                region1_pointB, // Second point which defines the rectangle
+                rectangleTopLeftPoint, // First point which defines the rectangle
+                rectangleBottomRightPoint, // Second point which defines the rectangle
                 BLUE, // The color the rectangle is drawn in
                 2); // Thickness of the rectangle lines
 
