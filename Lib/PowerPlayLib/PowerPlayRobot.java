@@ -18,6 +18,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobot;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.LoopTimer;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.MatchPhase;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.RevLED;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.RevLEDBlinker;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.RobotPosition;
@@ -56,8 +57,7 @@ public class PowerPlayRobot implements FTCRobot {
         ODOMETRY_MODULE_RIGHT("rightRearMotor"),
         ODOMETRY_MODULE_BACK("leftRearMotor"),
 
-        WEBCAM_LEFT("WebcamLeft"),
-        WEBCAM_RIGHT("WebcamRight"),
+        WEBCAM("Webcam"),
 
         CONE_GRABBER_SERVO("coneGrabberServo"),
         CONE_GRABBER_ARM_SERVO("coneGrabberArmServo"),
@@ -70,7 +70,6 @@ public class PowerPlayRobot implements FTCRobot {
         LED_PORT2("ledPort2"),
         LED_STRIP("ledStrip");
 
-
         public final String hwName;
 
         HardwareName(String name) {
@@ -81,8 +80,7 @@ public class PowerPlayRobot implements FTCRobot {
     public enum Subsystem {
         MECANUM_DRIVE,
         ODOMETRY,
-        WEBCAM_LEFT,
-        WEBCAM_RIGHT,
+        WEBCAM,
         LEFT_LIFT,
         CONE_GRABBER,
         CONE_GRABBER_ARM_CONTROLLER
@@ -91,15 +89,13 @@ public class PowerPlayRobot implements FTCRobot {
     }
 
     Set<Subsystem> capabilities;
-    public OpenCvCamera activeWebcam;
     HardwareMap hardwareMap;
     Telemetry telemetry;
     DistanceUnit units;
     Configuration config;
     private DataLogging dataLog;
-    private FreightFrenzyMatchInfo robotMode;
+    private MatchPhase matchPhase;
     Map<String, FTCRobotSubsystem> subsystemMap;
-    private String activeWebcamName;
     private ElapsedTime timer;
     private LinearOpMode opMode;
 
@@ -110,20 +106,13 @@ public class PowerPlayRobot implements FTCRobot {
         return dataLoggingEnabled;
     }
 
-    int cameraMonitorViewId;
-
-    boolean isCapableOf(Subsystem subsystem) {
-        return capabilities.contains(subsystem);
-    }
-
     private AdafruitIMU8863 imu;
     public MecanumDriveFreightFrenzy mecanum;
     public LoopTimer loopTimer;
-    public OpenCvWebcam webcamLeft;
-    public OpenCvWebcam webcamRight;
     public PowerPlayLeftLift leftLift;
     public PowerPlayConeGrabber coneGrabber;
     public PowerPlayConeGrabberArmController coneGrabberArmController;
+    public PowerPlayWebcam webcam;
     //public RevLEDBlinker ledBlinker;
     //public FFBlinkinLed ledStrip;
 
@@ -137,10 +126,11 @@ public class PowerPlayRobot implements FTCRobot {
         this.config = config;
         this.dataLog = dataLog;
         this.opMode = opMode;
-        cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         this.subsystemMap = new HashMap<String, FTCRobotSubsystem>();
         setCapabilities(Subsystem.values());
         enableDataLogging();
+
+        this.matchPhase = PowerPlayPersistantStorage.getMatchPhase();
     }
 
     /*
@@ -148,6 +138,10 @@ public class PowerPlayRobot implements FTCRobot {
      */
     public void setCapabilities(Subsystem[] subsystems) {
         capabilities = new HashSet<Subsystem>(Arrays.asList(subsystems));
+    }
+
+    boolean isCapableOf(Subsystem subsystem) {
+        return capabilities.contains(subsystem);
     }
 
     /**
@@ -164,34 +158,13 @@ public class PowerPlayRobot implements FTCRobot {
             subsystemMap.put(mecanum.getName(), mecanum);
         }
 
-        // THE WEBCAM PROCESSING TAKES UP A BUNCH OF RESOURCES. PROBABLY NOT A GOOD IDEA TO RUN THIS IN TELEOP
-//        if (FreightFrenzyMatchInfo.getMatchPhase() == FreightFrenzyMatchInfo.MatchPhase.AUTONOMOUS)
-//            switch (color) {
-//                case RED_WALL:
-//                case RED_WAREHOUSE:
-//                    if (capabilities.contains(Subsystem.WEBCAM_LEFT)) {
-//                        // Timeout for obtaining permission is configurable. Set before opening.
-//                        //activeWebcam = webcamLeft;
-//                        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-//                        webcamLeft = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "WebcamLeft"), cameraMonitorViewId);
-//                        activeWebcam = webcamLeft;
-//                        activeWebcamName = "webcamLeft";
-//                        webcamLeft.setMillisecondsPermissionTimeout(2500);
-//                    }
-//                    break;
-//                case BLUE_WAREHOUSE:
-//                case BLUE_WALL:
-//                    if (capabilities.contains(Subsystem.WEBCAM_RIGHT)) {
-//
-//
-//                        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-//                        webcamRight = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "WebcamRight"), cameraMonitorViewId);
-//                        activeWebcam = webcamRight;
-//                        activeWebcamName = "webcamRight";
-//                        webcamRight.setMillisecondsPermissionTimeout(2500);
-//                    }
-//                    break;
-//            }
+        // Only setup and init the camera if this is autonomous. It takes up CPU and memory and is not needed in teleop.
+        // Note that this does not actually start the camera streaming. The autonomous opmode must do that because it
+        // needs to set the pipeline for the camera.
+        if (capabilities.contains(Subsystem.WEBCAM) && matchPhase == MatchPhase.AUTONOMOUS) {
+            webcam = new PowerPlayWebcam(hardwareMap, telemetry, HardwareName.WEBCAM.hwName);
+            subsystemMap.put(webcam.getName(), webcam);
+        }
 
         if (capabilities.contains(Subsystem.LEFT_LIFT)) {
             leftLift = new PowerPlayLeftLift(hardwareMap, telemetry);
@@ -217,17 +190,6 @@ public class PowerPlayRobot implements FTCRobot {
 //        if (capabilities.contains(Subsystem.LED_STRIP)) {
 //            ledStrip = new FFBlinkinLed(hardwareMap);
 //            subsystemMap.put(ledStrip.getName(), ledStrip);
-//        }
-
-//        if (capabilities.contains(Subsystem.FREIGHT_SYSTEM)) {
-//            freightSystem = new FFFreightSystem(arm, intake, lift, hardwareMap, telemetry, allianceColor, ledBlinker, ledStrip);
-//            // The freight system has to know whether this autonomous or telelop before the init is run.
-//            if (FreightFrenzyMatchInfo.getMatchPhase() == FreightFrenzyMatchInfo.MatchPhase.AUTONOMOUS) {
-//                freightSystem.setPhaseAutonomus();
-//            } else {
-//                freightSystem.setPhaseTeleop();
-//            }
-//            subsystemMap.put(freightSystem.getName(), freightSystem);
 //        }
 
         init();
@@ -365,8 +327,5 @@ public class PowerPlayRobot implements FTCRobot {
         return true;
     }
 
-    public String getWebcamName() {
-        return activeWebcamName;
-    }
 }
 

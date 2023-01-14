@@ -70,11 +70,10 @@ public class PowerPlayWebcam implements FTCRobotSubsystem {
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
-    public PowerPlayWebcam(HardwareMap hardwareMap, Telemetry telemetry, String cameraName, OpenCvPipeline pipeline) {
+    public PowerPlayWebcam(HardwareMap hardwareMap, Telemetry telemetry, String cameraName) {
         this.hardwareMap = hardwareMap;
         this.telemetry = telemetry;
         this.cameraName = cameraName;
-        this.pipeline = pipeline;
         // init has not been started yet
         initComplete = false;
         // the lift can be commanded to do something, like the init
@@ -156,12 +155,7 @@ public class PowerPlayWebcam implements FTCRobotSubsystem {
          */
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, cameraName), cameraMonitorViewId);
-        /*
-         * Specify the image processing pipeline we wish to invoke upon receipt
-         * of a frame from the camera. Note that switching pipelines on-the-fly
-         * (while a streaming session is in flight) *IS* supported.
-         */
-        webcam.setPipeline(pipeline);
+
         webcam.setMillisecondsPermissionTimeout(5000); // Timeout for obtaining permission is configurable. Set before opening.
         return false;
     }
@@ -189,7 +183,14 @@ public class PowerPlayWebcam implements FTCRobotSubsystem {
     // Public commands for controlling the Webcam
     //********************************************************************************
 
-    public void openCamera(OpenCvCameraRotation cameraRotation) {
+    public void openCamera(OpenCvCameraRotation cameraRotation, OpenCvPipeline pipeline) {
+        /*
+         * Specify the image processing pipeline we wish to invoke upon receipt
+         * of a frame from the camera. Note that switching pipelines on-the-fly
+         * (while a streaming session is in flight) *IS* supported.
+         */
+        this.pipeline = pipeline;
+        webcam.setPipeline(pipeline);
         webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
         {
             @Override

@@ -71,10 +71,10 @@ public class PowerPlayAutonomous extends LinearOpMode {
         robot = new PowerPlayRobot(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, this);
         // create the robot and run the init for it
         robot.createRobot();
+
         gamepad = new PowerPlayGamepad(gamepad1, gamepad2, robot);
         field = new PowerPlayField(PowerPlayPersistantStorage.getColorLocation());
         autonomousStateMachine = new PowerPlayAutonomousNoVisionParkLocationTwo(robot, field, telemetry);
-
 
         enableBulkReads(hardwareMap, LynxModule.BulkCachingMode.AUTO);
 
@@ -85,9 +85,11 @@ public class PowerPlayAutonomous extends LinearOpMode {
         } else {
             startPose = field.getStartPose();
         }
-
         robot.mecanum.setPoseEstimate(startPose);
+
         timer.reset();
+
+        // put the webcam stuff here
 
         // Wait for the start button
 
