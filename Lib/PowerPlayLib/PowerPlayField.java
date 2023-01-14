@@ -6,10 +6,7 @@ import com.acmerobotics.roadrunner.geometry.Vector2d;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColorTeamLocation;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.TeamLocation;
-import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.UltimateGoalGoal;
 
 public class PowerPlayField {
 

@@ -11,7 +11,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColorTeamLocation;
 
-public class AutonomousNoVisionParkLocationOne implements PowerPlayAutonomousStateMachine {
+public class PowerPlayAutonomousNoVisionParkLocationOne implements PowerPlayAutonomousStateMachine {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -68,7 +68,7 @@ public class AutonomousNoVisionParkLocationOne implements PowerPlayAutonomousSta
     // from it
     //*********************************************************************************************
 
-    public AutonomousNoVisionParkLocationOne(PowerPlayRobot robot, PowerPlayField field, Telemetry telemetry) {
+    public PowerPlayAutonomousNoVisionParkLocationOne(PowerPlayRobot robot, PowerPlayField field, Telemetry telemetry) {
         this.robot = robot;
         this.field = field;
         this.colorLocation = PowerPlayPersistantStorage.getColorLocation();
