@@ -23,18 +23,27 @@ public class PowerPlayField {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
+    /**
+     * Parking location 1 given the alliance color and team location
+     */
     private Pose2d parkingPoseLocation1;
 
     public Pose2d getParkingPoseLocation1() {
         return parkingPoseLocation1;
     }
 
+    /**
+     * Parking location 2 given the alliance color and team location
+     */
     private Pose2d parkingPoseLocation2;
 
     public Pose2d getParkingPoseLocation2() {
         return parkingPoseLocation2;
     }
 
+    /**
+     * Parking location 3 given the alliance color and team location
+     */
     private Pose2d parkingPoseLocation3;
 
     public Pose2d getParkingPoseLocation3() {
@@ -45,6 +54,24 @@ public class PowerPlayField {
 
     public Pose2d getStartPose() {
         return startPose;
+    }
+
+    private Pose2d junctionPolePose;
+
+    public Pose2d getJunctionPolePose() {
+        return junctionPolePose;
+    }
+
+    /**
+     * Parking location given the signal cone indication. The 3 possible parking locations based on
+     * the alliance color and team location have already upon the field creation because we already
+     * know the alliance color and team location at that time. However, we do not know the signal
+     * cone indication so that has to take place later.
+     */
+    private Pose2d parkingLocationPose;
+
+    public Pose2d getParkingLocationPose() {
+        return parkingLocationPose;
     }
 
     private DistanceUnit units;
@@ -66,10 +93,7 @@ public class PowerPlayField {
     public PowerPlayField(AllianceColorTeamLocation.ColorLocation colorLocation) {
         // default field units will be inches
         this.units = DistanceUnit.INCH;
-        this.startPose = determinestartPose2d(colorLocation);
-        this.parkingPoseLocation1 = determineParkLocation1(colorLocation);
-        this.parkingPoseLocation2 = determineParkLocation2(colorLocation);
-        this.parkingPoseLocation3 = determineParkLocation3(colorLocation);
+        determinePosesGivenColorLocation(colorLocation);
     }
 
     //*********************************************************************************************
@@ -83,82 +107,38 @@ public class PowerPlayField {
     // blue left = +x +y 270
     // blue right = -x +y 270
 
-    private Pose2d determinestartPose2d(AllianceColorTeamLocation.ColorLocation colorLocation) {
-        Pose2d pose2dLocation = new Pose2d(0,0,Math.toRadians(0));
+    private void determinePosesGivenColorLocation(AllianceColorTeamLocation.ColorLocation colorLocation) {
         switch (colorLocation) {
             case RED_LEFT:
-                pose2dLocation = PowerPlayPoseStorage.RED_LEFT_START_POSE;
+                startPose = PowerPlayPoseStorage.RED_LEFT_START_POSE;
+                junctionPolePose = PowerPlayPoseStorage.RED_LEFT_JUNCTION_POLE_LOCATION;
+                parkingPoseLocation1 = PowerPlayPoseStorage.RED_LEFT_PARK_LOCATION_1;
+                parkingPoseLocation2 = PowerPlayPoseStorage.RED_LEFT_PARK_LOCATION_2;
+                parkingPoseLocation3 = PowerPlayPoseStorage.RED_LEFT_PARK_LOCATION_3;
                 break;
             case RED_RIGHT:
-                pose2dLocation = PowerPlayPoseStorage.RED_RIGHT_START_POSE;
+                startPose = PowerPlayPoseStorage.RED_RIGHT_START_POSE;
+                junctionPolePose = PowerPlayPoseStorage.RED_RIGHT_JUNCTION_POLE_LOCATION;
+                parkingPoseLocation1 = PowerPlayPoseStorage.RED_RIGHT_PARK_LOCATION_1;
+                parkingPoseLocation2 = PowerPlayPoseStorage.RED_RIGHT_PARK_LOCATION_2;
+                parkingPoseLocation3 = PowerPlayPoseStorage.RED_RIGHT_PARK_LOCATION_3;
                 break;
             case BLUE_LEFT:
-                pose2dLocation = PowerPlayPoseStorage.BLUE_LEFT_START_POSE;
+                startPose = PowerPlayPoseStorage.BLUE_LEFT_START_POSE;
+                junctionPolePose = PowerPlayPoseStorage.BLUE_LEFT_JUNCTION_POLE_LOCATION;
+                parkingPoseLocation1 = PowerPlayPoseStorage.BLUE_LEFT_PARK_LOCATION_1;
+                parkingPoseLocation2 = PowerPlayPoseStorage.BLUE_LEFT_PARK_LOCATION_2;
+                parkingPoseLocation3 = PowerPlayPoseStorage.BLUE_LEFT_PARK_LOCATION_3;
                 break;
             case BLUE_RIGHT:
-                pose2dLocation = PowerPlayPoseStorage.BLUE_RIGHT_START_POSE;
+                startPose = PowerPlayPoseStorage.BLUE_RIGHT_START_POSE;
+                junctionPolePose = PowerPlayPoseStorage.BLUE_RIGHT_JUNCTION_POLE_LOCATION;
+                parkingPoseLocation1 = PowerPlayPoseStorage.BLUE_RIGHT_PARK_LOCATION_1;
+                parkingPoseLocation2 = PowerPlayPoseStorage.BLUE_RIGHT_PARK_LOCATION_2;
+                parkingPoseLocation3 = PowerPlayPoseStorage.BLUE_RIGHT_PARK_LOCATION_3;
                 break;
         }
-        return pose2dLocation;
     }
-
-    private Pose2d determineParkLocation1(AllianceColorTeamLocation.ColorLocation colorLocation) {
-        Pose2d pose2dLocation = new Pose2d(0,0,0);
-        switch (colorLocation) {
-            case RED_LEFT:
-                pose2dLocation = PowerPlayPoseStorage.RED_LEFT_PARK_LOCATION_1;
-                break;
-            case RED_RIGHT:
-                pose2dLocation = PowerPlayPoseStorage.RED_RIGHT_PARK_LOCATION_1;
-                break;
-            case BLUE_LEFT:
-                pose2dLocation = PowerPlayPoseStorage.BLUE_LEFT_PARK_LOCATION_1;
-                break;
-            case BLUE_RIGHT:
-                pose2dLocation = PowerPlayPoseStorage.BLUE_RIGHT_PARK_LOCATION_1;
-                break;
-        }
-        return pose2dLocation;
-    }
-
-    private Pose2d determineParkLocation2(AllianceColorTeamLocation.ColorLocation colorLocation) {
-        Pose2d pose2dLocation = new Pose2d(0,0,0);
-        switch (colorLocation) {
-            case RED_LEFT:
-                pose2dLocation = PowerPlayPoseStorage.RED_LEFT_PARK_LOCATION_2;
-                break;
-            case RED_RIGHT:
-                pose2dLocation = PowerPlayPoseStorage.RED_RIGHT_PARK_LOCATION_2;
-                break;
-            case BLUE_LEFT:
-                pose2dLocation = PowerPlayPoseStorage.BLUE_LEFT_PARK_LOCATION_2;
-                break;
-            case BLUE_RIGHT:
-                pose2dLocation = PowerPlayPoseStorage.BLUE_RIGHT_PARK_LOCATION_2;
-                break;
-        }
-        return pose2dLocation;
-    }
-
-    private Pose2d determineParkLocation3(AllianceColorTeamLocation.ColorLocation colorLocation) {
-        Pose2d pose2dLocation = new Pose2d(0,0,0);
-        switch (colorLocation) {
-            case RED_LEFT:
-                pose2dLocation = PowerPlayPoseStorage.RED_LEFT_PARK_LOCATION_3;
-                break;
-            case RED_RIGHT:
-                pose2dLocation = PowerPlayPoseStorage.RED_RIGHT_PARK_LOCATION_3;
-                break;
-            case BLUE_LEFT:
-                pose2dLocation = PowerPlayPoseStorage.BLUE_LEFT_PARK_LOCATION_3;
-                break;
-            case BLUE_RIGHT:
-                pose2dLocation = PowerPlayPoseStorage.BLUE_RIGHT_PARK_LOCATION_3;
-                break;
-        }
-        return pose2dLocation;
-    }
-
 
     /**
      * Returns a vector from a pose. The units are inches because a Pose2D units are inches.

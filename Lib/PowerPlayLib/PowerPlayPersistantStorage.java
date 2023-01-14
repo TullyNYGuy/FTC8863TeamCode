@@ -10,8 +10,23 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.MatchPhase;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.TeamLocation;
 
 public class PowerPlayPersistantStorage {
-
     // public static DATA FIELDS that persist between opmodes
+
+    public enum ParkLocation {
+        ONE,
+        TWO,
+        THREE
+    }
+
+    private static ParkLocation parkLocation;
+
+    public static ParkLocation getParkLocation() {
+        return parkLocation;
+    }
+
+    public static void setParkLocation(ParkLocation parkLocation) {
+        PowerPlayPersistantStorage.parkLocation = parkLocation;
+    }
 
     private static Pose2d robotPose;
 
