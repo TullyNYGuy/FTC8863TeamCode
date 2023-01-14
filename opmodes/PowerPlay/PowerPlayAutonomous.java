@@ -13,6 +13,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MatchPhase;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.PersistantStorage;
+import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.AutonomousNoVisionParkLocationOne;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayAutonomousNoVisionParkLocationOneOrThreeStateMachine;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayAutonomousNoVisionParkLocationTwo;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayAutonomousStateMachine;
@@ -73,7 +74,7 @@ public class PowerPlayAutonomous extends LinearOpMode {
         robot.createRobot();
         gamepad = new PowerPlayGamepad(gamepad1, gamepad2, robot);
         field = new PowerPlayField(PowerPlayPersistantStorage.getColorLocation());
-        autonomousStateMachine = new PowerPlayAutonomousNoVisionParkLocationTwo(robot, field, telemetry);
+        autonomousStateMachine = new AutonomousNoVisionParkLocationOne(robot, field, telemetry);
 
 
         enableBulkReads(hardwareMap, LynxModule.BulkCachingMode.AUTO);
