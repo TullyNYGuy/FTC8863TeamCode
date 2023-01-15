@@ -20,6 +20,7 @@ import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayField;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayGamepad;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayPersistantStorage;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayRobot;
+import org.openftc.easyopencv.OpenCvPipeline;
 
 import java.util.List;
 
@@ -37,6 +38,7 @@ public class PowerPlayAutonomous extends LinearOpMode {
     public Configuration config = null;
     public PowerPlayField field;
     private PowerPlayAutonomousStateMachine autonomousStateMachine;
+    private OpenCvPipeline pipeline;
 
     private ElapsedTime timer;
 
@@ -90,6 +92,8 @@ public class PowerPlayAutonomous extends LinearOpMode {
         timer.reset();
 
         // put the webcam stuff here
+        //pipeline = new
+        //robot.webcam.openCamera();
 
         // Wait for the start button
 
