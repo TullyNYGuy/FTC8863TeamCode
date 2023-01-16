@@ -23,18 +23,29 @@ package org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.Pipelines;
 
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
+import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvPipeline;
 
-/**
- * This pipeline draws a rectangle on the screen.
- */
-public class PowerPlayWebcamPositioningPipeline extends OpenCvPipeline
-{
+public class RectangleAdjustmentPipeline extends OpenCvPipeline {
+
+    /*
+     * Some color constants
+     */
     static final Scalar BLUE = new Scalar(0, 0, 255);
     static final Scalar GREEN = new Scalar(0, 255, 0);
-    static final Scalar RED = new Scalar(255, 0, 0);
+
+    /*
+     * The core values which define the location and size of the sample region
+     */
+    // Since these values are public they will show up as input boxes in EOCV-Sim, allowing you to
+    // adjust the values and move the rectangle around to where you want it. This is a way to easily
+    // adjust your sample region, then grab the values for use in a real pipeline.
+    public double rectangleXOrigin = 0;
+    public double rectangleYOrigin = 0;
+    public double rectangleWidth = 20;
+    public double rectangleHeight = 20;
 
     /*
      * Points which actually define the sample region rectangles, derived from above values
@@ -53,37 +64,36 @@ public class PowerPlayWebcamPositioningPipeline extends OpenCvPipeline
      *   ------------------------------------
      *
      */
-
-    public double upperLeftCornerOfRectangleX = 0;
-    public double upperLeftCornerOfRectangleY = 0;
-    public double rectangleWidth = 250;
-    public double rectangleHeight = 250;
-
-    private Point upperLeftCornerOfRectangle = new Point(upperLeftCornerOfRectangleX,upperLeftCornerOfRectangleY);
-    private Point lowerRightCornerOfRectangle = new Point(upperLeftCornerOfRectangleX + rectangleWidth, upperLeftCornerOfRectangleY + rectangleHeight);
-
-    // width of the line in pixels
-    private int lineWidth = 2;
-
-    /*
-     * NOTE: if you wish to use additional Mat objects in your processing pipeline, it is
-     * highly recommended to declare them here as instance variables and re-use them for
-     * each invocation of processFrame(), rather than declaring them as new local variables
-     * each time through processFrame(). This removes the danger of causing a memory leak
-     * by forgetting to call mat.release(), and it also reduces memory pressure by not
-     * constantly allocating and freeing large chunks of memory.
-     */
+    private Point rectangleTopLeftPoint = new Point(rectangleXOrigin, rectangleYOrigin);
+    Point rectangleBottomRightPoint = new Point(
+            rectangleTopLeftPoint.x + rectangleWidth,
+            rectangleTopLeftPoint.y + rectangleHeight);
 
     @Override
-    public Mat processFrame(Mat input)
-    {
-        Imgproc.rectangle(input, upperLeftCornerOfRectangle, lowerRightCornerOfRectangle, BLUE, lineWidth);
+    public Mat processFrame(Mat input) {
+        /*
+         * Overview of what we're doing:
+         *
+         * Draw a rectangle on the image. The origin of the rectangle can be adjusted by
+         * entering new values. I'm sure you can use the same technique to dynamically change
+         * the rectangle size. Or maybe even setup the rectangles for all 3 regions.
+         */
+        rectangleTopLeftPoint = new Point(rectangleXOrigin, rectangleYOrigin);
+        rectangleBottomRightPoint = new Point(
+                rectangleTopLeftPoint.x + rectangleWidth,
+                rectangleTopLeftPoint.y + rectangleHeight);
+
+        /*
+         * Draw a rectangle showing sample region 1 on the screen.
+         * Simply a visual aid. Serves no functional purpose.
+         */
+        Imgproc.rectangle(
+                input, // Buffer to draw on
+                rectangleTopLeftPoint, // First point which defines the rectangle
+                rectangleBottomRightPoint, // Second point which defines the rectangle
+                BLUE, // The color the rectangle is drawn in
+                2); // Thickness of the rectangle lines
+
         return input;
     }
-
-    @Override
-    public void onViewportTapped()
-    {
-    }
 }
-

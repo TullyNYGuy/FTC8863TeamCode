@@ -12,12 +12,14 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MatchPhase;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
+import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.Pipelines.PowerPlayWebcamPositioningPipeline;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayAutonomousNoVisionParkLocationTwo;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayAutonomousStateMachine;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayField;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayGamepad;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayPersistantStorage;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayRobot;
+import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
 
 import java.util.List;
@@ -95,10 +97,10 @@ public class PowerPlayWebcamPositioning extends LinearOpMode {
 
         // Create the pipeline to use to process the images coming from the webcam. It should be a
         // statement that starts like this:
-        // pipeline = new
+        pipeline = new PowerPlayWebcamPositioningPipeline();
 
         // start the webcam processing images through the pipeline.
-        // robot.webcam.openCamera(OpenCvCameraRotation.UPRIGHT, pipeline);
+        robot.webcam.openCamera(OpenCvCameraRotation.UPRIGHT, pipeline);
 
         // Wait for the start button
 
