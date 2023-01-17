@@ -54,10 +54,10 @@ public class PowerPlayWebcamPositioningPipeline extends OpenCvPipeline
      *
      */
 
-    public double upperLeftCornerOfRectangleX = 0;
-    public double upperLeftCornerOfRectangleY = 0;
-    public double rectangleWidth = 250;
-    public double rectangleHeight = 250;
+    public double upperLeftCornerOfRectangleX = 960;
+    public double upperLeftCornerOfRectangleY = 360;
+    public double rectangleWidth = 21;
+    public double rectangleHeight = 44;
 
     private Point upperLeftCornerOfRectangle = new Point(upperLeftCornerOfRectangleX,upperLeftCornerOfRectangleY);
     private Point lowerRightCornerOfRectangle = new Point(upperLeftCornerOfRectangleX + rectangleWidth, upperLeftCornerOfRectangleY + rectangleHeight);
