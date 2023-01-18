@@ -22,6 +22,10 @@ public class PowerPlayAutonomousVisionOneCyclePark implements PowerPlayAutonomou
     public enum States {
         IDLE,
         START,
+        MOVING_TO_JUNCTION_POLE_FOR_SCORE,
+        RAISING_LIFT,
+        DROPPING_FOUR_INCHES,
+        RELEASING_OPEN_LIFT,
         MOVING_TO_PARKING,
         COMPLETE
     }
@@ -49,6 +53,8 @@ public class PowerPlayAutonomousVisionOneCyclePark implements PowerPlayAutonomou
 
     private States currentState;
     private boolean isComplete = false;
+
+    private PowerPlayPersistantStorage.ParkLocation TEMP_PARK_LOCATION = PowerPlayPersistantStorage.ParkLocation.TWO;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -80,7 +86,8 @@ public class PowerPlayAutonomousVisionOneCyclePark implements PowerPlayAutonomou
         this.colorLocation = PowerPlayPersistantStorage.getColorLocation();
         startPose = field.getStartPose();
         junctionPolePose = field.getJunctionPolePose();
-        parkingLocationPose = field.getParkingLocationPose();
+        //parkingLocationPose = field.getParkingLocationPose();
+        parkingLocationPose = PowerPlayPoseStorage.RED_RIGHT_PARK_LOCATION_2;
 
         currentState = States.IDLE;
         distanceUnits = DistanceUnit.INCH;
@@ -114,7 +121,8 @@ public class PowerPlayAutonomousVisionOneCyclePark implements PowerPlayAutonomou
                         .splineTo(new Vector2d(11.75, -53), Math.toRadians(90))
                         .lineToLinearHeading(junctionPolePose)
                         .build();
-                switch (PowerPlayPersistantStorage.getParkLocation()) {
+                //switch (PowerPlayPersistantStorage.getParkLocation()) {
+                switch (TEMP_PARK_LOCATION) {
                     case ONE: {
                         trajectoryToParkingLocation = robot.mecanum.trajectoryBuilder(trajectoryToJunctionPoleFromStart.end())
                                 .lineToLinearHeading(parkingLocationPose)
@@ -175,7 +183,39 @@ public class PowerPlayAutonomousVisionOneCyclePark implements PowerPlayAutonomou
                 isComplete = false;
                 robot.mecanum.setPoseEstimate(startPose);
                 robot.mecanum.followTrajectory(trajectoryToJunctionPoleFromStart);
-                currentState = States.MOVING_TO_PARKING;
+                currentState = States.MOVING_TO_JUNCTION_POLE_FOR_SCORE;
+            }
+            break;
+
+            case MOVING_TO_JUNCTION_POLE_FOR_SCORE:{
+                if (!robot.mecanum.isBusy()) {
+                    currentState = States.RAISING_LIFT;
+                    robot.coneGrabberArmController.moveToHighThenPrepareToRelease();
+                }
+            }
+            break;
+
+            case RAISING_LIFT:{
+                if (robot.coneGrabberArmController.isCommandComplete()){
+                    robot.leftLift.droppingOnPole();
+                    currentState=States.DROPPING_FOUR_INCHES;
+                }
+            }
+            break;
+
+            case DROPPING_FOUR_INCHES:{
+                if (robot.leftLift.isCommandComplete()){
+                    robot.coneGrabberArmController.releaseThenMoveToPickup();
+                    currentState=States.RELEASING_OPEN_LIFT;
+                }
+            }
+            break;
+
+            case RELEASING_OPEN_LIFT:{
+                if (robot.coneGrabberArmController.isCommandComplete()){
+                    robot.mecanum.followTrajectory(trajectoryToParkingLocation);
+                    currentState=States.MOVING_TO_PARKING;
+                }
             }
             break;
 
@@ -183,7 +223,6 @@ public class PowerPlayAutonomousVisionOneCyclePark implements PowerPlayAutonomou
                 if (!robot.mecanum.isBusy()) {
                     currentState = States.COMPLETE;
                 }
-
             }
             break;
 

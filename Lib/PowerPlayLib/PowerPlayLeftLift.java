@@ -37,6 +37,7 @@ public class PowerPlayLeftLift implements FTCRobotSubsystem {
         MOVING_TO_LOW,
         MOVING_TO_GROUND,
         MOVING_TO_PICKUP,
+        DROPPING_ON_POLE,
 
         // retraction states
         RETRACTING
@@ -117,7 +118,7 @@ public class PowerPlayLeftLift implements FTCRobotSubsystem {
                 DcMotor8863.MotorType.GOBILDA_435,
                 5.713);
         leftLift.forwardMotorDirection();
-        
+
         //*********************************************
         // SET the lift positions here
         //*********************************************
@@ -137,7 +138,7 @@ public class PowerPlayLeftLift implements FTCRobotSubsystem {
         retractPower = -1.0;
         leftLift.setExtensionPower(extendPower);
         leftLift.setRetractionPower(retractPower);
-        
+
         //*********************************************
         // SET the lift max and min positions here
         //*********************************************
@@ -350,15 +351,16 @@ public class PowerPlayLeftLift implements FTCRobotSubsystem {
         }
     }
 
-    public void testTheDrop() {
+    public void droppingOnPole() {
         // lockout for double hits on a command button. Downside is that the driver better hit the
         // right button the first time or they are toast
         double currentLiftPosition = leftLift.getCurrentPosition();
         if (commandComplete) {
             logCommand("test the drop");
             retractionComplete = false;
-            commandComplete = true;
-            leftLift.goToPosition(currentLiftPosition-4.0, extendPower);
+            commandComplete = false;
+            leftLift.goToPosition(currentLiftPosition - 4.0, retractPower);
+            liftState = LiftState.DROPPING_ON_POLE;
         } else {
             // you can't start a new command when the old one is not finished
         }
@@ -508,6 +510,13 @@ public class PowerPlayLeftLift implements FTCRobotSubsystem {
                 }
             }
             break;
+
+            case DROPPING_ON_POLE: {
+                if (leftLift.isPositionReached()) {
+                    commandComplete = true;
+                    liftState = LiftState.READY;
+                }
+            }
         }
     }
 }
