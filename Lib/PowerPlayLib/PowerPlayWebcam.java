@@ -213,7 +213,7 @@ public class PowerPlayWebcam implements FTCRobotSubsystem {
                  * away from the user.
                  */
                 // using 720p resolution. This may have an impact on pipeline performance. Not sure.
-                webcam.startStreaming(1280, 720, cameraRotation);
+                webcam.startStreaming(640, 480, cameraRotation);
 
                 // I don't see any way to determine if the camera opening was successful. So assume it was.
                 initComplete = true;
