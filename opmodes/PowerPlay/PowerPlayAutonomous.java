@@ -13,6 +13,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MatchPhase;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.PersistantStorage;
+import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.Pipelines.SignalConePipeline;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayAutonomousNoVisionParkLocationOneOrThreeStateMachine;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayAutonomousNoVisionParkLocationTwo;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayAutonomousStateMachine;
@@ -39,7 +40,7 @@ public class PowerPlayAutonomous extends LinearOpMode {
     public Configuration config = null;
     public PowerPlayField field;
     private PowerPlayAutonomousStateMachine autonomousStateMachine;
-    private OpenCvPipeline pipeline;
+    private SignalConePipeline pipeline;
 
     private ElapsedTime timer;
 
@@ -97,10 +98,10 @@ public class PowerPlayAutonomous extends LinearOpMode {
 
         // Create the pipeline to use to process the images coming from the webcam. It should be a
         // statement that starts like this:
-        // pipeline = new
+        pipeline = new SignalConePipeline(telemetry);
 
         // start the webcam processing images through the pipeline.
-        // robot.webcam.openCamera(OpenCvCameraRotation.UPRIGHT, pipeline);
+        robot.webcam.openCamera(OpenCvCameraRotation.UPRIGHT, pipeline);
 
         // Wait for the start button
 
@@ -108,16 +109,22 @@ public class PowerPlayAutonomous extends LinearOpMode {
         telemetry.update();
 
         // If you have nothing to do while waiting for the start button to be pressed use:
-        waitForStart();
+        // waitForStart();
         // On the other hand, if you do have stuff to do (like display things on the driver station
         // screen while a pipeline is running), use this:
-//        while (!isStarted()) {
-//            telemetry.addData(">", "Press start to run Auto (make sure you ran the position setter first!)");
-//            telemetry.update();
-//            idle();
-//        }
+        while (!isStarted()) {
+            telemetry.addData(">", "Press start to run Auto (make sure you ran the position setter first!)");
+            telemetry.addData("Alliance color = ", PowerPlayPersistantStorage.getAllianceColor().toString());
+            telemetry.addData("Team Location  = ", PowerPlayPersistantStorage.getTeamLocation().toString());
+            telemetry.addData("Cone color     = ", pipeline.getConeColor().toString());
+            telemetry.update();
+            idle();
+        }
 
+        // Play button has been pressed so autononous has started
         robot.loopTimer.startLoopTimer();
+        // Turn off the webcam and pipeline processing to save CPU cycles
+        robot.webcam.closeCamera();
 
         //*********************************************************************************************
         //             Robot Running after the user hits play on the driver phone
