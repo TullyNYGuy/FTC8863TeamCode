@@ -114,9 +114,13 @@ public class PowerPlayAutonomous extends LinearOpMode {
         // screen while a pipeline is running), use this:
         while (!isStarted()) {
             telemetry.addData(">", "Press start to run Auto (make sure you ran the position setter first!)");
+            telemetry.addLine();
             telemetry.addData("Alliance color = ", PowerPlayPersistantStorage.getAllianceColor().toString());
             telemetry.addData("Team Location  = ", PowerPlayPersistantStorage.getTeamLocation().toString());
+            telemetry.addLine();
             telemetry.addData("Cone color     = ", pipeline.getConeColor().toString());
+            telemetry.addLine();
+            pipeline.displayDebugTelemetry();
             telemetry.update();
             idle();
         }

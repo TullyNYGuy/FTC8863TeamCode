@@ -44,6 +44,15 @@ public class SignalConePipeline extends OpenCvPipeline {
 
     private ConeColor coneColor = ConeColor.UNKNOWN;
 
+    private enum StageToSendToViewport{
+        RAW_IMAGE,
+        BLUE_TEST,
+        GREEN_TEST,
+        RED_TEST
+    }
+
+    private StageToSendToViewport stageToRenderToViewport = StageToSendToViewport.RAW_IMAGE;
+
     /*
      * Some color constants
      */
@@ -78,10 +87,10 @@ public class SignalConePipeline extends OpenCvPipeline {
     // Since these values are public they will show up as input boxes in EOCV-Sim, allowing you to
     // adjust the values and move the rectangle around to where you want it. This is a way to easily
     // adjust your sample region, then grab the values for use in a real pipeline.
-    public double rectangleXOrigin = 0;
-    public double rectangleYOrigin = 0;
-    public double rectangleWidth = 20;
-    public double rectangleHeight = 20;
+    public double rectangleXOrigin = 504;
+    public double rectangleYOrigin = 178;
+    public double rectangleWidth = 50;
+    public double rectangleHeight = 100;
 
     /*
      * Points which actually define the sample region rectangles, derived from above values
@@ -242,22 +251,11 @@ public class SignalConePipeline extends OpenCvPipeline {
             coneColor = ConeColor.BLUE;
         }
 
-        /*
-         * Draw a rectangle showing sample region 1 on the screen.
-         * Simply a visual aid. Serves no functional purpose.
-         */
-        Imgproc.rectangle(
-                input, // Buffer to draw on
-                rectangleTopLeftPoint, // First point which defines the rectangle
-                rectangleBottomRightPoint, // Second point which defines the rectangle
-                BLUE, // The color the rectangle is drawn in
-                2); // Thickness of the rectangle lines
-
-
-        telemetry.addData("Cone color = ", coneColor.toString());
-        telemetry.addData("blue average = ", blueAverage);
+        telemetry.addData("Cone color    = ", coneColor.toString());
+        telemetry.addData("blue average  = ", blueAverage);
         telemetry.addData("green average = ", greenAverage);
-        telemetry.addData("red average = ", redAverage);
+        telemetry.addData("red average   = ", redAverage);
+        telemetry.addData("viewport shows  ", stageToRenderToViewport.toString());
         telemetry.update();
 
         /*
@@ -266,7 +264,29 @@ public class SignalConePipeline extends OpenCvPipeline {
          * to add some annotations to this buffer earlier up.
          */
         maskedInputMat.release();
-        Core.bitwise_and(input, input, maskedInputMat, testForGreenMat);
+
+        switch (stageToRenderToViewport) {
+            case RAW_IMAGE: {
+                // just copy the input mat to the maskedInputMat since maskedInputMat is the one
+                // that is displayed in the viewport
+                maskedInputMat = input.clone();
+            }
+            break;
+            case BLUE_TEST: {
+                Core.bitwise_and(input, input, maskedInputMat, testForBlueMat);
+            }
+            break;
+            case GREEN_TEST: {
+                Core.bitwise_and(input, input, maskedInputMat, testForGreenMat);
+            }
+            break;
+            case RED_TEST: {
+                Core.bitwise_and(input, input, maskedInputMat, testForRedMat);
+            }
+            break;
+        }
+
+        // add a rectangle to show the area of the image being processed to determine the color
         Imgproc.rectangle(
                 maskedInputMat, // Buffer to draw on
                 rectangleTopLeftPoint, // First point which defines the rectangle
@@ -276,12 +296,47 @@ public class SignalConePipeline extends OpenCvPipeline {
         return maskedInputMat;
     }
 
+    /**
+     * When the user taps on the screen of the driver station, switch the image that is being
+     * viewed between the different filters.
+     */
+    @Override
+    public void onViewportTapped()
+    {
+        /*
+         * Note that this method is invoked from the UI thread
+         * so whatever we do here, we must do quickly.
+         */
+
+        switch (stageToRenderToViewport) {
+            case RAW_IMAGE:
+                stageToRenderToViewport = StageToSendToViewport.BLUE_TEST;
+                break;
+            case BLUE_TEST:
+                stageToRenderToViewport = StageToSendToViewport.GREEN_TEST;
+                break;
+            case GREEN_TEST:
+                stageToRenderToViewport = StageToSendToViewport.RED_TEST;
+                break;
+            case RED_TEST:
+                stageToRenderToViewport = StageToSendToViewport.RAW_IMAGE;
+                break;
+        }
+    }
+
     /*
      * Call this from the OpMode thread to obtain the latest analysis
      */
 
     public ConeColor getConeColor() {
         return coneColor;
+    }
+
+    public void displayDebugTelemetry() {
+        telemetry.addData("blue average   = ", blueAverage);
+        telemetry.addData("green average  = ", greenAverage);
+        telemetry.addData("red average    = ", redAverage);
+        telemetry.addData("viewport shows   ", stageToRenderToViewport.toString());
     }
 }
 
