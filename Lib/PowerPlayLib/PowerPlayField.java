@@ -9,7 +9,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColorTeamLocation;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.TeamLocation;
-import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.UltimateGoalGoal;
+import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.Pipelines.SignalConePipeline;
 
 public class PowerPlayField {
 
@@ -69,6 +69,8 @@ public class PowerPlayField {
     public PowerPlayField(AllianceColorTeamLocation.ColorLocation colorLocation) {
         // default field units will be inches
         this.units = DistanceUnit.INCH;
+        // determine the start pose, and 3 possible parking locations based on the alliance color and team location
+        // The actual park location will be determined once we know the signal cone color.
         this.startPose = determinestartPose2d(colorLocation);
         //this.parkingPoseLocation1 = determineParkLocation1(colorLocation);
         this.parkingPoseLocation2 = determineParkLocation2(colorLocation);
@@ -161,6 +163,22 @@ public class PowerPlayField {
 //        }
 //        return pose2dLocation;
 //    }
+
+    /**
+     * Once the signal cone color is determined, we can figure out what the corresponding parking
+     * location is. The 3 possible parking locations were already determined based on the alliance
+     * color and the team location. We just need to figure out which of the 3 is the one to park in.
+     * if cone color is green, park location is location 1
+     * if cone color is blue, park location is location 2
+     * if cone color is red, park location is location 3
+     * @param coneColor
+     * @return
+     */
+    public Pose2d getParkLocation(SignalConePipeline.ConeColor coneColor) {
+        // default park location is location 1
+        Pose2d parkingPose = parkingPoseLocation1;
+        return parkingPose;
+    }
 
 
     /**

@@ -42,7 +42,8 @@ public class SignalConePipeline extends OpenCvPipeline {
         UNKNOWN
     }
 
-    private ConeColor coneColor = ConeColor.UNKNOWN;
+    // / Volatile since accessed by OpMode thread w/o synchronization
+    private volatile ConeColor coneColor = ConeColor.UNKNOWN;
 
     private enum StageToSendToViewport{
         RAW_IMAGE,
