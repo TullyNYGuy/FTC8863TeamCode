@@ -21,6 +21,13 @@ public interface PowerPlayAutonomousStateMachine {
      void createTrajectories();
 
     /**
+     * This method has to pick which of the previously calculated trajectories to use to get to
+     * the parking location.
+     * @param parkLocation
+     */
+    void setParkLocation(PowerPlayField.ParkLocation parkLocation);
+
+    /**
      * This method will typically run the state machine for your auto.
      */
      void update();

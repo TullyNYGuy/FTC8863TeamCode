@@ -20,6 +20,12 @@ public class PowerPlayField {
     //
     //*********************************************************************************************
 
+    public enum ParkLocation {
+        ONE,
+        TWO,
+        THREE
+    }
+
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS
     //
@@ -153,10 +159,11 @@ public class PowerPlayField {
      * @param coneColor
      * @return
      */
-    public Pose2d getParkLocation(SignalConePipeline.ConeColor coneColor) {
+    public PowerPlayField.ParkLocation determineParkLocation(SignalConePipeline.ConeColor coneColor) {
         // default park location is location 1
-        Pose2d parkingPose = parkingPoseLocation1;
-        return parkingPose;
+        PowerPlayField.ParkLocation parkLocation = ParkLocation.ONE;
+        // Todo fill in the real algorithm for the park location
+        return parkLocation;
     }
 
     /**

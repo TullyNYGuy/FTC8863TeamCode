@@ -72,6 +72,10 @@ public class PowerPlayAutonomousNoVisionParkLocationOneOrThreeStateMachine imple
     //*********************************************************************************************
 
     @Override
+    public void setParkLocation(PowerPlayField.ParkLocation parkLocation) {
+    }
+
+    @Override
     public boolean isComplete() {
         return isComplete;
     }

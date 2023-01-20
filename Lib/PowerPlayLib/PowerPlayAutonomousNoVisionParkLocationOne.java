@@ -52,6 +52,10 @@ public class PowerPlayAutonomousNoVisionParkLocationOne implements PowerPlayAuto
     //*********************************************************************************************
 
     @Override
+    public void setParkLocation(PowerPlayField.ParkLocation parkLocation) {
+    }
+
+    @Override
     public boolean isComplete() {
         return isComplete;
     }

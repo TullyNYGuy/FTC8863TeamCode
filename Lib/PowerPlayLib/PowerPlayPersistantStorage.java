@@ -12,19 +12,13 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.TeamLocation;
 public class PowerPlayPersistantStorage {
     // public static DATA FIELDS that persist between opmodes
 
-    public enum ParkLocation {
-        ONE,
-        TWO,
-        THREE
-    }
+    private static PowerPlayField.ParkLocation parkLocation;
 
-    private static ParkLocation parkLocation;
-
-    public static ParkLocation getParkLocation() {
+    public static PowerPlayField.ParkLocation getParkLocation() {
         return parkLocation;
     }
 
-    public static void setParkLocation(ParkLocation parkLocation) {
+    public static void setParkLocation(PowerPlayField.ParkLocation parkLocation) {
         PowerPlayPersistantStorage.parkLocation = parkLocation;
     }
 

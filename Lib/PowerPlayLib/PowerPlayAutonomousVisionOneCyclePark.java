@@ -41,6 +41,9 @@ public class PowerPlayAutonomousVisionOneCyclePark implements PowerPlayAutonomou
     private Pose2d parkingLocationPose;
     private Trajectory trajectoryToJunctionPoleFromStart;
     private Trajectory trajectoryToParkingLocation;
+    private Trajectory trajectoryToParkingLocation1;
+    private Trajectory trajectoryToParkingLocation2;
+    private Trajectory trajectoryToParkingLocation3;
 
     private AllianceColorTeamLocation.ColorLocation colorLocation;
 
@@ -54,8 +57,41 @@ public class PowerPlayAutonomousVisionOneCyclePark implements PowerPlayAutonomou
     private States currentState;
     private boolean isComplete = false;
 
-    private PowerPlayPersistantStorage.ParkLocation TEMP_PARK_LOCATION = PowerPlayPersistantStorage.ParkLocation.TWO;
+    private PowerPlayField.ParkLocation parkLocation;
 
+    /**
+     * This method is needed because the trajectories are calculated at the time the autonomous is created.
+     * This is before the signal cone is randomized. So the robot sits in init, looking at the cone the entire
+     * time. Finally once play is pressed the robot knows that the signal cone is set and it quickly reads the
+     * image (color in our case). We can finally determine which of the previoulsy calculated trajectories to
+     * the parking location is the one the robot actually has to use. This method is called after the final
+     * signal cone image is read and the parking location is determined. Basically call it just after play is
+     * pressed on the driver station.
+     * @param parkLocation
+     */
+    @Override
+    public void setParkLocation(PowerPlayField.ParkLocation parkLocation) {
+        this.parkLocation = parkLocation;
+
+        // set the actual trajectory to the parking location to one of the 3 previously calculated
+        // trajectories, depending on which one was determined from the signal cone
+        switch (parkLocation) {
+            case ONE: {
+                trajectoryToParkingLocation = trajectoryToParkingLocation1;
+            }
+            break;
+
+            case TWO: {
+                trajectoryToParkingLocation = trajectoryToParkingLocation2;
+            }
+            break;
+
+            case THREE: {
+                trajectoryToParkingLocation = trajectoryToParkingLocation3;
+            }
+            break;
+        }
+    }
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -86,8 +122,6 @@ public class PowerPlayAutonomousVisionOneCyclePark implements PowerPlayAutonomou
         this.colorLocation = PowerPlayPersistantStorage.getColorLocation();
         startPose = field.getStartPose();
         junctionPolePose = field.getJunctionPolePose();
-        //parkingLocationPose = field.getParkingLocationPose();
-        parkingLocationPose = PowerPlayPoseStorage.RED_RIGHT_PARK_LOCATION_2;
 
         currentState = States.IDLE;
         distanceUnits = DistanceUnit.INCH;
@@ -121,32 +155,17 @@ public class PowerPlayAutonomousVisionOneCyclePark implements PowerPlayAutonomou
                         .splineTo(new Vector2d(11.75, -53), Math.toRadians(90))
                         .lineToLinearHeading(junctionPolePose)
                         .build();
-                //switch (PowerPlayPersistantStorage.getParkLocation()) {
-                switch (TEMP_PARK_LOCATION) {
-                    case ONE: {
-                        trajectoryToParkingLocation = robot.mecanum.trajectoryBuilder(trajectoryToJunctionPoleFromStart.end())
-                                .lineToLinearHeading(parkingLocationPose)
-                                .build();
-                    }
-                    break;
 
-                    case TWO: {
-                        trajectoryToParkingLocation = robot.mecanum.trajectoryBuilder(trajectoryToJunctionPoleFromStart.end())
-                                // end tangent forms a nice curve
-                                .splineToConstantHeading(new Vector2d(23.5, -11.75), Math.toRadians(0))
-                                // end tangent forms a nice curve
-                                .splineToConstantHeading(PowerPlayField.getVector2d(parkingLocationPose), Math.toRadians(270))
-                                .build();
-                    }
-                    break;
+                trajectoryToParkingLocation1 = robot.mecanum.trajectoryBuilder(trajectoryToJunctionPoleFromStart.end())
+                        .lineToLinearHeading(PowerPlayPoseStorage.RED_RIGHT_PARK_LOCATION_1)
+                        .build();
 
-                    case THREE:{
-
-                    }
-                    break;
-
-                }
-
+                trajectoryToParkingLocation2 = robot.mecanum.trajectoryBuilder(trajectoryToJunctionPoleFromStart.end())
+                        // end tangent forms a nice curve
+                        .splineToConstantHeading(new Vector2d(23.5, -11.75), Math.toRadians(0))
+                        // end tangent forms a nice curve
+                        .splineToConstantHeading(PowerPlayField.getVector2d(PowerPlayPoseStorage.RED_RIGHT_PARK_LOCATION_2), Math.toRadians(270))
+                        .build();
             }
             break;
 
@@ -159,7 +178,6 @@ public class PowerPlayAutonomousVisionOneCyclePark implements PowerPlayAutonomou
 
             }
             break;
-
         }
     }
 
@@ -187,7 +205,7 @@ public class PowerPlayAutonomousVisionOneCyclePark implements PowerPlayAutonomou
             }
             break;
 
-            case MOVING_TO_JUNCTION_POLE_FOR_SCORE:{
+            case MOVING_TO_JUNCTION_POLE_FOR_SCORE: {
                 if (!robot.mecanum.isBusy()) {
                     currentState = States.RAISING_LIFT;
                     robot.coneGrabberArmController.moveToHighThenPrepareToRelease();
@@ -195,26 +213,26 @@ public class PowerPlayAutonomousVisionOneCyclePark implements PowerPlayAutonomou
             }
             break;
 
-            case RAISING_LIFT:{
-                if (robot.coneGrabberArmController.isCommandComplete()){
+            case RAISING_LIFT: {
+                if (robot.coneGrabberArmController.isCommandComplete()) {
                     robot.leftLift.droppingOnPole();
-                    currentState=States.DROPPING_FOUR_INCHES;
+                    currentState = States.DROPPING_FOUR_INCHES;
                 }
             }
             break;
 
-            case DROPPING_FOUR_INCHES:{
-                if (robot.leftLift.isCommandComplete()){
+            case DROPPING_FOUR_INCHES: {
+                if (robot.leftLift.isCommandComplete()) {
                     robot.coneGrabberArmController.releaseThenMoveToPickup();
-                    currentState=States.RELEASING_OPEN_LIFT;
+                    currentState = States.RELEASING_OPEN_LIFT;
                 }
             }
             break;
 
-            case RELEASING_OPEN_LIFT:{
-                if (robot.coneGrabberArmController.isCommandComplete()){
+            case RELEASING_OPEN_LIFT: {
+                if (robot.coneGrabberArmController.isCommandComplete()) {
                     robot.mecanum.followTrajectory(trajectoryToParkingLocation);
-                    currentState=States.MOVING_TO_PARKING;
+                    currentState = States.MOVING_TO_PARKING;
                 }
             }
             break;
@@ -232,80 +250,5 @@ public class PowerPlayAutonomousVisionOneCyclePark implements PowerPlayAutonomou
             }
             break;
         }
-//            switch (currentState) {
-//                case START:
-//                    isComplete = false;
-//                    robot.mecanum.setPoseEstimate(PoseStorageFF.START_POSE);
-//                    robot.mecanum.followTrajectory(trajectoryToWaypoint);
-//                    // there was something unecesary here. it is gone now. - kellen
-//                    currentState = States.MOVING_TO_HUB;
-//                    break;
-//                case MOVING_TO_HUB:
-//                    if (!robot.mecanum.isBusy()) {
-//                        robot.mecanum.followTrajectory(trajectoryToHub);
-//                        currentState = States.EXTENDING_LIFT;
-//                    }
-//                    break;
-//                case EXTENDING_LIFT:
-//                    if(!robot.mecanum.isBusy()) {
-//                        robot.freightSystem.extend();
-//                        currentState = States.DEPOSITING;
-//                    }
-//                    break;
-//                case DEPOSITING:
-//                    if (robot.freightSystem.isReadyToDump()) {
-//
-//                        robot.freightSystem.dump();
-//                        currentState = States.DEPOSIT_DONE;
-//                    }
-//                    break;
-//                case DEPOSIT_DONE:
-//                    if(robot.freightSystem.isDumpComplete()) {
-//                        robot.mecanum.followTrajectory(trajectoryToWaypointReturn);
-//                        currentState = States.MOVING_TO_DUCKS;
-//                    }
-//                    break;
-//
-//                case MOVING_TO_DUCKS:
-//                    if(robot.freightSystem.isRetractionComplete()&&!robot.mecanum.isBusy()) {
-//                        robot.mecanum.followTrajectory(trajectoryToDucks);
-//                        currentState = States.AT_DUCK;
-//                    }
-//
-//                    break;
-//                case AT_DUCK:
-//                    if (!robot.mecanum.isBusy()) {
-//                        // there was something unecesary here. it is gone now. - kellen
-//                        robot.duckSpinner.turnOn();
-//                        currentState = States.DUCK_SPINNING;
-//                    }
-//                    break;
-//                case DUCK_SPINNING:
-//                    if (robot.duckSpinner.spinTimeReached()) {
-//                        robot.duckSpinner.turnOff();
-//                        currentState = States.APPROACHING_SIDE;
-//                    }
-//                    break;
-//                case APPROACHING_SIDE:
-//                    robot.mecanum.followTrajectory(trajectoryToPassageApproach);
-//                    if (!robot.mecanum.isBusy()) {
-//                        currentState = States.GOING_TO_PASSAGE;
-//                    }
-//                    break;
-//                case GOING_TO_PASSAGE:
-//                    robot.mecanum.followTrajectory(trajectoryToPassage);
-//                    if (!robot.mecanum.isBusy()) {
-//                        currentState = States.GO_TO_WAREHOUSE;
-//                    }
-//                    break;
-//                case GO_TO_WAREHOUSE:
-//                    robot.mecanum.followTrajectory(trajectoryToWarehoue);
-//                    if (!robot.mecanum.isBusy()) {
-//                        currentState = States.COMPLETE;
-//                    }
-//                    break;
-//                case COMPLETE:
-//                    isComplete = true;
-//            }
     }
 }
