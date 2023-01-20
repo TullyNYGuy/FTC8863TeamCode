@@ -6,7 +6,10 @@ import com.acmerobotics.roadrunner.geometry.Vector2d;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColorTeamLocation;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.TeamLocation;
+import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.Pipelines.SignalConePipeline;
 
 public class PowerPlayField {
 
@@ -140,6 +143,78 @@ public class PowerPlayField {
         }
     }
 
+//    private Pose2d determineParkLocation1(AllianceColorTeamLocation.ColorLocation colorLocation) {
+//        Pose2d pose2dLocation = new Pose2d(0,0,0);
+//        switch (colorLocation) {
+//            case RED_LEFT:
+//                pose2dLocation = PowerPlayPoseStorage.RED_LEFT_PARK_LOCATION_1;
+//                break;
+//            case RED_RIGHT:
+//                pose2dLocation = PowerPlayPoseStorage.RED_RIGHT_PARK_LOCATION_1;
+//                break;
+//            case BLUE_LEFT:
+//                pose2dLocation = PowerPlayPoseStorage.BLUE_LEFT_PARK_LOCATION_1;
+//                break;
+//            case BLUE_RIGHT:
+//                pose2dLocation = PowerPlayPoseStorage.BLUE_RIGHT_PARK_LOCATION_1;
+//                break;
+//        }
+//        return pose2dLocation;
+//    }
+
+    private Pose2d determineParkLocation2(AllianceColorTeamLocation.ColorLocation colorLocation) {
+        Pose2d pose2dLocation = new Pose2d(0,0,0);
+        switch (colorLocation) {
+            case RED_LEFT:
+                pose2dLocation = PowerPlayPoseStorage.RED_LEFT_PARK_LOCATION_2;
+                break;
+            case RED_RIGHT:
+                pose2dLocation = PowerPlayPoseStorage.RED_RIGHT_PARK_LOCATION_2;
+                break;
+            case BLUE_LEFT:
+                pose2dLocation = PowerPlayPoseStorage.BLUE_LEFT_PARK_LOCATION_2;
+                break;
+            case BLUE_RIGHT:
+                pose2dLocation = PowerPlayPoseStorage.BLUE_RIGHT_PARK_LOCATION_2;
+                break;
+        }
+        return pose2dLocation;
+    }
+
+//    private Pose2d determineParkLocation3(AllianceColorTeamLocation.ColorLocation colorLocation) {
+//        Pose2d pose2dLocation = new Pose2d(0,0,0);
+//        switch (colorLocation) {
+//            case RED_LEFT:
+//                pose2dLocation = PowerPlayPoseStorage.RED_LEFT_PARK_LOCATION_3;
+//                break;
+//            case RED_RIGHT:
+//                pose2dLocation = PowerPlayPoseStorage.RED_RIGHT_PARK_LOCATION_3;
+//                break;
+//            case BLUE_LEFT:
+//                pose2dLocation = PowerPlayPoseStorage.BLUE_LEFT_PARK_LOCATION_3;
+//                break;
+//            case BLUE_RIGHT:
+//                pose2dLocation = PowerPlayPoseStorage.BLUE_RIGHT_PARK_LOCATION_3;
+//                break;
+//        }
+//        return pose2dLocation;
+//    }
+
+    /**
+     * Once the signal cone color is determined, we can figure out what the corresponding parking
+     * location is. The 3 possible parking locations were already determined based on the alliance
+     * color and the team location. We just need to figure out which of the 3 is the one to park in.
+     * if cone color is green, park location is location 1
+     * if cone color is blue, park location is location 2
+     * if cone color is red, park location is location 3
+     * @param coneColor
+     * @return
+     */
+    public Pose2d getParkLocation(SignalConePipeline.ConeColor coneColor) {
+        // default park location is location 1
+        Pose2d parkingPose = parkingPoseLocation1;
+        return parkingPose;
+    }
     /**
      * Returns a vector from a pose. The units are inches because a Pose2D units are inches.
      * @param pose2d

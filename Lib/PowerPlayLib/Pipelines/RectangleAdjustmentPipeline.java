@@ -19,7 +19,7 @@
  * SOFTWARE.
  */
 
-package org.firstinspires.ftc.teamcode.EasyOpenCV;
+package org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.Pipelines;
 
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
