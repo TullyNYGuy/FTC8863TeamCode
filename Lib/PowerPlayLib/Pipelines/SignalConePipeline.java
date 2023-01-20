@@ -76,8 +76,8 @@ public class SignalConePipeline extends OpenCvPipeline {
     public Scalar filterForBlueLower = new Scalar(0, 0, 137);
     public Scalar filterForBlueUpper = new Scalar(255, 255, 255);
 
-    public Scalar filterForGreenLower = new Scalar(0, 113, 122);
-    public Scalar filterForGreenUpper = new Scalar(255, 147, 134);
+    public Scalar filterForGreenLower = new Scalar(0, 82, 96);
+    public Scalar filterForGreenUpper = new Scalar(255, 119, 132);
 
     public Scalar filterForRedLower = new Scalar(0, 158, 104);
     public Scalar filterForRedUpper = new Scalar(255, 255, 255);
@@ -88,9 +88,9 @@ public class SignalConePipeline extends OpenCvPipeline {
     // Since these values are public they will show up as input boxes in EOCV-Sim, allowing you to
     // adjust the values and move the rectangle around to where you want it. This is a way to easily
     // adjust your sample region, then grab the values for use in a real pipeline.
-    public double rectangleXOrigin = 504;
-    public double rectangleYOrigin = 178;
-    public double rectangleWidth = 50;
+    public double rectangleXOrigin = 433;
+    public double rectangleYOrigin = 156;
+    public double rectangleWidth = 100;
     public double rectangleHeight = 100;
 
     /*
