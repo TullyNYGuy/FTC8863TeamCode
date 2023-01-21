@@ -187,19 +187,33 @@ public class PowerPlayAutonomousVisionOneCyclePark implements PowerPlayAutonomou
     @Override
     public void createTrajectories() {
         switch (PowerPlayPersistantStorage.getColorLocation()) {
+            case BLUE_LEFT:
             case RED_LEFT: {
                 trajectoryToJunctionPoleFromStart = robot.mecanum.trajectoryBuilder(startPose)
                         .splineTo(new Vector2d(-11.75, -53), Math.toRadians(90))
-                        .lineToLinearHeading(junctionPolePose)
+                        .splineToSplineHeading(junctionPolePose,Math.toRadians(90))
                         .build();
 
                 trajectoryToParkingLocation1 = null;
+
+                trajectoryToParkingLocation2 = robot.mecanum.trajectoryBuilder(trajectoryToJunctionPoleFromStart.end())
+                        .lineTo(new Vector2d(-14.75, -20.5))
+                        .splineToConstantHeading(new Vector2d(-23.5, -10.75), Math.toRadians(-180))
+                        .splineToConstantHeading(getVector2d(PowerPlayPoseStorage.RED_LEFT_PARK_LOCATION_2), Math.toRadians(0))
+                        .build();
+
+                trajectoryToParkingLocation3 = robot.mecanum.trajectoryBuilder(trajectoryToJunctionPoleFromStart.end())
+                        .lineTo(new Vector2d(-14.75, -20.5))
+                        .splineToConstantHeading(new Vector2d(-23.5, -10.75), Math.toRadians(180))
+                        .splineToConstantHeading(getVector2d(PowerPlayPoseStorage.RED_LEFT_PARK_LOCATION_3), Math.toRadians(180))
+                        .build();
             }
             break;
 
+            case BLUE_RIGHT:
             case RED_RIGHT: {
                 trajectoryToJunctionPoleFromStart = robot.mecanum.trajectoryBuilder(startPose)
-                        .splineTo(new Vector2d(11.75, -53), Math.toRadians(90))
+                        .splineTo(new Vector2d(10.75, -53), Math.toRadians(90))
                         .lineToLinearHeading(junctionPolePose)
                         .build();
 
@@ -218,20 +232,9 @@ public class PowerPlayAutonomousVisionOneCyclePark implements PowerPlayAutonomou
 
                 trajectoryToParkingLocation3 = robot.mecanum.trajectoryBuilder(trajectoryToJunctionPoleFromStart.end())
                         .splineToConstantHeading(new Vector2d(23.5, -10.75), Math.toRadians(0))
-                        .splineToSplineHeading(new Pose2d(47,-11.75, Math.toRadians(270)),Math.toRadians(0) )
+                        //.splineToSplineHeading(new Pose2d(47,-11.75, Math.toRadians(270)),Math.toRadians(0) )
                         .splineToConstantHeading(getVector2d(PowerPlayPoseStorage.RED_RIGHT_PARK_LOCATION_3), Math.toRadians(0))
-                        //.lineToLinearHeading(PowerPlayPoseStorage.RED_RIGHT_PARK_LOCATION_3)
                         .build();
-            }
-            break;
-
-            case BLUE_LEFT: {
-
-            }
-            break;
-
-            case BLUE_RIGHT: {
-
             }
             break;
         }
@@ -252,7 +255,6 @@ public class PowerPlayAutonomousVisionOneCyclePark implements PowerPlayAutonomou
 
     @Override
     public void update() {
-        logState();
         switch (currentState) {
 
             case START: {
