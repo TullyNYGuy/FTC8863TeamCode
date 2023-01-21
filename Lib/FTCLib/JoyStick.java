@@ -459,6 +459,12 @@ public class JoyStick {
         }
     }
 
+    public void setMaxPower(double maxPower) {
+        if (maxPower <= 1.0 && maxPower >+ 0) {
+            reductionFactor = maxPower;
+        }
+    }
+
     /**
      * Set the power to full power
      */

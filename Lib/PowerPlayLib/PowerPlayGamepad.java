@@ -131,6 +131,18 @@ public class PowerPlayGamepad {
         return drivingMode;
     }
 
+    private double previousMaxPower;
+
+    public double getPreviousMaxPower() {
+        return previousMaxPower;
+    }
+
+    private double currentMaxPower;
+
+    public double getCurrentMaxPower() {
+        return currentMaxPower;
+    }
+
     // private AutomaticTeleopFunctions automaticTeleopFunctions;
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -294,16 +306,10 @@ public class PowerPlayGamepad {
 
         if (gamepad1LeftStickButton.buttonPress(gamepad1.left_stick_button)) {
             if (gamepad1LeftStickButton.isCommand1()) {
-                gamepad1LeftJoyStickX.setFullPower();
-                gamepad1LeftJoyStickY.setFullPower();
-                gamepad1RightJoyStickX.setFullPower();
-                gamepad1RightJoyStickY.setFullPower();
+                setMaxDrivingPower(1.0);
             }
             if (gamepad1LeftStickButton.isCommand2()) {
-                gamepad1LeftJoyStickX.set75PercentPower();
-                gamepad1LeftJoyStickY.set75PercentPower();
-                gamepad1RightJoyStickX.set75PercentPower();
-                gamepad1RightJoyStickY.set75PercentPower();
+                setMaxDrivingPower(0.75);
             }
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
@@ -428,6 +434,17 @@ public class PowerPlayGamepad {
         telemetry.addData("2-leftJoyStickX  = ", gamepad2LeftJoyStickXValue);
         telemetry.addData("2-rightJoyStickY = ", gamepad2RightJoyStickYValue);
         telemetry.addData("2-rightJoyStickX = ", gamepad2RightJoyStickXValue);
+    }
+
+    public void setMaxDrivingPower (double maxDrivingPower) {
+        if (maxDrivingPower <= 1.0 && maxDrivingPower >= 0) {
+            previousMaxPower = currentMaxPower;
+            currentMaxPower = maxDrivingPower;
+            gamepad1LeftJoyStickX.setMaxPower(maxDrivingPower);
+            gamepad1LeftJoyStickY.setMaxPower(maxDrivingPower);
+            gamepad1RightJoyStickX.setMaxPower(maxDrivingPower);
+            gamepad1RightJoyStickY.setMaxPower(maxDrivingPower);
+        }
     }
 
 }
