@@ -87,6 +87,8 @@ public class PowerPlayAutonomous extends LinearOpMode {
         // Here is where you create the state machine that is going to be run.
         // Change this state machine out and the robot will do something different.
         autonomousStateMachine = new PowerPlayAutonomousVisionOneCyclePark(robot, field, telemetry);
+        autonomousStateMachine.setDataLog(dataLog);
+        autonomousStateMachine.enableDataLogging();
 
         // Allow reads of all of the motor data in one read.
         enableBulkReads(hardwareMap, LynxModule.BulkCachingMode.AUTO);

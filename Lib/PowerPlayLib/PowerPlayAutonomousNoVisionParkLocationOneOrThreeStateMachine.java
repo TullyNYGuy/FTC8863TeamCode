@@ -8,6 +8,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogOnChange;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.AllianceColor;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.PersistantStorage;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.PoseStorageFF;
@@ -63,6 +65,11 @@ public class PowerPlayAutonomousNoVisionParkLocationOneOrThreeStateMachine imple
     private double distanceToLeftPowerShot = 0;
     private double angleOfShot = 0;
     private boolean isComplete = false;
+
+    private DataLogging logFile;
+    private boolean enableLogging = false;
+    private DataLogOnChange logStateOnChange;
+    private DataLogOnChange logCommandOnchange;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -162,6 +169,40 @@ public class PowerPlayAutonomousNoVisionParkLocationOneOrThreeStateMachine imple
     //
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
+    @Override
+    public String getName() {
+        return "Auto";
+    }
+
+    @Override
+    public void setDataLog(DataLogging logFile) {
+        this.logFile = logFile;
+        logCommandOnchange = new DataLogOnChange(logFile);
+        logStateOnChange = new DataLogOnChange(logFile);
+    }
+
+    @Override
+    public void enableDataLogging() {
+        enableLogging = true;
+    }
+
+    @Override
+    public void disableDataLogging() {
+        enableLogging = false;
+    }
+
+    private void logState() {
+        if (enableLogging && logFile != null) {
+            logStateOnChange.log(getName() + " state = " + currentState.toString());
+        }
+    }
+
+    private void logCommand(String command) {
+        if (enableLogging && logFile != null) {
+            logCommandOnchange.log(getName() + " command = " + command);
+        }
+    }
+
 
     /**
      * Place all of the trajectories for the autonomous opmode in this method. This method gets

@@ -163,6 +163,20 @@ public class PowerPlayField {
         // default park location is location 1
         PowerPlayField.ParkLocation parkLocation = ParkLocation.ONE;
         // Todo fill in the real algorithm for the park location
+        switch (coneColor) {
+            case GREEN: {
+                parkLocation = ParkLocation.ONE;
+            }
+            break;
+            case BLUE: {
+                parkLocation = ParkLocation.TWO;
+            }
+            break;
+            case RED: {
+                parkLocation = ParkLocation.THREE;
+            }
+            break;
+        }
         return parkLocation;
     }
 

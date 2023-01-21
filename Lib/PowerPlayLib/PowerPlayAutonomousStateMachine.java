@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.Lib.PowerPlayLib;
 
 
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
+
 public interface PowerPlayAutonomousStateMachine {
 
     /**
@@ -10,7 +12,7 @@ public interface PowerPlayAutonomousStateMachine {
      * your class uses a state machine to sequence your auto, then this method should start the
      * state machine
      */
-     void start();
+    void start();
 
     /**
      * This method will contain statements that create all of the road runner trajectories for your
@@ -18,11 +20,12 @@ public interface PowerPlayAutonomousStateMachine {
      * about 1/2 second to generate so generating them all before you actually run the auto saves
      * time.
      */
-     void createTrajectories();
+    void createTrajectories();
 
     /**
      * This method has to pick which of the previously calculated trajectories to use to get to
      * the parking location.
+     *
      * @param parkLocation
      */
     void setParkLocation(PowerPlayField.ParkLocation parkLocation);
@@ -30,13 +33,22 @@ public interface PowerPlayAutonomousStateMachine {
     /**
      * This method will typically run the state machine for your auto.
      */
-     void update();
+    void update();
 
     /**
      * This method will tell the user if your auto is finished or not.
+     *
      * @return - true if complete, false if still running
      */
-     boolean isComplete();
+    boolean isComplete();
 
-     String getCurrentState();
+    String getCurrentState();
+
+    void setDataLog(DataLogging logFile);
+
+    void enableDataLogging();
+
+    void disableDataLogging();
+
+    String getName();
 }

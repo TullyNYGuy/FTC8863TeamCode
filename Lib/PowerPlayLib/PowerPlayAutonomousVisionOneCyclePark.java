@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.Lib.PowerPlayLib;
 
 
+import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayField.getVector2d;
+
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
@@ -10,6 +12,8 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColorTeamLocation;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogOnChange;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 
 public class PowerPlayAutonomousVisionOneCyclePark implements PowerPlayAutonomousStateMachine {
 
@@ -56,6 +60,11 @@ public class PowerPlayAutonomousVisionOneCyclePark implements PowerPlayAutonomou
 
     private States currentState;
     private boolean isComplete = false;
+
+    private DataLogging logFile;
+    private boolean enableLogging = false;
+    private DataLogOnChange logStateOnChange;
+    private DataLogOnChange logCommandOnchange;
 
     private PowerPlayField.ParkLocation parkLocation;
 
@@ -136,6 +145,39 @@ public class PowerPlayAutonomousVisionOneCyclePark implements PowerPlayAutonomou
     //
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
+    @Override
+    public String getName() {
+        return "Auto";
+    }
+
+    @Override
+    public void setDataLog(DataLogging logFile) {
+        this.logFile = logFile;
+        logCommandOnchange = new DataLogOnChange(logFile);
+        logStateOnChange = new DataLogOnChange(logFile);
+    }
+
+    @Override
+    public void enableDataLogging() {
+        enableLogging = true;
+    }
+
+    @Override
+    public void disableDataLogging() {
+        enableLogging = false;
+    }
+
+    private void logState() {
+        if (enableLogging && logFile != null) {
+            logStateOnChange.log(getName() + " state = " + currentState.toString());
+        }
+    }
+
+    private void logCommand(String command) {
+        if (enableLogging && logFile != null) {
+            logCommandOnchange.log(getName() + " command = " + command);
+        }
+    }
 
     /**
      * Place all of the trajectories for the autonomous opmode in this method. This method gets
@@ -146,7 +188,12 @@ public class PowerPlayAutonomousVisionOneCyclePark implements PowerPlayAutonomou
     public void createTrajectories() {
         switch (PowerPlayPersistantStorage.getColorLocation()) {
             case RED_LEFT: {
+                trajectoryToJunctionPoleFromStart = robot.mecanum.trajectoryBuilder(startPose)
+                        .splineTo(new Vector2d(-11.75, -53), Math.toRadians(90))
+                        .lineToLinearHeading(junctionPolePose)
+                        .build();
 
+                trajectoryToParkingLocation1 = null;
             }
             break;
 
@@ -156,15 +203,24 @@ public class PowerPlayAutonomousVisionOneCyclePark implements PowerPlayAutonomou
                         .lineToLinearHeading(junctionPolePose)
                         .build();
 
-                trajectoryToParkingLocation1 = robot.mecanum.trajectoryBuilder(trajectoryToJunctionPoleFromStart.end())
-                        .lineToLinearHeading(PowerPlayPoseStorage.RED_RIGHT_PARK_LOCATION_1)
-                        .build();
+                // don't need to move since the robot is already in the parking location when it scores
+                trajectoryToParkingLocation1 = null;
+//                trajectoryToParkingLocation1 = robot.mecanum.trajectoryBuilder(trajectoryToJunctionPoleFromStart.end())
+//                        .lineToLinearHeading(PowerPlayPoseStorage.RED_RIGHT_PARK_LOCATION_1)
+//                        .build();
 
                 trajectoryToParkingLocation2 = robot.mecanum.trajectoryBuilder(trajectoryToJunctionPoleFromStart.end())
                         // end tangent forms a nice curve
-                        .splineToConstantHeading(new Vector2d(23.5, -11.75), Math.toRadians(0))
+                        .splineToConstantHeading(new Vector2d(23.5, -10.75), Math.toRadians(0))
                         // end tangent forms a nice curve
-                        .splineToConstantHeading(PowerPlayField.getVector2d(PowerPlayPoseStorage.RED_RIGHT_PARK_LOCATION_2), Math.toRadians(270))
+                        .splineToConstantHeading(getVector2d(PowerPlayPoseStorage.RED_RIGHT_PARK_LOCATION_2), Math.toRadians(270))
+                        .build();
+
+                trajectoryToParkingLocation3 = robot.mecanum.trajectoryBuilder(trajectoryToJunctionPoleFromStart.end())
+                        .splineToConstantHeading(new Vector2d(23.5, -10.75), Math.toRadians(0))
+                        .splineToSplineHeading(new Pose2d(47,-11.75, Math.toRadians(270)),Math.toRadians(0) )
+                        .splineToConstantHeading(getVector2d(PowerPlayPoseStorage.RED_RIGHT_PARK_LOCATION_3), Math.toRadians(0))
+                        //.lineToLinearHeading(PowerPlayPoseStorage.RED_RIGHT_PARK_LOCATION_3)
                         .build();
             }
             break;
@@ -191,10 +247,12 @@ public class PowerPlayAutonomousVisionOneCyclePark implements PowerPlayAutonomou
     public void start() {
         currentState = States.START;
         isComplete = false;
+        logCommand("start");
     }
 
     @Override
     public void update() {
+        logState();
         switch (currentState) {
 
             case START: {
@@ -231,8 +289,13 @@ public class PowerPlayAutonomousVisionOneCyclePark implements PowerPlayAutonomou
 
             case RELEASING_OPEN_LIFT: {
                 if (robot.coneGrabberArmController.isCommandComplete()) {
-                    robot.mecanum.followTrajectory(trajectoryToParkingLocation);
-                    currentState = States.MOVING_TO_PARKING;
+                    if (trajectoryToParkingLocation == null) {
+                        currentState = States.COMPLETE;
+                    } else {
+                        robot.mecanum.followTrajectory(trajectoryToParkingLocation);
+                        currentState = States.MOVING_TO_PARKING;
+                    }
+
                 }
             }
             break;
@@ -247,6 +310,7 @@ public class PowerPlayAutonomousVisionOneCyclePark implements PowerPlayAutonomou
             case COMPLETE: {
                 isComplete = true;
                 robot.coneGrabber.close();
+                logCommand("finished");
             }
             break;
         }
