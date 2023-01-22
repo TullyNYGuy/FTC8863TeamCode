@@ -1,16 +1,14 @@
 package org.firstinspires.ftc.teamcode.Lib.PowerPlayLib;
 
 
-import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogOnChange;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
 
-public class PowerPlayConeGrabberArmController implements FTCRobotSubsystem {
+public class PowerPlayConeGrabberLiftController implements FTCRobotSubsystem {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -79,7 +77,7 @@ public class PowerPlayConeGrabberArmController implements FTCRobotSubsystem {
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
-    public PowerPlayConeGrabberArmController(PowerPlayConeGrabber coneGrabber, PowerPlayLeftLift lift) {
+    public PowerPlayConeGrabberLiftController(PowerPlayConeGrabber coneGrabber, PowerPlayLeftLift lift) {
 
         this.coneGrabber = coneGrabber;
         this.lift = lift;

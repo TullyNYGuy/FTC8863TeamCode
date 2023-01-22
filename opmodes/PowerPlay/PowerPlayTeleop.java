@@ -15,6 +15,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DrivingMode;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MatchPhase;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.TeamLocation;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyField;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyGamepad;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyMatchInfo;
@@ -97,6 +98,14 @@ public class PowerPlayTeleop extends LinearOpMode {
         //robot.mecanum.setPoseEstimate(startPose);
         timer.reset();
 
+        // set the driver joystick controls to either normal or inverted
+        if (PowerPlayPersistantStorage.getTeamLocation() == TeamLocation.LEFT) {
+            gamepad.setDirectionSwap(PowerPlayGamepad.DirectionSwap.INVERSED);
+        } else {
+            // Right side of field
+            gamepad.setDirectionSwap(PowerPlayGamepad.DirectionSwap.NORMAL);
+        }
+
         // Wait for the start button
 
         telemetry.addData(">", "Press start to run Teleop (make sure you ran the position setter first!)");
@@ -106,6 +115,7 @@ public class PowerPlayTeleop extends LinearOpMode {
         waitForStart();
 
         robot.loopTimer.startLoopTimer();
+        robot.coneGrabber.carryPosition();
         robot.leftLift.moveToPickup();
 
         //*********************************************************************************************

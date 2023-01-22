@@ -104,6 +104,9 @@ public class PowerPlayAutonomous extends LinearOpMode {
         robot.mecanum.setPoseEstimate(startPose);
         timer.reset();
 
+        // set a default parking location in case something goes wrong
+        PowerPlayPersistantStorage.setParkLocation(PowerPlayField.ParkLocation.ONE);
+
         // put the webcam stuff here
 
         // Create the pipeline to use to process the images coming from the webcam. It should be a
@@ -132,6 +135,7 @@ public class PowerPlayAutonomous extends LinearOpMode {
             telemetry.addLine();
             // display the cone color that the web cam is seeing - live!
             telemetry.addData("Cone color     = ", coneColor.toString());
+            telemetry.addData("Park location = ", PowerPlayPersistantStorage.getParkLocation().toString());
             telemetry.addLine();
             // display some pipeline info to use for debugging - just in case
             pipeline.displayDebugTelemetry();

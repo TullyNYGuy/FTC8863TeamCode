@@ -176,6 +176,10 @@ public class PowerPlayField {
                 parkLocation = ParkLocation.THREE;
             }
             break;
+            case UNKNOWN:{
+                parkLocation = ParkLocation.ONE;
+            }
+            break;
         }
         return parkLocation;
     }

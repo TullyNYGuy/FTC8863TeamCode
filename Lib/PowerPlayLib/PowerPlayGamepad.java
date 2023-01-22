@@ -137,13 +137,14 @@ public class PowerPlayGamepad {
         return previousMaxPower;
     }
 
-    private double currentMaxPower;
+    // default power when starting is 75%
+    private double currentMaxPower = 0.75;
 
     public double getCurrentMaxPower() {
         return currentMaxPower;
     }
 
-    private enum DirectionSwap {
+    public enum DirectionSwap {
         NORMAL, // joystick directions are normal
         INVERSED // joystick directions are opposite
     }
@@ -154,7 +155,7 @@ public class PowerPlayGamepad {
         return directionSwap;
     }
 
-    private void setDirectionSwap( DirectionSwap directionSwap) {
+    public void setDirectionSwap( DirectionSwap directionSwap) {
         this.directionSwap = directionSwap;
         if (directionSwap == DirectionSwap.NORMAL) {
             directionSwapMultiplier = +1;

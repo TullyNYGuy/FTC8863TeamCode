@@ -1,37 +1,22 @@
 package org.firstinspires.ftc.teamcode.Lib.PowerPlayLib;
 
-import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColorTeamLocation;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobot;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.LoopTimer;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MatchPhase;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.RevLED;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.RevLEDBlinker;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.RobotPosition;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.TeamLocation;
-import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FFBlinkinLed;
-import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyMatchInfo;
-import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyStartSpot;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.MecanumDriveFreightFrenzy;
-import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.PersistantStorage;
-
-import org.openftc.easyopencv.OpenCvCamera;
-import org.openftc.easyopencv.OpenCvCameraFactory;
-import org.openftc.easyopencv.OpenCvWebcam;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -111,7 +96,7 @@ public class PowerPlayRobot implements FTCRobot {
     public LoopTimer loopTimer;
     public PowerPlayLeftLift leftLift;
     public PowerPlayConeGrabber coneGrabber;
-    public PowerPlayConeGrabberArmController coneGrabberArmController;
+    public PowerPlayConeGrabberLiftController coneGrabberArmController;
     public PowerPlayWebcam webcam;
     //public RevLEDBlinker ledBlinker;
     //public FFBlinkinLed ledStrip;
@@ -177,7 +162,7 @@ public class PowerPlayRobot implements FTCRobot {
         }
 
         if (capabilities.contains(Subsystem.CONE_GRABBER_ARM_CONTROLLER)) {
-            coneGrabberArmController = new PowerPlayConeGrabberArmController(coneGrabber,leftLift);
+            coneGrabberArmController = new PowerPlayConeGrabberLiftController(coneGrabber,leftLift);
             subsystemMap.put(coneGrabberArmController.getName(), coneGrabberArmController);
         }
 
