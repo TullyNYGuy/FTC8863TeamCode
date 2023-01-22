@@ -18,7 +18,7 @@ public class PowerPlayPoseStorage {
     public static Pose2d RED_LEFT_START_POSE = new Pose2d(-40.5, -63.5, Math.toRadians(90));
     public static Pose2d RED_LEFT_PARK_LOCATION_1 = new Pose2d(-11.75, -23.5, Math.toRadians(270));
     public static Pose2d RED_LEFT_PARK_LOCATION_2 = new Pose2d(-35.25, -11.75, Math.toRadians(270));
-    public static Pose2d RED_LEFT_PARK_LOCATION_3 = new Pose2d(-58.75,-11.75 , Math.toRadians(270));
+    public static Pose2d RED_LEFT_PARK_LOCATION_3 = new Pose2d(-58.75,-14.75 , Math.toRadians(270));
     //public static Pose2d RED_LEFT_JUNCTION_POLE_LOCATION = new Pose2d(-11.75, -23.5, Math.toRadians(270));
     public static Pose2d RED_LEFT_JUNCTION_POLE_LOCATION = new Pose2d(-14.75, -22, Math.toRadians(270));
     public static Pose2d RED_LEFT_SIGNAL_CONE_PICKUP_LOCATION = new Pose2d(0, 0, Math.toRadians(0));
@@ -40,7 +40,7 @@ public class PowerPlayPoseStorage {
     public static Pose2d BLUE_LEFT_START_POSE = new Pose2d(-40.5, -63.5, Math.toRadians(90));
     public static Pose2d BLUE_LEFT_PARK_LOCATION_1 = new Pose2d(-11.75, -23.5, Math.toRadians(270));
     public static Pose2d BLUE_LEFT_PARK_LOCATION_2 = new Pose2d(-35.25, -11.75, Math.toRadians(270));
-    public static Pose2d BLUE_LEFT_PARK_LOCATION_3 = new Pose2d(-58.75,-11.75 , Math.toRadians(270));
+    public static Pose2d BLUE_LEFT_PARK_LOCATION_3 = new Pose2d(-58.75,-14.75 , Math.toRadians(270));
     //public static Pose2d BLUE_LEFT_JUNCTION_POLE_LOCATION = new Pose2d(-11.75, -23.5, Math.toRadians(270));
     public static Pose2d BLUE_LEFT_JUNCTION_POLE_LOCATION = new Pose2d(-14.75, -22, Math.toRadians(270));
     public static Pose2d BLUE_LEFT_SIGNAL_CONE_PICKUP_LOCATION = new Pose2d(0, 0, Math.toRadians(0));

@@ -247,6 +247,8 @@ public class PowerPlayGamepad {
 
         gamepad2RightJoyStickX = new SmartJoystick(gamepad2, SmartJoystick.JoystickSide.RIGHT, SmartJoystick.JoystickAxis.X);
         gamepad2RightJoyStickY = new SmartJoystick(gamepad2, SmartJoystick.JoystickSide.RIGHT, SmartJoystick.JoystickAxis.Y);
+
+        setMaxDrivingPower(0.75);
     }
     //*********************************************************************************************
     //          Helper Methods

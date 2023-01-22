@@ -332,6 +332,7 @@ public class PowerPlayConeGrabber implements FTCRobotSubsystem {
             //command to start extension
             coneGrabberState = ConeGrabberState.MOVING_TO_OPEN_BEFORE_PICKUP;
             coneGrabberServo.open();
+            coneGrabberArmServo.pickupPosition();
         } else {
             // you can't start a new command when the old one is not finished
             logCommand("cone grabber open then pickup command ignored");
@@ -452,9 +453,10 @@ public class PowerPlayConeGrabber implements FTCRobotSubsystem {
             break;
 
             case MOVING_TO_OPEN_BEFORE_PICKUP: {
-                if (coneGrabberServo.isPositionReached()) {
-                    coneGrabberArmServo.pickupPosition();
-                    coneGrabberState = ConeGrabberState.MOVING_TO_PICKUP;
+                if (coneGrabberServo.isPositionReached() && coneGrabberArmServo.isPositionReached()) {
+                    //coneGrabberArmServo.pickupPosition();
+                    commandComplete = true;
+                    coneGrabberState = ConeGrabberState.READY;
                 }
             }
             break;
