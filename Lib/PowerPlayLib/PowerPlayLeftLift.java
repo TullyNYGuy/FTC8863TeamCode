@@ -26,9 +26,9 @@ public class PowerPlayLeftLift implements FTCRobotSubsystem {
 
         // INIT STATES
         PRE_INIT,
+        INIT_RAISE_LIFT,
         WAITING_FOR_EXTENSION_RETRACTION_MECHANISM_INIT_TO_COMPLETE,
         WAITING_FOR_EXTENSION_ARM_HOME_POSITION_REACHED,
-        WAITING_FOR_BUCKET_INIT_POSITION_REACHED,
         INIT_COMPLETE,
 
         // Moving to states
@@ -226,10 +226,10 @@ public class PowerPlayLeftLift implements FTCRobotSubsystem {
     public boolean init(Configuration config) {
         // start the init for the extension retraction mechanism
         logCommand("Init starting");
-        // start the init of the extension retraction mechanism
         leftLift.init();
-        commandComplete = false;
         liftState = LiftState.WAITING_FOR_EXTENSION_RETRACTION_MECHANISM_INIT_TO_COMPLETE;
+
+        commandComplete = false;
         logCommand("Init");
         return false;
     }
@@ -428,10 +428,21 @@ public class PowerPlayLeftLift implements FTCRobotSubsystem {
             }
             break;
 
+            case INIT_RAISE_LIFT: {
+                if (leftLift.isPositionReached()) {
+                    leftLift.init();
+                    liftState = LiftState.WAITING_FOR_EXTENSION_RETRACTION_MECHANISM_INIT_TO_COMPLETE;
+                }
+            }
+            break;
+
             case WAITING_FOR_EXTENSION_RETRACTION_MECHANISM_INIT_TO_COMPLETE: {
                 if (leftLift.isInitComplete()) {
-                    leftLift.goToPosition(initPosition, initPower);
-                    liftState = LiftState.WAITING_FOR_EXTENSION_ARM_HOME_POSITION_REACHED;
+                    // working around bug where we command the lift to 0 and it locks up
+                    // instead just leave the lift at its init position
+                    //leftLift.goToPosition(initPosition, initPower);
+                    //liftState = LiftState.WAITING_FOR_EXTENSION_ARM_HOME_POSITION_REACHED;
+                    liftState = LiftState.INIT_COMPLETE;
                 }
             }
             break;
@@ -446,6 +457,9 @@ public class PowerPlayLeftLift implements FTCRobotSubsystem {
             break;
 
             case INIT_COMPLETE: {
+                liftState = LiftState.INIT_COMPLETE;
+                commandComplete = true;
+                initComplete = true;
                 // do nothing. The lift is waiting for a command
             }
             break;
