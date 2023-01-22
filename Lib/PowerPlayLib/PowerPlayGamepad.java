@@ -7,10 +7,10 @@ package org.firstinspires.ftc.teamcode.Lib.PowerPlayLib;
  *    / Left JoystickY   - robot moves forward/backward
  *    / Right JoystickX  - robot rotation
  *    / Right JoystickY  -
- *    / DPad Up          - open
- *    / DPad Left        - replacement position
- *    / DPad Down        - close
- *    / DPad Right       -
+ *    / DPad Up          - Joystick direction swap = normal driving
+ *    / DPad Left        - open grabber
+ *    / DPad Down        - Joystick direction swap = inversed (joysticks drive opposite)
+ *    / DPad Right       - close grabber
  *    / A                - ready to pickup
  *    / B                - Pickup
  *    / X                - Lineup for pickup
@@ -31,7 +31,7 @@ package org.firstinspires.ftc.teamcode.Lib.PowerPlayLib;
  *    / A                - Test the drop
  *    / B                -
  *    / X                -
- *    / Y                -
+ *    / Y                - Arm servo replacement position
  *   /Left Bumper        -
  *   /Right Bumper       -
  */
@@ -141,6 +141,33 @@ public class PowerPlayGamepad {
 
     public double getCurrentMaxPower() {
         return currentMaxPower;
+    }
+
+    private enum DirectionSwap {
+        NORMAL, // joystick directions are normal
+        INVERSED // joystick directions are opposite
+    }
+
+    private DirectionSwap directionSwap = DirectionSwap.NORMAL;
+
+    public DirectionSwap getDirectionSwap() {
+        return directionSwap;
+    }
+
+    private void setDirectionSwap( DirectionSwap directionSwap) {
+        this.directionSwap = directionSwap;
+        if (directionSwap == DirectionSwap.NORMAL) {
+            directionSwapMultiplier = +1;
+        } else {
+            // direction swap is INVERSED
+            directionSwapMultiplier = -1;
+        }
+    }
+
+    private double directionSwapMultiplier = +1;
+
+    public double getDirectionSwapMultiplier () {
+        return directionSwapMultiplier;
     }
 
     // private AutomaticTeleopFunctions automaticTeleopFunctions;
@@ -289,19 +316,19 @@ public class PowerPlayGamepad {
         }
 
         if (gamepad1DpadUp.buttonPress(gamepad1.dpad_up)) {
-            robot.coneGrabber.open();
+            setDirectionSwap(DirectionSwap.NORMAL);
         }
 
         if (gamepad1DpadDown.buttonPress(gamepad1.dpad_down)) {
-            robot.coneGrabber.close();
+            setDirectionSwap(DirectionSwap.INVERSED);
         }
 
         if (gamepad1DpadLeft.buttonPress(gamepad1.dpad_left)) {
-            //robot.coneGrabber.replacment();
+            robot.coneGrabber.open();
         }
 
         if (gamepad1DpadRight.buttonPress(gamepad1.dpad_right)) {
-
+            robot.coneGrabber.close();
         }
 
         if (gamepad1LeftStickButton.buttonPress(gamepad1.left_stick_button)) {
@@ -376,6 +403,7 @@ public class PowerPlayGamepad {
         }
 
         if (gamepad2y.buttonPress(gamepad2.y)) {
+            robot.coneGrabber.replacment();
         }
 
         if (gamepad2x.buttonPress(gamepad2.x)) {

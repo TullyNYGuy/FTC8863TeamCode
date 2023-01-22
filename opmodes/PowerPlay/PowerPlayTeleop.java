@@ -121,11 +121,16 @@ public class PowerPlayTeleop extends LinearOpMode {
             // The following code uses road runner to move the robot in a driver (field) centric
             // drive
 
+            telemetry.addData("Max Power = ", gamepad.getCurrentMaxPower());
+            telemetry.addLine();
+
             if (gamepad.getDrivingMode() == DrivingMode.ROBOT_CENTRIC) {
+                telemetry.addData("Direction swap = ", gamepad.getDirectionSwap());
                 telemetry.addData("ROBOT CENTRIC driving", "!");
+
                 robot.mecanum.calculateMotorCommandsRobotCentric(
-                        gamepad.gamepad1LeftJoyStickYValue,
-                        gamepad.gamepad1LeftJoyStickXValue,
+                        gamepad.gamepad1LeftJoyStickYValue * gamepad.getDirectionSwapMultiplier(),
+                        gamepad.gamepad1LeftJoyStickXValue * gamepad.getDirectionSwapMultiplier(),
                         gamepad.gamepad1RightJoyStickXValue
                 );
             }

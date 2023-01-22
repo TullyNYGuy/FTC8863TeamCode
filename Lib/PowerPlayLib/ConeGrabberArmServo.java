@@ -46,7 +46,7 @@ public class ConeGrabberArmServo {
         coneGrabberArmServo = new Servo8863New(CONE_GRABBER_ARM_SERVO_NAME, hardwareMap, telemetry);
         coneGrabberArmServo.addPosition("Init", .22, 1000, TimeUnit.MILLISECONDS);
         coneGrabberArmServo.addPosition("Release", .85, 1000, TimeUnit.MILLISECONDS);
-        coneGrabberArmServo.addPosition("Pickup", .87, 1000, TimeUnit.MILLISECONDS);;
+        coneGrabberArmServo.addPosition("Pickup", .87, 250, TimeUnit.MILLISECONDS);;
         coneGrabberArmServo.addPosition("LineupForPickup", .80, 1000, TimeUnit.MILLISECONDS);
         coneGrabberArmServo.addPosition("Carry", .37, 500, TimeUnit.MILLISECONDS);
         coneGrabberArmServo.addPosition("Replacement", 1.0, 1000, TimeUnit.MILLISECONDS);
