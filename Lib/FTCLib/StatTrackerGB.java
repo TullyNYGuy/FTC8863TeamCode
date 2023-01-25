@@ -92,6 +92,15 @@ public class StatTrackerGB {
         }
         return sum;
     }
+    
+    public double getStandardDeviation() {
+        double mean = getAverage();
+        double runningSumSquared = 0;
+        for (int i = 0; i < list.size(); i++) {
+            runningSumSquared = Math.pow((list.get(i) - mean), 2);
+        }
+        return Math.sqrt(runningSumSquared/(list.size()-1));
+    }
 
     //*********************************************************************************************
     //          Constructors
