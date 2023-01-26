@@ -37,6 +37,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.StatTrackerGB;
@@ -58,9 +59,11 @@ public class Test2mDistanceSensor extends LinearOpMode {
 
     //private DistanceSensor sensorRange;
     private DistanceSensor sensorRange;
-    private int NUMBER_OF_READINGS_TO_TAKE = 80;
+    private int NUMBER_OF_READINGS_TO_TAKE = 100;
     private int readingsTaken = 0;
     private double distanceRead = 0;
+
+    private ElapsedTime timer = new ElapsedTime();
 
     private StatTrackerGB statTracker = new StatTrackerGB();
 
@@ -77,14 +80,22 @@ public class Test2mDistanceSensor extends LinearOpMode {
         telemetry.update();
 
         waitForStart();
+        timer.reset();
+
         while(opModeIsActive() && readingsTaken <= NUMBER_OF_READINGS_TO_TAKE) {
-            readingsTaken ++;
-            distanceRead = sensorRange.getDistance(DistanceUnit.MM);
-            statTracker.updateStats(distanceRead);
-            telemetry.addData("Taking readings from distance sensor. Please wait", "...");
-            telemetry.addData("Reading number = ", readingsTaken);
-            telemetry.addData("Distance (mm) = ", distanceRead);
-            telemetry.update();
+            // take the readings with enough time between them to make sure that the readings are
+            // not just cached copies of I2C reads.
+            if(timer.milliseconds() > 100) {
+                readingsTaken ++;
+                distanceRead = sensorRange.getDistance(DistanceUnit.MM);
+                statTracker.addDataPoint(distanceRead);
+                telemetry.addData("Taking readings from distance sensor. Please wait", "...");
+                telemetry.addData("Reading number = ", readingsTaken);
+                telemetry.addData("Distance (mm) = ", distanceRead);
+                telemetry.update();
+                timer.reset();
+            }
+            idle();
         }
 
         while(opModeIsActive()) {
@@ -95,6 +106,7 @@ public class Test2mDistanceSensor extends LinearOpMode {
             telemetry.addData("Maximum distance read = ", statTracker.getMaximum());
             telemetry.addData("Standard deviation = ", statTracker.getStandardDeviation());
             telemetry.update();
+            idle();
         }
     }
 

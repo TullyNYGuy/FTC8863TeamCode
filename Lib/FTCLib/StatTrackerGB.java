@@ -22,6 +22,7 @@ public class StatTrackerGB {
     private double minimum;
     private double average;
     private int count;
+    private double standardDeviation;
 
     // running sum
     private double sum;
@@ -80,7 +81,7 @@ public class StatTrackerGB {
             // Arraylist.
             processArrayList();
         }
-        return count;
+        return list.size();
     }
 
     public double getSum() {
@@ -94,12 +95,13 @@ public class StatTrackerGB {
     }
     
     public double getStandardDeviation() {
-        double mean = getAverage();
-        double runningSumSquared = 0;
-        for (int i = 0; i < list.size(); i++) {
-            runningSumSquared = Math.pow((list.get(i) - mean), 2);
+        if (!list.isEmpty()) {
+            // since the list was not empty I'm assuming the user chose not to use updateStats() or
+            // updateStatsUnified(). So I have to process all of the values that were stored in the
+            // Arraylist.
+            processArrayList();
         }
-        return Math.sqrt(runningSumSquared/(list.size()-1));
+        return standardDeviation;
     }
 
     //*********************************************************************************************
@@ -110,9 +112,10 @@ public class StatTrackerGB {
     //*********************************************************************************************
     public StatTrackerGB() {
         // initialize the properties
-        reset();
+
         // create an arraylist that is empty
         list = new ArrayList<Double>();
+        reset();
     }
 
     //*********************************************************************************************
@@ -146,13 +149,21 @@ public class StatTrackerGB {
     /**
      * Use the value passed in and the previously processed values to calculate a new average and
      * update the number of times the stat tracker has been called.
-     *
-     * @param newValue
      */
-    private void updateAverage(double newValue) {
+    private void updateAverage() {
+        average = sum / list.size();
+    }
+
+    private void updateSum(double newValue) {
         sum = sum + newValue;
-        count++;
-        average = sum / count;
+    }
+
+    private void updateStandardDeviation() {
+        double runningSumSquared = 0;
+        for (int i = 0; i < list.size(); i++) {
+            runningSumSquared = Math.pow((list.get(i) - average), 2);
+        }
+        standardDeviation = Math.sqrt(runningSumSquared/(list.size()-1));
     }
 
     /**
@@ -161,11 +172,14 @@ public class StatTrackerGB {
     private void processArrayList() {
         // only process the Arraylist once
         if (!isProcessed) {
+            sum = 0;
             for (Double number : list) {
                 updateMax(number);
                 updateMin(number);
-                updateAverage(number);
+                updateSum(number);
             }
+            updateAverage();
+            updateStandardDeviation();
         }
         // indicate the ArrayList has already been processed
         isProcessed = true;
@@ -184,7 +198,7 @@ public class StatTrackerGB {
      *
      * @param newValue
      */
-    public void updateStats(double newValue) {
+    public void addDataPoint(double newValue) {
         // The first time this is called there are no previous values so just set all of the
         // stats to the new value.
         if (count == 0) {
@@ -194,49 +208,9 @@ public class StatTrackerGB {
             average = newValue;
             count = 1;
             // This is not the first time called so update the stats the normal way.
-        } else {
-            updateMax(newValue);
-            updateMax(newValue);
-            updateAverage(newValue);
         }
-    }
-
-    /**
-     * This method does the same thing as updateStats but does not call other methods to do it. It
-     * will be interesting to see how much faster this method runs.
-     *
-     * @param newValue
-     */
-    public void updateStatsUnified(double newValue) {
-        // The first time this is called there are no previous values so just set all of the
-        // stats to the new value.
-        if (count == 0) {
-            maximum = newValue;
-            minimum = newValue;
-            sum = newValue;
-            average = newValue;
-            count = 1;
-            // This is not the first time called so update the stats the normal way.
-        } else {
-            // update the max
-            if (newValue > maximum) {
-                maximum = newValue;
-            }
-
-            // update the min
-            if (newValue < minimum) {
-                minimum = newValue;
-            }
-
-            // update the average and the count
-            sum = sum + newValue;
-            count++;
-            average = sum / count;
-        }
-    }
-
-    public void updateList(double newValue) {
         list.add(newValue);
+        isProcessed = false;
     }
 
     /**
@@ -248,7 +222,9 @@ public class StatTrackerGB {
         average = 0;
         sum = 0;
         count = 0;
+        standardDeviation = 0;
         isProcessed = false;
+        list.clear();
     }
 
 }
