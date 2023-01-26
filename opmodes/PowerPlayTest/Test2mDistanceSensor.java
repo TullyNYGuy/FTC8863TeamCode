@@ -52,12 +52,13 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.StatTrackerGB;
  *
  * @see <a href="http://revrobotics.com">REV Robotics Web Page</a>
  */
-@TeleOp(name = "Sensor: REV2mDistance", group = "Test")
+@TeleOp(name = "Sensor: PowerPlay2mDistance", group = "Test")
 //@Disabled
 public class Test2mDistanceSensor extends LinearOpMode {
 
+    //private DistanceSensor sensorRange;
     private DistanceSensor sensorRange;
-    private int NUMBER_OF_READINGS_TO_TAKE = 100;
+    private int NUMBER_OF_READINGS_TO_TAKE = 80;
     private int readingsTaken = 0;
     private double distanceRead = 0;
 
@@ -77,6 +78,7 @@ public class Test2mDistanceSensor extends LinearOpMode {
 
         waitForStart();
         while(opModeIsActive() && readingsTaken <= NUMBER_OF_READINGS_TO_TAKE) {
+            readingsTaken ++;
             distanceRead = sensorRange.getDistance(DistanceUnit.MM);
             statTracker.updateStats(distanceRead);
             telemetry.addData("Taking readings from distance sensor. Please wait", "...");
@@ -92,6 +94,7 @@ public class Test2mDistanceSensor extends LinearOpMode {
             telemetry.addData("Minimum distance read = ", statTracker.getMinimum());
             telemetry.addData("Maximum distance read = ", statTracker.getMaximum());
             telemetry.addData("Standard deviation = ", statTracker.getStandardDeviation());
+            telemetry.update();
         }
     }
 

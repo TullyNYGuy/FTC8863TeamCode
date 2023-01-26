@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.MecanumDriveFreightFrenzy;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayMecanumDrive;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayRobot;
+import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayTrackingWheelLocalizer;
 import org.firstinspires.ftc.teamcode.RoadRunner.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.RoadRunner.drive.StandardTrackingWheelLocalizer;
 import org.firstinspires.ftc.teamcode.RoadRunner.util.Encoder;
@@ -30,11 +31,17 @@ public class LocalizationTestWithEncoderPositionsPowerPlay extends LinearOpMode 
                 PowerPlayRobot.HardwareName.CONFIG_BR_MOTOR.hwName,
                 hardwareMap);;
 
-        StandardTrackingWheelLocalizer localizer = (StandardTrackingWheelLocalizer)drive.getLocalizer();
+        //StandardTrackingWheelLocalizer localizer = (StandardTrackingWheelLocalizer)drive.getLocalizer();
+        PowerPlayTrackingWheelLocalizer localizer = (PowerPlayTrackingWheelLocalizer)drive.getLocalizer();
 
         Encoder leftEncoder = localizer.getLeftEncoder();
         Encoder rightEncoder = localizer.getRightEncoder();
         Encoder frontEncoder = localizer.getFrontEncoder();
+
+        double leftEncoderInitialValue = leftEncoder.getCurrentPosition();
+        double rightEncoderInitialValue = rightEncoder.getCurrentPosition();
+        double frontEncoderInitialValue = frontEncoder.getCurrentPosition();
+
 
         drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
@@ -62,9 +69,9 @@ public class LocalizationTestWithEncoderPositionsPowerPlay extends LinearOpMode 
             telemetry.addData("x", poseEstimate.getX());
             telemetry.addData("y", poseEstimate.getY());
             telemetry.addData("heading", Math.toDegrees(poseEstimate.getHeading()));
-            telemetry.addData("left encoder ", leftEncoder.getCurrentPosition());
-            telemetry.addData("right encoder ", rightEncoder.getCurrentPosition());
-            telemetry.addData("lateral encoder ", frontEncoder.getCurrentPosition());
+            telemetry.addData("left encoder ", leftEncoder.getCurrentPosition()-leftEncoderInitialValue);
+            telemetry.addData("right encoder ", rightEncoder.getCurrentPosition()-rightEncoderInitialValue);
+            telemetry.addData("lateral encoder ", frontEncoder.getCurrentPosition()-frontEncoderInitialValue);
             telemetry.update();
         }
     }
