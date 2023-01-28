@@ -24,6 +24,7 @@ import org.firstinspires.ftc.teamcode.RoadRunner.util.Encoder;
 public class LocalizationTestWithEncoderPositionsPowerPlay extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
+
         PowerPlayMecanumDrive drive = new PowerPlayMecanumDrive(
                 PowerPlayRobot.HardwareName.CONFIG_FL_MOTOR.hwName,
                 PowerPlayRobot.HardwareName.CONFIG_BL_MOTOR.hwName,
@@ -34,14 +35,8 @@ public class LocalizationTestWithEncoderPositionsPowerPlay extends LinearOpMode 
         //StandardTrackingWheelLocalizer localizer = (StandardTrackingWheelLocalizer)drive.getLocalizer();
         PowerPlayTrackingWheelLocalizer localizer = (PowerPlayTrackingWheelLocalizer)drive.getLocalizer();
 
-        Encoder leftEncoder = localizer.getLeftEncoder();
-        Encoder rightEncoder = localizer.getRightEncoder();
-        Encoder frontEncoder = localizer.getFrontEncoder();
-
-        double leftEncoderInitialValue = leftEncoder.getCurrentPosition();
-        double rightEncoderInitialValue = rightEncoder.getCurrentPosition();
-        double frontEncoderInitialValue = frontEncoder.getCurrentPosition();
-
+        // zero the encoder counts since they are only zeroed at control hub power on
+        localizer.zeroEncoderCounts();
 
         drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
@@ -69,9 +64,14 @@ public class LocalizationTestWithEncoderPositionsPowerPlay extends LinearOpMode 
             telemetry.addData("x", poseEstimate.getX());
             telemetry.addData("y", poseEstimate.getY());
             telemetry.addData("heading", Math.toDegrees(poseEstimate.getHeading()));
-            telemetry.addData("left encoder ", leftEncoder.getCurrentPosition()-leftEncoderInitialValue);
-            telemetry.addData("right encoder ", rightEncoder.getCurrentPosition()-rightEncoderInitialValue);
-            telemetry.addData("lateral encoder ", frontEncoder.getCurrentPosition()-frontEncoderInitialValue);
+            telemetry.addLine();
+            telemetry.addData("left encoder ", localizer.getLeftEncoderCountSinceZero());
+            telemetry.addData("right encoder ", localizer.getRightEncoderCountSinceZero());
+            telemetry.addData("lateral encoder ", localizer.getFrontEncoderCountSinceZero());
+            telemetry.addLine();
+            telemetry.addData("left encoder after adjustement ", localizer.getLeftEncoderAdjustedCountSinceZero());
+            telemetry.addData("right encoder after adjustment ", localizer.getRightEncoderAdjustedCountSinceZero());
+            telemetry.addData("lateral encoder after adjustement ", localizer.getFrontEncoderAdjustedCountSinceZero());
             telemetry.update();
         }
     }
