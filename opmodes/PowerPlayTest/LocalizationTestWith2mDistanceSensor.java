@@ -27,8 +27,8 @@ public class LocalizationTestWith2mDistanceSensor extends LinearOpMode {
 
 
     public static double DISTANCE_LIMIT = 300; //mm
-    public static double HIGH_SPEED = 1.0;
-    public static double LOW_SPEED = 0.25;
+    public static double HIGH_SPEED = .25;
+    public static double LOW_SPEED = 0;
     public double joystickScale = HIGH_SPEED;
 
     ElapsedTime timer;
@@ -67,7 +67,7 @@ public class LocalizationTestWith2mDistanceSensor extends LinearOpMode {
 
             switch (drivingStates) {
                 case FULL_POWER: {
-                    if (distanceRead < 300) {
+                    if (distanceRead < DISTANCE_LIMIT) {
                         drivingStates = DrivingStates.LOW_POWER;
                         joystickScale = LOW_SPEED;
                     }

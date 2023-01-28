@@ -38,26 +38,36 @@ public class PowerPlayTrackingWheelLocalizer extends ThreeTrackingWheelLocalizer
     public static double FORWARD_OFFSET = -5.5; // in; offset of the lateral wheel
 
     /**
-     * Adjusts the radius of the side wheels to account for difference between actual distance
-     * moved forward and reverse to distance measured by odometry modules. 
+     * Adjusts the radius of the left wheel vs the right wheel. Ideally, the radius is the same but
+     * in practice they might be slightly different. This will show up as a change in heading, even
+     * though the robot is moving straight ahead. It will also cause a change in y when there should
+     * only be a change in x.
      */
-    //public static double SIDE_WHEEL_ADJUSTMENT_FACTOR = 1.0026;
-    public static double SIDE_WHEEL_ADJUSTMENT_FACTOR = 1.0;
+    //public static double LEFT_TO_RIGHT_WHEEL_ADJUSTMENT_FACTOR = 1.0044;
+    public static double LEFT_TO_RIGHT_WHEEL_ADJUSTMENT_FACTOR = 1.0138;
+
+    public static double getLeftToRightWheelAdjustmentFactor() {
+        return LEFT_TO_RIGHT_WHEEL_ADJUSTMENT_FACTOR;
+    }
+
+    /**
+     * Adjusts the radius of the side wheels to account for difference between actual distance
+     * moved forward (or reverse) to distance measured by odometry modules.
+     */
+    public static double SIDE_WHEEL_ADJUSTMENT_FACTOR = .996;
 
     public double getSIDE_WHEEL_ADJUSTMENT_FACTOR() {
         return SIDE_WHEEL_ADJUSTMENT_FACTOR;
     }
 
     /**
-     * Adjusts the radius of the left wheel vs the right wheel to account for difference in heading.
-     * The heading change should be 0 when moving in a straight line but if it is not then this will
-     * tweak it to 0.
+     * Adjusts the radius of the Y wheel, the one for strafing. Accounts for difference between
+     * actual distance moved sideways to distance measured by odometry module.
      */
-    //public static double LEFT_TO_RIGHT_WHEEL_ADJUSTMENT_FACTOR = 1.0044;
-    public static double LEFT_TO_RIGHT_WHEEL_ADJUSTMENT_FACTOR = 1.0089;
+    public static double LATERAL_WHEEL_ADJUSTMENT_FACTOR = 1.0059;
 
-    public static double getLeftToRightWheelAdjustmentFactor() {
-        return LEFT_TO_RIGHT_WHEEL_ADJUSTMENT_FACTOR;
+    public double getLATERAL_WHEEL_ADJUSTMENT_FACTOR() {
+        return LATERAL_WHEEL_ADJUSTMENT_FACTOR;
     }
 
     /**
@@ -65,8 +75,8 @@ public class PowerPlayTrackingWheelLocalizer extends ThreeTrackingWheelLocalizer
      */
     private double leftXMultiplier = SIDE_WHEEL_ADJUSTMENT_FACTOR * LEFT_TO_RIGHT_WHEEL_ADJUSTMENT_FACTOR;
 
-    public void setLeftXMultiplier(double leftXMultiplier) {
-        this.leftXMultiplier = leftXMultiplier;
+    public double getLeftXMultiplier() {
+        return leftXMultiplier;
     }
 
     /**
@@ -76,16 +86,6 @@ public class PowerPlayTrackingWheelLocalizer extends ThreeTrackingWheelLocalizer
 
     public double getRightXMultiplier() {
         return rightXMultiplier;
-    }
-
-    /**
-     * Adjusts the radius of the Y wheel, the one for strafing. Accounts for difference between
-     * actual distance moved sideways to distance measured by odometry module.
-     */
-    public static double LATERAL_WHEEL_ADJUSTMENT_FACTOR = 1.0;
-
-    public double getLATERAL_WHEEL_ADJUSTMENT_FACTOR() {
-        return LATERAL_WHEEL_ADJUSTMENT_FACTOR;
     }
 
     private Encoder leftEncoder, rightEncoder, frontEncoder;
