@@ -37,13 +37,56 @@ public class PowerPlayTrackingWheelLocalizer extends ThreeTrackingWheelLocalizer
     public static double LATERAL_DISTANCE = 10.7969; // in; distance between the left and right wheels
     public static double FORWARD_OFFSET = -5.5; // in; offset of the lateral wheel
 
-    // use these to adjust for wheel radius differences
-    //public static double LEFT_X_MULTIPLIER = 1.00722888; // Multiplier in the X direction
-    //public static double RIGHT_X_MULTIPLIER = 1.010419368; // Multiplier in the X direction
-    public static double LEFT_X_MULTIPLIER = 1.0026 * 1.005; // Multiplier in the X direction
-    public static double RIGHT_X_MULTIPLIER = 1.0026; // Multiplier in the X direction
-    //public static double Y_MULTIPLIER = 1.006938983050; // Multiplier in the Y direction
-    public static double Y_MULTIPLIER = 1; // Multiplier in the Y direction
+    /**
+     * Adjusts the radius of the side wheels to account for difference between actual distance
+     * moved forward and reverse to distance measured by odometry modules. 
+     */
+    //public static double SIDE_WHEEL_ADJUSTMENT_FACTOR = 1.0026;
+    public static double SIDE_WHEEL_ADJUSTMENT_FACTOR = 1.0;
+
+    public double getSIDE_WHEEL_ADJUSTMENT_FACTOR() {
+        return SIDE_WHEEL_ADJUSTMENT_FACTOR;
+    }
+
+    /**
+     * Adjusts the radius of the left wheel vs the right wheel to account for difference in heading.
+     * The heading change should be 0 when moving in a straight line but if it is not then this will
+     * tweak it to 0.
+     */
+    //public static double LEFT_TO_RIGHT_WHEEL_ADJUSTMENT_FACTOR = 1.0044;
+    public static double LEFT_TO_RIGHT_WHEEL_ADJUSTMENT_FACTOR = 1.0089;
+
+    public static double getLeftToRightWheelAdjustmentFactor() {
+        return LEFT_TO_RIGHT_WHEEL_ADJUSTMENT_FACTOR;
+    }
+
+    /**
+     * Use the previous adjustement factors to come up with the overall left wheel radius adjustment
+     */
+    private double leftXMultiplier = SIDE_WHEEL_ADJUSTMENT_FACTOR * LEFT_TO_RIGHT_WHEEL_ADJUSTMENT_FACTOR;
+
+    public void setLeftXMultiplier(double leftXMultiplier) {
+        this.leftXMultiplier = leftXMultiplier;
+    }
+
+    /**
+     * Use the previous adjustement factors to come up with the overall right wheel radius adjustment
+     */
+    private double rightXMultiplier = SIDE_WHEEL_ADJUSTMENT_FACTOR;
+
+    public double getRightXMultiplier() {
+        return rightXMultiplier;
+    }
+
+    /**
+     * Adjusts the radius of the Y wheel, the one for strafing. Accounts for difference between
+     * actual distance moved sideways to distance measured by odometry module.
+     */
+    public static double LATERAL_WHEEL_ADJUSTMENT_FACTOR = 1.0;
+
+    public double getLATERAL_WHEEL_ADJUSTMENT_FACTOR() {
+        return LATERAL_WHEEL_ADJUSTMENT_FACTOR;
+    }
 
     private Encoder leftEncoder, rightEncoder, frontEncoder;
 
@@ -58,6 +101,10 @@ public class PowerPlayTrackingWheelLocalizer extends ThreeTrackingWheelLocalizer
     public Encoder getFrontEncoder() {
         return frontEncoder;
     }
+
+    private int initialLeftEncoderValue = 0;
+    private int initialRightEncoderValue = 0;
+    private int initialFrontEncoderValue = 0;
 
     public PowerPlayTrackingWheelLocalizer(HardwareMap hardwareMap) {
         super(Arrays.asList(
@@ -77,6 +124,82 @@ public class PowerPlayTrackingWheelLocalizer extends ThreeTrackingWheelLocalizer
 
     }
 
+    /**
+     * The encoder counts are not zero at the start of an opmode. This allows us to keep track of
+     * the change in the encoder count since the start of an opmode.
+     */
+    public void zeroEncoderCounts() {
+        initialLeftEncoderValue = leftEncoder.getCurrentPosition();
+        initialRightEncoderValue = rightEncoder.getCurrentPosition();
+        initialFrontEncoderValue = frontEncoder.getCurrentPosition();
+    }
+
+    /**
+     * Get the current encoder count. Note that this is since power on of the hub, not since the
+     * start of an opmode.
+     * @return
+     */
+    public int getLeftEncoderCount() {
+        return leftEncoder.getCurrentPosition();
+    }
+
+    /**
+     * Get the change in encoder count since the last time it was zeroed. If you zero at the start
+     * of an opmode this will get you the change in count since the start of the opmode.
+     * @return
+     */
+    public int getLeftEncoderCountSinceZero() {
+        return leftEncoder.getCurrentPosition() - initialLeftEncoderValue;
+    }
+
+    /**
+     * Get the change in encoder count since the last time it was zeroed. If you zero at the start
+     * of an opmode this will get you the change in count since the start of the opmode. This count
+     * is then adjusted by the adjustment factors
+     * @return
+     */
+    public int getLeftEncoderAdjustedCountSinceZero () {
+        return (int)((leftEncoder.getCurrentPosition() - initialLeftEncoderValue) * leftXMultiplier);
+    }
+
+    public int getRightEncoderCount() {
+        return rightEncoder.getCurrentPosition();
+    }
+
+    public int getRightEncoderCountSinceZero() {
+        return rightEncoder.getCurrentPosition() - initialRightEncoderValue;
+    }
+
+    /**
+     * Get the change in encoder count since the last time it was zeroed. If you zero at the start
+     * of an opmode this will get you the change in count since the start of the opmode. This count
+     * is then adjusted by the adjustment factors
+     * @return
+     */
+    public int getRightEncoderAdjustedCountSinceZero () {
+        return (int)((rightEncoder.getCurrentPosition() - initialRightEncoderValue) * rightXMultiplier);
+    }
+
+
+    public int getFrontEncoderCount() {
+        return frontEncoder.getCurrentPosition();
+    }
+
+    public int getFrontEncoderCountSinceZero() {
+        return frontEncoder.getCurrentPosition() - initialFrontEncoderValue;
+    }
+
+    /**
+     * Get the change in encoder count since the last time it was zeroed. If you zero at the start
+     * of an opmode this will get you the change in count since the start of the opmode. This count
+     * is then adjusted by the adjustment factors
+     * @return
+     */
+    public int getFrontEncoderAdjustedCountSinceZero () {
+        return (int)((frontEncoder.getCurrentPosition() - initialFrontEncoderValue) * LATERAL_WHEEL_ADJUSTMENT_FACTOR);
+    }
+
+
     public static double encoderTicksToInches(double ticks) {
         return WHEEL_RADIUS * 2 * Math.PI * GEAR_RATIO * ticks / TICKS_PER_REV;
     }
@@ -85,9 +208,9 @@ public class PowerPlayTrackingWheelLocalizer extends ThreeTrackingWheelLocalizer
     @Override
     public List<Double> getWheelPositions() {
         return Arrays.asList(
-                encoderTicksToInches(leftEncoder.getCurrentPosition()) * LEFT_X_MULTIPLIER,
-                encoderTicksToInches(rightEncoder.getCurrentPosition()) * RIGHT_X_MULTIPLIER,
-                encoderTicksToInches(frontEncoder.getCurrentPosition()) * Y_MULTIPLIER
+                encoderTicksToInches(leftEncoder.getCurrentPosition()) * leftXMultiplier,
+                encoderTicksToInches(rightEncoder.getCurrentPosition()) * rightXMultiplier,
+                encoderTicksToInches(frontEncoder.getCurrentPosition()) * LATERAL_WHEEL_ADJUSTMENT_FACTOR
         );
     }
 
@@ -99,9 +222,9 @@ public class PowerPlayTrackingWheelLocalizer extends ThreeTrackingWheelLocalizer
         //  compensation method
 
         return Arrays.asList(
-                encoderTicksToInches(leftEncoder.getCorrectedVelocity()) * LEFT_X_MULTIPLIER,
-                encoderTicksToInches(rightEncoder.getCorrectedVelocity()) * RIGHT_X_MULTIPLIER,
-                encoderTicksToInches(frontEncoder.getCorrectedVelocity()) * Y_MULTIPLIER
+                encoderTicksToInches(leftEncoder.getCorrectedVelocity()) * leftXMultiplier,
+                encoderTicksToInches(rightEncoder.getCorrectedVelocity()) * rightXMultiplier,
+                encoderTicksToInches(frontEncoder.getCorrectedVelocity()) * LATERAL_WHEEL_ADJUSTMENT_FACTOR
         );
     }
 }
