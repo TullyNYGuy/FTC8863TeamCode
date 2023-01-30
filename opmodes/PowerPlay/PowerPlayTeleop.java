@@ -27,6 +27,8 @@ import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayField;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayGamepad;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayPersistantStorage;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayRobot;
+import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayRobotModes;
+import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlaySpeedController;
 
 import java.util.List;
 
@@ -78,11 +80,11 @@ public class PowerPlayTeleop extends LinearOpMode {
         MecanumCommands commands = new MecanumCommands();
 
         robot = new PowerPlayRobot(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, this);
-        gamepad = new PowerPlayGamepad(gamepad1, gamepad2, robot);
         field = new PowerPlayField(PowerPlayPersistantStorage.getColorLocation());
 
         // create the robot and run the init for it
         robot.createRobot();
+        gamepad = new PowerPlayGamepad(gamepad1, gamepad2, robot);
 
         enableBulkReads(hardwareMap, LynxModule.BulkCachingMode.AUTO);
 
@@ -100,10 +102,10 @@ public class PowerPlayTeleop extends LinearOpMode {
 
         // set the driver joystick controls to either normal or inverted
         if (PowerPlayPersistantStorage.getTeamLocation() == TeamLocation.LEFT) {
-            gamepad.setDirectionSwap(PowerPlayGamepad.DirectionSwap.INVERSED);
+            robot.robotModes.setDirectionSwap(PowerPlayRobotModes.DirectionSwap.INVERSED);
         } else {
             // Right side of field
-            gamepad.setDirectionSwap(PowerPlayGamepad.DirectionSwap.NORMAL);
+            robot.robotModes.setDirectionSwap(PowerPlayRobotModes.DirectionSwap.NORMAL);
         }
 
         // Wait for the start button
@@ -126,21 +128,23 @@ public class PowerPlayTeleop extends LinearOpMode {
             // update the gamepad. It has the commands to be run when a button is pressed so the
             // gamepad actually runs the robot commands.
             gamepad.update();
-           // automaticTeleopFunctions.update();
+            // update the robot
+            robot.update();
 
             // The following code uses road runner to move the robot in a driver (field) centric
             // drive
 
-            telemetry.addData("Max Power = ", gamepad.getCurrentMaxPower());
+            telemetry.addData("Max Power = ", robot.robotModes.getCurrentMaxPower());
+            telemetry.addData("Speed Controller state = ", robot.speedController.getSpeedControllerState());
             telemetry.addLine();
 
             if (gamepad.getDrivingMode() == DrivingMode.ROBOT_CENTRIC) {
-                telemetry.addData("Direction swap = ", gamepad.getDirectionSwap());
+                telemetry.addData("Direction swap = ", robot.robotModes.getDirectionSwap());
                 telemetry.addData("ROBOT CENTRIC driving", "!");
 
                 robot.mecanum.calculateMotorCommandsRobotCentric(
-                        gamepad.gamepad1LeftJoyStickYValue * gamepad.getDirectionSwapMultiplier(),
-                        gamepad.gamepad1LeftJoyStickXValue * gamepad.getDirectionSwapMultiplier(),
+                        gamepad.gamepad1LeftJoyStickYValue * robot.robotModes.getDirectionSwapMultiplier(),
+                        gamepad.gamepad1LeftJoyStickXValue * robot.robotModes.getDirectionSwapMultiplier(),
                         gamepad.gamepad1RightJoyStickXValue
                 );
             }
@@ -152,9 +156,6 @@ public class PowerPlayTeleop extends LinearOpMode {
                         gamepad.gamepad1RightJoyStickXValue
                 );
             }
-
-            // update the robot
-            robot.update();
 
             // feedback on the driver station
 

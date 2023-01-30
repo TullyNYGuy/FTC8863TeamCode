@@ -65,6 +65,7 @@ public class PowerPlayConeGrabber implements FTCRobotSubsystem {
 
     private ConeGrabberServo coneGrabberServo;
     private ConeGrabberArmServo coneGrabberArmServo;
+    private PowerPlayCycleTracker cycleTracker;
 
     private DataLogging logFile;
     private boolean enableLogging = false;
@@ -87,10 +88,11 @@ public class PowerPlayConeGrabber implements FTCRobotSubsystem {
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
-    public PowerPlayConeGrabber(HardwareMap hardwareMap, Telemetry telemetry) {
+    public PowerPlayConeGrabber(HardwareMap hardwareMap, Telemetry telemetry, PowerPlayCycleTracker cycleTracker) {
 
         coneGrabberServo = new ConeGrabberServo(hardwareMap, telemetry);
         coneGrabberArmServo = new ConeGrabberArmServo(hardwareMap, telemetry);
+        this.cycleTracker = cycleTracker;
 
         timer = new ElapsedTime();
 
@@ -244,6 +246,9 @@ public class PowerPlayConeGrabber implements FTCRobotSubsystem {
             logCommand("close command ignored");
         }
     }
+    //********************************************************************************
+    // Public commands for controlling the CONE GRABBER ARM by itself
+    //********************************************************************************
 
     /**
      * Move the arm to carry position (carry the cone around while driving)
@@ -298,6 +303,9 @@ public class PowerPlayConeGrabber implements FTCRobotSubsystem {
             logCommand("Pickup position command ignored");
         }
     }
+    //********************************************************************************
+    // Public commands for controlling the CONE GRABBER and the ARM
+    //********************************************************************************
 
     /**
      * Open the grabber, then move the arm to the position where it can grab.
@@ -313,6 +321,8 @@ public class PowerPlayConeGrabber implements FTCRobotSubsystem {
             coneGrabberState = ConeGrabberState.MOVING_TO_LINEUP_FOR_PICKUP;
             coneGrabberServo.open();
             coneGrabberArmServo.lineupForPickupPosition();
+            // we are setting up to pick up a cone
+            cycleTracker.setPhaseOfCycleToPickup();
         } else {
             // you can't start a new command when the old one is not finished
             logCommand("cone grabber close then lineup for pickup command ignored");
@@ -333,6 +343,8 @@ public class PowerPlayConeGrabber implements FTCRobotSubsystem {
             coneGrabberState = ConeGrabberState.MOVING_TO_OPEN_BEFORE_PICKUP;
             coneGrabberServo.open();
             coneGrabberArmServo.pickupPosition();
+            // we are setting up to pick up a cone
+            cycleTracker.setPhaseOfCycleToPickup();
         } else {
             // you can't start a new command when the old one is not finished
             logCommand("cone grabber open then pickup command ignored");
@@ -353,6 +365,8 @@ public class PowerPlayConeGrabber implements FTCRobotSubsystem {
             //command to start extension
             coneGrabberState = ConeGrabberState.MOVING_TO_OPEN_BEFORE_CARRY;
             coneGrabberServo.open();
+            // we are setting up to pick up a cone
+            cycleTracker.setPhaseOfCycleToPickup();
         } else {
             // you can't start a new command when the old one is not finished
             logCommand("cone grabber open then to carry command ignored");
@@ -372,6 +386,8 @@ public class PowerPlayConeGrabber implements FTCRobotSubsystem {
             //command to start extension
             coneGrabberState = ConeGrabberState.MOVING_TO_CLOSE_BEFORE_CARRY;
             coneGrabberServo.close();
+            // after picking up a cone so the next phase is to score it
+            cycleTracker.setPhaseOfCycleToScoring();
         } else {
             // you can't start a new command when the old one is not finished
             logCommand("cone grabber close then to carry command ignored");

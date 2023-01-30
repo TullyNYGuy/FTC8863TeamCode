@@ -17,7 +17,7 @@ package org.firstinspires.ftc.teamcode.Lib.PowerPlayLib;
  *    / Y                - drop
  *    /Left Bumper       - driving mode = robot centric
  *    /Right Bumper      - driving mode = field centric
- *    /Left stick button - full power (1st press), half power (2nd press)
+ *    /Left stick button - switch speed (high to max) or (low to high to max)
  *
  *  Gamepad 2 layout
  *    / Left JoystickX   -
@@ -28,10 +28,10 @@ package org.firstinspires.ftc.teamcode.Lib.PowerPlayLib;
  *    / DPad Left        - Move lift to low
  *    / DPad Down        - Move lift to ground
  *    / DPad Right       - Move lift to medium
- *    / A                - Test the drop
- *    / B                -
+ *    / A                - Test the drop over pole
+ *    / B                - Arm servo replacement position
  *    / X                -
- *    / Y                - Arm servo replacement position
+ *    / Y                - Approaching substation, slow down, look for cone
  *   /Left Bumper        -
  *   /Right Bumper       -
  */
@@ -131,46 +131,6 @@ public class PowerPlayGamepad {
         return drivingMode;
     }
 
-    private double previousMaxPower;
-
-    public double getPreviousMaxPower() {
-        return previousMaxPower;
-    }
-
-    // default power when starting is 75%
-    private double currentMaxPower = 0.75;
-
-    public double getCurrentMaxPower() {
-        return currentMaxPower;
-    }
-
-    public enum DirectionSwap {
-        NORMAL, // joystick directions are normal
-        INVERSED // joystick directions are opposite
-    }
-
-    private DirectionSwap directionSwap = DirectionSwap.NORMAL;
-
-    public DirectionSwap getDirectionSwap() {
-        return directionSwap;
-    }
-
-    public void setDirectionSwap( DirectionSwap directionSwap) {
-        this.directionSwap = directionSwap;
-        if (directionSwap == DirectionSwap.NORMAL) {
-            directionSwapMultiplier = +1;
-        } else {
-            // direction swap is INVERSED
-            directionSwapMultiplier = -1;
-        }
-    }
-
-    private double directionSwapMultiplier = +1;
-
-    public double getDirectionSwapMultiplier () {
-        return directionSwapMultiplier;
-    }
-
     // private AutomaticTeleopFunctions automaticTeleopFunctions;
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -208,7 +168,7 @@ public class PowerPlayGamepad {
         gamepad1DpadDown = new GamepadButtonMultiPush(1);
         gamepad1DpadLeft = new GamepadButtonMultiPush(1);
         gamepad1DpadRight = new GamepadButtonMultiPush(1);
-        gamepad1LeftStickButton = new GamepadButtonMultiPush(2);
+        gamepad1LeftStickButton = new GamepadButtonMultiPush(1);
         gamepad1RightStickButton = new GamepadButtonMultiPush(1);
         gamepad1LeftTriggerButton = new GamepadButtonMultiPush(1);
 
@@ -231,7 +191,7 @@ public class PowerPlayGamepad {
         gamepad2RightBumper = new GamepadButtonMultiPush(1);
         gamepad2LeftBumper = new GamepadButtonMultiPush(1);
         gamepad2a = new GamepadButtonMultiPush(1);
-        gamepad2b = new GamepadButtonMultiPush(2);
+        gamepad2b = new GamepadButtonMultiPush(1);
         gamepad2y = new GamepadButtonMultiPush(1);
         gamepad2x = new GamepadButtonMultiPush(1);
         gamepad2DpadDown = new GamepadButtonMultiPush(1);
@@ -306,12 +266,13 @@ public class PowerPlayGamepad {
         }
 
         if (gamepad1b.buttonPress(gamepad1.b)) {
-            robot.coneGrabber.closeThenCarryPosition();
+            //robot.coneGrabber.closeThenCarryPosition();
+            robot.speedController.pickupCone();
         }
 
         if (gamepad1y.buttonPress(gamepad1.y)) {
-            //robot.coneGrabber.openThenCarryPosition();
-            robot.coneGrabberArmController.releaseThenMoveToPickup();
+            //robot.coneGrabberArmController.releaseThenMoveToPickup();
+            robot.speedController.dropCone();
         }
 
         if (gamepad1x.buttonPress(gamepad1.x)) {
@@ -319,11 +280,11 @@ public class PowerPlayGamepad {
         }
 
         if (gamepad1DpadUp.buttonPress(gamepad1.dpad_up)) {
-            setDirectionSwap(DirectionSwap.NORMAL);
+            robot.robotModes.setDirectionSwap(PowerPlayRobotModes.DirectionSwap.NORMAL);
         }
 
         if (gamepad1DpadDown.buttonPress(gamepad1.dpad_down)) {
-            setDirectionSwap(DirectionSwap.INVERSED);
+            robot.robotModes.setDirectionSwap(PowerPlayRobotModes.DirectionSwap.INVERSED);
         }
 
         if (gamepad1DpadLeft.buttonPress(gamepad1.dpad_left)) {
@@ -335,14 +296,7 @@ public class PowerPlayGamepad {
         }
 
         if (gamepad1LeftStickButton.buttonPress(gamepad1.left_stick_button)) {
-            if (gamepad1LeftStickButton.isCommand1()) {
-                setMaxDrivingPower(1.0);
-            }
-            if (gamepad1LeftStickButton.isCommand2()) {
-                setMaxDrivingPower(0.75);
-            }
-            // this was a new button press, not a button held down for a while
-            // put the command to be executed here
+            robot.speedController.switchSpeed();
         }
 
         if (gamepad1RightStickButton.buttonPress(gamepad1.right_stick_button)) {
@@ -353,6 +307,8 @@ public class PowerPlayGamepad {
         //**************************************************************************************
         // Gamepad 1 joysticks
         //**************************************************************************************
+        // update the joysticks with the max power
+        setMaxDrivingPower(robot.robotModes.getCurrentMaxPower());
 
         gamepad1LeftJoyStickXValue = gamepad1LeftJoyStickX.getValue();
         gamepad1LeftJoyStickYValue = gamepad1LeftJoyStickY.getValue();
@@ -399,37 +355,33 @@ public class PowerPlayGamepad {
         }
 
         if (gamepad2b.buttonPress(gamepad2.b)) {
-            if (gamepad2b.isCommand1()) {
-            }
-            if (gamepad2b.isCommand2()) {
-            }
+            //robot.coneGrabber.replacment();
         }
 
         if (gamepad2y.buttonPress(gamepad2.y)) {
-            robot.coneGrabber.replacment();
+            robot.speedController.approachingSubstation();
         }
 
         if (gamepad2x.buttonPress(gamepad2.x)) {
         }
 
         if (gamepad2DpadUp.buttonPress(gamepad2.dpad_up)) {
-            //robot.leftLift.moveToHigh();
-            robot.coneGrabberArmController.moveToHighThenPrepareToRelease();
+            //robot.coneGrabberArmController.moveToHighThenPrepareToRelease();
+            robot.speedController.approachingHighJunction();
         }
 
         if (gamepad2DpadDown.buttonPress(gamepad2.dpad_down)) {
-            //robot.leftLift.moveToGround();
             robot.coneGrabberArmController.moveToGroundThenPrepareToRelease();
         }
 
         if (gamepad2DpadLeft.buttonPress(gamepad2.dpad_left)) {
-            //robot.leftLift.moveToLow();
-            robot.coneGrabberArmController.moveToLowThenPrepareToRelease();
+            //robot.coneGrabberArmController.moveToLowThenPrepareToRelease();
+            robot.speedController.approachingLowJunction();
         }
 
         if (gamepad2DpadRight.buttonPress(gamepad2.dpad_right)) {
-            //robot.leftLift.moveToMedium();
-            robot.coneGrabberArmController.moveToMediumThenPrepareToRelease();
+            //robot.coneGrabberArmController.moveToMediumThenPrepareToRelease();
+            robot.speedController.approachingMediumJunction();
         }
 
         if (gamepad2LeftStickButton.buttonPress(gamepad2.left_stick_button)) {
@@ -469,14 +421,11 @@ public class PowerPlayGamepad {
 
     public void setMaxDrivingPower (double maxDrivingPower) {
         if (maxDrivingPower <= 1.0 && maxDrivingPower >= 0) {
-            previousMaxPower = currentMaxPower;
-            currentMaxPower = maxDrivingPower;
             gamepad1LeftJoyStickX.setMaxPower(maxDrivingPower);
             gamepad1LeftJoyStickY.setMaxPower(maxDrivingPower);
             gamepad1RightJoyStickX.setMaxPower(maxDrivingPower);
             gamepad1RightJoyStickY.setMaxPower(maxDrivingPower);
         }
     }
-
 }
 

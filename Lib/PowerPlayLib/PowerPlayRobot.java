@@ -47,6 +47,12 @@ public class PowerPlayRobot implements FTCRobot {
         CONE_GRABBER_SERVO("coneGrabberServo"),
         CONE_GRABBER_ARM_SERVO("coneGrabberArmServo"),
 
+        DISTANCE_SENSOR_NORMAL("distanceSensorNormal"),
+        DISTANCE_SENSOR_INVERSE("distanceSensorInverse"),
+
+        CYCLE_TRACKER("cycleTracker"),
+        SPEED_CONTROLLER("speedController"),
+
         LEFT_LIFT_MOTOR("leftLiftMotor"),
         LEFT_LIFT_LIMIT_SWITCH_RETRACTION("leftLiftRetractionLimitSwitch"),
         LEFT_LIFT_LIMIT_SWITCH_EXTENSION("leftLiftExtensionLimitSwitch"),
@@ -68,7 +74,11 @@ public class PowerPlayRobot implements FTCRobot {
         WEBCAM,
         LEFT_LIFT,
         CONE_GRABBER,
-        CONE_GRABBER_ARM_CONTROLLER
+        CONE_GRABBER_ARM_CONTROLLER,
+        DISTANCE_SENSOR_NORMAL,
+        CYCLE_TRACKER,
+        SPEED_CONTROLLER
+        //DISTANCE_SENSOR_INVERSE
         //LED_BLINKER,
         //LED_STRIP,
     }
@@ -98,6 +108,10 @@ public class PowerPlayRobot implements FTCRobot {
     public PowerPlayConeGrabber coneGrabber;
     public PowerPlayConeGrabberLiftController coneGrabberArmController;
     public PowerPlayWebcam webcam;
+    public PowerPlay2mDistanceSensor distanceSensorForNormal;
+    public PowerPlayCycleTracker cycleTracker;
+    public PowerPlaySpeedController speedController;
+    public PowerPlayRobotModes robotModes;
     //public RevLEDBlinker ledBlinker;
     //public FFBlinkinLed ledStrip;
 
@@ -111,6 +125,7 @@ public class PowerPlayRobot implements FTCRobot {
         this.config = config;
         this.dataLog = dataLog;
         this.opMode = opMode;
+        robotModes = new PowerPlayRobotModes();
         this.subsystemMap = new HashMap<String, FTCRobotSubsystem>();
         setCapabilities(Subsystem.values());
         enableDataLogging();
@@ -156,14 +171,29 @@ public class PowerPlayRobot implements FTCRobot {
             subsystemMap.put(leftLift.getName(), leftLift);
         }
 
+        if (capabilities.contains(Subsystem.CYCLE_TRACKER)) {
+            cycleTracker = new PowerPlayCycleTracker(hardwareMap, telemetry);
+            subsystemMap.put(cycleTracker.getName(), cycleTracker);
+        }
+
+        if (capabilities.contains(Subsystem.DISTANCE_SENSOR_NORMAL)) {
+            distanceSensorForNormal = new PowerPlay2mDistanceSensor(hardwareMap, telemetry, HardwareName.DISTANCE_SENSOR_NORMAL.hwName, DistanceUnit.INCH);
+            subsystemMap.put(distanceSensorForNormal.getName(), distanceSensorForNormal);
+        }
+
         if (capabilities.contains(Subsystem.CONE_GRABBER)) {
-            coneGrabber = new PowerPlayConeGrabber(hardwareMap, telemetry);
+            coneGrabber = new PowerPlayConeGrabber(hardwareMap, telemetry, cycleTracker);
             subsystemMap.put(coneGrabber.getName(), coneGrabber);
         }
 
         if (capabilities.contains(Subsystem.CONE_GRABBER_ARM_CONTROLLER)) {
-            coneGrabberArmController = new PowerPlayConeGrabberLiftController(coneGrabber,leftLift);
+            coneGrabberArmController = new PowerPlayConeGrabberLiftController(coneGrabber,leftLift, cycleTracker);
             subsystemMap.put(coneGrabberArmController.getName(), coneGrabberArmController);
+        }
+
+        if (capabilities.contains(Subsystem.SPEED_CONTROLLER)) {
+            speedController = new PowerPlaySpeedController(hardwareMap, telemetry, this);
+            subsystemMap.put(speedController.getName(), speedController);
         }
 
 //        if (capabilities.contains(Subsystem.LED_BLINKER)) {

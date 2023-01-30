@@ -171,13 +171,8 @@ public class PowerPlay2mDistanceSensor implements FTCRobotSubsystem {
 
 
     @Override
-    /**
-     * Move the arm to the init position, move the cone grabber to the init position.
-     */
     public boolean init(Configuration config) {
-        // start the init for the extension retraction mechanism
         logCommand("Init starting");
-        // start the init of the extension retraction mechanism
         logCommand("Init");
         logCommand("Init complete");
         return true;

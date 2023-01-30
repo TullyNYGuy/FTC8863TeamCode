@@ -56,6 +56,7 @@ public class PowerPlayConeGrabberLiftController implements FTCRobotSubsystem {
 
     private PowerPlayConeGrabber coneGrabber;
     private PowerPlayLeftLift lift;
+    private PowerPlayCycleTracker cycleTracker;
 
     private DataLogging logFile;
     private boolean enableLogging = false;
@@ -77,10 +78,11 @@ public class PowerPlayConeGrabberLiftController implements FTCRobotSubsystem {
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
-    public PowerPlayConeGrabberLiftController(PowerPlayConeGrabber coneGrabber, PowerPlayLeftLift lift) {
+    public PowerPlayConeGrabberLiftController(PowerPlayConeGrabber coneGrabber, PowerPlayLeftLift lift, PowerPlayCycleTracker cycleTracker) {
 
         this.coneGrabber = coneGrabber;
         this.lift = lift;
+        this.cycleTracker = cycleTracker;
 
         timer = new ElapsedTime();
 
@@ -192,7 +194,7 @@ public class PowerPlayConeGrabberLiftController implements FTCRobotSubsystem {
     }
 
     //********************************************************************************
-    // Public commands for controlling the CONE GRABBER and LIFT
+    // Public commands for controlling the CONE GRABBER and LIFT - PREPARING TO SCORE
     //********************************************************************************
 
     public void moveToHighThenPrepareToRelease() {
@@ -204,6 +206,7 @@ public class PowerPlayConeGrabberLiftController implements FTCRobotSubsystem {
             //command to start lift
             controllerState = ControllerState.MOVING_TO_HIGH;
             lift.moveToHigh();
+           cycleTracker.setPhaseOfCycleToScoring();
         } else {
             // you can't start a new command when the old one is not finished
             logCommand("lift to high, prepare to drop command ignored");
@@ -219,6 +222,7 @@ public class PowerPlayConeGrabberLiftController implements FTCRobotSubsystem {
             //command to start lift
             controllerState = ControllerState.MOVING_TO_MEDIUM;
             lift.moveToMedium();
+           cycleTracker.setPhaseOfCycleToScoring();
         } else {
             // you can't start a new command when the old one is not finished
             logCommand("lift to medium, prepare to drop command ignored");
@@ -234,6 +238,7 @@ public class PowerPlayConeGrabberLiftController implements FTCRobotSubsystem {
             //command to start lift
             controllerState = ControllerState.MOVING_TO_LOW;
             lift.moveToLow();
+           cycleTracker.setPhaseOfCycleToScoring();
         } else {
             // you can't start a new command when the old one is not finished
             logCommand("lift to low, prepare to drop command ignored");
@@ -249,11 +254,16 @@ public class PowerPlayConeGrabberLiftController implements FTCRobotSubsystem {
             //command to start lift
             controllerState = ControllerState.MOVING_TO_GROUND;
             lift.moveToGround();
+           cycleTracker.setPhaseOfCycleToScoring();
         } else {
             // you can't start a new command when the old one is not finished
             logCommand("lift to ground, prepare to drop command ignored");
         }
     }
+
+    //********************************************************************************
+    // Public commands for controlling the CONE GRABBER and LIFT - SCORING
+    //********************************************************************************
 
     public void releaseThenMoveToPickup() {
         // lockout for double hits on a command button. Downside is that the driver better hit the
@@ -322,7 +332,7 @@ public class PowerPlayConeGrabberLiftController implements FTCRobotSubsystem {
             break;
 
             //********************************************************************************
-            // release, then lift to pickup position and cone grabber closed
+            // DROP, then lift to pickup position and cone grabber closed
             //********************************************************************************
 
             case RELEASING_THEN_CARRY: {
