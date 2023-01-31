@@ -460,7 +460,7 @@ public class JoyStick {
     }
 
     public void setMaxPower(double maxPower) {
-        if (maxPower <= 1.0 && maxPower >+ 0) {
+        if (maxPower <= 1.0 && maxPower >= 0) {
             reductionFactor = maxPower;
         }
     }
