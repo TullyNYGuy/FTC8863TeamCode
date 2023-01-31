@@ -247,6 +247,21 @@ public class CSVDataFile {
     }
 
     /**
+     * Write a series of ints into the data log. Each int will be followed by a comma and
+     * a space.
+     *
+     * @param args a variable number of ints to write into the file in this line
+     */
+    public void writeData(int... args) {
+        // print each argument
+        for (int arg : args) {
+            csvDataFile.print(Integer.toString(arg) + ", ");
+        }
+        // print a newline
+        csvDataFile.println();
+    }
+
+    /**
      * Write a string and a series of doubles into the data log. The string and the each double will
      * be followed by a comma and a space.
      *
