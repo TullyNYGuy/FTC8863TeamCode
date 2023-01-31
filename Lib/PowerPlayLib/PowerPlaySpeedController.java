@@ -73,7 +73,7 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
 
     public static double FULL_POWER = 1.0;
     public static double HIGH_POWER = .75;
-    public static double LOW_POWER = .25;
+    public static double LOW_POWER = .60;
 
     private double currentPower = HIGH_POWER;
 
@@ -421,6 +421,7 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
                     case SWITCH_SPEED: {
                         setPower(HIGH_POWER);
                         controllerState = ControllerState.HIGH_SPEED;
+                        command = Command.NONE;
                         commandComplete = true;
                     }
                     break;
@@ -429,6 +430,7 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
                         robot.coneGrabberArmController.releaseThenMoveToPickup();
                         setPower(HIGH_POWER);
                         controllerState = ControllerState.HEADED_FOR_SUBSTATION;
+                        command = Command.NONE;
                         commandComplete = true;
                     }
                     break;
@@ -437,12 +439,14 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
                         robot.coneGrabber.closeThenCarryPosition();
                         setPower(HIGH_POWER);
                         controllerState = ControllerState.HEADED_FOR_JUNCTION;
+                        command = Command.NONE;
                         commandComplete = true;
                     }
                     break;
                     case APPROACHING_JUNCTION: {
                         setPower(LOW_POWER);
                         controllerState = ControllerState.CLOSE_TO_JUNCTION;
+                        command = Command.NONE;
                         // allow other commands to be active
                         commandComplete = true;
                     }
@@ -452,6 +456,7 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
                         // set which distance sensor to use
                         setDistanceSensorToUse();
                         controllerState = ControllerState.CLOSE_TO_SUBSTATION;
+                        command = Command.NONE;
                         // allow other commands to be active
                         commandComplete = true;
                     }
@@ -469,6 +474,7 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
                     case SWITCH_SPEED: {
                         setPower(FULL_POWER);
                         controllerState = ControllerState.MAX_SPEED;
+                        command = Command.NONE;
                         commandComplete = true;
                     }
                     break;
@@ -477,6 +483,7 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
                         robot.coneGrabberArmController.releaseThenMoveToPickup();
                         setPower(HIGH_POWER);
                         controllerState = ControllerState.HEADED_FOR_SUBSTATION;
+                        command = Command.NONE;
                         commandComplete = true;
                     }
                     break;
@@ -485,6 +492,7 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
                         robot.coneGrabber.closeThenCarryPosition();
                         setPower(HIGH_POWER);
                         controllerState = ControllerState.HEADED_FOR_JUNCTION;
+                        command = Command.NONE;
                         commandComplete = true;
                     }
                     break;
@@ -493,13 +501,17 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
                         // set which distance sensor to use
                         setDistanceSensorToUse();
                         controllerState = ControllerState.CLOSE_TO_JUNCTION;
+                        command = Command.NONE;
                         // allow other commands to be active
                         commandComplete = true;
                     }
                     break;
                     case APPROACHING_SUBSTATION: {
                         setPower(LOW_POWER);
+                        // set which distance sensor to use
+                        setDistanceSensorToUse();
                         controllerState = ControllerState.CLOSE_TO_SUBSTATION;
+                        command = Command.NONE;
                         // allow other commands to be active
                         commandComplete = true;
                     }
@@ -524,17 +536,20 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
                     case SWITCH_SPEED: {
                         setPower(LOW_POWER);
                         controllerState = ControllerState.LOW_SPEED;
+                        command = Command.NONE;
                         commandComplete = true;
                     }
                     break;
                     case DROP_CONE: {
                         // Cannot drop cone when headed to junction
+                        command = Command.NONE;
                         commandComplete = true;
                         logCommand("drop cone command ignored since headed to junction");
                     }
                     break;
                     case PICKUP_CONE: {
                         // cannot pickup cone when headed to junction
+                        command = Command.NONE;
                         commandComplete = true;
                         logCommand("pickup cone command ignored since headed to junction");
                     }
@@ -544,12 +559,14 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
                         // set which distance sensor to use
                         setDistanceSensorToUse();
                         controllerState = ControllerState.CLOSE_TO_JUNCTION;
+                        command = Command.NONE;
                         // allow other commands to be active
                         commandComplete = true;
                     }
                     break;
                     case APPROACHING_SUBSTATION: {
                         // allow other commands to be active
+                        command = Command.NONE;
                         commandComplete = true;
                         logCommand("approaching substation command ignored since robot is headed for junction");
                     }
@@ -584,17 +601,20 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
                     case SWITCH_SPEED: {
                         setPower(HIGH_POWER);
                         controllerState = ControllerState.HIGH_SPEED;
+                        command = Command.NONE;
                         commandComplete = true;
                     }
                     break;
                     case DROP_CONE: {
                         // Cannot drop cone when headed to junction
+                        command = Command.NONE;
                         commandComplete = true;
                         logCommand("drop cone command ignored since robot is close to junction");
                     }
                     break;
                     case PICKUP_CONE: {
                         // cannot pickup cone when headed to junction
+                        command = Command.NONE;
                         commandComplete = true;
                         logCommand("pickup cone command ignored since robot is close to junction");
                     }
@@ -606,11 +626,13 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
                         // anything to do
                         setPower(LOW_POWER);
                         controllerState = ControllerState.CLOSE_TO_JUNCTION;
+                        command = Command.NONE;
                         // allow other commands to be active
                         commandComplete = true;
                     }
                     break;
                     case APPROACHING_SUBSTATION: {
+                        command = Command.NONE;
                         // allow other commands to be active
                         commandComplete = true;
                         logCommand("approaching substation command ignored since robot is close to junction");
@@ -636,29 +658,34 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
                     break;
                     case SWITCH_SPEED: {
                         // Wait for the robot to stop before switching speeds
+                        command = Command.NONE;
                         commandComplete = true;
                         logCommand("switch speed command ignored since robot is stopping");
                     }
                     break;
                     case DROP_CONE: {
                         // Cannot drop cone yet
+                        command = Command.NONE;
                         commandComplete = true;
                         logCommand("drop cone command ignored since robot is at junction");
                     }
                     break;
                     case PICKUP_CONE: {
                         // cannot pickup cone when at junction
+                        command = Command.NONE;
                         commandComplete = true;
                         logCommand("pickup cone command ignored since robot is at junction");
                     }
                     break;
                     case APPROACHING_JUNCTION: {
                         // cannot change target, the lift is already raising
+                        command = Command.NONE;
                         commandComplete = true;
                         logCommand("approaching command ignored since robot is at junction");
                     }
                     break;
                     case APPROACHING_SUBSTATION: {
+                        command = Command.NONE;
                         // allow other commands to be active
                         commandComplete = true;
                         logCommand("approaching substation command ignored since robot is at junction");
@@ -678,6 +705,7 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
                         // dangerous since the lift is up
                         setPower(HIGH_POWER);
                         controllerState = ControllerState.HIGH_SPEED;
+                        command = Command.NONE;
                         commandComplete = true;
                     }
                     break;
@@ -685,11 +713,13 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
                         robot.coneGrabberArmController.releaseThenMoveToPickup();
                         setPower(HIGH_POWER);
                         controllerState = ControllerState.HEADED_FOR_SUBSTATION;
+                        command = Command.NONE;
                         commandComplete = true;
                     }
                     break;
                     case PICKUP_CONE: {
                         // cannot pickup cone when headed to junction
+                        command = Command.NONE;
                         commandComplete = true;
                         logCommand("pickup cone command ignored since robot is at junction");
                     }
@@ -705,10 +735,12 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
                         setPower(LOW_POWER);
                         // they are at the junction so stay in the lineup, don't change state
                         // allow other commands to be active
+                        command = Command.NONE;
                         commandComplete = true;
                     }
                     break;
                     case APPROACHING_SUBSTATION: {
+                        command = Command.NONE;
                         // allow other commands to be active
                         commandComplete = true;
                         logCommand("approaching substation command ignored since robot is at junction");
@@ -734,6 +766,7 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
                     case SWITCH_SPEED: {
                         setPower(LOW_POWER);
                         controllerState = ControllerState.LOW_SPEED;
+                        command = Command.NONE;
                         commandComplete = true;
                     }
                     break;
@@ -745,6 +778,7 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
                     break;
                     case PICKUP_CONE: {
                         // cannot pickup cone when headed to moving at high speed toward substation
+                        command = Command.NONE;
                         commandComplete = true;
                         logCommand("pickup cone command ignored since headed to substation");
                     }
@@ -752,6 +786,7 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
                     case APPROACHING_JUNCTION: {
                         // can't be approaching junction when headed to substation
                         // allow other commands to be active
+                        command = Command.NONE;
                         commandComplete = true;
                         logCommand("approaching junction command ignored since robot is headed for substation");
                     }
@@ -761,6 +796,7 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
                         // set which distance sensor to use
                         setDistanceSensorToUse();
                         controllerState = ControllerState.CLOSE_TO_SUBSTATION;
+                        command = Command.NONE;
                         // allow other commands to be active
                         commandComplete = true;
                     }
@@ -794,11 +830,13 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
                     case SWITCH_SPEED: {
                         setPower(HIGH_POWER);
                         controllerState = ControllerState.HIGH_SPEED;
+                        command = Command.NONE;
                         commandComplete = true;
                     }
                     break;
                     case DROP_CONE: {
                         // Cannot drop cone when you don't already have one
+                        command = Command.NONE;
                         commandComplete = true;
                         logCommand("drop cone command ignored since robot is close to substation");
                     }
@@ -810,18 +848,21 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
                         robot.coneGrabber.closeThenCarryPosition();
                         setPower(HIGH_POWER);
                         controllerState = ControllerState.HEADED_FOR_JUNCTION;
+                        command = Command.NONE;
                         commandComplete = true;
                         logCommand("pickup cone command even though robot is close to substation");
                     }
                     break;
                     case APPROACHING_JUNCTION: {
                         // can't be approaching junction when headed to substation
+                        command = Command.NONE;
                         // allow other commands to be active
                         commandComplete = true;
                         logCommand("approaching junction command ignored since robot is close to substation");
                     }
                     break;
                     case APPROACHING_SUBSTATION: {
+                        command = Command.NONE;
                         // allow other commands to be active
                         commandComplete = true;
                         logCommand("approaching substation command ignored since robot is close to substation");
@@ -847,12 +888,14 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
                     break;
                     case SWITCH_SPEED: {
                         // Wait for the robot to stop before switching speeds
+                        command = Command.NONE;
                         commandComplete = true;
                         logCommand("switch speed command ignored since robot is stopping");
                     }
                     break;
                     case DROP_CONE: {
                         // Cannot drop cone when the robot does not have one
+                        command = Command.NONE;
                         commandComplete = true;
                         logCommand("drop cone command ignored since robot is at substation");
                     }
@@ -862,18 +905,21 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
                         robot.coneGrabber.closeThenCarryPosition();
                         setPower(HIGH_POWER);
                         controllerState = ControllerState.HEADED_FOR_JUNCTION;
+                        command = Command.NONE;
                         commandComplete = true;
                         logCommand("pickup cone command even though robot is still stopping");
                     }
                     break;
                     case APPROACHING_JUNCTION: {
                         // can't be approaching junction when headed to substation
+                        command = Command.NONE;
                         // allow other commands to be active
                         commandComplete = true;
                         logCommand("approaching command ignored since robot is at substation");
                     }
                     break;
                     case APPROACHING_SUBSTATION: {
+                        command = Command.NONE;
                         // allow other commands to be active
                         commandComplete = true;
                         logCommand("approaching substation command ignored since robot is at substation");
@@ -893,11 +939,13 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
                         // Ok if the driver really wants more speed ...
                         setPower(HIGH_POWER);
                         controllerState = ControllerState.HIGH_SPEED;
+                        command = Command.NONE;
                         commandComplete = true;
                     }
                     break;
                     case DROP_CONE: {
                         // Cannot drop cone when the robot does not have one
+                        command = Command.NONE;
                         commandComplete = true;
                         logCommand("drop cone command ignored since robot is lining up at substation");
                     }
@@ -907,18 +955,21 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
                         robot.coneGrabber.closeThenCarryPosition();
                         setPower(HIGH_POWER);
                         controllerState = ControllerState.HEADED_FOR_JUNCTION;
+                        command = Command.NONE;
                         commandComplete = true;
                         logCommand("pickup cone command");
                     }
                     break;
                     case APPROACHING_JUNCTION: {
                         // can't be approaching junction when at substation
+                        command = Command.NONE;
                         // allow other commands to be active
                         commandComplete = true;
                         logCommand("approaching command ignored since robot is lining up at substation");
                     }
                     break;
                     case APPROACHING_SUBSTATION: {
+                        command = Command.NONE;
                         // allow other commands to be active
                         commandComplete = true;
                         logCommand("approaching substation command ignored since robot is lining up at substation");
