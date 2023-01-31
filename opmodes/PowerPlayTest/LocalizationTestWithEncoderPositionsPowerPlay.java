@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.CSVDataFile;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.MecanumDriveFreightFrenzy;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayMecanumDrive;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayRobot;
@@ -22,6 +23,8 @@ import org.firstinspires.ftc.teamcode.RoadRunner.util.Encoder;
  */
 @TeleOp(group = "drive")
 public class LocalizationTestWithEncoderPositionsPowerPlay extends LinearOpMode {
+    public CSVDataFile csvDataFile = new CSVDataFile("Encoders");
+
     @Override
     public void runOpMode() throws InterruptedException {
 
@@ -37,6 +40,8 @@ public class LocalizationTestWithEncoderPositionsPowerPlay extends LinearOpMode 
 
         // zero the encoder counts since they are only zeroed at control hub power on
         localizer.zeroEncoderCounts();
+
+        csvDataFile.headerStrings("left", "right", "lateral");
 
         drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
@@ -73,6 +78,9 @@ public class LocalizationTestWithEncoderPositionsPowerPlay extends LinearOpMode 
             telemetry.addData("right encoder after adjustment ", localizer.getRightEncoderAdjustedCountSinceZero());
             telemetry.addData("lateral encoder after adjustement ", localizer.getFrontEncoderAdjustedCountSinceZero());
             telemetry.update();
+
+            csvDataFile.writeData(localizer.getLeftEncoderCountSinceZero(), localizer.getRightEncoderCountSinceZero(),localizer.getFrontEncoderCountSinceZero());
         }
+        csvDataFile.closeDataLog();
     }
 }
