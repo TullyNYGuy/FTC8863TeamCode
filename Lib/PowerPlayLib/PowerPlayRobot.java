@@ -102,7 +102,7 @@ public class PowerPlayRobot implements FTCRobot {
     }
 
     private AdafruitIMU8863 imu;
-    public MecanumDriveFreightFrenzy mecanum;
+    public PowerPlayMecanumDrive mecanum;
     public LoopTimer loopTimer;
     public PowerPlayLeftLift leftLift;
     public PowerPlayConeGrabber coneGrabber;
@@ -154,7 +154,7 @@ public class PowerPlayRobot implements FTCRobot {
     public boolean createRobot() {
         imu = new AdafruitIMU8863(hardwareMap, null, "IMU", HardwareName.IMU.hwName);
         if (capabilities.contains(Subsystem.MECANUM_DRIVE)) {
-            mecanum = new MecanumDriveFreightFrenzy(HardwareName.CONFIG_FL_MOTOR.hwName, HardwareName.CONFIG_BL_MOTOR.hwName, HardwareName.CONFIG_FR_MOTOR.hwName, HardwareName.CONFIG_BR_MOTOR.hwName, hardwareMap);
+            mecanum = new PowerPlayMecanumDrive(HardwareName.CONFIG_FL_MOTOR.hwName, HardwareName.CONFIG_BL_MOTOR.hwName, HardwareName.CONFIG_FR_MOTOR.hwName, HardwareName.CONFIG_BR_MOTOR.hwName, hardwareMap);
             subsystemMap.put(mecanum.getName(), mecanum);
         }
 
