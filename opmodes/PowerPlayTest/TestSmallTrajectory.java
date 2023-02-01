@@ -114,7 +114,7 @@ public class TestSmallTrajectory extends LinearOpMode {
 
         // Get the cone grabber inside the robot so it does not get hit by anything
         robot.coneGrabber.carryPosition();
-        robot.mecanum.followTrajectory(smallmove);
+        robot.mecanum.followTrajectoryHighAccuracy(smallmove);
 
         while (opModeIsActive() && !robot.mecanum.isBusy()) {
             telemetry.update();

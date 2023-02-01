@@ -108,8 +108,21 @@ public class PowerPlayMecanumDrive extends MecanumDrive implements FTCRobotSubsy
     private double turnStart;
 
     private TrajectoryVelocityConstraint velConstraint;
+    private TrajectoryVelocityConstraint velConstraintSlow;
+
+    public TrajectoryVelocityConstraint getVelConstraintSlow() {
+        return velConstraintSlow;
+    }
+
     private TrajectoryAccelerationConstraint accelConstraint;
+
+    public TrajectoryAccelerationConstraint getAccelConstraint() {
+        return accelConstraint;
+    }
+
     private TrajectoryFollower follower;
+    private TrajectoryFollower followerHighAccuracy;
+    private TrajectoryFollower followerToUse;
 
     private LinkedList<Pose2d> poseHistory;
 
@@ -180,9 +193,18 @@ public class PowerPlayMecanumDrive extends MecanumDrive implements FTCRobotSubsy
                 new AngularVelocityConstraint(DriveConstants.MAX_ANG_VEL),
                 new MecanumVelocityConstraint(DriveConstants.MAX_VEL, DriveConstants.TRACK_WIDTH)
         ));
+        velConstraintSlow = new MinVelocityConstraint(Arrays.asList(
+                new AngularVelocityConstraint(DriveConstants.MAX_ANG_VEL),
+                new MecanumVelocityConstraint(DriveConstants.MAX_VEL_SLOW, DriveConstants.TRACK_WIDTH)
+        ));
         accelConstraint = new ProfileAccelerationConstraint(DriveConstants.MAX_ACCEL);
         follower = new HolonomicPIDVAFollower(TRANSLATIONAL_PID, TRANSLATIONAL_PID, HEADING_PID,
                 new Pose2d(0.5, 0.5, Math.toRadians(5.0)), 0.5);
+        // a follower with a higher accuracy and longer timeout in case you want a really accurate result
+        followerHighAccuracy = new HolonomicPIDVAFollower(TRANSLATIONAL_PID, TRANSLATIONAL_PID, HEADING_PID,
+                new Pose2d(0.25, 0.25, Math.toRadians(2.5)), 2.0);
+        // default follower is the lower accuracy but faster one - the standard one shipped with roadrunner
+        followerToUse = follower;
 
         poseHistory = new LinkedList<>();
 
@@ -294,19 +316,33 @@ public class PowerPlayMecanumDrive extends MecanumDrive implements FTCRobotSubsy
     }
 
     public void followTrajectoryAsync(Trajectory trajectory) {
-        follower.followTrajectory(trajectory);
+        followerToUse.followTrajectory(trajectory);
         mode = SampleMecanumDrive.Mode.FOLLOW_TRAJECTORY;
     }
 
     public void followTrajectory(Trajectory trajectory) {
+        followerToUse = follower;
         followTrajectoryAsync(trajectory);
         waitForIdle();
+    }
+
+    public void followTrajectoryHighAccuracy(Trajectory trajectory) {
+        followerToUse = followerHighAccuracy;
+        followTrajectoryAsync(trajectory);
+        waitForIdle();
+    }
+
+    public void cancelFollowing() {
+        // force the state machine to IDLE
+        mode = SampleMecanumDrive.Mode.IDLE;
+        // set the motor powers to 0
+        setDrivePower(new Pose2d());
     }
 
     public Pose2d getLastError() {
         switch (mode) {
             case FOLLOW_TRAJECTORY:
-                return follower.getLastError();
+                return followerToUse.getLastError();
             case TURN:
                 return new Pose2d(0, 0, turnController.getLastError());
             case IDLE:
@@ -374,20 +410,20 @@ public class PowerPlayMecanumDrive extends MecanumDrive implements FTCRobotSubsy
                 break;
             }
             case FOLLOW_TRAJECTORY: {
-                setDriveSignal(follower.update(currentPose, getPoseVelocity()));
+                setDriveSignal(followerToUse.update(currentPose, getPoseVelocity()));
 
-                Trajectory trajectory = follower.getTrajectory();
+                Trajectory trajectory = followerToUse.getTrajectory();
 
                 fieldOverlay.setStrokeWidth(1);
                 fieldOverlay.setStroke("#4CAF50");
                 DashboardUtil.drawSampledPath(fieldOverlay, trajectory.getPath());
-                double t = follower.elapsedTime();
+                double t = followerToUse.elapsedTime();
                 DashboardUtil.drawRobot(fieldOverlay, trajectory.get(t));
 
                 fieldOverlay.setStroke("#3F51B5");
                 DashboardUtil.drawPoseHistory(fieldOverlay, poseHistory);
 
-                if (!follower.isFollowing()) {
+                if (!followerToUse.isFollowing()) {
                     mode = SampleMecanumDrive.Mode.IDLE;
                     setDriveSignal(new DriveSignal());
                 }

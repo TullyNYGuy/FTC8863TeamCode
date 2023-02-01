@@ -186,6 +186,10 @@ public class PowerPlay2mDistanceSensor implements FTCRobotSubsystem {
     public void update() {
     }
 
+    public double getDistance(DistanceUnit unit) {
+        return sensorRange.getDistance(unit);
+    }
+
     public boolean isGreaterThanDistance() {
         if (sensorRange.getDistance(distanceUnit) >= greaterThanDistanceLimit) {
             return true;
