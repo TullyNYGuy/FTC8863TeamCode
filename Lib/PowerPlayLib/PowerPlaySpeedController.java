@@ -35,6 +35,7 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
         // SCORING STATES
         HEADED_FOR_JUNCTION,
         CLOSE_TO_JUNCTION,
+        CLOSE_TO_GROUND_JUNCTION,
         AT_JUNCTION,
         FINISH_LINEUP_FOR_JUNCTION,
 
@@ -50,9 +51,11 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
     private enum Command {
         NONE,
         SWITCH_SPEED,
+        TEST_THE_DROP,
         DROP_CONE,
         PICKUP_CONE,
-        APPROACHING_JUNCTION,
+        APPROACHING_JUNCTION_POLE,
+        APPROACHING_GROUND_JUNCTION,
         APPROACHING_SUBSTATION
     }
 
@@ -210,8 +213,7 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
             }
             break;
             case GROUND_JUNCTION: {
-                // todo figure out what to do since a ground junction does not register on the distance sensor
-
+                robot.coneGrabberArmController.moveToGroundThenPrepareToRelease();
             }
             break;
             case LOW_POLE: {
@@ -271,7 +273,7 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
             commandComplete = false;
             logCommand("approaching ground junction command");
             scoringTarget = ScoringTarget.GROUND_JUNCTION;
-            approachingJunction();
+            command = Command.APPROACHING_GROUND_JUNCTION;
         } else {
             // you can't start a new command when the old one is not finished
             logCommand("approaching ground junction command ignored");
@@ -324,7 +326,7 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
     private void approachingJunction() {
         // additional commands are already locked out by the call to setting the target
         // command was already logged, so only thing to do is change the state
-        command = Command.APPROACHING_JUNCTION;
+        command = Command.APPROACHING_JUNCTION_POLE;
     }
 
     public void approachingSubstation() {
@@ -381,6 +383,16 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
         }
     }
 
+    public void testTheDrop() {
+        if (commandComplete) {
+            commandComplete = false;
+            command = Command.TEST_THE_DROP;
+        } else {
+            // you can't start a new command when the old one is not finished
+            logCommand("test the drop command ignored");
+        }
+    }
+
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////state machine//////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -425,6 +437,17 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
                         commandComplete = true;
                     }
                     break;
+                    case TEST_THE_DROP: {
+                        if(scoringTarget != ScoringTarget.GROUND_JUNCTION) {
+                            robot.leftLift.droppingOnPole();
+                            logCommand("test the drop");
+                        } else {
+                            logCommand("test the drop ignored since this is a ground junction");
+                        }
+                        command = Command.NONE;
+                        commandComplete = true;
+                    }
+                    break;
                     case DROP_CONE: {
                         // drivers are not using automatic speed control
                         robot.coneGrabberArmController.releaseThenMoveToPickup();
@@ -443,9 +466,18 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
                         commandComplete = true;
                     }
                     break;
-                    case APPROACHING_JUNCTION: {
+                    case APPROACHING_JUNCTION_POLE: {
                         setPower(LOW_POWER);
                         controllerState = ControllerState.CLOSE_TO_JUNCTION;
+                        command = Command.NONE;
+                        // allow other commands to be active
+                        commandComplete = true;
+                    }
+                    break;
+                    case APPROACHING_GROUND_JUNCTION: {
+                        setPower(LOW_POWER);
+                        setupForConeScore();
+                        controllerState = ControllerState.FINISH_LINEUP_FOR_JUNCTION;
                         command = Command.NONE;
                         // allow other commands to be active
                         commandComplete = true;
@@ -478,6 +510,17 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
                         commandComplete = true;
                     }
                     break;
+                    case TEST_THE_DROP: {
+                        if(scoringTarget != ScoringTarget.GROUND_JUNCTION) {
+                            robot.leftLift.droppingOnPole();
+                            logCommand("test the drop");
+                        } else {
+                            logCommand("test the drop ignored since this is a ground junction");
+                        }
+                        command = Command.NONE;
+                        commandComplete = true;
+                    }
+                    break;
                     case DROP_CONE: {
                         // drivers are not using automatic speed control
                         robot.coneGrabberArmController.releaseThenMoveToPickup();
@@ -496,11 +539,20 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
                         commandComplete = true;
                     }
                     break;
-                    case APPROACHING_JUNCTION: {
+                    case APPROACHING_JUNCTION_POLE: {
                         setPower(LOW_POWER);
                         // set which distance sensor to use
                         setDistanceSensorToUse();
                         controllerState = ControllerState.CLOSE_TO_JUNCTION;
+                        command = Command.NONE;
+                        // allow other commands to be active
+                        commandComplete = true;
+                    }
+                    break;
+                    case APPROACHING_GROUND_JUNCTION: {
+                        setPower(LOW_POWER);
+                        setupForConeScore();
+                        controllerState = ControllerState.FINISH_LINEUP_FOR_JUNCTION;
                         command = Command.NONE;
                         // allow other commands to be active
                         commandComplete = true;
@@ -540,6 +592,13 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
                         commandComplete = true;
                     }
                     break;
+                    case TEST_THE_DROP: {
+                        // Cannot test the cone drop
+                        command = Command.NONE;
+                        commandComplete = true;
+                        logCommand("drop cone command ignored since not finish the linup");
+                    }
+                    break;
                     case DROP_CONE: {
                         // Cannot drop cone when headed to junction
                         command = Command.NONE;
@@ -548,17 +607,28 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
                     }
                     break;
                     case PICKUP_CONE: {
-                        // cannot pickup cone when headed to junction
+                        // the driver missed the cone and has to try again
+                        robot.coneGrabber.closeThenCarryPosition();
+                        setPower(HIGH_POWER);
+                        controllerState = ControllerState.HEADED_FOR_JUNCTION;
                         command = Command.NONE;
                         commandComplete = true;
-                        logCommand("pickup cone command ignored since headed to junction");
                     }
                     break;
-                    case APPROACHING_JUNCTION: {
+                    case APPROACHING_JUNCTION_POLE: {
                         setPower(LOW_POWER);
                         // set which distance sensor to use
                         setDistanceSensorToUse();
                         controllerState = ControllerState.CLOSE_TO_JUNCTION;
+                        command = Command.NONE;
+                        // allow other commands to be active
+                        commandComplete = true;
+                    }
+                    break;
+                    case APPROACHING_GROUND_JUNCTION: {
+                        setPower(LOW_POWER);
+                        setupForConeScore();
+                        controllerState = ControllerState.FINISH_LINEUP_FOR_JUNCTION;
                         command = Command.NONE;
                         // allow other commands to be active
                         commandComplete = true;
@@ -605,6 +675,13 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
                         commandComplete = true;
                     }
                     break;
+                    case TEST_THE_DROP: {
+                        // Cannot test the cone drop
+                        command = Command.NONE;
+                        commandComplete = true;
+                        logCommand("drop cone command ignored since not finish the linup");
+                    }
+                    break;
                     case DROP_CONE: {
                         // Cannot drop cone when headed to junction
                         command = Command.NONE;
@@ -619,7 +696,7 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
                         logCommand("pickup cone command ignored since robot is close to junction");
                     }
                     break;
-                    case APPROACHING_JUNCTION: {
+                    case APPROACHING_JUNCTION_POLE: {
                         // this command could be set if the driver changed the target. Like maybe
                         // they initially set a high junction by mistake and then switched to a
                         // medium junction. Since the lift is not raised yet there is not really
@@ -629,6 +706,15 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
                         command = Command.NONE;
                         // allow other commands to be active
                         commandComplete = true;
+                    }
+                    break;
+                    case APPROACHING_GROUND_JUNCTION: {
+                        // this should never happen. If the target is a ground junction CLOSE_TO_JUNCTION state
+                        // is skipped
+                        command = Command.NONE;
+                        // allow other commands to be active
+                        commandComplete = true;
+                        logCommand("approaching ground junction ignored since robot is close to junction");
                     }
                     break;
                     case APPROACHING_SUBSTATION: {
@@ -663,6 +749,13 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
                         logCommand("switch speed command ignored since robot is stopping");
                     }
                     break;
+                    case TEST_THE_DROP: {
+                        // Cannot test the cone drop
+                        command = Command.NONE;
+                        commandComplete = true;
+                        logCommand("drop cone command ignored since not finish the linup");
+                    }
+                    break;
                     case DROP_CONE: {
                         // Cannot drop cone yet
                         command = Command.NONE;
@@ -677,11 +770,20 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
                         logCommand("pickup cone command ignored since robot is at junction");
                     }
                     break;
-                    case APPROACHING_JUNCTION: {
+                    case APPROACHING_JUNCTION_POLE: {
                         // cannot change target, the lift is already raising
                         command = Command.NONE;
                         commandComplete = true;
                         logCommand("approaching command ignored since robot is at junction");
+                    }
+                    break;
+                    case APPROACHING_GROUND_JUNCTION: {
+                        // this should never happen. If the target is a ground junction AT_JUNCTION state
+                        // is skipped
+                        command = Command.NONE;
+                        // allow other commands to be active
+                        commandComplete = true;
+                        logCommand("approaching ground junction ignored since robot is close to junction");
                     }
                     break;
                     case APPROACHING_SUBSTATION: {
@@ -709,6 +811,17 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
                         commandComplete = true;
                     }
                     break;
+                    case TEST_THE_DROP: {
+                        if(scoringTarget != ScoringTarget.GROUND_JUNCTION) {
+                            robot.leftLift.droppingOnPole();
+                            logCommand("test the drop");
+                        } else {
+                            logCommand("test the drop ignored since this is a ground junction");
+                        }
+                        command = Command.NONE;
+                        commandComplete = true;
+                    }
+                    break;
                     case DROP_CONE: {
                         robot.coneGrabberArmController.releaseThenMoveToPickup();
                         setPower(HIGH_POWER);
@@ -724,10 +837,12 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
                         logCommand("pickup cone command ignored since robot is at junction");
                     }
                     break;
-                    case APPROACHING_JUNCTION: {
+                    case APPROACHING_JUNCTION_POLE: {
                         // this command could be set if the driver changed the target. Like maybe
                         // they initially set a high junction by mistake and then switched to a
-                        // medium junction
+                        // medium junction.
+                        // OR the driver was not lined up, tested the drop and saw it missed so he
+                        // raises the lift again.
                         // Assuming this is what is going on, make it happen
                         // Raise the lift and lower the arm
                         setupForConeScore();
@@ -736,6 +851,16 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
                         // they are at the junction so stay in the lineup, don't change state
                         // allow other commands to be active
                         command = Command.NONE;
+                        commandComplete = true;
+                    }
+                    break;
+                    case APPROACHING_GROUND_JUNCTION: {
+                        // I have no idea why the driver would press the ground junction button again
+                        // but just in case let's do it.
+                        setPower(LOW_POWER);
+                        setupForConeScore();
+                        command = Command.NONE;
+                        // allow other commands to be active
                         commandComplete = true;
                     }
                     break;
@@ -770,6 +895,13 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
                         commandComplete = true;
                     }
                     break;
+                    case TEST_THE_DROP: {
+                        // Cannot test the cone drop
+                        command = Command.NONE;
+                        commandComplete = true;
+                        logCommand("drop cone command ignored since not finish the linup");
+                    }
+                    break;
                     case DROP_CONE: {
                         // Cannot drop cone when headed to substation
                         commandComplete = true;
@@ -777,18 +909,28 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
                     }
                     break;
                     case PICKUP_CONE: {
-                        // cannot pickup cone when headed to moving at high speed toward substation
+                        robot.coneGrabber.closeThenCarryPosition();
+                        setPower(HIGH_POWER);
+                        controllerState = ControllerState.HEADED_FOR_JUNCTION;
                         command = Command.NONE;
                         commandComplete = true;
-                        logCommand("pickup cone command ignored since headed to substation");
+                        logCommand("pickup cone command even though robot is headed to substation");
                     }
                     break;
-                    case APPROACHING_JUNCTION: {
+                    case APPROACHING_JUNCTION_POLE: {
                         // can't be approaching junction when headed to substation
                         // allow other commands to be active
                         command = Command.NONE;
                         commandComplete = true;
                         logCommand("approaching junction command ignored since robot is headed for substation");
+                    }
+                    break;
+                    case APPROACHING_GROUND_JUNCTION: {
+                        // can't be approaching junction when headed to substation
+                        // allow other commands to be active
+                        command = Command.NONE;
+                        commandComplete = true;
+                        logCommand("approaching ground junction command ignored since robot is headed for substation");
                     }
                     break;
                     case APPROACHING_SUBSTATION: {
@@ -834,6 +976,13 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
                         commandComplete = true;
                     }
                     break;
+                    case TEST_THE_DROP: {
+                        // Cannot test the cone drop
+                        command = Command.NONE;
+                        commandComplete = true;
+                        logCommand("drop cone command ignored since not finish the linup");
+                    }
+                    break;
                     case DROP_CONE: {
                         // Cannot drop cone when you don't already have one
                         command = Command.NONE;
@@ -853,12 +1002,20 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
                         logCommand("pickup cone command even though robot is close to substation");
                     }
                     break;
-                    case APPROACHING_JUNCTION: {
+                    case APPROACHING_JUNCTION_POLE: {
                         // can't be approaching junction when headed to substation
                         command = Command.NONE;
                         // allow other commands to be active
                         commandComplete = true;
                         logCommand("approaching junction command ignored since robot is close to substation");
+                    }
+                    break;
+                    case APPROACHING_GROUND_JUNCTION: {
+                        // can't be approaching junction when headed to substation
+                        // allow other commands to be active
+                        command = Command.NONE;
+                        commandComplete = true;
+                        logCommand("approaching ground junction command ignored since robot is close to substation");
                     }
                     break;
                     case APPROACHING_SUBSTATION: {
@@ -893,6 +1050,13 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
                         logCommand("switch speed command ignored since robot is stopping");
                     }
                     break;
+                    case TEST_THE_DROP: {
+                        // Cannot test the cone drop
+                        command = Command.NONE;
+                        commandComplete = true;
+                        logCommand("drop cone command ignored since not finish the linup");
+                    }
+                    break;
                     case DROP_CONE: {
                         // Cannot drop cone when the robot does not have one
                         command = Command.NONE;
@@ -910,12 +1074,20 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
                         logCommand("pickup cone command even though robot is still stopping");
                     }
                     break;
-                    case APPROACHING_JUNCTION: {
+                    case APPROACHING_JUNCTION_POLE: {
                         // can't be approaching junction when headed to substation
                         command = Command.NONE;
                         // allow other commands to be active
                         commandComplete = true;
                         logCommand("approaching command ignored since robot is at substation");
+                    }
+                    break;
+                    case APPROACHING_GROUND_JUNCTION: {
+                        // can't be approaching junction when headed to substation
+                        // allow other commands to be active
+                        command = Command.NONE;
+                        commandComplete = true;
+                        logCommand("approaching ground junction command ignored since robot is at substation");
                     }
                     break;
                     case APPROACHING_SUBSTATION: {
@@ -943,6 +1115,13 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
                         commandComplete = true;
                     }
                     break;
+                    case TEST_THE_DROP: {
+                        // Cannot test the cone drop
+                        command = Command.NONE;
+                        commandComplete = true;
+                        logCommand("drop cone command ignored since not finish the linup");
+                    }
+                    break;
                     case DROP_CONE: {
                         // Cannot drop cone when the robot does not have one
                         command = Command.NONE;
@@ -960,12 +1139,20 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
                         logCommand("pickup cone command");
                     }
                     break;
-                    case APPROACHING_JUNCTION: {
+                    case APPROACHING_JUNCTION_POLE: {
                         // can't be approaching junction when at substation
                         command = Command.NONE;
                         // allow other commands to be active
                         commandComplete = true;
                         logCommand("approaching command ignored since robot is lining up at substation");
+                    }
+                    break;
+                    case APPROACHING_GROUND_JUNCTION: {
+                        // can't be approaching junction when headed to substation
+                        // allow other commands to be active
+                        command = Command.NONE;
+                        commandComplete = true;
+                        logCommand("approaching ground junction command ignored since robot is lining up at substation");
                     }
                     break;
                     case APPROACHING_SUBSTATION: {

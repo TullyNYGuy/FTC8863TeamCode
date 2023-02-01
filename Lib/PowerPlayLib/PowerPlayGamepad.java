@@ -29,8 +29,8 @@ package org.firstinspires.ftc.teamcode.Lib.PowerPlayLib;
  *    / DPad Down        - Move lift to ground
  *    / DPad Right       - Move lift to medium
  *    / A                - Test the drop over pole
- *    / B                - Arm servo replacement position
- *    / X                -
+ *    / B                - Arm servo replacement position (disabled) OR high speed
+ *    / X                - Max speed
  *    / Y                - Approaching substation, slow down, look for cone
  *   /Left Bumper        -
  *   /Right Bumper       -
@@ -350,12 +350,13 @@ public class PowerPlayGamepad {
         }
 
         if (gamepad2a.buttonPress(gamepad2.a)) {
-            robot.leftLift.droppingOnPole();
-
+            //robot.leftLift.droppingOnPole();
+            robot.speedController.testTheDrop();
         }
 
         if (gamepad2b.buttonPress(gamepad2.b)) {
             //robot.coneGrabber.replacment();
+            setMaxDrivingPower(.75);
         }
 
         if (gamepad2y.buttonPress(gamepad2.y)) {
@@ -363,6 +364,7 @@ public class PowerPlayGamepad {
         }
 
         if (gamepad2x.buttonPress(gamepad2.x)) {
+            setMaxDrivingPower(1.0);
         }
 
         if (gamepad2DpadUp.buttonPress(gamepad2.dpad_up)) {
@@ -371,7 +373,8 @@ public class PowerPlayGamepad {
         }
 
         if (gamepad2DpadDown.buttonPress(gamepad2.dpad_down)) {
-            robot.coneGrabberArmController.moveToGroundThenPrepareToRelease();
+            //robot.coneGrabberArmController.moveToGroundThenPrepareToRelease();
+            robot.speedController.approachingGroundJunction();
         }
 
         if (gamepad2DpadLeft.buttonPress(gamepad2.dpad_left)) {
