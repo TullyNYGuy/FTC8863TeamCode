@@ -1021,11 +1021,18 @@ public class ExtensionRetractionMechanism {
 
     /**
      * Has the mechanism arrived at the requested position?
+     * 1/31/2023 - if the retraction limit has been tripped the mechanism has reached its final position also. Previously, this method
+     * returned false in this situation and the calling object never saw the mechanism as having finished its movement so things
+     * hung while the calling object waiting for a movement that was never going to complete. Same for extension. This is a graceful failure that
+     * can be recovered.
      *
      * @return true if complete
      */
     public boolean isPositionReached() {
-        if (extensionRetractionState == ExtensionRetractionStates.AT_POSITION && extensionRetractionCommand == ExtensionRetractionCommands.NO_COMMAND) {
+        if (extensionRetractionState == ExtensionRetractionStates.AT_POSITION && extensionRetractionCommand == ExtensionRetractionCommands.NO_COMMAND ||
+                extensionRetractionState == ExtensionRetractionStates.FULLY_RETRACTED && extensionRetractionCommand == ExtensionRetractionCommands.NO_COMMAND ||
+                extensionRetractionState == ExtensionRetractionStates.FULLY_EXTENDED && extensionRetractionCommand == ExtensionRetractionCommands.NO_COMMAND
+        ) {
             return true;
         } else {
             return false;
