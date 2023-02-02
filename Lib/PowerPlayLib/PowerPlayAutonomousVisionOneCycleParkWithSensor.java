@@ -220,10 +220,6 @@ public class PowerPlayAutonomousVisionOneCycleParkWithSensor implements PowerPla
                 trajectoryToStartSensorLocation = robot.mecanum.trajectoryBuilder(startPose)
                         .splineTo(new Vector2d(10.75, -53), Math.toRadians(90))
                         .lineToLinearHeading(new Pose2d(10.75, -35.25, Math.toRadians(90)))
-                        .lineToLinearHeading(new Pose2d(10.75, -23.5, Math.toRadians(90)),
-                                robot.mecanum.getVelConstraintSlow(), // slower than normal speed
-                                robot.mecanum.getAccelConstraint()
-                        )
                         .build();
 
                 trajectoryToJunctionPoleFromStartSensor = robot.mecanum.trajectoryBuilder(trajectoryToStartSensorLocation.end())
@@ -297,7 +293,8 @@ public class PowerPlayAutonomousVisionOneCycleParkWithSensor implements PowerPla
             case LOOKING_FOR_POLE: {
                 if (robot.distanceSensorForNormal.isLessThanDistance(12, DistanceUnit.INCH)) {
                     robot.mecanum.cancelFollowing();
-                    currentState = States.COMPLETE;
+                    robot.coneGrabberArmController.moveToHighThenPrepareToRelease();
+                    currentState = States.RAISING_LIFT;
                 }
             }
             break;
