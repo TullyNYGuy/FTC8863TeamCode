@@ -17,6 +17,7 @@ import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.Pipelines.SignalConePipel
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayAutonomousNoVisionParkLocationTwo;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayAutonomousStateMachine;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayAutonomousVisionOneCyclePark;
+import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayAutonomousVisionOneCycleParkForPowerPlayDrive;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayField;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayGamepad;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayPersistantStorage;
@@ -86,7 +87,7 @@ public class PowerPlayAutonomous extends LinearOpMode {
 
         // Here is where you create the state machine that is going to be run.
         // Change this state machine out and the robot will do something different.
-        autonomousStateMachine = new PowerPlayAutonomousVisionOneCyclePark(robot, field, telemetry);
+        autonomousStateMachine = new PowerPlayAutonomousVisionOneCycleParkForPowerPlayDrive(robot, field, telemetry);
         autonomousStateMachine.setDataLog(dataLog);
         autonomousStateMachine.enableDataLogging();
 

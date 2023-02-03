@@ -9,6 +9,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColorTeamLocation;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.TeamLocation;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Vector2D;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.Pipelines.SignalConePipeline;
 
 public class PowerPlayField {
@@ -119,34 +120,36 @@ public class PowerPlayField {
     private void determinePosesGivenColorLocation(AllianceColorTeamLocation.ColorLocation colorLocation) {
         switch (colorLocation) {
             case RED_LEFT:
-                startPose = PowerPlayPoseStorage.RED_LEFT_START_POSE;
-                junctionPolePose = PowerPlayPoseStorage.RED_LEFT_JUNCTION_POLE_LOCATION;
-                parkingPoseLocation1 = PowerPlayPoseStorage.RED_LEFT_PARK_LOCATION_1;
-                parkingPoseLocation2 = PowerPlayPoseStorage.RED_LEFT_PARK_LOCATION_2;
-                parkingPoseLocation3 = PowerPlayPoseStorage.RED_LEFT_PARK_LOCATION_3;
+                startPose = PowerPlayPoseStorageForPowerPlayDrive.RED_LEFT_START_POSE;
+                junctionPolePose = PowerPlayPoseStorageForPowerPlayDrive.RED_LEFT_JUNCTION_POLE_LOCATION;
+                parkingPoseLocation1 = PowerPlayPoseStorageForPowerPlayDrive.RED_LEFT_PARK_LOCATION_1;
+                parkingPoseLocation2 = PowerPlayPoseStorageForPowerPlayDrive.RED_LEFT_PARK_LOCATION_2;
+                parkingPoseLocation3 = PowerPlayPoseStorageForPowerPlayDrive.RED_LEFT_PARK_LOCATION_3;
                 break;
             case RED_RIGHT:
-                startPose = PowerPlayPoseStorage.RED_RIGHT_START_POSE;
-                junctionPolePose = PowerPlayPoseStorage.RED_RIGHT_JUNCTION_POLE_LOCATION;
-                parkingPoseLocation1 = PowerPlayPoseStorage.RED_RIGHT_PARK_LOCATION_1;
-                parkingPoseLocation2 = PowerPlayPoseStorage.RED_RIGHT_PARK_LOCATION_2;
-                parkingPoseLocation3 = PowerPlayPoseStorage.RED_RIGHT_PARK_LOCATION_3;
+                startPose = PowerPlayPoseStorageForPowerPlayDrive.RED_RIGHT_START_POSE;
+                junctionPolePose = PowerPlayPoseStorageForPowerPlayDrive.RED_RIGHT_JUNCTION_POLE_LOCATION;
+                parkingPoseLocation1 = PowerPlayPoseStorageForPowerPlayDrive.RED_RIGHT_PARK_LOCATION_1;
+                parkingPoseLocation2 = PowerPlayPoseStorageForPowerPlayDrive.RED_RIGHT_PARK_LOCATION_2;
+                parkingPoseLocation3 = PowerPlayPoseStorageForPowerPlayDrive.RED_RIGHT_PARK_LOCATION_3;
                 break;
             case BLUE_LEFT:
-                startPose = PowerPlayPoseStorage.BLUE_LEFT_START_POSE;
-                junctionPolePose = PowerPlayPoseStorage.BLUE_LEFT_JUNCTION_POLE_LOCATION;
-                parkingPoseLocation1 = PowerPlayPoseStorage.BLUE_LEFT_PARK_LOCATION_1;
-                parkingPoseLocation2 = PowerPlayPoseStorage.BLUE_LEFT_PARK_LOCATION_2;
-                parkingPoseLocation3 = PowerPlayPoseStorage.BLUE_LEFT_PARK_LOCATION_3;
+                startPose = PowerPlayPoseStorageForPowerPlayDrive.BLUE_LEFT_START_POSE;
+                junctionPolePose = PowerPlayPoseStorageForPowerPlayDrive.BLUE_LEFT_JUNCTION_POLE_LOCATION;
+                parkingPoseLocation1 = PowerPlayPoseStorageForPowerPlayDrive.BLUE_LEFT_PARK_LOCATION_1;
+                parkingPoseLocation2 = PowerPlayPoseStorageForPowerPlayDrive.BLUE_LEFT_PARK_LOCATION_2;
+                parkingPoseLocation3 = PowerPlayPoseStorageForPowerPlayDrive.BLUE_LEFT_PARK_LOCATION_3;
                 break;
             case BLUE_RIGHT:
-                startPose = PowerPlayPoseStorage.BLUE_RIGHT_START_POSE;
-                junctionPolePose = PowerPlayPoseStorage.BLUE_RIGHT_JUNCTION_POLE_LOCATION;
-                parkingPoseLocation1 = PowerPlayPoseStorage.BLUE_RIGHT_PARK_LOCATION_1;
-                parkingPoseLocation2 = PowerPlayPoseStorage.BLUE_RIGHT_PARK_LOCATION_2;
-                parkingPoseLocation3 = PowerPlayPoseStorage.BLUE_RIGHT_PARK_LOCATION_3;
+                startPose = PowerPlayPoseStorageForPowerPlayDrive.BLUE_RIGHT_START_POSE;
+                junctionPolePose = PowerPlayPoseStorageForPowerPlayDrive.BLUE_RIGHT_JUNCTION_POLE_LOCATION;
+                parkingPoseLocation1 = PowerPlayPoseStorageForPowerPlayDrive.BLUE_RIGHT_PARK_LOCATION_1;
+                parkingPoseLocation2 = PowerPlayPoseStorageForPowerPlayDrive.BLUE_RIGHT_PARK_LOCATION_2;
+                parkingPoseLocation3 = PowerPlayPoseStorageForPowerPlayDrive.BLUE_RIGHT_PARK_LOCATION_3;
                 break;
         }
+        // offset the junction pole with the pole lean offset
+        junctionPolePose = getJunctionPolePose2dWithOffset(junctionPolePose, PowerPlayPersistantStorage.getJunctionPoleOffset());
     }
 
     /**
@@ -162,7 +165,6 @@ public class PowerPlayField {
     public PowerPlayField.ParkLocation determineParkLocation(SignalConePipeline.ConeColor coneColor) {
         // default park location is location 1
         PowerPlayField.ParkLocation parkLocation = ParkLocation.ONE;
-        // Todo fill in the real algorithm for the park location
         switch (coneColor) {
             case GREEN: {
                 parkLocation = ParkLocation.ONE;
@@ -182,6 +184,10 @@ public class PowerPlayField {
             break;
         }
         return parkLocation;
+    }
+
+    private Pose2d getJunctionPolePose2dWithOffset(Pose2d junctionPolePose, Vector2d offset) {
+        return junctionPolePose.plus(new Pose2d(offset,0));
     }
 
     /**

@@ -199,7 +199,7 @@ public class PowerPlayMecanumDrive extends MecanumDrive implements FTCRobotSubsy
         ));
         accelConstraint = new ProfileAccelerationConstraint(DriveConstants.MAX_ACCEL);
         follower = new HolonomicPIDVAFollower(TRANSLATIONAL_PID, TRANSLATIONAL_PID, HEADING_PID,
-                new Pose2d(0.5, 0.5, Math.toRadians(5.0)), 0.5);
+                new Pose2d(0.5, 0.5, Math.toRadians(2.5)), 1.0);
         // a follower with a higher accuracy and longer timeout in case you want a really accurate result
         followerHighAccuracy = new HolonomicPIDVAFollower(TRANSLATIONAL_PID, TRANSLATIONAL_PID, HEADING_PID,
                 new Pose2d(0.25, 0.25, Math.toRadians(2.5)), 2.0);

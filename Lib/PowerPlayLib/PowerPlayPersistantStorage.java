@@ -2,15 +2,27 @@ package org.firstinspires.ftc.teamcode.Lib.PowerPlayLib;
 
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.geometry.Vector2d;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColorTeamLocation;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MatchPhase;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.TeamLocation;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Vector2D;
 
 public class PowerPlayPersistantStorage {
     // public static DATA FIELDS that persist between opmodes
+
+    private static Vector2d junctionPoleOffset = new Vector2d(0,0);
+
+    public static Vector2d getJunctionPoleOffset() {
+        return junctionPoleOffset;
+    }
+
+    public static void setJunctionPoleOffset(double xOffset, double yOffset) {
+        PowerPlayPersistantStorage.junctionPoleOffset = new Vector2d(xOffset, yOffset);
+    }
 
     private static PowerPlayField.ParkLocation parkLocation;
 
