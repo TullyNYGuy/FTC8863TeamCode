@@ -337,7 +337,9 @@ public class PowerPlayConeGrabberLiftController implements FTCRobotSubsystem {
 
             case RELEASING_THEN_CARRY: {
                 if (coneGrabberPositionReached) {
-                    commandComplete = false;
+                    // allow another command. The drivers want to put the arm down to prep for a
+                    // cone pickup. This will allow them to do it.
+                    commandComplete = true;
                     // close the cone grabber in preparation for lining up over the cone
                     coneGrabber.close();
                     // at the same time lower the lift to the pickup position
