@@ -619,6 +619,7 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
                         setPower(LOW_POWER);
                         // set which distance sensor to use
                         setDistanceSensorToUse();
+                        setupForConeScore();
                         controllerState = ControllerState.CLOSE_TO_JUNCTION;
                         command = Command.NONE;
                         // allow other commands to be active
@@ -657,7 +658,7 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
                     setPower(0);
                     // Raise the lift and lower the arm. This will start at the same time the robot
                     // coasts to a stop.
-                    setupForConeScore();
+                    //setupForConeScore();
                     // Set the timer that will make sure the robot stops before the driver can start it again
                     stopTimer.reset();
                     controllerState = ControllerState.AT_JUNCTION;
