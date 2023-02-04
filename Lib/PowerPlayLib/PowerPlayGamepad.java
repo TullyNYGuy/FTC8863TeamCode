@@ -356,7 +356,7 @@ public class PowerPlayGamepad {
 
         if (gamepad2b.buttonPress(gamepad2.b)) {
             //robot.coneGrabber.replacment();
-            setMaxDrivingPower(.75);
+            robot.robotModes.setMaxDrivingPower(.75);
         }
 
         if (gamepad2y.buttonPress(gamepad2.y)) {
@@ -364,7 +364,7 @@ public class PowerPlayGamepad {
         }
 
         if (gamepad2x.buttonPress(gamepad2.x)) {
-            setMaxDrivingPower(1.0);
+            robot.robotModes.setMaxDrivingPower(1.0);
         }
 
         if (gamepad2DpadUp.buttonPress(gamepad2.dpad_up)) {
