@@ -5,6 +5,7 @@ import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -50,6 +51,13 @@ public class PowerPlay2mDistanceSensor implements FTCRobotSubsystem {
     private boolean enableLogging = false;
     private DataLogOnChange logStateOnChange;
     private DataLogOnChange logCommandOnchange;
+
+    private ElapsedTime averageTimer;
+    private double runningSum = 0;
+    private int numberOfReadingsInAverage = 0;
+    private int numberOfReadingsTaken = 0;
+    private boolean isAverageReady = false;
+    private double averageDistance = 0;
 
     private double greaterThanDistanceLimit = 0;
 
@@ -110,6 +118,7 @@ public class PowerPlay2mDistanceSensor implements FTCRobotSubsystem {
         sensorRange = hardwareMap.get(DistanceSensor.class, sensorName);
         sensorTimeOfFlight = (Rev2mDistanceSensor)sensorRange;
         this.distanceUnit = distanceUnit;
+        averageTimer = new ElapsedTime();
     }
     //*********************************************************************************************
     //          Helper Methods
@@ -188,6 +197,42 @@ public class PowerPlay2mDistanceSensor implements FTCRobotSubsystem {
 
     public double getDistance(DistanceUnit unit) {
         return sensorRange.getDistance(unit);
+    }
+
+    public void startAverage(int numberOfReadingsInAverage) {
+        this.numberOfReadingsInAverage = numberOfReadingsInAverage;
+        isAverageReady = false;
+        numberOfReadingsTaken = 1;
+        runningSum = sensorRange.getDistance(DistanceUnit.INCH);
+        averageTimer.reset();
+    }
+
+    public void isAverageReady() {
+        if (averageTimer.milliseconds() > 50) {
+            if (numberOfReadingsTaken < numberOfReadingsInAverage) {
+                runningSum = runningSum + sensorRange.getDistance(DistanceUnit.INCH);
+                numberOfReadingsInAverage ++;
+                averageTimer.reset();
+                if (numberOfReadingsTaken == numberOfReadingsInAverage) {
+                    isAverageReady = true;
+                    averageDistance = runningSum / numberOfReadingsInAverage;
+                }
+            } else {
+                // an average is already calculated
+            }
+        }
+    }
+
+    public double getAverageDistance() {
+        if (isAverageReady) {
+            // an average is ready. Prep for the next one.
+            numberOfReadingsTaken = 0;
+            runningSum = 0;
+            isAverageReady = false;
+            return averageDistance;
+        } else {
+            return 0;
+        }
     }
 
     public boolean isGreaterThanDistance() {
