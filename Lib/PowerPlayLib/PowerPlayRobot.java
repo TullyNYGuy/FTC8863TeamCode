@@ -76,6 +76,7 @@ public class PowerPlayRobot implements FTCRobot {
         CONE_GRABBER,
         CONE_GRABBER_ARM_CONTROLLER,
         DISTANCE_SENSOR_NORMAL,
+        DISTANCE_SENSOR_INVERSE,
         CYCLE_TRACKER,
         SPEED_CONTROLLER
         //DISTANCE_SENSOR_INVERSE
@@ -109,6 +110,7 @@ public class PowerPlayRobot implements FTCRobot {
     public PowerPlayConeGrabberLiftController coneGrabberArmController;
     public PowerPlayWebcam webcam;
     public PowerPlay2mDistanceSensor distanceSensorForNormal;
+    public PowerPlay2mDistanceSensor distanceSensorForInverse;
     public PowerPlayCycleTracker cycleTracker;
     public PowerPlaySpeedController speedController;
     public PowerPlayRobotModes robotModes;
@@ -179,6 +181,11 @@ public class PowerPlayRobot implements FTCRobot {
         if (capabilities.contains(Subsystem.DISTANCE_SENSOR_NORMAL)) {
             distanceSensorForNormal = new PowerPlay2mDistanceSensor(hardwareMap, telemetry, HardwareName.DISTANCE_SENSOR_NORMAL.hwName, DistanceUnit.INCH);
             subsystemMap.put(distanceSensorForNormal.getName(), distanceSensorForNormal);
+        }
+
+        if (capabilities.contains(Subsystem.DISTANCE_SENSOR_INVERSE)) {
+            distanceSensorForInverse = new PowerPlay2mDistanceSensor(hardwareMap, telemetry, HardwareName.DISTANCE_SENSOR_INVERSE.hwName, DistanceUnit.INCH);
+            subsystemMap.put(distanceSensorForInverse.getName(), distanceSensorForInverse);
         }
 
         if (capabilities.contains(Subsystem.CONE_GRABBER)) {

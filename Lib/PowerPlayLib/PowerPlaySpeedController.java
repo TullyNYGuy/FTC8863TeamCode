@@ -131,7 +131,7 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
         this.robot = robot;
         this.distanceSensorForNormal = robot.distanceSensorForNormal;
         // for now there is only one distance sensor so just make the inverse distance sensor the same as the normal one
-        this.distanceSensorForInverse = distanceSensorForNormal;
+        this.distanceSensorForInverse = robot.distanceSensorForInverse;
         stopTimer = new ElapsedTime();
 
         controllerState = ControllerState.PRE_INIT;
