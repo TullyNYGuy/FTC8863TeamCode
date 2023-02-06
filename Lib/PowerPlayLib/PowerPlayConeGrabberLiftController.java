@@ -7,6 +7,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogOnChange;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.MatchPhase;
 
 public class PowerPlayConeGrabberLiftController implements FTCRobotSubsystem {
 
@@ -339,7 +340,11 @@ public class PowerPlayConeGrabberLiftController implements FTCRobotSubsystem {
                 if (coneGrabberPositionReached) {
                     // allow another command. The drivers want to put the arm down to prep for a
                     // cone pickup. This will allow them to do it.
-                    commandComplete = true;
+                    if (PowerPlayPersistantStorage.getMatchPhase() == MatchPhase.AUTONOMOUS) {
+                        commandComplete = false;
+                    } else {
+                        commandComplete = true;
+                    }
                     // close the cone grabber in preparation for lining up over the cone
                     coneGrabber.close();
                     // at the same time lower the lift to the pickup position
