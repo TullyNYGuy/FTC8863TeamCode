@@ -202,7 +202,7 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
             distanceSensorToUse = distanceSensorForNormal;
         } else {
             // robot is driving inversed
-            distanceSensorToUse = distanceSensorForInverse;
+            distanceSensorToUse = distanceSensorForNormal;
         }
     }
 
