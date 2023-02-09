@@ -34,7 +34,8 @@ public class PowerPlay2mDistanceSensor implements FTCRobotSubsystem {
     //*********************************************************************************************
 
     private DistanceSensor sensorRange;
-    private Rev2mDistanceSensor sensorTimeOfFlight;;
+    private Rev2mDistanceSensor sensorTimeOfFlight;
+    ;
     private String sensorName = "";
 
     private DistanceUnit distanceUnit = DistanceUnit.INCH;
@@ -116,7 +117,7 @@ public class PowerPlay2mDistanceSensor implements FTCRobotSubsystem {
     public PowerPlay2mDistanceSensor(HardwareMap hardwareMap, Telemetry telemetry, String sensorName, DistanceUnit distanceUnit) {
         this.sensorName = sensorName;
         sensorRange = hardwareMap.get(DistanceSensor.class, sensorName);
-        sensorTimeOfFlight = (Rev2mDistanceSensor)sensorRange;
+        sensorTimeOfFlight = (Rev2mDistanceSensor) sensorRange;
         this.distanceUnit = distanceUnit;
         averageTimer = new ElapsedTime();
     }
@@ -210,8 +211,8 @@ public class PowerPlay2mDistanceSensor implements FTCRobotSubsystem {
     public void isAverageReady() {
         if (averageTimer.milliseconds() > 50) {
             if (numberOfReadingsTaken < numberOfReadingsInAverage) {
-                runningSum = runningSum + sensorRange.getDistance(DistanceUnit.INCH);
-                numberOfReadingsInAverage ++;
+                runningSum = runningSum + sensorRange.getDistance(distanceUnit);
+                numberOfReadingsInAverage++;
                 averageTimer.reset();
                 if (numberOfReadingsTaken == numberOfReadingsInAverage) {
                     isAverageReady = true;
@@ -223,13 +224,13 @@ public class PowerPlay2mDistanceSensor implements FTCRobotSubsystem {
         }
     }
 
-    public double getAverageDistance() {
+    public double getAverageDistance(DistanceUnit distanceUnit) {
         if (isAverageReady) {
             // an average is ready. Prep for the next one.
             numberOfReadingsTaken = 0;
             runningSum = 0;
             isAverageReady = false;
-            return averageDistance;
+            return distanceUnit.fromUnit(this.distanceUnit, averageDistance);
         } else {
             return 0;
         }
@@ -269,7 +270,7 @@ public class PowerPlay2mDistanceSensor implements FTCRobotSubsystem {
 
     public boolean isWithinDistance() {
         double measuredDistance = sensorRange.getDistance(distanceUnit);
-        if (measuredDistance >= withinDistanceLowerLimit && measuredDistance <= withinDistanceUpperLimit ) {
+        if (measuredDistance >= withinDistanceLowerLimit && measuredDistance <= withinDistanceUpperLimit) {
             return true;
         } else {
             return false;
@@ -278,7 +279,7 @@ public class PowerPlay2mDistanceSensor implements FTCRobotSubsystem {
 
     public boolean isWithinDistance(double lowerLimit, double upperLimit, DistanceUnit distanceUnit) {
         double measuredDistance = sensorRange.getDistance(distanceUnit);
-        if (measuredDistance >= lowerLimit && measuredDistance <= upperLimit ) {
+        if (measuredDistance >= lowerLimit && measuredDistance <= upperLimit) {
             return true;
         } else {
             return false;
