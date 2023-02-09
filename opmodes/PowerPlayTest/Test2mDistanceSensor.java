@@ -57,24 +57,28 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.StatTrackerGB;
 //@Disabled
 public class Test2mDistanceSensor extends LinearOpMode {
 
-    //private DistanceSensor sensorRange;
-    private DistanceSensor sensorRange;
-    private int NUMBER_OF_READINGS_TO_TAKE = 100;
+    //private DistanceSensor distanceSensorNormal;
+    private DistanceSensor distanceSensorNormal;
+    private DistanceSensor distanceSensorInverse;
+    private int NUMBER_OF_READINGS_TO_TAKE = 3;
     private int readingsTaken = 0;
-    private double distanceRead = 0;
+    private double distanceReadNormal = 0;
+    private double distanceReadInverse = 0;
 
     private ElapsedTime timer = new ElapsedTime();
 
-    private StatTrackerGB statTracker = new StatTrackerGB();
+    private StatTrackerGB statTrackerNormal = new StatTrackerGB();
+    private StatTrackerGB statTrackerInverse = new StatTrackerGB();
 
     @Override
     public void runOpMode() {
         // you can use this as a regular DistanceSensor.
-        sensorRange = hardwareMap.get(DistanceSensor.class, "distanceSensorNormal");
+        distanceSensorNormal = hardwareMap.get(DistanceSensor.class, "distanceSensorNormal");
+        distanceSensorInverse = hardwareMap.get(DistanceSensor.class, "distanceSensorInverse");
 
         // you can also cast this to a Rev2mDistanceSensor if you want to use added
         // methods associated with the Rev2mDistanceSensor class.
-        Rev2mDistanceSensor sensorTimeOfFlight = (Rev2mDistanceSensor)sensorRange;
+        Rev2mDistanceSensor sensorTimeOfFlight = (Rev2mDistanceSensor)distanceSensorNormal;
 
         telemetry.addData(">>", "Press start to continue");
         telemetry.update();
@@ -85,13 +89,32 @@ public class Test2mDistanceSensor extends LinearOpMode {
         while(opModeIsActive() && readingsTaken <= NUMBER_OF_READINGS_TO_TAKE) {
             // take the readings with enough time between them to make sure that the readings are
             // not just cached copies of I2C reads.
-            if(timer.milliseconds() > 100) {
+            if(timer.milliseconds() > 50) {
                 readingsTaken ++;
-                distanceRead = sensorRange.getDistance(DistanceUnit.MM);
-                statTracker.addDataPoint(distanceRead);
+                distanceReadNormal = distanceSensorNormal.getDistance(DistanceUnit.MM);
+                statTrackerNormal.addDataPoint(distanceReadNormal);
                 telemetry.addData("Taking readings from distance sensor. Please wait", "...");
                 telemetry.addData("Reading number = ", readingsTaken);
-                telemetry.addData("Distance (mm) = ", distanceRead);
+                telemetry.addData("Distance Normal(mm) = ", distanceReadNormal);
+                telemetry.update();
+                timer.reset();
+            }
+            idle();
+        }
+
+        // take the inverse readings after the normal sensor so that there is no chance of one sensor
+        // reading reflected light emitted by the other.
+        readingsTaken = 0;
+        while(opModeIsActive() && readingsTaken <= NUMBER_OF_READINGS_TO_TAKE) {
+            // take the readings with enough time between them to make sure that the readings are
+            // not just cached copies of I2C reads.
+            if(timer.milliseconds() > 50) {
+                readingsTaken ++;
+                distanceReadInverse = distanceSensorInverse.getDistance(DistanceUnit.MM);
+                statTrackerInverse.addDataPoint(distanceReadInverse);
+                telemetry.addData("Taking readings from distance sensor. Please wait", "...");
+                telemetry.addData("Reading number = ", readingsTaken);
+                telemetry.addData("Distance Inverse(mm) = ", distanceReadInverse);
                 telemetry.update();
                 timer.reset();
             }
@@ -100,11 +123,13 @@ public class Test2mDistanceSensor extends LinearOpMode {
 
         while(opModeIsActive()) {
             telemetry.addData("Finished", "!");
-            telemetry.addData("Number of readings = ", statTracker.getCount());
-            telemetry.addData("Average distance (mm) = ", statTracker.getAverage());
-            telemetry.addData("Minimum distance read = ", statTracker.getMinimum());
-            telemetry.addData("Maximum distance read = ", statTracker.getMaximum());
-            telemetry.addData("Standard deviation = ", statTracker.getStandardDeviation());
+            telemetry.addData("Number of readings = ", statTrackerNormal.getCount());
+            telemetry.addData("Average distance Normal(mm) = ", statTrackerNormal.getAverage());
+            telemetry.addData("Minimum distance read = ", statTrackerNormal.getMinimum());
+            telemetry.addData("Maximum distance read = ", statTrackerNormal.getMaximum());
+            telemetry.addData("Average distance Inverse(mm) = ", statTrackerInverse.getAverage());
+            telemetry.addData("Minimum distance read = ", statTrackerInverse.getMinimum());
+            telemetry.addData("Maximum distance read = ", statTrackerInverse.getMaximum());
             telemetry.update();
             idle();
         }
