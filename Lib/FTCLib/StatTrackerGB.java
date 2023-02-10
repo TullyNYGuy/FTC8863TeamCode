@@ -24,6 +24,8 @@ public class StatTrackerGB {
     private int count;
     private double standardDeviation;
 
+    private CSVDataFile csvDataFile;
+
     // running sum
     private double sum;
 
@@ -115,7 +117,7 @@ public class StatTrackerGB {
 
         // create an arraylist that is empty
         list = new ArrayList<Double>();
-        reset();
+        clear();
     }
 
     //*********************************************************************************************
@@ -163,7 +165,7 @@ public class StatTrackerGB {
         for (int i = 0; i < list.size(); i++) {
             runningSumSquared = Math.pow((list.get(i) - average), 2);
         }
-        standardDeviation = Math.sqrt(runningSumSquared/(list.size()-1));
+        standardDeviation = Math.sqrt(runningSumSquared/(list.size()));
     }
 
     /**
@@ -213,10 +215,28 @@ public class StatTrackerGB {
         isProcessed = false;
     }
 
+    public void removeOutlyingData() {
+        if(!list.isEmpty()) {
+            for(double dataPoint : list) {
+
+            }
+        }
+    }
+
+    public void dumpDataCSV(String prefix) {
+        if(!list.isEmpty()) {
+            csvDataFile = new CSVDataFile(prefix);
+            for (double dataPoint: list) {
+                csvDataFile.writeData(dataPoint);
+            }
+            csvDataFile.closeDataLog();
+        }
+    }
+
     /**
      * Reset everything so that a fresh set of numbers can be tracked.
      */
-    public void reset() {
+    public void clear() {
         maximum = 0;
         minimum = 0;
         average = 0;

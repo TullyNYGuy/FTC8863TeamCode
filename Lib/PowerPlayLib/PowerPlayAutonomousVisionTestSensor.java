@@ -272,7 +272,7 @@ public class PowerPlayAutonomousVisionTestSensor implements PowerPlayAutonomousS
             case MOVING_TO_JUNCTION_POLE_FOR_SCORE: {
                 if (!robot.mecanum.isBusy()) {
                     currentState = States.READING_POLE_WITH_INVERSE_SENSOR;
-                    robot.distanceSensorForInverse.startAverage(4);
+                    robot.distanceSensorForInverse.startAverage(5);
                     //robot.coneGrabberArmController.moveToHighThenPrepareToRelease();
                 }
             }
@@ -280,7 +280,7 @@ public class PowerPlayAutonomousVisionTestSensor implements PowerPlayAutonomousS
 
             case READING_POLE_WITH_INVERSE_SENSOR: {
                 if (robot.distanceSensorForInverse.isAverageReady()) {
-                    robot.distanceSensorForNormal.startAverage(4);
+                    robot.distanceSensorForNormal.startAverage(5);
                     currentState = States.READING_POLE_WITH_NORMAL_SENSOR;
                     //robot.coneGrabberArmController.moveToHighThenPrepareToRelease();
                 }

@@ -86,7 +86,7 @@ public class Test2mDistanceSensor extends LinearOpMode {
         waitForStart();
         timer.reset();
 
-        while(opModeIsActive() && readingsTaken <= NUMBER_OF_READINGS_TO_TAKE) {
+        while(opModeIsActive() && readingsTaken < NUMBER_OF_READINGS_TO_TAKE) {
             // take the readings with enough time between them to make sure that the readings are
             // not just cached copies of I2C reads.
             if(timer.milliseconds() > 50) {
@@ -123,6 +123,8 @@ public class Test2mDistanceSensor extends LinearOpMode {
 
         while(opModeIsActive()) {
             telemetry.addData("Finished", "!");
+            statTrackerNormal.dumpDataCSV("normalTest");
+            statTrackerInverse.dumpDataCSV("inverseTest");
             telemetry.addData("Number of readings = ", statTrackerNormal.getCount());
             telemetry.addData("Average distance Normal(mm) = ", statTrackerNormal.getAverage());
             telemetry.addData("Minimum distance read = ", statTrackerNormal.getMinimum());

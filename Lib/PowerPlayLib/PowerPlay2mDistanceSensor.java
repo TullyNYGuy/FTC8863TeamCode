@@ -9,11 +9,13 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.CSVDataFile;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogOnChange;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863New;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.StatTrackerGB;
 
 import java.util.concurrent.TimeUnit;
 
@@ -59,6 +61,7 @@ public class PowerPlay2mDistanceSensor implements FTCRobotSubsystem {
     private int numberOfReadingsTaken = 0;
     private boolean isAverageReady = false;
     private double averageDistance = 0;
+    private StatTrackerGB statTracker;
 
     private double greaterThanDistanceLimit = 0;
 
@@ -120,6 +123,7 @@ public class PowerPlay2mDistanceSensor implements FTCRobotSubsystem {
         sensorTimeOfFlight = (Rev2mDistanceSensor) sensorRange;
         this.distanceUnit = distanceUnit;
         averageTimer = new ElapsedTime();
+        statTracker = new StatTrackerGB();
     }
     //*********************************************************************************************
     //          Helper Methods
@@ -204,19 +208,20 @@ public class PowerPlay2mDistanceSensor implements FTCRobotSubsystem {
         this.numberOfReadingsInAverage = numberOfReadingsInAverage;
         isAverageReady = false;
         numberOfReadingsTaken = 1;
-        runningSum = sensorRange.getDistance(DistanceUnit.INCH);
+        statTracker.clear();
+        statTracker.addDataPoint(sensorRange.getDistance(DistanceUnit.INCH));
         averageTimer.reset();
     }
 
     public boolean isAverageReady() {
         if (averageTimer.milliseconds() > 50) {
             if (numberOfReadingsTaken < numberOfReadingsInAverage) {
-                runningSum = runningSum + sensorRange.getDistance(distanceUnit);
+                statTracker.addDataPoint(sensorRange.getDistance(DistanceUnit.INCH));
                 numberOfReadingsTaken++;
                 averageTimer.reset();
                 if (numberOfReadingsTaken == numberOfReadingsInAverage) {
                     isAverageReady = true;
-                    averageDistance = runningSum / numberOfReadingsInAverage;
+                    averageDistance = statTracker.getAverage();
                 }
             } else {
                 // an average is already calculated
@@ -229,8 +234,6 @@ public class PowerPlay2mDistanceSensor implements FTCRobotSubsystem {
     public double getAverageDistance(DistanceUnit distanceUnit) {
         if (isAverageReady) {
             // an average is ready. Prep for the next one.
-            numberOfReadingsTaken = 0;
-            runningSum = 0;
             isAverageReady = false;
             return distanceUnit.fromUnit(this.distanceUnit, averageDistance);
         } else {
@@ -286,5 +289,9 @@ public class PowerPlay2mDistanceSensor implements FTCRobotSubsystem {
         } else {
             return false;
         }
+    }
+
+    public void dumpDataToCSV(String prefix) {
+        statTracker.dumpDataCSV(prefix);
     }
 }
