@@ -208,11 +208,11 @@ public class PowerPlay2mDistanceSensor implements FTCRobotSubsystem {
         averageTimer.reset();
     }
 
-    public void isAverageReady() {
+    public boolean isAverageReady() {
         if (averageTimer.milliseconds() > 50) {
             if (numberOfReadingsTaken < numberOfReadingsInAverage) {
                 runningSum = runningSum + sensorRange.getDistance(distanceUnit);
-                numberOfReadingsInAverage++;
+                numberOfReadingsTaken++;
                 averageTimer.reset();
                 if (numberOfReadingsTaken == numberOfReadingsInAverage) {
                     isAverageReady = true;
@@ -221,7 +221,9 @@ public class PowerPlay2mDistanceSensor implements FTCRobotSubsystem {
             } else {
                 // an average is already calculated
             }
+
         }
+        return isAverageReady;
     }
 
     public double getAverageDistance(DistanceUnit distanceUnit) {
