@@ -162,8 +162,8 @@ public class StatTrackerGB {
 
     private void updateStandardDeviation() {
         double runningSumSquared = 0;
-        for (int i = 0; i < list.size(); i++) {
-            runningSumSquared = Math.pow((list.get(i) - average), 2);
+        for (double dataPoint: list) {
+            runningSumSquared = runningSumSquared + Math.pow((dataPoint - average), 2);
         }
         standardDeviation = Math.sqrt(runningSumSquared/(list.size()));
     }
