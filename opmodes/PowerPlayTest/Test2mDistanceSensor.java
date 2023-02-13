@@ -60,7 +60,7 @@ public class Test2mDistanceSensor extends LinearOpMode {
     //private DistanceSensor distanceSensorNormal;
     private DistanceSensor distanceSensorNormal;
     private DistanceSensor distanceSensorInverse;
-    private int NUMBER_OF_READINGS_TO_TAKE = 3;
+    private int NUMBER_OF_READINGS_TO_TAKE = 50;
     private int readingsTaken = 0;
     private double distanceReadNormal = 0;
     private double distanceReadInverse = 0;
@@ -123,18 +123,19 @@ public class Test2mDistanceSensor extends LinearOpMode {
 
         while(opModeIsActive()) {
             telemetry.addData("Finished", "!");
-            statTrackerNormal.dumpDataCSV("normalTest");
-            statTrackerInverse.dumpDataCSV("inverseTest");
             telemetry.addData("Number of readings = ", statTrackerNormal.getCount());
             telemetry.addData("Average distance Normal(mm) = ", statTrackerNormal.getAverage());
             telemetry.addData("Minimum distance read = ", statTrackerNormal.getMinimum());
             telemetry.addData("Maximum distance read = ", statTrackerNormal.getMaximum());
+            telemetry.addData("Standard deviation = ", statTrackerNormal.getStandardDeviation());
             telemetry.addData("Average distance Inverse(mm) = ", statTrackerInverse.getAverage());
             telemetry.addData("Minimum distance read = ", statTrackerInverse.getMinimum());
             telemetry.addData("Maximum distance read = ", statTrackerInverse.getMaximum());
+            telemetry.addData("Standard deviation = ", statTrackerInverse.getStandardDeviation());
             telemetry.update();
             idle();
         }
+        statTrackerNormal.dumpDataCSV("normalTest");
+        statTrackerInverse.dumpDataCSV("inverseTest");
     }
-
 }
