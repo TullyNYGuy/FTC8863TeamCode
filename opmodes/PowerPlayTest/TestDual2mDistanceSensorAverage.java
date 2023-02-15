@@ -33,7 +33,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package org.firstinspires.ftc.teamcode.opmodes.PowerPlayTest;
 
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
@@ -43,7 +42,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.StatTrackerGB;
 
 /**
- * {@link Test2mDistanceSensor} illustrates how to use the REV Robotics
+ * {@link TestDual2mDistanceSensorAverage} illustrates how to use the REV Robotics
  * Time-of-Flight Range Sensor.
  *
  * The op mode assumes that the range sensor is configured with a name of "sensor_range".
@@ -53,9 +52,9 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.StatTrackerGB;
  *
  * @see <a href="http://revrobotics.com">REV Robotics Web Page</a>
  */
-@TeleOp(name = "Sensor: PowerPlay2mDistance", group = "Test")
+@TeleOp(name = "Sensor: PowerPlay2mDistance with Averages", group = "Test")
 //@Disabled
-public class Test2mDistanceSensor extends LinearOpMode {
+public class TestDual2mDistanceSensorAverage extends LinearOpMode {
 
     //private DistanceSensor distanceSensorNormal;
     private DistanceSensor distanceSensorNormal;

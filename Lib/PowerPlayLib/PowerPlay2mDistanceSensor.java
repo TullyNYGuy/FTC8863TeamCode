@@ -56,12 +56,14 @@ public class PowerPlay2mDistanceSensor implements FTCRobotSubsystem {
     private DataLogOnChange logCommandOnchange;
 
     private ElapsedTime averageTimer;
+    private ElapsedTime singleReadingTimer;
     private double runningSum = 0;
     private int numberOfReadingsInAverage = 0;
     private int numberOfReadingsTaken = 0;
     private boolean isAverageReady = false;
     private double averageDistance = 0;
     private StatTrackerGB statTracker;
+    private double singleReadingDistance = 0;
 
     private double greaterThanDistanceLimit = 0;
 
@@ -102,6 +104,9 @@ public class PowerPlay2mDistanceSensor implements FTCRobotSubsystem {
     public void setWithinDistanceUpperLimit(double withinDistanceUpperLimit) {
         this.withinDistanceUpperLimit = withinDistanceUpperLimit;
     }
+
+    private double timeBetweenReadings = 50; // milliseconds
+
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -123,6 +128,7 @@ public class PowerPlay2mDistanceSensor implements FTCRobotSubsystem {
         sensorTimeOfFlight = (Rev2mDistanceSensor) sensorRange;
         this.distanceUnit = distanceUnit;
         averageTimer = new ElapsedTime();
+        singleReadingTimer = new ElapsedTime();
         statTracker = new StatTrackerGB();
     }
     //*********************************************************************************************
@@ -200,8 +206,50 @@ public class PowerPlay2mDistanceSensor implements FTCRobotSubsystem {
     public void update() {
     }
 
+    /**
+     * Immediately read and return a distance from the sensor.
+     * @param unit
+     * @return
+     */
     public double getDistance(DistanceUnit unit) {
         return sensorRange.getDistance(unit);
+    }
+
+    /**
+     * Setup and start a single reading of the distance. The distance sensor takes 33 mSec to get a
+     * reading. Reads of I2C devices can be cached. This method starts a timer that ensures the given
+     * time passes before a new reading can be taken. This ensure fresh data. Distance sensors can
+     * also read reflections of light emitted by another sensor and result in erroneous reading.
+     * Enforcing a time between readings can help enfore an interleaving of readings between different
+     * sensors and lessen the chance of interference between sensors.
+     * @param timeBetweenReadings
+     */
+    public void startSingleReading(double timeBetweenReadings) {
+        this.timeBetweenReadings = timeBetweenReadings;
+        singleReadingTimer.reset();
+        // take the reading but do not return it until after the timer has expired
+        singleReadingDistance = getDistance(this.distanceUnit);
+    }
+
+    /**
+     * Check to see if the timer has expired. For use in polling the timer to determine when a
+     * reading is ready.
+     * @return
+     */
+    public boolean isSingleReadingReady() {
+        boolean ready = false;
+        if (singleReadingTimer.milliseconds() > timeBetweenReadings) {
+            ready = true;
+        }
+        return ready;
+    }
+
+    /**
+     * Actually return a distance. For use after isSingleReadingReady returns true.
+     * @return
+     */
+    public double getSingleReading(DistanceUnit unit) {
+        return unit.fromUnit(this.distanceUnit, singleReadingDistance);
     }
 
     public void startAverage(int numberOfReadingsInAverage) {
