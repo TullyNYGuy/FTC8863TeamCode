@@ -35,7 +35,7 @@ public class PowerPlayAutonomousTestSensor extends LinearOpMode {
     public PowerPlayGamepad gamepad;
     public Configuration config = null;
     public PowerPlayField field;
-    private PowerPlayAutonomousStateMachine autonomousStateMachine;
+    private PowerPlayAutonomousVisionTestSensor autonomousStateMachine;
     private SignalConePipeline pipeline;
     public SignalConePipeline.ConeColor coneColor;
 
@@ -44,6 +44,11 @@ public class PowerPlayAutonomousTestSensor extends LinearOpMode {
     DataLogging dataLog = null;
 
     private Pose2d startPose;
+    private Pose2d finalActualPose;
+    private Pose2d finalTheoreticalPose;
+    private double xError = 0;
+    private double yError = 0;
+    private double headingError = 0;
 
     @Override
     public void runOpMode() {
@@ -184,6 +189,14 @@ public class PowerPlayAutonomousTestSensor extends LinearOpMode {
         robot.distanceSensorForNormal.dumpDataToCSV("normal");
         telemetry.addData("Inverse Sensor= ", robot.distanceSensorForInverse.getAverageDistance(DistanceUnit.INCH));
         telemetry.addData("Normal Sensor= ", robot.distanceSensorForNormal.getAverageDistance(DistanceUnit.INCH));
+        finalTheoreticalPose = autonomousStateMachine.getFinalPose();
+        finalActualPose = robot.mecanum.getPoseEstimate();
+        xError = finalTheoreticalPose.getX() - finalActualPose.getX();
+        yError = finalTheoreticalPose.getY() - finalActualPose.getY();
+        headingError = Math.toDegrees(finalTheoreticalPose.getHeading() - finalActualPose.getHeading());
+        telemetry.addData("x position error = ", xError);
+        telemetry.addData("y position error = ", yError);
+        telemetry.addData("heading error = ", headingError);
         telemetry.update();
         while (opModeIsActive() ) {
             idle();

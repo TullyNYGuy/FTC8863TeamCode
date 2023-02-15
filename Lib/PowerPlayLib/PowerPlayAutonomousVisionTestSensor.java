@@ -257,6 +257,10 @@ public class PowerPlayAutonomousVisionTestSensor implements PowerPlayAutonomousS
         logCommand("start");
     }
 
+    public Pose2d getFinalPose() {
+        return trajectoryToJunctionPoleFromStart.end();
+    }
+
     @Override
     public void update() {
         switch (currentState) {
