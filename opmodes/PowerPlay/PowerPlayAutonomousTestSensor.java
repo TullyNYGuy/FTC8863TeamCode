@@ -185,10 +185,10 @@ public class PowerPlayAutonomousTestSensor extends LinearOpMode {
         dataLog.closeDataLog();
         //telemetry.addData(">", "Done");
         //telemetry.update();
-        robot.distanceSensorForInverse.dumpDataToCSV("inverse");
-        robot.distanceSensorForNormal.dumpDataToCSV("normal");
-        telemetry.addData("Inverse Sensor= ", robot.distanceSensorForInverse.getAverageDistance(DistanceUnit.INCH));
-        telemetry.addData("Normal Sensor= ", robot.distanceSensorForNormal.getAverageDistance(DistanceUnit.INCH));
+        //robot.distanceSensorForInverse.dumpDataToCSV("inverse");
+        //robot.distanceSensorForNormal.dumpDataToCSV("normal");
+        telemetry.addData("Inverse Sensor= ", robot.dualDistanceSensors.getAverageDistanceInverse(DistanceUnit.INCH));
+        telemetry.addData("Normal Sensor= ", robot.dualDistanceSensors.getAverageDistanceNormal(DistanceUnit.INCH));
         finalTheoreticalPose = autonomousStateMachine.getFinalPose();
         finalActualPose = robot.mecanum.getPoseEstimate();
         xError = finalTheoreticalPose.getX() - finalActualPose.getX();

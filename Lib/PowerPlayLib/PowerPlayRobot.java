@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 public class PowerPlayRobot implements FTCRobot {
 
@@ -49,6 +50,7 @@ public class PowerPlayRobot implements FTCRobot {
 
         DISTANCE_SENSOR_NORMAL("distanceSensorNormal"),
         DISTANCE_SENSOR_INVERSE("distanceSensorInverse"),
+        DUAL_DISTANCE_SENSORS("dualDistanceSensors"),
 
         CYCLE_TRACKER("cycleTracker"),
         SPEED_CONTROLLER("speedController"),
@@ -75,11 +77,9 @@ public class PowerPlayRobot implements FTCRobot {
         LEFT_LIFT,
         CONE_GRABBER,
         CONE_GRABBER_ARM_CONTROLLER,
-        DISTANCE_SENSOR_NORMAL,
-        DISTANCE_SENSOR_INVERSE,
         CYCLE_TRACKER,
-        SPEED_CONTROLLER
-        //DISTANCE_SENSOR_INVERSE
+        SPEED_CONTROLLER,
+        DUAL_DISTANCE_SENSORS
         //LED_BLINKER,
         //LED_STRIP,
     }
@@ -109,8 +109,7 @@ public class PowerPlayRobot implements FTCRobot {
     public PowerPlayConeGrabber coneGrabber;
     public PowerPlayConeGrabberLiftController coneGrabberArmController;
     public PowerPlayWebcam webcam;
-    public PowerPlay2mDistanceSensor distanceSensorForNormal;
-    public PowerPlay2mDistanceSensor distanceSensorForInverse;
+    public PowerPlayDual2mDistanceSensors dualDistanceSensors;
     public PowerPlayCycleTracker cycleTracker;
     public PowerPlaySpeedController speedController;
     public PowerPlayRobotModes robotModes;
@@ -178,14 +177,9 @@ public class PowerPlayRobot implements FTCRobot {
             subsystemMap.put(cycleTracker.getName(), cycleTracker);
         }
 
-        if (capabilities.contains(Subsystem.DISTANCE_SENSOR_NORMAL)) {
-            distanceSensorForNormal = new PowerPlay2mDistanceSensor(hardwareMap, telemetry, HardwareName.DISTANCE_SENSOR_NORMAL.hwName, DistanceUnit.INCH);
-            subsystemMap.put(distanceSensorForNormal.getName(), distanceSensorForNormal);
-        }
-
-        if (capabilities.contains(Subsystem.DISTANCE_SENSOR_INVERSE)) {
-            distanceSensorForInverse = new PowerPlay2mDistanceSensor(hardwareMap, telemetry, HardwareName.DISTANCE_SENSOR_INVERSE.hwName, DistanceUnit.INCH);
-            subsystemMap.put(distanceSensorForInverse.getName(), distanceSensorForInverse);
+        if (capabilities.contains(Subsystem.DUAL_DISTANCE_SENSORS)) {
+            dualDistanceSensors = new PowerPlayDual2mDistanceSensors(hardwareMap, telemetry, HardwareName.DUAL_DISTANCE_SENSORS.hwName, DistanceUnit.INCH);
+            subsystemMap.put(dualDistanceSensors.getName(), dualDistanceSensors);
         }
 
         if (capabilities.contains(Subsystem.CONE_GRABBER)) {

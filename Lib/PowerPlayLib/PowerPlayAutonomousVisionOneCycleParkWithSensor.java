@@ -291,7 +291,7 @@ public class PowerPlayAutonomousVisionOneCycleParkWithSensor implements PowerPla
             break;
 
             case LOOKING_FOR_POLE: {
-                if (robot.distanceSensorForNormal.isLessThanDistance(12, DistanceUnit.INCH)) {
+                if (robot.dualDistanceSensors.distanceSensorNormal.isLessThanDistance(12, DistanceUnit.INCH)) {
                     robot.mecanum.cancelFollowing();
                     robot.coneGrabberArmController.moveToHighThenPrepareToRelease();
                     currentState = States.RAISING_LIFT;

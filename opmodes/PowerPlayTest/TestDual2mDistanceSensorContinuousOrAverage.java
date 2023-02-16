@@ -99,7 +99,6 @@ public class TestDual2mDistanceSensorContinuousOrAverage extends LinearOpMode {
         waitForStart();
         timer.reset();
         mode = Mode.START_CONTINUOUS;
-        distanceSensorInverse.startSingleReading(50);
 
         while (opModeIsActive()) {
             // take the readings with enough time between them to make sure that the readings are

@@ -15,6 +15,8 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.StatTrackerGB;
 import org.firstinspires.ftc.teamcode.opmodes.PowerPlayTest.TestDual2mDistanceSensorContinuousOrAverage;
 
+import java.util.concurrent.TimeUnit;
+
 public class PowerPlayDual2mDistanceSensors implements FTCRobotSubsystem {
 
     //*********************************************************************************************
@@ -30,22 +32,18 @@ public class PowerPlayDual2mDistanceSensors implements FTCRobotSubsystem {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
-    private enum Mode {
-        START_AVERAGE,
+    private enum State {
+        IDLE,
         START_CONTINUOUS,
-        AVERAGE,
-        CONTINUOUS,
-        COMPLETE
+        CONTINUOUS_READ_INVERSE,
+        CONTINUOUS_READ_NORMAL,
+        START_AVERAGE,
+        AVERAGE_READ_INVERSE,
+        AVERAGE_READ_NORMAL,
+        AVERAGE_COMPLETE
     }
 
-    private Mode mode = Mode.CONTINUOUS;
-
-    private enum SensorBeingRead {
-        INVERSE,
-        NORMAL
-    }
-
-    private SensorBeingRead sensorBeingRead = SensorBeingRead.INVERSE;
+    private State state = State.IDLE;
 
     private String sensorName = "";
 
@@ -64,20 +62,96 @@ public class PowerPlayDual2mDistanceSensors implements FTCRobotSubsystem {
     private DataLogOnChange logStateOnChange;
     private DataLogOnChange logCommandOnchange;
 
-    private ElapsedTime averageTimer;
-    private ElapsedTime singleReadingTimer;
-    private int numberOfReadingsInAverage = 0;
-    private int numberOfReadingsTaken = 0;
-    private boolean isAverageReady = false;
-    private double averageDistance = 0;
-    private double singleReadingDistance = 0;
+    private int numberOfReadingsInAverage = 10;
 
-    private PowerPlay2mDistanceSensor distanceSensorInverse;
-    private PowerPlay2mDistanceSensor distanceSensorNormal;
-    private StatTrackerGB statTrackerInverse;
-    private StatTrackerGB statTrackerNormal;
+    public PowerPlay2mDistanceSensor distanceSensorInverse;
+    public PowerPlay2mDistanceSensor distanceSensorNormal;
 
-    private double centeredOnPoleLimit = 25;
+    private double continuousDistanceNormal = 0;
+
+    public double getContinuousDistanceNormal() {
+        if (isAverageReady()) {
+            return distanceUnit.fromUnit(this.distanceUnit, continuousDistanceNormal);
+        } else {
+            return 10000;
+        }
+    }
+
+    private double continuousDistanceInverse = 0;
+
+    public double getContinuousDistanceInverse(DistanceUnit distanceUnit) {
+        if (isAverageReady()) {
+            return distanceUnit.fromUnit(this.distanceUnit, continuousDistanceInverse);
+        } else {
+            return 10000;
+        }
+    }
+
+    private double continuousDifference = 1000; // 0 is what we are hunting for do don't initialize to that
+
+    public double getContinuousDifference(DistanceUnit distanceUnit) {
+        if (isAverageReady()) {
+            return distanceUnit.fromUnit(this.distanceUnit, continuousDifference);
+        } else {
+            return 10000;
+        }
+    }
+
+    private double averageDistanceNormal = 0;
+
+    public double getAverageDistanceNormal(DistanceUnit distanceUnit) {
+        if (isAverageReady()) {
+            return distanceUnit.fromUnit(this.distanceUnit, averageDistanceNormal);
+        } else {
+            return 10000;
+        }
+    }
+
+    private double averageDistanceInverse = 0;
+
+    public double getAverageDistanceInverse(DistanceUnit distanceUnit) {
+        if (isAverageReady()) {
+            return distanceUnit.fromUnit(this.distanceUnit, averageDistanceInverse);
+        } else {
+            return 10000;
+        }
+    }
+
+    private double averageDistance = 1000;
+
+    public double getAverageDistance(DistanceUnit distanceUnit) {
+        if (isAverageReady()) {
+            return distanceUnit.fromUnit(this.distanceUnit, averageDistance);
+        } else {
+            return 10000;
+        }
+    }
+
+    private double adjustedAverageDistance = 1000;
+
+    public double getAdjustedAverageDistance(DistanceUnit distanceUnit) {
+        if (isAverageReady()) {
+            return distanceUnit.fromUnit(this.distanceUnit, adjustedAverageDistance);
+        } else {
+            return 10000;
+        }
+    }
+
+    private double averageDifference = 1000;
+
+    public double getAverageDifference(DistanceUnit distanceUnit) {
+        if (isAverageReady()) {
+            return distanceUnit.fromUnit(this.distanceUnit, averageDifference);
+        } else {
+            return 10000;
+        }
+    }
+
+    /**
+     * The limit for saying the sensors are centered on the pole. It is +/- so any difference in the
+     * sensors between +1.0 and -1.0 says the sensors are centered.
+     */
+    private double centeredOnPoleLimit = 1.0;
 
     public double getCenteredOnPoleLimit() {
         return centeredOnPoleLimit;
@@ -87,7 +161,16 @@ public class PowerPlayDual2mDistanceSensors implements FTCRobotSubsystem {
         this.centeredOnPoleLimit = this.distanceUnit.fromUnit(unit, centeredOnPoleLimit);
     }
 
-    private double timeBetweenReadings = 50; // milliseconds
+    private TimeUnit timeUnit = TimeUnit.MILLISECONDS;
+    private long timeBetweenReadings = 50; // milliseconds
+
+    public double getTimeBetweenReadings(TimeUnit timeUnit) {
+        return timeUnit.convert(timeBetweenReadings, this.timeUnit);
+    }
+
+    public void setTimeBetweenReadings(long timeBetweenReadings, TimeUnit timeUnit) {
+        this.timeBetweenReadings = this.timeUnit.convert(timeBetweenReadings, timeUnit);
+    }
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -107,10 +190,8 @@ public class PowerPlayDual2mDistanceSensors implements FTCRobotSubsystem {
     public PowerPlayDual2mDistanceSensors(HardwareMap hardwareMap, Telemetry telemetry, String sensorName, DistanceUnit distanceUnit) {
         this.sensorName = sensorName;
         this.distanceUnit = distanceUnit;
-        averageTimer = new ElapsedTime();
-        singleReadingTimer = new ElapsedTime();
-        statTrackerInverse = new StatTrackerGB();
-        statTrackerNormal = new StatTrackerGB();
+        distanceSensorNormal = new PowerPlay2mDistanceSensor(hardwareMap, telemetry, PowerPlayRobot.HardwareName.DISTANCE_SENSOR_NORMAL.hwName, distanceUnit);
+        distanceSensorInverse = new PowerPlay2mDistanceSensor(hardwareMap, telemetry, PowerPlayRobot.HardwareName.DISTANCE_SENSOR_INVERSE.hwName, distanceUnit);
     }
     //*********************************************************************************************
     //          Helper Methods
@@ -183,7 +264,102 @@ public class PowerPlayDual2mDistanceSensors implements FTCRobotSubsystem {
         return true;
     }
 
+    public void startContinuousMode() {
+        state = State.START_CONTINUOUS;
+        continuousDistanceInverse = 0;
+        continuousDistanceNormal = 0;
+    }
+
+    public void startAverageMode(int numberOfReadingsInAverage) {
+        state = State.START_AVERAGE;
+        this.numberOfReadingsInAverage = numberOfReadingsInAverage;
+        averageDistanceInverse = 0;
+        averageDistanceNormal = 0;
+    }
+
+    public boolean isAverageReady() {
+        boolean answer = false;
+        if (state == State.AVERAGE_COMPLETE) {
+            answer = true;
+        }
+        return answer;
+    }
+
+    public void stopReading() {
+        state = State.IDLE;
+    }
+
+    public void dumpCSVDataNormal() {
+
+    }
+
     @Override
     public void update() {
+        switch (state) {
+            case IDLE: {
+                // do nothing
+            }
+            break;
+
+            case START_CONTINUOUS: {
+                distanceSensorInverse.startSingleReading(timeBetweenReadings);
+                state = State.CONTINUOUS_READ_INVERSE;
+            }
+            break;
+
+            case CONTINUOUS_READ_INVERSE: {
+                if (distanceSensorInverse.isSingleReadingReady()) {
+                    continuousDistanceInverse = distanceSensorInverse.getSingleReading(this.distanceUnit);
+                    distanceSensorNormal.startSingleReading(timeBetweenReadings);
+                    state = State.CONTINUOUS_READ_NORMAL;
+                }
+            }
+            break;
+
+            case CONTINUOUS_READ_NORMAL: {
+                if (distanceSensorNormal.isSingleReadingReady()) {
+                    continuousDistanceNormal = distanceSensorNormal.getSingleReading(this.distanceUnit);
+                    distanceSensorInverse.startSingleReading(timeBetweenReadings);
+                    continuousDifference = continuousDistanceNormal - continuousDistanceInverse;
+                    state = State.CONTINUOUS_READ_NORMAL;
+                }
+            }
+            break;
+
+            case START_AVERAGE: {
+                distanceSensorInverse.startAverage(numberOfReadingsInAverage);
+                state = State.AVERAGE_READ_INVERSE;
+            }
+            break;
+
+            case AVERAGE_READ_INVERSE: {
+                if (distanceSensorInverse.isAverageReady()) {
+                    averageDistanceInverse = distanceSensorInverse.getAverageDistance(this.distanceUnit);
+                    distanceSensorNormal.startAverage(numberOfReadingsInAverage);
+                }
+            }
+            break;
+
+            case AVERAGE_READ_NORMAL: {
+                if (distanceSensorNormal.isAverageReady()) {
+                    DistanceUnit distanceUnitForLineEquation = DistanceUnit.MM;
+                    averageDistanceNormal = distanceSensorNormal.getAverageDistance(this.distanceUnit);
+                    averageDifference = averageDistanceNormal - averageDistanceInverse;
+                    averageDistance = (averageDistanceInverse + averageDistanceNormal)/2;
+                    // curve fit for adjusting sensor readings into an actual distance. This equation is in mm.
+                    adjustedAverageDistance = 1.23 * distanceUnitForLineEquation.fromUnit(this.distanceUnit, averageDistance) - 70.3;
+                    // convert the adjustedAverageDistance to units for this class
+                    adjustedAverageDistance = this.distanceUnit.fromUnit(distanceUnitForLineEquation, adjustedAverageDistance);
+                    state = State.AVERAGE_COMPLETE;
+                }
+            }
+            break;
+
+            case AVERAGE_COMPLETE: {
+                // the average is complete, wait for someone to read it
+            }
+            break;
+        }
     }
 }
+
