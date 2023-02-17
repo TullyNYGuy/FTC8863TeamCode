@@ -5,16 +5,15 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863Interface;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanismGenericMotor;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayRobot;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Test PP Lift ExtensionRetraction Cycle", group = "Test")
+@TeleOp(name = "Test PP Lift Reset", group = "Test")
 //@Disabled
-public class TestLiftExtensionRetraction extends LinearOpMode {
+public class TestLiftReset extends LinearOpMode {
 
     // Put your variable declarations here
     ExtensionRetractionMechanismGenericMotor lift;
@@ -36,10 +35,7 @@ public class TestLiftExtensionRetraction extends LinearOpMode {
                 5.713);
 
         lift.forwardMotorDirection();
-        lift.setExtensionPower(.75);
-        lift.setExtensionPositionInMechanismUnits(35);
-        lift.setRetractionPower(.75);
-        lift.setRetractionPositionInMechanismUnits(2);
+
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
         telemetry.update();
@@ -47,15 +43,17 @@ public class TestLiftExtensionRetraction extends LinearOpMode {
 
         // Put your calls here - they will not run in a loop
 
-        lift.testCycleFullExtensionRetraction(this,2,3000);
+        lift.testReset(this);
 
-        while (opModeIsActive()) {
+        // after the retraction is complete, loop so the user can see the result
+        while (opModeIsActive()){
+            telemetry.addData("state = ", lift.getExtensionRetractionState().toString());
+            telemetry.update();
             idle();
         }
 
         // Put your cleanup code here - it runs as the application shuts down
         telemetry.addData(">", "Done");
         telemetry.update();
-
     }
 }

@@ -114,7 +114,7 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
 
         // create the motor for the lift
         liftMotor = new DcMotor8863(PowerPlayRobot.HardwareName.LEFT_LIFT_MOTOR.hwName, hardwareMap, telemetry);
-        liftMotor.setMotorType(DcMotor8863.MotorType.GOBILDA_435);
+        liftMotor.setMotorType(DcMotor8863.MotorType.GOBILDA_1150);
 
         lift = new ExtensionRetractionMechanismGenericMotor(hardwareMap, telemetry,
                 "lift",
