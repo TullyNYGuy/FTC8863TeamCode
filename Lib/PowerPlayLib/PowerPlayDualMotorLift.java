@@ -13,9 +13,8 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863Interface;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanismGenericMotor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
-import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayAllianceColor;
-@Deprecated
-public class PowerPlayLeftLift implements FTCRobotSubsystem {
+
+public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -111,7 +110,7 @@ public class PowerPlayLeftLift implements FTCRobotSubsystem {
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
-    public PowerPlayLeftLift(HardwareMap hardwareMap, Telemetry telemetry) {
+    public PowerPlayDualMotorLift(HardwareMap hardwareMap, Telemetry telemetry) {
 
         // create the motor for the lift
         liftMotor = new DcMotor8863(PowerPlayRobot.HardwareName.LEFT_LIFT_MOTOR.hwName, hardwareMap, telemetry);
