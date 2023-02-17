@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.DualMotorGearBox;
+import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.UltimateGoalDualMotorGearBox;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
@@ -17,7 +17,7 @@ import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.DualMotorGearBox;
 public class TestShooter extends LinearOpMode {
 
     // Put your variable declarations here
-    public DualMotorGearBox dualMotorGearBox;
+    public UltimateGoalDualMotorGearBox dualMotorGearBox;
     public CRServo stage3CRServo;
     public ElapsedTime timer;
     public int motorRPM;
@@ -27,7 +27,7 @@ public class TestShooter extends LinearOpMode {
 
 
         // Put your initializations here
-        dualMotorGearBox = new DualMotorGearBox("LeftMotor", "RightMotor", hardwareMap, telemetry);
+        dualMotorGearBox = new UltimateGoalDualMotorGearBox("LeftMotor", "RightMotor", hardwareMap, telemetry);
         stage3CRServo = hardwareMap.get(CRServo.class, "stage3CRServo");
         stage3CRServo.setDirection(DcMotorSimple.Direction.FORWARD);
 

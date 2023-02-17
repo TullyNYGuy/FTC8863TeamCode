@@ -28,7 +28,7 @@ public class Shooter implements FTCRobotSubsystem {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
-    private DualMotorGearBox dualMotorGearBox;
+    private UltimateGoalDualMotorGearBox dualMotorGearBox;
     private DataLogging logFile;
     private boolean loggingOn = false;
     private AngleChanger angleChanger;
@@ -58,7 +58,7 @@ public class Shooter implements FTCRobotSubsystem {
     // from it
     //*********************************************************************************************
     public Shooter(String leftMotorName, String rightMotorName, HardwareMap hardwareMap, Telemetry telemetry) {
-        dualMotorGearBox = new DualMotorGearBox(leftMotorName, rightMotorName, hardwareMap, telemetry);
+        dualMotorGearBox = new UltimateGoalDualMotorGearBox(leftMotorName, rightMotorName, hardwareMap, telemetry);
         angleChanger = new AngleChanger(hardwareMap, telemetry);
         firingSolution = new FiringSolution();
         elapsedTime= new ElapsedTime();

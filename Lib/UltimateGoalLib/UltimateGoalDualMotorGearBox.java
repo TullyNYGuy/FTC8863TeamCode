@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib;
 
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -12,7 +11,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
 import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.FORWARD;
 import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
 
-public class DualMotorGearBox implements FTCRobotSubsystem {
+public class UltimateGoalDualMotorGearBox implements FTCRobotSubsystem {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -98,7 +97,7 @@ public class DualMotorGearBox implements FTCRobotSubsystem {
      * @param hardwareMap    Hardware map from the FTC robot
      * @param telemetry      The telemetry from the FTC robot
      */
-    public DualMotorGearBox(String leftMotorName, String rightMotorName, HardwareMap hardwareMap, Telemetry telemetry) {
+    public UltimateGoalDualMotorGearBox(String leftMotorName, String rightMotorName, HardwareMap hardwareMap, Telemetry telemetry) {
         leftMotor = new DcMotor8863(leftMotorName, hardwareMap, telemetry);
         leftMotor.setMotorType(DcMotor8863.MotorType.GOBILDA_6000);
         leftMotor.setMovementPerRev(360);
