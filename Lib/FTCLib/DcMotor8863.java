@@ -17,7 +17,7 @@ import static java.lang.Thread.sleep;
 /**
  * Created by ball on 11/28/2015.
  */
-public class DcMotor8863 {
+public class DcMotor8863 implements DcMotor8863Interface {
 
     /**
      * Defines the type of motor.
@@ -143,10 +143,12 @@ public class DcMotor8863 {
 
     private int baseEncoderCount = 0;
 
+    @Override
     public void setBaseEncoderCount(int baseEncoderCount) {
         this.baseEncoderCount = baseEncoderCount;
     }
 
+    @Override
     public int getBaseEncoderCount() {
         return baseEncoderCount;
     }
@@ -230,6 +232,7 @@ public class DcMotor8863 {
      * @param virtualTargetEncoderCount The virtual target encoder count. The actual motor target
      *                                  encoder count will be calculated using this.
      */
+    @Override
     public void setTargetPosition(int virtualTargetEncoderCount) {
         this.virtualTargetEncoderCount = virtualTargetEncoderCount;
         // calculate the motor target encoder count and set the private variable
@@ -264,6 +267,7 @@ public class DcMotor8863 {
      *
      * @return current motor encoder count, adjusted by the baseEncoderCount. I.E virtual encoder count
      */
+    @Override
     public int getCurrentPosition() {
         // get the real motor encoder count from the control hub
         int motorEncoderCount = FTCDcMotor.getCurrentPosition();
@@ -412,6 +416,7 @@ public class DcMotor8863 {
         return motorType;
     }
 
+    @Override
     public void setMotorType(MotorType motorType) {
         this.motorType = motorType;
         setCountsPerRevForMotorType(motorType);
@@ -498,6 +503,7 @@ public class DcMotor8863 {
         return getCountsPerRev();
     }
 
+    @Override
     public int getCountsPerRev() {
         return countsPerRev;
     }
@@ -595,6 +601,7 @@ public class DcMotor8863 {
         return MovementPerRev;
     }
 
+    @Override
     public void setMovementPerRev(double MovementPerRev) {
         this.MovementPerRev = MovementPerRev;
     }
@@ -611,6 +618,7 @@ public class DcMotor8863 {
         return targetEncoderTolerance;
     }
 
+    @Override
     public void setTargetEncoderTolerance(int targetEncoderTolerance) {
         this.targetEncoderTolerance = targetEncoderTolerance;
     }
@@ -635,6 +643,7 @@ public class DcMotor8863 {
         return finishBehavior;
     }
 
+    @Override
     public void setFinishBehavior(FinishBehavior finishBehavior) {
         this.finishBehavior = finishBehavior;
         if (finishBehavior == FinishBehavior.FLOAT) {
@@ -696,6 +705,7 @@ public class DcMotor8863 {
         this.stallDetectionTolerance = stallDetectionTolerance;
     }
 
+    @Override
     public MotorState getCurrentMotorState() {
         return currentMotorState;
     }
@@ -991,6 +1001,7 @@ public class DcMotor8863 {
      * @return position in units of whatever is attached to it
      */
     // tested
+    @Override
     public double getPositionInTermsOfAttachment() {
         return getMovementForEncoderCount(getCurrentPosition());
     }
@@ -1111,6 +1122,7 @@ public class DcMotor8863 {
      * @return true if the movement is started and not already ongoing
      */
     // tested
+    @Override
     public boolean moveToPosition(double power, double targetPosition, FinishBehavior afterCompletion) {
         // figure out what the encoder count is that corresponds to the target position
         int encoderCountForPosition = getEncoderCountForMovement(targetPosition);
@@ -1190,6 +1202,7 @@ public class DcMotor8863 {
      * @return If return is true then it actually did it.
      */
     // tested
+    @Override
     public boolean rotateNumberOfRevolutions(double power, double revs, FinishBehavior afterCompletion) {
         int currentPosition = this.getCurrentPosition();
         // figure out what the encoder count is that corresponds to the amount to be moved
@@ -1812,6 +1825,7 @@ public class DcMotor8863 {
      *
      * @return the state that the motor is in currently
      */
+    @Override
     public MotorState update() {
         switch (this.currentMotorState) {
             // Idle state means the motor is not moving and it will turn if a load is applied.
@@ -1954,6 +1968,7 @@ public class DcMotor8863 {
         }
     }
 
+    @Override
     public boolean isMovementComplete() {
         if (this.currentMotorState == MotorState.COMPLETE_FLOAT || this.currentMotorState == MotorState.COMPLETE_HOLD) {
             return true;
@@ -1995,6 +2010,7 @@ public class DcMotor8863 {
     //*********************************************************************************************
     //          Wrapper Methods
     //*********************************************************************************************
+    @Override
     public void setMode(DcMotor.RunMode mode) {
         if (mode == DcMotor.RunMode.STOP_AND_RESET_ENCODER) {
             this.setMotorState(MotorState.IDLE);
@@ -2022,6 +2038,7 @@ public class DcMotor8863 {
         return FTCDcMotor.getMode();
     }
 
+    @Override
     public void setPower(double power) {
         power = Range.clip(power, getMinMotorPower(), getMaxMotorPower());
         this.currentPower = power;
@@ -2037,6 +2054,7 @@ public class DcMotor8863 {
         FTCDcMotor.setZeroPowerBehavior(ZeroPowerBehavior);
     }
 
+    @Override
     public void setDirection(DcMotor.Direction direction) {
         FTCDcMotor.setDirection(direction);
         this.direction = direction;
