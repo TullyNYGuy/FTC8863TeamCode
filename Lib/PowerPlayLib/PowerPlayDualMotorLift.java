@@ -73,7 +73,7 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
     // getter and setter methods
     //*********************************************************************************************
 
-    private ExtensionRetractionMechanismGenericMotor leftLift;
+    private ExtensionRetractionMechanismGenericMotor lift;
     private DcMotor8863Interface liftMotor;
     private DataLogging logFile;
     private boolean enableLogging = false;
@@ -116,13 +116,13 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
         liftMotor = new DcMotor8863(PowerPlayRobot.HardwareName.LEFT_LIFT_MOTOR.hwName, hardwareMap, telemetry);
         liftMotor.setMotorType(DcMotor8863.MotorType.GOBILDA_435);
 
-        leftLift = new ExtensionRetractionMechanismGenericMotor(hardwareMap, telemetry,
+        lift = new ExtensionRetractionMechanismGenericMotor(hardwareMap, telemetry,
                 "lift",
                 PowerPlayRobot.HardwareName.LEFT_LIFT_LIMIT_SWITCH_EXTENSION.hwName,
                 PowerPlayRobot.HardwareName.LEFT_LIFT_LIMIT_SWITCH_RETRACTION.hwName,
                 liftMotor,
                 5.713);
-        leftLift.forwardMotorDirection();
+        lift.forwardMotorDirection();
 
         //*********************************************
         // SET the lift positions here
@@ -141,17 +141,17 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
         initPower = .2;
         extendPower = 1.0;
         retractPower = -1.0;
-        leftLift.setExtensionPower(extendPower);
-        leftLift.setRetractionPower(retractPower);
+        lift.setExtensionPower(extendPower);
+        lift.setRetractionPower(retractPower);
 
         //*********************************************
         // SET the lift max and min positions here
         //*********************************************
-        leftLift.setExtensionPositionInMechanismUnits(36.0);
-        leftLift.setRetractionPositionInMechanismUnits(0.04);
-        leftLift.setTargetEncoderTolerance(30);
+        lift.setExtensionPositionInMechanismUnits(36.0);
+        lift.setRetractionPositionInMechanismUnits(0.04);
+        lift.setTargetEncoderTolerance(30);
 
-        leftLift.setResetTimerLimitInmSec(5000);
+        lift.setResetTimerLimitInmSec(5000);
         timer = new ElapsedTime();
 
         liftState = LiftState.PRE_INIT;
@@ -173,7 +173,7 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
 
     @Override
     public String getName() {
-        return "LeftLift";
+        return "lift";
     }
 
     @Override
@@ -186,19 +186,19 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
         this.logFile = logFile;
         logCommandOnchange = new DataLogOnChange(logFile);
         logStateOnChange = new DataLogOnChange(logFile);
-        leftLift.setDataLog(logFile);
+        lift.setDataLog(logFile);
     }
 
     @Override
     public void enableDataLogging() {
         enableLogging = true;
-        leftLift.enableDataLogging();
+        lift.enableDataLogging();
     }
 
     @Override
     public void disableDataLogging() {
         enableLogging = false;
-        leftLift.disableDataLogging();
+        lift.disableDataLogging();
     }
 
     @Override
@@ -231,7 +231,7 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
     public boolean init(Configuration config) {
         // start the init for the extension retraction mechanism
         logCommand("Init starting");
-        leftLift.init();
+        lift.init();
         liftState = LiftState.WAITING_FOR_EXTENSION_RETRACTION_MECHANISM_INIT_TO_COMPLETE;
 
         commandComplete = false;
@@ -278,7 +278,7 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
             // remember the command for later
             extendCommand = ExtendCommand.MOVE_TO_HIGH;
             logCommand(extendCommand.toString());
-            leftLift.goToPosition(highPosition, extendPower);
+            lift.goToPosition(highPosition, extendPower);
         } else {
             // you can't start a new command when the old one is not finished
         }
@@ -296,7 +296,7 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
             // remember the command for later
             extendCommand = ExtendCommand.MOVE_TO_MEDIUM;
             logCommand(extendCommand.toString());
-            leftLift.goToPosition(mediumPosition, extendPower);
+            lift.goToPosition(mediumPosition, extendPower);
         } else {
             // you can't start a new command when the old one is not finished
         }
@@ -314,7 +314,7 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
             // remember the command for later
             extendCommand = ExtendCommand.MOVE_TO_LOW;
             logCommand(extendCommand.toString());
-            leftLift.goToPosition(lowPosition, extendPower);
+            lift.goToPosition(lowPosition, extendPower);
         } else {
             // you can't start a new command when the old one is not finished
         }
@@ -332,7 +332,7 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
             // remember the command for later
             extendCommand = ExtendCommand.MOVE_TO_GROUND;
             logCommand(extendCommand.toString());
-            leftLift.goToPosition(groundPosition, extendPower);
+            lift.goToPosition(groundPosition, extendPower);
         } else {
             // you can't start a new command when the old one is not finished
         }
@@ -350,7 +350,7 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
             // remember the command for later
             extendCommand = ExtendCommand.MOVE_TO_PICKUP;
             logCommand(extendCommand.toString());
-            leftLift.goToPosition(pickupPosition, extendPower);
+            lift.goToPosition(pickupPosition, extendPower);
         } else {
             // you can't start a new command when the old one is not finished
         }
@@ -359,12 +359,12 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
     public void droppingOnPole() {
         // lockout for double hits on a command button. Downside is that the driver better hit the
         // right button the first time or they are toast
-        double currentLiftPosition = leftLift.getCurrentPosition();
+        double currentLiftPosition = lift.getCurrentPosition();
         if (commandComplete) {
             logCommand("test the drop");
             retractionComplete = false;
             commandComplete = false;
-            leftLift.goToPosition(currentLiftPosition - 4.0, retractPower);
+            lift.goToPosition(currentLiftPosition - 4.0, retractPower);
             liftState = LiftState.DROPPING_ON_POLE;
         } else {
             // you can't start a new command when the old one is not finished
@@ -381,7 +381,7 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
             liftState = LiftState.RETRACTING;
             extendCommand = ExtendCommand.RETRACT;
             logCommand(extendCommand.toString());
-            leftLift.goToPosition(pickupPosition, retractPower);
+            lift.goToPosition(pickupPosition, retractPower);
         } else {
             // you can't start a new command when the old one is not finished
             logCommand("Retract command ignored");
@@ -403,11 +403,11 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
     }
 
     public void extendToPosition(double position, double power) {
-        leftLift.goToPosition(position, power);
+        lift.goToPosition(position, power);
     }
 
     public boolean isMovementComplete() {
-        return leftLift.isMovementComplete();
+        return lift.isMovementComplete();
     }
 
     public boolean isCommandComplete() {
@@ -419,7 +419,7 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public void update() {
-        leftLift.update();
+        lift.update();
         logState();
         switch (liftState) {
             //********************************************************************************
@@ -434,18 +434,18 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
             break;
 
             case INIT_RAISE_LIFT: {
-                if (leftLift.isPositionReached()) {
-                    leftLift.init();
+                if (lift.isPositionReached()) {
+                    lift.init();
                     liftState = LiftState.WAITING_FOR_EXTENSION_RETRACTION_MECHANISM_INIT_TO_COMPLETE;
                 }
             }
             break;
 
             case WAITING_FOR_EXTENSION_RETRACTION_MECHANISM_INIT_TO_COMPLETE: {
-                if (leftLift.isInitComplete()) {
+                if (lift.isInitComplete()) {
                     // working around bug where we command the lift to 0 and it locks up
                     // instead just leave the lift at its init position
-                    //leftLift.goToPosition(initPosition, initPower);
+                    //lift.goToPosition(initPosition, initPower);
                     //liftState = LiftState.WAITING_FOR_EXTENSION_ARM_HOME_POSITION_REACHED;
                     liftState = LiftState.INIT_COMPLETE;
                 }
@@ -453,7 +453,7 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
             break;
 
             case WAITING_FOR_EXTENSION_ARM_HOME_POSITION_REACHED: {
-                if (leftLift.isPositionReached()) {
+                if (lift.isPositionReached()) {
                     liftState = LiftState.INIT_COMPLETE;
                     commandComplete = true;
                     initComplete = true;
@@ -474,7 +474,7 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
             //********************************************************************************
 
             case MOVING_TO_HIGH: {
-                if (leftLift.isPositionReached()) {
+                if (lift.isPositionReached()) {
                     commandComplete = true;
                     liftState = LiftState.READY;
                 }
@@ -486,7 +486,7 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
             //********************************************************************************
 
             case MOVING_TO_MEDIUM: {
-                if (leftLift.isPositionReached()) {
+                if (lift.isPositionReached()) {
                     commandComplete = true;
                     liftState = LiftState.READY;
                 }
@@ -498,7 +498,7 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
             //********************************************************************************
 
             case MOVING_TO_LOW: {
-                if (leftLift.isPositionReached()) {
+                if (lift.isPositionReached()) {
                     commandComplete = true;
                     liftState = LiftState.READY;
                 }
@@ -511,7 +511,7 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
 
             // same as middle right now but may need to change later so make it separate from middle
             case MOVING_TO_GROUND: {
-                if (leftLift.isPositionReached()) {
+                if (lift.isPositionReached()) {
                     commandComplete = true;
                     liftState = LiftState.READY;
                 }
@@ -523,7 +523,7 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
             //********************************************************************************
 
             case MOVING_TO_PICKUP: {
-                if (leftLift.isPositionReached()) {
+                if (lift.isPositionReached()) {
                     commandComplete = true;
                     liftState = LiftState.READY;
                 }
@@ -531,7 +531,7 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
             break;
 
             case DROPPING_ON_POLE: {
-                if (leftLift.isPositionReached()) {
+                if (lift.isPositionReached()) {
                     commandComplete = true;
                     liftState = LiftState.READY;
                 }
