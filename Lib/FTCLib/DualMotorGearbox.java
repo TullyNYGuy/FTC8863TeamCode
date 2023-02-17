@@ -7,6 +7,11 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 /**
  * This class is a kludge. It makes two motors in a gearbox look like a single motor.
+ * You will need to connect the power to one of the motor opposite of the normal connections:
+ * red to black
+ * black to red.
+ * This forces one motor to spin opposite of the other for the same motor command as well as makes
+ * the encoders move in the same direction.
  */
 public class DualMotorGearbox implements DcMotor8863Interface{
 
@@ -45,13 +50,13 @@ public class DualMotorGearbox implements DcMotor8863Interface{
      */
     public void setDirection(DcMotor.Direction direction) {
         if (direction == DcMotor.Direction.FORWARD) {
-            leftMotor.setDirection(DcMotor.Direction.REVERSE);
+            leftMotor.setDirection(DcMotor.Direction.FORWARD);
             rightMotor.setDirection(DcMotor.Direction.FORWARD);
             this.direction = DcMotor.Direction.FORWARD;
         }
 
         if (direction == DcMotor.Direction.REVERSE) {
-            leftMotor.setDirection(DcMotor.Direction.FORWARD);
+            leftMotor.setDirection(DcMotor.Direction.REVERSE);
             rightMotor.setDirection(DcMotor.Direction.REVERSE);
             this.direction = DcMotor.Direction.REVERSE;
         }
