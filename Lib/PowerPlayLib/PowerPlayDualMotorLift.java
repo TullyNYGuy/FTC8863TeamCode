@@ -1,6 +1,14 @@
 package org.firstinspires.ftc.teamcode.Lib.PowerPlayLib;
 
 
+import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.MAX_VELOCITY;
+import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.MAX_ACCELERATION;
+import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.MOTION_PID;
+
+import com.acmerobotics.roadrunner.control.PIDFController;
+import com.acmerobotics.roadrunner.profile.MotionProfile;
+import com.acmerobotics.roadrunner.profile.MotionProfileGenerator;
+import com.acmerobotics.roadrunner.profile.MotionState;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -13,6 +21,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863Interface;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanismGenericMotor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.MotionProfileFollower;
 
 public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
 
@@ -73,8 +82,12 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
     // getter and setter methods
     //*********************************************************************************************
 
+
     private ExtensionRetractionMechanismGenericMotor lift;
     private DcMotor8863Interface liftMotor;
+    private PIDFController motionController;
+    private MotionProfileFollower profileFollower;
+
     private DataLogging logFile;
     private boolean enableLogging = false;
     private DataLogOnChange logStateOnChange;
@@ -101,6 +114,8 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
     private double initPower;
     private double extendPower;
     private double retractPower;
+
+    private MotionProfile profileInitToHigh;
 
     private Phase phase = Phase.TELEOP;
 
@@ -159,6 +174,13 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
         initComplete = false;
         // the lift can be commanded to do something, like the init
         commandComplete = true;
+
+        // create the motion controller PIDF
+        motionController = new PIDFController(MOTION_PID);
+        // todo explore the PIDFController methods
+        //turnController.setInputBounds(0, 2 * Math.PI);
+
+        profileFollower = new MotionProfileFollower(motionController);
     }
 
     //*********************************************************************************************
@@ -218,6 +240,51 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
         }
     }
 
+    // todo generate the profiles
+    private void createMotionProfiles() {
+        // init to pickup
+        // init to ground
+        // init to low
+        // init to medium
+        // init to high
+        profileInitToHigh = MotionProfileGenerator.generateSimpleMotionProfile(
+                new MotionState(initPosition, 0, 0, 0),
+                new MotionState(highPosition, 0, 0, 0),
+                MAX_VELOCITY,
+                MAX_ACCELERATION
+        );
+
+        // pickup to init
+        // pickup to ground
+        // pickup to low
+        // pickup to medium
+        // pickup to high
+
+        // ground to init
+        // ground to pickup
+        // pickup to low
+        // ground to medium
+        // ground to high
+
+        // low to init
+        // low to pickup
+        // low to ground
+        // low to medium
+        // low to high
+
+        // medium to init
+        // medium to pickup
+        // medium to ground
+        // medium to low
+        // medium to high
+
+        // high to init
+        // high to pickup
+        // high to ground
+        // high to low
+        // high to medium
+    }
+
     //*********************************************************************************************
     //          MAJOR METHODS
     //
@@ -265,6 +332,9 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
     //********************************************************************************
     // Public commands for controlling the lift
     //********************************************************************************
+
+    // todo establish the commands for following a profile. Need to record where the lift is
+    // starting from.
 
     public void moveToHigh() {
         // lockout for double hits on a command button. Downside is that the driver better hit the

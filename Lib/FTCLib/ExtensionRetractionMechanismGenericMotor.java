@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
 
+import com.acmerobotics.roadrunner.profile.MotionProfile;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -26,6 +27,7 @@ public class ExtensionRetractionMechanismGenericMotor {
         GO_TO_RETRACTED, // retract fully
         GO_TO_EXTENDED, // extend fully
         GO_TO_POSITION, // go to a specified position between fully extended and fully retracted
+        FOLLOW_PROFILE,
         RESET, // it is assumed that a reset moves the mechanism to a retracted position
         JOYSTICK, // run under joystick control
         HOLD_AT_RETRACT, // internal command not publicly accessible, used to limit the joystick travel
@@ -54,6 +56,9 @@ public class ExtensionRetractionMechanismGenericMotor {
         START_GO_TO_POSITION, //
         MOVING_TO_POSITION, // moving to a specified position
         AT_POSITION, // arrived at the specified position
+        START_FOLLOWING_PROFILE,
+        FOLLOWING_PROFILE,
+        PROFILE_COMPLETE,
         START_JOYSTICK, //
         JOYSTICK, // under joystick control
         START_HOLD_AT_RETRACT_SEQUENCE, // internal state not publicly accessible, used to limit the joystick travel
@@ -107,6 +112,7 @@ public class ExtensionRetractionMechanismGenericMotor {
     //*********************************************************************************************
     protected DcMotor8863Interface extensionRetractionMotor;
     protected EncoderToLinearPosition encoderToLinearPosition;
+    protected MotionProfileFollower follower;
 
     // null is shown for emphasis. Any object is null until is it created.
     protected Switch retractedLimitSwitch = null;
@@ -889,6 +895,20 @@ public class ExtensionRetractionMechanismGenericMotor {
         this.currentPower = moveToPositionPower;
         // the next execution of the state machine will pick up this new command and execute it
         extensionRetractionCommand = ExtensionRetractionCommands.GO_TO_POSITION;
+    }
+
+    /**
+     * Move the mechanism following a motion profile.
+     *
+     * @param follower         A motion profile follower.
+     */
+    public void followProfile(MotionProfileFollower follower) {
+        this.follower = follower;
+        log("COMMANDED " + mechanismName.toUpperCase() + " TO FOLLOW PROFILE " + follower.getProfileName());
+        // set the properties so they can be used later
+        this.desiredPosition = follower.getProfile().end().getX();
+        // the next execution of the state machine will pick up this new command and execute it
+        extensionRetractionCommand = ExtensionRetractionCommands.FOLLOW_PROFILE;
     }
 
 
@@ -1889,6 +1909,7 @@ public class ExtensionRetractionMechanismGenericMotor {
                     case GO_TO_RETRACTED:
                     case GO_TO_EXTENDED:
                     case GO_TO_POSITION:
+                    case FOLLOW_PROFILE:
                     case JOYSTICK:
                         logIgnoreCommand(extensionRetractionCommand);
                         extensionRetractionCommand = ExtensionRetractionCommands.RESET;
@@ -1924,6 +1945,7 @@ public class ExtensionRetractionMechanismGenericMotor {
                     case GO_TO_RETRACTED:
                     case GO_TO_EXTENDED:
                     case GO_TO_POSITION:
+                    case FOLLOW_PROFILE:
                     case JOYSTICK:
                         logIgnoreCommand(extensionRetractionCommand);
                         extensionRetractionCommand = ExtensionRetractionCommands.RESET;
@@ -1956,6 +1978,7 @@ public class ExtensionRetractionMechanismGenericMotor {
                     case GO_TO_RETRACTED:
                     case GO_TO_EXTENDED:
                     case GO_TO_POSITION:
+                    case FOLLOW_PROFILE:
                     case JOYSTICK:
                         logIgnoreCommand(extensionRetractionCommand);
                         extensionRetractionCommand = ExtensionRetractionCommands.RESET;
@@ -1989,6 +2012,7 @@ public class ExtensionRetractionMechanismGenericMotor {
                     case GO_TO_RETRACTED:
                     case GO_TO_EXTENDED:
                     case GO_TO_POSITION:
+                    case FOLLOW_PROFILE:
                     case JOYSTICK:
                         logIgnoreCommand(extensionRetractionCommand);
                         extensionRetractionCommand = ExtensionRetractionCommands.RESET;
@@ -2026,6 +2050,9 @@ public class ExtensionRetractionMechanismGenericMotor {
                         break;
                     case GO_TO_POSITION:
                         extensionRetractionState = ExtensionRetractionStates.START_GO_TO_POSITION;
+                        break;
+                    case FOLLOW_PROFILE:
+                        extensionRetractionState = ExtensionRetractionStates.START_FOLLOWING_PROFILE;
                         break;
                     case JOYSTICK:
                         extensionRetractionState = ExtensionRetractionStates.JOYSTICK;
@@ -2077,6 +2104,11 @@ public class ExtensionRetractionMechanismGenericMotor {
                         previousExtensionRetractionCommand = ExtensionRetractionCommands.GO_TO_RETRACTED;
                         extensionRetractionState = ExtensionRetractionStates.START_GO_TO_POSITION;
                         break;
+                    case FOLLOW_PROFILE:
+                        previousExtensionRetractionState = ExtensionRetractionStates.START_RETRACTION_SEQUENCE;
+                        previousExtensionRetractionCommand = ExtensionRetractionCommands.GO_TO_RETRACTED;
+                        extensionRetractionState = ExtensionRetractionStates.START_FOLLOWING_PROFILE;
+                        break;
                     case JOYSTICK:
                         previousExtensionRetractionState = ExtensionRetractionStates.START_RETRACTION_SEQUENCE;
                         previousExtensionRetractionCommand = ExtensionRetractionCommands.GO_TO_RETRACTED;
@@ -2125,6 +2157,9 @@ public class ExtensionRetractionMechanismGenericMotor {
                     case GO_TO_POSITION:
                         extensionRetractionState = ExtensionRetractionStates.START_GO_TO_POSITION;
                         break;
+                    case FOLLOW_PROFILE:
+                        extensionRetractionState = ExtensionRetractionStates.START_FOLLOWING_PROFILE;
+                        break;
                     case JOYSTICK:
                         extensionRetractionState = ExtensionRetractionStates.JOYSTICK;
                         break;
@@ -2165,6 +2200,9 @@ public class ExtensionRetractionMechanismGenericMotor {
                         break;
                     case GO_TO_POSITION:
                         extensionRetractionState = ExtensionRetractionStates.START_GO_TO_POSITION;
+                        break;
+                    case FOLLOW_PROFILE:
+                        extensionRetractionState = ExtensionRetractionStates.START_FOLLOWING_PROFILE;
                         break;
                     case JOYSTICK:
                         extensionRetractionState = ExtensionRetractionStates.JOYSTICK;
@@ -2213,6 +2251,9 @@ public class ExtensionRetractionMechanismGenericMotor {
                     case GO_TO_POSITION:
                         extensionRetractionState = ExtensionRetractionStates.START_GO_TO_POSITION;
                         break;
+                    case FOLLOW_PROFILE:
+                        extensionRetractionState = ExtensionRetractionStates.START_FOLLOWING_PROFILE;
+                        break;
                     case JOYSTICK:
                         extensionRetractionState = ExtensionRetractionStates.JOYSTICK;
                         break;
@@ -2250,6 +2291,9 @@ public class ExtensionRetractionMechanismGenericMotor {
                         break;
                     case GO_TO_POSITION:
                         extensionRetractionState = ExtensionRetractionStates.START_GO_TO_POSITION;
+                        break;
+                    case FOLLOW_PROFILE:
+                        extensionRetractionState = ExtensionRetractionStates.START_FOLLOWING_PROFILE;
                         break;
                     case JOYSTICK:
                         extensionRetractionState = ExtensionRetractionStates.JOYSTICK;
@@ -2301,6 +2345,11 @@ public class ExtensionRetractionMechanismGenericMotor {
                         previousExtensionRetractionCommand = ExtensionRetractionCommands.GO_TO_EXTENDED;
                         extensionRetractionState = ExtensionRetractionStates.START_GO_TO_POSITION;
                         break;
+                    case FOLLOW_PROFILE:
+                        previousExtensionRetractionState = ExtensionRetractionStates.START_EXTENSION_SEQUENCE;
+                        previousExtensionRetractionCommand = ExtensionRetractionCommands.GO_TO_EXTENDED;
+                        extensionRetractionState = ExtensionRetractionStates.START_FOLLOWING_PROFILE;
+                        break;
                     case JOYSTICK:
                         previousExtensionRetractionState = ExtensionRetractionStates.START_EXTENSION_SEQUENCE;
                         previousExtensionRetractionCommand = ExtensionRetractionCommands.GO_TO_EXTENDED;
@@ -2349,6 +2398,9 @@ public class ExtensionRetractionMechanismGenericMotor {
                     case GO_TO_POSITION:
                         extensionRetractionState = ExtensionRetractionStates.START_GO_TO_POSITION;
                         break;
+                    case FOLLOW_PROFILE:
+                        extensionRetractionState = ExtensionRetractionStates.START_FOLLOWING_PROFILE;
+                        break;
                     case JOYSTICK:
                         extensionRetractionState = ExtensionRetractionStates.JOYSTICK;
                         break;
@@ -2389,6 +2441,9 @@ public class ExtensionRetractionMechanismGenericMotor {
                         break;
                     case GO_TO_POSITION:
                         extensionRetractionState = ExtensionRetractionStates.START_GO_TO_POSITION;
+                        break;
+                    case FOLLOW_PROFILE:
+                        extensionRetractionState = ExtensionRetractionStates.START_FOLLOWING_PROFILE;
                         break;
                     case JOYSTICK:
                         extensionRetractionState = ExtensionRetractionStates.JOYSTICK;
@@ -2437,6 +2492,9 @@ public class ExtensionRetractionMechanismGenericMotor {
                     case GO_TO_POSITION:
                         extensionRetractionState = ExtensionRetractionStates.START_GO_TO_POSITION;
                         break;
+                    case FOLLOW_PROFILE:
+                        extensionRetractionState = ExtensionRetractionStates.START_FOLLOWING_PROFILE;
+                        break;
                     case JOYSTICK:
                         extensionRetractionState = ExtensionRetractionStates.JOYSTICK;
                         break;
@@ -2474,6 +2532,9 @@ public class ExtensionRetractionMechanismGenericMotor {
                         break;
                     case GO_TO_POSITION:
                         extensionRetractionState = ExtensionRetractionStates.START_GO_TO_POSITION;
+                        break;
+                    case FOLLOW_PROFILE:
+                        extensionRetractionState = ExtensionRetractionStates.START_FOLLOWING_PROFILE;
                         break;
                     case JOYSTICK:
                         extensionRetractionState = ExtensionRetractionStates.JOYSTICK;
@@ -2516,7 +2577,11 @@ public class ExtensionRetractionMechanismGenericMotor {
                             extensionRetractionCommand = previousExtensionRetractionCommand;
                         }
                         break;
-
+                    case FOLLOW_PROFILE:
+                        previousExtensionRetractionState = ExtensionRetractionStates.START_GO_TO_POSITION;
+                        previousExtensionRetractionCommand = ExtensionRetractionCommands.GO_TO_POSITION;
+                        extensionRetractionState = ExtensionRetractionStates.START_FOLLOWING_PROFILE;
+                        break;
                     case JOYSTICK:
                         previousExtensionRetractionState = extensionRetractionState;
                         previousExtensionRetractionCommand = ExtensionRetractionCommands.GO_TO_POSITION;
@@ -2564,30 +2629,12 @@ public class ExtensionRetractionMechanismGenericMotor {
                         } else {
                             // keep watching the move to position to see when it completes
                         }
-
                         // check to make sure the extended limit has not been reached. If it has
                         // then something went wrong or someone gave a bad motor command.
-                        if (isExtensionLimitReached() && directionOfMovementIsExtending) {
-                            // the extension limit has been reached. This is probably not intentional.
-                            // But the movement has to be stopped in order to protect the mechanism
-                            // from damage. Clear the command.
-                            log("Emergency stop! Tried to extend past extension limit! Stopping!");
-                            stopMechanism();
-                            extensionRetractionCommand = ExtensionRetractionCommands.NO_COMMAND;
-                            extensionRetractionState = ExtensionRetractionStates.FULLY_EXTENDED;
-                        }
-
-                        // check to make sure the retracted limit switch has not been tripped. If it has
-                        // then something went wrong or someone gave a bad motor command.
-                        if (isRetractionLimitReached() && !directionOfMovementIsExtending) {
-                            // the retraction limit has been reached. This is probably not intentional.
-                            // But the movement has to be stopped in order to protect the mechanism
-                            // from damage. Clear the command.
-                            log("Emergency stop! Tried to retract past retraction limit! Stopping!");
-                            stopMechanism();
-                            extensionRetractionCommand = ExtensionRetractionCommands.NO_COMMAND;
-                            extensionRetractionState = ExtensionRetractionStates.FULLY_RETRACTED;
-                        }
+                        checkExtensionAndRetractionLimitsHit();
+                        break;
+                    case FOLLOW_PROFILE:
+                        extensionRetractionState = ExtensionRetractionStates.START_FOLLOWING_PROFILE;
                         break;
                     case JOYSTICK:
                         extensionRetractionState = ExtensionRetractionStates.JOYSTICK;
@@ -2624,6 +2671,150 @@ public class ExtensionRetractionMechanismGenericMotor {
                         // new move to position command. I.E. moving to a position from another
                         // position.
                         extensionRetractionState = ExtensionRetractionStates.START_GO_TO_POSITION;
+                        break;
+                    case FOLLOW_PROFILE:
+                        extensionRetractionState = ExtensionRetractionStates.START_FOLLOWING_PROFILE;
+                        break;
+                    case JOYSTICK:
+                        extensionRetractionState = ExtensionRetractionStates.JOYSTICK;
+                        break;
+                    case NO_COMMAND:
+                        // don't do anything, just hang out
+                        break;
+                }
+                break;
+
+            // -------------------------
+            //   PROFILE FOLLOWER STATES
+            //--------------------------
+
+            // this state checks to see if the mechanism can run a go to position.
+            case START_FOLLOWING_PROFILE:
+                switch (extensionRetractionCommand) {
+                    // The retraction has been interrupted by a reset command. Setup for a reset.
+                    case RESET:
+                        previousExtensionRetractionState = ExtensionRetractionStates.START_FOLLOWING_PROFILE;
+                        previousExtensionRetractionCommand = ExtensionRetractionCommands.FOLLOW_PROFILE;
+                        extensionRetractionState = ExtensionRetractionStates.START_RESET_SEQUENCE;
+                        break;
+                    case GO_TO_RETRACTED:
+                        previousExtensionRetractionState = ExtensionRetractionStates.START_FOLLOWING_PROFILE;
+                        previousExtensionRetractionCommand = ExtensionRetractionCommands.FOLLOW_PROFILE;
+                        extensionRetractionState = ExtensionRetractionStates.START_RETRACTION_SEQUENCE;
+                        break;
+                    case GO_TO_EXTENDED:
+                        previousExtensionRetractionState = ExtensionRetractionStates.START_FOLLOWING_PROFILE;
+                        previousExtensionRetractionCommand = ExtensionRetractionCommands.FOLLOW_PROFILE;
+                        extensionRetractionState = ExtensionRetractionStates.START_EXTENSION_SEQUENCE;
+                        break;
+                    case GO_TO_POSITION:
+                        previousExtensionRetractionState = ExtensionRetractionStates.START_FOLLOWING_PROFILE;
+                        previousExtensionRetractionCommand = ExtensionRetractionCommands.FOLLOW_PROFILE;
+                        extensionRetractionState = ExtensionRetractionStates.START_GO_TO_POSITION;
+                        break;
+                    case FOLLOW_PROFILE:
+                        // todo fill in the blanks
+                        if (isOkToGoToPosition()) {
+                            follower.start();
+                            extensionRetractionState = ExtensionRetractionStates.FOLLOWING_PROFILE;
+                        } else {
+                            extensionRetractionState = previousExtensionRetractionState;
+                            extensionRetractionCommand = previousExtensionRetractionCommand;
+                        }
+                        break;
+                    case JOYSTICK:
+                        previousExtensionRetractionState = extensionRetractionState;
+                        previousExtensionRetractionCommand = ExtensionRetractionCommands.GO_TO_POSITION;
+                        extensionRetractionState = ExtensionRetractionStates.JOYSTICK;
+                        break;
+                    case NO_COMMAND:
+                        // do nothing. This command should never be active in this state.
+                        break;
+                }
+                break;
+
+            case FOLLOWING_PROFILE:
+                // In case this command is interrupted by another command, and then that command
+                // cannot be run for some reason, save this state and command so that it can be
+                // resumed.
+                previousExtensionRetractionState = ExtensionRetractionStates.MOVING_TO_POSITION;
+                previousExtensionRetractionCommand = ExtensionRetractionCommands.GO_TO_POSITION;
+
+                switch (extensionRetractionCommand) {
+                    case RESET:
+                        // a reset can be requested at any time.
+                        extensionRetractionState = ExtensionRetractionStates.START_RESET_SEQUENCE;
+                        break;
+                    // movement to a position can be interrupted by a command to fully extend or
+                    // fully retract
+                    case GO_TO_RETRACTED:
+                        extensionRetractionState = ExtensionRetractionStates.START_RETRACTION_SEQUENCE;
+                    case GO_TO_EXTENDED:
+                        extensionRetractionState = ExtensionRetractionStates.START_EXTENSION_SEQUENCE;
+                        break;
+                    case GO_TO_POSITION:
+                        extensionRetractionState = ExtensionRetractionStates.START_GO_TO_POSITION;
+                        break;
+                    case FOLLOW_PROFILE:
+                        // todo fill in 
+                        // the mechanism has been requested to follow a profile. 
+                        if (follower.isProfileComplete()) {
+                            logArrivedAtDestination();
+                            // the movement to the position is complete. But the power to the motor
+                            // cannot be removed. The power is needed because the motor is holding
+                            // the position and may need to act against a force (like gravity) to
+                            // hold position.
+                            // The moveToPosition() that was called previously will take care of the
+                            // motor so no other method calls are needed here.
+                            extensionRetractionCommand = ExtensionRetractionCommands.NO_COMMAND;
+                            extensionRetractionState = ExtensionRetractionStates.PROFILE_COMPLETE;
+                        } else {
+                            follower.setMeasuredPosition(extensionRetractionMotor.getCurrentPosition());
+                            follower.update();
+                            extensionRetractionMotor.setPower(follower.getCorrection());
+                        }
+                        // check to make sure the extended limit has not been reached. If it has
+                        // then something went wrong or someone gave a bad motor command.
+                        checkExtensionAndRetractionLimitsHit();
+                        break;
+                    case JOYSTICK:
+                        extensionRetractionState = ExtensionRetractionStates.JOYSTICK;
+                        break;
+                    case NO_COMMAND:
+                        // don't do anything, just hang out
+                        break;
+                }
+                break;
+
+            // this state is for when the mechanism has completed a move to a position
+            case PROFILE_COMPLETE:
+                // In case this command is interrupted by another command, and then that command
+                // cannot be run for some reason, save this state and command so that it can be
+                // resumed.
+                previousExtensionRetractionState = ExtensionRetractionStates.AT_POSITION;
+                previousExtensionRetractionCommand = ExtensionRetractionCommands.NO_COMMAND;
+
+                switch (extensionRetractionCommand) {
+                    case RESET:
+                        // a reset can be requested at any time.
+                        extensionRetractionState = ExtensionRetractionStates.START_RESET_SEQUENCE;
+                        break;
+                    // movement to a position can be interrupted by a command to fully extend or
+                    // fully retract
+                    case GO_TO_RETRACTED:
+                        extensionRetractionState = ExtensionRetractionStates.START_RETRACTION_SEQUENCE;
+                    case GO_TO_EXTENDED:
+                        extensionRetractionState = ExtensionRetractionStates.START_EXTENSION_SEQUENCE;
+                        break;
+                    case GO_TO_POSITION:
+                        extensionRetractionState = ExtensionRetractionStates.START_GO_TO_POSITION;
+                        break;
+                    case FOLLOW_PROFILE:
+                        // When the mechanism arrives at the desired position, the command is set to
+                        // NO_COMMAND. So if this FOLLOW_PROFILE command is received, then this is a
+                        // new follow profile command. I.E. moving to a position from another
+                        // position.
+                        extensionRetractionState = ExtensionRetractionStates.START_FOLLOWING_PROFILE;
                         break;
                     case JOYSTICK:
                         extensionRetractionState = ExtensionRetractionStates.JOYSTICK;
@@ -2703,6 +2894,9 @@ public class ExtensionRetractionMechanismGenericMotor {
                     case GO_TO_POSITION:
                         extensionRetractionState = ExtensionRetractionStates.START_GO_TO_POSITION;
                         break;
+                    case FOLLOW_PROFILE:
+                        extensionRetractionState = ExtensionRetractionStates.START_FOLLOWING_PROFILE;
+                        break;
                     case JOYSTICK:
                         // is retraction limit reached?
                         if (isRetractionLimitReached()) {
@@ -2780,6 +2974,9 @@ public class ExtensionRetractionMechanismGenericMotor {
                     case GO_TO_POSITION:
                         extensionRetractionState = ExtensionRetractionStates.START_GO_TO_POSITION;
                         break;
+                    case FOLLOW_PROFILE:
+                        extensionRetractionState = ExtensionRetractionStates.START_FOLLOWING_PROFILE;
+                        break;
                     case JOYSTICK:
                         // if joystick command is in extension direction then we will process it and
                         // move back to the regular joysticking mode
@@ -2820,6 +3017,9 @@ public class ExtensionRetractionMechanismGenericMotor {
                         break;
                     case GO_TO_POSITION:
                         extensionRetractionState = ExtensionRetractionStates.START_GO_TO_POSITION;
+                        break;
+                    case FOLLOW_PROFILE:
+                        extensionRetractionState = ExtensionRetractionStates.START_FOLLOWING_PROFILE;
                         break;
                     case JOYSTICK:
                         // if joystick command is in extension direction then we will process it and
@@ -2863,6 +3063,9 @@ public class ExtensionRetractionMechanismGenericMotor {
                         break;
                     case GO_TO_POSITION:
                         extensionRetractionState = ExtensionRetractionStates.START_GO_TO_POSITION;
+                        break;
+                    case FOLLOW_PROFILE:
+                        extensionRetractionState = ExtensionRetractionStates.START_FOLLOWING_PROFILE;
                         break;
                     case JOYSTICK:
                         // if joystick command is in extension direction then we will process it and
@@ -2908,6 +3111,9 @@ public class ExtensionRetractionMechanismGenericMotor {
                     case GO_TO_POSITION:
                         extensionRetractionState = ExtensionRetractionStates.START_GO_TO_POSITION;
                         break;
+                    case FOLLOW_PROFILE:
+                        extensionRetractionState = ExtensionRetractionStates.START_FOLLOWING_PROFILE;
+                        break;
                     case JOYSTICK:
                         // if joystick command is in retraction direction then we will process it and
                         // move back to the regular joysticking mode
@@ -2948,6 +3154,9 @@ public class ExtensionRetractionMechanismGenericMotor {
                         break;
                     case GO_TO_POSITION:
                         extensionRetractionState = ExtensionRetractionStates.START_GO_TO_POSITION;
+                        break;
+                    case FOLLOW_PROFILE:
+                        extensionRetractionState = ExtensionRetractionStates.START_FOLLOWING_PROFILE;
                         break;
                     case JOYSTICK:
                         // if joystick command is in extension direction then we will process it and
@@ -2992,6 +3201,9 @@ public class ExtensionRetractionMechanismGenericMotor {
                     case GO_TO_POSITION:
                         extensionRetractionState = ExtensionRetractionStates.START_GO_TO_POSITION;
                         break;
+                    case FOLLOW_PROFILE:
+                        extensionRetractionState = ExtensionRetractionStates.START_FOLLOWING_PROFILE;
+                        break;
                     case JOYSTICK:
                         // if joystick command is in extension direction then we will process it and
                         // move back to the regular joysticking mode
@@ -3008,6 +3220,30 @@ public class ExtensionRetractionMechanismGenericMotor {
                 break;
         }
         logState(extensionRetractionState, extensionRetractionCommand);
+    }
+
+    private void checkExtensionAndRetractionLimitsHit() {
+        if (isExtensionLimitReached() && directionOfMovementIsExtending) {
+            // the extension limit has been reached. This is probably not intentional.
+            // But the movement has to be stopped in order to protect the mechanism
+            // from damage. Clear the command.
+            log("Emergency stop! Tried to extend past extension limit! Stopping!");
+            stopMechanism();
+            extensionRetractionCommand = ExtensionRetractionCommands.NO_COMMAND;
+            extensionRetractionState = ExtensionRetractionStates.FULLY_EXTENDED;
+        }
+
+        // check to make sure the retracted limit switch has not been tripped. If it has
+        // then something went wrong or someone gave a bad motor command.
+        if (isRetractionLimitReached() && !directionOfMovementIsExtending) {
+            // the retraction limit has been reached. This is probably not intentional.
+            // But the movement has to be stopped in order to protect the mechanism
+            // from damage. Clear the command.
+            log("Emergency stop! Tried to retract past retraction limit! Stopping!");
+            stopMechanism();
+            extensionRetractionCommand = ExtensionRetractionCommands.NO_COMMAND;
+            extensionRetractionState = ExtensionRetractionStates.FULLY_RETRACTED;
+        }
     }
 
     //*********************************************************************************************]
