@@ -43,13 +43,29 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
         // retraction states
         RETRACTING
     }
+    private LiftState liftState = LiftState.PRE_INIT;
 
     private enum Phase {
         TELEOP,
         AUTONOMOUS
     }
+    private Phase phase = Phase.TELEOP;
 
-    private LiftState liftState = LiftState.PRE_INIT;
+    public enum LiftLocation{
+        INIT,
+        PICKUP,
+        GROUND,
+        LOW,
+        MEDIUM,
+        HIGH,
+        DROP,
+        IN_BETWEEN
+    }
+    private LiftLocation liftLocation;
+
+    public LiftLocation getLiftLocation() {
+        return liftLocation;
+    }
 
     // so we can remember which extend command was given
     private enum ExtendCommand {
@@ -61,7 +77,6 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
         MOVE_TO_PICKUP,
         RETRACT
     }
-
     private ExtendCommand extendCommand = ExtendCommand.NONE;
 
     private boolean commandComplete = true;
@@ -101,8 +116,6 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
     private double initPower;
     private double extendPower;
     private double retractPower;
-
-    private Phase phase = Phase.TELEOP;
 
     //*********************************************************************************************
     //          Constructors
@@ -279,6 +292,7 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
             extendCommand = ExtendCommand.MOVE_TO_HIGH;
             logCommand(extendCommand.toString());
             lift.goToPosition(highPosition, extendPower);
+            liftLocation = LiftLocation.IN_BETWEEN;
         } else {
             // you can't start a new command when the old one is not finished
         }
@@ -297,6 +311,7 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
             extendCommand = ExtendCommand.MOVE_TO_MEDIUM;
             logCommand(extendCommand.toString());
             lift.goToPosition(mediumPosition, extendPower);
+            liftLocation = LiftLocation.IN_BETWEEN;
         } else {
             // you can't start a new command when the old one is not finished
         }
@@ -315,6 +330,7 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
             extendCommand = ExtendCommand.MOVE_TO_LOW;
             logCommand(extendCommand.toString());
             lift.goToPosition(lowPosition, extendPower);
+            liftLocation = LiftLocation.IN_BETWEEN;
         } else {
             // you can't start a new command when the old one is not finished
         }
@@ -333,6 +349,7 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
             extendCommand = ExtendCommand.MOVE_TO_GROUND;
             logCommand(extendCommand.toString());
             lift.goToPosition(groundPosition, extendPower);
+            liftLocation = LiftLocation.IN_BETWEEN;
         } else {
             // you can't start a new command when the old one is not finished
         }
@@ -351,6 +368,7 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
             extendCommand = ExtendCommand.MOVE_TO_PICKUP;
             logCommand(extendCommand.toString());
             lift.goToPosition(pickupPosition, extendPower);
+            liftLocation = LiftLocation.IN_BETWEEN;
         } else {
             // you can't start a new command when the old one is not finished
         }
@@ -365,12 +383,16 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
             retractionComplete = false;
             commandComplete = false;
             lift.goToPosition(currentLiftPosition - 4.0, retractPower);
+            liftLocation = LiftLocation.IN_BETWEEN;
             liftState = LiftState.DROPPING_ON_POLE;
         } else {
             // you can't start a new command when the old one is not finished
         }
     }
 
+    /**
+     * Retract the lift to the pickup position. currently only using in robot shutdown.
+     */
     public void retract() {
         // lockout for double hits on a command button. Downside is that the driver better hit the
         // right button the first time or they are toast
@@ -382,6 +404,7 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
             extendCommand = ExtendCommand.RETRACT;
             logCommand(extendCommand.toString());
             lift.goToPosition(pickupPosition, retractPower);
+            liftLocation = LiftLocation.IN_BETWEEN;
         } else {
             // you can't start a new command when the old one is not finished
             logCommand("Retract command ignored");
@@ -437,6 +460,7 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
                 if (lift.isPositionReached()) {
                     lift.init();
                     liftState = LiftState.WAITING_FOR_EXTENSION_RETRACTION_MECHANISM_INIT_TO_COMPLETE;
+                    liftLocation = LiftLocation.IN_BETWEEN;
                 }
             }
             break;
@@ -448,6 +472,7 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
                     //lift.goToPosition(initPosition, initPower);
                     //liftState = LiftState.WAITING_FOR_EXTENSION_ARM_HOME_POSITION_REACHED;
                     liftState = LiftState.INIT_COMPLETE;
+                    liftLocation = LiftLocation.INIT;
                 }
             }
             break;
@@ -477,6 +502,7 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
                 if (lift.isPositionReached()) {
                     commandComplete = true;
                     liftState = LiftState.READY;
+                    liftLocation = LiftLocation.HIGH;
                 }
             }
             break;
@@ -489,6 +515,7 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
                 if (lift.isPositionReached()) {
                     commandComplete = true;
                     liftState = LiftState.READY;
+                    liftLocation = LiftLocation.MEDIUM;
                 }
             }
             break;
@@ -501,6 +528,7 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
                 if (lift.isPositionReached()) {
                     commandComplete = true;
                     liftState = LiftState.READY;
+                    liftLocation = LiftLocation.LOW;
                 }
             }
             break;
@@ -514,6 +542,7 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
                 if (lift.isPositionReached()) {
                     commandComplete = true;
                     liftState = LiftState.READY;
+                    liftLocation = LiftLocation.GROUND;
                 }
             }
             break;
@@ -526,6 +555,7 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
                 if (lift.isPositionReached()) {
                     commandComplete = true;
                     liftState = LiftState.READY;
+                    liftLocation = LiftLocation.PICKUP;
                 }
             }
             break;
@@ -534,6 +564,7 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
                 if (lift.isPositionReached()) {
                     commandComplete = true;
                     liftState = LiftState.READY;
+                    liftLocation = LiftLocation.DROP;
                 }
             }
         }
