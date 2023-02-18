@@ -350,7 +350,7 @@ public class PowerPlayGamepad {
         }
 
         if (gamepad2a.buttonPress(gamepad2.a)) {
-            //robot.leftLift.droppingOnPole();
+            //robot.lift.droppingOnPole();
             robot.speedController.testTheDrop();
         }
 

@@ -56,7 +56,7 @@ public class PowerPlayConeGrabberLiftController implements FTCRobotSubsystem {
     //*********************************************************************************************
 
     private PowerPlayConeGrabber coneGrabber;
-    private PowerPlayLeftLift lift;
+    private PowerPlayDualMotorLift lift;
     private PowerPlayCycleTracker cycleTracker;
 
     private DataLogging logFile;
@@ -79,7 +79,7 @@ public class PowerPlayConeGrabberLiftController implements FTCRobotSubsystem {
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
-    public PowerPlayConeGrabberLiftController(PowerPlayConeGrabber coneGrabber, PowerPlayLeftLift lift, PowerPlayCycleTracker cycleTracker) {
+    public PowerPlayConeGrabberLiftController(PowerPlayConeGrabber coneGrabber, PowerPlayDualMotorLift lift, PowerPlayCycleTracker cycleTracker) {
 
         this.coneGrabber = coneGrabber;
         this.lift = lift;
