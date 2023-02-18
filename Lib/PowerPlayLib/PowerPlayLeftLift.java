@@ -114,7 +114,7 @@ public class PowerPlayLeftLift implements FTCRobotSubsystem {
     public PowerPlayLeftLift(HardwareMap hardwareMap, Telemetry telemetry) {
 
         // create the motor for the lift
-        liftMotor = new DcMotor8863(PowerPlayRobot.HardwareName.LIFT_MOTOR.hwName, hardwareMap, telemetry);
+        liftMotor = new DcMotor8863(PowerPlayRobot.HardwareName.LIFT_MOTOR_LEFT.hwName, hardwareMap, telemetry);
         liftMotor.setMotorType(DcMotor8863.MotorType.GOBILDA_435);
 
         leftLift = new ExtensionRetractionMechanismGenericMotor(hardwareMap, telemetry,

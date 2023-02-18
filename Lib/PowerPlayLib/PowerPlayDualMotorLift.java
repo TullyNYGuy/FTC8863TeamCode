@@ -10,9 +10,11 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogOnChange;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863Interface;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DualMotorGearbox;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanismGenericMotor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.MotorConstants;
 
 public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
 
@@ -126,8 +128,12 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
     public PowerPlayDualMotorLift(HardwareMap hardwareMap, Telemetry telemetry) {
 
         // create the motor for the lift
-        liftMotor = new DcMotor8863(PowerPlayRobot.HardwareName.LIFT_MOTOR.hwName, hardwareMap, telemetry);
-        liftMotor.setMotorType(DcMotor8863.MotorType.GOBILDA_1150);
+        liftMotor = new DualMotorGearbox(
+                PowerPlayRobot.HardwareName.LIFT_MOTOR_LEFT.hwName,
+                PowerPlayRobot.HardwareName.LIFT_MOTOR_RIGHT.hwName,
+                hardwareMap,
+                telemetry,
+                MotorConstants.MotorType.GOBILDA_1150);
 
         lift = new ExtensionRetractionMechanismGenericMotor(hardwareMap, telemetry,
                 "lift",

@@ -5,8 +5,10 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863Interface;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DualMotorGearbox;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanismGenericMotor;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.MotorConstants;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayRobot;
 
 /**
@@ -23,8 +25,12 @@ public class TestLiftExtensionRetraction extends LinearOpMode {
     @Override
     public void runOpMode() {
         // create the motor for the lift
-        liftMotor = new DcMotor8863(PowerPlayRobot.HardwareName.LIFT_MOTOR.hwName, hardwareMap, telemetry);
-        liftMotor.setMotorType(DcMotor8863.MotorType.GOBILDA_1150);
+        liftMotor = new DualMotorGearbox(
+                PowerPlayRobot.HardwareName.LIFT_MOTOR_LEFT.hwName,
+                PowerPlayRobot.HardwareName.LIFT_MOTOR_RIGHT.hwName,
+                hardwareMap,
+                telemetry,
+                MotorConstants.MotorType.GOBILDA_1150);
 
 
         // Put your initializations here
@@ -33,12 +39,12 @@ public class TestLiftExtensionRetraction extends LinearOpMode {
                 PowerPlayRobot.HardwareName.LIFT_LIMIT_SWITCH_EXTENSION.hwName,
                 PowerPlayRobot.HardwareName.LIFT_LIMIT_SWITCH_RETRACTION.hwName,
                 liftMotor,
-                5.713);
+                5.93);
 
-        lift.forwardMotorDirection();
-        lift.setExtensionPower(.75);
+        lift.reverseMotorDirection();
+        lift.setExtensionPower(1.0);
         lift.setExtensionPositionInMechanismUnits(35);
-        lift.setRetractionPower(.75);
+        lift.setRetractionPower(-1.0);
         lift.setRetractionPositionInMechanismUnits(2);
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");

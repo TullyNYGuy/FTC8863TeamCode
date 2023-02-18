@@ -527,7 +527,14 @@ public class ExtensionRetractionMechanismGenericMotor {
                                                     DcMotor8863Interface extensionRetractionMotor,
                                                     double movementPerRevolution) {
         // set all of the private variables using the parameters passed into the constructor
-        createExtensionRetractionMechanismCommonCommands(hardwareMap, telemetry, mechanismName,extensionRetractionMotor, movementPerRevolution);
+        createExtensionRetractionMechanismCommonCommands(
+                hardwareMap,
+                telemetry,
+                mechanismName,
+                extensionLimitSwitchName,
+                retractionLimitSwitchName,
+                extensionRetractionMotor,
+                movementPerRevolution);
 
         // create the limit switches
         retractedLimitSwitch = new Switch(hardwareMap, retractionLimitSwitchName, Switch.SwitchType.NORMALLY_OPEN);
@@ -554,7 +561,14 @@ public class ExtensionRetractionMechanismGenericMotor {
                                                     DcMotor8863Interface extensionRetractionMotor,
                                                     double movementPerRevolution) {
         // set all of the private variables using the parameters passed into the constructor
-        createExtensionRetractionMechanismCommonCommands(hardwareMap, telemetry, mechanismName, extensionRetractionMotor, movementPerRevolution);
+        createExtensionRetractionMechanismCommonCommands(
+                hardwareMap,
+                telemetry,
+                mechanismName,
+                extensionLimitSwitchName,
+                retractionLimitSwitchName,
+                extensionRetractionMotor,
+                movementPerRevolution);
 
         setRetractionPositionInMechanismUnits(retractionPositionInMechanismUnits);
         setExtensionPositionInMechanismUnits(extensionPositionInMechamismUnits);
@@ -562,9 +576,12 @@ public class ExtensionRetractionMechanismGenericMotor {
 
     protected void createExtensionRetractionMechanismCommonCommands(HardwareMap hardwareMap, Telemetry telemetry,
                                                                     String mechanismName,
+                                                                    String extensionLimitSwitchName,
+                                                                    String retractionLimitSwitchName,
                                                                     DcMotor8863Interface extensionRetractionMotor,
                                                                     double movementPerRevolution) {
         // set all of the private variables using the parameters passed into the constructor
+        this.extensionRetractionMotor = extensionRetractionMotor;
         this.extensionLimitSwitchName = extensionLimitSwitchName;
         this.retractionLimitSwitchName = retractionLimitSwitchName;
         this.movementPerRevolution = movementPerRevolution;
@@ -3517,8 +3534,8 @@ public class ExtensionRetractionMechanismGenericMotor {
                     opMode.telemetry.update();
                     opMode.sleep(3000);
                     // reset the timer
-                    movementTimer.reset();
                     this.goToFullRetract();
+                    movementTimer.reset();
                     extending = false;
                     break;
                 case FULLY_RETRACTED:
@@ -3531,8 +3548,8 @@ public class ExtensionRetractionMechanismGenericMotor {
                     opMode.telemetry.update();
                     opMode.sleep(3000);
                     // reset the timer
-                    movementTimer.reset();
                     this.goToFullExtend();
+                    movementTimer.reset();
                     extending = true;
                     break;
                 default:
