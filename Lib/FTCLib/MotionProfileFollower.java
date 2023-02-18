@@ -3,7 +3,23 @@ package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
 import com.acmerobotics.roadrunner.profile.MotionProfile;
 import com.acmerobotics.roadrunner.control.PIDFController;
+import com.acmerobotics.roadrunner.profile.MotionState;
+import com.acmerobotics.roadrunner.util.NanoClock;
 
+/**
+ * General usage:
+ *     Some other object creates a motion profile.
+ *     It also creates this follower, passing in a PIDF controller.
+ *     The object sets the motion profile using setProfile().
+ *     The object starts the follower using start().
+ *     The object starts looping:
+ *        The object checks to see if the profile is complete using isProfileComplete().
+ *        The object constantly updates the with the position feedback using update(feedback).
+ *        The object gets the correction (new motor power) using getCorrection() and applies it to the
+ *           motor.
+ * Notes:
+ *     The motor must be in
+ */
 public class MotionProfileFollower {
 
     //*********************************************************************************************
@@ -19,6 +35,10 @@ public class MotionProfileFollower {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
+
+    private NanoClock clock;
+    private double startTime;
+    private double elapsedTime;
 
     private MotionProfile profile;
 
@@ -59,6 +79,7 @@ public class MotionProfileFollower {
 
     public MotionProfileFollower(com.acmerobotics.roadrunner.control.PIDFController motionController) {
         this.motionController = motionController;
+        clock = NanoClock.system();
     }
 
     //*********************************************************************************************
@@ -74,21 +95,29 @@ public class MotionProfileFollower {
     //*********************************************************************************************
 
     public void start() {
-        // set the clock
+        startTime = clock.seconds();
     }
 
-    public void update() {
-        // todo code all this up
+    public void update(double measuredPosition) {
+        // todo how does it end?
+        this.measuredPosition = measuredPosition;
         // check to see if the position has been reached. If so, set the complete flag. If not:
         // get the time from the clock
+        elapsedTime = clock.seconds() - startTime;
         // get the target motion state from the profile, given the time
+        MotionState targetState = profile.get(elapsedTime);
         // set the new target position in the PIDF controller
+        motionController.setTargetPosition(targetState.getX());
+        motionController.setTargetVelocity(targetState.getV());
+        motionController.setTargetAcceleration(targetState.getA());
         // get the correction from the PIDF, given the current position
-        // save the correction
-
+        correction = motionController.update(measuredPosition);
     }
 
     public boolean isProfileComplete() {
+
+        // is profile timed out?
+        // OR is the actual position close enough to the target position
         return true;
     }
 }

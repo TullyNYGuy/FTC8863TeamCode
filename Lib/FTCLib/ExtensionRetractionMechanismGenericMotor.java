@@ -1775,6 +1775,15 @@ public class ExtensionRetractionMechanismGenericMotor {
 
     /**
      * Stop the mechanism and attempt to hold its position at the given position.
+     * @param targetPositionInMechanismUnits
+     */
+    protected void stopAndHoldPosition(double targetPositionInMechanismUnits) {
+        int targetPositionInEncoderCounts = (int)convertMechanismUnitsToEncoderCounts(targetPositionInMechanismUnits);
+        stopAndHoldPosition(targetPositionInEncoderCounts);
+    }
+
+    /**
+     * Stop the mechanism and attempt to hold its position at the given position.
      * @param targetPositionInEncoderCounts
      */
     protected void stopAndHoldPosition(int targetPositionInEncoderCounts) {
@@ -2713,9 +2722,15 @@ public class ExtensionRetractionMechanismGenericMotor {
                         extensionRetractionState = ExtensionRetractionStates.START_GO_TO_POSITION;
                         break;
                     case FOLLOW_PROFILE:
-                        // todo fill in the blanks
+                        // todo see if motor braking is needed
                         if (isOkToGoToPosition()) {
+                            // Run without encoder just disables the FTC SDK velocity control over the motor. The
+                            // PIDF used by the follower needs to control the motor velocity, not the FTC SDK.
+                            extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                            // start the follower
                             follower.start();
+                            follower.update(getPosition());
+                            extensionRetractionMotor.setPower(follower.getCorrection());
                             extensionRetractionState = ExtensionRetractionStates.FOLLOWING_PROFILE;
                         } else {
                             extensionRetractionState = previousExtensionRetractionState;
@@ -2756,21 +2771,19 @@ public class ExtensionRetractionMechanismGenericMotor {
                         extensionRetractionState = ExtensionRetractionStates.START_GO_TO_POSITION;
                         break;
                     case FOLLOW_PROFILE:
-                        // todo fill in 
-                        // the mechanism has been requested to follow a profile. 
+                        // the mechanism has been requested to follow a profile.
+                        // todo figure out how to tell when the profile is complete
                         if (follower.isProfileComplete()) {
                             logArrivedAtDestination();
-                            // the movement to the position is complete. But the power to the motor
+                            // The motion profile is complete. But the power to the motor
                             // cannot be removed. The power is needed because the motor is holding
                             // the position and may need to act against a force (like gravity) to
                             // hold position.
-                            // The moveToPosition() that was called previously will take care of the
-                            // motor so no other method calls are needed here.
+                            stopAndHoldPosition(getPosition());
                             extensionRetractionCommand = ExtensionRetractionCommands.NO_COMMAND;
                             extensionRetractionState = ExtensionRetractionStates.PROFILE_COMPLETE;
                         } else {
-                            follower.setMeasuredPosition(extensionRetractionMotor.getCurrentPosition());
-                            follower.update();
+                            follower.update(getPosition());
                             extensionRetractionMotor.setPower(follower.getCorrection());
                         }
                         // check to make sure the extended limit has not been reached. If it has
