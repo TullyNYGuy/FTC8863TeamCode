@@ -275,14 +275,14 @@ public class PowerPlayAutonomousVisionOneCyclePark implements PowerPlayAutonomou
 
             case RAISING_LIFT: {
                 if (robot.coneGrabberArmController.isCommandComplete()) {
-                    robot.leftLift.droppingOnPole();
+                    robot.lift.droppingOnPole();
                     currentState = States.DROPPING_FOUR_INCHES;
                 }
             }
             break;
 
             case DROPPING_FOUR_INCHES: {
-                if (robot.leftLift.isCommandComplete()) {
+                if (robot.lift.isCommandComplete()) {
                     robot.coneGrabberArmController.releaseThenMoveToPickup();
                     currentState = States.RELEASING_OPEN_LIFT;
                 }

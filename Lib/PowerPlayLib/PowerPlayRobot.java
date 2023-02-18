@@ -55,9 +55,9 @@ public class PowerPlayRobot implements FTCRobot {
         CYCLE_TRACKER("cycleTracker"),
         SPEED_CONTROLLER("speedController"),
 
-        LEFT_LIFT_MOTOR("leftLiftMotor"),
-        LEFT_LIFT_LIMIT_SWITCH_RETRACTION("leftLiftRetractionLimitSwitch"),
-        LEFT_LIFT_LIMIT_SWITCH_EXTENSION("leftLiftExtensionLimitSwitch"),
+        LIFT_MOTOR("liftMotor"),
+        LIFT_LIMIT_SWITCH_RETRACTION("liftRetractionLimitSwitch"),
+        LIFT_LIMIT_SWITCH_EXTENSION("liftExtensionLimitSwitch"),
 
         LED_PORT1("ledPort1"),
         LED_PORT2("ledPort2"),
@@ -74,7 +74,7 @@ public class PowerPlayRobot implements FTCRobot {
         MECANUM_DRIVE,
         ODOMETRY,
         WEBCAM,
-        LEFT_LIFT,
+        LIFT,
         CONE_GRABBER,
         CONE_GRABBER_ARM_CONTROLLER,
         CYCLE_TRACKER,
@@ -105,7 +105,7 @@ public class PowerPlayRobot implements FTCRobot {
     private AdafruitIMU8863 imu;
     public PowerPlayMecanumDrive mecanum;
     public LoopTimer loopTimer;
-    public PowerPlayLeftLift leftLift;
+    public PowerPlayDualMotorLift lift;
     public PowerPlayConeGrabber coneGrabber;
     public PowerPlayConeGrabberLiftController coneGrabberArmController;
     public PowerPlayWebcam webcam;
@@ -167,9 +167,9 @@ public class PowerPlayRobot implements FTCRobot {
             subsystemMap.put(webcam.getName(), webcam);
         }
 
-        if (capabilities.contains(Subsystem.LEFT_LIFT)) {
-            leftLift = new PowerPlayLeftLift(hardwareMap, telemetry);
-            subsystemMap.put(leftLift.getName(), leftLift);
+        if (capabilities.contains(Subsystem.LIFT)) {
+            lift = new PowerPlayDualMotorLift(hardwareMap, telemetry);
+            subsystemMap.put(lift.getName(), lift);
         }
 
         if (capabilities.contains(Subsystem.CYCLE_TRACKER)) {
@@ -188,7 +188,7 @@ public class PowerPlayRobot implements FTCRobot {
         }
 
         if (capabilities.contains(Subsystem.CONE_GRABBER_ARM_CONTROLLER)) {
-            coneGrabberArmController = new PowerPlayConeGrabberLiftController(coneGrabber,leftLift, cycleTracker);
+            coneGrabberArmController = new PowerPlayConeGrabberLiftController(coneGrabber,lift, cycleTracker);
             subsystemMap.put(coneGrabberArmController.getName(), coneGrabberArmController);
         }
 

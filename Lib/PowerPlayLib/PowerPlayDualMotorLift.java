@@ -128,13 +128,13 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
     public PowerPlayDualMotorLift(HardwareMap hardwareMap, Telemetry telemetry) {
 
         // create the motor for the lift
-        liftMotor = new DcMotor8863(PowerPlayRobot.HardwareName.LEFT_LIFT_MOTOR.hwName, hardwareMap, telemetry);
+        liftMotor = new DcMotor8863(PowerPlayRobot.HardwareName.LIFT_MOTOR.hwName, hardwareMap, telemetry);
         liftMotor.setMotorType(DcMotor8863.MotorType.GOBILDA_1150);
 
         lift = new ExtensionRetractionMechanismGenericMotor(hardwareMap, telemetry,
                 "lift",
-                PowerPlayRobot.HardwareName.LEFT_LIFT_LIMIT_SWITCH_EXTENSION.hwName,
-                PowerPlayRobot.HardwareName.LEFT_LIFT_LIMIT_SWITCH_RETRACTION.hwName,
+                PowerPlayRobot.HardwareName.LIFT_LIMIT_SWITCH_EXTENSION.hwName,
+                PowerPlayRobot.HardwareName.LIFT_LIMIT_SWITCH_RETRACTION.hwName,
                 liftMotor,
                 5.713);
         lift.forwardMotorDirection();

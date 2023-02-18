@@ -439,7 +439,7 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
                     break;
                     case TEST_THE_DROP: {
                         if(scoringTarget != ScoringTarget.GROUND_JUNCTION) {
-                            robot.leftLift.droppingOnPole();
+                            robot.lift.droppingOnPole();
                             logCommand("test the drop");
                         } else {
                             logCommand("test the drop ignored since this is a ground junction");
@@ -512,7 +512,7 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
                     break;
                     case TEST_THE_DROP: {
                         if(scoringTarget != ScoringTarget.GROUND_JUNCTION) {
-                            robot.leftLift.droppingOnPole();
+                            robot.lift.droppingOnPole();
                             logCommand("test the drop");
                         } else {
                             logCommand("test the drop ignored since this is a ground junction");
@@ -814,7 +814,7 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
                     break;
                     case TEST_THE_DROP: {
                         if(scoringTarget != ScoringTarget.GROUND_JUNCTION) {
-                            robot.leftLift.droppingOnPole();
+                            robot.lift.droppingOnPole();
                             logCommand("test the drop");
                         } else {
                             logCommand("test the drop ignored since this is a ground junction");
