@@ -55,7 +55,8 @@ public class PowerPlayRobot implements FTCRobot {
         CYCLE_TRACKER("cycleTracker"),
         SPEED_CONTROLLER("speedController"),
 
-        LIFT_MOTOR("liftMotor"),
+        LIFT_MOTOR_LEFT("liftMotorLeft"),
+        LIFT_MOTOR_RIGHT("liftMotorRight"),
         LIFT_LIMIT_SWITCH_RETRACTION("liftRetractionLimitSwitch"),
         LIFT_LIMIT_SWITCH_EXTENSION("liftExtensionLimitSwitch"),
 

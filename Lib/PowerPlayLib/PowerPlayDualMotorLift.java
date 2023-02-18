@@ -129,8 +129,8 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
 
         // create the motor for the lift
         liftMotor = new DualMotorGearbox(
-                PowerPlayRobot.HardwareName.LIFT_MOTOR.hwName,
-                PowerPlayRobot.HardwareName.LIFT_MOTOR.hwName,
+                PowerPlayRobot.HardwareName.LIFT_MOTOR_LEFT.hwName,
+                PowerPlayRobot.HardwareName.LIFT_MOTOR_RIGHT.hwName,
                 hardwareMap,
                 telemetry,
                 MotorConstants.MotorType.GOBILDA_1150);

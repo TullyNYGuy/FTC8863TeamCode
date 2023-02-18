@@ -76,7 +76,9 @@ public class DualMotorGearbox implements DcMotor8863Interface{
                             Telemetry telemetry,
                             MotorConstants.MotorType motorType){
         leftMotor = new DcMotor8863(leftMotorName, hardwareMap, telemetry);
+        leftMotor.setMotorType(DcMotor8863.MotorType.GOBILDA_1150);
         rightMotor = new DcMotor8863(rightMotorName, hardwareMap, telemetry);
+        rightMotor.setMotorType(DcMotor8863.MotorType.GOBILDA_1150);
         motorConstants = new MotorConstants(motorType);
     }
 

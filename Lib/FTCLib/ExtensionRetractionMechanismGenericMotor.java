@@ -3285,8 +3285,8 @@ public class ExtensionRetractionMechanismGenericMotor {
                     opMode.telemetry.update();
                     opMode.sleep(3000);
                     // reset the timer
-                    movementTimer.reset();
                     this.goToFullRetract();
+                    movementTimer.reset();
                     extending = false;
                     break;
                 case FULLY_RETRACTED:
@@ -3299,8 +3299,8 @@ public class ExtensionRetractionMechanismGenericMotor {
                     opMode.telemetry.update();
                     opMode.sleep(3000);
                     // reset the timer
-                    movementTimer.reset();
                     this.goToFullExtend();
+                    movementTimer.reset();
                     extending = true;
                     break;
                 default:
