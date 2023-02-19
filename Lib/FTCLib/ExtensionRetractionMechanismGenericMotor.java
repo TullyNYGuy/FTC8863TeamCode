@@ -2746,7 +2746,11 @@ public class ExtensionRetractionMechanismGenericMotor {
                             extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                             // start the follower
                             follower.start();
+                            // give the follower the current mechanism position and it calculates the
+                            // new motor power needed to maintain position, velocity and accelerate
+                            // control
                             follower.update(getPosition());
+                            // get the new power and apply it to the motor
                             extensionRetractionMotor.setPower(follower.getCorrection());
                             extensionRetractionState = ExtensionRetractionStates.FOLLOWING_PROFILE;
                         } else {
@@ -2800,7 +2804,11 @@ public class ExtensionRetractionMechanismGenericMotor {
                             extensionRetractionCommand = ExtensionRetractionCommands.NO_COMMAND;
                             extensionRetractionState = ExtensionRetractionStates.PROFILE_COMPLETE;
                         } else {
+                            // give the follower the current mechanism position and it calculates the
+                            // new motor power needed to maintain position, velocity and accelerate
+                            // control
                             follower.update(getPosition());
+                            // get the new power and apply it to the motor
                             extensionRetractionMotor.setPower(follower.getCorrection());
                         }
                         // check to make sure the extended limit has not been reached. If it has
