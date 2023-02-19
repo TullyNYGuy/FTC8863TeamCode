@@ -2793,14 +2793,12 @@ public class ExtensionRetractionMechanismGenericMotor {
                         break;
                     case FOLLOW_PROFILE:
                         // the mechanism has been requested to follow a profile.
-                        // todo figure out how to tell when the profile is complete
                         if (follower.isProfileComplete()) {
                             logArrivedAtDestination();
                             // The motion profile is complete. But the power to the motor
                             // cannot be removed. The power is needed because the motor is holding
                             // the position and may need to act against a force (like gravity) to
                             // hold position.
-                            stopAndHoldPosition(getPosition());
                             extensionRetractionCommand = ExtensionRetractionCommands.NO_COMMAND;
                             extensionRetractionState = ExtensionRetractionStates.PROFILE_COMPLETE;
                         } else {
@@ -2858,7 +2856,14 @@ public class ExtensionRetractionMechanismGenericMotor {
                         extensionRetractionState = ExtensionRetractionStates.JOYSTICK;
                         break;
                     case NO_COMMAND:
-                        // don't do anything, just hang out
+                        // hang out but run the position controller since the lift has to hold position
+
+                        // give the follower the current mechanism position and it calculates the
+                        // new motor power needed to maintain position, velocity and accelerate
+                        // control
+                        follower.update(getPosition());
+                        // get the new power and apply it to the motor
+                        extensionRetractionMotor.setPower(follower.getCorrection());
                         break;
                 }
                 break;

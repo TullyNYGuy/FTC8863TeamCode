@@ -70,6 +70,28 @@ public class MotionProfileFollower {
     public double getCorrection() {
         return correction;
     }
+
+    private double completionTimeout = 0.25;
+
+    public double getCompletionTimeout() {
+        return completionTimeout;
+    }
+
+    public void setCompletionTimeout(double completionTimeout) {
+        this.completionTimeout = completionTimeout;
+    }
+
+    private double targetTolerance = 0.1; // units are same as whatever the profile units are
+
+    public void setTargetTolerance(double targetTolerance) {
+        this.targetTolerance = targetTolerance;
+    }
+
+    private boolean profileComplete = false;
+
+    public boolean isProfileComplete() {
+        return profileComplete;
+    }
     //*********************************************************************************************
     //          Constructors
     //
@@ -88,6 +110,14 @@ public class MotionProfileFollower {
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
 
+    private boolean isCloseEnoughToTarget(double measuredPosition, double targetPosition) {
+        boolean result = false;
+        if (Math.abs(targetPosition - measuredPosition) < targetTolerance) {
+            result = true;
+        }
+        return result;
+    }
+
     //*********************************************************************************************
     //          MAJOR METHODS
     //
@@ -96,14 +126,24 @@ public class MotionProfileFollower {
 
     public void start() {
         startTime = clock.seconds();
+        profileComplete = false;
     }
 
     public void update(double measuredPosition) {
-        // todo how does it end?
         this.measuredPosition = measuredPosition;
         // check to see if the position has been reached. If so, set the complete flag. If not:
         // get the time from the clock
         elapsedTime = clock.seconds() - startTime;
+        // skip the complete check if the profile is already complete
+        // Note that the profile will still run, holding position at the desired position. At
+        // least until the thing using the profile stops it.
+        if (!profileComplete) {
+            // if the elapsed time is greater than the profile duration by at least the completionTimeout call the profile complete
+            // OR if the measured position is close enough to the desired position call the profile complete
+            if (elapsedTime > (profile.duration() + completionTimeout) || isCloseEnoughToTarget(measuredPosition, profile.end().getX())) {
+                profileComplete = true;
+            }
+        }
         // get the target motion state from the profile, given the time
         MotionState targetState = profile.get(elapsedTime);
         // set the new target position in the PIDF controller
@@ -113,11 +153,5 @@ public class MotionProfileFollower {
         // get the correction from the PIDF, given the current position
         correction = motionController.update(measuredPosition);
     }
-
-    public boolean isProfileComplete() {
-
-        // is profile timed out?
-        // OR is the actual position close enough to the target position
-        return true;
-    }
 }
+
