@@ -134,6 +134,7 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
                 hardwareMap,
                 telemetry,
                 MotorConstants.MotorType.GOBILDA_1150);
+        liftMotor.setRecordEncoderData(true);
 
         lift = new ExtensionRetractionMechanismGenericMotor(hardwareMap, telemetry,
                 "lift",
@@ -167,7 +168,7 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
         //*********************************************
         // SET the lift max and min positions here
         //*********************************************
-        lift.setExtensionPositionInMechanismUnits(36.0);
+        lift.setExtensionPositionInMechanismUnits(37.0);
         lift.setRetractionPositionInMechanismUnits(0.04);
         lift.setTargetEncoderTolerance(30);
 

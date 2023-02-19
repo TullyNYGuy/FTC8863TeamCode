@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -157,6 +158,14 @@ public class DcMotor8863 implements DcMotor8863Interface {
     // count maintained by the SDK
     public void resetEncoder() {
         baseEncoderCount = 0;
+    }
+
+    // This does nothing. It is only here to satisfy the interface.
+    private boolean recordEncoderData = false;
+
+    @Override
+    public void setRecordEncoderData(boolean recordEncoderData) {
+        this.recordEncoderData = recordEncoderData;
     }
 
     /**
@@ -2062,6 +2071,10 @@ public class DcMotor8863 implements DcMotor8863Interface {
 
     public int getPortNumber() {
         return FTCDcMotor.getPortNumber();
+    }
+
+    public double getCurrent(CurrentUnit currentUnit) {
+        return FTCDcMotor.getCurrent(currentUnit);
     }
 
     // FTC SDK 3.4 removed these calls so I'm commenting out this code
