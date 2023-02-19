@@ -220,7 +220,7 @@ public class PowerPlay2mDistanceSensor implements FTCRobotSubsystem {
      * reading. Reads of I2C devices can be cached. This method starts a timer that ensures the given
      * time passes before a new reading can be taken. This ensure fresh data. Distance sensors can
      * also read reflections of light emitted by another sensor and result in erroneous reading.
-     * Enforcing a time between readings can help enfore an interleaving of readings between different
+     * Enforcing a time between readings can help enforce an interleaving of readings between different
      * sensors and lessen the chance of interference between sensors.
      * @param timeBetweenReadings
      */

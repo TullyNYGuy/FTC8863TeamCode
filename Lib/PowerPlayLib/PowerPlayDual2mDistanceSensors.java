@@ -70,31 +70,19 @@ public class PowerPlayDual2mDistanceSensors implements FTCRobotSubsystem {
     private double continuousDistanceNormal = 0;
 
     public double getContinuousDistanceNormal() {
-        if (isAverageReady()) {
-            return distanceUnit.fromUnit(this.distanceUnit, continuousDistanceNormal);
-        } else {
-            return 10000;
-        }
+        return distanceUnit.fromUnit(this.distanceUnit, continuousDistanceNormal);
     }
 
     private double continuousDistanceInverse = 0;
 
     public double getContinuousDistanceInverse(DistanceUnit distanceUnit) {
-        if (isAverageReady()) {
-            return distanceUnit.fromUnit(this.distanceUnit, continuousDistanceInverse);
-        } else {
-            return 10000;
-        }
+        return distanceUnit.fromUnit(this.distanceUnit, continuousDistanceInverse);
     }
 
     private double continuousDifference = 1000; // 0 is what we are hunting for do don't initialize to that
 
     public double getContinuousDifference(DistanceUnit distanceUnit) {
-        if (isAverageReady()) {
-            return distanceUnit.fromUnit(this.distanceUnit, continuousDifference);
-        } else {
-            return 10000;
-        }
+        return distanceUnit.fromUnit(this.distanceUnit, continuousDifference);
     }
 
     private double averageDistanceNormal = 0;
@@ -345,7 +333,7 @@ public class PowerPlayDual2mDistanceSensors implements FTCRobotSubsystem {
                     DistanceUnit distanceUnitForLineEquation = DistanceUnit.MM;
                     averageDistanceNormal = distanceSensorNormal.getAverageDistance(this.distanceUnit);
                     averageDifference = averageDistanceNormal - averageDistanceInverse;
-                    averageDistance = (averageDistanceInverse + averageDistanceNormal)/2;
+                    averageDistance = (averageDistanceInverse + averageDistanceNormal) / 2;
                     // curve fit for adjusting sensor readings into an actual distance. This equation is in mm.
                     adjustedAverageDistance = 1.23 * distanceUnitForLineEquation.fromUnit(this.distanceUnit, averageDistance) - 70.3;
                     // convert the adjustedAverageDistance to units for this class
