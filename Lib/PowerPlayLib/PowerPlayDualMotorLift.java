@@ -147,7 +147,7 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
         //*********************************************
         // SET the lift positions here
         //*********************************************
-        highPosition = 34.25;
+        highPosition = 35.25;
         mediumPosition = 24.0;
         lowPosition = 14.75;
         groundPosition = 2.0;
