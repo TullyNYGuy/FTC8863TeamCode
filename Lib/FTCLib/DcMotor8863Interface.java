@@ -42,6 +42,8 @@ public interface DcMotor8863Interface {
 
     boolean isMovementComplete();
 
+    void setRecordEncoderData(boolean recordEncoderData);
+
     //*********************************************************************************************
     //          Wrapper Methods
     //*********************************************************************************************

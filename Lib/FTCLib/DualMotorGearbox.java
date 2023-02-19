@@ -2,8 +2,10 @@ package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
 /**
  * This class is a kludge. It makes two motors in a gearbox look like a single motor.
@@ -32,6 +34,17 @@ public class DualMotorGearbox implements DcMotor8863Interface{
     private DcMotor8863 leftMotor;
     private DcMotor8863 rightMotor;
     private MotorConstants motorConstants;
+    private CSVDataFile encoderCSVFile;
+    private boolean recordEncoderData = false;
+    private ElapsedTime timer;
+
+    @Override
+    public void setRecordEncoderData(boolean recordEncoderData) {
+        this.recordEncoderData = recordEncoderData;
+        encoderCSVFile = new CSVDataFile("dualMotorEnoderData");
+        encoderCSVFile.headerStrings("time", "left", "right", "difference", "left current mA", "right current mA", "current difference");
+        timer = new ElapsedTime();
+    }
 
     private DcMotor.Direction direction = DcMotor.Direction.FORWARD;
 
@@ -183,6 +196,9 @@ public class DualMotorGearbox implements DcMotor8863Interface{
         boolean rightReturn;
         leftReturn = leftMotor.moveToPosition(power,targetPosition, afterCompletion);
         rightReturn = rightMotor.moveToPosition(power,targetPosition, afterCompletion);
+        if (recordEncoderData) {
+           timer.reset();
+        }
         return leftReturn && rightReturn;
     }
 
@@ -199,8 +215,26 @@ public class DualMotorGearbox implements DcMotor8863Interface{
     public DcMotor8863.MotorState update() {
         DcMotor8863.MotorState leftState;
         DcMotor8863.MotorState rightState;
+        int leftEncoder;
+        int rightEncoder;
+        int leftMotorCurrent;
+        int rightMotorCurrent;
         leftState = leftMotor.update();
         rightState = rightMotor.update();
+        if (recordEncoderData) {
+            leftEncoder = leftMotor.getCurrentPosition();
+            rightEncoder = rightMotor.getCurrentPosition();
+            leftMotorCurrent = (int)leftMotor.getCurrent(CurrentUnit.MILLIAMPS);
+            rightMotorCurrent = (int)rightMotor.getCurrent(CurrentUnit.MILLIAMPS);
+            encoderCSVFile.writeData(
+                    (int)timer.milliseconds(),
+                    leftEncoder,
+                    rightEncoder,
+                    (leftEncoder - rightEncoder),
+                    leftMotorCurrent,
+                    rightMotorCurrent,
+                    leftMotorCurrent - rightMotorCurrent);
+        }
         return getCurrentMotorState();
     }
 
