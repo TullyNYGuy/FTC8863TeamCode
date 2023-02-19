@@ -140,8 +140,9 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
                 PowerPlayRobot.HardwareName.LIFT_LIMIT_SWITCH_EXTENSION.hwName,
                 PowerPlayRobot.HardwareName.LIFT_LIMIT_SWITCH_RETRACTION.hwName,
                 liftMotor,
-                5.713);
-        lift.forwardMotorDirection();
+                5.93);
+
+        lift.reverseMotorDirection();
 
         //*********************************************
         // SET the lift positions here
