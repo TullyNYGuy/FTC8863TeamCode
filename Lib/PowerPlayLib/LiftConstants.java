@@ -20,15 +20,29 @@ public class LiftConstants {
     // getter and setter methods
     //*********************************************************************************************
 
-    public static double MAX_VELOCITY = 0; //in/sec
-    public static double MAX_ACCELERATION = 0; // in/sec^2
+    public static double MAX_VELOCITY = 30; //in/sec
+    public static double MAX_ACCELERATION = 100; // in/sec^2
+
+    public static double MOVEMENT_PER_REVOLUTION = 5.93; // in / motor revolution
+
+    public static double MAX_RPM = 1150; // max rpm of motor
 
     // These are the feedforward parameters
-    public static double kV = 0;
+    public static double kV = 0.01087;
     public static double kA = 0;
-    public static double kG = 0;
+    //public static double kStatic = 0.3347;
+    public static double kStatic = 0;
+    public static double kGAtRetraction = .40;
+    public static double kGPerUnitExtension = .0031; // kG/in
 
-    public static PIDCoefficients MOTION_PID = new PIDCoefficients(8, 0, 0);
+    public static double getKg(double liftPostion) {
+        return kGPerUnitExtension * liftPostion + kGAtRetraction;
+    }
+
+    public static PIDCoefficients MOTION_PID = new PIDCoefficients(0, 0, 0);
+
+    public static double MAXIMUM_LIFT_POSITION = 30; // INCHES
+    public static double MINIMUM_LIFT_POSITION = 2; // INCHES
 
     //*********************************************************************************************
     //          Constructors
