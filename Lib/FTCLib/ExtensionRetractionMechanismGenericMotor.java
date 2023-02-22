@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
 
 import com.acmerobotics.roadrunner.profile.MotionProfile;
+import com.acmerobotics.roadrunner.util.NanoClock;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -9,6 +10,9 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ExtensionRetractionMechanismGenericMotor {
 
@@ -260,6 +264,40 @@ public class ExtensionRetractionMechanismGenericMotor {
     }
 
     /**
+     * clock for use in calculating velocity. I'm using the same clock as roadrunner to be consistent
+     */
+    private NanoClock clock = NanoClock.system();
+    private double elapsedTime = 0;
+    private double startTime = 0;
+
+    /**
+     * If the lift is collecting data, this contains time stamps
+     */
+    private List<Double> timeData;
+
+    public List<Double> getTimeData() {
+        return timeData;
+    }
+
+    /**
+     * If the lift is collecting data, this contain position data points in mechanism units
+     */
+    private List<Double> positionData;
+
+    public List<Double> getPositionData() {
+        return positionData;
+    }
+
+    /**
+     * If the lift is collecting data, this contains power data points.
+     */
+    private List<Double> powerData;
+
+    public List<Double> getPowerData() {
+        return powerData;
+    }
+
+    /**
      * The name of this mechanism. This is used in the log files and in messages to the user.
      */
     protected String mechanismName = "";
@@ -461,6 +499,10 @@ public class ExtensionRetractionMechanismGenericMotor {
     public void enableCollectData() {
         this.collectData = true;
         timeEncoderValues = new PairedList();
+        timeData.clear();
+        positionData.clear();
+        powerData.clear();
+        startTime = clock.seconds();
     }
 
     public void disableCollectData() {
@@ -603,6 +645,10 @@ public class ExtensionRetractionMechanismGenericMotor {
 
         mechanismTimer = new ElapsedTime();
         resetTimer = new ElapsedTime();
+
+        timeData = new ArrayList<>();
+        positionData = new ArrayList<>();
+        powerData = new ArrayList<>();
     }
 
     //*********************************************************************************************
@@ -1899,6 +1945,10 @@ public class ExtensionRetractionMechanismGenericMotor {
         currentEncoderValue = extensionRetractionMotor.getCurrentPosition();
         if (collectData) {
             timeEncoderValues.add(mechanismTimer.milliseconds(), currentEncoderValue);
+            elapsedTime = clock.seconds() - startTime;
+            timeData.add(elapsedTime);
+            positionData.add(getPosition());
+            powerData.add(getCurrentPower());
         }
 
         // if this is the first time the update is run, log the state and command. The rest of the
