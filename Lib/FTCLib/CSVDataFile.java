@@ -10,6 +10,7 @@ import java.io.FileNotFoundException;
 import java.io.PrintStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 public class CSVDataFile {
@@ -278,6 +279,31 @@ public class CSVDataFile {
         // print a newline
         csvDataFile.println();
     }
+
+    /**
+     * Given a variable number of List<Double> turn each element of the lists into a csv line.
+     * For example List(1.1, 2.1, 3.1) List(2.1, 2.2, 2.3) List(3.1, 3.2, 3.3)
+     * the csv file looks like:
+     * 1.1, 2.1, 3.1
+     * 1.2, 2.2, 3.2
+     * 1.3, 2.3, 3.3
+     * @param args
+     */
+    public void writeData(List<Double>... args){
+        int numberOfArgs = args.length;
+        for (int i = 0; i < args[0].size(); i++) {
+            for (int j = 0; j < numberOfArgs; j++) {
+                csvDataFile.print(args[j].get(i) + ", ");
+            }
+            csvDataFile.println();
+        }
+        for (List<Double> arg : args) {
+            for (double number : arg) {
+
+            }
+        }
+    }
+
 
     /**
      * This method closes the data log file. You have to do this after you are finished with logging.
