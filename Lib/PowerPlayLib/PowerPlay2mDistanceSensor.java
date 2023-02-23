@@ -13,6 +13,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.CSVDataFile;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogOnChange;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExponentialMovingAverage;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863New;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.StatTrackerGB;
@@ -106,6 +107,52 @@ public class PowerPlay2mDistanceSensor implements FTCRobotSubsystem {
     }
 
     private double timeBetweenReadings = 50; // milliseconds
+
+    /**
+     * The 2m distance sensors seem to produce occasional glitchs in readings when they are at max
+     * range. This controls whether those glitches are removed and the previous reading reported in
+     * its place.
+     */
+    private boolean removeLargeTransitions = true;
+
+    /**
+     * Remove any large transitions between readings. This is most likely a glitch.
+     */
+    public void enableRemoveLargeTransitions() {
+        removeLargeTransitions = true;
+    }
+
+    /**
+     * Do not remove any large transitions.
+     */
+    public void disableRemoveLargeTransitions() {
+        removeLargeTransitions = false;
+    }
+
+    /**
+     * Any transition greater than this is defined as a large transition.
+     */
+    private double largeTransitionLimit = distanceUnit.fromUnit(DistanceUnit.MM, 7000);
+
+    /**
+     * If the large transition occurs in a time less than this, remove it. If not, then leave it.
+     */
+    private double timeLimitForRemoveLargeTransitions = 200; // mSec
+
+    /**
+     * If there is no last reading, it is null.
+     */
+    private Double lastReading = null;
+
+    private ExponentialMovingAverage movingAverage;
+
+    public void enableMovingAverage(double weightOfNewValue) {
+        movingAverage = new ExponentialMovingAverage(weightOfNewValue);
+    }
+
+    public void disableMovingAverage() {
+        movingAverage = null;
+    }
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -226,9 +273,31 @@ public class PowerPlay2mDistanceSensor implements FTCRobotSubsystem {
      */
     public void startSingleReading(double timeBetweenReadings) {
         this.timeBetweenReadings = timeBetweenReadings;
+        // if there has been at least this much time since the last reading, then it is possible
+        // that the large transition is real. So leave the reading intact. Do this by setting the
+        // last reading to null.
+        if (singleReadingTimer.milliseconds() > timeLimitForRemoveLargeTransitions) {
+            lastReading = null;
+        }
         singleReadingTimer.reset();
         // take the reading but do not return it until after the timer has expired
         singleReadingDistance = getDistance(this.distanceUnit);
+        if (removeLargeTransitions) {
+            if (lastReading == null) {
+                lastReading = singleReadingDistance;
+            } else {
+                // is this a large transition?
+                if (Math.abs(lastReading - singleReadingDistance) > largeTransitionLimit) {
+                    // yes so throw this reading away and use the last one instead
+                    singleReadingDistance = lastReading;
+                } else {
+                    lastReading = singleReadingDistance;
+                }
+            }
+        }
+        if (movingAverage != null) {
+            singleReadingDistance = movingAverage.average(singleReadingDistance);
+        }
     }
 
     /**

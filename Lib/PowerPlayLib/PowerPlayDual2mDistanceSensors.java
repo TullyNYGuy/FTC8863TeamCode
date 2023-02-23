@@ -69,7 +69,7 @@ public class PowerPlayDual2mDistanceSensors implements FTCRobotSubsystem {
 
     private double continuousDistanceNormal = 0;
 
-    public double getContinuousDistanceNormal() {
+    public double getContinuousDistanceNormal(DistanceUnit unit) {
         return distanceUnit.fromUnit(this.distanceUnit, continuousDistanceNormal);
     }
 
@@ -135,20 +135,6 @@ public class PowerPlayDual2mDistanceSensors implements FTCRobotSubsystem {
         }
     }
 
-    /**
-     * The limit for saying the sensors are centered on the pole. It is +/- so any difference in the
-     * sensors between +1.0 and -1.0 says the sensors are centered.
-     */
-    private double centeredOnPoleLimit = 1.0;
-
-    public double getCenteredOnPoleLimit() {
-        return centeredOnPoleLimit;
-    }
-
-    public void setCenteredOnPoleLimit(double centeredOnPoleLimit, DistanceUnit unit) {
-        this.centeredOnPoleLimit = this.distanceUnit.fromUnit(unit, centeredOnPoleLimit);
-    }
-
     private TimeUnit timeUnit = TimeUnit.MILLISECONDS;
     private long timeBetweenReadings = 50; // milliseconds
 
@@ -179,7 +165,11 @@ public class PowerPlayDual2mDistanceSensors implements FTCRobotSubsystem {
         this.sensorName = sensorName;
         this.distanceUnit = distanceUnit;
         distanceSensorNormal = new PowerPlay2mDistanceSensor(hardwareMap, telemetry, PowerPlayRobot.HardwareName.DISTANCE_SENSOR_NORMAL.hwName, distanceUnit);
+        distanceSensorNormal.enableMovingAverage(.5);
+        distanceSensorNormal.enableRemoveLargeTransitions();
         distanceSensorInverse = new PowerPlay2mDistanceSensor(hardwareMap, telemetry, PowerPlayRobot.HardwareName.DISTANCE_SENSOR_INVERSE.hwName, distanceUnit);
+        distanceSensorInverse.enableMovingAverage(.5);
+        distanceSensorInverse.enableRemoveLargeTransitions();
     }
     //*********************************************************************************************
     //          Helper Methods
