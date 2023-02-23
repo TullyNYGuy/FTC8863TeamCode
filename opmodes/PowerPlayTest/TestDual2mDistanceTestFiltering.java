@@ -102,9 +102,6 @@ public class TestDual2mDistanceTestFiltering extends LinearOpMode {
     private CSVDataFile rawSensorReadingsCSV;
     private boolean wroteData = false;
 
-    private ExponentialMovingAverage movingAverageNormal;
-    private ExponentialMovingAverage movingAverageInverse;
-
     private ElapsedTime timer = new ElapsedTime();
 
     private GamepadButtonMultiPush gamepad1a;
@@ -112,14 +109,15 @@ public class TestDual2mDistanceTestFiltering extends LinearOpMode {
     @Override
     public void runOpMode() {
         distanceSensorNormal = new PowerPlay2mDistanceSensor(hardwareMap, telemetry, "distanceSensorNormal", DistanceUnit.MM);
+        distanceSensorNormal.enableRemoveLargeTransitions(7000, DistanceUnit.MM);
+        distanceSensorNormal.enableMovingAverage(0.5);
         distanceSensorInverse = new PowerPlay2mDistanceSensor(hardwareMap, telemetry, "distanceSensorInverse", DistanceUnit.MM);
+        distanceSensorInverse.enableRemoveLargeTransitions(7000, DistanceUnit.MM);
+        distanceSensorInverse.enableMovingAverage(0.5);
         gamepad1a = new GamepadButtonMultiPush(1);
 
         rawSensorReadingsCSV = new CSVDataFile("rawSensorReadings");
         rawSensorReadingsCSV.headerStrings("inverse", "normal", "difference");
-
-        movingAverageNormal = new ExponentialMovingAverage(.5);
-        movingAverageInverse = new ExponentialMovingAverage(.5);
 
         telemetry = new MultipleTelemetry(telemetry, dashboard.getTelemetry());
 
@@ -157,7 +155,7 @@ public class TestDual2mDistanceTestFiltering extends LinearOpMode {
                             if (distanceSensorInverse.isSingleReadingReady()) {
                                 continuousDistanceInverseUnfiltered = distanceSensorInverse.getSingleReading(DistanceUnit.MM);
                                 continuousDistancesInverseUnfiltered.add(continuousDistanceInverseUnfiltered);
-                                continuousDistanceInverseFiltered = movingAverageInverse.average(continuousDistanceInverseUnfiltered);
+                                continuousDistanceInverseFiltered = distanceSensorInverse.getSingleReadingFiltered(DistanceUnit.MM);
                                 continuousDistancesInverseFiltered.add(continuousDistanceInverseFiltered);
                                 times.add(timer.milliseconds());
                                 distanceSensorNormal.startSingleReading(50);
@@ -169,7 +167,7 @@ public class TestDual2mDistanceTestFiltering extends LinearOpMode {
                             if (distanceSensorNormal.isSingleReadingReady()) {
                                 continuousDistanceNormalUnfiltered = distanceSensorNormal.getSingleReading(DistanceUnit.MM);
                                 continuousDistancesNormalUnfiltered.add(continuousDistanceNormalUnfiltered);
-                                continuousDistanceNormalFiltered = movingAverageNormal.average(continuousDistanceNormalUnfiltered);
+                                continuousDistanceNormalFiltered = distanceSensorNormal.getSingleReadingFiltered(DistanceUnit.MM);
                                 continuousDistancesNormalFiltered.add(continuousDistanceNormalFiltered);
                                 distanceSensorInverse.startSingleReading(50);
                                 sensorBeingRead = sensorBeingRead.INVERSE;

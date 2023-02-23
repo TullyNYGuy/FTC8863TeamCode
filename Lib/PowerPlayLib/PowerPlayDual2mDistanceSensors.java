@@ -166,10 +166,10 @@ public class PowerPlayDual2mDistanceSensors implements FTCRobotSubsystem {
         this.distanceUnit = distanceUnit;
         distanceSensorNormal = new PowerPlay2mDistanceSensor(hardwareMap, telemetry, PowerPlayRobot.HardwareName.DISTANCE_SENSOR_NORMAL.hwName, distanceUnit);
         distanceSensorNormal.enableMovingAverage(.5);
-        distanceSensorNormal.enableRemoveLargeTransitions();
+        distanceSensorNormal.enableRemoveLargeTransitions(7000, DistanceUnit.MM);
         distanceSensorInverse = new PowerPlay2mDistanceSensor(hardwareMap, telemetry, PowerPlayRobot.HardwareName.DISTANCE_SENSOR_INVERSE.hwName, distanceUnit);
         distanceSensorInverse.enableMovingAverage(.5);
-        distanceSensorInverse.enableRemoveLargeTransitions();
+        distanceSensorInverse.enableRemoveLargeTransitions(7000, DistanceUnit.MM);
     }
     //*********************************************************************************************
     //          Helper Methods

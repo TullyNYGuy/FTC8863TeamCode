@@ -65,6 +65,7 @@ public class PowerPlay2mDistanceSensor implements FTCRobotSubsystem {
     private double averageDistance = 0;
     private StatTrackerGB statTracker;
     private double singleReadingDistance = 0;
+    private double singleReadingDistanceFiltered = 0;
 
     private double greaterThanDistanceLimit = 0;
 
@@ -118,8 +119,9 @@ public class PowerPlay2mDistanceSensor implements FTCRobotSubsystem {
     /**
      * Remove any large transitions between readings. This is most likely a glitch.
      */
-    public void enableRemoveLargeTransitions() {
+    public void enableRemoveLargeTransitions(double largeTransitionLimit, DistanceUnit unit) {
         removeLargeTransitions = true;
+        this.largeTransitionLimit = distanceUnit.fromUnit(unit, largeTransitionLimit);
     }
 
     /**
@@ -143,6 +145,13 @@ public class PowerPlay2mDistanceSensor implements FTCRobotSubsystem {
      * If there is no last reading, it is null.
      */
     private Double lastReading = null;
+
+    /**
+     * The count of the number of large transitions count in a row
+     */
+    private int largeTransitionCount = 0;
+
+    private static int LARGE_TRANSITION_COUNT_LIMIT = 2;
 
     private ExponentialMovingAverage movingAverage;
 
@@ -278,25 +287,39 @@ public class PowerPlay2mDistanceSensor implements FTCRobotSubsystem {
         // last reading to null.
         if (singleReadingTimer.milliseconds() > timeLimitForRemoveLargeTransitions) {
             lastReading = null;
+            largeTransitionCount = 0;
         }
         singleReadingTimer.reset();
         // take the reading but do not return it until after the timer has expired
         singleReadingDistance = getDistance(this.distanceUnit);
         if (removeLargeTransitions) {
+            // lastReading = null if this is the first reading in a while. Since there are no
+            // previous readings, a large transition cannot exist.
             if (lastReading == null) {
                 lastReading = singleReadingDistance;
             } else {
                 // is this a large transition?
                 if (Math.abs(lastReading - singleReadingDistance) > largeTransitionLimit) {
-                    // yes so throw this reading away and use the last one instead
-                    singleReadingDistance = lastReading;
+                    largeTransitionCount++;
+                    // If this is the nth large transition in a row, then this is not a large
+                    // transition. Use this reading.
+                    if (largeTransitionCount == LARGE_TRANSITION_COUNT_LIMIT) {
+                        lastReading = singleReadingDistance;
+                        largeTransitionCount = 0;
+                    } else {
+                        // This reading is treated as a large transition. Throw out the current
+                        // reading and use the last one
+                        singleReadingDistance = lastReading;
+                    }
                 } else {
+                    // this was not a large transition
                     lastReading = singleReadingDistance;
+                    largeTransitionCount = 0;
                 }
             }
         }
         if (movingAverage != null) {
-            singleReadingDistance = movingAverage.average(singleReadingDistance);
+            singleReadingDistanceFiltered = movingAverage.average(singleReadingDistance);
         }
     }
 
@@ -319,6 +342,14 @@ public class PowerPlay2mDistanceSensor implements FTCRobotSubsystem {
      */
     public double getSingleReading(DistanceUnit unit) {
         return unit.fromUnit(this.distanceUnit, singleReadingDistance);
+    }
+
+    /**
+     * Actually return a distance. For use after isSingleReadingReady returns true.
+     * @return
+     */
+    public double getSingleReadingFiltered(DistanceUnit unit) {
+        return unit.fromUnit(this.distanceUnit, singleReadingDistanceFiltered);
     }
 
     public void startAverage(int numberOfReadingsInAverage) {

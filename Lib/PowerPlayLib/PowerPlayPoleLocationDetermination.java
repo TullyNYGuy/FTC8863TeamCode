@@ -28,7 +28,7 @@ public class PowerPlayPoleLocationDetermination implements FTCRobotSubsystem {
 
     private PoleLocation poleLocation = PoleLocation.OUT_OF_VIEW;
 
-    public PoleLocation getPoleLocationLeftOrRight() {
+    public PoleLocation getPoleLocation() {
         return poleLocation;
     }
 
