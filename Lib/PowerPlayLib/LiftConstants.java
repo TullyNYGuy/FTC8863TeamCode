@@ -30,8 +30,8 @@ public class LiftConstants {
     // These are the feedforward parameters
     public static double kV = 0.01087;
     public static double kA = 0;
-    //public static double kStatic = 0.3347;
-    public static double kStatic = 0;
+    public static double kStatic = 0.3347;
+    //public static double kStatic = 0;
     public static double kGAtRetraction = .40;
     public static double kGPerUnitExtension = .0031; // kG/in
 
