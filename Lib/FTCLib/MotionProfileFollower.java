@@ -10,11 +10,11 @@ import com.acmerobotics.roadrunner.util.NanoClock;
  * General usage:
  *     Some other object creates a motion profile.
  *     It also creates this follower, passing in a PIDF controller.
- *     The object sets the motion profile using setProfile().
- *     The object starts the follower using start().
+ *     The object sets the motion profile in this follower using setProfile().
+ *     The object starts this follower using start().
  *     The object starts looping:
  *        The object checks to see if the profile is complete using isProfileComplete().
- *        The object constantly updates the with the position feedback using update(feedback).
+ *        The object constantly updates this follower with the position feedback using update(feedback).
  *        The object gets the correction (new motor power) using getCorrection() and applies it to the
  *           motor.
  * Notes:
@@ -92,6 +92,25 @@ public class MotionProfileFollower {
     public boolean isProfileComplete() {
         return profileComplete;
     }
+
+    private double targetPosition = 0;
+
+    public double getTargetPosition() {
+        return targetPosition;
+    }
+
+    private double targetVelocity = 0;
+
+    public double getTargetVelocity() {
+        return targetVelocity;
+    }
+
+    private double targetAcceleration = 0;
+
+    public double getTargetAcceleration() {
+        return targetAcceleration;
+    }
+
     //*********************************************************************************************
     //          Constructors
     //
@@ -146,10 +165,17 @@ public class MotionProfileFollower {
         }
         // get the target motion state from the profile, given the time
         MotionState targetState = profile.get(elapsedTime);
+
+        // update the variables to an external class can call the getters for them
+        targetPosition = targetState.getX();
+        targetVelocity = targetState.getV();
+        targetAcceleration = targetState.getA();
+
         // set the new target position in the PIDF controller
-        motionController.setTargetPosition(targetState.getX());
-        motionController.setTargetVelocity(targetState.getV());
-        motionController.setTargetAcceleration(targetState.getA());
+        motionController.setTargetPosition(targetPosition);
+        motionController.setTargetVelocity(targetVelocity);
+        motionController.setTargetAcceleration(targetAcceleration);
+
         // get the correction from the PIDF, given the current position
         correction = motionController.update(measuredPosition);
     }
