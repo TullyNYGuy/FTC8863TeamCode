@@ -297,11 +297,6 @@ public class CSVDataFile {
             }
             csvDataFile.println();
         }
-        for (List<Double> arg : args) {
-            for (double number : arg) {
-
-            }
-        }
     }
 
 
