@@ -73,4 +73,8 @@ public class ExponentialMovingAverage {
         return newValue;
     }
 
+    public void clear() {
+        oldValue = null;
+    }
+
 }

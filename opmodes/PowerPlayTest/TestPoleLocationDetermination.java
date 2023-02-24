@@ -75,6 +75,10 @@ public class TestPoleLocationDetermination extends LinearOpMode {
 
     private DataLogging poleLocationLogFile;
 
+    private double distanceToPole = 0;
+    private double capturedDistanceToPole = 0;
+    private boolean centered = false;
+
     @Override
     public void runOpMode() {
         distanceSensors = new PowerPlayDual2mDistanceSensors(hardwareMap, telemetry, "Dual Distance Sensors", DistanceUnit.MM);
@@ -91,11 +95,27 @@ public class TestPoleLocationDetermination extends LinearOpMode {
         locationDetermination.enablePoleLocationDetermination();
 
         while (opModeIsActive()) {
+            locationDetermination.update();
+            if (locationDetermination.isDataValid()) {
+                poleLocation = locationDetermination.getPoleLocation();
+                distanceToPole = locationDetermination.getDistanceFromPole(DistanceUnit.MM);
+                telemetry.addData("Pole location = ", poleLocation.toString());
+                telemetry.addData("normal distance = ", locationDetermination.getNormalDistance(DistanceUnit.MM));
+                telemetry.addData("inverse distance = ", locationDetermination.getInverseDistance(DistanceUnit.MM));
+                telemetry.addData("difference = ", locationDetermination.getSensorDifference(DistanceUnit.MM));
+                telemetry.addData("Distance to pole = ", distanceToPole);
 
-            poleLocation = locationDetermination.getPoleLocation();
-            telemetry.addData("Pole location = ", poleLocation.toString());
-            telemetry.update();
-
+                // capture data on the first time the pole is centered
+                if (!centered && poleLocation == PowerPlayPoleLocationDetermination.PoleLocation.CENTER) {
+                    centered = true;
+                    capturedDistanceToPole = distanceToPole;
+                }
+                if (centered) {
+                    telemetry.addData("Pole was centered", "!");
+                    telemetry.addData("Distance to pole = ", capturedDistanceToPole);
+                }
+                telemetry.update();
+            }
             idle();
         }
     }

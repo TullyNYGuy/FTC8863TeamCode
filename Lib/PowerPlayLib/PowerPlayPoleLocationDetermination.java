@@ -9,6 +9,8 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogOnChange;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Distance;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExponentialMovingAverage;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
 
 public class PowerPlayPoleLocationDetermination implements FTCRobotSubsystem {
@@ -32,17 +34,44 @@ public class PowerPlayPoleLocationDetermination implements FTCRobotSubsystem {
         return poleLocation;
     }
 
-    private enum State {
+    public enum State {
         IDLE,
+        WAITING_FOR_VALID_SENSOR_DATA,
         ACTIVE
     }
 
     private State state = State.IDLE;
 
+    public State getState() {
+        return state;
+    }
+
     private PowerPlayDual2mDistanceSensors distanceSensors;
+    private ExponentialMovingAverage distanceFromPoleFilter;
+
     private double sensorDifference = 0;
+
+    public double getSensorDifference(DistanceUnit unit) {
+        return unit.fromUnit(this.distanceUnit, sensorDifference);
+    }
+
     private double normalDistance = 0;
+
+    public double getNormalDistance(DistanceUnit unit) {
+        return unit.fromUnit(this.distanceUnit, normalDistance);
+    }
+
     private double inverseDistance = 0;
+
+    public double getInverseDistance(DistanceUnit unit) {
+        return unit.fromUnit(this.distanceUnit, inverseDistance);
+    }
+
+    private double distanceFromPole = 0;
+
+    public double getDistanceFromPole(DistanceUnit unit) {
+        return unit.fromUnit(this.distanceUnit, distanceFromPole);
+    }
 
     private DistanceUnit distanceUnit = DistanceUnit.MM;
 
@@ -61,8 +90,10 @@ public class PowerPlayPoleLocationDetermination implements FTCRobotSubsystem {
         this.centeredOnPoleLimit = this.distanceUnit.fromUnit(unit, centeredOnPoleLimit);
     }
 
-    private double OUT_VIEW_DISTANCE = 7000; //mm
-    private double LEFT_OR_RIGHT_DIFFERENCE = 7500; //MM
+    /**
+     * Anything beyond this distance is bogus and will be reported as OUT_OF_VIEW
+     */
+    private double OUT_VIEW_DISTANCE = 300; //mm (12")
 
     private DataLogging logFile;
     private boolean enableLogging = false;
@@ -87,6 +118,7 @@ public class PowerPlayPoleLocationDetermination implements FTCRobotSubsystem {
     //*********************************************************************************************
     public PowerPlayPoleLocationDetermination(PowerPlayDual2mDistanceSensors distanceSensors) {
         this.distanceSensors = distanceSensors;
+        distanceFromPoleFilter = new ExponentialMovingAverage(.3);
     }
 
     //*********************************************************************************************
@@ -164,15 +196,47 @@ public class PowerPlayPoleLocationDetermination implements FTCRobotSubsystem {
 
 
     public void enablePoleLocationDetermination() {
-        state = State.ACTIVE;
+        state = State.WAITING_FOR_VALID_SENSOR_DATA;
         distanceSensors.startContinuousMode();
+        distanceFromPole = 0;
+        distanceFromPoleFilter.clear();
         logCommand("pole location enabled");
     }
 
     public void disablePoleLocationDetermination() {
         state = State.IDLE;
         distanceSensors.stopReading();
+        distanceFromPole = 0;
+        distanceFromPoleFilter.clear();
         logCommand("pole location disabled");
+    }
+
+    /**
+     * The distance from the pole to the robot is not accurately given by the distance sensors. But
+     * we did take some data to see if there was a linear relationship between the actual distance
+     * and the distance given by the sensors. There was. We used a linear regression to find a
+     * formula for the actual distance when we have the distance sensors readings.
+     * @return 0 means that the distance is not valid
+     */
+    private void calculateDistanceFromPole() {
+        // the distance sensor readings have to be valid and the robot has to be centered on the pole
+        if (state == State.ACTIVE && poleLocation == PoleLocation.CENTER) {
+            // this is from a linear regression. The units are MM
+            distanceFromPole = (inverseDistance + normalDistance)/2 * 1.23 -70.3;
+            distanceFromPole = distanceFromPoleFilter.average(distanceFromPole);
+        } else {
+            // the distance sensor data is not valid, or the pole is not centered on the robot
+            distanceFromPole = 0;
+            distanceFromPoleFilter.clear();
+        }
+    }
+
+    public boolean isDataValid() {
+        if (state == State.ACTIVE) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -180,28 +244,43 @@ public class PowerPlayPoleLocationDetermination implements FTCRobotSubsystem {
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public void update() {
+        distanceSensors.update();
         switch (state) {
             case IDLE: {
                 // do nothing
             }
+            case WAITING_FOR_VALID_SENSOR_DATA: {
+               if (distanceSensors.isDataValid()) {
+                   sensorDifference = distanceSensors.getContinuousDifference(DistanceUnit.MM);
+                   normalDistance = distanceSensors.getContinuousDistanceNormal(DistanceUnit.MM);
+                   inverseDistance = distanceSensors.getContinuousDistanceInverse(DistanceUnit.MM);
+                    state = State.ACTIVE;
+                }
+            }
             break;
-            case ACTIVE: {
-                distanceSensors.update();
 
+            case ACTIVE: {
                 sensorDifference = distanceSensors.getContinuousDifference(DistanceUnit.MM);
                 normalDistance = distanceSensors.getContinuousDistanceNormal(DistanceUnit.MM);
                 inverseDistance = distanceSensors.getContinuousDistanceInverse(DistanceUnit.MM);
 
                 poleLocation = PoleLocation.OUT_OF_VIEW;
-                if (sensorDifference > centeredOnPoleLimit) {
-                    poleLocation = PoleLocation.LEFT;
+                if (normalDistance > OUT_VIEW_DISTANCE && inverseDistance > OUT_VIEW_DISTANCE) {
+                    poleLocation = PoleLocation.OUT_OF_VIEW;
+                } else {
+                    if (Math.abs(sensorDifference) <= centeredOnPoleLimit) {
+                        poleLocation = PoleLocation.CENTER;
+                    } else {
+                        if (sensorDifference > centeredOnPoleLimit) {
+                            poleLocation = PoleLocation.LEFT;
+                        } else {
+                            if (sensorDifference < centeredOnPoleLimit) {
+                                poleLocation = PoleLocation.RIGHT;
+                            }
+                        }
+                    }
                 }
-                if (sensorDifference < centeredOnPoleLimit) {
-                    poleLocation = PoleLocation.RIGHT;
-                }
-                if (Math.abs(sensorDifference) <= centeredOnPoleLimit) {
-                    poleLocation = PoleLocation.CENTER;
-                }
+                calculateDistanceFromPole();
                 logPoleLocation();
             }
             break;

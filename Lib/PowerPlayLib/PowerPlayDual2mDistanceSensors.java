@@ -79,10 +79,16 @@ public class PowerPlayDual2mDistanceSensors implements FTCRobotSubsystem {
         return distanceUnit.fromUnit(this.distanceUnit, continuousDistanceInverse);
     }
 
-    private double continuousDifference = 1000; // 0 is what we are hunting for do don't initialize to that
+    private Double continuousDifference = null; // 0 is what we are hunting for do don't initialize to that
 
     public double getContinuousDifference(DistanceUnit distanceUnit) {
         return distanceUnit.fromUnit(this.distanceUnit, continuousDifference);
+    }
+
+    private boolean dataValid = false;
+
+    public boolean isDataValid() {
+        return dataValid;
     }
 
     private double averageDistanceNormal = 0;
@@ -276,6 +282,7 @@ public class PowerPlayDual2mDistanceSensors implements FTCRobotSubsystem {
         switch (state) {
             case IDLE: {
                 // do nothing
+                dataValid = false;
             }
             break;
 
@@ -299,7 +306,8 @@ public class PowerPlayDual2mDistanceSensors implements FTCRobotSubsystem {
                     continuousDistanceNormal = distanceSensorNormal.getSingleReading(this.distanceUnit);
                     distanceSensorInverse.startSingleReading(timeBetweenReadings);
                     continuousDifference = continuousDistanceNormal - continuousDistanceInverse;
-                    state = State.CONTINUOUS_READ_NORMAL;
+                    dataValid = true;
+                    state = State.CONTINUOUS_READ_INVERSE;
                 }
             }
             break;
