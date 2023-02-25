@@ -41,7 +41,7 @@ public class LiftConstants {
         return kGPerUnitExtension * liftPostion + kGAtRetraction;
     }
 
-    public static PIDCoefficients MOTION_PID = new PIDCoefficients(0, 0, 0);
+    public static PIDCoefficients MOTION_PID = new PIDCoefficients(.2, 0, 0);
 
     public static double MAXIMUM_LIFT_POSITION = 37; // INCHES
     public static double MINIMUM_LIFT_POSITION = 2; // INCHES
