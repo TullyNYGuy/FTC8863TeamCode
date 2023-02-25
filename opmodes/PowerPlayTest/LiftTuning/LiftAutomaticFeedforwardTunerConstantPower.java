@@ -150,7 +150,7 @@ public class LiftAutomaticFeedforwardTunerConstantPower extends LinearOpMode {
         double powerRampSlope = -(MAX_POWER - getKg(MAXIMUM_LIFT_POSITION)) / (MAXIMUM_LIFT_POSITION - EXTENSION_POSITION);
 
         double profileStart = clock.seconds();
-        lift.enableCollectDataForPostProcesssing();
+        lift.enableCollectData();
 
         while (opModeIsActive()) {
             elapsedTime = clock.seconds() - profileStart;
@@ -179,7 +179,7 @@ public class LiftAutomaticFeedforwardTunerConstantPower extends LinearOpMode {
                 case CONSTANT_POWER_PAST_EXTENSION_POSITION: {
                     if (liftPosition >= MAXIMUM_LIFT_POSITION) {
                         phaseOfOperation = PhaseOfOperation.CONSTANT_POWER_AT_EXTENSION_LIMIT;
-                        lift.disablecollectDataForPostProcessing();
+                        lift.disableCollectData();
                     }
                     telemetry.addData("lift state = ", lift.getExtensionRetractionState().toString());
                     telemetry.addData("motor power = ", targetPower);

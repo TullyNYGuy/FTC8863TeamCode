@@ -27,11 +27,14 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863Interface;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DualMotorGearbox;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanismGenericMotor;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.MotionProfileFollower;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MotorConstants;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayRobot;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import kotlin.jvm.functions.Function2;
 
 /*
  * This routine is designed to tune the open-loop feedforward coefficients. Although it may seem unnecessary,
@@ -68,10 +71,13 @@ public class LiftExtensionFeedforwardTest extends LinearOpMode {
         EXTENDING,
         RETRACTING
     }
+
     private Direction direction = Direction.EXTENDING;
 
     public static double EXTENSION_POSITION = 20; // in
     public static double RETRACTION_POSITION = 0; // in
+
+    public static double WAIT_TIME = 5.0;
 
     private FtcDashboard dashboard = FtcDashboard.getInstance();
 
@@ -85,6 +91,7 @@ public class LiftExtensionFeedforwardTest extends LinearOpMode {
 
     private PIDFController motionController;
     private PIDCoefficients pidCoefficients;
+    private MotionProfileFollower follower;
 
     // motion profile generator for back and forth movement
     private static MotionProfile generateProfile(boolean movingForward) {
@@ -118,23 +125,32 @@ public class LiftExtensionFeedforwardTest extends LinearOpMode {
         lift.reverseMotorDirection();
 
         csvDataFile = new CSVDataFile("liftExtensionFeedForward");
-        csvDataFile.headerStrings("time (S)", "profile velocity (in/s)", "lift position (in)", "power");
-
-        profileVelocities = new ArrayList<>();
+        csvDataFile.headerStrings("time (S)", "lift position (in)", "profile position", "velocity (in/sec)", "profile velocity (in/s)", "power");
 
         // set the limits for protecting the hardware
         lift.setExtensionPositionInMechanismUnits(MAXIMUM_LIFT_POSITION);
         lift.setRetractionPositionInMechanismUnits(MINIMUM_LIFT_POSITION);
 
         // tuning the PID portion comes later, so all 0 for now
-        pidCoefficients = new PIDCoefficients(0,0,0);
-        motionController = new PIDFController(pidCoefficients, kV, kA, kStatic);
+        pidCoefficients = new PIDCoefficients(0, 0, 0);
+        motionController = new PIDFController(pidCoefficients, kV, kA, kStatic, new Function2<Double, Double, Double>() {
+            @Override
+            public Double invoke(Double position, Double velocity) {
+                return getKg(position);
+            }
+        });
         motionController.setOutputBounds(-1, 1);
+        MotionProfile activeProfile = generateProfile(true);
+        follower = new MotionProfileFollower(motionController);
+        follower.setProfile(activeProfile, "extension");
+
+        telemetry = new MultipleTelemetry(telemetry, dashboard.getTelemetry());
+
+        NanoClock clock = NanoClock.system();
 
         dataLog = new DataLogging("liftData");
         lift.setDataLog(dataLog);
         lift.enableDataLogging();
-
 
         // init the lift, sets the zero on the encoder once it hits the retraction limit switch
         lift.init();
@@ -144,70 +160,52 @@ public class LiftExtensionFeedforwardTest extends LinearOpMode {
         }
         phaseOfOperation = PhaseOfOperation.WAIT;
 
-        telemetry = new MultipleTelemetry(telemetry, dashboard.getTelemetry());
-
-        NanoClock clock = NanoClock.system();
-
         // Wait for the start button
         telemetry.addData("Init complete", ".");
         telemetry.addData(">", "Press Start to run");
         telemetry.update();
-        //telemetry.clearAll();
 
         waitForStart();
 
         telemetry.clearAll();
-        boolean movingForwards = true;
-        MotionProfile activeProfile = generateProfile(true);
+
         // get a dummy motionState for use in telemetry during wait
         motionState = activeProfile.get(0);
         double profileStart = clock.seconds();
-        lift.enableCollectRealTimeData();
 
         while (opModeIsActive()) {
             lift.update();
-            liftPosition = lift.getCurrentPosition();
-            // calculate and set the motor power
             double profileTime = clock.seconds() - profileStart;
 
             switch (phaseOfOperation) {
                 case WAIT: {
-                    if (profileTime > 10) {
+                    if (profileTime > WAIT_TIME) {
+                        lift.followProfile(follower);
                         phaseOfOperation = PhaseOfOperation.MOVING;
                         // reset the clock to use in the profile
-                        profileStart = clock.seconds();
-                        lift.enableCollectDataForPostProcesssing();
+                        lift.enableCollectData();
                     }
                 }
                 break;
 
                 case MOVING: {
-                    motionState = activeProfile.get(profileTime);
-                    double targetVelocity = motionState.getV();
-                    motionController.setTargetVelocity(targetVelocity);
-                    motionController.setTargetAcceleration(motionState.getA());
-                    profileVelocities.add(targetVelocity);
-                    //targetPower = Kinematics.calculateMotorFeedforward(targetVelocity, motionState.getA(), kV, kA, kStatic) + getKg(liftPosition);
-                    targetPower = motionController.update(0);
-
-//                    if (liftPosition > EXTENSION_POSITION) {
-//                        targetPower = getKg(liftPosition);
-//                        phaseOfOperation = PhaseOfOperation.PAST_EXTENSION_POSITION;
-//                        lift.disableCollectData();
-//                    }
-                    if (profileTime > activeProfile.duration() ||
+                    // the motion profile could complete successfully or the lift hit the extension limit and is holding there
+                    if (lift.isMotionProfileComplete() ||
                             lift.getExtensionRetractionState() == ExtensionRetractionMechanismGenericMotor.ExtensionRetractionStates.HOLDING_AT_EXTEND) {
-  //                      targetPower = getKg(liftPosition);
                         phaseOfOperation = PhaseOfOperation.MOVEMENT_COMPLETE;
-                        lift.disablecollectDataForPostProcessing();
-                        lift.disableCollectRealTimeData();
+                        //lift.disableCollectData();
                     }
-                    lift.setPowerUsingJoystick(targetPower);
                 }
                 break;
 
                 case MOVEMENT_COMPLETE: {
-                    csvDataFile.writeData(lift.getTimeData(), profileVelocities, lift.getPositionData(), lift.getPowerData());
+                    csvDataFile.writeData(
+                            lift.getTimeData(),
+                            lift.getPositionData(),
+                            lift.getMotionProfilePositions(),
+                            lift.getVelocityData(),
+                            lift.getMotionProfileVelocities(),
+                            lift.getPowerData());
                     csvDataFile.closeDataLog();
                     phaseOfOperation = PhaseOfOperation.ALL_DONE;
                 }
@@ -230,14 +228,14 @@ public class LiftExtensionFeedforwardTest extends LinearOpMode {
             }
 
             // update telemetry
-                telemetry.addData("lift state = ", lift.getExtensionRetractionState().toString());
-                telemetry.addData("Test state = ", phaseOfOperation.toString());
-                telemetry.addData("Profile Position ", motionState.getX());
-                telemetry.addData("Actual Position ", lift.getPositionAtUpdate());
-                telemetry.addData("Profile Velocity ", motionState.getV());
-                telemetry.addData("Actual velocity ", lift.getVelocityAtUpdate());
-                telemetry.addData("motor power = ", targetPower);
-                telemetry.update();
+            telemetry.addData("lift state = ", lift.getExtensionRetractionState().toString());
+            telemetry.addData("Test state = ", phaseOfOperation.toString());
+            telemetry.addData("Profile Position ", lift.getMotionProfilePositionAtUpdate());
+            telemetry.addData("Actual Position ", lift.getPositionAtUpdate());
+            telemetry.addData("Profile Velocity ", lift.getMotionProfileVelocityAtUpdate());
+            telemetry.addData("Actual velocity ", lift.getVelocityAtUpdate());
+            telemetry.addData("motor power = ", targetPower);
+            telemetry.update();
 
         }
     }

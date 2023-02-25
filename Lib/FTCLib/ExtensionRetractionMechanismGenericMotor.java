@@ -463,23 +463,26 @@ public class ExtensionRetractionMechanismGenericMotor {
     /**
      * Collect time vs encoder count data for debug purposes
      */
-    private boolean collectDataForPostProcessing = false;
+    private boolean collectData = false;
 
-    public boolean isCollectDataForPostProcessing() {
-        return collectDataForPostProcessing;
+    public boolean iscollectDataEnabled() {
+        return collectData;
     }
 
-    public void enableCollectDataForPostProcesssing() {
-        this.collectDataForPostProcessing = true;
+    public void enableCollectData() {
+        this.collectData = true;
         timeEncoderValues = new PairedList();
         timeData.clear();
+        motionProfilePositions.clear();
         positionData.clear();
+        motionProfileVelocities.clear();
+        velocityData.clear();
         powerData.clear();
         startTime = clock.seconds();
     }
 
-    public void disablecollectDataForPostProcessing() {
-        this.collectDataForPostProcessing = false;
+    public void disableCollectData() {
+        this.collectData = false;
     }
     /**
      * If the lift is collecting data, this contains time stamps
@@ -488,6 +491,16 @@ public class ExtensionRetractionMechanismGenericMotor {
 
     public List<Double> getTimeData() {
         return timeData;
+    }
+
+    /**
+     * If the lift is collected data and running a motion profile, this contains the positions in
+     * the motion profile.
+     */
+    private List<Double> motionProfilePositions;
+
+    public List<Double> getMotionProfilePositions() {
+       return motionProfilePositions;
     }
 
     /**
@@ -500,22 +513,28 @@ public class ExtensionRetractionMechanismGenericMotor {
     }
 
     /**
+     * If the lift is collected data and running a motion profile, this contains the velocities in
+     * the motion profile.
+     */
+    private List<Double> motionProfileVelocities;
+
+    public List<Double> getMotionProfileVelocities() {
+        return motionProfileVelocities;
+    }
+
+    private List<Double> velocityData;
+
+    public List<Double> getVelocityData() {
+        return velocityData;
+    }
+
+    /**
      * If the lift is collecting data, this contains power data points.
      */
     private List<Double> powerData;
 
     public List<Double> getPowerData() {
         return powerData;
-    }
-
-    private boolean collectRealTimeData = false;
-
-    public void enableCollectRealTimeData() {
-        collectRealTimeData = true;
-    }
-
-    public void disableCollectRealTimeData() {
-        collectRealTimeData = false;
     }
 
     private double lastTimeAtUpdate = 0;
@@ -525,11 +544,23 @@ public class ExtensionRetractionMechanismGenericMotor {
         return timeAtUpdate;
     }
 
+    private double motionProfilePositionAtUpdate = 0;
+
+    public double getMotionProfilePositionAtUpdate() {
+        return motionProfilePositionAtUpdate;
+    }
+
     private double lastPositionAtUpdate = 0;
     private double positionAtUpdate = 0;
 
     public double getPositionAtUpdate() {
         return positionAtUpdate;
+    }
+
+    private double motionProfileVelocityAtUpdate = 0;
+
+    public double getMotionProfileVelocityAtUpdate() {
+        return motionProfileVelocityAtUpdate;
     }
 
     private double velocityAtUpdate = 0;
@@ -681,7 +712,10 @@ public class ExtensionRetractionMechanismGenericMotor {
         resetTimer = new ElapsedTime();
 
         timeData = new ArrayList<>();
+        motionProfilePositions = new ArrayList<>();
         positionData = new ArrayList<>();
+        motionProfileVelocities = new ArrayList<>();
+        velocityData = new ArrayList<>();
         powerData = new ArrayList<>();
     }
 
@@ -1124,6 +1158,14 @@ public class ExtensionRetractionMechanismGenericMotor {
                 extensionRetractionState == ExtensionRetractionStates.FULLY_RETRACTED && extensionRetractionCommand == ExtensionRetractionCommands.NO_COMMAND ||
                 extensionRetractionState == ExtensionRetractionStates.FULLY_EXTENDED && extensionRetractionCommand == ExtensionRetractionCommands.NO_COMMAND
         ) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean isMotionProfileComplete() {
+        if (extensionRetractionState == ExtensionRetractionStates.PROFILE_COMPLETE) {
             return true;
         } else {
             return false;
@@ -1977,22 +2019,24 @@ public class ExtensionRetractionMechanismGenericMotor {
         DcMotor8863.MotorState motorState = extensionRetractionMotor.update();
 
         currentEncoderValue = extensionRetractionMotor.getCurrentPosition();
-        if (collectDataForPostProcessing) {
+        if (collectData) {
             timeEncoderValues.add(mechanismTimer.milliseconds(), currentEncoderValue);
-            elapsedTime = clock.seconds() - startTime;
-            timeData.add(elapsedTime);
-            positionData.add(getPosition());
-            powerData.add(getCurrentPower());
-        }
 
-        if (collectRealTimeData) {
             elapsedTime = clock.seconds() - startTime;
             timeAtUpdate = elapsedTime;
+            timeData.add(elapsedTime);
+
             positionAtUpdate = getPosition();
-            powerData.add(getCurrentPower());
+            positionData.add(positionAtUpdate);
+            motionProfilePositions.add(motionProfilePositionAtUpdate);
+
             velocityAtUpdate = (positionAtUpdate - lastPositionAtUpdate)/(timeAtUpdate - lastTimeAtUpdate);
-            lastTimeAtUpdate = elapsedTime;
+            velocityData.add(velocityAtUpdate);
+            motionProfileVelocities.add(motionProfileVelocityAtUpdate);
+
+            powerData.add(getCurrentPower());
             lastPositionAtUpdate = positionAtUpdate;
+            lastTimeAtUpdate = timeAtUpdate;
         }
 
         // if this is the first time the update is run, log the state and command. The rest of the
@@ -2844,6 +2888,9 @@ public class ExtensionRetractionMechanismGenericMotor {
                             // new motor power needed to maintain position, velocity and accelerate
                             // control
                             follower.update(getPosition());
+                            motionProfilePositionAtUpdate = follower.getTargetPosition();
+                            motionProfileVelocityAtUpdate = follower.getTargetVelocity();
+
                             // get the new power and apply it to the motor
                             setCurrentPower(follower.getCorrection());
                             extensionRetractionState = ExtensionRetractionStates.FOLLOWING_PROFILE;
@@ -2900,6 +2947,9 @@ public class ExtensionRetractionMechanismGenericMotor {
                             // new motor power needed to maintain position, velocity and accelerate
                             // control
                             follower.update(getPosition());
+                            motionProfilePositionAtUpdate = follower.getTargetPosition();
+                            motionProfileVelocityAtUpdate = follower.getTargetVelocity();
+
                             // get the new power and apply it to the motor
                             setCurrentPower(follower.getCorrection());
                         }
