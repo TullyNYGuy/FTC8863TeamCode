@@ -1,10 +1,7 @@
-package org.firstinspires.ftc.teamcode.Lib.PowerPlayLib;
+package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
-import com.acmerobotics.dashboard.config.Config;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.PIDCoefficients;
 
-@Config
-public class LiftConstants {
+public class PIDCoefficients {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -19,32 +16,9 @@ public class LiftConstants {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
-
-    public static double MAX_VELOCITY = 60; //in/sec
-    public static double MAX_ACCELERATION = 200; // in/sec^2
-
-    public static double MOVEMENT_PER_REVOLUTION = 5.93; // in / motor revolution
-
-    public static double MAX_RPM = 1150; // max rpm of motor
-
-    // These are the feedforward parameters
-    public static double kV = 0.014;
-    public static double kA = .001;
-    //public static double kStatic = 0.3347;
-    public static double kStatic = 0;
-    public static double kGAtRetraction = .241;
-    //public static double kGAtRetraction = .3347;
-    //public static double kGPerUnitExtension = .0031; // kG/in
-    public static double kGPerUnitExtension = 0.0; // kG/in
-
-    public static double getKg(double liftPostion) {
-        return kGPerUnitExtension * liftPostion + kGAtRetraction;
-    }
-
-    public static PIDCoefficients MOTION_PID = new PIDCoefficients(.2, 0, 0);
-
-    public static double MAXIMUM_LIFT_POSITION = 37; // INCHES
-    public static double MINIMUM_LIFT_POSITION = 2; // INCHES
+    public double kP;
+    public double kI;
+    public double kD;
 
     //*********************************************************************************************
     //          Constructors
@@ -52,6 +26,11 @@ public class LiftConstants {
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
+    public PIDCoefficients (double kP, double kI, double kD) {
+        this.kP = kP;
+        this.kI = kI;
+        this.kD = kD;
+    }
 
     //*********************************************************************************************
     //          Helper Methods

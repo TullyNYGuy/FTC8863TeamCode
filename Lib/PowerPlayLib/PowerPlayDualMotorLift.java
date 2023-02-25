@@ -5,7 +5,7 @@ import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.MAX_
 import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.MAX_VELOCITY;
 import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.MOTION_PID;
 
-import com.acmerobotics.roadrunner.control.PIDFController;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.PIDFController;
 import com.acmerobotics.roadrunner.profile.MotionProfile;
 import com.acmerobotics.roadrunner.profile.MotionProfileGenerator;
 import com.acmerobotics.roadrunner.profile.MotionState;

@@ -12,8 +12,8 @@ import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.kSta
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.acmerobotics.roadrunner.control.PIDCoefficients;
-import com.acmerobotics.roadrunner.control.PIDFController;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.PIDCoefficients;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.PIDFController;
 import com.acmerobotics.roadrunner.kinematics.Kinematics;
 import com.acmerobotics.roadrunner.profile.MotionProfile;
 import com.acmerobotics.roadrunner.profile.MotionProfileGenerator;
@@ -133,9 +133,9 @@ public class LiftExtensionFeedforwardTest extends LinearOpMode {
 
         // tuning the PID portion comes later, so all 0 for now
         pidCoefficients = new PIDCoefficients(0, 0, 0);
-        motionController = new PIDFController(pidCoefficients, kV, kA, kStatic, new Function2<Double, Double, Double>() {
+        motionController = new PIDFController(pidCoefficients, kV, kA, kStatic, new PIDFController.FeedforwardFunction() {
             @Override
-            public Double invoke(Double position, Double velocity) {
+            public Double compute(double position, Double velocity) {
                 return getKg(position);
             }
         });

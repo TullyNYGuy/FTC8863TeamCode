@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
 
 import com.acmerobotics.roadrunner.profile.MotionProfile;
-import com.acmerobotics.roadrunner.control.PIDFController;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.PIDFController;
 import com.acmerobotics.roadrunner.profile.MotionState;
 import com.acmerobotics.roadrunner.util.NanoClock;
 
@@ -118,7 +118,7 @@ public class MotionProfileFollower {
     // from it
     //*********************************************************************************************
 
-    public MotionProfileFollower(com.acmerobotics.roadrunner.control.PIDFController motionController) {
+    public MotionProfileFollower(PIDFController motionController) {
         this.motionController = motionController;
         clock = NanoClock.system();
     }
