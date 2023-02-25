@@ -21,6 +21,7 @@ import com.acmerobotics.roadrunner.profile.MotionState;
 import com.acmerobotics.roadrunner.util.NanoClock;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.CSVDataFile;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
@@ -29,6 +30,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DualMotorGearbox;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanismGenericMotor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MotionProfileFollower;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MotorConstants;
+import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayRobot;
 
 import java.util.ArrayList;
@@ -74,7 +76,7 @@ public class LiftExtensionFeedforwardTest extends LinearOpMode {
 
     private Direction direction = Direction.EXTENDING;
 
-    public static double EXTENSION_POSITION = 20; // in
+    public static double EXTENSION_POSITION = 30; // in
     public static double RETRACTION_POSITION = 0; // in
 
     public static double WAIT_TIME = 5.0;
@@ -84,7 +86,6 @@ public class LiftExtensionFeedforwardTest extends LinearOpMode {
     ExtensionRetractionMechanismGenericMotor lift;
     private DcMotor8863Interface liftMotor;
     private CSVDataFile csvDataFile;
-    private List<Double> profileVelocities;
 
     private double liftPosition = 0;
     private double targetPower = 0;
@@ -103,6 +104,7 @@ public class LiftExtensionFeedforwardTest extends LinearOpMode {
     private MotionState motionState;
 
     private DataLogging dataLog;
+    private ElapsedTime timer;
 
     @Override
     public void runOpMode() {
@@ -125,14 +127,14 @@ public class LiftExtensionFeedforwardTest extends LinearOpMode {
         lift.reverseMotorDirection();
 
         csvDataFile = new CSVDataFile("liftExtensionFeedForward");
-        csvDataFile.headerStrings("time (S)", "lift position (in)", "profile position", "velocity (in/sec)", "profile velocity (in/s)", "power");
+        csvDataFile.headerStrings("time (S)", "lift position (in)", "profile position", "lift velocity (in/sec)", "profile velocity (in/s)", "power");
 
         // set the limits for protecting the hardware
         lift.setExtensionPositionInMechanismUnits(MAXIMUM_LIFT_POSITION);
         lift.setRetractionPositionInMechanismUnits(MINIMUM_LIFT_POSITION);
 
         // tuning the PID portion comes later, so all 0 for now
-        pidCoefficients = new PIDCoefficients(0, 0, 0);
+        pidCoefficients = LiftConstants.MOTION_PID_COEFFICENTS;
         motionController = new PIDFController(pidCoefficients, kV, kA, kStatic, new PIDFController.FeedforwardFunction() {
             @Override
             public Double compute(double position, Double velocity) {
@@ -151,6 +153,8 @@ public class LiftExtensionFeedforwardTest extends LinearOpMode {
         dataLog = new DataLogging("liftData");
         lift.setDataLog(dataLog);
         lift.enableDataLogging();
+
+        timer = new ElapsedTime();
 
         // init the lift, sets the zero on the encoder once it hits the retraction limit switch
         lift.init();
@@ -192,6 +196,7 @@ public class LiftExtensionFeedforwardTest extends LinearOpMode {
                     // the motion profile could complete successfully or the lift hit the extension limit and is holding there
                     if (lift.isMotionProfileComplete() ||
                             lift.getExtensionRetractionState() == ExtensionRetractionMechanismGenericMotor.ExtensionRetractionStates.HOLDING_AT_EXTEND) {
+                        timer.reset();
                         phaseOfOperation = PhaseOfOperation.MOVEMENT_COMPLETE;
                         //lift.disableCollectData();
                     }
@@ -199,15 +204,21 @@ public class LiftExtensionFeedforwardTest extends LinearOpMode {
                 break;
 
                 case MOVEMENT_COMPLETE: {
-                    csvDataFile.writeData(
-                            lift.getTimeData(),
-                            lift.getPositionData(),
-                            lift.getMotionProfilePositions(),
-                            lift.getVelocityData(),
-                            lift.getMotionProfileVelocities(),
-                            lift.getPowerData());
-                    csvDataFile.closeDataLog();
-                    phaseOfOperation = PhaseOfOperation.ALL_DONE;
+                    // Wait for a period of time for the lift to settle into its position. This allows
+                    // data to be collected for during this period.
+                    if (timer.milliseconds() > 3000) {
+                        // write a csv file with all of the data collected so that it can be analysized
+                        // if needed.
+                        csvDataFile.writeData(
+                                lift.getTimeData(),
+                                lift.getPositionData(),
+                                lift.getMotionProfilePositions(),
+                                lift.getVelocityData(),
+                                lift.getMotionProfileVelocities(),
+                                lift.getPowerData());
+                        csvDataFile.closeDataLog();
+                        phaseOfOperation = PhaseOfOperation.ALL_DONE;
+                    }
                 }
                 break;
 
@@ -222,12 +233,11 @@ public class LiftExtensionFeedforwardTest extends LinearOpMode {
                 break;
 
                 case ALL_DONE: {
-
                 }
                 break;
             }
 
-            // update telemetry
+            // update telemetry - this info will be updated continuously while the opmode runs
             telemetry.addData("lift state = ", lift.getExtensionRetractionState().toString());
             telemetry.addData("Test state = ", phaseOfOperation.toString());
             telemetry.addData("Profile Position ", lift.getMotionProfilePositionAtUpdate());
@@ -236,7 +246,6 @@ public class LiftExtensionFeedforwardTest extends LinearOpMode {
             telemetry.addData("Actual velocity ", lift.getVelocityAtUpdate());
             telemetry.addData("motor power = ", lift.getCurrentPower());
             telemetry.update();
-
         }
     }
 }

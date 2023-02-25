@@ -2941,17 +2941,17 @@ public class ExtensionRetractionMechanismGenericMotor {
                             // hold position.
                             extensionRetractionCommand = ExtensionRetractionCommands.NO_COMMAND;
                             extensionRetractionState = ExtensionRetractionStates.PROFILE_COMPLETE;
-                        } else {
-                            // give the follower the current mechanism position and it calculates the
-                            // new motor power needed to maintain position, velocity and accelerate
-                            // control
-                            follower.update(getPosition());
-                            motionProfilePositionAtUpdate = follower.getTargetPosition();
-                            motionProfileVelocityAtUpdate = follower.getTargetVelocity();
-
-                            // get the new power and apply it to the motor
-                            setCurrentPower(follower.getCorrection());
                         }
+                        // give the follower the current mechanism position and it calculates the
+                        // new motor power needed to maintain position, velocity and accelerate
+                        // control
+                        follower.update(getPosition());
+                        motionProfilePositionAtUpdate = follower.getTargetPosition();
+                        motionProfileVelocityAtUpdate = follower.getTargetVelocity();
+
+                        // get the new power and apply it to the motor
+                        setCurrentPower(follower.getCorrection());
+
                         // check to make sure the extended limit has not been reached. If it has
                         // then something went wrong or someone gave a bad motor command.
                         checkExtensionAndRetractionLimitsHit();
@@ -3005,6 +3005,8 @@ public class ExtensionRetractionMechanismGenericMotor {
                         // new motor power needed to maintain position, velocity and accelerate
                         // control
                         follower.update(getPosition());
+                        motionProfilePositionAtUpdate = follower.getTargetPosition();
+                        motionProfileVelocityAtUpdate = follower.getTargetVelocity();
                         // get the new power and apply it to the motor
                         setCurrentPower(follower.getCorrection());
                         break;

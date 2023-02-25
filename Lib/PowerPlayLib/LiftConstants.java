@@ -23,7 +23,8 @@ public class LiftConstants {
     public static double MAX_VELOCITY = 60; //in/sec
     public static double MAX_ACCELERATION = 200; // in/sec^2
 
-    public static double MOVEMENT_PER_REVOLUTION = 5.93; // in / motor revolution
+    //public static double MOVEMENT_PER_REVOLUTION = 5.93; // in / motor revolution
+    public static double MOVEMENT_PER_REVOLUTION = 5.867; // in / motor revolution
 
     public static double MAX_RPM = 1150; // max rpm of motor
 
@@ -37,13 +38,13 @@ public class LiftConstants {
     //public static double kGPerUnitExtension = .0031; // kG/in
     public static double kGPerUnitExtension = 0.0; // kG/in
 
-    public static double getKg(double liftPostion) {
-        return kGPerUnitExtension * liftPostion + kGAtRetraction;
+    public static double getKg(double liftPosition) {
+        return kGPerUnitExtension * liftPosition + kGAtRetraction;
     }
 
-    public static PIDCoefficients MOTION_PID = new PIDCoefficients(.2, 0, 0);
+    public static PIDCoefficients MOTION_PID_COEFFICENTS = new PIDCoefficients(.6, 0, 0);
 
-    public static double MAXIMUM_LIFT_POSITION = 37; // INCHES
+    public static double MAXIMUM_LIFT_POSITION = 35; // INCHES
     public static double MINIMUM_LIFT_POSITION = 2; // INCHES
 
     //*********************************************************************************************
