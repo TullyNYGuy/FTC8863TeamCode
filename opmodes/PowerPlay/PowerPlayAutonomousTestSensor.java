@@ -13,6 +13,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MatchPhase;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.Pipelines.SignalConePipeline;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayAutonomousStateMachine;
+import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayAutonomousVisionOneCycleParkForPowerPlayDriveTestDualSensor;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayAutonomousVisionTestSensor;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayField;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayGamepad;
@@ -35,7 +36,7 @@ public class PowerPlayAutonomousTestSensor extends LinearOpMode {
     public PowerPlayGamepad gamepad;
     public Configuration config = null;
     public PowerPlayField field;
-    private PowerPlayAutonomousVisionTestSensor autonomousStateMachine;
+    private PowerPlayAutonomousVisionOneCycleParkForPowerPlayDriveTestDualSensor autonomousStateMachine;
     private SignalConePipeline pipeline;
     public SignalConePipeline.ConeColor coneColor;
 
@@ -87,7 +88,7 @@ public class PowerPlayAutonomousTestSensor extends LinearOpMode {
 
         // Here is where you create the state machine that is going to be run.
         // Change this state machine out and the robot will do something different.
-        autonomousStateMachine = new PowerPlayAutonomousVisionTestSensor(robot, field, telemetry);
+        autonomousStateMachine = new PowerPlayAutonomousVisionOneCycleParkForPowerPlayDriveTestDualSensor(robot, field, telemetry);
         autonomousStateMachine.setDataLog(dataLog);
         autonomousStateMachine.enableDataLogging();
 
@@ -189,14 +190,14 @@ public class PowerPlayAutonomousTestSensor extends LinearOpMode {
         //robot.distanceSensorForNormal.dumpDataToCSV("normal");
         telemetry.addData("Inverse Sensor= ", robot.dualDistanceSensors.getAverageDistanceInverse(DistanceUnit.INCH));
         telemetry.addData("Normal Sensor= ", robot.dualDistanceSensors.getAverageDistanceNormal(DistanceUnit.INCH));
-        finalTheoreticalPose = autonomousStateMachine.getFinalPose();
-        finalActualPose = robot.mecanum.getPoseEstimate();
-        xError = finalTheoreticalPose.getX() - finalActualPose.getX();
-        yError = finalTheoreticalPose.getY() - finalActualPose.getY();
-        headingError = Math.toDegrees(finalTheoreticalPose.getHeading() - finalActualPose.getHeading());
-        telemetry.addData("x position error = ", xError);
-        telemetry.addData("y position error = ", yError);
-        telemetry.addData("heading error = ", headingError);
+//        finalTheoreticalPose = autonomousStateMachine.getFinalPose();
+//        finalActualPose = robot.mecanum.getPoseEstimate();
+//        xError = finalTheoreticalPose.getX() - finalActualPose.getX();
+//        yError = finalTheoreticalPose.getY() - finalActualPose.getY();
+//        headingError = Math.toDegrees(finalTheoreticalPose.getHeading() - finalActualPose.getHeading());
+//        telemetry.addData("x position error = ", xError);
+//        telemetry.addData("y position error = ", yError);
+//        telemetry.addData("heading error = ", headingError);
         telemetry.update();
         while (opModeIsActive() ) {
             idle();

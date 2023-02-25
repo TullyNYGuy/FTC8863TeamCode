@@ -68,7 +68,7 @@ public class TestPoleLocationDetermination extends LinearOpMode {
     private FtcDashboard dashboard = FtcDashboard.getInstance();
 
     private PowerPlayDual2mDistanceSensors distanceSensors;
-    private PowerPlayPoleLocationDetermination locationDetermination;
+    private PowerPlayPoleLocationDetermination poleLocationDetermination;
     private PowerPlayPoleLocationDetermination.PoleLocation poleLocation;
 
     private ElapsedTime timer = new ElapsedTime();
@@ -82,27 +82,27 @@ public class TestPoleLocationDetermination extends LinearOpMode {
     @Override
     public void runOpMode() {
         distanceSensors = new PowerPlayDual2mDistanceSensors(hardwareMap, telemetry, "Dual Distance Sensors", DistanceUnit.MM);
-        locationDetermination = new PowerPlayPoleLocationDetermination(distanceSensors);
+        poleLocationDetermination = new PowerPlayPoleLocationDetermination(distanceSensors);
         poleLocationLogFile = new DataLogging("poleLocations");
-        locationDetermination.setDataLog(poleLocationLogFile);
-        locationDetermination.enableDataLogging();
+        poleLocationDetermination.setDataLog(poleLocationLogFile);
+        poleLocationDetermination.enableDataLogging();
 
         telemetry.addData(">>", "Press start to continue");
         telemetry.update();
 
         waitForStart();
         timer.reset();
-        locationDetermination.enablePoleLocationDetermination();
+        poleLocationDetermination.enablePoleLocationDetermination();
 
         while (opModeIsActive()) {
-            locationDetermination.update();
-            if (locationDetermination.isDataValid()) {
-                poleLocation = locationDetermination.getPoleLocation();
-                distanceToPole = locationDetermination.getDistanceFromPole(DistanceUnit.MM);
+            poleLocationDetermination.update();
+            if (poleLocationDetermination.isDataValid()) {
+                poleLocation = poleLocationDetermination.getPoleLocation();
+                distanceToPole = poleLocationDetermination.getDistanceFromPole(DistanceUnit.MM);
                 telemetry.addData("Pole location = ", poleLocation.toString());
-                telemetry.addData("normal distance = ", locationDetermination.getNormalDistance(DistanceUnit.MM));
-                telemetry.addData("inverse distance = ", locationDetermination.getInverseDistance(DistanceUnit.MM));
-                telemetry.addData("difference = ", locationDetermination.getSensorDifference(DistanceUnit.MM));
+                telemetry.addData("normal distance = ", poleLocationDetermination.getNormalDistance(DistanceUnit.MM));
+                telemetry.addData("inverse distance = ", poleLocationDetermination.getInverseDistance(DistanceUnit.MM));
+                telemetry.addData("difference = ", poleLocationDetermination.getSensorDifference(DistanceUnit.MM));
                 telemetry.addData("Distance to pole = ", distanceToPole);
 
                 // capture data on the first time the pole is centered

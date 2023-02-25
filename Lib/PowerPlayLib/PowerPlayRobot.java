@@ -51,6 +51,7 @@ public class PowerPlayRobot implements FTCRobot {
         DISTANCE_SENSOR_NORMAL("distanceSensorNormal"),
         DISTANCE_SENSOR_INVERSE("distanceSensorInverse"),
         DUAL_DISTANCE_SENSORS("dualDistanceSensors"),
+        POLE_LOCATION_DETERMINATION("poleLocationDetermination"),
 
         CYCLE_TRACKER("cycleTracker"),
         SPEED_CONTROLLER("speedController"),
@@ -80,7 +81,8 @@ public class PowerPlayRobot implements FTCRobot {
         CONE_GRABBER_ARM_CONTROLLER,
         CYCLE_TRACKER,
         SPEED_CONTROLLER,
-        DUAL_DISTANCE_SENSORS
+        //DUAL_DISTANCE_SENSORS,
+        POLE_LOCATION_DETERMINATION
         //LED_BLINKER,
         //LED_STRIP,
     }
@@ -111,6 +113,7 @@ public class PowerPlayRobot implements FTCRobot {
     public PowerPlayConeGrabberLiftController coneGrabberArmController;
     public PowerPlayWebcam webcam;
     public PowerPlayDual2mDistanceSensors dualDistanceSensors;
+    public PowerPlayPoleLocationDetermination poleLocationDetermination;
     public PowerPlayCycleTracker cycleTracker;
     public PowerPlaySpeedController speedController;
     public PowerPlayRobotModes robotModes;
@@ -178,9 +181,14 @@ public class PowerPlayRobot implements FTCRobot {
             subsystemMap.put(cycleTracker.getName(), cycleTracker);
         }
 
-        if (capabilities.contains(Subsystem.DUAL_DISTANCE_SENSORS)) {
+        //if (capabilities.contains(Subsystem.DUAL_DISTANCE_SENSORS)) {
             dualDistanceSensors = new PowerPlayDual2mDistanceSensors(hardwareMap, telemetry, HardwareName.DUAL_DISTANCE_SENSORS.hwName, DistanceUnit.INCH);
-            subsystemMap.put(dualDistanceSensors.getName(), dualDistanceSensors);
+        //    subsystemMap.put(dualDistanceSensors.getName(), dualDistanceSensors);
+        //}
+
+        if (capabilities.contains(Subsystem.POLE_LOCATION_DETERMINATION)) {
+            poleLocationDetermination = new PowerPlayPoleLocationDetermination(dualDistanceSensors);
+            subsystemMap.put(poleLocationDetermination.getName(), poleLocationDetermination);
         }
 
         if (capabilities.contains(Subsystem.CONE_GRABBER)) {

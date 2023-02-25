@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColorTeamLocation;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogOnChange;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 
-public class PowerPlayAutonomousVisionOneCycleParkWithSensor implements PowerPlayAutonomousStateMachine {
+public class PowerPlayAutonomousVisionOneCycleParkForPowerPlayDriveTestDualSensor implements PowerPlayAutonomousStateMachine {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -28,12 +28,13 @@ public class PowerPlayAutonomousVisionOneCycleParkWithSensor implements PowerPla
         START,
         MOVING_TO_JUNCTION_POLE_FOR_SCORE,
         MOVING_TO_POSE_TO_START_SENSOR,
+        WAIT_BEFORE_LOOKING_FOR_POLE,
         LOOKING_FOR_POLE,
-        ADJUSTING_LOCATION_TO_POLE,
         RAISING_LIFT,
         DROPPING_FOUR_INCHES,
         RELEASING_OPEN_LIFT,
         MOVING_TO_PARKING,
+        WAIT_FOR_COMPLETE,
         COMPLETE
     }
 
@@ -47,8 +48,6 @@ public class PowerPlayAutonomousVisionOneCycleParkWithSensor implements PowerPla
     private Pose2d junctionPolePose;
     private Pose2d parkingLocationPose;
     private Trajectory trajectoryToJunctionPoleFromStart;
-    private Trajectory trajectoryToStartSensorLocation;
-    private Trajectory trajectoryToJunctionPoleFromStartSensor;;
     private Trajectory trajectoryToParkingLocation;
     private Trajectory trajectoryToParkingLocation1;
     private Trajectory trajectoryToParkingLocation2;
@@ -70,6 +69,9 @@ public class PowerPlayAutonomousVisionOneCycleParkWithSensor implements PowerPla
     private boolean enableLogging = false;
     private DataLogOnChange logStateOnChange;
     private DataLogOnChange logCommandOnchange;
+
+    public Pose2d poleCenterLocation;
+    public Pose2d stopLocation;
 
     private PowerPlayField.ParkLocation parkLocation;
 
@@ -130,7 +132,7 @@ public class PowerPlayAutonomousVisionOneCycleParkWithSensor implements PowerPla
     // from it
     //*********************************************************************************************
 
-    public PowerPlayAutonomousVisionOneCycleParkWithSensor(PowerPlayRobot robot, PowerPlayField field, Telemetry telemetry) {
+    public PowerPlayAutonomousVisionOneCycleParkForPowerPlayDriveTestDualSensor(PowerPlayRobot robot, PowerPlayField field, Telemetry telemetry) {
         this.robot = robot;
         this.field = field;
         this.colorLocation = PowerPlayPersistantStorage.getColorLocation();
@@ -202,13 +204,13 @@ public class PowerPlayAutonomousVisionOneCycleParkWithSensor implements PowerPla
                 trajectoryToParkingLocation1 = null;
 
                 trajectoryToParkingLocation2 = robot.mecanum.trajectoryBuilder(trajectoryToJunctionPoleFromStart.end())
-                        .lineTo(new Vector2d(-14.75, -20.5))
+                        .lineTo(new Vector2d(-11.75, -20.5))
                         .splineToConstantHeading(new Vector2d(-23.5, -10.75), Math.toRadians(-180))
                         .splineToConstantHeading(getVector2d(PowerPlayPoseStorageForPowerPlayDrive.RED_LEFT_PARK_LOCATION_2), Math.toRadians(0))
                         .build();
 
                 trajectoryToParkingLocation3 = robot.mecanum.trajectoryBuilder(trajectoryToJunctionPoleFromStart.end())
-                        .lineTo(new Vector2d(-14.75, -20.5))
+                        .lineTo(new Vector2d(-11.75, -20.5))
                         .splineToConstantHeading(new Vector2d(-23.5, -10.75), Math.toRadians(180))
                         .splineToConstantHeading(getVector2d(PowerPlayPoseStorageForPowerPlayDrive.RED_LEFT_PARK_LOCATION_3), Math.toRadians(180))
                         .build();
@@ -217,21 +219,11 @@ public class PowerPlayAutonomousVisionOneCycleParkWithSensor implements PowerPla
 
             case BLUE_RIGHT:
             case RED_RIGHT: {
-                trajectoryToStartSensorLocation = robot.mecanum.trajectoryBuilder(startPose)
-                        .splineTo(new Vector2d(10.75, -53), Math.toRadians(90))
-                        .lineToLinearHeading(new Pose2d(10.75, -35.25, Math.toRadians(90)))
-                        .build();
-
-                trajectoryToJunctionPoleFromStartSensor = robot.mecanum.trajectoryBuilder(trajectoryToStartSensorLocation.end())
-                        .lineToLinearHeading(new Pose2d(10.75, -23.5, Math.toRadians(90)),
-                                robot.mecanum.getVelConstraintSlow(), // slower than normal speed
-                                robot.mecanum.getAccelConstraint()
-                        )
-                        .build();
-
                 trajectoryToJunctionPoleFromStart = robot.mecanum.trajectoryBuilder(startPose)
-                        .splineTo(new Vector2d(10.75, -53), Math.toRadians(90))
-                        .lineToLinearHeading(junctionPolePose)
+                        .splineTo(new Vector2d(11.75, -53), Math.toRadians(90))
+                        .splineToSplineHeading(new Pose2d(11.75, -13.5, Math.toRadians(90)),Math.toRadians(90),
+                                robot.mecanum.getVelConstraintSlow(), // slower than normal speed
+                                robot.mecanum.getAccelConstraint())
                         .build();
 
                 // don't need to move since the robot is already in the parking location when it scores
@@ -277,27 +269,9 @@ public class PowerPlayAutonomousVisionOneCycleParkWithSensor implements PowerPla
             case START: {
                 isComplete = false;
                 robot.mecanum.setPoseEstimate(startPose);
-                robot.mecanum.followTrajectory(trajectoryToStartSensorLocation);
-                currentState = States.MOVING_TO_POSE_TO_START_SENSOR;
-            }
-            break;
-
-            case MOVING_TO_POSE_TO_START_SENSOR: {
-                if (!robot.mecanum.isBusy()) {
-                    currentState = States.LOOKING_FOR_POLE;
-                    robot.poleLocationDetermination.enablePoleLocationDetermination();
-                    robot.mecanum.followTrajectory(trajectoryToJunctionPoleFromStartSensor);
-                }
-            }
-            break;
-
-            case LOOKING_FOR_POLE: {
-                if (robot.poleLocationDetermination.getPoleLocation() == PowerPlayPoleLocationDetermination.PoleLocation.CENTER) {
-                    robot.mecanum.cancelFollowing();
-                    //robot.coneGrabberArmController.moveToHighThenPrepareToRelease();
-                    //currentState = States.RAISING_LIFT;
-                    currentState = States.COMPLETE;
-                }
+                robot.mecanum.followTrajectoryAsync(trajectoryToJunctionPoleFromStart);
+                timer.reset();
+                currentState = States.WAIT_BEFORE_LOOKING_FOR_POLE;
             }
             break;
 
@@ -305,6 +279,37 @@ public class PowerPlayAutonomousVisionOneCycleParkWithSensor implements PowerPla
                 if (!robot.mecanum.isBusy()) {
                     currentState = States.RAISING_LIFT;
                     robot.coneGrabberArmController.moveToHighThenPrepareToRelease();
+                }
+            }
+            break;
+
+            case MOVING_TO_POSE_TO_START_SENSOR: {
+                if (!robot.mecanum.isBusy()) {
+                    currentState = States.LOOKING_FOR_POLE;
+                    robot.poleLocationDetermination.enablePoleLocationDetermination();
+                    robot.mecanum.followTrajectory(trajectoryToJunctionPoleFromStart);
+                }
+            }
+            break;
+
+            case WAIT_BEFORE_LOOKING_FOR_POLE: {
+                if (timer.milliseconds() > 3000) {
+                    robot.poleLocationDetermination.enablePoleLocationDetermination();
+                    //robot.coneGrabberArmController.moveToHighThenPrepareToRelease();
+                    //currentState = States.RAISING_LIFT;
+                    currentState = States.LOOKING_FOR_POLE;
+                }
+            }
+            break;
+
+            case LOOKING_FOR_POLE: {
+                if (robot.poleLocationDetermination.getPoleLocation() == PowerPlayPoleLocationDetermination.PoleLocation.CENTER) {
+                    poleCenterLocation = robot.mecanum.getPoseEstimate();
+                    robot.mecanum.cancelFollowing();
+                    timer.reset();
+                    //robot.coneGrabberArmController.moveToHighThenPrepareToRelease();
+                    //currentState = States.RAISING_LIFT;
+                    currentState = States.WAIT_FOR_COMPLETE;
                 }
             }
             break;
@@ -345,9 +350,22 @@ public class PowerPlayAutonomousVisionOneCycleParkWithSensor implements PowerPla
             }
             break;
 
+            case WAIT_FOR_COMPLETE: {
+                if (timer.milliseconds() > 5000) {
+                    currentState = States.COMPLETE;
+                }
+                robot.coneGrabber.close();
+                logCommand("distance from pole = " + Double.toString(robot.poleLocationDetermination.getDistanceFromPole(DistanceUnit.MM)));
+                logCommand("finished");
+            }
+            break;
+
             case COMPLETE: {
                 isComplete = true;
                 robot.coneGrabber.close();
+                stopLocation = robot.mecanum.getPoseEstimate();
+                logCommand("location when pole center = " + Double.toString(poleCenterLocation.getX()) + " " + Double.toString(poleCenterLocation.getY()));
+                logCommand("location when stopped = " + Double.toString(stopLocation.getX()) + " " + Double.toString(stopLocation.getY()));
                 logCommand("distance from pole = " + Double.toString(robot.poleLocationDetermination.getDistanceFromPole(DistanceUnit.MM)));
                 logCommand("finished");
             }
