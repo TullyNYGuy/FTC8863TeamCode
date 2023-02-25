@@ -234,7 +234,7 @@ public class LiftExtensionFeedforwardTest extends LinearOpMode {
             telemetry.addData("Actual Position ", lift.getPositionAtUpdate());
             telemetry.addData("Profile Velocity ", lift.getMotionProfileVelocityAtUpdate());
             telemetry.addData("Actual velocity ", lift.getVelocityAtUpdate());
-            telemetry.addData("motor power = ", targetPower);
+            telemetry.addData("motor power = ", lift.getCurrentPower());
             telemetry.update();
 
         }
