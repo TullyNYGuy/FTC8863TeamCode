@@ -1033,6 +1033,7 @@ public class ExtensionRetractionMechanismGenericMotor {
      * @param follower         A motion profile follower.
      */
     public void followProfile(MotionProfileFollower follower) {
+        setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
         this.follower = follower;
         log("COMMANDED " + mechanismName.toUpperCase() + " TO FOLLOW PROFILE " + follower.getProfileName());
         // set the properties so they can be used later
