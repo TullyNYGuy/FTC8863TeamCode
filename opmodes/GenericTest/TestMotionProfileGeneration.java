@@ -1,8 +1,5 @@
 package org.firstinspires.ftc.teamcode.opmodes.GenericTest;
 
-import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.MAX_ACCELERATION;
-import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.MAX_VELOCITY;
-
 import com.acmerobotics.roadrunner.profile.MotionProfile;
 import com.acmerobotics.roadrunner.profile.MotionProfileGenerator;
 import com.acmerobotics.roadrunner.profile.MotionState;
@@ -17,7 +14,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.CSVDataFile;
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
 @TeleOp(name = "Test Motion Profile Generation", group = "Test")
-//@Disabled
+@Disabled
 public class TestMotionProfileGeneration extends LinearOpMode {
 
     // Put your variable declarations her

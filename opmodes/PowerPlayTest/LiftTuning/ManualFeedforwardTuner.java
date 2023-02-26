@@ -1,8 +1,8 @@
 package org.firstinspires.ftc.teamcode.opmodes.PowerPlayTest.LiftTuning;
 
 import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.MAXIMUM_LIFT_POSITION;
-import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.MAX_ACCELERATION;
-import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.MAX_VELOCITY;
+import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.MAX_ACCELERATION_EXTENSION;
+import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.MAX_VELOCITY_EXTENSION;
 import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.MINIMUM_LIFT_POSITION;
 import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.getKg;
 import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.kV;
@@ -79,7 +79,7 @@ public class ManualFeedforwardTuner extends LinearOpMode {
     private static MotionProfile generateProfile(boolean movingForward) {
         MotionState start = new MotionState(movingForward ? RETRACTION_POSITION : EXTENSION_POSITION, 0, 0, 0);
         MotionState goal = new MotionState(movingForward ? EXTENSION_POSITION : RETRACTION_POSITION, 0, 0, 0);
-        return MotionProfileGenerator.generateSimpleMotionProfile(start, goal, MAX_VELOCITY, MAX_ACCELERATION);
+        return MotionProfileGenerator.generateSimpleMotionProfile(start, goal, MAX_VELOCITY_EXTENSION, MAX_ACCELERATION_EXTENSION);
     }
 
     private DataLogging dataLog;

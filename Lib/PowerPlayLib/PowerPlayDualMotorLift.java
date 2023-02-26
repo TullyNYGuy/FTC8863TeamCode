@@ -1,8 +1,8 @@
 package org.firstinspires.ftc.teamcode.Lib.PowerPlayLib;
 
 
-import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.MAX_ACCELERATION;
-import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.MAX_VELOCITY;
+import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.MAX_ACCELERATION_EXTENSION;
+import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.MAX_VELOCITY_EXTENSION;
 import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.MOTION_PID_COEFFICENTS;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.PIDFController;
@@ -270,8 +270,8 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
         profileInitToHigh = MotionProfileGenerator.generateSimpleMotionProfile(
                 new MotionState(initPosition, 0, 0, 0),
                 new MotionState(highPosition, 0, 0, 0),
-                MAX_VELOCITY,
-                MAX_ACCELERATION
+                MAX_VELOCITY_EXTENSION,
+                MAX_ACCELERATION_EXTENSION
         );
 
         // pickup to init
