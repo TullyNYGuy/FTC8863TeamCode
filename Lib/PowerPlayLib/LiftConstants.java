@@ -20,8 +20,11 @@ public class LiftConstants {
     // getter and setter methods
     //*********************************************************************************************
 
-    public static double MAX_VELOCITY = 60; //in/sec
-    public static double MAX_ACCELERATION = 200; // in/sec^2
+    public static double MAX_VELOCITY_EXTENSION = 60; //in/sec
+    public static double MAX_ACCELERATION_EXTENSION = 200; // in/sec^2
+
+    public static double MAX_VELOCITY_RETRACTION = 60; //in/sec
+    public static double MAX_ACCELERATION_RETRACTION = 200; // in/sec^2
 
     //public static double MOVEMENT_PER_REVOLUTION = 5.93; // in / motor revolution
     public static double MOVEMENT_PER_REVOLUTION = 5.867; // in / motor revolution
@@ -44,7 +47,7 @@ public class LiftConstants {
 
     public static PIDCoefficients MOTION_PID_COEFFICENTS = new PIDCoefficients(.6, 0, 0);
 
-    public static double MAXIMUM_LIFT_POSITION = 35; // INCHES
+    public static double MAXIMUM_LIFT_POSITION = 37; // INCHES
     public static double MINIMUM_LIFT_POSITION = 2; // INCHES
 
     //*********************************************************************************************

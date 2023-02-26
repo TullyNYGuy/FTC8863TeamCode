@@ -12,7 +12,6 @@ import com.acmerobotics.roadrunner.util.NanoClock;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.firstinspires.ftc.robotcore.internal.system.Misc;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.CSVDataFile;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863Interface;
@@ -20,28 +19,32 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DualMotorGearbox;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanismGenericMotor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MotorConstants;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayRobot;
-import org.firstinspires.ftc.teamcode.RoadRunner.util.LoggingUtil;
-import org.firstinspires.ftc.teamcode.RoadRunner.util.RegressionUtil;
-import org.firstinspires.ftc.teamcode.opmodes.SkystoneTest.TestExtensionArmGoToPosition;
 
 /*
- * This routine is designed to tune the open-loop feedforward coefficients. Although it may seem unnecessary,
- * tuning these coefficients is just as important as the positional parameters. Like the other
- * manual tuning routines, this op mode relies heavily upon the dashboard. To access the dashboard,
- * connect your computer to the RC's WiFi network. In your browser, navigate to
- * https://192.168.49.1:8080/dash if you're using the RC phone or https://192.168.43.1:8080/dash if
- * you are using the Control Hub. Once you've successfully connected, start the program, and your
- * robot will begin moving forward and backward according to a motion profile. Your job is to graph
- * the velocity errors over time and adjust the feedforward coefficients. Once you've found a
- * satisfactory set of gains, add them to the appropriate fields in the DriveConstants.java file.
+ * This routine is designed to help you find the open-loop feedfoward coefficients, kV and kG. It
+ * will also get the maximum velocity for extension.
  *
- * Pressing Y/Δ (Xbox/PS4) will pause the tuning process and enter driver override, allowing the
- * user to reset the position of the bot in the event that it drifts off the path.
- * Pressing B/O (Xbox/PS4) will cede control back to the tuning process.
+ * Like the other manual tuning routines, this op mode relies heavily upon the dashboard. To access
+ * the dashboard, connect your computer to the RC's WiFi network. In your browser, navigate to
+ * https://192.168.49.1:8080/dash if you're using the RC phone or https://192.168.43.1:8080/dash if
+ * you are using the Control Hub.
+ *
+ * This routine applies a constant motor power to the lift motor. The lift will accelerate and then
+ * reach a constant velocity that is proportional to the motor power. It will save a csv file of the
+ * time, position, velocity and motor power. You can import the csv into a spreadsheet and look for
+ * the constant velocity. You may want to average it over the various points in time. Record the
+ * velocity and motor power.
+ *
+ * You will need to run this routine multiple times. Start with a power this is just above the kG
+ * power. With each run increase the power by 0.5. On the last run you the power will be 1.0. This
+ * last run will also give you the max velocity for the extension.
+ *
+ * Note that the data in this and all other feed forward tuning routines is heavily dependent on the
+ * battery voltage. Try to use a battery that is at an "average charge". Like about 12.5V.
  */
 @Config
 @Autonomous(group = "Lift Tuning")
-public class LiftAutomaticFeedforwardTunerConstantPower extends LinearOpMode {
+public class LiftExtensionConstantPower extends LinearOpMode {
     private enum Direction {
         EXTENDING,
         RETRACTING
@@ -54,7 +57,7 @@ public class LiftAutomaticFeedforwardTunerConstantPower extends LinearOpMode {
         CONSTANT_POWER_DATA_COLLECTION,
         CONSTANT_POWER_PAST_EXTENSION_POSITION,
         CONSTANT_POWER_AT_EXTENSION_LIMIT,
-        CONSTANT_POWER_CALCULATIONS_DONE
+        DONE
     }
 
     private PhaseOfOperation phaseOfOperation = PhaseOfOperation.RESET;
@@ -134,21 +137,6 @@ public class LiftAutomaticFeedforwardTunerConstantPower extends LinearOpMode {
 
         telemetry.clearAll();
 
-        // in theory this would be the maximum velocity of the lift. However, with a load on the motor
-        // the max rpm of the motor will not be hit. So you may want to substitute an experimentally 
-        // determine max lift velocity
-        //double maxVelocity = MAX_RPM / 60 * MOVEMENT_PER_REVOLUTION;
-        double maxVelocity = 57; // in/sec
-        double finalVelocity = MAX_POWER * maxVelocity;
-        double movementDistance = EXTENSION_POSITION - RETRACTION_POSITION;
-        double acceleration = (finalVelocity * finalVelocity) / (2.0 * movementDistance);
-        double rampTime = Math.sqrt(2.0 * movementDistance / acceleration);
-
-        // calculate a slope for ramping down the power so that the lift does not slam into the
-        // extension limit at full speed. I want the lift to hold position at the top so I'm using
-        // the previously determined kG as a function of extension formula
-        double powerRampSlope = -(MAX_POWER - getKg(MAXIMUM_LIFT_POSITION)) / (MAXIMUM_LIFT_POSITION - EXTENSION_POSITION);
-
         double profileStart = clock.seconds();
         lift.enableCollectData();
 
@@ -158,9 +146,11 @@ public class LiftAutomaticFeedforwardTunerConstantPower extends LinearOpMode {
             liftPosition = lift.getPosition();
 
             switch (phaseOfOperation) {
+                // apply a constant motor power to the lift until it hits the EXTENSION_POSITION,
+                // then apply the previously determined kG to the motor to hold the lift in position
                 case CONSTANT_POWER_DATA_COLLECTION: {
-                    // If the lift has passed the destination extension position, then ramp the power down
-                    // so that the power is at the kG when the lift extends to the extension limit
+                    // If the lift has passed the destination extension position, then set the power
+                    // to the previously determined kG so that it holds in place
                     if (liftPosition > EXTENSION_POSITION) {
                         targetPower = getKg(liftPosition);
                         lift.setPowerUsingJoystick(targetPower);
@@ -176,6 +166,8 @@ public class LiftAutomaticFeedforwardTunerConstantPower extends LinearOpMode {
                 }
                 break;
 
+                // now that the lift is at EXTENSION_POSITION, double check to make sure it does not
+                // continue moving and hit the max extension limit
                 case CONSTANT_POWER_PAST_EXTENSION_POSITION: {
                     if (liftPosition >= MAXIMUM_LIFT_POSITION) {
                         phaseOfOperation = PhaseOfOperation.CONSTANT_POWER_AT_EXTENSION_LIMIT;
@@ -193,33 +185,17 @@ public class LiftAutomaticFeedforwardTunerConstantPower extends LinearOpMode {
                     csvDataFile.writeData(lift.getTimeData(), lift.getPositionData(), lift.getPowerData());
                     csvDataFile.closeDataLog();
 
-                    // Make the kV and kstatic calculations
-                    boolean fitIntercept = true;
-//                    RegressionUtil.RampResult rampResult = RegressionUtil.fitRampData(
-//                            lift.getTimeData(), lift.getPositionData(), lift.getPowerData(), fitIntercept,
-//                            LoggingUtil.getLogFile(Misc.formatInvariant(
-//                                    "DriveRampRegression-%d.csv", System.currentTimeMillis())));
-//
-//                    telemetry.clearAll();
-//                    telemetry.addLine("Quasi-static ramp up test complete");
-//                    telemetry.addLine(Misc.formatInvariant("kV = %.5f, kStatic = %.5f (R^2 = %.2f)",
-//                            rampResult.kV, rampResult.kStatic, rampResult.rSquare));
                     telemetry.addData("You can press stop.", "But hold on to the lift in case it falls!");
                     telemetry.update();
 
-                    phaseOfOperation = PhaseOfOperation.CONSTANT_POWER_CALCULATIONS_DONE;
+                    phaseOfOperation = PhaseOfOperation.DONE;
                 }
                 break;
 
-                case CONSTANT_POWER_CALCULATIONS_DONE: {
+                case DONE: {
                     // wait for the user to stop the opmode
                 }
             }
         }
-
-    }
-
-    private double getRampDownPower(double liftPosition, double powerRampSlope) {
-        return (targetPower + (MAXIMUM_LIFT_POSITION - liftPosition) * powerRampSlope);
     }
 }
