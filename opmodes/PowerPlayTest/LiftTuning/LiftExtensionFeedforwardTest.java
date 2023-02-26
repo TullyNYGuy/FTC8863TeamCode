@@ -1,8 +1,8 @@
 package org.firstinspires.ftc.teamcode.opmodes.PowerPlayTest.LiftTuning;
 
 import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.MAXIMUM_LIFT_POSITION;
-import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.MAX_ACCELERATION;
-import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.MAX_VELOCITY;
+import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.MAX_ACCELERATION_EXTENSION;
+import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.MAX_VELOCITY_EXTENSION;
 import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.MINIMUM_LIFT_POSITION;
 import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.getKg;
 import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.kA;
@@ -76,9 +76,11 @@ public class LiftExtensionFeedforwardTest extends LinearOpMode {
 
     private Direction direction = Direction.EXTENDING;
 
-    public static double EXTENSION_POSITION = 30; // in
-    public static double RETRACTION_POSITION = 0; // in
+    // the starting point and finishing points for the movement
+    public static double EXTENSION_FINISH_POSITION = 30; // in
+    public static double EXTENSION_START_POSITION = 0; // in
 
+    // a wait time to allow the user to setup the FTC dashboard to graph the data. Better be quick!
     public static double WAIT_TIME = 5.0;
 
     private FtcDashboard dashboard = FtcDashboard.getInstance();
@@ -87,21 +89,16 @@ public class LiftExtensionFeedforwardTest extends LinearOpMode {
     private DcMotor8863Interface liftMotor;
     private CSVDataFile csvDataFile;
 
-    private double liftPosition = 0;
-    private double targetPower = 0;
-
     private PIDFController motionController;
     private PIDCoefficients pidCoefficients;
     private MotionProfileFollower follower;
 
-    // motion profile generator for back and forth movement
-    private static MotionProfile generateProfile(boolean movingForward) {
-        MotionState start = new MotionState(movingForward ? RETRACTION_POSITION : EXTENSION_POSITION, 0, 0, 0);
-        MotionState goal = new MotionState(movingForward ? EXTENSION_POSITION : RETRACTION_POSITION, 0, 0, 0);
-        return MotionProfileGenerator.generateSimpleMotionProfile(start, goal, MAX_VELOCITY, MAX_ACCELERATION);
+    // motion profile generator for extension movement
+    private static MotionProfile generateProfile() {
+        MotionState start = new MotionState(EXTENSION_START_POSITION, 0, 0, 0);
+        MotionState goal = new MotionState(EXTENSION_FINISH_POSITION, 0, 0, 0);
+        return MotionProfileGenerator.generateSimpleMotionProfile(start, goal, MAX_VELOCITY_EXTENSION, MAX_ACCELERATION_EXTENSION);
     }
-
-    private MotionState motionState;
 
     private DataLogging dataLog;
     private ElapsedTime timer;
@@ -133,7 +130,7 @@ public class LiftExtensionFeedforwardTest extends LinearOpMode {
         lift.setExtensionPositionInMechanismUnits(MAXIMUM_LIFT_POSITION);
         lift.setRetractionPositionInMechanismUnits(MINIMUM_LIFT_POSITION);
 
-        // tuning the PID portion comes later, so all 0 for now
+        // create a PIDF Controller using the constants defined for the lift
         pidCoefficients = LiftConstants.MOTION_PID_COEFFICENTS;
         motionController = new PIDFController(pidCoefficients, kV, kA, kStatic, new PIDFController.FeedforwardFunction() {
             @Override
@@ -141,9 +138,14 @@ public class LiftExtensionFeedforwardTest extends LinearOpMode {
                 return getKg(position);
             }
         });
+        // limit the output to valid motor commands
         motionController.setOutputBounds(-1, 1);
-        MotionProfile activeProfile = generateProfile(true);
+
+        // create the motion profile
+        MotionProfile activeProfile = generateProfile();
+        // create a follower for the profile and pass the PIF controller to it.
         follower = new MotionProfileFollower(motionController);
+        // set the profile for the follower to follow
         follower.setProfile(activeProfile, "extension");
 
         telemetry = new MultipleTelemetry(telemetry, dashboard.getTelemetry());
@@ -173,8 +175,6 @@ public class LiftExtensionFeedforwardTest extends LinearOpMode {
 
         telemetry.clearAll();
 
-        // get a dummy motionState for use in telemetry during wait
-        motionState = activeProfile.get(0);
         double profileStart = clock.seconds();
 
         while (opModeIsActive()) {
@@ -184,6 +184,7 @@ public class LiftExtensionFeedforwardTest extends LinearOpMode {
             switch (phaseOfOperation) {
                 case WAIT: {
                     if (profileTime > WAIT_TIME) {
+                        // tell the lift to follow the Motion profile in the follower
                         lift.followProfile(follower);
                         phaseOfOperation = PhaseOfOperation.MOVING;
                         // reset the clock to use in the profile
