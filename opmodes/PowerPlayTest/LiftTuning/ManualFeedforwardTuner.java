@@ -5,8 +5,8 @@ import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.MAX_
 import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.MAX_VELOCITY_EXTENSION;
 import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.MINIMUM_LIFT_POSITION;
 import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.getKg;
-import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.kV;
-import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.kA;
+import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.kAExtension;
+import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.kVExtension;
 import static org.firstinspires.ftc.teamcode.RoadRunner.drive.DriveConstants.kStatic;
 
 import com.acmerobotics.dashboard.FtcDashboard;
@@ -110,7 +110,7 @@ public class ManualFeedforwardTuner extends LinearOpMode {
 
         // tuning the PID portion comes later, so all 0 for now
         pidCoefficients = new PIDCoefficients(0,0,0);
-        motionController = new PIDFController(pidCoefficients, kV, kA, 0);
+        motionController = new PIDFController(pidCoefficients, kVExtension, kAExtension, 0);
         motionController.setOutputBounds(-1, 1);
 
         dataLog = new DataLogging("liftData");
@@ -168,7 +168,7 @@ public class ManualFeedforwardTuner extends LinearOpMode {
             //double targetPower = targetVelocity * kV + motionState.getA() * kA + kG;
             // don't care about position so we can leave the measured position = 0 (kP is 0)
             //double targetPower = motionController.update(0);
-            double targetPower = Kinematics.calculateMotorFeedforward(targetVelocity, motionState.getA(), kV, kA, kStatic) + getKg(liftPosition);
+            double targetPower = Kinematics.calculateMotorFeedforward(targetVelocity, motionState.getA(), kVExtension, kAExtension, kStatic) + getKg(liftPosition);
 
             lift.setPowerUsingJoystick(targetPower);
 

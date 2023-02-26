@@ -23,8 +23,8 @@ public class LiftConstants {
     public static double MAX_VELOCITY_EXTENSION = 60; //in/sec
     public static double MAX_ACCELERATION_EXTENSION = 200; // in/sec^2
 
-    public static double MAX_VELOCITY_RETRACTION = 60; //in/sec
-    public static double MAX_ACCELERATION_RETRACTION = 200; // in/sec^2
+    public static double MAX_VELOCITY_RETRACTION = 30; //in/sec
+    public static double MAX_ACCELERATION_RETRACTION = 100; // in/sec^2
 
     //public static double MOVEMENT_PER_REVOLUTION = 5.93; // in / motor revolution
     public static double MOVEMENT_PER_REVOLUTION = 5.867; // in / motor revolution
@@ -32,8 +32,11 @@ public class LiftConstants {
     public static double MAX_RPM = 1150; // max rpm of motor
 
     // These are the feedforward parameters
-    public static double kV = 0.014;
-    public static double kA = .001;
+    public static double kVExtension = 0.014;
+    public static double kVRetraction = 0.024;
+    public static double kAExtension = .001;
+    public static double kARetraction = .001;
+
     //public static double kStatic = 0.3347;
     public static double kStatic = 0;
     public static double kGAtRetraction = .241;

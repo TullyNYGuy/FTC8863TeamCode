@@ -7,9 +7,9 @@ import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.MAX_
 import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.MINIMUM_LIFT_POSITION;
 import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.MOVEMENT_PER_REVOLUTION;
 import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.getKg;
-import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.kA;
+import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.kAExtension;
 import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.kStatic;
-import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.kV;
+import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.kVExtension;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
@@ -141,7 +141,7 @@ public class LiftRetractionConstantPower extends LinearOpMode {
 
         // create a PIDF Controller using the constants defined for the lift
         pidCoefficients = LiftConstants.MOTION_PID_COEFFICENTS;
-        motionController = new PIDFController(pidCoefficients, kV, kA, kStatic, new PIDFController.FeedforwardFunction() {
+        motionController = new PIDFController(pidCoefficients, kVExtension, kAExtension, kStatic, new PIDFController.FeedforwardFunction() {
             @Override
             public Double compute(double position, Double velocity) {
                 return getKg(position);

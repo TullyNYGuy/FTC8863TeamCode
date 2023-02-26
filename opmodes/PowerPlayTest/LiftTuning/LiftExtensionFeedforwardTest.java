@@ -5,8 +5,8 @@ import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.MAX_
 import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.MAX_VELOCITY_EXTENSION;
 import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.MINIMUM_LIFT_POSITION;
 import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.getKg;
-import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.kA;
-import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.kV;
+import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.kAExtension;
+import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.kVExtension;
 import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.kStatic;
 
 import com.acmerobotics.dashboard.FtcDashboard;
@@ -132,7 +132,7 @@ public class LiftExtensionFeedforwardTest extends LinearOpMode {
 
         // create a PIDF Controller using the constants defined for the lift
         pidCoefficients = LiftConstants.MOTION_PID_COEFFICENTS;
-        motionController = new PIDFController(pidCoefficients, kV, kA, kStatic, new PIDFController.FeedforwardFunction() {
+        motionController = new PIDFController(pidCoefficients, kVExtension, kAExtension, kStatic, new PIDFController.FeedforwardFunction() {
             @Override
             public Double compute(double position, Double velocity) {
                 return getKg(position);
@@ -218,6 +218,7 @@ public class LiftExtensionFeedforwardTest extends LinearOpMode {
                                 lift.getMotionProfileVelocities(),
                                 lift.getPowerData());
                         csvDataFile.closeDataLog();
+                        lift.disableCollectData();
                         phaseOfOperation = PhaseOfOperation.ALL_DONE;
                     }
                 }
