@@ -24,8 +24,24 @@ public class PIDFController {
     // getter and setter methods
     //*********************************************************************************************
     private final PIDCoefficients pid;
-    private final double kV, kA, kStatic;
+    private final double kA, kStatic;
     private final FeedforwardFunction kF;
+    private double kV;
+
+    /**
+     * Allows kV to be changed on the fly. I used this for a non-linear kV that was a function of
+     * velocity.
+     * @param kV
+     */
+    public void setkV(double kV) {
+        this.kV = kV;
+    }
+
+    private double kG = 0;
+
+    public void setkG(double kG) {
+        this.kG = kG;
+    }
 
     private double errorSum;
     private long lastUpdateTs;
@@ -83,6 +99,33 @@ public class PIDFController {
      * @param pid     traditional PID coefficients
      * @param kV      feedforward velocity gain
      * @param kA      feedforward acceleration gain
+     * @param kStatic additive feedforward constant; if correction >0 added, if correction < 0 subtracted
+     * @param kG      constant feedforward term; always added to correction
+     * @param kF      custom feedforward that depends on position and velocity
+     */
+    private PIDFController(
+            PIDCoefficients pid,
+            double kV,
+            double kA,
+            double kStatic,
+            double kG,
+            FeedforwardFunction kF) {
+        this.pid = pid;
+        this.kV = kV;
+        this.kA = kA;
+        this.kStatic = kStatic;
+        this.kG = kG;
+        this.kF = kF;
+    }
+
+    /**
+     * Feedforward parameters {@code kV}, {@code kA}, and {@code kStatic} correspond with a basic
+     * kinematic model of DC motors. The general function {@code kF} computes a custom feedforward
+     * term for other plants.
+     *
+     * @param pid     traditional PID coefficients
+     * @param kV      feedforward velocity gain
+     * @param kA      feedforward acceleration gain
      * @param kStatic additive feedforward constant
      * @param kF      custom feedforward that depends on position and velocity
      */
@@ -96,6 +139,7 @@ public class PIDFController {
         this.kV = kV;
         this.kA = kA;
         this.kStatic = kStatic;
+        this.kG = 0;
         this.kF = kF;
     }
 
@@ -103,19 +147,28 @@ public class PIDFController {
             PIDCoefficients pid,
             double kV,
             double kA,
+            double kStatic,
+            double kG) {
+        this(pid, kV, kA, kStatic, kG, (x, v) -> 0.0);
+    }
+
+    public PIDFController(
+            PIDCoefficients pid,
+            double kV,
+            double kA,
             double kStatic) {
-        this(pid, kV, kA, kStatic, (x, v) -> 0.0);
+        this(pid, kV, kA, kStatic, 0, (x, v) -> 0.0);
     }
 
     public PIDFController(
             PIDCoefficients pid,
             FeedforwardFunction kF) {
-        this(pid, 0, 0, 0, kF);
+        this(pid, 0, 0, 0, 0, kF);
     }
 
     public PIDFController(
             PIDCoefficients pid) {
-        this(pid, 0, 0, 0);
+        this(pid, 0, 0, 0, 0, (x, v) -> 0.0);
     }
 
     //*********************************************************************************************
@@ -204,8 +257,12 @@ public class PIDFController {
             velError = targetVelocity - measuredVelocity;
         }
 
-        double baseOutput = pid.kP * error + pid.kI * errorSum + pid.kD * velError +
-                kV * targetVelocity + kA * targetAcceleration +
+        double baseOutput = pid.kP * error +
+                pid.kI * errorSum +
+                pid.kD * velError +
+                kV * targetVelocity +
+                kA * targetAcceleration +
+                kG +
                 kF.compute(measuredPosition, measuredVelocity);
 
         double output = 0;
@@ -228,6 +285,10 @@ public class PIDFController {
 
     public double update(double measuredPosition) {
         return update(System.nanoTime(), measuredPosition, null);
+    }
+
+    public double update(double measuredPosition, double measuredVelocity) {
+        return update(System.nanoTime(), measuredPosition, measuredVelocity);
     }
 
     /**
