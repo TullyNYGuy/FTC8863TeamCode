@@ -8,7 +8,6 @@ import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.MAX_
 import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.MINIMUM_LIFT_POSITION;
 import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.MOVEMENT_PER_REVOLUTION;
 import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.getKg;
-import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.getkVkGForRetraction;
 import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.kAExtension;
 import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.kARetraction;
 import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.kGRetraction0ToMinus60;
@@ -23,6 +22,7 @@ import com.acmerobotics.roadrunner.profile.MotionProfile;
 import com.acmerobotics.roadrunner.profile.MotionProfileGenerator;
 import com.acmerobotics.roadrunner.profile.MotionState;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -96,15 +96,15 @@ public class LiftRetractionFeedforwardTest extends LinearOpMode {
     private PIDCoefficients retractionPidCoefficients;
     private MotionProfileFollower retractionFollower;
 
-    // motion profile generator for extension movement
-    private static MotionProfile generateProfile() {
-        MotionState start = new MotionState(EXTENSION_START_POSITION, 0, 0, 0);
-        MotionState goal = new MotionState(EXTENSION_FINISH_POSITION, 0, 0, 0);
-        return MotionProfileGenerator.generateSimpleMotionProfile(start, goal, MAX_VELOCITY_EXTENSION, MAX_ACCELERATION_EXTENSION);
-    }
+    // create the motion profile for the retraction movement
+    private MotionProfile extensionMotionProfile = MotionProfileGenerator.generateSimpleMotionProfile(
+            new MotionState(EXTENSION_START_POSITION, 0, 0, 0),
+            new MotionState(EXTENSION_FINISH_POSITION, 0, 0, 0),
+            MAX_VELOCITY_EXTENSION,
+            MAX_ACCELERATION_EXTENSION);
 
     // create the motion profile for the retraction movement
-    private static MotionProfile retractionMotionProfile = MotionProfileGenerator.generateSimpleMotionProfile(
+    private MotionProfile retractionMotionProfile = MotionProfileGenerator.generateSimpleMotionProfile(
             new MotionState(EXTENSION_FINISH_POSITION, 0, 0, 0),
             new MotionState(RETRACTION_FINISH_POSITION, 0, 0, 0),
             MAX_VELOCITY_RETRACTION,
@@ -145,7 +145,7 @@ public class LiftRetractionFeedforwardTest extends LinearOpMode {
         lift.setRetractionPositionInMechanismUnits(MINIMUM_LIFT_POSITION);
 
         // create an extension PIDF Controller using the constants defined for the lift
-        extensionPidCoefficients = LiftConstants.MOTION_PID_COEFFICENTS;
+        extensionPidCoefficients = LiftConstants.EXTENSION_PID_COEFFICENTS;
         extensionMotionController = new PIDFController(extensionPidCoefficients, kVExtension, kAExtension, kStatic, new PIDFController.FeedforwardFunction() {
             @Override
             public Double compute(double position, Double velocity) {
@@ -155,17 +155,21 @@ public class LiftRetractionFeedforwardTest extends LinearOpMode {
         // limit the output to valid motor commands
         extensionMotionController.setOutputBounds(-1, 1);
 
-        // create the extension motion profile
-        MotionProfile activeProfile = generateProfile();
         // create a follower for the profile and pass the PIF controller to it.
         extensionFollower = new MotionProfileFollower(extensionMotionController);
         // set the profile for the follower to follow
-        extensionFollower.setProfile(activeProfile, "extension");
+        extensionFollower.setProfile(extensionMotionProfile, "extension");
 
         // create a retraction PIDF Controller using the constants defined for the lift
-        retractionPidCoefficients = new PIDCoefficients(0,0,0);
+        retractionPidCoefficients = LiftConstants.RETRACTION_PID_COEFFICENTS;
         // this controller is non-linear. kG and kV need to be updated every update as a function of velocity
-        retractionMotionController = new PIDFController(retractionPidCoefficients, kVRetraction0ToMinus60, kARetraction, kStatic, kGRetraction0ToMinus60);
+//        retractionMotionController = new PIDFController(retractionPidCoefficients, kVRetraction0ToMinus60, kARetraction, kStatic, kGRetraction0ToMinus60);
+        retractionMotionController = new PIDFController(retractionPidCoefficients, kVExtension, kAExtension, kStatic, new PIDFController.FeedforwardFunction() {
+            @Override
+            public Double compute(double position, Double velocity) {
+                return getKg(position);
+            }
+        });
         // limit the output to valid motor commands
         retractionMotionController.setOutputBounds(-1, 1);
 
@@ -254,11 +258,11 @@ public class LiftRetractionFeedforwardTest extends LinearOpMode {
                         timer.reset();
                         phaseOfOperation = PhaseOfOperation.RETRACTION_COMPLETE;
                     } else {
-                        if (desiredLiftVelocity < 0) {
-                            Double[] feedforwardkVkG = LiftConstants.getkVkGForRetraction(liftPosition, desiredLiftVelocity);
-                            retractionMotionController.setkV(feedforwardkVkG[0]);
-                            retractionMotionController.setkG(feedforwardkVkG[1]);
-                        }
+//                        if (desiredLiftVelocity < 0) {
+//                            Double[] feedforwardkVkG = LiftConstants.getkVkGForRetraction(liftPosition, desiredLiftVelocity);
+//                            retractionMotionController.setkV(feedforwardkVkG[0]);
+//                            retractionMotionController.setkG(feedforwardkVkG[1]);
+//                        }
                     }
                 }
                 break;

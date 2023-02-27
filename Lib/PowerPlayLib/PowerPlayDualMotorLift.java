@@ -1,9 +1,10 @@
 package org.firstinspires.ftc.teamcode.Lib.PowerPlayLib;
 
 
+import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.EXTENSION_PID_COEFFICENTS;
 import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.MAX_ACCELERATION_EXTENSION;
 import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.MAX_VELOCITY_EXTENSION;
-import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.MOTION_PID_COEFFICENTS;
+import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.EXTENSION_PID_COEFFICENTS;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.PIDFController;
 import com.acmerobotics.roadrunner.profile.MotionProfile;
@@ -196,7 +197,7 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
         commandComplete = true;
 
         // create the motion controller PIDF
-        motionController = new PIDFController(MOTION_PID_COEFFICENTS);
+        motionController = new PIDFController(EXTENSION_PID_COEFFICENTS);
         // todo explore the PIDFController methods
         //turnController.setInputBounds(0, 2 * Math.PI);
 
