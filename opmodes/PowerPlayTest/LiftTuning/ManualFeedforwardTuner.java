@@ -21,6 +21,7 @@ import com.acmerobotics.roadrunner.profile.MotionProfileGenerator;
 import com.acmerobotics.roadrunner.profile.MotionState;
 import com.acmerobotics.roadrunner.util.NanoClock;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
@@ -54,6 +55,7 @@ import java.util.Objects;
  */
 @Config
 @TeleOp(name = "LiftManualFeedForwardTuner", group = "Lift Tuning")
+@Disabled
 public class ManualFeedforwardTuner extends LinearOpMode {
     private enum Direction {
         EXTENDING,

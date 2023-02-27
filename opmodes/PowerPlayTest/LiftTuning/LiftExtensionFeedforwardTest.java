@@ -20,6 +20,7 @@ import com.acmerobotics.roadrunner.profile.MotionProfileGenerator;
 import com.acmerobotics.roadrunner.profile.MotionState;
 import com.acmerobotics.roadrunner.util.NanoClock;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -55,6 +56,7 @@ import kotlin.jvm.functions.Function2;
  */
 @Config
 @Autonomous(group = "Lift Tuning")
+@Disabled
 public class LiftExtensionFeedforwardTest extends LinearOpMode {
 
     private enum PhaseOfOperation {
@@ -131,7 +133,7 @@ public class LiftExtensionFeedforwardTest extends LinearOpMode {
         lift.setRetractionPositionInMechanismUnits(MINIMUM_LIFT_POSITION);
 
         // create a PIDF Controller using the constants defined for the lift
-        pidCoefficients = LiftConstants.MOTION_PID_COEFFICENTS;
+        pidCoefficients = LiftConstants.EXTENSION_PID_COEFFICENTS;
         motionController = new PIDFController(pidCoefficients, kVExtension, kAExtension, kStatic, new PIDFController.FeedforwardFunction() {
             @Override
             public Double compute(double position, Double velocity) {
