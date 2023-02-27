@@ -702,6 +702,11 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
                         // they initially set a high junction by mistake and then switched to a
                         // medium junction. Since the lift is not raised yet there is not really
                         // anything to do
+                        // todo this is not true any more. The lift is up. So if this command is received,
+                        // todo then it needs to be done steps to include:
+                        // todo arm to carry position
+                        // todo lift to requested height
+                        // todo arm to drop position
                         setPower(LOW_POWER);
                         controllerState = ControllerState.CLOSE_TO_JUNCTION;
                         command = Command.NONE;
@@ -773,6 +778,11 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
                     break;
                     case APPROACHING_JUNCTION_POLE: {
                         // cannot change target, the lift is already raising
+                        // todo this is not true any more. The lift is up. So if this command is received,
+                        // todo then it needs to be done steps to include:
+                        // todo arm to carry position
+                        // todo lift to requested height
+                        // todo arm to drop position
                         command = Command.NONE;
                         commandComplete = true;
                         logCommand("approaching command ignored since robot is at junction");
@@ -846,6 +856,7 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
                         // raises the lift again.
                         // Assuming this is what is going on, make it happen
                         // Raise the lift and lower the arm
+                        // todo should probably put the arm in carry position before change height
                         setupForConeScore();
                         // The lift is up so only low power
                         setPower(LOW_POWER);
