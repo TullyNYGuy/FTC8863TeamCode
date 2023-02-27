@@ -11,6 +11,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.util.NanoClock;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.internal.system.Misc;
@@ -47,6 +48,7 @@ import org.firstinspires.ftc.teamcode.RoadRunner.util.RegressionUtil;
  */
 @Config
 @Autonomous(group = "Lift Tuning")
+@Disabled
 public class LiftExtensionAutomaticFeedforwardConstantCalculator extends LinearOpMode {
     private enum Direction {
         EXTENDING,

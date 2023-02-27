@@ -57,6 +57,7 @@ import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayRobot;
  */
 @Config
 @Autonomous(group = "Lift Tuning")
+@Disabled
 public class LiftRetractionFeedforwardTest extends LinearOpMode {
 
     private enum PhaseOfOperation {
@@ -96,7 +97,7 @@ public class LiftRetractionFeedforwardTest extends LinearOpMode {
     private PIDCoefficients retractionPidCoefficients;
     private MotionProfileFollower retractionFollower;
 
-    // create the motion profile for the retraction movement
+    // create the motion profile for the extension movement
     private MotionProfile extensionMotionProfile = MotionProfileGenerator.generateSimpleMotionProfile(
             new MotionState(EXTENSION_START_POSITION, 0, 0, 0),
             new MotionState(EXTENSION_FINISH_POSITION, 0, 0, 0),
