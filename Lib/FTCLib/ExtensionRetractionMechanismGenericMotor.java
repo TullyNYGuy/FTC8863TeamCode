@@ -439,8 +439,12 @@ public class ExtensionRetractionMechanismGenericMotor {
      * you can review them later. The log is a file stored on the phone.
      */
     protected DataLogging logFile;
+    private DataLogOnChange logCommandOnchange;
+    private DataLogOnChange logStateOnChange;
 
     public void setDataLog(DataLogging logFile) {
+        logCommandOnchange = new DataLogOnChange(logFile);
+        logStateOnChange = new DataLogOnChange(logFile);
         this.logFile = logFile;
     }
 
@@ -453,6 +457,8 @@ public class ExtensionRetractionMechanismGenericMotor {
     }
 
     protected boolean loggingOn = false;
+
+
 
     // save last string sent to log so that it can be used whether to send another string
     private String lastJoystickLogString = "";
@@ -1035,9 +1041,10 @@ public class ExtensionRetractionMechanismGenericMotor {
     public void followProfile(MotionProfileFollower follower) {
         setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
         this.follower = follower;
-        log("COMMANDED " + mechanismName.toUpperCase() + " TO FOLLOW PROFILE " + follower.getProfileName());
         // set the properties so they can be used later
         this.desiredPosition = follower.getProfile().end().getX();
+        log("COMMANDED " + mechanismName.toUpperCase() + " TO FOLLOW PROFILE " + follower.getProfileName() + " from "
+                + Double.toString(follower.getProfile().start().getX()) + " to " + this.desiredPosition);
         // the next execution of the state machine will pick up this new command and execute it
         extensionRetractionCommand = ExtensionRetractionCommands.FOLLOW_PROFILE;
     }
@@ -1977,8 +1984,9 @@ public class ExtensionRetractionMechanismGenericMotor {
      */
     protected void logState(ExtensionRetractionStates extensionRetractionState, ExtensionRetractionCommands extensionRetractionCommand) {
         if (logFile != null && loggingOn) {
+            logStateOnChange.log(mechanismName + " " + extensionRetractionState.toString() + " " + extensionRetractionCommand.toString());
+            // todo maybe this can be elminated since I switcht to logStateOnChange rather than this logic below
             if (extensionRetractionState != previousExtensionRetractionState || extensionRetractionCommand != previousExtensionRetractionCommand) {
-                logFile.logData(mechanismName, extensionRetractionState.toString(), extensionRetractionCommand.toString());
                 previousExtensionRetractionState = extensionRetractionState;
                 previousExtensionRetractionCommand = extensionRetractionCommand;
             }
@@ -2002,7 +2010,7 @@ public class ExtensionRetractionMechanismGenericMotor {
      */
     private void logArrivedAtDestination() {
         if (logFile != null && loggingOn) {
-            logFile.logData(mechanismName.toUpperCase() + " ARRIVED AT DESTINATION");
+            logFile.logData(mechanismName.toUpperCase() + " ARRIVED AT DESTINATION " + Double.toString(getCurrentPosition()));
         }
     }
 
