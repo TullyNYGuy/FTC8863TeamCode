@@ -98,4 +98,14 @@ public class PowerPlayPersistantStorage {
     public static void setMatchPhase(MatchPhase matchPhase) {
         PowerPlayPersistantStorage.matchPhase = matchPhase;
     }
+
+    private static PowerPlayConeGrabber.ArmPosition currentArmPosition;
+
+    public static PowerPlayConeGrabber.ArmPosition getCurrentArmPosition() {
+        return currentArmPosition;
+    }
+
+    public static void setCurrentArmPosition(PowerPlayConeGrabber.ArmPosition currentArmPosition) {
+        PowerPlayPersistantStorage.currentArmPosition = currentArmPosition;
+    }
 }

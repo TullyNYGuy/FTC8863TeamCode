@@ -310,33 +310,48 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
         double startLocation = lift.getCurrentPosition();
         MotionProfile motionProfile;
         MotionProfileFollower follower;
+        double max_velocity = 40;
+        double max_acceleration = 80;
+
         // extending
         if (finishLocation >= startLocation) {
+            // only run the lift fast if the arm is in the carry position
+            if (PowerPlayPersistantStorage.getCurrentArmPosition() == PowerPlayConeGrabber.ArmPosition.CARRY) {
+                max_velocity = MAX_VELOCITY_EXTENSION;
+                max_acceleration = MAX_ACCELERATION_EXTENSION;
+            }
              motionProfile = MotionProfileGenerator.generateSimpleMotionProfile(
                     new MotionState(startLocation, 0, 0, 0),
                     new MotionState(finishLocation, 0, 0, 0),
-                    MAX_VELOCITY_EXTENSION,
-                    MAX_ACCELERATION_EXTENSION);
+                     max_velocity,
+                     max_acceleration);
              extensionFollower.setProfile(motionProfile, "extension");
              follower = extensionFollower;
         } else {
+            // retracting
+            // only run the lift fast if the arm is in the carry position
+            if (PowerPlayPersistantStorage.getCurrentArmPosition() == PowerPlayConeGrabber.ArmPosition.CARRY) {
+                max_velocity = MAX_VELOCITY_RETRACTION;
+                max_acceleration = MAX_ACCELERATION_RETRACTION;
+            }
             // if this is short retraction we don't need all the jerking on the system
             if ((startLocation - finishLocation) < 6.0) {
                 //retracting - difference is max velocity and max acceleration
                 motionProfile = MotionProfileGenerator.generateSimpleMotionProfile(
                         new MotionState(startLocation, 0, 0, 0),
                         new MotionState(finishLocation, 0, 0, 0),
-                        40,
-                        80);
+                        max_velocity,
+                        max_acceleration);
                 retractionFollower.setProfile(motionProfile, "retraction");
                 follower = retractionFollower;
             } else {
+                // run the lift fast
                 //retracting - difference is max velocity and max acceleration
                 motionProfile = MotionProfileGenerator.generateSimpleMotionProfile(
                         new MotionState(startLocation, 0, 0, 0),
                         new MotionState(finishLocation, 0, 0, 0),
-                        MAX_VELOCITY_RETRACTION,
-                        MAX_ACCELERATION_RETRACTION);
+                        max_velocity,
+                        max_acceleration);
                 retractionFollower.setProfile(motionProfile, "retraction");
                 follower = retractionFollower;
             }
@@ -403,7 +418,7 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
     public boolean init(Configuration config) {
         // start the init for the extension retraction mechanism
         logCommand("Init starting");
-        // todo is init ok or does it cause a motor fight?
+        // todo is init ok or does it cause a motor fight? I think the motors float so no.
         lift.init();
         liftState = LiftState.WAITING_FOR_EXTENSION_RETRACTION_MECHANISM_INIT_TO_COMPLETE;
 
@@ -668,7 +683,8 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
             //********************************************************************************
 
             case MOVING_TO_HIGH: {
-                if (lift.isMotionProfileComplete()) {
+                // if the lift hits the extension limit it is fully extended and at the high position
+                if (lift.isMotionProfileComplete() || lift.isExtensionComplete()) {
                     commandComplete = true;
                     liftState = LiftState.READY;
                     liftLocation = LiftLocation.HIGH;
@@ -694,7 +710,7 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
             //********************************************************************************
 
             case MOVING_TO_LOW: {
-                if (lift.isMotionProfileComplete()) {
+                if (lift.isMotionProfileComplete() || lift.isRetractionComplete()) {
                     commandComplete = true;
                     liftState = LiftState.READY;
                     liftLocation = LiftLocation.LOW;
@@ -708,7 +724,7 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
 
             // same as middle right now but may need to change later so make it separate from middle
             case MOVING_TO_GROUND: {
-                if (lift.isMotionProfileComplete()) {
+                if (lift.isMotionProfileComplete() || lift.isRetractionComplete()) {
                     commandComplete = true;
                     liftState = LiftState.READY;
                     liftLocation = LiftLocation.GROUND;
@@ -721,7 +737,7 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
             //********************************************************************************
 
             case MOVING_TO_PICKUP: {
-                if (lift.isMotionProfileComplete()) {
+                if (lift.isMotionProfileComplete() || lift.isRetractionComplete()) {
                     commandComplete = true;
                     liftState = LiftState.READY;
                     liftLocation = LiftLocation.PICKUP;

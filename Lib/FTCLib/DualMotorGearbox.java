@@ -38,6 +38,15 @@ public class DualMotorGearbox implements DcMotor8863Interface{
     private boolean recordEncoderData = false;
     private ElapsedTime timer;
 
+    PIDFController controller;
+
+    public void setController(PIDFController controller) {
+        this.controller = controller;
+    }
+
+    private int targetPosition = 0;
+    private int targetEncoderTolerance = 0;
+
     @Override
     public void setRecordEncoderData(boolean recordEncoderData) {
         this.recordEncoderData = recordEncoderData;
@@ -119,10 +128,18 @@ public class DualMotorGearbox implements DcMotor8863Interface{
         return leftMotor.getBaseEncoderCount();
     }
 
+    /**
+     * This method cannot simply wrap the equivalent method for both motors. The target is a prelude
+     * to setting the motor(s) to RUN_TO_POSITION mode. That mode is not viable because the motors
+     * can fight each other if there is any difference between the encoders in the two motors. And
+     * due to gear lash, we have seen differences. So RUN_TO_POSITION has to be treated as one single
+     * controller feeding the same motor power to both motors. In other words, this class has to
+     * implement RUN_TO_POSITION on its own.
+     * @param virtualTargetEncoderCount
+     */
     @Override
     public void setTargetPosition(int virtualTargetEncoderCount) {
-        leftMotor.setTargetPosition(virtualTargetEncoderCount);
-        rightMotor.setTargetPosition(virtualTargetEncoderCount);
+        this.targetPosition = virtualTargetEncoderCount;
     }
 
     @Override
@@ -155,12 +172,21 @@ public class DualMotorGearbox implements DcMotor8863Interface{
         rightMotor.setMovementPerRev(movementPerRev);
     }
 
+    /**
+     * This method cannot simply wrap the equivalent method for both motors. The target tolerance is a prelude
+     * to setting the motor(s) to RUN_TO_POSITION mode. That mode is not viable because the motors
+     * can fight each other if there is any difference between the encoders in the two motors. And
+     * due to gear lash, we have seen differences. So RUN_TO_POSITION has to be treated as one single
+     * controller feeding the same motor power to both motors. In other words, this class has to
+     * implement RUN_TO_POSITION on its own.
+     * @param targetEncoderTolerance
+     */
     @Override
     public void setTargetEncoderTolerance(int targetEncoderTolerance) {
-        leftMotor.setTargetEncoderTolerance(targetEncoderTolerance);
-        rightMotor.setTargetEncoderTolerance(targetEncoderTolerance);
+        this.targetEncoderTolerance = targetEncoderTolerance;
     }
 
+    // todo investigate how this plays with 2 motors. Will they fight each other?
     @Override
     public void setFinishBehavior(DcMotor8863.FinishBehavior finishBehavior) {
         leftMotor.setFinishBehavior(finishBehavior);
@@ -190,6 +216,8 @@ public class DualMotorGearbox implements DcMotor8863Interface{
         return combinationState;
     }
 
+    // todo This will not work. The motor PIDs and feed back will be indepent of each other and will fight each other.
+    // todo This needs to be changed to use this controller.
     @Override
     public boolean moveToPosition(double power, double targetPosition, DcMotor8863.FinishBehavior afterCompletion) {
         boolean leftReturn;
@@ -202,6 +230,8 @@ public class DualMotorGearbox implements DcMotor8863Interface{
         return leftReturn && rightReturn;
     }
 
+    // todo This will not work. The motor PIDs and feed back will be indepent of each other and will fight each other.
+    // todo This needs to be changed to use this controller.
     @Override
     public boolean rotateNumberOfRevolutions(double power, double revs, DcMotor8863.FinishBehavior afterCompletion) {
         boolean leftReturn;
@@ -243,8 +273,37 @@ public class DualMotorGearbox implements DcMotor8863Interface{
         return leftMotor.isMovementComplete() && rightMotor.isMovementComplete();
     }
 
+    /**
+     * This method cannot simply wrap the equivalent method for both motors. RUN_TO_POSITION and
+     * RUN_USING_ENCODER are both modes the require a PID controller. That mode is not viable because the motors
+     * can fight each other if there is any difference between the encoders in the two motors. And
+     * due to gear lash, we have seen differences. So RUN_TO_POSITION has to be treated as one single
+     * controller feeding the same motor power to both motors. In other words, this class has to
+     * implement RUN_TO_POSITION on its own. Same for RUN_USING_ENCODER.
+     * @param mode
+     */
     @Override
     public void setMode(DcMotor.RunMode mode) {
+        switch (mode) {
+            case RUN_TO_POSITION:{
+                // not handling this now. It is ok since the lift is moving under motion profile and
+                // that will just keep on doing its thing, holding at position
+                // todo handle this situation long term
+            }
+            break;
+            case RUN_USING_ENCODER: {
+                // todo handle this situation long term
+            }
+            break;
+            case RUN_WITHOUT_ENCODER:
+            case STOP_AND_RESET_ENCODER:
+            case RESET_ENCODERS:
+            case RUN_USING_ENCODERS:
+            case RUN_WITHOUT_ENCODERS: {
+                leftMotor.setMode(mode);
+                rightMotor.setMode(mode);
+            }
+        }
         leftMotor.setMode(mode);
         rightMotor.setMode(mode);
     }

@@ -648,17 +648,13 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
 
             case CLOSE_TO_JUNCTION: {
                 // other than a switch speed command, just do nothing while waiting for the distance
-                // sensor to see the junction, which will also stop the robot, send the lift, and
-                // change the state to at junction
+                // sensor to see the junction
                 if (distanceSensorToUse.isLessThanDistance(DISTANCE_LIMIT_FOR_JUNCTION, DistanceUnit.INCH)) {
                     // There is a junction in front of the sensor
                     // Maybe want to lockout any other commands at this point?
                     commandComplete = false;
                     // Stop the robot
                     setPower(0);
-                    // Raise the lift and lower the arm. This will start at the same time the robot
-                    // coasts to a stop.
-                    //setupForConeScore();
                     // Set the timer that will make sure the robot stops before the driver can start it again
                     stopTimer.reset();
                     controllerState = ControllerState.AT_JUNCTION;
@@ -698,15 +694,9 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
                     }
                     break;
                     case APPROACHING_JUNCTION_POLE: {
-                        // this command could be set if the driver changed the target. Like maybe
-                        // they initially set a high junction by mistake and then switched to a
-                        // medium junction. Since the lift is not raised yet there is not really
-                        // anything to do
-                        // todo this is not true any more. The lift is up. So if this command is received,
-                        // todo then it needs to be done steps to include:
-                        // todo arm to carry position
-                        // todo lift to requested height
-                        // todo arm to drop position
+                        // The lift is up and even though the robot is looking for the junction, the driver could change
+                        // the height that was set.
+                        setupForConeScore();
                         setPower(LOW_POWER);
                         controllerState = ControllerState.CLOSE_TO_JUNCTION;
                         command = Command.NONE;
@@ -777,12 +767,9 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
                     }
                     break;
                     case APPROACHING_JUNCTION_POLE: {
-                        // cannot change target, the lift is already raising
-                        // todo this is not true any more. The lift is up. So if this command is received,
-                        // todo then it needs to be done steps to include:
-                        // todo arm to carry position
-                        // todo lift to requested height
-                        // todo arm to drop position
+                        // The lift is up and robot is at the junction pole. But maybe the driver needs to change
+                        // the lift height.
+                        setupForConeScore();
                         command = Command.NONE;
                         commandComplete = true;
                         logCommand("approaching command ignored since robot is at junction");
@@ -845,7 +832,7 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
                         // cannot pickup cone when headed to junction
                         command = Command.NONE;
                         commandComplete = true;
-                        logCommand("pickup cone command ignored since robot is at junction");
+                        logCommand("pickup cone command ignored since robot is finish lineup for junction");
                     }
                     break;
                     case APPROACHING_JUNCTION_POLE: {
@@ -856,7 +843,6 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
                         // raises the lift again.
                         // Assuming this is what is going on, make it happen
                         // Raise the lift and lower the arm
-                        // todo should probably put the arm in carry position before change height
                         setupForConeScore();
                         // The lift is up so only low power
                         setPower(LOW_POWER);

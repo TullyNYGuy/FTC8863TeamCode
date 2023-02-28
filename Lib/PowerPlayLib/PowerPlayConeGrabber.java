@@ -47,6 +47,26 @@ public class PowerPlayConeGrabber implements FTCRobotSubsystem {
 
     private ConeGrabberState coneGrabberState = ConeGrabberState.PRE_INIT;
 
+    public enum ArmPosition {
+        INIT,
+        LINEUP_FOR_PICKUP,
+        PICKUP,
+        CARRY,
+        RELEASE
+    }
+
+    private ArmPosition desiredArmPosition = ArmPosition.INIT;
+    private ArmPosition currentArmPosition = ArmPosition.INIT;
+
+    public ArmPosition getCurrentArmPosition() {
+        return currentArmPosition;
+    }
+
+    private void setCurrentArmPosition(ArmPosition currentArmPosition) {
+        this.currentArmPosition = currentArmPosition;
+        PowerPlayPersistantStorage.setCurrentArmPosition(currentArmPosition);
+    }
+
     private enum Phase {
         TELEOP,
         AUTONOMOUS
@@ -173,6 +193,7 @@ public class PowerPlayConeGrabber implements FTCRobotSubsystem {
         // start the init of the extension retraction mechanism
         coneGrabberServo.init();
         coneGrabberArmServo.init();
+        desiredArmPosition = ArmPosition.INIT;
         commandComplete = false;
         coneGrabberState = ConeGrabberState.WAITING_FOR_CONE_GRABBER_INIT_TO_COMPLETE;
         logCommand("Init");
@@ -262,6 +283,7 @@ public class PowerPlayConeGrabber implements FTCRobotSubsystem {
             //command to start extension
             coneGrabberState = ConeGrabberState.MOVING_TO_CARRY;
             coneGrabberArmServo.carryPosition();
+            desiredArmPosition = ArmPosition.CARRY;
         } else {
             // you can't start a new command when the old one is not finished
             logCommand("Carry position command ignored");
@@ -280,6 +302,7 @@ public class PowerPlayConeGrabber implements FTCRobotSubsystem {
             //command to start extension
             coneGrabberState = ConeGrabberState.MOVING_TO_RELEASE;
             coneGrabberArmServo.releasePosition();
+            desiredArmPosition = ArmPosition.RELEASE;
         } else {
             // you can't start a new command when the old one is not finished
             logCommand("Release position command ignored");
@@ -298,6 +321,7 @@ public class PowerPlayConeGrabber implements FTCRobotSubsystem {
             //command to start extension
             coneGrabberState = ConeGrabberState.MOVING_TO_PICKUP;
             coneGrabberArmServo.pickupPosition();
+            desiredArmPosition = ArmPosition.PICKUP;
         } else {
             // you can't start a new command when the old one is not finished
             logCommand("Pickup position command ignored");
@@ -321,6 +345,7 @@ public class PowerPlayConeGrabber implements FTCRobotSubsystem {
             coneGrabberState = ConeGrabberState.MOVING_TO_LINEUP_FOR_PICKUP;
             coneGrabberServo.open();
             coneGrabberArmServo.lineupForPickupPosition();
+            desiredArmPosition = ArmPosition.LINEUP_FOR_PICKUP;
             // we are setting up to pick up a cone
             cycleTracker.setPhaseOfCycleToPickup();
         } else {
@@ -343,6 +368,7 @@ public class PowerPlayConeGrabber implements FTCRobotSubsystem {
             coneGrabberState = ConeGrabberState.MOVING_TO_OPEN_BEFORE_PICKUP;
             coneGrabberServo.open();
             coneGrabberArmServo.pickupPosition();
+            desiredArmPosition = ArmPosition.PICKUP;
             // we are setting up to pick up a cone
             cycleTracker.setPhaseOfCycleToPickup();
         } else {
@@ -418,6 +444,7 @@ public class PowerPlayConeGrabber implements FTCRobotSubsystem {
             case WAITING_FOR_CONE_GRABBER_INIT_TO_COMPLETE: {
                 if (coneGrabberServoPositionReached && coneGrabberArmServoPositionReached) {
                     coneGrabberState = ConeGrabberState.INIT_COMPLETE;
+                    setCurrentArmPosition(ArmPosition.INIT);
                     commandComplete = true;
                     initComplete = true;
                 }
@@ -451,6 +478,7 @@ public class PowerPlayConeGrabber implements FTCRobotSubsystem {
             case MOVING_TO_PICKUP: {
                 if (coneGrabberArmServo.isPositionReached()) {
                     commandComplete = true;
+                    setCurrentArmPosition(desiredArmPosition);
                     coneGrabberState = ConeGrabberState.READY;
                 }
             }
@@ -463,6 +491,7 @@ public class PowerPlayConeGrabber implements FTCRobotSubsystem {
             case MOVING_TO_OPEN_BEFORE_LINEUP_FOR_PICKUP: {
                 if (coneGrabberServo.isPositionReached()) {
                     coneGrabberArmServo.lineupForPickupPosition();
+                    desiredArmPosition = ArmPosition.LINEUP_FOR_PICKUP;
                     coneGrabberState = ConeGrabberState.MOVING_TO_LINEUP_FOR_PICKUP;
                 }
             }
@@ -472,6 +501,7 @@ public class PowerPlayConeGrabber implements FTCRobotSubsystem {
                 if (coneGrabberServo.isPositionReached() && coneGrabberArmServo.isPositionReached()) {
                     //coneGrabberArmServo.pickupPosition();
                     commandComplete = true;
+                    setCurrentArmPosition(desiredArmPosition);
                     coneGrabberState = ConeGrabberState.READY;
                 }
             }
@@ -481,6 +511,7 @@ public class PowerPlayConeGrabber implements FTCRobotSubsystem {
             case MOVING_TO_CLOSE_BEFORE_CARRY: {
                 if (coneGrabberServo.isPositionReached()) {
                     coneGrabberArmServo.carryPosition();
+                    desiredArmPosition = ArmPosition.CARRY;
                     coneGrabberState = ConeGrabberState.MOVING_TO_CARRY;
                 }
             }
