@@ -471,6 +471,7 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
             liftLocation = LiftLocation.IN_BETWEEN;
         } else {
             // you can't start a new command when the old one is not finished
+            logCommand("move to high command ignored, previous command is not complete");
         }
     }
 
@@ -491,6 +492,7 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
             liftLocation = LiftLocation.IN_BETWEEN;
         } else {
             // you can't start a new command when the old one is not finished
+            logCommand("move to medium command ignored, previous command is not complete");
         }
     }
 
@@ -511,6 +513,7 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
             liftLocation = LiftLocation.IN_BETWEEN;
         } else {
             // you can't start a new command when the old one is not finished
+            logCommand("move to low command ignored, previous command is not complete");
         }
     }
 
@@ -531,6 +534,7 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
             liftLocation = LiftLocation.IN_BETWEEN;
         } else {
             // you can't start a new command when the old one is not finished
+            logCommand("move to ground command ignored, previous command is not complete");
         }
     }
 
@@ -551,6 +555,7 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
             liftLocation = LiftLocation.IN_BETWEEN;
         } else {
             // you can't start a new command when the old one is not finished
+            logCommand("move to pickup command ignored, previous command is not complete");
         }
     }
 
@@ -568,6 +573,7 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
             liftState = LiftState.DROPPING_ON_POLE;
         } else {
             // you can't start a new command when the old one is not finished
+            logCommand("test the drop command is ignored, previous command is not complete");
         }
     }
 
