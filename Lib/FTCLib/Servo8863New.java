@@ -144,7 +144,7 @@ public class Servo8863New {
      * @param positionName
      * @return
      */
-    private ServoPosition getServoPosition(String positionName) {
+    public ServoPosition getServoPosition(String positionName) {
         if (positions.containsKey(positionName)) {
             return positions.get(positionName);
         } else {
@@ -194,6 +194,27 @@ public class Servo8863New {
     public void addPosition(String positionName, double position, double timeToDelayStart, double timeToReachPosition, TimeUnit timeUnits) {
         ServoPosition servoPosition = new ServoPosition(position, timeToDelayStart, timeToReachPosition, timeUnits);
         positions.put(positionName, servoPosition);
+    }
+
+    /**
+     * Remove a position associated with a servo.
+     * @param positionName
+     */
+    public void removePosition(String positionName) {
+        if (positions.containsKey(positionName)) {
+            positions.remove(positionName);
+        }
+    }
+
+    public void changePosition (String positionName, double newPosition) {
+        ServoPosition oldServoPosition = getServoPosition(positionName);
+        removePosition(positionName);
+        addPosition(
+                positionName,
+                newPosition,
+                oldServoPosition.getTimeToDelayStart(TimeUnit.MILLISECONDS),
+                oldServoPosition.getTimeToReachPosition(TimeUnit.MILLISECONDS),
+                TimeUnit.MILLISECONDS);
     }
 
     /**

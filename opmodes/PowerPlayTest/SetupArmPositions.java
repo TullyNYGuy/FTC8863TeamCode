@@ -32,22 +32,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 package org.firstinspires.ftc.teamcode.opmodes.PowerPlayTest;
 
-import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DistanceSensor;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.checkerframework.checker.units.qual.C;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.StatTrackerGB;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.ConeGrabberArmServo;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.ConeGrabberServo;
-import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayConeGrabber;
-import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayConeGrabberLiftController;
 
 /**
- * {@link TestArmPositions} illustrates how to use the REV Robotics
+ * {@link SetupArmPositions} illustrates how to use the REV Robotics
  * Time-of-Flight Range Sensor.
  * <p>
  * The op mode assumes that the range sensor is configured with a name of "sensor_range".
@@ -57,9 +49,9 @@ import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayConeGrabberLiftC
  *
  * @see <a href="http://revrobotics.com">REV Robotics Web Page</a>
  */
-@TeleOp(name = "Setup Arm Positions", group = "Test")
+@TeleOp(name = "Setup PP Arm Positions", group = "Test")
 //@Disabled
-public class TestArmPositions extends LinearOpMode {
+public class SetupArmPositions extends LinearOpMode {
 
     private ConeGrabberServo coneGrabber;
     private ConeGrabberArmServo coneGrabberArmServo;
@@ -77,8 +69,48 @@ public class TestArmPositions extends LinearOpMode {
 
         while (opModeIsActive()) {
             coneGrabber.close();
-            coneGrabberArmServo.replacementPosition();
-            telemetry.addData("Arm servo is in replacement Position", "!");
+            if (coneGrabberArmServo.getServoPosition("Init").getPosition() != ConeGrabberArmServo.INIT_POSITION) {
+                coneGrabberArmServo.changeServoPosition("Init", ConeGrabberArmServo.INIT_POSITION);
+                coneGrabberArmServo.init();
+            }
+            if (coneGrabberArmServo.getServoPosition("Release").getPosition() != ConeGrabberArmServo.RELEASE_POSITION) {
+                coneGrabberArmServo.changeServoPosition("Release", ConeGrabberArmServo.RELEASE_POSITION);
+                coneGrabberArmServo.releasePosition();
+            }
+            if (coneGrabberArmServo.getServoPosition("Pickup").getPosition() != ConeGrabberArmServo.PICKUP) {
+                coneGrabberArmServo.changeServoPosition("Pickup", ConeGrabberArmServo.PICKUP);
+                coneGrabberArmServo.pickupPosition();
+            }
+            if (coneGrabberArmServo.getServoPosition("LineupForPickup").getPosition() != ConeGrabberArmServo.LINEUP_FOR_PICKUP) {
+                coneGrabberArmServo.changeServoPosition("LineupForPickup", ConeGrabberArmServo.LINEUP_FOR_PICKUP);
+                coneGrabberArmServo.lineupForPickupPosition();
+            }
+            if (coneGrabberArmServo.getServoPosition("Carry").getPosition() != ConeGrabberArmServo.CARRY) {
+                coneGrabberArmServo.changeServoPosition("Carry", ConeGrabberArmServo.CARRY);
+                coneGrabberArmServo.carryPosition();
+            }
+
+            if (gamepad1.a) {
+                coneGrabberArmServo.init();
+            }
+            if (gamepad1.b) {
+                coneGrabberArmServo.pickupPosition();
+            }
+            if (gamepad1.x) {
+                coneGrabberArmServo.lineupForPickupPosition();
+            }
+            if (gamepad1.y) {
+                coneGrabberArmServo.releasePosition();
+            }
+            if (gamepad1.dpad_up) {
+                coneGrabberArmServo.carryPosition();
+            }
+            
+            telemetry.addData("Gamepad 1 A = ", "init");
+            telemetry.addData("Gamepad 1 B = ", "pickup");
+            telemetry.addData("Gamepad 1 X = ", "lineup for pickup");
+            telemetry.addData("Gamepad 1 Y = ", "release");
+            telemetry.addData("Gamepad 1 dpad up = ", "carry");
             telemetry.update();
             idle();
         }

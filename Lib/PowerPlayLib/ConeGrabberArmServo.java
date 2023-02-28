@@ -1,15 +1,18 @@
 package org.firstinspires.ftc.teamcode.Lib.PowerPlayLib;
 
 
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863New;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.ServoPosition;
 
 import java.util.concurrent.TimeUnit;
 
+@Config
 public class ConeGrabberArmServo {
 
     //*********************************************************************************************
@@ -27,6 +30,13 @@ public class ConeGrabberArmServo {
     //*********************************************************************************************
     private Servo8863New coneGrabberArmServo;
     private final String CONE_GRABBER_ARM_SERVO_NAME = PowerPlayRobot.HardwareName.CONE_GRABBER_ARM_SERVO.hwName;
+
+    public static double INIT_POSITION = 0.22;
+    public static double RELEASE_POSITION = 0.85;
+    public static double PICKUP = .87;
+    public static double LINEUP_FOR_PICKUP = .80;
+    public static double CARRY = .37;
+
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -44,11 +54,11 @@ public class ConeGrabberArmServo {
 
     public ConeGrabberArmServo(HardwareMap hardwareMap, Telemetry telemetry) {
         coneGrabberArmServo = new Servo8863New(CONE_GRABBER_ARM_SERVO_NAME, hardwareMap, telemetry);
-        coneGrabberArmServo.addPosition("Init", .22, 1000, TimeUnit.MILLISECONDS);
-        coneGrabberArmServo.addPosition("Release", .85, 1000, TimeUnit.MILLISECONDS);
-        coneGrabberArmServo.addPosition("Pickup", .87, 250, TimeUnit.MILLISECONDS);;
-        coneGrabberArmServo.addPosition("LineupForPickup", .80, 1000, TimeUnit.MILLISECONDS);
-        coneGrabberArmServo.addPosition("Carry", .37, 500, TimeUnit.MILLISECONDS);
+        coneGrabberArmServo.addPosition("Init", INIT_POSITION, 1000, TimeUnit.MILLISECONDS);
+        coneGrabberArmServo.addPosition("Release", RELEASE_POSITION, 1000, TimeUnit.MILLISECONDS);
+        coneGrabberArmServo.addPosition("Pickup", PICKUP, 250, TimeUnit.MILLISECONDS);;
+        coneGrabberArmServo.addPosition("LineupForPickup", LINEUP_FOR_PICKUP, 1000, TimeUnit.MILLISECONDS);
+        coneGrabberArmServo.addPosition("Carry", CARRY, 500, TimeUnit.MILLISECONDS);
         coneGrabberArmServo.addPosition("Replacement", 1.0, 1000, TimeUnit.MILLISECONDS);
         //coneGrabberArmServo.setDirection(Servo.Direction.REVERSE);
     }
@@ -90,6 +100,15 @@ public class ConeGrabberArmServo {
 
     public boolean isPositionReached() {
         return coneGrabberArmServo.isPositionReached();
+    }
+
+    // wrappers
+    public ServoPosition getServoPosition(String positionName) {
+        return coneGrabberArmServo.getServoPosition(positionName);
+    }
+
+    public void changeServoPosition(String positionName, double position) {
+        coneGrabberArmServo.changePosition(positionName, position);
     }
 
 
