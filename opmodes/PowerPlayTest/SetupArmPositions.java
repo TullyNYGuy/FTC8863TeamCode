@@ -65,29 +65,27 @@ public class SetupArmPositions extends LinearOpMode {
         telemetry.addData(">>", "Press start to continue");
         telemetry.update();
 
+        coneGrabberArmServo.init();
+        coneGrabber.close();
+
         waitForStart();
 
         while (opModeIsActive()) {
             coneGrabber.close();
             if (coneGrabberArmServo.getServoPosition("Init").getPosition() != ConeGrabberArmServo.INIT_POSITION) {
                 coneGrabberArmServo.changeServoPosition("Init", ConeGrabberArmServo.INIT_POSITION);
-                coneGrabberArmServo.init();
             }
             if (coneGrabberArmServo.getServoPosition("Release").getPosition() != ConeGrabberArmServo.RELEASE_POSITION) {
                 coneGrabberArmServo.changeServoPosition("Release", ConeGrabberArmServo.RELEASE_POSITION);
-                coneGrabberArmServo.releasePosition();
             }
             if (coneGrabberArmServo.getServoPosition("Pickup").getPosition() != ConeGrabberArmServo.PICKUP) {
                 coneGrabberArmServo.changeServoPosition("Pickup", ConeGrabberArmServo.PICKUP);
-                coneGrabberArmServo.pickupPosition();
             }
             if (coneGrabberArmServo.getServoPosition("LineupForPickup").getPosition() != ConeGrabberArmServo.LINEUP_FOR_PICKUP) {
                 coneGrabberArmServo.changeServoPosition("LineupForPickup", ConeGrabberArmServo.LINEUP_FOR_PICKUP);
-                coneGrabberArmServo.lineupForPickupPosition();
             }
             if (coneGrabberArmServo.getServoPosition("Carry").getPosition() != ConeGrabberArmServo.CARRY) {
                 coneGrabberArmServo.changeServoPosition("Carry", ConeGrabberArmServo.CARRY);
-                coneGrabberArmServo.carryPosition();
             }
 
             if (gamepad1.a) {
@@ -95,15 +93,25 @@ public class SetupArmPositions extends LinearOpMode {
             }
             if (gamepad1.b) {
                 coneGrabberArmServo.pickupPosition();
+                coneGrabber.open();
             }
             if (gamepad1.x) {
                 coneGrabberArmServo.lineupForPickupPosition();
+                coneGrabber.open();
             }
             if (gamepad1.y) {
                 coneGrabberArmServo.releasePosition();
+                coneGrabber.close();
             }
             if (gamepad1.dpad_up) {
                 coneGrabberArmServo.carryPosition();
+                coneGrabber.close();
+            }
+            if (gamepad1.dpad_left) {
+                coneGrabber.open();
+            }
+            if (gamepad1.dpad_right) {
+                coneGrabber.close();
             }
             
             telemetry.addData("Gamepad 1 A = ", "init");
@@ -111,6 +119,8 @@ public class SetupArmPositions extends LinearOpMode {
             telemetry.addData("Gamepad 1 X = ", "lineup for pickup");
             telemetry.addData("Gamepad 1 Y = ", "release");
             telemetry.addData("Gamepad 1 dpad up = ", "carry");
+            telemetry.addData("Gamepad 1 dpad left = ", "open");
+            telemetry.addData("Gamepad 1 dpad left = ", "close");
             telemetry.update();
             idle();
         }
