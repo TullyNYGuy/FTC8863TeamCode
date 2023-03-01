@@ -14,7 +14,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColorTeamLocation;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogOnChange;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
-
+@Deprecated
 public class PowerPlayAutonomousVisionOneCycleParkWithSensor implements PowerPlayAutonomousStateMachine {
 
     //*********************************************************************************************
