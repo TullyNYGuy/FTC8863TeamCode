@@ -18,6 +18,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.MatchPhase;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.TeamLocation;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.PersistantStorage;
+import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayCenterOnPole;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayField;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayGamepad;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayPersistantStorage;
@@ -41,6 +42,8 @@ public class TestTeleopPoleLocation extends LinearOpMode {
     public PowerPlayGamepad gamepad;
     public Configuration config = null;
     public PowerPlayField field;
+
+    private PowerPlayCenterOnPole powerPlayCenterOnPole;
 
     public static double SMALL_MOVEMENT_POWER = 0;
 
@@ -108,6 +111,8 @@ public class TestTeleopPoleLocation extends LinearOpMode {
             robot.robotModes.setDirectionSwap(PowerPlayRobotModes.DirectionSwap.NORMAL);
         }
 
+        powerPlayCenterOnPole = new PowerPlayCenterOnPole(robot, telemetry);
+
         // Wait for the start button
 
         telemetry.addData(">", "Press start to run Teleop (make sure you ran the position setter first!)");
@@ -119,7 +124,16 @@ public class TestTeleopPoleLocation extends LinearOpMode {
         robot.loopTimer.startLoopTimer();
         robot.coneGrabber.carryPosition();
         robot.lift.moveToPickup();
-        robot.poleLocationDetermination.enablePoleLocationDetermination();
+        //robot.poleLocationDetermination.enablePoleLocationDetermination();
+        robot.mecanum.setPoseEstimate(new Pose2d());
+
+        robot.mecanum.setWeightedDrivePower(
+                new Pose2d(
+                        0.3,
+                        0,
+                        0
+                )
+        );
 
         //*********************************************************************************************
         //             Robot Running after the user hits play on the driver phone
@@ -142,47 +156,49 @@ public class TestTeleopPoleLocation extends LinearOpMode {
             telemetry.addData("sensor difference = ", robot.poleLocationDetermination.getSensorDifference(DistanceUnit.MM));
             telemetry.addLine();
 
-            if (gamepad2.x) {
-                driveLockout = false;
-            }
+            powerPlayCenterOnPole.update();
 
-            if (!driveLockout) {
-                if (gamepad.getDrivingMode() == DrivingMode.ROBOT_CENTRIC) {
-                    telemetry.addData("Direction swap = ", robot.robotModes.getDirectionSwap());
-                    telemetry.addData("ROBOT CENTRIC driving", "!");
-
-                    if (robot.poleLocationDetermination.getPoleLocation() == PowerPlayPoleLocationDetermination.PoleLocation.CENTER) {
-                        robot.mecanum.calculateMotorCommandsRobotCentric(
-                                0,
-                                0,
-                                0
-                        );
-                        driveLockout = true;
-                        telemetry.addData("pole location = ", "centered");
-                    } else {
-                        robot.mecanum.setWeightedDrivePower(
-                                new Pose2d(
-                                        SMALL_MOVEMENT_POWER,
-                                        0,
-                                        0
-                                )
-                        );
+//            if (gamepad2.x) {
+//                driveLockout = false;
+//            }
+//
+//            if (!driveLockout) {
+//                if (gamepad.getDrivingMode() == DrivingMode.ROBOT_CENTRIC) {
+//                    telemetry.addData("Direction swap = ", robot.robotModes.getDirectionSwap());
+//                    telemetry.addData("ROBOT CENTRIC driving", "!");
+//
+//                    if (robot.poleLocationDetermination.getPoleLocation() == PowerPlayPoleLocationDetermination.PoleLocation.RIGHT) {
 //                        robot.mecanum.calculateMotorCommandsRobotCentric(
-//                                gamepad.gamepad1LeftJoyStickYValue * robot.robotModes.getDirectionSwapMultiplier(),
-//                                gamepad.gamepad1LeftJoyStickXValue * robot.robotModes.getDirectionSwapMultiplier(),
-//                                gamepad.gamepad1RightJoyStickXValue
+//                                0,
+//                                0,
+//                                0
 //                        );
-                    }
-                }
-                if (gamepad.getDrivingMode() == DrivingMode.FIELD_CENTRIC) {
-                    telemetry.addData("FIELD CENTRIC driving", "!");
-                    robot.mecanum.calculateMotorCommandsFieldCentric(
-                            gamepad.gamepad1LeftJoyStickYValue,
-                            gamepad.gamepad1LeftJoyStickXValue,
-                            gamepad.gamepad1RightJoyStickXValue
-                    );
-                } 
-            }
+//                        driveLockout = true;
+//                        telemetry.addData("pole location = ", "centered");
+//                    } else {
+//                        robot.mecanum.setWeightedDrivePower(
+//                                new Pose2d(
+//                                        SMALL_MOVEMENT_POWER,
+//                                        0,
+//                                        0
+//                                )
+//                        );
+////                        robot.mecanum.calculateMotorCommandsRobotCentric(
+////                                gamepad.gamepad1LeftJoyStickYValue * robot.robotModes.getDirectionSwapMultiplier(),
+////                                gamepad.gamepad1LeftJoyStickXValue * robot.robotModes.getDirectionSwapMultiplier(),
+////                                gamepad.gamepad1RightJoyStickXValue
+////                        );
+//                    }
+//                }
+//                if (gamepad.getDrivingMode() == DrivingMode.FIELD_CENTRIC) {
+//                    telemetry.addData("FIELD CENTRIC driving", "!");
+//                    robot.mecanum.calculateMotorCommandsFieldCentric(
+//                            gamepad.gamepad1LeftJoyStickYValue,
+//                            gamepad.gamepad1LeftJoyStickXValue,
+//                            gamepad.gamepad1RightJoyStickXValue
+//                    );
+//                }
+//            }
 
             // feedback on the driver station
 
