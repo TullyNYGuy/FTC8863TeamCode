@@ -81,7 +81,7 @@ public class TestPoleLocationDetermination extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        distanceSensors = new PowerPlayDual2mDistanceSensors(hardwareMap, telemetry, "Dual Distance Sensors", DistanceUnit.MM);
+        distanceSensors = new PowerPlayDual2mDistanceSensors(hardwareMap, telemetry, "Dual Distance Sensors");
         poleLocationDetermination = new PowerPlayPoleLocationDetermination(distanceSensors);
         poleLocationLogFile = new DataLogging("poleLocations");
         poleLocationDetermination.setDataLog(poleLocationLogFile);
@@ -98,7 +98,7 @@ public class TestPoleLocationDetermination extends LinearOpMode {
             poleLocationDetermination.update();
             if (poleLocationDetermination.isDataValid()) {
                 poleLocation = poleLocationDetermination.getPoleLocation();
-                distanceToPole = poleLocationDetermination.getDistanceFromPole(DistanceUnit.MM);
+                distanceToPole = poleLocationDetermination.getDistanceFromPole(DistanceUnit.INCH);
                 telemetry.addData("Pole location = ", poleLocation.toString());
                 telemetry.addData("normal distance = ", poleLocationDetermination.getNormalDistance(DistanceUnit.MM));
                 telemetry.addData("inverse distance = ", poleLocationDetermination.getInverseDistance(DistanceUnit.MM));

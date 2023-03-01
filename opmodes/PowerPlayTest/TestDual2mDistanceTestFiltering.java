@@ -108,10 +108,10 @@ public class TestDual2mDistanceTestFiltering extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        distanceSensorNormal = new PowerPlay2mDistanceSensor(hardwareMap, telemetry, "distanceSensorNormal", DistanceUnit.MM);
+        distanceSensorNormal = new PowerPlay2mDistanceSensor(hardwareMap, telemetry, "distanceSensorNormal");
         distanceSensorNormal.enableRemoveLargeTransitions(7000, DistanceUnit.MM);
         distanceSensorNormal.enableMovingAverage(0.5);
-        distanceSensorInverse = new PowerPlay2mDistanceSensor(hardwareMap, telemetry, "distanceSensorInverse", DistanceUnit.MM);
+        distanceSensorInverse = new PowerPlay2mDistanceSensor(hardwareMap, telemetry, "distanceSensorInverse");
         distanceSensorInverse.enableRemoveLargeTransitions(7000, DistanceUnit.MM);
         distanceSensorInverse.enableMovingAverage(0.5);
         gamepad1a = new GamepadButtonMultiPush(1);

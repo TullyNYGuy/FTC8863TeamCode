@@ -89,8 +89,8 @@ public class TestDual2mDistanceSensorContinuousOrAverage extends LinearOpMode {
     @Override
     public void runOpMode() {
         // you can use this as a regular DistanceSensor.
-        distanceSensorNormal = new PowerPlay2mDistanceSensor(hardwareMap, telemetry, "distanceSensorNormal", DistanceUnit.MM);
-        distanceSensorInverse = new PowerPlay2mDistanceSensor(hardwareMap, telemetry, "distanceSensorInverse", DistanceUnit.MM);
+        distanceSensorNormal = new PowerPlay2mDistanceSensor(hardwareMap, telemetry, "distanceSensorNormal");
+        distanceSensorInverse = new PowerPlay2mDistanceSensor(hardwareMap, telemetry, "distanceSensorInverse");
         gamepad1a = new GamepadButtonMultiPush(1);
 
         telemetry.addData(">>", "Press start to continue. Press A to switch modes");

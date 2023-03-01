@@ -89,8 +89,8 @@ public class TestDual2mDistanceSensorLogData extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        distanceSensorNormal = new PowerPlay2mDistanceSensor(hardwareMap, telemetry, "distanceSensorNormal", DistanceUnit.MM);
-        distanceSensorInverse = new PowerPlay2mDistanceSensor(hardwareMap, telemetry, "distanceSensorInverse", DistanceUnit.MM);
+        distanceSensorNormal = new PowerPlay2mDistanceSensor(hardwareMap, telemetry, "distanceSensorNormal");
+        distanceSensorInverse = new PowerPlay2mDistanceSensor(hardwareMap, telemetry, "distanceSensorInverse");
 
         rawSensorReadingsCSV = new CSVDataFile("rawSensorReadings");
         rawSensorReadingsCSV.headerStrings("inverse", "normal", "difference");

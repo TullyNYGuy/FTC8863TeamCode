@@ -219,10 +219,11 @@ public class PowerPlayPoleLocationDetermination implements FTCRobotSubsystem {
      * @return 0 means that the distance is not valid
      */
     private void calculateDistanceFromPole() {
+        DistanceUnit calculationUnit = DistanceUnit.MM;
         // the distance sensor readings have to be valid and the robot has to be centered on the pole
         if (state == State.ACTIVE && poleLocation == PoleLocation.CENTER) {
             // this is from a linear regression. The units are MM
-            distanceFromPole = (inverseDistance + normalDistance)/2 * 1.23 -70.3;
+            distanceFromPole = calculationUnit.fromUnit(this.distanceUnit,(inverseDistance + normalDistance)) / 2 * 1.23 - 70.3;
             distanceFromPole = distanceFromPoleFilter.average(distanceFromPole);
         } else {
             // the distance sensor data is not valid, or the pole is not centered on the robot

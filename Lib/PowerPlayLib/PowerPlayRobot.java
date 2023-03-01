@@ -182,7 +182,7 @@ public class PowerPlayRobot implements FTCRobot {
         }
 
         //if (capabilities.contains(Subsystem.DUAL_DISTANCE_SENSORS)) {
-            dualDistanceSensors = new PowerPlayDual2mDistanceSensors(hardwareMap, telemetry, HardwareName.DUAL_DISTANCE_SENSORS.hwName, DistanceUnit.INCH);
+            dualDistanceSensors = new PowerPlayDual2mDistanceSensors(hardwareMap, telemetry, HardwareName.DUAL_DISTANCE_SENSORS.hwName);
         //    subsystemMap.put(dualDistanceSensors.getName(), dualDistanceSensors);
         //}
 

@@ -165,7 +165,7 @@ public class TestPowerPlayAutonomousWithSensor extends LinearOpMode {
         while (opModeIsActive() && !autonomousStateMachine.isComplete()) {
             autonomousStateMachine.update();
             telemetry.addData("current state is", autonomousStateMachine.getCurrentState());
-            telemetry.addData("distance read = ",robot.dualDistanceSensors.distanceSensorNormal.getDistance(DistanceUnit.INCH));
+            telemetry.addData("distance read = ",robot.poleLocationDetermination.getDistanceFromPole(DistanceUnit.INCH));
             telemetry.update();
             robot.update();
             idle();
