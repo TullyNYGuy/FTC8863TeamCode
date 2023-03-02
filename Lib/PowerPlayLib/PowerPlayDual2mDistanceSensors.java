@@ -19,6 +19,32 @@ import java.util.concurrent.TimeUnit;
 
 public class PowerPlayDual2mDistanceSensors implements FTCRobotSubsystem {
 
+    public class DualSensorData {
+        protected double distanceNormal = 0;
+        protected double distanceInverse = 0;
+        protected double difference = 0;
+    }
+
+    private DualSensorData dualSensorDataContinuous;
+
+    public DualSensorData getDualSensorDataContinuous(DistanceUnit theirUnit) {
+        // only return data if the data is valid.
+        // Once it is read, it is no longer valid. This removes extra data points that are just
+        // repetions of previous data and makes moving average filtering valid.
+        if (dataValid) {
+            dualSensorDataContinuous.distanceNormal = getContinuousDistanceNormal(theirUnit);
+            dualSensorDataContinuous.distanceInverse = getContinuousDistanceInverse(theirUnit);
+            dualSensorDataContinuous.difference = getContinuousDifference(theirUnit);
+            dataValid = false;
+            return dualSensorDataContinuous;
+        } else {
+            return null;
+        }
+    }
+
+    // todo work out the average data packaging
+    private DualSensorData dualSensorDataAverage;
+
     //*********************************************************************************************
     //          ENUMERATED TYPES
     //
@@ -63,18 +89,21 @@ public class PowerPlayDual2mDistanceSensors implements FTCRobotSubsystem {
     public PowerPlay2mDistanceSensor distanceSensorInverse;
     public PowerPlay2mDistanceSensor distanceSensorNormal;
 
+    private double continuousDistanceNormalCache = 0;
     private double continuousDistanceNormal = 0;
 
     public double getContinuousDistanceNormal(DistanceUnit theirDistanceUnit) {
         return theirDistanceUnit.fromUnit(this.ourDistanceUnit, continuousDistanceNormal);
     }
 
+    private double continuousDistanceInverseCache = 0;
     private double continuousDistanceInverse = 0;
 
     public double getContinuousDistanceInverse(DistanceUnit theirDistanceUnit) {
         return theirDistanceUnit.fromUnit(this.ourDistanceUnit, continuousDistanceInverse);
     }
 
+    private Double continuousDifferenceCache = null;
     private Double continuousDifference = null; // 0 is what we are hunting for do don't initialize to that
 
     public double getContinuousDifference(DistanceUnit theirDistanceUnit) {
@@ -138,7 +167,7 @@ public class PowerPlayDual2mDistanceSensors implements FTCRobotSubsystem {
     }
 
     private TimeUnit timeUnit = TimeUnit.MILLISECONDS;
-    private long timeBetweenReadings = 50; // milliseconds
+    private long timeBetweenReadings = 40; // milliseconds
 
     public double getTimeBetweenReadings(TimeUnit timeUnit) {
         return timeUnit.convert(timeBetweenReadings, this.timeUnit);
@@ -171,6 +200,8 @@ public class PowerPlayDual2mDistanceSensors implements FTCRobotSubsystem {
         distanceSensorInverse = new PowerPlay2mDistanceSensor(hardwareMap, telemetry, PowerPlayRobot.HardwareName.DISTANCE_SENSOR_INVERSE.hwName);
         distanceSensorInverse.enableMovingAverage(.5);
         distanceSensorInverse.enableRemoveLargeTransitions(7000, DistanceUnit.MM);
+        dualSensorDataContinuous = new DualSensorData();
+        dualSensorDataAverage = new DualSensorData();
     }
     //*********************************************************************************************
     //          Helper Methods
@@ -289,7 +320,11 @@ public class PowerPlayDual2mDistanceSensors implements FTCRobotSubsystem {
 
             case CONTINUOUS_READ_INVERSE: {
                 if (distanceSensorInverse.isSingleReadingReady()) {
-                    continuousDistanceInverse = distanceSensorInverse.getSingleReading(ourDistanceUnit);
+                    // we now only have valid inverse so all data is invalid
+                    dataValid = false;
+                    // temporarily store the Inverse since we need all 3, inverse, normal and difference
+                    // to be valid before we update any of them.
+                    continuousDistanceInverseCache = distanceSensorInverse.getSingleReading(ourDistanceUnit);
                     distanceSensorNormal.startSingleReading(timeBetweenReadings);
                     state = State.CONTINUOUS_READ_NORMAL;
                 }
@@ -299,9 +334,13 @@ public class PowerPlayDual2mDistanceSensors implements FTCRobotSubsystem {
             case CONTINUOUS_READ_NORMAL: {
                 if (distanceSensorNormal.isSingleReadingReady()) {
                     continuousDistanceNormal = distanceSensorNormal.getSingleReading(ourDistanceUnit);
-                    distanceSensorInverse.startSingleReading(timeBetweenReadings);
-                    continuousDifference = continuousDistanceNormal - continuousDistanceInverse;
+                    continuousDifference = continuousDistanceNormal - continuousDistanceInverseCache;
+                    // now we can update the inverse since we have all 3 pieces of data
+                    continuousDistanceInverse = continuousDistanceInverseCache;
+                    // all 3 pieces of data are valid
                     dataValid = true;
+                    // start the next reading of the inverse
+                    distanceSensorInverse.startSingleReading(timeBetweenReadings);
                     state = State.CONTINUOUS_READ_INVERSE;
                 }
             }

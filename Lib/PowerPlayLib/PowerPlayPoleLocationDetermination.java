@@ -160,7 +160,7 @@ public class PowerPlayPoleLocationDetermination implements FTCRobotSubsystem {
 
     private void logPoleLocation() {
         if (enableLogging && logFile != null) {
-            logStateOnChange.log(getName() + " phase = " + poleLocation.toString());
+            logStateOnChange.log(getName() + " pole location = " + poleLocation.toString());
         }
     }
 
@@ -252,37 +252,57 @@ public class PowerPlayPoleLocationDetermination implements FTCRobotSubsystem {
             }
             case WAITING_FOR_VALID_SENSOR_DATA: {
                if (distanceSensors.isDataValid()) {
-                   sensorDifference = distanceSensors.getContinuousDifference(DistanceUnit.MM);
-                   normalDistance = distanceSensors.getContinuousDistanceNormal(DistanceUnit.MM);
-                   inverseDistance = distanceSensors.getContinuousDistanceInverse(DistanceUnit.MM);
                     state = State.ACTIVE;
                 }
             }
             break;
 
             case ACTIVE: {
-                sensorDifference = distanceSensors.getContinuousDifference(DistanceUnit.MM);
-                normalDistance = distanceSensors.getContinuousDistanceNormal(DistanceUnit.MM);
-                inverseDistance = distanceSensors.getContinuousDistanceInverse(DistanceUnit.MM);
-
-                poleLocation = PoleLocation.OUT_OF_VIEW;
-                if (normalDistance > OUT_VIEW_DISTANCE && inverseDistance > OUT_VIEW_DISTANCE) {
-                    poleLocation = PoleLocation.OUT_OF_VIEW;
-                } else {
-                    if (Math.abs(sensorDifference) <= centeredOnPoleLimit) {
-                        poleLocation = PoleLocation.CENTER;
-                    } else {
-                        if (sensorDifference > centeredOnPoleLimit) {
-                            poleLocation = PoleLocation.LEFT;
+                if (distanceSensors.isDataValid()) {
+                    PowerPlayDual2mDistanceSensors.DualSensorData dualSensorData = distanceSensors.getDualSensorDataContinuous(DistanceUnit.MM);
+                    sensorDifference = dualSensorData.difference;
+                    normalDistance = dualSensorData.distanceNormal;
+                    inverseDistance = dualSensorData.distanceInverse;
+                    if (normalDistance < OUT_VIEW_DISTANCE || inverseDistance < OUT_VIEW_DISTANCE) {
+                        if (Math.abs(sensorDifference) <= centeredOnPoleLimit) {
+                            poleLocation = PoleLocation.CENTER;
                         } else {
-                            if (sensorDifference < centeredOnPoleLimit) {
-                                poleLocation = PoleLocation.RIGHT;
+                            if (sensorDifference > centeredOnPoleLimit) {
+                                poleLocation = PoleLocation.LEFT;
+                                // distance from the pole is only valid when the pole is centered.
+                                // Clear the moving average so that once the pole is centered again
+                                // the moving average starts fresh.
+                            } else {
+                                if (sensorDifference < centeredOnPoleLimit) {
+                                    poleLocation = PoleLocation.RIGHT;
+                                    // distance from the pole is only valid when the pole is centered.
+                                    // Clear the moving average so that once the pole is centered again
+                                    // the moving average starts fresh.
+                                }
                             }
                         }
+                        calculateDistanceFromPole();
+                    } else {
+                        poleLocation = PoleLocation.OUT_OF_VIEW;
+                        // distance from the pole is only valid when the pole is centered.
+                        // Clear the moving average so that once the pole is centered again
+                        // the moving average starts fresh.
+                        calculateDistanceFromPole();
                     }
+                    logPoleLocation();
+
+                    logFile.logData("normal distance = ", normalDistance);
+                    logFile.logData("inverse distance = ", inverseDistance);
+                    logFile.logData("sensor difference = ", sensorDifference);
+                    logFile.logData("pole location = ",  poleLocation.toString());
+                    logFile.logData("distance from pole = ", distanceFromPole);
                 }
-                calculateDistanceFromPole();
-                logPoleLocation();
+
+//                sensorDifference = distanceSensors.getContinuousDifference(DistanceUnit.MM);
+//                normalDistance = distanceSensors.getContinuousDistanceNormal(DistanceUnit.MM);
+//                inverseDistance = distanceSensors.getContinuousDistanceInverse(DistanceUnit.MM);
+
+
             }
             break;
         }
