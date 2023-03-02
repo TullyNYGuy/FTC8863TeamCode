@@ -1,33 +1,38 @@
 package org.firstinspires.ftc.teamcode.opmodes.PowerPlayTest;
 
+import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.PersistantStorage;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Vector2D;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayPersistantStorage;
 
-@Autonomous(name = "Display Persistant Storage", group = "AARun")
+@TeleOp(name = "Test Vector Math", group = "Test")
 //@Disabled
 
-public class DisplayPowerPlayPersistentStorage extends LinearOpMode {
+public class TestVectorMath extends LinearOpMode {
 
     //*********************************************************************************************
     //             Declarations
     //*********************************************************************************************
 
-    private ElapsedTime timer;
+    Vector2d startLocation = new Vector2d(0, 0);
+    double heading = Math.toRadians(100-90.0);
+    double movement = 2.0;
+    Vector2d destination;
 
 
     @Override
     public void runOpMode() {
-        timer = new ElapsedTime();
         //*********************************************************************************************
         //  Initializations after the program is selected by the user on the driver phone
         //*********************************************************************************************
 
-        // create the robot
+        destination = startLocation.minus(new Vector2d(movement).rotated(-heading));
+
+
         telemetry.addData("press start", "now");
         telemetry.update();
         waitForStart();
@@ -37,12 +42,10 @@ public class DisplayPowerPlayPersistentStorage extends LinearOpMode {
         //             Robot Running after the user hits play on the driver phone
         //*********************************************************************************************
 
-        telemetry.addData("Alliance Color = ", PowerPlayPersistantStorage.getAllianceColor().toString());
-        telemetry.addData("Team Location = ", PowerPlayPersistantStorage.getTeamLocation().toString());
-        telemetry.addData("ColorTeam = ", PowerPlayPersistantStorage.getColorLocation().toString());
-        telemetry.update();
-        timer.reset();
-        while (opModeIsActive() && timer.seconds() < 5) {
+
+        while (opModeIsActive()) {
+            telemetry.addData("new x location = ", destination.getX() + " " + destination.getY());
+            telemetry.update();
             idle();
         }
     }
