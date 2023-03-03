@@ -13,6 +13,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.CSVDataFile;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogOnChange;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExponentialMovingAverage;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863New;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.StatTrackerGB;
@@ -40,14 +41,10 @@ public class PowerPlay2mDistanceSensor implements FTCRobotSubsystem {
     ;
     private String sensorName = "";
 
-    private DistanceUnit distanceUnit = DistanceUnit.INCH;
+    private DistanceUnit ourDistanceUnit = DistanceUnit.MM;
 
     public DistanceUnit getDistanceUnit() {
-        return distanceUnit;
-    }
-
-    public void setDistanceUnit(DistanceUnit distanceUnit) {
-        this.distanceUnit = distanceUnit;
+        return ourDistanceUnit;
     }
 
     private DataLogging logFile;
@@ -64,6 +61,7 @@ public class PowerPlay2mDistanceSensor implements FTCRobotSubsystem {
     private double averageDistance = 0;
     private StatTrackerGB statTracker;
     private double singleReadingDistance = 0;
+    private double singleReadingDistanceFiltered = 0;
 
     private double greaterThanDistanceLimit = 0;
 
@@ -71,8 +69,8 @@ public class PowerPlay2mDistanceSensor implements FTCRobotSubsystem {
         return greaterThanDistanceLimit;
     }
 
-    public void setGreaterThanDistanceLimit(double greaterThanDistanceLimit) {
-        this.greaterThanDistanceLimit = greaterThanDistanceLimit;
+    public void setGreaterThanDistanceLimit(double greaterThanDistanceLimit, DistanceUnit theirDistanceUnit) {
+        this.greaterThanDistanceLimit = ourDistanceUnit.fromUnit(theirDistanceUnit, greaterThanDistanceLimit);
     }
 
     private double lessThanDistanceLimit = 0;
@@ -81,8 +79,8 @@ public class PowerPlay2mDistanceSensor implements FTCRobotSubsystem {
         return lessThanDistanceLimit;
     }
 
-    public void setLessThanDistanceLimit(double lessThanDistanceLimit) {
-        this.lessThanDistanceLimit = lessThanDistanceLimit;
+    public void setLessThanDistanceLimit(double lessThanDistanceLimit, DistanceUnit theirDistanceUnit) {
+        this.lessThanDistanceLimit = ourDistanceUnit.fromUnit(theirDistanceUnit, lessThanDistanceLimit);
     }
 
     public double withinDistanceLowerLimit = 0;
@@ -91,8 +89,8 @@ public class PowerPlay2mDistanceSensor implements FTCRobotSubsystem {
         return withinDistanceLowerLimit;
     }
 
-    public void setWithinDistanceLowerLimit(double withinDistanceLowerLimit) {
-        this.withinDistanceLowerLimit = withinDistanceLowerLimit;
+    public void setWithinDistanceLowerLimit(double withinDistanceLowerLimit, DistanceUnit theirDistanceUnit) {
+        this.withinDistanceLowerLimit = ourDistanceUnit.fromUnit(theirDistanceUnit, withinDistanceLowerLimit);
     }
 
     public double withinDistanceUpperLimit = 0;
@@ -101,11 +99,65 @@ public class PowerPlay2mDistanceSensor implements FTCRobotSubsystem {
         return withinDistanceUpperLimit;
     }
 
-    public void setWithinDistanceUpperLimit(double withinDistanceUpperLimit) {
-        this.withinDistanceUpperLimit = withinDistanceUpperLimit;
+    public void setWithinDistanceUpperLimit(double withinDistanceUpperLimit, DistanceUnit theirDistanceUnit) {
+        this.withinDistanceUpperLimit = ourDistanceUnit.fromUnit(theirDistanceUnit, withinDistanceUpperLimit);
     }
 
     private double timeBetweenReadings = 50; // milliseconds
+
+    /**
+     * The 2m distance sensors seem to produce occasional glitchs in readings when they are at max
+     * range. This controls whether those glitches are removed and the previous reading reported in
+     * its place.
+     */
+    private boolean removeLargeTransitions = true;
+
+    /**
+     * Remove any large transitions between readings. This is most likely a glitch.
+     */
+    public void enableRemoveLargeTransitions(double largeTransitionLimit, DistanceUnit theirDistanceUnit) {
+        removeLargeTransitions = true;
+        this.largeTransitionLimit = ourDistanceUnit.fromUnit(theirDistanceUnit, largeTransitionLimit);
+    }
+
+    /**
+     * Do not remove any large transitions.
+     */
+    public void disableRemoveLargeTransitions() {
+        removeLargeTransitions = false;
+    }
+
+    /**
+     * Any transition greater than this is defined as a large transition.
+     */
+    private double largeTransitionLimit = 7000; // in MM, our native unit
+
+    /**
+     * If the large transition occurs in a time less than this, remove it. If not, then leave it.
+     */
+    private double timeLimitForRemoveLargeTransitions = 200; // mSec
+
+    /**
+     * If there is no last reading, it is null.
+     */
+    private Double lastReading = null;
+
+    /**
+     * The count of the number of large transitions count in a row
+     */
+    private int largeTransitionCount = 0;
+
+    private static int LARGE_TRANSITION_COUNT_LIMIT = 2;
+
+    private ExponentialMovingAverage movingAverage;
+
+    public void enableMovingAverage(double weightOfNewValue) {
+        movingAverage = new ExponentialMovingAverage(weightOfNewValue);
+    }
+
+    public void disableMovingAverage() {
+        movingAverage = null;
+    }
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -122,11 +174,10 @@ public class PowerPlay2mDistanceSensor implements FTCRobotSubsystem {
     // from it
     //*********************************************************************************************
 
-    public PowerPlay2mDistanceSensor(HardwareMap hardwareMap, Telemetry telemetry, String sensorName, DistanceUnit distanceUnit) {
+    public PowerPlay2mDistanceSensor(HardwareMap hardwareMap, Telemetry telemetry, String sensorName) {
         this.sensorName = sensorName;
         sensorRange = hardwareMap.get(DistanceSensor.class, sensorName);
         sensorTimeOfFlight = (Rev2mDistanceSensor) sensorRange;
-        this.distanceUnit = distanceUnit;
         averageTimer = new ElapsedTime();
         singleReadingTimer = new ElapsedTime();
         statTracker = new StatTrackerGB();
@@ -208,11 +259,11 @@ public class PowerPlay2mDistanceSensor implements FTCRobotSubsystem {
 
     /**
      * Immediately read and return a distance from the sensor.
-     * @param unit
+     * @param theirDistanceUnit
      * @return
      */
-    public double getDistance(DistanceUnit unit) {
-        return sensorRange.getDistance(unit);
+    public double getDistance(DistanceUnit theirDistanceUnit) {
+        return sensorRange.getDistance(theirDistanceUnit);
     }
 
     /**
@@ -220,15 +271,51 @@ public class PowerPlay2mDistanceSensor implements FTCRobotSubsystem {
      * reading. Reads of I2C devices can be cached. This method starts a timer that ensures the given
      * time passes before a new reading can be taken. This ensure fresh data. Distance sensors can
      * also read reflections of light emitted by another sensor and result in erroneous reading.
-     * Enforcing a time between readings can help enfore an interleaving of readings between different
+     * Enforcing a time between readings can help enforce an interleaving of readings between different
      * sensors and lessen the chance of interference between sensors.
      * @param timeBetweenReadings
      */
     public void startSingleReading(double timeBetweenReadings) {
         this.timeBetweenReadings = timeBetweenReadings;
+        // if there has been at least this much time since the last reading, then it is possible
+        // that the large transition is real. So leave the reading intact. Do this by setting the
+        // last reading to null.
+        if (singleReadingTimer.milliseconds() > timeLimitForRemoveLargeTransitions) {
+            lastReading = null;
+            largeTransitionCount = 0;
+        }
         singleReadingTimer.reset();
         // take the reading but do not return it until after the timer has expired
-        singleReadingDistance = getDistance(this.distanceUnit);
+        singleReadingDistance = getDistance(this.ourDistanceUnit);
+        if (removeLargeTransitions) {
+            // lastReading = null if this is the first reading in a while. Since there are no
+            // previous readings, a large transition cannot exist.
+            if (lastReading == null) {
+                lastReading = singleReadingDistance;
+            } else {
+                // is this a large transition?
+                if (Math.abs(lastReading - singleReadingDistance) > largeTransitionLimit) {
+                    largeTransitionCount++;
+                    // If this is the nth large transition in a row, then this is not a large
+                    // transition. Use this reading.
+                    if (largeTransitionCount == LARGE_TRANSITION_COUNT_LIMIT) {
+                        lastReading = singleReadingDistance;
+                        largeTransitionCount = 0;
+                    } else {
+                        // This reading is treated as a large transition. Throw out the current
+                        // reading and use the last one
+                        singleReadingDistance = lastReading;
+                    }
+                } else {
+                    // this was not a large transition
+                    lastReading = singleReadingDistance;
+                    largeTransitionCount = 0;
+                }
+            }
+        }
+        if (movingAverage != null) {
+            singleReadingDistanceFiltered = movingAverage.average(singleReadingDistance);
+        }
     }
 
     /**
@@ -248,8 +335,16 @@ public class PowerPlay2mDistanceSensor implements FTCRobotSubsystem {
      * Actually return a distance. For use after isSingleReadingReady returns true.
      * @return
      */
-    public double getSingleReading(DistanceUnit unit) {
-        return unit.fromUnit(this.distanceUnit, singleReadingDistance);
+    public double getSingleReading(DistanceUnit theirDistanceUnit) {
+        return theirDistanceUnit.fromUnit(this.ourDistanceUnit, singleReadingDistance);
+    }
+
+    /**
+     * Actually return a distance. For use after isSingleReadingReady returns true.
+     * @return
+     */
+    public double getSingleReadingFiltered(DistanceUnit theirDistanceUnit) {
+        return theirDistanceUnit.fromUnit(this.ourDistanceUnit, singleReadingDistanceFiltered);
     }
 
     public void startAverage(int numberOfReadingsInAverage) {
@@ -279,42 +374,28 @@ public class PowerPlay2mDistanceSensor implements FTCRobotSubsystem {
         return isAverageReady;
     }
 
-    public double getAverageDistance(DistanceUnit distanceUnit) {
+    public double getAverageDistance(DistanceUnit theirDistanceUnit) {
         if (isAverageReady) {
             // an average is ready. Prep for the next one.
             isAverageReady = false;
-            return distanceUnit.fromUnit(this.distanceUnit, averageDistance);
+            return theirDistanceUnit.fromUnit(this.ourDistanceUnit, averageDistance);
         } else {
             return 0;
         }
     }
 
-    public boolean isGreaterThanDistance() {
-        if (sensorRange.getDistance(distanceUnit) >= greaterThanDistanceLimit) {
+    public boolean isGreaterThanDistance(double limit, DistanceUnit theirDistanceUnit) {
+        setGreaterThanDistanceLimit(limit, theirDistanceUnit);
+        if (sensorRange.getDistance(ourDistanceUnit) >= greaterThanDistanceLimit) {
             return true;
         } else {
             return false;
         }
     }
 
-    public boolean isGreaterThanDistance(double limit, DistanceUnit distanceUnit) {
-        if (sensorRange.getDistance(distanceUnit) >= limit) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public boolean isLessThanDistance() {
-        if (sensorRange.getDistance(distanceUnit) >= lessThanDistanceLimit) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public boolean isLessThanDistance(double limit, DistanceUnit distanceUnit) {
-        if (sensorRange.getDistance(distanceUnit) <= limit) {
+    public boolean isLessThanDistance(double limit, DistanceUnit theirDistanceUnit) {
+        setLessThanDistanceLimit(limit, theirDistanceUnit);
+        if (sensorRange.getDistance(ourDistanceUnit) <= lessThanDistanceLimit) {
             return true;
         } else {
             return false;
@@ -322,7 +403,7 @@ public class PowerPlay2mDistanceSensor implements FTCRobotSubsystem {
     }
 
     public boolean isWithinDistance() {
-        double measuredDistance = sensorRange.getDistance(distanceUnit);
+        double measuredDistance = sensorRange.getDistance(ourDistanceUnit);
         if (measuredDistance >= withinDistanceLowerLimit && measuredDistance <= withinDistanceUpperLimit) {
             return true;
         } else {
@@ -330,9 +411,11 @@ public class PowerPlay2mDistanceSensor implements FTCRobotSubsystem {
         }
     }
 
-    public boolean isWithinDistance(double lowerLimit, double upperLimit, DistanceUnit distanceUnit) {
-        double measuredDistance = sensorRange.getDistance(distanceUnit);
-        if (measuredDistance >= lowerLimit && measuredDistance <= upperLimit) {
+    public boolean isWithinDistance(double lowerLimit, double upperLimit, DistanceUnit theirDistanceUnit) {
+        double measuredDistance = sensorRange.getDistance(ourDistanceUnit);
+        setWithinDistanceLowerLimit(lowerLimit, theirDistanceUnit);
+        setWithinDistanceUpperLimit(upperLimit, theirDistanceUnit);
+        if (measuredDistance >= withinDistanceLowerLimit && measuredDistance <= withinDistanceUpperLimit) {
             return true;
         } else {
             return false;

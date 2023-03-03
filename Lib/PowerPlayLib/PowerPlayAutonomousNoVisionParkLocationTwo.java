@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.AllianceColor;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.PersistantStorage;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.PoseStorageFF;
-
+@Deprecated
 public class PowerPlayAutonomousNoVisionParkLocationTwo implements PowerPlayAutonomousStateMachine {
 
     //*********************************************************************************************

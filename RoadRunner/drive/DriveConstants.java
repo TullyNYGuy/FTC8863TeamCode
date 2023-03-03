@@ -72,7 +72,7 @@ public class DriveConstants {
     //public static double MAX_VEL = 50;
     public static double MAX_VEL = 25;
     // slow the velocity of the robot so that it can use the distance sensor to look for a pole
-    public static double MAX_VEL_SLOW = 15;
+    public static double MAX_VEL_SLOW = 3;
     public static double MAX_ACCEL = 30;
     //public static double MAX_ANG_VEL = Math.toRadians(288);
     public static double MAX_ANG_VEL = Math.toRadians(144);

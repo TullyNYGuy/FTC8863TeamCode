@@ -19,6 +19,32 @@ import java.util.concurrent.TimeUnit;
 
 public class PowerPlayDual2mDistanceSensors implements FTCRobotSubsystem {
 
+    public class DualSensorData {
+        protected double distanceNormal = 0;
+        protected double distanceInverse = 0;
+        protected double difference = 0;
+    }
+
+    private DualSensorData dualSensorDataContinuous;
+
+    public DualSensorData getDualSensorDataContinuous(DistanceUnit theirUnit) {
+        // only return data if the data is valid.
+        // Once it is read, it is no longer valid. This removes extra data points that are just
+        // repetions of previous data and makes moving average filtering valid.
+        if (dataValid) {
+            dualSensorDataContinuous.distanceNormal = getContinuousDistanceNormal(theirUnit);
+            dualSensorDataContinuous.distanceInverse = getContinuousDistanceInverse(theirUnit);
+            dualSensorDataContinuous.difference = getContinuousDifference(theirUnit);
+            dataValid = false;
+            return dualSensorDataContinuous;
+        } else {
+            return null;
+        }
+    }
+
+    // todo work out the average data packaging
+    private DualSensorData dualSensorDataAverage;
+
     //*********************************************************************************************
     //          ENUMERATED TYPES
     //
@@ -47,14 +73,10 @@ public class PowerPlayDual2mDistanceSensors implements FTCRobotSubsystem {
 
     private String sensorName = "";
 
-    private DistanceUnit distanceUnit = DistanceUnit.INCH;
+    private DistanceUnit ourDistanceUnit = DistanceUnit.MM;
 
     public DistanceUnit getDistanceUnit() {
-        return distanceUnit;
-    }
-
-    public void setDistanceUnit(DistanceUnit distanceUnit) {
-        this.distanceUnit = distanceUnit;
+        return ourDistanceUnit;
     }
 
     private DataLogging logFile;
@@ -67,41 +89,38 @@ public class PowerPlayDual2mDistanceSensors implements FTCRobotSubsystem {
     public PowerPlay2mDistanceSensor distanceSensorInverse;
     public PowerPlay2mDistanceSensor distanceSensorNormal;
 
+    private double continuousDistanceNormalCache = 0;
     private double continuousDistanceNormal = 0;
 
-    public double getContinuousDistanceNormal() {
-        if (isAverageReady()) {
-            return distanceUnit.fromUnit(this.distanceUnit, continuousDistanceNormal);
-        } else {
-            return 10000;
-        }
+    public double getContinuousDistanceNormal(DistanceUnit theirDistanceUnit) {
+        return theirDistanceUnit.fromUnit(this.ourDistanceUnit, continuousDistanceNormal);
     }
 
+    private double continuousDistanceInverseCache = 0;
     private double continuousDistanceInverse = 0;
 
-    public double getContinuousDistanceInverse(DistanceUnit distanceUnit) {
-        if (isAverageReady()) {
-            return distanceUnit.fromUnit(this.distanceUnit, continuousDistanceInverse);
-        } else {
-            return 10000;
-        }
+    public double getContinuousDistanceInverse(DistanceUnit theirDistanceUnit) {
+        return theirDistanceUnit.fromUnit(this.ourDistanceUnit, continuousDistanceInverse);
     }
 
-    private double continuousDifference = 1000; // 0 is what we are hunting for do don't initialize to that
+    private Double continuousDifferenceCache = null;
+    private Double continuousDifference = null; // 0 is what we are hunting for do don't initialize to that
 
-    public double getContinuousDifference(DistanceUnit distanceUnit) {
-        if (isAverageReady()) {
-            return distanceUnit.fromUnit(this.distanceUnit, continuousDifference);
-        } else {
-            return 10000;
-        }
+    public double getContinuousDifference(DistanceUnit theirDistanceUnit) {
+        return theirDistanceUnit.fromUnit(this.ourDistanceUnit, continuousDifference);
+    }
+
+    private boolean dataValid = false;
+
+    public boolean isDataValid() {
+        return dataValid;
     }
 
     private double averageDistanceNormal = 0;
 
-    public double getAverageDistanceNormal(DistanceUnit distanceUnit) {
+    public double getAverageDistanceNormal(DistanceUnit theirDistanceUnit) {
         if (isAverageReady()) {
-            return distanceUnit.fromUnit(this.distanceUnit, averageDistanceNormal);
+            return theirDistanceUnit.fromUnit(this.ourDistanceUnit, averageDistanceNormal);
         } else {
             return 10000;
         }
@@ -109,9 +128,9 @@ public class PowerPlayDual2mDistanceSensors implements FTCRobotSubsystem {
 
     private double averageDistanceInverse = 0;
 
-    public double getAverageDistanceInverse(DistanceUnit distanceUnit) {
+    public double getAverageDistanceInverse(DistanceUnit theirDistanceUnit) {
         if (isAverageReady()) {
-            return distanceUnit.fromUnit(this.distanceUnit, averageDistanceInverse);
+            return theirDistanceUnit.fromUnit(this.ourDistanceUnit, averageDistanceInverse);
         } else {
             return 10000;
         }
@@ -119,9 +138,9 @@ public class PowerPlayDual2mDistanceSensors implements FTCRobotSubsystem {
 
     private double averageDistance = 1000;
 
-    public double getAverageDistance(DistanceUnit distanceUnit) {
+    public double getAverageDistance(DistanceUnit theirDistanceUnit) {
         if (isAverageReady()) {
-            return distanceUnit.fromUnit(this.distanceUnit, averageDistance);
+            return theirDistanceUnit.fromUnit(this.ourDistanceUnit, averageDistance);
         } else {
             return 10000;
         }
@@ -129,9 +148,9 @@ public class PowerPlayDual2mDistanceSensors implements FTCRobotSubsystem {
 
     private double adjustedAverageDistance = 1000;
 
-    public double getAdjustedAverageDistance(DistanceUnit distanceUnit) {
+    public double getAdjustedAverageDistance(DistanceUnit theirDistanceUnit) {
         if (isAverageReady()) {
-            return distanceUnit.fromUnit(this.distanceUnit, adjustedAverageDistance);
+            return theirDistanceUnit.fromUnit(this.ourDistanceUnit, adjustedAverageDistance);
         } else {
             return 10000;
         }
@@ -139,30 +158,16 @@ public class PowerPlayDual2mDistanceSensors implements FTCRobotSubsystem {
 
     private double averageDifference = 1000;
 
-    public double getAverageDifference(DistanceUnit distanceUnit) {
+    public double getAverageDifference(DistanceUnit theirDistanceUnit) {
         if (isAverageReady()) {
-            return distanceUnit.fromUnit(this.distanceUnit, averageDifference);
+            return theirDistanceUnit.fromUnit(this.ourDistanceUnit, averageDifference);
         } else {
             return 10000;
         }
     }
 
-    /**
-     * The limit for saying the sensors are centered on the pole. It is +/- so any difference in the
-     * sensors between +1.0 and -1.0 says the sensors are centered.
-     */
-    private double centeredOnPoleLimit = 1.0;
-
-    public double getCenteredOnPoleLimit() {
-        return centeredOnPoleLimit;
-    }
-
-    public void setCenteredOnPoleLimit(double centeredOnPoleLimit, DistanceUnit unit) {
-        this.centeredOnPoleLimit = this.distanceUnit.fromUnit(unit, centeredOnPoleLimit);
-    }
-
     private TimeUnit timeUnit = TimeUnit.MILLISECONDS;
-    private long timeBetweenReadings = 50; // milliseconds
+    private long timeBetweenReadings = 40; // milliseconds
 
     public double getTimeBetweenReadings(TimeUnit timeUnit) {
         return timeUnit.convert(timeBetweenReadings, this.timeUnit);
@@ -187,11 +192,16 @@ public class PowerPlayDual2mDistanceSensors implements FTCRobotSubsystem {
     // from it
     //*********************************************************************************************
 
-    public PowerPlayDual2mDistanceSensors(HardwareMap hardwareMap, Telemetry telemetry, String sensorName, DistanceUnit distanceUnit) {
+    public PowerPlayDual2mDistanceSensors(HardwareMap hardwareMap, Telemetry telemetry, String sensorName) {
         this.sensorName = sensorName;
-        this.distanceUnit = distanceUnit;
-        distanceSensorNormal = new PowerPlay2mDistanceSensor(hardwareMap, telemetry, PowerPlayRobot.HardwareName.DISTANCE_SENSOR_NORMAL.hwName, distanceUnit);
-        distanceSensorInverse = new PowerPlay2mDistanceSensor(hardwareMap, telemetry, PowerPlayRobot.HardwareName.DISTANCE_SENSOR_INVERSE.hwName, distanceUnit);
+        distanceSensorNormal = new PowerPlay2mDistanceSensor(hardwareMap, telemetry, PowerPlayRobot.HardwareName.DISTANCE_SENSOR_NORMAL.hwName);
+        distanceSensorNormal.enableMovingAverage(.5);
+        distanceSensorNormal.enableRemoveLargeTransitions(7000, DistanceUnit.MM);
+        distanceSensorInverse = new PowerPlay2mDistanceSensor(hardwareMap, telemetry, PowerPlayRobot.HardwareName.DISTANCE_SENSOR_INVERSE.hwName);
+        distanceSensorInverse.enableMovingAverage(.5);
+        distanceSensorInverse.enableRemoveLargeTransitions(7000, DistanceUnit.MM);
+        dualSensorDataContinuous = new DualSensorData();
+        dualSensorDataAverage = new DualSensorData();
     }
     //*********************************************************************************************
     //          Helper Methods
@@ -298,6 +308,7 @@ public class PowerPlayDual2mDistanceSensors implements FTCRobotSubsystem {
         switch (state) {
             case IDLE: {
                 // do nothing
+                dataValid = false;
             }
             break;
 
@@ -309,7 +320,11 @@ public class PowerPlayDual2mDistanceSensors implements FTCRobotSubsystem {
 
             case CONTINUOUS_READ_INVERSE: {
                 if (distanceSensorInverse.isSingleReadingReady()) {
-                    continuousDistanceInverse = distanceSensorInverse.getSingleReading(this.distanceUnit);
+                    // we now only have valid inverse so all data is invalid
+                    dataValid = false;
+                    // temporarily store the Inverse since we need all 3, inverse, normal and difference
+                    // to be valid before we update any of them.
+                    continuousDistanceInverseCache = distanceSensorInverse.getSingleReading(ourDistanceUnit);
                     distanceSensorNormal.startSingleReading(timeBetweenReadings);
                     state = State.CONTINUOUS_READ_NORMAL;
                 }
@@ -318,10 +333,15 @@ public class PowerPlayDual2mDistanceSensors implements FTCRobotSubsystem {
 
             case CONTINUOUS_READ_NORMAL: {
                 if (distanceSensorNormal.isSingleReadingReady()) {
-                    continuousDistanceNormal = distanceSensorNormal.getSingleReading(this.distanceUnit);
+                    continuousDistanceNormal = distanceSensorNormal.getSingleReading(ourDistanceUnit);
+                    continuousDifference = continuousDistanceNormal - continuousDistanceInverseCache;
+                    // now we can update the inverse since we have all 3 pieces of data
+                    continuousDistanceInverse = continuousDistanceInverseCache;
+                    // all 3 pieces of data are valid
+                    dataValid = true;
+                    // start the next reading of the inverse
                     distanceSensorInverse.startSingleReading(timeBetweenReadings);
-                    continuousDifference = continuousDistanceNormal - continuousDistanceInverse;
-                    state = State.CONTINUOUS_READ_NORMAL;
+                    state = State.CONTINUOUS_READ_INVERSE;
                 }
             }
             break;
@@ -334,7 +354,7 @@ public class PowerPlayDual2mDistanceSensors implements FTCRobotSubsystem {
 
             case AVERAGE_READ_INVERSE: {
                 if (distanceSensorInverse.isAverageReady()) {
-                    averageDistanceInverse = distanceSensorInverse.getAverageDistance(this.distanceUnit);
+                    averageDistanceInverse = distanceSensorInverse.getAverageDistance(ourDistanceUnit);
                     distanceSensorNormal.startAverage(numberOfReadingsInAverage);
                 }
             }
@@ -342,14 +362,12 @@ public class PowerPlayDual2mDistanceSensors implements FTCRobotSubsystem {
 
             case AVERAGE_READ_NORMAL: {
                 if (distanceSensorNormal.isAverageReady()) {
-                    DistanceUnit distanceUnitForLineEquation = DistanceUnit.MM;
-                    averageDistanceNormal = distanceSensorNormal.getAverageDistance(this.distanceUnit);
+                    averageDistanceNormal = distanceSensorNormal.getAverageDistance(ourDistanceUnit);
                     averageDifference = averageDistanceNormal - averageDistanceInverse;
-                    averageDistance = (averageDistanceInverse + averageDistanceNormal)/2;
+                    averageDistance = (averageDistanceInverse + averageDistanceNormal) / 2;
                     // curve fit for adjusting sensor readings into an actual distance. This equation is in mm.
-                    adjustedAverageDistance = 1.23 * distanceUnitForLineEquation.fromUnit(this.distanceUnit, averageDistance) - 70.3;
-                    // convert the adjustedAverageDistance to units for this class
-                    adjustedAverageDistance = this.distanceUnit.fromUnit(distanceUnitForLineEquation, adjustedAverageDistance);
+                    // Our units are in mm so this is ok
+                    adjustedAverageDistance = 1.23 * averageDistance - 70.3;
                     state = State.AVERAGE_COMPLETE;
                 }
             }

@@ -14,7 +14,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColorTeamLocation;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogOnChange;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
-
+@Deprecated
 public class PowerPlayAutonomousVisionOneCycleParkWithSensor implements PowerPlayAutonomousStateMachine {
 
     //*********************************************************************************************
@@ -285,16 +285,18 @@ public class PowerPlayAutonomousVisionOneCycleParkWithSensor implements PowerPla
             case MOVING_TO_POSE_TO_START_SENSOR: {
                 if (!robot.mecanum.isBusy()) {
                     currentState = States.LOOKING_FOR_POLE;
+                    robot.poleLocationDetermination.enablePoleLocationDetermination();
                     robot.mecanum.followTrajectory(trajectoryToJunctionPoleFromStartSensor);
                 }
             }
             break;
 
             case LOOKING_FOR_POLE: {
-                if (robot.dualDistanceSensors.distanceSensorNormal.isLessThanDistance(12, DistanceUnit.INCH)) {
+                if (robot.poleLocationDetermination.getPoleLocation() == PowerPlayPoleLocationDetermination.PoleLocation.CENTER) {
                     robot.mecanum.cancelFollowing();
-                    robot.coneGrabberArmController.moveToHighThenPrepareToRelease();
-                    currentState = States.RAISING_LIFT;
+                    //robot.coneGrabberArmController.moveToHighThenPrepareToRelease();
+                    //currentState = States.RAISING_LIFT;
+                    currentState = States.COMPLETE;
                 }
             }
             break;
@@ -346,6 +348,7 @@ public class PowerPlayAutonomousVisionOneCycleParkWithSensor implements PowerPla
             case COMPLETE: {
                 isComplete = true;
                 robot.coneGrabber.close();
+                logCommand("distance from pole = " + Double.toString(robot.poleLocationDetermination.getDistanceFromPole(DistanceUnit.MM)));
                 logCommand("finished");
             }
             break;

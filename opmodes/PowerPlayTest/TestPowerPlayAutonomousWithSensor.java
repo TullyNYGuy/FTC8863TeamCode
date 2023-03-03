@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.opmodes.PowerPlayTest;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -22,9 +23,9 @@ import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayRobot;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
 import java.util.List;
-
+@Deprecated
 @Autonomous(name = "Autonomous Power Play with sensor", group = "AA")
-//@Disabled
+@Disabled
 
 public class TestPowerPlayAutonomousWithSensor extends LinearOpMode {
 
@@ -165,7 +166,7 @@ public class TestPowerPlayAutonomousWithSensor extends LinearOpMode {
         while (opModeIsActive() && !autonomousStateMachine.isComplete()) {
             autonomousStateMachine.update();
             telemetry.addData("current state is", autonomousStateMachine.getCurrentState());
-            telemetry.addData("distance read = ",robot.dualDistanceSensors.distanceSensorNormal.getDistance(DistanceUnit.INCH));
+            telemetry.addData("distance read = ",robot.poleLocationDetermination.getDistanceFromPole(DistanceUnit.INCH));
             telemetry.update();
             robot.update();
             idle();

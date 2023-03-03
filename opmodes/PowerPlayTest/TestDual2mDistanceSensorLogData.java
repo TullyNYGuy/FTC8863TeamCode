@@ -37,12 +37,12 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.CSVDataFile;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.GamepadButtonMultiPush;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.StatTrackerGB;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlay2mDistanceSensor;
 
 /**
- * {@link TestDual2mDistanceSensorContinuousOrAverage} illustrates how to use the REV Robotics
+ * {@link TestDual2mDistanceSensorLogData} illustrates how to use the REV Robotics
  * Time-of-Flight Range Sensor.
  * <p>
  * The op mode assumes that the range sensor is configured with a name of "sensor_range".
@@ -52,20 +52,18 @@ import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlay2mDistanceSensor
  *
  * @see <a href="http://revrobotics.com">REV Robotics Web Page</a>
  */
-@TeleOp(name = "Sensor: PowerPlay2mDistance Cont/Ave", group = "Test")
+@TeleOp(name = "Sensor: PowerPlay2mDistance Log Data", group = "Test")
 //@Disabled
-public class TestDual2mDistanceSensorContinuousOrAverage extends LinearOpMode {
+public class TestDual2mDistanceSensorLogData extends LinearOpMode {
 
     private enum Mode {
-        START_AVERAGE,
         START_CONTINUOUS,
-        AVERAGE,
         CONTINUOUS,
         COMPLETE
     }
-    
-    private Mode mode = Mode.CONTINUOUS;
-    
+
+    private Mode mode = Mode.START_CONTINUOUS;
+
     private enum SensorBeingRead {
         INVERSE,
         NORMAL
@@ -80,20 +78,24 @@ public class TestDual2mDistanceSensorContinuousOrAverage extends LinearOpMode {
     private double continuousDistanceInverse = 0;
     private double averageDistanceNormal = 0;
     private double averageDistanceInverse = 0;
-    private int NUMBER_OF_READINGS_TO_TAKE = 50;
+    private int NUMBER_OF_READINGS_TO_TAKE = 100;
+    private int numberOfReadindsTaken = 0;
+
+    private CSVDataFile rawSensorReadingsCSV;
+    private boolean wroteData = false;
 
     private ElapsedTime timer = new ElapsedTime();
 
-    private GamepadButtonMultiPush gamepad1a;
 
     @Override
     public void runOpMode() {
-        // you can use this as a regular DistanceSensor.
         distanceSensorNormal = new PowerPlay2mDistanceSensor(hardwareMap, telemetry, "distanceSensorNormal");
         distanceSensorInverse = new PowerPlay2mDistanceSensor(hardwareMap, telemetry, "distanceSensorInverse");
-        gamepad1a = new GamepadButtonMultiPush(1);
 
-        telemetry.addData(">>", "Press start to continue. Press A to switch modes");
+        rawSensorReadingsCSV = new CSVDataFile("rawSensorReadings");
+        rawSensorReadingsCSV.headerStrings("inverse", "normal", "difference");
+
+        telemetry.addData(">>", "Press start to continue");
         telemetry.update();
 
         waitForStart();
@@ -103,20 +105,18 @@ public class TestDual2mDistanceSensorContinuousOrAverage extends LinearOpMode {
         while (opModeIsActive()) {
             // take the readings with enough time between them to make sure that the readings are
             // not just cached copies of I2C reads.
-            
+
             switch (mode) {
-                case START_CONTINUOUS:{
+                case START_CONTINUOUS: {
                     distanceSensorInverse.startSingleReading(50);
                     mode = Mode.CONTINUOUS;
                     sensorBeingRead = SensorBeingRead.INVERSE;
+                    timer.reset();
                 }
                 break;
                 case CONTINUOUS: {
-                    if(gamepad1a.buttonPress(gamepad1.a)) {
-                        mode = Mode.START_AVERAGE;
-                        averageDistanceInverse = 0;
-                        averageDistanceNormal = 0;
-
+                    if (numberOfReadindsTaken > NUMBER_OF_READINGS_TO_TAKE) {
+                        mode = Mode.COMPLETE;
                     }
                     switch (sensorBeingRead) {
                         case INVERSE: {
@@ -129,7 +129,9 @@ public class TestDual2mDistanceSensorContinuousOrAverage extends LinearOpMode {
                         break;
                         case NORMAL: {
                             if (distanceSensorNormal.isSingleReadingReady()) {
+                                numberOfReadindsTaken++;
                                 continuousDistanceNormal = distanceSensorNormal.getSingleReading(DistanceUnit.MM);
+                                rawSensorReadingsCSV.writeData(timer.milliseconds(), continuousDistanceInverse, continuousDistanceNormal, continuousDistanceInverse - continuousDistanceNormal);
                                 distanceSensorInverse.startSingleReading(50);
                                 sensorBeingRead = sensorBeingRead.INVERSE;
                             }
@@ -143,47 +145,12 @@ public class TestDual2mDistanceSensorContinuousOrAverage extends LinearOpMode {
                     telemetry.update();
                 }
                 break;
-                case START_AVERAGE: {
-                    distanceSensorInverse.startAverage(NUMBER_OF_READINGS_TO_TAKE);
-                    mode = Mode.AVERAGE;
-                    sensorBeingRead = SensorBeingRead.INVERSE;
-                    telemetry.addData("Wait for readings - Inverse...", " ");
-                    telemetry.update();
-                }
-                break;
-                case AVERAGE: {
-                    switch (sensorBeingRead) {
-                        case INVERSE:{
-                            if (distanceSensorInverse.isAverageReady()){
-                                averageDistanceInverse = distanceSensorInverse.getAverageDistance(DistanceUnit.MM);
-                                distanceSensorNormal.startAverage(NUMBER_OF_READINGS_TO_TAKE);
-                                sensorBeingRead = SensorBeingRead.NORMAL;
-                                telemetry.addData("Wait for readings - Normal...", " ");
-                                telemetry.update();
-                            }
-                        }
-                        break;
-                        case NORMAL: {
-                            if (distanceSensorNormal.isAverageReady()){
-                                averageDistanceNormal = distanceSensorNormal.getAverageDistance(DistanceUnit.MM);
-                                distanceSensorInverse.startAverage(NUMBER_OF_READINGS_TO_TAKE);
-                                sensorBeingRead = SensorBeingRead.INVERSE;
-                                mode = Mode.COMPLETE;
-                            }
-                        }
-                        break;
-                    }
-                }
-                break;
                 case COMPLETE: {
-                    if(gamepad1a.buttonPress(gamepad1.a)) {
-                        mode = Mode.START_CONTINUOUS;
-                        continuousDistanceInverse = 0;
-                        continuousDistanceNormal = 0;
+                    if(!wroteData) {
+                        rawSensorReadingsCSV.closeDataLog();
+                        wroteData = true;
                     }
-                    telemetry.addData("Normal distance = ", continuousDistanceNormal);
-                    telemetry.addData("Inverse distance = ", continuousDistanceInverse);
-                    telemetry.addData("Difference (normal-inverse)= ", continuousDistanceNormal - continuousDistanceInverse);
+                    telemetry.addData("Readings saved in CSV file", "." );
                     telemetry.addData("mode = ", mode.toString());
                     telemetry.update();
                 }

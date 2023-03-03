@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.opmodes.PowerPlay;
+package org.firstinspires.ftc.teamcode.opmodes.PowerPlayTest;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.hardware.lynx.LynxModule;
@@ -12,8 +12,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MatchPhase;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.Pipelines.SignalConePipeline;
-import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayAutonomousStateMachine;
-import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayAutonomousVisionTestSensor;
+import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayAutonomousVisionOneCycleParkForPowerPlayDriveTestDualSensor;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayField;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayGamepad;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayPersistantStorage;
@@ -22,10 +21,10 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 
 import java.util.List;
 
-@Autonomous(name = "Autonomous Power Play - Test Sensor", group = "AA")
+@Autonomous(name = "Autonomous Power Play - Test Sensor", group = "Test")
 //@Disabled
 
-public class PowerPlayAutonomousTestSensor extends LinearOpMode {
+public class TestPowerPlayAutonomousDualDistanceSensor extends LinearOpMode {
 
     //*********************************************************************************************
     //             Declarations
@@ -35,7 +34,7 @@ public class PowerPlayAutonomousTestSensor extends LinearOpMode {
     public PowerPlayGamepad gamepad;
     public Configuration config = null;
     public PowerPlayField field;
-    private PowerPlayAutonomousVisionTestSensor autonomousStateMachine;
+    private PowerPlayAutonomousVisionOneCycleParkForPowerPlayDriveTestDualSensor autonomousStateMachine;
     private SignalConePipeline pipeline;
     public SignalConePipeline.ConeColor coneColor;
 
@@ -65,7 +64,7 @@ public class PowerPlayAutonomousTestSensor extends LinearOpMode {
         PowerPlayPersistantStorage.setMatchPhase(MatchPhase.AUTONOMOUS);
 
         // setup the log file
-        dataLog = new DataLogging("Autonomous", telemetry);
+        dataLog = new DataLogging("AutonomousLookForPole", telemetry);
         config = null;
         config = new Configuration();
         if (!config.load()) {
@@ -87,7 +86,7 @@ public class PowerPlayAutonomousTestSensor extends LinearOpMode {
 
         // Here is where you create the state machine that is going to be run.
         // Change this state machine out and the robot will do something different.
-        autonomousStateMachine = new PowerPlayAutonomousVisionTestSensor(robot, field, telemetry);
+        autonomousStateMachine = new PowerPlayAutonomousVisionOneCycleParkForPowerPlayDriveTestDualSensor(robot, field, telemetry);
         autonomousStateMachine.setDataLog(dataLog);
         autonomousStateMachine.enableDataLogging();
 
@@ -169,6 +168,7 @@ public class PowerPlayAutonomousTestSensor extends LinearOpMode {
         while (opModeIsActive() && !autonomousStateMachine.isComplete()) {
             autonomousStateMachine.update();
             telemetry.addData("current state is", autonomousStateMachine.getCurrentState());
+            telemetry.addData("Distance to pole = ", robot.poleLocationDetermination.getDistanceFromPole(DistanceUnit.INCH));
             telemetry.update();
             robot.update();
             idle();
@@ -187,18 +187,20 @@ public class PowerPlayAutonomousTestSensor extends LinearOpMode {
         //telemetry.update();
         //robot.distanceSensorForInverse.dumpDataToCSV("inverse");
         //robot.distanceSensorForNormal.dumpDataToCSV("normal");
-        telemetry.addData("Inverse Sensor= ", robot.dualDistanceSensors.getAverageDistanceInverse(DistanceUnit.INCH));
-        telemetry.addData("Normal Sensor= ", robot.dualDistanceSensors.getAverageDistanceNormal(DistanceUnit.INCH));
-        finalTheoreticalPose = autonomousStateMachine.getFinalPose();
-        finalActualPose = robot.mecanum.getPoseEstimate();
-        xError = finalTheoreticalPose.getX() - finalActualPose.getX();
-        yError = finalTheoreticalPose.getY() - finalActualPose.getY();
-        headingError = Math.toDegrees(finalTheoreticalPose.getHeading() - finalActualPose.getHeading());
-        telemetry.addData("x position error = ", xError);
-        telemetry.addData("y position error = ", yError);
-        telemetry.addData("heading error = ", headingError);
+//        finalTheoreticalPose = autonomousStateMachine.getFinalPose();
+//        finalActualPose = robot.mecanum.getPoseEstimate();
+//        xError = finalTheoreticalPose.getX() - finalActualPose.getX();
+//        yError = finalTheoreticalPose.getY() - finalActualPose.getY();
+//        headingError = Math.toDegrees(finalTheoreticalPose.getHeading() - finalActualPose.getHeading());
+//        telemetry.addData("x position error = ", xError);
+//        telemetry.addData("y position error = ", yError);
+//        telemetry.addData("heading error = ", headingError);
         telemetry.update();
         while (opModeIsActive() ) {
+            telemetry.addData("Distance to pole = ", robot.poleLocationDetermination.getDistanceFromPole(DistanceUnit.INCH));
+            telemetry.addData("Sensor difference = ", robot.poleLocationDetermination.getSensorDifference(DistanceUnit.MM));
+            telemetry.addData("Pole location = ", robot.poleLocationDetermination.getPoleLocation().toString());
+            telemetry.update();
             idle();
         }
     }
