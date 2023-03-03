@@ -31,11 +31,11 @@ public class ConeGrabberArmServo {
     private Servo8863New coneGrabberArmServo;
     private final String CONE_GRABBER_ARM_SERVO_NAME = PowerPlayRobot.HardwareName.CONE_GRABBER_ARM_SERVO.hwName;
 
-    public static double INIT_POSITION = 0.22;
-    public static double RELEASE_POSITION = 0.85;
-    public static double PICKUP = .87;
-    public static double LINEUP_FOR_PICKUP = .80;
-    public static double CARRY = .37;
+    public static double INIT_POSITION = 0.245;
+    public static double RELEASE_POSITION = 0.875;
+    public static double PICKUP = .895;
+    public static double LINEUP_FOR_PICKUP = .825;
+    public static double CARRY = .45;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
