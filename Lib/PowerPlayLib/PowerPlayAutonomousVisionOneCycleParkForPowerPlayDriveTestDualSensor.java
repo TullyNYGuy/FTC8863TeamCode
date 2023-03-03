@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.Lib.PowerPlayLib;
 
 
 import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayField.getVector2d;
+import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayPoseStorage.RED_RIGHT_START_DUAL_SENSORS_LOCATION;
+import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayPoseStorage.RED_RIGHT_STOP_JUNCTION_POLE_TRAJECTORY_LOCATION;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
@@ -60,6 +62,7 @@ public class PowerPlayAutonomousVisionOneCycleParkForPowerPlayDriveTestDualSenso
     private PowerPlayRobot robot;
     private Telemetry telemetry;
     private PowerPlayField field;
+    private PowerPlayAutonomousCenterOnPole powerPlayAutonomousCenterOnPole;
 
     private ElapsedTime timer;
     private DistanceUnit distanceUnits;
@@ -75,8 +78,10 @@ public class PowerPlayAutonomousVisionOneCycleParkForPowerPlayDriveTestDualSenso
 
     public Pose2d poleCenterLocation;
     public Pose2d stopLocation;
+    public Pose2d currentPose = new Pose2d();
 
     private PowerPlayField.ParkLocation parkLocation;
+    private double yLocationToStartLookingForPole;
 
     /**
      * This method is needed because the trajectories are calculated at the time the autonomous is created.
@@ -148,6 +153,9 @@ public class PowerPlayAutonomousVisionOneCycleParkForPowerPlayDriveTestDualSenso
         angleUnits = AngleUnit.DEGREES;
         timer = new ElapsedTime();
 
+        this.powerPlayAutonomousCenterOnPole = new PowerPlayAutonomousCenterOnPole(robot, telemetry);
+        powerPlayAutonomousCenterOnPole.enableFixDistanceToPole(false);
+
         createTrajectories();
     }
 
@@ -166,16 +174,19 @@ public class PowerPlayAutonomousVisionOneCycleParkForPowerPlayDriveTestDualSenso
         this.logFile = logFile;
         logCommandOnchange = new DataLogOnChange(logFile);
         logStateOnChange = new DataLogOnChange(logFile);
+        powerPlayAutonomousCenterOnPole.setDataLog(logFile);
     }
 
     @Override
     public void enableDataLogging() {
         enableLogging = true;
+        powerPlayAutonomousCenterOnPole.enableDataLogging();
     }
 
     @Override
     public void disableDataLogging() {
         enableLogging = false;
+        powerPlayAutonomousCenterOnPole.disableDataLogging();
     }
 
     private void logState() {
@@ -223,10 +234,12 @@ public class PowerPlayAutonomousVisionOneCycleParkForPowerPlayDriveTestDualSenso
 
             case BLUE_RIGHT:
             case RED_RIGHT: {
+                yLocationToStartLookingForPole = RED_RIGHT_START_DUAL_SENSORS_LOCATION.getY();
+
                 trajectoryToJunctionPoleFromStart = robot.mecanum.trajectoryBuilder(startPose)
                         .splineTo(new Vector2d(11.75, -53), Math.toRadians(90))
-                        .splineToSplineHeading(new Pose2d(11.75, -35.5, Math.toRadians(90)),Math.toRadians(90))
-                        .splineToSplineHeading(new Pose2d(11.75, -20.5, Math.toRadians(90)),Math.toRadians(90),
+                        .splineToSplineHeading(RED_RIGHT_START_DUAL_SENSORS_LOCATION,Math.toRadians(90))
+                        .splineToSplineHeading(RED_RIGHT_STOP_JUNCTION_POLE_TRAJECTORY_LOCATION,Math.toRadians(90),
                                 robot.mecanum.getVelConstraintSlow(), // slower than normal speed
                                 robot.mecanum.getAccelConstraint())
                         .build();
@@ -270,6 +283,8 @@ public class PowerPlayAutonomousVisionOneCycleParkForPowerPlayDriveTestDualSenso
     @Override
     public void update() {
         logState();
+        powerPlayAutonomousCenterOnPole.update();
+        currentPose = robot.mecanum.getPoseEstimate();
 
         switch (currentState) {
 
@@ -293,18 +308,18 @@ public class PowerPlayAutonomousVisionOneCycleParkForPowerPlayDriveTestDualSenso
             case MOVING_TO_POSE_TO_START_SENSOR: {
                 if (!robot.mecanum.isBusy()) {
                     currentState = States.LOOKING_FOR_POLE;
-                    robot.poleLocationDetermination.enablePoleLocationDetermination();
                     robot.mecanum.followTrajectory(trajectoryToJunctionPoleFromStart);
                 }
             }
             break;
 
             case WAIT_BEFORE_LOOKING_FOR_POLE: {
-                if (timer.milliseconds() > 3000) {
-                    robot.poleLocationDetermination.enablePoleLocationDetermination();
+                // has the robot reached the location to start looking for the pole?
+                if (currentPose.getY() >= yLocationToStartLookingForPole) {
+                    powerPlayAutonomousCenterOnPole.start();
                     //robot.coneGrabberArmController.moveToHighThenPrepareToRelease();
                     //currentState = States.RAISING_LIFT;
-                    currentState = States.LOOKING_FOR_POLE;
+                    currentState = States.WAIT_FOR_COMPLETE;
                 }
             }
             break;
@@ -378,7 +393,7 @@ public class PowerPlayAutonomousVisionOneCycleParkForPowerPlayDriveTestDualSenso
                     if (trajectoryToParkingLocation == null) {
                         currentState = States.COMPLETE;
                     } else {
-                        robot.mecanum.followTrajectory(trajectoryToParkingLocation);
+                        robot.mecanum.followTrajectoryAsync(trajectoryToParkingLocation);
                         currentState = States.MOVING_TO_PARKING;
                     }
 
@@ -394,27 +409,24 @@ public class PowerPlayAutonomousVisionOneCycleParkForPowerPlayDriveTestDualSenso
             break;
 
             case WAIT_FOR_COMPLETE: {
-                if (!robot.mecanum.isBusy()) {
+                if (powerPlayAutonomousCenterOnPole.isComplete()) {
                     currentState = States.COMPLETE;
-
                 }
-                robot.coneGrabber.close();
-                logCommand("distance from pole = " + Double.toString(robot.poleLocationDetermination.getDistanceFromPole(DistanceUnit.MM)));
             }
             break;
 
             case COMPLETE: {
                 isComplete = true;
                 robot.coneGrabber.close();
-                stopLocation = robot.mecanum.getPoseEstimate();
-                logFile.logData("normal distance = ", robot.poleLocationDetermination.getNormalDistance(DistanceUnit.MM));
-                logFile.logData("inverse distance = ", robot.poleLocationDetermination.getInverseDistance(DistanceUnit.MM));
-                logFile.logData("sensor difference = ", robot.poleLocationDetermination.getSensorDifference(DistanceUnit.MM));
-                logFile.logData("pole location = ",  robot.poleLocationDetermination.getPoleLocation().toString());
-                logFile.logData("location when pole center = " + Double.toString(poleCenterLocation.getX()) + " " + Double.toString(poleCenterLocation.getY()));
-                logFile.logData("location when stopped = " + Double.toString(stopLocation.getX()) + " " + Double.toString(stopLocation.getY()));
-                logFile.logData("distance from pole = " + Double.toString(robot.poleLocationDetermination.getDistanceFromPole(DistanceUnit.MM)));
-                logFile.logData("finished");
+//                stopLocation = robot.mecanum.getPoseEstimate();
+//                logFile.logData("normal distance = ", robot.poleLocationDetermination.getNormalDistance(DistanceUnit.MM));
+//                logFile.logData("inverse distance = ", robot.poleLocationDetermination.getInverseDistance(DistanceUnit.MM));
+//                logFile.logData("sensor difference = ", robot.poleLocationDetermination.getSensorDifference(DistanceUnit.MM));
+//                logFile.logData("pole location = ",  robot.poleLocationDetermination.getPoleLocation().toString());
+//                logFile.logData("location when pole center = " + Double.toString(poleCenterLocation.getX()) + " " + Double.toString(poleCenterLocation.getY()));
+//                logFile.logData("location when stopped = " + Double.toString(stopLocation.getX()) + " " + Double.toString(stopLocation.getY()));
+//                logFile.logData("distance from pole = " + Double.toString(robot.poleLocationDetermination.getDistanceFromPole(DistanceUnit.MM)));
+//                logFile.logData("finished");
             }
             break;
         }

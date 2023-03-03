@@ -5,24 +5,20 @@ import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.checkerframework.checker.compilermsgs.qual.CompilerMessageKey;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.DrivingMode;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MatchPhase;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.TeamLocation;
 import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.PersistantStorage;
-import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayCenterOnPole;
+import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayAutonomousCenterOnPole;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayField;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayGamepad;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayPersistantStorage;
-import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayPoleLocationDetermination;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayRobot;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayRobotModes;
 
@@ -43,7 +39,7 @@ public class TestTeleopPoleLocation extends LinearOpMode {
     public Configuration config = null;
     public PowerPlayField field;
 
-    private PowerPlayCenterOnPole powerPlayCenterOnPole;
+    private PowerPlayAutonomousCenterOnPole powerPlayCenterOnPole;
 
     public static double SMALL_MOVEMENT_POWER = 0;
 
@@ -111,7 +107,7 @@ public class TestTeleopPoleLocation extends LinearOpMode {
             robot.robotModes.setDirectionSwap(PowerPlayRobotModes.DirectionSwap.NORMAL);
         }
 
-        powerPlayCenterOnPole = new PowerPlayCenterOnPole(robot, telemetry);
+        powerPlayCenterOnPole = new PowerPlayAutonomousCenterOnPole(robot, telemetry);
 
         // Wait for the start button
 
