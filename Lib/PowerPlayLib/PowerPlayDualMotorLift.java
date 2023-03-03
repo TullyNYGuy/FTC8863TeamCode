@@ -175,6 +175,12 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
                 MOVEMENT_PER_REVOLUTION);
 
         lift.reverseMotorDirection();
+        // Disable the extension and retraction limits because the lift has a good bit of overshoot
+        // and it occasionally trips the limits. The DualMotorGearbox has no clue how to hold a
+        // position so it can't stop the lift and hold at position. I have enough confidence in the
+        // lift so that I will just depend on the PIDF controller to get the position right after
+        // the overshoot.
+        lift.disableExtensionAndRetractionLimits();
 
         //*********************************************
         // SET the lift positions here

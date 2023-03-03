@@ -201,6 +201,41 @@ public class ExtensionRetractionMechanismGenericMotor {
     }
 
     /**
+     * If you are brave and know what your mechanism does with certainty, you can disable the
+     * extension and retraction limits. This is currently used in a dual motor lift that has its own
+     * PIDF controller with a good bit of overshoot.
+     */
+    private boolean bypassExtensionLimits = false;
+
+    public void disableExtensionLimits() {
+        this.bypassExtensionLimits = true;
+    }
+
+    public void enableExtensionLimits() {
+        this.bypassExtensionLimits = false;
+    }
+
+    private boolean bypassRetractionLimits = false;
+
+    public void disableRetractionLimits() {
+        this.bypassRetractionLimits = true;
+    }
+
+    public void enableRetractionLimits() {
+        this.bypassRetractionLimits = false;
+    }
+
+    public void disableExtensionAndRetractionLimits () {
+        disableExtensionLimits();
+        disableRetractionLimits();
+    }
+
+    public void enableExtensionAndRetractionLimits() {
+        enableExtensionLimits();
+        enableRetractionLimits();
+    }
+
+    /**
      * The name of the motor for this mechanism that was set in the configuration on the phone.
      */
     private String motorName = "";
@@ -3419,15 +3454,24 @@ public class ExtensionRetractionMechanismGenericMotor {
         logState(extensionRetractionState, extensionRetractionCommand);
     }
 
+    /**
+     * This method is only called from the motion profile follower states. It calls
+     * stopMechanism. However stopMechanism tries to set the motor to RUN_TO_POSITION and then a power
+     * of 1. That works fine with a single motor that honors RUN_TO_POSITION. However a dual motor
+     * does not honor RUN_TO_POSITION, at least of this time. So when motor power is set to 1, it
+     * sends the lift to the end of the run.
+     */
     private void checkExtensionAndRetractionLimitsHit() {
         if (isExtensionLimitReached() && directionOfMovementIsExtending) {
             // the extension limit has been reached. This is probably not intentional.
             // But the movement has to be stopped in order to protect the mechanism
             // from damage. Clear the command.
             log("Emergency stop! Tried to extend past extension limit! Stopping!");
-            stopMechanism();
-            extensionRetractionCommand = ExtensionRetractionCommands.NO_COMMAND;
-            extensionRetractionState = ExtensionRetractionStates.FULLY_EXTENDED;
+            if (!bypassExtensionLimits) {
+                stopMechanism();
+                extensionRetractionCommand = ExtensionRetractionCommands.NO_COMMAND;
+                extensionRetractionState = ExtensionRetractionStates.FULLY_EXTENDED;
+            }
         }
 
         // check to make sure the retracted limit switch has not been tripped. If it has
@@ -3437,9 +3481,11 @@ public class ExtensionRetractionMechanismGenericMotor {
             // But the movement has to be stopped in order to protect the mechanism
             // from damage. Clear the command.
             log("Emergency stop! Tried to retract past retraction limit! Stopping!");
-            stopMechanism();
-            extensionRetractionCommand = ExtensionRetractionCommands.NO_COMMAND;
-            extensionRetractionState = ExtensionRetractionStates.FULLY_RETRACTED;
+            if (!bypassRetractionLimits) {
+                stopMechanism();
+                extensionRetractionCommand = ExtensionRetractionCommands.NO_COMMAND;
+                extensionRetractionState = ExtensionRetractionStates.FULLY_RETRACTED;
+            }
         }
     }
 
