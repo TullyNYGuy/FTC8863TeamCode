@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.PowerPlayTest;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -16,7 +17,7 @@ import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayRobot;
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
 @TeleOp(name = "Test PP Lift Retraction", group = "Test")
-//@Disabled
+@Disabled
 public class TestLiftRetraction extends LinearOpMode {
 
     // Put your variable declarations here

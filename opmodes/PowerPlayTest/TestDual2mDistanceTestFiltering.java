@@ -36,6 +36,7 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -63,7 +64,7 @@ import java.util.List;
  */
 @Config
 @Autonomous(group = "Test")
-//@Disabled
+@Disabled
 public class TestDual2mDistanceTestFiltering extends LinearOpMode {
 
     private enum Mode {

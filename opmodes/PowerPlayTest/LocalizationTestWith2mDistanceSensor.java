@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmodes.PowerPlayTest;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -18,6 +19,7 @@ import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayTrackingWheelLoc
  * sees a cone or a junction pole.
  */
 @TeleOp(group = "drive")
+@Disabled
 public class LocalizationTestWith2mDistanceSensor extends LinearOpMode {
     public enum DrivingStates {
         FULL_POWER,

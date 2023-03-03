@@ -33,6 +33,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package org.firstinspires.ftc.teamcode.opmodes.PowerPlayTest;
 
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
@@ -53,7 +54,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.StatTrackerGB;
  * @see <a href="http://revrobotics.com">REV Robotics Web Page</a>
  */
 @TeleOp(name = "Sensor: PowerPlay2mDistance with Averages", group = "Test")
-//@Disabled
+@Disabled
 public class TestDual2mDistanceSensorAverage extends LinearOpMode {
 
     //private DistanceSensor distanceSensorNormal;

@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.PersistantStorage;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayPersistantStorage;
 
 @Autonomous(name = "Display Persistant Storage", group = "AARun")
-//@Disabled
+@Disabled
 
 public class DisplayPowerPlayPersistentStorage extends LinearOpMode {
 

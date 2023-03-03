@@ -4,6 +4,7 @@ import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.MAXI
 import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.LiftConstants.MINIMUM_LIFT_POSITION;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -20,7 +21,7 @@ import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayRobot;
  */
 @Config
 @TeleOp(name = "Find Kg", group = "Lift Tuning")
-//@Disabled
+@Disabled
 public class FindKg extends LinearOpMode {
 
     // Put your variable declarations here
