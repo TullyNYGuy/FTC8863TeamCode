@@ -8,7 +8,6 @@ import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.apache.commons.math3.analysis.integration.IterativeLegendreGaussIntegrator;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -16,7 +15,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColorTeamLocation;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogOnChange;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 
-public class PowerPlayAutonomousVisionOneCycleParkForPowerPlayDriveTestDualSensor implements PowerPlayAutonomousStateMachine {
+public class PowerPlayAutonomousVisionOneCycleParkForPowerPlayDriveTestDualSensorKaleb implements PowerPlayAutonomousStateMachine {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -135,7 +134,7 @@ public class PowerPlayAutonomousVisionOneCycleParkForPowerPlayDriveTestDualSenso
     // from it
     //*********************************************************************************************
 
-    public PowerPlayAutonomousVisionOneCycleParkForPowerPlayDriveTestDualSensor(PowerPlayRobot robot, PowerPlayField field, Telemetry telemetry) {
+    public PowerPlayAutonomousVisionOneCycleParkForPowerPlayDriveTestDualSensorKaleb(PowerPlayRobot robot, PowerPlayField field, Telemetry telemetry) {
         this.robot = robot;
         this.field = field;
         this.telemetry = telemetry;
@@ -336,21 +335,17 @@ public class PowerPlayAutonomousVisionOneCycleParkForPowerPlayDriveTestDualSenso
 
             case FIXING_POSITION: {
                 //calculate the difference
-                double distanceToMove = (162 - robot.poleLocationDetermination.getDistanceFromPole(DistanceUnit.MM))/25.4;
-                logFile.logData("distance to move " +distanceToMove);
+                double distanceToMove = DistanceUnit.INCH.fromUnit(DistanceUnit.MM, robot.poleLocationDetermination.getDistanceFromPole(DistanceUnit.MM) - 162);
                 //move to the location needing to go
                 poleCenterLocation = robot.mecanum.getPoseEstimate();
-                logFile.logData("robot position " +poleCenterLocation.getX() + " " + poleCenterLocation.getY());
                 Pose2d movement = new Pose2d(distanceToMove, 0, 0);
                 Pose2d newLocation = poleCenterLocation.plus(movement);
-                logFile.logData("new position " +newLocation.getX() + " " + newLocation.getY());
                 Trajectory smallmove = robot.mecanum.trajectoryBuilder(poleCenterLocation)
                         .lineTo(new Vector2d(newLocation.getX(), newLocation.getY()))
                         .build();
-                //logFile.logData("current location = " + Double.toString(poleCenterLocation.getX()) + ", " + poleCenterLocation.getY());
-                //logFile.logData("fixed location = " + Double.toString(newLocation.getX()) + ", " + newLocation.getY());
+                logFile.logData("current location = " + Double.toString(poleCenterLocation.getX()) + ", " + poleCenterLocation.getY());
+                logFile.logData("fixed location = " + Double.toString(newLocation.getX()) + ", " + newLocation.getY());
                 robot.mecanum.followTrajectoryHighAccuracy(smallmove);
-                timer.reset();
                 //if done with movement, then move to next state
                 currentState = States.WAIT_FOR_COMPLETE;
             }
@@ -396,7 +391,6 @@ public class PowerPlayAutonomousVisionOneCycleParkForPowerPlayDriveTestDualSenso
             case WAIT_FOR_COMPLETE: {
                 if (!robot.mecanum.isBusy()) {
                     currentState = States.COMPLETE;
-
                 }
                 robot.coneGrabber.close();
                 logCommand("distance from pole = " + Double.toString(robot.poleLocationDetermination.getDistanceFromPole(DistanceUnit.MM)));
