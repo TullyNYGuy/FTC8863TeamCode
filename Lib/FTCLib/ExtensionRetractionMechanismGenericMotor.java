@@ -2965,8 +2965,8 @@ public class ExtensionRetractionMechanismGenericMotor {
                 // In case this command is interrupted by another command, and then that command
                 // cannot be run for some reason, save this state and command so that it can be
                 // resumed.
-                previousExtensionRetractionState = ExtensionRetractionStates.MOVING_TO_POSITION;
-                previousExtensionRetractionCommand = ExtensionRetractionCommands.GO_TO_POSITION;
+                previousExtensionRetractionState = ExtensionRetractionStates.FOLLOWING_PROFILE;
+                previousExtensionRetractionCommand = ExtensionRetractionCommands.FOLLOW_PROFILE;
 
                 switch (extensionRetractionCommand) {
                     case RESET:
@@ -3022,7 +3022,7 @@ public class ExtensionRetractionMechanismGenericMotor {
                 // In case this command is interrupted by another command, and then that command
                 // cannot be run for some reason, save this state and command so that it can be
                 // resumed.
-                previousExtensionRetractionState = ExtensionRetractionStates.AT_POSITION;
+                previousExtensionRetractionState = ExtensionRetractionStates.PROFILE_COMPLETE;
                 previousExtensionRetractionCommand = ExtensionRetractionCommands.NO_COMMAND;
 
                 switch (extensionRetractionCommand) {
