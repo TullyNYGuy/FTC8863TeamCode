@@ -19,7 +19,7 @@ public class PowerPlayPoseStorage {
     public static Pose2d RED_LEFT_START_POSE = new Pose2d(-40.5, -63.5, Math.toRadians(90));
     public static Pose2d RED_LEFT_PARK_LOCATION_1 = new Pose2d(-11.75, -23.5, Math.toRadians(270));
     public static Pose2d RED_LEFT_PARK_LOCATION_2 = new Pose2d(-35.25, -11.75, Math.toRadians(270));
-    public static Pose2d RED_LEFT_PARK_LOCATION_3 = new Pose2d(-56.75,-14.75 , Math.toRadians(270));
+    public static Pose2d RED_LEFT_PARK_LOCATION_3 = new Pose2d(-57.75,-16.75 , Math.toRadians(270));
 
     public static double RED_LEFT_START_DUAL_SENSORS_BEFORE_POLE_DISTANCE = -5;
     public static double RED_LEFT_STOP_TRAJECTORY_AFTER_POLE_DISTANCE = 5;

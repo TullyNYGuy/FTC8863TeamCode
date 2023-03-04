@@ -97,7 +97,7 @@ public class LiftConstants {
     public static PIDCoefficients EXTENSION_PID_COEFFICENTS = new PIDCoefficients(.6, 0, 0);
     public static PIDCoefficients RETRACTION_PID_COEFFICENTS = new PIDCoefficients(.5, 0, 0);
 
-    public static double MAXIMUM_LIFT_POSITION = 38.0; // INCHES
+    public static double MAXIMUM_LIFT_POSITION = 38.5; // INCHES
     public static double MINIMUM_LIFT_POSITION = .04; // INCHES
 
     //*********************************************************************************************
