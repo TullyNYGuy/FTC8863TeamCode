@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.opmodes.PowerPlayTest;
+package org.firstinspires.ftc.teamcode.opmodes.PowerPlay;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.hardware.lynx.LynxModule;
@@ -21,10 +21,10 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 
 import java.util.List;
 
-@Autonomous(name = "Autonomous Power Play - Test Sensor", group = "Test")
+@Autonomous(name = "Autonomous Power Play - with Sensor", group = "AA")
 //@Disabled
 
-public class TestPowerPlayAutonomousDualDistanceSensor extends LinearOpMode {
+public class PowerPlayAutonomousDualDistanceSensor extends LinearOpMode {
 
     //*********************************************************************************************
     //             Declarations

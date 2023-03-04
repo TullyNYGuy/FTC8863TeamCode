@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Lib.PowerPlayLib;
 
 
+import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayPoseStorage.RED_LEFT_JUNCTION_POLE_LOCATION;
 import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayPoseStorage.RED_RIGHT_JUNCTION_POLE_LOCATION;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
@@ -13,6 +14,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogOnChange;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MatchPhase;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.TeamLocation;
 
 import java.util.function.DoubleToLongFunction;
 
@@ -48,6 +50,7 @@ public class PowerPlayAutonomousCenterOnPole implements PowerPlayAutonomousState
     private Vector2d adjustedRobotLocation;
     private double distanceToMove = 0;
     private ElapsedTime timer;
+    private Trajectory returnMove;
 
     private boolean isComplete = false;
 
@@ -114,9 +117,15 @@ public class PowerPlayAutonomousCenterOnPole implements PowerPlayAutonomousState
         Pose2d newPose;
         //PowerPlayPersistantStorage.getMatchPhase()
         //PowerPlayPersistantStorage.getTeamLocation()
-        Pose2d movement = new Pose2d(distanceToMove, 0, 0);
 
-        newPose = currentPose.plus(movement);
+        if (PowerPlayPersistantStorage.getTeamLocation() == TeamLocation.RIGHT) {
+            Pose2d movement = new Pose2d(distanceToMove, 0, 0);
+            newPose = currentPose.plus(movement);
+        } else {
+            Pose2d movement = new Pose2d(distanceToMove, 1, 0);
+            newPose = currentPose.minus(movement);
+        }
+
         newLocation = new Vector2d(newPose.getX(), newPose.getY());
         return newLocation;
     }
@@ -252,9 +261,16 @@ public class PowerPlayAutonomousCenterOnPole implements PowerPlayAutonomousState
                     // yes, move back to the ideal junction pole location from where we are
                     logCommand("Pole was not found, going back to known location");
                     logCommand("current pose = " + Double.toString(robotPose.getX()) + ", " + robotPose.getY() + " " + Math.toDegrees(robotPose.getHeading()));
-                    Trajectory returnMove = robot.mecanum.trajectoryBuilder(robotPose)
-                            .lineToLinearHeading(RED_RIGHT_JUNCTION_POLE_LOCATION)
-                            .build();
+                    if (PowerPlayPersistantStorage.getTeamLocation() == TeamLocation.RIGHT) {
+                         returnMove = robot.mecanum.trajectoryBuilder(robotPose)
+                                .lineToLinearHeading(RED_RIGHT_JUNCTION_POLE_LOCATION)
+                                .build();
+                    } else {
+                         returnMove = robot.mecanum.trajectoryBuilder(robotPose)
+                                .lineToLinearHeading(RED_LEFT_JUNCTION_POLE_LOCATION)
+                                .build();
+                    }
+
                     robot.mecanum.followTrajectoryHighAccuracy(returnMove);
                     currentState = States.WAIT_FOR_COMPLETE;
                 }
@@ -267,7 +283,7 @@ public class PowerPlayAutonomousCenterOnPole implements PowerPlayAutonomousState
                     logCommand("robot location in range of pole, no adjustment needed");
                 } else {
                     // adjust the robot position so that it is within the range of the pole
-                    distanceToMove = (162 - distanceToPole) / 25.4;
+                    distanceToMove = (IDEAL_DISTANCE_TO_POLE - distanceToPole) / 25.4;
                     adjustedRobotLocation = getLocationToMoveTo(robotPose, distanceToMove);
                     logCommand("Distance to pole = " + Double.toString(distanceToPole));
                     logCommand("distance to adjust robot position = " + Double.toString(distanceToMove));

@@ -26,6 +26,7 @@ public class PowerPlayConeGrabberLiftController implements FTCRobotSubsystem {
 
         // lift states
         MOVING_TO_HIGH,
+        MOVING_TO_LOOK_AT_HIGH,
         MOVING_TO_MEDIUM,
         MOVING_TO_LOW,
         MOVING_TO_GROUND,
@@ -214,6 +215,22 @@ public class PowerPlayConeGrabberLiftController implements FTCRobotSubsystem {
         }
     }
 
+    public void moveToLookAtHigh() {
+        // lockout for double hits on a command button. Downside is that the driver better hit the
+        // right button the first time or they are toast
+        if (commandComplete) {
+            logCommand("lift to look at high with sensors");
+            commandComplete = false;
+            //command to start lift
+            controllerState = ControllerState.MOVING_TO_LOOK_AT_HIGH;
+            lift.moveToLookAtHighPole();
+            cycleTracker.setPhaseOfCycleToScoring();
+        } else {
+            // you can't start a new command when the old one is not finished
+            logCommand("lift to look at high command ignored");
+        }
+    }
+
     public void moveToMediumThenPrepareToRelease() {
         // lockout for double hits on a command button. Downside is that the driver better hit the
         // right button the first time or they are toast
@@ -291,6 +308,11 @@ public class PowerPlayConeGrabberLiftController implements FTCRobotSubsystem {
         liftPositionReached = lift.isPositionReached();
         logState();
         switch (controllerState) {
+
+            case READY: {
+                // do nothing, wait for a command
+            }
+
             //********************************************************************************
             // INIT states - just shell for now. Doesn't really do anything.
             //********************************************************************************
@@ -306,6 +328,18 @@ public class PowerPlayConeGrabberLiftController implements FTCRobotSubsystem {
                 // do nothing. The lift is waiting for a command
                 commandComplete = true;
                 initComplete = true;
+            }
+            break;
+
+            //********************************************************************************
+            // lift to look at pole with sensors position
+            //********************************************************************************
+
+            case MOVING_TO_LOOK_AT_HIGH: {
+                if (liftPositionReached) {
+                    commandComplete = true;
+                    controllerState = ControllerState.READY;
+                }
             }
             break;
 

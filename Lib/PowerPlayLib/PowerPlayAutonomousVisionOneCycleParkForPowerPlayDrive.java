@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.Lib.PowerPlayLib;
 
 
 import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayField.getVector2d;
+import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayPoseStorage.RED_RIGHT_PARK_LOCATION_2;
+import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayPoseStorage.RED_RIGHT_PARK_LOCATION_3;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
@@ -227,13 +229,13 @@ public class PowerPlayAutonomousVisionOneCycleParkForPowerPlayDrive implements P
                         // end tangent forms a nice curve
                         .splineToConstantHeading(new Vector2d(23.5, -10.75), Math.toRadians(0))
                         // end tangent forms a nice curve
-                        .splineToConstantHeading(getVector2d(PowerPlayPoseStorageForPowerPlayDrive.RED_RIGHT_PARK_LOCATION_2), Math.toRadians(270))
+                        .splineToConstantHeading(getVector2d(RED_RIGHT_PARK_LOCATION_2), Math.toRadians(270))
                         .build();
 
                 trajectoryToParkingLocation3 = robot.mecanum.trajectoryBuilder(trajectoryToJunctionPoleFromStart.end())
                         .splineToConstantHeading(new Vector2d(23.5, -10.75), Math.toRadians(0))
                         //.splineToSplineHeading(new Pose2d(47,-11.75, Math.toRadians(270)),Math.toRadians(0) )
-                        .splineToConstantHeading(getVector2d(PowerPlayPoseStorageForPowerPlayDrive.RED_RIGHT_PARK_LOCATION_3), Math.toRadians(0))
+                        .splineToConstantHeading(getVector2d(RED_RIGHT_PARK_LOCATION_3), Math.toRadians(0))
                         .build();
             }
             break;

@@ -56,6 +56,7 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
 
         // Moving to states
         MOVING_TO_HIGH,
+        MOVING_TO_LOOK_AT_HIGH,
         MOVING_TO_MEDIUM,
         MOVING_TO_LOW,
         MOVING_TO_GROUND,
@@ -79,6 +80,7 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
         GROUND,
         LOW,
         MEDIUM,
+        LOOK_AT_HIGH,
         HIGH,
         DROP,
         IN_BETWEEN
@@ -138,6 +140,7 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
 
     //extension arm positions
     private double highPosition;
+    private double lookAtHighPolePosition;
     private double mediumPosition;
     private double lowPosition;
     private double groundPosition;
@@ -147,8 +150,6 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
     private double initPower;
     private double extendPower;
     private double retractPower;
-
-    private MotionProfile profileInitToHigh;
 
     //*********************************************************************************************
     //          Constructors
@@ -186,6 +187,7 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
         // SET the lift positions here
         //*********************************************
         highPosition = 36.25;
+        lookAtHighPolePosition = 24.0;
         mediumPosition = 25.25;
         lowPosition = 15.5;
         groundPosition = 3.0;
@@ -366,51 +368,6 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
         return follower;
     }
 
-    // todo generate the profiles
-    private void createMotionProfiles() {
-        // init to pickup
-        // init to ground
-        // init to low
-        // init to medium
-        // init to high
-        profileInitToHigh = MotionProfileGenerator.generateSimpleMotionProfile(
-                new MotionState(initPosition, 0, 0, 0),
-                new MotionState(highPosition, 0, 0, 0),
-                MAX_VELOCITY_EXTENSION,
-                MAX_ACCELERATION_EXTENSION
-        );
-
-        // pickup to init
-        // pickup to ground
-        // pickup to low
-        // pickup to medium
-        // pickup to high
-
-        // ground to init
-        // ground to pickup
-        // pickup to low
-        // ground to medium
-        // ground to high
-
-        // low to init
-        // low to pickup
-        // low to ground
-        // low to medium
-        // low to high
-
-        // medium to init
-        // medium to pickup
-        // medium to ground
-        // medium to low
-        // medium to high
-
-        // high to init
-        // high to pickup
-        // high to ground
-        // high to low
-        // high to medium
-    }
-
     //*********************************************************************************************
     //          MAJOR METHODS
     //
@@ -474,6 +431,27 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
             logCommand(extendCommand.toString());
             //lift.goToPosition(highPosition, extendPower);
             lift.followProfile(getFollower(highPosition));
+            liftLocation = LiftLocation.IN_BETWEEN;
+        } else {
+            // you can't start a new command when the old one is not finished
+            logCommand("move to high command ignored, previous command is not complete");
+        }
+    }
+
+    public void moveToLookAtHighPole() {
+        // lockout for double hits on a command button. Downside is that the driver better hit the
+        // right button the first time or they are toast
+        if (commandComplete) {
+            logCommand("Extend to look at high pole");
+            retractionComplete = false;
+            commandComplete = false;
+            //command to start extension
+            liftState = LiftState.MOVING_TO_HIGH;
+            // remember the command for later
+            extendCommand = ExtendCommand.MOVE_TO_HIGH;
+            logCommand(extendCommand.toString());
+            //lift.goToPosition(highPosition, extendPower);
+            lift.followProfile(getFollower(lookAtHighPolePosition));
             liftLocation = LiftLocation.IN_BETWEEN;
         } else {
             // you can't start a new command when the old one is not finished
@@ -700,6 +678,16 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
                     commandComplete = true;
                     liftState = LiftState.READY;
                     liftLocation = LiftLocation.HIGH;
+                }
+            }
+            break;
+
+            case MOVING_TO_LOOK_AT_HIGH: {
+                // if the lift hits the extension limit it is fully extended and at the high position
+                if (lift.isMotionProfileComplete() || lift.isExtensionComplete()) {
+                    commandComplete = true;
+                    liftState = LiftState.READY;
+                    liftLocation = LiftLocation.LOOK_AT_HIGH;
                 }
             }
             break;

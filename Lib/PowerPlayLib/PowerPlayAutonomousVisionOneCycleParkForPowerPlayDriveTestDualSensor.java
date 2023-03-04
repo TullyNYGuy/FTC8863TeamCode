@@ -2,6 +2,11 @@ package org.firstinspires.ftc.teamcode.Lib.PowerPlayLib;
 
 
 import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayField.getVector2d;
+import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayPoseStorage.RED_LEFT_PARK_LOCATION_2;
+import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayPoseStorage.RED_LEFT_PARK_LOCATION_3;
+import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayPoseStorage.RED_LEFT_START_DUAL_SENSORS_LOCATION;
+import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayPoseStorage.RED_LEFT_STOP_JUNCTION_POLE_TRAJECTORY_LOCATION;
+import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayPoseStorage.RED_RIGHT_PARK_LOCATION_2;
 import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayPoseStorage.RED_RIGHT_START_DUAL_SENSORS_LOCATION;
 import static org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayPoseStorage.RED_RIGHT_STOP_JUNCTION_POLE_TRAJECTORY_LOCATION;
 
@@ -17,6 +22,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColorTeamLocation;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogOnChange;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.TeamLocation;
 
 public class PowerPlayAutonomousVisionOneCycleParkForPowerPlayDriveTestDualSensor implements PowerPlayAutonomousStateMachine {
 
@@ -31,7 +37,9 @@ public class PowerPlayAutonomousVisionOneCycleParkForPowerPlayDriveTestDualSenso
         START,
         MOVING_TO_JUNCTION_POLE_FOR_SCORE,
         MOVING_TO_POSE_TO_START_SENSOR,
+        RAISING_LIFT_TO_LOOK_AT_HIGH,
         WAIT_BEFORE_LOOKING_FOR_POLE,
+        WAIT_FOR_CENTER_ON_POLE,
         LOOKING_FOR_POLE,
         FIXING_POSITION,
         RAISING_LIFT,
@@ -211,9 +219,19 @@ public class PowerPlayAutonomousVisionOneCycleParkForPowerPlayDriveTestDualSenso
         switch (PowerPlayPersistantStorage.getColorLocation()) {
             case BLUE_LEFT:
             case RED_LEFT: {
+                yLocationToStartLookingForPole = RED_LEFT_START_DUAL_SENSORS_LOCATION.getY()-2;
+
+//                trajectoryToJunctionPoleFromStart = robot.mecanum.trajectoryBuilder(startPose)
+//                        .splineTo(new Vector2d(-11.75, -53), Math.toRadians(90))
+//                        .splineToSplineHeading(junctionPolePose,Math.toRadians(90))
+//                        .build();
+
                 trajectoryToJunctionPoleFromStart = robot.mecanum.trajectoryBuilder(startPose)
-                        .splineTo(new Vector2d(-11.75, -53), Math.toRadians(90))
-                        .splineToSplineHeading(junctionPolePose,Math.toRadians(90))
+                        .splineTo(new Vector2d(-13.75, -51), Math.toRadians(90))
+                        .splineToSplineHeading(RED_LEFT_START_DUAL_SENSORS_LOCATION,Math.toRadians(90))
+                        .splineToSplineHeading(RED_LEFT_STOP_JUNCTION_POLE_TRAJECTORY_LOCATION,Math.toRadians(90),
+                                robot.mecanum.getVelConstraintSlow(), // slower than normal speed
+                                robot.mecanum.getAccelConstraint())
                         .build();
 
                 trajectoryToParkingLocation1 = null;
@@ -259,12 +277,73 @@ public class PowerPlayAutonomousVisionOneCycleParkForPowerPlayDriveTestDualSenso
 
                 trajectoryToParkingLocation3 = robot.mecanum.trajectoryBuilder(trajectoryToJunctionPoleFromStart.end())
                         .splineToConstantHeading(new Vector2d(23.5, -10.75), Math.toRadians(0))
-                        //.splineToSplineHeading(new Pose2d(47,-11.75, Math.toRadians(270)),Math.toRadians(0) )
                         .splineToConstantHeading(getVector2d(PowerPlayPoseStorageForPowerPlayDrive.RED_RIGHT_PARK_LOCATION_3), Math.toRadians(0))
                         .build();
             }
             break;
         }
+    }
+
+    public Trajectory createParkingTrajectoriesOnTheFly(PowerPlayField.ParkLocation parkLocation, Pose2d currentPose) {
+        this.parkLocation = parkLocation;
+
+        // calculate the parking trajectories using the current location of the robot as the starting
+        // point
+        if (PowerPlayPersistantStorage.getTeamLocation() == TeamLocation.LEFT) {
+            switch (parkLocation) {
+                case ONE: {
+                    // stay where the robot is
+                    trajectoryToParkingLocation = null;
+                }
+                break;
+
+                case TWO: {
+                    trajectoryToParkingLocation = robot.mecanum.trajectoryBuilder(currentPose)
+                            .lineTo(new Vector2d(-11.75, -20.5))
+                            .splineToConstantHeading(new Vector2d(-23.5, -10.75), Math.toRadians(180))
+                            .splineToSplineHeading((RED_LEFT_PARK_LOCATION_2), Math.toRadians(180))
+                            .build();
+                }
+                break;
+
+                case THREE: {
+                    trajectoryToParkingLocation = robot.mecanum.trajectoryBuilder(currentPose)
+                            .lineTo(new Vector2d(-11.75, -20.5))
+                            .splineToConstantHeading(new Vector2d(-23.5, -10.75), Math.toRadians(180))
+                            .splineToSplineHeading((RED_LEFT_PARK_LOCATION_3), Math.toRadians(180))
+                            .build();
+                }
+                break;
+            }
+        } else {
+            // right
+            switch (parkLocation) {
+                case ONE: {
+                    // stay where the robot is
+                    trajectoryToParkingLocation = null;
+                }
+                break;
+
+                case TWO: {
+                    trajectoryToParkingLocation = robot.mecanum.trajectoryBuilder(currentPose)
+                            // end tangent forms a nice curve
+                            .splineToConstantHeading(new Vector2d(23.5, -10.75), Math.toRadians(0))
+                            // end tangent forms a nice curve
+                            .splineToConstantHeading(getVector2d(RED_RIGHT_PARK_LOCATION_2), Math.toRadians(270))
+                            .build();
+                }
+                break;
+
+                case THREE: {
+                    trajectoryToParkingLocation = robot.mecanum.trajectoryBuilder(currentPose)
+                            .splineToConstantHeading(new Vector2d(23.5, -10.75), Math.toRadians(0))
+                            .splineToConstantHeading(getVector2d(PowerPlayPoseStorageForPowerPlayDrive.RED_RIGHT_PARK_LOCATION_3), Math.toRadians(0))
+                            .build();
+                }
+                break;
+            }
+        }
+        return trajectoryToParkingLocation;
     }
 
     //*********************************************************************************************
@@ -297,88 +376,106 @@ public class PowerPlayAutonomousVisionOneCycleParkForPowerPlayDriveTestDualSenso
             }
             break;
 
-            case MOVING_TO_JUNCTION_POLE_FOR_SCORE: {
-                if (!robot.mecanum.isBusy()) {
-                    currentState = States.RAISING_LIFT;
-                    robot.coneGrabberArmController.moveToHighThenPrepareToRelease();
-                }
-            }
-            break;
-
-            case MOVING_TO_POSE_TO_START_SENSOR: {
-                if (!robot.mecanum.isBusy()) {
-                    currentState = States.LOOKING_FOR_POLE;
-                    robot.mecanum.followTrajectory(trajectoryToJunctionPoleFromStart);
-                }
-            }
-            break;
+//            case MOVING_TO_JUNCTION_POLE_FOR_SCORE: {
+//                if (!robot.mecanum.isBusy()) {
+//                    currentState = States.RAISING_LIFT;
+//                    robot.coneGrabberArmController.moveToHighThenPrepareToRelease();
+//                }
+//            }
+//            break;
+//
+//            case MOVING_TO_POSE_TO_START_SENSOR: {
+//                if (!robot.mecanum.isBusy()) {
+//                    currentState = States.LOOKING_FOR_POLE;
+//                    robot.mecanum.followTrajectory(trajectoryToJunctionPoleFromStart);
+//                }
+//            }
+//            break;
 
             case WAIT_BEFORE_LOOKING_FOR_POLE: {
                 // has the robot reached the location to start looking for the pole?
                 if (currentPose.getY() >= yLocationToStartLookingForPole) {
+                    robot.coneGrabberArmController.moveToLookAtHigh();
+                    //robot.coneGrabberArmController.moveToHighThenPrepareToRelease();
+                    //currentState = States.RAISING_LIFT;
+                    currentState = States.RAISING_LIFT_TO_LOOK_AT_HIGH;
+                }
+            }
+            break;
+
+            case RAISING_LIFT_TO_LOOK_AT_HIGH: {
+                if (robot.coneGrabberArmController.isCommandComplete()) {
                     powerPlayAutonomousCenterOnPole.start();
-                    //robot.coneGrabberArmController.moveToHighThenPrepareToRelease();
-                    //currentState = States.RAISING_LIFT;
-                    currentState = States.WAIT_FOR_COMPLETE;
+                    currentState = States.WAIT_FOR_CENTER_ON_POLE;
                 }
             }
             break;
 
-            case LOOKING_FOR_POLE: {
-                if (robot.poleLocationDetermination.getPoleLocation() == PowerPlayPoleLocationDetermination.PoleLocation.CENTER) {
-                    // found the pole
-                    poleCenterLocation = robot.mecanum.getPoseEstimate();
-                    robot.mecanum.cancelFollowing();
-                    robot.mecanum.setWeightedDrivePower(
-                            new Pose2d(
-                                    0,
-                                    0,
-                                    0
-                            )
-                    );
-
+            case WAIT_FOR_CENTER_ON_POLE: {
+                if (powerPlayAutonomousCenterOnPole.isComplete()) {
+                    // now centered on the pole, score
+                    robot.coneGrabberArmController.moveToHighThenPrepareToRelease();
                     timer.reset();
-                    //robot.coneGrabberArmController.moveToHighThenPrepareToRelease();
-                    //currentState = States.RAISING_LIFT;
-                    currentState = States.FIXING_POSITION;
+                    currentState = States.RAISING_LIFT;
                 }
-//                logFile.logData("normal distance = ", robot.poleLocationDetermination.getNormalDistance(DistanceUnit.MM));
-//                logFile.logData("inverse distance = ", robot.poleLocationDetermination.getInverseDistance(DistanceUnit.MM));
-//                logFile.logData("sensor difference = ", robot.poleLocationDetermination.getSensorDifference(DistanceUnit.MM));
-//                logCommandOnchange.log("pole location = " + robot.poleLocationDetermination.getPoleLocation().toString());
             }
-            break;
-
-            case FIXING_POSITION: {
-                //calculate the difference
-                double distanceToMove = (162 - robot.poleLocationDetermination.getDistanceFromPole(DistanceUnit.MM))/25.4;
-                logFile.logData("distance to move " +distanceToMove);
-                //move to the location needing to go
-                poleCenterLocation = robot.mecanum.getPoseEstimate();
-                logFile.logData("robot position " +poleCenterLocation.getX() + " " + poleCenterLocation.getY());
-                Pose2d movement = new Pose2d(distanceToMove, 0, 0);
-                Pose2d newLocation = poleCenterLocation.plus(movement);
-                logFile.logData("new position " +newLocation.getX() + " " + newLocation.getY());
-                Trajectory smallmove = robot.mecanum.trajectoryBuilder(poleCenterLocation)
-                        .lineTo(new Vector2d(newLocation.getX(), newLocation.getY()))
-                        .build();
-                //logFile.logData("current location = " + Double.toString(poleCenterLocation.getX()) + ", " + poleCenterLocation.getY());
-                //logFile.logData("fixed location = " + Double.toString(newLocation.getX()) + ", " + newLocation.getY());
-                robot.mecanum.followTrajectoryHighAccuracy(smallmove);
-                timer.reset();
-                //if done with movement, then move to next state
-                currentState = States.WAIT_FOR_COMPLETE;
-            }
-
             break;
 
             case RAISING_LIFT: {
-                if (robot.coneGrabberArmController.isCommandComplete()) {
+                // wait for 5 seconds before dropping so that lift will stop shaking
+                if (robot.coneGrabberArmController.isCommandComplete() && timer.milliseconds() > 5000) {
                     robot.lift.droppingOnPole();
                     currentState = States.DROPPING_FOUR_INCHES;
                 }
             }
             break;
+
+//            case LOOKING_FOR_POLE: {
+//                if (robot.poleLocationDetermination.getPoleLocation() == PowerPlayPoleLocationDetermination.PoleLocation.CENTER) {
+//                    // found the pole
+//                    poleCenterLocation = robot.mecanum.getPoseEstimate();
+//                    robot.mecanum.cancelFollowing();
+//                    robot.mecanum.setWeightedDrivePower(
+//                            new Pose2d(
+//                                    0,
+//                                    0,
+//                                    0
+//                            )
+//                    );
+//
+//                    timer.reset();
+//                    //robot.coneGrabberArmController.moveToHighThenPrepareToRelease();
+//                    //currentState = States.RAISING_LIFT;
+//                    currentState = States.FIXING_POSITION;
+//                }
+////                logFile.logData("normal distance = ", robot.poleLocationDetermination.getNormalDistance(DistanceUnit.MM));
+////                logFile.logData("inverse distance = ", robot.poleLocationDetermination.getInverseDistance(DistanceUnit.MM));
+////                logFile.logData("sensor difference = ", robot.poleLocationDetermination.getSensorDifference(DistanceUnit.MM));
+////                logCommandOnchange.log("pole location = " + robot.poleLocationDetermination.getPoleLocation().toString());
+//            }
+//            break;
+//
+//            case FIXING_POSITION: {
+//                //calculate the difference
+//                double distanceToMove = (162 - robot.poleLocationDetermination.getDistanceFromPole(DistanceUnit.MM))/25.4;
+//                logFile.logData("distance to move " +distanceToMove);
+//                //move to the location needing to go
+//                poleCenterLocation = robot.mecanum.getPoseEstimate();
+//                logFile.logData("robot position " +poleCenterLocation.getX() + " " + poleCenterLocation.getY());
+//                Pose2d movement = new Pose2d(distanceToMove, 0, 0);
+//                Pose2d newLocation = poleCenterLocation.plus(movement);
+//                logFile.logData("new position " +newLocation.getX() + " " + newLocation.getY());
+//                Trajectory smallmove = robot.mecanum.trajectoryBuilder(poleCenterLocation)
+//                        .lineTo(new Vector2d(newLocation.getX(), newLocation.getY()))
+//                        .build();
+//                //logFile.logData("current location = " + Double.toString(poleCenterLocation.getX()) + ", " + poleCenterLocation.getY());
+//                //logFile.logData("fixed location = " + Double.toString(newLocation.getX()) + ", " + newLocation.getY());
+//                robot.mecanum.followTrajectoryHighAccuracy(smallmove);
+//                timer.reset();
+//                //if done with movement, then move to next state
+//                currentState = States.WAIT_FOR_COMPLETE;
+//            }
+//            break;
 
             case DROPPING_FOUR_INCHES: {
                 if (robot.lift.isCommandComplete()) {
@@ -393,10 +490,10 @@ public class PowerPlayAutonomousVisionOneCycleParkForPowerPlayDriveTestDualSenso
                     if (trajectoryToParkingLocation == null) {
                         currentState = States.COMPLETE;
                     } else {
+                        trajectoryToParkingLocation = createParkingTrajectoriesOnTheFly(PowerPlayPersistantStorage.getParkLocation(), currentPose);
                         robot.mecanum.followTrajectoryAsync(trajectoryToParkingLocation);
                         currentState = States.MOVING_TO_PARKING;
                     }
-
                 }
             }
             break;
