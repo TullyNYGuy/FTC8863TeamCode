@@ -673,17 +673,22 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
                     }
                     break;
                     case TEST_THE_DROP: {
-                        // Cannot test the cone drop
+                        if(scoringTarget != ScoringTarget.GROUND_JUNCTION) {
+                            robot.lift.droppingOnPole();
+                            logCommand("test the drop");
+                        } else {
+                            logCommand("test the drop ignored since this is a ground junction");
+                        }
                         command = Command.NONE;
                         commandComplete = true;
-                        logCommand("drop cone command ignored since not finish the linup");
                     }
                     break;
                     case DROP_CONE: {
-                        // Cannot drop cone when headed to junction
+                        robot.coneGrabberArmController.releaseThenMoveToPickup();
+                        setPower(HIGH_POWER);
+                        controllerState = ControllerState.HEADED_FOR_SUBSTATION;
                         command = Command.NONE;
                         commandComplete = true;
-                        logCommand("drop cone command ignored since robot is close to junction");
                     }
                     break;
                     case PICKUP_CONE: {
@@ -746,17 +751,22 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
                     }
                     break;
                     case TEST_THE_DROP: {
-                        // Cannot test the cone drop
+                        if(scoringTarget != ScoringTarget.GROUND_JUNCTION) {
+                            robot.lift.droppingOnPole();
+                            logCommand("test the drop");
+                        } else {
+                            logCommand("test the drop ignored since this is a ground junction");
+                        }
                         command = Command.NONE;
                         commandComplete = true;
-                        logCommand("drop cone command ignored since not finish the linup");
                     }
                     break;
                     case DROP_CONE: {
-                        // Cannot drop cone yet
+                        robot.coneGrabberArmController.releaseThenMoveToPickup();
+                        setPower(HIGH_POWER);
+                        controllerState = ControllerState.HEADED_FOR_SUBSTATION;
                         command = Command.NONE;
                         commandComplete = true;
-                        logCommand("drop cone command ignored since robot is at junction");
                     }
                     break;
                     case PICKUP_CONE: {
