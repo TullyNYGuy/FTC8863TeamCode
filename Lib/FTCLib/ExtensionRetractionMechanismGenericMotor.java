@@ -1735,6 +1735,8 @@ public class ExtensionRetractionMechanismGenericMotor {
      *
      * @return true if ok to go to position
      */
+    // todo there is some kind of bug here where the direction of movement was retracting but got the
+    // error message for at extension limit already
     private boolean isOkToGoToPosition() {
         boolean result = true;
         getDirectionOfMovement();
@@ -2938,8 +2940,14 @@ public class ExtensionRetractionMechanismGenericMotor {
                             setCurrentPower(follower.getCorrection());
                             extensionRetractionState = ExtensionRetractionStates.FOLLOWING_PROFILE;
                         } else {
-                            extensionRetractionState = previousExtensionRetractionState;
-                            extensionRetractionCommand = previousExtensionRetractionCommand;
+                            // todo bug here. Previous command and state was following profile so
+                            // if cannot extend (isOkToGoToPosition fails) then lift is stuck forever
+                            // in this state. Commented following two lines out for now.
+                            //extensionRetractionState = previousExtensionRetractionState;
+                            //extensionRetractionCommand = previousExtensionRetractionCommand;
+                            // hard wiring a termination of this state
+                            extensionRetractionCommand = ExtensionRetractionCommands.NO_COMMAND;
+                            extensionRetractionState = ExtensionRetractionStates.PROFILE_COMPLETE;
                         }
                         break;
                     case JOYSTICK:
