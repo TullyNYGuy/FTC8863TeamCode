@@ -31,6 +31,7 @@ public class PowerPlayConeGrabberLiftController implements FTCRobotSubsystem {
         MOVING_TO_LOW,
         MOVING_TO_GROUND,
         MOVING_TO_PICKUP,
+        MOVING_UP_ONE_INCH,
 
         // cone grabber states
         MOVING_TO_RELEASE_POSITION,
@@ -231,6 +232,22 @@ public class PowerPlayConeGrabberLiftController implements FTCRobotSubsystem {
         }
     }
 
+    public void upOneInch () {
+        // lockout for double hits on a command button. Downside is that the driver better hit the
+        // right button the first time or they are toast
+        if (commandComplete) {
+            logCommand("lift up one inch");
+            commandComplete = false;
+            //command to start lift
+            controllerState = ControllerState.MOVING_UP_ONE_INCH;
+            lift.upOneInch();
+            cycleTracker.setPhaseOfCycleToScoring();
+        } else {
+            // you can't start a new command when the old one is not finished
+            logCommand("lift up one inch command ignored");
+        }
+    }
+
     public void moveToMediumThenPrepareToRelease() {
         // lockout for double hits on a command button. Downside is that the driver better hit the
         // right button the first time or they are toast
@@ -332,10 +349,11 @@ public class PowerPlayConeGrabberLiftController implements FTCRobotSubsystem {
             break;
 
             //********************************************************************************
-            // lift to look at pole with sensors position
+            // lift to look at pole with sensors position or moving up one inch
             //********************************************************************************
 
-            case MOVING_TO_LOOK_AT_HIGH: {
+            case MOVING_TO_LOOK_AT_HIGH:
+            case MOVING_UP_ONE_INCH: {
                 if (liftPositionReached) {
                     commandComplete = true;
                     controllerState = ControllerState.READY;

@@ -62,6 +62,7 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
         MOVING_TO_GROUND,
         MOVING_TO_PICKUP,
         DROPPING_ON_POLE,
+        MOVING_UP_ONE_INCH,
 
         // retraction states
         RETRACTING
@@ -83,6 +84,7 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
         LOOK_AT_HIGH,
         HIGH,
         DROP,
+        UP_ONE_INCH,
         IN_BETWEEN
     }
     private LiftLocation liftLocation;
@@ -561,6 +563,25 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
         }
     }
 
+    public void upOneInch() {
+        // lockout for double hits on a command button. Downside is that the driver better hit the
+        // right button the first time or they are toast
+        double currentLiftPosition = lift.getCurrentPosition();
+        // the current positon + the requested 1 inch increase has to be less than the max extension of the lift
+        if (commandComplete && (currentLiftPosition + 1) < MAXIMUM_LIFT_POSITION) {
+            logCommand("up one inch");
+            retractionComplete = false;
+            commandComplete = false;
+            lift.followProfile(getFollower(currentLiftPosition + 1.0));
+            liftLocation = LiftLocation.IN_BETWEEN;
+            liftState = LiftState.MOVING_UP_ONE_INCH;
+        } else {
+            // you can't start a new command when the old one is not finished
+            logCommand("up once inch command is ignored, too high or other command active");
+        }
+    }
+
+
     /**
      * Retract the lift to the pickup position. currently only using in robot shutdown.
      */
@@ -750,6 +771,14 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
                     commandComplete = true;
                     liftState = LiftState.READY;
                     liftLocation = LiftLocation.DROP;
+                }
+            }
+
+            case MOVING_UP_ONE_INCH: {
+                if (lift.isMotionProfileComplete()) {
+                    commandComplete = true;
+                    liftState = LiftState.READY;
+                    liftLocation = LiftLocation.UP_ONE_INCH;
                 }
             }
         }
