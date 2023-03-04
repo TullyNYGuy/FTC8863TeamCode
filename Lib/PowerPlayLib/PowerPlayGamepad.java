@@ -15,9 +15,10 @@ package org.firstinspires.ftc.teamcode.Lib.PowerPlayLib;
  *    / B                - Pickup
  *    / X                - Lineup for pickup
  *    / Y                - drop
- *    /Left Bumper       - driving mode = robot centric
- *    /Right Bumper      - driving mode = field centric
- *    /Left stick button - switch speed (high to max) or (low to high to max)
+ *    /Left Bumper       -
+ *    /Right Bumper      - switch speed (high to max) or (low to high to max)
+ *    /Left stick button - driving mode = robot centric
+ *    /Right stick button - driving mode = field centric
  *
  *  Gamepad 2 layout
  *    / Left JoystickX   -
@@ -25,13 +26,13 @@ package org.firstinspires.ftc.teamcode.Lib.PowerPlayLib;
  *    / Right JoystickX  -
  *    / Right JoystickY  -
  *    / DPad Up          - Move lift to high
- *    / DPad Left        - Move lift to low
- *    / DPad Down        - Move lift to ground
- *    / DPad Right       - Move lift to medium
+ *    / DPad Left        - Move lift to medium
+ *    / DPad Down        - Move lift to low
+ *    / DPad Right       - Move lift to ground
  *    / A                - Test the drop over pole
  *    / B                - Arm servo replacement position (disabled) OR high speed
  *    / X                - Max speed
- *    / Y                - Approaching substation, slow down, look for cone
+ *    / Y                - Up one inch
  *   /Left Bumper        -
  *   /Right Bumper       -
  */
@@ -254,11 +255,12 @@ public class PowerPlayGamepad {
 //        }
 
         if (gamepad1RightBumper.buttonPress(gamepad1.right_bumper)) {
-            drivingMode = DrivingMode.FIELD_CENTRIC;
+            //drivingMode = DrivingMode.FIELD_CENTRIC;
+            robot.speedController.switchSpeed();
         }
 
         if (gamepad1LeftBumper.buttonPress(gamepad1.left_bumper)) {
-            drivingMode = DrivingMode.ROBOT_CENTRIC;
+            //drivingMode = DrivingMode.ROBOT_CENTRIC;
         }
 
         if (gamepad1a.buttonPress(gamepad1.a)) {
@@ -296,12 +298,13 @@ public class PowerPlayGamepad {
         }
 
         if (gamepad1LeftStickButton.buttonPress(gamepad1.left_stick_button)) {
-            robot.speedController.switchSpeed();
+            drivingMode = DrivingMode.ROBOT_CENTRIC;
         }
 
         if (gamepad1RightStickButton.buttonPress(gamepad1.right_stick_button)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
+            drivingMode = DrivingMode.FIELD_CENTRIC;
         }
 
         //**************************************************************************************
@@ -360,7 +363,8 @@ public class PowerPlayGamepad {
         }
 
         if (gamepad2y.buttonPress(gamepad2.y)) {
-            robot.speedController.approachingSubstation();
+            // todo should go through speed controller
+            robot.coneGrabberArmController.upOneInch();
         }
 
         if (gamepad2x.buttonPress(gamepad2.x)) {
@@ -374,17 +378,17 @@ public class PowerPlayGamepad {
 
         if (gamepad2DpadDown.buttonPress(gamepad2.dpad_down)) {
             //robot.coneGrabberArmController.moveToGroundThenPrepareToRelease();
-            robot.speedController.approachingGroundJunction();
+            robot.speedController.approachingLowJunction();
         }
 
         if (gamepad2DpadLeft.buttonPress(gamepad2.dpad_left)) {
             //robot.coneGrabberArmController.moveToLowThenPrepareToRelease();
-            robot.speedController.approachingLowJunction();
+            robot.speedController.approachingMediumJunction();
         }
 
         if (gamepad2DpadRight.buttonPress(gamepad2.dpad_right)) {
             //robot.coneGrabberArmController.moveToMediumThenPrepareToRelease();
-            robot.speedController.approachingMediumJunction();
+            robot.speedController.approachingGroundJunction();
         }
 
         if (gamepad2LeftStickButton.buttonPress(gamepad2.left_stick_button)) {
