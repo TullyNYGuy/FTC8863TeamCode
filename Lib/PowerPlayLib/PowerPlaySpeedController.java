@@ -88,6 +88,12 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
 
     private boolean commandComplete = true;
 
+    private boolean demoMode = false;
+
+    public void setDemoMode() {
+        this.demoMode = true;
+    }
+
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS AND SETTERS and GETTERS
     //
@@ -647,18 +653,25 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
             break;
 
             case CLOSE_TO_JUNCTION: {
-                // other than a switch speed command, just do nothing while waiting for the distance
-                // sensor to see the junction
-                if (distanceSensorToUse.isLessThanDistance(DISTANCE_LIMIT_FOR_JUNCTION, DistanceUnit.INCH)) {
-                    // There is a junction in front of the sensor
-                    // Maybe want to lockout any other commands at this point?
-                    commandComplete = false;
-                    // Stop the robot
-                    setPower(0);
-                    // Set the timer that will make sure the robot stops before the driver can start it again
-                    stopTimer.reset();
-                    controllerState = ControllerState.AT_JUNCTION;
+
+                if (!demoMode) {
+                    // other than a switch speed command, just do nothing while waiting for the distance
+                    // sensor to see the junction
+                    if (distanceSensorToUse.isLessThanDistance(DISTANCE_LIMIT_FOR_JUNCTION, DistanceUnit.INCH)) {
+                        // There is a junction in front of the sensor
+                        // Maybe want to lockout any other commands at this point?
+                        commandComplete = false;
+                        // Stop the robot
+                        setPower(0);
+                        // Set the timer that will make sure the robot stops before the driver can start it again
+                        stopTimer.reset();
+                        controllerState = ControllerState.AT_JUNCTION;
+                    } else {
+                        // in demo mode just skip the distance sensor checks
+                        controllerState = ControllerState.AT_JUNCTION;
+                    }
                 }
+
 
                 switch (command) {
                     case NONE: {
@@ -730,13 +743,23 @@ public class PowerPlaySpeedController implements FTCRobotSubsystem {
             break;
 
             case AT_JUNCTION: {
-                // wait for the timer to expired indicating the robot is stopped
-                if(stopTimer.milliseconds() > 500) {
+
+                if (!demoMode) {
+                    // wait for the timer to expired indicating the robot is stopped
+                    if(stopTimer.milliseconds() > 500) {
+                        setPower(LOW_POWER);
+                        controllerState = ControllerState.FINISH_LINEUP_FOR_JUNCTION;
+                        // re-enable commands
+                        commandComplete = true;
+                    }
+                } else {
+                    // if demo mode skip the timer
                     setPower(LOW_POWER);
                     controllerState = ControllerState.FINISH_LINEUP_FOR_JUNCTION;
                     // re-enable commands
                     commandComplete = true;
                 }
+
 
                 switch (command) {
                     case NONE: {
