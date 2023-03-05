@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmodes.PowerPlay;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.hardware.lynx.LynxModule;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -24,7 +25,7 @@ import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayRobotModes;
 import java.util.List;
 
 @TeleOp(name = "Demo Power Play ", group = "AA")
-//@Disabled
+@Disabled
 
 public class PowerPlayDemo extends LinearOpMode {
 
@@ -78,7 +79,7 @@ public class PowerPlayDemo extends LinearOpMode {
         // set the demo mode for the robot
         // skips the dual distance sensors and the timeout for driver control
         robot.speedController.setDemoMode();
-        
+
         gamepad = new PowerPlayGamepad(gamepad1, gamepad2, robot);
 
         enableBulkReads(hardwareMap, LynxModule.BulkCachingMode.AUTO);
