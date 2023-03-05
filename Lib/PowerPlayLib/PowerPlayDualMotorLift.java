@@ -236,6 +236,7 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
         extensionMotionController.setOutputBounds(-1, 1);
         // create a follower for the profile and pass the PIF controller to it.
         extensionFollower = new MotionProfileFollower(extensionMotionController);
+        extensionFollower.setCompletionTimeout(0.5);
 
         // create a retraction PIDF Controller using the constants defined for the lift
         retractionPidCoefficients = LiftConstants.RETRACTION_PID_COEFFICENTS;
@@ -249,6 +250,8 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
         retractionMotionController.setOutputBounds(-1, 1);
         // create a follower for the profile and pass the PIF controller to it.
         retractionFollower = new MotionProfileFollower(retractionMotionController);
+        retractionFollower.setCompletionTimeout(0.5);
+        retractionFollower.setTargetTolerance(0.5);
 
     }
 
