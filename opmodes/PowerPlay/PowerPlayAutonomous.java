@@ -27,7 +27,7 @@ import org.openftc.easyopencv.OpenCvPipeline;
 
 import java.util.List;
 
-@Autonomous(name = "Autonomous Power Play", group = "AA")
+@Autonomous(name = "Autonomous Power Play", group = "Test")
 //@Disabled
 
 public class PowerPlayAutonomous extends LinearOpMode {
