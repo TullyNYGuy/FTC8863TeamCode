@@ -184,6 +184,7 @@ public class PowerPlayDualMotorLift implements FTCRobotSubsystem {
         // lift so that I will just depend on the PIDF controller to get the position right after
         // the overshoot.
         lift.disableExtensionAndRetractionLimits();
+        lift.setResetTimerLimitInmSec(10000);
 
         //*********************************************
         // SET the lift positions here
