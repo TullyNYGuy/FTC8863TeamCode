@@ -115,6 +115,7 @@ public class PowerPlayAutonomousDualDistanceSensor extends LinearOpMode {
 
         // start the webcam processing images through the pipeline.
         robot.webcam.openCamera(OpenCvCameraRotation.UPRIGHT, pipeline);
+        //robot.poleLocationDetermination.enablePoleLocationDetermination();
 
         // Wait for the start button
 
@@ -137,14 +138,17 @@ public class PowerPlayAutonomousDualDistanceSensor extends LinearOpMode {
             telemetry.addData("Cone color     = ", coneColor.toString());
             telemetry.addData("Park location = ", PowerPlayPersistantStorage.getParkLocation().toString());
             telemetry.addLine();
+            telemetry.addData("inverse sensor = ", robot.dualDistanceSensors.distanceSensorInverse.getDistance(DistanceUnit.MM));
+            telemetry.addData("normal sensor = ", robot.dualDistanceSensors.distanceSensorNormal.getDistance(DistanceUnit.MM));
             // display some pipeline info to use for debugging - just in case
-            pipeline.displayDebugTelemetry();
+            //pipeline.displayDebugTelemetry();
             telemetry.update();
 
             // update persistant storage with the current park location
             PowerPlayPersistantStorage.setParkLocation(field.determineParkLocation(coneColor));
             idle();
         }
+        //robot.poleLocationDetermination.disablePoleLocationDetermination();
 
         //*********************************************************************************************
         //             Robot Running after the user hits play on the driver phone

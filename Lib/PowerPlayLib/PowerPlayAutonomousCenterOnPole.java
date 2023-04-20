@@ -42,7 +42,7 @@ public class PowerPlayAutonomousCenterOnPole implements PowerPlayAutonomousState
     private Telemetry telemetry;
 
     // how far away from the pole should the robot be?
-    public static double IDEAL_DISTANCE_TO_POLE = 162; // in mm
+    public static double IDEAL_DISTANCE_TO_POLE = 174; // in mm
     // what is the allowed variation?
     public static double IDEAL_DISTANCE_TOLERANCE = 12; // in mm
 

@@ -30,7 +30,7 @@ package org.firstinspires.ftc.teamcode.Lib.PowerPlayLib;
  *    / DPad Down        - Move lift to low
  *    / DPad Right       - Move lift to ground
  *    / A                - Test the drop over pole
- *    / B                - Arm servo replacement position (disabled) OR high speed
+ *    / B                - 75% speed
  *    / X                - Max speed
  *    / Y                - Up one inch
  *   /Left Bumper        -
