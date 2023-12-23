@@ -258,12 +258,15 @@ public class LauncherBotGamepad {
         }
 
         if (gamepad1a.buttonPress(gamepad1.a)) {
+            robot.shooterServo.shoot8();
         }
 
         if (gamepad1b.buttonPress(gamepad1.b)) {
+            robot.shooterServo.shoot3();
         }
 
         if (gamepad1y.buttonPress(gamepad1.y)) {
+            robot.shooterServo.shoot1();
         }
 
         if (gamepad1x.buttonPress(gamepad1.x)) {

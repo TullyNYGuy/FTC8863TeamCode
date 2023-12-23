@@ -55,6 +55,7 @@ public class LauncherBotRobot implements FTCRobot {
     public enum Subsystem {
         MECANUM_DRIVE,
         SHOOTER,
+        SHOOTER_SERVO,
         ANGLE_CHANGER,
         LOOP_TIMER
     }
@@ -84,6 +85,7 @@ public class LauncherBotRobot implements FTCRobot {
     private AdafruitIMU8863 imu;
     public LauncherBotMecanumDrive mecanum;
     public LauncherBotDualMotorGearBox shooter;
+    public LauncherBotShooterServo shooterServo;
     public LauncherBotAngleChanger angleChanger;
     public LoopTimer loopTimer;
 
@@ -123,6 +125,11 @@ public class LauncherBotRobot implements FTCRobot {
         if (capabilities.contains(Subsystem.SHOOTER)) {
             shooter = new LauncherBotDualMotorGearBox(HardwareName.LEFT_SHOOTER_MOTOR.hwName, HardwareName.RIGHT_SHOOTER_MOTOR.hwName, hardwareMap, telemetry);
             subsystemMap.put(shooter.getName(), shooter);
+        }
+
+        if (capabilities.contains(Subsystem.SHOOTER_SERVO)) {
+            shooterServo = new LauncherBotShooterServo(hardwareMap, telemetry);
+            subsystemMap.put(shooterServo.getName(), shooterServo);
         }
 
         if (capabilities.contains(Subsystem.ANGLE_CHANGER)) {
