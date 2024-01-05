@@ -28,7 +28,7 @@ public class CenterStageFingerServoLeft {
 
     public static double INIT_POSITION = 0.5;
     public static double OPEN_POSITION = 0.5;
-    public static double CLOSE_POSITION = .2;
+    public static double CLOSE_POSITION = .21;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods

@@ -26,9 +26,9 @@ public class CenterStageFingerServoRight {
     private CenterStageFingerServo rightFingerServo;
     private final String RIGHT_FINGER_SERVO_NAME = "rightFingerServo";
 
-    public static double INIT_POSITION = 0.245;
-    public static double OPEN_POSITION = 0.875;
-    public static double CLOSE_POSITION = .895;
+    public static double INIT_POSITION = 0;
+    public static double OPEN_POSITION = 0;
+    public static double CLOSE_POSITION = 0;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods

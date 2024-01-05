@@ -18,6 +18,7 @@ public class CenterStagePixelGrabberLeft implements FTCRobotSubsystem {
     //*********************************************************************************************
     public enum Command {
         ON,
+        RELEASE_PIXEL,
         OFF
     }
     private Command command = Command.OFF;
@@ -25,11 +26,11 @@ public class CenterStagePixelGrabberLeft implements FTCRobotSubsystem {
     public enum State {
         PRE_INIT,
         READY_AND_WAITING,
-        PIXEL_PRESENT,
         CLOSING,
+        PIXEL_CHECK,
         PIXEL_GRABBED,
         OPENING,
-        PIXEL_RELEASED
+        RELEASING
     }
     private State state = State.PRE_INIT;
 
@@ -43,7 +44,7 @@ public class CenterStagePixelGrabberLeft implements FTCRobotSubsystem {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
-    private final String PIXEL_GRABBER_NAME = "";
+    private final String PIXEL_GRABBER_NAME = "leftPixelGrabber";
 
     private CenterStageFingerServoLeft leftFingerServo;
     private CenterStageIntakeColorSensorLeft leftColorSensor;
@@ -104,11 +105,8 @@ public class CenterStagePixelGrabberLeft implements FTCRobotSubsystem {
 
     public void releasePixel() {
         logCommand("Release Pixel");
-        leftFingerServo.open();
-        state = State.OPENING;
+        command = Command.RELEASE_PIXEL;
         commandComplete = false;
-        // do not intake a pixel until on() command is given
-        off();
     }
 
     public boolean isCommandComplete() {
@@ -163,15 +161,19 @@ public class CenterStagePixelGrabberLeft implements FTCRobotSubsystem {
 
             case CLOSING:
                 if (leftFingerServo.isPositionReached()) {
-                    if (leftColorSensor.isPixelPresent()) {
-                        state = State.PIXEL_GRABBED;
-                        commandComplete = true;
-                    } else {
-                        // lost the pixel somehow
-                        leftFingerServo.open();
-                        commandComplete = false;
-                        state = State.OPENING;
-                    }
+                    state = State.PIXEL_CHECK;
+                }
+                break;
+
+            case PIXEL_CHECK:
+                if (leftColorSensor.isPixelPresent()) {
+                    state = State.PIXEL_GRABBED;
+                    commandComplete = true;
+                } else {
+                    // lost the pixel somehow
+                    leftFingerServo.open();
+                    commandComplete = false;
+                    state = State.OPENING;
                 }
                 break;
 
@@ -193,6 +195,22 @@ public class CenterStagePixelGrabberLeft implements FTCRobotSubsystem {
                     // command = OFF so don't do anything
                 }
                 break;
+
+            case PIXEL_GRABBED:
+                if (command == Command.RELEASE_PIXEL){
+                    leftFingerServo.open();
+                    state = State.RELEASING;
+                }
+                break;
+
+            case RELEASING:
+                if (leftFingerServo.isPositionReached()) {
+                    off();
+                    commandComplete = true;
+                    state = State.READY_AND_WAITING;
+                }
+                break;
+
         }
 
     }

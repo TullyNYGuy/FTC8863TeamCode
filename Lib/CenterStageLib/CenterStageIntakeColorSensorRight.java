@@ -23,7 +23,7 @@ public class CenterStageIntakeColorSensorRight {
     //*********************************************************************************************
     private CenterStageColorSensorForDistance rightColorSensor;
     private final String INTAKE_RIGHT_COLOR_SENSOR_NAME = "intakeRightColorSensor";
-    
+
     private double distanceThreshold = 1.0; // cm
     private DistanceUnit distanceUnit = DistanceUnit.CM;
 
@@ -53,7 +53,7 @@ public class CenterStageIntakeColorSensorRight {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
-    
+
     public boolean isPixelPresent() {
         return rightColorSensor.isObjectPresent();
     }
