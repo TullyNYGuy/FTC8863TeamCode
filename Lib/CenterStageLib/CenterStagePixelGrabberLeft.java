@@ -44,7 +44,7 @@ public class CenterStagePixelGrabberLeft implements FTCRobotSubsystem {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
-    private final String PIXEL_GRABBER_NAME = "leftPixelGrabber";
+    private final String PIXEL_GRABBER_NAME = CenterStageRobot.HardwareName.LEFT_PIXEL_GRABBER.hwName;
 
     private CenterStageFingerServoLeft leftFingerServo;
     private CenterStageIntakeColorSensorLeft leftColorSensor;

@@ -24,7 +24,7 @@ public class CenterStageFingerServoRight {
     // getter and setter methods
     //*********************************************************************************************
     private CenterStageFingerServo rightFingerServo;
-    private final String RIGHT_FINGER_SERVO_NAME = "rightFingerServo";
+    private final String RIGHT_FINGER_SERVO_NAME = CenterStageRobot.HardwareName.RIGHT_FINGER_SERVO.hwName;
 
     public static double INIT_POSITION = 0;
     public static double OPEN_POSITION = 0;

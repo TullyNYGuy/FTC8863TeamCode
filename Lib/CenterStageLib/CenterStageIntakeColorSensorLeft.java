@@ -22,7 +22,7 @@ public class CenterStageIntakeColorSensorLeft {
     // getter and setter methods
     //*********************************************************************************************
     private CenterStageColorSensorForDistance leftColorSensor;
-    private final String INTAKE_LEFT_COLOR_SENSOR_NAME = "intakeLeftColorSensor";
+    private final String INTAKE_LEFT_COLOR_SENSOR_NAME = CenterStageRobot.HardwareName.LEFT_INTAKE_COLOR_SENSOR.hwName;
 
     private double distanceThreshold = 1.0; // cm
     private DistanceUnit distanceUnit = DistanceUnit.CM;
