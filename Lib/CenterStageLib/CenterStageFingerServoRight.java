@@ -27,9 +27,9 @@ public class CenterStageFingerServoRight {
     private CenterStageFingerServo rightFingerServo;
     private final String RIGHT_FINGER_SERVO_NAME = CenterStageRobot.HardwareName.RIGHT_FINGER_SERVO.hwName;
 
-    public static double INIT_POSITION = 0;
-    public static double OPEN_POSITION = 0;
-    public static double CLOSE_POSITION = 0;
+    public static double INIT_POSITION = 0.5;
+    public static double OPEN_POSITION = 0.5;
+    public static double CLOSE_POSITION = 0.21;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -52,7 +52,7 @@ public class CenterStageFingerServoRight {
                 INIT_POSITION,
                 OPEN_POSITION,
                 CLOSE_POSITION,
-                Servo.Direction.FORWARD);
+                Servo.Direction.REVERSE);
     }
     //*********************************************************************************************
     //          Helper Methods
