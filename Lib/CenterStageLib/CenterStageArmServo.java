@@ -30,11 +30,11 @@ public class CenterStageArmServo {
     //*********************************************************************************************
     private Servo8863New armServo;
 
-    private String servoName;
+    private final String ARM_SERVO_NAME = CenterStageRobot.HardwareName.ARM_SERVO.hwName;
 
     private double intakePosition = 0.0;
-    private double normalReadyPosition = 0.0;
-    private double lowReadyPosition = 0.0;
+    private double normalDropPosition = 0.0;
+    private double lowDropPosition = 0.0;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -52,13 +52,11 @@ public class CenterStageArmServo {
     //*********************************************************************************************
 
     public CenterStageArmServo(HardwareMap hardwareMap, Telemetry telemetry) {
-        armServo = new Servo8863New(servoName, hardwareMap, telemetry);
-        this.servoName = servoName;
-
-
-        armServo.addPosition("intakeposition", intakePosition, 1000, TimeUnit.MILLISECONDS);
-        armServo.addPosition("normalreadyposition", normalReadyPosition, 1000, TimeUnit.MILLISECONDS);
-        armServo.addPosition("lowreadyposition", lowReadyPosition, 1000, TimeUnit.MILLISECONDS);
+        armServo = new Servo8863New(ARM_SERVO_NAME, hardwareMap, telemetry);
+        
+        armServo.addPosition("intakePosition", intakePosition, 1000, TimeUnit.MILLISECONDS);
+        armServo.addPosition("normalDropPosition", normalDropPosition, 1000, TimeUnit.MILLISECONDS);
+        armServo.addPosition("lowDropPosition", lowDropPosition, 1000, TimeUnit.MILLISECONDS);
 
         armServo.setDirection(Servo.Direction.FORWARD);
     }
@@ -75,15 +73,15 @@ public class CenterStageArmServo {
     //*********************************************************************************************
 
     public void intakePosition() {
-        armServo.setPosition("intakeposition");
+        armServo.setPosition("intakePosition");
     }
 
-    public void normalReadyPosition() {
-        armServo.setPosition("normalreadyposition");
+    public void normalDropPosition() {
+        armServo.setPosition("normalDropPosition");
     }
 
-    public void lowReadyPosition() {
-        armServo.setPosition("lowreadyposition");
+    public void lowDropPosition() {
+        armServo.setPosition("lowDropPosition");
     }
 
     public boolean isPositionReached() {

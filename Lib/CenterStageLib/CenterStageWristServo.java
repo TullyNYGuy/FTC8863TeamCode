@@ -30,7 +30,7 @@ public class CenterStageWristServo {
     //*********************************************************************************************
     private Servo8863New wristServo;
 
-    private String servoName;
+    private final String WRIST_SERVO_NAME = CenterStageRobot.HardwareName.WRIST_SERVO.hwName;
 
     private double intakePosition = 0.0;
     private double normalDropPosition = 0.0;
@@ -52,13 +52,11 @@ public class CenterStageWristServo {
     //*********************************************************************************************
 
     public CenterStageWristServo(HardwareMap hardwareMap, Telemetry telemetry) {
-        wristServo = new Servo8863New(servoName, hardwareMap, telemetry);
-        this.servoName = servoName;
+        wristServo = new Servo8863New(WRIST_SERVO_NAME, hardwareMap, telemetry);
 
-        
-        wristServo.addPosition("intakeposition", intakePosition, 1000, TimeUnit.MILLISECONDS);
-        wristServo.addPosition("normaldropposition", normalDropPosition, 1000, TimeUnit.MILLISECONDS);
-        wristServo.addPosition("lowdropposition", lowDropPosition, 1000, TimeUnit.MILLISECONDS);
+        wristServo.addPosition("intakePosition", intakePosition, 1000, TimeUnit.MILLISECONDS);
+        wristServo.addPosition("normalDropPosition", normalDropPosition, 1000, TimeUnit.MILLISECONDS);
+        wristServo.addPosition("lowDropPosition", lowDropPosition, 1000, TimeUnit.MILLISECONDS);
 
         wristServo.setDirection(Servo.Direction.FORWARD);
     }
@@ -75,15 +73,15 @@ public class CenterStageWristServo {
     //*********************************************************************************************
 
     public void intakePosition() {
-        wristServo.setPosition("intakeposition");
+        wristServo.setPosition("intakePosition");
     }
 
     public void normalDropPosition() {
-        wristServo.setPosition("normaldropposition");
+        wristServo.setPosition("normalDropPosition");
     }
 
     public void lowDropPosition() {
-        wristServo.setPosition("lowdropposition");
+        wristServo.setPosition("lowDropPosition");
     }
 
     public boolean isPositionReached() {
