@@ -440,6 +440,9 @@ public class Servo8863New {
         double position;
         while (opMode.opModeIsActive()) {
             position = -opMode.gamepad1.right_stick_y;
+            if (position < 1) {
+                position = 0;
+            }
             setPositionUsingJoystick(position);
             if (opMode.gamepad1.a) {
                 lockPosition();
@@ -448,6 +451,7 @@ public class Servo8863New {
                 unlockPosition();
             }
             opMode.telemetry.addData("Position = ", position);
+            opMode.telemetry.addData(">", "stop to finish");
             opMode.telemetry.update();
             opMode.idle();
         }
