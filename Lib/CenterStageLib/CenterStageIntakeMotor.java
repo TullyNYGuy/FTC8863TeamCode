@@ -6,9 +6,8 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
-import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyRobotRoadRunner;
 
-public class CenterStageIntake {
+public class CenterStageIntakeMotor {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -24,7 +23,7 @@ public class CenterStageIntake {
     // getter and setter methods
     //*********************************************************************************************
     private DcMotor8863 intakeMotor;
-    private final String SHOULDER_MOTOR_NAME = "";
+    private final String INTAKE_MOTOR_NAME = CenterStageRobot.HardwareName.INTAKE_MOTOR.hwName;
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -39,8 +38,8 @@ public class CenterStageIntake {
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
-    public CenterStageIntake(HardwareMap hardwareMap, Telemetry telemetry) {
-        intakeMotor = new DcMotor8863(SHOULDER_MOTOR_NAME, hardwareMap);
+    public CenterStageIntakeMotor(HardwareMap hardwareMap, Telemetry telemetry) {
+        intakeMotor = new DcMotor8863(INTAKE_MOTOR_NAME, hardwareMap);
         intakeMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40); // this sets the type of motor we are using
         intakeMotor.setMovementPerRev(360); // 360 degrees per revolution, our position will be in degrees
         intakeMotor.setDirection(DcMotorSimple.Direction.REVERSE); // says which direction (clockwise or counter clockwise) is considered a positive rotation
@@ -61,9 +60,8 @@ public class CenterStageIntake {
     }
 
     public void off() {
-        intakeMotor.runAtConstantPower(0);
+        intakeMotor.stop();
     }
-
 
     public boolean isInitComplete() {
         return intakeMotor.isMovementComplete();
@@ -72,6 +70,4 @@ public class CenterStageIntake {
     public void update() {
         intakeMotor.update();
     }
-
-
 }
