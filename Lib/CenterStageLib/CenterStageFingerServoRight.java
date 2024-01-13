@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Lib.CenterStageLib;
 
 
 import com.acmerobotics.dashboard.config.Config;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -79,5 +80,9 @@ public class CenterStageFingerServoRight {
 
     public boolean isPositionReached() {
         return rightFingerServo.isPositionReached();
+    }
+
+    public void testPositionUsingJoystick(LinearOpMode opmode) {
+        rightFingerServo.testPositionUsingJoystick(opmode);
     }
 }
