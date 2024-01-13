@@ -7,13 +7,18 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogOnChange;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Servo8863New;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.ServoPosition;
+import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayConeGrabber;
 
 import java.util.concurrent.TimeUnit;
 
 @Config
-public class CenterStagePlaneGUNservo {
+public class CenterStagePlaneGUNservo implements FTCRobotSubsystem {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -30,7 +35,11 @@ public class CenterStagePlaneGUNservo {
     //*********************************************************************************************
     private Servo8863New gunServo;
 
-    private String servoName = "gunServo";
+    private DataLogging logFile;
+    private boolean enableLogging = false;
+    private DataLogOnChange logCommandOnchange;
+
+    private final String PLANE_GUN_SERVO_NAME = CenterStageRobot.HardwareName.PLANE_GUN_SERVO.hwName;
 
     private double killPosition = .75;
     private double nonKillPosition = 0;
@@ -51,7 +60,7 @@ public class CenterStagePlaneGUNservo {
     //*********************************************************************************************
 
     public CenterStagePlaneGUNservo(HardwareMap hardwareMap, Telemetry telemetry) {
-        gunServo = new Servo8863New(servoName, hardwareMap, telemetry);
+        gunServo = new Servo8863New(PLANE_GUN_SERVO_NAME, hardwareMap, telemetry);
 
         gunServo.addPosition("killPosition", killPosition, 1000, TimeUnit.MILLISECONDS);
         gunServo.addPosition("nonKillPosition", nonKillPosition, 1000, TimeUnit.MILLISECONDS);
@@ -93,5 +102,56 @@ public class CenterStagePlaneGUNservo {
 
     public void testPositionUsingJoystick(LinearOpMode opmode) {
         gunServo.testPositionsUsingJoystick(opmode);
+    }
+
+    @Override
+    public boolean init(Configuration config) {
+        logCommand("Init started");
+        logCommand("Init complete");
+        return true;
+    }
+
+    public boolean isInitComplete() {
+        return true;
+    }
+
+    @Override
+    public String getName() {
+        return PLANE_GUN_SERVO_NAME;
+    }
+
+    @Override
+    public void shutdown() {
+    }
+
+    @Override
+    public void setDataLog(DataLogging logFile) {
+        this.logFile = logFile;
+        logCommandOnchange = new DataLogOnChange(logFile);
+    }
+
+    @Override
+    public void enableDataLogging() {
+        enableLogging = true;
+    }
+
+    @Override
+    public void disableDataLogging() {
+        enableLogging = false;
+    }
+
+    @Override
+    public void update() {
+    }
+
+    @Override
+    public void timedUpdate(double timerValueMsec) {
+
+    }
+
+    private void logCommand(String command) {
+        if (enableLogging && logFile != null) {
+            logCommandOnchange.log(getName() + " command = " + command);
+        }
     }
 }
