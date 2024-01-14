@@ -23,9 +23,9 @@ public class CenterStageTestLiftLimitSwitches extends LinearOpMode {
         // Put your initializations here
         lift = new ExtensionRetractionMechanism(hardwareMap, telemetry,
                 "Lift",
-                "ExtensionLimitSwitch",
-                "RetractionLimitSwitch",
-                "LiftMotor",
+                "liftExtensionLimitSwitch",
+                "liftRetractionLimitSwitch",
+                "liftMotor",
                 DcMotor8863.MotorType.GOBILDA_435,
                 4.75);
         // This is for the blue alliance
