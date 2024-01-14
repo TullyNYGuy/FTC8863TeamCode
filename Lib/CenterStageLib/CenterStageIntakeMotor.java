@@ -42,7 +42,7 @@ public class CenterStageIntakeMotor {
         intakeMotor = new DcMotor8863(INTAKE_MOTOR_NAME, hardwareMap);
         intakeMotor.setMotorType(DcMotor8863.MotorType.ANDYMARK_40); // this sets the type of motor we are using
         intakeMotor.setMovementPerRev(360); // 360 degrees per revolution, our position will be in degrees
-        intakeMotor.setDirection(DcMotorSimple.Direction.REVERSE); // says which direction (clockwise or counter clockwise) is considered a positive rotation
+        intakeMotor.setDirection(DcMotorSimple.Direction.FORWARD); // says which direction (clockwise or counter clockwise) is considered a positive rotation
     }
     //*********************************************************************************************
     //          Helper Methods
