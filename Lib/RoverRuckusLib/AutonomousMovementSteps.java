@@ -99,7 +99,7 @@ public class AutonomousMovementSteps {
     private AutonomousDirector.AutonomousTasks task;
     private AutonomousDirector.AutonomousTasks previousTask;
 
-    private GoldMineralDetection goldMineralDetection;
+    //private GoldMineralDetection goldMineralDetection;
     private MineralVoting.LikelyPosition goldPosition;
 
     private Steps step;
@@ -149,7 +149,9 @@ public class AutonomousMovementSteps {
     }
 
     public MineralVoting.LikelyPosition getMostLikelyGoldPosition() {
-        return goldMineralDetection.getMostLikelyGoldPosition();
+        //return goldMineralDetection.getMostLikelyGoldPosition();
+        // gb 2023 vuforia deprecated had to do this to build
+        return MineralVoting.LikelyPosition.CENTER;
     }
 
     public boolean isTaskComplete() {
@@ -188,7 +190,8 @@ public class AutonomousMovementSteps {
         step = Steps.START;
         task = autonomousDirector.getNextTask();
 
-        goldMineralDetection = new GoldMineralDetection(hardwareMap, telemetry, logFile);
+        // gb 2023 vuforia removed from ftc lib, had to do this to build
+        //goldMineralDetection = new GoldMineralDetection(hardwareMap, telemetry, logFile);
 
     }
 
@@ -254,20 +257,22 @@ public class AutonomousMovementSteps {
                     case START:
 //                        taskComplete = false;
                         robot.deliveryLiftSystem.deliveryBoxToOutOfWay();
-                        goldMineralDetection.activate(2500);
+                        // gb 2023 vuforia removed from ftc lib, had to do this to build
+                        //goldMineralDetection.activate(2500);
                         step = Steps.WAIT_FOR_GOLD_MINERAL_LOCATION;
                         break;
                     case WAIT_FOR_GOLD_MINERAL_LOCATION:
-                        if (goldMineralDetection.isRecognitionComplete()) {
-                            goldMineralDetection.shutdown();
-                            goldMineralPosition = goldMineralDetection.getMostLikelyGoldPosition();
-                            task = autonomousDirector.getNextTask();
-                            // setup to start the next task
-                            step = Steps.START;
-                            //taskComplete = true;
-                        } else {
-                            goldMineralDetection.getRecognition(2);
-                        }
+                        // gb 2023 vuforia removed from ftc lib, had to do this to build
+//                        if (goldMineralDetection.isRecognitionComplete()) {
+//                            goldMineralDetection.shutdown();
+//                            goldMineralPosition = goldMineralDetection.getMostLikelyGoldPosition();
+//                            task = autonomousDirector.getNextTask();
+//                            // setup to start the next task
+//                            step = Steps.START;
+//                            //taskComplete = true;
+//                        } else {
+//                            goldMineralDetection.getRecognition(2);
+//                        }
                         break;
                 }
                 break;
