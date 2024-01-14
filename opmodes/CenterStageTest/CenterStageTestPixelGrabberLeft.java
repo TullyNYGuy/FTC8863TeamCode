@@ -68,7 +68,7 @@ public class CenterStageTestPixelGrabberLeft extends LinearOpMode {
             }
 
             if (gamepad1.y) {
-                leftPixelGrabber.releasePixel();
+                leftPixelGrabber.deliverPixel();
                 // note that this turns the pixel grabber off after the release is complete
             }
 
@@ -82,7 +82,7 @@ public class CenterStageTestPixelGrabberLeft extends LinearOpMode {
                     // 5 seconds before pixel is released
                 case PIXEL_GRABBED:
                     if (timer.milliseconds() > 5000) {
-                        leftPixelGrabber.releasePixel();
+                        leftPixelGrabber.deliverPixel();
                         timer.reset();
                         state = State.WAITING_TO_REMOVE_PIXEL;
                     }
