@@ -48,7 +48,7 @@ public class CenterStagePixelGrabberRight implements FTCRobotSubsystem {
     private final String PIXEL_GRABBER_NAME = CenterStageRobot.HardwareName.RIGHT_PIXEL_GRABBER.hwName;;
 
     private CenterStageFingerServoRight fingerServo;
-    private CenterStageIntakeColorSensorLeft colorSensor;
+    private CenterStageIntakeColorSensorRight colorSensor;
 
     private DataLogging logFile;
     private boolean enableLogging = false;
@@ -65,7 +65,7 @@ public class CenterStagePixelGrabberRight implements FTCRobotSubsystem {
     //*********************************************************************************************
     public CenterStagePixelGrabberRight(HardwareMap hardwareMap, Telemetry telemetry) {
         fingerServo = new CenterStageFingerServoRight(hardwareMap, telemetry);
-        colorSensor = new CenterStageIntakeColorSensorLeft(hardwareMap, telemetry);
+        colorSensor = new CenterStageIntakeColorSensorRight(hardwareMap, telemetry);
 
         command = Command.OFF;
         state = State.PRE_INIT;
@@ -116,6 +116,14 @@ public class CenterStagePixelGrabberRight implements FTCRobotSubsystem {
 
     public boolean isPixelGrabbed() {
         if (state == State.PIXEL_GRABBED) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean isDeliveryComplete() {
+        if (state == CenterStagePixelGrabberRight.State.OFF) {
             return true;
         } else {
             return false;
