@@ -31,7 +31,7 @@ public class CenterStagePixelGrabberLeft implements FTCRobotSubsystem {
         CHECK_PIXEL_GRABBED,
         PIXEL_GRABBED,
         OPENING,
-        RELEASING
+        DELIVERING
     }
     private State state = State.PRE_INIT;
 
@@ -208,21 +208,21 @@ public class CenterStagePixelGrabberLeft implements FTCRobotSubsystem {
                 if (command == Command.DELIVER_PIXEL) {
                     commandComplete = false;
                     fingerServo.open();
-                    state = State.RELEASING;
+                    state = State.DELIVERING;
                 }
                 break;
 
             case PIXEL_GRABBED:
                 if (command == Command.DELIVER_PIXEL){
                     fingerServo.open();
-                    state = State.RELEASING;
+                    state = State.DELIVERING;
                 }
                 if (command == Command.OFF) {
                     state = State.OFF;
                 }
                 break;
 
-            case RELEASING:
+            case DELIVERING:
                 if (fingerServo.isPositionReached()) {
                     off();
                     commandComplete = true;
