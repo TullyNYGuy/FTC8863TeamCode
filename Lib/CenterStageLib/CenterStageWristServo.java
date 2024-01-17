@@ -100,4 +100,8 @@ public class CenterStageWristServo {
     public void testPositionUsingJoystick(LinearOpMode opmode) {
         wristServo.testPositionsUsingJoystick(opmode);
     }
+
+    public void setupServoPositionsUsingGamepad(LinearOpMode opmode) {
+        wristServo.setupServoPositionsUsingGamepad(opmode);
+    }
 }
