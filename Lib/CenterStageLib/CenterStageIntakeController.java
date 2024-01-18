@@ -142,6 +142,12 @@ public class CenterStageIntakeController implements FTCRobotSubsystem {
         }
     }
 
+    public String getLeftPixelGrabberStateAsString(){
+        return pixelGrabberLeft.getStateAsString();
+    }
+    public String getRightPixelGrabberStateAsString(){
+        return pixelGrabberRight.getStateAsString();
+    }
     @Override
     public String getName() {
         return PIXEL_GRABBER_NAME;
@@ -163,13 +169,13 @@ public class CenterStageIntakeController implements FTCRobotSubsystem {
     public boolean init(Configuration config) {
         state = State.PRE_INIT;
         update();
-        pixelGrabberRight.update();
-        pixelGrabberLeft.update();
         return true;
     }
 
     @Override
     public void update() {
+        pixelGrabberRight.update();
+        pixelGrabberLeft.update();
         logState();
 
         switch (state) {
@@ -195,7 +201,6 @@ public class CenterStageIntakeController implements FTCRobotSubsystem {
                     pixelGrabberRight.on();
                     state = State.INTAKING;
                 }
-
                 break;
 
             case INTAKING:
@@ -204,65 +209,66 @@ public class CenterStageIntakeController implements FTCRobotSubsystem {
                     pixelGrabberLeft.off();
                     pixelGrabberRight.off();
                     state = State.OFF;
+                } else {
+                    if (pixelGrabberLeft.isPixelGrabbed() && pixelGrabberRight.isPixelGrabbed()) {
+                        intakeMotor.off();
+                        state = State.BOTH_PIXELS_GRABBED;
+                    }
+                    if (pixelGrabberLeft.isPixelGrabbed()) {
+                        state = State.LEFT_PIXEL_GRABBED;
+                    }
+                    if (pixelGrabberRight.isPixelGrabbed()) {
+                        state = State.RIGHT_PIXEL_GRABBED;
+                    }
                 }
-                if (pixelGrabberLeft.isPixelGrabbed() && pixelGrabberRight.isPixelGrabbed()) {
-                    intakeMotor.off();
-                    state = State.BOTH_PIXELS_GRABBED;
-                }
-                if (pixelGrabberLeft.isPixelGrabbed()) {
-                    state = State.LEFT_PIXEL_GRABBED;
-                }
-                if (pixelGrabberRight.isPixelGrabbed()) {
-                    state = State.RIGHT_PIXEL_GRABBED;
-                }
-
                 break;
 
             case LEFT_PIXEL_GRABBED:
                 if (pixelGrabberRight.isPixelGrabbed()) {
-                    state = State.BOTH_PIXELS_GRABBED;
-                }
-                if (command == Command.OFF) {
                     intakeMotor.off();
-                    pixelGrabberLeft.off();
-                    pixelGrabberRight.off();
-                    state = State.LEFT_PIXEL_GRABBED;
+                    state = State.BOTH_PIXELS_GRABBED;
+                } else {
+                    if (command == Command.OFF) {
+                        intakeMotor.off();
+                        pixelGrabberLeft.off();
+                        pixelGrabberRight.off();
+                        state = State.LEFT_PIXEL_GRABBED;
+                    }
+                    if (command == Command.DELIVER_LEFT_PIXEL) {
+                        pixelGrabberLeft.deliverPixel();
+                        state = State.DELIVERING_LEFT_PIXEL;
+                    }
+                    if (command == Command.INTAKE) {
+                        intakeMotor.intake();
+                        pixelGrabberLeft.on();
+                        pixelGrabberRight.on();
+                        state = State.INTAKING;
+                    }
                 }
-                if (command == Command.DELIVER_LEFT_PIXEL) {
-                    pixelGrabberLeft.deliverPixel();
-                    state = State.DELIVERING_LEFT_PIXEL;
-                }
-                if (command == Command.INTAKE) {
-                    intakeMotor.intake();
-                    pixelGrabberLeft.on();
-                    pixelGrabberRight.on();
-                    state = State.INTAKING;
-                }
-
-
                 break;
 
             case RIGHT_PIXEL_GRABBED:
                 if (pixelGrabberLeft.isPixelGrabbed()) {
-                    state = State.BOTH_PIXELS_GRABBED;
-                }
-                if (command == Command.OFF) {
                     intakeMotor.off();
-                    pixelGrabberLeft.off();
-                    pixelGrabberRight.off();
-                    state = State.RIGHT_PIXEL_GRABBED;
+                    state = State.BOTH_PIXELS_GRABBED;
+                } else {
+                    if (command == Command.OFF) {
+                        intakeMotor.off();
+                        pixelGrabberLeft.off();
+                        pixelGrabberRight.off();
+                        state = State.RIGHT_PIXEL_GRABBED;
+                    }
+                    if (command == Command.DELIVER_RIGHT_PIXEL) {
+                        pixelGrabberRight.deliverPixel();
+                        state = State.DELIVERING_RIGHT_PIXEL;
+                    }
+                    if (command == Command.INTAKE) {
+                        intakeMotor.intake();
+                        pixelGrabberLeft.on();
+                        pixelGrabberRight.on();
+                        state = State.INTAKING;
+                    }
                 }
-                if (command == Command.DELIVER_RIGHT_PIXEL) {
-                    pixelGrabberRight.deliverPixel();
-                    state = State.DELIVERING_RIGHT_PIXEL;
-                }
-                if (command == Command.INTAKE) {
-                    intakeMotor.intake();
-                    pixelGrabberLeft.on();
-                    pixelGrabberRight.on();
-                    state = State.INTAKING;
-                }
-
                 break;
 
             case BOTH_PIXELS_GRABBED:
@@ -272,14 +278,10 @@ public class CenterStageIntakeController implements FTCRobotSubsystem {
                     pixelGrabberRight.deliverPixel();
                     state = State.DELIVERING_BOTH_PIXELS;
                 }
-
                 break;
 
             case DELIVERING_BOTH_PIXELS:
-                if (pixelGrabberLeft.isDeliveryComplete()) {
-                    state = State.OFF;
-                }
-                if (pixelGrabberRight.isDeliveryComplete()) {
+                if (pixelGrabberLeft.isDeliveryComplete() && pixelGrabberRight.isDeliveryComplete()) {
                     state = State.OFF;
                 }
                 break;
@@ -288,14 +290,12 @@ public class CenterStageIntakeController implements FTCRobotSubsystem {
                 if (pixelGrabberLeft.isDeliveryComplete()) {
                     state = State.INTAKING;
                 }
-
                 break;
 
             case DELIVERING_RIGHT_PIXEL:
                 if (pixelGrabberRight.isDeliveryComplete()) {
                     state = State.INTAKING;
                 }
-
                 break;
         }
     }

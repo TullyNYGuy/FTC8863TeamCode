@@ -126,6 +126,10 @@ public class CenterStagePixelGrabberLeft implements FTCRobotSubsystem {
         return deliveryComplete;
     }
 
+    public String getStateAsString(){
+        return state.toString();
+    }
+
     @Override
     public String getName() {
         return PIXEL_GRABBER_NAME;
