@@ -39,7 +39,7 @@ public class CenterStageTestIntakeMotor extends LinearOpMode {
             // Put your calls here - they will not run in a loop
             if (gamepad1.x) {
                 // turn the pixel grabber on so it will handle an incoming pixel
-                IntakeMotor.on();
+                IntakeMotor.intake();
             }
 
             if (gamepad1.b) {

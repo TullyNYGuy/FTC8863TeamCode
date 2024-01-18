@@ -56,6 +56,7 @@ public class CenterStagePixelGrabberLeft implements FTCRobotSubsystem {
     private DataLogOnChange logCommandOnchange;
 
     private boolean commandComplete = true;
+    private boolean deliveryComplete = false;
 
     //*********************************************************************************************
     //          Constructors
@@ -121,6 +122,9 @@ public class CenterStagePixelGrabberLeft implements FTCRobotSubsystem {
             return false;
         }
     }
+    public boolean isDeliveryComplete() {
+        return deliveryComplete;
+    }
 
     @Override
     public String getName() {
@@ -170,6 +174,7 @@ public class CenterStagePixelGrabberLeft implements FTCRobotSubsystem {
                 if (colorSensor.isPixelPresent()) {
                     state = State.PIXEL_GRABBED;
                     commandComplete = true;
+                    deliveryComplete = false;
                 } else {
                     // lost the pixel somehow
                     fingerServo.open();
@@ -227,6 +232,7 @@ public class CenterStagePixelGrabberLeft implements FTCRobotSubsystem {
                     off();
                     commandComplete = true;
                     state = State.OFF;
+                    deliveryComplete = true;
                 }
                 break;
         }

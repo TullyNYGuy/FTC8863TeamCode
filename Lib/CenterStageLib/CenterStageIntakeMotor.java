@@ -55,7 +55,7 @@ public class CenterStageIntakeMotor {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
-    public void on() {
+    public void intake() {
         intakeMotor.runAtConstantPower(1.0);
     }
 
