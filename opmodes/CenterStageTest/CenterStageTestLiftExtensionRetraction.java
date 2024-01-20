@@ -29,7 +29,7 @@ public class CenterStageTestLiftExtensionRetraction extends LinearOpMode {
                 "Lift",
                 "ExtensionLimitSwitch",
                 "RetractionLimitSwitch",
-                "LiftMotor",
+                "liftMotor",
                 DcMotor8863.MotorType.GOBILDA_435,
                 4.75);
 

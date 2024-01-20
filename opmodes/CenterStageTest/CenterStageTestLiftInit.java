@@ -29,8 +29,8 @@ public class CenterStageTestLiftInit extends LinearOpMode {
                 "Lift",
                 "ExtensionLimitSwitch",
                 "RetractionLimitSwitch",
-                "LiftMotor",
-                DcMotor8863.MotorType.GOBILDA_312,
+                "liftMotor",
+                DcMotor8863.MotorType.GOBILDA_435,
                 4.75);
         //lift.reverseMotorDirection();
 
