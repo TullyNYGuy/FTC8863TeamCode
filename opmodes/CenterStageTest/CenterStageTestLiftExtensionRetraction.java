@@ -27,17 +27,17 @@ public class CenterStageTestLiftExtensionRetraction extends LinearOpMode {
         log = new DataLogging("LiftLog");
         lift = new ExtensionRetractionMechanism(hardwareMap, telemetry,
                 "Lift",
-                "ExtensionLimitSwitch",
-                "RetractionLimitSwitch",
+                "liftExtensionLimitSwitch",
+                "liftRetractionLimitSwitch",
                 "liftMotor",
                 DcMotor8863.MotorType.GOBILDA_435,
                 4.75);
 
       //  lift.reverseMotorDirection();
         lift.setResetTimerLimitInmSec(25000);
-        lift.setExtensionPower(1.0);
+        lift.setExtensionPower(0.3);
         lift.setExtensionPositionInMechanismUnits(16.0);
-        lift.setRetractionPower(-1.0);
+        lift.setRetractionPower(-0.3);
         lift.setRetractionPositionInMechanismUnits(0.5);
         lift.setDataLog(log);
         lift.enableDataLogging();
@@ -48,7 +48,7 @@ public class CenterStageTestLiftExtensionRetraction extends LinearOpMode {
 
         // Put your calls here - they will not run in a loop
 
-        lift.testCycleFullExtensionRetraction(this,5,10000);
+        lift.testCycleFullExtensionRetraction(this,2,10000);
 
         while (opModeIsActive()) {
             idle();
