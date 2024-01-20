@@ -3396,6 +3396,11 @@ public class ExtensionRetractionMechanism {
                 extensionRetractionState = getExtensionRetractionState();
                 opMode.telemetry.addData("state = ", extensionRetractionState.toString());
                 opMode.telemetry.addData("position = ", extensionRetractionMotor.getPositionInTermsOfAttachment());
+                if (isRetractionLimitSwitchPressed()) {
+                    telemetry.addLine("retracted limit switch pressed");
+                } else {
+                    telemetry.addLine("retracted limit switch NOT pressed");
+                }
                 opMode.telemetry.update();
                 opMode.idle();
             }
