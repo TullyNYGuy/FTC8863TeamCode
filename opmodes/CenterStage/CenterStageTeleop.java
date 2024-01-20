@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.opmodes.PowerPlay;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.hardware.lynx.LynxModule;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -34,7 +33,7 @@ import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlaySpeedController;
 import java.util.List;
 
 @TeleOp(name = "Teleop Power Play", group = "AA")
-@Disabled
+//@Disabled
 
 public class PowerPlayTeleop extends LinearOpMode {
 

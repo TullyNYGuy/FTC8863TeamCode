@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.PowerPlay;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -13,7 +14,7 @@ import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.PersistantStorage;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayPersistantStorage;
 
 @Autonomous(name = "Set BLUE alliance, LEFT side", group = "AARun")
-
+@Disabled
 
 public class SetBlueAllianceTeamPositionLeft extends LinearOpMode {
 

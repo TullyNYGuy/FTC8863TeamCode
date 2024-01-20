@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.PowerPlay;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -11,7 +12,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.TeamLocation;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayPersistantStorage;
 
 @Autonomous(name = "Set Pole Leaning Offset", group = "AARun")
-
+@Disabled
 
 public class SetPoleLeanOffset extends LinearOpMode {
 
