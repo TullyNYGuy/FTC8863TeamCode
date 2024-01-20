@@ -35,9 +35,9 @@ public class CenterStageTestLiftExtensionRetraction extends LinearOpMode {
 
       //  lift.reverseMotorDirection();
         lift.setResetTimerLimitInmSec(25000);
-        lift.setExtensionPower(0.3);
+        lift.setExtensionPower(1.0);
         lift.setExtensionPositionInMechanismUnits(16.0);
-        lift.setRetractionPower(-0.3);
+        lift.setRetractionPower(-1.0);
         lift.setRetractionPositionInMechanismUnits(0.5);
         lift.setDataLog(log);
         lift.enableDataLogging();
