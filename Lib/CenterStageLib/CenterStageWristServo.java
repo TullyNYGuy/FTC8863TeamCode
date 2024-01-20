@@ -32,9 +32,9 @@ public class CenterStageWristServo {
 
     private final String WRIST_SERVO_NAME = CenterStageRobot.HardwareName.WRIST_SERVO.hwName;
 
-    private double intakePosition = 0.0;
-    private double normalDropPosition = 0.0;
-    private double lowDropPosition = 0.0;
+    private double intakePosition = 0.28;
+    private double normalDropPosition = 0.76;
+    private double lowDropPosition = 0.76;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods

@@ -32,9 +32,9 @@ public class CenterStageArmServo {
 
     private final String ARM_SERVO_NAME = CenterStageRobot.HardwareName.ARM_SERVO.hwName;
 
-    private double intakePosition = 0.0;
-    private double normalDropPosition = 0.0;
-    private double lowDropPosition = 0.0;
+    private double intakePosition = 0.05;
+    private double normalDropPosition = 0.7;
+    private double lowDropPosition = 0.8;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -99,5 +99,9 @@ public class CenterStageArmServo {
 
     public void testPositionUsingJoystick(LinearOpMode opmode) {
         armServo.testPositionsUsingJoystick(opmode);
+    }
+
+    public void setupServoPositionsUsingGamepad(LinearOpMode opmode) {
+        armServo.setupServoPositionsUsingGamepad(opmode);
     }
 }
