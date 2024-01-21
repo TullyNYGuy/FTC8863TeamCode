@@ -26,6 +26,16 @@ public class CenterStagePlaneGUNservo implements FTCRobotSubsystem {
     // user defined types
     //
     //*********************************************************************************************
+    public enum State {
+        WAITING_FOR_KILL,
+        READY
+    }
+
+    private State state = State.READY;
+
+    public State getState() {
+        return state;
+    }
 
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS
@@ -81,6 +91,7 @@ public class CenterStagePlaneGUNservo implements FTCRobotSubsystem {
 
     public void killPosition() {
         gunServo.setPosition("killPosition");
+        state=State.WAITING_FOR_KILL;
     }
 
     public void nonKillPosition() {
@@ -142,6 +153,16 @@ public class CenterStagePlaneGUNservo implements FTCRobotSubsystem {
 
     @Override
     public void update() {
+        switch (state){
+            case READY:
+                break;
+            case WAITING_FOR_KILL:
+                if (gunServo.isPositionReached()){
+                    nonKillPosition();
+                    state=State.READY;
+                }
+                break;
+        }
     }
 
     @Override
