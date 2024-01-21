@@ -107,9 +107,9 @@ public class CenterStageRobot implements FTCRobot {
     public CenterStageMecanumDrive mecanumDrive;
     public LoopTimer loopTimer;
     public CenterStageRobotModes robotModes;
-//    public CenterStageIntakeController intakeController;
+    public CenterStageIntakeController intakeController;
 //    public CenterStageDeliveryController deliveryController;
-//    public CenterStagePlaneGunServo planeGunServo;
+    public CenterStagePlaneGUNservo planeGunServo;
     //public PowerPlayWebcam webcam;
     //public RevLEDBlinker ledBlinker;
     //public FFBlinkinLed ledStrip;
@@ -169,20 +169,20 @@ public class CenterStageRobot implements FTCRobot {
 //            subsystemMap.put(webcam.getName(), webcam);
 //        }
 
-//        if (capabilities.contains(Subsystem.INTAKE_CONTROLLER)) {
-//            intakeController = new CenterStageIntakeController(hardwareMap, telemetry);
-//            subsystemMap.put(intakeController.getName(), intakeController);
-//        }
+        if (capabilities.contains(Subsystem.INTAKE_CONTROLLER)) {
+            intakeController = new CenterStageIntakeController(hardwareMap, telemetry);
+            subsystemMap.put(intakeController.getName(), intakeController);
+        }
 //
 //        if (capabilities.contains(Subsystem.DELIVERY_CONTROLLER)) {
 //            deliveryController = new CenterStageDeliveryController(hardwareMap, telemetry);
 //            subsystemMap.put(deliveryController.getName(), deliveryController);
 //        }
 //
-//        if (capabilities.contains(Subsystem.PLANE_GUN)) {
-//            planeGunServo = new CenterStagePlaneGUNservo(hardwareMap, telemetry);
-//            subsystemMap.put(planeGunServo.getName(), planeGunServo);
-//        }
+        if (capabilities.contains(Subsystem.PLANE_GUN)) {
+            planeGunServo = new CenterStagePlaneGUNservo(hardwareMap, telemetry);
+            subsystemMap.put(planeGunServo.getName(), planeGunServo);
+        }
 
 
 //        if (capabilities.contains(Subsystem.LED_BLINKER)) {

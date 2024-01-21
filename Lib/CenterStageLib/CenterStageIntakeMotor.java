@@ -70,4 +70,8 @@ public class CenterStageIntakeMotor {
     public void update() {
         intakeMotor.update();
     }
+
+    public void outake() {
+        intakeMotor.runAtConstantPower(-1.0);
+    }
 }
