@@ -604,7 +604,7 @@ public class CenterStageMecanumDrive extends MecanumDrive implements FTCRobotSub
         setWeightedDrivePower(
                 new Pose2d(
                         -translationJoystickYValue,
-                        -translationJoystickXValue,
+                        translationJoystickXValue,
                         -rotationJoystickXValue
                 )
         );
