@@ -23,13 +23,13 @@ public class CenterStageTestLiftInitWithLiftObject extends LinearOpMode {
 
         // Put your initializations here
         log = new DataLogging("LiftLog");
-        lift = new CenterStageLift(hardwareMap,telemetry);
+        lift = new CenterStageLift(hardwareMap, telemetry);
 
         lift.setDataLog(log);
         lift.enableDataLogging();
 
         lift.init(null);
-        while(opModeIsActive() && !lift.isInitComplete()) {
+        while (!lift.isInitComplete()) {
             lift.update();
             telemetry.addData("state = ", lift.getLiftState().toString());
             if (lift.isInitComplete()) {
@@ -37,6 +37,7 @@ public class CenterStageTestLiftInitWithLiftObject extends LinearOpMode {
             } else {
                 telemetry.addData("lift init = ", "NOT complete");
             }
+            telemetry.update();
         }
 
         // Wait for the start button
@@ -47,9 +48,8 @@ public class CenterStageTestLiftInitWithLiftObject extends LinearOpMode {
         // Put your calls here - they will not run in a loop
 
 
-
         // after the reset is complete just loop so the user can see the state
-        while (opModeIsActive()){
+        while (opModeIsActive()) {
             lift.update();
 
             telemetry.update();

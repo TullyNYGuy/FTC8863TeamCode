@@ -29,7 +29,7 @@ public class CenterStageTestLiftGoToPositionWithLiftObject extends LinearOpMode 
         lift.enableDataLogging();
 
         lift.init(null);
-        while(opModeIsActive() && !lift.isInitComplete()) {
+        while(!lift.isInitComplete()) {
             lift.update();
             telemetry.addData("state = ", lift.getLiftState().toString());
             if (lift.isInitComplete()) {
