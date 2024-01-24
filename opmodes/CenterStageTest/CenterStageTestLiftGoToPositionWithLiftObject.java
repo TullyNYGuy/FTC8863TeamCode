@@ -2,8 +2,11 @@ package org.firstinspires.ftc.teamcode.opmodes.CenterStageTest;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.Lib.CenterStageLib.CenterStageArmServo;
 import org.firstinspires.ftc.teamcode.Lib.CenterStageLib.CenterStageLift;
+import org.firstinspires.ftc.teamcode.Lib.CenterStageLib.CenterStageWristServo;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 
 /**
@@ -15,7 +18,10 @@ public class CenterStageTestLiftGoToPositionWithLiftObject extends LinearOpMode 
 
     // Put your variable declarations here
     CenterStageLift lift;
+    CenterStageWristServo wristServo;
+    CenterStageArmServo armServo;
     DataLogging log;
+    ElapsedTime timer;
 
     @Override
     public void runOpMode() {
@@ -24,10 +30,15 @@ public class CenterStageTestLiftGoToPositionWithLiftObject extends LinearOpMode 
         // Put your initializations here
         log = new DataLogging("LiftLog");
         lift = new CenterStageLift(hardwareMap,telemetry);
+        wristServo = new CenterStageWristServo(hardwareMap, telemetry);
+        armServo = new CenterStageArmServo(hardwareMap, telemetry);
+        timer = new ElapsedTime();
 
         lift.setDataLog(log);
         lift.enableDataLogging();
 
+        armServo.intakePosition();
+        wristServo.intakePosition();
         lift.init(null);
         while(!lift.isInitComplete()) {
             lift.update();
@@ -54,6 +65,39 @@ public class CenterStageTestLiftGoToPositionWithLiftObject extends LinearOpMode 
             telemetry.addData("moving to low position", "!");
             telemetry.addData("state = ", lift.getLiftState().toString());
             telemetry.update();
+            idle();
+        }
+
+        timer.reset();
+        while (opModeIsActive() && timer.milliseconds() < 3000) {
+            idle();
+        }
+
+        lift.moveToIntake();
+        while (opModeIsActive() && !lift.isPositionReached()){
+            lift.update();
+            telemetry.addData("moving to intake position", "!");
+            telemetry.addData("state = ", lift.getLiftState().toString());
+            telemetry.update();
+            idle();
+        }
+
+        timer.reset();
+        while (opModeIsActive() && timer.milliseconds() < 3000) {
+            idle();
+        }
+
+        lift.moveToHigh();
+        while (opModeIsActive() && !lift.isPositionReached()){
+            lift.update();
+            telemetry.addData("moving to intake position", "!");
+            telemetry.addData("state = ", lift.getLiftState().toString());
+            telemetry.update();
+            idle();
+        }
+
+        timer.reset();
+        while (opModeIsActive() && timer.milliseconds() < 3000) {
             idle();
         }
 
