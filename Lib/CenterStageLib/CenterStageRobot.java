@@ -54,6 +54,7 @@ public class CenterStageRobot implements FTCRobot {
         WRIST_SERVO("wristServo"),
         ARM_SERVO("armServo"),
 
+        LIFT("lift"),
         LIFT_MOTOR("liftMotor"),
         LIFT_LIMIT_SWITCH_RETRACTION("liftRetractionLimitSwitch"),
         LIFT_LIMIT_SWITCH_EXTENSION("liftExtensionLimitSwitch"),

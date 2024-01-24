@@ -67,8 +67,9 @@ public class CenterStageLift implements FTCRobotSubsystem {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
+    private final String LIFT_NAME = CenterStageRobot.HardwareName.LIFT.hwName;
 
-    private ExtensionRetractionMechanism lift;
+    private ExtensionRetractionMechanism extensionRetractionMechanism;
     private DcMotor8863Interface liftMotor;
     private DataLogging logFile;
     private boolean enableLogging = false;
@@ -108,14 +109,14 @@ public class CenterStageLift implements FTCRobotSubsystem {
         liftMotor = new DcMotor8863(CenterStageRobot.HardwareName.LIFT_MOTOR.hwName, hardwareMap, telemetry);
         liftMotor.setMotorType(DcMotor8863.MotorType.GOBILDA_435);
 
-        lift = new ExtensionRetractionMechanism(hardwareMap, telemetry,
-                "lift",
+        extensionRetractionMechanism = new ExtensionRetractionMechanism(hardwareMap, telemetry,
+                "extensionRetractionMechanism",
                 CenterStageRobot.HardwareName.LIFT_LIMIT_SWITCH_EXTENSION.hwName,
                 CenterStageRobot.HardwareName.LIFT_LIMIT_SWITCH_RETRACTION.hwName,
                 CenterStageRobot.HardwareName.LIFT_MOTOR.hwName,
                 DcMotor8863.MotorType.GOBILDA_435,
                 4.75);
-        lift.forwardMotorDirection();
+        extensionRetractionMechanism.forwardMotorDirection();
 
         //*********************************************
         // SET the lift positions here
@@ -133,18 +134,18 @@ public class CenterStageLift implements FTCRobotSubsystem {
         initPower = .2;
         extendPower = 1.0;
         retractPower = -1.0;
-        lift.setExtensionPower(extendPower);
-        lift.setRetractionPower(retractPower);
+        extensionRetractionMechanism.setExtensionPower(extendPower);
+        extensionRetractionMechanism.setRetractionPower(retractPower);
 
         //*********************************************
         // SET the lift max and min positions here
         //*********************************************
-        lift.setExtensionPositionInMechanismUnits(16.5);
-        lift.setRetractionPositionInMechanismUnits(0.04);
+        extensionRetractionMechanism.setExtensionPositionInMechanismUnits(16.5);
+        extensionRetractionMechanism.setRetractionPositionInMechanismUnits(0.04);
         // Go with standard encoder tolerance for now
-        //lift.setTargetEncoderTolerance(30);
+        //extensionRetractionMechanism.setTargetEncoderTolerance(30);
 
-        lift.setResetTimerLimitInmSec(5000);
+        extensionRetractionMechanism.setResetTimerLimitInmSec(5000);
         timer = new ElapsedTime();
 
         liftState = LiftState.PRE_INIT;
@@ -166,7 +167,7 @@ public class CenterStageLift implements FTCRobotSubsystem {
 
     @Override
     public String getName() {
-        return "Lift";
+        return LIFT_NAME;
     }
 
     @Override
@@ -179,19 +180,19 @@ public class CenterStageLift implements FTCRobotSubsystem {
         this.logFile = logFile;
         logCommandOnchange = new DataLogOnChange(logFile);
         logStateOnChange = new DataLogOnChange(logFile);
-        lift.setDataLog(logFile);
+        extensionRetractionMechanism.setDataLog(logFile);
     }
 
     @Override
     public void enableDataLogging() {
         enableLogging = true;
-        lift.enableDataLogging();
+        extensionRetractionMechanism.enableDataLogging();
     }
 
     @Override
     public void disableDataLogging() {
         enableLogging = false;
-        lift.disableDataLogging();
+        extensionRetractionMechanism.disableDataLogging();
     }
 
     @Override
@@ -224,7 +225,7 @@ public class CenterStageLift implements FTCRobotSubsystem {
     public boolean init(Configuration config) {
         // start the init for the extension retraction mechanism
         logCommand("Init starting");
-        lift.init();
+        extensionRetractionMechanism.init();
         liftState = LiftState.WAITING_FOR_EXTENSION_RETRACTION_MECHANISM_INIT_TO_COMPLETE;
 
         commandComplete = false;
@@ -274,7 +275,7 @@ public class CenterStageLift implements FTCRobotSubsystem {
             // remember the command for later
             command = Command.MOVE_TO_HIGH;
             logCommand(command.toString());
-            lift.goToPosition(highPosition, extendPower);
+            extensionRetractionMechanism.goToPosition(highPosition, extendPower);
         } else {
             // you can't start a new command when the old one is not finished
         }
@@ -292,7 +293,7 @@ public class CenterStageLift implements FTCRobotSubsystem {
             // remember the command for later
             command = Command.MOVE_TO_MEDIUM;
             logCommand(command.toString());
-            lift.goToPosition(mediumPosition, extendPower);
+            extensionRetractionMechanism.goToPosition(mediumPosition, extendPower);
         } else {
             // you can't start a new command when the old one is not finished
         }
@@ -310,7 +311,7 @@ public class CenterStageLift implements FTCRobotSubsystem {
             // remember the command for later
             command = Command.MOVE_TO_LOW;
             logCommand(command.toString());
-            lift.goToPosition(lowPosition, extendPower);
+            extensionRetractionMechanism.goToPosition(lowPosition, extendPower);
         } else {
             // you can't start a new command when the old one is not finished
         }
@@ -328,7 +329,7 @@ public class CenterStageLift implements FTCRobotSubsystem {
             // remember the command for later
             command = Command.MOVE_TO_INTAKE;
             logCommand(command.toString());
-            lift.goToPosition(intakePosition, extendPower);
+            extensionRetractionMechanism.goToPosition(intakePosition, extendPower);
         } else {
             // you can't start a new command when the old one is not finished
         }
@@ -344,7 +345,7 @@ public class CenterStageLift implements FTCRobotSubsystem {
             liftState = LiftState.RETRACTING;
             command = Command.RETRACT;
             logCommand(command.toString());
-            lift.goToPosition(intakePosition, retractPower);
+            extensionRetractionMechanism.goToPosition(intakePosition, retractPower);
         } else {
             // you can't start a new command when the old one is not finished
             logCommand("Retract command ignored");
@@ -366,11 +367,11 @@ public class CenterStageLift implements FTCRobotSubsystem {
     }
 
     public void extendToPosition(double position, double power) {
-        lift.goToPosition(position, power);
+        extensionRetractionMechanism.goToPosition(position, power);
     }
 
     public boolean isMovementComplete() {
-        return lift.isMovementComplete();
+        return extensionRetractionMechanism.isMovementComplete();
     }
 
     public boolean isCommandComplete() {
@@ -382,7 +383,7 @@ public class CenterStageLift implements FTCRobotSubsystem {
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public void update() {
-        lift.update();
+        extensionRetractionMechanism.update();
         logState();
         switch (liftState) {
             //********************************************************************************
@@ -397,7 +398,7 @@ public class CenterStageLift implements FTCRobotSubsystem {
             break;
 
             case WAITING_FOR_EXTENSION_RETRACTION_MECHANISM_INIT_TO_COMPLETE: {
-                if (lift.isInitComplete()) {
+                if (extensionRetractionMechanism.isInitComplete()) {
                     // working around bug where we command the lift to 0 and it locks up
                     // instead just leave the lift at its init position
                     //lift.goToPosition(initPosition, initPower);
@@ -423,7 +424,7 @@ public class CenterStageLift implements FTCRobotSubsystem {
             //********************************************************************************
 
             case MOVING_TO_HIGH: {
-                if (lift.isPositionReached()) {
+                if (extensionRetractionMechanism.isPositionReached()) {
                     commandComplete = true;
                     liftState = LiftState.READY;
                 }
@@ -435,7 +436,7 @@ public class CenterStageLift implements FTCRobotSubsystem {
             //********************************************************************************
 
             case MOVING_TO_MEDIUM: {
-                if (lift.isPositionReached()) {
+                if (extensionRetractionMechanism.isPositionReached()) {
                     commandComplete = true;
                     liftState = LiftState.READY;
                 }
@@ -447,7 +448,7 @@ public class CenterStageLift implements FTCRobotSubsystem {
             //********************************************************************************
 
             case MOVING_TO_LOW: {
-                if (lift.isPositionReached()) {
+                if (extensionRetractionMechanism.isPositionReached()) {
                     commandComplete = true;
                     liftState = LiftState.READY;
                 }
@@ -459,7 +460,7 @@ public class CenterStageLift implements FTCRobotSubsystem {
             //********************************************************************************
             
             case MOVING_TO_INTAKE: {
-                if (lift.isPositionReached()) {
+                if (extensionRetractionMechanism.isPositionReached()) {
                     commandComplete = true;
                     liftState = LiftState.READY;
                 }
