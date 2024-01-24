@@ -54,7 +54,7 @@ public class CenterStageIntakeController implements FTCRobotSubsystem {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
-    private final String PIXEL_GRABBER_NAME = CenterStageRobot.HardwareName.LEFT_PIXEL_GRABBER.hwName;
+    private final String INTAKE_CONTROLLER_NAME = CenterStageRobot.HardwareName.INTAKE_CONTROLLER.hwName;
 
     private CenterStagePixelGrabberLeft pixelGrabberLeft;
     private CenterStagePixelGrabberRight pixelGrabberRight;
@@ -167,7 +167,7 @@ public class CenterStageIntakeController implements FTCRobotSubsystem {
 
     @Override
     public String getName() {
-        return PIXEL_GRABBER_NAME;
+        return INTAKE_CONTROLLER_NAME;
     }
 
     @Override
