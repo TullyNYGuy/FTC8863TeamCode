@@ -113,6 +113,8 @@ public class CenterStageRobot implements FTCRobot {
     //public PowerPlayWebcam webcam;
     //public RevLEDBlinker ledBlinker;
     //public FFBlinkinLed ledStrip;
+    public CenterStageArmServo armServo;
+    public CenterStageWristServo wristServo;
 
     public CenterStageRobot(HardwareMap hardwareMap, Telemetry telemetry, Configuration config,
                             DataLogging dataLog, DistanceUnit units, LinearOpMode opMode) {
@@ -184,6 +186,10 @@ public class CenterStageRobot implements FTCRobot {
             subsystemMap.put(planeGunServo.getName(), planeGunServo);
         }
 
+            armServo = new CenterStageArmServo(hardwareMap, telemetry);
+            armServo.intakePosition();
+            wristServo = new CenterStageWristServo(hardwareMap, telemetry);
+            wristServo.intakePosition();
 
 //        if (capabilities.contains(Subsystem.LED_BLINKER)) {
 //            ledBlinker = new RevLEDBlinker(2, RevLED.Color.GREEN, hardwareMap,
