@@ -272,42 +272,49 @@ public class Servo8863New {
         // get the ServoPosition from the hashmap using the position name, just assume that the
         // position is the last one set using setPosition().
         boolean result = false;
-        activePosition.isPositionReached();
+        //  problem exists when there has not been a setPosition() called yet. The activePosition is null.
+        // So make sure the activePosition is not null before proceeding. If it is null, then return true
+        // so there is no crash
+        if (activePosition == null) {
+            result = true;
+        } else {
+            activePosition.isPositionReached();
 
-        switch (servoState) {
-            case IDLE:
-                // This should never happen. Why is the user asking us if position is reached? Maybe they
-                // forgot to call setPosition?
-                result = false;
-                break;
-            case DELAYING:
-                if (timer.milliseconds() > activePosition.getTimeToDelayStart(TimeUnit.MILLISECONDS)) {
-                    // delay is finished
-                    servoState = ServoState.START_MOVEMENT;
-                }
-                result = false;
-                break;
-            case START_MOVEMENT:
-                // actually start the movement of the servo
-                servo.setPosition(activePosition.getPosition());
-                // let the servoPosition know that a movement has started
-                activePosition.startMoveToPosition();
-                servoState = ServoState.MOVING;
-                result = false;
-                break;
-            case MOVING:
-                if (activePosition.isPositionReached()) {
-                    servoState = ServoState.COMPLETE;
-                    result = true;
-                } else {
+            switch (servoState) {
+                case IDLE:
+                    // This should never happen. Why is the user asking us if position is reached? Maybe they
+                    // forgot to call setPosition?
                     result = false;
-                }
-                break;
-            case COMPLETE:
-                // the ServoPosition state machine is telling us that the servo has completed its
-                // movement and arrived at the requested position
-                result = true;
-                break;
+                    break;
+                case DELAYING:
+                    if (timer.milliseconds() > activePosition.getTimeToDelayStart(TimeUnit.MILLISECONDS)) {
+                        // delay is finished
+                        servoState = ServoState.START_MOVEMENT;
+                    }
+                    result = false;
+                    break;
+                case START_MOVEMENT:
+                    // actually start the movement of the servo
+                    servo.setPosition(activePosition.getPosition());
+                    // let the servoPosition know that a movement has started
+                    activePosition.startMoveToPosition();
+                    servoState = ServoState.MOVING;
+                    result = false;
+                    break;
+                case MOVING:
+                    if (activePosition.isPositionReached()) {
+                        servoState = ServoState.COMPLETE;
+                        result = true;
+                    } else {
+                        result = false;
+                    }
+                    break;
+                case COMPLETE:
+                    // the ServoPosition state machine is telling us that the servo has completed its
+                    // movement and arrived at the requested position
+                    result = true;
+                    break;
+            }
         }
         return result;
     }
