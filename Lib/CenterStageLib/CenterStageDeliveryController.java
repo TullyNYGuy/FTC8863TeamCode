@@ -111,7 +111,8 @@ public class CenterStageDeliveryController implements FTCRobotSubsystem {
     }
 
     public boolean isPositionReached() {
-        if (armServo.isPositionReached() && wristServo.isPositionReached() && lift.isPositionReached()) {
+        //if (armServo.isPositionReached() && wristServo.isPositionReached() && lift.isPositionReached()) {
+        if (lift.isPositionReached()) {
             return true;
         } else {
             return false;
