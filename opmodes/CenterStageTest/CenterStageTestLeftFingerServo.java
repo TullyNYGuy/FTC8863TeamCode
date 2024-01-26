@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.Lib.CenterStageLib.CenterStageFingerServoL
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
 @TeleOp(name = "Center Stage Test Left Finger Servo", group = "Test")
-//@Disabled
+@Disabled
 public class CenterStageTestLeftFingerServo extends LinearOpMode {
 
     // Put your variable declarations here

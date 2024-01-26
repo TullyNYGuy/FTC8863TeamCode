@@ -31,7 +31,7 @@ public class CenterStagePixelGrabberRight implements FTCRobotSubsystem {
         CHECK_PIXEL_GRABBED,
         PIXEL_GRABBED,
         OPENING,
-        RELEASING
+        DELIVERING
     }
     private State state = State.PRE_INIT;
 
@@ -56,6 +56,7 @@ public class CenterStagePixelGrabberRight implements FTCRobotSubsystem {
     private DataLogOnChange logCommandOnchange;
 
     private boolean commandComplete = true;
+    private boolean deliveryComplete = false;
 
     //*********************************************************************************************
     //          Constructors
@@ -121,6 +122,13 @@ public class CenterStagePixelGrabberRight implements FTCRobotSubsystem {
             return false;
         }
     }
+    public boolean isDeliveryComplete() {
+        return deliveryComplete;
+    }
+
+    public String getStateAsString(){
+        return state.toString();
+    }
 
     public boolean isDeliveryComplete() {
         if (state == CenterStagePixelGrabberRight.State.OFF) {
@@ -178,6 +186,7 @@ public class CenterStagePixelGrabberRight implements FTCRobotSubsystem {
                 if (colorSensor.isPixelPresent()) {
                     state = CenterStagePixelGrabberRight.State.PIXEL_GRABBED;
                     commandComplete = true;
+                    deliveryComplete = false;
                 } else {
                     // lost the pixel somehow
                     fingerServo.open();
@@ -216,25 +225,27 @@ public class CenterStagePixelGrabberRight implements FTCRobotSubsystem {
                 if (command == CenterStagePixelGrabberRight.Command.DELIVER_PIXEL) {
                     commandComplete = false;
                     fingerServo.open();
-                    state = CenterStagePixelGrabberRight.State.RELEASING;
+                    state = CenterStagePixelGrabberRight.State.DELIVERING;
                 }
                 break;
 
             case PIXEL_GRABBED:
                 if (command == CenterStagePixelGrabberRight.Command.DELIVER_PIXEL){
                     fingerServo.open();
-                    state = CenterStagePixelGrabberRight.State.RELEASING;
+                    state = CenterStagePixelGrabberRight.State.DELIVERING;
                 }
                 if (command == CenterStagePixelGrabberRight.Command.OFF) {
                     state = CenterStagePixelGrabberRight.State.OFF;
                 }
                 break;
 
-            case RELEASING:
+            case DELIVERING:
                 if (fingerServo.isPositionReached()) {
                     off();
                     commandComplete = true;
                     state = CenterStagePixelGrabberRight.State.OFF;
+                    deliveryComplete = true;
+
                 }
                 break;
         }

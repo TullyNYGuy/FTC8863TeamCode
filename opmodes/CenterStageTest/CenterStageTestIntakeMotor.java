@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.CenterStageTest;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -11,7 +12,7 @@ import org.firstinspires.ftc.teamcode.Lib.CenterStageLib.CenterStagePlaneGUNserv
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
 @TeleOp(name = "Center Stage Test Intake Motor", group = "Test")
-//@Disabled
+@Disabled
 public class CenterStageTestIntakeMotor extends LinearOpMode {
 
     // Put your variable declarations here

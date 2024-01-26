@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
 @TeleOp(name = "Center Stage Test Lift Init", group = "Test")
-//@Disabled
+@Disabled
 public class CenterStageTestLiftInit extends LinearOpMode {
 
     // Put your variable declarations here
@@ -27,10 +27,10 @@ public class CenterStageTestLiftInit extends LinearOpMode {
         log = new DataLogging("LiftLog");
         lift = new ExtensionRetractionMechanism(hardwareMap, telemetry,
                 "Lift",
-                "ExtensionLimitSwitch",
-                "RetractionLimitSwitch",
-                "LiftMotor",
-                DcMotor8863.MotorType.GOBILDA_312,
+                "liftExtensionLimitSwitch",
+                "liftRetractionLimitSwitch",
+                "liftMotor",
+                DcMotor8863.MotorType.GOBILDA_435,
                 4.75);
         //lift.reverseMotorDirection();
 
@@ -40,7 +40,7 @@ public class CenterStageTestLiftInit extends LinearOpMode {
         lift.setExtensionPower(0.2);
         lift.setExtensionPositionInMechanismUnits(20.0);
         lift.setRetractionPower(-0.2);
-        lift.setRetractionPositionInMechanismUnits(2.0);
+        lift.setRetractionPositionInMechanismUnits(.05);
         lift.setDataLog(log);
         lift.enableDataLogging();
 

@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.opmodes.PowerPlay;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -25,7 +26,7 @@ import org.openftc.easyopencv.OpenCvPipeline;
 import java.util.List;
 
 @Autonomous(name = "Power Play Webcam Positioning", group = "AA")
-//@Disabled
+@Disabled
 
 public class PowerPlayWebcamPositioning extends LinearOpMode {
 

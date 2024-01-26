@@ -54,6 +54,7 @@ public class CenterStageRobot implements FTCRobot {
         WRIST_SERVO("wristServo"),
         ARM_SERVO("armServo"),
 
+        LIFT("lift"),
         LIFT_MOTOR("liftMotor"),
         LIFT_LIMIT_SWITCH_RETRACTION("liftRetractionLimitSwitch"),
         LIFT_LIMIT_SWITCH_EXTENSION("liftExtensionLimitSwitch"),
@@ -107,12 +108,14 @@ public class CenterStageRobot implements FTCRobot {
     public CenterStageMecanumDrive mecanumDrive;
     public LoopTimer loopTimer;
     public CenterStageRobotModes robotModes;
-//    public CenterStageIntakeController intakeController;
+    public CenterStageIntakeController intakeController;
 //    public CenterStageDeliveryController deliveryController;
-//    public CenterStagePlaneGunServo planeGunServo;
+    public CenterStagePlaneGUNservo planeGunServo;
     //public PowerPlayWebcam webcam;
     //public RevLEDBlinker ledBlinker;
     //public FFBlinkinLed ledStrip;
+    public CenterStageArmServo armServo;
+    public CenterStageWristServo wristServo;
 
     public CenterStageRobot(HardwareMap hardwareMap, Telemetry telemetry, Configuration config,
                             DataLogging dataLog, DistanceUnit units, LinearOpMode opMode) {
@@ -169,21 +172,25 @@ public class CenterStageRobot implements FTCRobot {
 //            subsystemMap.put(webcam.getName(), webcam);
 //        }
 
-//        if (capabilities.contains(Subsystem.INTAKE_CONTROLLER)) {
-//            intakeController = new CenterStageIntakeController(hardwareMap, telemetry);
-//            subsystemMap.put(intakeController.getName(), intakeController);
-//        }
+        if (capabilities.contains(Subsystem.INTAKE_CONTROLLER)) {
+            intakeController = new CenterStageIntakeController(hardwareMap, telemetry);
+            subsystemMap.put(intakeController.getName(), intakeController);
+        }
 //
 //        if (capabilities.contains(Subsystem.DELIVERY_CONTROLLER)) {
 //            deliveryController = new CenterStageDeliveryController(hardwareMap, telemetry);
 //            subsystemMap.put(deliveryController.getName(), deliveryController);
 //        }
 //
-//        if (capabilities.contains(Subsystem.PLANE_GUN)) {
-//            planeGunServo = new CenterStagePlaneGUNservo(hardwareMap, telemetry);
-//            subsystemMap.put(planeGunServo.getName(), planeGunServo);
-//        }
+        if (capabilities.contains(Subsystem.PLANE_GUN)) {
+            planeGunServo = new CenterStagePlaneGUNservo(hardwareMap, telemetry);
+            subsystemMap.put(planeGunServo.getName(), planeGunServo);
+        }
 
+            armServo = new CenterStageArmServo(hardwareMap, telemetry);
+            armServo.intakePosition();
+            wristServo = new CenterStageWristServo(hardwareMap, telemetry);
+            wristServo.intakePosition();
 
 //        if (capabilities.contains(Subsystem.LED_BLINKER)) {
 //            ledBlinker = new RevLEDBlinker(2, RevLED.Color.GREEN, hardwareMap,

@@ -1,17 +1,18 @@
 package org.firstinspires.ftc.teamcode.opmodes.CenterStageTest;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Lib.CenterStageLib.CenterStageFingerServoLeft;
 import org.firstinspires.ftc.teamcode.Lib.CenterStageLib.CenterStagePlaneGUNservo;
-
+@Deprecated
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
 @TeleOp(name = "Center Stage Calibrate Finger Servo", group = "Test")
-//@Disabled
+@Disabled
 
 /*
     This class allows you to calibrate a servo.

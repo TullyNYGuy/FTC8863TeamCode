@@ -5,20 +5,18 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Lib.CenterStageLib.CenterStageWristServo;
-@Deprecated
+
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Center Stage Calibrate Wrist Servo", group = "Test")
-@Disabled
+@TeleOp(name = "Center Stage Setup Wrist Servo Positions", group = "Test")
+//@Disabled
 
 /*
-    This class allows you to calibrate a servo.
-    RIGHT Y joystick controls the servo position
-    A button locks the position
-    B button unlocks the position
+    This class allows you to setup the servo positions
+    See
  */
-public class CenterStageCalibrateWristServo extends LinearOpMode {
+public class CenterStageSetPositionsForWristServo extends LinearOpMode {
 
     // Put your variable declarations here
     CenterStageWristServo servo;
@@ -30,12 +28,12 @@ public class CenterStageCalibrateWristServo extends LinearOpMode {
         servo = new CenterStageWristServo(hardwareMap, telemetry);
 
         // Wait for the start button
-        telemetry.addData(">", "Press Start to run");
+        telemetry.addData(">", "Press Start to go");
         telemetry.update();
         waitForStart();
 
         // testPositionUsingJoystick runs the while loop and updates telemety
-        servo.testPositionUsingJoystick(this);
+        servo.setupServoPositionsUsingGamepad(this);
 
         // Put your cleanup code here - it runs as the application shuts down
         telemetry.addData(">", "Done");

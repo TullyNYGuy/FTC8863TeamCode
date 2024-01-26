@@ -28,20 +28,20 @@ public class CenterStageTestLiftGoToPositions extends LinearOpMode {
         log = new DataLogging("LiftLog");
         lift = new ExtensionRetractionMechanism(hardwareMap, telemetry,
                 "Lift",
-                "ExtensionLimitSwitch",
-                "RetractionLimitSwitch",
-                "LiftMotor",
-                DcMotor8863.MotorType.GOBILDA_312,
+                "liftExtensionLimitSwitch",
+                "liftRetractionLimitSwitch",
+                "liftMotor",
+                DcMotor8863.MotorType.GOBILDA_435,
                 4.75);
         //lift.reverseMotorDirection();
 
 
         //lift.reverseMotorDirection();
         lift.setResetTimerLimitInmSec(25000);
-        lift.setExtensionPower(1.0);
-        lift.setExtensionPositionInMechanismUnits(29.0);
-        lift.setRetractionPower(-1.0);
-        lift.setRetractionPositionInMechanismUnits(2.0);
+        lift.setExtensionPower(0.3);
+        lift.setExtensionPositionInMechanismUnits(16.5);
+        lift.setRetractionPower(-0.3);
+        lift.setRetractionPositionInMechanismUnits(0.0);
         lift.setDataLog(log);
         lift.enableDataLogging();
 
@@ -51,8 +51,8 @@ public class CenterStageTestLiftGoToPositions extends LinearOpMode {
         waitForStart();
 
         // Put your calls here - they will not run in a loop
-        double[] positions = new double[]{20, 10, 28};
-        lift.testGoToPositions(this, positions, 1);
+        double[] positions = new double[]{10, 0.05, 13};
+        lift.testGoToPositions(this, positions, .3);
 
         // after the retraction is complete, loop so the user can see the result
         while (opModeIsActive()){

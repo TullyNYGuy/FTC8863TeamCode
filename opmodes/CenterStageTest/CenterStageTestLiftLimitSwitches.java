@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Test Lift Switches CS", group = "Test")
+@TeleOp(name = "Center Stage Test Lift Switches", group = "Test")
 //@Disabled
 public class CenterStageTestLiftLimitSwitches extends LinearOpMode {
 

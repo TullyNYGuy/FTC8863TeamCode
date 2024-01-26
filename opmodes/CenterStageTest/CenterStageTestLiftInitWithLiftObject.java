@@ -1,22 +1,20 @@
 package org.firstinspires.ftc.teamcode.opmodes.CenterStageTest;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.Lib.CenterStageLib.CenterStageLift;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Center Stage Test Lift ExtensionRetraction Cycle", group = "Test")
+@TeleOp(name = "Center Stage Test Lift Init with Object", group = "Test")
 //@Disabled
-public class CenterStageTestLiftExtensionRetraction extends LinearOpMode {
+public class CenterStageTestLiftInitWithLiftObject extends LinearOpMode {
 
     // Put your variable declarations here
-    ExtensionRetractionMechanism lift;
+    CenterStageLift lift;
     DataLogging log;
 
     @Override
@@ -25,22 +23,23 @@ public class CenterStageTestLiftExtensionRetraction extends LinearOpMode {
 
         // Put your initializations here
         log = new DataLogging("LiftLog");
-        lift = new ExtensionRetractionMechanism(hardwareMap, telemetry,
-                "Lift",
-                "liftExtensionLimitSwitch",
-                "liftRetractionLimitSwitch",
-                "liftMotor",
-                DcMotor8863.MotorType.GOBILDA_435,
-                4.75);
+        lift = new CenterStageLift(hardwareMap, telemetry);
 
-      //  lift.reverseMotorDirection();
-        lift.setResetTimerLimitInmSec(25000);
-        lift.setExtensionPower(1.0);
-        lift.setExtensionPositionInMechanismUnits(16.0);
-        lift.setRetractionPower(-1.0);
-        lift.setRetractionPositionInMechanismUnits(0.5);
         lift.setDataLog(log);
         lift.enableDataLogging();
+
+        lift.init(null);
+        while (!lift.isInitComplete()) {
+            lift.update();
+            telemetry.addData("state = ", lift.getLiftState().toString());
+            if (lift.isInitComplete()) {
+                telemetry.addData("lift init = ", "complete");
+            } else {
+                telemetry.addData("lift init = ", "NOT complete");
+            }
+            telemetry.update();
+        }
+
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
         telemetry.update();
@@ -48,9 +47,12 @@ public class CenterStageTestLiftExtensionRetraction extends LinearOpMode {
 
         // Put your calls here - they will not run in a loop
 
-        lift.testCycleFullExtensionRetraction(this,2,10000);
 
+        // after the reset is complete just loop so the user can see the state
         while (opModeIsActive()) {
+            lift.update();
+
+            telemetry.update();
             idle();
         }
 

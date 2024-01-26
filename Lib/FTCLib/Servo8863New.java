@@ -18,10 +18,10 @@ import java.util.concurrent.TimeUnit;
  * This class wraps the normal FTC Servo class and gives you two new features:
  * - You can name a position and refer to the position name from then on. (like setPosition(position name)
  * - You can ask whether the servo has completed a movememt to that position. This is based on how
- *   long you said the movement is supposed to take to complete.
- *
- *   In addition this class allows you to dynamically create new positions. The old Servo8863 gave
- *   you a static number of positions.
+ * long you said the movement is supposed to take to complete.
+ * <p>
+ * In addition this class allows you to dynamically create new positions. The old Servo8863 gave
+ * you a static number of positions.
  */
 public class Servo8863New {
 
@@ -56,6 +56,7 @@ public class Servo8863New {
 
     /**
      * Return the underlying servo class. The one from the FTC SDK.
+     *
      * @return
      */
     public Servo getServo() {
@@ -141,6 +142,7 @@ public class Servo8863New {
 
     /**
      * Get the ServoPosition object using its position name.
+     *
      * @param positionName
      * @return
      */
@@ -198,6 +200,7 @@ public class Servo8863New {
 
     /**
      * Remove a position associated with a servo.
+     *
      * @param positionName
      */
     public void removePosition(String positionName) {
@@ -206,7 +209,7 @@ public class Servo8863New {
         }
     }
 
-    public void changePosition (String positionName, double newPosition) {
+    public void changePosition(String positionName, double newPosition) {
         ServoPosition oldServoPosition = getServoPosition(positionName);
         removePosition(positionName);
         addPosition(
@@ -269,42 +272,49 @@ public class Servo8863New {
         // get the ServoPosition from the hashmap using the position name, just assume that the
         // position is the last one set using setPosition().
         boolean result = false;
-        activePosition.isPositionReached();
+        //  problem exists when there has not been a setPosition() called yet. The activePosition is null.
+        // So make sure the activePosition is not null before proceeding. If it is null, then return true
+        // so there is no crash
+        if (activePosition == null) {
+            result = true;
+        } else {
+            activePosition.isPositionReached();
 
-        switch (servoState) {
-            case IDLE:
-                // This should never happen. Why is the user asking us if position is reached? Maybe they
-                // forgot to call setPosition?
-                result = false;
-                break;
-            case DELAYING:
-                if (timer.milliseconds() > activePosition.getTimeToDelayStart(TimeUnit.MILLISECONDS)) {
-                    // delay is finished
-                    servoState = ServoState.START_MOVEMENT;
-                }
-                result = false;
-                break;
-            case START_MOVEMENT:
-                // actually start the movement of the servo
-                servo.setPosition(activePosition.getPosition());
-                // let the servoPosition know that a movement has started
-                activePosition.startMoveToPosition();
-                servoState = ServoState.MOVING;
-                result = false;
-                break;
-            case MOVING:
-                if (activePosition.isPositionReached()) {
-                    servoState = ServoState.COMPLETE;
-                    result = true;
-                } else {
+            switch (servoState) {
+                case IDLE:
+                    // This should never happen. Why is the user asking us if position is reached? Maybe they
+                    // forgot to call setPosition?
                     result = false;
-                }
-                break;
-            case COMPLETE:
-                // the ServoPosition state machine is telling us that the servo has completed its
-                // movement and arrived at the requested position
-                result = true;
-                break;
+                    break;
+                case DELAYING:
+                    if (timer.milliseconds() > activePosition.getTimeToDelayStart(TimeUnit.MILLISECONDS)) {
+                        // delay is finished
+                        servoState = ServoState.START_MOVEMENT;
+                    }
+                    result = false;
+                    break;
+                case START_MOVEMENT:
+                    // actually start the movement of the servo
+                    servo.setPosition(activePosition.getPosition());
+                    // let the servoPosition know that a movement has started
+                    activePosition.startMoveToPosition();
+                    servoState = ServoState.MOVING;
+                    result = false;
+                    break;
+                case MOVING:
+                    if (activePosition.isPositionReached()) {
+                        servoState = ServoState.COMPLETE;
+                        result = true;
+                    } else {
+                        result = false;
+                    }
+                    break;
+                case COMPLETE:
+                    // the ServoPosition state machine is telling us that the servo has completed its
+                    // movement and arrived at the requested position
+                    result = true;
+                    break;
+            }
         }
         return result;
     }
@@ -318,6 +328,7 @@ public class Servo8863New {
      * So joystick = 0 is servo position = 0. Joystick = 1 is servo position = 1.
      * It really lacks any fine control over the position. See setPositionUsingJoystickAsVelocity
      * for a mode that might be more intuitive.
+     *
      * @param position
      */
     public void setPositionUsingJoystick(double position) {
@@ -350,6 +361,7 @@ public class Servo8863New {
      * Joystick = -0.2 means servo position decreases at a slow rate
      * Joystick = 1.0 means servo position increases at a fast rate
      * Joystick = -1.0 means servo position decreases at a fast rate
+     *
      * @param velocity
      */
     public void setPositionUsingJoystickAsVelocity(double velocity) {
@@ -371,6 +383,7 @@ public class Servo8863New {
      * Integrate the velocity (joystick) to form a position command for the servo. In order to avoid
      * building up a position command faster than a human can follow, sample the joystick at a set
      * interval and scale the joystick down a lot.
+     *
      * @param velocity
      */
     private void integrateJoystick(double velocity) {
@@ -381,7 +394,7 @@ public class Servo8863New {
             // With scaling = 0.1 and smaple interval = 100mSec, it takes 1 second to build up to a
             // servo command of 1
             integratedServoPosition = velocity * joystickScaling + integratedServoPosition;
-            Range.clip(integratedServoPosition, 0, 1);
+            integratedServoPosition = Range.clip(integratedServoPosition, 0, 1);
             integrationTimer.reset();
         }
     }
@@ -434,6 +447,7 @@ public class Servo8863New {
      * game pad 1 right joystick = servo position
      * game pad 1 a button = lock the servo position at the current position
      * game pad 1 b button = unlock the servo and allow it to move again
+     *
      * @param opMode
      */
     public void testPositionsUsingJoystick(LinearOpMode opMode) {
@@ -451,6 +465,85 @@ public class Servo8863New {
                 unlockPosition();
             }
             opMode.telemetry.addData("Position = ", position);
+            opMode.telemetry.addData(">", "stop to finish");
+            opMode.telemetry.update();
+            opMode.idle();
+        }
+    }
+
+    /**
+     * This method will allow you to control the position of the servo using the game pad.
+     * To minimize the code you have to write, all you need to do is pass in the opmode
+     * and this method will use that to control the servo position.
+     * There are two positions:
+     * The actual position (current position)
+     * The next position
+     * You adjust the next position up or down and when you have it where you want it, you
+     * actually make the servo move to that position by hitting the Dpad Up button.
+     * You have large steps of 0.1 per button press and fine control of 0.01 step per
+     * button press.
+     * game pad 1 y button = Add 0.1 to the next position
+     * game pad 1 b button = Subtract 0.1 from the next position
+     * game pad 1 x button = Add 0.01 to the next position (fine control)
+     * game pad 1 a button = Subtract 0.01 from the next position (fine control)
+     * game pad 1 DPAD UP button = Next position = 1
+     * game pad 1 DPAD DOWN button = Next position = 0
+     * game pad 1 DPAD LEFT button = send servo to next position
+     *
+     * @param opMode
+     */
+    public void setupServoPositionsUsingGamepad(LinearOpMode opMode) {
+        double position = 0;
+        double nextPosition = 0;
+
+        // These debounce the buttons so that you only see a single press even if a button is held
+        // down for a long time.
+        Debouncer debouncedY = new Debouncer();
+        Debouncer debouncedB = new Debouncer();
+        Debouncer debouncedX = new Debouncer();
+        Debouncer debouncedA = new Debouncer();
+        Debouncer debouncedDpadUp = new Debouncer();
+        Debouncer debouncedDpadDown = new Debouncer();
+        Debouncer debouncedDpadLeft = new Debouncer();
+
+        while (opMode.opModeIsActive()) {
+            if (debouncedY.isPressed(opMode.gamepad1.y)) {
+                nextPosition = nextPosition + 0.1;
+            }
+            if (debouncedB.isPressed(opMode.gamepad1.b)) {
+                nextPosition = nextPosition - 0.1;
+            }
+            if (debouncedX.isPressed(opMode.gamepad1.x)) {
+                nextPosition = nextPosition + 0.01;
+            }
+            if (debouncedA.isPressed(opMode.gamepad1.a)) {
+                nextPosition = nextPosition - 0.01;
+            }
+            if (debouncedDpadUp.isPressed(opMode.gamepad1.dpad_up)) {
+                nextPosition = 1;
+            }
+            if (debouncedDpadDown.isPressed(opMode.gamepad1.dpad_down)) {
+                nextPosition = 0;
+            }
+
+            // limit the position between 0 and 1
+            nextPosition = Range.clip(nextPosition, 0, 1);
+
+            if (debouncedDpadLeft.isPressed(opMode.gamepad1.dpad_left)) {
+                position = nextPosition;
+                setPosition(position);
+            }
+
+            opMode.telemetry.addData("Y = ", "+ 0.10");
+            opMode.telemetry.addData("X = ", "+ 0.01");
+            opMode.telemetry.addData("B = ", "- 0.10");
+            opMode.telemetry.addData("A = ", "- 0.01");
+            opMode.telemetry.addData("Dpad up = ", "1.0");
+            opMode.telemetry.addData("Dpad down = ", "0.0");
+            opMode.telemetry.addData("Dpad left = ", "Set servo to next position");
+            opMode.telemetry.addLine();
+            opMode.telemetry.addData("Current Position = ", "%1.2f", position);
+            opMode.telemetry.addData("Next Position = ", "%1.2f", nextPosition);
             opMode.telemetry.addData(">", "stop to finish");
             opMode.telemetry.update();
             opMode.idle();

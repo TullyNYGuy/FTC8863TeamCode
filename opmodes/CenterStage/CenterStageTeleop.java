@@ -1,51 +1,40 @@
-package org.firstinspires.ftc.teamcode.opmodes.PowerPlay;
+package org.firstinspires.ftc.teamcode.opmodes.CenterStage;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.hardware.lynx.LynxModule;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColorTeamLocation;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DrivingMode;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MatchPhase;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.TeamLocation;
-import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyField;
-import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyGamepad;
-import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyMatchInfo;
-import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyRobotRoadRunner;
-import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FreightFrenzyStartSpot;
-import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.PersistantStorage;
-import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.PoseStorage;
-import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayField;
-import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayGamepad;
-import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayPersistantStorage;
-import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayRobot;
-import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayRobotModes;
-import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlaySpeedController;
+//import org.firstinspires.ftc.teamcode.Lib.CenterStageLib.CenterStageField;
+import org.firstinspires.ftc.teamcode.Lib.CenterStageLib.CenterStageGamepad;
+//import org.firstinspires.ftc.teamcode.Lib.CenterStageLib.CenterStagePersistantStorage;
+import org.firstinspires.ftc.teamcode.Lib.CenterStageLib.CenterStageRobot;
+import org.firstinspires.ftc.teamcode.Lib.CenterStageLib.CenterStageRobotModes;
 
 import java.util.List;
 
-@TeleOp(name = "Teleop Power Play", group = "AA")
-@Disabled
+@TeleOp(name = "Teleop Center Stage", group = "AA")
+//@Disabled
 
-public class PowerPlayTeleop extends LinearOpMode {
+public class CenterStageTeleop extends LinearOpMode {
 
     //*********************************************************************************************
     //             Declarations
     //*********************************************************************************************
 
-    public PowerPlayRobot robot;
-    public PowerPlayGamepad gamepad;
+    public CenterStageRobot robot;
+    public CenterStageGamepad gamepad;
     public Configuration config = null;
-    public PowerPlayField field;
+    //public CenterStageField field;
 
     // public AutomaticTeleopFunctions automaticTeleopFunctions;
     //set color for each game
@@ -68,46 +57,46 @@ public class PowerPlayTeleop extends LinearOpMode {
         telemetry.update();
 
         // set the persistant storage variable saying this is the teleop phase
-        PowerPlayPersistantStorage.setMatchPhase(MatchPhase.TELEOP);
+//        PowerPlayPersistantStorage.setMatchPhase(MatchPhase.TELEOP);
 
         dataLog = new DataLogging("Teleop", telemetry);
         config = null;
         config = new Configuration();
         if (!config.load()) {
-            telemetry.addData("ERROR", "Couldn't load config file");
-            telemetry.update();
+//            telemetry.addData("ERROR", "Couldn't load config file");
+//            telemetry.update();
         }
         timer = new ElapsedTime();
         MecanumCommands commands = new MecanumCommands();
 
-        robot = new PowerPlayRobot(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, this);
-        field = new PowerPlayField(PowerPlayPersistantStorage.getColorLocation());
+        robot = new CenterStageRobot(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, this);
+        //field = new CenterStageField(PowerPlayPersistantStorage.getColorLocation());
 
         // create the robot and run the init for it
         robot.createRobot();
-        gamepad = new PowerPlayGamepad(gamepad1, gamepad2, robot);
+        gamepad = new CenterStageGamepad(gamepad1, gamepad2, robot);
 
         enableBulkReads(hardwareMap, LynxModule.BulkCachingMode.AUTO);
 
         //automaticTeleopFunctions = new AutomaticTeleopFunctions(robot, field, telemetry);
 
-        if (PersistantStorage.robotPose != null) {
-            startPose = PowerPlayPersistantStorage.getRobotPose();
-        } else {
-            startPose = field.getStartPose();
-        }
+//        if (PersistantStorage.robotPose != null) {
+//            startPose = PowerPlayPersistantStorage.getRobotPose();
+//        } else {
+//            startPose = field.getStartPose();
+//        }
 
         // Setting the pose makes field centric drive 90 degrees out.
         //robot.mecanum.setPoseEstimate(startPose);
         timer.reset();
 
         // set the driver joystick controls to either normal or inverted
-        if (PowerPlayPersistantStorage.getTeamLocation() == TeamLocation.LEFT) {
-            robot.robotModes.setDirectionSwap(PowerPlayRobotModes.DirectionSwap.INVERSED);
-        } else {
-            // Right side of field
-            robot.robotModes.setDirectionSwap(PowerPlayRobotModes.DirectionSwap.NORMAL);
-        }
+//        if (PowerPlayPersistantStorage.getTeamLocation() == TeamLocation.LEFT) {
+//            robot.robotModes.setDirectionSwap(CenterStageRobotModes.DirectionSwap.INVERSED);
+//        } else {
+//            // Right side of field
+//            robot.robotModes.setDirectionSwap(CenterStageRobotModes.DirectionSwap.NORMAL);
+//        }
 
         // Wait for the start button
 
@@ -118,8 +107,6 @@ public class PowerPlayTeleop extends LinearOpMode {
         waitForStart();
 
         robot.loopTimer.startLoopTimer();
-        robot.coneGrabber.carryPosition();
-        robot.lift.moveToPickup();
 
         //*********************************************************************************************
         //             Robot Running after the user hits play on the driver phone
@@ -136,27 +123,26 @@ public class PowerPlayTeleop extends LinearOpMode {
             // drive
 
             telemetry.addData("Max Power = ", robot.robotModes.getCurrentMaxPower());
-            telemetry.addData("Speed Controller state = ", robot.speedController.getSpeedControllerState());
             telemetry.addLine();
 
             if (gamepad.getDrivingMode() == DrivingMode.ROBOT_CENTRIC) {
                 telemetry.addData("Direction swap = ", robot.robotModes.getDirectionSwap());
                 telemetry.addData("ROBOT CENTRIC driving", "!");
 
-                robot.mecanum.calculateMotorCommandsRobotCentric(
+                robot.mecanumDrive.calculateMotorCommandsRobotCentric(
                         gamepad.gamepad1LeftJoyStickYValue * robot.robotModes.getDirectionSwapMultiplier(),
                         gamepad.gamepad1LeftJoyStickXValue * robot.robotModes.getDirectionSwapMultiplier(),
                         gamepad.gamepad1RightJoyStickXValue
                 );
             }
-            if (gamepad.getDrivingMode() == DrivingMode.FIELD_CENTRIC) {
-                telemetry.addData("FIELD CENTRIC driving", "!");
-                robot.mecanum.calculateMotorCommandsFieldCentric(
-                        gamepad.gamepad1LeftJoyStickYValue,
-                        gamepad.gamepad1LeftJoyStickXValue,
-                        gamepad.gamepad1RightJoyStickXValue
-                );
-            }
+//            if (gamepad.getDrivingMode() == DrivingMode.FIELD_CENTRIC) {
+//                telemetry.addData("FIELD CENTRIC driving", "!");
+//                robot.mecanumDrive.calculateMotorCommandsFieldCentric(
+//                        gamepad.gamepad1LeftJoyStickYValue,
+//                        gamepad.gamepad1LeftJoyStickXValue,
+//                        gamepad.gamepad1RightJoyStickXValue
+//                );
+//            }
 
             // feedback on the driver station
 

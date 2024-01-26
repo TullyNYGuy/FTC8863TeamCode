@@ -206,7 +206,8 @@ public class CenterStageGamepad {
         gamepad2RightJoyStickX = new SmartJoystick(gamepad2, SmartJoystick.JoystickSide.RIGHT, SmartJoystick.JoystickAxis.X);
         gamepad2RightJoyStickY = new SmartJoystick(gamepad2, SmartJoystick.JoystickSide.RIGHT, SmartJoystick.JoystickAxis.Y);
 
-        setMaxDrivingPower(0.75);
+        // sets the maximum speed allowed for the robot (between 0 and 1)
+        setMaxDrivingPower(1.00);
     }
     //*********************************************************************************************
     //          Helper Methods
@@ -262,21 +263,25 @@ public class CenterStageGamepad {
         }
 
         if (gamepad1a.buttonPress(gamepad1.a)) {
+            robot.intakeController.off();
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
         }
 
         if (gamepad1b.buttonPress(gamepad1.b)) {
+            robot.intakeController.outake();
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
         }
 
         if (gamepad1y.buttonPress(gamepad1.y)) {
+            robot.intakeController.outakeComplete();
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
         }
 
         if (gamepad1x.buttonPress(gamepad1.x)) {
+            robot.intakeController.intake();
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
         }
@@ -374,6 +379,7 @@ public class CenterStageGamepad {
         }
 
         if (gamepad2y.buttonPress(gamepad2.y)) {
+            robot.planeGunServo.killPosition();
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
         }

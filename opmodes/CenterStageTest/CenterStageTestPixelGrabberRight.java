@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.CenterStageTest;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -12,11 +13,11 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
 @TeleOp(name = "Center Stage Test Pixel Grabber Right", group = "Test")
-//@Disabled
+@Disabled
 public class CenterStageTestPixelGrabberRight extends LinearOpMode {
 
     // Put your variable declarations here
-    CenterStagePixelGrabberRight pixelGrabber;
+    CenterStagePixelGrabberRight rightPixelGrabber;
     DataLogging log;
     ElapsedTime timer;
 
@@ -35,15 +36,15 @@ public class CenterStageTestPixelGrabberRight extends LinearOpMode {
     public void runOpMode() {
 
         // Put your initializations here
-        pixelGrabber = new CenterStagePixelGrabberRight(hardwareMap, telemetry);
+        rightPixelGrabber = new CenterStagePixelGrabberRight(hardwareMap, telemetry);
 
         log = new DataLogging("PixelGrabberLog");
-        pixelGrabber.setDataLog(log);
-        pixelGrabber.enableDataLogging();
+        rightPixelGrabber.setDataLog(log);
+        rightPixelGrabber.enableDataLogging();
 
-        pixelGrabber.init(null);
-        while (!pixelGrabber.isInitComplete()) {
-            pixelGrabber.update();
+        rightPixelGrabber.init(null);
+        while (!rightPixelGrabber.isInitComplete()) {
+            rightPixelGrabber.update();
         }
 
         timer = new ElapsedTime();
@@ -57,23 +58,23 @@ public class CenterStageTestPixelGrabberRight extends LinearOpMode {
 
         // after the reset is complete just loop so the user can see the state
         while (opModeIsActive()) {
-            pixelGrabber.update();
-            pixelGrabber.on();
+            rightPixelGrabber.update();
+            rightPixelGrabber.on();
 
             // Put your calls here - they will not run in a loop
             if (gamepad1.x) {
                 // turn the pixel grabber on so it will handle an incoming pixel
-                pixelGrabber.on();
+                rightPixelGrabber.on();
             }
 
             if (gamepad1.y) {
-                pixelGrabber.deliverPixel();
+                rightPixelGrabber.deliverPixel();
                 // note that this turns the pixel grabber off after the release is complete
             }
 
             switch (state) {
                 case WAITING_TO_GRAB:
-                    if (pixelGrabber.getState() == CenterStagePixelGrabberRight.State.PIXEL_GRABBED) {
+                    if (rightPixelGrabber.getState() == CenterStagePixelGrabberRight.State.PIXEL_GRABBED) {
                         timer.reset();
                         state = State.PIXEL_GRABBED;
                     }
@@ -81,7 +82,7 @@ public class CenterStageTestPixelGrabberRight extends LinearOpMode {
                     // 5 seconds before pixel is released
                 case PIXEL_GRABBED:
                     if (timer.milliseconds() > 5000) {
-                        pixelGrabber.deliverPixel();
+                        rightPixelGrabber.deliverPixel();
                         timer.reset();
                         state = State.WAITING_TO_REMOVE_PIXEL;
                     }
@@ -89,13 +90,13 @@ public class CenterStageTestPixelGrabberRight extends LinearOpMode {
                     // 5 seconds for you to remove the pixel
                 case WAITING_TO_REMOVE_PIXEL:
                     if (timer.milliseconds() > 5000) {
-                        pixelGrabber.on();
+                        rightPixelGrabber.on();
                         state = State.WAITING_TO_GRAB;
                     }
                     break;
             }
 
-            telemetry.addData("state = ", pixelGrabber.getState().toString());
+            telemetry.addData("state = ", rightPixelGrabber.getState().toString());
             telemetry.update();
             idle();
         }

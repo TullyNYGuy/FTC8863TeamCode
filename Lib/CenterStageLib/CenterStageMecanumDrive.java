@@ -253,8 +253,10 @@ public class CenterStageMecanumDrive extends MecanumDrive implements FTCRobotSub
         }
 
         // TODO: reverse any motors using DcMotor.setDirection()
-        leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftFront.setDirection(DcMotorSimple.Direction.FORWARD);
+        rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
         leftRear.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightRear.setDirection(DcMotorSimple.Direction.FORWARD);
 
         // TODO: if desired, use setLocalizer() to change the localization method
         // for instance, setLocalizer(new ThreeTrackingWheelLocalizer(...));
@@ -602,7 +604,7 @@ public class CenterStageMecanumDrive extends MecanumDrive implements FTCRobotSub
         setWeightedDrivePower(
                 new Pose2d(
                         -translationJoystickYValue,
-                        -translationJoystickXValue,
+                        translationJoystickXValue,
                         -rotationJoystickXValue
                 )
         );
