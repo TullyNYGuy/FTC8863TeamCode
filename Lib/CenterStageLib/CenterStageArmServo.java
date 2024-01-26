@@ -33,7 +33,7 @@ public class CenterStageArmServo {
     private final String ARM_SERVO_NAME = CenterStageRobot.HardwareName.ARM_SERVO.hwName;
 
     private double intakePosition = 0.05;
-    private double normalDropPosition = 0.7;
+    private double normalDropPosition = 0.6;
     private double lowDropPosition = 0.8;
 
     //*********************************************************************************************

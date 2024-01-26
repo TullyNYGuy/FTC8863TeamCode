@@ -2,21 +2,22 @@ package org.firstinspires.ftc.teamcode.opmodes.CenterStageTest;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Lib.CenterStageLib.CenterStageDeliveryController;
-import org.firstinspires.ftc.teamcode.Lib.CenterStageLib.CenterStageLift;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Center Stage Test Delivery Controller Init", group = "Test")
+@TeleOp(name = "Center Stage Test Delivery Controller High Drop", group = "Test")
 //@Disabled
-public class CenterStageTestDeliveryControllerInit extends LinearOpMode {
+public class CenterStageTestDeliveryHighDrop extends LinearOpMode {
 
     // Put your variable declarations here
     CenterStageDeliveryController deliveryController;
     DataLogging log;
+    ElapsedTime timer;
 
     @Override
     public void runOpMode() {
@@ -24,6 +25,7 @@ public class CenterStageTestDeliveryControllerInit extends LinearOpMode {
 
         // Put your initializations here
         log = new DataLogging("LiftLog");
+        timer = new ElapsedTime();
         deliveryController = new CenterStageDeliveryController(hardwareMap, telemetry);
 
         deliveryController.setDataLog(log);
@@ -52,13 +54,37 @@ public class CenterStageTestDeliveryControllerInit extends LinearOpMode {
 
 
         // after the reset is complete just loop so the user can see the state
-        while (opModeIsActive()) {
+        while (opModeIsActive() && !deliveryController.isPositionReached()) {
             deliveryController.update();
 
             telemetry.update();
             idle();
         }
 
+        timer.reset();
+        while (opModeIsActive() && timer.milliseconds()<5000){
+            deliveryController.update();
+
+            telemetry.update();
+            idle();
+        }
+
+        deliveryController.setUpForHighPosition();
+        while (opModeIsActive() && !deliveryController.isPositionReached()) {
+            deliveryController.update();
+
+            telemetry.update();
+            idle();
+        }
+
+        timer.reset();
+        while (opModeIsActive() && timer.milliseconds()<5000){
+            deliveryController.update();
+
+            telemetry.update();
+            idle();
+        }
+        
         // Put your cleanup code here - it runs as the application shuts down
         telemetry.addData(">", "Done");
         telemetry.update();

@@ -35,6 +35,8 @@ public class CenterStageLift implements FTCRobotSubsystem {
         MOVING_TO_MEDIUM,
         MOVING_TO_LOW,
         MOVING_TO_INTAKE,
+        MOVING_TO_SETUP_FOR_DELIVERY,
+        MOVING_TO_WIRST_CURL_POSITION,
 
         // retraction states
         RETRACTING
@@ -54,7 +56,9 @@ public class CenterStageLift implements FTCRobotSubsystem {
         MOVE_TO_MEDIUM,
         MOVE_TO_LOW,
         MOVE_TO_INTAKE,
-        RETRACT
+        RETRACT,
+        MOVE_TO_SETUP_FOR_DELIVERY,
+        MOVE_TO_WRIST_CURL_POSITION
     }
 
     private Command command = Command.NONE;
@@ -334,6 +338,41 @@ public class CenterStageLift implements FTCRobotSubsystem {
             // you can't start a new command when the old one is not finished
         }
     }
+    public void moveToSetupForDelivery() {
+        // lockout for double hits on a command button. Downside is that the driver better hit the
+        // right button the first time or they are toast
+        if (commandComplete) {
+            logCommand("Move to setup for delivery");
+            retractionComplete = false;
+            commandComplete = false;
+            //command to start extension
+            liftState = LiftState.MOVING_TO_SETUP_FOR_DELIVERY;
+            // remember the command for later
+            command = Command.MOVE_TO_SETUP_FOR_DELIVERY;
+            logCommand(command.toString());
+            extensionRetractionMechanism.goToPosition(1.25, extendPower);
+        } else {
+            // you can't start a new command when the old one is not finished
+        }
+    }
+
+    public void moveToWristCurlPosition() {
+        // lockout for double hits on a command button. Downside is that the driver better hit the
+        // right button the first time or they are toast
+        if (commandComplete) {
+            logCommand("Move to Wrist Curl Position");
+            retractionComplete = false;
+            commandComplete = false;
+            //command to start extension
+            liftState = LiftState.MOVING_TO_WIRST_CURL_POSITION;
+            // remember the command for later
+            command = Command.MOVE_TO_WRIST_CURL_POSITION;
+            logCommand(command.toString());
+            extensionRetractionMechanism.goToPosition(3, extendPower);
+        } else {
+            // you can't start a new command when the old one is not finished
+        }
+    }
 
     public void retract() {
         // lockout for double hits on a command button. Downside is that the driver better hit the
@@ -460,6 +499,30 @@ public class CenterStageLift implements FTCRobotSubsystem {
             //********************************************************************************
             
             case MOVING_TO_INTAKE: {
+                if (extensionRetractionMechanism.isPositionReached()) {
+                    commandComplete = true;
+                    liftState = LiftState.READY;
+                }
+            }
+            break;
+
+            //********************************************************************************
+            // Extend to setup state
+            //********************************************************************************
+
+            case MOVING_TO_SETUP_FOR_DELIVERY: {
+                if (extensionRetractionMechanism.isPositionReached()) {
+                    commandComplete = true;
+                    liftState = LiftState.READY;
+                }
+            }
+            break;
+
+            //********************************************************************************
+            // Wrist Curl
+            //********************************************************************************
+
+            case MOVING_TO_WIRST_CURL_POSITION: {
                 if (extensionRetractionMechanism.isPositionReached()) {
                     commandComplete = true;
                     liftState = LiftState.READY;
