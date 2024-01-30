@@ -130,13 +130,13 @@ public class CenterStagePixelGrabberRight implements FTCRobotSubsystem {
         return state.toString();
     }
 
-    public boolean isDeliveryComplete() {
-        if (state == CenterStagePixelGrabberRight.State.OFF) {
-            return true;
-        } else {
-            return false;
-        }
-    }
+//    public boolean isDeliveryComplete() {
+//        if (state == CenterStagePixelGrabberRight.State.OFF) {
+//            return true;
+//        } else {
+//            return false;
+//        }
+//    }
 
     @Override
     public String getName() {
