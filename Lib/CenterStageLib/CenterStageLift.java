@@ -127,8 +127,8 @@ public class CenterStageLift implements FTCRobotSubsystem {
         //*********************************************
         // todo figure out the positions
         highPosition = 15.0;
-        mediumPosition = 0.0;
-        lowPosition = 5.0;
+        mediumPosition = 8.5;
+        lowPosition = 2.5;
         intakePosition = 0.05;
         initPosition = 0;
 

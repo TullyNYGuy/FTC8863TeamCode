@@ -33,8 +33,9 @@ public class CenterStageWristServo {
     private final String WRIST_SERVO_NAME = CenterStageRobot.HardwareName.WRIST_SERVO.hwName;
 
     private double intakePosition = 0.28;
-    private double normalDropPosition = 0.76;
-    private double lowDropPosition = 0.76;
+    private double highDropPosition = 0.64;
+    private double mediumDropPosition = 0.64;
+    private double lowDropPosition = 0.64;
     private double setUpForDeliveryPosition = 0.2;
 
     //*********************************************************************************************
@@ -56,7 +57,8 @@ public class CenterStageWristServo {
         wristServo = new Servo8863New(WRIST_SERVO_NAME, hardwareMap, telemetry);
 
         wristServo.addPosition("intakePosition", intakePosition, 1000, TimeUnit.MILLISECONDS);
-        wristServo.addPosition("normalDropPosition", normalDropPosition, 1000, TimeUnit.MILLISECONDS);
+        wristServo.addPosition("highDropPosition", highDropPosition, 1000, TimeUnit.MILLISECONDS);
+        wristServo.addPosition("mediumDropPosition", mediumDropPosition, 1000, TimeUnit.MILLISECONDS);
         wristServo.addPosition("lowDropPosition", lowDropPosition, 1000, TimeUnit.MILLISECONDS);
         wristServo.addPosition("setUpForDeliveryPosition", setUpForDeliveryPosition, 1000, TimeUnit.MILLISECONDS);
 
@@ -78,8 +80,12 @@ public class CenterStageWristServo {
         wristServo.setPosition("intakePosition");
     }
 
-    public void normalDropPosition() {
-        wristServo.setPosition("normalDropPosition");
+    public void highDropPosition() {
+        wristServo.setPosition("highDropPosition");
+    }
+
+    public void mediumDropPosition() {
+        wristServo.setPosition("mediumDropPosition");
     }
 
     public void lowDropPosition() {
@@ -90,11 +96,32 @@ public class CenterStageWristServo {
         wristServo.setPosition("setUpForDeliveryPosition");
     }
 
+    public void bumpUpBig (){
+        wristServo.bump(0.1);
+    }
+
+    public void bumpDownBig () {
+        wristServo.bump(-0.1);
+    }
+
+    public void bumpUpSmall () {
+        wristServo.bump(0.01);
+    }
+
+    public void bumpDownSmall () {
+        wristServo.bump(-0.01);
+    }
+
     public boolean isPositionReached() {
         return wristServo.isPositionReached();
     }
 
     // wrappers
+
+    public double getCurrentPosition(){
+        return wristServo.getCurrentPosition();
+    }
+
     public ServoPosition getServoPosition(String positionName) {
         return wristServo.getServoPosition(positionName);
     }

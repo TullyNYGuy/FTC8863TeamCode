@@ -36,10 +36,14 @@ public class CenterStageDeliveryController implements FTCRobotSubsystem {
         WRIST_SERVO_MOVING_TO_SETUP_FOR_DELIVERY,
         WRIST_CURLING,
         LIFT_MOVING_TO_WRIST_CURLING_POSITION,
-        WRIST_SERVO_MOVING_TO_NORMAL_DROP_POSITION,
+        WRIST_SERVO_MOVING_TO_POSITION,
         LIFT_MOVING_TO_INTAKE_POSITION,
         LIFT_MOVING_TO_HIGH_POSITION,
-        ARM_MOVING_TO_NORMAL_DROP_POSITION
+        ARM_MOVING_TO_HIGH_DROP_POSITION,
+        LIFT_MOVING_TO_MEDIUM_POSITION,
+        ARM_MOVING_TO_MEDIUM_DROP_POSITION,
+        LIFT_MOVING_TO_LOW_POSITION,
+        ARM_MOVING_TO_LOW_DROP_POSITION
     }
 
     private State state = State.PRE_INIT;
@@ -57,8 +61,8 @@ public class CenterStageDeliveryController implements FTCRobotSubsystem {
     private final String DELIVERY_CONTROLLER_NAME = CenterStageRobot.HardwareName.DELIVERY_CONTROLLER.hwName;
 
     private CenterStageLift lift;
-    private CenterStageArmServo armServo;
-    private CenterStageWristServo wristServo;
+    public CenterStageArmServo armServo;
+    public CenterStageWristServo wristServo;
 
     private DataLogging logFile;
     private boolean enableLogging = false;
@@ -123,6 +127,20 @@ public class CenterStageDeliveryController implements FTCRobotSubsystem {
         lift.moveToHigh();
         state = State.LIFT_MOVING_TO_HIGH_POSITION;
         logCommand("Setup For High Drop");
+    }
+
+    public void setUpForMediumPosition() {
+        command = Command.SETUP_FOR_MEDIUM_DROP;
+        lift.moveToMedium();
+        state = State.LIFT_MOVING_TO_MEDIUM_POSITION;
+        logCommand("Setup For Medium Drop");
+    }
+
+    public void setUpForLowPosition() {
+        command = Command.SETUP_FOR_LOW_DROP;
+        lift.moveToLow();
+        state = State.LIFT_MOVING_TO_LOW_POSITION;
+        logCommand("Setup For Low Drop");
     }
 
     public boolean isCommandComplete() {
@@ -200,12 +218,12 @@ public class CenterStageDeliveryController implements FTCRobotSubsystem {
 
             case LIFT_MOVING_TO_WRIST_CURLING_POSITION:
                 if (lift.isPositionReached()) {
-                    wristServo.normalDropPosition();
-                    state = State.WRIST_SERVO_MOVING_TO_NORMAL_DROP_POSITION;
+                    wristServo.highDropPosition();
+                    state = State.WRIST_SERVO_MOVING_TO_POSITION;
                 }
                 break;
 
-            case WRIST_SERVO_MOVING_TO_NORMAL_DROP_POSITION:
+            case WRIST_SERVO_MOVING_TO_POSITION:
                 switch (command){
                     case SETUP_FOR_DELIVERY:
                         if (wristServo.isPositionReached()) {
@@ -214,6 +232,8 @@ public class CenterStageDeliveryController implements FTCRobotSubsystem {
                         }
                         break;
                     case SETUP_FOR_HIGH_DROP:
+                    case SETUP_FOR_MEDIUM_DROP:
+                    case SETUP_FOR_LOW_DROP:
                         if (wristServo.isPositionReached()){
                             commandComplete = true;
                             state = State.READY;
@@ -232,18 +252,48 @@ public class CenterStageDeliveryController implements FTCRobotSubsystem {
 
             case LIFT_MOVING_TO_HIGH_POSITION:
                 if (lift.isPositionReached()) {
-                    armServo.normalDropPosition();
-                    state = State.ARM_MOVING_TO_NORMAL_DROP_POSITION;
+                    armServo.highDropPosition();
+                    state = State.ARM_MOVING_TO_HIGH_DROP_POSITION;
                 }
                 break;
 
-            case ARM_MOVING_TO_NORMAL_DROP_POSITION:
+            case ARM_MOVING_TO_HIGH_DROP_POSITION:
                 if (armServo.isPositionReached()) {
-                    wristServo.normalDropPosition();
-                    state = State.WRIST_SERVO_MOVING_TO_NORMAL_DROP_POSITION;
+                    wristServo.highDropPosition();
+                    state = State.WRIST_SERVO_MOVING_TO_POSITION;
+                }
+                break;
+
+            case LIFT_MOVING_TO_MEDIUM_POSITION:
+                if (lift.isPositionReached()) {
+                    armServo.mediumDropPosition();
+                    state = State.ARM_MOVING_TO_MEDIUM_DROP_POSITION;
+                }
+                break;
+
+            case ARM_MOVING_TO_MEDIUM_DROP_POSITION:
+                if (armServo.isPositionReached()) {
+                    wristServo.mediumDropPosition();
+                    state = State.WRIST_SERVO_MOVING_TO_POSITION;
+                }
+                break;
+
+            case LIFT_MOVING_TO_LOW_POSITION:
+                if (lift.isPositionReached()) {
+                    armServo.lowDropPosition();
+                    state = State.ARM_MOVING_TO_LOW_DROP_POSITION;
+                }
+                break;
+
+            case ARM_MOVING_TO_LOW_DROP_POSITION:
+                if (armServo.isPositionReached()) {
+                    wristServo.lowDropPosition();
+                    state = State.WRIST_SERVO_MOVING_TO_POSITION;
                 }
                 break;
         }
+        
+        
     }
 
     @Override

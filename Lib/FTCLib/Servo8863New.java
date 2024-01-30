@@ -399,6 +399,23 @@ public class Servo8863New {
         }
     }
 
+    /**
+     * This method will get the current servo position and then change it by an amount. This is meant
+     * as a method to easily tweak the current servo position. It does not work with the isPositionReached().
+     * It just bumps the servo position by an amount and that is it. Quick and dirty.
+     * @param amountToBump
+     */
+    public void bump(double amountToBump) {
+        double newPosition;
+        if (servo.getPosition() == Double.NaN) {
+            servo.setPosition(amountToBump);
+        } else {
+            newPosition = servo.getPosition() + amountToBump;
+            newPosition = Range.clip(newPosition, 0.0, 1.0);
+            servo.setPosition(newPosition);
+        }
+    }
+
     //*************************************************************************************************
     // Wrapper function for Servo
     // Since I can't extend servo, I need to wrap the rest of its methods so that they are still
@@ -427,6 +444,10 @@ public class Servo8863New {
 
     public void setPosition(double position) {
         servo.setPosition(position);
+    }
+
+    public double getCurrentPosition() {
+        return servo.getPosition();
     }
 
     // I am not going to wrap the getPosition call. It is very misleading since it does not return

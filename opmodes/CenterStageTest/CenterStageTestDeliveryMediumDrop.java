@@ -11,9 +11,9 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.Debouncer;
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Center Stage Test Delivery Controller High Drop", group = "Test")
+@TeleOp(name = "Center Stage Test Delivery Controller Medium Drop", group = "Test")
 //@Disabled
-public class CenterStageTestDeliveryHighDrop extends LinearOpMode {
+public class CenterStageTestDeliveryMediumDrop extends LinearOpMode {
 
     // Put your variable declarations here
     CenterStageDeliveryController deliveryController;
@@ -78,7 +78,7 @@ public class CenterStageTestDeliveryHighDrop extends LinearOpMode {
             idle();
         }
 
-        deliveryController.setUpForHighPosition();
+        deliveryController.setUpForMediumPosition();
         while (opModeIsActive() && !deliveryController.isPositionReached()) {
             deliveryController.update();
 

@@ -33,8 +33,9 @@ public class CenterStageArmServo {
     private final String ARM_SERVO_NAME = CenterStageRobot.HardwareName.ARM_SERVO.hwName;
 
     private double intakePosition = 0.05;
-    private double normalDropPosition = 0.6;
-    private double lowDropPosition = 0.8;
+    private double highDropPosition = 0.7;
+    private double mediumDropPosition = 0.7;
+    private double lowDropPosition = 0.7;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -55,7 +56,8 @@ public class CenterStageArmServo {
         armServo = new Servo8863New(ARM_SERVO_NAME, hardwareMap, telemetry);
         
         armServo.addPosition("intakePosition", intakePosition, 1000, TimeUnit.MILLISECONDS);
-        armServo.addPosition("normalDropPosition", normalDropPosition, 1000, TimeUnit.MILLISECONDS);
+        armServo.addPosition("highDropPosition", highDropPosition, 1000, TimeUnit.MILLISECONDS);
+        armServo.addPosition("mediumDropPosition", mediumDropPosition, 1000, TimeUnit.MILLISECONDS);
         armServo.addPosition("lowDropPosition", lowDropPosition, 1000, TimeUnit.MILLISECONDS);
 
         armServo.setDirection(Servo.Direction.FORWARD);
@@ -76,8 +78,12 @@ public class CenterStageArmServo {
         armServo.setPosition("intakePosition");
     }
 
-    public void normalDropPosition() {
-        armServo.setPosition("normalDropPosition");
+    public void highDropPosition() {
+        armServo.setPosition("highDropPosition");
+    }
+
+    public void mediumDropPosition() {
+        armServo.setPosition("mediumDropPosition");
     }
 
     public void lowDropPosition() {
@@ -88,7 +94,28 @@ public class CenterStageArmServo {
         return armServo.isPositionReached();
     }
 
+    public void bumpUpBig (){
+        armServo.bump(0.1);
+    }
+
+    public void bumpDownBig () {
+        armServo.bump(-0.1);
+    }
+
+    public void bumpUpSmall () {
+        armServo.bump(0.01);
+    }
+
+    public void bumpDownSmall () {
+        armServo.bump(-0.01);
+    }
+
     // wrappers
+
+    public double getCurrentPosition(){
+        return armServo.getCurrentPosition();
+    }
+
     public ServoPosition getServoPosition(String positionName) {
         return armServo.getServoPosition(positionName);
     }
