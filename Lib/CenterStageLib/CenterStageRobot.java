@@ -61,7 +61,11 @@ public class CenterStageRobot implements FTCRobot {
 
         DELIVERY_CONTROLLER("deliveryController"),
 
-        PLANE_GUN_SERVO("planeGunServo");
+        PLANE_GUN_SERVO("planeGunServo"),
+
+        HANG("hang"),
+        LEFT_HANG_MOTOR("leftHangMotor"),
+        RIGHT_HANG_MOTOR("rightHangMotor");
 
 //        LED_PORT1("ledPort1"),
 //        LED_PORT2("ledPort2"),
