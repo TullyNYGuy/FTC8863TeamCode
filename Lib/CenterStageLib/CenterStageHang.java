@@ -57,6 +57,8 @@ public class CenterStageHang implements FTCRobotSubsystem {
 
     private DcMotor8863 leftHangMotor;
     private DcMotor8863 rightHangMotor;
+    private CenterStageArmDeployServoLeft armDeployServoLeft;
+    private CenterStageArmDeployServoRight armDeployServoRight;
     private DataLogging logFile;
     private boolean enableLogging = false;
     private DataLogOnChange logStateOnChange;
@@ -92,6 +94,9 @@ public class CenterStageHang implements FTCRobotSubsystem {
         rightHangMotor.setMotorType(DcMotor8863.MotorType.GOBILDA_312);
         rightHangMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         rightHangMotor.setMovementPerRev(25/25.4 * Math.PI); // 25mm diameter spool, convert to inches
+
+        armDeployServoLeft = new CenterStageArmDeployServoLeft(hardwareMap, telemetry);
+        armDeployServoRight = new CenterStageArmDeployServoRight(hardwareMap, telemetry);
 
         // init has not been started yet
         initComplete = true;
@@ -208,6 +213,16 @@ public class CenterStageHang implements FTCRobotSubsystem {
         } else {
             // you can't start a new command when the old one is not finished
         }
+    }
+
+    public void deploy(){
+        armDeployServoLeft.deployPositon();
+        armDeployServoRight.deployPositon();
+    }
+
+    public void ready(){
+        armDeployServoLeft.readyPositon();
+        armDeployServoRight.readyPositon();
     }
 
     public void stop() {

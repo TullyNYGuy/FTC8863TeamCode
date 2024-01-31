@@ -21,7 +21,9 @@ public class CenterStageDeliveryController implements FTCRobotSubsystem {
         SETUP_FOR_DELIVERY,
         SETUP_FOR_HIGH_DROP,
         SETUP_FOR_MEDIUM_DROP,
-        SETUP_FOR_LOW_DROP
+        SETUP_FOR_LOW_DROP,
+        ARM_RETURN_TO_INTAKE_POSITION,
+        WRIST_RETURN_TO_INTAKE_POSITION
     }
 
     private Command command = Command.OFF;
@@ -43,7 +45,10 @@ public class CenterStageDeliveryController implements FTCRobotSubsystem {
         LIFT_MOVING_TO_MEDIUM_POSITION,
         ARM_MOVING_TO_MEDIUM_DROP_POSITION,
         LIFT_MOVING_TO_LOW_POSITION,
-        ARM_MOVING_TO_LOW_DROP_POSITION
+        ARM_MOVING_TO_LOW_DROP_POSITION,
+        ARM_RETURNING_TO_INTAKE_POSITION,
+        WRIST_RETURNING_TO_INTAKE_POSITION,
+        LIFT_RETURNING_TO_INTAKE_POSITION
     }
 
     private State state = State.PRE_INIT;
@@ -117,8 +122,8 @@ public class CenterStageDeliveryController implements FTCRobotSubsystem {
 
     public void setupForDelivery() {
         command = Command.SETUP_FOR_DELIVERY;
-        lift.moveToSetupForDelivery();
-        state = State.LIFT_MOVING_TO_SETUP_FOR_DELIVERY;
+        lift.moveToWristCurlPosition();
+        state = State.LIFT_MOVING_TO_WRIST_CURLING_POSITION;
         logCommand("Setup For Delivery");
     }
 
@@ -143,6 +148,13 @@ public class CenterStageDeliveryController implements FTCRobotSubsystem {
         logCommand("Setup For Low Drop");
     }
 
+    public void returnToIntakePosition() {
+        command = Command.ARM_RETURN_TO_INTAKE_POSITION;
+        armServo.intakePosition();
+        state = State.ARM_RETURNING_TO_INTAKE_POSITION;
+        logCommand("Arm Return to intake position");
+    }
+
     public boolean isCommandComplete() {
         return commandComplete;
     }
@@ -154,7 +166,7 @@ public class CenterStageDeliveryController implements FTCRobotSubsystem {
             return false;
         }
     }
-    
+
     @Override
     public String getName() {
         return DELIVERY_CONTROLLER_NAME;
@@ -174,6 +186,10 @@ public class CenterStageDeliveryController implements FTCRobotSubsystem {
         return true;
     }
 
+    //*****************************************************************************************
+    //   STATE MACHINE
+    //*****************************************************************************************
+
     @Override
     public void update() {
         lift.update();
@@ -182,6 +198,10 @@ public class CenterStageDeliveryController implements FTCRobotSubsystem {
         switch (state) {
             case PRE_INIT:
                 break;
+
+            //*****************************************************************************************
+            //   INIT States
+            //*****************************************************************************************
 
             case WAITING_FOR_LIFT_INIT_TO_COMPLETE:
                 if (lift.isInitComplete()) {
@@ -202,12 +222,16 @@ public class CenterStageDeliveryController implements FTCRobotSubsystem {
             case READY:
                 break;
 
+            //*****************************************************************************************
+            //   Setup For Delivery States
+            //*****************************************************************************************
+
             case LIFT_MOVING_TO_SETUP_FOR_DELIVERY:
                 if (lift.isPositionReached()) {
                     wristServo.setSetUpForDeliveryPosition();
                     state = State.WRIST_SERVO_MOVING_TO_SETUP_FOR_DELIVERY;
                 }
-            break;
+                break;
 
             case WRIST_SERVO_MOVING_TO_SETUP_FOR_DELIVERY:
                 if (wristServo.isPositionReached()) {
@@ -223,8 +247,12 @@ public class CenterStageDeliveryController implements FTCRobotSubsystem {
                 }
                 break;
 
+            //*****************************************************************************************
+            //   Wrist Servo for several different States
+            //*****************************************************************************************
+
             case WRIST_SERVO_MOVING_TO_POSITION:
-                switch (command){
+                switch (command) {
                     case SETUP_FOR_DELIVERY:
                         if (wristServo.isPositionReached()) {
                             lift.moveToIntake();
@@ -234,7 +262,7 @@ public class CenterStageDeliveryController implements FTCRobotSubsystem {
                     case SETUP_FOR_HIGH_DROP:
                     case SETUP_FOR_MEDIUM_DROP:
                     case SETUP_FOR_LOW_DROP:
-                        if (wristServo.isPositionReached()){
+                        if (wristServo.isPositionReached()) {
                             commandComplete = true;
                             state = State.READY;
                         }
@@ -250,6 +278,10 @@ public class CenterStageDeliveryController implements FTCRobotSubsystem {
                 }
                 break;
 
+            //*****************************************************************************************
+            //   High Delivery States
+            //*****************************************************************************************
+
             case LIFT_MOVING_TO_HIGH_POSITION:
                 if (lift.isPositionReached()) {
                     armServo.highDropPosition();
@@ -263,6 +295,10 @@ public class CenterStageDeliveryController implements FTCRobotSubsystem {
                     state = State.WRIST_SERVO_MOVING_TO_POSITION;
                 }
                 break;
+
+            //*****************************************************************************************
+            //   Medium Delibery States
+            //*****************************************************************************************
 
             case LIFT_MOVING_TO_MEDIUM_POSITION:
                 if (lift.isPositionReached()) {
@@ -278,6 +314,10 @@ public class CenterStageDeliveryController implements FTCRobotSubsystem {
                 }
                 break;
 
+            //*****************************************************************************************
+            //   Low Delivery States
+            //*****************************************************************************************
+
             case LIFT_MOVING_TO_LOW_POSITION:
                 if (lift.isPositionReached()) {
                     armServo.lowDropPosition();
@@ -291,9 +331,27 @@ public class CenterStageDeliveryController implements FTCRobotSubsystem {
                     state = State.WRIST_SERVO_MOVING_TO_POSITION;
                 }
                 break;
+
+            case ARM_RETURNING_TO_INTAKE_POSITION:
+                if (armServo.isPositionReached()) {
+                    wristServo.intakePosition();
+                    state = State.WRIST_RETURNING_TO_INTAKE_POSITION;
+                }
+                break;
+
+            case WRIST_RETURNING_TO_INTAKE_POSITION:
+                if (wristServo.isPositionReached()) {
+                    lift.moveToIntake();
+                    state = State.LIFT_RETURNING_TO_INTAKE_POSITION;
+                }
+                break;
+
+            case LIFT_RETURNING_TO_INTAKE_POSITION:
+                if (lift.isPositionReached()) {
+                    state = State.READY;
+                }
+                break;
         }
-        
-        
     }
 
     @Override

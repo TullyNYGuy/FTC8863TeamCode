@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.ServoPosition;
 import java.util.concurrent.TimeUnit;
 
 @Config
-public class CenterStageArmServo {
+public class CenterStageArmDeployServoRight {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -28,14 +28,12 @@ public class CenterStageArmServo {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
-    private Servo8863New armServo;
+    private Servo8863New armDeployServoRight;
 
-    private final String ARM_SERVO_NAME = CenterStageRobot.HardwareName.ARM_SERVO.hwName;
+    private final String ARM_SERVO_NAME = CenterStageRobot.HardwareName.RIGHT_DEPLOY_SERVO.hwName;
 
-    private double intakePosition = 0.05;
-    private double highDropPosition = 0.7;
-    private double mediumDropPosition = 0.7;
-    private double lowDropPosition = 0.7;
+    private double readyPosition = 0.00;
+    private double deployPosition = 0.00;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -52,15 +50,13 @@ public class CenterStageArmServo {
     // from it
     //*********************************************************************************************
 
-    public CenterStageArmServo(HardwareMap hardwareMap, Telemetry telemetry) {
-        armServo = new Servo8863New(ARM_SERVO_NAME, hardwareMap, telemetry);
+    public CenterStageArmDeployServoRight(HardwareMap hardwareMap, Telemetry telemetry) {
+        armDeployServoRight = new Servo8863New(ARM_SERVO_NAME, hardwareMap, telemetry);
         
-        armServo.addPosition("intakePosition", intakePosition, 700, TimeUnit.MILLISECONDS);
-        armServo.addPosition("highDropPosition", highDropPosition, 1000, TimeUnit.MILLISECONDS);
-        armServo.addPosition("mediumDropPosition", mediumDropPosition, 1000, TimeUnit.MILLISECONDS);
-        armServo.addPosition("lowDropPosition", lowDropPosition, 1000, TimeUnit.MILLISECONDS);
+        armDeployServoRight.addPosition("readyPosition", readyPosition, 1000, TimeUnit.MILLISECONDS);
+        armDeployServoRight.addPosition("deployPosition", deployPosition, 1000, TimeUnit.MILLISECONDS);
 
-        armServo.setDirection(Servo.Direction.FORWARD);
+        armDeployServoRight.setDirection(Servo.Direction.FORWARD);
     }
     //*********************************************************************************************
     //          Helper Methods
@@ -74,61 +70,49 @@ public class CenterStageArmServo {
     // public methods that give the class its functionality
     //*********************************************************************************************
 
-    public void intakePosition() {
-        armServo.setPosition("intakePosition");
+    public void readyPositon() {
+        armDeployServoRight.setPosition("readyPosition");
     }
 
-    public void highDropPosition() {
-        armServo.setPosition("highDropPosition");
+    public void deployPositon() {
+        armDeployServoRight.setPosition("deployPosition");
     }
-
-    public void mediumDropPosition() {
-        armServo.setPosition("mediumDropPosition");
-    }
-
-    public void lowDropPosition() {
-        armServo.setPosition("lowDropPosition");
-    }
-
-    public boolean isPositionReached() {
-        return armServo.isPositionReached();
-    }
-
+    
     public void bumpUpBig (){
-        armServo.bump(0.1);
+        armDeployServoRight.bump(0.1);
     }
 
     public void bumpDownBig () {
-        armServo.bump(-0.1);
+        armDeployServoRight.bump(-0.1);
     }
 
     public void bumpUpSmall () {
-        armServo.bump(0.01);
+        armDeployServoRight.bump(0.01);
     }
 
     public void bumpDownSmall () {
-        armServo.bump(-0.01);
+        armDeployServoRight.bump(-0.01);
     }
 
     // wrappers
 
     public double getCurrentPosition(){
-        return armServo.getCurrentPosition();
+        return armDeployServoRight.getCurrentPosition();
     }
 
     public ServoPosition getServoPosition(String positionName) {
-        return armServo.getServoPosition(positionName);
+        return armDeployServoRight.getServoPosition(positionName);
     }
 
     public void changeServoPosition(String positionName, double position) {
-        armServo.changePosition(positionName, position);
+        armDeployServoRight.changePosition(positionName, position);
     }
 
     public void testPositionUsingJoystick(LinearOpMode opmode) {
-        armServo.testPositionsUsingJoystick(opmode);
+        armDeployServoRight.testPositionsUsingJoystick(opmode);
     }
 
     public void setupServoPositionsUsingGamepad(LinearOpMode opmode) {
-        armServo.setupServoPositionsUsingGamepad(opmode);
+        armDeployServoRight.setupServoPositionsUsingGamepad(opmode);
     }
 }

@@ -56,7 +56,7 @@ public class CenterStageWristServo {
     public CenterStageWristServo(HardwareMap hardwareMap, Telemetry telemetry) {
         wristServo = new Servo8863New(WRIST_SERVO_NAME, hardwareMap, telemetry);
 
-        wristServo.addPosition("intakePosition", intakePosition, 1000, TimeUnit.MILLISECONDS);
+        wristServo.addPosition("intakePosition", intakePosition, 200, TimeUnit.MILLISECONDS);
         wristServo.addPosition("highDropPosition", highDropPosition, 1000, TimeUnit.MILLISECONDS);
         wristServo.addPosition("mediumDropPosition", mediumDropPosition, 1000, TimeUnit.MILLISECONDS);
         wristServo.addPosition("lowDropPosition", lowDropPosition, 1000, TimeUnit.MILLISECONDS);

@@ -147,7 +147,7 @@ public class CenterStageLift implements FTCRobotSubsystem {
         extensionRetractionMechanism.setExtensionPositionInMechanismUnits(16.5);
         extensionRetractionMechanism.setRetractionPositionInMechanismUnits(0.04);
         // Go with standard encoder tolerance for now
-        //extensionRetractionMechanism.setTargetEncoderTolerance(30);
+        extensionRetractionMechanism.setTargetEncoderTolerance(50);
 
         extensionRetractionMechanism.setResetTimerLimitInmSec(5000);
         timer = new ElapsedTime();

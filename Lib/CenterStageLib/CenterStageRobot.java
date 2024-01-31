@@ -65,7 +65,10 @@ public class CenterStageRobot implements FTCRobot {
 
         HANG("hang"),
         LEFT_HANG_MOTOR("leftHangMotor"),
-        RIGHT_HANG_MOTOR("rightHangMotor");
+        RIGHT_HANG_MOTOR("rightHangMotor"),
+        LEFT_DEPLOY_SERVO("armDeployServoLeft"),
+        RIGHT_DEPLOY_SERVO("armDeployServoRight");
+
 
 //        LED_PORT1("ledPort1"),
 //        LED_PORT2("ledPort2"),
