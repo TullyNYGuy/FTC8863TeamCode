@@ -10,11 +10,9 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogOnChange;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863Interface;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
 
-public class CenterStageHang implements FTCRobotSubsystem {
+public class CenterStageHangMechanism implements FTCRobotSubsystem {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -53,7 +51,7 @@ public class CenterStageHang implements FTCRobotSubsystem {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
-    private final String HANG_NAME = CenterStageRobot.HardwareName.HANG.hwName;
+    private final String HANG_NAME = CenterStageRobot.HardwareName.HANG_MECHANISM.hwName;
 
     private DcMotor8863 leftHangMotor;
     private DcMotor8863 rightHangMotor;
@@ -82,7 +80,7 @@ public class CenterStageHang implements FTCRobotSubsystem {
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
-    public CenterStageHang(HardwareMap hardwareMap, Telemetry telemetry) {
+    public CenterStageHangMechanism(HardwareMap hardwareMap, Telemetry telemetry) {
 
         // create the motor for the lift
         leftHangMotor = new DcMotor8863(CenterStageRobot.HardwareName.LEFT_HANG_MOTOR.hwName, hardwareMap, telemetry);
@@ -215,12 +213,12 @@ public class CenterStageHang implements FTCRobotSubsystem {
         }
     }
 
-    public void deploy(){
+    public void deployArms(){
         armDeployServoLeft.deployPositon();
         armDeployServoRight.deployPositon();
     }
 
-    public void ready(){
+    public void readyArms(){
         armDeployServoLeft.readyPositon();
         armDeployServoRight.readyPositon();
     }

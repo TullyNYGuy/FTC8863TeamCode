@@ -8,9 +8,9 @@ import org.firstinspires.ftc.teamcode.Lib.CenterStageLib.CenterStageHangMechanis
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Center Stage Test Hang", group = "Test")
+@TeleOp(name = "Center Stage Test Deploy Servos", group = "Test")
 //@Disabled
-public class CenterStageTestHang extends LinearOpMode {
+public class CenterStageTestDeployServos extends LinearOpMode {
 
     // Put your variable declarations here
     CenterStageHangMechanism hang;
@@ -34,10 +34,10 @@ public class CenterStageTestHang extends LinearOpMode {
             hang.update();
 
             if (gamepad1.y) {
-                hang.hang();
+                hang.deployArms();
             }
             if (gamepad1.a) {
-                hang.stop();
+                hang.readyArms();
             }
 
             telemetry.addData("state = ", hang.getState().toString());

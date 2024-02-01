@@ -32,8 +32,8 @@ public class CenterStageArmDeployServoRight {
 
     private final String ARM_SERVO_NAME = CenterStageRobot.HardwareName.RIGHT_DEPLOY_SERVO.hwName;
 
-    private double readyPosition = 0.00;
-    private double deployPosition = 0.00;
+    private double readyPosition = 0.46;
+    private double deployPosition = 0.83;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods

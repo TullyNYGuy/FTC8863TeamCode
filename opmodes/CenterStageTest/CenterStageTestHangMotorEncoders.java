@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.opmodes.CenterStageTest;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.Lib.CenterStageLib.CenterStageHang;
+import org.firstinspires.ftc.teamcode.Lib.CenterStageLib.CenterStageHangMechanism;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
@@ -13,14 +13,14 @@ import org.firstinspires.ftc.teamcode.Lib.CenterStageLib.CenterStageHang;
 public class CenterStageTestHangMotorEncoders extends LinearOpMode {
 
     // Put your variable declarations here
-    CenterStageHang hang;
+    CenterStageHangMechanism hang;
 
     @Override
     public void runOpMode() {
 
 
         // Put your initializations here
-        hang = new CenterStageHang(hardwareMap, telemetry);
+        hang = new CenterStageHangMechanism(hardwareMap, telemetry);
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");

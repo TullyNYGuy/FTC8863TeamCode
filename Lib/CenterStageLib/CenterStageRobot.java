@@ -63,7 +63,7 @@ public class CenterStageRobot implements FTCRobot {
 
         PLANE_GUN_SERVO("planeGunServo"),
 
-        HANG("hang"),
+        HANG_MECHANISM("hangMechanism"),
         LEFT_HANG_MOTOR("leftHangMotor"),
         RIGHT_HANG_MOTOR("rightHangMotor"),
         LEFT_DEPLOY_SERVO("armDeployServoLeft"),
@@ -87,7 +87,8 @@ public class CenterStageRobot implements FTCRobot {
         //WEBCAM,
         INTAKE_CONTROLLER,
         DELIVERY_CONTROLLER,
-        PLANE_GUN
+        PLANE_GUN,
+        HANG_MECHANISM
 
         //LED_BLINKER,
         //LED_STRIP,
@@ -116,13 +117,14 @@ public class CenterStageRobot implements FTCRobot {
     public LoopTimer loopTimer;
     public CenterStageRobotModes robotModes;
     public CenterStageIntakeController intakeController;
-//    public CenterStageDeliveryController deliveryController;
+    public CenterStageDeliveryController deliveryController;
     public CenterStagePlaneGUNservo planeGunServo;
+    public CenterStageHangMechanism hangMechanism;
     //public PowerPlayWebcam webcam;
     //public RevLEDBlinker ledBlinker;
     //public FFBlinkinLed ledStrip;
-    public CenterStageArmServo armServo;
-    public CenterStageWristServo wristServo;
+    //public CenterStageArmServo armServo;
+    //public CenterStageWristServo wristServo;
 
     public CenterStageRobot(HardwareMap hardwareMap, Telemetry telemetry, Configuration config,
                             DataLogging dataLog, DistanceUnit units, LinearOpMode opMode) {
@@ -183,21 +185,26 @@ public class CenterStageRobot implements FTCRobot {
             intakeController = new CenterStageIntakeController(hardwareMap, telemetry);
             subsystemMap.put(intakeController.getName(), intakeController);
         }
-//
-//        if (capabilities.contains(Subsystem.DELIVERY_CONTROLLER)) {
-//            deliveryController = new CenterStageDeliveryController(hardwareMap, telemetry);
-//            subsystemMap.put(deliveryController.getName(), deliveryController);
-//        }
-//
+
+        if (capabilities.contains(Subsystem.DELIVERY_CONTROLLER)) {
+            deliveryController = new CenterStageDeliveryController(hardwareMap, telemetry);
+            subsystemMap.put(deliveryController.getName(), deliveryController);
+        }
+
         if (capabilities.contains(Subsystem.PLANE_GUN)) {
             planeGunServo = new CenterStagePlaneGUNservo(hardwareMap, telemetry);
             subsystemMap.put(planeGunServo.getName(), planeGunServo);
         }
 
-            armServo = new CenterStageArmServo(hardwareMap, telemetry);
-            armServo.intakePosition();
-            wristServo = new CenterStageWristServo(hardwareMap, telemetry);
-            wristServo.intakePosition();
+        if (capabilities.contains(Subsystem.HANG_MECHANISM)) {
+            hangMechanism = new CenterStageHangMechanism(hardwareMap, telemetry);
+            subsystemMap.put(hangMechanism.getName(), hangMechanism);
+        }
+
+//            armServo = new CenterStageArmServo(hardwareMap, telemetry);
+//            armServo.intakePosition();
+//            wristServo = new CenterStageWristServo(hardwareMap, telemetry);
+//            wristServo.intakePosition();
 
 //        if (capabilities.contains(Subsystem.LED_BLINKER)) {
 //            ledBlinker = new RevLEDBlinker(2, RevLED.Color.GREEN, hardwareMap,
