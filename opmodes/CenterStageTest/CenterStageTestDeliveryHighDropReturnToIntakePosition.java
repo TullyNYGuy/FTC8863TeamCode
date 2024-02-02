@@ -35,7 +35,7 @@ public class CenterStageTestDeliveryHighDropReturnToIntakePosition extends Linea
         // Put your initializations here
         log = new DataLogging("LiftLog");
         timer = new ElapsedTime();
-        deliveryController = new CenterStageDeliveryController(hardwareMap, telemetry);
+        deliveryController = new CenterStageDeliveryController(hardwareMap, telemetry, null);
 
         deliveryController.setDataLog(log);
         deliveryController.enableDataLogging();

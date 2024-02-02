@@ -222,6 +222,13 @@ public class CenterStageHangMechanism implements FTCRobotSubsystem {
         armDeployServoLeft.readyPositon();
         armDeployServoRight.readyPositon();
     }
+    public void up1inch(){
+
+    }
+    public void completehang(){
+
+    }
+
 
     public void stop() {
         // no lockout for this

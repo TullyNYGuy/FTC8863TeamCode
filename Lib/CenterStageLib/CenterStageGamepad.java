@@ -7,36 +7,37 @@ package org.firstinspires.ftc.teamcode.Lib.CenterStageLib;
  *    / Left JoystickY   - robot moves forward/backward
  *    / Right JoystickX  - robot rotation
  *    / Right JoystickY  -
- *    / DPad Up          - Joystick direction swap = normal driving
- *    / DPad Left        - 
- *    / DPad Down        - Joystick direction swap = inversed (joysticks drive opposite)
- *    / DPad Right       - 
- *    / A                - 
- *    / B                - 
- *    / X                - 
- *    / Y                - 
+ *    / DPad Up          - go to high delivery
+ *    / DPad Left        - go to medium delivery
+ *    / DPad Down        - go to low delivery
+ *    / DPad Right       - setup for intake
+ *    / A                - intake
+ *    / B                - outtake
+ *    / X                - stop intake
+ *    / Y                - setup for delivery
  *    /Left Bumper       -
- *    /Right Bumper      - switch speed (high to max) or (low to high to max)
- *    /Left stick button - driving mode = robot centric
- *    /Right stick button - driving mode = field centric
+ *    /Right Bumper      - ?switch speed (high to max) or (low to high to max)
+ *    /Left stick button - normal joystick controls
+ *    /Right stick button - inverse joystick controls
  *
  *  Gamepad 2 layout
  *    / Left JoystickX   -
  *    / Left JoystickY   -
  *    / Right JoystickX  -
  *    / Right JoystickY  -
- *    / DPad Up          - 
- *    / DPad Left        - 
- *    / DPad Down        - 
- *    / DPad Right       - 
- *    / A                - 
- *    / B                - 75% speed
- *    / X                - Max speed
+ *    / DPad Up          - hang
+ *    / DPad Left        - while hanging, move up 1"
+ *    / DPad Down        - deploy hanging arms
+ *    / DPad Right       - while hanging, move up 1"
+ *    / A                - deliver both pixels
+ *    / B                - deliver right pixel
+ *    / X                - deliver left pixel
  *    / Y                - 
  *   /Left Bumper        -
  *   /Right Bumper       -
- */
-
+ *   / Left stick button - launch plane
+ *  / Right stick button - hang complete
+*/
 import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -263,7 +264,7 @@ public class CenterStageGamepad {
         }
 
         if (gamepad1a.buttonPress(gamepad1.a)) {
-            robot.intakeController.off();
+            robot.intakeController.intake();
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
         }
@@ -275,13 +276,13 @@ public class CenterStageGamepad {
         }
 
         if (gamepad1y.buttonPress(gamepad1.y)) {
-            robot.intakeController.outakeComplete();
+            robot.deliveryController.setupForDelivery();
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
         }
 
         if (gamepad1x.buttonPress(gamepad1.x)) {
-            robot.intakeController.intake();
+            robot.intakeController.off();
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
         }
@@ -289,35 +290,42 @@ public class CenterStageGamepad {
         if (gamepad1DpadUp.buttonPress(gamepad1.dpad_up)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            robot.robotModes.setDirectionSwap(CenterStageRobotModes.DirectionSwap.NORMAL);
+            //robot.robotModes.setDirectionSwap(CenterStageRobotModes.DirectionSwap.NORMAL);
+            robot.deliveryController.setUpForHighPosition();
         }
 
         if (gamepad1DpadDown.buttonPress(gamepad1.dpad_down)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            robot.robotModes.setDirectionSwap(CenterStageRobotModes.DirectionSwap.INVERSED);
+            //robot.robotModes.setDirectionSwap(CenterStageRobotModes.DirectionSwap.INVERSED);
+            robot.deliveryController.setUpForLowPosition();
         }
 
         if (gamepad1DpadLeft.buttonPress(gamepad1.dpad_left)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
+            robot.deliveryController.setUpForMediumPosition();
         }
 
         if (gamepad1DpadRight.buttonPress(gamepad1.dpad_right)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
+            robot.deliveryController.returnToIntakePosition();
         }
 
         if (gamepad1LeftStickButton.buttonPress(gamepad1.left_stick_button)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            drivingMode = DrivingMode.ROBOT_CENTRIC;
+            //drivingMode = DrivingMode.ROBOT_CENTRIC;
+            robot.robotModes.setDirectionSwap(CenterStageRobotModes.DirectionSwap.NORMAL);
+
         }
 
         if (gamepad1RightStickButton.buttonPress(gamepad1.right_stick_button)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
             //drivingMode = DrivingMode.FIELD_CENTRIC;
+            robot.robotModes.setDirectionSwap(CenterStageRobotModes.DirectionSwap.INVERSED);
         }
 
         //**************************************************************************************
@@ -370,12 +378,14 @@ public class CenterStageGamepad {
         if (gamepad2a.buttonPress(gamepad2.a)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
+            robot.intakeController.deliverBothPixels();
         }
 
         if (gamepad2b.buttonPress(gamepad2.b)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            robot.robotModes.setMaxDrivingPower(.75);
+            //robot.robotModes.setMaxDrivingPower(.75);
+            robot.intakeController.deliverRightPixel();
         }
 
         if (gamepad2y.buttonPress(gamepad2.y)) {
@@ -387,27 +397,33 @@ public class CenterStageGamepad {
         if (gamepad2x.buttonPress(gamepad2.x)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            robot.robotModes.setMaxDrivingPower(1.0);
+            //robot.robotModes.setMaxDrivingPower(1.0);
+            robot.intakeController.deliverLeftPixel();
         }
 
         if (gamepad2DpadUp.buttonPress(gamepad2.dpad_up)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
+            robot.hangMechanism.hang();
         }
 
         if (gamepad2DpadDown.buttonPress(gamepad2.dpad_down)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
+            robot.hangMechanism.deployArms();
         }
 
         if (gamepad2DpadLeft.buttonPress(gamepad2.dpad_left)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
+            robot.hangMechanism.up1inch();
+
         }
 
         if (gamepad2DpadRight.buttonPress(gamepad2.dpad_right)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
+            robot.hangMechanism.up1inch();
         }
 
         if (gamepad2LeftStickButton.buttonPress(gamepad2.left_stick_button)) {
@@ -418,6 +434,7 @@ public class CenterStageGamepad {
         if (gamepad2RightStickButton.buttonPress(gamepad2.right_stick_button)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
+            robot.hangMechanism.completehang();
         }
 
         //**************************************************************************************

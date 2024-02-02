@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Lib.CenterStageLib;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
@@ -48,7 +49,8 @@ public class CenterStageDeliveryController implements FTCRobotSubsystem {
         ARM_MOVING_TO_LOW_DROP_POSITION,
         ARM_RETURNING_TO_INTAKE_POSITION,
         WRIST_RETURNING_TO_INTAKE_POSITION,
-        LIFT_RETURNING_TO_INTAKE_POSITION
+        LIFT_RETURNING_TO_INTAKE_POSITION,
+        WAITING_FOR_OUTTAKE_TO_EXPIRE
     }
 
     private State state = State.PRE_INIT;
@@ -68,6 +70,7 @@ public class CenterStageDeliveryController implements FTCRobotSubsystem {
     private CenterStageLift lift;
     public CenterStageArmServo armServo;
     public CenterStageWristServo wristServo;
+    public CenterStageIntakeController intakeController;
 
     private DataLogging logFile;
     private boolean enableLogging = false;
@@ -76,6 +79,7 @@ public class CenterStageDeliveryController implements FTCRobotSubsystem {
 
     private boolean commandComplete = true;
     private boolean initComplete = false;
+    private ElapsedTime timer;
 
     //*********************************************************************************************
     //          Constructors
@@ -83,10 +87,12 @@ public class CenterStageDeliveryController implements FTCRobotSubsystem {
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
-    public CenterStageDeliveryController(HardwareMap hardwareMap, Telemetry telemetry) {
+    public CenterStageDeliveryController(HardwareMap hardwareMap, Telemetry telemetry, CenterStageIntakeController intakeController) {
         lift = new CenterStageLift(hardwareMap, telemetry);
         armServo = new CenterStageArmServo(hardwareMap, telemetry);
         wristServo = new CenterStageWristServo(hardwareMap, telemetry);
+        this.intakeController=intakeController;
+        timer = new ElapsedTime();
 
         command = Command.OFF;
         state = State.PRE_INIT;
@@ -151,6 +157,7 @@ public class CenterStageDeliveryController implements FTCRobotSubsystem {
     public void returnToIntakePosition() {
         command = Command.ARM_RETURN_TO_INTAKE_POSITION;
         armServo.intakePosition();
+        intakeController.outake();
         state = State.ARM_RETURNING_TO_INTAKE_POSITION;
         logCommand("Arm Return to intake position");
     }
@@ -332,6 +339,11 @@ public class CenterStageDeliveryController implements FTCRobotSubsystem {
                 }
                 break;
 
+            //*****************************************************************************************
+            //   Return To Intake States
+            //*****************************************************************************************
+
+
             case ARM_RETURNING_TO_INTAKE_POSITION:
                 if (armServo.isPositionReached()) {
                     wristServo.intakePosition();
@@ -348,9 +360,18 @@ public class CenterStageDeliveryController implements FTCRobotSubsystem {
 
             case LIFT_RETURNING_TO_INTAKE_POSITION:
                 if (lift.isPositionReached()) {
+                  timer.reset();
+                    state = State.WAITING_FOR_OUTTAKE_TO_EXPIRE;
+                }
+                break;
+
+            case WAITING_FOR_OUTTAKE_TO_EXPIRE:
+                if(timer.seconds() > 2){
+                    intakeController.off();
                     state = State.READY;
                 }
                 break;
+
         }
     }
 

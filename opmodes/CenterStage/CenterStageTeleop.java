@@ -135,6 +135,10 @@ public class CenterStageTeleop extends LinearOpMode {
                         gamepad.gamepad1RightJoyStickXValue
                 );
             }
+
+            telemetry.addData("intake State = ", robot.intakeController.getState().toString());
+            telemetry.addData("delivery Controller = ", robot.deliveryController.getState().toString());
+
 //            if (gamepad.getDrivingMode() == DrivingMode.FIELD_CENTRIC) {
 //                telemetry.addData("FIELD CENTRIC driving", "!");
 //                robot.mecanumDrive.calculateMotorCommandsFieldCentric(

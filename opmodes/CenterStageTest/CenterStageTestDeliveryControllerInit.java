@@ -24,7 +24,7 @@ public class CenterStageTestDeliveryControllerInit extends LinearOpMode {
 
         // Put your initializations here
         log = new DataLogging("LiftLog");
-        deliveryController = new CenterStageDeliveryController(hardwareMap, telemetry);
+        deliveryController = new CenterStageDeliveryController(hardwareMap, telemetry, null);
 
         deliveryController.setDataLog(log);
         deliveryController.enableDataLogging();

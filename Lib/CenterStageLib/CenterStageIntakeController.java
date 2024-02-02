@@ -212,11 +212,18 @@ public class CenterStageIntakeController implements FTCRobotSubsystem {
                 break;
 
             case OFF:
-                if (command == Command.INTAKE) {
-                    intakeMotor.intake();
-                    pixelGrabberLeft.on();
-                    pixelGrabberRight.on();
-                    state = State.INTAKING;
+                switch(command) {
+                    case OUTAKE:
+                        intakeMotor.outake();
+                        state = State.WAITING_FOR_OUTAKE;
+                        break;
+                    case INTAKE:
+                        intakeMotor.intake();
+                        pixelGrabberLeft.on();
+                        pixelGrabberRight.on();
+                        state = State.INTAKING;
+                        break;
+
                 }
                 break;
 
@@ -301,17 +308,32 @@ public class CenterStageIntakeController implements FTCRobotSubsystem {
                 break;
 
             case BOTH_PIXELS_GRABBED:
-                if (command == Command.DELIVER_BOTH_PIXELS) {
-                    intakeMotor.off();
-                    pixelGrabberLeft.deliverPixel();
-                    pixelGrabberRight.deliverPixel();
-                    state = State.DELIVERING_BOTH_PIXELS;
-                }
-                if (command == Command.OUTAKE) {
-                    intakeMotor.outake();
-                    pixelGrabberLeft.deliverPixel();
-                    pixelGrabberRight.deliverPixel();
-                    state = State.WAITING_FOR_OUTAKE;
+                switch(command) {
+                    case DELIVER_LEFT_PIXEL:
+                        intakeMotor.off();
+                        pixelGrabberLeft.deliverPixel();
+                        state = State.RIGHT_PIXEL_GRABBED;
+                        break;
+                    case DELIVER_RIGHT_PIXEL:
+                        intakeMotor.off();
+                        pixelGrabberRight.deliverPixel();
+                        state = State.LEFT_PIXEL_GRABBED;
+                        break;
+                    case DELIVER_BOTH_PIXELS:
+                        intakeMotor.off();
+                        pixelGrabberLeft.deliverPixel();
+                        pixelGrabberRight.deliverPixel();
+                        state = State.DELIVERING_BOTH_PIXELS;
+                        break;
+                    case OUTAKE:
+                        intakeMotor.outake();
+                        pixelGrabberLeft.deliverPixel();
+                        pixelGrabberRight.deliverPixel();
+                        state = State.WAITING_FOR_OUTAKE;
+                        break;
+
+
+
                 }
                 break;
 
@@ -333,11 +355,14 @@ public class CenterStageIntakeController implements FTCRobotSubsystem {
                 }
                 break;
             case WAITING_FOR_OUTAKE:
-                if (command == Command.OUTAKE_COMPLETE) {
-                    intakeMotor.off();
-                    pixelGrabberLeft.off();
-                    pixelGrabberRight.off();
-                    state = State.OFF;
+                switch (command) {
+                    case OUTAKE_COMPLETE:
+                    case OFF:
+                        intakeMotor.off();
+                        pixelGrabberLeft.off();
+                        pixelGrabberRight.off();
+                        state = State.OFF;
+                        break;
 
                 }
                 break;

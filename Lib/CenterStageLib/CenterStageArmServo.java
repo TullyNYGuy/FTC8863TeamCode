@@ -36,6 +36,7 @@ public class CenterStageArmServo {
     private double highDropPosition = 0.7;
     private double mediumDropPosition = 0.7;
     private double lowDropPosition = 0.7;
+    private double setUpDeliveryPosition = 0.75;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -59,6 +60,7 @@ public class CenterStageArmServo {
         armServo.addPosition("highDropPosition", highDropPosition, 1000, TimeUnit.MILLISECONDS);
         armServo.addPosition("mediumDropPosition", mediumDropPosition, 1000, TimeUnit.MILLISECONDS);
         armServo.addPosition("lowDropPosition", lowDropPosition, 1000, TimeUnit.MILLISECONDS);
+        armServo.addPosition("setUpForDeliveryPosition", setUpDeliveryPosition, 800, TimeUnit.MILLISECONDS);
 
         armServo.setDirection(Servo.Direction.FORWARD);
     }
@@ -88,6 +90,10 @@ public class CenterStageArmServo {
 
     public void lowDropPosition() {
         armServo.setPosition("lowDropPosition");
+    }
+
+    public void setSetUpDeliveryPosition() {
+        armServo.setPosition("setUpForDeliveryPosition");
     }
 
     public boolean isPositionReached() {

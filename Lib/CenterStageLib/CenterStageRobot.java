@@ -187,7 +187,7 @@ public class CenterStageRobot implements FTCRobot {
         }
 
         if (capabilities.contains(Subsystem.DELIVERY_CONTROLLER)) {
-            deliveryController = new CenterStageDeliveryController(hardwareMap, telemetry);
+            deliveryController = new CenterStageDeliveryController(hardwareMap, telemetry, intakeController);
             subsystemMap.put(deliveryController.getName(), deliveryController);
         }
 
