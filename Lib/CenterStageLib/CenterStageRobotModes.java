@@ -47,8 +47,8 @@ public class CenterStageRobotModes {
         return previousMaxPower;
     }
 
-    // default power when starting is 75%
-    private double currentMaxPower = 0.75;
+    // default power when starting is 100%
+    private double currentMaxPower = 1.00;
 
     public double getCurrentMaxPower() {
         return currentMaxPower;
