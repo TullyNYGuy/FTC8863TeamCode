@@ -34,7 +34,7 @@ public class CenterStageTestHang extends LinearOpMode {
             hang.update();
 
             if (gamepad1.y) {
-                hang.hang();
+                hang.bigHang();
             }
             if (gamepad1.a) {
                 hang.stop();

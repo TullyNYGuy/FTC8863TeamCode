@@ -404,7 +404,7 @@ public class CenterStageGamepad {
         if (gamepad2DpadUp.buttonPress(gamepad2.dpad_up)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            robot.hangMechanism.hang();
+            robot.hangMechanism.bigHang();
         }
 
         if (gamepad2DpadDown.buttonPress(gamepad2.dpad_down)) {
@@ -429,6 +429,7 @@ public class CenterStageGamepad {
         if (gamepad2LeftStickButton.buttonPress(gamepad2.left_stick_button)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
+            robot.hangMechanism.completehang();
         }
 
         if (gamepad2RightStickButton.buttonPress(gamepad2.right_stick_button)) {

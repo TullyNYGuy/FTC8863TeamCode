@@ -24,7 +24,9 @@ public class CenterStageHangMechanism implements FTCRobotSubsystem {
         READY,
         HANGING,
         DONE,
-        STOPPED
+        STOPPED,
+        WAITING_FOR_TIMER,
+        DEHANGING
     }
 
     private enum Phase {
@@ -38,7 +40,8 @@ public class CenterStageHangMechanism implements FTCRobotSubsystem {
     private enum Command {
         NONE,
         HANG,
-        STOP
+        STOP,
+        DEHANG
     }
 
     private Command command = Command.NONE;
@@ -195,22 +198,26 @@ public class CenterStageHangMechanism implements FTCRobotSubsystem {
     // Public commands for controlling the lift
     //********************************************************************************
 
-    public void hang() {
+    private void hang(double amountToHangBy) {
         // lockout for double hits on a command button. Downside is that the driver better hit the
         // right button the first time or they are toast
         if (commandComplete) {
-            logCommand("Hanging");
             commandComplete = false;
-            //command to start extension
+            // next state
             state = State.HANGING;
             // remember the command for later
             command = Command.HANG;
             logCommand(command.toString());
-            leftHangMotor.moveToPosition(0.5, hangPosition, DcMotor8863.FinishBehavior.HOLD);
-            rightHangMotor.moveToPosition(0.5, hangPosition, DcMotor8863.FinishBehavior.HOLD);
+            // pull in 6" of string.
+            leftHangMotor.moveByAmount(0.5, amountToHangBy, DcMotor8863.FinishBehavior.HOLD);
+            rightHangMotor.moveByAmount(0.5, amountToHangBy, DcMotor8863.FinishBehavior.HOLD);
         } else {
             // you can't start a new command when the old one is not finished
         }
+    }
+
+    public void bigHang() {
+        hang(-9.0);
     }
 
     public void deployArms(){
@@ -223,10 +230,23 @@ public class CenterStageHangMechanism implements FTCRobotSubsystem {
         armDeployServoRight.readyPositon();
     }
     public void up1inch(){
+        hang(-1.0);
 
     }
     public void completehang(){
+        if (commandComplete) {
+            commandComplete = false;
+            // next state
+            state = State.WAITING_FOR_TIMER;
+            // remember the command for later
+            command = Command.DEHANG;
+            logCommand(command.toString());
+            // pull in 6" of string.
+            timer.reset();
 
+        } else {
+            // you can't start a new command when the old one is not finished
+        }
     }
 
 
@@ -279,10 +299,21 @@ public class CenterStageHangMechanism implements FTCRobotSubsystem {
                 break;
 
             case HANGING: {
-                if (leftHangMotor.isMovementComplete() && rightHangMotor.isMovementComplete()) {
-                    commandComplete = true;
-                    state = State.DONE;
+                switch (command) {
+                    case HANG:
+                        if (leftHangMotor.isMovementComplete() && rightHangMotor.isMovementComplete()) {
+                            commandComplete = true;
+                            state = State.DONE;
+                        }
+                        break;
+                    case STOP:
+                        leftHangMotor.stop();
+                        rightHangMotor.stop();
+                        state = State.DONE;
+                        break;
+
                 }
+
             }
             break;
 
@@ -295,6 +326,21 @@ public class CenterStageHangMechanism implements FTCRobotSubsystem {
                 // do nothing, just wait for another command
             }
             break;
+
+            case WAITING_FOR_TIMER:
+                if (timer.seconds()>10){
+                    leftHangMotor.moveByAmount(.3, 10, DcMotor8863.FinishBehavior.FLOAT);
+                    rightHangMotor.moveByAmount(.3, 10, DcMotor8863.FinishBehavior.FLOAT);
+                    state= State.DEHANGING;
+                }
+                break;
+
+            case DEHANGING:
+                if (leftHangMotor.isMovementComplete() && rightHangMotor.isMovementComplete()){
+                    state = State.DONE;
+                }
+                break;
+
         }
     }
 }
