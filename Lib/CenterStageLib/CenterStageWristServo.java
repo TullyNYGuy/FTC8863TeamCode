@@ -36,7 +36,7 @@ public class CenterStageWristServo {
     private double highDropPosition = 0.64;
     private double mediumDropPosition = 0.64;
     private double lowDropPosition = 0.64;
-    private double setUpForDeliveryPosition = 0.75;
+    private double setUpForDeliveryPosition = 0.76;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -92,7 +92,7 @@ public class CenterStageWristServo {
         wristServo.setPosition("lowDropPosition");
     }
 
-    public void setSetUpForDeliveryPosition() {
+    public void setUpForDeliveryPosition() {
         wristServo.setPosition("setUpForDeliveryPosition");
     }
 
