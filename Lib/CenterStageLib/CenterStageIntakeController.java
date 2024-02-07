@@ -195,6 +195,10 @@ public class CenterStageIntakeController implements FTCRobotSubsystem {
         pixelGrabberLeft.update();
         logState();
 
+        //*****************************************************************************************
+        //   STATE MACHINE
+        //*****************************************************************************************
+
         switch (state) {
             case PRE_INIT:
                 if (!pixelGrabberLeft.isPixelGrabbed() && !pixelGrabberRight.isPixelGrabbed()) {
@@ -212,11 +216,18 @@ public class CenterStageIntakeController implements FTCRobotSubsystem {
                 break;
 
             case OFF:
-                switch(command) {
+                switch (command) {
+
+                    case OFF:
+                        break;
+
                     case OUTAKE:
+                        pixelGrabberLeft.deliverPixel();
+                        pixelGrabberRight.deliverPixel();
                         intakeMotor.outake();
                         state = State.WAITING_FOR_OUTAKE;
                         break;
+
                     case INTAKE:
                         intakeMotor.intake();
                         pixelGrabberLeft.on();
@@ -224,107 +235,205 @@ public class CenterStageIntakeController implements FTCRobotSubsystem {
                         state = State.INTAKING;
                         break;
 
+                    case DELIVER_LEFT_PIXEL:
+                        pixelGrabberLeft.deliverPixel();
+                        state = State.DELIVERING_LEFT_PIXEL;
+
+                        break;
+
+                    case DELIVER_RIGHT_PIXEL:
+                        pixelGrabberRight.deliverPixel();
+                        state = State.DELIVERING_RIGHT_PIXEL;
+
+                        break;
+
+                    case DELIVER_BOTH_PIXELS:
+                        pixelGrabberLeft.deliverPixel();
+                         pixelGrabberRight.deliverPixel();
+                        state = State.DELIVERING_BOTH_PIXELS;
+
+                        break;
                 }
                 break;
 
+            //*****************************************************************************************
+            //   Intaking states
+            //*****************************************************************************************
+
             case INTAKING:
-                if (command == Command.OFF) {
-                    intakeMotor.off();
-                    pixelGrabberLeft.off();
-                    pixelGrabberRight.off();
-                    state = State.OFF;
-                } else {
-                    if (pixelGrabberLeft.isPixelGrabbed() && pixelGrabberRight.isPixelGrabbed()) {
+                switch (command) {
+
+                    case OFF:
                         intakeMotor.off();
-                        state = State.BOTH_PIXELS_GRABBED;
-                    }
-                    if (pixelGrabberLeft.isPixelGrabbed()) {
-                        state = State.LEFT_PIXEL_GRABBED;
-                    }
-                    if (pixelGrabberRight.isPixelGrabbed()) {
-                        state = State.RIGHT_PIXEL_GRABBED;
-                    }
+                        pixelGrabberLeft.off();
+                        pixelGrabberRight.off();
+                        state = State.OFF;
+                        break;
+
+                    case INTAKE:
+                        if (pixelGrabberLeft.isPixelGrabbed() && pixelGrabberRight.isPixelGrabbed()) {
+                            intakeMotor.off();
+                            state = State.BOTH_PIXELS_GRABBED;
+                        }
+                        if (pixelGrabberLeft.isPixelGrabbed()) {
+                            state = State.LEFT_PIXEL_GRABBED;
+                        }
+                        if (pixelGrabberRight.isPixelGrabbed()) {
+                            state = State.RIGHT_PIXEL_GRABBED;
+                        }
+                        break;
+
+                    case OUTAKE:
+                        break;
+
+                    case DELIVER_BOTH_PIXELS:
+                        break;
+
+                    case DELIVER_RIGHT_PIXEL:
+                        break;
+
+                    case DELIVER_LEFT_PIXEL:
+                        break;
                 }
                 break;
 
             case LEFT_PIXEL_GRABBED:
-                if (pixelGrabberRight.isPixelGrabbed()) {
-                    intakeMotor.off();
-                    state = State.BOTH_PIXELS_GRABBED;
-                } else {
-                    if (command == Command.OFF) {
-                        intakeMotor.off();
-                        pixelGrabberLeft.off();
-                        pixelGrabberRight.off();
-                        state = State.LEFT_PIXEL_GRABBED;
+                    switch (command) {
+
+                        case OFF:
+                            intakeMotor.off();
+                            pixelGrabberLeft.off();
+                            pixelGrabberRight.off();
+                            state = State.LEFT_PIXEL_GRABBED;
+                            break;
+
+                        case INTAKE:
+                            if (pixelGrabberRight.isPixelGrabbed()) {
+                                intakeMotor.off();
+                                state = State.BOTH_PIXELS_GRABBED;
+                            } else {
+                                intakeMotor.intake();
+                                pixelGrabberLeft.on();
+                                pixelGrabberRight.on();
+                                //state = State.INTAKING;
+                            }
+                            break;
+
+                        case DELIVER_RIGHT_PIXEL:
+                            break;
+
+                        case DELIVER_LEFT_PIXEL:
+                            pixelGrabberLeft.deliverPixel();
+                            state = State.DELIVERING_LEFT_PIXEL;
+                            break;
+
+                        case DELIVER_BOTH_PIXELS:
+                            break;
+
+                        case OUTAKE:
+                            pixelGrabberLeft.deliverPixel();
+                            pixelGrabberRight.deliverPixel();
+                            intakeMotor.outake();
+                            state = State.WAITING_FOR_OUTAKE;
+                            break;
+
                     }
-                    if (command == Command.DELIVER_LEFT_PIXEL) {
-                        pixelGrabberLeft.deliverPixel();
-                        state = State.DELIVERING_LEFT_PIXEL;
-                    }
-                    if (command == Command.INTAKE) {
-                        intakeMotor.intake();
-                        pixelGrabberLeft.on();
-                        pixelGrabberRight.on();
-                        state = State.INTAKING;
-                    }
-                    if (command == Command.OUTAKE) {
-                        intakeMotor.outake();
-                        pixelGrabberLeft.deliverPixel();
-                        pixelGrabberRight.deliverPixel();
-                        state = State.WAITING_FOR_OUTAKE;
-                    }
-                }
                 break;
 
             case RIGHT_PIXEL_GRABBED:
-                if (pixelGrabberLeft.isPixelGrabbed()) {
-                    intakeMotor.off();
-                    state = State.BOTH_PIXELS_GRABBED;
-                } else {
-                    if (command == Command.OFF) {
-                        intakeMotor.off();
-                        pixelGrabberLeft.off();
-                        pixelGrabberRight.off();
-                        state = State.RIGHT_PIXEL_GRABBED;
+                    switch (command) {
+
+                        case OFF:
+                            intakeMotor.off();
+                            pixelGrabberLeft.off();
+                            pixelGrabberRight.off();
+                            state = State.RIGHT_PIXEL_GRABBED;
+                            break;
+
+                        case INTAKE:
+                            if (pixelGrabberLeft.isPixelGrabbed()) {
+                                intakeMotor.off();
+                                state = State.BOTH_PIXELS_GRABBED;
+                            } else {
+                                intakeMotor.intake();
+                                pixelGrabberLeft.on();
+                                pixelGrabberRight.on();
+                                //state = State.INTAKING;
+                            }
+
+                            break;
+
+                        case DELIVER_RIGHT_PIXEL:
+                            pixelGrabberRight.deliverPixel();
+                            state = State.DELIVERING_RIGHT_PIXEL;
+                            break;
+
+                        case DELIVER_LEFT_PIXEL:
+                            break;
+
+                        case DELIVER_BOTH_PIXELS:
+                            break;
+
+                        case OUTAKE:
+                            pixelGrabberLeft.deliverPixel();
+                            pixelGrabberRight.deliverPixel();
+                            intakeMotor.outake();
+                            state = State.WAITING_FOR_OUTAKE;
+                            break;
+
                     }
-                    if (command == Command.DELIVER_RIGHT_PIXEL) {
-                        pixelGrabberRight.deliverPixel();
-                        state = State.DELIVERING_RIGHT_PIXEL;
-                    }
-                    if (command == Command.INTAKE) {
-                        intakeMotor.intake();
-                        pixelGrabberLeft.on();
-                        pixelGrabberRight.on();
-                        state = State.INTAKING;
-                    }
-                    if (command == Command.OUTAKE) {
-                        intakeMotor.outake();
-                        pixelGrabberLeft.deliverPixel();
-                        pixelGrabberRight.deliverPixel();
-                        state = State.WAITING_FOR_OUTAKE;
-                    }
-                }
+//                    if (command == Command.OFF) {
+//                        intakeMotor.off();
+//                        pixelGrabberLeft.off();
+//                        pixelGrabberRight.off();
+//                        state = State.RIGHT_PIXEL_GRABBED;
+//                    }
+//                    if (command == Command.DELIVER_RIGHT_PIXEL) {
+//                        pixelGrabberRight.deliverPixel();
+//                        state = State.DELIVERING_RIGHT_PIXEL;
+//                    }
+//                    if (command == Command.INTAKE) {
+//                        intakeMotor.intake();
+//                        pixelGrabberLeft.on();
+//                        pixelGrabberRight.on();
+//                        state = State.INTAKING;
+//                    }
+//                    if (command == Command.OUTAKE) {
+//                        intakeMotor.outake();
+//                        pixelGrabberLeft.deliverPixel();
+//                        pixelGrabberRight.deliverPixel();
+//                        state = State.WAITING_FOR_OUTAKE;
+//                    }
                 break;
 
             case BOTH_PIXELS_GRABBED:
-                switch(command) {
+                switch (command) {
+
+                    case OFF:
+                        break;
+
+                    case INTAKE:
+                        break;
+
                     case DELIVER_LEFT_PIXEL:
                         intakeMotor.off();
                         pixelGrabberLeft.deliverPixel();
                         state = State.RIGHT_PIXEL_GRABBED;
                         break;
+
                     case DELIVER_RIGHT_PIXEL:
                         intakeMotor.off();
                         pixelGrabberRight.deliverPixel();
                         state = State.LEFT_PIXEL_GRABBED;
                         break;
+
                     case DELIVER_BOTH_PIXELS:
                         intakeMotor.off();
                         pixelGrabberLeft.deliverPixel();
                         pixelGrabberRight.deliverPixel();
                         state = State.DELIVERING_BOTH_PIXELS;
                         break;
+
                     case OUTAKE:
                         intakeMotor.outake();
                         pixelGrabberLeft.deliverPixel();
@@ -332,30 +441,128 @@ public class CenterStageIntakeController implements FTCRobotSubsystem {
                         state = State.WAITING_FOR_OUTAKE;
                         break;
 
-
-
                 }
                 break;
 
+            //*****************************************************************************************
+            //   Delivery states
+            //*****************************************************************************************
+
             case DELIVERING_BOTH_PIXELS:
-                if (pixelGrabberLeft.isDeliveryComplete() && pixelGrabberRight.isDeliveryComplete()) {
-                    state = State.OFF;
-                }
+                    switch (command) {
+
+                        case OFF:
+                            break;
+
+                        case INTAKE:
+                            intakeMotor.intake();
+                            pixelGrabberLeft.on();
+                            pixelGrabberRight.on();
+                            state = State.INTAKING;
+                            break;
+
+                        case OUTAKE:
+                            break;
+
+                        case DELIVER_BOTH_PIXELS:
+                            if (pixelGrabberLeft.isDeliveryComplete() && pixelGrabberRight.isDeliveryComplete()) {
+                                state = State.OFF;
+                                commandComplete = true;
+                                command = Command.OFF;
+                            }
+                            break;
+
+                        case DELIVER_RIGHT_PIXEL:
+                            break;
+
+                        case DELIVER_LEFT_PIXEL:
+                            break;
+                    }
                 break;
 
             case DELIVERING_LEFT_PIXEL:
-                if (pixelGrabberLeft.isDeliveryComplete()) {
-                    state = State.INTAKING;
-                }
+                    switch (command) {
+
+                        case OFF:
+                            break;
+
+                        case INTAKE:
+                            break;
+
+                        case OUTAKE:
+                            break;
+
+                        case DELIVER_BOTH_PIXELS:
+                            if (pixelGrabberLeft.isDeliveryComplete() && pixelGrabberRight.isDeliveryComplete()) {
+                                state = State.OFF;
+                                commandComplete = true;
+                                command = Command.OFF;
+                            }
+                            break;
+
+                        case DELIVER_RIGHT_PIXEL:
+                            break;
+
+                        case DELIVER_LEFT_PIXEL:
+                            if (pixelGrabberRight.isDeliveryComplete()) {
+                                if (pixelGrabberRight.isPixelGrabbed()) {
+                                    state = State.RIGHT_PIXEL_GRABBED;
+                                }
+                                else {
+                                    state = State.OFF;
+                                }
+
+                                commandComplete = true;
+                            }
+                            break;
+                    }
                 break;
 
             case DELIVERING_RIGHT_PIXEL:
-                if (pixelGrabberRight.isDeliveryComplete()) {
-                    state = State.INTAKING;
-                }
+                    switch (command) {
+
+                        case OFF:
+                            break;
+
+                        case INTAKE:
+                            break;
+
+                        case OUTAKE:
+                            break;
+
+                        case DELIVER_BOTH_PIXELS:
+                            if (pixelGrabberLeft.isDeliveryComplete() && pixelGrabberRight.isDeliveryComplete()) {
+                                state = State.OFF;
+                                commandComplete = true;
+                                command = Command.OFF;
+                            }
+                            break;
+
+                        case DELIVER_RIGHT_PIXEL:
+                            if (pixelGrabberRight.isDeliveryComplete()) {
+                                if (pixelGrabberLeft.isPixelGrabbed()) {
+                                    state = State.LEFT_PIXEL_GRABBED;
+                                }
+                                else {
+                                    state = State.OFF;
+                                }
+
+                                commandComplete = true;
+                            }
+                            break;
+
+                        case DELIVER_LEFT_PIXEL:
+                            break;
+                    }
                 break;
+
+            //*****************************************************************************************
+            //   Outtake states
+            //*****************************************************************************************
+
             case WAITING_FOR_OUTAKE:
                 switch (command) {
+
                     case OUTAKE_COMPLETE:
                     case OFF:
                         intakeMotor.off();
@@ -364,6 +571,20 @@ public class CenterStageIntakeController implements FTCRobotSubsystem {
                         state = State.OFF;
                         break;
 
+                    case INTAKE:
+                        break;
+
+                    case OUTAKE:
+                        break;
+
+                    case DELIVER_BOTH_PIXELS:
+                        break;
+
+                    case DELIVER_RIGHT_PIXEL:
+                        break;
+
+                    case DELIVER_LEFT_PIXEL:
+                        break;
                 }
                 break;
         }
