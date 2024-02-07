@@ -233,26 +233,27 @@ public class CenterStageDeliveryController implements FTCRobotSubsystem {
             //   Setup For Delivery States
             //*****************************************************************************************
 
-            case LIFT_MOVING_TO_SETUP_FOR_DELIVERY:
-                if (lift.isPositionReached()) {
-                    wristServo.setSetUpForDeliveryPosition();
-                    state = State.WRIST_SERVO_MOVING_TO_SETUP_FOR_DELIVERY;
-                }
-                break;
-
-            case WRIST_SERVO_MOVING_TO_SETUP_FOR_DELIVERY:
-                if (wristServo.isPositionReached()) {
-                    lift.moveToWristCurlPosition();
-                    state = State.LIFT_MOVING_TO_WRIST_CURLING_POSITION;
-                }
-                break;
-
             case LIFT_MOVING_TO_WRIST_CURLING_POSITION:
                 if (lift.isPositionReached()) {
-                    wristServo.highDropPosition();
+                    wristServo.setUpForDeliveryPosition();
                     state = State.WRIST_SERVO_MOVING_TO_POSITION;
                 }
                 break;
+
+
+//            case WRIST_SERVO_MOVING_TO_SETUP_FOR_DELIVERY:
+//                if (wristServo.isPositionReached()) {
+//                    lift.moveToWristCurlPosition();
+//                    state = State.LIFT_MOVING_TO_WRIST_CURLING_POSITION;
+//                }
+//                break;
+//
+//            case LIFT_MOVING_TO_SETUP_FOR_DELIVERY:
+//                if (lift.isPositionReached()) {
+//                    wristServo.setUpForDeliveryPosition();
+//                    state = State.WRIST_SERVO_MOVING_TO_SETUP_FOR_DELIVERY;
+//                }
+//                break;
 
             //*****************************************************************************************
             //   Wrist Servo for several different States
