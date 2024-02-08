@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
 @TeleOp(name = "Center Stage Test Pixel Grabber Left", group = "Test")
-@Disabled
+//@Disabled
 public class CenterStageTestPixelGrabberLeft extends LinearOpMode {
 
     // Put your variable declarations here
@@ -46,11 +46,24 @@ public class CenterStageTestPixelGrabberLeft extends LinearOpMode {
         leftPixelGrabber.init(null);
         while (!leftPixelGrabber.isInitComplete()) {
             leftPixelGrabber.update();
+            telemetry.addData("state = ", leftPixelGrabber.getStateAsString());
+            telemetry.addData("command = ", leftPixelGrabber.getCommandAsString());
+            telemetry.addData("pixel present = ", leftPixelGrabber.isPixelPresent());
+            telemetry.addData("command complete = ", leftPixelGrabber.isCommandComplete());
+            telemetry.addData("init complete = ", leftPixelGrabber.isInitComplete());
+            telemetry.addData("pixel grabbed = ", leftPixelGrabber.isPixelGrabbed());
+            telemetry.update();
         }
 
         timer = new ElapsedTime();
 
         // Wait for the start button
+        telemetry.addData("state = ", leftPixelGrabber.getStateAsString());
+        telemetry.addData("command = ", leftPixelGrabber.getCommandAsString());
+        telemetry.addData("pixel present = ", leftPixelGrabber.isPixelPresent());
+        telemetry.addData("command complete = ", leftPixelGrabber.isCommandComplete());
+        telemetry.addData("init complete = ", leftPixelGrabber.isInitComplete());
+        telemetry.addData("pixel grabbed = ", leftPixelGrabber.isPixelGrabbed());
         telemetry.addData(">", "Press Start to run");
         telemetry.update();
         waitForStart();
@@ -60,44 +73,34 @@ public class CenterStageTestPixelGrabberLeft extends LinearOpMode {
         // after the reset is complete just loop so the user can see the state
         while (opModeIsActive()) {
             leftPixelGrabber.update();
-            leftPixelGrabber.on();
 
             // Put your calls here - they will not run in a loop
-            if (gamepad1.x) {
+            if (gamepad1.y) {
                 // turn the pixel grabber on so it will handle an incoming pixel
                 leftPixelGrabber.on();
             }
 
-            if (gamepad1.y) {
+            if (gamepad1.b) {
                 leftPixelGrabber.deliverPixel();
                 // note that this turns the pixel grabber off after the release is complete
             }
 
-            switch (state) {
-                case WAITING_TO_GRAB:
-                    if (leftPixelGrabber.getState() == CenterStagePixelGrabberLeft.State.PIXEL_GRABBED) {
-                        timer.reset();
-                        state = State.PIXEL_GRABBED;
-                    }
-                    break;
-                    // 5 seconds before pixel is released
-                case PIXEL_GRABBED:
-                    if (timer.milliseconds() > 5000) {
-                        leftPixelGrabber.deliverPixel();
-                        timer.reset();
-                        state = State.WAITING_TO_REMOVE_PIXEL;
-                    }
-                    break;
-                    // 5 seconds for you to remove the pixel
-                case WAITING_TO_REMOVE_PIXEL:
-                    if (timer.milliseconds() > 5000) {
-                        leftPixelGrabber.on();
-                        state = State.WAITING_TO_GRAB;
-                    }
-                    break;
+            if (gamepad1.x) {
+                leftPixelGrabber.grabPixel();
+                // note that this turns the pixel grabber off after the release is complete
             }
 
-            telemetry.addData("state = ", leftPixelGrabber.getState().toString());
+            if (gamepad1.a) {
+                leftPixelGrabber.off();
+                // note that this turns the pixel grabber off after the release is complete
+            }
+
+            telemetry.addData("state = ", leftPixelGrabber.getStateAsString());
+            telemetry.addData("command = ", leftPixelGrabber.getCommandAsString());
+            telemetry.addData("pixel present = ", leftPixelGrabber.isPixelPresent());
+            telemetry.addData("command complete = ", leftPixelGrabber.isCommandComplete());
+            telemetry.addData("init complete = ", leftPixelGrabber.isInitComplete());
+            telemetry.addData("pixel grabbed = ", leftPixelGrabber.isPixelGrabbed());
             telemetry.update();
             idle();
         }
