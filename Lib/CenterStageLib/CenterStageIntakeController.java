@@ -85,6 +85,7 @@ public class CenterStageIntakeController implements FTCRobotSubsystem {
 
         command = Command.OFF;
         state = State.PRE_INIT;
+
     }
 
     //*********************************************************************************************
@@ -617,17 +618,23 @@ public class CenterStageIntakeController implements FTCRobotSubsystem {
     @Override
     public void setDataLog(DataLogging logFile) {
         this.logFile = logFile;
+        pixelGrabberLeft.setDataLog(logFile);
+        pixelGrabberRight.setDataLog(logFile);
         logCommandOnchange = new DataLogOnChange(logFile);
         logStateOnChange = new DataLogOnChange(logFile);
     }
 
     @Override
     public void enableDataLogging() {
+        pixelGrabberLeft.enableDataLogging();
+        pixelGrabberRight.enableDataLogging();
         enableLogging = true;
     }
 
     @Override
     public void disableDataLogging() {
+        pixelGrabberLeft.disableDataLogging();
+        pixelGrabberRight.disableDataLogging();
         enableLogging = false;
     }
 
