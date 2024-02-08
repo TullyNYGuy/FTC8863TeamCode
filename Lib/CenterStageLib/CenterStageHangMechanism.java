@@ -241,9 +241,7 @@ public class CenterStageHangMechanism implements FTCRobotSubsystem {
             // remember the command for later
             command = Command.DEHANG;
             logCommand(command.toString());
-            // pull in 6" of string.
             timer.reset();
-
         } else {
             // you can't start a new command when the old one is not finished
         }
@@ -338,6 +336,7 @@ public class CenterStageHangMechanism implements FTCRobotSubsystem {
             case DEHANGING:
                 if (leftHangMotor.isMovementComplete() && rightHangMotor.isMovementComplete()){
                     state = State.DONE;
+                    commandComplete = true;
                 }
                 break;
 

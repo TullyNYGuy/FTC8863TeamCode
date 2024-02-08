@@ -59,6 +59,11 @@ public class CenterStageIntakeController implements FTCRobotSubsystem {
     private CenterStagePixelGrabberLeft pixelGrabberLeft;
     private CenterStagePixelGrabberRight pixelGrabberRight;
     private CenterStageIntakeMotor intakeMotor;
+    private CenterStageDeliveryController deliveryController;
+
+    public void setDeliveryController(CenterStageDeliveryController deliveryController) {
+        this.deliveryController = deliveryController;
+    }
 
     private DataLogging logFile;
     private boolean enableLogging = false;
@@ -328,6 +333,10 @@ public class CenterStageIntakeController implements FTCRobotSubsystem {
                             break;
 
                         case DELIVER_BOTH_PIXELS:
+                            intakeMotor.off();
+                            pixelGrabberLeft.deliverPixel();
+                            pixelGrabberRight.deliverPixel();
+                            state = State.DELIVERING_BOTH_PIXELS;
                             break;
 
                         case OUTAKE:
@@ -372,6 +381,10 @@ public class CenterStageIntakeController implements FTCRobotSubsystem {
                             break;
 
                         case DELIVER_BOTH_PIXELS:
+                            intakeMotor.off();
+                            pixelGrabberLeft.deliverPixel();
+                            pixelGrabberRight.deliverPixel();
+                            state = State.DELIVERING_BOTH_PIXELS;
                             break;
 
                         case OUTAKE:
@@ -469,6 +482,7 @@ public class CenterStageIntakeController implements FTCRobotSubsystem {
                                 state = State.OFF;
                                 commandComplete = true;
                                 command = Command.OFF;
+                                deliveryController.returnToIntakePosition();
                             }
                             break;
 
@@ -497,6 +511,7 @@ public class CenterStageIntakeController implements FTCRobotSubsystem {
                                 state = State.OFF;
                                 commandComplete = true;
                                 command = Command.OFF;
+                                deliveryController.returnToIntakePosition();
                             }
                             break;
 
@@ -504,12 +519,13 @@ public class CenterStageIntakeController implements FTCRobotSubsystem {
                             break;
 
                         case DELIVER_LEFT_PIXEL:
-                            if (pixelGrabberRight.isDeliveryComplete()) {
+                            if (pixelGrabberLeft.isDeliveryComplete()) {
                                 if (pixelGrabberRight.isPixelGrabbed()) {
                                     state = State.RIGHT_PIXEL_GRABBED;
                                 }
                                 else {
                                     state = State.OFF;
+                                    deliveryController.returnToIntakePosition();
                                 }
 
                                 commandComplete = true;
@@ -545,6 +561,7 @@ public class CenterStageIntakeController implements FTCRobotSubsystem {
                                 }
                                 else {
                                     state = State.OFF;
+                                    deliveryController.returnToIntakePosition();
                                 }
 
                                 commandComplete = true;

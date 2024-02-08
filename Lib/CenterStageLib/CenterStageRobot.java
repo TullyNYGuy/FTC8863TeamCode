@@ -191,6 +191,8 @@ public class CenterStageRobot implements FTCRobot {
             subsystemMap.put(deliveryController.getName(), deliveryController);
         }
 
+        intakeController.setDeliveryController(deliveryController);
+
         if (capabilities.contains(Subsystem.PLANE_GUN)) {
             planeGunServo = new CenterStagePlaneGUNservo(hardwareMap, telemetry);
             subsystemMap.put(planeGunServo.getName(), planeGunServo);
