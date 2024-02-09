@@ -49,31 +49,43 @@ public class CenterStageTestIntakeController extends LinearOpMode {
             intakeController.update();
 
             // Put your calls here - they will not run in a loop
-            if (gamepad1.x) {
-                // turn the pixel grabber on so it will handle an incoming pixel
-                intakeController.deliverLeftPixel();
-            }
-
-            if (gamepad1.b) {
-                intakeController.deliverRightPixel();
-                // note that this turns the pixel grabber off after the release is complete
-            }
-            if (gamepad1.right_stick_button) {
-                intakeController.off();
-                // note that this turns the pixel grabber off after the release is complete
-            }
             if (gamepad1.y) {
                 intakeController.intake();
                 // note that this turns the pixel grabber off after the release is complete
             }
             if (gamepad1.a) {
+                intakeController.off();
+                // note that this turns the pixel grabber off after the release is complete
+            }
+            if (gamepad1.x) {
+                // turn the pixel grabber on so it will handle an incoming pixel
+                intakeController.outake();
+            }
+
+            if (gamepad1.b) {
+                intakeController.finishIntake();
+                // note that this turns the pixel grabber off after the release is complete
+            }
+            if (gamepad1.dpad_right) {
+                intakeController.deliverRightPixel();
+                // note that this turns the pixel grabber off after the release is complete
+            }
+            if (gamepad1.dpad_left) {
+                intakeController.deliverLeftPixel();
+                // note that this turns the pixel grabber off after the release is complete
+            }
+            if (gamepad1.dpad_down) {
                 intakeController.deliverBothPixels();
                 // note that this turns the pixel grabber off after the release is complete
             }
 
+
             telemetry.addData("state = ", intakeController.getState().toString());
+            telemetry.addData("command = ", intakeController.getCommand().toString());
             telemetry.addData("left pixel grabber state = ", intakeController.getLeftPixelGrabberStateAsString());
+            telemetry.addData("left pixel grabber command = ", intakeController.getLeftPixelGrabberCommandAsString());
             telemetry.addData("Right pixel grabber state = ", intakeController.getRightPixelGrabberStateAsString());
+            telemetry.addData("right pixel grabber command = ", intakeController.getRightPixelGrabberCommandAsString());
             telemetry.update();
             idle();
         }

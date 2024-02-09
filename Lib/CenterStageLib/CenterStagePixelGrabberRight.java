@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Lib.CenterStageLib;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
@@ -16,27 +17,9 @@ public class CenterStagePixelGrabberRight implements FTCRobotSubsystem {
     // user defined types
     //
     //*********************************************************************************************
-    public enum Command {
-        ON,
-        DELIVER_PIXEL,
-        OFF
-    }
-    private Command command = Command.OFF;
 
-    public enum State {
-        PRE_INIT,
-        OFF,
-        RUNNING,
-        CLOSING,
-        CHECK_PIXEL_GRABBED,
-        PIXEL_GRABBED,
-        OPENING,
-        DELIVERING
-    }
-    private State state = State.PRE_INIT;
-
-    public State getState() {
-        return state;
+    public CenterStagePixelGrabber.State getState() {
+        return pixelGrabber.getState();
     }
 
     //*********************************************************************************************
@@ -45,18 +28,22 @@ public class CenterStagePixelGrabberRight implements FTCRobotSubsystem {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
-    private final String PIXEL_GRABBER_NAME = CenterStageRobot.HardwareName.RIGHT_PIXEL_GRABBER.hwName;;
+    private final String PIXEL_GRABBER_NAME = CenterStageRobot.HardwareName.RIGHT_PIXEL_GRABBER.hwName;
 
-    private CenterStageFingerServoRight fingerServo;
-    private CenterStageIntakeColorSensorRight colorSensor;
+    private CenterStagePixelGrabber pixelGrabber;
+
+    private CenterStageFingerServo fingerServo;
+    // finger servo positions
+    public static double INIT_POSITION = 0.55;
+    public static double OPEN_POSITION = 0.55;
+    public static double CLOSE_POSITION = 0.15;
+    private final String RIGHT_FINGER_SERVO_NAME = CenterStageRobot.HardwareName.RIGHT_FINGER_SERVO.hwName;
+
+    private CenterStageIntakeColorSensor colorSensor;
+    private final String INTAKE_RIGHT_COLOR_SENSOR_NAME = CenterStageRobot.HardwareName.RIGHT_INTAKE_COLOR_SENSOR.hwName;
 
     private DataLogging logFile;
     private boolean enableLogging = false;
-    private DataLogOnChange logStateOnChange;
-    private DataLogOnChange logCommandOnchange;
-
-    private boolean commandComplete = true;
-    private boolean deliveryComplete = false;
 
     //*********************************************************************************************
     //          Constructors
@@ -65,11 +52,26 @@ public class CenterStagePixelGrabberRight implements FTCRobotSubsystem {
     // from it
     //*********************************************************************************************
     public CenterStagePixelGrabberRight(HardwareMap hardwareMap, Telemetry telemetry) {
-        fingerServo = new CenterStageFingerServoRight(hardwareMap, telemetry);
-        colorSensor = new CenterStageIntakeColorSensorRight(hardwareMap, telemetry);
+        fingerServo = new CenterStageFingerServo(
+                hardwareMap,
+                telemetry,
+                RIGHT_FINGER_SERVO_NAME,
+                INIT_POSITION,
+                OPEN_POSITION,
+                CLOSE_POSITION,
+                Servo.Direction.REVERSE);
 
-        command = Command.OFF;
-        state = State.PRE_INIT;
+        colorSensor = new CenterStageIntakeColorSensor(
+                hardwareMap,
+                telemetry,
+                INTAKE_RIGHT_COLOR_SENSOR_NAME);
+
+        pixelGrabber = new CenterStagePixelGrabber(
+                hardwareMap,
+                telemetry,
+                fingerServo,
+                colorSensor,
+                PIXEL_GRABBER_NAME);
     }
 
     //*********************************************************************************************
@@ -77,17 +79,6 @@ public class CenterStagePixelGrabberRight implements FTCRobotSubsystem {
     //
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
-    private void logState() {
-        if (enableLogging && logFile != null) {
-            logStateOnChange.log(getName() + " state = " + state.toString());
-        }
-    }
-
-    private void logCommand(String command) {
-        if (enableLogging && logFile != null) {
-            logCommandOnchange.log(getName() + " command = " + command);
-        }
-    }
 
     //*********************************************************************************************
     //          MAJOR METHODS
@@ -95,160 +86,83 @@ public class CenterStagePixelGrabberRight implements FTCRobotSubsystem {
     // public methods that give the class its functionality
     //*********************************************************************************************
 
+    //*******************************************************
+    // commands
+    //*******************************************************
+
+    @Override
+    public boolean init(Configuration config) {
+        fingerServo.init();
+        pixelGrabber.init(config);
+        update();
+        return true;
+    }
+
     public void on() {
-        command = Command.ON;
-        logCommand("On");
+        pixelGrabber.on();
     }
 
     public void off() {
-        command = Command.OFF;
-        logCommand("Off");
+        pixelGrabber.off();
+    }
+
+    public void grabPixel() {
+        pixelGrabber.grabPixel();
     }
 
     public void deliverPixel() {
-        logCommand("Deliver Pixel");
-        command = Command.DELIVER_PIXEL;
-        commandComplete = false;
+        pixelGrabber.deliverPixel();
+    }
+
+    //*******************************************************
+    // status
+    //*******************************************************
+
+    @Override
+    public boolean isInitComplete() {
+        return pixelGrabber.isInitComplete();
     }
 
     public boolean isCommandComplete() {
-        return commandComplete;
+        return pixelGrabber.isCommandComplete();
+    }
+
+    public boolean isPixelPresent() {
+        return pixelGrabber.isPixelPresent();
     }
 
     public boolean isPixelGrabbed() {
-        if (state == State.PIXEL_GRABBED) {
-            return true;
-        } else {
-            return false;
-        }
+        return pixelGrabber.isPixelGrabbed();
     }
+
+    public boolean didPixelGrabFail() {
+        return pixelGrabber.didPixelGrabFail();
+    }
+
     public boolean isDeliveryComplete() {
-        return deliveryComplete;
+        return pixelGrabber.isDeliveryComplete();
     }
 
     public String getStateAsString(){
-        return state.toString();
+        return pixelGrabber.getStateAsString();
     }
 
-//    public boolean isDeliveryComplete() {
-//        if (state == CenterStagePixelGrabberRight.State.OFF) {
-//            return true;
-//        } else {
-//            return false;
-//        }
-//    }
+    public String getCommandAsString(){
+        return pixelGrabber.getCommandAsString();
+    }
 
     @Override
     public String getName() {
         return PIXEL_GRABBER_NAME;
     }
 
-    @Override
-    public boolean isInitComplete() {
-        if (state == State.OFF || state == State.PIXEL_GRABBED) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    @Override
-    public boolean init(Configuration config) {
-        state = State.PRE_INIT;
-        update();
-        return true;
-    }
+    //*******************************************************
+    // state machine
+    //*******************************************************
 
     @Override
     public void update() {
-        logState();
-
-        switch(state) {
-            case PRE_INIT:
-                if (colorSensor.isPixelPresent()) {
-                    fingerServo.close();
-                    commandComplete = false;
-                    state = CenterStagePixelGrabberRight.State.CLOSING;
-                } else {
-                    fingerServo.open();
-                    commandComplete = false;
-                    state = CenterStagePixelGrabberRight.State.OPENING;
-                }
-                break;
-
-            case CLOSING:
-                if (fingerServo.isPositionReached()) {
-                    state = CenterStagePixelGrabberRight.State.CHECK_PIXEL_GRABBED;
-                }
-                break;
-
-            case CHECK_PIXEL_GRABBED:
-                if (colorSensor.isPixelPresent()) {
-                    state = CenterStagePixelGrabberRight.State.PIXEL_GRABBED;
-                    commandComplete = true;
-                    deliveryComplete = false;
-                } else {
-                    // lost the pixel somehow
-                    fingerServo.open();
-                    commandComplete = false;
-                    state = CenterStagePixelGrabberRight.State.OPENING;
-                }
-                break;
-
-            case OPENING:
-                if (fingerServo.isPositionReached()) {
-                    commandComplete = true;
-                    if (command == CenterStagePixelGrabberRight.Command.ON) {
-                        state = CenterStagePixelGrabberRight.State.RUNNING;
-                    }
-                    if (command == CenterStagePixelGrabberRight.Command.OFF) {
-                        state = CenterStagePixelGrabberRight.State.OFF;
-                    }
-                }
-                break;
-
-            case RUNNING:
-                if (colorSensor.isPixelPresent()) {
-                    fingerServo.close();
-                    state = CenterStagePixelGrabberRight.State.CLOSING;
-                }
-                if (command == CenterStagePixelGrabberRight.Command.OFF) {
-                    state = CenterStagePixelGrabberRight.State.OFF;
-                }
-                break;
-
-            case OFF:
-                if (command == CenterStagePixelGrabberRight.Command.ON) {
-                    commandComplete = true;
-                    state = CenterStagePixelGrabberRight.State.RUNNING;
-                }
-                if (command == CenterStagePixelGrabberRight.Command.DELIVER_PIXEL) {
-                    commandComplete = false;
-                    fingerServo.open();
-                    state = CenterStagePixelGrabberRight.State.DELIVERING;
-                }
-                break;
-
-            case PIXEL_GRABBED:
-                if (command == CenterStagePixelGrabberRight.Command.DELIVER_PIXEL){
-                    fingerServo.open();
-                    state = CenterStagePixelGrabberRight.State.DELIVERING;
-                }
-                if (command == CenterStagePixelGrabberRight.Command.OFF) {
-                    state = CenterStagePixelGrabberRight.State.OFF;
-                }
-                break;
-
-            case DELIVERING:
-                if (fingerServo.isPositionReached()) {
-                    off();
-                    commandComplete = true;
-                    state = CenterStagePixelGrabberRight.State.OFF;
-                    deliveryComplete = true;
-
-                }
-                break;
-        }
+        pixelGrabber.update();
     }
 
     @Override
@@ -259,18 +173,17 @@ public class CenterStagePixelGrabberRight implements FTCRobotSubsystem {
     @Override
     public void setDataLog(DataLogging logFile) {
         this.logFile = logFile;
-        logCommandOnchange = new DataLogOnChange(logFile);
-        logStateOnChange = new DataLogOnChange(logFile);
+        pixelGrabber.setDataLog(logFile);
     }
 
     @Override
     public void enableDataLogging() {
-        enableLogging = true;
+        pixelGrabber.enableDataLogging();
     }
 
     @Override
     public void disableDataLogging() {
-        enableLogging = false;
+        pixelGrabber.disableDataLogging();
     }
 
     @Override

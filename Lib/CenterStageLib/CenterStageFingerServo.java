@@ -62,13 +62,13 @@ public class CenterStageFingerServo {
         this.servoName = servoName;
 
         this.initPosition = initPosition;
-        fingerServo.addPosition("Init", initPosition, 1000, TimeUnit.MILLISECONDS);
+        fingerServo.addPosition("Init", initPosition, 200, TimeUnit.MILLISECONDS);
 
         this.openPosition = openPosition;
-        fingerServo.addPosition("Open", openPosition, 400, TimeUnit.MILLISECONDS);
+        fingerServo.addPosition("Open", openPosition, 200, TimeUnit.MILLISECONDS);
 
         this.closePosition = closePosition;
-        fingerServo.addPosition("Close", closePosition, 400, TimeUnit.MILLISECONDS);
+        fingerServo.addPosition("Close", closePosition, 200, TimeUnit.MILLISECONDS);
 
         fingerServo.setDirection(direction);
     }

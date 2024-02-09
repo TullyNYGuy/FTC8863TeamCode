@@ -5,19 +5,20 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.Lib.CenterStageLib.CenterStagePixelGrabberLeft;
 import org.firstinspires.ftc.teamcode.Lib.CenterStageLib.CenterStagePixelGrabberRight;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
 @TeleOp(name = "Center Stage Test Pixel Grabber Right", group = "Test")
-@Disabled
+//@Disabled
 public class CenterStageTestPixelGrabberRight extends LinearOpMode {
 
     // Put your variable declarations here
-    CenterStagePixelGrabberRight rightPixelGrabber;
+    CenterStagePixelGrabberRight pixelGrabber;
     DataLogging log;
     ElapsedTime timer;
 
@@ -36,20 +37,33 @@ public class CenterStageTestPixelGrabberRight extends LinearOpMode {
     public void runOpMode() {
 
         // Put your initializations here
-        rightPixelGrabber = new CenterStagePixelGrabberRight(hardwareMap, telemetry);
+        pixelGrabber = new CenterStagePixelGrabberRight(hardwareMap, telemetry);
 
         log = new DataLogging("PixelGrabberLog");
-        rightPixelGrabber.setDataLog(log);
-        rightPixelGrabber.enableDataLogging();
+        pixelGrabber.setDataLog(log);
+        pixelGrabber.enableDataLogging();
 
-        rightPixelGrabber.init(null);
-        while (!rightPixelGrabber.isInitComplete()) {
-            rightPixelGrabber.update();
+        pixelGrabber.init(null);
+        while (!pixelGrabber.isInitComplete()) {
+            pixelGrabber.update();
+            telemetry.addData("state = ", pixelGrabber.getStateAsString());
+            telemetry.addData("command = ", pixelGrabber.getCommandAsString());
+            telemetry.addData("pixel present = ", pixelGrabber.isPixelPresent());
+            telemetry.addData("command complete = ", pixelGrabber.isCommandComplete());
+            telemetry.addData("init complete = ", pixelGrabber.isInitComplete());
+            telemetry.addData("pixel grabbed = ", pixelGrabber.isPixelGrabbed());
+            telemetry.update();
         }
 
         timer = new ElapsedTime();
 
         // Wait for the start button
+        telemetry.addData("state = ", pixelGrabber.getStateAsString());
+        telemetry.addData("command = ", pixelGrabber.getCommandAsString());
+        telemetry.addData("pixel present = ", pixelGrabber.isPixelPresent());
+        telemetry.addData("command complete = ", pixelGrabber.isCommandComplete());
+        telemetry.addData("init complete = ", pixelGrabber.isInitComplete());
+        telemetry.addData("pixel grabbed = ", pixelGrabber.isPixelGrabbed());
         telemetry.addData(">", "Press Start to run");
         telemetry.update();
         waitForStart();
@@ -58,45 +72,35 @@ public class CenterStageTestPixelGrabberRight extends LinearOpMode {
 
         // after the reset is complete just loop so the user can see the state
         while (opModeIsActive()) {
-            rightPixelGrabber.update();
-            rightPixelGrabber.on();
+            pixelGrabber.update();
 
             // Put your calls here - they will not run in a loop
-            if (gamepad1.x) {
+            if (gamepad1.y) {
                 // turn the pixel grabber on so it will handle an incoming pixel
-                rightPixelGrabber.on();
+                pixelGrabber.on();
             }
 
-            if (gamepad1.y) {
-                rightPixelGrabber.deliverPixel();
+            if (gamepad1.b) {
+                pixelGrabber.deliverPixel();
                 // note that this turns the pixel grabber off after the release is complete
             }
 
-            switch (state) {
-                case WAITING_TO_GRAB:
-                    if (rightPixelGrabber.getState() == CenterStagePixelGrabberRight.State.PIXEL_GRABBED) {
-                        timer.reset();
-                        state = State.PIXEL_GRABBED;
-                    }
-                    break;
-                    // 5 seconds before pixel is released
-                case PIXEL_GRABBED:
-                    if (timer.milliseconds() > 5000) {
-                        rightPixelGrabber.deliverPixel();
-                        timer.reset();
-                        state = State.WAITING_TO_REMOVE_PIXEL;
-                    }
-                    break;
-                    // 5 seconds for you to remove the pixel
-                case WAITING_TO_REMOVE_PIXEL:
-                    if (timer.milliseconds() > 5000) {
-                        rightPixelGrabber.on();
-                        state = State.WAITING_TO_GRAB;
-                    }
-                    break;
+            if (gamepad1.x) {
+                pixelGrabber.grabPixel();
+                // note that this turns the pixel grabber off after the release is complete
             }
 
-            telemetry.addData("state = ", rightPixelGrabber.getState().toString());
+            if (gamepad1.a) {
+                pixelGrabber.off();
+                // note that this turns the pixel grabber off after the release is complete
+            }
+
+            telemetry.addData("state = ", pixelGrabber.getStateAsString());
+            telemetry.addData("command = ", pixelGrabber.getCommandAsString());
+            telemetry.addData("pixel present = ", pixelGrabber.isPixelPresent());
+            telemetry.addData("command complete = ", pixelGrabber.isCommandComplete());
+            telemetry.addData("init complete = ", pixelGrabber.isInitComplete());
+            telemetry.addData("pixel grabbed = ", pixelGrabber.isPixelGrabbed());
             telemetry.update();
             idle();
         }

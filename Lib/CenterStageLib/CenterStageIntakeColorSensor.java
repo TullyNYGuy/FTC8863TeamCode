@@ -1,16 +1,12 @@
 package org.firstinspires.ftc.teamcode.Lib.CenterStageLib;
 
 
-import com.acmerobotics.dashboard.config.Config;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
-@Config
-@Deprecated
-public class CenterStageFingerServoRight {
+public class CenterStageIntakeColorSensor {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -20,25 +16,15 @@ public class CenterStageFingerServoRight {
     //*********************************************************************************************
 
     //*********************************************************************************************
-    //          PRIVATE DATA FIELDS
+    //          PRIVATE DATA FIELDS AND SETTERS and GETTERS
     //
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
-    private CenterStageFingerServo rightFingerServo;
-    private final String RIGHT_FINGER_SERVO_NAME = CenterStageRobot.HardwareName.RIGHT_FINGER_SERVO.hwName;
+    private CenterStageColorSensorForDistance colorSensor;
 
-    public static double INIT_POSITION = 0.5;
-    public static double OPEN_POSITION = 0.5;
-    public static double CLOSE_POSITION = 0.15;
-
-    //*********************************************************************************************
-    //          GETTER and SETTER Methods
-    //
-    // allow access to private data fields for example setMotorPower,
-    // getPositionInTermsOfAttachment
-    //*********************************************************************************************
-
+    private double distanceThreshold = 1.0; // cm
+    private DistanceUnit distanceUnit = DistanceUnit.CM;
 
     //*********************************************************************************************
     //          Constructors
@@ -47,14 +33,14 @@ public class CenterStageFingerServoRight {
     // from it
     //*********************************************************************************************
 
-    public CenterStageFingerServoRight(HardwareMap hardwareMap, Telemetry telemetry) {
-        rightFingerServo = new CenterStageFingerServo(hardwareMap, telemetry,
-                RIGHT_FINGER_SERVO_NAME,
-                INIT_POSITION,
-                OPEN_POSITION,
-                CLOSE_POSITION,
-                Servo.Direction.REVERSE);
+    public CenterStageIntakeColorSensor(HardwareMap hardwareMap, Telemetry telemetry, String colorSensorName) {
+        colorSensor = new CenterStageColorSensorForDistance(hardwareMap, telemetry,
+                colorSensorName,
+                distanceThreshold,
+                distanceUnit);
     }
+
+
     //*********************************************************************************************
     //          Helper Methods
     //
@@ -67,23 +53,7 @@ public class CenterStageFingerServoRight {
     // public methods that give the class its functionality
     //*********************************************************************************************
 
-    public void init() {
-        rightFingerServo.init();
-    }
-    
-    public void open() {
-        rightFingerServo.open();
-    }
-
-    public void close() {
-        rightFingerServo.close();
-    }
-
-    public boolean isPositionReached() {
-        return rightFingerServo.isPositionReached();
-    }
-
-    public void testPositionUsingJoystick(LinearOpMode opmode) {
-        rightFingerServo.testPositionUsingJoystick(opmode);
+    public boolean isPixelPresent() {
+        return colorSensor.isObjectPresent();
     }
 }
