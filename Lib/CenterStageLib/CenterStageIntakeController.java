@@ -18,6 +18,7 @@ public class CenterStageIntakeController implements FTCRobotSubsystem {
     //*********************************************************************************************
     public enum Command {
         OFF,
+        IDLE,
         INTAKE,
         FINISH_INTAKE,
         DELIVER_BOTH_PIXELS,
@@ -465,6 +466,9 @@ public class CenterStageIntakeController implements FTCRobotSubsystem {
             case LEFT_PIXEL_GRABBED:
                     switch (command) {
 
+                        case IDLE:
+                            break;
+
                         case OFF:
                             intakeMotor.off();
                             pixelGrabberLeft.off();
@@ -490,6 +494,7 @@ public class CenterStageIntakeController implements FTCRobotSubsystem {
 
                         case FINISH_INTAKE:
                             intakeMotor.off();
+                            command = Command.IDLE;
                             break;
 
                         case DELIVER_RIGHT_PIXEL:
@@ -520,6 +525,9 @@ public class CenterStageIntakeController implements FTCRobotSubsystem {
             case RIGHT_PIXEL_GRABBED:
                     switch (command) {
 
+                        case IDLE:
+                            break;
+
                         case OFF:
                             intakeMotor.off();
                             pixelGrabberLeft.off();
@@ -545,6 +553,7 @@ public class CenterStageIntakeController implements FTCRobotSubsystem {
 
                         case FINISH_INTAKE:
                             intakeMotor.off();
+                            command = Command.IDLE;
                             break;
 
                         case DELIVER_RIGHT_PIXEL:
