@@ -68,7 +68,7 @@ public class CenterStageIntakeMotor {
     }
 
     public void liftAssist() {
-        intakeMotor.runAtConstantPower(.3);
+        intakeMotor.runAtConstantPower(1.0);
     }
 
     public void off() {

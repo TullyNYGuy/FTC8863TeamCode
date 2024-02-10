@@ -175,6 +175,14 @@ public class CenterStageIntakeController implements FTCRobotSubsystem {
         commandComplete = true;
     }
 
+    public void aidSetupForDelivery() {
+        intakeMotor.liftAssist();
+    }
+
+    public void stopIntakeMotor() {
+        intakeMotor.off();
+    }
+
     //*****************************************************************************************
     //   status
     //*****************************************************************************************

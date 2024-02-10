@@ -350,7 +350,7 @@ public class CenterStageLift implements FTCRobotSubsystem {
             // remember the command for later
             command = Command.MOVE_TO_SETUP_FOR_DELIVERY;
             logCommand(command.toString());
-            extensionRetractionMechanism.goToPosition(1.25, extendPower);
+            extensionRetractionMechanism.goToPosition(1.75, extendPower);
         } else {
             // you can't start a new command when the old one is not finished
         }

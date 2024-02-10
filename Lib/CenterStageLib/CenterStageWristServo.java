@@ -60,7 +60,7 @@ public class CenterStageWristServo {
         wristServo.addPosition("highDropPosition", highDropPosition, 1000, TimeUnit.MILLISECONDS);
         wristServo.addPosition("mediumDropPosition", mediumDropPosition, 1000, TimeUnit.MILLISECONDS);
         wristServo.addPosition("lowDropPosition", lowDropPosition, 1000, TimeUnit.MILLISECONDS);
-        wristServo.addPosition("setUpForDeliveryPosition", setUpForDeliveryPosition, 500, TimeUnit.MILLISECONDS);
+        wristServo.addPosition("setUpForDeliveryPosition", setUpForDeliveryPosition, 250, TimeUnit.MILLISECONDS);
 
         wristServo.setDirection(Servo.Direction.FORWARD);
     }

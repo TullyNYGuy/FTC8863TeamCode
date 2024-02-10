@@ -38,7 +38,7 @@ public class CenterStageDeliveryController implements FTCRobotSubsystem {
         LIFT_MOVING_TO_SETUP_FOR_DELIVERY,
         WRIST_SERVO_MOVING_TO_SETUP_FOR_DELIVERY,
         WRIST_CURLING,
-        LIFT_MOVING_TO_WRIST_CURLING_POSITION,
+        LIFT_MOVING_TO_SETUP_FOR_DELIVERY_POSITION,
         WRIST_SERVO_MOVING_TO_POSITION,
         LIFT_MOVING_TO_INTAKE_POSITION,
         LIFT_MOVING_TO_HIGH_POSITION,
@@ -128,8 +128,9 @@ public class CenterStageDeliveryController implements FTCRobotSubsystem {
 
     public void setupForDelivery() {
         command = Command.SETUP_FOR_DELIVERY;
-        lift.moveToWristCurlPosition();
-        state = State.LIFT_MOVING_TO_WRIST_CURLING_POSITION;
+        lift.moveToSetupForDelivery();
+        intakeController.aidSetupForDelivery();
+        state = State.LIFT_MOVING_TO_SETUP_FOR_DELIVERY_POSITION;
         logCommand("Setup For Delivery");
     }
 
@@ -233,7 +234,7 @@ public class CenterStageDeliveryController implements FTCRobotSubsystem {
             //   Setup For Delivery States
             //*****************************************************************************************
 
-            case LIFT_MOVING_TO_WRIST_CURLING_POSITION:
+            case LIFT_MOVING_TO_SETUP_FOR_DELIVERY_POSITION:
                 if (lift.isPositionReached()) {
                     wristServo.setUpForDeliveryPosition();
                     state = State.WRIST_SERVO_MOVING_TO_POSITION;
@@ -244,7 +245,7 @@ public class CenterStageDeliveryController implements FTCRobotSubsystem {
 //            case WRIST_SERVO_MOVING_TO_SETUP_FOR_DELIVERY:
 //                if (wristServo.isPositionReached()) {
 //                    lift.moveToWristCurlPosition();
-//                    state = State.LIFT_MOVING_TO_WRIST_CURLING_POSITION;
+//                    state = State.LIFT_MOVING_TO_SETUP_FOR_DELIVERY_POSITION;
 //                }
 //                break;
 //
@@ -263,6 +264,7 @@ public class CenterStageDeliveryController implements FTCRobotSubsystem {
                 switch (command) {
                     case SETUP_FOR_DELIVERY:
                         if (wristServo.isPositionReached()) {
+                            intakeController.stopIntakeMotor();
                             lift.moveToIntake();
                             state = State.LIFT_MOVING_TO_INTAKE_POSITION;
                         }
@@ -367,7 +369,7 @@ public class CenterStageDeliveryController implements FTCRobotSubsystem {
                 break;
 
             case WAITING_FOR_OUTTAKE_TO_EXPIRE:
-                if(timer.seconds() > 2){
+                if(timer.seconds() > 1){
                     intakeController.off();
                     state = State.READY;
                 }
@@ -383,6 +385,7 @@ public class CenterStageDeliveryController implements FTCRobotSubsystem {
 
     @Override
     public void setDataLog(DataLogging logFile) {
+        lift.setDataLog(logFile);
         this.logFile = logFile;
         logCommandOnchange = new DataLogOnChange(logFile);
         logStateOnChange = new DataLogOnChange(logFile);
@@ -390,11 +393,13 @@ public class CenterStageDeliveryController implements FTCRobotSubsystem {
 
     @Override
     public void enableDataLogging() {
+        lift.enableDataLogging();
         enableLogging = true;
     }
 
     @Override
     public void disableDataLogging() {
+        lift.disableDataLogging();
         enableLogging = false;
     }
 
