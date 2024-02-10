@@ -167,6 +167,8 @@ public class CenterStageHangMechanism implements FTCRobotSubsystem {
     @Override
     public boolean init(Configuration config) {
         // there is no init for this mechanism yet
+        armDeployServoLeft.readyPositon();
+        armDeployServoRight.readyPositon();
         logCommand("Init complete");
         commandComplete = true;
         return true;
