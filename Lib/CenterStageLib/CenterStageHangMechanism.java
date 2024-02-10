@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Lib.CenterStageLib;
 
 
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -23,10 +24,11 @@ public class CenterStageHangMechanism implements FTCRobotSubsystem {
     private enum State {
         READY,
         HANGING,
-        DONE,
+        HUNG,
         STOPPED,
-        WAITING_FOR_TIMER,
-        DEHANGING
+        WAITING_TO_START_DEHANG,
+        DEHANGING,
+        DEHANGED
     }
 
     private enum Phase {
@@ -65,6 +67,13 @@ public class CenterStageHangMechanism implements FTCRobotSubsystem {
     private DataLogOnChange logStateOnChange;
     private DataLogOnChange logCommandOnchange;
 
+    // spool diameter is 28 mm
+    double SPOOL_DIAMETER = 28/25.4; // mm to inches
+    // the rate for the dehang in inches / second
+    double DEHANG_RATE = 1.0;
+    // amount of string to let out when dehanging
+    double AMOUNT_OF_STRING_TO_LET_OUT_WHEN_DEHANGING = 10.0; //inches
+
     private ElapsedTime timer;
 
     // flags used in this class
@@ -88,16 +97,18 @@ public class CenterStageHangMechanism implements FTCRobotSubsystem {
         // create the motor for the lift
         leftHangMotor = new DcMotor8863(CenterStageRobot.HardwareName.LEFT_HANG_MOTOR.hwName, hardwareMap, telemetry);
         leftHangMotor.setMotorType(DcMotor8863.MotorType.GOBILDA_312);
-        leftHangMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         leftHangMotor.setMovementPerRev(25/25.4 * Math.PI); // 25mm diameter spool, convert to inches
 
         rightHangMotor = new DcMotor8863(CenterStageRobot.HardwareName.RIGHT_HANG_MOTOR.hwName, hardwareMap, telemetry);
         rightHangMotor.setMotorType(DcMotor8863.MotorType.GOBILDA_312);
-        rightHangMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         rightHangMotor.setMovementPerRev(25/25.4 * Math.PI); // 25mm diameter spool, convert to inches
+
+        setupMotorsToHang();
 
         armDeployServoLeft = new CenterStageArmDeployServoLeft(hardwareMap, telemetry);
         armDeployServoRight = new CenterStageArmDeployServoRight(hardwareMap, telemetry);
+
+        timer = new ElapsedTime();
 
         // init has not been started yet
         initComplete = true;
@@ -110,6 +121,18 @@ public class CenterStageHangMechanism implements FTCRobotSubsystem {
     //
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
+
+    private void setupMotorsToHang() {
+        leftHangMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        rightHangMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+    }
+
+    private void setupMotorsToDehang() {
+        leftHangMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightHangMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftHangMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightHangMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+    }
 
     @Override
     public String getName() {
@@ -181,7 +204,7 @@ public class CenterStageHangMechanism implements FTCRobotSubsystem {
     }
 
     public boolean isPositionReached() {
-        if (state == State.DONE) {
+        if (state == State.HUNG) {
             return true;
         } else {
             return false;
@@ -197,7 +220,7 @@ public class CenterStageHangMechanism implements FTCRobotSubsystem {
     }
 
     //********************************************************************************
-    // Public commands for controlling the lift
+    // Public commands for controlling the HANGING
     //********************************************************************************
 
     private void hang(double amountToHangBy) {
@@ -205,6 +228,7 @@ public class CenterStageHangMechanism implements FTCRobotSubsystem {
         // right button the first time or they are toast
         if (commandComplete) {
             commandComplete = false;
+            setupMotorsToHang();
             // next state
             state = State.HANGING;
             // remember the command for later
@@ -239,7 +263,7 @@ public class CenterStageHangMechanism implements FTCRobotSubsystem {
         if (commandComplete) {
             commandComplete = false;
             // next state
-            state = State.WAITING_FOR_TIMER;
+            state = State.WAITING_TO_START_DEHANG;
             // remember the command for later
             command = Command.DEHANG;
             logCommand(command.toString());
@@ -298,26 +322,29 @@ public class CenterStageHangMechanism implements FTCRobotSubsystem {
                 // do nothing. The lift is waiting for a command
                 break;
 
+            //********************************************************************************
+            // HANG states
+            //********************************************************************************
+
             case HANGING: {
                 switch (command) {
                     case HANG:
                         if (leftHangMotor.isMovementComplete() && rightHangMotor.isMovementComplete()) {
                             commandComplete = true;
-                            state = State.DONE;
+                            state = State.HUNG;
                         }
                         break;
                     case STOP:
                         leftHangMotor.stop();
                         rightHangMotor.stop();
-                        state = State.DONE;
+                        state = State.STOPPED;
                         break;
-
                 }
 
             }
             break;
 
-            case DONE: {
+            case HUNG: {
                 // do nothing here
             }
             break;
@@ -327,21 +354,40 @@ public class CenterStageHangMechanism implements FTCRobotSubsystem {
             }
             break;
 
-            case WAITING_FOR_TIMER:
+            //********************************************************************************
+            // DEHANG states
+            //********************************************************************************
+
+            case WAITING_TO_START_DEHANG:
                 if (timer.seconds()>10){
-                    leftHangMotor.moveByAmount(.3, 10, DcMotor8863.FinishBehavior.FLOAT);
-                    rightHangMotor.moveByAmount(.3, 10, DcMotor8863.FinishBehavior.FLOAT);
+                    timer.reset();
+                    logCommand("Run hang motors for " + getNumberOfSecondsToRotate() + " at RPM = " + getRPMForDehang());
+                    setupMotorsToDehang();
+                    leftHangMotor.runAtConstantRPM(getRPMForDehang());
+                    rightHangMotor.runAtConstantRPM(getRPMForDehang());
                     state= State.DEHANGING;
                 }
                 break;
 
             case DEHANGING:
-                if (leftHangMotor.isMovementComplete() && rightHangMotor.isMovementComplete()){
-                    state = State.DONE;
+                if (timer.seconds() > getNumberOfSecondsToRotate()) {
+                    leftHangMotor.stop();
+                    rightHangMotor.stop();
+                    state = State.DEHANGED;
                     commandComplete = true;
                 }
                 break;
 
+            case DEHANGED:
+                break;
         }
+    }
+
+    private double getNumberOfSecondsToRotate() {
+        return AMOUNT_OF_STRING_TO_LET_OUT_WHEN_DEHANGING / DEHANG_RATE; // in * sec /in
+    }
+
+    private double getRPMForDehang() {
+        return -DEHANG_RATE / (Math.PI * SPOOL_DIAMETER) * 60; // in/sec * 1 REV / (PI * D) in * 60 sec/min
     }
 }
