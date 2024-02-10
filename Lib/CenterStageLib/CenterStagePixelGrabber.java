@@ -387,6 +387,7 @@ public class CenterStagePixelGrabber implements FTCRobotSubsystem {
 
                     case ON:
                         if (colorSensor.isPixelPresent()) {
+                            logCommand("pixel present");
                             pixelPresent = true;
                             if (mode == Mode.GRAB_PIXEL_RIGHT_AWAY) {
                                 grabPixel();
@@ -473,7 +474,12 @@ public class CenterStagePixelGrabber implements FTCRobotSubsystem {
                         break;
 
                     case ON:
-                        // don't do anything, I already have a pixel. Wait for another command;
+                        // It is possible to restart the intake after a pixel has been grabbed.
+                        // In this case, even though a pixel has already been grabbed, we want to
+                        // act as though the intake process has started all over again.
+                        state = State.RUNNING;
+                        command = Command.ON;
+                        fingerServo.open();
                         break;
 
                     case GRAB_PIXEL:

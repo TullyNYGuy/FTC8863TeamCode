@@ -84,8 +84,10 @@ public class CenterStageTestIntakeController extends LinearOpMode {
             telemetry.addData("command = ", intakeController.getCommand().toString());
             telemetry.addData("left pixel grabber state = ", intakeController.getLeftPixelGrabberStateAsString());
             telemetry.addData("left pixel grabber command = ", intakeController.getLeftPixelGrabberCommandAsString());
+            telemetry.addData("left pixel present = ", intakeController.isPixelPresentLeft());
             telemetry.addData("Right pixel grabber state = ", intakeController.getRightPixelGrabberStateAsString());
             telemetry.addData("right pixel grabber command = ", intakeController.getRightPixelGrabberCommandAsString());
+            telemetry.addData("right pixel present = ", intakeController.isPixelPresentRight());
             telemetry.update();
             idle();
         }

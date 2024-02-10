@@ -207,6 +207,14 @@ public class CenterStageIntakeController implements FTCRobotSubsystem {
         return pixelGrabberRight.getCommandAsString();
     }
 
+    public boolean isPixelPresentRight() {
+        return pixelGrabberRight.isPixelPresent();
+    }
+
+    public boolean isPixelPresentLeft() {
+        return pixelGrabberLeft.isPixelPresent();
+    }
+
     @Override
     public String getName() {
         return INTAKE_CONTROLLER_NAME;
@@ -460,6 +468,9 @@ public class CenterStageIntakeController implements FTCRobotSubsystem {
                             if (pixelGrabberRight.isPixelPresent()) {
                                 intakeMotor.off();
                                 pixelGrabberRight.grabPixel();
+                                // reissue the grab pixel for the left. It could be in a running
+                                // state if the intake process was restarted.
+                                pixelGrabberLeft.grabPixel();
                                 state = State.GRABBING_BOTH_PIXELS;
                             } else {
                                 intakeMotor.intake();
@@ -512,6 +523,9 @@ public class CenterStageIntakeController implements FTCRobotSubsystem {
                             if (pixelGrabberLeft.isPixelPresent()) {
                                 intakeMotor.off();
                                 pixelGrabberLeft.grabPixel();
+                                // reissue the grab pixel for the right. It could be in a running
+                                // state if the intake process was restarted.
+                                pixelGrabberRight.grabPixel();
                                 state = State.GRABBING_BOTH_PIXELS;
                             } else {
                                 intakeMotor.intake();
