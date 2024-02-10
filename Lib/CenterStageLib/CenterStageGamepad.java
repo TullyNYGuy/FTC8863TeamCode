@@ -385,7 +385,9 @@ public class CenterStageGamepad {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
             //robot.robotModes.setMaxDrivingPower(.75);
-            robot.intakeController.deliverRightPixel();
+            // Right and left are opposite because the drivers are looking at the robot from the front
+            // This looks like the right pixel
+            robot.intakeController.deliverLeftPixel();
         }
 
         if (gamepad2y.buttonPress(gamepad2.y)) {
@@ -398,7 +400,9 @@ public class CenterStageGamepad {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
             //robot.robotModes.setMaxDrivingPower(1.0);
-            robot.intakeController.deliverLeftPixel();
+            // Right and left are opposite because the drivers are looking at the robot from the front
+            // This looks like the left pixel
+            robot.intakeController.deliverRightPixel();
         }
 
         if (gamepad2DpadUp.buttonPress(gamepad2.dpad_up)) {
