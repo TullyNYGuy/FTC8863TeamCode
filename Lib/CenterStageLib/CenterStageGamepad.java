@@ -261,6 +261,7 @@ public class CenterStageGamepad {
         if (gamepad1LeftBumper.buttonPress(gamepad1.left_bumper)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
+            robot.deliveryController.returnToIntakePosition();
         }
 
         if (gamepad1a.buttonPress(gamepad1.a)) {
@@ -310,7 +311,7 @@ public class CenterStageGamepad {
         if (gamepad1DpadRight.buttonPress(gamepad1.dpad_right)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            robot.deliveryController.returnToIntakePosition();
+            robot.intakeController.finishIntake();
         }
 
         if (gamepad1LeftStickButton.buttonPress(gamepad1.left_stick_button)) {
