@@ -61,6 +61,16 @@ public class CenterStageDeliveryController implements FTCRobotSubsystem {
         return state;
     }
 
+    private enum Position {
+        INTAKE,
+        SETUP_FOR_DELIVERY,
+        LOW,
+        MEDIUM,
+        HIGH
+    }
+
+    private Position position;
+
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS AND SETTERS and GETTERS
     //
@@ -82,6 +92,7 @@ public class CenterStageDeliveryController implements FTCRobotSubsystem {
     private boolean commandComplete = true;
     private boolean initComplete = false;
     private ElapsedTime timer;
+    private Boolean shouldWeImmediatelyReturnToIntake = false;
 
     //*********************************************************************************************
     //          Constructors
@@ -146,6 +157,7 @@ public class CenterStageDeliveryController implements FTCRobotSubsystem {
     public void setUpForMediumPosition() {
         command = Command.SETUP_FOR_MEDIUM_DROP;
         lift.moveToMedium();
+        //shouldWeImmediatelyReturnToIntake = false;
         state = State.LIFT_MOVING_TO_MEDIUM_POSITION;
         logCommand("Setup For Medium Drop");
     }
@@ -158,10 +170,18 @@ public class CenterStageDeliveryController implements FTCRobotSubsystem {
     }
 
     public void returnToIntakePosition() {
-        command = Command.ARM_RETURN_TO_INTAKE_POSITION;
-        armServo.intakePosition();
-        intakeController.outake();
-        state = State.ARM_RETURNING_TO_INTAKE_POSITION;
+        if (position == Position.LOW){
+            shouldWeImmediatelyReturnToIntake = true;
+            setUpForMediumPosition();
+          //lift.moveToMedium();
+          //state = State.LIFT_MOVING_TO_MEDIUM_POSITION;
+        }
+        else{
+            command = Command.ARM_RETURN_TO_INTAKE_POSITION;
+            armServo.intakePosition();
+            intakeController.outake();
+            state = State.ARM_RETURNING_TO_INTAKE_POSITION;
+        }
         logCommand("Arm Return to intake position");
     }
 
@@ -226,6 +246,7 @@ public class CenterStageDeliveryController implements FTCRobotSubsystem {
                     initComplete = true;
                     commandComplete = true;
                     state = State.READY;
+                    position = Position.INTAKE;
                 }
                 break;
 
@@ -260,6 +281,7 @@ public class CenterStageDeliveryController implements FTCRobotSubsystem {
                     intakeController.stopIntakeMotor();
                     commandComplete = true;
                     state = State.READY;
+                    position = Position.SETUP_FOR_DELIVERY;
                 }
                 break;
 
@@ -276,18 +298,44 @@ public class CenterStageDeliveryController implements FTCRobotSubsystem {
 
             case WRIST_SERVO_MOVING_TO_POSITION:
                 switch (command) {
+
                     case SETUP_FOR_DELIVERY:
                         break;
+
                     case SETUP_FOR_HIGH_DROP:
+                        if (wristServo.isPositionReached()) {
+                            commandComplete = true;
+                            state = State.READY;
+                            position = Position.HIGH;
+                        }
+                        break;
+
                     case SETUP_FOR_MEDIUM_DROP:
+                        if (wristServo.isPositionReached()) {
+                            if (shouldWeImmediatelyReturnToIntake == false){
+                                commandComplete = true;
+                                state = State.READY;
+                                position = Position.MEDIUM;
+                            }
+                            else{
+                                commandComplete = true;
+                                state = State.READY;
+                                position = Position.MEDIUM;
+                                shouldWeImmediatelyReturnToIntake = false;
+                               returnToIntakePosition();
+                            }
+
+                        }
+                        break;
+
                     case SETUP_FOR_LOW_DROP:
                         if (wristServo.isPositionReached()) {
                             commandComplete = true;
                             state = State.READY;
+                            position = Position.LOW;
                         }
                         break;
                 }
-
                 break;
 
             case LIFT_MOVING_TO_INTAKE_POSITION:
@@ -355,6 +403,11 @@ public class CenterStageDeliveryController implements FTCRobotSubsystem {
             //   Return To Intake States
             //*****************************************************************************************
 
+            // When return from a low position, there is a
+            // collision with the plane mount on the way down. Returning from medium does
+            // not have a collision so a quick fix when returning from low is to move to medium and then
+            // return from there.
+
 
             case ARM_RETURNING_TO_INTAKE_POSITION:
                 if (armServo.isPositionReached()) {
@@ -382,6 +435,7 @@ public class CenterStageDeliveryController implements FTCRobotSubsystem {
                 if(timer.seconds() > 1){
                     intakeController.off();
                     state = State.READY;
+                    position = Position.INTAKE;
                 }
                 break;
 
