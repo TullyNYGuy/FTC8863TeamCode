@@ -312,18 +312,9 @@ public class CenterStageDeliveryController implements FTCRobotSubsystem {
 
                     case SETUP_FOR_MEDIUM_DROP:
                         if (wristServo.isPositionReached()) {
-                            if (shouldWeImmediatelyReturnToIntake == false){
                                 commandComplete = true;
                                 state = State.READY;
                                 position = Position.MEDIUM;
-                            }
-                            else{
-                                commandComplete = true;
-                                state = State.READY;
-                                position = Position.MEDIUM;
-                                shouldWeImmediatelyReturnToIntake = false;
-                               returnToIntakePosition();
-                            }
 
                         }
                         break;
@@ -369,8 +360,16 @@ public class CenterStageDeliveryController implements FTCRobotSubsystem {
 
             case LIFT_MOVING_TO_MEDIUM_POSITION:
                 if (lift.isPositionReached()) {
-                    armServo.mediumDropPosition();
-                    state = State.ARM_MOVING_TO_MEDIUM_DROP_POSITION;
+                    if (shouldWeImmediatelyReturnToIntake){
+                        shouldWeImmediatelyReturnToIntake = false;
+                        position = Position.MEDIUM;
+                        returnToIntakePosition();
+                    }
+                    else{
+                        armServo.mediumDropPosition();
+                        state = State.ARM_MOVING_TO_MEDIUM_DROP_POSITION;
+                    }
+
                 }
                 break;
 
