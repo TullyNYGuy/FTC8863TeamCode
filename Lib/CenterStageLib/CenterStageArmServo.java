@@ -32,7 +32,8 @@ public class CenterStageArmServo {
 
     private final String ARM_SERVO_NAME = CenterStageRobot.HardwareName.ARM_SERVO.hwName;
 
-    private double intakePosition = 0.05;
+    // change from .04 to .03 based on new servo installed 2/10/2024
+    private double intakePosition = 0.03;
     private double highDropPosition = 0.7;
     private double mediumDropPosition = 0.7;
     private double lowDropPosition = 0.7;
