@@ -151,6 +151,9 @@ public class CenterStageTeleop extends LinearOpMode {
             // feedback on the driver station
 
             gamepad.displayGamepad1JoystickValues(telemetry);
+            telemetry.addData("", "");
+            telemetry.addData("Dehang Status= ", robot.hangMechanism.getDehangStatus());
+            telemetry.addData("", "");
             telemetry.addData(">", "Press Stop to end.");
             telemetry.update();
 
