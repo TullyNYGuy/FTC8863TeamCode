@@ -49,18 +49,22 @@ public class CenterStageEncoderDirectionDebugger extends LinearOpMode {
 
         waitForStart();
 
+        // The encoder counts do not start at zero unless the control and/or expansion hubs have been reset or the
+        // motor has been resets. So zero the counts in the localizer.
+        localizer.zeroEncoderCounts();
+
         while (!isStopRequested()) {
-            telemetry.addData("left encoder count ", leftEncoder.getCurrentPosition() - leftEncoderInitialPosition);
-            telemetry.addData("right encoder count ", rightEncoder.getCurrentPosition() - rightEncoderInitialPosition);
-            telemetry.addData("front/lateral encoder count ", frontEncoder.getCurrentPosition() - frontEncoderInitialPosition);
+            telemetry.addData("left encoder count ", localizer.getLeftEncoderCountSinceZero());
+            telemetry.addData("right encoder count ", localizer.getRightEncoderCountSinceZero());
+            telemetry.addData("front/lateral encoder count ", localizer.getLeftEncoderCountSinceZero());
+            telemetry.addLine();
             telemetry.addData("left adjusted count ", localizer.getLeftEncoderAdjustedCountSinceZero());
             telemetry.addData("right adjusted count ", localizer.getRightEncoderAdjustedCountSinceZero());
             telemetry.addData("front/lateral adjusted count ", localizer.getFrontEncoderAdjustedCountSinceZero());
-
-
-            telemetry.addData("left encoder in inches ", CenterStageTrackingWheelLocalizer.encoderTicksToInches(leftEncoder.getCurrentPosition() - leftEncoderInitialPosition));
-            telemetry.addData("right encoder in inches ", CenterStageTrackingWheelLocalizer.encoderTicksToInches(rightEncoder.getCurrentPosition() - rightEncoderInitialPosition));
-            telemetry.addData("front/lateral encoder in inches ", CenterStageTrackingWheelLocalizer.encoderTicksToInches(frontEncoder.getCurrentPosition() - frontEncoderInitialPosition));
+            telemetry.addLine();
+            telemetry.addData("left encoder in inches ", CenterStageTrackingWheelLocalizer.encoderTicksToInches(localizer.getLeftEncoderAdjustedCountSinceZero()));
+            telemetry.addData("right encoder in inches ", CenterStageTrackingWheelLocalizer.encoderTicksToInches(localizer.getRightEncoderAdjustedCountSinceZero()));
+            telemetry.addData("front/lateral encoder in inches ", CenterStageTrackingWheelLocalizer.encoderTicksToInches(localizer.getFrontEncoderAdjustedCountSinceZero()));
             telemetry.update();
         }
     }
