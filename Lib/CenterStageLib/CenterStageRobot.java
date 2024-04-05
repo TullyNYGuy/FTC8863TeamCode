@@ -35,7 +35,7 @@ public class CenterStageRobot implements FTCRobot {
         MECANUM_DRIVE("mecanumDrive"),
 
         ODOMETRY_MODULE_LEFT("leftFrontMotor"),
-        ODOMETRY_MODULE_RIGHT("rightRearMotor"),
+        ODOMETRY_MODULE_RIGHT("rightFrontMotor"),
         ODOMETRY_MODULE_BACK("leftRearMotor"),
 //
 //        WEBCAM("Webcam"),
