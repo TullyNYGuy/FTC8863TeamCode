@@ -10,8 +10,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.robotcore.internal.system.Misc;
-import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.MecanumDriveUltimateGoal;
-import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.UltimateGoalRobotRoadRunner;
+import org.firstinspires.ftc.teamcode.Lib.CenterStageLib.CenterStageMecanumDrive;
+import org.firstinspires.ftc.teamcode.Lib.CenterStageLib.CenterStageRobot;
 import org.firstinspires.ftc.teamcode.RoadRunner.util.LoggingUtil;
 import org.firstinspires.ftc.teamcode.RoadRunner.util.RegressionUtil;
 
@@ -34,7 +34,7 @@ import static org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.DriveConstantsU
  */
 @Config
 @Autonomous(group = "drive")
-public class AutomaticFeedforwardUltimateGoal extends LinearOpMode {
+public class AutomaticFeedforwardCenterStage extends LinearOpMode {
     public static double MAX_POWER = 0.7;
     public static double DISTANCE = 100; // in
 
@@ -48,11 +48,11 @@ public class AutomaticFeedforwardUltimateGoal extends LinearOpMode {
 
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
-        MecanumDriveUltimateGoal drive = new MecanumDriveUltimateGoal(
-                UltimateGoalRobotRoadRunner.HardwareName.CONFIG_FL_MOTOR.hwName,
-                UltimateGoalRobotRoadRunner.HardwareName.CONFIG_BL_MOTOR.hwName,
-                UltimateGoalRobotRoadRunner.HardwareName.CONFIG_FR_MOTOR.hwName,
-                UltimateGoalRobotRoadRunner.HardwareName.CONFIG_BR_MOTOR.hwName,
+        CenterStageMecanumDrive drive = new CenterStageMecanumDrive(
+                CenterStageRobot.HardwareName.FRONT_LEFT_DRIVE_MOTOR.hwName,
+                CenterStageRobot.HardwareName.REAR_LEFT_DRIVE_MOTOR.hwName,
+                CenterStageRobot.HardwareName.FRONT_RIGHT_DRIVE_MOTOR.hwName,
+                CenterStageRobot.HardwareName.REAR_RIGHT_DRIVE_MOTOR.hwName,
                 hardwareMap);
 
         NanoClock clock = NanoClock.system();

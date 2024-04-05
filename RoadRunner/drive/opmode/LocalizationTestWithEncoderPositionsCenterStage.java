@@ -5,8 +5,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.MecanumDriveUltimateGoal;
-import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.UltimateGoalRobotRoadRunner;
+import org.firstinspires.ftc.teamcode.Lib.CenterStageLib.CenterStageMecanumDrive;
+import org.firstinspires.ftc.teamcode.Lib.CenterStageLib.CenterStageRobot;
 
 /**
  * This is a simple teleop routine for testing localization. Drive the robot around like a normal
@@ -16,10 +16,16 @@ import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.UltimateGoalRobotRoadR
  * encoder localizer heading may be significantly off if the track width has not been tuned).
  */
 @TeleOp(group = "drive")
-public class LocalizationTestWithEncoderPositionsUtilimateGoal extends LinearOpMode {
+public class LocalizationTestWithEncoderPositionsCenterStage extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
-        MecanumDriveUltimateGoal drive = new MecanumDriveUltimateGoal(UltimateGoalRobotRoadRunner.HardwareName.CONFIG_FL_MOTOR.hwName, UltimateGoalRobotRoadRunner.HardwareName.CONFIG_BL_MOTOR.hwName, UltimateGoalRobotRoadRunner.HardwareName.CONFIG_FR_MOTOR.hwName, UltimateGoalRobotRoadRunner.HardwareName.CONFIG_BR_MOTOR.hwName, hardwareMap);;
+
+        CenterStageMecanumDrive drive = new CenterStageMecanumDrive(
+                CenterStageRobot.HardwareName.FRONT_LEFT_DRIVE_MOTOR.hwName,
+                CenterStageRobot.HardwareName.REAR_LEFT_DRIVE_MOTOR.hwName,
+                CenterStageRobot.HardwareName.FRONT_RIGHT_DRIVE_MOTOR.hwName,
+                CenterStageRobot.HardwareName.REAR_RIGHT_DRIVE_MOTOR.hwName,
+                hardwareMap);
 
         drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
