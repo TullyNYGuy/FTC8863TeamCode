@@ -45,7 +45,7 @@ public class CenterStageTrackingWheelLocalizer extends ThreeTrackingWheelLocaliz
      * though the robot is moving straight ahead. It will also cause a change in y when there should
      * only be a change in x.
      */
-    public static double LEFT_TO_RIGHT_WHEEL_ADJUSTMENT_FACTOR = 1.0138;
+    public static double LEFT_TO_RIGHT_WHEEL_ADJUSTMENT_FACTOR = 0.9963;
 
     public static double getLeftToRightWheelAdjustmentFactor() {
         return LEFT_TO_RIGHT_WHEEL_ADJUSTMENT_FACTOR;
@@ -55,7 +55,7 @@ public class CenterStageTrackingWheelLocalizer extends ThreeTrackingWheelLocaliz
      * Adjusts the radius of the side wheels to account for difference between actual distance
      * moved forward (or reverse) to distance measured by odometry modules.
      */
-    public static double SIDE_WHEEL_ADJUSTMENT_FACTOR = .996;
+    public static double SIDE_WHEEL_ADJUSTMENT_FACTOR = 1.000;
 
     public double getSIDE_WHEEL_ADJUSTMENT_FACTOR() {
         return SIDE_WHEEL_ADJUSTMENT_FACTOR;
@@ -65,7 +65,7 @@ public class CenterStageTrackingWheelLocalizer extends ThreeTrackingWheelLocaliz
      * Adjusts the radius of the Y wheel, the one for strafing. Accounts for difference between
      * actual distance moved sideways to distance measured by odometry module.
      */
-    public static double LATERAL_WHEEL_ADJUSTMENT_FACTOR = 1.0059;
+    public static double LATERAL_WHEEL_ADJUSTMENT_FACTOR = 1.000;
 
     public double getLATERAL_WHEEL_ADJUSTMENT_FACTOR() {
         return LATERAL_WHEEL_ADJUSTMENT_FACTOR;
