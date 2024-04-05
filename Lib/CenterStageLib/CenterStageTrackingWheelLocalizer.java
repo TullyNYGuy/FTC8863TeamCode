@@ -44,8 +44,13 @@ public class CenterStageTrackingWheelLocalizer extends ThreeTrackingWheelLocaliz
      * in practice they might be slightly different. This will show up as a change in heading, even
      * though the robot is moving straight ahead. It will also cause a change in y when there should
      * only be a change in x.
+     * To find this adjustment factor, push the robot in a perfectly straight line over a distance of
+     * 8 feet or so. Get the number of counts for the left odometry module and divide that by the number
+     * of counts for the right odometry module. You may want to do this several times and take an
+     * average.
      */
-    public static double LEFT_TO_RIGHT_WHEEL_ADJUSTMENT_FACTOR = 0.9963;
+    private static double leftModuleOverRightModuleRatio = .9963;
+    public static double LEFT_TO_RIGHT_WHEEL_ADJUSTMENT_FACTOR = 1 / leftModuleOverRightModuleRatio;
 
     public static double getLeftToRightWheelAdjustmentFactor() {
         return LEFT_TO_RIGHT_WHEEL_ADJUSTMENT_FACTOR;
@@ -54,6 +59,11 @@ public class CenterStageTrackingWheelLocalizer extends ThreeTrackingWheelLocaliz
     /**
      * Adjusts the radius of the side wheels to account for difference between actual distance
      * moved forward (or reverse) to distance measured by odometry modules.
+     * If the distance reported by the odometry module is 3.1 meters, and the actual distance is
+     * 3.0 meters then the adjustment factor, it means that the wheel diameter is actually a bit
+     * smaller than it is supposed to be. The adjustment factor in this case is 3.0/3.1.
+     *
+     * Adjustment factor is Actual distance / reported distance
      */
     public static double SIDE_WHEEL_ADJUSTMENT_FACTOR = 1.000;
 
@@ -64,6 +74,11 @@ public class CenterStageTrackingWheelLocalizer extends ThreeTrackingWheelLocaliz
     /**
      * Adjusts the radius of the Y wheel, the one for strafing. Accounts for difference between
      * actual distance moved sideways to distance measured by odometry module.
+     * If the distance reported by the odometry module is 3.1 meters, and the actual distance is
+     * 3.0 meters then the adjustment factor, it means that the wheel diameter is actually a bit
+     * smaller than it is supposed to be. The adjustment factor in this case is 3.0/3.1.
+     *
+     * Adjustment factor is Actual distance / reported distance
      */
     public static double LATERAL_WHEEL_ADJUSTMENT_FACTOR = 1.000;
 
@@ -147,7 +162,8 @@ public class CenterStageTrackingWheelLocalizer extends ThreeTrackingWheelLocaliz
 
     /**
      * Get the change in encoder count since the last time it was zeroed. If you zero at the start
-     * of an opmode this will get you the change in count since the start of the opmode.
+     * of an opmode this will get you the change in count since the start of the opmode. Call
+     * zeroEncoderCounts() to zero the counts.
      * @return
      */
     public int getLeftEncoderCountSinceZero() {
@@ -156,8 +172,8 @@ public class CenterStageTrackingWheelLocalizer extends ThreeTrackingWheelLocaliz
 
     /**
      * Get the change in encoder count since the last time it was zeroed. If you zero at the start
-     * of an opmode this will get you the change in count since the start of the opmode. This count
-     * is then adjusted by the adjustment factors
+     * of an opmode this will get you the change in count since the start of the opmode. Call
+     * zeroEncoderCounts() to zero the counts. This count is then adjusted by the adjustment factors.
      * @return
      */
     public int getLeftEncoderAdjustedCountSinceZero () {
@@ -174,8 +190,8 @@ public class CenterStageTrackingWheelLocalizer extends ThreeTrackingWheelLocaliz
 
     /**
      * Get the change in encoder count since the last time it was zeroed. If you zero at the start
-     * of an opmode this will get you the change in count since the start of the opmode. This count
-     * is then adjusted by the adjustment factors
+     * of an opmode this will get you the change in count since the start of the opmode. Call
+     * zeroEncoderCounts() to zero the counts. This count is then adjusted by the adjustment factors.
      * @return
      */
     public int getRightEncoderAdjustedCountSinceZero () {
