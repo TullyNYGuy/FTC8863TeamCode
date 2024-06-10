@@ -56,7 +56,7 @@ public class CenterStageEncoderDirectionDebugger extends LinearOpMode {
         while (!isStopRequested()) {
             telemetry.addData("left encoder count ", localizer.getLeftEncoderCountSinceZero());
             telemetry.addData("right encoder count ", localizer.getRightEncoderCountSinceZero());
-            telemetry.addData("front/lateral encoder count ", localizer.getLeftEncoderCountSinceZero());
+            telemetry.addData("front/lateral encoder count ", localizer.getFrontEncoderCountSinceZero());
             telemetry.addLine();
             telemetry.addData("left adjusted count ", localizer.getLeftEncoderAdjustedCountSinceZero());
             telemetry.addData("right adjusted count ", localizer.getRightEncoderAdjustedCountSinceZero());

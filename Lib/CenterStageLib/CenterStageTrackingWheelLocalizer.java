@@ -35,8 +35,8 @@ public class CenterStageTrackingWheelLocalizer extends ThreeTrackingWheelLocaliz
     public static double GEAR_RATIO = 1; // output (wheel) speed / input (encoder) speed
 
     // todo change these to match your physical robot configuration
-    public static double LATERAL_DISTANCE = 10.57; // in; distance between the left and right wheels
-    public static double FORWARD_OFFSET = -5.5; // in; offset of the lateral wheel
+    public static double LATERAL_DISTANCE = 16.259842519685039; // in; distance between the left and right wheels
+    public static double FORWARD_OFFSET = -6.625; // in; offset of the lateral wheel
 
     // todo change the adjustment factors based on testing your robot
     /**
@@ -49,7 +49,7 @@ public class CenterStageTrackingWheelLocalizer extends ThreeTrackingWheelLocaliz
      * of counts for the right odometry module. You may want to do this several times and take an
      * average.
      */
-    private static double leftModuleOverRightModuleRatio = .9963;
+    private static double leftModuleOverRightModuleRatio = 1.0039;
     public static double LEFT_TO_RIGHT_WHEEL_ADJUSTMENT_FACTOR = 1 / leftModuleOverRightModuleRatio;
 
     public static double getLeftToRightWheelAdjustmentFactor() {
@@ -65,7 +65,7 @@ public class CenterStageTrackingWheelLocalizer extends ThreeTrackingWheelLocaliz
      *
      * Adjustment factor is Actual distance / reported distance
      */
-    public static double SIDE_WHEEL_ADJUSTMENT_FACTOR = 1.000;
+    public static double SIDE_WHEEL_ADJUSTMENT_FACTOR = 1.005;
 
     public double getSIDE_WHEEL_ADJUSTMENT_FACTOR() {
         return SIDE_WHEEL_ADJUSTMENT_FACTOR;
@@ -80,7 +80,7 @@ public class CenterStageTrackingWheelLocalizer extends ThreeTrackingWheelLocaliz
      *
      * Adjustment factor is Actual distance / reported distance
      */
-    public static double LATERAL_WHEEL_ADJUSTMENT_FACTOR = 1.000;
+    public static double LATERAL_WHEEL_ADJUSTMENT_FACTOR = 0.996;
 
     public double getLATERAL_WHEEL_ADJUSTMENT_FACTOR() {
         return LATERAL_WHEEL_ADJUSTMENT_FACTOR;

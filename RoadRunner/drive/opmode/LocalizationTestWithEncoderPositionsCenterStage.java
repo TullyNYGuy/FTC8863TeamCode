@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.Lib.CenterStageLib.CenterStageRobot;
  * exercise is to ascertain whether the localizer has been configured properly (note: the pure
  * encoder localizer heading may be significantly off if the track width has not been tuned).
  */
-@TeleOp(group = "drive")
+@TeleOp(name = "Center Stage Localization Test", group = "Test")
 public class LocalizationTestWithEncoderPositionsCenterStage extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
@@ -49,7 +49,7 @@ public class LocalizationTestWithEncoderPositionsCenterStage extends LinearOpMod
         // zero them myself
         double leftEncoderStartPositionInInches = drive.getWheelPositions().get(0);
         double rightEncoderStartPositionInInches = drive.getWheelPositions().get(1);
-        double rearEncoderStartPositionInInches = drive.getWheelPositions().get(2);
+        double rearEncoderStartPositionInInches = drive.getWheelPositions().get(3);
         double leftEncoderDeltaPositionInInches = 0;
         double rightEncoderDeltaPositionInInches = 0;
         double rearEncoderDeltaPositionInInches = 0;
@@ -70,7 +70,7 @@ public class LocalizationTestWithEncoderPositionsCenterStage extends LinearOpMod
             // calculate how far each encoder wheel has turned. Note the units are inches here.
             leftEncoderDeltaPositionInInches = leftEncoderStartPositionInInches - drive.getWheelPositions().get(0);
             rightEncoderDeltaPositionInInches = rightEncoderStartPositionInInches - drive.getWheelPositions().get(1);
-            rearEncoderDeltaPositionInInches = rearEncoderStartPositionInInches - drive.getWheelPositions().get(2);
+            rearEncoderDeltaPositionInInches = rearEncoderStartPositionInInches - drive.getWheelPositions().get(3);
 
             Pose2d poseEstimate = drive.getPoseEstimate();
             telemetry.addData("x", poseEstimate.getX());
