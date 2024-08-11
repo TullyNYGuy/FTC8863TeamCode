@@ -48,8 +48,8 @@ public class LocalizationTestWithEncoderPositionsCenterStage extends LinearOpMod
         // apparently the encoder positions are not zeroed out as part of initialization so I will
         // zero them myself
         double leftEncoderStartPositionInInches = drive.getWheelPositions().get(0);
-        double rightEncoderStartPositionInInches = drive.getWheelPositions().get(1);
-        double rearEncoderStartPositionInInches = drive.getWheelPositions().get(3);
+        double rightEncoderStartPositionInInches = drive.getWheelPositions().get(3);
+        double rearEncoderStartPositionInInches = drive.getWheelPositions().get(1);
         double leftEncoderDeltaPositionInInches = 0;
         double rightEncoderDeltaPositionInInches = 0;
         double rearEncoderDeltaPositionInInches = 0;
@@ -69,8 +69,8 @@ public class LocalizationTestWithEncoderPositionsCenterStage extends LinearOpMod
 
             // calculate how far each encoder wheel has turned. Note the units are inches here.
             leftEncoderDeltaPositionInInches = leftEncoderStartPositionInInches - drive.getWheelPositions().get(0);
-            rightEncoderDeltaPositionInInches = rightEncoderStartPositionInInches - drive.getWheelPositions().get(1);
-            rearEncoderDeltaPositionInInches = rearEncoderStartPositionInInches - drive.getWheelPositions().get(3);
+            rightEncoderDeltaPositionInInches = rightEncoderStartPositionInInches - drive.getWheelPositions().get(3);
+            rearEncoderDeltaPositionInInches = rearEncoderStartPositionInInches - drive.getWheelPositions().get(1);
 
             Pose2d poseEstimate = drive.getPoseEstimate();
             telemetry.addData("x", poseEstimate.getX());

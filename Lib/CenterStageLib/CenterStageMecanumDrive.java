@@ -14,6 +14,7 @@ import com.acmerobotics.roadrunner.followers.HolonomicPIDVAFollower;
 import com.acmerobotics.roadrunner.followers.TrajectoryFollower;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
+import com.acmerobotics.roadrunner.localization.Localizer;
 import com.acmerobotics.roadrunner.profile.MotionProfile;
 import com.acmerobotics.roadrunner.profile.MotionProfileGenerator;
 import com.acmerobotics.roadrunner.profile.MotionState;
@@ -143,6 +144,7 @@ public class CenterStageMecanumDrive extends MecanumDrive implements FTCRobotSub
     private boolean loggingOn = false;
     private DataLogOnChange logCommandOnchange;
 
+    private Localizer localizer;
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -234,6 +236,7 @@ public class CenterStageMecanumDrive extends MecanumDrive implements FTCRobotSub
         rightRear = hardwareMap.get(DcMotorEx.class, backRightMotorName);
         rightFront = hardwareMap.get(DcMotorEx.class, frontRightMotorName);
 
+        // left module, rear module, no module, right module
         motors = Arrays.asList(leftFront, leftRear, rightRear, rightFront);
 
         for (DcMotorEx motor : motors) {
@@ -261,6 +264,7 @@ public class CenterStageMecanumDrive extends MecanumDrive implements FTCRobotSub
         // TODO: if desired, use setLocalizer() to change the localization method
         // for instance, setLocalizer(new ThreeTrackingWheelLocalizer(...));
         setLocalizer(new CenterStageTrackingWheelLocalizer(hardwareMap));
+        this.localizer = getLocalizer();
     }
 
     // todo TANYA - WE COMMENTED THIS OUT BECAUSE IT WAS CAUSING A CRASH
@@ -504,6 +508,18 @@ public class CenterStageMecanumDrive extends MecanumDrive implements FTCRobotSub
         }
         return wheelPositions;
     }
+
+//    public double getLeftEncoderInInches() {
+//        return CenterStageTrackingWheelLocalizer.encoderTicksToInches(localizer.getLeftEncoderAdjustedCountSinceZero());
+//    }
+//
+//    public double getRightEncoderInInches() {
+//        return CenterStageTrackingWheelLocalizer.encoderTicksToInches(localizer.getRightEncoderAdjustedCountSinceZero());
+//    }
+//
+//    public double getPerpendicularEncoderInInches() {
+//        return CenterStageTrackingWheelLocalizer.encoderTicksToInches(localizer.getFrontEncoderAdjustedCountSinceZero());
+//    }
 
     public List<Integer> getEncoderCounts() {
         List<Integer> encoderCounts = new ArrayList<>();
