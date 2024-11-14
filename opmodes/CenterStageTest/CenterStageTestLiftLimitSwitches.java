@@ -27,7 +27,7 @@ public class CenterStageTestLiftLimitSwitches extends LinearOpMode {
                 "liftRetractionLimitSwitch",
                 "liftMotor",
                 DcMotor8863.MotorType.GOBILDA_435,
-                4.75);
+                2.96);
         // This is for the blue alliance
         //lift.reverseMotorDirection();
 

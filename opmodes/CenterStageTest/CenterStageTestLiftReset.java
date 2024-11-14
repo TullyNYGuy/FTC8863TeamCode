@@ -30,16 +30,16 @@ public class CenterStageTestLiftReset extends LinearOpMode {
                 "liftRetractionLimitSwitch",
                 "liftMotor",
                 DcMotor8863.MotorType.GOBILDA_435,
-                4.75);
+                2.96);
         //lift.reverseMotorDirection();
 
 
         //lift.reverseMotorDirection();
-        lift.setResetTimerLimitInmSec(25000);
+        lift.setResetTimerLimitInmSec(5000);
         lift.setExtensionPower(0.2);
         lift.setExtensionPositionInMechanismUnits(20.0);
         lift.setRetractionPower(-0.2);
-        lift.setRetractionPositionInMechanismUnits(2.0);
+        lift.setRetractionPositionInMechanismUnits(0.0);
         lift.setDataLog(log);
         lift.enableDataLogging();
 
