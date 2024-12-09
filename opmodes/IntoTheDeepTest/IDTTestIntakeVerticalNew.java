@@ -6,45 +6,46 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.Color;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.ColorSensorUpdatable;
 import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ITDIntakeColorSensor;
-import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ITDIntakeSweeperServo;
 import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ITDIntakeSweeperVertical;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "ITD Test Intake Vertical", group = "Test")
+@TeleOp(name = "ITD Test Intake Vertical New", group = "Test")
 //@Disabled
-public class IDTTestIntakeVertical extends LinearOpMode {
+public class IDTTestIntakeVerticalNew extends LinearOpMode {
 
     // Put your variable declarations here
     public ITDIntakeSweeperVertical intakeSweeperVertical;
-    public ITDIntakeColorSensor intakeColorSensor;
+    public ColorSensorUpdatable intakeColorSensor;
     public ElapsedTime timer;
 
-    public boolean delayStarted = false;
     @Override
     public void runOpMode() {
 
 
         // Put your initializations here
         intakeSweeperVertical = new ITDIntakeSweeperVertical(hardwareMap, telemetry);
-        intakeColorSensor = new ITDIntakeColorSensor(hardwareMap, telemetry, "intakeColorSensorV3Left");
+        intakeColorSensor = new ColorSensorUpdatable(hardwareMap, telemetry, "intakeColorSensorV3Left");
         timer = new ElapsedTime();
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
         telemetry.update();
+
         waitForStart();
 
-        // Put your calls here - they will not run in a loop
-
+        intakeColorSensor.turnSensorOn();
         while (opModeIsActive()) {
             intakeSweeperVertical.update();
+            intakeColorSensor.update();
+
             if (gamepad1.x) {
                 intakeSweeperVertical.intake();
-                delayStarted = false;
             }
             if (gamepad1.a) {
                 intakeSweeperVertical.stop();
@@ -56,11 +57,9 @@ public class IDTTestIntakeVertical extends LinearOpMode {
                 // does nothing
             }
 
-            if (intakeColorSensor.getDistance() < 2.5 &&
-                    (intakeColorSensor.getColor() == Color.BLUE || intakeColorSensor.getColor() == RED)
-                    && delayStarted == false) {
+            if (intakeColorSensor.getDistance(DistanceUnit.CM) < 2.5 &&
+                    (intakeColorSensor.getColor() == Color.BLUE || intakeColorSensor.getColor() == RED)) {
                 intakeSweeperVertical.stop();
-                delayStarted = true;
             }
 
             intakeColorSensor.displayColorSensorDistance(telemetry);

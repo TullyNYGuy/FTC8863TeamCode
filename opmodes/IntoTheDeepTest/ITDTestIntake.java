@@ -17,7 +17,8 @@ public class ITDTestIntake extends LinearOpMode {
     // Put your variable declarations here
 
     public ITDIntakeSweeperServo intakeSweeperServo;
-    public ITDIntakeColorSensor intakeColorSensor;
+    public ITDIntakeColorSensor intakeColorSensorLeft;
+    public ITDIntakeColorSensor intakeColorSensorRight;
     public ElapsedTime timer;
 
     public boolean delayStarted = false;
@@ -27,7 +28,8 @@ public class ITDTestIntake extends LinearOpMode {
 
         // Put your initializations here
         intakeSweeperServo = new ITDIntakeSweeperServo(hardwareMap, telemetry);
-        intakeColorSensor = new ITDIntakeColorSensor(hardwareMap, telemetry);
+        intakeColorSensorLeft = new ITDIntakeColorSensor(hardwareMap, telemetry, "intakeColorSensorV3Left");
+        intakeColorSensorRight = new ITDIntakeColorSensor(hardwareMap, telemetry, "intakeColorSensorV3Right");
         timer = new ElapsedTime();
 
         // Wait for the start button
@@ -53,13 +55,16 @@ public class ITDTestIntake extends LinearOpMode {
                 // does nothing
             }
 
-            if (intakeColorSensor.getDistance() < 1.5 && delayStarted == false) {
+            if (intakeColorSensorLeft.getDistance() < 1.5 && delayStarted == false) {
                 intakeSweeperServo.intakeThenStop(1000);
                 delayStarted = true;
             }
 
-            intakeColorSensor.displayColorSensorDistance(telemetry);
-            intakeColorSensor.displayColors(telemetry);
+            intakeColorSensorLeft.displayColorSensorDistance(telemetry);
+            intakeColorSensorLeft.displayColors(telemetry);
+            intakeColorSensorRight.displayColorSensorDistance(telemetry);
+            intakeColorSensorRight.displayColors(telemetry);
+
             telemetry.addData(">", "Press Stop to end test.");
             telemetry.update();
 

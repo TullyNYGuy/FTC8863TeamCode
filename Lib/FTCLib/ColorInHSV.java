@@ -18,7 +18,7 @@ public class ColorInHSV {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
-    public Color color;
+    public Color name;
     private float hue; // color wheel in 360 degrees
     private float hueLowerLimit;
 
@@ -47,8 +47,8 @@ public class ColorInHSV {
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
-    public ColorInHSV(Color color, float hueLowerLimit, float hueUpperLimit) {
-        this.color = color;
+    public ColorInHSV(Color name, float hueLowerLimit, float hueUpperLimit) {
+        this.name = name;
         this.hueLowerLimit = hueLowerLimit;
         this.hueUpperLimit = hueUpperLimit;
     }

@@ -56,22 +56,22 @@ public class ColorDetectorHSV {
     public Color getColor(float[] hsvValues) {
         Color result = Color.UNKNOWN;
         if(red.isColor(hsvValues)) {
-            result = red.color;
+            result = red.name;
         } else {
             if (yellow.isColor(hsvValues)) {
-                result = yellow.color;
+                result = yellow.name;
             } else {
                 if (green.isColor(hsvValues)) {
-                    result = green.color;
+                    result = green.name;
                 } else {
                     if (cyan.isColor(hsvValues)) {
-                        result = cyan.color;
+                        result = cyan.name;
                     } else {
                         if (blue.isColor(hsvValues)) {
-                            result = blue.color;
+                            result = blue.name;
                         } else {
                             if (magenta.isColor(hsvValues)) {
-                                result = magenta.color;
+                                result = magenta.name;
                             }
                         }
                     }
