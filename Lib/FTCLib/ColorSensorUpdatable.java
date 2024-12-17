@@ -59,10 +59,10 @@ public class ColorSensorUpdatable {
         // put 0 in all the data to make the data as broken as possible.
         // Hopefully this will clue someone in if they are still trying to use the data when the
         // sensor is turned off and not updating the data.
-        distance = 0;
-        colors.red = 0;
-        colors.blue = 0;
-        colors.green = 0;
+//        distance = 0;
+//        colors.red = 0;
+//        colors.blue = 0;
+//        colors.green = 0;
         Arrays.fill(hsvValues, 0);
         // turn off the led to save power and indicate the sensor is off
         if (colorSensor instanceof SwitchableLight) {
@@ -125,7 +125,7 @@ public class ColorSensorUpdatable {
              * normalized values from the sensor (in the range of 0 to 1), as well as the equivalent
              * HSV (hue, saturation and value) values. See http://web.archive.org/web/20190311170843/https://infohost.nmt.edu/tcc/help/pubs/colortheory/web/hsv.html
              * for an explanation of HSV color. */
-            NormalizedRGBA colors = colorSensor.getNormalizedColors();
+            colors = colorSensor.getNormalizedColors();
             // Update the hsvValues array by passing it to Color.colorToHSV()
             Color.colorToHSV(colors.toColor(), hsvValues);
             distance = ((DistanceSensor) colorSensor).getDistance(DistanceUnit.CM);

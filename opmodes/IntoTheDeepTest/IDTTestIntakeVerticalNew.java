@@ -23,6 +23,7 @@ public class IDTTestIntakeVerticalNew extends LinearOpMode {
     public ITDIntakeSweeperVertical intakeSweeperVertical;
     public ColorSensorUpdatable intakeColorSensor;
     public ElapsedTime timer;
+    public boolean outtaking = false;
 
     @Override
     public void runOpMode() {
@@ -40,27 +41,34 @@ public class IDTTestIntakeVerticalNew extends LinearOpMode {
         waitForStart();
 
         intakeColorSensor.turnSensorOn();
+
         while (opModeIsActive()) {
             intakeSweeperVertical.update();
             intakeColorSensor.update();
 
             if (gamepad1.x) {
                 intakeSweeperVertical.intake();
+                outtaking = false;
             }
             if (gamepad1.a) {
                 intakeSweeperVertical.stop();
             }
             if (gamepad1.b) {
                 intakeSweeperVertical.outtake();
+                outtaking = true;
             }
             if (gamepad1.y) {
                 // does nothing
             }
 
-            if (intakeColorSensor.getDistance(DistanceUnit.CM) < 2.5 &&
-                    (intakeColorSensor.getColor() == Color.BLUE || intakeColorSensor.getColor() == RED)) {
+            if (intakeColorSensor.getDistance(DistanceUnit.CM) < 3 && outtaking == false) {
                 intakeSweeperVertical.stop();
             }
+
+//            if (intakeColorSensor.getDistance(DistanceUnit.CM) < 2.5 &&
+//                    (intakeColorSensor.getColor() == Color.BLUE || intakeColorSensor.getColor() == RED || intakeColorSensor.getColor() == Color.YELLOW)) {
+//                intakeSweeperVertical.stop();
+//            }
 
             intakeColorSensor.displayColorSensorDistance(telemetry);
             intakeColorSensor.displayColors(telemetry);

@@ -36,11 +36,34 @@ public class ColorInHSV {
      * amount of gray; 0 = gray, 1 = primary color
      */
     private float saturation;
+    private float saturationLowerLimit;
+
+    public void setSaturationLowerLimit(float saturationLowerLimit) {
+        this.saturationLowerLimit = saturationLowerLimit;
+    }
+
+    private float saturationUpperLimit;
+
+    public void setSaturationUpperLimit(float saturationUpperLimit) {
+        this.saturationUpperLimit = saturationUpperLimit;
+    }
 
     /**
      * brightness; 0 = black, 1 = white
      */
     private float value;
+    private float valueLowerLimit;
+
+    public void setValueLowerLimit(float valueLowerLimit) {
+        this.valueLowerLimit = valueLowerLimit;
+    }
+
+    private float valueUpperLimit;
+
+    public void setValueUpperLimit(float valueUpperLimit) {
+        this.valueUpperLimit = valueUpperLimit;
+    }
+
     //*********************************************************************************************
     //          Constructors
     //
@@ -51,6 +74,19 @@ public class ColorInHSV {
         this.name = name;
         this.hueLowerLimit = hueLowerLimit;
         this.hueUpperLimit = hueUpperLimit;
+    }
+
+    public ColorInHSV(Color name,
+                      float hueLowerLimit, float hueUpperLimit,
+                      float saturationLowerLimit, float saturationUpperLimit,
+                      float valueLowerLimit, float valueUpperLimit) {
+        this.name = name;
+        this.hueLowerLimit = hueLowerLimit;
+        this.hueUpperLimit = hueUpperLimit;
+        this.saturationLowerLimit = saturationLowerLimit;
+        this.saturationUpperLimit = saturationUpperLimit;
+        this.valueLowerLimit = valueLowerLimit;
+        this.valueUpperLimit = valueUpperLimit;
     }
 
     //*********************************************************************************************
