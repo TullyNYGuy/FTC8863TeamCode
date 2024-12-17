@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib;
 
 
-import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
+//import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 
 import java.util.List;
@@ -58,8 +58,8 @@ public class MineralVoting {
     private boolean dataLoggingOn = true;
     private int recognitionCount = 0;
 
-    private List<Recognition> updatedRecognitionsMaster = null;
-    private List<Recognition> updatedRecognitionsFiltered = null;
+    //private List<Recognition> updatedRecognitionsMaster = null;
+    //private List<Recognition> updatedRecognitionsFiltered = null;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
