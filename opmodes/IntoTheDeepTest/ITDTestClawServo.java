@@ -1,26 +1,27 @@
-package org.firstinspires.ftc.teamcode.opmodes.CenterStageTest;
+package org.firstinspires.ftc.teamcode.opmodes.IntoTheDeepTest;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Lib.CenterStageLib.CenterStageHangMechanism;
+import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ClawServo;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Center Stage Test Deploy Servos", group = "Test")
+@TeleOp(name = "Into The Deep Test Claw Servo", group = "Test")
 //@Disabled
-public class CenterStageTestDeployServos extends LinearOpMode {
+public class ITDTestClawServo extends LinearOpMode {
 
     // Put your variable declarations here
-    CenterStageHangMechanism hang;
+    public ClawServo clawServo;
 
     @Override
     public void runOpMode() {
 
 
         // Put your initializations here
-        hang = new CenterStageHangMechanism(hardwareMap, telemetry);
+        clawServo = new ClawServo(hardwareMap, telemetry);
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
@@ -31,16 +32,15 @@ public class CenterStageTestDeployServos extends LinearOpMode {
 
         while (opModeIsActive()) {
             // Put your calls that need to run in a loop here
-            hang.update();
+            //clawServo.update();
 
             if (gamepad1.y) {
-                hang.deployArms();
+                clawServo.open();
             }
             if (gamepad1.a) {
-                hang.readyArms();
+                clawServo.clamp();
             }
 
-            telemetry.addData("state = ", hang.getState().toString());
             telemetry.addData(">", "Press Stop to end test.");
             telemetry.update();
 
