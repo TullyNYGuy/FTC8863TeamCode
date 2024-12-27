@@ -106,15 +106,43 @@ public class ColorInHSV {
      * @param hsvValues
      * @return true if is this color, false if not
      */
-    public boolean isColor(float[] hsvValues) {
-        this.hue = hsvValues[0];
-        this.saturation = hsvValues[1];
-        this.value = hsvValues[2];
+    public boolean isColorUsingHue(float[] hsvValues) {
+        float hue = hsvValues[0];
+        float saturation = hsvValues[1];
+        float value = hsvValues[2];
 
-        if(hue >= hueLowerLimit && hue <= hueUpperLimit) {
+        if(hue > hueLowerLimit && hue <= hueUpperLimit) {
             return true;
         } else {
             return false;
         }
+    }
+
+    /**
+     * Returns a number 0-3 that says how many of the HSV color ranges were matched.
+     * 0 - the HSV values did not fall within the hue saturation or value ranges. The values are
+     *     not likely to be this color.
+     * 1 - the HSV values fell within 1 of the 3 ranges
+     * 2 - the HSV values fell within 2 of the 3 ranges
+     * 3 - the HSV values fell within 3 of the 3 ranges. The values are likely to be this color.
+     * @param hsvValues
+     * @return
+     */
+    public int howLikelyIsColor(float[] hsvValues) {
+        float hue = hsvValues[0];
+        float saturation = hsvValues[1];
+        float value = hsvValues[2];
+        int numberRangesMatched = 0;
+
+        if(hue > hueLowerLimit && hue <= hueUpperLimit) {
+            numberRangesMatched++;
+        }
+        if(saturation > saturationLowerLimit && saturation <= saturationUpperLimit) {
+            numberRangesMatched++;
+        }
+        if(value > valueLowerLimit && value <= valueUpperLimit) {
+            numberRangesMatched++;
+        }
+        return numberRangesMatched;
     }
 }

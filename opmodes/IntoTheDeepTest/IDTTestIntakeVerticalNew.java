@@ -21,7 +21,7 @@ public class IDTTestIntakeVerticalNew extends LinearOpMode {
 
     // Put your variable declarations here
     public ITDIntakeSweeperVertical intakeSweeperVertical;
-    public ColorSensorUpdatable intakeColorSensor;
+
     public ElapsedTime timer;
     public boolean outtaking = false;
 
@@ -31,7 +31,6 @@ public class IDTTestIntakeVerticalNew extends LinearOpMode {
 
         // Put your initializations here
         intakeSweeperVertical = new ITDIntakeSweeperVertical(hardwareMap, telemetry);
-        intakeColorSensor = new ColorSensorUpdatable(hardwareMap, telemetry, "intakeColorSensorV3Left");
         timer = new ElapsedTime();
 
         // Wait for the start button
@@ -40,11 +39,11 @@ public class IDTTestIntakeVerticalNew extends LinearOpMode {
 
         waitForStart();
 
-        intakeColorSensor.turnSensorOn();
+        // turn the color sensor LED on
+        intakeSweeperVertical.on();
 
         while (opModeIsActive()) {
             intakeSweeperVertical.update();
-            intakeColorSensor.update();
 
             if (gamepad1.x) {
                 intakeSweeperVertical.intake();
@@ -58,10 +57,11 @@ public class IDTTestIntakeVerticalNew extends LinearOpMode {
                 outtaking = true;
             }
             if (gamepad1.y) {
-                // does nothing
+                intakeSweeperVertical.transfer();
+                outtaking = true;
             }
 
-            if (intakeColorSensor.getDistance(DistanceUnit.CM) < 3 && outtaking == false) {
+            if (intakeSweeperVertical.getDistanceToSample(DistanceUnit.CM) < 3 && outtaking == false) {
                 intakeSweeperVertical.stop();
             }
 
@@ -70,8 +70,9 @@ public class IDTTestIntakeVerticalNew extends LinearOpMode {
 //                intakeSweeperVertical.stop();
 //            }
 
-            intakeColorSensor.displayColorSensorDistance(telemetry);
-            intakeColorSensor.displayColors(telemetry);
+            intakeSweeperVertical.displayDistanceToSample(telemetry);
+            intakeSweeperVertical.displayColorData(telemetry);
+            intakeSweeperVertical.displaySampleColor(telemetry);
             telemetry.addData(">", "Press Stop to end test.");
             telemetry.update();
 

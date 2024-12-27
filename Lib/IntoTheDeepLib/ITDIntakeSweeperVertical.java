@@ -6,6 +6,11 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.Lib.Color;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.ColorDetectorHSV;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.ColorInHSV;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.ColorSensorUpdatable;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogOnChange;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
@@ -24,7 +29,8 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
         OUTTAKING,
         OUTTAKING_BEFORE_STOPPING,
         STOPPED,
-        INTAKING_BEFORE_STOPPING
+        INTAKING_BEFORE_STOPPING,
+        TRANSFERRING
     }
 
     private SweeperState sweeperState;
@@ -38,6 +44,8 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
     private CRServo intakeSweeperServoLeft;
     private CRServo intakeSweeperServoRight;
     private ElapsedTime timer;
+    private ColorSensorUpdatable intakeColorSensor;
+    private ColorDetectorHSV intakeColorDetector;
     private double delayTime;
 
     private DataLogging logFile;
@@ -47,6 +55,34 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
     private boolean initComplete = false;
     private final String INTAKE_SWEEPER_SERVO_NAME = "Sweeper Servo";
 
+    // define the colors the intake is looking for
+    // f here means float instead of double type. HSV are float type.
+    private ColorInHSV red = new ColorInHSV(Color.RED,
+            0, 60,
+            0.2f, 0.4f,
+            0.07f, 0.09f);
+    private ColorInHSV yellow = new ColorInHSV(Color.YELLOW,
+            60, 120,
+            0.5f, 0.65f,
+            .13f, .16f);
+
+    private ColorInHSV blue = new ColorInHSV(Color.BLUE,
+            180, 240,
+            0.54f, 0.66f,
+            0.08f, 0.2f);
+
+    private ColorInHSV[] possibleColors = new ColorInHSV[]{red, yellow, blue};
+
+    private Color sampleColor = Color.UNKNOWN;
+
+    /**
+     * Returns the sample color. The sample color is updated once per update by reading the color sensor
+     * HSV values and passing them to the colorDetector.
+     * @return
+     */
+    public Color getSampleColor() {
+        return sampleColor;
+    }
     //*********************************************************************************************
     //          Constructors
     //
@@ -59,6 +95,10 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
         intakeSweeperServoLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         intakeSweeperServoRight = hardwareMap.get(CRServo.class, "intakeSweeperServoRight");
         intakeSweeperServoRight.setDirection(DcMotorSimple.Direction.FORWARD);
+
+        intakeColorSensor = new ColorSensorUpdatable(hardwareMap, telemetry, "intakeColorSensorV3Left");
+        // set up the color detector to look for one of the three possible colors
+        intakeColorDetector = new ColorDetectorHSV(possibleColors);
 
         timer = new ElapsedTime();
         stop();
@@ -74,6 +114,43 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
+
+    //*********************************************************************************************
+    //          Commands
+    //*********************************************************************************************
+
+    /**
+     * Turn on the color sensor. LED will turn on.
+     */
+    public void colorSensorOn() {
+        switch(sweeperState) {
+            case STOPPED:
+                intakeColorSensor.turnSensorOn();
+                break;
+            case INTAKING:
+            case OUTTAKING:
+            case TRANSFERRING:
+            case OUTTAKING_BEFORE_STOPPING:
+            case INTAKING_BEFORE_STOPPING:
+                // ignore the command, do nothing
+                break;
+        }
+
+    }
+
+    public void ColorSensorOff() {
+        switch(sweeperState) {
+            case STOPPED:
+            case INTAKING:
+            case OUTTAKING:
+            case TRANSFERRING:
+            case OUTTAKING_BEFORE_STOPPING:
+            case INTAKING_BEFORE_STOPPING:
+                // ignore the command, do nothing
+                break;
+        }
+
+    }
 
     /**
      * Stop the rotation of the sweeper
@@ -91,7 +168,7 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
      */
     public void intakeThenStop(double delayTimeInMillisec) {
         // if the sweeper is already in a delay before stopping, don't start it all over again
-        if(sweeperState != SweeperState.INTAKING_BEFORE_STOPPING) {
+        if (sweeperState != SweeperState.INTAKING_BEFORE_STOPPING) {
             timer.reset();
             this.delayTime = delayTime;
             sweeperState = SweeperState.INTAKING_BEFORE_STOPPING;
@@ -102,6 +179,9 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
      * Rotate the sweeper so it intakes
      */
     public void intake() {
+        intakeColorSensor.turnSensorOn();
+        // force an update to get fresh distance and color data
+        intakeColorSensor.update();
         intakeSweeperServoLeft.setPower(1);
         intakeSweeperServoRight.setPower(1);
         sweeperState = SweeperState.INTAKING;
@@ -118,7 +198,7 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
 
     public void outtakeThenStop(double timeToRotateInMillisec) {
         // if the sweeper is already running an outtake before stopping, don't start all over again
-        if(sweeperState != SweeperState.OUTTAKING_BEFORE_STOPPING) {
+        if (sweeperState != SweeperState.OUTTAKING_BEFORE_STOPPING) {
             outtake();
             this.delayTime = timeToRotateInMillisec;
             timer.reset();
@@ -126,6 +206,38 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
         }
     }
 
+    /**
+     * Rotate the sweeper so it transfers a sample to the bucket on the lift
+     */
+    public void transfer() {
+        intakeSweeperServoLeft.setPower(1);
+        intakeSweeperServoRight.setPower(1);
+        sweeperState = SweeperState.TRANSFERRING;
+    }
+
+    //*********************************************************************************************
+    //          Color sensor related functions
+    //*********************************************************************************************
+
+    public double getDistanceToSample(DistanceUnit distanceUnit) {
+        return intakeColorSensor.getDistance(distanceUnit);
+    }
+
+    public void displayDistanceToSample(Telemetry telemetry){
+        intakeColorSensor.displayColorSensorDistance(telemetry);
+    }
+
+    public void displayColorData(Telemetry telemetry) {
+        intakeColorSensor.displayColorData(telemetry);
+    }
+
+    public void displaySampleColor(Telemetry telemetry) {
+        telemetry.addData("Sample color = ", sampleColor.toString());
+    }
+
+    //*********************************************************************************************
+    //          Housekeeping stuff
+    //*********************************************************************************************
     @Override
     public String getName() {
         return INTAKE_SWEEPER_SERVO_NAME;
@@ -143,30 +255,6 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
     public boolean init(Configuration config) {
         logCommand("Init starting");
         return true;
-    }
-
-    @Override
-    public void update() {
-        switch (sweeperState) {
-            case INTAKING:
-                break;
-            case OUTTAKING:
-                break;
-            case OUTTAKING_BEFORE_STOPPING:
-                if (timer.milliseconds() > delayTime) {
-                    stop();
-                    sweeperState = SweeperState.STOPPED;
-                }
-                break;
-            case INTAKING_BEFORE_STOPPING:
-                if (timer.milliseconds() > delayTime) {
-                    stop();
-                    sweeperState = SweeperState.STOPPED;
-                }
-                break;
-            case STOPPED:
-                break;
-        }
     }
 
     @Override
@@ -200,4 +288,37 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
     public void timedUpdate(double timerValueMsec) {
 
     }
+
+    //*********************************************************************************************
+    //          State machine
+    //*********************************************************************************************
+
+    @Override
+    public void update() {
+        intakeColorSensor.update();
+        // using the just updated HSV values, determine the color seen by the sample
+        sampleColor = intakeColorDetector.getMostLikelyColor(intakeColorSensor.getHsvValues());
+        switch (sweeperState) {
+            case INTAKING:
+
+                break;
+            case OUTTAKING:
+                break;
+            case OUTTAKING_BEFORE_STOPPING:
+                if (timer.milliseconds() > delayTime) {
+                    stop();
+                    sweeperState = SweeperState.STOPPED;
+                }
+                break;
+            case INTAKING_BEFORE_STOPPING:
+                if (timer.milliseconds() > delayTime) {
+                    stop();
+                    sweeperState = SweeperState.STOPPED;
+                }
+                break;
+            case STOPPED:
+                break;
+        }
+    }
+
 }

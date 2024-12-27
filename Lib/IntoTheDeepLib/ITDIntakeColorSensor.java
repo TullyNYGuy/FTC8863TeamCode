@@ -96,10 +96,10 @@ public class ITDIntakeColorSensor {
                 .addData("Value", "%.3f", hsvValues[2]);
         telemetry.addData("Alpha", "%.3f", colors.alpha);
         telemetry.addLine();
-        telemetry.addData("Color: ", colorDetectorHSV.getColor(hsvValues).toString());
+        telemetry.addData("Color: ", colorDetectorHSV.getColorUsingHue(hsvValues).toString());
     }
 
     public org.firstinspires.ftc.teamcode.Lib.Color getColor() {
-        return colorDetectorHSV.getColor(hsvValues);
+        return colorDetectorHSV.getColorUsingHue(hsvValues);
     }
 }

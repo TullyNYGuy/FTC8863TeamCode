@@ -19,12 +19,19 @@ public class ColorDetectorHSV {
     // getter and setter methods
     //*********************************************************************************************
 
+    // default colors to look for
     public ColorInHSV red;
     public ColorInHSV yellow;
     public ColorInHSV green;
     public ColorInHSV cyan;
     public ColorInHSV blue;
     public ColorInHSV magenta;
+
+    // an array of possible colors
+    private ColorInHSV[] possibleColors;
+
+    private int minimumNumberMatchesForValidColor = 2;
+
 
     //*********************************************************************************************
     //          Constructors
@@ -33,13 +40,25 @@ public class ColorDetectorHSV {
     // from it
     //*********************************************************************************************
 
+    /**
+     * This constructor sets up a default list of color definitions based only on Hue.
+     */
     public ColorDetectorHSV() {
         red = new ColorInHSV(Color.RED, 0, 60);
-        yellow = new ColorInHSV(Color.YELLOW, 61, 120);
-        green = new ColorInHSV(Color.GREEN, 121, 180);
-        cyan = new ColorInHSV(Color.BLUE, 181,240 );
-        blue = new ColorInHSV(Color.CYAN, 241, 300);
-        magenta = new ColorInHSV(Color.MAGENTA, 301, 360);
+        yellow = new ColorInHSV(Color.YELLOW, 60, 120);
+        green = new ColorInHSV(Color.GREEN, 120, 180);
+        cyan = new ColorInHSV(Color.BLUE, 180,240 );
+        blue = new ColorInHSV(Color.CYAN, 240, 300);
+        magenta = new ColorInHSV(Color.MAGENTA, 300, 360);
+        possibleColors = new ColorInHSV[]{red, yellow, green, cyan, blue, magenta};
+    }
+
+    /**
+     * This constructor requires you to pass in an array with color definitions in the array.
+     * @param possibleColors
+     */
+    public ColorDetectorHSV(ColorInHSV[] possibleColors) {
+        this.possibleColors = possibleColors;
     }
 
     //*********************************************************************************************
@@ -53,56 +72,43 @@ public class ColorDetectorHSV {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
-    public Color getColor(float[] hsvValues) {
-        Color result = Color.UNKNOWN;
-        if(red.isColor(hsvValues)) {
-            result = red.name;
-        } else {
-            if (yellow.isColor(hsvValues)) {
-                result = yellow.name;
-            } else {
-                if (green.isColor(hsvValues)) {
-                    result = green.name;
-                } else {
-                    if (cyan.isColor(hsvValues)) {
-                        result = cyan.name;
-                    } else {
-                        if (blue.isColor(hsvValues)) {
-                            result = blue.name;
-                        } else {
-                            if (magenta.isColor(hsvValues)) {
-                                result = magenta.name;
-                            }
-                        }
-                    }
-                }
-            }
 
+    /**
+     * Using hue value only, get the color.
+     * @param hsvValues
+     * @return
+     */
+    public Color getColorUsingHue(float[] hsvValues) {
+        Color result = Color.UNKNOWN;
+        for (ColorInHSV possibleColor : possibleColors){
+            if (possibleColor.isColorUsingHue(hsvValues)) {
+                result = possibleColor.name;
+                break;
+            }
         }
         return result;
     }
 
-    public boolean isColor(Color color, float[] hsvValues) {
-        boolean result = false;
-        switch (color) {
-            case RED:
-                result = red.isColor(hsvValues);
-                break;
-            case YELLOW:
-                result = yellow.isColor(hsvValues);
-                break;
-            case GREEN:
-                result = green.isColor(hsvValues);
-                break;
-            case CYAN:
-                result = cyan.isColor(hsvValues);
-                break;
-            case BLUE:
-                result = blue.isColor(hsvValues);
-                break;
-            case MAGENTA:
-                result = magenta.isColor(hsvValues);
-                break;
+    public Color getMostLikelyColor(float[] hsvValues) {
+        Color result = Color.UNKNOWN;
+        Color possibleResult = Color.UNKNOWN;
+        int numberMatchedRangesSoFar = 0;
+        int numberMatchedRangesForThisColor = 0;
+        for (ColorInHSV possibleColor : possibleColors){
+            // Do Hue, Saturation and Value of this object fall into the ranges for this color?
+            // If so how many fall in range? Is it more than any other previous color checked so far?
+            numberMatchedRangesForThisColor = possibleColor.howLikelyIsColor(hsvValues);
+            if (numberMatchedRangesForThisColor > numberMatchedRangesSoFar) {
+                // This is the highest number of matched ranges so far, so make this the new
+                // choice for the color.
+                possibleResult = possibleColor.name;
+                numberMatchedRangesSoFar = numberMatchedRangesForThisColor;
+            }
+        }
+        // check to see if the number of matches is more than the minimum number of matches required
+        // in order to say this is a valid color determination
+        if (numberMatchedRangesSoFar >= minimumNumberMatchesForValidColor) {
+            result = possibleResult;
         }
         return result;
     }
