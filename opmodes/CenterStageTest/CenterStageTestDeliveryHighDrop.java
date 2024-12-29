@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.CenterStageTest;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -12,7 +13,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.Debouncer;
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
 @TeleOp(name = "Center Stage Test Delivery Controller High Drop", group = "Test")
-//@Disabled
+@Disabled
 public class CenterStageTestDeliveryHighDrop extends LinearOpMode {
 
     // Put your variable declarations here

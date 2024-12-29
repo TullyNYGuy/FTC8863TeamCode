@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.CenterStageTest;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -10,7 +11,7 @@ import org.firstinspires.ftc.teamcode.Lib.CenterStageLib.CenterStageWristServo;
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
 @TeleOp(name = "Center Stage Setup Arm Deploy Servo Left Positions", group = "Test")
-//@Disabled
+@Disabled
 
 /*
     This class allows you to setup the servo positions

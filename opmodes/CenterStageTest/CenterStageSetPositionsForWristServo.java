@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.Lib.CenterStageLib.CenterStageWristServo;
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
 @TeleOp(name = "Center Stage Setup Wrist Servo Positions", group = "Test")
-//@Disabled
+@Disabled
 
 /*
     This class allows you to setup the servo positions
