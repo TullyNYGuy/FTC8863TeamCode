@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.Color;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.ColorSensorUpdatable;
 import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ITDIntakeColorSensor;
 import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ITDIntakeSweeperVertical;
@@ -32,6 +33,7 @@ public class IDTTestIntakeVerticalNew extends LinearOpMode {
         // Put your initializations here
         intakeSweeperVertical = new ITDIntakeSweeperVertical(hardwareMap, telemetry);
         timer = new ElapsedTime();
+        intakeSweeperVertical.setAllianceColor(AllianceColor.RED);
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
@@ -40,7 +42,7 @@ public class IDTTestIntakeVerticalNew extends LinearOpMode {
         waitForStart();
 
         // turn the color sensor LED on
-        intakeSweeperVertical.on();
+        intakeSweeperVertical.colorSensorOn();
 
         while (opModeIsActive()) {
             intakeSweeperVertical.update();
@@ -61,15 +63,16 @@ public class IDTTestIntakeVerticalNew extends LinearOpMode {
                 outtaking = true;
             }
 
-            if (intakeSweeperVertical.getDistanceToSample(DistanceUnit.CM) < 3 && outtaking == false) {
-                intakeSweeperVertical.stop();
-            }
+//            if (intakeSweeperVertical.getDistanceToSample(DistanceUnit.CM) < 3 && outtaking == false) {
+//                intakeSweeperVertical.stop();
+//            }
 
 //            if (intakeColorSensor.getDistance(DistanceUnit.CM) < 2.5 &&
 //                    (intakeColorSensor.getColor() == Color.BLUE || intakeColorSensor.getColor() == RED || intakeColorSensor.getColor() == Color.YELLOW)) {
 //                intakeSweeperVertical.stop();
 //            }
 
+            intakeSweeperVertical.displayState(telemetry);
             intakeSweeperVertical.displayDistanceToSample(telemetry);
             intakeSweeperVertical.displayColorData(telemetry);
             intakeSweeperVertical.displaySampleColor(telemetry);

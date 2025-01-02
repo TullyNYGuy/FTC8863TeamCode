@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.Color;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.ColorDetectorHSV;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.ColorInHSV;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.ColorSensorUpdatable;
@@ -24,16 +25,33 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
     // user defined types
     //
     //*********************************************************************************************
-    private enum SweeperState {
+    private enum IntakeState {
+        IDLE,
         INTAKING,
         OUTTAKING,
-        OUTTAKING_BEFORE_STOPPING,
-        STOPPED,
-        INTAKING_BEFORE_STOPPING,
+        OUTTAKING_UNTIL_STOP_REQUESTED,
+        HAVE_SAMPLE,
+        WAITING_FOR_MOVEMENT_TO_TRANSFER_POSITION,
+        EJECTING,
+        DEJAMMING_EJECTION,
+        DEJAMMING_TRANSFER,
+        WAITING_FOR_MOVE_TO_OUTTAKING,
         TRANSFERRING
     }
 
-    private SweeperState sweeperState;
+    private IntakeState intakeState;
+
+    private enum IntakeCommand {
+        INTAKE,
+        OUTAKE,
+        TRANSFER,
+        STOP,
+        EJECT,
+        DEJAM,
+        NO_COMMAND
+    }
+
+    private IntakeCommand intakeCommand;
 
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS AND SETTERS and GETTERS
@@ -50,7 +68,7 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
 
     private DataLogging logFile;
     private boolean loggingOn = false;
-    private DataLogOnChange logCommandOnchange;
+    private DataLogOnChange logDataOnchange;
 
     private boolean initComplete = false;
     private final String INTAKE_SWEEPER_SERVO_NAME = "Sweeper Servo";
@@ -78,11 +96,28 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
     /**
      * Returns the sample color. The sample color is updated once per update by reading the color sensor
      * HSV values and passing them to the colorDetector.
+     *
      * @return
      */
     public Color getSampleColor() {
         return sampleColor;
     }
+
+    private AllianceColor allianceColor;
+
+    public void setAllianceColor(AllianceColor allianceColor) {
+        this.allianceColor = allianceColor;
+    }
+
+    private AllianceColor getAllianceColor() {
+        return allianceColor;
+    }
+
+    /**
+     * the number of times the dejam action has been run
+     */
+    private int dejamCount = 0;
+
     //*********************************************************************************************
     //          Constructors
     //
@@ -101,7 +136,7 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
         intakeColorDetector = new ColorDetectorHSV(possibleColors);
 
         timer = new ElapsedTime();
-        stop();
+        intakeState = IntakeState.IDLE;
     }
     //*********************************************************************************************
     //          Helper Methods
@@ -123,96 +158,225 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
      * Turn on the color sensor. LED will turn on.
      */
     public void colorSensorOn() {
-        switch(sweeperState) {
-            case STOPPED:
-                intakeColorSensor.turnSensorOn();
-                break;
-            case INTAKING:
-            case OUTTAKING:
-            case TRANSFERRING:
-            case OUTTAKING_BEFORE_STOPPING:
-            case INTAKING_BEFORE_STOPPING:
-                // ignore the command, do nothing
-                break;
-        }
-
+        intakeColorSensor.turnSensorOn();
     }
 
     public void ColorSensorOff() {
-        switch(sweeperState) {
-            case STOPPED:
+    }
+
+    public void stop() {
+        // only allow this command when the intake is in certain states
+        // this prevents button mashing on the gamepad from screwing up the intake operation
+        switch (intakeState) {
+            case IDLE:
             case INTAKING:
             case OUTTAKING:
+            case OUTTAKING_UNTIL_STOP_REQUESTED:
+                // allow the command when in the above states
+                intakeState = IntakeState.IDLE;
+                stopActions();
+                break;
+
+            case HAVE_SAMPLE:
+            case WAITING_FOR_MOVEMENT_TO_TRANSFER_POSITION:
+            case EJECTING:
+            case DEJAMMING_EJECTION:
+            case DEJAMMING_TRANSFER:
+            case WAITING_FOR_MOVE_TO_OUTTAKING:
             case TRANSFERRING:
-            case OUTTAKING_BEFORE_STOPPING:
-            case INTAKING_BEFORE_STOPPING:
-                // ignore the command, do nothing
+                // ignore the command when in the above states
                 break;
         }
-
     }
 
     /**
      * Stop the rotation of the sweeper
      */
-    public void stop() {
+    private void stopActions() {
+        logCommand("stop intake");
         intakeSweeperServoLeft.setPower(0);
         intakeSweeperServoRight.setPower(0);
-        sweeperState = SweeperState.STOPPED;
+        intakeCommand = IntakeCommand.STOP;
     }
 
-    /**
-     * After a delay, stop the sweeper
-     *
-     * @param delayTimeInMillisec amount of time to delay the before stopping
-     */
-    public void intakeThenStop(double delayTimeInMillisec) {
-        // if the sweeper is already in a delay before stopping, don't start it all over again
-        if (sweeperState != SweeperState.INTAKING_BEFORE_STOPPING) {
-            timer.reset();
-            this.delayTime = delayTime;
-            sweeperState = SweeperState.INTAKING_BEFORE_STOPPING;
+    public void intake() {
+        // only allow this command when the intake is in certain states
+        // this prevents button mashing on the gamepad from screwing up the intake operation
+        switch (intakeState) {
+            case IDLE:
+            case OUTTAKING:
+            case OUTTAKING_UNTIL_STOP_REQUESTED:
+                // allow the command when in the above states
+                intakeActions();
+                break;
+
+            case INTAKING:
+            case HAVE_SAMPLE:
+            case WAITING_FOR_MOVEMENT_TO_TRANSFER_POSITION:
+            case EJECTING:
+            case DEJAMMING_EJECTION:
+            case DEJAMMING_TRANSFER:
+            case WAITING_FOR_MOVE_TO_OUTTAKING:
+            case TRANSFERRING:
+                // ignore the command when in the above states
+                break;
         }
     }
 
     /**
      * Rotate the sweeper so it intakes
      */
-    public void intake() {
+    private void intakeActions() {
+        logCommand("intake");
         intakeColorSensor.turnSensorOn();
         // force an update to get fresh distance and color data
         intakeColorSensor.update();
         intakeSweeperServoLeft.setPower(1);
         intakeSweeperServoRight.setPower(1);
-        sweeperState = SweeperState.INTAKING;
+        intakeCommand = IntakeCommand.INTAKE;
+    }
+
+    public void dejam() {
+        // only allow this command when the intake is in certain states
+        // this prevents button mashing on the gamepad from screwing up the intake operation
+        switch (intakeState) {
+            case IDLE:
+            case HAVE_SAMPLE: // only for testing the dejam actions
+                // allow the command when in the above states
+                intakeState = IntakeState.DEJAMMING_EJECTION;
+                dejamActions();
+                break;
+
+            case INTAKING:
+            case OUTTAKING:
+            case OUTTAKING_UNTIL_STOP_REQUESTED:
+            case WAITING_FOR_MOVEMENT_TO_TRANSFER_POSITION:
+            case EJECTING:
+            case DEJAMMING_EJECTION:
+            case DEJAMMING_TRANSFER:
+            case WAITING_FOR_MOVE_TO_OUTTAKING:
+            case TRANSFERRING:
+                // ignore the command when in the above states
+                break;
+        }
+
+    }
+
+    private void dejamActions() {
+        logCommand("dejam");
+        intakeSweeperServoLeft.setPower(-1);
+        intakeSweeperServoRight.setPower(-1);
+        dejamCount++;
+        intakeCommand = IntakeCommand.DEJAM;
+    }
+
+    public void outtake() {
+        // only allow this command when the intake is in certain states
+        // this prevents button mashing on the gamepad from screwing up the intake operation
+        switch (intakeState) {
+            case IDLE:
+            case INTAKING:
+            case HAVE_SAMPLE: // only for emergencies
+                // allow the command when in the above states
+                intakeState = IntakeState.OUTTAKING_UNTIL_STOP_REQUESTED;
+                outtakeActions();
+                break;
+
+            case OUTTAKING:
+            case OUTTAKING_UNTIL_STOP_REQUESTED:
+            case WAITING_FOR_MOVEMENT_TO_TRANSFER_POSITION:
+            case EJECTING:
+            case DEJAMMING_EJECTION:
+            case DEJAMMING_TRANSFER:
+            case WAITING_FOR_MOVE_TO_OUTTAKING:
+            case TRANSFERRING:
+                // ignore the command when in the above states
+                break;
+        }
     }
 
     /**
      * Rotate the sweeper to it outtakes.
      */
-    public void outtake() {
+    private void outtakeActions() {
+        logCommand("outtake sample");
+        intakeCommand = IntakeCommand.OUTAKE;
         intakeSweeperServoLeft.setPower(-1);
         intakeSweeperServoRight.setPower(-1);
-        sweeperState = SweeperState.OUTTAKING;
+        timer.reset();
     }
 
-    public void outtakeThenStop(double timeToRotateInMillisec) {
-        // if the sweeper is already running an outtake before stopping, don't start all over again
-        if (sweeperState != SweeperState.OUTTAKING_BEFORE_STOPPING) {
-            outtake();
-            this.delayTime = timeToRotateInMillisec;
-            timer.reset();
-            sweeperState = SweeperState.OUTTAKING_BEFORE_STOPPING;
+    public void transfer() {
+        // only allow this command when the intake is in certain states
+        // this prevents button mashing on the gamepad from screwing up the intake operation
+        switch (intakeState) {
+            case HAVE_SAMPLE: // only for testing
+                // allow the command when in the above states
+                intakeState = IntakeState.TRANSFERRING;
+                transferActions();
+                break;
+
+            case IDLE:
+            case INTAKING:
+            case OUTTAKING:
+            case OUTTAKING_UNTIL_STOP_REQUESTED:
+            case WAITING_FOR_MOVEMENT_TO_TRANSFER_POSITION:
+            case EJECTING:
+            case DEJAMMING_EJECTION:
+            case DEJAMMING_TRANSFER:
+            case WAITING_FOR_MOVE_TO_OUTTAKING:
+            case TRANSFERRING:
+                // ignore the command when in the above states
+                break;
+        }
+    }
+    /**
+     * Rotate the sweeper so it transfers a sample to the bucket on the lift
+     */
+    private void transferActions() {
+        logCommand("transfer sample");
+        intakeSweeperServoLeft.setPower(1);
+        intakeSweeperServoRight.setPower(1);
+        intakeCommand = IntakeCommand.TRANSFER;
+        timer.reset();
+    }
+
+    /**
+     * Ejects a sample out the back of the intake
+     */
+    public void eject() {
+        // only allow this command when the intake is in certain states
+        // this prevents button mashing on the gamepad from screwing up the intake operation
+        switch (intakeState) {
+            case HAVE_SAMPLE: // only for testing
+                // allow the command when in the above states
+                intakeState = IntakeState.EJECTING;
+                ejectActions();
+                break;
+
+            case IDLE:
+            case INTAKING:
+            case OUTTAKING:
+            case OUTTAKING_UNTIL_STOP_REQUESTED:
+            case WAITING_FOR_MOVEMENT_TO_TRANSFER_POSITION:
+            case EJECTING:
+            case DEJAMMING_EJECTION:
+            case DEJAMMING_TRANSFER:
+            case WAITING_FOR_MOVE_TO_OUTTAKING:
+            case TRANSFERRING:
+                // ignore the command when in the above states
+                break;
         }
     }
 
     /**
-     * Rotate the sweeper so it transfers a sample to the bucket on the lift
+     * Ejects a sample out the back of the intake
      */
-    public void transfer() {
+    private void ejectActions() {
+        logCommand("eject sample");
         intakeSweeperServoLeft.setPower(1);
         intakeSweeperServoRight.setPower(1);
-        sweeperState = SweeperState.TRANSFERRING;
+        intakeCommand = IntakeCommand.EJECT;
     }
 
     //*********************************************************************************************
@@ -223,7 +387,15 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
         return intakeColorSensor.getDistance(distanceUnit);
     }
 
-    public void displayDistanceToSample(Telemetry telemetry){
+    public boolean isSamplePresent() {
+        if (getDistanceToSample(DistanceUnit.CM) < 3) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public void displayDistanceToSample(Telemetry telemetry) {
         intakeColorSensor.displayColorSensorDistance(telemetry);
     }
 
@@ -259,13 +431,13 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
 
     @Override
     public void shutdown() {
-        stop();
+        stopActions();
     }
 
     @Override
     public void setDataLog(DataLogging logFile) {
         this.logFile = logFile;
-        logCommandOnchange = new DataLogOnChange(logFile);
+        logDataOnchange = new DataLogOnChange(logFile);
     }
 
     @Override
@@ -278,10 +450,20 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
         this.loggingOn = false;
     }
 
+    private void logState() {
+        if (loggingOn && logFile != null) {
+            logDataOnchange.log(getName() + " state = " + intakeState.toString());
+        }
+    }
+
     private void logCommand(String command) {
         if (loggingOn && logFile != null) {
-            logCommandOnchange.log(getName() + " command = " + command);
+            logDataOnchange.log(getName() + " command = " + command);
         }
+    }
+
+    public void displayState(Telemetry telemetry) {
+        telemetry.addData("State = ", intakeState.toString());
     }
 
     @Override
@@ -298,25 +480,167 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
         intakeColorSensor.update();
         // using the just updated HSV values, determine the color seen by the sample
         sampleColor = intakeColorDetector.getMostLikelyColor(intakeColorSensor.getHsvValues());
-        switch (sweeperState) {
-            case INTAKING:
+        logState();
+        switch (intakeState) {
 
+            case IDLE:
+                if (intakeCommand == IntakeCommand.INTAKE) {
+                    intakeActions();
+                    intakeState = IntakeState.INTAKING;
+                    // clear the command since it is being acted upon
+                    intakeCommand = IntakeCommand.NO_COMMAND;
+                }
                 break;
+
+            case INTAKING:
+                if (isSamplePresent()) {
+                    stopActions();
+                    intakeState = IntakeState.HAVE_SAMPLE;
+                }
+                break;
+
+            case HAVE_SAMPLE:
+                if (allianceColor == AllianceColor.BLUE && sampleColor == Color.RED) {
+                    // the sample is not the right color
+                    ejectActions();;
+                    timer.reset();
+                    intakeState = IntakeState.EJECTING;
+                    timer.reset();
+                }
+                if (allianceColor == AllianceColor.BLUE &&
+                        ((sampleColor == Color.YELLOW) || sampleColor == Color.BLUE)) {
+                    // the sample is the correct color
+                    //armIntakeController.intakeHasSample(sampleColor);
+                    intakeState = IntakeState.WAITING_FOR_MOVEMENT_TO_TRANSFER_POSITION;
+                }
+                if (allianceColor == AllianceColor.RED && sampleColor == Color.BLUE) {
+                    // the sample is not the right color
+                    ejectActions();;
+                    timer.reset();
+                    intakeState = IntakeState.EJECTING;
+                    timer.reset();
+                }
+                if (allianceColor == AllianceColor.RED &&
+                        ((sampleColor == Color.YELLOW) || sampleColor == Color.RED)) {
+                    // the sample is not the right color
+                    //armIntakeController.intakeHasSample(sampleColor);
+                    intakeState = IntakeState.WAITING_FOR_MOVEMENT_TO_TRANSFER_POSITION;
+                }
+                break;
+
+            case EJECTING:
+                if (timer.milliseconds() > 500 && isSamplePresent()) {
+                    // the eject failed because the sample is still in the intake
+                    if (dejamCount < 2) {
+                        // allow up to 2 cycles of dejam
+                        dejamActions();
+                        intakeState = IntakeState.DEJAMMING_EJECTION;
+                        timer.reset();
+                    } else {
+                        // stop the dejamming if it is not working after a couple of cycles
+                        // try outtaking
+                        dejamCount = 0;
+                        outtakeActions();
+                        intakeState = IntakeState.OUTTAKING;
+                    }
+                }
+                if (timer.milliseconds() > 500 && !isSamplePresent()) {
+                    // the eject succeeded because the sample is gone
+                    // in case the eject is coming after a dejam attempt that succeeded
+                    dejamCount = 0;
+                    // intake again
+                    intakeActions();
+                    intakeState = IntakeState.INTAKING;
+                }
+                break;
+
+            case DEJAMMING_EJECTION:
+                if (timer.milliseconds() > 125 && isSamplePresent()) {
+                    // good the sample stayed in the intake while we ran the sweepers outwards
+                    // try the eject again
+                    ejectActions();;
+                    intakeState = IntakeState.EJECTING;
+                    timer.reset();
+                }
+                if (timer.milliseconds() > 125 && !isSamplePresent()) {
+                    // uh oh the sample must have been pushed out the front of the intake
+                    // intake again
+                    dejamCount = 0;
+                    intakeActions();
+                    intakeState = IntakeState.INTAKING;
+                }
+                break;
+
+            // wait while the intake rotates to the bucket and the extension arm retracts
+            case WAITING_FOR_MOVEMENT_TO_TRANSFER_POSITION:
+                if (intakeCommand == IntakeCommand.TRANSFER) {
+                    transferActions();;
+                    intakeState = IntakeState.TRANSFERRING;
+                    intakeCommand = IntakeCommand.NO_COMMAND;
+                    timer.reset();
+                }
+                break;
+
+            case TRANSFERRING:
+                if (timer.milliseconds() > 1000 && isSamplePresent()) {
+                    // the sample is still in the intake after the transfer attempt
+                    // better try to unjam it
+                    // limit the number of dejam attempts to 5
+                    if (dejamCount < 5) {
+                        dejamActions();
+                        intakeState = IntakeState.DEJAMMING_TRANSFER;
+                        timer.reset();
+                    } else {
+                        // failure after several tries to dejam the intake and transfer
+                        // need to outtake this sample but we have to extend the extension arm so the
+                        // sample does not drop into the guts of the robot
+                        // armIntakeController.intakeNeedsToOuttake()
+                        intakeState = IntakeState.WAITING_FOR_MOVE_TO_OUTTAKING;
+                    }
+                }
+                if (timer.milliseconds() > 1000 && !isSamplePresent()) {
+                    // the transfer was successful
+                    stopActions();
+                    // since the transfer could have come after a dejam attempt
+                    dejamCount = 0;
+                    //armIntakeController.intakeTransferComplete();
+                    intakeState = IntakeState.IDLE;
+                }
+                break;
+
+            case DEJAMMING_TRANSFER:
+                if (timer.milliseconds() > 125 && isSamplePresent()) {
+                    // good! the sample stayed in the intake while we ran the sweepers outwards
+                    // try the transfer again
+                    transferActions();;
+                    intakeState = IntakeState.TRANSFERRING;
+                    timer.reset();
+                }
+                if (timer.milliseconds() > 125 && !isSamplePresent()) {
+                    // uh oh the sample must have been pushed out the front of the intake
+                    // we are very sad since we probably just dumped the sample into the guts of the
+                    // robot
+                    stopActions();
+                    intakeState = IntakeState.IDLE;
+                }
+                break;
+
+            case WAITING_FOR_MOVE_TO_OUTTAKING:
+                if (intakeCommand == IntakeCommand.OUTAKE) {
+                    outtakeActions();
+                    intakeState = IntakeState.OUTTAKING;
+                    intakeCommand = IntakeCommand.NO_COMMAND;
+                }
+                break;
+
             case OUTTAKING:
-                break;
-            case OUTTAKING_BEFORE_STOPPING:
-                if (timer.milliseconds() > delayTime) {
-                    stop();
-                    sweeperState = SweeperState.STOPPED;
+                if (timer.milliseconds() > 1000) {
+                    intakeState = IntakeState.IDLE;
                 }
                 break;
-            case INTAKING_BEFORE_STOPPING:
-                if (timer.milliseconds() > delayTime) {
-                    stop();
-                    sweeperState = SweeperState.STOPPED;
-                }
-                break;
-            case STOPPED:
+
+            case OUTTAKING_UNTIL_STOP_REQUESTED:
+                // just hanging waiting for a stop command
                 break;
         }
     }
