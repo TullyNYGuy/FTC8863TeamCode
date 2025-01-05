@@ -500,7 +500,7 @@ public class Servo8863New {
      * The actual position (current position)
      * The next position
      * You adjust the next position up or down and when you have it where you want it, you
-     * actually make the servo move to that position by hitting the Dpad Up button.
+     * actually make the servo move to that position by hitting the Dpad Left button.
      * You have large steps of 0.1 per button press and fine control of 0.01 step per
      * button press.
      * game pad 1 y button = Add 0.1 to the next position
