@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.opmodes.CenterStageTest;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -41,6 +42,7 @@ import org.firstinspires.ftc.teamcode.Lib.CenterStageLib.CenterStageRobot;
 //@Disabled
 @Config
 @TeleOp(name = "Center Stage Motor Direction Test", group = "Test")
+@Disabled
 public class CenterStageMotorDirectionDebugger extends LinearOpMode {
     public static double MOTOR_POWER = 0.7;
 

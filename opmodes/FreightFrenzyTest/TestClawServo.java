@@ -14,7 +14,7 @@ import java.util.Optional;
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
 @TeleOp(name = "Test Claw Servo", group = "Test")
-//@Disabled
+@Disabled
 public class TestClawServo extends LinearOpMode {
 
     // Put your variable declarations her

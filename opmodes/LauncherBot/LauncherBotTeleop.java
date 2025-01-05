@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmodes.LauncherBot;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.hardware.lynx.LynxModule;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -26,7 +27,7 @@ import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayRobotModes;
 import java.util.List;
 
 @TeleOp(name = "Teleop Launcher Bot", group = "AA")
-//@Disabled
+@Disabled
 
 public class LauncherBotTeleop extends LinearOpMode {
 

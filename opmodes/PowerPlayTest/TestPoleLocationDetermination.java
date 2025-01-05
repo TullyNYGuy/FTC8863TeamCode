@@ -36,6 +36,7 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -62,7 +63,7 @@ import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayPoleLocationDete
  * @see <a href="http://revrobotics.com">REV Robotics Web Page</a>
  */
 @TeleOp(name = "Test Pole Location Determination", group = "Test")
-//@Disabled
+@Disabled
 public class TestPoleLocationDetermination extends LinearOpMode {
 
     private FtcDashboard dashboard = FtcDashboard.getInstance();

@@ -17,7 +17,7 @@ import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.UltimateGoalRobot;
 import java.util.Locale;
 
 @TeleOp(name = "Test 3 odometry modules - freight frenzy", group = "Diagnostics")
-//@Disabled
+@Disabled
 public class FFTest3OdometryModules extends LinearOpMode {
 
     @Override

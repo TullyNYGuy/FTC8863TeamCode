@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.FreightFrenzyTest;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -12,7 +13,7 @@ import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FFExtensionArm;
  * Test the positions of the delivery servo
  */
 @TeleOp(name = "Test Delivery Servo", group = "Test")
-//@Disabled
+@Disabled
 public class TestDeliveryServo extends LinearOpMode {
 
     // Put your variable declarations here

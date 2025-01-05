@@ -31,7 +31,7 @@ import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.FFExtensionArm;
 // appear in the dashboard so you can change them on the fly:
 @Config
 @TeleOp(name = "Find Extension Arm Positions", group = "Test")
-//@Disabled
+@Disabled
 public class FindExtensionArmPositions extends LinearOpMode {
 public Configuration config;
     // Put your variable declarations here

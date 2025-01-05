@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
 @TeleOp(name = "Center Stage Test Lift ExtensionRetraction Cycle", group = "Test")
-//@Disabled
+@Disabled
 public class CenterStageTestLiftExtensionRetraction extends LinearOpMode {
 
     // Put your variable declarations here

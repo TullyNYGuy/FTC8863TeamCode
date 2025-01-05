@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.CenterStageTest;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -25,6 +26,7 @@ import org.firstinspires.ftc.teamcode.RoadRunner.util.Encoder;
  * If not, then reverse the encoder direction in the StandardTrackingWheelLocalizer class.
  */
 @TeleOp(name = "Center Stage Encoder Direction Debugger", group = "Test")
+@Disabled
 public class CenterStageEncoderDirectionDebugger extends LinearOpMode {
 
     private double leftEncoderInitialPosition = 0;

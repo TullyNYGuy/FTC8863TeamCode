@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.RevLEDDriver;
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
 @TeleOp(name =  "Test Rev LED Driver", group = "Test")
-//@Disabled
+@Disabled
 public class TestRevLEDDriver extends LinearOpMode {
 
     // Put your variable declarations her

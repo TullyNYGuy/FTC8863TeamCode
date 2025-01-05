@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.FreightFrenzyTest;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -16,7 +17,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
 @TeleOp(name = " Glenn's incredible Intake test", group = "Test")
-//@Disabled
+@Disabled
 public class IntakeTestGlenn extends LinearOpMode {
 
     // Put your variable declarations her

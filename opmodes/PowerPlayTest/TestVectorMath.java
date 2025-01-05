@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmodes.PowerPlayTest;
 
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -10,7 +11,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.Vector2D;
 import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayPersistantStorage;
 
 @TeleOp(name = "Test Vector Math", group = "Test")
-//@Disabled
+@Disabled
 
 public class TestVectorMath extends LinearOpMode {
 

@@ -50,7 +50,7 @@ import java.util.concurrent.TimeUnit;
  * Displays the first pattern upon init.
  */
 @TeleOp(name="Test Blinkin LED", group = "TEST")
-// @Disabled
+@Disabled
 public class TestRevBlinkinLedDriver extends OpMode {
 
     /*

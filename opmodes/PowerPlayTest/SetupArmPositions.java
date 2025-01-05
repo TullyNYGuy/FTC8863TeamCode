@@ -32,6 +32,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 package org.firstinspires.ftc.teamcode.opmodes.PowerPlayTest;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -50,7 +51,7 @@ import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.ConeGrabberServo;
  * @see <a href="http://revrobotics.com">REV Robotics Web Page</a>
  */
 @TeleOp(name = "Setup PP Arm Positions", group = "Test")
-//@Disabled
+@Disabled
 public class SetupArmPositions extends LinearOpMode {
 
     private ConeGrabberServo coneGrabber;

@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.UltimateGoalDualMotorG
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
 @TeleOp(name = "Launcher Bot shooter test", group = "Test")
-//@Disabled
+@Disabled
 public class TestLauncherBotDualMotorGearBox extends LinearOpMode {
 
     // Put your variable declarations here

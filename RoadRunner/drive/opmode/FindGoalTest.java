@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.RoadRunner.drive.opmode;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -10,6 +11,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
  */
 @Config
 @TeleOp(group = "drive")
+@Disabled
 public class FindGoalTest extends LinearOpMode {
     //public static double ANGLE = 90; // deg
     public static double ANGLE = 180; // deg
