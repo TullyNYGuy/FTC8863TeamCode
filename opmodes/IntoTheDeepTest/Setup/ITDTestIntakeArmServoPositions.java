@@ -1,27 +1,26 @@
-package org.firstinspires.ftc.teamcode.opmodes.IntoTheDeepTest;
+package org.firstinspires.ftc.teamcode.opmodes.IntoTheDeepTest.Setup;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.Lib.CenterStageLib.CenterStageHangMechanism;
-import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ClawServo;
+import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ITDIntakeArmServo;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Into The Deep Test Claw Servo", group = "Test")
+@TeleOp(name = "ITD Test Intake Arm Servo Positions", group = "Test")
 //@Disabled
-public class ITDTestClawServo extends LinearOpMode {
+public class ITDTestIntakeArmServoPositions extends LinearOpMode {
 
     // Put your variable declarations here
-    public ClawServo clawServo;
+    public ITDIntakeArmServo intakeArmServo;
 
     @Override
     public void runOpMode() {
 
 
         // Put your initializations here
-        clawServo = new ClawServo(hardwareMap, telemetry);
+        intakeArmServo = new ITDIntakeArmServo(hardwareMap, telemetry);
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
@@ -29,18 +28,24 @@ public class ITDTestClawServo extends LinearOpMode {
         waitForStart();
 
         // Put your calls here - they will not run in a loop
-
         while (opModeIsActive()) {
             // Put your calls that need to run in a loop here
-            //clawServo.update();
+            intakeArmServo.update();
 
-            // 0.9
             if (gamepad1.y) {
-                clawServo.open();
+                intakeArmServo.initPosition();
             }
-            // 0.1
+
+            if (gamepad1.b) {
+                intakeArmServo.bucketClearancePosition();
+            }
+
+            if (gamepad1.x) {
+                intakeArmServo.transferPosition();
+            }
+
             if (gamepad1.a) {
-                clawServo.clamp();
+                intakeArmServo.intakePosition();
             }
 
             telemetry.addData(">", "Press Stop to end test.");
@@ -48,6 +53,7 @@ public class ITDTestClawServo extends LinearOpMode {
 
             idle();
         }
+
 
         // Put your cleanup code here - it runs as the application shuts down
         telemetry.addData(">", "Done");

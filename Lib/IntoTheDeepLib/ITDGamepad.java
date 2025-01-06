@@ -268,21 +268,25 @@ public class ITDGamepad {
         if (gamepad1a.buttonPress(gamepad1.a)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
+            robot.extensionArmIntakeController.getReadyToRun();
         }
 
         if (gamepad1b.buttonPress(gamepad1.b)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
+            robot.extensionArmIntakeController.setupForIntake();
         }
 
         if (gamepad1y.buttonPress(gamepad1.y)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
+            robot.extensionArmIntakeController.intake();
         }
 
         if (gamepad1x.buttonPress(gamepad1.x)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
+            robot.extensionArmIntakeController.completeGetReadyToRun();
         }
 
         if (gamepad1DpadUp.buttonPress(gamepad1.dpad_up)) {

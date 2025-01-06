@@ -61,6 +61,12 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
     //*********************************************************************************************
     private CRServo intakeSweeperServoLeft;
     private CRServo intakeSweeperServoRight;
+    private ITDExtensionArmIntakeController controller;
+
+    public void setController(ITDExtensionArmIntakeController controller) {
+        this.controller = controller;
+    }
+
     private ElapsedTime timer;
     private ColorSensorUpdatable intakeColorSensor;
     private ColorDetectorHSV intakeColorDetector;
@@ -228,6 +234,8 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
      */
     private void intakeActions() {
         logCommand("intake");
+        // tell the intake / intake arm / extension arm controller we don't have a good sample
+        controller.setIntakeHasValidSample(false);
         intakeColorSensor.turnSensorOn();
         // force an update to get fresh distance and color data
         intakeColorSensor.update();
@@ -281,6 +289,13 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
                 intakeState = IntakeState.OUTTAKING_UNTIL_STOP_REQUESTED;
                 outtakeActions();
                 break;
+            case WAITING_FOR_MOVE_TO_OUTTAKING:
+                // when in this state, we are waiting for the movement to an outtake position to
+                // complete. It must have completed because someone asked for an outtake.
+                // do not change the state, since this state is waiting for the outtake command to
+                // proceed with the state machine.
+                outtakeActions();
+                break;
 
             case OUTTAKING:
             case OUTTAKING_UNTIL_STOP_REQUESTED:
@@ -288,7 +303,7 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
             case EJECTING:
             case DEJAMMING_EJECTION:
             case DEJAMMING_TRANSFER:
-            case WAITING_FOR_MOVE_TO_OUTTAKING:
+
             case TRANSFERRING:
                 // ignore the command when in the above states
                 break;
@@ -299,6 +314,9 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
      * Rotate the sweeper to it outtakes.
      */
     private void outtakeActions() {
+        // reset the request for an outtake since the controller has started the process
+        controller.setIntakesRequestsAnOuttake(false);
+        controller.setOuttakeComplete(false);
         logCommand("outtake sample");
         intakeCommand = IntakeCommand.OUTAKE;
         intakeSweeperServoLeft.setPower(-1);
@@ -335,6 +353,9 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
      */
     private void transferActions() {
         logCommand("transfer sample");
+        // tell the extension arm / intake arm / intake controller that a transfer is not complete
+        // yet.
+        controller.setIntakeTransferComplete(false);
         intakeSweeperServoLeft.setPower(1);
         intakeSweeperServoRight.setPower(1);
         intakeCommand = IntakeCommand.TRANSFER;
@@ -480,6 +501,7 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
         intakeColorSensor.update();
         // using the just updated HSV values, determine the color seen by the sample
         sampleColor = intakeColorDetector.getMostLikelyColor(intakeColorSensor.getHsvValues());
+        logCommand("Sample color = " + sampleColor.toString());
         logState();
         switch (intakeState) {
 
@@ -509,8 +531,8 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
                 }
                 if (allianceColor == AllianceColor.BLUE &&
                         ((sampleColor == Color.YELLOW) || sampleColor == Color.BLUE)) {
-                    // the sample is the correct color
-                    //armIntakeController.intakeHasSample(sampleColor);
+                    // the sample is the right color, tell the controller
+                    controller.setIntakeHasValidSample(true);
                     intakeState = IntakeState.WAITING_FOR_MOVEMENT_TO_TRANSFER_POSITION;
                 }
                 if (allianceColor == AllianceColor.RED && sampleColor == Color.BLUE) {
@@ -522,8 +544,8 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
                 }
                 if (allianceColor == AllianceColor.RED &&
                         ((sampleColor == Color.YELLOW) || sampleColor == Color.RED)) {
-                    // the sample is not the right color
-                    //armIntakeController.intakeHasSample(sampleColor);
+                    // the sample is the right color, tell the controller
+                    controller.setIntakeHasValidSample(true);
                     intakeState = IntakeState.WAITING_FOR_MOVEMENT_TO_TRANSFER_POSITION;
                 }
                 break;
@@ -574,7 +596,7 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
             // wait while the intake rotates to the bucket and the extension arm retracts
             case WAITING_FOR_MOVEMENT_TO_TRANSFER_POSITION:
                 if (intakeCommand == IntakeCommand.TRANSFER) {
-                    transferActions();;
+                    transferActions();
                     intakeState = IntakeState.TRANSFERRING;
                     intakeCommand = IntakeCommand.NO_COMMAND;
                     timer.reset();
@@ -594,7 +616,8 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
                         // failure after several tries to dejam the intake and transfer
                         // need to outtake this sample but we have to extend the extension arm so the
                         // sample does not drop into the guts of the robot
-                        // armIntakeController.intakeNeedsToOuttake()
+                        controller.setIntakesRequestsAnOuttake(true);
+                        logCommand("intake requests outtake due to jam");
                         intakeState = IntakeState.WAITING_FOR_MOVE_TO_OUTTAKING;
                     }
                 }
@@ -603,7 +626,8 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
                     stopActions();
                     // since the transfer could have come after a dejam attempt
                     dejamCount = 0;
-                    //armIntakeController.intakeTransferComplete();
+                    controller.setIntakeTransferComplete(true);
+                    logCommand("intake transfer complete");
                     intakeState = IntakeState.IDLE;
                 }
                 break;
@@ -627,7 +651,8 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
 
             case WAITING_FOR_MOVE_TO_OUTTAKING:
                 if (intakeCommand == IntakeCommand.OUTAKE) {
-                    outtakeActions();
+                    // outtake actions were already started
+                    timer.reset();
                     intakeState = IntakeState.OUTTAKING;
                     intakeCommand = IntakeCommand.NO_COMMAND;
                 }
@@ -635,6 +660,7 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
 
             case OUTTAKING:
                 if (timer.milliseconds() > 1000) {
+                    controller.setOuttakeComplete(true);
                     intakeState = IntakeState.IDLE;
                 }
                 break;

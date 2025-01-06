@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib;
 
-import android.view.WindowManager;
-
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -13,7 +11,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
 
-public class ITDExtensionArm implements FTCRobotSubsystem {
+public class ITDLift implements FTCRobotSubsystem {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -21,14 +19,14 @@ public class ITDExtensionArm implements FTCRobotSubsystem {
     // user defined types
     //
     //*********************************************************************************************
-    private enum ExtensionArmState {
+    private enum LiftState {
         RESETING,
         MOVING,
         JOYSTICK_CONTROL,
         IDLE
     }
 
-    private ExtensionArmState state;
+    private LiftState state;
 
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS AND SETTERS and GETTERS
@@ -43,15 +41,15 @@ public class ITDExtensionArm implements FTCRobotSubsystem {
     private DataLogOnChange logDataOnchange;
 
     private boolean initComplete = false;
-    private final String EXTENSION_ARM_NAME = ITDRobot.HardwareName.EXTENSION_ARM.hwName;
-    ExtensionRetractionMechanism extensionArm;
+    private final String LIFT_NAME = ITDRobot.HardwareName.LIFT.hwName;
+    ExtensionRetractionMechanism lift;
 
     /**
      * We need a reference to the controller so that we can communicate with it.
      * @param controller
      */
-    private ITDExtensionArmIntakeController controller;
-    public void setController(ITDExtensionArmIntakeController controller) {
+    private ITDLiftBucketArmBucketGateController controller;
+    public void setController(ITDLiftBucketArmBucketGateController controller) {
         this.controller = controller;
     }
 
@@ -61,9 +59,9 @@ public class ITDExtensionArm implements FTCRobotSubsystem {
 
     private double initPosition = 0.0;
     private double transferPosition = .05;
-    private double intakePosition = 18.25;
-    private double bucketClearancePosition = 2.25;
-    private double outtakePosition = 4.0;
+    private double deliveryPosition = 18.0;
+    private double lowBarHangPosition = 6.0;
+    private double highBarHangPosition = 4.0;
 
 
     //*********************************************************************************************
@@ -73,32 +71,32 @@ public class ITDExtensionArm implements FTCRobotSubsystem {
     // from it
     //*********************************************************************************************
 
-    public ITDExtensionArm(HardwareMap hardwareMap, Telemetry telemetry) {
-        extensionArm = new ExtensionRetractionMechanism(hardwareMap, telemetry,
+    public ITDLift(HardwareMap hardwareMap, Telemetry telemetry) {
+        lift = new ExtensionRetractionMechanism(hardwareMap, telemetry,
                 ITDRobot.HardwareName.EXTENSION_ARM.hwName,
                 ITDRobot.HardwareName.EXTENSION_ARM_EXTENSION_LIMIT_SWITCH.hwName,
                 ITDRobot.HardwareName.EXTENSION_ARM_RETRACTION_LIMIT_SWITCH.hwName,
                 ITDRobot.HardwareName.EXTENSION_ARM_MOTOR.hwName,
-                DcMotor8863.MotorType.GOBILDA_1150,
-                4.80);
+                DcMotor8863.MotorType.GOBILDA_312,
+                4.72);
         // This is for the blue alliance
-        extensionArm.reverseMotorDirection();
-        extensionArm.setResetTimerLimitInmSec(10000);
+        lift.reverseMotorDirection();
+        lift.setResetTimerLimitInmSec(10000);
         //*********************************************
         // SET the lift powers here
         //*********************************************
-        initPower = 0.2;
-        extendPower = 0.5;
-        retractPower = -0.5;
-        extensionArm.setExtensionPower(extendPower);
-        extensionArm.setRetractionPower(retractPower);
+        initPower = 1.0;
+        extendPower = 1.0;
+        retractPower = -1.0;
+        lift.setExtensionPower(extendPower);
+        lift.setRetractionPower(retractPower);
         //*********************************************
         // SET the lift max and min positions here
         //*********************************************
-        extensionArm.setExtensionPositionInMechanismUnits(18.5);
-        extensionArm.setRetractionPositionInMechanismUnits(0.05);
+        lift.setExtensionPositionInMechanismUnits(18.5);
+        lift.setRetractionPositionInMechanismUnits(0.05);
 
-        state = ExtensionArmState.IDLE;
+        state = LiftState.IDLE;
         // init has not been started yet
         initComplete = false;
 
@@ -121,21 +119,16 @@ public class ITDExtensionArm implements FTCRobotSubsystem {
     //*********************************************************************************************
 
     public boolean isPositionReached() {
-        if (state == ExtensionArmState.IDLE || state == ExtensionArmState.JOYSTICK_CONTROL) {
+        if (state == LiftState.IDLE || state == LiftState.JOYSTICK_CONTROL) {
             return true;
         } else {
             return false;
         }
     }
 
-    public boolean isResetComplete() {
-        return extensionArm.isResetComplete();
-    }
-
     public void reset() {
-        extensionArm.reset();
-        controller.setExtensionArmResetComplete(false);
-        state = ExtensionArmState.RESETING;
+        lift.reset();
+        state = LiftState.RESETING;
     }
 
     public void initPosition() {
@@ -144,8 +137,8 @@ public class ITDExtensionArm implements FTCRobotSubsystem {
             case JOYSTICK_CONTROL:
                 logCommand("Init position");
                 initPositionAction();
-                controller.setExtensionArmPositionReached(false);
-                state = ExtensionArmState.MOVING;
+                controller.setLiftPositionReached(false);
+                state = LiftState.MOVING;
                 break;
             case MOVING:
             case RESETING:
@@ -156,7 +149,7 @@ public class ITDExtensionArm implements FTCRobotSubsystem {
     }
 
     private void initPositionAction() {
-        extensionArm.goToPosition(initPosition, initPower);
+        lift.goToPosition(initPosition, initPower);
     }
 
     public void transferPosition() {
@@ -165,8 +158,8 @@ public class ITDExtensionArm implements FTCRobotSubsystem {
             case JOYSTICK_CONTROL:
                 logCommand("Transfer position");
                 transferPositionAction();
-                controller.setExtensionArmPositionReached(false);
-                state = ExtensionArmState.MOVING;
+                controller.setLiftPositionReached(false);
+                state = LiftState.MOVING;
                 break;
             case MOVING:
             case RESETING:
@@ -176,17 +169,17 @@ public class ITDExtensionArm implements FTCRobotSubsystem {
     }
 
     private void transferPositionAction() {
-        extensionArm.goToPosition(transferPosition, retractPower);
+        lift.goToPosition(transferPosition, retractPower);
     }
 
-    public void intakePosition() {
+    public void deliveryPosition() {
         switch (state) {
             case IDLE:
             case JOYSTICK_CONTROL:
-                logCommand("Intake position");
-                intakePositionAction();
-                controller.setExtensionArmPositionReached(false);
-                state = ExtensionArmState.MOVING;
+                logCommand("Delivery position");
+                deliveryPositionAction();
+                controller.setLiftPositionReached(false);
+                state = LiftState.MOVING;
                 break;
             case MOVING:
             case RESETING:
@@ -195,39 +188,18 @@ public class ITDExtensionArm implements FTCRobotSubsystem {
         }
     }
 
-    private void intakePositionAction() {
-        extensionArm.goToPosition(intakePosition, extendPower);
+    private void deliveryPositionAction() {
+        lift.goToPosition(deliveryPosition, extendPower);
     }
 
-    public void bucketClearancePosition() {
+    public void lowBarHangPosition() {
         switch (state) {
             case IDLE:
             case JOYSTICK_CONTROL:
-                logCommand("Bucket clearance position");
-                bucketClearancePositionAction();
-                controller.setExtensionArmPositionReached(false);
-                state = ExtensionArmState.MOVING;
-                break;
-            case MOVING:
-            case RESETING:
-                // don't do anything, ignore the command
-                break;
-
-        }
-    }
-
-    private void bucketClearancePositionAction() {
-        extensionArm.goToPosition(bucketClearancePosition, extendPower);
-    }
-
-    public void outtakePosition() {
-        switch (state) {
-            case IDLE:
-            case JOYSTICK_CONTROL:
-                logCommand("Outtake position");
-                outtakePositionAction();
-                controller.setExtensionArmPositionReached(false);
-                state = ExtensionArmState.MOVING;
+                logCommand("Low bar hang position");
+                lowBarHangPositionAction();
+                controller.setLiftPositionReached(false);
+                state = LiftState.MOVING;
                 break;
             case MOVING:
             case RESETING:
@@ -237,8 +209,29 @@ public class ITDExtensionArm implements FTCRobotSubsystem {
         }
     }
 
-    private void outtakePositionAction() {
-        extensionArm.goToPosition(outtakePosition, extendPower);
+    private void lowBarHangPositionAction() {
+        lift.goToPosition(lowBarHangPosition, extendPower);
+    }
+
+    public void highBarHangPosition() {
+        switch (state) {
+            case IDLE:
+            case JOYSTICK_CONTROL:
+                logCommand("High bar hang position");
+                highBarHangPositionAction();
+                controller.setLiftPositionReached(false);
+                state = LiftState.MOVING;
+                break;
+            case MOVING:
+            case RESETING:
+                // don't do anything, ignore the command
+                break;
+
+        }
+    }
+
+    private void highBarHangPositionAction() {
+        lift.goToPosition(highBarHangPosition, extendPower);
     }
 
     public void joystick(double power) {
@@ -246,8 +239,8 @@ public class ITDExtensionArm implements FTCRobotSubsystem {
             case IDLE:
             case JOYSTICK_CONTROL:
                 joystickControlAction(power);
-                controller.setExtensionArmPositionReached(false);
-                state = ExtensionArmState.JOYSTICK_CONTROL;
+                controller.setLiftPositionReached(false);
+                state = LiftState.JOYSTICK_CONTROL;
                 break;
             case MOVING:
             case RESETING:
@@ -257,7 +250,7 @@ public class ITDExtensionArm implements FTCRobotSubsystem {
     }
 
     private void joystickControlAction(double power) {
-        extensionArm.setPowerUsingJoystick(power);
+        lift.setPowerUsingJoystick(power);
     }
 
     @Override
@@ -274,8 +267,8 @@ public class ITDExtensionArm implements FTCRobotSubsystem {
             case JOYSTICK_CONTROL:
                 logCommand("shutdown");
                 transferPositionAction();
-                controller.setExtensionArmPositionReached(false);
-                state = ExtensionArmState.MOVING;
+                controller.setLiftPositionReached(false);
+                state = LiftState.MOVING;
                 break;
             case RESETING:
                 break;
@@ -287,7 +280,7 @@ public class ITDExtensionArm implements FTCRobotSubsystem {
     //*********************************************************************************************
     @Override
     public String getName() {
-        return EXTENSION_ARM_NAME;
+        return LIFT_NAME;
     }
 
     @Override
@@ -327,11 +320,7 @@ public class ITDExtensionArm implements FTCRobotSubsystem {
     }
 
     public void displayState(Telemetry telemetry) {
-        telemetry.addData("Ext Arm State = ", state.toString());
-    }
-
-    public void displayPosition(Telemetry telemetry) {
-        telemetry.addData("Ext Arm Pos = ", extensionArm.getPosition());
+        //telemetry.addData("State = ", armIntakeState.toString());
     }
 
     @Override
@@ -345,23 +334,21 @@ public class ITDExtensionArm implements FTCRobotSubsystem {
 
     @Override
     public void update() {
-        extensionArm.update();
-        logState();
+        lift.update();
         switch (state) {
             case RESETING:
-                if (extensionArm.isResetComplete()) {
-                    controller.setExtensionArmResetComplete(true);
-                    state = ExtensionArmState.IDLE;
+                if (lift.isResetComplete()) {
+                    controller.setLiftResetComplete(true);
                 }
                 break;
             case IDLE:
                 // don't do anything
                 break;
             case MOVING:
-                if (extensionArm.isPositionReached()) {
+                if (lift.isPositionReached()) {
+                    state = LiftState.IDLE;
                     // tell the controller that the arm has reached its position
-                    controller.setExtensionArmPositionReached(true);
-                    state = ExtensionArmState.IDLE;
+                    controller.setLiftPositionReached(true);
                 }
                 break;
             case JOYSTICK_CONTROL:

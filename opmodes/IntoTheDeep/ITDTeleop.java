@@ -62,7 +62,7 @@ public class ITDTeleop extends LinearOpMode {
 //            telemetry.update();
         }
         timer = new ElapsedTime();
-        MecanumCommands commands = new MecanumCommands();
+//        MecanumCommands commands = new MecanumCommands();
 
         robot = new ITDRobot(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, this);
         //field = new ITDField(PowerPlayPersistantStorage.getColorLocation());
@@ -131,8 +131,8 @@ public class ITDTeleop extends LinearOpMode {
                 );
             }
 
-//            telemetry.addData("intake State = ", robot.intakeController.getState().toString());
-//            telemetry.addData("delivery Controller = ", robot.deliveryController.getState().toString());
+            robot.extensionArmIntakeController.displayState(telemetry);
+            robot.intakeBucketController.displayState(telemetry);
 
 //            if (gamepad.getDrivingMode() == DrivingMode.FIELD_CENTRIC) {
 //                telemetry.addData("FIELD CENTRIC driving", "!");

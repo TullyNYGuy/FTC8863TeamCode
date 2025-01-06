@@ -33,8 +33,8 @@ public class ClawServo {
 
     private final String ARM_SERVO_NAME = "clawServo";
 
-    private double openPosition = 0.71;
-    private double clampPosition = 0.41;
+    private double openPosition = 0.9;
+    private double clampPosition = 0.1;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -57,7 +57,7 @@ public class ClawServo {
         clawServo.addPosition("openPosition", openPosition, 1000, TimeUnit.MILLISECONDS);
         clawServo.addPosition("clampPosition", clampPosition, 1000, TimeUnit.MILLISECONDS);
 
-        clawServo.setDirection(Servo.Direction.FORWARD);
+        clawServo.setDirection(Servo.Direction.REVERSE);
     }
     //*********************************************************************************************
     //          Helper Methods

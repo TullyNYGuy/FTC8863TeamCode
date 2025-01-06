@@ -39,17 +39,28 @@ public class ITDRobot implements FTCRobot {
         REAR_LEFT_DRIVE_MOTOR("leftRearMotor"),
         REAR_RIGHT_DRIVE_MOTOR("rightRearMotor"),
         MECANUM_DRIVE("mecanumDrive"),
+
+        EXTENSION_ARM("extensionArm"),
+        EXTENSION_ARM_RETRACTION_LIMIT_SWITCH("extensionArmRetractionLimitSwitch"),
+        EXTENSION_ARM_EXTENSION_LIMIT_SWITCH("extensionArmExtensionLimitSwitch"),
+        EXTENSION_ARM_MOTOR("extensionArmMotor"),
+
 //
 //        WEBCAM("Webcam"),
 
-        ARM_SERVO("armServo"),
+        INTAKE_ARM_SERVO("intakeArmServo"),
+
+        BUCKET_ARM_SERVO("intakeArmServo"),
+        BUCKET_GATE_SERVO("bucketGateServo"),
 
         LIFT("lift"),
         LIFT_MOTOR("liftMotor"),
         LIFT_LIMIT_SWITCH_RETRACTION("liftRetractionLimitSwitch"),
         LIFT_LIMIT_SWITCH_EXTENSION("liftExtensionLimitSwitch"),
 
-        DELIVERY_CONTROLLER("deliveryController"),
+        EXTENSION_ARM_INTAKE_CONTROLLER("extensionArmIntakeController"),
+        LIFT_BUCKET_ARM_BUCKET_GATE_CONTROLLER("liftBucketArmBucketGateController"),
+        INTAKE_BUCKET_CONTROLLER("intakeBucketController"),
 
         PLANE_GUN_SERVO("planeGunServo"),
 
@@ -73,6 +84,8 @@ public class ITDRobot implements FTCRobot {
 
     public enum Subsystem {
         MECANUM_DRIVE,
+        EXTENSION_ARM_INTAKE_CONTROLLER,
+        INTAKE_BUCKET_CONTROLLER
 
         //HANG_MECHANISM
 
@@ -100,6 +113,8 @@ public class ITDRobot implements FTCRobot {
 
     private AdafruitIMU8863 imu;
     public ITDMecanumDrive mecanumDrive;
+    public ITDExtensionArmIntakeController extensionArmIntakeController;
+    public ITDIntakeBucketController intakeBucketController;
     public LoopTimer loopTimer;
     public ITDRobotModes robotModes;
     //public ITDHangMechanism hangMechanism;
@@ -152,6 +167,18 @@ public class ITDRobot implements FTCRobot {
                     ITDRobot.HardwareName.REAR_RIGHT_DRIVE_MOTOR.hwName,
                     hardwareMap);
             subsystemMap.put(mecanumDrive.getName(), mecanumDrive);
+        }
+
+        if (capabilities.contains(Subsystem.INTAKE_BUCKET_CONTROLLER)) {
+            intakeBucketController = new ITDIntakeBucketController(hardwareMap, telemetry);
+            subsystemMap.put(intakeBucketController.getName(), intakeBucketController);
+        }
+
+        if (capabilities.contains(Subsystem.EXTENSION_ARM_INTAKE_CONTROLLER)) {
+            extensionArmIntakeController = new ITDExtensionArmIntakeController(hardwareMap, telemetry);
+            subsystemMap.put(extensionArmIntakeController.getName(), extensionArmIntakeController);
+            extensionArmIntakeController.setIntakeBucketController(intakeBucketController);
+            intakeBucketController.setExtensionArmIntakeController(extensionArmIntakeController);
         }
 
         // Only setup and init the camera if this is autonomous. It takes up CPU and memory and is not needed in teleop.
