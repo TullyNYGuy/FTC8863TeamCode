@@ -389,6 +389,10 @@ public class ExtensionRetractionMechanism {
         extensionRetractionMotor.setFinishBehavior(finishBehavior);
     }
 
+    public void setupStallDetection (double stallTimeLimit, int stallDetectionTolerance) {
+        extensionRetractionMotor.setupStallDetection(stallTimeLimit, stallDetectionTolerance);
+    }
+
     /**
      * There is one predefined position that is available to you other than fully retracted and fully
      * extended. The home position is the position that the mechanism normally rests at. Call
