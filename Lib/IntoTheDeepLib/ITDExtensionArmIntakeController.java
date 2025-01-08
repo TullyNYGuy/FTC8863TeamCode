@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogOnChange;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
@@ -88,6 +89,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
     private DataLogging logFile;
     private boolean loggingOn = false;
     private DataLogOnChange logDataOnchange;
+    private DataLogOnChange logStateOnChange;
 
     private boolean initComplete = false;
     private final String CONTROLLER_NAME = ITDRobot.HardwareName.EXTENSION_ARM_INTAKE_CONTROLLER.hwName;
@@ -140,6 +142,10 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
     //          Commands
     //*********************************************************************************************
 
+    public void setupAllianceColor (AllianceColor color) {
+        intake.setAllianceColor(color);
+    }
+
     /**
      * This starts the process of moving the bucket down into the belly of the robot so that it all
      * fits inside the 18" size limit. First it resets the extension arm so that it knows where
@@ -149,6 +155,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
      * 18" limit.
      */
     public void setupForInitBucketClearance() {
+        logCommand("setup for init bucket clearance");
         extensionArm.reset();
         setExtensionArmResetComplete(false);
         intakeArmServo.bucketClearancePosition();
@@ -161,6 +168,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
      * retract the extension arm and rotate the intake to its init position.
      */
     public void completeSetupForInit() {
+        logCommand("complete setup for init");
         extensionArm.initPosition();
         intakeArmServo.initPosition();
         setExtensionArmResetComplete(false);
@@ -199,6 +207,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
      * move to the transfer position. Then the robot can be run.
      */
     public void getReadyToRun() {
+        logCommand("get ready to run");
         // tell the intake / bucket controller that the bucket clearance position is NOT
         // reached. It has to wait until the bucket clearance position is reached before moving the
         // bucket.
@@ -216,6 +225,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
      * calling this method.
      */
     public void completeGetReadyToRun() {
+        logCommand("complete get ready to run");
         // tell the intake / bucket controller that the transfer position is NOT reached.
         controller.setIntakePositionedForTransfer(false);
         // also tell the intake / bucket controller that a transfer has not been completed yet. This
@@ -233,6 +243,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
      * need to move the extension arm and intake to the bucket clearance position.
      */
     public void setupForBucketClearance() {
+        logCommand("setup for bucket clearance");
         // tell the intake / bucket controller that the bucket clearance position is NOT
         // reached. It has to wait until the bucket clearance position is reached before moving the
         // bucket.
@@ -247,6 +258,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
      * The intake / bucket controller wants us to move to the intake position.
      */
     public void setupForIntake() {
+        logCommand("setup for intake");
         // tell the intake bucket controller that the position is not reached yet
         controller.setIntakePositionReached(false);
         extensionArm.intakePosition();
@@ -262,6 +274,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
      * then the setupForTranfer() will be automatically called.
      */
     public void intake() {
+        logCommand("intake");
         controller.setIntakeHasValidSample(false);
         intakeArmServo.intakePosition();
         intake.intake();
@@ -272,6 +285,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
      * Stop the intake. It will remain at its current rotation and the intake will wait for another command.
      */
     public void stop() {
+        logCommand("stop");
         intake.stop();
         state = ExtensionArmIntakeBucketControllerState.INTAKE_STOPPED;
     }
@@ -281,6 +295,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
      * The driver could also call it independently if needed.
      */
     public void setupForTransfer() {
+        logCommand("setup for transfer");
         controller.setIntakePositionedForTransfer(false);
         intakeArmServo.transferPosition();
         // tell the intake / bucket controller that the intake is not ready for a transfer yet
@@ -288,18 +303,21 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
     }
 
     public void transfer() {
+        logCommand("transfer");
         controller.setIntakeTransferComplete(false);
         intake.transfer();
         state = ExtensionArmIntakeBucketControllerState.TRANSFERRING_SAMPLE;
     }
 
     public void setupForOuttake() {
+        logCommand("setup for outtake");
         extensionArm.bucketClearancePosition();
         intakeArmServo.bucketClearancePosition();
         state = ExtensionArmIntakeBucketControllerState.MOVING_TO_OUTTAKE_POSITION;
     }
 
     public void outtake() {
+        logCommand("outtake");
         intake.outtake();
         state = ExtensionArmIntakeBucketControllerState.OUTTAKING_SAMPLE;
     }
@@ -397,21 +415,31 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
     public void setDataLog(DataLogging logFile) {
         this.logFile = logFile;
         logDataOnchange = new DataLogOnChange(logFile);
+        logStateOnChange = new DataLogOnChange(logFile);
+        extensionArm.setDataLog(logFile);
+        intake.setDataLog(logFile);
+        intakeArmServo.setDataLog(logFile);
     }
 
     @Override
     public void enableDataLogging() {
         this.loggingOn = true;
+        extensionArm.enableDataLogging();
+        intake.enableDataLogging();
+        intakeArmServo.enableDataLogging();
     }
 
     @Override
     public void disableDataLogging() {
         this.loggingOn = false;
+        extensionArm.disableDataLogging();
+        intake.disableDataLogging();
+        intakeArmServo.disableDataLogging();
     }
 
     private void logState() {
         if (loggingOn && logFile != null) {
-            logDataOnchange.log(getName() + " state = " + state.toString());
+            logStateOnChange.log(getName() + " state = " + state.toString());
         }
     }
 
@@ -422,7 +450,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
     }
 
     public void displayState(Telemetry telemetry) {
-        telemetry.addData("State = ", state.toString());
+        telemetry.addData("EAIC State = ", state.toString());
     }
 
     @Override
@@ -438,7 +466,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
     public void update() {
         extensionArm.update();
         intake.update();
-
+        logState();
 
         switch (state) {
 
@@ -485,6 +513,8 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
                 // there. So we are not going to check if it got there. That would just waste time.
                 if (extensionArmResetComplete) {
                     initComplete = true;
+                    // tell the intake / bucket controller that the extension arm reset is complete
+                    controller.setExtensionArmResetComplete(true);
                     state = ExtensionArmIntakeBucketControllerState.INIT_COMPLETE;
                 }
                 break;

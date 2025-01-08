@@ -15,6 +15,7 @@ import org.firstinspires.ftc.teamcode.Lib.CenterStageLib.CenterStageMecanumDrive
 import org.firstinspires.ftc.teamcode.Lib.CenterStageLib.CenterStagePlaneGUNservo;
 import org.firstinspires.ftc.teamcode.Lib.CenterStageLib.CenterStageRobotModes;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobot;
@@ -343,6 +344,10 @@ public class ITDRobot implements FTCRobot {
 
     public boolean getCurrentRobotPosition(RobotPosition position) {
         return true;
+    }
+
+    public void setAllianceColor(AllianceColor color) {
+        extensionArmIntakeController.setupAllianceColor(color);
     }
 
 }

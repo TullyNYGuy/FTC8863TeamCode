@@ -64,6 +64,7 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
     private DataLogging logFile;
     private boolean loggingOn = false;
     private DataLogOnChange logDataOnchange;
+    private DataLogOnChange logStateOnChange;
 
     private boolean initComplete = false;
     private final String CONTROLLER_NAME = ITDRobot.HardwareName.INTAKE_BUCKET_CONTROLLER.hwName;
@@ -109,6 +110,7 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
 
     public void setupForInit() {
         //todo do we need to move the intake out of the way? What is going on with the bucket?
+        logCommand("Setup for init");
         state = IntakeBucketControllerState.EXTENSION_ARM_RESETTING_FOR_INIT_SETUP;
     }
 
@@ -122,6 +124,7 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
     }
 
     public void getReadyToRun() {
+        logCommand("Get ready to run");
         state = IntakeBucketControllerState.EXTENSION_ARM_MOVING_TO_BUCKET_CLEARANCE_FOR_GET_READY_TO_RUN;
     }
 
@@ -248,6 +251,7 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
     public void setDataLog(DataLogging logFile) {
         this.logFile = logFile;
         logDataOnchange = new DataLogOnChange(logFile);
+        logStateOnChange = new DataLogOnChange(logFile);
     }
 
     @Override
@@ -262,7 +266,7 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
 
     private void logState() {
         if (loggingOn && logFile != null) {
-            logDataOnchange.log(getName() + " state = " + state.toString());
+            logStateOnChange.log(getName() + " state = " + state.toString());
         }
     }
 
@@ -273,7 +277,7 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
     }
 
     public void displayState(Telemetry telemetry) {
-        telemetry.addData("State = ", state.toString());
+        telemetry.addData("IBC State = ", state.toString());
     }
 
     @Override
@@ -287,7 +291,7 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
 
     @Override
     public void update() {
-
+        logState();
 
         switch (state) {
 
@@ -314,7 +318,6 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
                 // init states
             case EXTENSION_ARM_RESETTING_FOR_INIT:
                 if (extensionArmResetComplete) {
-
                     state = IntakeBucketControllerState.INIT_COMPLETE;
                 }
                 break;

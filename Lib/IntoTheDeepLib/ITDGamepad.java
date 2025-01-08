@@ -41,6 +41,7 @@ package org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
 import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ITDRobot;
 import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ITDRobotModes;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DrivingMode;
@@ -293,17 +294,20 @@ public class ITDGamepad {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
             //robot.robotModes.setDirectionSwap(ITDRobotModes.DirectionSwap.NORMAL);
+            robot.setAllianceColor(AllianceColor.RED);
         }
 
         if (gamepad1DpadDown.buttonPress(gamepad1.dpad_down)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
             //robot.robotModes.setDirectionSwap(ITDRobotModes.DirectionSwap.INVERSED);
+            robot.setAllianceColor(AllianceColor.BLUE);
         }
 
         if (gamepad1DpadLeft.buttonPress(gamepad1.dpad_left)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
+            robot.extensionArmIntakeController.transfer();
         }
 
         if (gamepad1DpadRight.buttonPress(gamepad1.dpad_right)) {

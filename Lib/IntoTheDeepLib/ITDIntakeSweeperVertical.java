@@ -75,9 +75,11 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
     private DataLogging logFile;
     private boolean loggingOn = false;
     private DataLogOnChange logDataOnchange;
+    private DataLogOnChange logStateOnChange;
+    private DataLogOnChange logCommentOnChange;
 
     private boolean initComplete = false;
-    private final String INTAKE_SWEEPER_SERVO_NAME = "Sweeper Servo";
+    private final String INTAKE_NAME = "Intake";
 
     // define the colors the intake is looking for
     // f here means float instead of double type. HSV are float type.
@@ -137,7 +139,7 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
         intakeSweeperServoRight = hardwareMap.get(CRServo.class, "intakeSweeperServoRight");
         intakeSweeperServoRight.setDirection(DcMotorSimple.Direction.FORWARD);
 
-        intakeColorSensor = new ColorSensorUpdatable(hardwareMap, telemetry, "intakeColorSensorV3Left");
+        intakeColorSensor = new ColorSensorUpdatable(hardwareMap, telemetry, "intakeColorSensorV3");
         // set up the color detector to look for one of the three possible colors
         intakeColorDetector = new ColorDetectorHSV(possibleColors);
 
@@ -233,6 +235,13 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
      * Rotate the sweeper so it intakes
      */
     private void intakeActions() {
+        if (allianceColor == null) {
+            // uh oh the alliance color was never set. Rather than it being nothing, which will
+            // cause the intake to stop when it gets a sample and cannot tell if it is a valid
+            // color, default it to something
+            allianceColor = AllianceColor.RED;
+            log("alliance color was never set, defaulting to red");
+        }
         logCommand("intake");
         // tell the intake / intake arm / extension arm controller we don't have a good sample
         controller.setIntakeHasValidSample(false);
@@ -329,6 +338,7 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
         // this prevents button mashing on the gamepad from screwing up the intake operation
         switch (intakeState) {
             case HAVE_SAMPLE: // only for testing
+            case WAITING_FOR_MOVEMENT_TO_TRANSFER_POSITION:
                 // allow the command when in the above states
                 intakeState = IntakeState.TRANSFERRING;
                 transferActions();
@@ -338,7 +348,6 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
             case INTAKING:
             case OUTTAKING:
             case OUTTAKING_UNTIL_STOP_REQUESTED:
-            case WAITING_FOR_MOVEMENT_TO_TRANSFER_POSITION:
             case EJECTING:
             case DEJAMMING_EJECTION:
             case DEJAMMING_TRANSFER:
@@ -433,7 +442,7 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
     //*********************************************************************************************
     @Override
     public String getName() {
-        return INTAKE_SWEEPER_SERVO_NAME;
+        return INTAKE_NAME;
     }
 
     @Override
@@ -459,6 +468,8 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
     public void setDataLog(DataLogging logFile) {
         this.logFile = logFile;
         logDataOnchange = new DataLogOnChange(logFile);
+        logStateOnChange = new DataLogOnChange(logFile);
+        logCommentOnChange = new DataLogOnChange(logFile);
     }
 
     @Override
@@ -471,15 +482,32 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
         this.loggingOn = false;
     }
 
+    /**
+     * Write a string into the logfile.
+     *
+     * @param stringToLog
+     */
+    protected void log(String stringToLog) {
+        if (logFile != null && loggingOn) {
+            logFile.logData(INTAKE_NAME, stringToLog);
+        }
+    }
+
     private void logState() {
         if (loggingOn && logFile != null) {
-            logDataOnchange.log(getName() + " state = " + intakeState.toString());
+            logStateOnChange.log(getName() + " state = " + intakeState.toString());
         }
     }
 
     private void logCommand(String command) {
         if (loggingOn && logFile != null) {
             logDataOnchange.log(getName() + " command = " + command);
+        }
+    }
+
+    private void logComment(String comment) {
+        if (loggingOn && logFile != null) {
+            logCommentOnChange.log(getName() + comment);
         }
     }
 
@@ -501,7 +529,7 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
         intakeColorSensor.update();
         // using the just updated HSV values, determine the color seen by the sample
         sampleColor = intakeColorDetector.getMostLikelyColor(intakeColorSensor.getHsvValues());
-        logCommand("Sample color = " + sampleColor.toString());
+        logComment(" Sample color = " + sampleColor.toString());
         logState();
         switch (intakeState) {
 
@@ -524,6 +552,7 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
             case HAVE_SAMPLE:
                 if (allianceColor == AllianceColor.BLUE && sampleColor == Color.RED) {
                     // the sample is not the right color
+                    log("have wrong color sample!");
                     ejectActions();;
                     timer.reset();
                     intakeState = IntakeState.EJECTING;
@@ -533,10 +562,12 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
                         ((sampleColor == Color.YELLOW) || sampleColor == Color.BLUE)) {
                     // the sample is the right color, tell the controller
                     controller.setIntakeHasValidSample(true);
+                    log("have a good sample!");
                     intakeState = IntakeState.WAITING_FOR_MOVEMENT_TO_TRANSFER_POSITION;
                 }
                 if (allianceColor == AllianceColor.RED && sampleColor == Color.BLUE) {
                     // the sample is not the right color
+                    log("have wrong color sample!");
                     ejectActions();;
                     timer.reset();
                     intakeState = IntakeState.EJECTING;
@@ -546,6 +577,7 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
                         ((sampleColor == Color.YELLOW) || sampleColor == Color.RED)) {
                     // the sample is the right color, tell the controller
                     controller.setIntakeHasValidSample(true);
+                    log("have a good sample!");
                     intakeState = IntakeState.WAITING_FOR_MOVEMENT_TO_TRANSFER_POSITION;
                 }
                 break;

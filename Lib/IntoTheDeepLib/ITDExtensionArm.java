@@ -61,7 +61,7 @@ public class ITDExtensionArm implements FTCRobotSubsystem {
 
     private double initPosition = 0.0;
     private double transferPosition = .05;
-    private double intakePosition = 18.25;
+    private double intakePosition = 16.5;
     private double bucketClearancePosition = 2.25;
     private double outtakePosition = 4.0;
 
@@ -84,18 +84,19 @@ public class ITDExtensionArm implements FTCRobotSubsystem {
         // This is for the blue alliance
         extensionArm.reverseMotorDirection();
         extensionArm.setResetTimerLimitInmSec(10000);
+        //extensionArm.setupStallDetection(1000, 30);
         //*********************************************
         // SET the lift powers here
         //*********************************************
         initPower = 0.2;
-        extendPower = 0.5;
-        retractPower = -0.5;
+        extendPower = 0.2;
+        retractPower = -0.2;
         extensionArm.setExtensionPower(extendPower);
         extensionArm.setRetractionPower(retractPower);
         //*********************************************
         // SET the lift max and min positions here
         //*********************************************
-        extensionArm.setExtensionPositionInMechanismUnits(18.5);
+        extensionArm.setExtensionPositionInMechanismUnits(17.0);
         extensionArm.setRetractionPositionInMechanismUnits(0.05);
 
         state = ExtensionArmState.IDLE;
@@ -302,16 +303,19 @@ public class ITDExtensionArm implements FTCRobotSubsystem {
     public void setDataLog(DataLogging logFile) {
         this.logFile = logFile;
         logDataOnchange = new DataLogOnChange(logFile);
+        extensionArm.setDataLog(logFile);
     }
 
     @Override
     public void enableDataLogging() {
         this.loggingOn = true;
+        extensionArm.enableDataLogging();
     }
 
     @Override
     public void disableDataLogging() {
         this.loggingOn = false;
+        extensionArm.disableDataLogging();
     }
 
     private void logState() {
