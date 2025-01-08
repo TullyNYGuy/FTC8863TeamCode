@@ -1947,6 +1947,14 @@ public class DcMotor8863 implements DcMotor8863Interface {
                 if (dataLog != null && logFlag) {
                     dataLog.logData("Motor Stalled!");
                 }
+                // change 1/7/2025 allow a stall to gracefully recover. Sending the motor to a state
+                // where it can accept another command just as though it completed the last command
+                // normally.
+                if (getFinishBehavior() == FinishBehavior.FLOAT) {
+                    setMotorState(MotorState.IDLE);
+                } else {
+                    setMotorState(MotorState.HOLD);
+                }
                 break;
             // Complete_float state means that the motor movement has completed and the motor will
             // turn if a load is applied.
