@@ -85,10 +85,10 @@ public class ITDRobot implements FTCRobot {
 
     public enum Subsystem {
         MECANUM_DRIVE,
-        EXTENSION_ARM_INTAKE_CONTROLLER,
-        INTAKE_BUCKET_CONTROLLER
-
-        //HANG_MECHANISM
+//        EXTENSION_ARM_INTAKE_CONTROLLER,
+//        LIFT_BUCKET_ARM_BUCKET_GATE_CONTROLLER,
+//        INTAKE_BUCKET_CONTROLLER,
+        HANG_MECHANISM
 
         //LED_BLINKER,
         //LED_STRIP,
@@ -115,10 +115,11 @@ public class ITDRobot implements FTCRobot {
     private AdafruitIMU8863 imu;
     public ITDMecanumDrive mecanumDrive;
     public ITDExtensionArmIntakeController extensionArmIntakeController;
+    public ITDLiftBucketArmBucketGateController liftBucketArmBucketGateController;
     public ITDIntakeBucketController intakeBucketController;
     public LoopTimer loopTimer;
     public ITDRobotModes robotModes;
-    //public ITDHangMechanism hangMechanism;
+    public ITDHangMechanism hangMechanism;
     //public PowerPlayWebcam webcam;
     //public RevLEDBlinker ledBlinker;
     //public FFBlinkinLed ledStrip;
@@ -170,17 +171,24 @@ public class ITDRobot implements FTCRobot {
             subsystemMap.put(mecanumDrive.getName(), mecanumDrive);
         }
 
-        if (capabilities.contains(Subsystem.INTAKE_BUCKET_CONTROLLER)) {
-            intakeBucketController = new ITDIntakeBucketController(hardwareMap, telemetry);
-            subsystemMap.put(intakeBucketController.getName(), intakeBucketController);
-        }
-
-        if (capabilities.contains(Subsystem.EXTENSION_ARM_INTAKE_CONTROLLER)) {
-            extensionArmIntakeController = new ITDExtensionArmIntakeController(hardwareMap, telemetry);
-            subsystemMap.put(extensionArmIntakeController.getName(), extensionArmIntakeController);
-            extensionArmIntakeController.setIntakeBucketController(intakeBucketController);
-            intakeBucketController.setExtensionArmIntakeController(extensionArmIntakeController);
-        }
+//        if (capabilities.contains(Subsystem.INTAKE_BUCKET_CONTROLLER)) {
+//            intakeBucketController = new ITDIntakeBucketController(hardwareMap, telemetry);
+//            subsystemMap.put(intakeBucketController.getName(), intakeBucketController);
+//        }
+//
+//        if (capabilities.contains(Subsystem.EXTENSION_ARM_INTAKE_CONTROLLER)) {
+//            extensionArmIntakeController = new ITDExtensionArmIntakeController(hardwareMap, telemetry);
+//            subsystemMap.put(extensionArmIntakeController.getName(), extensionArmIntakeController);
+//            extensionArmIntakeController.setIntakeBucketController(intakeBucketController);
+//            intakeBucketController.setExtensionArmIntakeController(extensionArmIntakeController);
+//        }
+//
+//        if (capabilities.contains(Subsystem.LIFT_BUCKET_ARM_BUCKET_GATE_CONTROLLER)) {
+//            liftBucketArmBucketGateController = new ITDLiftBucketArmBucketGateController(hardwareMap, telemetry);
+//            subsystemMap.put(liftBucketArmBucketGateController.getName(), liftBucketArmBucketGateController);
+//            liftBucketArmBucketGateController.setController(intakeBucketController);
+//            intakeBucketController.setLiftBucketArmBucketGateController(liftBucketArmBucketGateController);
+//        }
 
         // Only setup and init the camera if this is autonomous. It takes up CPU and memory and is not needed in teleop.
         // Note that this does not actually start the camera streaming. The autonomous opmode must do that because it
@@ -190,10 +198,10 @@ public class ITDRobot implements FTCRobot {
 //            subsystemMap.put(webcam.getName(), webcam);
 //        }
 
-//        if (capabilities.contains(Subsystem.HANG_MECHANISM)) {
-//            hangMechanism = new ITDHangMechanism(hardwareMap, telemetry);
-//            subsystemMap.put(hangMechanism.getName(), hangMechanism);
-//        }
+        if (capabilities.contains(Subsystem.HANG_MECHANISM)) {
+            hangMechanism = new ITDHangMechanism(hardwareMap, telemetry);
+            subsystemMap.put(hangMechanism.getName(), hangMechanism);
+        }
 
 //            armServo = new CenterStageArmServo(hardwareMap, telemetry);
 //            armServo.intakePosition();

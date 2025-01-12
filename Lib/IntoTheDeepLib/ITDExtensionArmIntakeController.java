@@ -158,6 +158,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
         logCommand("setup for init bucket clearance");
         extensionArm.reset();
         setExtensionArmResetComplete(false);
+        controller.setIntakeReadyForInit(false);
         intakeArmServo.bucketClearancePosition();
         state = ExtensionArmIntakeBucketControllerState.EXTENSION_ARM_RESETTING_FOR_INIT_SETUP;
     }
@@ -169,7 +170,6 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
      */
     public void completeSetupForInit() {
         logCommand("complete setup for init");
-        extensionArm.initPosition();
         intakeArmServo.initPosition();
         setExtensionArmResetComplete(false);
         state = ExtensionArmIntakeBucketControllerState.EXTENSION_ARM_MOVING_TO_INIT_POSITION;
@@ -474,7 +474,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
             case EXTENSION_ARM_RESETTING_FOR_INIT_SETUP:
                 if (extensionArmResetComplete) {
                     extensionArm.bucketClearancePosition();
-                    // tell the intake / bucket controller that the extension / intake is not at the
+                    // tell the intake / bucket controller that the extension / intake is NOT at the
                     // clearance position
                     controller.setIntakePositionedForBucketClearance(false);
                     state = ExtensionArmIntakeBucketControllerState.EXTENSION_ARM_MOVING_TO_BUCKET_CLEARANCE_POSITION_FOR_INIT_SETUP;
@@ -495,9 +495,16 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
                 break;
             // setup for init continues because the intake / bucket controller said to finish
             // it up
+            case INTAKE_ARM_MOVING_TO_INIT_POSITION:
+                if (intakeArmServo.isPositionReached()) {
+                    extensionArm.initPosition();
+                    state = ExtensionArmIntakeBucketControllerState.EXTENSION_ARM_MOVING_TO_INIT_POSITION;
+                }
+                break;
             case EXTENSION_ARM_MOVING_TO_INIT_POSITION:
-                if (extensionArmPositionReached && intakeArmServo.isPositionReached()) {
+                if (extensionArmPositionReached) {
                     // robot is now setup for init, pre match
+                    controller.setIntakeReadyForInit(true);
                     state = ExtensionArmIntakeBucketControllerState.READY_FOR_INIT;
                 }
                 break;

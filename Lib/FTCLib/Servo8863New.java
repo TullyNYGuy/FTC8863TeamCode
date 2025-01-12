@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.ServoController;
+import com.qualcomm.robotcore.hardware.ServoImplEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -52,7 +53,7 @@ public class Servo8863New {
     /**
      * The servo that this class wraps around
      */
-    private Servo servo;
+    private ServoImplEx servo;
 
     /**
      * Return the underlying servo class. The one from the FTC SDK.
@@ -127,7 +128,7 @@ public class Servo8863New {
      */
     public Servo8863New(String servoName, HardwareMap hardwareMap, Telemetry telemetry) {
         // get the servo from the hardware map
-        servo = hardwareMap.get(Servo.class, servoName);
+        servo = (ServoImplEx)hardwareMap.get(Servo.class, servoName);
         positions = new HashMap<>();
         timer = new ElapsedTime();
         servoState = ServoState.IDLE;
@@ -448,6 +449,14 @@ public class Servo8863New {
 
     public double getCurrentPosition() {
         return servo.getPosition();
+    }
+
+    public void setPwmDisable() {
+        servo.setPwmDisable();
+    }
+
+    public void setPwmEnable() {
+        servo.setPwmEnable();
     }
 
     // I am not going to wrap the getPosition call. It is very misleading since it does not return

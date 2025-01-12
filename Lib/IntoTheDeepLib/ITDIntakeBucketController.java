@@ -25,29 +25,47 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
         INTAKE_ARM_MOVING_TO_TRANSFER_POSITION,
         EXTENSION_ARM_RESETTING_FOR_INIT_SETUP,
         EXTENSION_ARM_MOVING_TO_BUCKET_CLEARANCE_POSITION_FOR_INIT_SETUP,
-        BUCKET_MOVING_TO_INIT_POSITION,
+        BUCKET_MOVING_TO_INIT_POSITION_FOR_INIT_SETUP,
         INTAKE_ARM_MOVING_TO_INIT_POSITION,
         EXTENSION_ARM_MOVING_TO_INIT_POSITION,
         READY_FOR_INIT,
 
         // init states
         EXTENSION_ARM_RESETTING_FOR_INIT,
-        //BUCKET_MOVING_TO_INIT_POSITION, REUSED
+        BUCKET_MOVING_TO_INIT_POSITION,
         //INTAKE_ARM_MOVING_TO_INIT_POSITION, REUSED
         //EXTENSION_ARM_MOVING_TO_INIT_POSITION, REUSED
         INIT_COMPLETE,
 
         // get ready to run states
         EXTENSION_ARM_MOVING_TO_BUCKET_CLEARANCE_FOR_GET_READY_TO_RUN,
-        BUCKET_MOVING_TO_TRANSFER_POSITION,
-        EXTENSION_ARM_MOVING_TO_TRANSFER_POSITION,
+        BUCKET_MOVING_TO_TRANSFER_POSITION_FOR_GET_READY_TO_RUN,
+        EXTENSION_ARM_MOVING_TO_TRANSFER_POSITION_FOR_GET_READY_TO_RUN,
         TRANSFER_COMPLETE,
 
-        // deliver sample to bin states
-        EXTENSION_ARM_MOVING_TO_BUCKET_CLEARANCE_FOR_DELIVERY,
-        LIFT_MOVING_TO_DELIVERY_POSITION,
+        // setup for driving to delivery states
+        INTAKE_MOVING_TO_BUCKET_CLEARANCE_POSITION_FOR_SAFE_DRIVING_POSITION_BEFORE_DELIVERY,
+        BUCKET_ARM_MOVING_TO_SAFE_POSITION_BEFORE_DELIVERY,
+        AT_SAFE_POSITION_BEFORE_DELIVERY,
+
+        // setup for delivery states
         BUCKET_ARM_MOVING_TO_DELIVERY_POSITION,
-        READY_FOR_DELIVERY,
+        BUCKET_ARM_AT_DELIVERY_POSITION,
+
+        // deliver sample states
+        DELIVERING_SAMPLE_AND_BUCKET_MOVING_TO_TRANSFER_POSITION,
+        EXTENSION_ARM_INTAKE_MOVING_TO_TRANSFER_POSITION,
+        AT_TRANSFER_POSITION_AFTER_DELIVERY,
+
+        // setup for intake states
+        EXTENSION_ARM_INTAKE_MOVING_TO_SETUP_FOR_INTAKE_POSITION,
+        EXTENSION_ARM_INTAKE_AT_SETUP_FOR_INTAKE_POSITION,
+
+        //intake states
+        INTAKING,
+        WAITING_FOR_READY_TO_TRANSFER,
+        TRANSFERRING,
+        // TRANSFER_COMPLETE (REUSED)
 
     }
 
@@ -108,49 +126,137 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
     //          Commands
     //*********************************************************************************************
 
+    /**
+     * This moves the bucket, lift, extension arm and intake arm into positions so that when the driver
+     * hits init not much needs to happen.
+     * Steps:
+     *   reset the extension arm so it knows where 0 is
+     *   move the extension arm and intake arm to a position where the intake is out of the way of the bucket
+     *   move the bucket arm to its init position
+     *   rotate the intake to its init position
+     *   retract the extension arm
+     *   open the bucket gate so a sample can be inserted
+     */
     public void setupForInit() {
-        //todo do we need to move the intake out of the way? What is going on with the bucket?
         logCommand("Setup for init");
-        state = IntakeBucketControllerState.EXTENSION_ARM_RESETTING_FOR_INIT_SETUP;
+        extensionArmIntakeController.setupForInitBucketClearance();
+        state = IntakeBucketControllerState.EXTENSION_ARM_MOVING_TO_BUCKET_CLEARANCE_POSITION_FOR_INIT_SETUP;
     }
 
+    /**
+     * The extension arm, intake arm, bucket, gate and lift should all be near their init positions. This
+     * gets run when the driver presses the init.
+     * Steps:
+     *   reset the extension arm so it knows where 0 is
+     *   DO NOT move the extension arm and intake arm to a position where the intake is out of the way of the bucket
+     *   move the bucket arm to its init position
+     *   rotate the intake to its init position
+     *   retract the extension arm
+     *   open the bucket gate so a sample can be inserted
+     * @param config
+     * @return
+     */
     @Override
     public boolean init(Configuration config) {
         logCommand("Init starting");
         //todo remove this when this class is finished and let the real init set it
         initComplete = true;
+        extensionArmIntakeController.init(config);
         state = IntakeBucketControllerState.EXTENSION_ARM_RESETTING_FOR_INIT;
         return true;
     }
 
+    /**
+     * This method is called when the driver hits play in teleop. The extension arm, bucket and
+     * intake arm need to get into position for running. The bucket gate needs to close.
+     * Steps:
+     *   move the intake out of the way
+     *   move the bucket into transfer position
+     *   move the intake into transfer position
+     */
     public void getReadyToRun() {
         logCommand("Get ready to run");
+        extensionArmIntakeController.getReadyToRun();
         state = IntakeBucketControllerState.EXTENSION_ARM_MOVING_TO_BUCKET_CLEARANCE_FOR_GET_READY_TO_RUN;
     }
 
-    //*********************************************************************************************
-    //          Communication from Intake
-    //*********************************************************************************************
-
-
-    //*********************************************************************************************
-    //          Communication from Bucket
-    //*********************************************************************************************
-
-    private boolean bucketCompletedDelivery = false;
-
-    public void setBucketCompletedDelivery(boolean bucketCompletedDelivery) {
-        this.bucketCompletedDelivery = bucketCompletedDelivery;
+    /**
+     * This method shold be called after a transfer has occurred. It prepares for a delivery and
+     * shortcuts the time to get setup for the delivery
+     * Steps:
+     *   move the intake out of the way
+     *   rotate the bucket arm to vertical
+     *   raise the lift to height needed for delivery
+     */
+    public void setupForDrivingBeforeDelivery() {
+        logCommand("setup for driving before delivery");
+        extensionArmIntakeController.setupForBucketClearance();
+        state = IntakeBucketControllerState.INTAKE_MOVING_TO_BUCKET_CLEARANCE_POSITION_FOR_SAFE_DRIVING_POSITION_BEFORE_DELIVERY;
     }
 
-    private boolean bucketCompletedHang = false;
-
-    public void setBucketCompletedHang(boolean bucketCompletedHang) {
-        this.bucketCompletedHang = bucketCompletedHang;
+    /**
+     * This method puts bucket over the basket and is meant to be called after most of the driving
+     * over to the basket has been done.
+     * Steps:
+     *   rotate bucket orm horizontal (the lift is already at delivery height)
+     */
+    public void setupForDelivery() {
+        logCommand("setup for delivery");
+        liftBucketArmBucketGateController.setupForDelivery();
+        state = IntakeBucketControllerState.BUCKET_ARM_MOVING_TO_DELIVERY_POSITION;
     }
 
+    /**
+     * This method opens the gate and allows the sample to drop into the basket. Then it puts the
+     * bucket arm back into the transfer position.
+     * Steps:
+     *   open the bucket gate
+     *   wait for the sample to fall out
+     *   rotate the bucket arm to the vertical position so that when the lift moves it does not
+     *     put as much stress on the bucket arm servo
+     *   move the lift to the transfer position
+     *   move the bucket arm to the transfer position
+     *   move the intake arm and the extension arm to the transfer position
+     *   close the bucket gate servo
+     */
+    public void deliverSample() {
+        logCommand("delivery sample");
+        liftBucketArmBucketGateController.setupForDrivingBeforeDelivery();
+        state = IntakeBucketControllerState.DELIVERING_SAMPLE_AND_BUCKET_MOVING_TO_TRANSFER_POSITION;
+    }
+
+    /**
+     * This method will extend the extension arm in preparation for an intake.
+     * Steps:
+     *   extend extension arm to intake position (the intake arm is still up in the air though)
+     */
+    public void setupForIntake() {
+        logCommand("setup for intake");
+        extensionArmIntakeController.setupForIntake();
+        state = IntakeBucketControllerState.EXTENSION_ARM_INTAKE_MOVING_TO_SETUP_FOR_INTAKE_POSITION;
+    }
+
+    /**
+     * This method puts the intake on the floor and starts an intake sequence. The intake automatically
+     * filters through the samples until it has a good one, then it moves into the transfer position
+     * Steps:
+     *   turn on the intake
+     *   rotate the intake onto the floor
+     *   intake runs until it has a good sample
+     *   rotate the intake back up into the transfer position
+     *   retract the extension arm until the intake is in the transfer position
+     *   transfer the sample into the bucket
+     */
+    public void intake() {
+        logCommand("intake");
+        extensionArmIntakeController.intake();
+
+
+    }
+
+
     //*********************************************************************************************
-    //          Communication from Intake
+    //          Communication from Extension arm / intake
     //*********************************************************************************************
     /**
      * Allow the intake to request the controller to move the extension arm out so an outtake can
@@ -162,6 +268,12 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
     public void setIntakesRequestsAnOuttake(boolean needOuttake) {
         this.intakesRequestsAnOuttake = needOuttake;
         logCommand("Intake requests outtake");
+    }
+
+    private boolean intakeReadyForInit = false;
+
+    public void setIntakeReadyForInit(boolean intakeReadyForInit) {
+        this.intakeReadyForInit = intakeReadyForInit;
     }
 
     /**
@@ -213,18 +325,43 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
 //    }
 
     //*********************************************************************************************
-    //          Communication from Lift
+    //          Communication from Lift / bucket / bucket gate controller
     //*********************************************************************************************
-    private boolean liftPositionReached = false;
 
-    public void setLiftPositionReached(boolean positionReached) {
-        this.liftPositionReached = positionReached;
+    private boolean liftBucketResetComplete = false;
+
+    public void setLiftBucketResetComplete(boolean resetComplete) {
+        this.liftBucketResetComplete = resetComplete;
     }
 
-    private boolean liftResetComplete = false;
+    private boolean liftBucketAtInitPosition = false;
 
-    public void setLiftResetComplete(boolean resetComplete) {
-        this.liftResetComplete = resetComplete;
+    public void setLiftBucketAtInitPosition(boolean liftBucketAtInitPosition) {
+        this.liftBucketAtInitPosition = liftBucketAtInitPosition;
+    }
+
+    private boolean liftBucketAtTransferPosition = false;
+
+    public void setLiftBucketAtTransferPosition(boolean liftBucketAtTransferPosition) {
+        this.liftBucketAtTransferPosition = liftBucketAtTransferPosition;
+    }
+
+    private boolean liftBucketAtSafeToDrivePosition = false;
+
+    public void setLiftBucketAtSafeToDrivePosition(boolean liftBucketAtSafeToDrivePosition) {
+        this.liftBucketAtSafeToDrivePosition = liftBucketAtSafeToDrivePosition;
+    }
+
+    private boolean liftBucketAtReadyToDeliverPosition = false;
+
+    public void setLiftBucketAtReadyToDeliverPosition(boolean liftBucketAtReadyToDeliverPosition) {
+        this.liftBucketAtReadyToDeliverPosition = liftBucketAtReadyToDeliverPosition;
+    }
+
+    private boolean liftBucketSampleIsDelivered = false;
+
+    public void setLiftBucketSampleIsDelivered(boolean liftBucketSampleIsDelivered) {
+        this.liftBucketSampleIsDelivered = liftBucketSampleIsDelivered;
     }
 
     //*********************************************************************************************
@@ -296,20 +433,29 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
         switch (state) {
 
             // setup for init - run before arriving for match
-            case EXTENSION_ARM_RESETTING_FOR_INIT_SETUP:
-                if (extensionArmResetComplete) {
-                    state = IntakeBucketControllerState.EXTENSION_ARM_MOVING_TO_BUCKET_CLEARANCE_POSITION_FOR_INIT_SETUP;
-                }
-                break;
+//            case EXTENSION_ARM_RESETTING_FOR_INIT_SETUP:
+//                if (extensionArmResetComplete) {
+//                    extensionArmIntakeController.setupForInitBucketClearance();
+//                    state = IntakeBucketControllerState.EXTENSION_ARM_MOVING_TO_BUCKET_CLEARANCE_POSITION_FOR_INIT_SETUP;
+//                }
+//                break;
             case EXTENSION_ARM_MOVING_TO_BUCKET_CLEARANCE_POSITION_FOR_INIT_SETUP:
                 // have the extension arm and intake arm reached the bucket clearance positions?
-
+                if (intakePositionedForBucketClearance) {
+                    liftBucketArmBucketGateController.setupForInit();
+                    state = IntakeBucketControllerState.BUCKET_MOVING_TO_INIT_POSITION_FOR_INIT_SETUP;
+                }
                 break;
-            case BUCKET_MOVING_TO_INIT_POSITION:
-
+            case BUCKET_MOVING_TO_INIT_POSITION_FOR_INIT_SETUP:
+                if (liftBucketAtInitPosition) {
+                    extensionArmIntakeController.completeSetupForInit();
+                    state = IntakeBucketControllerState.EXTENSION_ARM_MOVING_TO_INIT_POSITION;
+                }
                 break;
             case EXTENSION_ARM_MOVING_TO_INIT_POSITION:
-
+                if (intakeReadyForInit) {
+                    state = IntakeBucketControllerState.READY_FOR_INIT;
+                }
                 break;
             case READY_FOR_INIT:
                 // driver may leave robot turned on or may turn it off
@@ -318,6 +464,12 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
                 // init states
             case EXTENSION_ARM_RESETTING_FOR_INIT:
                 if (extensionArmResetComplete) {
+                    liftBucketArmBucketGateController.init(null);
+                    state = IntakeBucketControllerState.BUCKET_MOVING_TO_INIT_POSITION;
+                }
+                break;
+            case BUCKET_MOVING_TO_INIT_POSITION:
+                if (liftBucketAtInitPosition) {
                     state = IntakeBucketControllerState.INIT_COMPLETE;
                 }
                 break;
@@ -327,15 +479,76 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
 
                 // get ready to run states
             case EXTENSION_ARM_MOVING_TO_BUCKET_CLEARANCE_FOR_GET_READY_TO_RUN:
-
+                if (intakePositionedForBucketClearance) {
+                    liftBucketArmBucketGateController.getReadyToRun();
+                    state = IntakeBucketControllerState.BUCKET_MOVING_TO_TRANSFER_POSITION_FOR_GET_READY_TO_RUN;
+                }
                 break;
-            case BUCKET_MOVING_TO_TRANSFER_POSITION:
-
+            case BUCKET_MOVING_TO_TRANSFER_POSITION_FOR_GET_READY_TO_RUN:
+                if (liftBucketAtTransferPosition) {
+                    extensionArmIntakeController.completeGetReadyToRun();
+                    state = IntakeBucketControllerState.EXTENSION_ARM_MOVING_TO_TRANSFER_POSITION_FOR_GET_READY_TO_RUN;
+                }
                 break;
-            case EXTENSION_ARM_MOVING_TO_TRANSFER_POSITION:
-
+            case EXTENSION_ARM_MOVING_TO_TRANSFER_POSITION_FOR_GET_READY_TO_RUN:
+                if (intakePositionedForTransfer) {
+                    // we are ready to run. Wait for a command
+                }
                 break;
 
+                // setup for safe driving position before delivery states
+            case INTAKE_MOVING_TO_BUCKET_CLEARANCE_POSITION_FOR_SAFE_DRIVING_POSITION_BEFORE_DELIVERY:
+                if (intakePositionedForBucketClearance) {
+                    liftBucketArmBucketGateController.setupForDrivingBeforeDelivery();
+                    state = IntakeBucketControllerState.BUCKET_ARM_MOVING_TO_SAFE_POSITION_BEFORE_DELIVERY;
+                }
+                break;
+            case BUCKET_ARM_MOVING_TO_SAFE_POSITION_BEFORE_DELIVERY:
+                if (liftBucketAtSafeToDrivePosition) {
+                    state = IntakeBucketControllerState.AT_SAFE_POSITION_BEFORE_DELIVERY;
+                }
+                break;
+            case AT_SAFE_POSITION_BEFORE_DELIVERY:
+                // hang out waiting for driver to give setup for delivery command
+                break;
+
+                // setup for delivery states
+            case BUCKET_ARM_MOVING_TO_DELIVERY_POSITION:
+                if (liftBucketAtReadyToDeliverPosition) {
+                    state = IntakeBucketControllerState.BUCKET_ARM_AT_DELIVERY_POSITION;
+                }
+                break;
+            case BUCKET_ARM_AT_DELIVERY_POSITION:
+                // hang out waiting for driver to give deliver sample command
+                break;
+
+                // deliver sample states
+            case DELIVERING_SAMPLE_AND_BUCKET_MOVING_TO_TRANSFER_POSITION:
+                if (liftBucketAtTransferPosition) {
+                    extensionArmIntakeController.setupForTransfer();
+                    state = IntakeBucketControllerState.EXTENSION_ARM_INTAKE_MOVING_TO_TRANSFER_POSITION;
+                }
+                break;
+            case EXTENSION_ARM_INTAKE_MOVING_TO_TRANSFER_POSITION:
+                if (intakePositionedForTransfer) {
+                    state = IntakeBucketControllerState.AT_TRANSFER_POSITION_AFTER_DELIVERY;
+                }
+                break;
+            case AT_TRANSFER_POSITION_AFTER_DELIVERY:
+                // hang out waiting for the next command
+                // it should be to setup for intake (after delivering a sample)
+                break;
+
+                // setup for intake states
+            case EXTENSION_ARM_INTAKE_MOVING_TO_SETUP_FOR_INTAKE_POSITION:
+                if (intakePositionReached) {
+                    state = IntakeBucketControllerState.EXTENSION_ARM_INTAKE_AT_SETUP_FOR_INTAKE_POSITION;
+                }
+                break;
+            case EXTENSION_ARM_INTAKE_AT_SETUP_FOR_INTAKE_POSITION:
+                // hang out waiting for an intake command
+                // or a back to transfer position command
+                break;
         }
 
     }

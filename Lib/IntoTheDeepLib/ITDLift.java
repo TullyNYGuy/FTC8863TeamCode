@@ -59,7 +59,7 @@ public class ITDLift implements FTCRobotSubsystem {
 
     private double initPosition = 0.0;
     private double transferPosition = .05;
-    private double deliveryPosition = 18.0;
+    private double readyToDeliverPosition = 18.0;
     private double lowBarHangPosition = 6.0;
     private double highBarHangPosition = 4.0;
 
@@ -77,15 +77,15 @@ public class ITDLift implements FTCRobotSubsystem {
                 ITDRobot.HardwareName.EXTENSION_ARM_EXTENSION_LIMIT_SWITCH.hwName,
                 ITDRobot.HardwareName.EXTENSION_ARM_RETRACTION_LIMIT_SWITCH.hwName,
                 ITDRobot.HardwareName.EXTENSION_ARM_MOTOR.hwName,
-                DcMotor8863.MotorType.GOBILDA_312,
+                DcMotor8863.MotorType.GOBILDA_1150,
                 4.72);
         // This is for the blue alliance
         lift.reverseMotorDirection();
-        lift.setResetTimerLimitInmSec(10000);
+        lift.setResetTimerLimitInmSec(5000);
         //*********************************************
         // SET the lift powers here
         //*********************************************
-        initPower = 1.0;
+        initPower = .2;
         extendPower = 1.0;
         retractPower = -1.0;
         lift.setExtensionPower(extendPower);
@@ -128,6 +128,8 @@ public class ITDLift implements FTCRobotSubsystem {
 
     public void reset() {
         lift.reset();
+        controller.setLiftResetComplete(false);
+        logCommand("Reset");
         state = LiftState.RESETING;
     }
 
@@ -149,6 +151,10 @@ public class ITDLift implements FTCRobotSubsystem {
     }
 
     private void initPositionAction() {
+        // since the transfer position is at the bottom of the lift, and tolerances might cause the
+        // lift to try to retract past the physical limit, we don't want to run the motor and hold
+        // position
+        lift.setFinishBehavior(DcMotor8863.FinishBehavior.FLOAT);
         lift.goToPosition(initPosition, initPower);
     }
 
@@ -169,15 +175,19 @@ public class ITDLift implements FTCRobotSubsystem {
     }
 
     private void transferPositionAction() {
+        // since the transfer position is at the bottom of the lift, and tolerances might cause the
+        // lift to try to retract past the physical limit, we don't want to run the motor and hold
+        // position
+        lift.setFinishBehavior(DcMotor8863.FinishBehavior.FLOAT);
         lift.goToPosition(transferPosition, retractPower);
     }
 
-    public void deliveryPosition() {
+    public void readyToDeliverPosition() {
         switch (state) {
             case IDLE:
             case JOYSTICK_CONTROL:
                 logCommand("Delivery position");
-                deliveryPositionAction();
+                readyToDeliverPositionAction();
                 controller.setLiftPositionReached(false);
                 state = LiftState.MOVING;
                 break;
@@ -188,8 +198,11 @@ public class ITDLift implements FTCRobotSubsystem {
         }
     }
 
-    private void deliveryPositionAction() {
-        lift.goToPosition(deliveryPosition, extendPower);
+    private void readyToDeliverPositionAction() {
+
+        // since the lift is up in the air, the motor needs to work against gravity or it will fall
+        lift.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
+        lift.goToPosition(readyToDeliverPosition, extendPower);
     }
 
     public void lowBarHangPosition() {
@@ -210,6 +223,8 @@ public class ITDLift implements FTCRobotSubsystem {
     }
 
     private void lowBarHangPositionAction() {
+        // since the lift is up in the air, the motor needs to work against gravity or it will fall
+        lift.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
         lift.goToPosition(lowBarHangPosition, extendPower);
     }
 
@@ -231,6 +246,8 @@ public class ITDLift implements FTCRobotSubsystem {
     }
 
     private void highBarHangPositionAction() {
+        // since the lift is up in the air, the motor needs to work against gravity or it will fall
+        lift.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
         lift.goToPosition(highBarHangPosition, extendPower);
     }
 
@@ -334,11 +351,13 @@ public class ITDLift implements FTCRobotSubsystem {
 
     @Override
     public void update() {
+        logState();
         lift.update();
         switch (state) {
             case RESETING:
                 if (lift.isResetComplete()) {
                     controller.setLiftResetComplete(true);
+                    state = LiftState.IDLE;
                 }
                 break;
             case IDLE:
@@ -346,9 +365,9 @@ public class ITDLift implements FTCRobotSubsystem {
                 break;
             case MOVING:
                 if (lift.isPositionReached()) {
-                    state = LiftState.IDLE;
                     // tell the controller that the arm has reached its position
                     controller.setLiftPositionReached(true);
+                    state = LiftState.IDLE;
                 }
                 break;
             case JOYSTICK_CONTROL:

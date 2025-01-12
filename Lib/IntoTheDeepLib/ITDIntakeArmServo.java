@@ -168,6 +168,14 @@ public class ITDIntakeArmServo implements FTCRobotSubsystem {
         intakeArmServo.setupServoPositionsUsingGamepad(opmode);
     }
 
+    public void setPwmDisable() {
+        intakeArmServo.setPwmDisable();
+    }
+
+    public void setPwmEnable() {
+        intakeArmServo.setPwmEnable();
+    }
+
     //*********************************************************************************************
     //          Housekeeping stuff
     //*********************************************************************************************

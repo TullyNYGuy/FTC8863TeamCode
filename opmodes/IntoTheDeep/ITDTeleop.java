@@ -131,8 +131,8 @@ public class ITDTeleop extends LinearOpMode {
                 );
             }
 
-            robot.extensionArmIntakeController.displayState(telemetry);
-            robot.intakeBucketController.displayState(telemetry);
+//            robot.extensionArmIntakeController.displayState(telemetry);
+//            robot.intakeBucketController.displayState(telemetry);
 
 //            if (gamepad.getDrivingMode() == DrivingMode.FIELD_CENTRIC) {
 //                telemetry.addData("FIELD CENTRIC driving", "!");
