@@ -31,10 +31,10 @@ public class ITDArmDeployServoLeft {
     //*********************************************************************************************
     private Servo8863New armDeployServoleft;
 
-    private final String ARM_SERVO_NAME = CenterStageRobot.HardwareName.LEFT_DEPLOY_SERVO.hwName;
+    private final String ARM_SERVO_NAME = ITDRobot.HardwareName.LEFT_DEPLOY_SERVO.hwName;
 
-    private double readyPosition = 0.71;
-    private double deployPosition = 0.41;
+    private double readyPosition = 0.4;
+    private double deployPosition = 0.28;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -57,7 +57,7 @@ public class ITDArmDeployServoLeft {
         armDeployServoleft.addPosition("readyPosition", readyPosition, 1000, TimeUnit.MILLISECONDS);
         armDeployServoleft.addPosition("deployPosition", deployPosition, 1000, TimeUnit.MILLISECONDS);
 
-        armDeployServoleft.setDirection(Servo.Direction.FORWARD);
+        armDeployServoleft.setDirection(Servo.Direction.REVERSE);
     }
     //*********************************************************************************************
     //          Helper Methods

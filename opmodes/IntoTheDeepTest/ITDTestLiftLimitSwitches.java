@@ -27,9 +27,9 @@ public class ITDTestLiftLimitSwitches extends LinearOpMode {
                 "liftRetractionLimitSwitch",
                 "liftMotor",
                 DcMotor8863.MotorType.GOBILDA_1150,
-                4.72);
+                4.517);
         // This is for the blue alliance
-        lift.reverseMotorDirection();
+        //lift.reverseMotorDirection();
 
         // this is for the red alliance
         //lift.reverseMotorDirection();

@@ -39,7 +39,7 @@ public class ITDTestExtensionArmReset extends LinearOpMode {
         //extensionArm.reverseMotorDirection();
         extensionArm.setResetTimerLimitInmSec(5000);
         extensionArm.setExtensionPower(0.2);
-        extensionArm.setExtensionPositionInMechanismUnits(20.0);
+        extensionArm.setExtensionPositionInMechanismUnits(10.0);
         extensionArm.setRetractionPower(-0.2);
         extensionArm.setRetractionPositionInMechanismUnits(0.0);
         extensionArm.setDataLog(log);

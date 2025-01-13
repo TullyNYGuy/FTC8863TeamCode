@@ -51,7 +51,7 @@ public class ITDRobot implements FTCRobot {
 
         INTAKE_ARM_SERVO("intakeArmServo"),
 
-        BUCKET_ARM_SERVO("intakeArmServo"),
+        BUCKET_ARM_SERVO("bucketArmServo"),
         BUCKET_GATE_SERVO("bucketGateServo"),
 
         LIFT("lift"),

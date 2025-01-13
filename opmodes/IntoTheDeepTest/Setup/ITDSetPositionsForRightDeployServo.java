@@ -8,7 +8,7 @@ import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ITDArmDeployServoRight;
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Center Stage Setup Arm Deploy Servo Right Positions", group = "Test")
+@TeleOp(name = "ITD Setup Arm Deploy Servo Right Positions", group = "Test")
 //@Disabled
 
 /*

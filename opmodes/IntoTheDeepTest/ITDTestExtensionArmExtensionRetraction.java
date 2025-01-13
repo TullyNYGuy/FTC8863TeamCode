@@ -39,7 +39,7 @@ public class ITDTestExtensionArmExtensionRetraction extends LinearOpMode {
         extensionArm.setResetTimerLimitInmSec(25000);
         extensionArm.setExtensionPower(.5);
         extensionArm.setExtensionPositionInMechanismUnits(15.0);
-        extensionArm.setRetractionPower(-5);
+        extensionArm.setRetractionPower(-.5);
         extensionArm.setRetractionPositionInMechanismUnits(0.5);
         extensionArm.setDataLog(log);
         extensionArm.enableDataLogging();

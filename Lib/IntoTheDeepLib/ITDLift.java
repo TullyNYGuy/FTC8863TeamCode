@@ -78,9 +78,9 @@ public class ITDLift implements FTCRobotSubsystem {
                 ITDRobot.HardwareName.EXTENSION_ARM_RETRACTION_LIMIT_SWITCH.hwName,
                 ITDRobot.HardwareName.EXTENSION_ARM_MOTOR.hwName,
                 DcMotor8863.MotorType.GOBILDA_1150,
-                4.72);
+                4.517);
         // This is for the blue alliance
-        lift.reverseMotorDirection();
+        //lift.reverseMotorDirection();
         lift.setResetTimerLimitInmSec(5000);
         //*********************************************
         // SET the lift powers here
