@@ -13,14 +13,16 @@ import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ITDBucketArmServo;
 public class ITDSetupBucketArmServo extends LinearOpMode {
 
     // Put your variable declarations here
-    public ITDBucketArmServo intakeArmServo;
+    public ITDBucketArmServo bucketArmServo;
+
+    // index when arm is vertical and servo = .52
 
     @Override
     public void runOpMode() {
 
 
         // Put your initializations here
-        intakeArmServo = new ITDBucketArmServo(hardwareMap, telemetry);
+        bucketArmServo = new ITDBucketArmServo(hardwareMap, telemetry);
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
@@ -28,7 +30,7 @@ public class ITDSetupBucketArmServo extends LinearOpMode {
         waitForStart();
 
         // Put your calls here - they will not run in a loop
-        intakeArmServo.setupServoPositionsUsingGamepad(this);
+        bucketArmServo.setupServoPositionsUsingGamepad(this);
 
 
         // Put your cleanup code here - it runs as the application shuts down
