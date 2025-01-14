@@ -32,15 +32,11 @@ public class ITDTestLiftReset extends LinearOpMode {
                 "liftMotor",
                 DcMotor8863.MotorType.GOBILDA_1150,
                 4.517);
-        // This is for the blue alliance
-        lift.reverseMotorDirection();
 
-
-        //lift.reverseMotorDirection();
         lift.setResetTimerLimitInmSec(5000);
-        lift.setExtensionPower(0.2);
+        lift.setExtensionPower(0.1);
         lift.setExtensionPositionInMechanismUnits(20.0);
-        lift.setRetractionPower(-0.2);
+        lift.setRetractionPower(-0.1);
         lift.setRetractionPositionInMechanismUnits(0.0);
         lift.setDataLog(log);
         lift.enableDataLogging();

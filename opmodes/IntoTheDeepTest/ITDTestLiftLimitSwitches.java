@@ -28,11 +28,6 @@ public class ITDTestLiftLimitSwitches extends LinearOpMode {
                 "liftMotor",
                 DcMotor8863.MotorType.GOBILDA_1150,
                 4.517);
-        // This is for the blue alliance
-        //lift.reverseMotorDirection();
-
-        // this is for the red alliance
-        //lift.reverseMotorDirection();
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
