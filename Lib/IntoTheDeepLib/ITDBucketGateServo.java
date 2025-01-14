@@ -44,11 +44,11 @@ public class ITDBucketGateServo implements FTCRobotSubsystem {
 
     private boolean initComplete = false;
 
-    private double initPosition = 0.03;
-    private double openPosition = 0.03;
-    private double closePosition = 0.7;
+    // no index position
+    private double openPosition = 0.45;
+    private double closePosition = 0.93;
     private double pickupPosition = 0.7;
-
+    private double initPosition = closePosition;
     private double shutdownPosition = closePosition;
 
     //*********************************************************************************************
