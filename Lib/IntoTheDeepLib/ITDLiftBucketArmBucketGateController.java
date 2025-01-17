@@ -78,7 +78,7 @@ public class ITDLiftBucketArmBucketGateController implements FTCRobotSubsystem {
 
     private ITDIntakeBucketController controller;
 
-    public void setController(ITDIntakeBucketController controller) {
+    public void setIntakeBucketController(ITDIntakeBucketController controller) {
         this.controller = controller;
     }
     //*********************************************************************************************

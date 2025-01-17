@@ -109,6 +109,7 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
     public ITDIntakeBucketController(HardwareMap hardwareMap, Telemetry telemetry) {
 
         timer = new ElapsedTime();
+        state = IntakeBucketControllerState.IDLE;
     }
     //*********************************************************************************************
     //          Helper Methods
@@ -431,6 +432,9 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
         logState();
 
         switch (state) {
+            case IDLE:
+                // just hang out and wait for a command
+                break;
 
             // setup for init - run before arriving for match
 //            case EXTENSION_ARM_RESETTING_FOR_INIT_SETUP:

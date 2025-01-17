@@ -125,6 +125,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
         intake.setController(this);
 
         timer = new ElapsedTime();
+        state = ExtensionArmIntakeBucketControllerState.IDLE;
     }
     //*********************************************************************************************
     //          Helper Methods
@@ -171,6 +172,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
     public void completeSetupForInit() {
         logCommand("complete setup for init");
         intakeArmServo.initPosition();
+        extensionArm.initPosition();
         setExtensionArmResetComplete(false);
         state = ExtensionArmIntakeBucketControllerState.EXTENSION_ARM_MOVING_TO_INIT_POSITION;
     }
@@ -655,6 +657,10 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
             case OUTTAKING_SAMPLE:
                 // we get to this state when the driver asks for an outtake
                 // the only way out is for the driver to stop the intake
+                break;
+
+            case IDLE:
+                // just hang out and wait for a command
                 break;
         }
 
