@@ -1,31 +1,25 @@
-package org.firstinspires.ftc.teamcode.opmodes.IntoTheDeepTest;
+package org.firstinspires.ftc.teamcode.opmodes.IntoTheDeepTest.ExtensionArm;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "ITD Test Extension Arm Extension", group = "Test")
+@TeleOp(name = "ITD Test Extension Arm Switches", group = "Test")
 //@Disabled
-public class ITDTestExtensionArmExtension extends LinearOpMode {
+public class ITDTestExtensionArmLimitSwitches extends LinearOpMode {
 
     // Put your variable declarations here
     ExtensionRetractionMechanism extensionArm;
-    DataLogging log;
 
     @Override
     public void runOpMode() {
 
 
-        // Put your initializations here
-
-        log = new DataLogging("LiftLog");
         // Put your initializations here
         extensionArm = new ExtensionRetractionMechanism(hardwareMap, telemetry,
                 "ExtensionArm",
@@ -37,15 +31,8 @@ public class ITDTestExtensionArmExtension extends LinearOpMode {
         // This is for the blue alliance
         //extensionArm.reverseMotorDirection();
 
-
+        // this is for the red alliance
         //extensionArm.reverseMotorDirection();
-        extensionArm.setResetTimerLimitInmSec(25000);
-        extensionArm.setExtensionPower(0.2);
-        extensionArm.setExtensionPositionInMechanismUnits(10);
-        extensionArm.setRetractionPower(-0.2);
-        extensionArm.setRetractionPositionInMechanismUnits(0.25);
-        extensionArm.setDataLog(log);
-        extensionArm.enableDataLogging();
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
@@ -54,12 +41,14 @@ public class ITDTestExtensionArmExtension extends LinearOpMode {
 
         // Put your calls here - they will not run in a loop
 
-        extensionArm.testExtension(this);
+        while (opModeIsActive()) {
 
-        // after the extension is complete, loop so the user can see the result
-        while (opModeIsActive()){
-            telemetry.addData("state = ", extensionArm.getExtensionRetractionState().toString());
+            // Put your calls that need to run in a loop here
+
+            extensionArm.testLimitSwitches();
+            telemetry.addData(">", "Press Stop to end test.");
             telemetry.update();
+
             idle();
         }
 

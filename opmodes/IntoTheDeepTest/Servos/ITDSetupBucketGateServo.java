@@ -1,28 +1,26 @@
-package org.firstinspires.ftc.teamcode.opmodes.IntoTheDeepTest.Setup;
+package org.firstinspires.ftc.teamcode.opmodes.IntoTheDeepTest.Servos;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ITDBucketArmServo;
+import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ITDBucketGateServo;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "ITD Setup Bucket Arm Servo", group = "Test")
+@TeleOp(name = "ITD Setup Bucket Gate Servo", group = "Setup")
 //@Disabled
-public class ITDSetupBucketArmServo extends LinearOpMode {
+public class ITDSetupBucketGateServo extends LinearOpMode {
 
     // Put your variable declarations here
-    public ITDBucketArmServo bucketArmServo;
-
-    // index when arm is vertical and servo = .52
+    public ITDBucketGateServo intakeArmServo;
 
     @Override
     public void runOpMode() {
 
 
         // Put your initializations here
-        bucketArmServo = new ITDBucketArmServo(hardwareMap, telemetry);
+        intakeArmServo = new ITDBucketGateServo(hardwareMap, telemetry);
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
@@ -30,7 +28,7 @@ public class ITDSetupBucketArmServo extends LinearOpMode {
         waitForStart();
 
         // Put your calls here - they will not run in a loop
-        bucketArmServo.setupServoPositionsUsingGamepad(this);
+        intakeArmServo.setupServoPositionsUsingGamepad(this);
 
 
         // Put your cleanup code here - it runs as the application shuts down

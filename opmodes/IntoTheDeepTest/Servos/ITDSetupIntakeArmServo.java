@@ -1,27 +1,26 @@
-package org.firstinspires.ftc.teamcode.opmodes.IntoTheDeepTest.Setup;
+package org.firstinspires.ftc.teamcode.opmodes.IntoTheDeepTest.Servos;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ITDBucketGateServo;
 import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ITDIntakeArmServo;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "ITD Setup Bucket Gate Servo", group = "Test")
+@TeleOp(name = "ITD Setup Intake Arm Servo", group = "Setup")
 //@Disabled
-public class ITDSetupBucketGateServo extends LinearOpMode {
+public class ITDSetupIntakeArmServo extends LinearOpMode {
 
     // Put your variable declarations here
-    public ITDBucketGateServo intakeArmServo;
+    public ITDIntakeArmServo intakeArmServo;
 
     @Override
     public void runOpMode() {
 
 
         // Put your initializations here
-        intakeArmServo = new ITDBucketGateServo(hardwareMap, telemetry);
+        intakeArmServo = new ITDIntakeArmServo(hardwareMap, telemetry);
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");

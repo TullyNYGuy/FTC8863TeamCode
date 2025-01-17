@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.opmodes.IntoTheDeepTest.Setup;
+package org.firstinspires.ftc.teamcode.opmodes.IntoTheDeepTest.Servos;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;

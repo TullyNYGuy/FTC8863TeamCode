@@ -73,21 +73,19 @@ public class ITDLift implements FTCRobotSubsystem {
 
     public ITDLift(HardwareMap hardwareMap, Telemetry telemetry) {
         lift = new ExtensionRetractionMechanism(hardwareMap, telemetry,
-                ITDRobot.HardwareName.EXTENSION_ARM.hwName,
-                ITDRobot.HardwareName.EXTENSION_ARM_EXTENSION_LIMIT_SWITCH.hwName,
-                ITDRobot.HardwareName.EXTENSION_ARM_RETRACTION_LIMIT_SWITCH.hwName,
-                ITDRobot.HardwareName.EXTENSION_ARM_MOTOR.hwName,
+                ITDRobot.HardwareName.LIFT.hwName,
+                ITDRobot.HardwareName.LIFT_LIMIT_SWITCH_EXTENSION.hwName,
+                ITDRobot.HardwareName.LIFT_LIMIT_SWITCH_RETRACTION.hwName,
+                ITDRobot.HardwareName.LIFT_MOTOR.hwName,
                 DcMotor8863.MotorType.GOBILDA_1150,
                 4.517);
-        // This is for the blue alliance
-        //lift.reverseMotorDirection();
         lift.setResetTimerLimitInmSec(5000);
         //*********************************************
         // SET the lift powers here
         //*********************************************
         initPower = .2;
-        extendPower = 1.0;
-        retractPower = -1.0;
+        extendPower = .2;
+        retractPower = -.2;
         lift.setExtensionPower(extendPower);
         lift.setRetractionPower(retractPower);
         //*********************************************
@@ -124,6 +122,10 @@ public class ITDLift implements FTCRobotSubsystem {
         } else {
             return false;
         }
+    }
+
+    public boolean isResetComplete() {
+        return lift.isResetComplete();
     }
 
     public void reset() {
@@ -337,7 +339,11 @@ public class ITDLift implements FTCRobotSubsystem {
     }
 
     public void displayState(Telemetry telemetry) {
-        //telemetry.addData("State = ", armIntakeState.toString());
+        telemetry.addData("Lift state = ", state.toString());
+    }
+
+    public void displayPosition(Telemetry telemetry) {
+        telemetry.addData("Lift Pos = ", lift.getPosition());
     }
 
     @Override

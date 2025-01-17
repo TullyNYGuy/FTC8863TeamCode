@@ -1,27 +1,26 @@
-package org.firstinspires.ftc.teamcode.opmodes.IntoTheDeepTest.Setup;
+package org.firstinspires.ftc.teamcode.opmodes.IntoTheDeepTest.Servos;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ITDBucketArmServo;
-import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ITDIntakeArmServo;
+import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ITDBucketGateServo;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "ITD Test Bucket Arm Servo Positions", group = "Test")
+@TeleOp(name = "ITD Test Bucket Gate Servo Positions", group = "Test")
 //@Disabled
-public class ITDTestBucketArmServoPositions extends LinearOpMode {
+public class ITDTestBucketGateServoPositions extends LinearOpMode {
 
     // Put your variable declarations here
-    public ITDBucketArmServo bucketArmServo;
+    public ITDBucketGateServo bucketGateServo;
 
     @Override
     public void runOpMode() {
 
 
         // Put your initializations here
-        bucketArmServo = new ITDBucketArmServo(hardwareMap, telemetry);
+        bucketGateServo = new ITDBucketGateServo(hardwareMap, telemetry);
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
@@ -31,22 +30,21 @@ public class ITDTestBucketArmServoPositions extends LinearOpMode {
         // Put your calls here - they will not run in a loop
         while (opModeIsActive()) {
             // Put your calls that need to run in a loop here
-            bucketArmServo.update();
+            bucketGateServo.update();
 
             if (gamepad1.a) {
-                bucketArmServo.initPosition();
+                bucketGateServo.initPosition();
             }
 
             if (gamepad1.x) {
-                bucketArmServo.transferPosition();
+                bucketGateServo.closePosition();
             }
 
             if (gamepad1.b) {
-                bucketArmServo.safeForVerticalMovementPosition();
+                bucketGateServo.openPosition();
             }
 
             if (gamepad1.y) {
-                bucketArmServo.deliveryPosition();
             }
 
             telemetry.addData(">", "Press Stop to end test.");

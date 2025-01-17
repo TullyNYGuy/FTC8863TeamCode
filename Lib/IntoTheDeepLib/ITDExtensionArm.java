@@ -88,8 +88,8 @@ public class ITDExtensionArm implements FTCRobotSubsystem {
         // SET the lift powers here
         //*********************************************
         initPower = 0.2;
-        extendPower = 0.5;
-        retractPower = -0.5;
+        extendPower = 0.2;
+        retractPower = -0.2;
         extensionArm.setExtensionPower(extendPower);
         extensionArm.setRetractionPower(retractPower);
         //*********************************************

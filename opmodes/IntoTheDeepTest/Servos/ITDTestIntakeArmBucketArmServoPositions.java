@@ -1,28 +1,29 @@
-package org.firstinspires.ftc.teamcode.opmodes.IntoTheDeepTest.Setup;
+package org.firstinspires.ftc.teamcode.opmodes.IntoTheDeepTest.Servos;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ITDBucketArmServo;
-import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ITDBucketGateServo;
 import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ITDIntakeArmServo;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "ITD Test Bucket Gate Servo Positions", group = "Test")
+@TeleOp(name = "ITD Test Intake Arm Bucket Arm Servo Positions", group = "Test")
 //@Disabled
-public class ITDTestBucketGateServoPositions extends LinearOpMode {
+public class ITDTestIntakeArmBucketArmServoPositions extends LinearOpMode {
 
     // Put your variable declarations here
-    public ITDBucketGateServo bucketGateServo;
+    public ITDIntakeArmServo intakeArmServo;
+    public ITDBucketArmServo bucketArmServo;
 
     @Override
     public void runOpMode() {
 
 
         // Put your initializations here
-        bucketGateServo = new ITDBucketGateServo(hardwareMap, telemetry);
+        intakeArmServo = new ITDIntakeArmServo(hardwareMap, telemetry);
+        bucketArmServo = new ITDBucketArmServo(hardwareMap, telemetry);
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
@@ -32,18 +33,20 @@ public class ITDTestBucketGateServoPositions extends LinearOpMode {
         // Put your calls here - they will not run in a loop
         while (opModeIsActive()) {
             // Put your calls that need to run in a loop here
-            bucketGateServo.update();
+            intakeArmServo.update();
+            bucketArmServo.update();
 
             if (gamepad1.a) {
-                bucketGateServo.initPosition();
+                intakeArmServo.initPosition();
+                bucketArmServo.initPosition();
             }
 
             if (gamepad1.x) {
-                bucketGateServo.closePosition();
+                intakeArmServo.transferPosition();
+                bucketArmServo.transferPosition();
             }
 
             if (gamepad1.b) {
-                bucketGateServo.openPosition();
             }
 
             if (gamepad1.y) {

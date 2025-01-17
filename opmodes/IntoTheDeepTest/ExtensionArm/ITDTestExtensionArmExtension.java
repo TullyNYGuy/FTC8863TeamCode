@@ -1,5 +1,6 @@
-package org.firstinspires.ftc.teamcode.opmodes.IntoTheDeepTest;
+package org.firstinspires.ftc.teamcode.opmodes.IntoTheDeepTest.ExtensionArm;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -10,9 +11,9 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "ITD Test Extension Arm Reset", group = "Test")
+@TeleOp(name = "ITD Test Extension Arm Extension", group = "Test")
 //@Disabled
-public class ITDTestExtensionArmReset extends LinearOpMode {
+public class ITDTestExtensionArmExtension extends LinearOpMode {
 
     // Put your variable declarations here
     ExtensionRetractionMechanism extensionArm;
@@ -23,6 +24,7 @@ public class ITDTestExtensionArmReset extends LinearOpMode {
 
 
         // Put your initializations here
+
         log = new DataLogging("LiftLog");
         // Put your initializations here
         extensionArm = new ExtensionRetractionMechanism(hardwareMap, telemetry,
@@ -37,11 +39,11 @@ public class ITDTestExtensionArmReset extends LinearOpMode {
 
 
         //extensionArm.reverseMotorDirection();
-        extensionArm.setResetTimerLimitInmSec(5000);
+        extensionArm.setResetTimerLimitInmSec(25000);
         extensionArm.setExtensionPower(0.2);
-        extensionArm.setExtensionPositionInMechanismUnits(10.0);
+        extensionArm.setExtensionPositionInMechanismUnits(10);
         extensionArm.setRetractionPower(-0.2);
-        extensionArm.setRetractionPositionInMechanismUnits(0.0);
+        extensionArm.setRetractionPositionInMechanismUnits(0.25);
         extensionArm.setDataLog(log);
         extensionArm.enableDataLogging();
 
@@ -52,9 +54,9 @@ public class ITDTestExtensionArmReset extends LinearOpMode {
 
         // Put your calls here - they will not run in a loop
 
-        extensionArm.testReset(this);
+        extensionArm.testExtension(this);
 
-        // after the reset is complete just loop so the user can see the state
+        // after the extension is complete, loop so the user can see the result
         while (opModeIsActive()){
             telemetry.addData("state = ", extensionArm.getExtensionRetractionState().toString());
             telemetry.update();

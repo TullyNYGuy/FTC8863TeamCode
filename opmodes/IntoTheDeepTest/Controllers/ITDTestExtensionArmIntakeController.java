@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.opmodes.IntoTheDeepTest;
+package org.firstinspires.ftc.teamcode.opmodes.IntoTheDeepTest.Controllers;
 
 import static org.firstinspires.ftc.teamcode.Lib.Color.RED;
 
