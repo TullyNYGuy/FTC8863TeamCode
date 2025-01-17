@@ -58,8 +58,8 @@ public class ITDLift implements FTCRobotSubsystem {
     private double initPower;
 
     private double initPosition = 0.0;
-    private double transferPosition = .05;
-    private double readyToDeliverPosition = 18.0;
+    private double transferPosition = 0;
+    private double readyToDeliverPosition = 28.0;
     private double lowBarHangPosition = 6.0;
     private double highBarHangPosition = 4.0;
 

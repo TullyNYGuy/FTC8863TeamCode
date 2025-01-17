@@ -35,7 +35,7 @@ public class ITDTestExtensionArmExtension extends LinearOpMode {
                 DcMotor8863.MotorType.GOBILDA_1150,
                 4.80);
         // This is for the blue alliance
-        extensionArm.reverseMotorDirection();
+        //extensionArm.reverseMotorDirection();
 
 
         //extensionArm.reverseMotorDirection();

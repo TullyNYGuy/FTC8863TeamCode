@@ -33,14 +33,14 @@ public class ITDTestExtensionArmExtensionRetraction extends LinearOpMode {
                 DcMotor8863.MotorType.GOBILDA_1150,
                 4.80);
         // This is for the blue alliance
-        extensionArm.reverseMotorDirection();
+        //extensionArm.reverseMotorDirection();
 
       //  extensionArm.reverseMotorDirection();
         extensionArm.setResetTimerLimitInmSec(25000);
         extensionArm.setExtensionPower(.5);
         extensionArm.setExtensionPositionInMechanismUnits(15.0);
         extensionArm.setRetractionPower(-.5);
-        extensionArm.setRetractionPositionInMechanismUnits(0.5);
+        extensionArm.setRetractionPositionInMechanismUnits(0.05);
         extensionArm.setDataLog(log);
         extensionArm.enableDataLogging();
         // Wait for the start button

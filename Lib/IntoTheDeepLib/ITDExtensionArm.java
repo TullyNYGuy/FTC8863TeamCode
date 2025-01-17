@@ -81,16 +81,15 @@ public class ITDExtensionArm implements FTCRobotSubsystem {
                 ITDRobot.HardwareName.EXTENSION_ARM_MOTOR.hwName,
                 DcMotor8863.MotorType.GOBILDA_1150,
                 4.80);
-        // This is for the blue alliance
-        extensionArm.reverseMotorDirection();
+
         extensionArm.setResetTimerLimitInmSec(10000);
         //extensionArm.setupStallDetection(1000, 30);
         //*********************************************
         // SET the lift powers here
         //*********************************************
         initPower = 0.2;
-        extendPower = 0.2;
-        retractPower = -0.2;
+        extendPower = 0.5;
+        retractPower = -0.5;
         extensionArm.setExtensionPower(extendPower);
         extensionArm.setRetractionPower(retractPower);
         //*********************************************
