@@ -12,9 +12,9 @@ import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ITDLiftBucketArmBucketG
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "ITD Test Controller Lift Bucket", group = "Test")
+@TeleOp(name = "ITD Test Controller Intake Bucket", group = "Test")
 //@Disabled
-public class ITDTestLiftBucketController extends LinearOpMode {
+public class ITDTestIntakeBucketController extends LinearOpMode {
 
     // Put your variable declarations here
     public ITDExtensionArmIntakeController extensionArmIntakeController;
@@ -30,15 +30,19 @@ public class ITDTestLiftBucketController extends LinearOpMode {
 
         // Put your initializations here
         extensionArmIntakeController = new ITDExtensionArmIntakeController(hardwareMap, telemetry);
-        intakeBucketController = new ITDIntakeBucketController(hardwareMap, telemetry);
         liftBucketArmBucketGateController = new ITDLiftBucketArmBucketGateController(hardwareMap, telemetry);
+        intakeBucketController = new ITDIntakeBucketController(hardwareMap, telemetry);
 
-        // setup for communications between controllers and this controller
+        // setup so the lower level controllers can communicate back to the intake bucket controller
         extensionArmIntakeController.setIntakeBucketController(intakeBucketController);
         liftBucketArmBucketGateController.setIntakeBucketController(intakeBucketController);
 
+        // setup so the intake bucket controller can talk to the lower level controllers
+        intakeBucketController.setExtensionArmIntakeController(extensionArmIntakeController);
+        intakeBucketController.setLiftBucketArmBucketGateController(liftBucketArmBucketGateController);
+
         // setup for data logging
-        dataLog = new DataLogging("ControllerLiftBucket", telemetry);
+        dataLog = new DataLogging("ControllerIntakeBucket", telemetry);
         intakeBucketController.setDataLog(dataLog);
         extensionArmIntakeController.setDataLog(dataLog);
         liftBucketArmBucketGateController.setDataLog(dataLog);
@@ -56,40 +60,40 @@ public class ITDTestLiftBucketController extends LinearOpMode {
         // Put your calls here - they will not run in a loop
 
         while (opModeIsActive()) {
-            //intakeBucketController.update();
+            intakeBucketController.update();
             extensionArmIntakeController.update();
             liftBucketArmBucketGateController.update();
 
             if (gamepad1.a) {
-                liftBucketArmBucketGateController.setupForInit();
+                intakeBucketController.setupForInit();
             }
 
             if (gamepad1.x) {
-                liftBucketArmBucketGateController.init(null);
+                intakeBucketController.init(null);
             }
 
             if (gamepad1.b) {
-                liftBucketArmBucketGateController.getReadyToRun();
+                intakeBucketController.getReadyToRun();
             }
 
             if (gamepad1.y) {
-                liftBucketArmBucketGateController.setupForDrivingBeforeDelivery();
+                intakeBucketController.setupForDrivingBeforeDelivery();
             }
 
             if (gamepad1.dpad_down) {
-                liftBucketArmBucketGateController.setupForDelivery();
+                intakeBucketController.setupForDelivery();
             }
 
             if (gamepad1.dpad_left) {
-                liftBucketArmBucketGateController.deliverSample();
+                intakeBucketController.deliverSample();
             }
 
             if (gamepad1.dpad_right) {
-
+                intakeBucketController.setupForIntake();
             }
 
             if (gamepad1.dpad_up) {
-
+                intakeBucketController.intake();
             }
 
             if (gamepad1.right_bumper) {

@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Lib.Color;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ITDExtensionArmIntakeController;
 import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ITDIntakeBucketController;
 import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ITDIntakeColorSensor;
@@ -17,7 +18,7 @@ import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ITDLiftBucketArmBucketG
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "ITD Test Extension Arm Intake Controller", group = "Test")
+@TeleOp(name = "ITD Test Controller Extension Arm Intake", group = "Test")
 //@Disabled
 public class ITDTestExtensionArmIntakeController extends LinearOpMode {
 
@@ -25,6 +26,7 @@ public class ITDTestExtensionArmIntakeController extends LinearOpMode {
     public ITDExtensionArmIntakeController extensionArmIntakeController;
     public ITDLiftBucketArmBucketGateController liftBucketArmBucketGateController;
     public ITDIntakeBucketController intakeBucketController;
+    public DataLogging dataLog;
     public ElapsedTime timer;
 
     public boolean delayStarted = false;
@@ -36,8 +38,18 @@ public class ITDTestExtensionArmIntakeController extends LinearOpMode {
         extensionArmIntakeController = new ITDExtensionArmIntakeController(hardwareMap, telemetry);
         intakeBucketController = new ITDIntakeBucketController(hardwareMap, telemetry);
         liftBucketArmBucketGateController = new ITDLiftBucketArmBucketGateController(hardwareMap, telemetry);
+
         extensionArmIntakeController.setIntakeBucketController(intakeBucketController);
         liftBucketArmBucketGateController.setIntakeBucketController(intakeBucketController);
+
+        // setup for data logging
+        dataLog = new DataLogging("ControllerExtensionArmIntake", telemetry);
+        intakeBucketController.setDataLog(dataLog);
+        extensionArmIntakeController.setDataLog(dataLog);
+        liftBucketArmBucketGateController.setDataLog(dataLog);
+        intakeBucketController.enableDataLogging();
+        extensionArmIntakeController.enableDataLogging();
+        liftBucketArmBucketGateController.enableDataLogging();
 
         timer = new ElapsedTime();
 

@@ -50,7 +50,7 @@ public class ITDBucketArmServo implements FTCRobotSubsystem {
     // index when arm is vertical and servo = .52
     private double safeForVerticalMovementPosition = 0.52;
     private double deliveryPosition = 0.42;
-    private double transferPosition = 0.98;
+    private double transferPosition = 0.99;
     private double specimenPickupPosition = 0.7;
     private double specimenHangLowBarPosition = 0.7;
     private double specimenHangHighBarPosition = 0.75;
@@ -77,7 +77,7 @@ public class ITDBucketArmServo implements FTCRobotSubsystem {
 
         bucketArmServo.addPosition("initPosition", initPosition, 700, TimeUnit.MILLISECONDS);
         bucketArmServo.addPosition("intakePosition", intakePosition, 700, TimeUnit.MILLISECONDS);
-        bucketArmServo.addPosition("safeForVerticalMovementPosition", safeForVerticalMovementPosition, 700, TimeUnit.MILLISECONDS);
+        bucketArmServo.addPosition("safeForVerticalMovementPosition", safeForVerticalMovementPosition, 1000, TimeUnit.MILLISECONDS);
         bucketArmServo.addPosition("deliveryPosition", deliveryPosition, 700, TimeUnit.MILLISECONDS);
         bucketArmServo.addPosition("transferPosition", transferPosition, 1000, TimeUnit.MILLISECONDS);
         bucketArmServo.addPosition("specimenPickupPosition", specimenPickupPosition, 1000, TimeUnit.MILLISECONDS);

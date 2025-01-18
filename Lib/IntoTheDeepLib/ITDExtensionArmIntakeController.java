@@ -156,7 +156,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
      * 18" limit.
      */
     public void setupForInitBucketClearance() {
-        logCommand("setup for init bucket clearance");
+        logCommand("Setup for init bucket clearance");
         extensionArm.reset();
         setExtensionArmResetComplete(false);
         controller.setIntakeReadyForInit(false);
@@ -170,7 +170,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
      * retract the extension arm and rotate the intake to its init position.
      */
     public void completeSetupForInit() {
-        logCommand("complete setup for init");
+        logCommand("Complete setup for init");
         intakeArmServo.initPosition();
         extensionArm.initPosition();
         setExtensionArmResetComplete(false);
@@ -195,7 +195,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
     @Override
     public boolean init(Configuration config) {
         initComplete = false;
-        logCommand("Init starting");
+        logCommand("Init");
         intakeArmServo.initPosition();
         extensionArm.reset();
         state = ExtensionArmIntakeBucketControllerState.EXTENSION_ARM_RESETTING_FOR_INIT;
@@ -209,7 +209,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
      * move to the transfer position. Then the robot can be run.
      */
     public void getReadyToRun() {
-        logCommand("get ready to run");
+        logCommand("Get ready to run");
         // tell the intake / bucket controller that the bucket clearance position is NOT
         // reached. It has to wait until the bucket clearance position is reached before moving the
         // bucket.
@@ -227,7 +227,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
      * calling this method.
      */
     public void completeGetReadyToRun() {
-        logCommand("complete get ready to run");
+        logCommand("Complete get ready to run");
         // tell the intake / bucket controller that the transfer position is NOT reached.
         controller.setIntakePositionedForTransfer(false);
         // also tell the intake / bucket controller that a transfer has not been completed yet. This
@@ -245,7 +245,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
      * need to move the extension arm and intake to the bucket clearance position.
      */
     public void setupForBucketClearance() {
-        logCommand("setup for bucket clearance");
+        logCommand("Setup for bucket clearance");
         // tell the intake / bucket controller that the bucket clearance position is NOT
         // reached. It has to wait until the bucket clearance position is reached before moving the
         // bucket.
@@ -260,7 +260,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
      * The intake / bucket controller wants us to move to the intake position.
      */
     public void setupForIntake() {
-        logCommand("setup for intake");
+        logCommand("Setup for intake");
         // tell the intake bucket controller that the position is not reached yet
         controller.setIntakePositionReached(false);
         extensionArm.intakePosition();
@@ -276,7 +276,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
      * then the setupForTranfer() will be automatically called.
      */
     public void intake() {
-        logCommand("intake");
+        logCommand("Intake");
         controller.setIntakeHasValidSample(false);
         intakeArmServo.intakePosition();
         intake.intake();
@@ -287,7 +287,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
      * Stop the intake. It will remain at its current rotation and the intake will wait for another command.
      */
     public void stop() {
-        logCommand("stop");
+        logCommand("Stop");
         intake.stop();
         state = ExtensionArmIntakeBucketControllerState.INTAKE_STOPPED;
     }
@@ -297,7 +297,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
      * The driver could also call it independently if needed.
      */
     public void setupForTransfer() {
-        logCommand("setup for transfer");
+        logCommand("Setup for transfer");
         controller.setIntakePositionedForTransfer(false);
         intakeArmServo.transferPosition();
         // tell the intake / bucket controller that the intake is not ready for a transfer yet
@@ -305,21 +305,21 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
     }
 
     public void transfer() {
-        logCommand("transfer");
+        logCommand("Transfer");
         controller.setIntakeTransferComplete(false);
         intake.transfer();
         state = ExtensionArmIntakeBucketControllerState.TRANSFERRING_SAMPLE;
     }
 
     public void setupForOuttake() {
-        logCommand("setup for outtake");
+        logCommand("Setup for outtake");
         extensionArm.bucketClearancePosition();
         intakeArmServo.bucketClearancePosition();
         state = ExtensionArmIntakeBucketControllerState.MOVING_TO_OUTTAKE_POSITION;
     }
 
     public void outtake() {
-        logCommand("outtake");
+        logCommand("Outtake");
         intake.outtake();
         state = ExtensionArmIntakeBucketControllerState.OUTTAKING_SAMPLE;
     }
@@ -337,7 +337,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
 
     public void setIntakesRequestsAnOuttake(boolean needOuttake) {
         this.intakesRequestsAnOuttake = needOuttake;
-        logCommand("Intake requests outtake");
+        logComment("Intake requests outtake");
     }
 
     private boolean outtakeComplete = false;
@@ -404,7 +404,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
     @Override
     public boolean isInitComplete() {
         if (initComplete) {
-            logCommand("Init complete");
+            logComment("Init complete");
         }
         return initComplete;
     }
@@ -448,6 +448,12 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
     private void logCommand(String command) {
         if (loggingOn && logFile != null) {
             logDataOnchange.log(getName() + " command = " + command);
+        }
+    }
+
+    private void logComment(String comment) {
+        if (loggingOn && logFile != null) {
+            logFile.logData(comment);
         }
     }
 

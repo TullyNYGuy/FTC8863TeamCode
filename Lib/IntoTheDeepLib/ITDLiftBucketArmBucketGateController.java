@@ -63,7 +63,7 @@ public class ITDLiftBucketArmBucketGateController implements FTCRobotSubsystem {
     private DataLogging logFile;
     private boolean loggingOn = false;
     private DataLogOnChange logDataOnchange;
-
+    private DataLogOnChange logStateOnChange;
     private boolean initComplete = false;
     private final String CONTROLLER_NAME = ITDRobot.HardwareName.LIFT_BUCKET_ARM_BUCKET_GATE_CONTROLLER.hwName;
 
@@ -91,9 +91,12 @@ public class ITDLiftBucketArmBucketGateController implements FTCRobotSubsystem {
     public ITDLiftBucketArmBucketGateController(HardwareMap hardwareMap, Telemetry telemetry) {
         this.telemetry = telemetry;
         lift = new ITDLift(hardwareMap, telemetry);
+        // give the lift a reference to this controller since it needs to communicate with us
+        lift.setController(this);
         bucketArmServo = new ITDBucketArmServo(hardwareMap,telemetry);
         bucketGateServo = new ITDBucketGateServo(hardwareMap, telemetry);
         timer = new ElapsedTime();
+        state = LiftBucketArmGateControllerState.IDLE;
     }
     //*********************************************************************************************
     //          Helper Methods
@@ -139,7 +142,7 @@ public class ITDLiftBucketArmBucketGateController implements FTCRobotSubsystem {
      * bucket controller that a transfer is complete since we have a sample in the bucket already.
      */
     public void getReadyToRun() {
-        logCommand("get ready to run");
+        logCommand("Get ready to run");
         controller.setLiftBucketAtTransferPosition(false);
         // normally the intake controller does this, but this is startup and there is a sample in
         // the bucket already
@@ -155,7 +158,7 @@ public class ITDLiftBucketArmBucketGateController implements FTCRobotSubsystem {
      * the bucket arm.
      */
     public void setupForDrivingBeforeDelivery() {
-        logCommand("setup for drive before delivery");
+        logCommand("Setup for drive before or after delivery");
         controller.setLiftBucketAtSafeToDrivePosition(false);
         bucketGateServo.closePosition();
         bucketArmServo.safeForVerticalMovementPosition();
@@ -163,20 +166,24 @@ public class ITDLiftBucketArmBucketGateController implements FTCRobotSubsystem {
 
     }
     public void setupForDelivery() {
-        logCommand("setup for delivery");
+        logCommand("Setup for delivery");
         controller.setLiftBucketAtReadyToDeliverPosition(false);
         bucketArmServo.deliveryPosition();
         state = LiftBucketArmGateControllerState.BUCKET_ARM_MOVING_TO_DELIVERY_POSITION;
     }
 
     public void deliverSample() {
-        logCommand("deliver sample");
+        logCommand("Deliver sample");
         controller.setLiftBucketSampleIsDelivered(false);
         controller.setLiftBucketAtTransferPosition(false);
         bucketGateServo.openPosition();
         // start a timer to make sure the sample has dropped out of the bucket
         timer.reset();
         state = LiftBucketArmGateControllerState.DELIVERING_SAMPLE;
+    }
+
+    public void openGate() {
+        bucketGateServo.openPosition();
     }
 
     //*********************************************************************************************
@@ -221,7 +228,7 @@ public class ITDLiftBucketArmBucketGateController implements FTCRobotSubsystem {
     @Override
     public boolean isInitComplete() {
         if (initComplete) {
-            logCommand("Init complete");
+            logComment("Init complete");
         }
         return initComplete;
     }
@@ -234,6 +241,7 @@ public class ITDLiftBucketArmBucketGateController implements FTCRobotSubsystem {
     public void setDataLog(DataLogging logFile) {
         this.logFile = logFile;
         logDataOnchange = new DataLogOnChange(logFile);
+        logStateOnChange = new DataLogOnChange(logFile);
     }
 
     @Override
@@ -248,7 +256,7 @@ public class ITDLiftBucketArmBucketGateController implements FTCRobotSubsystem {
 
     private void logState() {
         if (loggingOn && logFile != null) {
-            logDataOnchange.log(getName() + " state = " + state.toString());
+            logStateOnChange.log(getName() + " state = " + state.toString());
         }
     }
 
@@ -258,8 +266,14 @@ public class ITDLiftBucketArmBucketGateController implements FTCRobotSubsystem {
         }
     }
 
+    private void logComment(String comment) {
+        if (loggingOn && logFile != null) {
+            logFile.logData(comment);
+        }
+    }
+
     public void displayState(Telemetry telemetry) {
-        //telemetry.addData("State = ", armIntakeState.toString());
+        telemetry.addData("LBABGC State = ", state.toString());
     }
 
     @Override
@@ -281,7 +295,6 @@ public class ITDLiftBucketArmBucketGateController implements FTCRobotSubsystem {
             // setup for init - run before arriving for match
             case BUCKET_MOVING_TO_INIT_POSITION:
                 if (liftResetComplete && bucketArmServo.isPositionReached()) {
-                    bucketGateServo.openPosition();
                     initComplete = true;
                     controller.setLiftBucketAtInitPosition(true);
                     state = LiftBucketArmGateControllerState.INIT_COMPLETE;

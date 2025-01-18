@@ -83,7 +83,6 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
     private boolean loggingOn = false;
     private DataLogOnChange logDataOnchange;
     private DataLogOnChange logStateOnChange;
-
     private boolean initComplete = false;
     private final String CONTROLLER_NAME = ITDRobot.HardwareName.INTAKE_BUCKET_CONTROLLER.hwName;
 
@@ -159,7 +158,7 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
      */
     @Override
     public boolean init(Configuration config) {
-        logCommand("Init starting");
+        logCommand("Init");
         //todo remove this when this class is finished and let the real init set it
         initComplete = true;
         extensionArmIntakeController.init(config);
@@ -190,7 +189,7 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
      *   raise the lift to height needed for delivery
      */
     public void setupForDrivingBeforeDelivery() {
-        logCommand("setup for driving before delivery");
+        logCommand("Setup for driving before delivery");
         extensionArmIntakeController.setupForBucketClearance();
         state = IntakeBucketControllerState.INTAKE_MOVING_TO_BUCKET_CLEARANCE_POSITION_FOR_SAFE_DRIVING_POSITION_BEFORE_DELIVERY;
     }
@@ -202,7 +201,7 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
      *   rotate bucket orm horizontal (the lift is already at delivery height)
      */
     public void setupForDelivery() {
-        logCommand("setup for delivery");
+        logCommand("Setup for delivery");
         liftBucketArmBucketGateController.setupForDelivery();
         state = IntakeBucketControllerState.BUCKET_ARM_MOVING_TO_DELIVERY_POSITION;
     }
@@ -221,8 +220,8 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
      *   close the bucket gate servo
      */
     public void deliverSample() {
-        logCommand("delivery sample");
-        liftBucketArmBucketGateController.setupForDrivingBeforeDelivery();
+        logCommand("Deliver sample");
+        liftBucketArmBucketGateController.deliverSample();
         state = IntakeBucketControllerState.DELIVERING_SAMPLE_AND_BUCKET_MOVING_TO_TRANSFER_POSITION;
     }
 
@@ -232,7 +231,7 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
      *   extend extension arm to intake position (the intake arm is still up in the air though)
      */
     public void setupForIntake() {
-        logCommand("setup for intake");
+        logCommand("Setup for intake");
         extensionArmIntakeController.setupForIntake();
         state = IntakeBucketControllerState.EXTENSION_ARM_INTAKE_MOVING_TO_SETUP_FOR_INTAKE_POSITION;
     }
@@ -249,9 +248,9 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
      *   transfer the sample into the bucket
      */
     public void intake() {
-        logCommand("intake");
+        logCommand("Intake");
         extensionArmIntakeController.intake();
-
+        state = IntakeBucketControllerState.INTAKING;
 
     }
 
@@ -268,7 +267,7 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
 
     public void setIntakesRequestsAnOuttake(boolean needOuttake) {
         this.intakesRequestsAnOuttake = needOuttake;
-        logCommand("Intake requests outtake");
+        logComment("Intake requests outtake");
     }
 
     private boolean intakeReadyForInit = false;
@@ -376,7 +375,7 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
     @Override
     public boolean isInitComplete() {
         if (initComplete) {
-            logCommand("Init complete");
+            logComment("Init complete");
         }
         return initComplete;
     }
@@ -411,6 +410,12 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
     private void logCommand(String command) {
         if (loggingOn && logFile != null) {
             logDataOnchange.log(getName() + " command = " + command);
+        }
+    }
+
+    private void logComment(String comment) {
+        if (loggingOn && logFile != null) {
+            logFile.logData(comment);
         }
     }
 
@@ -552,6 +557,22 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
             case EXTENSION_ARM_INTAKE_AT_SETUP_FOR_INTAKE_POSITION:
                 // hang out waiting for an intake command
                 // or a back to transfer position command
+                break;
+
+                // Intake states
+            case INTAKING:
+                if (intakeHasValidSample && intakePositionedForTransfer) {
+                    liftBucketArmBucketGateController.openGate();
+                    extensionArmIntakeController.transfer();
+                    state = IntakeBucketControllerState.TRANSFERRING;
+                }
+                break;
+            case WAITING_FOR_READY_TO_TRANSFER:
+                break;
+            case TRANSFERRING:
+                if (intakeTransferComplete) {
+                    state = IntakeBucketControllerState.TRANSFER_COMPLETE;
+                }
                 break;
         }
 
