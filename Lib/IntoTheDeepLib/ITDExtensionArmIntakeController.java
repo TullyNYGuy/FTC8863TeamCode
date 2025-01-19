@@ -192,8 +192,8 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
      * @param config
      * @return
      */
-    @Override
-    public boolean init(Configuration config) {
+
+    public boolean initFromIntakeBucketController(Configuration config) {
         initComplete = false;
         logCommand("Init");
         intakeArmServo.initPosition();
@@ -201,6 +201,13 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
         state = ExtensionArmIntakeBucketControllerState.EXTENSION_ARM_RESETTING_FOR_INIT;
         return true;
     }
+
+    @Override
+    public boolean init(Configuration config) {
+        return true;
+    }
+
+
 
     /**
      * Once the init is run, we are waiting for a driver to press the play button. When that happens
@@ -264,6 +271,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
         // tell the intake bucket controller that the position is not reached yet
         controller.setIntakePositionReached(false);
         extensionArm.intakePosition();
+        intakeArmServo.readyToIntakePosition();
         // The intake is not lowered to the floor yet. Just for safety. That will happen when we
         // get the transfer command.
         state = ExtensionArmIntakeBucketControllerState.EXTENSION_ARM_MOVING_TO_INTAKE_POSITION;
@@ -300,6 +308,13 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
         logCommand("Setup for transfer");
         controller.setIntakePositionedForTransfer(false);
         intakeArmServo.transferPosition();
+        // tell the intake / bucket controller that the intake is not ready for a transfer yet
+        state = ExtensionArmIntakeBucketControllerState.INTAKE_ARM_MOVING_TO_TRANSFER_POSITION;
+    }
+    public void setupIntakeAfterDeliver() {
+        logCommand("Setup Intake After Delivery");
+        controller.setIntakePositionedForTransfer(false);
+        intakeArmServo.readyToIntakePosition();
         // tell the intake / bucket controller that the intake is not ready for a transfer yet
         state = ExtensionArmIntakeBucketControllerState.INTAKE_ARM_MOVING_TO_TRANSFER_POSITION;
     }

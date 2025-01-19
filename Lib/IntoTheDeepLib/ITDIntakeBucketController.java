@@ -98,6 +98,11 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
         this.extensionArmIntakeController = extensionArmIntakeController;
     }
 
+    private boolean getReadyToRunComplete = false;
+
+    public boolean isGetReadyToRunComplete() {
+        return getReadyToRunComplete;
+    }
     //*********************************************************************************************
     //          Constructors
     //
@@ -161,7 +166,7 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
         logCommand("Init");
         //todo remove this when this class is finished and let the real init set it
         initComplete = true;
-        extensionArmIntakeController.init(config);
+        extensionArmIntakeController.initFromIntakeBucketController(config);
         state = IntakeBucketControllerState.EXTENSION_ARM_RESETTING_FOR_INIT;
         return true;
     }
@@ -473,7 +478,7 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
                 // init states
             case EXTENSION_ARM_RESETTING_FOR_INIT:
                 if (extensionArmResetComplete) {
-                    liftBucketArmBucketGateController.init(null);
+                    liftBucketArmBucketGateController.initFromIntakeBucketController(null);
                     state = IntakeBucketControllerState.BUCKET_MOVING_TO_INIT_POSITION;
                 }
                 break;
@@ -501,6 +506,7 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
                 break;
             case EXTENSION_ARM_MOVING_TO_TRANSFER_POSITION_FOR_GET_READY_TO_RUN:
                 if (intakePositionedForTransfer) {
+                    getReadyToRunComplete = true;
                     // we are ready to run. Wait for a command
                 }
                 break;

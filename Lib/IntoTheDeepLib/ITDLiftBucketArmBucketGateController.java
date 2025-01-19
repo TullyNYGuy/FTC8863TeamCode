@@ -128,10 +128,14 @@ public class ITDLiftBucketArmBucketGateController implements FTCRobotSubsystem {
         state = LiftBucketArmGateControllerState.BUCKET_MOVING_TO_INIT_POSITION;
     }
 
-    @Override
-    public boolean init(Configuration config) {
+    public boolean initFromIntakeBucketController(Configuration config) {
         logCommand("Init");
         setupForInit();
+        return true;
+    }
+
+    @Override
+    public boolean init(Configuration config) {
         return true;
     }
 
@@ -330,6 +334,7 @@ public class ITDLiftBucketArmBucketGateController implements FTCRobotSubsystem {
                 }
                 break;
             case WAITING_FOR_SETUP_FOR_DELIVERY_COMMAND:
+                setupForDelivery();
                 // hang out here waiting for the driver to tell us to setup for the delivery
                 break;
 

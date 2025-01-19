@@ -55,6 +55,8 @@ public class ITDIntakeArmServo implements FTCRobotSubsystem {
 
     private double shutdownPosition = transferPosition;
 
+    private double readyToIntakePosition = 0.38;
+
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -77,6 +79,7 @@ public class ITDIntakeArmServo implements FTCRobotSubsystem {
         intakeArmServo.addPosition("bucketClearancePosition", bucketClearancePosition, 700, TimeUnit.MILLISECONDS);
         intakeArmServo.addPosition("intakePosition", intakePosition, 700, TimeUnit.MILLISECONDS);
         intakeArmServo.addPosition("transferPosition", transferPosition, 1000, TimeUnit.MILLISECONDS);
+        intakeArmServo.addPosition("readyToIntakePosition", readyToIntakePosition, 100, TimeUnit.MILLISECONDS);
 
         intakeArmServo.setDirection(Servo.Direction.REVERSE);
     }
@@ -113,6 +116,10 @@ public class ITDIntakeArmServo implements FTCRobotSubsystem {
     public void transferPosition() {
         intakeArmServo.setPosition("transferPosition");
         logCommand("Transfer position");
+    }
+    public void readyToIntakePosition() {
+        intakeArmServo.setPosition("readyToIntakePosition");
+        logCommand("Ready To Intake Position");
     }
 
     @Override

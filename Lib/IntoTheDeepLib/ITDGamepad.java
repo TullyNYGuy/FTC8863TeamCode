@@ -269,50 +269,51 @@ public class ITDGamepad {
         if (gamepad1a.buttonPress(gamepad1.a)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            robot.extensionArmIntakeController.getReadyToRun();
+
         }
 
         if (gamepad1b.buttonPress(gamepad1.b)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            robot.extensionArmIntakeController.setupForIntake();
+
         }
 
         if (gamepad1y.buttonPress(gamepad1.y)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            robot.extensionArmIntakeController.intake();
+            robot.intakeBucketController.setupForDrivingBeforeDelivery();
         }
 
         if (gamepad1x.buttonPress(gamepad1.x)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            robot.extensionArmIntakeController.completeGetReadyToRun();
+
         }
 
         if (gamepad1DpadUp.buttonPress(gamepad1.dpad_up)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
             //robot.robotModes.setDirectionSwap(ITDRobotModes.DirectionSwap.NORMAL);
-            robot.setAllianceColor(AllianceColor.RED);
+           robot.hangMechanism.bigHang();
         }
 
         if (gamepad1DpadDown.buttonPress(gamepad1.dpad_down)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
             //robot.robotModes.setDirectionSwap(ITDRobotModes.DirectionSwap.INVERSED);
-            robot.setAllianceColor(AllianceColor.BLUE);
+           robot.intakeBucketController.deliverSample();
         }
 
         if (gamepad1DpadLeft.buttonPress(gamepad1.dpad_left)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            robot.extensionArmIntakeController.transfer();
+            robot.hangMechanism.deployArms();
         }
 
         if (gamepad1DpadRight.buttonPress(gamepad1.dpad_right)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
+            // robot.intakeBucketController.setupForDelivery();
         }
 
         if (gamepad1LeftStickButton.buttonPress(gamepad1.left_stick_button)) {
@@ -380,6 +381,7 @@ public class ITDGamepad {
         if (gamepad2a.buttonPress(gamepad2.a)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
+            // this will be stop intaking
         }
 
         if (gamepad2b.buttonPress(gamepad2.b)) {
@@ -391,24 +393,26 @@ public class ITDGamepad {
         if (gamepad2y.buttonPress(gamepad2.y)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
+            robot.intakeBucketController.setupForIntake();
         }
 
         if (gamepad2x.buttonPress(gamepad2.x)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
             //robot.robotModes.setMaxDrivingPower(1.0);
+            robot.intakeBucketController.intake();
         }
 
         if (gamepad2DpadUp.buttonPress(gamepad2.dpad_up)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            robot.hangMechanism.bigHang();
+
         }
 
         if (gamepad2DpadDown.buttonPress(gamepad2.dpad_down)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            robot.hangMechanism.deployArms();
+
         }
 
         if (gamepad2DpadLeft.buttonPress(gamepad2.dpad_left)) {

@@ -59,7 +59,7 @@ public class ITDLift implements FTCRobotSubsystem {
 
     private double initPosition = 0.0;
     private double transferPosition = 0;
-    private double readyToDeliverPosition = 28.0;
+    private double readyToDeliverPosition = 23.0;
     private double lowBarHangPosition = 6.0;
     private double highBarHangPosition = 4.0;
 
@@ -84,14 +84,14 @@ public class ITDLift implements FTCRobotSubsystem {
         // SET the lift powers here
         //*********************************************
         initPower = .2;
-        extendPower = .2;
-        retractPower = -.2;
+        extendPower = .5;
+        retractPower = -.5;
         lift.setExtensionPower(extendPower);
         lift.setRetractionPower(retractPower);
         //*********************************************
         // SET the lift max and min positions here
         //*********************************************
-        lift.setExtensionPositionInMechanismUnits(18.5);
+        lift.setExtensionPositionInMechanismUnits(29);
         lift.setRetractionPositionInMechanismUnits(0.05);
 
         state = LiftState.IDLE;
