@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MotorCurrentVoltageMonitor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.OdometryModule;
 import org.firstinspires.ftc.teamcode.Lib.SkyStoneLib.SkystoneRobot;
-import org.openftc.revextensions2.ExpansionHubEx;
+//import org.openftc.revextensions2.ExpansionHubEx;
 
 /**
  * This Opmode runs each drive train motor. It starts with the front left and proceeds in a clockwise
@@ -28,8 +28,8 @@ public class TestDriveMotorWiring extends LinearOpMode {
     DcMotor8863 backLeft;
     DcMotor8863 backRight;
 
-    ExpansionHubEx expansionHubPrimary;
-    ExpansionHubEx expansionHubSecondary;
+//    ExpansionHubEx expansionHubPrimary;
+//    ExpansionHubEx expansionHubSecondary;
 
     MotorCurrentVoltageMonitor motorCurrentVoltageMonitor;
 

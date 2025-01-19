@@ -4,7 +4,7 @@ package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.openftc.revextensions2.ExpansionHubEx;
+//import org.openftc.revextensions2.ExpansionHubEx;
 
 import java.util.ArrayList;
 
@@ -50,7 +50,7 @@ public class MotorCurrentVoltageMonitor {
     /**
      * The expansion hub object
      */
-    private ExpansionHubEx expansionHub;
+    //private ExpansionHubEx expansionHub;
 
     /**
      * A data file that the current and voltage can be written into.
@@ -81,7 +81,7 @@ public class MotorCurrentVoltageMonitor {
     //*********************************************************************************************
 
     public MotorCurrentVoltageMonitor(HardwareMap hardwareMap, Telemetry telemetry, String expansionHubName, OutputTo mode) {
-        expansionHub = hardwareMap.get(ExpansionHubEx.class, expansionHubName);
+        //expansionHub = hardwareMap.get(ExpansionHubEx.class, expansionHubName);
         this.telemetry = telemetry;
         motorList = new ArrayList<DcMotor8863>();
         this.mode = mode;
@@ -162,20 +162,20 @@ public class MotorCurrentVoltageMonitor {
     /**
      * Get the motor currents and the hub voltage
      */
-    private void getData() {
-        int index = 0;
-        for (DcMotor8863 motor : motorList) {
-            motorCurrents[index] = expansionHub.getMotorCurrentDraw(ExpansionHubEx.CurrentDrawUnits.AMPS, motor.getPortNumber());
-            index++;
-        }
-        supplyVoltage = expansionHub.read12vMonitor(ExpansionHubEx.VoltageUnits.VOLTS);
-    }
+//    private void getData() {
+//        int index = 0;
+//        for (DcMotor8863 motor : motorList) {
+//            motorCurrents[index] = expansionHub.getMotorCurrentDraw(ExpansionHubEx.CurrentDrawUnits.AMPS, motor.getPortNumber());
+//            index++;
+//        }
+//        supplyVoltage = expansionHub.read12vMonitor(ExpansionHubEx.VoltageUnits.VOLTS);
+//    }
 
     /**
      * Update the current and voltage data and output it based on the mode.
      */
     public void update() {
-        getData();
+        //getData();
         if (mode == OutputTo.DISPLAY || mode == OutputTo.WRITE_CSV_FILE_AND_DISPLAY) {
             fillDisplayBuffer();
         }
