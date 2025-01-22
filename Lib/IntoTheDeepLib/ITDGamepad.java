@@ -7,14 +7,14 @@ package org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib;
  *    / Left JoystickY   - robot moves forward/backward
  *    / Right JoystickX  - robot rotation
  *    / Right JoystickY  -
- *    / DPad Up          - go to high delivery
- *    / DPad Left        - go to medium delivery
- *    / DPad Down        - go to low delivery
- *    / DPad Right       - setup for intake
- *    / A                - intake
- *    / B                - outtake
- *    / X                - stop intake
- *    / Y                - setup for delivery
+ *    / DPad Up          - hang
+ *    / DPad Left        -
+ *    / DPad Down        -
+ *    / DPad Right       -
+ *    / A                -
+ *    / B                -
+ *    / X                -
+ *    / Y                -
  *    /Left Bumper       -
  *    /Right Bumper      - ?switch speed (high to max) or (low to high to max)
  *    /Left stick button - normal joystick controls
@@ -25,18 +25,18 @@ package org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib;
  *    / Left JoystickY   -
  *    / Right JoystickX  -
  *    / Right JoystickY  -
- *    / DPad Up          - hang
- *    / DPad Left        - while hanging, move up 1"
- *    / DPad Down        - deploy hanging arms
- *    / DPad Right       - while hanging, move up 1"
- *    / A                - deliver both pixels
- *    / B                - deliver right pixel
- *    / X                - deliver left pixel
- *    / Y                - 
- *   /Left Bumper        -
- *   /Right Bumper       -
- *   / Left stick button - launch plane
- *  / Right stick button - hang complete
+ *    / DPad Up          - setup for delivery
+ *    / DPad Left        - deliver sample
+ *    / DPad Down        - *Not implemented yet* stop delivery
+ *    / DPad Right       -
+ *    / A                - stop intake
+ *    / B                -
+ *    / X                - intake
+ *    / Y                - setup for intake
+ *   /Left Bumper        - deploy hang arms
+ *   /Right Bumper       - reset intake
+ *   / Left stick button -
+ *  / Right stick button -
 */
 import com.qualcomm.robotcore.hardware.Gamepad;
 
@@ -281,7 +281,6 @@ public class ITDGamepad {
         if (gamepad1y.buttonPress(gamepad1.y)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            robot.intakeBucketController.setupForDrivingBeforeDelivery();
         }
 
         if (gamepad1x.buttonPress(gamepad1.x)) {
@@ -301,13 +300,11 @@ public class ITDGamepad {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
             //robot.robotModes.setDirectionSwap(ITDRobotModes.DirectionSwap.INVERSED);
-           robot.intakeBucketController.deliverSample();
         }
 
         if (gamepad1DpadLeft.buttonPress(gamepad1.dpad_left)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            robot.hangMechanism.deployArms();
         }
 
         if (gamepad1DpadRight.buttonPress(gamepad1.dpad_right)) {
@@ -371,11 +368,13 @@ public class ITDGamepad {
         if (gamepad2RightBumper.buttonPress(gamepad2.right_bumper)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
+            robot.extensionArmIntakeController.reset();
         }
 
         if (gamepad2LeftBumper.buttonPress(gamepad2.left_bumper)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
+            robot.hangMechanism.deployArms();
         }
 
         if (gamepad2a.buttonPress(gamepad2.a)) {
@@ -406,7 +405,7 @@ public class ITDGamepad {
         if (gamepad2DpadUp.buttonPress(gamepad2.dpad_up)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-
+            robot.intakeBucketController.setupForDrivingBeforeDelivery();
         }
 
         if (gamepad2DpadDown.buttonPress(gamepad2.dpad_down)) {
@@ -418,7 +417,7 @@ public class ITDGamepad {
         if (gamepad2DpadLeft.buttonPress(gamepad2.dpad_left)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-
+            robot.intakeBucketController.deliverSample();
         }
 
         if (gamepad2DpadRight.buttonPress(gamepad2.dpad_right)) {
