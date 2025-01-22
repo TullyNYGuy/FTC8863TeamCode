@@ -48,6 +48,8 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
         STOP,
         EJECT,
         DEJAM,
+        RESET_STOP,
+
         NO_COMMAND
     }
 
@@ -409,6 +411,25 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
         intakeCommand = IntakeCommand.EJECT;
     }
 
+    /**
+     * Ejects sample and sets intake to stopped state
+     */
+
+    public void reset() {
+        intakeState = IntakeState.EJECTING;
+        resetActions();
+    }
+
+    /**
+     * Ejects a sample out the back of the intake
+     */
+    private void resetActions() {
+        logCommand("reset intake");
+        intakeSweeperServoLeft.setPower(1);
+        intakeSweeperServoRight.setPower(1);
+        intakeCommand = IntakeCommand.RESET_STOP;
+    }
+
     //*********************************************************************************************
     //          Color sensor related functions
     //*********************************************************************************************
@@ -603,8 +624,15 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
                     // in case the eject is coming after a dejam attempt that succeeded
                     dejamCount = 0;
                     // intake again
-                    intakeActions();
-                    intakeState = IntakeState.INTAKING;
+                    if (IntakeCommand.RESET_STOP == intakeCommand) {
+                        stopActions();
+                        intakeState = IntakeState.IDLE;
+                        controller.setupForTransfer();
+                    }
+                    else {
+                        intakeActions();
+                        intakeState = IntakeState.INTAKING;
+                    }
                 }
                 break;
 

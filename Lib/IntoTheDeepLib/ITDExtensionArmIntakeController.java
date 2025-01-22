@@ -73,7 +73,9 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
         READY_FOR_DELIVERY,
 
         // state for command from the driver
-        OUTTAKING_SAMPLE
+        OUTTAKING_SAMPLE,
+
+        RESETTING
     }
 
     private ExtensionArmIntakeBucketControllerState state;
@@ -337,6 +339,12 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
         logCommand("Outtake");
         intake.outtake();
         state = ExtensionArmIntakeBucketControllerState.OUTTAKING_SAMPLE;
+    }
+
+    public void reset() {
+        logCommand("Reset");
+        intake.reset();
+        state = ExtensionArmIntakeBucketControllerState.RESETTING;
     }
 
     //*********************************************************************************************
