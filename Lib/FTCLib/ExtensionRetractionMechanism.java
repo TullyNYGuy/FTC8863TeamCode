@@ -503,6 +503,12 @@ public class ExtensionRetractionMechanism {
      */
     private boolean hasUpdateRunBefore = false;
 
+    private boolean overrideRetractionLimit = false;
+
+    public void setOverrideRetractionLimit(boolean overrideRetractionLimit) {
+        this.overrideRetractionLimit = overrideRetractionLimit;
+    }
+
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -2609,7 +2615,7 @@ public class ExtensionRetractionMechanism {
 
                         // check to make sure the retracted limit switch has not been tripped. If it has
                         // then something went wrong or someone gave a bad motor command.
-                        if (isRetractionLimitReached() && !directionOfMovementIsExtending) {
+                        if (isRetractionLimitReached() && !directionOfMovementIsExtending && !overrideRetractionLimit) {
                             // the retraction limit has been reached. This is probably not intentional.
                             // But the movement has to be stopped in order to protect the mechanism
                             // from damage. Clear the command.

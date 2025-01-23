@@ -60,7 +60,7 @@ public class ITDExtensionArm implements FTCRobotSubsystem {
     private double initPower;
 
     private double initPosition = 0.0;
-    private double transferPosition = .05;
+    private double transferPosition = .5;
     private double intakePosition = 8.75;
     private double bucketClearancePosition = 3.75;
     private double outtakePosition = 2.0;
@@ -97,6 +97,7 @@ public class ITDExtensionArm implements FTCRobotSubsystem {
         //*********************************************
         extensionArm.setExtensionPositionInMechanismUnits(17.0);
         extensionArm.setRetractionPositionInMechanismUnits(0.05);
+        extensionArm.setOverrideRetractionLimit(true);
 
         state = ExtensionArmState.IDLE;
         // init has not been started yet
