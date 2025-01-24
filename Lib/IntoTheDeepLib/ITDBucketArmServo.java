@@ -77,10 +77,10 @@ public class ITDBucketArmServo implements FTCRobotSubsystem {
 
         bucketArmServo.addPosition("initPosition", initPosition, 700, TimeUnit.MILLISECONDS);
         bucketArmServo.addPosition("intakePosition", intakePosition, 700, TimeUnit.MILLISECONDS);
-        bucketArmServo.addPosition("safeForVerticalMovementPosition", safeForVerticalMovementPosition, 1000, TimeUnit.MILLISECONDS);
-        bucketArmServo.addPosition("deliveryPosition", deliveryPosition, 700, TimeUnit.MILLISECONDS);
-        bucketArmServo.addPosition("transferPosition", transferPosition, 1000, TimeUnit.MILLISECONDS);
-        bucketArmServo.addPosition("specimenPickupPosition", specimenPickupPosition, 1000, TimeUnit.MILLISECONDS);
+        bucketArmServo.addPosition("safeForVerticalMovementPosition", safeForVerticalMovementPosition, 900, TimeUnit.MILLISECONDS);
+        bucketArmServo.addPosition("deliveryPosition", deliveryPosition, 300, TimeUnit.MILLISECONDS);
+        bucketArmServo.addPosition("transferPosition", transferPosition, 600, TimeUnit.MILLISECONDS);
+        bucketArmServo.addPosition("specimenPickupPosition", specimenPickupPosition, 800, TimeUnit.MILLISECONDS);
         bucketArmServo.addPosition("specimenHangLowBarPosition", specimenHangLowBarPosition, 1000, TimeUnit.MILLISECONDS);
         bucketArmServo.addPosition("specimenHangHighBarPosition", specimenHangHighBarPosition, 800, TimeUnit.MILLISECONDS);
 

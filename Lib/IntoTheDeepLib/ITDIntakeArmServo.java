@@ -51,7 +51,7 @@ public class ITDIntakeArmServo implements FTCRobotSubsystem {
     private double intakePosition = 0.1;
 
     private double bucketClearancePosition = 0.45;
-    private double transferPosition = 0.45;
+    private double transferPosition = 0.50;
 
     private double shutdownPosition = transferPosition;
 
@@ -75,9 +75,9 @@ public class ITDIntakeArmServo implements FTCRobotSubsystem {
     public ITDIntakeArmServo(HardwareMap hardwareMap, Telemetry telemetry) {
         intakeArmServo = new Servo8863New(INTAKE_ARM_SERVO_NAME, hardwareMap, telemetry);
 
-        intakeArmServo.addPosition("initPosition", initPosition, 700, TimeUnit.MILLISECONDS);
-        intakeArmServo.addPosition("bucketClearancePosition", bucketClearancePosition, 700, TimeUnit.MILLISECONDS);
-        intakeArmServo.addPosition("intakePosition", intakePosition, 700, TimeUnit.MILLISECONDS);
+        intakeArmServo.addPosition("initPosition", initPosition, 100, TimeUnit.MILLISECONDS);
+        intakeArmServo.addPosition("bucketClearancePosition", bucketClearancePosition, 100, TimeUnit.MILLISECONDS);
+        intakeArmServo.addPosition("intakePosition", intakePosition, 300, TimeUnit.MILLISECONDS);
         intakeArmServo.addPosition("transferPosition", transferPosition, 1000, TimeUnit.MILLISECONDS);
         intakeArmServo.addPosition("readyToIntakePosition", readyToIntakePosition, 100, TimeUnit.MILLISECONDS);
 
@@ -128,7 +128,7 @@ public class ITDIntakeArmServo implements FTCRobotSubsystem {
         logCommand("shutdown");
     }
 
-        public void bumpUpBig (){
+    public void bumpUpBig (){
         intakeArmServo.bump(0.1);
     }
 

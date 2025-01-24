@@ -540,7 +540,7 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
                 // deliver sample states
             case DELIVERING_SAMPLE_AND_BUCKET_MOVING_TO_TRANSFER_POSITION:
                 if (liftBucketAtTransferPosition) {
-                    extensionArmIntakeController.setupForTransfer();
+                    extensionArmIntakeController.setupIntakeAfterDeliver();
                     state = IntakeBucketControllerState.EXTENSION_ARM_INTAKE_MOVING_TO_TRANSFER_POSITION;
                 }
                 break;
@@ -579,6 +579,9 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
                 if (intakeTransferComplete) {
                     state = IntakeBucketControllerState.TRANSFER_COMPLETE;
                 }
+                break;
+            case TRANSFER_COMPLETE:
+                // wait for a command
                 break;
         }
 

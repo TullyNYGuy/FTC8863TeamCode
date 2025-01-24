@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib;
 
 import android.view.WindowManager;
 
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -60,7 +61,7 @@ public class ITDExtensionArm implements FTCRobotSubsystem {
     private double initPower;
 
     private double initPosition = 0.0;
-    private double transferPosition = .5;
+    private double transferPosition = .25;
     private double intakePosition = 8.75;
     private double bucketClearancePosition = 3.75;
     private double outtakePosition = 2.0;
@@ -88,7 +89,7 @@ public class ITDExtensionArm implements FTCRobotSubsystem {
         // SET the lift powers here
         //*********************************************
         initPower = 0.2;
-        extendPower = 0.5;
+        extendPower = 0.75;
         retractPower = -0.5;
         extensionArm.setExtensionPower(extendPower);
         extensionArm.setRetractionPower(retractPower);
@@ -98,6 +99,8 @@ public class ITDExtensionArm implements FTCRobotSubsystem {
         extensionArm.setExtensionPositionInMechanismUnits(17.0);
         extensionArm.setRetractionPositionInMechanismUnits(0.05);
         extensionArm.setOverrideRetractionLimit(true);
+        // the default PIDF for the 1120 motor stinks. Set our own.
+        extensionArm.setPositionPIDFCoefficients(12.3);
 
         state = ExtensionArmState.IDLE;
         // init has not been started yet
@@ -336,6 +339,15 @@ public class ITDExtensionArm implements FTCRobotSubsystem {
 
     public void displayPosition(Telemetry telemetry) {
         telemetry.addData("Ext Arm Pos = ", extensionArm.getPosition());
+    }
+
+    public void displayPIDF(Telemetry telemetry) {
+        telemetry.addData("PIDF pos = ", extensionArm.getPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION).toString());
+        telemetry.addData("PIDF vel = ", extensionArm.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER).toString());
+    }
+
+    public void setPositionPIDFCoefficients(double p) {
+        extensionArm.setPositionPIDFCoefficients(p);
     }
 
     @Override

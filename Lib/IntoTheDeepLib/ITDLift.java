@@ -84,8 +84,8 @@ public class ITDLift implements FTCRobotSubsystem {
         // SET the lift powers here
         //*********************************************
         initPower = .2;
-        extendPower = .5;
-        retractPower = -.5;
+        extendPower =1;
+        retractPower =-1;
         lift.setExtensionPower(extendPower);
         lift.setRetractionPower(retractPower);
         //*********************************************

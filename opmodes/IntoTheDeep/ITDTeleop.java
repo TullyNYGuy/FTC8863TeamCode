@@ -150,6 +150,7 @@ public class ITDTeleop extends LinearOpMode {
             // feedback on the driver station
 
             gamepad.displayGamepad1JoystickValues(telemetry);
+            robot.extensionArmIntakeController.displayExtensionArmPosition(telemetry);
             telemetry.addData("", "");
             telemetry.addData(">", "Press Stop to end.");
             telemetry.update();

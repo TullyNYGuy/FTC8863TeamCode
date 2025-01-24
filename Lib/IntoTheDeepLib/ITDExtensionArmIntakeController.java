@@ -245,7 +245,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
         setIntakeTransferComplete(false);
         // start the movement of the extension arm and rotation of the intake to the transfer position
         extensionArm.transferPosition();
-        intakeArmServo.transferPosition();
+        intakeArmServo.readyToIntakePosition();
         state = ExtensionArmIntakeBucketControllerState.EXTENSION_ARM_MOVING_TO_TRANSFER_POSITION_FOR_GET_READY_TO_RUN;
     }
 
@@ -261,7 +261,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
         controller.setIntakePositionedForBucketClearance(false);
         // start the movement of the extension arm and the intake arm
         extensionArm.bucketClearancePosition();
-        intakeArmServo.transferPosition();
+        intakeArmServo.bucketClearancePosition();
         state = ExtensionArmIntakeBucketControllerState.EXTENSION_ARM_MOVING_TO_BUCKET_CLEARANCE;
     }
 
@@ -482,6 +482,10 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
 
     public void displayState(Telemetry telemetry) {
         telemetry.addData("EAIC State = ", state.toString());
+    }
+
+    public void displayExtensionArmPosition(Telemetry telemetry) {
+        extensionArm.displayPosition(telemetry);
     }
 
     @Override
