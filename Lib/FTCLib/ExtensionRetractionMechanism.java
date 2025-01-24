@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -665,6 +666,14 @@ public class ExtensionRetractionMechanism {
      */
     public int getCountsPerRev() {
         return extensionRetractionMotor.getCountsPerRev();
+    }
+
+    public PIDFCoefficients getPIDFCoefficients(DcMotor.RunMode mode) {
+        return extensionRetractionMotor.getPIDFCoefficients(mode);
+    }
+
+    public void setPositionPIDFCoefficients(double p) {
+        extensionRetractionMotor.setPositionPIDFCoefficients(p);
     }
 
 

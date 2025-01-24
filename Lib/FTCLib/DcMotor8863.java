@@ -2055,6 +2055,14 @@ public class DcMotor8863 implements DcMotor8863Interface {
         return FTCDcMotor.getMode();
     }
 
+    public PIDFCoefficients getPIDFCoefficients(DcMotor.RunMode mode) {
+        return FTCDcMotor.getPIDFCoefficients(mode);
+    }
+
+    public void setPositionPIDFCoefficients(double p) {
+        FTCDcMotor.setPositionPIDFCoefficients(p);
+    }
+
     @Override
     public void setPower(double power) {
         power = Range.clip(power, getMinMotorPower(), getMaxMotorPower());
