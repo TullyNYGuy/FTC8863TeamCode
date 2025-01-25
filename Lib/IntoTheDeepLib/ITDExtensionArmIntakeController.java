@@ -347,6 +347,10 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
         state = ExtensionArmIntakeBucketControllerState.RESETTING;
     }
 
+    public void resetExtensionArm() {
+        extensionArm.reset();
+    }
+
     //*********************************************************************************************
     //          Communication from Intake
     //*********************************************************************************************
