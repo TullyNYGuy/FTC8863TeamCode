@@ -510,6 +510,8 @@ public class ExtensionRetractionMechanism {
         this.overrideRetractionLimit = overrideRetractionLimit;
     }
 
+    private boolean retractWithReset = false;
+
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -898,6 +900,17 @@ public class ExtensionRetractionMechanism {
      */
     public void goToFullRetract() {
         log("COMMANDED " + mechanismName.toUpperCase() + " TO RETRACTED POSITION");
+        retractWithReset = false;
+        // the next execution of the state machine will pick up this new command and execute it
+        extensionRetractionCommand = ExtensionRetractionCommands.GO_TO_RETRACTED;
+    }
+
+    /**
+     * Command the mechanism to fully retract
+     */
+    public void goToFullRetractWithReset() {
+        log("COMMANDED " + mechanismName.toUpperCase() + " TO RETRACTED POSITION");
+        retractWithReset = true;
         // the next execution of the state machine will pick up this new command and execute it
         extensionRetractionCommand = ExtensionRetractionCommands.GO_TO_RETRACTED;
     }
@@ -1314,7 +1327,16 @@ public class ExtensionRetractionMechanism {
     protected void performActionsToCompleteRetractMovement() {
         // your actions to complete the retract movement must be coded here. These are suggested
         // actions. You can override these if you need to.
-        stopMechanismAfterLimitReached();
+        // if the intention is to retract fully, then we need to stop the mechanism and then hold or
+        //float, depending on the setup.
+        if (extensionRetractionCommand == ExtensionRetractionCommands.GO_TO_RETRACTED) {
+            // the limit was reached and it was intentional, stop in the normal manner
+            stopMechanism();
+        } else {
+            // The limit was reached but it was not intentional
+            stopMechanismAfterLimitReached();
+        }
+
     }
 
     /**
@@ -2196,6 +2218,9 @@ public class ExtensionRetractionMechanism {
                     case GO_TO_RETRACTED:
                         if (isMoveToRetractComplete()) {
                             logArrivedAtDestination();
+                            if (retractWithReset) {
+                                extensionRetractionMotor.resetEncoder();
+                            }
                             performActionsToCompleteRetractMovement();
                             // movement to the retraction position is complete, start the post retraction actions
                             performPostRetractActions();
