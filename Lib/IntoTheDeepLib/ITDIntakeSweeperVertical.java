@@ -255,6 +255,11 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
         intakeCommand = IntakeCommand.INTAKE;
     }
 
+    public void runIntakeServos() {
+        intakeSweeperServoLeft.setPower(1);
+        intakeSweeperServoRight.setPower(1);
+    }
+
     public void dejam() {
         // only allow this command when the intake is in certain states
         // this prevents button mashing on the gamepad from screwing up the intake operation
