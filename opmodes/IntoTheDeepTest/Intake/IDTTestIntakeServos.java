@@ -1,24 +1,18 @@
 package org.firstinspires.ftc.teamcode.opmodes.IntoTheDeepTest.Intake;
 
-import static org.firstinspires.ftc.teamcode.Lib.Color.RED;
-
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.Lib.Color;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.ColorSensorUpdatable;
-import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ITDIntakeColorSensor;
 import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ITDIntakeSweeperVertical;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "ITD Test Intake Vertical New", group = "Test")
+@TeleOp(name = "ITD Test Intake Servos", group = "Test")
 //@Disabled
-public class IDTTestIntakeVerticalNew extends LinearOpMode {
+public class IDTTestIntakeServos extends LinearOpMode {
 
     // Put your variable declarations here
     public ITDIntakeSweeperVertical intakeSweeperVertical;
@@ -48,19 +42,8 @@ public class IDTTestIntakeVerticalNew extends LinearOpMode {
             intakeSweeperVertical.update();
 
             if (gamepad1.x) {
-                intakeSweeperVertical.intake();
+                intakeSweeperVertical.runIntakeServos();
                 outtaking = false;
-            }
-            if (gamepad1.a) {
-                intakeSweeperVertical.stop();
-            }
-            if (gamepad1.b) {
-                intakeSweeperVertical.outtake();
-                outtaking = true;
-            }
-            if (gamepad1.y) {
-                intakeSweeperVertical.transfer();
-                outtaking = true;
             }
 
 //            if (intakeSweeperVertical.getDistanceToSample(DistanceUnit.CM) < 3 && outtaking == false) {
