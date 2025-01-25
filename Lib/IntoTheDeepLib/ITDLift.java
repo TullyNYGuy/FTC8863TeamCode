@@ -22,6 +22,7 @@ public class ITDLift implements FTCRobotSubsystem {
     private enum LiftState {
         RESETING,
         MOVING,
+        MOVING_TO_READY_TO_DELIVER_POSITION,
         JOYSTICK_CONTROL,
         IDLE
     }
@@ -59,6 +60,7 @@ public class ITDLift implements FTCRobotSubsystem {
 
     private double initPosition = 0.0;
     private double transferPosition = 0;
+    private double startMovingBucketArmPosition = 21.0;
     private double readyToDeliverPosition = 23.0;
     private double lowBarHangPosition = 6.0;
     private double highBarHangPosition = 4.0;
@@ -191,7 +193,7 @@ public class ITDLift implements FTCRobotSubsystem {
                 logCommand("Delivery position");
                 readyToDeliverPositionAction();
                 controller.setLiftPositionReached(false);
-                state = LiftState.MOVING;
+                state = LiftState.MOVING_TO_READY_TO_DELIVER_POSITION;
                 break;
             case MOVING:
             case RESETING:
@@ -372,6 +374,20 @@ public class ITDLift implements FTCRobotSubsystem {
             case MOVING:
                 if (lift.isPositionReached()) {
                     // tell the controller that the arm has reached its position
+                    controller.setLiftPositionReached(true);
+                    state = LiftState.IDLE;
+                }
+                break;
+            case MOVING_TO_READY_TO_DELIVER_POSITION:
+                // even though the lift has not reached its final position, the bucket arm servo
+                // can be moved.
+                // 1 - the lift has slowed down enough that the acceleration will not
+                // damage the servo.
+                // 2 - the lift seems to hunt for its final position and waiting
+                // for it to get there delays the movement of the bucket arm to the delivery position.
+                if (lift.getCurrentPosition() >= startMovingBucketArmPosition) {
+                    // lie to the controller and tell it the lift has arrived at its final position
+                    // Well it will soon enough
                     controller.setLiftPositionReached(true);
                     state = LiftState.IDLE;
                 }
