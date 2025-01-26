@@ -8,12 +8,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
-import org.firstinspires.ftc.teamcode.Lib.CenterStageLib.CenterStageDeliveryController;
-import org.firstinspires.ftc.teamcode.Lib.CenterStageLib.CenterStageHangMechanism;
-import org.firstinspires.ftc.teamcode.Lib.CenterStageLib.CenterStageIntakeController;
-import org.firstinspires.ftc.teamcode.Lib.CenterStageLib.CenterStageMecanumDrive;
-import org.firstinspires.ftc.teamcode.Lib.CenterStageLib.CenterStagePlaneGUNservo;
-import org.firstinspires.ftc.teamcode.Lib.CenterStageLib.CenterStageRobotModes;
+
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;

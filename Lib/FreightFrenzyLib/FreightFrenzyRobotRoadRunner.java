@@ -121,7 +121,7 @@ public class  FreightFrenzyRobotRoadRunner implements FTCRobot {
     }
 
     private AdafruitIMU8863 imu;
-    public MecanumDriveFreightFrenzy mecanum;
+//    public MecanumDriveFreightFrenzy mecanum;
     public LoopTimer loopTimer;
     public DuckSpinner duckSpinner;
     public FFArm arm;
@@ -186,10 +186,10 @@ public class  FreightFrenzyRobotRoadRunner implements FTCRobot {
     public boolean createRobot() {
         imu = new AdafruitIMU8863(hardwareMap, null, "IMU", HardwareName.IMU.hwName);
         color = PersistantStorage.getStartSpot();
-        if (capabilities.contains(Subsystem.MECANUM_DRIVE)) {
-            mecanum = new MecanumDriveFreightFrenzy(HardwareName.CONFIG_FL_MOTOR.hwName, HardwareName.CONFIG_BL_MOTOR.hwName, HardwareName.CONFIG_FR_MOTOR.hwName, HardwareName.CONFIG_BR_MOTOR.hwName, hardwareMap);
-            subsystemMap.put(mecanum.getName(), mecanum);
-        }
+//        if (capabilities.contains(Subsystem.MECANUM_DRIVE)) {
+//            mecanum = new MecanumDriveFreightFrenzy(HardwareName.CONFIG_FL_MOTOR.hwName, HardwareName.CONFIG_BL_MOTOR.hwName, HardwareName.CONFIG_FR_MOTOR.hwName, HardwareName.CONFIG_BR_MOTOR.hwName, hardwareMap);
+//            subsystemMap.put(mecanum.getName(), mecanum);
+//        }
 
         if (capabilities.contains(Subsystem.ARM)) {
             arm = new FFArm(hardwareMap, telemetry);

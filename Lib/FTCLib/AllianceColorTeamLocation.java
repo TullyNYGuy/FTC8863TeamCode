@@ -1,8 +1,5 @@
 package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
-
-import com.acmerobotics.roadrunner.geometry.Pose2d;
-
 public class AllianceColorTeamLocation {
 
     //*********************************************************************************************

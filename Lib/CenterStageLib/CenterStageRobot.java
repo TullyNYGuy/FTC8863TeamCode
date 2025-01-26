@@ -113,7 +113,7 @@ public class CenterStageRobot implements FTCRobot {
     }
 
     private AdafruitIMU8863 imu;
-    public CenterStageMecanumDrive mecanumDrive;
+    //public CenterStageMecanumDrive mecanumDrive;
     public LoopTimer loopTimer;
     public CenterStageRobotModes robotModes;
     public CenterStageIntakeController intakeController;
@@ -163,15 +163,15 @@ public class CenterStageRobot implements FTCRobot {
     @Override
     public boolean createRobot() {
         imu = new AdafruitIMU8863(hardwareMap, null, "IMU", HardwareName.IMU.hwName);
-        if (capabilities.contains(Subsystem.MECANUM_DRIVE)) {
-            mecanumDrive = new CenterStageMecanumDrive(
-                    CenterStageRobot.HardwareName.FRONT_LEFT_DRIVE_MOTOR.hwName,
-                    CenterStageRobot.HardwareName.REAR_LEFT_DRIVE_MOTOR.hwName,
-                    CenterStageRobot.HardwareName.FRONT_RIGHT_DRIVE_MOTOR.hwName,
-                    CenterStageRobot.HardwareName.REAR_RIGHT_DRIVE_MOTOR.hwName,
-                    hardwareMap);
-            subsystemMap.put(mecanumDrive.getName(), mecanumDrive);
-        }
+//        if (capabilities.contains(Subsystem.MECANUM_DRIVE)) {
+//            mecanumDrive = new CenterStageMecanumDrive(
+//                    CenterStageRobot.HardwareName.FRONT_LEFT_DRIVE_MOTOR.hwName,
+//                    CenterStageRobot.HardwareName.REAR_LEFT_DRIVE_MOTOR.hwName,
+//                    CenterStageRobot.HardwareName.FRONT_RIGHT_DRIVE_MOTOR.hwName,
+//                    CenterStageRobot.HardwareName.REAR_RIGHT_DRIVE_MOTOR.hwName,
+//                    hardwareMap);
+//            subsystemMap.put(mecanumDrive.getName(), mecanumDrive);
+//        }
 
         // Only setup and init the camera if this is autonomous. It takes up CPU and memory and is not needed in teleop.
         // Note that this does not actually start the camera streaming. The autonomous opmode must do that because it
