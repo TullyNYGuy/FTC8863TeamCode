@@ -180,7 +180,7 @@ public class ITDExtensionArm implements FTCRobotSubsystem {
     }
 
     private void transferPositionAction() {
-        extensionArm.goToPosition(transferPosition, retractPower);
+        extensionArm.goToFullRetractWithReset();
     }
 
     public void intakePosition() {
