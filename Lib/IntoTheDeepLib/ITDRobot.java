@@ -108,7 +108,8 @@ public class ITDRobot implements FTCRobot {
     }
 
     private AdafruitIMU8863 imu;
-    public ITDMecanumDrive mecanumDrive;
+    // temporarily remove pending RR v1.0
+    //public ITDMecanumDrive mecanumDrive;
     public ITDExtensionArmIntakeController extensionArmIntakeController;
     public ITDLiftBucketArmBucketGateController liftBucketArmBucketGateController;
     public ITDIntakeBucketController intakeBucketController;
@@ -156,15 +157,15 @@ public class ITDRobot implements FTCRobot {
     @Override
     public boolean createRobot() {
         imu = new AdafruitIMU8863(hardwareMap, null, "IMU", HardwareName.IMU.hwName);
-        if (capabilities.contains(Subsystem.MECANUM_DRIVE)) {
-            mecanumDrive = new ITDMecanumDrive(
-                    ITDRobot.HardwareName.FRONT_LEFT_DRIVE_MOTOR.hwName,
-                    ITDRobot.HardwareName.REAR_LEFT_DRIVE_MOTOR.hwName,
-                    ITDRobot.HardwareName.FRONT_RIGHT_DRIVE_MOTOR.hwName,
-                    ITDRobot.HardwareName.REAR_RIGHT_DRIVE_MOTOR.hwName,
-                    hardwareMap);
-            subsystemMap.put(mecanumDrive.getName(), mecanumDrive);
-        }
+//        if (capabilities.contains(Subsystem.MECANUM_DRIVE)) {
+//            mecanumDrive = new ITDMecanumDrive(
+//                    ITDRobot.HardwareName.FRONT_LEFT_DRIVE_MOTOR.hwName,
+//                    ITDRobot.HardwareName.REAR_LEFT_DRIVE_MOTOR.hwName,
+//                    ITDRobot.HardwareName.FRONT_RIGHT_DRIVE_MOTOR.hwName,
+//                    ITDRobot.HardwareName.REAR_RIGHT_DRIVE_MOTOR.hwName,
+//                    hardwareMap);
+//            subsystemMap.put(mecanumDrive.getName(), mecanumDrive);
+//        }
 
         if (capabilities.contains(Subsystem.INTAKE_BUCKET_CONTROLLER)) {
             intakeBucketController = new ITDIntakeBucketController(hardwareMap, telemetry);

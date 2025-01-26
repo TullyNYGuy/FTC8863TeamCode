@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.opmodes.LauncherBot;
 
-import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -11,18 +10,9 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.DrivingMode;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.MatchPhase;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.TeamLocation;
-import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.PersistantStorage;
 import org.firstinspires.ftc.teamcode.Lib.LauncherBot.LauncherBotGamepad;
 import org.firstinspires.ftc.teamcode.Lib.LauncherBot.LauncherBotRobot;
-import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayField;
-import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayGamepad;
-import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayPersistantStorage;
-import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayRobot;
-import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.PowerPlayRobotModes;
 
 import java.util.List;
 
@@ -42,8 +32,6 @@ public class LauncherBotTeleop extends LinearOpMode {
     private ElapsedTime timer;
 
     DataLogging dataLog = null;
-
-    private Pose2d startPose;
 
     @Override
     public void runOpMode() {
@@ -99,11 +87,12 @@ public class LauncherBotTeleop extends LinearOpMode {
 
             telemetry.addLine();
 
-            robot.mecanum.calculateMotorCommandsRobotCentric(
-                    gamepad.gamepad1LeftJoyStickYValue,
-                    gamepad.gamepad1LeftJoyStickXValue,
-                    gamepad.gamepad1RightJoyStickXValue
-            );
+            // temporarily remove pending road runner v1.0
+//            robot.mecanum.calculateMotorCommandsRobotCentric(
+//                    gamepad.gamepad1LeftJoyStickYValue,
+//                    gamepad.gamepad1LeftJoyStickXValue,
+//                    gamepad.gamepad1RightJoyStickXValue
+//            );
 
 
             // feedback on the driver station

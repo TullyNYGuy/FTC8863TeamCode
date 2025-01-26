@@ -35,7 +35,6 @@
 //
 //    // CAD says this
 //    //public static double LATERAL_DISTANCE = 16.2205; // in; distance between the left and right wheels
-//    // TrackingWheelLateralDistanceTuner says this for slow turning
 //    //public static double LATERAL_DISTANCE = 16.094; // in; distance between the left and right wheels
 //    // TrackingWheelLateralDistanceTuner says this for fast turning
 //    public static double LATERAL_DISTANCE = 10.7969; // in; distance between the left and right wheels

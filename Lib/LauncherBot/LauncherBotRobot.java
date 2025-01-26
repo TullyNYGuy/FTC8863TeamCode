@@ -15,7 +15,6 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobot;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.LoopTimer;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.RobotPosition;
-import org.firstinspires.ftc.teamcode.Lib.UltimateGoalLib.MecanumDriveUltimateGoal;
 
 
 import java.util.Arrays;
@@ -56,7 +55,6 @@ public class LauncherBotRobot implements FTCRobot {
         MECANUM_DRIVE,
         SHOOTER,
         SHOOTER_SERVO,
-        ANGLE_CHANGER,
         LOOP_TIMER
     }
 
@@ -83,10 +81,10 @@ public class LauncherBotRobot implements FTCRobot {
     }
 
     private AdafruitIMU8863 imu;
-    public LauncherBotMecanumDrive mecanum;
+    // temporarily remove pending road runner v1.0
+    //public LauncherBotMecanumDrive mecanum;
     public LauncherBotDualMotorGearBox shooter;
     public LauncherBotShooterServo shooterServo;
-    public LauncherBotAngleChanger angleChanger;
     public LoopTimer loopTimer;
 
     public LauncherBotRobot(HardwareMap hardwareMap, Telemetry telemetry, Configuration config, DataLogging dataLog, DistanceUnit units, LinearOpMode opMode) {
@@ -117,10 +115,11 @@ public class LauncherBotRobot implements FTCRobot {
     @Override
     public boolean createRobot() {
         imu = new AdafruitIMU8863(hardwareMap, null, "IMU", HardwareName.IMU.hwName);
-        if (capabilities.contains(Subsystem.MECANUM_DRIVE)) {
-            mecanum = new LauncherBotMecanumDrive(HardwareName.CONFIG_FL_MOTOR.hwName, HardwareName.CONFIG_BL_MOTOR.hwName, HardwareName.CONFIG_FR_MOTOR.hwName, HardwareName.CONFIG_BR_MOTOR.hwName, hardwareMap);
-            subsystemMap.put(mecanum.getName(), mecanum);
-        }
+        // comment out pending road runner v1.0
+//        if (capabilities.contains(Subsystem.MECANUM_DRIVE)) {
+//            mecanum = new LauncherBotMecanumDrive(HardwareName.CONFIG_FL_MOTOR.hwName, HardwareName.CONFIG_BL_MOTOR.hwName, HardwareName.CONFIG_FR_MOTOR.hwName, HardwareName.CONFIG_BR_MOTOR.hwName, hardwareMap);
+//            subsystemMap.put(mecanum.getName(), mecanum);
+//        }
 
         if (capabilities.contains(Subsystem.SHOOTER)) {
             shooter = new LauncherBotDualMotorGearBox(HardwareName.LEFT_SHOOTER_MOTOR.hwName, HardwareName.RIGHT_SHOOTER_MOTOR.hwName, hardwareMap, telemetry);
@@ -130,11 +129,6 @@ public class LauncherBotRobot implements FTCRobot {
         if (capabilities.contains(Subsystem.SHOOTER_SERVO)) {
             shooterServo = new LauncherBotShooterServo(hardwareMap, telemetry);
             subsystemMap.put(shooterServo.getName(), shooterServo);
-        }
-
-        if (capabilities.contains(Subsystem.ANGLE_CHANGER)) {
-            angleChanger = new LauncherBotAngleChanger(hardwareMap, telemetry);
-            subsystemMap.put(angleChanger.getName(), angleChanger);
         }
 
         if (capabilities.contains(Subsystem.LOOP_TIMER)) {

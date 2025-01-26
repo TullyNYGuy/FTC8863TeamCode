@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.opmodes.IntoTheDeep;
 
-import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -38,7 +37,7 @@ public class ITDTeleop extends LinearOpMode {
 
     DataLogging dataLog = null;
 
-    private Pose2d startPose;
+    //private Pose2d startPose;
 
     @Override
     public void runOpMode() {
@@ -128,11 +127,11 @@ public class ITDTeleop extends LinearOpMode {
                 telemetry.addData("Direction swap = ", robot.robotModes.getDirectionSwap());
                 telemetry.addData("ROBOT CENTRIC driving", "!");
 
-                robot.mecanumDrive.calculateMotorCommandsRobotCentric(
-                        gamepad.gamepad1LeftJoyStickYValue * robot.robotModes.getDirectionSwapMultiplier(),
-                        gamepad.gamepad1LeftJoyStickXValue * robot.robotModes.getDirectionSwapMultiplier(),
-                        gamepad.gamepad1RightJoyStickXValue
-                );
+//                robot.mecanumDrive.calculateMotorCommandsRobotCentric(
+//                        gamepad.gamepad1LeftJoyStickYValue * robot.robotModes.getDirectionSwapMultiplier(),
+//                        gamepad.gamepad1LeftJoyStickXValue * robot.robotModes.getDirectionSwapMultiplier(),
+//                        gamepad.gamepad1RightJoyStickXValue
+//                );
             }
 
 //            robot.extensionArmIntakeController.displayState(telemetry);
