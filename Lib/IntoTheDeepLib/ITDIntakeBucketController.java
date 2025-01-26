@@ -238,7 +238,6 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
     public void setupForIntake() {
         logCommand("Setup for intake");
         extensionArmIntakeController.setupForIntake();
-        // close the gate on the bucket so it does not get hit when the extension arm is retracting
         liftBucketArmBucketGateController.closeGate();
         state = IntakeBucketControllerState.EXTENSION_ARM_INTAKE_MOVING_TO_SETUP_FOR_INTAKE_POSITION;
     }
