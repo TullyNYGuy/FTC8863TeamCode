@@ -103,6 +103,21 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
     public boolean isGetReadyToRunComplete() {
         return getReadyToRunComplete;
     }
+    private boolean setupForDeliveryComplete= false;
+
+    public boolean isSetupForDeliveryComplete() {
+        return setupForDeliveryComplete;
+    }
+    private boolean deliveryComplete = false;
+
+    public boolean isDeliveryComplete() {
+        return deliveryComplete;
+    }
+    private boolean setupForIntakeComplete = false;
+
+    public boolean isSetupForIntakeComplete() {
+        return setupForIntakeComplete;
+    }
     //*********************************************************************************************
     //          Constructors
     //
@@ -195,6 +210,7 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
      */
     public void setupForDrivingBeforeDelivery() {
         logCommand("Setup for driving before delivery");
+        setupForDeliveryComplete = false;
         extensionArmIntakeController.setupForBucketClearance();
         state = IntakeBucketControllerState.INTAKE_MOVING_TO_BUCKET_CLEARANCE_POSITION_FOR_SAFE_DRIVING_POSITION_BEFORE_DELIVERY;
     }
@@ -226,6 +242,7 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
      */
     public void deliverSample() {
         logCommand("Deliver sample");
+        deliveryComplete = false;
         liftBucketArmBucketGateController.deliverSample();
         state = IntakeBucketControllerState.DELIVERING_SAMPLE_AND_BUCKET_MOVING_TO_TRANSFER_POSITION;
     }
@@ -237,6 +254,7 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
      */
     public void setupForIntake() {
         logCommand("Setup for intake");
+        setupForIntakeComplete = false;
         extensionArmIntakeController.setupForIntake();
         liftBucketArmBucketGateController.closeGate();
         state = IntakeBucketControllerState.EXTENSION_ARM_INTAKE_MOVING_TO_SETUP_FOR_INTAKE_POSITION;
@@ -531,6 +549,7 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
                 // setup for delivery states
             case BUCKET_ARM_MOVING_TO_DELIVERY_POSITION:
                 if (liftBucketAtReadyToDeliverPosition) {
+                    setupForDeliveryComplete=true;
                     state = IntakeBucketControllerState.BUCKET_ARM_AT_DELIVERY_POSITION;
                 }
                 break;
@@ -547,6 +566,8 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
                 break;
             case EXTENSION_ARM_INTAKE_MOVING_TO_TRANSFER_POSITION:
                 if (intakePositionedForTransfer) {
+                    deliveryComplete = true;
+
                     state = IntakeBucketControllerState.AT_TRANSFER_POSITION_AFTER_DELIVERY;
                 }
                 break;
@@ -558,6 +579,7 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
                 // setup for intake states
             case EXTENSION_ARM_INTAKE_MOVING_TO_SETUP_FOR_INTAKE_POSITION:
                 if (intakePositionReached) {
+                    setupForIntakeComplete = true;
                     state = IntakeBucketControllerState.EXTENSION_ARM_INTAKE_AT_SETUP_FOR_INTAKE_POSITION;
                 }
                 break;
