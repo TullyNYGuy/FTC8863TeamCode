@@ -62,7 +62,7 @@ public class ITDExtensionArm implements FTCRobotSubsystem {
 
     private double initPosition = 0.0;
     private double transferPosition = .25;
-    private double intakePosition = 8.75;
+    private double intakePosition = 12.75;
     private double bucketClearancePosition = 3.75;
     private double outtakePosition = 2.0;
 
