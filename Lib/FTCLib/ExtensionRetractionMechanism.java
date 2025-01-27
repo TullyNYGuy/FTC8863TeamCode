@@ -2219,6 +2219,7 @@ public class ExtensionRetractionMechanism {
                         if (isMoveToRetractComplete()) {
                             logArrivedAtDestination();
                             if (retractWithReset) {
+                                log("retraction switch tripped");
                                 extensionRetractionMotor.resetEncoder();
                             }
                             performActionsToCompleteRetractMovement();
