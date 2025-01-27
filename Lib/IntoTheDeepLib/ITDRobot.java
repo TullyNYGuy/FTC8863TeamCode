@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib;
 
+import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -108,8 +109,7 @@ public class ITDRobot implements FTCRobot {
     }
 
     private AdafruitIMU8863 imu;
-    // temporarily remove pending RR v1.0
-    //public ITDMecanumDrive mecanumDrive;
+    public ITDPinpointDrive mecanumDrive;
     public ITDExtensionArmIntakeController extensionArmIntakeController;
     public ITDLiftBucketArmBucketGateController liftBucketArmBucketGateController;
     public ITDIntakeBucketController intakeBucketController;
@@ -157,15 +157,11 @@ public class ITDRobot implements FTCRobot {
     @Override
     public boolean createRobot() {
         imu = new AdafruitIMU8863(hardwareMap, null, "IMU", HardwareName.IMU.hwName);
-//        if (capabilities.contains(Subsystem.MECANUM_DRIVE)) {
-//            mecanumDrive = new ITDMecanumDrive(
-//                    ITDRobot.HardwareName.FRONT_LEFT_DRIVE_MOTOR.hwName,
-//                    ITDRobot.HardwareName.REAR_LEFT_DRIVE_MOTOR.hwName,
-//                    ITDRobot.HardwareName.FRONT_RIGHT_DRIVE_MOTOR.hwName,
-//                    ITDRobot.HardwareName.REAR_RIGHT_DRIVE_MOTOR.hwName,
-//                    hardwareMap);
-//            subsystemMap.put(mecanumDrive.getName(), mecanumDrive);
-//        }
+        if (capabilities.contains(Subsystem.MECANUM_DRIVE)) {
+            Pose2d beginPose = new Pose2d(0, 0, 0);
+            mecanumDrive = new ITDPinpointDrive(hardwareMap, beginPose);
+            subsystemMap.put(mecanumDrive.getName(), mecanumDrive);
+        }
 
         if (capabilities.contains(Subsystem.INTAKE_BUCKET_CONTROLLER)) {
             intakeBucketController = new ITDIntakeBucketController(hardwareMap, telemetry);

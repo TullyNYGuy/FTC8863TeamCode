@@ -488,6 +488,10 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
         telemetry.addData("EAIC State = ", state.toString());
     }
 
+    public void displayIntakeState(Telemetry telemetry) {
+        intake.displayState(telemetry);
+    }
+
     public void displayExtensionArmPosition(Telemetry telemetry) {
         extensionArm.displayPosition(telemetry);
     }

@@ -127,15 +127,18 @@ public class ITDTeleop extends LinearOpMode {
                 telemetry.addData("Direction swap = ", robot.robotModes.getDirectionSwap());
                 telemetry.addData("ROBOT CENTRIC driving", "!");
 
-//                robot.mecanumDrive.calculateMotorCommandsRobotCentric(
-//                        gamepad.gamepad1LeftJoyStickYValue * robot.robotModes.getDirectionSwapMultiplier(),
-//                        gamepad.gamepad1LeftJoyStickXValue * robot.robotModes.getDirectionSwapMultiplier(),
-//                        gamepad.gamepad1RightJoyStickXValue
-//                );
+                robot.mecanumDrive.calculateMotorCommandsRobotCentric(
+                        gamepad.gamepad1LeftJoyStickYValue * robot.robotModes.getDirectionSwapMultiplier(),
+                        gamepad.gamepad1LeftJoyStickXValue * robot.robotModes.getDirectionSwapMultiplier(),
+                        gamepad.gamepad1RightJoyStickXValue
+                );
             }
 
-//            robot.extensionArmIntakeController.displayState(telemetry);
-//            robot.intakeBucketController.displayState(telemetry);
+            robot.intakeBucketController.displayState(telemetry);
+            robot.extensionArmIntakeController.displayState(telemetry);
+            robot.liftBucketArmBucketGateController.displayState(telemetry);
+            robot.extensionArmIntakeController.displayIntakeState(telemetry);
+            robot.extensionArmIntakeController.displayExtensionArmPosition(telemetry);
 
 //            if (gamepad.getDrivingMode() == DrivingMode.FIELD_CENTRIC) {
 //                telemetry.addData("FIELD CENTRIC driving", "!");

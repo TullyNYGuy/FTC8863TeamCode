@@ -1,5 +1,4 @@
-package org.firstinspires.ftc.teamcode.RoadRunner;
-
+package org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib;
 
 
 import static com.qualcomm.hardware.rev.RevHubOrientationOnRobot.zyxOrientation;
@@ -7,15 +6,22 @@ import static com.qualcomm.hardware.rev.RevHubOrientationOnRobot.zyxOrientation;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
+import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
 import com.acmerobotics.roadrunner.ftc.FlightRecorder;
 import com.acmerobotics.roadrunner.ftc.GoBildaPinpointDriver;
 import com.acmerobotics.roadrunner.ftc.GoBildaPinpointDriverRR;
 import com.acmerobotics.roadrunner.ftc.LazyImu;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogOnChange;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
+import org.firstinspires.ftc.teamcode.RoadRunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.RoadRunner.messages.PoseMessage;
 
 /**
@@ -26,7 +32,7 @@ import org.firstinspires.ftc.teamcode.RoadRunner.messages.PoseMessage;
  * Unless otherwise noted, comments are from Gobilda
  */
 @Config
-public class PinpointDrive extends MecanumDrive {
+public class ITDPinpointDrive extends ITDMecanumDrive implements FTCRobotSubsystem {
     public static class Params {
         /*
         Set this to the name that your Pinpoint is configured as in your hardware config.
@@ -79,10 +85,10 @@ public class PinpointDrive extends MecanumDrive {
     public GoBildaPinpointDriverRR pinpoint;
     private Pose2d lastPinpointPose = pose;
 
-    public PinpointDrive(HardwareMap hardwareMap, Pose2d pose) {
+    public ITDPinpointDrive(HardwareMap hardwareMap, Pose2d pose) {
         super(hardwareMap, pose);
-        FlightRecorder.write("PINPOINT_PARAMS",PARAMS);
-        pinpoint = hardwareMap.get(GoBildaPinpointDriverRR.class,PARAMS.pinpointDeviceName);
+        FlightRecorder.write("PINPOINT_PARAMS", PARAMS);
+        pinpoint = hardwareMap.get(GoBildaPinpointDriverRR.class, PARAMS.pinpointDeviceName);
 
         if (PARAMS.usePinpointIMUForTuning) {
             lazyImu = new LazyImu(hardwareMap, PARAMS.pinpointDeviceName, new RevHubOrientationOnRobot(zyxOrientation(0, 0, 0)));
@@ -115,6 +121,7 @@ public class PinpointDrive extends MecanumDrive {
 
         pinpoint.setPosition(pose);
     }
+
     @Override
     public PoseVelocity2d updatePoseEstimate() {
         if (lastPinpointPose != pose) {
@@ -138,8 +145,8 @@ public class PinpointDrive extends MecanumDrive {
         }
 
         FlightRecorder.write("ESTIMATED_POSE", new PoseMessage(pose));
-        FlightRecorder.write("PINPOINT_RAW_POSE",new FTCPoseMessage(pinpoint.getPosition()));
-        FlightRecorder.write("PINPOINT_STATUS",pinpoint.getDeviceStatus());
+        FlightRecorder.write("PINPOINT_RAW_POSE", new FTCPoseMessage(pinpoint.getPosition()));
+        FlightRecorder.write("PINPOINT_STATUS", pinpoint.getDeviceStatus());
 
         return pinpoint.getVelocityRR();
     }
@@ -160,6 +167,65 @@ public class PinpointDrive extends MecanumDrive {
         }
     }
 
+    // Following for FTC8863 robot
 
+    private DataLogging logFile;
+    private boolean loggingOn = false;
+    private DataLogOnChange logDataOnchange;
 
+    private boolean initComplete = false;
+    private final String MECANUM_NAME = ITDRobot.HardwareName.MECANUM_DRIVE.hwName;
+
+    @Override
+    public boolean init(Configuration config) {
+        return true;
+    }
+
+    @Override
+    public void shutdown() {
+
+    }
+
+    @Override
+    public void timedUpdate(double timerValueMsec) {
+
+    }
+    @Override
+    public void update() {
+    }
+
+    @Override
+    public String getName() {
+        return MECANUM_NAME;
+    }
+
+    @Override
+    public boolean isInitComplete() {
+        if (initComplete) {
+            logCommand("Init complete");
+        }
+        return initComplete;
+    }
+
+    @Override
+    public void setDataLog(DataLogging logFile) {
+        this.logFile = logFile;
+        logDataOnchange = new DataLogOnChange(logFile);
+    }
+
+    @Override
+    public void enableDataLogging() {
+        this.loggingOn = true;
+    }
+
+    @Override
+    public void disableDataLogging() {
+        this.loggingOn = false;
+    }
+
+    private void logCommand(String command) {
+        if (loggingOn && logFile != null) {
+            logDataOnchange.log(getName() + " command = " + command);
+        }
+    }
 }
