@@ -2220,7 +2220,9 @@ public class ExtensionRetractionMechanism {
                             logArrivedAtDestination();
                             if (retractWithReset) {
                                 log("retraction switch tripped");
-                                extensionRetractionMotor.resetEncoder();
+                                // 1/27/2025 there may be a bug in the resetEncoder because the extension arm did not seem to reset at the
+                                // proper location
+                                //extensionRetractionMotor.resetEncoder();
                             }
                             performActionsToCompleteRetractMovement();
                             // movement to the retraction position is complete, start the post retraction actions

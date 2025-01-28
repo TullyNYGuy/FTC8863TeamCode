@@ -66,6 +66,8 @@ public class ITDExtensionArm implements FTCRobotSubsystem {
     private double bucketClearancePosition = 3.75;
     private double outtakePosition = 2.0;
 
+    private boolean movingToTransfer = false;
+
 
     //*********************************************************************************************
     //          Constructors
@@ -97,10 +99,12 @@ public class ITDExtensionArm implements FTCRobotSubsystem {
         // SET the lift max and min positions here
         //*********************************************
         extensionArm.setExtensionPositionInMechanismUnits(17.0);
-        extensionArm.setRetractionPositionInMechanismUnits(0.05);
+        // remove the software retraction limit because the zero position is drifting out in front of the limit
+        // switch and then the extension arm will never hit the limit switch
+        //extensionArm.setRetractionPositionInMechanismUnits(0.05);
         extensionArm.setOverrideRetractionLimit(true);
         // the default PIDF for the 1120 motor stinks. Set our own.
-        extensionArm.setPositionPIDFCoefficients(12.3);
+        extensionArm.setPositionPIDFCoefficients(18.5);
 
         state = ExtensionArmState.IDLE;
         // init has not been started yet
@@ -181,6 +185,7 @@ public class ITDExtensionArm implements FTCRobotSubsystem {
 
     private void transferPositionAction() {
         extensionArm.goToFullRetractWithReset();
+        movingToTransfer = true;
     }
 
     public void intakePosition() {
@@ -377,6 +382,11 @@ public class ITDExtensionArm implements FTCRobotSubsystem {
                 if (extensionArm.isPositionReached()) {
                     // tell the controller that the arm has reached its position
                     controller.setExtensionArmPositionReached(true);
+                    if (movingToTransfer) {
+                        extensionArm.goToPosition(0,.5);
+                        logCommand("move to 0");
+                        movingToTransfer = false;
+                    }
                     state = ExtensionArmState.IDLE;
                 }
                 break;
