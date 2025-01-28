@@ -46,6 +46,7 @@ public class ITDAutoStateMachines {
 
         COMPLETE
     }
+
     private States currentState;
 
     //*********************************************************************************************
@@ -54,14 +55,6 @@ public class ITDAutoStateMachines {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
-    private Pose2d startPose;
-    private Pose2d junctionPolePose;
-    private Pose2d parkingLocationPose;
-    private Trajectory trajectoryToJunctionPoleFromStart;
-    private Trajectory trajectoryToParkingLocation;
-    private Trajectory trajectoryToParkingLocation1;
-    private Trajectory trajectoryToParkingLocation2;
-    private Trajectory trajectoryToParkingLocation3;
 
     private ITDRobot robot;
     private ElapsedTime timer;
@@ -185,7 +178,7 @@ public class ITDAutoStateMachines {
                 break;
             case WAIT_FOR_GET_READY_2_RUN:
                 if (robot.intakeBucketController.isGetReadyToRunComplete()) {
-                // move to the delivery
+                    // move to the delivery
                     currentState = States.WAIT_FOR_M0VE_2_DELIVERY_POS;
                 }
                 break;
@@ -195,9 +188,9 @@ public class ITDAutoStateMachines {
                 currentState = States.WAIT_FOR_DELIVERY_JOE;
                 break;
             case WAIT_FOR_DELIVERY_JOE:
-                if(robot.intakeBucketController.isSetupForDeliveryComplete()){
+                if (robot.intakeBucketController.isSetupForDeliveryComplete()) {
                     robot.intakeBucketController.deliverSample();
-                    currentState=States.DELIVERY;
+                    currentState = States.DELIVERY;
                 }
                 break;
             case DELIVERY:
@@ -213,6 +206,9 @@ public class ITDAutoStateMachines {
                         case 3:
                             //you get the point
                             break;
+                        case 4:
+                            currentState=States.COMPLETE;
+                            break;
                     }
                     currentState = States.WAIT_FOR_MOVE_2_SAMPLE;
                 }
@@ -223,13 +219,18 @@ public class ITDAutoStateMachines {
                 currentState = States.WAIT_FOR_SETUP_FOR_INTAKE;
                 break;
             case WAIT_FOR_SETUP_FOR_INTAKE:
+                if (robot.intakeBucketController.isSetupForIntakeComplete()) {
+                    robot.intakeBucketController.intake();
+                    currentState = States.WAIT_FOR_INTAKE;
+                }
                 break;
             case WAIT_FOR_INTAKE:
+                if(robot.intakeBucketController.isTransferComplete()){
+                    ///movetodelivery
+                currentState=States.WAIT_FOR_M0VE_2_DELIVERY_POS;
+                }
                 break;
-            case WAIT_FOR_MOVE_2_SAMPLE2:
-                break;
-            case WAIT_FOR_MOVE_2_SAMPLE3:
-                break;
+
             case WAIT_TO_MOVE_TO_SUBMERISLBE:
                 break;
             case COMPLETE:

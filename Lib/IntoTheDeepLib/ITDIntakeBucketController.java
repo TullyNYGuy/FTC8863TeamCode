@@ -103,20 +103,29 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
     public boolean isGetReadyToRunComplete() {
         return getReadyToRunComplete;
     }
-    private boolean setupForDeliveryComplete= false;
+
+    private boolean setupForDeliveryComplete = false;
 
     public boolean isSetupForDeliveryComplete() {
         return setupForDeliveryComplete;
     }
+
     private boolean deliveryComplete = false;
 
     public boolean isDeliveryComplete() {
         return deliveryComplete;
     }
+
     private boolean setupForIntakeComplete = false;
 
     public boolean isSetupForIntakeComplete() {
         return setupForIntakeComplete;
+    }
+
+    private boolean transferComplete = false;
+
+    public boolean isTransferComplete() {
+        return transferComplete;
     }
     //*********************************************************************************************
     //          Constructors
@@ -150,12 +159,12 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
      * This moves the bucket, lift, extension arm and intake arm into positions so that when the driver
      * hits init not much needs to happen.
      * Steps:
-     *   reset the extension arm so it knows where 0 is
-     *   move the extension arm and intake arm to a position where the intake is out of the way of the bucket
-     *   move the bucket arm to its init position
-     *   rotate the intake to its init position
-     *   retract the extension arm
-     *   open the bucket gate so a sample can be inserted
+     * reset the extension arm so it knows where 0 is
+     * move the extension arm and intake arm to a position where the intake is out of the way of the bucket
+     * move the bucket arm to its init position
+     * rotate the intake to its init position
+     * retract the extension arm
+     * open the bucket gate so a sample can be inserted
      */
     public void setupForInit() {
         logCommand("Setup for init");
@@ -167,12 +176,13 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
      * The extension arm, intake arm, bucket, gate and lift should all be near their init positions. This
      * gets run when the driver presses the init.
      * Steps:
-     *   reset the extension arm so it knows where 0 is
-     *   DO NOT move the extension arm and intake arm to a position where the intake is out of the way of the bucket
-     *   move the bucket arm to its init position
-     *   rotate the intake to its init position
-     *   retract the extension arm
-     *   open the bucket gate so a sample can be inserted
+     * reset the extension arm so it knows where 0 is
+     * DO NOT move the extension arm and intake arm to a position where the intake is out of the way of the bucket
+     * move the bucket arm to its init position
+     * rotate the intake to its init position
+     * retract the extension arm
+     * open the bucket gate so a sample can be inserted
+     *
      * @param config
      * @return
      */
@@ -190,9 +200,9 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
      * This method is called when the driver hits play in teleop. The extension arm, bucket and
      * intake arm need to get into position for running. The bucket gate needs to close.
      * Steps:
-     *   move the intake out of the way
-     *   move the bucket into transfer position
-     *   move the intake into transfer position
+     * move the intake out of the way
+     * move the bucket into transfer position
+     * move the intake into transfer position
      */
     public void getReadyToRun() {
         logCommand("Get ready to run");
@@ -204,9 +214,9 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
      * This method shold be called after a transfer has occurred. It prepares for a delivery and
      * shortcuts the time to get setup for the delivery
      * Steps:
-     *   move the intake out of the way
-     *   rotate the bucket arm to vertical
-     *   raise the lift to height needed for delivery
+     * move the intake out of the way
+     * rotate the bucket arm to vertical
+     * raise the lift to height needed for delivery
      */
     public void setupForDrivingBeforeDelivery() {
         logCommand("Setup for driving before delivery");
@@ -219,7 +229,7 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
      * This method puts bucket over the basket and is meant to be called after most of the driving
      * over to the basket has been done.
      * Steps:
-     *   rotate bucket orm horizontal (the lift is already at delivery height)
+     * rotate bucket orm horizontal (the lift is already at delivery height)
      */
     public void setupForDelivery() {
         logCommand("Setup for delivery");
@@ -231,14 +241,14 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
      * This method opens the gate and allows the sample to drop into the basket. Then it puts the
      * bucket arm back into the transfer position.
      * Steps:
-     *   open the bucket gate
-     *   wait for the sample to fall out
-     *   rotate the bucket arm to the vertical position so that when the lift moves it does not
-     *     put as much stress on the bucket arm servo
-     *   move the lift to the transfer position
-     *   move the bucket arm to the transfer position
-     *   move the intake arm and the extension arm to the transfer position
-     *   close the bucket gate servo
+     * open the bucket gate
+     * wait for the sample to fall out
+     * rotate the bucket arm to the vertical position so that when the lift moves it does not
+     * put as much stress on the bucket arm servo
+     * move the lift to the transfer position
+     * move the bucket arm to the transfer position
+     * move the intake arm and the extension arm to the transfer position
+     * close the bucket gate servo
      */
     public void deliverSample() {
         logCommand("Deliver sample");
@@ -250,7 +260,7 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
     /**
      * This method will extend the extension arm in preparation for an intake.
      * Steps:
-     *   extend extension arm to intake position (the intake arm is still up in the air though)
+     * extend extension arm to intake position (the intake arm is still up in the air though)
      */
     public void setupForIntake() {
         logCommand("Setup for intake");
@@ -264,15 +274,16 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
      * This method puts the intake on the floor and starts an intake sequence. The intake automatically
      * filters through the samples until it has a good one, then it moves into the transfer position
      * Steps:
-     *   turn on the intake
-     *   rotate the intake onto the floor
-     *   intake runs until it has a good sample
-     *   rotate the intake back up into the transfer position
-     *   retract the extension arm until the intake is in the transfer position
-     *   transfer the sample into the bucket
+     * turn on the intake
+     * rotate the intake onto the floor
+     * intake runs until it has a good sample
+     * rotate the intake back up into the transfer position
+     * retract the extension arm until the intake is in the transfer position
+     * transfer the sample into the bucket
      */
     public void intake() {
         logCommand("Intake");
+        transferComplete = false;
         extensionArmIntakeController.intake();
         state = IntakeBucketControllerState.INTAKING;
 
@@ -494,7 +505,7 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
                 // driver may leave robot turned on or may turn it off
                 break;
 
-                // init states
+            // init states
             case EXTENSION_ARM_RESETTING_FOR_INIT:
                 if (extensionArmResetComplete) {
                     liftBucketArmBucketGateController.initFromIntakeBucketController(null);
@@ -510,7 +521,7 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
                 // wait for get ready to run
                 break;
 
-                // get ready to run states
+            // get ready to run states
             case EXTENSION_ARM_MOVING_TO_BUCKET_CLEARANCE_FOR_GET_READY_TO_RUN:
                 if (intakePositionedForBucketClearance) {
                     liftBucketArmBucketGateController.getReadyToRun();
@@ -530,7 +541,7 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
                 }
                 break;
 
-                // setup for safe driving position before delivery states
+            // setup for safe driving position before delivery states
             case INTAKE_MOVING_TO_BUCKET_CLEARANCE_POSITION_FOR_SAFE_DRIVING_POSITION_BEFORE_DELIVERY:
                 if (intakePositionedForBucketClearance) {
                     liftBucketArmBucketGateController.setupForDrivingBeforeDelivery();
@@ -546,10 +557,10 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
                 // hang out waiting for driver to give setup for delivery command
                 break;
 
-                // setup for delivery states
+            // setup for delivery states
             case BUCKET_ARM_MOVING_TO_DELIVERY_POSITION:
                 if (liftBucketAtReadyToDeliverPosition) {
-                    setupForDeliveryComplete=true;
+                    setupForDeliveryComplete = true;
                     state = IntakeBucketControllerState.BUCKET_ARM_AT_DELIVERY_POSITION;
                 }
                 break;
@@ -557,7 +568,7 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
                 // hang out waiting for driver to give deliver sample command
                 break;
 
-                // deliver sample states
+            // deliver sample states
             case DELIVERING_SAMPLE_AND_BUCKET_MOVING_TO_TRANSFER_POSITION:
                 if (liftBucketAtTransferPosition) {
                     extensionArmIntakeController.setupIntakeAfterDeliver();
@@ -576,7 +587,7 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
                 // it should be to setup for intake (after delivering a sample)
                 break;
 
-                // setup for intake states
+            // setup for intake states
             case EXTENSION_ARM_INTAKE_MOVING_TO_SETUP_FOR_INTAKE_POSITION:
                 if (intakePositionReached) {
                     setupForIntakeComplete = true;
@@ -588,7 +599,7 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
                 // or a back to transfer position command
                 break;
 
-                // Intake states
+            // Intake states
             case INTAKING:
                 if (intakeHasValidSample && intakePositionedForTransfer) {
                     liftBucketArmBucketGateController.openGate();
@@ -600,6 +611,7 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
                 break;
             case TRANSFERRING:
                 if (intakeTransferComplete) {
+                    transferComplete = true;
                     state = IntakeBucketControllerState.TRANSFER_COMPLETE;
                 }
                 break;
