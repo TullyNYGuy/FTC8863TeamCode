@@ -10,8 +10,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogOnChange;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
-import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.AllianceColor;
-import org.firstinspires.ftc.teamcode.Lib.FreightFrenzyLib.PersistantStorage;
+
 
 public class ITDIntakeSweeperServo implements FTCRobotSubsystem {
 

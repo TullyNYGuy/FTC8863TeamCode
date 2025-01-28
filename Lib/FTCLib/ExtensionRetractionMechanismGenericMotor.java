@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
 
-import com.acmerobotics.roadrunner.util.NanoClock;
+//import com.acmerobotics.roadrunner.util.NanoClock;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -115,7 +115,10 @@ public class ExtensionRetractionMechanismGenericMotor {
     //*********************************************************************************************
     protected DcMotor8863Interface extensionRetractionMotor;
     protected EncoderToLinearPosition encoderToLinearPosition;
-    protected MotionProfileFollower follower;
+
+    // Road Runner v1.0 does not have a MotionProfile so the MotionProfileFollower is broken. Look
+    // for a replacement
+    //protected MotionProfileFollower follower;
 
     // null is shown for emphasis. Any object is null until is it created.
     protected Switch retractedLimitSwitch = null;
@@ -298,9 +301,9 @@ public class ExtensionRetractionMechanismGenericMotor {
     }
 
     /**
-     * clock for use in calculating velocity. I'm using the same clock as roadrunner to be consistent
+     * clock for use in calculating velocity.
      */
-    private NanoClock clock = NanoClock.system();
+    private ElapsedTime clock = new ElapsedTime();
     private double elapsedTime = 0;
     private double startTime = 0;
 
@@ -518,7 +521,7 @@ public class ExtensionRetractionMechanismGenericMotor {
         motionProfileVelocities.clear();
         velocityData.clear();
         powerData.clear();
-        startTime = clock.seconds();
+        clock.reset();
     }
 
     public void disableCollectData() {
@@ -1068,21 +1071,22 @@ public class ExtensionRetractionMechanismGenericMotor {
         extensionRetractionCommand = ExtensionRetractionCommands.GO_TO_POSITION;
     }
 
-    /**
-     * Move the mechanism following a motion profile.
-     *
-     * @param follower         A motion profile follower.
-     */
-    public void followProfile(MotionProfileFollower follower) {
-        setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
-        this.follower = follower;
-        // set the properties so they can be used later
-        this.desiredPosition = follower.getProfile().end().getX();
-        log("COMMANDED " + mechanismName.toUpperCase() + " TO FOLLOW PROFILE " + follower.getProfileName() + " from "
-                + Double.toString(follower.getProfile().start().getX()) + " to " + this.desiredPosition);
-        // the next execution of the state machine will pick up this new command and execute it
-        extensionRetractionCommand = ExtensionRetractionCommands.FOLLOW_PROFILE;
-    }
+//    /**
+//     * Move the mechanism following a motion profile.
+//     * RR 1.0 does not have the MotionProfile class. Comment out for not. Look for a replacement.
+//     *
+//     * @param follower         A motion profile follower.
+//     */
+//    public void followProfile(MotionProfileFollower follower) {
+//        setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
+//        this.follower = follower;
+//        // set the properties so they can be used later
+//        this.desiredPosition = follower.getProfile().end().getX();
+//        log("COMMANDED " + mechanismName.toUpperCase() + " TO FOLLOW PROFILE " + follower.getProfileName() + " from "
+//                + Double.toString(follower.getProfile().start().getX()) + " to " + this.desiredPosition);
+//        // the next execution of the state machine will pick up this new command and execute it
+//        extensionRetractionCommand = ExtensionRetractionCommands.FOLLOW_PROFILE;
+//    }
 
 
     /**
@@ -2067,7 +2071,7 @@ public class ExtensionRetractionMechanismGenericMotor {
         if (collectData) {
             timeEncoderValues.add(mechanismTimer.milliseconds(), currentEncoderValue);
 
-            elapsedTime = clock.seconds() - startTime;
+            elapsedTime = clock.seconds();
             timeAtUpdate = elapsedTime;
             timeData.add(elapsedTime);
 
@@ -2893,177 +2897,180 @@ public class ExtensionRetractionMechanismGenericMotor {
                 }
                 break;
 
+            // Road Runner V1.0 does not have a MotionProfile. Look for a replacement. Comment out for now
             // -------------------------
             //   PROFILE FOLLOWER STATES
             //--------------------------
 
-            // this state checks to see if the mechanism can run a go to position.
-            case START_FOLLOWING_PROFILE:
-                switch (extensionRetractionCommand) {
-                    // The retraction has been interrupted by a reset command. Setup for a reset.
-                    case RESET:
-                        previousExtensionRetractionState = ExtensionRetractionStates.START_FOLLOWING_PROFILE;
-                        previousExtensionRetractionCommand = ExtensionRetractionCommands.FOLLOW_PROFILE;
-                        extensionRetractionState = ExtensionRetractionStates.START_RESET_SEQUENCE;
-                        break;
-                    case GO_TO_RETRACTED:
-                        previousExtensionRetractionState = ExtensionRetractionStates.START_FOLLOWING_PROFILE;
-                        previousExtensionRetractionCommand = ExtensionRetractionCommands.FOLLOW_PROFILE;
-                        extensionRetractionState = ExtensionRetractionStates.START_RETRACTION_SEQUENCE;
-                        break;
-                    case GO_TO_EXTENDED:
-                        previousExtensionRetractionState = ExtensionRetractionStates.START_FOLLOWING_PROFILE;
-                        previousExtensionRetractionCommand = ExtensionRetractionCommands.FOLLOW_PROFILE;
-                        extensionRetractionState = ExtensionRetractionStates.START_EXTENSION_SEQUENCE;
-                        break;
-                    case GO_TO_POSITION:
-                        previousExtensionRetractionState = ExtensionRetractionStates.START_FOLLOWING_PROFILE;
-                        previousExtensionRetractionCommand = ExtensionRetractionCommands.FOLLOW_PROFILE;
-                        extensionRetractionState = ExtensionRetractionStates.START_GO_TO_POSITION;
-                        break;
-                    case FOLLOW_PROFILE:
-                        // todo see if motor braking is needed
-                        if (isOkToGoToPosition()) {
-                            // Run without encoder just disables the FTC SDK velocity control over the motor. The
-                            // PIDF used by the follower needs to control the motor velocity, not the FTC SDK.
-                            extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                            // start the follower
-                            follower.start();
-                            // give the follower the current mechanism position and it calculates the
-                            // new motor power needed to maintain position, velocity and accelerate
-                            // control
-                            follower.update(getPosition());
-                            motionProfilePositionAtUpdate = follower.getTargetPosition();
-                            motionProfileVelocityAtUpdate = follower.getTargetVelocity();
-
-                            // get the new power and apply it to the motor
-                            setCurrentPower(follower.getCorrection());
-                            extensionRetractionState = ExtensionRetractionStates.FOLLOWING_PROFILE;
-                        } else {
-                            // todo bug here. Previous command and state was following profile so
-                            // if cannot extend (isOkToGoToPosition fails) then lift is stuck forever
-                            // in this state. Commented following two lines out for now.
-                            //extensionRetractionState = previousExtensionRetractionState;
-                            //extensionRetractionCommand = previousExtensionRetractionCommand;
-                            // hard wiring a termination of this state
-                            extensionRetractionCommand = ExtensionRetractionCommands.NO_COMMAND;
-                            extensionRetractionState = ExtensionRetractionStates.PROFILE_COMPLETE;
-                        }
-                        break;
-                    case JOYSTICK:
-                        previousExtensionRetractionState = extensionRetractionState;
-                        previousExtensionRetractionCommand = ExtensionRetractionCommands.GO_TO_POSITION;
-                        extensionRetractionState = ExtensionRetractionStates.JOYSTICK;
-                        break;
-                    case NO_COMMAND:
-                        // do nothing. This command should never be active in this state.
-                        break;
-                }
-                break;
-
-            case FOLLOWING_PROFILE:
-                // In case this command is interrupted by another command, and then that command
-                // cannot be run for some reason, save this state and command so that it can be
-                // resumed.
-                previousExtensionRetractionState = ExtensionRetractionStates.FOLLOWING_PROFILE;
-                previousExtensionRetractionCommand = ExtensionRetractionCommands.FOLLOW_PROFILE;
-
-                switch (extensionRetractionCommand) {
-                    case RESET:
-                        // a reset can be requested at any time.
-                        extensionRetractionState = ExtensionRetractionStates.START_RESET_SEQUENCE;
-                        break;
-                    // movement to a position can be interrupted by a command to fully extend or
-                    // fully retract
-                    case GO_TO_RETRACTED:
-                        extensionRetractionState = ExtensionRetractionStates.START_RETRACTION_SEQUENCE;
-                    case GO_TO_EXTENDED:
-                        extensionRetractionState = ExtensionRetractionStates.START_EXTENSION_SEQUENCE;
-                        break;
-                    case GO_TO_POSITION:
-                        extensionRetractionState = ExtensionRetractionStates.START_GO_TO_POSITION;
-                        break;
-                    case FOLLOW_PROFILE:
-                        // the mechanism has been requested to follow a profile.
-                        if (follower.isProfileComplete()) {
-                            logArrivedAtDestination();
-                            // The motion profile is complete. But the power to the motor
-                            // cannot be removed. The power is needed because the motor is holding
-                            // the position and may need to act against a force (like gravity) to
-                            // hold position.
-                            extensionRetractionCommand = ExtensionRetractionCommands.NO_COMMAND;
-                            extensionRetractionState = ExtensionRetractionStates.PROFILE_COMPLETE;
-                        }
-                        // give the follower the current mechanism position and it calculates the
-                        // new motor power needed to maintain position, velocity and accelerate
-                        // control
-                        follower.update(getPosition());
-                        motionProfilePositionAtUpdate = follower.getTargetPosition();
-                        motionProfileVelocityAtUpdate = follower.getTargetVelocity();
-
-                        // get the new power and apply it to the motor
-                        setCurrentPower(follower.getCorrection());
-
-                        // check to make sure the extended limit has not been reached. If it has
-                        // then something went wrong or someone gave a bad motor command.
-                        checkExtensionAndRetractionLimitsHit();
-                        break;
-                    case JOYSTICK:
-                        extensionRetractionState = ExtensionRetractionStates.JOYSTICK;
-                        break;
-                    case NO_COMMAND:
-                        // don't do anything, just hang out
-                        break;
-                }
-                break;
-
-            // this state is for when the mechanism has completed a move to a position
-            case PROFILE_COMPLETE:
-                // In case this command is interrupted by another command, and then that command
-                // cannot be run for some reason, save this state and command so that it can be
-                // resumed.
-                previousExtensionRetractionState = ExtensionRetractionStates.PROFILE_COMPLETE;
-                previousExtensionRetractionCommand = ExtensionRetractionCommands.NO_COMMAND;
-
-                switch (extensionRetractionCommand) {
-                    case RESET:
-                        // a reset can be requested at any time.
-                        extensionRetractionState = ExtensionRetractionStates.START_RESET_SEQUENCE;
-                        break;
-                    // movement to a position can be interrupted by a command to fully extend or
-                    // fully retract
-                    case GO_TO_RETRACTED:
-                        extensionRetractionState = ExtensionRetractionStates.START_RETRACTION_SEQUENCE;
-                    case GO_TO_EXTENDED:
-                        extensionRetractionState = ExtensionRetractionStates.START_EXTENSION_SEQUENCE;
-                        break;
-                    case GO_TO_POSITION:
-                        extensionRetractionState = ExtensionRetractionStates.START_GO_TO_POSITION;
-                        break;
-                    case FOLLOW_PROFILE:
-                        // When the mechanism arrives at the desired position, the command is set to
-                        // NO_COMMAND. So if this FOLLOW_PROFILE command is received, then this is a
-                        // new follow profile command. I.E. moving to a position from another
-                        // position.
-                        extensionRetractionState = ExtensionRetractionStates.START_FOLLOWING_PROFILE;
-                        break;
-                    case JOYSTICK:
-                        extensionRetractionState = ExtensionRetractionStates.JOYSTICK;
-                        break;
-                    case NO_COMMAND:
-                        // hang out but run the position controller since the lift has to hold position
-
-                        // give the follower the current mechanism position and it calculates the
-                        // new motor power needed to maintain position, velocity and accelerate
-                        // control
-                        follower.update(getPosition());
-                        motionProfilePositionAtUpdate = follower.getTargetPosition();
-                        motionProfileVelocityAtUpdate = follower.getTargetVelocity();
-                        // get the new power and apply it to the motor
-                        setCurrentPower(follower.getCorrection());
-                        break;
-                }
-                break;
+//            // this state checks to see if the mechanism can run a go to position.
+//            case START_FOLLOWING_PROFILE:
+//                switch (extensionRetractionCommand) {
+//                    // The retraction has been interrupted by a reset command. Setup for a reset.
+//                    case RESET:
+//                        previousExtensionRetractionState = ExtensionRetractionStates.START_FOLLOWING_PROFILE;
+//                        previousExtensionRetractionCommand = ExtensionRetractionCommands.FOLLOW_PROFILE;
+//                        extensionRetractionState = ExtensionRetractionStates.START_RESET_SEQUENCE;
+//                        break;
+//                    case GO_TO_RETRACTED:
+//                        previousExtensionRetractionState = ExtensionRetractionStates.START_FOLLOWING_PROFILE;
+//                        previousExtensionRetractionCommand = ExtensionRetractionCommands.FOLLOW_PROFILE;
+//                        extensionRetractionState = ExtensionRetractionStates.START_RETRACTION_SEQUENCE;
+//                        break;
+//                    case GO_TO_EXTENDED:
+//                        previousExtensionRetractionState = ExtensionRetractionStates.START_FOLLOWING_PROFILE;
+//                        previousExtensionRetractionCommand = ExtensionRetractionCommands.FOLLOW_PROFILE;
+//                        extensionRetractionState = ExtensionRetractionStates.START_EXTENSION_SEQUENCE;
+//                        break;
+//                    case GO_TO_POSITION:
+//                        previousExtensionRetractionState = ExtensionRetractionStates.START_FOLLOWING_PROFILE;
+//                        previousExtensionRetractionCommand = ExtensionRetractionCommands.FOLLOW_PROFILE;
+//                        extensionRetractionState = ExtensionRetractionStates.START_GO_TO_POSITION;
+//                        break;
+//                    case FOLLOW_PROFILE:
+//                        // todo see if motor braking is needed
+//                        if (isOkToGoToPosition()) {
+//                            // Run without encoder just disables the FTC SDK velocity control over the motor. The
+//                            // PIDF used by the follower needs to control the motor velocity, not the FTC SDK.
+//                            extensionRetractionMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//                            // start the follower
+//                            follower.start();
+//                            // give the follower the current mechanism position and it calculates the
+//                            // new motor power needed to maintain position, velocity and accelerate
+//                            // control
+//                            follower.update(getPosition());
+//                            motionProfilePositionAtUpdate = follower.getTargetPosition();
+//                            motionProfileVelocityAtUpdate = follower.getTargetVelocity();
+//
+//                            // get the new power and apply it to the motor
+//                            setCurrentPower(follower.getCorrection());
+//                            extensionRetractionState = ExtensionRetractionStates.FOLLOWING_PROFILE;
+//                        } else {
+//                            // todo bug here. Previous command and state was following profile so
+//                            // if cannot extend (isOkToGoToPosition fails) then lift is stuck forever
+//                            // in this state. Commented following two lines out for now.
+//                            //extensionRetractionState = previousExtensionRetractionState;
+//                            //extensionRetractionCommand = previousExtensionRetractionCommand;
+//                            // hard wiring a termination of this state
+//                            extensionRetractionCommand = ExtensionRetractionCommands.NO_COMMAND;
+//                            extensionRetractionState = ExtensionRetractionStates.PROFILE_COMPLETE;
+//                        }
+//                        break;
+//                    case JOYSTICK:
+//                        previousExtensionRetractionState = extensionRetractionState;
+//                        previousExtensionRetractionCommand = ExtensionRetractionCommands.GO_TO_POSITION;
+//                        extensionRetractionState = ExtensionRetractionStates.JOYSTICK;
+//                        break;
+//                    case NO_COMMAND:
+//                        // do nothing. This command should never be active in this state.
+//                        break;
+//                }
+//                break;
+//
+//
+//
+//            case FOLLOWING_PROFILE:
+//                // In case this command is interrupted by another command, and then that command
+//                // cannot be run for some reason, save this state and command so that it can be
+//                // resumed.
+//                previousExtensionRetractionState = ExtensionRetractionStates.FOLLOWING_PROFILE;
+//                previousExtensionRetractionCommand = ExtensionRetractionCommands.FOLLOW_PROFILE;
+//
+//                switch (extensionRetractionCommand) {
+//                    case RESET:
+//                        // a reset can be requested at any time.
+//                        extensionRetractionState = ExtensionRetractionStates.START_RESET_SEQUENCE;
+//                        break;
+//                    // movement to a position can be interrupted by a command to fully extend or
+//                    // fully retract
+//                    case GO_TO_RETRACTED:
+//                        extensionRetractionState = ExtensionRetractionStates.START_RETRACTION_SEQUENCE;
+//                    case GO_TO_EXTENDED:
+//                        extensionRetractionState = ExtensionRetractionStates.START_EXTENSION_SEQUENCE;
+//                        break;
+//                    case GO_TO_POSITION:
+//                        extensionRetractionState = ExtensionRetractionStates.START_GO_TO_POSITION;
+//                        break;
+//                    case FOLLOW_PROFILE:
+//                        // the mechanism has been requested to follow a profile.
+//                        if (follower.isProfileComplete()) {
+//                            logArrivedAtDestination();
+//                            // The motion profile is complete. But the power to the motor
+//                            // cannot be removed. The power is needed because the motor is holding
+//                            // the position and may need to act against a force (like gravity) to
+//                            // hold position.
+//                            extensionRetractionCommand = ExtensionRetractionCommands.NO_COMMAND;
+//                            extensionRetractionState = ExtensionRetractionStates.PROFILE_COMPLETE;
+//                        }
+//                        // give the follower the current mechanism position and it calculates the
+//                        // new motor power needed to maintain position, velocity and accelerate
+//                        // control
+//                        follower.update(getPosition());
+//                        motionProfilePositionAtUpdate = follower.getTargetPosition();
+//                        motionProfileVelocityAtUpdate = follower.getTargetVelocity();
+//
+//                        // get the new power and apply it to the motor
+//                        setCurrentPower(follower.getCorrection());
+//
+//                        // check to make sure the extended limit has not been reached. If it has
+//                        // then something went wrong or someone gave a bad motor command.
+//                        checkExtensionAndRetractionLimitsHit();
+//                        break;
+//                    case JOYSTICK:
+//                        extensionRetractionState = ExtensionRetractionStates.JOYSTICK;
+//                        break;
+//                    case NO_COMMAND:
+//                        // don't do anything, just hang out
+//                        break;
+//                }
+//                break;
+//
+//            // this state is for when the mechanism has completed a move to a position
+//            case PROFILE_COMPLETE:
+//                // In case this command is interrupted by another command, and then that command
+//                // cannot be run for some reason, save this state and command so that it can be
+//                // resumed.
+//                previousExtensionRetractionState = ExtensionRetractionStates.PROFILE_COMPLETE;
+//                previousExtensionRetractionCommand = ExtensionRetractionCommands.NO_COMMAND;
+//
+//                switch (extensionRetractionCommand) {
+//                    case RESET:
+//                        // a reset can be requested at any time.
+//                        extensionRetractionState = ExtensionRetractionStates.START_RESET_SEQUENCE;
+//                        break;
+//                    // movement to a position can be interrupted by a command to fully extend or
+//                    // fully retract
+//                    case GO_TO_RETRACTED:
+//                        extensionRetractionState = ExtensionRetractionStates.START_RETRACTION_SEQUENCE;
+//                    case GO_TO_EXTENDED:
+//                        extensionRetractionState = ExtensionRetractionStates.START_EXTENSION_SEQUENCE;
+//                        break;
+//                    case GO_TO_POSITION:
+//                        extensionRetractionState = ExtensionRetractionStates.START_GO_TO_POSITION;
+//                        break;
+//                    case FOLLOW_PROFILE:
+//                        // When the mechanism arrives at the desired position, the command is set to
+//                        // NO_COMMAND. So if this FOLLOW_PROFILE command is received, then this is a
+//                        // new follow profile command. I.E. moving to a position from another
+//                        // position.
+//                        extensionRetractionState = ExtensionRetractionStates.START_FOLLOWING_PROFILE;
+//                        break;
+//                    case JOYSTICK:
+//                        extensionRetractionState = ExtensionRetractionStates.JOYSTICK;
+//                        break;
+//                    case NO_COMMAND:
+//                        // hang out but run the position controller since the lift has to hold position
+//
+//                        // give the follower the current mechanism position and it calculates the
+//                        // new motor power needed to maintain position, velocity and accelerate
+//                        // control
+//                        follower.update(getPosition());
+//                        motionProfilePositionAtUpdate = follower.getTargetPosition();
+//                        motionProfileVelocityAtUpdate = follower.getTargetVelocity();
+//                        // get the new power and apply it to the motor
+//                        setCurrentPower(follower.getCorrection());
+//                        break;
+//                }
+//                break;
 
             // -------------------------
             //   JOYSTICK CONTROL

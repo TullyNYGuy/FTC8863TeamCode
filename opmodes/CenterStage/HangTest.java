@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.opmodes.CenterStage;
 
-import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -40,7 +39,6 @@ public class HangTest extends LinearOpMode {
 
     DataLogging dataLog = null;
 
-    private Pose2d startPose;
 
     @Override
     public void runOpMode() {

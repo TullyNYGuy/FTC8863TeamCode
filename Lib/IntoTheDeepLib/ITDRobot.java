@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib;
 
+import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -8,12 +9,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
-import org.firstinspires.ftc.teamcode.Lib.CenterStageLib.CenterStageDeliveryController;
-import org.firstinspires.ftc.teamcode.Lib.CenterStageLib.CenterStageHangMechanism;
-import org.firstinspires.ftc.teamcode.Lib.CenterStageLib.CenterStageIntakeController;
-import org.firstinspires.ftc.teamcode.Lib.CenterStageLib.CenterStageMecanumDrive;
-import org.firstinspires.ftc.teamcode.Lib.CenterStageLib.CenterStagePlaneGUNservo;
-import org.firstinspires.ftc.teamcode.Lib.CenterStageLib.CenterStageRobotModes;
+
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
@@ -113,7 +109,7 @@ public class ITDRobot implements FTCRobot {
     }
 
     private AdafruitIMU8863 imu;
-    public ITDMecanumDrive mecanumDrive;
+    public ITDPinpointDrive mecanumDrive;
     public ITDExtensionArmIntakeController extensionArmIntakeController;
     public ITDLiftBucketArmBucketGateController liftBucketArmBucketGateController;
     public ITDIntakeBucketController intakeBucketController;
@@ -162,12 +158,8 @@ public class ITDRobot implements FTCRobot {
     public boolean createRobot() {
         imu = new AdafruitIMU8863(hardwareMap, null, "IMU", HardwareName.IMU.hwName);
         if (capabilities.contains(Subsystem.MECANUM_DRIVE)) {
-            mecanumDrive = new ITDMecanumDrive(
-                    ITDRobot.HardwareName.FRONT_LEFT_DRIVE_MOTOR.hwName,
-                    ITDRobot.HardwareName.REAR_LEFT_DRIVE_MOTOR.hwName,
-                    ITDRobot.HardwareName.FRONT_RIGHT_DRIVE_MOTOR.hwName,
-                    ITDRobot.HardwareName.REAR_RIGHT_DRIVE_MOTOR.hwName,
-                    hardwareMap);
+            Pose2d beginPose = new Pose2d(0, 0, 0);
+            mecanumDrive = new ITDPinpointDrive(hardwareMap, beginPose);
             subsystemMap.put(mecanumDrive.getName(), mecanumDrive);
         }
 

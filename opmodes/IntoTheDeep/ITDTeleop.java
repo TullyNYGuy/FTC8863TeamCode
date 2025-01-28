@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.opmodes.IntoTheDeep;
 
-import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -38,7 +37,7 @@ public class ITDTeleop extends LinearOpMode {
 
     DataLogging dataLog = null;
 
-    private Pose2d startPose;
+    //private Pose2d startPose;
 
     @Override
     public void runOpMode() {
@@ -135,8 +134,11 @@ public class ITDTeleop extends LinearOpMode {
                 );
             }
 
-//            robot.extensionArmIntakeController.displayState(telemetry);
-//            robot.intakeBucketController.displayState(telemetry);
+            robot.intakeBucketController.displayState(telemetry);
+            robot.extensionArmIntakeController.displayState(telemetry);
+            robot.liftBucketArmBucketGateController.displayState(telemetry);
+            robot.extensionArmIntakeController.displayIntakeState(telemetry);
+            robot.extensionArmIntakeController.displayExtensionArmPosition(telemetry);
 
 //            if (gamepad.getDrivingMode() == DrivingMode.FIELD_CENTRIC) {
 //                telemetry.addData("FIELD CENTRIC driving", "!");
