@@ -244,7 +244,7 @@ public class ITDHangMechanism implements FTCRobotSubsystem {
     }
 
     public void bigHang() {
-        hang(-8.0);
+        hang(-9.0);
     }
 
     public void deployArms() {

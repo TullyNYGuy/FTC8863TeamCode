@@ -51,7 +51,7 @@ public class ITDIntakeArmServo implements FTCRobotSubsystem {
     private double intakePosition = 0.1;
 
     private double bucketClearancePosition = 0.45;
-    private double transferPosition = 0.50;
+    private double transferPosition = 0.48;
 
     private double shutdownPosition = transferPosition;
 
