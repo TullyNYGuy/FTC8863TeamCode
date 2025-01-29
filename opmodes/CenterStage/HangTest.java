@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.CenterStage;
 
 import com.qualcomm.hardware.lynx.LynxModule;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -19,7 +20,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
 import java.util.List;
 
 @TeleOp(name = "Teleop Hang Test", group = "AA")
-//@Disabled
+@Disabled
 
 public class HangTest extends LinearOpMode {
 

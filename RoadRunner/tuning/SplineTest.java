@@ -3,13 +3,14 @@ package org.firstinspires.ftc.teamcode.RoadRunner.tuning;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.RoadRunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.RoadRunner.PinpointDrive;
 import org.firstinspires.ftc.teamcode.RoadRunner.SparkFunOTOSDrive;
 import org.firstinspires.ftc.teamcode.RoadRunner.TankDrive;
-
+@Disabled
 public final class SplineTest extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {

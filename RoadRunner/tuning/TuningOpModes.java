@@ -6,6 +6,7 @@ import com.acmerobotics.roadrunner.MotorFeedforward;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.ftc.*;
 import com.qualcomm.hardware.lynx.LynxModule;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpModeManager;
 import com.qualcomm.robotcore.eventloop.opmode.OpModeRegistrar;
@@ -21,7 +22,7 @@ import org.firstinspires.ftc.teamcode.RoadRunner.TwoDeadWheelLocalizer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
+@Disabled
 public final class TuningOpModes {
     public static final Class<?> DRIVE_CLASS = PinpointDrive.class; // TODO: change to your drive class i.e. PinpointDrive if using pinpoint
 
@@ -211,18 +212,19 @@ public final class TuningOpModes {
             throw new RuntimeException();
         }
 
-        manager.register(metaForClass(AngularRampLogger.class), new AngularRampLogger(dvf));
-        manager.register(metaForClass(ForwardPushTest.class), new ForwardPushTest(dvf));
-        manager.register(metaForClass(ForwardRampLogger.class), new ForwardRampLogger(dvf));
-        manager.register(metaForClass(LateralPushTest.class), new LateralPushTest(dvf));
-        manager.register(metaForClass(LateralRampLogger.class), new LateralRampLogger(dvf));
-        manager.register(metaForClass(ManualFeedforwardTuner.class), new ManualFeedforwardTuner(dvf));
-        manager.register(metaForClass(MecanumMotorDirectionDebugger.class), new MecanumMotorDirectionDebugger(dvf));
-        manager.register(metaForClass(DeadWheelDirectionDebugger.class), new DeadWheelDirectionDebugger(dvf));
-
-        manager.register(metaForClass(ManualFeedbackTuner.class), ManualFeedbackTuner.class);
-        manager.register(metaForClass(SplineTest.class), SplineTest.class);
-        manager.register(metaForClass(LocalizationTest.class), LocalizationTest.class);
+        //todo uncomment this when you need to tune roadrunner
+//        manager.register(metaForClass(AngularRampLogger.class), new AngularRampLogger(dvf));
+//        manager.register(metaForClass(ForwardPushTest.class), new ForwardPushTest(dvf));
+//        manager.register(metaForClass(ForwardRampLogger.class), new ForwardRampLogger(dvf));
+//        manager.register(metaForClass(LateralPushTest.class), new LateralPushTest(dvf));
+//        manager.register(metaForClass(LateralRampLogger.class), new LateralRampLogger(dvf));
+//        manager.register(metaForClass(ManualFeedforwardTuner.class), new ManualFeedforwardTuner(dvf));
+//        manager.register(metaForClass(MecanumMotorDirectionDebugger.class), new MecanumMotorDirectionDebugger(dvf));
+//        manager.register(metaForClass(DeadWheelDirectionDebugger.class), new DeadWheelDirectionDebugger(dvf));
+//
+//        manager.register(metaForClass(ManualFeedbackTuner.class), ManualFeedbackTuner.class);
+//        manager.register(metaForClass(SplineTest.class), SplineTest.class);
+//        manager.register(metaForClass(LocalizationTest.class), LocalizationTest.class);
 
         FtcDashboard.getInstance().withConfigRoot(configRoot -> {
             for (Class<?> c : Arrays.asList(
