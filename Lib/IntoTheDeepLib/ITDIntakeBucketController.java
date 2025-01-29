@@ -251,10 +251,13 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
      * close the bucket gate servo
      */
     public void deliverSample() {
-        logCommand("Deliver sample");
-        deliveryComplete = false;
-        liftBucketArmBucketGateController.deliverSample();
-        state = IntakeBucketControllerState.DELIVERING_SAMPLE_AND_BUCKET_MOVING_TO_TRANSFER_POSITION;
+        // lock out any attempt to deliver sample unless bucket arm is at the delivery position
+        if (state == state.BUCKET_ARM_AT_DELIVERY_POSITION) {
+            logCommand("Deliver sample");
+            deliveryComplete = false;
+            liftBucketArmBucketGateController.deliverSample();
+            state = IntakeBucketControllerState.DELIVERING_SAMPLE_AND_BUCKET_MOVING_TO_TRANSFER_POSITION;
+        }
     }
 
     /**
@@ -550,9 +553,11 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
                 break;
             case BUCKET_ARM_MOVING_TO_SAFE_POSITION_BEFORE_DELIVERY:
                 if (liftBucketAtSafeToDrivePosition) {
-                    state = IntakeBucketControllerState.AT_SAFE_POSITION_BEFORE_DELIVERY;
+                    state = IntakeBucketControllerState.BUCKET_ARM_MOVING_TO_DELIVERY_POSITION;
                 }
                 break;
+                // skipping over this state because the liftBucketArmBucketGate controller immediately
+                // jumped into moving the bucket arm to the delivery position
             case AT_SAFE_POSITION_BEFORE_DELIVERY:
                 // hang out waiting for driver to give setup for delivery command
                 break;

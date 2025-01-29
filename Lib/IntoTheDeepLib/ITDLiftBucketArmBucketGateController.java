@@ -337,6 +337,7 @@ public class ITDLiftBucketArmBucketGateController implements FTCRobotSubsystem {
                 }
                 break;
             case WAITING_FOR_SETUP_FOR_DELIVERY_COMMAND:
+                // jump right to the setup for delivery so the bucket arm is over the basket
                 setupForDelivery();
                 // hang out here waiting for the driver to tell us to setup for the delivery
                 break;
