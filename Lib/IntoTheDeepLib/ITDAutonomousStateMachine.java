@@ -31,7 +31,7 @@ public class ITDAutonomousStateMachine {
         WAIT_FOR_M0VE_2_DELIVERY_POS_FROM_SAMPLE2,
         WAIT_FOR_M0VE_2_DELIVERY_POS_FROM_SAMPLE3,
         WAIT_FOR_DELIVERY_JOE,
-        DELIVERY,
+        WAIT_FOR_DELIVER_SAMPLE,
         WAIT_FOR_MOVE_2_SAMPLE1,
         WAIT_FOR_MOVE_2_SAMPLE2,
         WAIT_FOR_MOVE_2_SAMPLE3,
@@ -151,6 +151,16 @@ public class ITDAutonomousStateMachine {
         }
     }
 
+    private void logPosition(String comment, Pose2d pose2d) {
+        if (enableLogging && logFile != null) {
+            logFile.logData(comment + " " + pose2d.toString());
+        }
+    }
+
+    //*********************************************************************************************
+    //          Robot Positions
+    //*********************************************************************************************
+
     // Define the robot positions
     private Pose2d startAutoPose = new Pose2d(32.5, 54.375, Math.toRadians(-90));
     private Pose2d deliveryPose = new Pose2d(48.5, 51.75, Math.toRadians(-135));
@@ -221,12 +231,11 @@ public class ITDAutonomousStateMachine {
     }
 
     //*********************************************************************************************
-    //          MAJOR METHODS
-    //
-    // public methods that give the class its functionality
+    //          State machine
     //*********************************************************************************************
 
     public void start() {
+        // initialize the location of the robot
         robot.mecanumDrive.pose = startAutoPose;
         currentState = States.START;
         isComplete = false;
@@ -244,6 +253,7 @@ public class ITDAutonomousStateMachine {
                 break;
             case WAIT_FOR_GET_READY_2_RUN:
                 if (robot.intakeBucketController.isGetReadyToRunComplete()) {
+                    logPosition("start at", startAutoPose);
                     startToDeliveryRunner.runNonBlocking();
                     logCommand("move to delivery");
                     currentState = States.WAIT_FOR_M0VE_2_DELIVERY_POS_FROM_START;
@@ -251,6 +261,8 @@ public class ITDAutonomousStateMachine {
                 break;
             case WAIT_FOR_M0VE_2_DELIVERY_POS_FROM_START:
                 if(startToDeliveryRunner.isComplete()) {
+                    logPosition("Delivery pose", deliveryPose);
+                    logPosition("Actual pose", robot.mecanumDrive.pose);
                     robot.intakeBucketController.setupForDrivingBeforeDelivery();
                     currentState = States.WAIT_FOR_DELIVERY_JOE;
                 } else {
@@ -261,12 +273,13 @@ public class ITDAutonomousStateMachine {
             case WAIT_FOR_DELIVERY_JOE:
                 if (robot.intakeBucketController.isSetupForDeliveryComplete()) {
                     robot.intakeBucketController.deliverSample();
-                    currentState = States.DELIVERY;
+                    currentState = States.WAIT_FOR_DELIVER_SAMPLE;
                 }
                 break;
-            case DELIVERY:
+            case WAIT_FOR_DELIVER_SAMPLE:
                 if (robot.intakeBucketController.isDeliveryComplete()) {
                     sampleNum = sampleNum + 1;
+                    logFile.logData("Moving on to sample " + sampleNum);
                     switch (sampleNum) {
                         case 1:
                            deliveryToSample1Runner.runNonBlocking();
@@ -283,11 +296,12 @@ public class ITDAutonomousStateMachine {
                             currentState=States.COMPLETE;
                             break;
                     }
-
                 }
                 break;
             case WAIT_FOR_MOVE_2_SAMPLE1:
                 if(deliveryToSample1Runner.isComplete()) {
+                    logPosition("Sample1 intake pose", sample1IntakePose);
+                    logPosition("Actual pose", robot.mecanumDrive.pose);
                     robot.intakeBucketController.setupForIntake();
                     currentState = States.WAIT_FOR_SETUP_FOR_INTAKE;
                 } else {
@@ -296,6 +310,8 @@ public class ITDAutonomousStateMachine {
                 break;
             case WAIT_FOR_MOVE_2_SAMPLE2:
                 if(deliveryToSample2Runner.isComplete()) {
+                    logPosition("Sample2 intake pose", sample2IntakePose);
+                    logPosition("Actual pose", robot.mecanumDrive.pose);
                     robot.intakeBucketController.setupForIntake();
                     currentState = States.WAIT_FOR_SETUP_FOR_INTAKE;
                 } else {
@@ -304,6 +320,8 @@ public class ITDAutonomousStateMachine {
                 break;
             case WAIT_FOR_MOVE_2_SAMPLE3:
                 if(deliveryToSample3Runner.isComplete()) {
+                    logPosition("Sample3 intake pose", sample3IntakePose);
+                    logPosition("Actual pose", robot.mecanumDrive.pose);
                     robot.intakeBucketController.setupForIntake();
                     currentState = States.WAIT_FOR_SETUP_FOR_INTAKE;
                 } else {
@@ -336,6 +354,8 @@ public class ITDAutonomousStateMachine {
                 break;
             case WAIT_FOR_M0VE_2_DELIVERY_POS_FROM_SAMPLE1:
                 if(sample1ToDeliveryRunner.isComplete()) {
+                    logPosition("Delivery pose", deliveryPose);
+                    logPosition("Actual pose", robot.mecanumDrive.pose);
                     robot.intakeBucketController.setupForDrivingBeforeDelivery();
                     currentState = States.WAIT_FOR_DELIVERY_JOE;
                 } else {
@@ -344,6 +364,8 @@ public class ITDAutonomousStateMachine {
                 break;
             case WAIT_FOR_M0VE_2_DELIVERY_POS_FROM_SAMPLE2:
                 if(sample2ToDeliveryRunner.isComplete()) {
+                    logPosition("Delivery pose", deliveryPose);
+                    logPosition("Actual pose", robot.mecanumDrive.pose);
                     robot.intakeBucketController.setupForDrivingBeforeDelivery();
                     currentState = States.WAIT_FOR_DELIVERY_JOE;
                 } else {
@@ -352,6 +374,8 @@ public class ITDAutonomousStateMachine {
                 break;
             case WAIT_FOR_M0VE_2_DELIVERY_POS_FROM_SAMPLE3:
                 if(sample3ToDeliveryRunner.isComplete()) {
+                    logPosition("Delivery pose", deliveryPose);
+                    logPosition("Actual pose", robot.mecanumDrive.pose);
                     robot.intakeBucketController.setupForDrivingBeforeDelivery();
                     currentState = States.WAIT_FOR_DELIVERY_JOE;
                 } else {
