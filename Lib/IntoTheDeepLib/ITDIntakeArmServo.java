@@ -45,7 +45,7 @@ public class ITDIntakeArmServo implements FTCRobotSubsystem {
 
     private boolean initComplete = false;
 
-    private double initPosition = 0.7;
+    private double initPosition = 0.65;
 
     // INDEX WHEN INTAKE IS ON FLOOR AND SERVO = .1
     private double intakePosition = 0.1;
