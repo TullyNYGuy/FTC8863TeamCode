@@ -287,9 +287,11 @@ public class ITDAutonomousStateMachine {
                             break;
                         case 2:
                             deliveryToSample2Runner.runNonBlocking();
+                            currentState = States.WAIT_FOR_MOVE_2_SAMPLE2;
                             break;
                         case 3:
                            deliveryToSample3Runner.runNonBlocking();
+                            currentState = States.WAIT_FOR_MOVE_2_SAMPLE3;
                             break;
                         case 4:
                             isComplete = true;
