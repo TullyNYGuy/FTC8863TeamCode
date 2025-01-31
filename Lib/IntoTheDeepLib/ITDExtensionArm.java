@@ -250,6 +250,14 @@ public class ITDExtensionArm implements FTCRobotSubsystem {
         extensionArm.goToPosition(outtakePosition, extendPower);
     }
 
+
+    public void goToPosition(double position) {
+        logCommand("Go to Position = " + position);
+        controller.setExtensionArmPositionReached(false);
+        extensionArm.goToPosition(position, extendPower);
+        state = ExtensionArmState.MOVING;
+    }
+
     public void joystick(double power) {
         switch (state) {
             case IDLE:

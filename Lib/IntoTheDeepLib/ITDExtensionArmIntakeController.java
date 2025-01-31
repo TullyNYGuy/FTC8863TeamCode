@@ -60,6 +60,11 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
         EXTENSION_ARM_MOVING_TO_TRANSFER_POSITION,
         AT_TRANSFER_POSITION,
 
+        // gliding intake states
+        EXTENSION_ARM_MOVING_TO_READY_TO_GLIDE_POSITION,
+        WAITING_FOR_GOOD_GLIDING_SAMPLE,
+        WAITING_FOR_READY_TO_CYCLE_GLIDE,
+
         // transfer states
         TRANSFERRING_SAMPLE,
         MOVING_TO_OUTTAKE_POSITION,
@@ -291,6 +296,14 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
         intakeArmServo.intakePosition();
         intake.intake();
         state = ExtensionArmIntakeBucketControllerState.WAITING_FOR_A_GOOD_SAMPLE;
+    }
+
+    public void setupForGlidingIntake() {
+        logCommand("Setup For Glide");
+        extensionArm.goToPosition(2);
+        intakeArmServo.intakePosition();
+        intake.intake();
+        state = ExtensionArmIntakeBucketControllerState.EXTENSION_ARM_MOVING_TO_READY_TO_GLIDE_POSITION;
     }
 
     /**
@@ -639,6 +652,33 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
             case INTAKE_STOPPED:
                 // intake is stopped. Wait for a new command.
                 break;
+
+                // glide intake states
+            case EXTENSION_ARM_MOVING_TO_READY_TO_GLIDE_POSITION:
+                if (extensionArm.isPositionReached() && intakeArmServo.isPositionReached()) {
+                    extensionArm.intakePosition();
+                    state = ExtensionArmIntakeBucketControllerState.WAITING_FOR_GOOD_GLIDING_SAMPLE;
+                }
+                break;
+
+            case WAITING_FOR_GOOD_GLIDING_SAMPLE:
+                if (intakeHasValidSample) {
+                    controller.setIntakeHasValidSample(true);
+                    setupForTransfer();
+                }
+                if (extensionArm.isPositionReached()) {
+                    intake.stop();
+                    intakeArmServo.readyToIntakePosition();
+                    extensionArm.goToPosition(2);
+                    state = ExtensionArmIntakeBucketControllerState.WAITING_FOR_READY_TO_CYCLE_GLIDE;
+                }
+                break;
+
+            case WAITING_FOR_READY_TO_CYCLE_GLIDE:
+                if (intakeArmServo.isPositionReached() && extensionArm.isPositionReached()) {
+                    state = ExtensionArmIntakeBucketControllerState.IDLE;
+                }
+            break;
 
                 // setting up for transfer states
             case INTAKE_ARM_MOVING_TO_TRANSFER_POSITION:
