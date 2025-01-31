@@ -1,9 +1,7 @@
 package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
 
-
-
-    //*********************************************************************************************
+//*********************************************************************************************
     //          ENUMERATED TYPES
     //
     // user defined types
@@ -19,6 +17,18 @@ package org.firstinspires.ftc.teamcode.Lib.FTCLib;
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
+    private static MatchPhase mymatchPhase;
+
+    public static MatchPhase getMatchPhase() {
+        if (mymatchPhase == null) {
+            return MatchPhase.TELEOP;
+        } else {
+            return mymatchPhase;
+        }
+    }
+    public static void setMatchPhase(MatchPhase matchPhase) {
+        mymatchPhase = matchPhase;
+    }
 
 
     //*********************************************************************************************

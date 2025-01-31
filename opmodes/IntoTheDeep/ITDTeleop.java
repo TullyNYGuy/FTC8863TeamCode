@@ -7,12 +7,14 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.MatchPhase;
 import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ITDGamepad;
 import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ITDRobot;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DrivingMode;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MecanumCommands;
+import org.opencv.core.Mat;
 
 import java.util.List;
 
@@ -41,6 +43,8 @@ public class ITDTeleop extends LinearOpMode {
 
     @Override
     public void runOpMode() {
+
+        MatchPhase.setMatchPhase(MatchPhase.TELEOP);
 
         //*********************************************************************************************
         //  Initializations after the program is selected by the user on the driver phone

@@ -9,14 +9,13 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColorTeamLocation;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MatchPhase;
 import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ITDAutonomousStateMachine;
 import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ITDGamepad;
-import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ITDPersistantStorage;
 import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ITDRobot;
-import org.firstinspires.ftc.teamcode.Lib.PowerPlayLib.Pipelines.SignalConePipeline;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
 
@@ -33,7 +32,7 @@ public class ITDAutonomous extends LinearOpMode {
 
     public ITDRobot robot;
     public ITDGamepad gamepad;
-    public ITDPersistantStorage persistantStorage;
+
     public Configuration config = null;
     //public ITDField field;
     private ITDAutonomousStateMachine autonomousStateMachine;
@@ -46,6 +45,7 @@ public class ITDAutonomous extends LinearOpMode {
 
     @Override
     public void runOpMode() {
+        MatchPhase.setMatchPhase(MatchPhase.AUTONOMOUS);
 
         //*********************************************************************************************
         //  Initializations after the program is selected by the user on the driver phone
@@ -85,7 +85,7 @@ public class ITDAutonomous extends LinearOpMode {
         enableBulkReads(hardwareMap, LynxModule.BulkCachingMode.AUTO);
 
         // set the persistant storage variable saying this is the teleop phase
-        ITDPersistantStorage.setMatchPhase(MatchPhase.AUTONOMOUS);
+        MatchPhase.setMatchPhase(MatchPhase.AUTONOMOUS);
 
         // set the start location of the robot
 
@@ -119,8 +119,8 @@ public class ITDAutonomous extends LinearOpMode {
             telemetry.addData(">", "Press start to run Auto (make sure you ran the position setter first!)");
             telemetry.addLine();
             // display the alliance color and team location for the drivers to double check
-            telemetry.addData("Alliance color = ", ITDPersistantStorage.getAllianceColor().toString());
-            telemetry.addData("Team Location  = ", ITDPersistantStorage.getTeamLocation().toString());
+            telemetry.addData("Alliance color = ", AllianceColorTeamLocation.getAllianceColor().toString());
+            telemetry.addData("Team Location  = ", AllianceColorTeamLocation.getTeamLocation().toString());
             telemetry.update();
 
             // update persistant storage with the current park location
