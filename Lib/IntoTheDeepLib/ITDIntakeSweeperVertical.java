@@ -241,7 +241,7 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
             // uh oh the alliance color was never set. Rather than it being nothing, which will
             // cause the intake to stop when it gets a sample and cannot tell if it is a valid
             // color, default it to something
-            allianceColor = AllianceColor.RED;
+            allianceColor = AllianceColor.BLUE;
             log("alliance color was never set, defaulting to red");
         }
         logCommand("intake");
