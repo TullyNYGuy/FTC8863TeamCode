@@ -41,6 +41,7 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
         EXTENSION_ARM_MOVING_TO_BUCKET_CLEARANCE_FOR_GET_READY_TO_RUN,
         BUCKET_MOVING_TO_TRANSFER_POSITION_FOR_GET_READY_TO_RUN,
         EXTENSION_ARM_MOVING_TO_TRANSFER_POSITION_FOR_GET_READY_TO_RUN,
+        READY_TO_RUN,
         TRANSFER_COMPLETE,
 
         // setup for driving to delivery states
@@ -127,6 +128,8 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
     public boolean isTransferComplete() {
         return transferComplete;
     }
+
+    private boolean showMaxExtension = false;
     //*********************************************************************************************
     //          Constructors
     //
@@ -292,6 +295,19 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
 
     }
 
+    public void runGlidingIntake() {
+        logCommand("Glide Intake");
+        setGlidingIntakeFailed(false);
+        transferComplete = false;
+        extensionArmIntakeController.setupForGlidingIntake();
+        state = IntakeBucketControllerState.INTAKING;
+    }
+    public void showMaxExtension() {
+        logCommand("Max extension");
+        showMaxExtension = true;
+        init(null);
+    }
+
 
     //*********************************************************************************************
     //          Communication from Extension arm / intake
@@ -327,6 +343,12 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
 
     public void setIntakePositionedForBucketClearance(boolean OKForBucketClearance) {
         this.intakePositionedForBucketClearance = OKForBucketClearance;
+    }
+
+    private boolean glidingIntakeFailed = false;
+
+    public void setGlidingIntakeFailed(boolean glidingIntakeFailed) {
+        this.glidingIntakeFailed = glidingIntakeFailed;
     }
 
     private boolean extensionArmResetComplete = false;
@@ -521,7 +543,10 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
                 }
                 break;
             case INIT_COMPLETE:
-                // wait for get ready to run
+                // wait for get ready to run or for other commands
+                if (showMaxExtension) {
+                    getReadyToRun();
+                }
                 break;
 
             // get ready to run states
@@ -540,7 +565,13 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
             case EXTENSION_ARM_MOVING_TO_TRANSFER_POSITION_FOR_GET_READY_TO_RUN:
                 if (intakePositionedForTransfer) {
                     getReadyToRunComplete = true;
-                    // we are ready to run. Wait for a command
+                    state = IntakeBucketControllerState.READY_TO_RUN;
+                }
+                break;
+            case READY_TO_RUN:
+                // we are ready to run. Wait for a command
+                if(showMaxExtension) {
+                    setupForIntake();
                 }
                 break;
 
@@ -571,6 +602,9 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
                 break;
             case BUCKET_ARM_AT_DELIVERY_POSITION:
                 // hang out waiting for driver to give deliver sample command
+                if(showMaxExtension) {
+                    showMaxExtension = false;
+                }
                 break;
 
             // deliver sample states
@@ -602,6 +636,10 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
             case EXTENSION_ARM_INTAKE_AT_SETUP_FOR_INTAKE_POSITION:
                 // hang out waiting for an intake command
                 // or a back to transfer position command
+                if (showMaxExtension) {
+                    extensionArmIntakeController.intakeToFloor();
+                    setupForDrivingBeforeDelivery();
+                }
                 break;
 
             // Intake states
@@ -610,6 +648,9 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
                     liftBucketArmBucketGateController.openGate();
                     extensionArmIntakeController.transfer();
                     state = IntakeBucketControllerState.TRANSFERRING;
+                }
+                if (glidingIntakeFailed) {
+
                 }
                 break;
             case WAITING_FOR_READY_TO_TRANSFER:

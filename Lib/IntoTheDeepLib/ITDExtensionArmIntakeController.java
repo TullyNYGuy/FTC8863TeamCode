@@ -298,6 +298,11 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
         state = ExtensionArmIntakeBucketControllerState.WAITING_FOR_A_GOOD_SAMPLE;
     }
 
+    public void intakeToFloor() {
+        logCommand("Intake to floor");
+        intakeArmServo.intakePosition();
+    }
+
     public void setupForGlidingIntake() {
         logCommand("Setup For Glide");
         extensionArm.goToPosition(2);
@@ -662,11 +667,15 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
                 break;
 
             case WAITING_FOR_GOOD_GLIDING_SAMPLE:
+                // The intake picked up a sample while it was extending out.
                 if (intakeHasValidSample) {
                     controller.setIntakeHasValidSample(true);
+                    controller.setGlidingIntakeFailed(false);
                     setupForTransfer();
                 }
+                // The arm extended all the way out and did not intake a sample
                 if (extensionArm.isPositionReached()) {
+                    controller.setGlidingIntakeFailed(true);
                     intake.stop();
                     intakeArmServo.readyToIntakePosition();
                     extensionArm.goToPosition(2);

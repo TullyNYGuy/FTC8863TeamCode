@@ -64,8 +64,12 @@ public class ITDAutonomousStateMachine {
     private DataLogOnChange logStateOnChange;
     private DataLogOnChange logCommandOnchange;
     private int sampleNum = 0;
+    private boolean glidingIntakeFailed = false;
 
-//     actionBuilder(beginPose)
+    public void setGlidingIntakeFailed(boolean glidingIntakeFailed) {
+        this.glidingIntakeFailed = glidingIntakeFailed;
+    }
+    //     actionBuilder(beginPose)
 //    // start to delivery Joe
 //            .splineToLinearHeading(new Pose2d(48.5, 51.75,Math.toRadians(-135)), Math.PI / 2)
 //            //first pickup
@@ -277,7 +281,7 @@ public class ITDAutonomousStateMachine {
                 }
                 break;
             case WAIT_FOR_DELIVER_SAMPLE:
-                if (robot.intakeBucketController.isDeliveryComplete()) {
+                if (robot.intakeBucketController.isDeliveryComplete() || glidingIntakeFailed) {
                     sampleNum = sampleNum + 1;
                     logFile.logData("Moving on to sample " + sampleNum);
                     switch (sampleNum) {
@@ -304,8 +308,9 @@ public class ITDAutonomousStateMachine {
                 if(deliveryToSample1Runner.isComplete()) {
                     logPosition("Sample1 intake pose", sample1IntakePose);
                     logPosition("Actual pose", robot.mecanumDrive.pose);
-                    robot.intakeBucketController.setupForIntake();
-                    currentState = States.WAIT_FOR_SETUP_FOR_INTAKE;
+                    robot.intakeBucketController.runGlidingIntake();
+                    glidingIntakeFailed = false;
+                    currentState = States.WAIT_FOR_INTAKE;
                 } else {
                     deliveryToSample1Runner.runNonBlocking();
                 }
@@ -314,8 +319,9 @@ public class ITDAutonomousStateMachine {
                 if(deliveryToSample2Runner.isComplete()) {
                     logPosition("Sample2 intake pose", sample2IntakePose);
                     logPosition("Actual pose", robot.mecanumDrive.pose);
-                    robot.intakeBucketController.setupForIntake();
-                    currentState = States.WAIT_FOR_SETUP_FOR_INTAKE;
+                    robot.intakeBucketController.runGlidingIntake();
+                    glidingIntakeFailed = false;
+                    currentState = States.WAIT_FOR_INTAKE;
                 } else {
                     deliveryToSample2Runner.runNonBlocking();
                 }
@@ -324,8 +330,9 @@ public class ITDAutonomousStateMachine {
                 if(deliveryToSample3Runner.isComplete()) {
                     logPosition("Sample3 intake pose", sample3IntakePose);
                     logPosition("Actual pose", robot.mecanumDrive.pose);
-                    robot.intakeBucketController.setupForIntake();
-                    currentState = States.WAIT_FOR_SETUP_FOR_INTAKE;
+                    robot.intakeBucketController.runGlidingIntake();
+                    glidingIntakeFailed = false;
+                    currentState = States.WAIT_FOR_INTAKE;
                 } else {
                     deliveryToSample3Runner.runNonBlocking();
                 }
@@ -337,7 +344,7 @@ public class ITDAutonomousStateMachine {
                 }
                 break;
             case WAIT_FOR_INTAKE:
-                if(robot.intakeBucketController.isTransferComplete()) {
+                if(robot.intakeBucketController.isTransferComplete() || glidingIntakeFailed) {
                     switch (sampleNum) {
                         case 1:
                             sample1ToDeliveryRunner.runNonBlocking();
@@ -358,8 +365,14 @@ public class ITDAutonomousStateMachine {
                 if(sample1ToDeliveryRunner.isComplete()) {
                     logPosition("Delivery pose", deliveryPose);
                     logPosition("Actual pose", robot.mecanumDrive.pose);
-                    robot.intakeBucketController.setupForDrivingBeforeDelivery();
-                    currentState = States.WAIT_FOR_DELIVERY_JOE;
+                    if (glidingIntakeFailed) {
+                        currentState = States.WAIT_FOR_DELIVER_SAMPLE;
+                    }
+                    else {
+                        robot.intakeBucketController.setupForDrivingBeforeDelivery();
+                        currentState = States.WAIT_FOR_DELIVERY_JOE;
+                    }
+
                 } else {
                     sample1ToDeliveryRunner.runNonBlocking();
                 }
@@ -368,8 +381,14 @@ public class ITDAutonomousStateMachine {
                 if(sample2ToDeliveryRunner.isComplete()) {
                     logPosition("Delivery pose", deliveryPose);
                     logPosition("Actual pose", robot.mecanumDrive.pose);
-                    robot.intakeBucketController.setupForDrivingBeforeDelivery();
-                    currentState = States.WAIT_FOR_DELIVERY_JOE;
+                    if (glidingIntakeFailed) {
+                        currentState = States.WAIT_FOR_DELIVER_SAMPLE;
+                    }
+                    else {
+                        robot.intakeBucketController.setupForDrivingBeforeDelivery();
+                        currentState = States.WAIT_FOR_DELIVERY_JOE;
+                    }
+
                 } else {
                     sample2ToDeliveryRunner.runNonBlocking();
                 }
@@ -378,8 +397,14 @@ public class ITDAutonomousStateMachine {
                 if(sample3ToDeliveryRunner.isComplete()) {
                     logPosition("Delivery pose", deliveryPose);
                     logPosition("Actual pose", robot.mecanumDrive.pose);
-                    robot.intakeBucketController.setupForDrivingBeforeDelivery();
-                    currentState = States.WAIT_FOR_DELIVERY_JOE;
+                    if (glidingIntakeFailed) {
+                        currentState = States.WAIT_FOR_DELIVER_SAMPLE;
+                    }
+                    else {
+                        robot.intakeBucketController.setupForDrivingBeforeDelivery();
+                        currentState = States.WAIT_FOR_DELIVERY_JOE;
+                    }
+
                 } else {
                     sample3ToDeliveryRunner.runNonBlocking();
                 }
