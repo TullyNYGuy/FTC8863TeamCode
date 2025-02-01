@@ -378,6 +378,10 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
         this.intakeHasValidSample = intakeHasValidSample;
     }
 
+    public boolean isIntakeHasValidSample() {
+        return intakeHasValidSample;
+    }
+
     public boolean intakeReadyForTransfer = false;
 
 //    public void setIntakeReadyForTransfer(boolean intakeReadyForTransfer) {

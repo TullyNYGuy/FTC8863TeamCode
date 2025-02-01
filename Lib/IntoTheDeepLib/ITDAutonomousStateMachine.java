@@ -31,6 +31,7 @@ public class ITDAutonomousStateMachine {
         WAIT_FOR_M0VE_2_DELIVERY_POS_FROM_SAMPLE2,
         WAIT_FOR_M0VE_2_DELIVERY_POS_FROM_SAMPLE3,
         WAIT_FOR_DELIVERY_JOE,
+        WAIT_FOR_NO_WOBBLE,
         WAIT_FOR_DELIVER_SAMPLE,
         WAIT_FOR_MOVE_2_SAMPLE1,
         WAIT_FOR_MOVE_2_SAMPLE2,
@@ -64,6 +65,7 @@ public class ITDAutonomousStateMachine {
     private DataLogOnChange logStateOnChange;
     private DataLogOnChange logCommandOnchange;
     private int sampleNum = 0;
+
     private boolean glidingIntakeFailed = false;
 
     public void setGlidingIntakeFailed(boolean glidingIntakeFailed) {
@@ -167,9 +169,11 @@ public class ITDAutonomousStateMachine {
 
     // Define the robot positions
     private Pose2d startAutoPose = new Pose2d(32.5, 54.375, Math.toRadians(-90));
-    private Pose2d deliveryPose = new Pose2d(48.5, 51.75, Math.toRadians(-135));
+   // private Pose2d deliveryPose = new Pose2d(48.5, 51.75, Math.toRadians(-135));
+    private Pose2d deliveryPose = new Pose2d(50.75, 50, Math.toRadians(-135));
     private Pose2d sample1IntakePose = new Pose2d(47.75, 39, Math.toRadians(-90));
-    private Pose2d sample2IntakePose=new Pose2d(59, 39.25, Math.toRadians(-90));
+   // private Pose2d sample2IntakePose=new Pose2d(59, 39.25, Math.toRadians(-90));
+    private Pose2d sample2IntakePose=new Pose2d(56, 39.25, Math.toRadians(-90));
     private Pose2d sample3IntakePose=new Pose2d(60, 34.5, Math.toRadians(-45));
 
     // Define the action needed for a movement from point a to point b
@@ -252,8 +256,8 @@ public class ITDAutonomousStateMachine {
         switch (currentState) {
 
             case START:
-                robot.intakeBucketController.getReadyToRun();
-                currentState = States.WAIT_FOR_GET_READY_2_RUN;
+                robot.intakeBucketController.setupForDrivingBeforeDelivery();
+                currentState = States.WAIT_FOR_M0VE_2_DELIVERY_POS_FROM_START;
                 break;
             case WAIT_FOR_GET_READY_2_RUN:
                 if (robot.intakeBucketController.isGetReadyToRunComplete()) {
@@ -264,10 +268,10 @@ public class ITDAutonomousStateMachine {
                 }
                 break;
             case WAIT_FOR_M0VE_2_DELIVERY_POS_FROM_START:
-                if(startToDeliveryRunner.isComplete()) {
+                if(startToDeliveryRunner.isComplete() && robot.intakeBucketController.isSetupForDeliveryComplete()) {
                     logPosition("Delivery pose", deliveryPose);
                     logPosition("Actual pose", robot.mecanumDrive.pose);
-                    robot.intakeBucketController.setupForDrivingBeforeDelivery();
+                   // robot.intakeBucketController.setupForDrivingBeforeDelivery();
                     currentState = States.WAIT_FOR_DELIVERY_JOE;
                 } else {
                     startToDeliveryRunner.runNonBlocking();
@@ -276,6 +280,12 @@ public class ITDAutonomousStateMachine {
                 break;
             case WAIT_FOR_DELIVERY_JOE:
                 if (robot.intakeBucketController.isSetupForDeliveryComplete()) {
+                    timer.reset();
+                    currentState = States.WAIT_FOR_NO_WOBBLE;
+                }
+                break;
+            case WAIT_FOR_NO_WOBBLE:
+                if (timer.milliseconds()>500){
                     robot.intakeBucketController.deliverSample();
                     currentState = States.WAIT_FOR_DELIVER_SAMPLE;
                 }
@@ -344,7 +354,7 @@ public class ITDAutonomousStateMachine {
                 }
                 break;
             case WAIT_FOR_INTAKE:
-                if(robot.intakeBucketController.isTransferComplete() || glidingIntakeFailed) {
+                if(robot.intakeBucketController.isIntakeHasValidSample() || glidingIntakeFailed) {
                     switch (sampleNum) {
                         case 1:
                             sample1ToDeliveryRunner.runNonBlocking();
@@ -362,7 +372,7 @@ public class ITDAutonomousStateMachine {
                 }
                 break;
             case WAIT_FOR_M0VE_2_DELIVERY_POS_FROM_SAMPLE1:
-                if(sample1ToDeliveryRunner.isComplete()) {
+                if(sample1ToDeliveryRunner.isComplete()&& robot.intakeBucketController.isTransferComplete()) {
                     logPosition("Delivery pose", deliveryPose);
                     logPosition("Actual pose", robot.mecanumDrive.pose);
                     if (glidingIntakeFailed) {
@@ -378,7 +388,7 @@ public class ITDAutonomousStateMachine {
                 }
                 break;
             case WAIT_FOR_M0VE_2_DELIVERY_POS_FROM_SAMPLE2:
-                if(sample2ToDeliveryRunner.isComplete()) {
+                if(sample2ToDeliveryRunner.isComplete()&& robot.intakeBucketController.isTransferComplete()) {
                     logPosition("Delivery pose", deliveryPose);
                     logPosition("Actual pose", robot.mecanumDrive.pose);
                     if (glidingIntakeFailed) {
@@ -394,7 +404,7 @@ public class ITDAutonomousStateMachine {
                 }
                 break;
             case WAIT_FOR_M0VE_2_DELIVERY_POS_FROM_SAMPLE3:
-                if(sample3ToDeliveryRunner.isComplete()) {
+                if(sample3ToDeliveryRunner.isComplete()&& robot.intakeBucketController.isTransferComplete()) {
                     logPosition("Delivery pose", deliveryPose);
                     logPosition("Actual pose", robot.mecanumDrive.pose);
                     if (glidingIntakeFailed) {
