@@ -237,7 +237,7 @@ public class ITDRobot implements FTCRobot {
         while (!isInitComplete()) {
             update();
 
-            if (timer.milliseconds() > 5000) {
+            if (timer.milliseconds() > 2000) {
                 // something went wrong with the inits. They never finished. Proceed anyway
                 dataLog.logData("Init failed to complete on time. Proceeding anyway!");
                 break;

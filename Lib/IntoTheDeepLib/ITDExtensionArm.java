@@ -390,11 +390,11 @@ public class ITDExtensionArm implements FTCRobotSubsystem {
                 if (extensionArm.isPositionReached()) {
                     // tell the controller that the arm has reached its position
                     controller.setExtensionArmPositionReached(true);
-                    if (movingToTransfer) {
-                        extensionArm.goToPosition(0,.5);
-                        logCommand("move to 0");
-                        movingToTransfer = false;
-                    }
+//                    if (movingToTransfer) {
+//                        extensionArm.goToPosition(0,.5);
+//                        logCommand("move to 0");
+//                        movingToTransfer = false;
+//                    }
                     state = ExtensionArmState.IDLE;
                 }
                 break;
