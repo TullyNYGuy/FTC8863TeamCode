@@ -71,7 +71,7 @@ public class ITDTestGlideIntake extends LinearOpMode {
             if (gamepad1.b) {
             }
             if (gamepad1.y) {
-                extensionArmIntakeController.setupForGlidingIntake();
+                extensionArmIntakeController.setupForGlidingIntake(2);
             }
 
             if (gamepad1.dpad_down) {

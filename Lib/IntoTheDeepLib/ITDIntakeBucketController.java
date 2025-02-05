@@ -8,8 +8,12 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogOnChange;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ITDIntakeBucketController implements FTCRobotSubsystem {
+
+    private static final Logger log = LoggerFactory.getLogger(ITDIntakeBucketController.class);
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -98,6 +102,10 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
     public void setExtensionArmIntakeController(ITDExtensionArmIntakeController extensionArmIntakeController) {
         this.extensionArmIntakeController = extensionArmIntakeController;
     }
+
+    //*********************************************************************************************
+    //          Status methods
+    //*********************************************************************************************
 
     private boolean getReadyToRunComplete = false;
 
@@ -295,11 +303,16 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
 
     }
 
+    public void setupForGlidingIntake(double extensionArmPosition) {
+        logCommand("Setup for gliding intake");
+
+    }
+
     public void runGlidingIntake() {
         logCommand("Glide Intake");
         setGlidingIntakeFailed(false);
         transferComplete = false;
-        extensionArmIntakeController.setupForGlidingIntake();
+        extensionArmIntakeController.runGlidingIntake();
         state = IntakeBucketControllerState.INTAKING;
     }
     public void showMaxExtension() {
@@ -307,7 +320,6 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
         showMaxExtension = true;
         init(null);
     }
-
 
     //*********************************************************************************************
     //          Communication from Extension arm / intake
@@ -378,8 +390,18 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
         this.intakeHasValidSample = intakeHasValidSample;
     }
 
-    public boolean isIntakeHasValidSample() {
+    public boolean intakeHasValidSample() {
         return intakeHasValidSample;
+    }
+
+    private boolean setupForGlidingIntakeComplete = false;
+
+    public void setSetupForGlidingIntakeComplete(boolean setupForGlidingIntakeComplete) {
+        this.setupForGlidingIntakeComplete = setupForGlidingIntakeComplete;
+    }
+
+    public boolean isSetupForGlidingIntakeComplete() {
+        return setupForGlidingIntakeComplete;
     }
 
     public boolean intakeReadyForTransfer = false;
@@ -618,17 +640,17 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
             // deliver sample states
             case DELIVERING_SAMPLE_AND_BUCKET_MOVING_TO_TRANSFER_POSITION:
                 if (liftBucketAtTransferPosition) {
-//                    extensionArmIntakeController.setupIntakeAfterDeliver();
-                    state = IntakeBucketControllerState.AT_TRANSFER_POSITION_AFTER_DELIVERY;
-                }
-                break;
-            case EXTENSION_ARM_INTAKE_MOVING_TO_TRANSFER_POSITION:
-                if (intakePositionedForTransfer) {
+                    // we don't want the intake to go back to the transfer position after a delivery
+                    //extensionArmIntakeController.setupIntakeAfterDeliver();
                     deliveryComplete = true;
-
                     state = IntakeBucketControllerState.AT_TRANSFER_POSITION_AFTER_DELIVERY;
                 }
                 break;
+//            case EXTENSION_ARM_INTAKE_MOVING_TO_TRANSFER_POSITION:
+//                if (intakePositionedForTransfer) {
+//                    state = IntakeBucketControllerState.AT_TRANSFER_POSITION_AFTER_DELIVERY;
+//                }
+//                break;
             case AT_TRANSFER_POSITION_AFTER_DELIVERY:
                 // hang out waiting for the next command
                 // it should be to setup for intake (after delivering a sample)
