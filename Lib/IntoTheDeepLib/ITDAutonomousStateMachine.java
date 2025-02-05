@@ -285,13 +285,13 @@ public class ITDAutonomousStateMachine {
                 }
                 break;
             case WAIT_FOR_NO_WOBBLE:
-                if (timer.milliseconds()>500){
+                if (timer.milliseconds()>0){
                     robot.intakeBucketController.deliverSample();
                     currentState = States.WAIT_FOR_DELIVER_SAMPLE;
                 }
                 break;
             case WAIT_FOR_DELIVER_SAMPLE:
-                if (robot.intakeBucketController.isDeliveryComplete() || glidingIntakeFailed) {
+                if (robot.intakeBucketController.isLiftBucketSampleIsDelivered() || glidingIntakeFailed) {
                     sampleNum = sampleNum + 1;
                     logFile.logData("Moving on to sample " + sampleNum);
                     switch (sampleNum) {
@@ -318,7 +318,7 @@ public class ITDAutonomousStateMachine {
                 }
                 break;
             case WAIT_FOR_MOVE_2_SAMPLE1:
-                if(deliveryToSample1Runner.isComplete()) {
+                if(deliveryToSample1Runner.isComplete() && robot.intakeBucketController.isDeliveryComplete()) {
                     logPosition("Sample1 intake pose", sample1IntakePose);
                     logPosition("Actual pose", robot.mecanumDrive.pose);
                     robot.intakeBucketController.runGlidingIntake();
@@ -329,7 +329,7 @@ public class ITDAutonomousStateMachine {
                 }
                 break;
             case WAIT_FOR_MOVE_2_SAMPLE2:
-                if(deliveryToSample2Runner.isComplete()) {
+                if(deliveryToSample2Runner.isComplete()&& robot.intakeBucketController.isDeliveryComplete()) {
                     logPosition("Sample2 intake pose", sample2IntakePose);
                     logPosition("Actual pose", robot.mecanumDrive.pose);
                     robot.intakeBucketController.runGlidingIntake();
@@ -340,7 +340,7 @@ public class ITDAutonomousStateMachine {
                 }
                 break;
             case WAIT_FOR_MOVE_2_SAMPLE3:
-                if(deliveryToSample3Runner.isComplete()) {
+                if(deliveryToSample3Runner.isComplete()&& robot.intakeBucketController.isDeliveryComplete()) {
                     logPosition("Sample3 intake pose", sample3IntakePose);
                     logPosition("Actual pose", robot.mecanumDrive.pose);
                     robot.intakeBucketController.runGlidingIntake();
