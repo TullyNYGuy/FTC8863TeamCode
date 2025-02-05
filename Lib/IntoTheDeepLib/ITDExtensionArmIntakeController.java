@@ -265,8 +265,8 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
         // bucket.
         controller.setIntakePositionedForBucketClearance(false);
         // start the movement of the extension arm and the intake arm
-        extensionArm.bucketClearancePosition();
-        intakeArmServo.bucketClearancePosition();
+//        extensionArm.bucketClearancePosition();
+          intakeArmServo.bucketClearancePosition();
         state = ExtensionArmIntakeBucketControllerState.EXTENSION_ARM_MOVING_TO_BUCKET_CLEARANCE;
     }
 
@@ -619,7 +619,8 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
 
                 // bucket clearance states
             case EXTENSION_ARM_MOVING_TO_BUCKET_CLEARANCE:
-                if (extensionArmPositionReached && intakeArmServo.isPositionReached()) {
+                //if (extensionArmPositionReached && intakeArmServo.isPositionReached())
+                if (intakeArmServo.isPositionReached()) {
                     // tell the intake / bucket controller that the bucket clearance position is
                     // reached. The bucket can be moved now.
                     controller.setIntakePositionedForBucketClearance(true);
