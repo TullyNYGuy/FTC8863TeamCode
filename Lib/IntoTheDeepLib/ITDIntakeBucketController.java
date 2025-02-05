@@ -232,7 +232,10 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
     public void setupForDrivingBeforeDelivery() {
         logCommand("Setup for driving before delivery");
         setupForDeliveryComplete = false;
-        extensionArmIntakeController.setupForBucketClearance();
+        // to save time, setupForBucketClearance() is now called right after the transfer completes by the
+        // extensionArmIntakeController. This also moves the extension arm away from the metal that it is
+        // trying to pull against. Doing that prevents the motor from overheating.
+        //extensionArmIntakeController.setupForBucketClearance();
         state = IntakeBucketControllerState.INTAKE_MOVING_TO_BUCKET_CLEARANCE_POSITION_FOR_SAFE_DRIVING_POSITION_BEFORE_DELIVERY;
     }
 
@@ -607,6 +610,8 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
 
             // setup for safe driving position before delivery states
             case INTAKE_MOVING_TO_BUCKET_CLEARANCE_POSITION_FOR_SAFE_DRIVING_POSITION_BEFORE_DELIVERY:
+                // We should not have to wait long (if at all) for bucket clearance because bucket clearance
+                // was automatically called right after the transfer completed, by the extensionArmIntake controller.
                 if (intakePositionedForBucketClearance) {
                     liftBucketArmBucketGateController.setupForDrivingBeforeDelivery();
                     state = IntakeBucketControllerState.BUCKET_ARM_MOVING_TO_SAFE_POSITION_BEFORE_DELIVERY;

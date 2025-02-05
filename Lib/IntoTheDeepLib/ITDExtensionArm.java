@@ -390,6 +390,9 @@ public class ITDExtensionArm implements FTCRobotSubsystem {
                 if (extensionArm.isPositionReached()) {
                     // tell the controller that the arm has reached its position
                     controller.setExtensionArmPositionReached(true);
+                    // This is no longer needed. The extensionArmIntake controller will automatically
+                    // start a bucket clearance after a transfer completes. This includes moving the
+                    // extension arm away from the metal backstop.
 //                    if (movingToTransfer) {
 //                        extensionArm.goToPosition(0,.5);
 //                        logCommand("move to 0");

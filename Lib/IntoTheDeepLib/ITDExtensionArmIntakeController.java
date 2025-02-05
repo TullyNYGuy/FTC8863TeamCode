@@ -265,8 +265,11 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
         // reached. It has to wait until the bucket clearance position is reached before moving the
         // bucket.
         controller.setIntakePositionedForBucketClearance(false);
-        // start the movement of the extension arm and the intake arm
-        //extensionArm.bucketClearancePosition();
+        // start the movement of the extension arm and the intake arm.
+        // We really only need the intake to rotate down out of the way in order to get
+        // clearance to move the bucket. The extension arm is moving so that the motor is
+        // not trying to pull the arm against the metal causing it to overheat.
+        extensionArm.bucketClearancePosition();
         intakeArmServo.bucketClearancePosition();
         state = ExtensionArmIntakeBucketControllerState.INTAKE_MOVING_TO_BUCKET_CLEARANCE;
     }
@@ -643,7 +646,10 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
 
                 // bucket clearance states
             case INTAKE_MOVING_TO_BUCKET_CLEARANCE:
-                //if (extensionArmPositionReached && intakeArmServo.isPositionReached())
+                // even thought the extension arm is moving out we are not checking to see if that is complete.
+                // We really only need the intake to rotate down out of the way in order to get
+                // clearance to move the bucket. The extension arm is moving so that the motor is
+                // not trying to pull the arm against the metal causing it to overheat.
                 if (intakeArmServo.isPositionReached()) {
                     // tell the intake / bucket controller that the bucket clearance position is
                     // reached. The bucket can be moved now.
@@ -745,6 +751,10 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
                 if (intakeTransferComplete) {
                     // transfer was successful. Tell the intake / bucket controller
                     controller.setIntakeTransferComplete(true);
+                    // immediately move the intake out of the way to prepare for a delivery
+                    // This will also set the next state so the transfer complete will not be in
+                    // effect for long
+                    setupForBucketClearance();
                     state = ExtensionArmIntakeBucketControllerState.TRANSFER_COMPLETE;
                 }
                 if (intakesRequestsAnOuttake) {
