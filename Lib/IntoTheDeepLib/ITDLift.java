@@ -66,7 +66,10 @@ public class ITDLift implements FTCRobotSubsystem {
     private double lowBarHangPosition = 6.0;
     private double highBarHangPosition = 4.0;
 
-    private double positionToMoveBucketArm = 20;
+    // The bucket arm movement will be triggered when the lift passes this position on its way to
+    // the delivery position. IE 3 inches below the final delivery position the bucket arm will
+    // start moving.
+    private double positionToMoveBucketArm = readyToDeliverPosition - 3;
 
 
     //*********************************************************************************************
@@ -191,6 +194,7 @@ public class ITDLift implements FTCRobotSubsystem {
 
     public void readyToDeliverPosition() {
         switch (state) {
+            // allow the command if the lift is:
             case IDLE:
             case JOYSTICK_CONTROL:
                 logCommand("Delivery position");
@@ -198,6 +202,7 @@ public class ITDLift implements FTCRobotSubsystem {
                 controller.setLiftPositionReached(false);
                 state = LiftState.MOVING_TO_DELIVERY_POSITION;
                 break;
+                // do not allow the command if the lift is:
             case MOVING:
             case RESETING:
                 // don't do anything, ignore the command
