@@ -50,7 +50,7 @@ public class ITDIntakeArmServo implements FTCRobotSubsystem {
     // INDEX WHEN INTAKE IS ON FLOOR AND SERVO = .1
     private double intakePosition = 0.1;
 
-    private double bucketClearancePosition = 0.45;
+    private double bucketClearancePosition = 0.3;
     private double transferPosition = 0.48;
 
     private double shutdownPosition = transferPosition;
@@ -76,7 +76,7 @@ public class ITDIntakeArmServo implements FTCRobotSubsystem {
         intakeArmServo = new Servo8863New(INTAKE_ARM_SERVO_NAME, hardwareMap, telemetry);
 
         intakeArmServo.addPosition("initPosition", initPosition, 100, TimeUnit.MILLISECONDS);
-        intakeArmServo.addPosition("bucketClearancePosition", bucketClearancePosition, 100, TimeUnit.MILLISECONDS);
+        intakeArmServo.addPosition("bucketClearancePosition", bucketClearancePosition, 200, TimeUnit.MILLISECONDS);
         intakeArmServo.addPosition("intakePosition", intakePosition, 300, TimeUnit.MILLISECONDS);
         intakeArmServo.addPosition("transferPosition", transferPosition, 1000, TimeUnit.MILLISECONDS);
         intakeArmServo.addPosition("readyToIntakePosition", readyToIntakePosition, 100, TimeUnit.MILLISECONDS);

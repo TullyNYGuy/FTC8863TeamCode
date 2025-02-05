@@ -686,7 +686,7 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
                         intakeState = IntakeState.WAITING_FOR_MOVE_TO_OUTTAKING;
                     }
                 }
-                if (timer.milliseconds() > 1000 && !isSamplePresent()) {
+                if (!isSamplePresent()) {
                     // the transfer was successful
                     stopActions();
                     // since the transfer could have come after a dejam attempt
