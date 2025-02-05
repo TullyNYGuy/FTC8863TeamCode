@@ -428,6 +428,10 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
         this.liftBucketSampleIsDelivered = liftBucketSampleIsDelivered;
     }
 
+    public boolean isLiftBucketSampleIsDelivered() {
+        return liftBucketSampleIsDelivered;
+    }
+
     //*********************************************************************************************
     //          Housekeeping stuff
     //*********************************************************************************************
@@ -614,8 +618,8 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
             // deliver sample states
             case DELIVERING_SAMPLE_AND_BUCKET_MOVING_TO_TRANSFER_POSITION:
                 if (liftBucketAtTransferPosition) {
-                    extensionArmIntakeController.setupIntakeAfterDeliver();
-                    state = IntakeBucketControllerState.EXTENSION_ARM_INTAKE_MOVING_TO_TRANSFER_POSITION;
+//                    extensionArmIntakeController.setupIntakeAfterDeliver();
+                    state = IntakeBucketControllerState.AT_TRANSFER_POSITION_AFTER_DELIVERY;
                 }
                 break;
             case EXTENSION_ARM_INTAKE_MOVING_TO_TRANSFER_POSITION:
