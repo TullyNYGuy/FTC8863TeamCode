@@ -63,7 +63,8 @@ public class ITDExtensionArm implements FTCRobotSubsystem {
     private double initPosition = 0.0;
     private double transferPosition = .25;
     private double intakePosition = 12.75;
-    private double bucketClearancePosition = 3.75;
+    private double intakePositionSample3=5.25;
+    private double bucketClearancePosition = 1.0;
     private double outtakePosition = 2.0;
 
     private boolean movingToTransfer = false;
@@ -91,8 +92,10 @@ public class ITDExtensionArm implements FTCRobotSubsystem {
         // SET the lift powers here
         //*********************************************
         initPower = 0.2;
-        extendPower = 0.75;
-        retractPower = -0.5;
+//        extendPower = 0.75;
+//        retractPower = -0.5;
+        extendPower = 1.0;
+        retractPower = -1.0;
         extensionArm.setExtensionPower(extendPower);
         extensionArm.setRetractionPower(retractPower);
         //*********************************************

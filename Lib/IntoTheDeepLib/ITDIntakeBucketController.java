@@ -71,6 +71,9 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
         WAITING_FOR_READY_TO_TRANSFER,
         TRANSFERRING,
         // TRANSFER_COMPLETE (REUSED)
+        //setup for gliding intake states
+        WAIT_FOR_SETUP_FOR_GLIDING_INTAKE,
+        SETUP_FOR_GLIDING_INTAKE_COMPLETE
 
     }
 
@@ -119,11 +122,11 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
         return setupForDeliveryComplete;
     }
 
-    private boolean deliveryComplete = false;
-
-    public boolean isDeliveryComplete() {
-        return deliveryComplete;
-    }
+//    private boolean bucketAtTransferPositionAfterDelivery = false;
+//
+//    public boolean isBucketAtTransferPositionAfterDelivery() {
+//        return bucketAtTransferPositionAfterDelivery;
+//    }
 
     private boolean setupForIntakeComplete = false;
 
@@ -240,6 +243,18 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
     }
 
     /**
+     * Normally setup for bucket clearance is called automatically right after a transfer. However,
+     * when we want to deliver at the start of auto, no transfer has occurred so we do have to run
+     * setupForBucketClearance(). From that point we can run the normal setupForDrivingBeforeDelivery()
+     */
+    public void setupForDrivingBeforeDeliveryUponStart() {
+        // since setup for bucket clearance has not been run yet, run it.
+        extensionArmIntakeController.setupForBucketClearance();
+        // then follow the normal setup for driving before delivery
+        setupForDrivingBeforeDelivery();
+    }
+
+    /**
      * This method puts bucket over the basket and is meant to be called after most of the driving
      * over to the basket has been done.
      * Steps:
@@ -268,7 +283,7 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
         // lock out any attempt to deliver sample unless bucket arm is at the delivery position
         if (state == state.BUCKET_ARM_AT_DELIVERY_POSITION) {
             logCommand("Deliver sample");
-            deliveryComplete = false;
+            liftBucketAtTransferPosition = false;
             liftBucketArmBucketGateController.deliverSample();
             state = IntakeBucketControllerState.DELIVERING_SAMPLE_AND_BUCKET_MOVING_TO_TRANSFER_POSITION;
         }
@@ -308,6 +323,9 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
 
     public void setupForGlidingIntake(double extensionArmPosition) {
         logCommand("Setup for gliding intake");
+        //todo fill in the code for this
+        extensionArmIntakeController.setupForGlidingIntake(extensionArmPosition);
+        state=IntakeBucketControllerState.WAIT_FOR_SETUP_FOR_GLIDING_INTAKE;
 
     }
 
@@ -316,6 +334,13 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
         setGlidingIntakeFailed(false);
         transferComplete = false;
         extensionArmIntakeController.runGlidingIntake();
+        state = IntakeBucketControllerState.INTAKING;
+    }
+    public void runGlidingIntake(double howFarTooPosition) {
+        logCommand("Glide Intake");
+        setGlidingIntakeFailed(false);
+        transferComplete = false;
+        extensionArmIntakeController.runGlidingIntake(howFarTooPosition);
         state = IntakeBucketControllerState.INTAKING;
     }
     public void showMaxExtension() {
@@ -433,6 +458,10 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
 
     public void setLiftBucketAtTransferPosition(boolean liftBucketAtTransferPosition) {
         this.liftBucketAtTransferPosition = liftBucketAtTransferPosition;
+    }
+
+    public boolean isLiftBucketAtTransferPosition() {
+        return liftBucketAtTransferPosition;
     }
 
     private boolean liftBucketAtSafeToDrivePosition = false;
@@ -647,7 +676,7 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
                 if (liftBucketAtTransferPosition) {
                     // we don't want the intake to go back to the transfer position after a delivery
                     //extensionArmIntakeController.setupIntakeAfterDeliver();
-                    deliveryComplete = true;
+                    liftBucketAtTransferPosition = true;
                     state = IntakeBucketControllerState.AT_TRANSFER_POSITION_AFTER_DELIVERY;
                 }
                 break;
@@ -675,6 +704,16 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
                     extensionArmIntakeController.intakeToFloor();
                     setupForDrivingBeforeDelivery();
                 }
+                break;
+
+                //setup for gliding intake states
+            case WAIT_FOR_SETUP_FOR_GLIDING_INTAKE:
+                if(setupForGlidingIntakeComplete){
+                    state=IntakeBucketControllerState.SETUP_FOR_GLIDING_INTAKE_COMPLETE;
+                }
+                break;
+            case SETUP_FOR_GLIDING_INTAKE_COMPLETE:
+                //waiting for a command
                 break;
 
             // Intake states
