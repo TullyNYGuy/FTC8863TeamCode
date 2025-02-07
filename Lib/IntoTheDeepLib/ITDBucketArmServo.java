@@ -78,6 +78,7 @@ public class ITDBucketArmServo implements FTCRobotSubsystem {
         bucketArmServo.addPosition("initPosition", initPosition, 700, TimeUnit.MILLISECONDS);
         bucketArmServo.addPosition("intakePosition", intakePosition, 700, TimeUnit.MILLISECONDS);
         bucketArmServo.addPosition("safeForVerticalMovementPosition", safeForVerticalMovementPosition, 900, TimeUnit.MILLISECONDS);
+        bucketArmServo.addPosition("safeForVerticalMovementPositionAfterDelivery", safeForVerticalMovementPosition, 300, TimeUnit.MILLISECONDS);
         bucketArmServo.addPosition("deliveryPosition", deliveryPosition, 300, TimeUnit.MILLISECONDS);
         bucketArmServo.addPosition("transferPosition", transferPosition, 600, TimeUnit.MILLISECONDS);
         bucketArmServo.addPosition("specimenPickupPosition", specimenPickupPosition, 800, TimeUnit.MILLISECONDS);
@@ -114,6 +115,10 @@ public class ITDBucketArmServo implements FTCRobotSubsystem {
 
     public void safeForVerticalMovementPosition() {
         bucketArmServo.setPosition("safeForVerticalMovementPosition");
+        logCommand("Safe for vertical movement position");
+    }
+    public void safeForVerticalMovementPositionAfterDelivery() {
+        bucketArmServo.setPosition("safeForVerticalMovementPositionAfterDelivery");
         logCommand("Safe for vertical movement position");
     }
 

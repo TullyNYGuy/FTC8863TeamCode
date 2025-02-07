@@ -357,7 +357,7 @@ public class ITDLiftBucketArmBucketGateController implements FTCRobotSubsystem {
             case DELIVERING_SAMPLE:
                 if (timer.milliseconds() > 250) {
                     controller.setLiftBucketSampleIsDelivered(true);
-                    bucketArmServo.safeForVerticalMovementPosition();
+                    bucketArmServo.safeForVerticalMovementPositionAfterDelivery();
                     bucketGateServo.closePosition();
                     state = LiftBucketArmGateControllerState.BUCKET_ARM_MOVING_TO_SAFE_POSITION_AFTER_DELIVERY;
                 }
