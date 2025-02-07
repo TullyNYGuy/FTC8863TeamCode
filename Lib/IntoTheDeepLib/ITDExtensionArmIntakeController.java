@@ -361,8 +361,10 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
         logCommand("Setup for transfer");
         controller.setIntakePositionedForTransfer(false);
         intakeArmServo.transferPosition();
+        // added this so it occurs in parallel
+        extensionArm.transferPosition();
         // tell the intake / bucket controller that the intake is not ready for a transfer yet
-        state = ExtensionArmIntakeBucketControllerState.INTAKE_ARM_MOVING_TO_TRANSFER_POSITION;
+        state = ExtensionArmIntakeBucketControllerState.EXTENSION_ARM_MOVING_TO_TRANSFER_POSITION;
     }
     public void setupIntakeAfterDeliver() {
         logCommand("Setup Intake After Delivery");
@@ -747,7 +749,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
                 }
                 break;
             case EXTENSION_ARM_MOVING_TO_TRANSFER_POSITION:
-                if (extensionArmPositionReached) {
+                if (intakeArmServo.isPositionReached() && extensionArmPositionReached) {
                     // all the movements are finished. Tell the intake bucket controller that the
                     // intake is ready for a transfer.
                     controller.setIntakePositionedForTransfer(true);
