@@ -31,6 +31,7 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
         OUTTAKING,
         OUTTAKING_UNTIL_STOP_REQUESTED,
         HAVE_SAMPLE,
+        PULL_SAMPLE_IN_A_LITTLE_MORE,
         WAITING_FOR_MOVEMENT_TO_TRANSFER_POSITION,
         EJECTING,
         DEJAMMING_EJECTION,
@@ -128,6 +129,8 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
      */
     private int dejamCount = 0;
 
+    private int pullSampleInABitMoreCount = 0;
+
     //*********************************************************************************************
     //          Constructors
     //
@@ -194,7 +197,7 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
             case DEJAMMING_TRANSFER:
             case WAITING_FOR_MOVE_TO_OUTTAKING:
             case TRANSFERRING:
-                // ignore the command when in the above states
+                logCommand("Stop intake command ignored");
                 break;
         }
     }
@@ -228,7 +231,7 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
             case DEJAMMING_TRANSFER:
             case WAITING_FOR_MOVE_TO_OUTTAKING:
             case TRANSFERRING:
-                // ignore the command when in the above states
+                logCommand("Intake command ignored");
                 break;
         }
     }
@@ -280,7 +283,7 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
             case DEJAMMING_TRANSFER:
             case WAITING_FOR_MOVE_TO_OUTTAKING:
             case TRANSFERRING:
-                // ignore the command when in the above states
+                logCommand("Dejam command ignored");
                 break;
         }
 
@@ -321,7 +324,7 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
             case DEJAMMING_TRANSFER:
 
             case TRANSFERRING:
-                // ignore the command when in the above states
+                logCommand("Outtake sample command ignored");
                 break;
         }
     }
@@ -360,7 +363,7 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
             case DEJAMMING_TRANSFER:
             case WAITING_FOR_MOVE_TO_OUTTAKING:
             case TRANSFERRING:
-                // ignore the command when in the above states
+                logCommand("Transfer sample command ignored");
                 break;
         }
     }
@@ -401,7 +404,7 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
             case DEJAMMING_TRANSFER:
             case WAITING_FOR_MOVE_TO_OUTTAKING:
             case TRANSFERRING:
-                // ignore the command when in the above states
+                logCommand("Eject sample command ignored");
                 break;
         }
     }
@@ -576,6 +579,15 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
                 break;
 
             case HAVE_SAMPLE:
+                // sometimes the intake pulls a sample in just far enough to trip the distance sensor
+                // but does not come in far enough to obtain a good color reading. We have to handle
+                // that situation
+                if (sampleColor == Color.UNKNOWN) {
+                    log("sample color uknown while have sample");
+//                    timer.reset();
+//                    runIntakeServos();
+//                    intakeState = IntakeState.PULL_SAMPLE_IN_A_LITTLE_MORE;
+                }
                 if (allianceColor == AllianceColor.BLUE && sampleColor == Color.RED) {
                     // the sample is not the right color
                     log("have wrong color sample!");
@@ -605,6 +617,12 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
                     controller.setIntakeHasValidSample(true);
                     log("have a good sample!");
                     intakeState = IntakeState.WAITING_FOR_MOVEMENT_TO_TRANSFER_POSITION;
+                }
+                break;
+
+            case PULL_SAMPLE_IN_A_LITTLE_MORE:
+                if (timer.milliseconds() > 50) {
+                    intakeState = IntakeState.HAVE_SAMPLE;
                 }
                 break;
 

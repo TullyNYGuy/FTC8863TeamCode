@@ -724,7 +724,7 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
                     state = IntakeBucketControllerState.TRANSFERRING;
                 }
                 if (glidingIntakeFailed) {
-
+                    //todo fill in code to handle the fault
                 }
                 break;
             case WAITING_FOR_READY_TO_TRANSFER:
