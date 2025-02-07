@@ -13,8 +13,12 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ITDExtensionArm implements FTCRobotSubsystem {
+
+    private static final Logger log = LoggerFactory.getLogger(ITDExtensionArm.class);
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -94,8 +98,8 @@ public class ITDExtensionArm implements FTCRobotSubsystem {
         initPower = 0.2;
 //        extendPower = 0.75;
 //        retractPower = -0.5;
-        extendPower = 1.0;
-        retractPower = -1.0;
+        extendPower = 1;
+        retractPower = -1;
         extensionArm.setExtensionPower(extendPower);
         extensionArm.setRetractionPower(retractPower);
         //*********************************************
@@ -160,7 +164,7 @@ public class ITDExtensionArm implements FTCRobotSubsystem {
                 break;
             case MOVING:
             case RESETING:
-                // don't do anything, ignore the command
+                logCommand("Init position command ignored");
                 break;
 
         }
@@ -174,14 +178,16 @@ public class ITDExtensionArm implements FTCRobotSubsystem {
         switch (state) {
             case IDLE:
             case JOYSTICK_CONTROL:
+                // allow a moving extension arm to be interrupted
+            case MOVING:
                 logCommand("Transfer position");
                 transferPositionAction();
                 controller.setExtensionArmPositionReached(false);
                 state = ExtensionArmState.MOVING;
                 break;
-            case MOVING:
+
             case RESETING:
-                // don't do anything, ignore the command
+                logCommand("Transfer position command ignored");
                 break;
         }
     }
@@ -202,7 +208,7 @@ public class ITDExtensionArm implements FTCRobotSubsystem {
                 break;
             case MOVING:
             case RESETING:
-                // don't do anything, ignore the command
+                logCommand("Intake position command ignored");
                 break;
         }
     }
@@ -222,7 +228,7 @@ public class ITDExtensionArm implements FTCRobotSubsystem {
                 break;
             case MOVING:
             case RESETING:
-                // don't do anything, ignore the command
+                logCommand("Bucket clearance position command ignored");
                 break;
 
         }
@@ -243,7 +249,7 @@ public class ITDExtensionArm implements FTCRobotSubsystem {
                 break;
             case MOVING:
             case RESETING:
-                // don't do anything, ignore the command
+                logCommand("Outtake position command ignored");
                 break;
 
         }
