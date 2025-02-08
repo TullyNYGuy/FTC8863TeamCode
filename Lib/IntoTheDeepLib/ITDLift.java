@@ -24,7 +24,8 @@ public class ITDLift implements FTCRobotSubsystem {
         MOVING,
         JOYSTICK_CONTROL,
         IDLE,
-        MOVING_TO_DELIVERY_POSITION
+        MOVING_TO_DELIVERY_POSITION,
+        MOVING_TO_TRANSFER_POSITION
     }
 
     private LiftState state;
@@ -66,10 +67,14 @@ public class ITDLift implements FTCRobotSubsystem {
     private double lowBarHangPosition = 6.0;
     private double highBarHangPosition = 4.0;
 
-    // The bucket arm movement will be triggered when the lift passes this position on its way to
+    // The bucket arm movement to the delivery position will be triggered when the lift passes this position on its way to
     // the delivery position. IE 3 inches below the final delivery position the bucket arm will
     // start moving.
-    private double positionToMoveBucketArm = readyToDeliverPosition - 3;
+    private double positionToMoveBucketArmToDeliver = readyToDeliverPosition - 3.0;
+
+    // The bucket arm movement to the transfer position will be triggered when the lift passes
+    // this position on the way down.
+    private double positionToMoveBucketArmToTransfer = 3.0;
 
 
     //*********************************************************************************************
@@ -175,7 +180,7 @@ public class ITDLift implements FTCRobotSubsystem {
                 logCommand("Transfer position");
                 transferPositionAction();
                 controller.setLiftPositionReached(false);
-                state = LiftState.MOVING;
+                state = LiftState.MOVING_TO_TRANSFER_POSITION;
                 break;
             case MOVING:
             case RESETING:
@@ -387,7 +392,14 @@ public class ITDLift implements FTCRobotSubsystem {
                 }
                 break;
             case MOVING_TO_DELIVERY_POSITION:
-                if (lift.getCurrentPosition() >= positionToMoveBucketArm) {
+                if (lift.getCurrentPosition() >= positionToMoveBucketArmToDeliver) {
+                    // tell the controller that the arm has reached its position
+                    controller.setLiftPositionReached(true);
+                    state = LiftState.IDLE;
+                }
+                break;
+            case MOVING_TO_TRANSFER_POSITION:
+                if (lift.getCurrentPosition() <= positionToMoveBucketArmToTransfer) {
                     // tell the controller that the arm has reached its position
                     controller.setLiftPositionReached(true);
                     state = LiftState.IDLE;
