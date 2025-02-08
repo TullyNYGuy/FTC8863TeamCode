@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Color;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
@@ -111,7 +111,7 @@ public class DumpServoLimitTest extends LinearOpMode {
         telemetry.update();
 
         dataLog = new DataLogging("Teleop", telemetry);
-        robot = robot.createRobotForTeleop(hardwareMap, telemetry, AllianceColor.RED, dataLog);
+        robot = robot.createRobotForTeleop(hardwareMap, telemetry, Color.RED, dataLog);
 
         // create the gamepad 1 buttons and tell each button how many commands it has
         gamepad1RightBumper = new GamepadButtonMultiPush(1);

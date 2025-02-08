@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Color;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveCurve;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
@@ -31,7 +31,7 @@ public class EPICAutonomousWithIMU extends LinearOpMode {
 
         logFile = new DataLogging("Autonomous", telemetry);
 
-        robot = RoverRuckusRobot.createRobotForAutonomous(hardwareMap, telemetry, AllianceColor.RED, logFile);
+        robot = RoverRuckusRobot.createRobotForAutonomous(hardwareMap, telemetry, Color.RED, logFile);
         // set the imu angles to 0 when the robot is placed on the ground in front of the lander
         robot.driveTrain.imu.resetAngleReferences();
 

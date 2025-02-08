@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Color;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogOnChange;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
@@ -151,7 +151,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
     //          Commands
     //*********************************************************************************************
 
-    public void setupAllianceColor (AllianceColor color) {
+    public void setupAllianceColor (Color color) {
         intake.setAllianceColor(color);
     }
 

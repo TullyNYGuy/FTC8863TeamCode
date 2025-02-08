@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Color;
 import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ITDIntakeSweeperVertical;
 
 /**
@@ -27,7 +27,7 @@ public class IDTTestIntakeServos extends LinearOpMode {
         // Put your initializations here
         intakeSweeperVertical = new ITDIntakeSweeperVertical(hardwareMap, telemetry);
         timer = new ElapsedTime();
-        intakeSweeperVertical.setAllianceColor(AllianceColor.RED);
+        intakeSweeperVertical.setAllianceColor(Color.RED);
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");

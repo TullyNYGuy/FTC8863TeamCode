@@ -16,11 +16,6 @@ public class AllianceColorTeamLocation {
         BLUE_RIGHT
     }
 
-    public enum AllianceColor {
-        RED,
-        BLUE;
-    }
-
     public enum TeamLocation {
         LEFT,
         RIGHT;
@@ -32,18 +27,18 @@ public class AllianceColorTeamLocation {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
-    private static AllianceColor myAllianceColor;
+    private static Color myAllianceColor;
 
-    public static AllianceColor getAllianceColor() {
+    public static Color getAllianceColor() {
         if (myAllianceColor == null) {
             // if the drivers forgot to set the alliance color, then return Red. It is better than crashing
-            return AllianceColor.RED;
+            return Color.RED;
         } else {
             return myAllianceColor;
         }
     }
 
-    public static void setAllianceColor(AllianceColor allianceColor) {
+    public static void setAllianceColor(Color allianceColor) {
         myAllianceColor = allianceColor;
         setColorLocation();
     }
@@ -77,16 +72,16 @@ public class AllianceColorTeamLocation {
 
     private static void setColorLocation() {
         if (myAllianceColor != null && myTeamLocation != null) {
-            if (myAllianceColor == AllianceColor.RED && myTeamLocation == TeamLocation.LEFT) {
+            if (myAllianceColor == Color.RED && myTeamLocation == TeamLocation.LEFT) {
                 myColorLocation = ColorLocation.RED_LEFT;
             }
-            if (myAllianceColor == AllianceColor.RED && myTeamLocation == TeamLocation.RIGHT) {
+            if (myAllianceColor == Color.RED && myTeamLocation == TeamLocation.RIGHT) {
                 myColorLocation = ColorLocation.RED_RIGHT;
             }
-            if (myAllianceColor == AllianceColor.BLUE && myTeamLocation == TeamLocation.LEFT) {
+            if (myAllianceColor == Color.BLUE && myTeamLocation == TeamLocation.LEFT) {
                 myColorLocation = ColorLocation.BLUE_LEFT;
             }
-            if (myAllianceColor == AllianceColor.BLUE && myTeamLocation == TeamLocation.RIGHT) {
+            if (myAllianceColor == Color.BLUE && myTeamLocation == TeamLocation.RIGHT) {
                 myColorLocation = ColorLocation.BLUE_RIGHT;
             }
         }

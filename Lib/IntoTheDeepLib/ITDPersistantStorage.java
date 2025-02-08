@@ -4,8 +4,8 @@ package org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib;//package org.firstins
 import com.acmerobotics.roadrunner.Pose2d;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColorTeamLocation;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Color;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MatchPhase;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.TeamLocation;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Vector2D;
@@ -23,18 +23,18 @@ public class ITDPersistantStorage {
         ITDPersistantStorage.robotPose = robotPose;
     }
 
-    private static AllianceColor allianceColor;
+    private static Color allianceColor;
 
-    public static AllianceColor getAllianceColor() {
+    public static Color getAllianceColor() {
         if (allianceColor == null) {
             // if the drivers forgot to set the alliance color, then return Red. It is better than crashing
-            return AllianceColor.RED;
+            return Color.RED;
         } else {
             return allianceColor;
         }
     }
 
-    public static void setAllianceColor(AllianceColor allianceColor) {
+    public static void setAllianceColor(Color allianceColor) {
         ITDPersistantStorage.allianceColor = allianceColor;
     }
 

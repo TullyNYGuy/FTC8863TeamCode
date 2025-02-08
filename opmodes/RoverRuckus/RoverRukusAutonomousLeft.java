@@ -11,7 +11,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Color;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
@@ -55,7 +55,7 @@ public class RoverRukusAutonomousLeft extends LinearOpMode {
 //        driveTrain = DriveTrain.DriveTrainAutonomous(hardwareMap, telemetry);
 //        driveTrain.setCmPerRotation(31.9); // cm
         logFile = new DataLogging("Autonomous", telemetry);
-        robot = RoverRuckusRobot.createRobotForAutonomous(hardwareMap, telemetry, AllianceColor.RED, logFile);
+        robot = RoverRuckusRobot.createRobotForAutonomous(hardwareMap, telemetry, Color.RED, logFile);
 
         // 12/10/2017 for some reason this line is causing the robot controller app to crash
         //systemStatus = imu.getSystemStatus();

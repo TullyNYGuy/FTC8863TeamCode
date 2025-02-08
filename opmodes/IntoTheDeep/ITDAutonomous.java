@@ -64,6 +64,7 @@ public class ITDAutonomous extends LinearOpMode {
         // create the robot and run the init for it
         robot = new ITDRobot(hardwareMap, telemetry, config, dataLog, DistanceUnit.CM, this);
         robot.createRobot();
+        robot.setAllianceColor(AllianceColorTeamLocation.getAllianceColor());
 
         telemetry.addData("Initializing ...", "Wait for it ...");
         telemetry.update();

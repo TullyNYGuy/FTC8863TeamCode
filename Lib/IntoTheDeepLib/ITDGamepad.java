@@ -41,9 +41,6 @@ package org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
-import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ITDRobot;
-import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ITDRobotModes;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DrivingMode;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.GamepadButtonMultiPush;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.JoyStick;

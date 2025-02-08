@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColorTeamLocation;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Color;
 
 @Autonomous(name = "Set RED alliance, LEFT side", group = "AA")
 //@Disabled
@@ -34,7 +35,7 @@ public class SetRedAllianceTeamPositionLeft extends LinearOpMode {
         //             Robot Running after the user hits play on the driver phone
         //*********************************************************************************************
 
-        AllianceColorTeamLocation.setAllianceColor(AllianceColorTeamLocation.AllianceColor.RED);
+        AllianceColorTeamLocation.setAllianceColor(Color.RED);
         AllianceColorTeamLocation.setTeamLocation(AllianceColorTeamLocation.TeamLocation.LEFT);
         telemetry.addData(">", "Red Alliance, Left side");
         telemetry.update();

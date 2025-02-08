@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColorTeamLocation;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MatchPhase;
 import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ITDGamepad;
 import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ITDRobot;
@@ -72,6 +73,8 @@ public class ITDTeleop extends LinearOpMode {
 
         // create the robot and run the init for it
         robot.createRobot();
+        robot.setAllianceColor(AllianceColorTeamLocation.getAllianceColor());
+
         gamepad = new ITDGamepad(gamepad1, gamepad2, robot);
 
         enableBulkReads(hardwareMap, LynxModule.BulkCachingMode.AUTO);

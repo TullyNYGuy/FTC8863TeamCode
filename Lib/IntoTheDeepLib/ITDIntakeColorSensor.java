@@ -99,7 +99,7 @@ public class ITDIntakeColorSensor {
         telemetry.addData("Color: ", colorDetectorHSV.getColorUsingHue(hsvValues).toString());
     }
 
-    public org.firstinspires.ftc.teamcode.Lib.Color getColor() {
+    public org.firstinspires.ftc.teamcode.Lib.FTCLib.Color getColor() {
         return colorDetectorHSV.getColorUsingHue(hsvValues);
     }
 }

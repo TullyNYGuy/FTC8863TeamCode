@@ -3,11 +3,10 @@ package org.firstinspires.ftc.teamcode.opmodes.RoverRuckus;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Color;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.AutonomousConfigurationFile;
 import org.firstinspires.ftc.teamcode.Lib.RoverRuckusLib.AutonomousDirector;
@@ -32,7 +31,7 @@ public class RoverRuckusAutonomousCraterSide extends LinearOpMode {
 
         logFile = new DataLogging("Autonomous", telemetry);
 
-        robot = RoverRuckusRobot.createRobotForAutonomous(hardwareMap, telemetry, AllianceColor.RED, logFile);
+        robot = RoverRuckusRobot.createRobotForAutonomous(hardwareMap, telemetry, Color.RED, logFile);
         // set the imu angles to 0 when the robot is placed on the ground in front of the lander
         robot.driveTrain.imu.resetAngleReferences();
         robot.driveTrain.enableLogTurns();

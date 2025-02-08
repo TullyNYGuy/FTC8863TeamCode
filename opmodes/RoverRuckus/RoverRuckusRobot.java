@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.opmodes.RoverRuckus;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Color;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DriveTrain;
 
@@ -89,7 +89,7 @@ public class RoverRuckusRobot {
     // from it
     //*********************************************************************************************
 
-    private RoverRuckusRobot(HardwareMap hardwareMap, RobotMode robotMode, Telemetry telemetry, AllianceColor teamColor, DataLogging logFile) {
+    private RoverRuckusRobot(HardwareMap hardwareMap, RobotMode robotMode, Telemetry telemetry, Color teamColor, DataLogging logFile) {
         this.telemetry = telemetry;
 
         collector = new Collector(hardwareMap, telemetry);
@@ -118,12 +118,12 @@ public class RoverRuckusRobot {
         init(telemetry);
     }
 
-    public static RoverRuckusRobot createRobotForAutonomous(HardwareMap hardwareMap, Telemetry telemetry, AllianceColor teamColor, DataLogging dataLog) {
+    public static RoverRuckusRobot createRobotForAutonomous(HardwareMap hardwareMap, Telemetry telemetry, Color teamColor, DataLogging dataLog) {
         RoverRuckusRobot robot = new RoverRuckusRobot(hardwareMap, RobotMode.AUTONOMOUS, telemetry, teamColor, dataLog);
         return robot;
     }
 
-    public static RoverRuckusRobot createRobotForTeleop(HardwareMap hardwareMap, Telemetry telemetry, AllianceColor teamColor, DataLogging dataLog) {
+    public static RoverRuckusRobot createRobotForTeleop(HardwareMap hardwareMap, Telemetry telemetry, Color teamColor, DataLogging dataLog) {
         RoverRuckusRobot robot = new RoverRuckusRobot(hardwareMap, RobotMode.TELEOP, telemetry, teamColor, dataLog);
         return robot;
     }

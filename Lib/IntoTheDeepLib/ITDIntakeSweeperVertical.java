@@ -7,8 +7,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.Lib.Color;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColor;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Color;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.ColorDetectorHSV;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.ColorInHSV;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.ColorSensorUpdatable;
@@ -114,13 +113,13 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
         return sampleColor;
     }
 
-    private AllianceColor allianceColor;
+    private Color allianceColor;
 
-    public void setAllianceColor(AllianceColor allianceColor) {
+    public void setAllianceColor(Color allianceColor) {
         this.allianceColor = allianceColor;
     }
 
-    private AllianceColor getAllianceColor() {
+    private Color getAllianceColor() {
         return allianceColor;
     }
 
@@ -244,7 +243,7 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
             // uh oh the alliance color was never set. Rather than it being nothing, which will
             // cause the intake to stop when it gets a sample and cannot tell if it is a valid
             // color, default it to something
-            allianceColor = AllianceColor.BLUE;
+            allianceColor = Color.BLUE;
             log("alliance color was never set, defaulting to red");
         }
         logCommand("intake");
@@ -588,7 +587,7 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
 //                    runIntakeServos();
 //                    intakeState = IntakeState.PULL_SAMPLE_IN_A_LITTLE_MORE;
                 }
-                if (allianceColor == AllianceColor.BLUE && sampleColor == Color.RED) {
+                if (allianceColor == Color.BLUE && sampleColor == Color.RED) {
                     // the sample is not the right color
                     log("have wrong color sample!");
                     ejectActions();;
@@ -596,14 +595,14 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
                     intakeState = IntakeState.EJECTING;
                     timer.reset();
                 }
-                if (allianceColor == AllianceColor.BLUE &&
+                if (allianceColor == Color.BLUE &&
                         ((sampleColor == Color.YELLOW) || sampleColor == Color.BLUE)) {
                     // the sample is the right color, tell the controller
                     controller.setIntakeHasValidSample(true);
                     log("have a good sample!");
                     intakeState = IntakeState.WAITING_FOR_MOVEMENT_TO_TRANSFER_POSITION;
                 }
-                if (allianceColor == AllianceColor.RED && sampleColor == Color.BLUE) {
+                if (allianceColor == Color.RED && sampleColor == Color.BLUE) {
                     // the sample is not the right color
                     log("have wrong color sample!");
                     ejectActions();;
@@ -611,7 +610,7 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
                     intakeState = IntakeState.EJECTING;
                     timer.reset();
                 }
-                if (allianceColor == AllianceColor.RED &&
+                if (allianceColor == Color.RED &&
                         ((sampleColor == Color.YELLOW) || sampleColor == Color.RED)) {
                     // the sample is the right color, tell the controller
                     controller.setIntakeHasValidSample(true);

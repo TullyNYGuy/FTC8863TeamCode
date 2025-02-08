@@ -1,8 +1,6 @@
 package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
 
-import org.firstinspires.ftc.teamcode.Lib.Color;
-
 public class ColorDetectorHSV {
 
     //*********************************************************************************************

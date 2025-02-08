@@ -1,15 +1,14 @@
 package org.firstinspires.ftc.teamcode.opmodes.IntoTheDeepTest.Intake;
 
-import static org.firstinspires.ftc.teamcode.Lib.Color.RED;
+import static org.firstinspires.ftc.teamcode.Lib.FTCLib.Color.RED;
 
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.Lib.Color;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Color;
 import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ITDIntakeColorSensor;
-import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ITDIntakeSweeperServo;
 import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ITDIntakeSweeperVertical;
 
 /**
