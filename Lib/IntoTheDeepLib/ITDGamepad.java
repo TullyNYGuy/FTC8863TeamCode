@@ -377,13 +377,14 @@ public class ITDGamepad {
         if (gamepad2a.buttonPress(gamepad2.a)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            // this will be stop intaking
+            robot.extensionArmIntakeController.reset();
         }
 
         if (gamepad2b.buttonPress(gamepad2.b)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
             //robot.robotModes.setMaxDrivingPower(.75);
+            robot.intakeBucketController.setupAndRunGlidingIntake();
         }
 
         if (gamepad2y.buttonPress(gamepad2.y)) {

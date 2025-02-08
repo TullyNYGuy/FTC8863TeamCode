@@ -8,6 +8,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogOnChange;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.MatchPhase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -150,6 +151,7 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
     }
 
     private boolean showMaxExtension = false;
+    private boolean runGlidingIntakeAfterSetup = false;
     //*********************************************************************************************
     //          Constructors
     //
@@ -336,14 +338,31 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
 
     }
 
+    /**
+     * This method will extend the extension arm and rotate the intake to the floor at the same time.
+     * The amount of extension is a parameter. Usually around 2".
+     *
+     * @param extensionArmPosition
+     */
     public void setupForGlidingIntake(double extensionArmPosition) {
         logCommand("Setup for gliding intake");
-        //todo fill in the code for this
         extensionArmIntakeController.setupForGlidingIntake(extensionArmPosition);
         state=IntakeBucketControllerState.WAIT_FOR_SETUP_FOR_GLIDING_INTAKE;
-
     }
 
+    /**
+     * This method will run a gliding intake. It assumes that you have already set it up (run
+     * setupForGlidingIntake) first.
+     *    When complete the following are set if a sample was gotten:
+     *     - intakeHasValidSample = true
+     *     - glidingIntakeFailed = false
+     *     - intakePositionedForTransfer = true
+     *     - The intake will be positioned at the transfer position
+     *    When complete the following are set if a sample was not gotten:
+     *      - intakeHasValidSample = false
+     *      - glidingIntakeFailed = false
+     *      - The intake will be at extension arm = 2" and rotated to readyForIntake position.
+     */
     public void runGlidingIntake() {
         logCommand("Glide Intake");
         setGlidingIntakeFailed(false);
@@ -351,13 +370,24 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
         extensionArmIntakeController.runGlidingIntake();
         state = IntakeBucketControllerState.INTAKING;
     }
-    public void runGlidingIntake(double howFarTooPosition) {
+
+    /**
+     * Same as above except that you can specify how far the extension arm extends before stopping.
+     * @param howFarToPosition
+     */
+    public void runGlidingIntake(double howFarToPosition) {
         logCommand("Glide Intake");
         setGlidingIntakeFailed(false);
         transferComplete = false;
-        extensionArmIntakeController.runGlidingIntake(howFarTooPosition);
+        extensionArmIntakeController.runGlidingIntake(howFarToPosition);
         state = IntakeBucketControllerState.INTAKING;
     }
+
+    public void setupAndRunGlidingIntake() {
+        runGlidingIntakeAfterSetup = true;
+        setupForGlidingIntake(2.0);
+    }
+
     public void showMaxExtension() {
         logCommand("Max extension");
         showMaxExtension = true;
@@ -738,7 +768,16 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
                 //setup for gliding intake states
             case WAIT_FOR_SETUP_FOR_GLIDING_INTAKE:
                 if(setupForGlidingIntakeComplete){
-                    state=IntakeBucketControllerState.SETUP_FOR_GLIDING_INTAKE_COMPLETE;
+                    if (runGlidingIntakeAfterSetup) {
+                        // the command was to run the gliding intake after setting it up
+                        // reset the flag
+                        runGlidingIntakeAfterSetup = false;
+                        // now run the gliding intake
+                        runGlidingIntake();
+                    } else {
+                        // the command was just to setup the gliding intake
+                        state=IntakeBucketControllerState.SETUP_FOR_GLIDING_INTAKE_COMPLETE;
+                    }
                 }
                 break;
             case SETUP_FOR_GLIDING_INTAKE_COMPLETE:
@@ -748,13 +787,24 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
             // Intake states
             case INTAKING:
                 if (intakeHasValidSample && intakePositionedForTransfer) {
+                    //todo now that the extension arm is so fast, we may need to open the gate sooner
+                    // BUT we can't open it so soon that it gets stuck on the intake arm chain!
                     liftBucketArmBucketGateController.openGate();
+                    // todo alternatively we could delay the transfer for just a bit
                     extensionArmIntakeController.transfer();
                     state = IntakeBucketControllerState.TRANSFERRING;
                 }
                 if (glidingIntakeFailed) {
-                    autonomousStateMachine.setGlidingIntakeFailed(true);
-                    setupForGlidingIntake(2);
+                    if (MatchPhase.getMatchPhase() == MatchPhase.AUTONOMOUS) {
+                        // tell the autonomous that the gliding intake failed
+                        autonomousStateMachine.setGlidingIntakeFailed(true);
+                        // autonomous only uses gliding intakes so setup for a new one
+                        setupForGlidingIntake(2);
+                    }
+                    if (MatchPhase.getMatchPhase() == MatchPhase.TELEOP) {
+                        // teleop drivers may want not want to do another gliding intake
+                        setupForBucketClearance();
+                    }
                 }
                 break;
             case WAITING_FOR_READY_TO_TRANSFER:
