@@ -48,6 +48,10 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
         READY_TO_RUN,
         TRANSFER_COMPLETE,
 
+        // bucket clearance states
+        WAIT_FOR_BUCKET_CLEARANCE,
+        AT_BUCKET_CLEARANCE,
+
         // setup for driving to delivery states
         INTAKE_MOVING_TO_BUCKET_CLEARANCE_POSITION_FOR_SAFE_DRIVING_POSITION_BEFORE_DELIVERY,
         BUCKET_ARM_MOVING_TO_SAFE_POSITION_BEFORE_DELIVERY,
@@ -106,6 +110,11 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
         this.extensionArmIntakeController = extensionArmIntakeController;
     }
 
+    private ITDAutonomousStateMachine autonomousStateMachine;
+
+    public void setAutonomousStateMachine(ITDAutonomousStateMachine autonomousStateMachine) {
+        this.autonomousStateMachine = autonomousStateMachine;
+    }
     //*********************************************************************************************
     //          Status methods
     //*********************************************************************************************
@@ -222,6 +231,12 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
         logCommand("Get ready to run");
         extensionArmIntakeController.getReadyToRun();
         state = IntakeBucketControllerState.EXTENSION_ARM_MOVING_TO_BUCKET_CLEARANCE_FOR_GET_READY_TO_RUN;
+    }
+
+    public void setupForBucketClearance() {
+        logCommand("Setup For bucket clearance");
+        extensionArmIntakeController.setupForBucketClearance();
+        state = IntakeBucketControllerState.WAIT_FOR_BUCKET_CLEARANCE;
     }
 
     /**
@@ -383,6 +398,10 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
 
     public void setIntakePositionedForBucketClearance(boolean OKForBucketClearance) {
         this.intakePositionedForBucketClearance = OKForBucketClearance;
+    }
+
+    public boolean isIntakePositionedForBucketClearance() {
+        return intakePositionedForBucketClearance;
     }
 
     private boolean glidingIntakeFailed = false;
@@ -637,6 +656,16 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
                 }
                 break;
 
+                // bucket clearance states
+            case WAIT_FOR_BUCKET_CLEARANCE:
+                if (intakePositionedForBucketClearance) {
+                    state = IntakeBucketControllerState.AT_BUCKET_CLEARANCE;
+                }
+                break;
+            case AT_BUCKET_CLEARANCE:
+                // do nothing while waiting for a command
+                break;
+
             // setup for safe driving position before delivery states
             case INTAKE_MOVING_TO_BUCKET_CLEARANCE_POSITION_FOR_SAFE_DRIVING_POSITION_BEFORE_DELIVERY:
                 // We should not have to wait long (if at all) for bucket clearance because bucket clearance
@@ -724,7 +753,8 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
                     state = IntakeBucketControllerState.TRANSFERRING;
                 }
                 if (glidingIntakeFailed) {
-                    //todo fill in code to handle the fault
+                    autonomousStateMachine.setGlidingIntakeFailed(true);
+                    setupForGlidingIntake(2);
                 }
                 break;
             case WAITING_FOR_READY_TO_TRANSFER:

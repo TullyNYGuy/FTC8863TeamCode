@@ -36,11 +36,15 @@ public class ITDAutonomousStateMachine {
         WAIT_FOR_MOVE_2_SAMPLE1,
         WAIT_FOR_MOVE_2_SAMPLE2,
         WAIT_FOR_MOVE_2_SAMPLE3,
+        WAIT_FOR_MOVE_TO_SAMPLE3_AFTER_SAMPLE2_FAILED,
+        WAIT_FOR_BUCKET_CLEARANCE_AFTER_SAMPLE2_FAILED,
         WAIT_FOR_SETUP_FOR_INTAKE,
         WAIT_FOR_INTAKE,
 
         WAIT_TO_MOVE_TO_SUBMERISLBE,
         WAIT_FOR_FINAL_BUCKET_AT_TRANSFER,
+
+        WAIT_FOR_MOVE_TO_INIT_POSE,
 
         COMPLETE
     }
@@ -67,6 +71,8 @@ public class ITDAutonomousStateMachine {
     private DataLogOnChange logCommandOnchange;
     private int sampleNum = 0;
 
+    // when a gliding intake fails, the state machine needs to know about it so it can react
+    // The intake bucket controller will tell us
     private boolean glidingIntakeFailed = false;
 
     public void setGlidingIntakeFailed(boolean glidingIntakeFailed) {
@@ -174,8 +180,9 @@ public class ITDAutonomousStateMachine {
     private Pose2d deliveryPose = new Pose2d(50.75, 50, Math.toRadians(-135));
     private Pose2d sample1IntakePose = new Pose2d(47.75, 39, Math.toRadians(-90));
    // private Pose2d sample2IntakePose=new Pose2d(59, 39.25, Math.toRadians(-90));
-    private Pose2d sample2IntakePose=new Pose2d(56, 39.25, Math.toRadians(-90));
+    private Pose2d sample2IntakePose=new Pose2d(57.5, 39.25, Math.toRadians(-90));
     private Pose2d sample3IntakePose=new Pose2d(60, 34.5, Math.toRadians(-45));
+    private Pose2d initAfter3rdSampleFail=new Pose2d(49.5, 41, Math.toRadians(-45));
 
     // Define the action needed for a movement from point a to point b
     private Action startToDelivery;
@@ -185,6 +192,9 @@ public class ITDAutonomousStateMachine {
     private Action sample2ToDelivery;
     private Action deliveryToSample3;
     private Action sample3ToDelivery;
+    private Action sample1ToSample2;
+    private Action sample2ToSample3;
+    private Action sample3ToInitPose;
 
     // Define a non-blocking runner to run the action
     RRNonBlockingRunner startToDeliveryRunner;
@@ -194,6 +204,10 @@ public class ITDAutonomousStateMachine {
     RRNonBlockingRunner sample2ToDeliveryRunner;
     RRNonBlockingRunner deliveryToSample3Runner;
     RRNonBlockingRunner sample3ToDeliveryRunner;
+    RRNonBlockingRunner sample1ToSample2Runner;
+    RRNonBlockingRunner sample2ToSample3Runner;
+    RRNonBlockingRunner currentRunner;
+    RRNonBlockingRunner sample3ToInitPoseRunner;
 
     /**
      * Place all of the trajectories for the autonomous opmode in this method. This method gets
@@ -229,6 +243,18 @@ public class ITDAutonomousStateMachine {
                 .strafeToLinearHeading(deliveryPose.position, deliveryPose.heading)
                 .build();
 
+        sample1ToSample2 = robot.mecanumDrive.actionBuilder(sample1IntakePose)
+                .strafeToLinearHeading(sample2IntakePose.position, sample2IntakePose.heading)
+                .build();
+
+        sample2ToSample3 = robot.mecanumDrive.actionBuilder(sample2IntakePose)
+                .strafeToLinearHeading(sample3IntakePose.position, sample3IntakePose.heading)
+                .build();
+        sample3ToInitPose = robot.mecanumDrive.actionBuilder(sample3IntakePose)
+                .strafeToLinearHeading(initAfter3rdSampleFail.position, initAfter3rdSampleFail.heading)
+                .build();
+
+
         // Define a non-blocking runner to run the action
         startToDeliveryRunner = new RRNonBlockingRunner(startToDelivery);
         deliveryToSample1Runner = new RRNonBlockingRunner(deliveryToSample1);
@@ -237,6 +263,9 @@ public class ITDAutonomousStateMachine {
         sample2ToDeliveryRunner  = new RRNonBlockingRunner(sample2ToDelivery);
         deliveryToSample3Runner = new RRNonBlockingRunner(deliveryToSample3);
         sample3ToDeliveryRunner = new RRNonBlockingRunner(sample3ToDelivery);
+        sample1ToSample2Runner = new RRNonBlockingRunner(sample1ToSample2);
+        sample2ToSample3Runner = new RRNonBlockingRunner(sample2ToSample3);
+        sample3ToInitPoseRunner=new RRNonBlockingRunner(sample3ToInitPose);
     }
 
     //*********************************************************************************************
@@ -310,7 +339,8 @@ public class ITDAutonomousStateMachine {
                         case 2:
                             // the lift/bucket will continue to move into the transfer position
                             // start the movement from delivery position to position to intake sample
-                            deliveryToSample2Runner.runNonBlocking();
+                            currentRunner=deliveryToSample2Runner;
+                            currentRunner.runNonBlocking();
                             // setup the intake for a gliding intake
                             robot.intakeBucketController.setupForGlidingIntake(2);
                             currentState = States.WAIT_FOR_MOVE_2_SAMPLE2;
@@ -318,7 +348,8 @@ public class ITDAutonomousStateMachine {
                         case 3:
                             // the lift/bucket will continue to move into the transfer position*
                             // start the movement from delivery position to position to intake sample
-                            deliveryToSample3Runner.runNonBlocking();
+                            currentRunner=deliveryToSample3Runner;
+                            currentRunner.runNonBlocking();
                             // setup the intake for a gliding intake
                             robot.intakeBucketController.setupForGlidingIntake(2);
                             currentState = States.WAIT_FOR_MOVE_2_SAMPLE3;
@@ -349,7 +380,7 @@ public class ITDAutonomousStateMachine {
                 }
                 break;
             case WAIT_FOR_MOVE_2_SAMPLE2:
-                if(deliveryToSample2Runner.isComplete() &&
+                if(currentRunner.isComplete() &&
                        // robot.intakeBucketController.isLiftBucketAtTransferPosition() &&
                         robot.intakeBucketController.isSetupForGlidingIntakeComplete()) {
                     logPosition("Sample2 intake pose", sample2IntakePose);
@@ -358,11 +389,11 @@ public class ITDAutonomousStateMachine {
                     glidingIntakeFailed = false;
                     currentState = States.WAIT_FOR_INTAKE;
                 } else {
-                    deliveryToSample2Runner.runNonBlocking();
+                    currentRunner.runNonBlocking();
                 }
                 break;
             case WAIT_FOR_MOVE_2_SAMPLE3:
-                if(deliveryToSample3Runner.isComplete() &&
+                if(currentRunner.isComplete() &&
                        // robot.intakeBucketController.isLiftBucketAtTransferPosition() &&
                         robot.intakeBucketController.isSetupForGlidingIntakeComplete()) {
                     logPosition("Sample3 intake pose", sample3IntakePose);
@@ -371,7 +402,7 @@ public class ITDAutonomousStateMachine {
                     glidingIntakeFailed = false;
                     currentState = States.WAIT_FOR_INTAKE;
                 } else {
-                    deliveryToSample3Runner.runNonBlocking();
+                    currentRunner.runNonBlocking();
                 }
                 break;
             case WAIT_FOR_SETUP_FOR_INTAKE:
@@ -381,7 +412,8 @@ public class ITDAutonomousStateMachine {
                 }
                 break;
             case WAIT_FOR_INTAKE:
-                if(robot.intakeBucketController.intakeHasValidSample() || glidingIntakeFailed) {
+                if(robot.intakeBucketController.intakeHasValidSample()) {
+                    // the gliding intake was successful
                     switch (sampleNum) {
                         case 1:
                             // the intake will transfer the sample while the robot moves
@@ -400,7 +432,48 @@ public class ITDAutonomousStateMachine {
                             break;
                     }
                 }
+                if (glidingIntakeFailed){
+                    // the gliding intake failed
+                    switch(sampleNum){
+                        case 1:
+                            currentRunner=sample1ToSample2Runner;
+                            currentRunner.runNonBlocking();
+                            sampleNum=sampleNum+1;
+                            currentState=States.WAIT_FOR_MOVE_2_SAMPLE2;
+                            break;
+                        case 2:
+                            sampleNum=sampleNum+1;
+                            // if we move to the sample3 intake position without picking up the intake, the
+                            // intake knocks sample 3 out of the way
+                            robot.intakeBucketController.setupForBucketClearance();
+                            currentState=States.WAIT_FOR_BUCKET_CLEARANCE_AFTER_SAMPLE2_FAILED;
+                            break;
+                        case 3:
+                            sample3ToInitPoseRunner.runNonBlocking();
+                            currentState=States.WAIT_FOR_MOVE_TO_INIT_POSE;
+                            break;
+                    }
+                }
                 break;
+            case WAIT_FOR_BUCKET_CLEARANCE_AFTER_SAMPLE2_FAILED:
+                if (robot.intakeBucketController.isIntakePositionedForBucketClearance()) {
+                    currentRunner=sample2ToSample3Runner;
+                    currentRunner.runNonBlocking();
+                    currentState = States.WAIT_FOR_MOVE_TO_SAMPLE3_AFTER_SAMPLE2_FAILED;
+                }
+                break;
+            case WAIT_FOR_MOVE_TO_SAMPLE3_AFTER_SAMPLE2_FAILED:
+                if (currentRunner.isComplete()) {
+                    robot.intakeBucketController.setupForGlidingIntake(2);
+                    // even though the movement is already complete, this next state check that the movement is
+                    // complete (not needed but it is ok) and then check for completion of gliding intake
+                    // before running the gliding intake
+                    currentState = States.WAIT_FOR_MOVE_2_SAMPLE3;
+                } else {
+                    currentRunner.runNonBlocking();
+                }
+                break;
+
             case WAIT_FOR_M0VE_2_DELIVERY_POS_FROM_SAMPLE1:
                 // The movement has to be complete and the transfer complete before setting up to deliver.
                 // todo could we start the setup for delivery after the transfer is complete but while
@@ -453,9 +526,29 @@ public class ITDAutonomousStateMachine {
                 }
                 break;
 
-            case WAIT_TO_MOVE_TO_SUBMERISLBE:
+            case WAIT_FOR_FINAL_BUCKET_AT_TRANSFER:
+               if (robot.intakeBucketController.isLiftBucketAtTransferPosition()){
+                   robot.intakeBucketController.init(null);
+                   currentState=States.COMPLETE;
+               }
                 break;
+
+               // for when sample 3 intake fails
+            case WAIT_FOR_MOVE_TO_INIT_POSE:
+                if(sample3ToInitPoseRunner.isComplete()){
+                    robot.intakeBucketController.init(null);
+                    currentState=States.COMPLETE;
+                }
+                    else {
+                        sample3ToInitPoseRunner.runNonBlocking();
+                    }
+
+                break;
+
+//            case WAIT_TO_MOVE_TO_SUBMERISLBE:
+//                break;
             case COMPLETE:
+                // the last actions will complete while this state runs
                 break;
 
         }

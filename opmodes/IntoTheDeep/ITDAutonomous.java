@@ -81,6 +81,10 @@ public class ITDAutonomous extends LinearOpMode {
         autonomousStateMachine = new ITDAutonomousStateMachine(robot, telemetry);
         autonomousStateMachine.setDataLog(dataLog);
         autonomousStateMachine.enableDataLogging();
+        // tell the intake bucket controller about the autonomousStateMachine
+        // It needs to know this so it can tell the autonomousStateMachine that a gliding
+        // intake has failed.
+        robot.intakeBucketController.setAutonomousStateMachine(autonomousStateMachine);
 
         // Allow reads of all of the motor data in one read.
         enableBulkReads(hardwareMap, LynxModule.BulkCachingMode.AUTO);
