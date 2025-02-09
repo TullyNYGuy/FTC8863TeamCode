@@ -340,6 +340,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
      *      glidingIntakeFailed = false
      */
     public void runGlidingIntake() {
+        logCommand("Run gliding intake");
         // tell the intake bucket controller we do not have a sample and the gliding intake has not
         // failed yet
         controller.setIntakeHasValidSample(false);
@@ -356,6 +357,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
      * @param howFarToPosition
      */
     public void runGlidingIntake(double howFarToPosition) {
+        logCommand("Run gliding intake to " + howFarToPosition);
         // tell the intake bucket controller we do not have a sample and the gliding intake has not
         // failed yet
         controller.setIntakeHasValidSample(false);
@@ -751,19 +753,21 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
                 }
                 // The arm extended all the way out and did not intake a sample
                 if (extensionArm.isPositionReached()) {
+                    logComment("Gliding intake failed");
                     controller.setGlidingIntakeFailed(true);
                     intake.stop();
-                    intakeArmServo.readyToIntakePosition();
-                    extensionArm.goToPosition(2);
-                    state = ExtensionArmIntakeBucketControllerState.WAITING_FOR_READY_TO_CYCLE_GLIDE;
+                    setupForBucketClearance();
+//                    intakeArmServo.readyToIntakePosition();
+//                    extensionArm.goToPosition(2);
+//                    state = ExtensionArmIntakeBucketControllerState.WAITING_FOR_READY_TO_CYCLE_GLIDE;
                 }
                 break;
 
-            case WAITING_FOR_READY_TO_CYCLE_GLIDE:
-                if (intakeArmServo.isPositionReached() && extensionArm.isPositionReached()) {
-                    state = ExtensionArmIntakeBucketControllerState.IDLE;
-                }
-            break;
+//            case WAITING_FOR_READY_TO_CYCLE_GLIDE:
+//                if (intakeArmServo.isPositionReached() && extensionArm.isPositionReached()) {
+//                    state = ExtensionArmIntakeBucketControllerState.IDLE;
+//                }
+//            break;
 
                 // setting up for transfer states
             // This state is no longer called because the extension arm and intake arm servo are moving in parallel

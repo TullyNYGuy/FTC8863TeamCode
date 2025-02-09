@@ -152,6 +152,7 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
 
     private boolean showMaxExtension = false;
     private boolean runGlidingIntakeAfterSetup = false;
+    private boolean setupBucketForClearanceNotCalledYet = true;
     //*********************************************************************************************
     //          Constructors
     //
@@ -237,6 +238,9 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
 
     public void setupForBucketClearance() {
         logCommand("Setup For bucket clearance");
+        // this is here because if the driver needs a bucket clearance right after init in order to
+        // deliver a sample, setupForBucketClearance has to be called.
+        setupBucketForClearanceNotCalledYet = false;
         extensionArmIntakeController.setupForBucketClearance();
         state = IntakeBucketControllerState.WAIT_FOR_BUCKET_CLEARANCE;
     }
@@ -255,7 +259,13 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
         // to save time, setupForBucketClearance() is now called right after the transfer completes by the
         // extensionArmIntakeController. This also moves the extension arm away from the metal that it is
         // trying to pull against. Doing that prevents the motor from overheating.
-        //extensionArmIntakeController.setupForBucketClearance();
+
+        // However, if the driver needs to deliver a sample right after init in teleop, then
+        // setupForBucketClearance has never been called. So we need to call it.
+        if (setupBucketForClearanceNotCalledYet) {
+            extensionArmIntakeController.setupForBucketClearance();
+            setupBucketForClearanceNotCalledYet = false;
+        }
         state = IntakeBucketControllerState.INTAKE_MOVING_TO_BUCKET_CLEARANCE_POSITION_FOR_SAFE_DRIVING_POSITION_BEFORE_DELIVERY;
     }
 
@@ -347,6 +357,7 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
     public void setupForGlidingIntake(double extensionArmPosition) {
         logCommand("Setup for gliding intake");
         extensionArmIntakeController.setupForGlidingIntake(extensionArmPosition);
+        liftBucketArmBucketGateController.closeGate();
         state=IntakeBucketControllerState.WAIT_FOR_SETUP_FOR_GLIDING_INTAKE;
     }
 
@@ -389,9 +400,9 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
     }
 
     public void showMaxExtension() {
-        logCommand("Max extension");
+        logCommand("Show max extension");
         showMaxExtension = true;
-        init(null);
+        setupForIntake();
     }
 
     //*********************************************************************************************
@@ -655,9 +666,6 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
                 break;
             case INIT_COMPLETE:
                 // wait for get ready to run or for other commands
-                if (showMaxExtension) {
-                    getReadyToRun();
-                }
                 break;
 
             // get ready to run states
@@ -681,9 +689,6 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
                 break;
             case READY_TO_RUN:
                 // we are ready to run. Wait for a command
-                if(showMaxExtension) {
-                    setupForIntake();
-                }
                 break;
 
                 // bucket clearance states
@@ -761,7 +766,10 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
                 // or a back to transfer position command
                 if (showMaxExtension) {
                     extensionArmIntakeController.intakeToFloor();
-                    setupForDrivingBeforeDelivery();
+                    // skip over the bucket clearance normally required before the bucket rotates up
+                    // since the intake is all the way out already
+                    liftBucketArmBucketGateController.setupForDrivingBeforeDelivery();
+                    state = IntakeBucketControllerState.BUCKET_ARM_MOVING_TO_SAFE_POSITION_BEFORE_DELIVERY;
                 }
                 break;
 
@@ -797,6 +805,9 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
                     state = IntakeBucketControllerState.TRANSFERRING;
                 }
                 if (glidingIntakeFailed) {
+                    // reset the flag so future intakes don't see a gliding intake failed
+                    glidingIntakeFailed = false;
+                    logCommand("Gliding intake failed");
                     if (MatchPhase.getMatchPhase() == MatchPhase.AUTONOMOUS) {
                         // tell the autonomous that the gliding intake failed
                         autonomousStateMachine.setGlidingIntakeFailed(true);
@@ -804,8 +815,8 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
                         setupForGlidingIntake(2);
                     }
                     if (MatchPhase.getMatchPhase() == MatchPhase.TELEOP) {
-                        // teleop drivers may want not want to do another gliding intake
-                        setupForBucketClearance();
+                        // extension arm intake controller automatically will setup for bucket clearance
+                        state = IntakeBucketControllerState.WAIT_FOR_BUCKET_CLEARANCE;
                     }
                 }
                 break;
