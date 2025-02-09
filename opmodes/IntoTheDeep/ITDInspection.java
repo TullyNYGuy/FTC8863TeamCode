@@ -58,7 +58,7 @@ public class ITDInspection extends LinearOpMode {
         // set the persistant storage variable saying this is the teleop phase
 //        PowerPlayPersistantStorage.setMatchPhase(MatchPhase.TELEOP);
 
-        dataLog = new DataLogging("Teleop", telemetry);
+        dataLog = new DataLogging("Inspection", telemetry);
         config = null;
         config = new Configuration();
         if (!config.load()) {
@@ -99,19 +99,14 @@ public class ITDInspection extends LinearOpMode {
 
         // Wait for the start button
 
-        telemetry.addData(">", "Press start to run Teleop (make sure you ran the position setter first!)");
+        telemetry.addData(">", "Press start to extend robot for inspection)");
         telemetry.update();
 
-        //robot.setColor(color);
-        waitForStart();
-
-            robot.intakeBucketController.getReadyToRun();
-            while(!robot.intakeBucketController.isGetReadyToRunComplete()) {
-                robot.update();
-            }
         robot.loopTimer.startLoopTimer();
 
-            robot.intakeBucketController.showMaxExtension();
+        waitForStart();
+
+        robot.intakeBucketController.showMaxExtension();
 
         //*********************************************************************************************
         //             Robot Running after the user hits play on the driver phone
