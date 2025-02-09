@@ -154,10 +154,10 @@ public class DcMotor8863 implements DcMotor8863Interface {
         return baseEncoderCount;
     }
 
-    // Set the virtual encoder count for this motor to 0. This does not affect the hardware encoder
+    // This does not affect the hardware encoder
     // count maintained by the SDK
     public void resetEncoder() {
-        baseEncoderCount = 0;
+        baseEncoderCount = FTCDcMotor.getCurrentPosition();
     }
 
     // This does nothing. It is only here to satisfy the interface.
@@ -262,7 +262,7 @@ public class DcMotor8863 implements DcMotor8863Interface {
      *
      * @return
      */
-    private int getMotorEncoderCount() {
+    public int getMotorEncoderCount() {
         return FTCDcMotor.getCurrentPosition();
     }
 

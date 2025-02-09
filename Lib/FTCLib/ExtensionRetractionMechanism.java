@@ -2222,7 +2222,7 @@ public class ExtensionRetractionMechanism {
                                 log("retraction switch tripped");
                                 // 1/27/2025 there may be a bug in the resetEncoder because the extension arm did not seem to reset at the
                                 // proper location
-                                //extensionRetractionMotor.resetEncoder();
+                                extensionRetractionMotor.resetEncoder();
                             }
                             performActionsToCompleteRetractMovement();
                             // movement to the retraction position is complete, start the post retraction actions
@@ -3253,6 +3253,46 @@ public class ExtensionRetractionMechanism {
             }
             opMode.telemetry.addData("state = ", extensionRetractionState.toString());
             opMode.telemetry.addData("encoder = ", extensionRetractionMotor.getCurrentPosition());
+            opMode.telemetry.update();
+            opMode.idle();
+        }
+        opMode.telemetry.addData("min encoder value = ", encoderValueMin);
+        return encoderValueMin;
+    }
+
+    /**
+     * This method will test the retraction of the mechanism with a reset. If the mechanism moves in the wrong
+     * direction, use reverseMotorDirection() to change the direction of movement. Be sure to set
+     * the retraction power to something safe so you don't break the lift. Use setRetractionPower()
+     * for that. The retraction limit is hit either when the mechanism trips the retraction
+     * limit switch, or when it hits the retraction distance limit. You can test the retraction
+     * distance limit by setRetractionPositionInMechanismUnits() or
+     * setRetractionPositionInEncoderCounts().
+     * @param opMode
+     * @return The minimum encoder value encountered
+     */
+    public int testRetractionWithResetEncoder(LinearOpMode opMode) {
+        ExtensionRetractionStates extensionRetractionState;
+        // set up to find the minimum encoder value
+        int encoderValue = 0;
+        // initialize it with a crazy high value so that it will get reduced on the first cycle
+        int encoderValueMin = 1000000;
+        // force the mechanism to think it has completed a reset
+        this.extensionRetractionState = ExtensionRetractionStates.RESET_COMPLETE;
+        this.setFinishBehavior(DcMotor8863.FinishBehavior.FLOAT);
+        this.goToFullRetractWithReset();
+        while (opMode.opModeIsActive()) {
+            update();
+            extensionRetractionState = getExtensionRetractionState();
+            encoderValue = extensionRetractionMotor.getCurrentPosition();
+            // if this encoder value is the minimum encountered, then update the min
+            if (encoderValue < encoderValueMin) {
+                encoderValueMin = encoderValue;
+            }
+            opMode.telemetry.addData("state = ", extensionRetractionState.toString());
+            opMode.telemetry.addData("virtual encoder = ", encoderValue);
+            opMode.telemetry.addData("motor encoder = ", extensionRetractionMotor.getMotorEncoderCount());
+            opMode.telemetry.addData("base encoder = ", extensionRetractionMotor.getBaseEncoderCount());
             opMode.telemetry.update();
             opMode.idle();
         }
