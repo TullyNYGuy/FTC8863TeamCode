@@ -45,6 +45,7 @@ public class ITDAutonomousStateMachine {
         WAIT_FOR_FINAL_BUCKET_AT_TRANSFER,
 
         WAIT_FOR_MOVE_TO_INIT_POSE,
+        WAIT_FOR_SAMPLE3_INTAKE,
 
         COMPLETE
     }
@@ -176,8 +177,8 @@ public class ITDAutonomousStateMachine {
 
     // Define the robot positions
     private Pose2d startAutoPose = new Pose2d(32.5, 54.375, Math.toRadians(-90));
-   // private Pose2d deliveryPose = new Pose2d(48.5, 51.75, Math.toRadians(-135));
-    private Pose2d deliveryPose = new Pose2d(50.75, 50, Math.toRadians(-135));
+  //  private Pose2d deliveryPose = new Pose2d(48.5, 51.75, Math.toRadians(-135));
+    private Pose2d deliveryPose = new Pose2d(49.25, 48.5, Math.toRadians(-135));
     private Pose2d sample1IntakePose = new Pose2d(47.75, 39, Math.toRadians(-90));
    // private Pose2d sample2IntakePose=new Pose2d(59, 39.25, Math.toRadians(-90));
     private Pose2d sample2IntakePose=new Pose2d(57.5, 39.25, Math.toRadians(-90));
