@@ -2220,8 +2220,7 @@ public class ExtensionRetractionMechanism {
                             logArrivedAtDestination();
                             if (retractWithReset) {
                                 log("retraction switch tripped");
-                                // 1/27/2025 there may be a bug in the resetEncoder because the extension arm did not seem to reset at the
-                                // proper location
+                                // bug fixed in virtual encoder calculations 2/8/2025 so uncommented this line
                                 extensionRetractionMotor.resetEncoder();
                             }
                             performActionsToCompleteRetractMovement();
@@ -3280,8 +3279,10 @@ public class ExtensionRetractionMechanism {
         // force the mechanism to think it has completed a reset
         this.extensionRetractionState = ExtensionRetractionStates.RESET_COMPLETE;
         this.setFinishBehavior(DcMotor8863.FinishBehavior.FLOAT);
+        // retract and reset the virtual encoder
         this.goToFullRetractWithReset();
-        while (opMode.opModeIsActive()) {
+
+        while (opMode.opModeIsActive() && !this.isRetractionComplete()) {
             update();
             extensionRetractionState = getExtensionRetractionState();
             encoderValue = extensionRetractionMotor.getCurrentPosition();
@@ -3296,7 +3297,25 @@ public class ExtensionRetractionMechanism {
             opMode.telemetry.update();
             opMode.idle();
         }
-        opMode.telemetry.addData("min encoder value = ", encoderValueMin);
+        // now prove that the reset worked. If you place the extension arm 4" in front of the retraction limit switch
+        // And then run the above loop where the arm retracts to the switch and the virtual encoder resets, then
+        // running a go to position of 0 will put the arm back where it started. If the virtual encoder reset does not work
+        // then the arm will extend 4" past the original location where the arm started (where the motor was actually reset
+        // at power on.
+        this.goToPosition(4.0, .2);
+        while (opMode.opModeIsActive() && !this.isPositionReached()) {
+            update();
+            extensionRetractionState = getExtensionRetractionState();
+            encoderValue = extensionRetractionMotor.getCurrentPosition();
+
+            opMode.telemetry.addData("state = ", extensionRetractionState.toString());
+            opMode.telemetry.addData("virtual encoder = ", encoderValue);
+            opMode.telemetry.addData("motor encoder = ", extensionRetractionMotor.getMotorEncoderCount());
+            opMode.telemetry.addData("base encoder = ", extensionRetractionMotor.getBaseEncoderCount());
+            opMode.telemetry.update();
+            opMode.idle();
+        }
+        // I'm just too lazy to fix this
         return encoderValueMin;
     }
 

@@ -189,9 +189,13 @@ public class DcMotor8863 implements DcMotor8863Interface {
      * virtual encoder count - this is the encoder count that the user sees. In other words, the one
      * you work with as a user.
      * <p>
-     * Key formulas:
+     * Key formulas: (THESE ARE WRONG 2/8/2025) I kept them for documentation
      * virtual encoder count = motor encoder count + base encoder count
      * motor encoder count = virtual encoder count - base encoder count
+     * The correct key formulas are:
+     * virtual encoder count = motor encoder count - base encoder count
+     * motor encoder count = virtual encoder count + base encoder count
+     *                                             ^
      */
 
     // Here are the virtual target encoder count things
@@ -203,7 +207,9 @@ public class DcMotor8863 implements DcMotor8863Interface {
     }
 
     private int calculateVirtualTargetEncoderCount(int motorTargetEncoderCount) {
-        return motorTargetEncoderCount + baseEncoderCount;
+        // fixing bug 2/8/2025
+        //return motorTargetEncoderCount + baseEncoderCount;
+        return motorTargetEncoderCount - baseEncoderCount;
     }
 
     private void setVirtualTargetEncoderCount(int motorTargetEncoderCount) {
@@ -228,7 +234,9 @@ public class DcMotor8863 implements DcMotor8863Interface {
     }
 
     private int calculateMotorTargetEncoderCount(int virtualTargetEncoderCount) {
-        return virtualTargetEncoderCount - baseEncoderCount;
+        // fixing bug 2/8/2025
+        // return virtualTargetEncoderCount - baseEncoderCount;
+        return virtualTargetEncoderCount + baseEncoderCount;
     }
 
     private void setMotorTargetEncoderCount(int virtualTargetEncoderCount) {
@@ -287,7 +295,9 @@ public class DcMotor8863 implements DcMotor8863Interface {
     }
 
     private int calculateVirtualEncoderCount(int motorEncoderCount) {
-        return motorEncoderCount + baseEncoderCount;
+        // fixing bug 2/8/2025
+        //return motorEncoderCount + baseEncoderCount;
+        return motorEncoderCount - baseEncoderCount;
     }
 
     private void setVirtualEncoderCount(int motorEncoderCount) {
