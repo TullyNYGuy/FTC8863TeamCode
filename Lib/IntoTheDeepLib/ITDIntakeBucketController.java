@@ -347,6 +347,7 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
     public void setupForGlidingIntake(double extensionArmPosition) {
         logCommand("Setup for gliding intake");
         extensionArmIntakeController.setupForGlidingIntake(extensionArmPosition);
+        liftBucketArmBucketGateController.closeGate();
         state=IntakeBucketControllerState.WAIT_FOR_SETUP_FOR_GLIDING_INTAKE;
     }
 
@@ -797,6 +798,9 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
                     state = IntakeBucketControllerState.TRANSFERRING;
                 }
                 if (glidingIntakeFailed) {
+                    // reset the flag so future intakes don't see a gliding intake failed
+                    glidingIntakeFailed = false;
+                    logCommand("Gliding intake failed");
                     if (MatchPhase.getMatchPhase() == MatchPhase.AUTONOMOUS) {
                         // tell the autonomous that the gliding intake failed
                         autonomousStateMachine.setGlidingIntakeFailed(true);
@@ -804,8 +808,8 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
                         setupForGlidingIntake(2);
                     }
                     if (MatchPhase.getMatchPhase() == MatchPhase.TELEOP) {
-                        // teleop drivers may want not want to do another gliding intake
-                        setupForBucketClearance();
+                        // extension arm intake controller automatically will setup for bucket clearance
+                        state = IntakeBucketControllerState.WAIT_FOR_BUCKET_CLEARANCE;
                     }
                 }
                 break;

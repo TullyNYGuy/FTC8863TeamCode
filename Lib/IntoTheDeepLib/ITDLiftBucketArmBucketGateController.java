@@ -187,9 +187,11 @@ public class ITDLiftBucketArmBucketGateController implements FTCRobotSubsystem {
     }
 
     public void openGate() {
+        logCommand("Open gate");
         bucketGateServo.openPosition();
     }
     public void closeGate() {
+        logCommand("Close gate");
         bucketGateServo.closePosition();
     }
 
