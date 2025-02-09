@@ -18,6 +18,9 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
     // user defined types
     //
     //*********************************************************************************************
+
+    //make a timer
+
     private enum ExtensionArmIntakeBucketControllerState {
         IDLE,
 
@@ -62,6 +65,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
 
         // gliding intake states
         WAITING_FOR_SETUP_GLIDING_INTAKE,
+        WAIT_1_SEC,
         READY_FOR_GLIDING_INTAKE,
         WAITING_FOR_GOOD_GLIDING_SAMPLE,
         WAITING_FOR_READY_TO_CYCLE_GLIDE,
@@ -760,6 +764,12 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
 //                    intakeArmServo.readyToIntakePosition();
 //                    extensionArm.goToPosition(2);
 //                    state = ExtensionArmIntakeBucketControllerState.WAITING_FOR_READY_TO_CYCLE_GLIDE;
+                }
+                break;
+            case WAIT_1_SEC:
+                timer.reset();
+                if (timer.milliseconds() == 1000){
+                    state = ExtensionArmIntakeBucketControllerState.WAITING_FOR_GOOD_GLIDING_SAMPLE;
                 }
                 break;
 
