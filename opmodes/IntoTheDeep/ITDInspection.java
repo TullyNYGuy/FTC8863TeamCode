@@ -16,7 +16,7 @@ import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ITDRobot;
 
 import java.util.List;
 
-@TeleOp(name = "ITD Inspection", group = "AA")
+@TeleOp(name = "Z Inspection ITD", group = "AA")
 //@Disabled
 
 /**

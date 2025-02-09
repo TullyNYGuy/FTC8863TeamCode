@@ -382,20 +382,21 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
      */
     public void setupForTransfer() {
         logCommand("Setup for transfer");
+        // tell the intake / bucket controller that the intake is not ready for a transfer yet
         controller.setIntakePositionedForTransfer(false);
         intakeArmServo.transferPosition();
         // added this so it occurs in parallel
         extensionArm.transferPosition();
-        // tell the intake / bucket controller that the intake is not ready for a transfer yet
+        timer.reset();
         state = ExtensionArmIntakeBucketControllerState.EXTENSION_ARM_MOVING_TO_TRANSFER_POSITION;
     }
-    public void setupIntakeAfterDeliver() {
-        logCommand("Setup Intake After Delivery");
-        controller.setIntakePositionedForTransfer(false);
-        intakeArmServo.readyToIntakePosition();
-        // tell the intake / bucket controller that the intake is not ready for a transfer yet
-        state = ExtensionArmIntakeBucketControllerState.INTAKE_ARM_MOVING_TO_TRANSFER_POSITION;
-    }
+//    public void setupIntakeAfterDeliver() {
+//        logCommand("Setup Intake After Delivery");
+//        controller.setIntakePositionedForTransfer(false);
+//        intakeArmServo.readyToIntakePosition();
+//        // tell the intake / bucket controller that the intake is not ready for a transfer yet
+//        state = ExtensionArmIntakeBucketControllerState.INTAKE_ARM_MOVING_TO_TRANSFER_POSITION;
+//    }
 
     public void transfer() {
         logCommand("Transfer");
@@ -765,13 +766,18 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
             break;
 
                 // setting up for transfer states
-            case INTAKE_ARM_MOVING_TO_TRANSFER_POSITION:
-                if (intakeArmServo.isPositionReached()) {
-                    extensionArm.transferPosition();
-                    state = ExtensionArmIntakeBucketControllerState.EXTENSION_ARM_MOVING_TO_TRANSFER_POSITION;
-                }
-                break;
+            // This state is no longer called because the extension arm and intake arm servo are moving in parallel
+//            case INTAKE_ARM_MOVING_TO_TRANSFER_POSITION:
+//                if (intakeArmServo.isPositionReached()) {
+//                    extensionArm.transferPosition();
+//                    state = ExtensionArmIntakeBucketControllerState.EXTENSION_ARM_MOVING_TO_TRANSFER_POSITION;
+//                }
+//                break;
             case EXTENSION_ARM_MOVING_TO_TRANSFER_POSITION:
+                //todo sometimes the retracting extension arm gets jammed on the bucket so fix that
+                // check if extensionArmPosition is not reached within certain time
+                // if so, then command the extension arm out to a position that unjams the arm and then
+                // return to the retraction to get to a transfer position
                 if (intakeArmServo.isPositionReached() && extensionArmPositionReached) {
                     // all the movements are finished. Tell the intake bucket controller that the
                     // intake is ready for a transfer.

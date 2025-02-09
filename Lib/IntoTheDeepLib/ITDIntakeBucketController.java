@@ -788,9 +788,11 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
             case INTAKING:
                 if (intakeHasValidSample && intakePositionedForTransfer) {
                     //todo now that the extension arm is so fast, we may need to open the gate sooner
-                    // BUT we can't open it so soon that it gets stuck on the intake arm chain!
+                    // BUT we can't open it so soon that it gets stuck on the intake arm chain
+                    // while the extension arm is retracting
                     liftBucketArmBucketGateController.openGate();
-                    // todo alternatively we could delay the transfer for just a bit
+                    //todo alternatively we could delay the transfer for just a bit. This is
+                    // probably the better option.
                     extensionArmIntakeController.transfer();
                     state = IntakeBucketControllerState.TRANSFERRING;
                 }
