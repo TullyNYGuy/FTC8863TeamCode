@@ -17,10 +17,13 @@ import org.firstinspires.ftc.teamcode.RoadRunner.PinpointDrive;
 public final class ITDAutoMovementsForStateMachine extends LinearOpMode {
 
     private Pose2d startAutoPose = new Pose2d(32.5, 54.375, Math.toRadians(-90));
-    private Pose2d deliveryPose = new Pose2d(48.5, 51.75, Math.toRadians(-135));
+    //  private Pose2d deliveryPose = new Pose2d(48.5, 51.75, Math.toRadians(-135));
+    private Pose2d deliveryPose = new Pose2d(49.25, 48.5, Math.toRadians(-135));
     private Pose2d sample1IntakePose = new Pose2d(47.75, 39, Math.toRadians(-90));
-    private Pose2d sample2IntakePose = new Pose2d(59, 39.25, Math.toRadians(-90));
-    private Pose2d sample3IntakePose = new Pose2d(60, 34.5, Math.toRadians(-45));
+    // private Pose2d sample2IntakePose=new Pose2d(59, 39.25, Math.toRadians(-90));
+    private Pose2d sample2IntakePose=new Pose2d(57.5, 39.25, Math.toRadians(-90));
+    private Pose2d sample3IntakePose=new Pose2d(60, 34.5, Math.toRadians(-45));
+    Pose2d parkPose=new Pose2d(16.5, 11.25, Math.toRadians(-180));
 
     // Define the action needed for a movement from point a to point b
     private Action startToDelivery;
@@ -30,6 +33,7 @@ public final class ITDAutoMovementsForStateMachine extends LinearOpMode {
     private Action sample2ToDelivery;
     private Action deliveryToSample3;
     private Action sample3ToDelivery;
+    private Action deliveryToPark;
 
 
     @Override
@@ -64,6 +68,9 @@ public final class ITDAutoMovementsForStateMachine extends LinearOpMode {
         sample3ToDelivery = mecanumDrive.actionBuilder(sample3IntakePose)
                 .strafeToLinearHeading(deliveryPose.position, deliveryPose.heading)
                 .build();
+        deliveryToPark = mecanumDrive.actionBuilder(deliveryPose)
+                .splineToLinearHeading(parkPose, -Math.PI)
+                .build();
 
         Pose2d beginPose = new Pose2d(32.5, 54.375, Math.toRadians(-90));
 
@@ -77,6 +84,7 @@ public final class ITDAutoMovementsForStateMachine extends LinearOpMode {
         Actions.runBlocking(sample2ToDelivery);
         Actions.runBlocking(deliveryToSample3);
         Actions.runBlocking(sample3ToDelivery);
+        Actions.runBlocking(deliveryToPark);
     }
 }
 
