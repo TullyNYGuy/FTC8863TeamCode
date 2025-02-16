@@ -55,26 +55,26 @@ public class ColorSensorUpdatable {
     private boolean sensorOn = false;
 
     public void turnSensorOn() {
-        sensorOn = true;
-        // turn on the led
-        if (colorSensor instanceof SwitchableLight) {
-            ((SwitchableLight) colorSensor).enableLight(true);
+        // only send this command when it is needed
+        // If the sensor is already on it does not need to be sent
+        if (sensorOn == false){
+            sensorOn = true;
+            // turn on the led
+            if (colorSensor instanceof SwitchableLight) {
+                ((SwitchableLight) colorSensor).enableLight(true);
+            }
         }
     }
 
     public void turnSensorOff() {
-        sensorOn = false;
-        // put 0 in all the data to make the data as broken as possible.
-        // Hopefully this will clue someone in if they are still trying to use the data when the
-        // sensor is turned off and not updating the data.
-//        distance = 0;
-//        colors.red = 0;
-//        colors.blue = 0;
-//        colors.green = 0;
-//        Arrays.fill(hsvValues, 0);
-        // turn off the led to save power and indicate the sensor is off
-        if (colorSensor instanceof SwitchableLight) {
-            ((SwitchableLight) colorSensor).enableLight(false);
+        // only send this command when it is needed
+        // If the sensor is already off then it does not need to be sent
+        if (sensorOn == true) {
+            sensorOn = false;
+            // turn off the led to save power and indicate the sensor is off
+            if (colorSensor instanceof SwitchableLight) {
+                ((SwitchableLight) colorSensor).enableLight(false);
+            }
         }
     }
 
