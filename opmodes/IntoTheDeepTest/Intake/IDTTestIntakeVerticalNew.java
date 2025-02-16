@@ -5,6 +5,9 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Color;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
+import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ITDExtensionArmIntakeController;
+import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ITDIntakeBucketController;
 import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ITDIntakeSweeperVertical;
 
 /**
@@ -16,9 +19,12 @@ public class IDTTestIntakeVerticalNew extends LinearOpMode {
 
     // Put your variable declarations here
     public ITDIntakeSweeperVertical intakeSweeperVertical;
+    public ITDExtensionArmIntakeController extensionArmIntakeController;
+    public ITDIntakeBucketController intakeBucketController;
+
+    public DataLogging logFile;
 
     public ElapsedTime timer;
-    public boolean outtaking = false;
 
     @Override
     public void runOpMode() {
@@ -26,8 +32,16 @@ public class IDTTestIntakeVerticalNew extends LinearOpMode {
 
         // Put your initializations here
         intakeSweeperVertical = new ITDIntakeSweeperVertical(hardwareMap, telemetry);
+        extensionArmIntakeController = new ITDExtensionArmIntakeController(hardwareMap, telemetry);
+        intakeBucketController = new ITDIntakeBucketController(hardwareMap, telemetry);
         timer = new ElapsedTime();
         intakeSweeperVertical.setAllianceColor(Color.RED);
+        intakeSweeperVertical.setController(extensionArmIntakeController);
+        extensionArmIntakeController.setIntakeBucketController(intakeBucketController);
+
+        logFile = new DataLogging("IntakeTest");
+        intakeSweeperVertical.setDataLog(logFile);
+        intakeSweeperVertical.enableDataLogging();
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
@@ -40,31 +54,24 @@ public class IDTTestIntakeVerticalNew extends LinearOpMode {
 
         while (opModeIsActive()) {
             intakeSweeperVertical.update();
+            intakeBucketController.update();
+            extensionArmIntakeController.update();
 
-            if (gamepad1.x) {
+            if (gamepad1.y) {
                 intakeSweeperVertical.intake();
-                outtaking = false;
             }
             if (gamepad1.a) {
                 intakeSweeperVertical.stop();
             }
             if (gamepad1.b) {
                 intakeSweeperVertical.outtake();
-                outtaking = true;
             }
-            if (gamepad1.y) {
+            if (gamepad1.x) {
                 intakeSweeperVertical.transfer();
-                outtaking = true;
             }
-
-//            if (intakeSweeperVertical.getDistanceToSample(DistanceUnit.CM) < 3 && outtaking == false) {
-//                intakeSweeperVertical.stop();
-//            }
-
-//            if (intakeColorSensor.getDistance(DistanceUnit.CM) < 2.5 &&
-//                    (intakeColorSensor.getColor() == Color.BLUE || intakeColorSensor.getColor() == RED || intakeColorSensor.getColor() == Color.YELLOW)) {
-//                intakeSweeperVertical.stop();
-//            }
+            if (gamepad1.dpad_up) {
+                intakeSweeperVertical.runIntakeServos();
+            }
 
             intakeSweeperVertical.displayState(telemetry);
             intakeSweeperVertical.displayDistanceToSample(telemetry);

@@ -539,6 +539,12 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
         }
     }
 
+    private void logCommentEveryTime(String comment) {
+        if (loggingOn && logFile != null) {
+            logFile.logData(comment);
+        }
+    }
+
     public void displayState(Telemetry telemetry) {
         telemetry.addData("State = ", intakeState.toString());
     }
@@ -558,7 +564,10 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
         // using the just updated HSV values, determine the color seen by the sample
         sampleColor = intakeColorDetector.getMostLikelyColor(intakeColorSensor.getHsvValues());
         logComment(" Sample color = " + sampleColor.toString());
+        //todo comment this out
+        //logCommentEveryTime(" Sample color = " + sampleColor.toString());
         logState();
+
         switch (intakeState) {
 
             case IDLE:
