@@ -131,7 +131,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
         // controller.
         extensionArm.setController(this);
         intakeArmServo = new ITDIntakeArmServo(hardwareMap, telemetry);
-        intake = new ITDIntakeSweeperVertical(hardwareMap, telemetry);
+        intake = new ITDIntakeSweeperVertical(hardwareMap, telemetry, 1);
         // Give the intake access to this controller so it can communicate back to this
         // controller.
         intake.setController(this);

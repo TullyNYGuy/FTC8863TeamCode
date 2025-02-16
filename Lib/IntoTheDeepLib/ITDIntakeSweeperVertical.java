@@ -26,12 +26,21 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
     //*********************************************************************************************
     private enum IntakeState {
         IDLE,
+        // intake states
         INTAKING,
+        CHECKING_FOR_CONSISTENT_SAMPLE_PRESENT,
+        HAVE_SAMPLE_DETERMINING_COLOR,
+        WAITING_FOR_GOOD_COLOR,
+        PULLING_SAMPLE_IN_A_LITTLE_MORE,
+        DEJAMMING_INTAKE,
+        ABORTING_INTAKE_CYCLE,
+        DOUBLE_CHECK_READY_TO_TRANSFER,
+        MOVING_SAMPLE_TO_TRANSFER_POSITION,
+
+        WAITING_FOR_MOVEMENT_TO_TRANSFER_POSITION,
         OUTTAKING,
         OUTTAKING_UNTIL_STOP_REQUESTED,
-        HAVE_SAMPLE,
-        PULL_SAMPLE_IN_A_LITTLE_MORE,
-        WAITING_FOR_MOVEMENT_TO_TRANSFER_POSITION,
+
         EJECTING,
         DEJAMMING_EJECTION,
         DEJAMMING_TRANSFER,
@@ -48,6 +57,7 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
         STOP,
         EJECT,
         DEJAM,
+        DEJAM_DURING_INTAKE,
         RESET_STOP,
 
         NO_COMMAND
@@ -78,28 +88,19 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
     private boolean loggingOn = false;
     private DataLogOnChange logDataOnchange;
     private DataLogOnChange logStateOnChange;
-    private DataLogOnChange logCommentOnChange;
+    private DataLogOnChange logComment1OnChange;
+    private DataLogOnChange logComment2OnChange;
 
     private boolean initComplete = false;
     private final String INTAKE_NAME = "Intake";
 
-    // define the colors the intake is looking for
-    // f here means float instead of double type. HSV are float type.
-    private ColorInHSV red = new ColorInHSV(Color.RED,
-            0, 60,
-            0.2f, 0.4f,
-            0.07f, 0.09f);
-    private ColorInHSV yellow = new ColorInHSV(Color.YELLOW,
-            60, 120,
-            0.5f, 0.65f,
-            .13f, .16f);
+    // The sensors appear to have different characteristics. The original sensor will be 1. The
+    // new sensor will be 2.
+    private int sensorNumber = 1; // original intake sensor
 
-    private ColorInHSV blue = new ColorInHSV(Color.BLUE,
-            180, 240,
-            0.54f, 0.66f,
-            0.08f, 0.2f);
-
-    private ColorInHSV[] possibleColors = new ColorInHSV[]{red, yellow, blue};
+    public void setSensorNumber(int sensorNumber) {
+        this.sensorNumber = sensorNumber;
+    }
 
     private Color sampleColor = Color.UNKNOWN;
 
@@ -112,6 +113,10 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
     public Color getSampleColor() {
         return sampleColor;
     }
+    private ColorInHSV red;
+    private ColorInHSV yellow;
+    private ColorInHSV blue;
+    private ColorInHSV[] possibleColors;
 
     private Color allianceColor;
 
@@ -127,8 +132,10 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
      * the number of times the dejam action has been run
      */
     private int dejamCount = 0;
-
-    private int pullSampleInABitMoreCount = 0;
+    private int numberOfTimesSampleSeen = 0;
+    private int numberOfTimesTriedToDetermineColor = 0;
+    private double timeLimit = 0;
+    private boolean pullInToGetColorDetection = false;
 
     //*********************************************************************************************
     //          Constructors
@@ -137,15 +144,23 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
     // from it
     //*********************************************************************************************
 
-    public ITDIntakeSweeperVertical(HardwareMap hardwareMap, Telemetry telemetry) {
+    public ITDIntakeSweeperVertical(HardwareMap hardwareMap, Telemetry telemetry, int sensorNumber) {
         intakeSweeperServoLeft = hardwareMap.get(CRServo.class, "intakeSweeperServoLeft");
         intakeSweeperServoLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         intakeSweeperServoRight = hardwareMap.get(CRServo.class, "intakeSweeperServoRight");
         intakeSweeperServoRight.setDirection(DcMotorSimple.Direction.FORWARD);
 
         intakeColorSensor = new ColorSensorUpdatable(hardwareMap, telemetry, "intakeColorSensorV3");
-        // set up the color detector to look for one of the three possible colors
-        intakeColorDetector = new ColorDetectorHSV(possibleColors);
+
+        setupColorDetector(sensorNumber);
+
+        if (allianceColor == null) {
+            // uh oh the alliance color was never set. Rather than it being nothing, which will
+            // cause the intake to stop when it gets a sample and cannot tell if it is a valid
+            // color, default it to something
+            allianceColor = Color.BLUE;
+            log("alliance color was never set, defaulting to red");
+        }
 
         timer = new ElapsedTime();
         intakeState = IntakeState.IDLE;
@@ -155,6 +170,74 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
     //
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
+
+    private void setupColorDetector(int sensorNumber) {
+        if(sensorNumber == 1) {
+            // define the colors the intake is looking for
+            // f here means float instead of double type. HSV are float type.
+            red = new ColorInHSV(Color.RED,
+                    0, 60,
+                    0.2f, 0.4f,
+                    0.07f, 0.09f);
+            yellow = new ColorInHSV(Color.YELLOW,
+                    60, 120,
+                    0.5f, 0.65f,
+                    .13f, .16f);
+
+            blue = new ColorInHSV(Color.BLUE,
+                    180, 240,
+                    0.54f, 0.66f,
+                    0.08f, 0.2f);
+        } else {
+            // color sensor is the second one, the one in the new intake
+            // define the colors the intake is looking for
+            // f here means float instead of double type. HSV are float type.
+            red = new ColorInHSV(Color.RED,
+                    120, 160,
+                    0.1f, 0.4f,
+                    0.05f, 0.09f);
+            yellow = new ColorInHSV(Color.YELLOW,
+                    60, 120,
+                    0.4f, 0.54f,
+                    .11f, .16f);
+
+            blue = new ColorInHSV(Color.BLUE,
+                    190, 240,
+                    0.54f, 0.66f,
+                    0.08f, 0.2f);
+        }
+
+        // Defined a list of the possible colors and their limits
+        possibleColors = new ColorInHSV[]{red, yellow, blue};
+        // set up the color detector to look for one of the three possible colors
+        intakeColorDetector = new ColorDetectorHSV(possibleColors);
+    }
+
+    public void setIntakeSweeperSpeed(double speed) {
+        intakeSweeperServoLeft.setPower(speed);
+        intakeSweeperServoRight.setPower(speed);
+    }
+
+    private void resetCounters() {
+        numberOfTimesSampleSeen = 0;
+        numberOfTimesTriedToDetermineColor = 0;
+        dejamCount = 0;
+    }
+
+    /**
+     * This method gets fresh color data from the color sensor. Communication with the sensor takes
+     * time. So only call this once in each update. Don't combine it with getFreshDistanceFromSensor().
+     */
+    private void getFreshColorFromSensor() {
+        intakeColorSensor.update();
+        // using the just updated HSV values, determine the color seen by the sample
+        sampleColor = intakeColorDetector.getMostLikelyColor(intakeColorSensor.getHsvValues());
+        logComment2(" Sample color = " + sampleColor.toString());
+    }
+
+    private void getFreshDistanceFromSensor() {
+        intakeColorSensor.update();
+    }
 
     //*********************************************************************************************
     //          MAJOR METHODS
@@ -189,7 +272,7 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
                 stopActions();
                 break;
 
-            case HAVE_SAMPLE:
+            case HAVE_SAMPLE_DETERMINING_COLOR:
             case WAITING_FOR_MOVEMENT_TO_TRANSFER_POSITION:
             case EJECTING:
             case DEJAMMING_EJECTION:
@@ -206,8 +289,7 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
      */
     private void stopActions() {
         logCommand("stop intake");
-        intakeSweeperServoLeft.setPower(0);
-        intakeSweeperServoRight.setPower(0);
+        setIntakeSweeperSpeed(0);
         intakeCommand = IntakeCommand.STOP;
     }
 
@@ -218,12 +300,14 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
             case IDLE:
             case OUTTAKING:
             case OUTTAKING_UNTIL_STOP_REQUESTED:
+            case ABORTING_INTAKE_CYCLE:
                 // allow the command when in the above states
                 intakeActions();
+                intakeState = IntakeState.INTAKING;
                 break;
 
             case INTAKING:
-            case HAVE_SAMPLE:
+            case HAVE_SAMPLE_DETERMINING_COLOR:
             case WAITING_FOR_MOVEMENT_TO_TRANSFER_POSITION:
             case EJECTING:
             case DEJAMMING_EJECTION:
@@ -239,22 +323,13 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
      * Rotate the sweeper so it intakes
      */
     private void intakeActions() {
-        if (allianceColor == null) {
-            // uh oh the alliance color was never set. Rather than it being nothing, which will
-            // cause the intake to stop when it gets a sample and cannot tell if it is a valid
-            // color, default it to something
-            allianceColor = Color.BLUE;
-            log("alliance color was never set, defaulting to red");
-        }
         logCommand("intake");
         // tell the intake / intake arm / extension arm controller we don't have a good sample
         controller.setIntakeHasValidSample(false);
         intakeColorSensor.turnSensorOn();
         // force an update to get fresh distance and color data
         intakeColorSensor.update();
-        intakeSweeperServoLeft.setPower(1);
-        intakeSweeperServoRight.setPower(1);
-        intakeCommand = IntakeCommand.INTAKE;
+        setIntakeSweeperSpeed(1.0);
     }
 
     public void runIntakeServos() {
@@ -262,15 +337,38 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
         intakeSweeperServoRight.setPower(1);
     }
 
+    public void dejamDuringIntake() {
+        logCommand("Dejam during intake");
+        // each time the intake is dejammed, increase the amount of time the sweepers
+        // run backward
+        switch (dejamCount) {
+            case 0:
+                timeLimit = 100;
+                break;
+            case 1:
+                timeLimit = 150;
+                break;
+            case 2:
+                timeLimit = 200;
+                break;
+            case 3:
+                timeLimit = 250;
+                break;
+        }
+        dejamActions(-.2);
+        timer.reset();
+        intakeState = IntakeState.DEJAMMING_INTAKE;
+    }
+
     public void dejam() {
         // only allow this command when the intake is in certain states
         // this prevents button mashing on the gamepad from screwing up the intake operation
         switch (intakeState) {
             case IDLE:
-            case HAVE_SAMPLE: // only for testing the dejam actions
+            case HAVE_SAMPLE_DETERMINING_COLOR: // only for testing the dejam actions
                 // allow the command when in the above states
                 intakeState = IntakeState.DEJAMMING_EJECTION;
-                dejamActions();
+                dejamActions(-1);
                 break;
 
             case INTAKING:
@@ -288,10 +386,9 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
 
     }
 
-    private void dejamActions() {
-        logCommand("dejam");
-        intakeSweeperServoLeft.setPower(-1);
-        intakeSweeperServoRight.setPower(-1);
+    private void dejamActions(double speed) {
+        setIntakeSweeperSpeed(speed);
+        timer.reset();
         dejamCount++;
         intakeCommand = IntakeCommand.DEJAM;
     }
@@ -302,7 +399,7 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
         switch (intakeState) {
             case IDLE:
             case INTAKING:
-            case HAVE_SAMPLE: // only for emergencies
+            case HAVE_SAMPLE_DETERMINING_COLOR: // only for emergencies
                 // allow the command when in the above states
                 intakeState = IntakeState.OUTTAKING_UNTIL_STOP_REQUESTED;
                 outtakeActions();
@@ -346,7 +443,7 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
         // only allow this command when the intake is in certain states
         // this prevents button mashing on the gamepad from screwing up the intake operation
         switch (intakeState) {
-            case HAVE_SAMPLE: // only for testing
+            case HAVE_SAMPLE_DETERMINING_COLOR: // only for testing
             case WAITING_FOR_MOVEMENT_TO_TRANSFER_POSITION:
                 // allow the command when in the above states
                 intakeState = IntakeState.TRANSFERRING;
@@ -387,7 +484,7 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
         // only allow this command when the intake is in certain states
         // this prevents button mashing on the gamepad from screwing up the intake operation
         switch (intakeState) {
-            case HAVE_SAMPLE: // only for testing
+            case HAVE_SAMPLE_DETERMINING_COLOR: // only for testing
                 // allow the command when in the above states
                 intakeState = IntakeState.EJECTING;
                 ejectActions();
@@ -458,6 +555,7 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
     }
 
     public void displayColorData(Telemetry telemetry) {
+        getFreshColorFromSensor();
         intakeColorSensor.displayColorData(telemetry);
     }
 
@@ -497,7 +595,8 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
         this.logFile = logFile;
         logDataOnchange = new DataLogOnChange(logFile);
         logStateOnChange = new DataLogOnChange(logFile);
-        logCommentOnChange = new DataLogOnChange(logFile);
+        logComment1OnChange = new DataLogOnChange(logFile);
+        logComment2OnChange = new DataLogOnChange(logFile);
     }
 
     @Override
@@ -533,9 +632,15 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
         }
     }
 
-    private void logComment(String comment) {
+    private void logComment1(String comment) {
         if (loggingOn && logFile != null) {
-            logCommentOnChange.log(getName() + comment);
+            logComment1OnChange.log(getName() + comment);
+        }
+    }
+
+    private void logComment2(String comment) {
+        if (loggingOn && logFile != null) {
+            logComment2OnChange.log(getName() + comment);
         }
     }
 
@@ -560,45 +665,142 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
 
     @Override
     public void update() {
-        intakeColorSensor.update();
-        // using the just updated HSV values, determine the color seen by the sample
-        sampleColor = intakeColorDetector.getMostLikelyColor(intakeColorSensor.getHsvValues());
-        logComment(" Sample color = " + sampleColor.toString());
-        //todo comment this out
-        //logCommentEveryTime(" Sample color = " + sampleColor.toString());
         logState();
 
         switch (intakeState) {
 
             case IDLE:
-                if (intakeCommand == IntakeCommand.INTAKE) {
-                    intakeActions();
-                    intakeState = IntakeState.INTAKING;
-                    // clear the command since it is being acted upon
-                    intakeCommand = IntakeCommand.NO_COMMAND;
-                }
+                // wait for a command
                 break;
 
+                // intake states
             case INTAKING:
+                // refresh the distance from the color sample
+                intakeColorSensor.update();
                 if (isSamplePresent()) {
+                    log("Sample detected");
                     stopActions();
-                    intakeState = IntakeState.HAVE_SAMPLE;
+                    timer.reset();
+                    numberOfTimesSampleSeen++;
+                    intakeState = IntakeState.CHECKING_FOR_CONSISTENT_SAMPLE_PRESENT;
+                }
+                break;
+            case CHECKING_FOR_CONSISTENT_SAMPLE_PRESENT:
+                // refresh the distance from the color sample
+                intakeColorSensor.update();
+                // if the sample has been seen several times then move on to determining its color
+                if (isSamplePresent()) {
+                    numberOfTimesSampleSeen++;
+                    if (numberOfTimesSampleSeen > 3) {
+                        log("Sample consistently present");
+                        intakeState = IntakeState.HAVE_SAMPLE_DETERMINING_COLOR;
+                    }
+                }
+                // if the sample was seen once but has not been seen again for a long time, then
+                // maybe it is gripped but is outside the intake. Try to pull it into the intake.
+                if (timer.milliseconds() > 250) {
+                    log("Sample seen once but not again, start pull in");
+                    // start a timer that limits how long a pull in can run
+                    timer.reset();
+                    // run the sweepers but at a reduced speed
+                    setIntakeSweeperSpeed(.5);
+                    intakeState = IntakeState.PULLING_SAMPLE_IN_A_LITTLE_MORE;
+                    // this pull in of the sample is to get a consistent sample present, not to
+                    // try to get a consistent color detection.
+                    pullInToGetColorDetection = false;
                 }
                 break;
 
-            case HAVE_SAMPLE:
+                // intake states with things go wrong
+            case PULLING_SAMPLE_IN_A_LITTLE_MORE:
+                // refresh the distance and color from the color sample
+                getFreshColorFromSensor();
+                // Check to see if this pulling in sample is to get a consistent sample present or
+                // if it is because a color cannot be detected.
+                // If it is trying to get a consistent sample present and a sample is now present,
+                // return to checking to see if the sample is consistently present
+                if (!pullInToGetColorDetection && isSamplePresent()) {
+                    // stop the intake
+                    stopActions();
+                    // now it is like we saw the sample for the first time, check to see if it is
+                    // seen multiple times
+                    numberOfTimesSampleSeen = 1;
+                    intakeState = IntakeState.CHECKING_FOR_CONSISTENT_SAMPLE_PRESENT;
+                } else {
+                    // if the pull in of the sample is try to get a color detected, see if a color has
+                    // been detected. If it has, then back to checking the color
+                    if (pullInToGetColorDetection && sampleColor != Color.UNKNOWN) {
+                        stopActions();
+                        intakeState = IntakeState.HAVE_SAMPLE_DETERMINING_COLOR;
+                    } else {
+                        // If this attempt to pull in the sample has run too long without seeing a sample
+                        // or detecting a color then perhaps the intake has jammed.
+                        if (timer.milliseconds() > 250) {
+                            dejamDuringIntake();
+                        }
+                    }
+                }
+                break;
+            case DEJAMMING_INTAKE:
+                logComment1("Intake dejam attempt " + dejamCount + " for mS = " + timeLimit);
+                // if the dejam has not succeeded after a number of tries, it is time to abort this
+                // intake cycle
+                if (dejamCount >= 5) {
+                        timer.reset();
+                        // clear the intake by running it backwards
+                        setIntakeSweeperSpeed(-1);
+                        intakeState = IntakeState.ABORTING_INTAKE_CYCLE;
+                }
+                // the sweepers are running backwards for a short amount of time. Once that time
+                // has passed then we try to intake again.
+                if (timer.milliseconds() > timeLimit) {
+                    // start intaking again
+                    setIntakeSweeperSpeed(1.0);
+                    // start the intake process over again. But, the number of times the pull in, and
+                    // also the dejam, is being tracked so an intake cycle can be aborted
+                    numberOfTimesSampleSeen = 0;
+                    intakeState = IntakeState.INTAKING;
+                }
+                break;
+            case ABORTING_INTAKE_CYCLE:
+                // Once the sweepers have run for long enough to clear out any jam, we start a new
+                // intake cycle.
+                if (timer.milliseconds() > 250) {
+                    resetCounters();
+                    intake();
+                }
+                break;
+
+            case HAVE_SAMPLE_DETERMINING_COLOR:
+                // get fresh color info from the sensor
+                getFreshColorFromSensor();
+
                 // sometimes the intake pulls a sample in just far enough to trip the distance sensor
-                // but does not come in far enough to obtain a good color reading. We have to handle
-                // that situation
+                // but does not come in far enough to obtain a good color reading. Or it takes a bit of
+                // time for the sensor to give us a good color. We have to handle
+                // this situation
                 if (sampleColor == Color.UNKNOWN) {
                     log("sample color uknown while have sample");
-//                    timer.reset();
-//                    runIntakeServos();
-//                    intakeState = IntakeState.PULL_SAMPLE_IN_A_LITTLE_MORE;
+                    numberOfTimesTriedToDetermineColor++;
+                    // if the color is still uknown after 4 attempts we need to do something
+                    if (numberOfTimesTriedToDetermineColor > 3) {
+                        log("could not determine color of sample 4 times");
+                        timer.reset();
+                        // reset the counter since we are about to restart the intake sequence
+                        numberOfTimesTriedToDetermineColor = 0;
+                        // run the sweepers but at a reduced speed
+                        setIntakeSweeperSpeed(.5);
+                        // start a timer to limit how long a pull in runs
+                        timer.reset();
+                        // tell the pull in we are looking for a color, not a sample to be present
+                        pullInToGetColorDetection = true;
+                        intakeState = IntakeState.PULLING_SAMPLE_IN_A_LITTLE_MORE;
+                    }
                 }
                 if (allianceColor == Color.BLUE && sampleColor == Color.RED) {
                     // the sample is not the right color
-                    log("have wrong color sample!");
+                    log("have wrong color sample! " + sampleColor.toString());
+                    resetCounters();
                     ejectActions();;
                     timer.reset();
                     intakeState = IntakeState.EJECTING;
@@ -608,12 +810,15 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
                         ((sampleColor == Color.YELLOW) || sampleColor == Color.BLUE)) {
                     // the sample is the right color, tell the controller
                     controller.setIntakeHasValidSample(true);
-                    log("have a good sample!");
-                    intakeState = IntakeState.WAITING_FOR_MOVEMENT_TO_TRANSFER_POSITION;
+                    resetCounters();
+                    log("have a good sample! " + sampleColor.toString());
+                    timer.reset();
+                    intakeState = IntakeState.DOUBLE_CHECK_READY_TO_TRANSFER;
                 }
                 if (allianceColor == Color.RED && sampleColor == Color.BLUE) {
                     // the sample is not the right color
-                    log("have wrong color sample!");
+                    log("have wrong color sample! " + sampleColor.toString());
+                    resetCounters();
                     ejectActions();;
                     timer.reset();
                     intakeState = IntakeState.EJECTING;
@@ -623,23 +828,46 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
                         ((sampleColor == Color.YELLOW) || sampleColor == Color.RED)) {
                     // the sample is the right color, tell the controller
                     controller.setIntakeHasValidSample(true);
-                    log("have a good sample!");
+                    resetCounters();
+                    log("have a good sample! " + sampleColor.toString());
+                    timer.reset();
+                    intakeState = IntakeState.DOUBLE_CHECK_READY_TO_TRANSFER;
+                }
+                break;
+            case DOUBLE_CHECK_READY_TO_TRANSFER:
+                // delay for a little bit to make sure sample has settled
+                if (timer.milliseconds() > 500) {
+                    intakeState = IntakeState.MOVING_SAMPLE_TO_TRANSFER_POSITION;
+                }
+                break;
+            case MOVING_SAMPLE_TO_TRANSFER_POSITION:
+                getFreshColorFromSensor();
+                if (isSamplePresent() && sampleColor != Color.UNKNOWN) {
+                    stopActions();
                     intakeState = IntakeState.WAITING_FOR_MOVEMENT_TO_TRANSFER_POSITION;
+                } else {
+                    setIntakeSweeperSpeed(.2);
+                }
+                break;
+            // wait while the intake rotates to the bucket and the extension arm retracts
+            case WAITING_FOR_MOVEMENT_TO_TRANSFER_POSITION:
+                if (intakeCommand == IntakeCommand.TRANSFER) {
+                    transferActions();
+                    intakeState = IntakeState.TRANSFERRING;
+                    intakeCommand = IntakeCommand.NO_COMMAND;
+                    timer.reset();
                 }
                 break;
 
-            case PULL_SAMPLE_IN_A_LITTLE_MORE:
-                if (timer.milliseconds() > 50) {
-                    intakeState = IntakeState.HAVE_SAMPLE;
-                }
-                break;
-
+                // ejecting states
             case EJECTING:
+                // refresh the distance from the color sample
+                intakeColorSensor.update();
                 if (timer.milliseconds() > 500 && isSamplePresent()) {
                     // the eject failed because the sample is still in the intake
                     if (dejamCount < 2) {
                         // allow up to 2 cycles of dejam
-                        dejamActions();
+                        dejamActions(-1);
                         intakeState = IntakeState.DEJAMMING_EJECTION;
                         timer.reset();
                     } else {
@@ -650,7 +878,7 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
                         intakeState = IntakeState.OUTTAKING;
                     }
                 }
-                if (timer.milliseconds() > 500 && !isSamplePresent()) {
+                if (!isSamplePresent()) {
                     // the eject succeeded because the sample is gone
                     // in case the eject is coming after a dejam attempt that succeeded
                     dejamCount = 0;
@@ -668,10 +896,12 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
                 break;
 
             case DEJAMMING_EJECTION:
+                // refresh the distance from the color sample
+                intakeColorSensor.update();
                 if (timer.milliseconds() > 125 && isSamplePresent()) {
                     // good the sample stayed in the intake while we ran the sweepers outwards
                     // try the eject again
-                    ejectActions();;
+                    ejectActions();
                     intakeState = IntakeState.EJECTING;
                     timer.reset();
                 }
@@ -684,23 +914,16 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
                 }
                 break;
 
-            // wait while the intake rotates to the bucket and the extension arm retracts
-            case WAITING_FOR_MOVEMENT_TO_TRANSFER_POSITION:
-                if (intakeCommand == IntakeCommand.TRANSFER) {
-                    transferActions();
-                    intakeState = IntakeState.TRANSFERRING;
-                    intakeCommand = IntakeCommand.NO_COMMAND;
-                    timer.reset();
-                }
-                break;
-
+                // transfer states
             case TRANSFERRING:
+                // refresh the distance from the color sample
+                intakeColorSensor.update();
                 if (timer.milliseconds() > 1000 && isSamplePresent()) {
                     // the sample is still in the intake after the transfer attempt
                     // better try to unjam it
                     // limit the number of dejam attempts to 5
                     if (dejamCount < 5) {
-                        dejamActions();
+                        dejamActions(-1);
                         intakeState = IntakeState.DEJAMMING_TRANSFER;
                         timer.reset();
                     } else {
@@ -724,6 +947,8 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
                 break;
 
             case DEJAMMING_TRANSFER:
+                // refresh the distance from the color sample
+                intakeColorSensor.update();
                 if (timer.milliseconds() > 125 && isSamplePresent()) {
                     // good! the sample stayed in the intake while we ran the sweepers outwards
                     // try the transfer again

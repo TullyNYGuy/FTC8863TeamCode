@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Color;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Debouncer;
 import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ITDExtensionArmIntakeController;
 import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ITDIntakeBucketController;
 import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ITDIntakeSweeperVertical;
@@ -26,12 +27,21 @@ public class IDTTestIntakeVerticalNew extends LinearOpMode {
 
     public ElapsedTime timer;
 
+    Debouncer debouncedA;
+    Debouncer debouncedB;
+    Debouncer debouncedX;
+    Debouncer debouncedY;
+    Debouncer debouncedDpadUp;
+    Debouncer debouncedDpadDown;
+    Debouncer debouncedDpadLeft;
+    Debouncer debouncedDpadRight;
+
     @Override
     public void runOpMode() {
 
 
         // Put your initializations here
-        intakeSweeperVertical = new ITDIntakeSweeperVertical(hardwareMap, telemetry);
+        intakeSweeperVertical = new ITDIntakeSweeperVertical(hardwareMap, telemetry, 2);
         extensionArmIntakeController = new ITDExtensionArmIntakeController(hardwareMap, telemetry);
         intakeBucketController = new ITDIntakeBucketController(hardwareMap, telemetry);
         timer = new ElapsedTime();
@@ -42,6 +52,16 @@ public class IDTTestIntakeVerticalNew extends LinearOpMode {
         logFile = new DataLogging("IntakeTest");
         intakeSweeperVertical.setDataLog(logFile);
         intakeSweeperVertical.enableDataLogging();
+
+        debouncedA = new Debouncer();
+        debouncedB = new Debouncer();
+        debouncedX = new Debouncer();
+        debouncedY = new Debouncer();
+        debouncedDpadUp = new Debouncer();
+        debouncedDpadLeft = new Debouncer();
+        debouncedDpadRight = new Debouncer();
+        debouncedDpadRight = new Debouncer();
+
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
@@ -57,19 +77,19 @@ public class IDTTestIntakeVerticalNew extends LinearOpMode {
             intakeBucketController.update();
             extensionArmIntakeController.update();
 
-            if (gamepad1.y) {
+            if (debouncedY.isPressed(gamepad1.y)) {
                 intakeSweeperVertical.intake();
             }
-            if (gamepad1.a) {
+            if (debouncedA.isPressed(gamepad1.a)) {
                 intakeSweeperVertical.stop();
             }
-            if (gamepad1.b) {
+            if (debouncedB.isPressed(gamepad1.b)) {
                 intakeSweeperVertical.outtake();
             }
-            if (gamepad1.x) {
+            if (debouncedX.isPressed(gamepad1.x)) {
                 intakeSweeperVertical.transfer();
             }
-            if (gamepad1.dpad_up) {
+            if (debouncedDpadUp.isPressed(gamepad1.dpad_up)) {
                 intakeSweeperVertical.runIntakeServos();
             }
 

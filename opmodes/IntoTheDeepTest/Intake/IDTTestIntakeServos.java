@@ -25,7 +25,7 @@ public class IDTTestIntakeServos extends LinearOpMode {
 
 
         // Put your initializations here
-        intakeSweeperVertical = new ITDIntakeSweeperVertical(hardwareMap, telemetry);
+        intakeSweeperVertical = new ITDIntakeSweeperVertical(hardwareMap, telemetry, 1);
         timer = new ElapsedTime();
         intakeSweeperVertical.setAllianceColor(Color.RED);
 

@@ -29,7 +29,7 @@ public class IDTTestIntakeVertical extends LinearOpMode {
 
 
         // Put your initializations here
-        intakeSweeperVertical = new ITDIntakeSweeperVertical(hardwareMap, telemetry);
+        intakeSweeperVertical = new ITDIntakeSweeperVertical(hardwareMap, telemetry, 1);
         intakeColorSensor = new ITDIntakeColorSensor(hardwareMap, telemetry, "intakeColorSensorV3Left");
         timer = new ElapsedTime();
 
