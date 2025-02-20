@@ -86,7 +86,7 @@ public class ITDTestExtensionArmIntakeController extends LinearOpMode {
             }
 
             if (gamepad1.dpad_up) {
-                extensionArmIntakeController.intake();
+                extensionArmIntakeController.intakeLowAltitude();
             }
 
             if (gamepad1.right_bumper) {

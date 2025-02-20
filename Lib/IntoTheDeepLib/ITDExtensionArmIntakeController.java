@@ -300,19 +300,34 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
      * through the samples until it has a good one and then let us know. If we get a good sample,
      * then the setupForTranfer() will be automatically called.
      */
-    public void intake() {
+    public void intakeLowAltitude() {
         logCommand("Intake");
         controller.setIntakeHasValidSample(false);
         // lower the intake to the floor
-        intakeArmServo.intakePosition();
+        intakeArmServo.intakePositionLowAltitude();
+        // start intaking. This probably occurs as the intake is rotating towards the floor.
+        intake.intake();
+        state = ExtensionArmIntakeBucketControllerState.WAITING_FOR_A_GOOD_SAMPLE;
+    }
+
+    /**
+     * The intake bucket controller wants us to intake. The intake is smart. It is going to filter
+     * through the samples until it has a good one and then let us know. If we get a good sample,
+     * then the setupForTranfer() will be automatically called.
+     */
+    public void intakeHighAltitude() {
+        logCommand("Intake");
+        controller.setIntakeHasValidSample(false);
+        // lower the intake to the floor
+        intakeArmServo.intakePositionHighAltitude();
         // start intaking. This probably occurs as the intake is rotating towards the floor.
         intake.intake();
         state = ExtensionArmIntakeBucketControllerState.WAITING_FOR_A_GOOD_SAMPLE;
     }
 
     public void intakeToFloor() {
-        logCommand("Intake to floor");
-        intakeArmServo.intakePosition();
+        logCommand("Intake to low altitude");
+        intakeArmServo.intakePositionLowAltitude();
     }
 
     /**
@@ -325,7 +340,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
         // move the extension arm to the desired extension
         extensionArm.goToPosition(extensionArmPosition);
         // at the same time rotate the intake to the floor
-        intakeArmServo.intakePosition();
+        intakeArmServo.intakePositionLowAltitude();
         state = ExtensionArmIntakeBucketControllerState.WAITING_FOR_SETUP_GLIDING_INTAKE;
     }
 
@@ -392,7 +407,8 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
         controller.setIntakePositionedForTransfer(false);
         intakeArmServo.transferPosition();
         // added this so it occurs in parallel
-        extensionArm.transferPosition();
+        // for testing do not retract
+        // extensionArm.transferPosition();
         timer.reset();
         state = ExtensionArmIntakeBucketControllerState.EXTENSION_ARM_MOVING_TO_TRANSFER_POSITION;
     }
@@ -679,7 +695,9 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
                 break;
                 //
             case EXTENSION_ARM_MOVING_TO_TRANSFER_POSITION_FOR_GET_READY_TO_RUN:
-                if (extensionArmPositionReached && intakeArmServo.isPositionReached()) {
+                // for transfer do not move the extension arm
+                //if (extensionArmPositionReached && intakeArmServo.isPositionReached()) {
+                if (intakeArmServo.isPositionReached()) {
                     //extension arm and intake arm are at transfer position. We are assuming that
                     // the bucket is too and that it has a sample in it. This is just like after
                     // a sample has been transferred so why not jump to that state?

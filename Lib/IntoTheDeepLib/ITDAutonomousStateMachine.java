@@ -408,7 +408,7 @@ public class ITDAutonomousStateMachine {
                 break;
             case WAIT_FOR_SETUP_FOR_INTAKE:
                 if (robot.intakeBucketController.isSetupForIntakeComplete()) {
-                    robot.intakeBucketController.intake();
+                    robot.intakeBucketController.intakeLowAltitude();
                     currentState = States.WAIT_FOR_INTAKE;
                 }
                 break;

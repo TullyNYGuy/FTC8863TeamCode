@@ -340,10 +340,18 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
      * retract the extension arm until the intake is in the transfer position
      * transfer the sample into the bucket
      */
-    public void intake() {
+    public void intakeLowAltitude() {
         logCommand("Intake");
         transferComplete = false;
-        extensionArmIntakeController.intake();
+        extensionArmIntakeController.intakeLowAltitude();
+        state = IntakeBucketControllerState.INTAKING;
+
+    }
+
+    public void intakeHighAltitude() {
+        logCommand("Intake");
+        transferComplete = false;
+        extensionArmIntakeController.intakeHighAltitude();
         state = IntakeBucketControllerState.INTAKING;
 
     }

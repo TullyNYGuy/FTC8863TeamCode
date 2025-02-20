@@ -93,7 +93,7 @@ public class ITDTestIntakeBucketController extends LinearOpMode {
             }
 
             if (gamepad1.dpad_up) {
-                intakeBucketController.intake();
+                intakeBucketController.intakeLowAltitude();
             }
 
             if (gamepad1.right_bumper) {

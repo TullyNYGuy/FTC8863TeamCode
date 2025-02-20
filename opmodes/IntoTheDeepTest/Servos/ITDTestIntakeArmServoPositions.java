@@ -44,8 +44,12 @@ public class ITDTestIntakeArmServoPositions extends LinearOpMode {
                 intakeArmServo.transferPosition();
             }
 
-            if (gamepad1.a) {
-                intakeArmServo.intakePosition();
+            if (gamepad1.dpad_down) {
+                intakeArmServo.intakePositionLowAltitude();
+            }
+
+            if (gamepad1.dpad_up) {
+                intakeArmServo.intakePositionHighAltitude();
             }
 
             telemetry.addData(">", "Press Stop to end test.");
