@@ -144,7 +144,11 @@ public class ColorSensorUpdatable {
         telemetry.addLine();
     }
 
-    public void update() {
+    public org.firstinspires.ftc.teamcode.Lib.FTCLib.Color getMostLikelyColor() {
+        return colorDetectorHSV.getMostLikelyColor(hsvValues);
+    }
+
+    public void updateData() {
         // to save time, only use the I2C bus when we need data
         if (sensorOn) {
             /* Get the red, green, and blue
