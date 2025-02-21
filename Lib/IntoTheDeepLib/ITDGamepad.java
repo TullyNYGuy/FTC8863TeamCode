@@ -377,7 +377,7 @@ public class ITDGamepad {
         if (gamepad2a.buttonPress(gamepad2.a)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            robot.intakeBucketController.setupAndRunGlidingIntake();
+            robot.intakeBucketController.setupAndRunGlidingIntake(.25);
         }
 
         if (gamepad2b.buttonPress(gamepad2.b)) {

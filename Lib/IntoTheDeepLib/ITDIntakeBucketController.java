@@ -109,6 +109,8 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
 
     public void setExtensionArmIntakeController(ITDExtensionArmIntakeController extensionArmIntakeController) {
         this.extensionArmIntakeController = extensionArmIntakeController;
+        glidingIntakeMaxExtension = extensionArmIntakeController.extensionArm.getMaxPosition();
+        glidingIntakePower = extensionArmIntakeController.extensionArm.getExtendPower();
     }
 
     private ITDAutonomousStateMachine autonomousStateMachine;
@@ -116,6 +118,9 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
     public void setAutonomousStateMachine(ITDAutonomousStateMachine autonomousStateMachine) {
         this.autonomousStateMachine = autonomousStateMachine;
     }
+
+    private double glidingIntakeMaxExtension;
+    private double glidingIntakePower;
     //*********************************************************************************************
     //          Status methods
     //*********************************************************************************************
@@ -383,26 +388,40 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
      *      - The intake will be at extension arm = 2" and rotated to readyForIntake position.
      */
     public void runGlidingIntake() {
-        logCommand("Glide Intake");
-        setGlidingIntakeFailed(false);
-        transferComplete = false;
-        extensionArmIntakeController.runGlidingIntake();
-        state = IntakeBucketControllerState.INTAKING;
+        runGlidingIntake(extensionArmIntakeController.extensionArm.getMaxPosition(), extensionArmIntakeController.extensionArm.getExtendPower());
     }
 
     /**
      * Same as above except that you can specify how far the extension arm extends before stopping.
-     * @param howFarToPosition
+     * @param maxPosition
      */
-    public void runGlidingIntake(double howFarToPosition) {
+    public void runGlidingIntake(double maxPosition) {
+        runGlidingIntake(maxPosition, extensionArmIntakeController.extensionArm.getExtendPower());
+    }
+
+    public void runGlidingIntake(double maxPosition, double power) {
         logCommand("Glide Intake");
         setGlidingIntakeFailed(false);
         transferComplete = false;
-        extensionArmIntakeController.runGlidingIntake(howFarToPosition);
+        extensionArmIntakeController.runGlidingIntake(maxPosition, power);
         state = IntakeBucketControllerState.INTAKING;
     }
 
     public void setupAndRunGlidingIntake() {
+        glidingIntakeMaxExtension = extensionArmIntakeController.extensionArm.getMaxPosition();
+        glidingIntakePower = extensionArmIntakeController.extensionArm.getExtendPower();
+        setupAndRunGlidingIntake(glidingIntakeMaxExtension, glidingIntakePower);
+    }
+
+    public void setupAndRunGlidingIntake(double power) {
+        glidingIntakeMaxExtension = extensionArmIntakeController.extensionArm.getMaxPosition();
+        glidingIntakePower = power;
+        setupAndRunGlidingIntake(glidingIntakeMaxExtension, power);
+    }
+
+    public void setupAndRunGlidingIntake(double maxPosition, double power) {
+        glidingIntakeMaxExtension = maxPosition;
+        glidingIntakePower = power;
         runGlidingIntakeAfterSetup = true;
         setupForGlidingIntake(2.0);
     }
@@ -789,7 +808,7 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
                         // reset the flag
                         runGlidingIntakeAfterSetup = false;
                         // now run the gliding intake
-                        runGlidingIntake();
+                        runGlidingIntake(glidingIntakeMaxExtension, glidingIntakePower);
                     } else {
                         // the command was just to setup the gliding intake
                         state=IntakeBucketControllerState.SETUP_FOR_GLIDING_INTAKE_COMPLETE;

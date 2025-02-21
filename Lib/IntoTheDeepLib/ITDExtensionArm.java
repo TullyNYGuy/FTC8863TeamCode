@@ -60,13 +60,29 @@ public class ITDExtensionArm implements FTCRobotSubsystem {
         this.controller = controller;
     }
 
-    private double extendPower;
-    private double retractPower;
+    private double extendPower = .75;
+
+    public double getExtendPower() {
+        return extendPower;
+    }
+
+    private double retractPower = -.75;
+
+    public double getRetractPower() {
+        return retractPower;
+    }
+
     private double initPower;
+
+    private double maxPosition = 12.75;
+
+    public double getMaxPosition() {
+        return maxPosition;
+    }
 
     private double initPosition = 0.0;
     private double transferPosition = .25;
-    private double intakePosition = 12.75;
+    private double intakePosition = maxPosition;
     private double intakePositionSample3=5.25;
     private double bucketClearancePosition = 1.0;
     private double outtakePosition = 2.0;
@@ -96,10 +112,7 @@ public class ITDExtensionArm implements FTCRobotSubsystem {
         // SET the lift powers here
         //*********************************************
         initPower = 0.2;
-//        extendPower = 0.75;
-//        retractPower = -0.5;
-        extendPower = .75;
-        retractPower = -.75;
+
         extensionArm.setExtensionPower(extendPower);
         extensionArm.setRetractionPower(retractPower);
         //*********************************************
@@ -259,11 +272,14 @@ public class ITDExtensionArm implements FTCRobotSubsystem {
         extensionArm.goToPosition(outtakePosition, extendPower);
     }
 
-
     public void goToPosition(double position) {
+        goToPosition(position, extendPower);
+    }
+
+    public void goToPosition(double position, double power) {
         logCommand("Go to Position = " + position);
         controller.setExtensionArmPositionReached(false);
-        extensionArm.goToPosition(position, extendPower);
+        extensionArm.goToPosition(position, power);
         state = ExtensionArmState.MOVING;
     }
 

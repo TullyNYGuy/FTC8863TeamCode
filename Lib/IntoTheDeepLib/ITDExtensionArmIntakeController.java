@@ -108,7 +108,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
 
     private ITDIntakeSweeperVertical intake;
 
-    private ITDExtensionArm extensionArm;
+    public ITDExtensionArm extensionArm;
     private ITDIntakeArmServo intakeArmServo;
 
     private ITDIntakeBucketController controller;
@@ -340,7 +340,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
         // move the extension arm to the desired extension
         extensionArm.goToPosition(extensionArmPosition);
         // at the same time rotate the intake to the floor
-        intakeArmServo.intakePositionLowAltitude();
+        intakeArmServo.intakePositionHighAltitude();
         state = ExtensionArmIntakeBucketControllerState.WAITING_FOR_SETUP_GLIDING_INTAKE;
     }
 
@@ -358,8 +358,8 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
      *      intakeHasValidSample = false
      *      glidingIntakeFailed = false
      */
-    public void runGlidingIntake() {
-        logCommand("Run gliding intake");
+    public void runGlidingIntake(double maxPosition, double power) {
+        logCommand("Run gliding intake to " + maxPosition);
         // tell the intake bucket controller we do not have a sample and the gliding intake has not
         // failed yet
         controller.setIntakeHasValidSample(false);
@@ -367,16 +367,16 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
         //start the intake
         intake.intake();
         // extend the arm looking for a sample
-        extensionArm.intakePosition();
+        extensionArm.goToPosition(maxPosition, power);
         state = ExtensionArmIntakeBucketControllerState.WAITING_FOR_GOOD_GLIDING_SAMPLE;
     }
 
     /**
      * Same as above except that you can specify how far the extension arm extends before stopping.
-     * @param howFarToPosition
+     * @param maxPosition
      */
-    public void runGlidingIntake(double howFarToPosition) {
-        logCommand("Run gliding intake to " + howFarToPosition);
+    public void runGlidingIntake(double maxPosition) {
+        logCommand("Run gliding intake to " + maxPosition);
         // tell the intake bucket controller we do not have a sample and the gliding intake has not
         // failed yet
         controller.setIntakeHasValidSample(false);
@@ -384,7 +384,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
         //start the intake
         intake.intake();
         // extend the arm looking for a sample
-        extensionArm.goToPosition(howFarToPosition);
+        extensionArm.goToPosition(maxPosition);
         state = ExtensionArmIntakeBucketControllerState.WAITING_FOR_GOOD_GLIDING_SAMPLE;
     }
 
