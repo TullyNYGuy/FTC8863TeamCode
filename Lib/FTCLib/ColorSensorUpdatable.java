@@ -148,7 +148,21 @@ public class ColorSensorUpdatable {
         return colorDetectorHSV.getMostLikelyColor(hsvValues);
     }
 
-    public void updateData() {
+    public void updateDataDistanceAndColor() {
+        // to save time, only use the I2C bus when we need data
+        if (sensorOn) {
+            updateDataColor();
+            updateDataDistance();
+        }
+    }
+
+    public void updateDataDistance() {
+        if (sensorOn) {
+            distance = ((DistanceSensor) colorSensor).getDistance(DistanceUnit.CM);
+        }
+    }
+
+    public void updateDataColor() {
         // to save time, only use the I2C bus when we need data
         if (sensorOn) {
             /* Get the red, green, and blue
@@ -158,7 +172,6 @@ public class ColorSensorUpdatable {
             colors = colorSensor.getNormalizedColors();
             // Update the hsvValues array by passing it to Color.colorToHSV()
             Color.colorToHSV(colors.toColor(), hsvValues);
-            distance = ((DistanceSensor) colorSensor).getDistance(DistanceUnit.CM);
         }
     }
 }
