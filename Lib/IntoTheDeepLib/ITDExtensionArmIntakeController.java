@@ -786,7 +786,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
                 if (intakeHasSeenSample) {
                     intakeArmServo.readyToIntakePosition();
                 } else {
-                    intakeArmServo.intakePosition();
+                    intakeArmServo.intakePositionHighAltitude();
                 }
                 // the intake is smart. It is going to filter through the samples until it has a
                 // good one and then let us know.
