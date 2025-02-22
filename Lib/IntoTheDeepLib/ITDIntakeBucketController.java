@@ -399,12 +399,15 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
         runGlidingIntake(maxPosition, extensionArmIntakeController.extensionArm.getExtendPower());
     }
 
-    public void runGlidingIntake(double maxPosition, double power) {
+    public void runGlidingIntake(double maxPosition, double power,double glidingIntakeDelay) {
         logCommand("Glide Intake");
         setGlidingIntakeFailed(false);
         transferComplete = false;
-        extensionArmIntakeController.runGlidingIntake(maxPosition, power);
+        extensionArmIntakeController.runGlidingIntake(maxPosition, power,glidingIntakeDelay);
         state = IntakeBucketControllerState.INTAKING;
+    }
+    public void runGlidingIntake(double maxPosition, double power) {
+       runGlidingIntake(maxPosition,power,0);
     }
 
     public void setupAndRunGlidingIntake() {

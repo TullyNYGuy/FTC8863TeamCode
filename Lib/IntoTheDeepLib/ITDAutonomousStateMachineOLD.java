@@ -3,8 +3,6 @@ package org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib;
 
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.Rotation2d;
-import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -14,7 +12,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogOnChange;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.RRNonBlockingRunner;
 
-public class ITDAutonomousStateMachine {
+public class ITDAutonomousStateMachineOLD {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -118,7 +116,7 @@ public class ITDAutonomousStateMachine {
     // from it
     //*********************************************************************************************
 
-    public ITDAutonomousStateMachine(ITDRobot robot, Telemetry telemetry) {
+    public ITDAutonomousStateMachineOLD(ITDRobot robot, Telemetry telemetry) {
         this.robot = robot;
         this.mecanumDrive = robot.mecanumDrive;
 
@@ -179,10 +177,10 @@ public class ITDAutonomousStateMachine {
     private Pose2d startAutoPose = new Pose2d(32.5, 54.375, Math.toRadians(-90));
   //  private Pose2d deliveryPose = new Pose2d(48.5, 51.75, Math.toRadians(-135));
     private Pose2d deliveryPose = new Pose2d(49.25, 48.5, Math.toRadians(-135));
-    private Pose2d sample1IntakePose = new Pose2d(47.75, 36.5, Math.toRadians(-90));
+    private Pose2d sample1IntakePose = new Pose2d(47.75, 39, Math.toRadians(-90));
    // private Pose2d sample2IntakePose=new Pose2d(59, 39.25, Math.toRadians(-90));
-    private Pose2d sample2IntakePose=new Pose2d(57.75, 36.5, Math.toRadians(-90));
-    private Pose2d sample3IntakePose=new Pose2d(55.5, 25.25, Math.toRadians(0));
+    private Pose2d sample2IntakePose=new Pose2d(57.5, 39.25, Math.toRadians(-90));
+    private Pose2d sample3IntakePose=new Pose2d(60, 34.5, Math.toRadians(-45));
     private Pose2d initAfter3rdSampleFail=new Pose2d(49.5, 41, Math.toRadians(-45));
 
     // Define the action needed for a movement from point a to point b
@@ -371,8 +369,7 @@ public class ITDAutonomousStateMachine {
                     logPosition("Sample1 intake pose", sample1IntakePose);
                     logPosition("Actual pose", robot.mecanumDrive.pose);
                     // run a gliding intake
-                    robot.extensionArmIntakeController.setIntakeHeight(ITDExtensionArmIntakeController.IntakeHeight.LOW);
-                    robot.intakeBucketController.runGlidingIntake(8,.2, 250);
+                    robot.intakeBucketController.runGlidingIntake();
                     glidingIntakeFailed = false;
                     currentState = States.WAIT_FOR_INTAKE;
                 } else {
@@ -387,8 +384,7 @@ public class ITDAutonomousStateMachine {
                         robot.intakeBucketController.isSetupForGlidingIntakeComplete()) {
                     logPosition("Sample2 intake pose", sample2IntakePose);
                     logPosition("Actual pose", robot.mecanumDrive.pose);
-                    robot.extensionArmIntakeController.setIntakeHeight(ITDExtensionArmIntakeController.IntakeHeight.LOW);
-                    robot.intakeBucketController.runGlidingIntake(8,.2, 250);
+                    robot.intakeBucketController.runGlidingIntake();
                     glidingIntakeFailed = false;
                     currentState = States.WAIT_FOR_INTAKE;
                 } else {
@@ -401,8 +397,7 @@ public class ITDAutonomousStateMachine {
                         robot.intakeBucketController.isSetupForGlidingIntakeComplete()) {
                     logPosition("Sample3 intake pose", sample3IntakePose);
                     logPosition("Actual pose", robot.mecanumDrive.pose);
-                    robot.extensionArmIntakeController.setIntakeHeight(ITDExtensionArmIntakeController.IntakeHeight.HIGH);
-                    robot.intakeBucketController.runGlidingIntake(8,.2,1000);
+                    robot.intakeBucketController.runGlidingIntake(7.25);
                     glidingIntakeFailed = false;
                     currentState = States.WAIT_FOR_INTAKE;
                 } else {
@@ -443,18 +438,18 @@ public class ITDAutonomousStateMachine {
                             currentRunner=sample1ToSample2Runner;
                             currentRunner.runNonBlocking();
                             sampleNum=sampleNum+1;
-                            currentState=States.WAIT_FOR_MOVE_2_SAMPLE2;
+                            currentState= States.WAIT_FOR_MOVE_2_SAMPLE2;
                             break;
                         case 2:
                             sampleNum=sampleNum+1;
                             // if we move to the sample3 intake position without picking up the intake, the
                             // intake knocks sample 3 out of the way
                             robot.intakeBucketController.setupForBucketClearance();
-                            currentState=States.WAIT_FOR_BUCKET_CLEARANCE_AFTER_SAMPLE2_FAILED;
+                            currentState= States.WAIT_FOR_BUCKET_CLEARANCE_AFTER_SAMPLE2_FAILED;
                             break;
                         case 3:
                             sample3ToInitPoseRunner.runNonBlocking();
-                            currentState=States.WAIT_FOR_MOVE_TO_INIT_POSE;
+                            currentState= States.WAIT_FOR_MOVE_TO_INIT_POSE;
                             break;
                     }
                 }
@@ -533,7 +528,7 @@ public class ITDAutonomousStateMachine {
             case WAIT_FOR_FINAL_BUCKET_AT_TRANSFER:
                if (robot.intakeBucketController.isLiftBucketAtTransferPosition()){
                    robot.intakeBucketController.init(null);
-                   currentState=States.COMPLETE;
+                   currentState= States.COMPLETE;
                }
                 break;
 
@@ -541,7 +536,7 @@ public class ITDAutonomousStateMachine {
             case WAIT_FOR_MOVE_TO_INIT_POSE:
                 if(sample3ToInitPoseRunner.isComplete()){
                     robot.intakeBucketController.init(null);
-                    currentState=States.COMPLETE;
+                    currentState= States.COMPLETE;
                 }
                     else {
                         sample3ToInitPoseRunner.runNonBlocking();

@@ -79,6 +79,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
         READY_FOR_GLIDING_INTAKE,
         WAITING_FOR_GOOD_GLIDING_SAMPLE,
         WAITING_FOR_READY_TO_CYCLE_GLIDE,
+        DELAY_AFTER_GLIDING_INTAKE_COMPLETE,
 
         // transfer states
         TRANSFERRING_SAMPLE,
@@ -126,6 +127,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
     public void setIntakeBucketController(ITDIntakeBucketController controller) {
         this.controller = controller;
     }
+    private double glidingIntakeDelay=0;
 
 
     //*********************************************************************************************
@@ -378,17 +380,21 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
      *      intakeHasValidSample = false
      *      glidingIntakeFailed = false
      */
-    public void runGlidingIntake(double maxPosition, double power) {
+    public void runGlidingIntake(double maxPosition, double power,double glidingIntakeDelay) {
         logCommand("Run gliding intake to " + maxPosition);
         // tell the intake bucket controller we do not have a sample and the gliding intake has not
         // failed yet
         controller.setIntakeHasValidSample(false);
         controller.setGlidingIntakeFailed(false);
+        this.glidingIntakeDelay=glidingIntakeDelay;
         //start the intake
         intake.intake();
         // extend the arm looking for a sample
         extensionArm.goToPosition(maxPosition, power);
         state = ExtensionArmIntakeBucketControllerState.WAITING_FOR_GOOD_GLIDING_SAMPLE;
+    }
+    public void runGlidingIntake(double maxPosition, double power) {
+        runGlidingIntake( maxPosition, power,0);
     }
 
     /**
@@ -794,13 +800,33 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
                 }
                 // The arm extended all the way out and did not intake a sample
                 if (extensionArm.isPositionReached()) {
+                    if(glidingIntakeDelay==0){
+                        logComment("Gliding intake failed");
+                        controller.setGlidingIntakeFailed(true);
+                        intake.stop();
+                        setupForBucketClearance();
+//                    intakeArmServo.readyToIntakePosition();
+//                    extensionArm.goToPosition(2);
+//                    state = ExtensionArmIntakeBucketControllerState.WAITING_FOR_READY_TO_CYCLE_GLIDE;
+                    }
+                    else {
+                        timer.reset();
+                        state=ExtensionArmIntakeBucketControllerState.DELAY_AFTER_GLIDING_INTAKE_COMPLETE;
+                    }
+
+                }
+                break;
+            case DELAY_AFTER_GLIDING_INTAKE_COMPLETE:
+                if (intakeHasValidSample) {
+                    controller.setIntakeHasValidSample(true);
+                    controller.setGlidingIntakeFailed(false);
+                    setupForTransfer();
+                }
+                if (timer.milliseconds() >glidingIntakeDelay){
                     logComment("Gliding intake failed");
                     controller.setGlidingIntakeFailed(true);
                     intake.stop();
                     setupForBucketClearance();
-//                    intakeArmServo.readyToIntakePosition();
-//                    extensionArm.goToPosition(2);
-//                    state = ExtensionArmIntakeBucketControllerState.WAITING_FOR_READY_TO_CYCLE_GLIDE;
                 }
                 break;
             case WAIT_1_SEC:
