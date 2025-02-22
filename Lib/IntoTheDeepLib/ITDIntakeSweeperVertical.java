@@ -28,6 +28,7 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
         IDLE,
         // intake states
         INTAKING,
+        WAITING_FOR_SAMPLE_TO_STOP_MOVING,
         CHECKING_FOR_CONSISTENT_SAMPLE_PRESENT,
         HAVE_SAMPLE_DETERMINING_COLOR,
         WAITING_FOR_GOOD_COLOR,
@@ -208,6 +209,7 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
     }
 
     public void setIntakeSweeperSpeed(double speed) {
+        log("Sweeper speed set to " + speed);
         intakeSweeperServoLeft.setPower(speed);
         intakeSweeperServoRight.setPower(speed);
     }
@@ -230,11 +232,11 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
     }
 
     private void getFreshDistanceFromFrontSensor() {
-        intakeColorSensorFront.updateDataDistanceAndColor();
+        intakeColorSensorFront.updateDataDistance();
     }
 
     private void getFreshDistanceAndColorFromFrontSensor() {
-        intakeColorSensorFront.updateDataDistanceAndColor();
+        intakeColorSensorFront.updateDataDistance();
     }
 
     private void getFreshColorFromRearSensor() {
@@ -264,9 +266,12 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
      */
     public void colorSensorOn() {
         intakeColorSensorFront.turnSensorOn();
+        intakeColorSensorRear.turnSensorOn();
     }
 
     public void ColorSensorOff() {
+        intakeColorSensorFront.turnSensorOff();
+        intakeColorSensorRear.turnSensorOff();
     }
 
     public void stop() {
@@ -311,19 +316,13 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
             case OUTTAKING:
             case OUTTAKING_UNTIL_STOP_REQUESTED:
             case ABORTING_INTAKE_CYCLE:
+            case DEJAMMING_INTAKE:
                 // allow the command when in the above states
                 intakeActions();
                 intakeState = IntakeState.INTAKING;
                 break;
 
-            case INTAKING:
-            case HAVE_SAMPLE_DETERMINING_COLOR:
-            case WAITING_FOR_MOVEMENT_TO_TRANSFER_POSITION:
-            case EJECTING:
-            case DEJAMMING_EJECTION:
-            case DEJAMMING_TRANSFER:
-            case WAITING_FOR_MOVE_TO_OUTTAKING:
-            case TRANSFERRING:
+            default:
                 logCommand("Intake command ignored");
                 break;
         }
@@ -338,7 +337,6 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
         // and we have not seen a sample yet
         controller.setIntakeHasValidSample(false);
         controller.setIntakeHasSeenSample(false);
-        dejamCount = 0;
         intakeColorSensorFront.turnSensorOn();
         // force an update to get fresh distance and color data
         getFreshDistanceAndColorFromFrontSensor();
@@ -369,6 +367,7 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
                 break;
         }
         dejamActions(-.2);
+        log("Intake dejam attempt " + dejamCount + " for mS = " + timeLimit);
         timer.reset();
         intakeState = IntakeState.DEJAMMING_INTAKE;
     }
@@ -583,16 +582,27 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
     }
 
     public void displayDistanceToSample(Telemetry telemetry) {
+        getFreshDistanceFromRearSensor();
+        getFreshDistanceFromFrontSensor();
         intakeColorSensorFront.displayColorSensorDistance(telemetry);
         intakeColorSensorRear.displayColorSensorDistance(telemetry);
     }
 
-    public void displayColorData(Telemetry telemetry) {
+    public void displayColorDataFront(Telemetry telemetry) {
         getFreshColorFromFrontSensor();
         intakeColorSensorFront.displayColorData(telemetry);
     }
 
-    public void displaySampleColor(Telemetry telemetry) {
+    public void displayColorDataRear(Telemetry telemetry) {
+        getFreshColorFromRearSensor();
+        intakeColorSensorRear.displayColorData(telemetry);
+    }
+
+    public void displaySampleColorFront(Telemetry telemetry) {
+        telemetry.addData("Sample color = ", sampleColor.toString());
+    }
+
+    public void displaySampleColorRear(Telemetry telemetry) {
         telemetry.addData("Sample color = ", sampleColor.toString());
     }
 
@@ -718,6 +728,14 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
                     // jam
                     controller.setIntakeHasSeenSample(true);
                     timer.reset();
+                    intakeState = IntakeState.WAITING_FOR_SAMPLE_TO_STOP_MOVING;
+                }
+                break;
+                // it takes some time for the sample to move between the front of the intake and the
+            // rear
+            case WAITING_FOR_SAMPLE_TO_STOP_MOVING:
+                if (timer.milliseconds() > 250) {
+                    timer.reset();
                     intakeState = IntakeState.CHECKING_FOR_CONSISTENT_SAMPLE_PRESENT;
                 }
                 break;
@@ -733,7 +751,7 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
                     // start a timer that limits how long a pull in can run
                     timer.reset();
                     // run the sweepers but at a reduced speed
-                    setIntakeSweeperSpeed(.5);
+                    setIntakeSweeperSpeed(.2);
                     intakeState = IntakeState.PULLING_SAMPLE_IN_A_LITTLE_MORE;
                 }
                 break;
@@ -761,7 +779,6 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
                 }
                 break;
             case DEJAMMING_INTAKE:
-                logComment1("Intake dejam attempt " + dejamCount + " for mS = " + timeLimit);
                 // if the dejam has not succeeded after a number of tries, it is time to abort this
                 // intake cycle
                 if (dejamCount >= 5) {

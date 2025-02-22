@@ -95,8 +95,10 @@ public class IDTTestIntakeVerticalNew extends LinearOpMode {
 
             intakeSweeperVertical.displayState(telemetry);
             intakeSweeperVertical.displayDistanceToSample(telemetry);
-            intakeSweeperVertical.displayColorData(telemetry);
-            intakeSweeperVertical.displaySampleColor(telemetry);
+            intakeSweeperVertical.displayColorDataFront(telemetry);
+            intakeSweeperVertical.displaySampleColorFront(telemetry);
+            intakeSweeperVertical.displayColorDataRear(telemetry);
+            intakeSweeperVertical.displaySampleColorRear(telemetry);
             telemetry.addData(">", "Press Stop to end test.");
             telemetry.update();
 
