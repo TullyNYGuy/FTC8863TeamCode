@@ -164,6 +164,97 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
     //*********************************************************************************************
 
     //*********************************************************************************************
+    //          Communication from Intake
+    //*********************************************************************************************
+
+    /**
+     * The intake as seen a sample but may not have it completely in the intake and the color determined.
+     * This may not be a good sample (proper color). Sometimes the intake jams because it is so close
+     * to the floor that the sample cannot rotate into the intake. Knowing that a sample is on
+     * its way into the intake allows the controller to rotate the intake arm up to clear the floow
+     * and elminate the source of the jam.
+     */
+    private boolean intakeHasSeenSample = false;
+
+    public void setIntakeHasSeenSample(boolean intakeHasSeenSample) {
+        this.intakeHasSeenSample = intakeHasSeenSample;
+    }
+
+    /**
+     * The intake says it has a good, proper color sample.
+     */
+    private boolean intakeHasValidSample = false;
+
+    public void setIntakeHasValidSample(boolean intakeHasValidSample) {
+        this.intakeHasValidSample = intakeHasValidSample;
+    }
+
+    /**
+     * The intake says that it has transferred the sample to the bucket
+     */
+    private boolean intakeTransferComplete = false;
+
+    /**
+     * This method gets called by the intake to let this controller know that the transfer of a
+     * sample into the bucket has been completed, or to set up that it is about to start.
+     * This method can also be called by this controller when the match starts to indicate that
+     * there is a pre-loaded sample in the bucket.
+     * @param transferComplete
+     */
+    public void setIntakeTransferComplete(boolean transferComplete) {
+        this.intakeTransferComplete = transferComplete;
+        controller.setIntakeTransferComplete(transferComplete);
+        if (transferComplete) {
+            // if the transfer was completed then the intake is no longer ready for a transfer and
+            // no longer has a valid sample
+            controller.setIntakeHasValidSample(false);
+        }
+
+    }
+
+    /**
+     * Allow the intake to request the controller to move the extension arm out so an outtake can
+     * take place while the intake is not over the robot body. This occurs when we have a bad jam
+     * that cannot be cleared any other way.
+     */
+    private boolean intakesRequestsAnOuttake = false;
+
+    public void setIntakesRequestsAnOuttake(boolean needOuttake) {
+        this.intakesRequestsAnOuttake = needOuttake;
+        logComment("Intake requests outtake");
+    }
+
+    /**
+     * The intake says that an outtake is complete.
+     */
+    private boolean outtakeComplete = false;
+
+    public void setOuttakeComplete(boolean outtakeComplete) {
+        this.outtakeComplete = outtakeComplete;
+    }
+
+    //*********************************************************************************************
+    //          Communication from Extension Arm
+    //*********************************************************************************************
+    /**
+     * The extension arm says it has reached position
+     */
+    private boolean extensionArmPositionReached = false;
+
+    public void setExtensionArmPositionReached(boolean positionReached) {
+        this.extensionArmPositionReached = positionReached;
+    }
+
+    /**
+     * The extension arm says that its reset has completed.
+     */
+    private boolean extensionArmResetComplete = false;
+
+    public void setExtensionArmResetComplete(boolean resetComplete) {
+        this.extensionArmResetComplete = resetComplete;
+    }
+
+    //*********************************************************************************************
     //          Commands
     //*********************************************************************************************
 
@@ -476,84 +567,6 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
     }
 
     //*********************************************************************************************
-    //          Communication from Intake
-    //*********************************************************************************************
-
-    /**
-     * Allow the intake to request the controller to move the extension arm out so an outtake can
-     * take place while the intake is not over the robot body. This occurs when we have a bad jam
-     * that cannot be cleared any other way.
-     */
-    private boolean intakesRequestsAnOuttake = false;
-
-    public void setIntakesRequestsAnOuttake(boolean needOuttake) {
-        this.intakesRequestsAnOuttake = needOuttake;
-        logComment("Intake requests outtake");
-    }
-
-    /**
-     * The intake says that an outtake is complete.
-     */
-    private boolean outtakeComplete = false;
-
-    public void setOuttakeComplete(boolean outtakeComplete) {
-        this.outtakeComplete = outtakeComplete;
-    }
-
-    /**
-     * The intake says that it has transferred the sample to the bucket
-     */
-    private boolean intakeTransferComplete = false;
-
-    /**
-     * This method gets called by the intake to let this controller know that the transfer of a
-     * sample into the bucket has been completed, or to set up that it is about to start.
-     * This method can also be called by this controller when the match starts to indicate that
-     * there is a pre-loaded sample in the bucket.
-     * @param transferComplete
-     */
-    public void setIntakeTransferComplete(boolean transferComplete) {
-        this.intakeTransferComplete = transferComplete;
-        controller.setIntakeTransferComplete(transferComplete);
-        if (transferComplete) {
-            // if the transfer was completed then the intake is no longer ready for a transfer and
-            // no longer has a valid sample
-            controller.setIntakeHasValidSample(false);
-        }
-
-    }
-
-    /**
-     * The intake says it has a good sample.
-     */
-    private boolean intakeHasValidSample = false;
-
-    public void setIntakeHasValidSample(boolean intakeHasValidSample) {
-        this.intakeHasValidSample = intakeHasValidSample;
-    }
-
-    //*********************************************************************************************
-    //          Communication from Extension Arm
-    //*********************************************************************************************
-    /**
-     * The extension arm says it has reached position
-     */
-    private boolean extensionArmPositionReached = false;
-
-    public void setExtensionArmPositionReached(boolean positionReached) {
-        this.extensionArmPositionReached = positionReached;
-    }
-
-    /**
-     * The extension arm says that its reset has completed.
-     */
-    private boolean extensionArmResetComplete = false;
-
-    public void setExtensionArmResetComplete(boolean resetComplete) {
-        this.extensionArmResetComplete = resetComplete;
-    }
-
-    //*********************************************************************************************
     //          Housekeeping stuff
     //*********************************************************************************************
     @Override
@@ -768,6 +781,13 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
 
                 // intake states
             case WAITING_FOR_A_GOOD_SAMPLE:
+                // Once the front sensor has seen a sample, rotate the intake up a bit. This is
+                // because the intake has a tendency to jam when it is on the floor.
+                if (intakeHasSeenSample) {
+                    intakeArmServo.readyToIntakePosition();
+                } else {
+                    intakeArmServo.intakePosition();
+                }
                 // the intake is smart. It is going to filter through the samples until it has a
                 // good one and then let us know.
                 if (intakeHasValidSample) {
