@@ -272,18 +272,19 @@ public class ITDGamepad {
         if (gamepad1b.buttonPress(gamepad1.b)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-
+            robot.intakeBucketController.setupAndRunGlidingIntake(.3);
         }
 
         if (gamepad1y.buttonPress(gamepad1.y)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
+            robot.intakeBucketController.setupAndRunGlidingIntake(.4);
         }
 
         if (gamepad1x.buttonPress(gamepad1.x)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-
+            robot.intakeBucketController.setupAndRunGlidingIntake(.2);
         }
 
         if (gamepad1DpadUp.buttonPress(gamepad1.dpad_up)) {
@@ -297,17 +298,20 @@ public class ITDGamepad {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
             //robot.robotModes.setDirectionSwap(ITDRobotModes.DirectionSwap.INVERSED);
+            robot.extensionArmIntakeController.setIntakeHeight(ITDExtensionArmIntakeController.IntakeHeight.REALLY_LOW);
         }
 
         if (gamepad1DpadLeft.buttonPress(gamepad1.dpad_left)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
+            robot.extensionArmIntakeController.setIntakeHeight(ITDExtensionArmIntakeController.IntakeHeight.LOW);
         }
 
         if (gamepad1DpadRight.buttonPress(gamepad1.dpad_right)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
             // robot.intakeBucketController.setupForDelivery();
+            robot.extensionArmIntakeController.setIntakeHeight(ITDExtensionArmIntakeController.IntakeHeight.HIGH);
         }
 
         if (gamepad1LeftStickButton.buttonPress(gamepad1.left_stick_button)) {
@@ -377,7 +381,7 @@ public class ITDGamepad {
         if (gamepad2a.buttonPress(gamepad2.a)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            robot.intakeBucketController.setupAndRunGlidingIntake(.25);
+            robot.intakeBucketController.setupAndRunGlidingIntake(.1);
         }
 
         if (gamepad2b.buttonPress(gamepad2.b)) {

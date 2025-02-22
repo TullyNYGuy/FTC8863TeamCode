@@ -19,7 +19,17 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
     //
     //*********************************************************************************************
 
-    //make a timer
+    public enum IntakeHeight {
+        HIGH,
+        LOW,
+        REALLY_LOW
+    }
+
+    private IntakeHeight intakeHeight = IntakeHeight.HIGH;
+
+    public void setIntakeHeight(IntakeHeight intakeHeight) {
+        this.intakeHeight = intakeHeight;
+    }
 
     private enum ExtensionArmIntakeBucketControllerState {
         IDLE,
@@ -340,7 +350,17 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
         // move the extension arm to the desired extension
         extensionArm.goToPosition(extensionArmPosition);
         // at the same time rotate the intake to the floor
-        intakeArmServo.intakePositionHighAltitude();
+        switch (intakeHeight) {
+            case HIGH:
+                intakeArmServo.intakePositionHighAltitude();
+                break;
+            case LOW:
+                intakeArmServo.intakePositionLowAltitude();
+                break;
+            case REALLY_LOW:
+                intakeArmServo.intakePositionReallyLowAltitude();
+                break;
+        }
         state = ExtensionArmIntakeBucketControllerState.WAITING_FOR_SETUP_GLIDING_INTAKE;
     }
 
@@ -407,8 +427,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
         controller.setIntakePositionedForTransfer(false);
         intakeArmServo.transferPosition();
         // added this so it occurs in parallel
-        // for testing do not retract
-        // extensionArm.transferPosition();
+        extensionArm.transferPosition();
         timer.reset();
         state = ExtensionArmIntakeBucketControllerState.EXTENSION_ARM_MOVING_TO_TRANSFER_POSITION;
     }
