@@ -738,6 +738,13 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
 
                 // intake states
             case WAITING_FOR_A_GOOD_SAMPLE:
+                // Once the front sensor has seen a sample, rotate the intake up a bit. This is
+                // because the intake has a tendency to jam when it is on the floor.
+                if (intakeHasSeenSample) {
+                    intakeArmServo.readyToIntakePosition();
+                } else {
+                    intakeArmServo.intakePosition();
+                }
                 // the intake is smart. It is going to filter through the samples until it has a
                 // good one and then let us know.
                 if (intakeHasValidSample) {

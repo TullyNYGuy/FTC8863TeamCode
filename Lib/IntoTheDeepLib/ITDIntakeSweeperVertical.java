@@ -373,6 +373,13 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
         intakeState = IntakeState.DEJAMMING_INTAKE;
     }
 
+    private void abortIntake() {
+        timer.reset();
+        // clear the intake by running it backwards
+        setIntakeSweeperSpeed(-1);
+        intakeState = IntakeState.ABORTING_INTAKE_CYCLE;
+    }
+
     public void dejam() {
         // only allow this command when the intake is in certain states
         // this prevents button mashing on the gamepad from screwing up the intake operation
@@ -706,7 +713,9 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
                 if (isSamplePresentFront()) {
                     log("Sample detected");
                     stopActions();
-                    // tell the extension arm intake controller we have seen a sample
+                    // tell the extension arm intake controller we have seen a sample. This will
+                    // rotate the intake up from the floor to help make sure the intake does not
+                    // jam
                     controller.setIntakeHasSeenSample(true);
                     timer.reset();
                     intakeState = IntakeState.CHECKING_FOR_CONSISTENT_SAMPLE_PRESENT;
@@ -737,6 +746,9 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
                 if (isSamplePresentRear()) {
                     // stop the intake
                     stopActions();
+                    // reset the dejam counter since the sample is now in the rear of the intake
+                    // and not jammed
+                    dejamCount = 0;
                     // since the sample is in the intake find out what color it is
                     intakeState = IntakeState.HAVE_SAMPLE_DETERMINING_COLOR;
                 } else {
@@ -753,10 +765,7 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
                 // if the dejam has not succeeded after a number of tries, it is time to abort this
                 // intake cycle
                 if (dejamCount >= 5) {
-                        timer.reset();
-                        // clear the intake by running it backwards
-                        setIntakeSweeperSpeed(-1);
-                        intakeState = IntakeState.ABORTING_INTAKE_CYCLE;
+                    abortIntake();
                 }
                 // the sweepers are running backwards for a short amount of time. Once that time
                 // has passed then we try to intake again.
@@ -769,6 +778,8 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
                 // intake cycle.
                 if (timer.milliseconds() > 250) {
                     resetCounters();
+                    dejamCount = 0;
+                    controller.setIntakeHasSeenSample(false);
                     intake();
                 }
                 break;
@@ -778,7 +789,6 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
             case HAVE_SAMPLE_DETERMINING_COLOR:
                 // get fresh color info from the sensor
                 getFreshColorFromFrontSensor();
-
                 // sometimes the intake pulls a sample in just far enough to trip the distance sensor
                 // but does not come in far enough to obtain a good color reading. Or it takes a bit of
                 // time for the sensor to give us a good color. We have to handle
