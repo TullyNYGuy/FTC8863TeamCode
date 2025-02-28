@@ -306,6 +306,19 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
         state = ExtensionArmIntakeBucketControllerState.EXTENSION_ARM_MOVING_TO_INTAKE_POSITION;
 
     }
+    public void setupForIntake(double extentionArmPosition) {
+        logCommand("Setup for intake");
+        // tell the intake bucket controller that the position is not reached yet
+        controller.setIntakePositionReached(false);
+        // send the extension arm out to the max extension
+        extensionArm.goToPosition(extentionArmPosition);
+        // rotate the intake to a position that is ready to intake, but not on the floor
+        intakeArmServo.readyToIntakePosition();
+        // The intake is not lowered to the floor yet. Just for safety. That will happen when we
+        // get the transfer command.
+        state = ExtensionArmIntakeBucketControllerState.EXTENSION_ARM_MOVING_TO_INTAKE_POSITION;
+
+    }
 
     /**
      * The intake bucket controller wants us to intake. The intake is smart. It is going to filter

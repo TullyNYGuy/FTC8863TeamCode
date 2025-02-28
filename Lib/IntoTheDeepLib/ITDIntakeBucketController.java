@@ -333,6 +333,13 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
         liftBucketArmBucketGateController.closeGate();
         state = IntakeBucketControllerState.EXTENSION_ARM_INTAKE_MOVING_TO_SETUP_FOR_INTAKE_POSITION;
     }
+    public void setupForIntake(double extentionArmPosition) {
+        logCommand("Setup for intake");
+        setupForIntakeComplete = false;
+        extensionArmIntakeController.setupForIntake(extentionArmPosition);
+        liftBucketArmBucketGateController.closeGate();
+        state = IntakeBucketControllerState.EXTENSION_ARM_INTAKE_MOVING_TO_SETUP_FOR_INTAKE_POSITION;
+    }
 
     /**
      * This method puts the intake on the floor and starts an intake sequence. The intake automatically
