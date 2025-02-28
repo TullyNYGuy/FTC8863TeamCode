@@ -352,7 +352,7 @@ public class ITDAutonomousStateMachine {
                             currentRunner=deliveryToSample3Runner;
                             currentRunner.runNonBlocking();
                             // setup the intake for a gliding intake
-                            robot.intakeBucketController.setupForGlidingIntake(2);
+                            robot.intakeBucketController.setupForIntake(8);
                             currentState = States.WAIT_FOR_MOVE_2_SAMPLE3;
                             break;
                         case 4:
@@ -398,11 +398,10 @@ public class ITDAutonomousStateMachine {
             case WAIT_FOR_MOVE_2_SAMPLE3:
                 if(currentRunner.isComplete() &&
                        // robot.intakeBucketController.isLiftBucketAtTransferPosition() &&
-                        robot.intakeBucketController.isSetupForGlidingIntakeComplete()) {
+                        robot.intakeBucketController.isSetupForIntakeComplete()) {
                     logPosition("Sample3 intake pose", sample3IntakePose);
                     logPosition("Actual pose", robot.mecanumDrive.pose);
-                    robot.extensionArmIntakeController.setIntakeHeight(ITDExtensionArmIntakeController.IntakeHeight.HIGH);
-                    robot.intakeBucketController.runGlidingIntake(8,.2,1000);
+                    robot.intakeBucketController.intakeHighAltitude();
                     glidingIntakeFailed = false;
                     currentState = States.WAIT_FOR_INTAKE;
                 } else {

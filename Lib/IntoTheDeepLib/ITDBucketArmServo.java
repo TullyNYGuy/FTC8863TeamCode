@@ -46,14 +46,24 @@ public class ITDBucketArmServo implements FTCRobotSubsystem {
 
     private double initPosition = 0.98;
     private double intakePosition = 0.03;
-
-    // index when arm is vertical and servo = .52
-    private double safeForVerticalMovementPosition = 0.52;
-    private double deliveryPosition = 0.42;
-    private double transferPosition = 0.99;
+    private double safeForVerticalMovementPosition = 0.4;
+    private double afterDeliverPosition = 0.6;
+    private double deliveryPosition = 0.33;
+    private double transferPosition = 0.98;
     private double specimenPickupPosition = 0.7;
     private double specimenHangLowBarPosition = 0.7;
     private double specimenHangHighBarPosition = 0.75;
+
+    //    private double initPosition = 0.98;
+    //    private double intakePosition = 0.03;
+    //
+    //    // index when arm is vertical and servo = .52
+    //    private double safeForVerticalMovementPosition = 0.52;
+    //    private double deliveryPosition = 0.42;
+    //    private double transferPosition = 0.99;
+    //    private double specimenPickupPosition = 0.7;
+    //    private double specimenHangLowBarPosition = 0.7;
+    //    private double specimenHangHighBarPosition = 0.75;
 
     private double shutdownPosition = transferPosition;
 
@@ -78,7 +88,7 @@ public class ITDBucketArmServo implements FTCRobotSubsystem {
         bucketArmServo.addPosition("initPosition", initPosition, 700, TimeUnit.MILLISECONDS);
         bucketArmServo.addPosition("intakePosition", intakePosition, 700, TimeUnit.MILLISECONDS);
         bucketArmServo.addPosition("safeForVerticalMovementPosition", safeForVerticalMovementPosition, 900, TimeUnit.MILLISECONDS);
-        bucketArmServo.addPosition("safeForVerticalMovementPositionAfterDelivery", safeForVerticalMovementPosition, 300, TimeUnit.MILLISECONDS);
+        bucketArmServo.addPosition("safeForVerticalMovementPositionAfterDelivery", afterDeliverPosition, 300, TimeUnit.MILLISECONDS);
         bucketArmServo.addPosition("deliveryPosition", deliveryPosition, 300, TimeUnit.MILLISECONDS);
         bucketArmServo.addPosition("transferPosition", transferPosition, 600, TimeUnit.MILLISECONDS);
         bucketArmServo.addPosition("specimenPickupPosition", specimenPickupPosition, 800, TimeUnit.MILLISECONDS);

@@ -388,7 +388,8 @@ public class ITDGamepad {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
             //robot.robotModes.setMaxDrivingPower(.75);
-            robot.intakeBucketController.intakeHighAltitude();
+            //robot.intakeBucketController.intakeHighAltitude();
+            robot.intakeBucketController.intakeLowAltitude();
         }
 
         if (gamepad2y.buttonPress(gamepad2.y)) {
@@ -401,7 +402,8 @@ public class ITDGamepad {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
             //robot.robotModes.setMaxDrivingPower(1.0);
-            robot.intakeBucketController.intakeLowAltitude();
+            robot.intakeBucketController.intakeHighAltitude();
+            //robot.intakeBucketController.intakeLowAltitude();
         }
 
         if (gamepad2DpadUp.buttonPress(gamepad2.dpad_up)) {
