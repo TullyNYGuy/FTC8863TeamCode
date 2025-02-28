@@ -45,19 +45,33 @@ public class ITDIntakeArmServo implements FTCRobotSubsystem {
 
     private boolean initComplete = false;
 
-    private double initPosition = 0.65;
+    private double initPosition = 0.87;
 
-    // INDEX WHEN INTAKE IS ON FLOOR AND SERVO = .1
+    // INDEX WHEN INTAKE IS ON FLOOR AND SERVO = .07
     private double intakePositionReallyLowAltitude = 0.13;
-    private double intakePositionLowAltitude = 0.15;
-    private double intakePositionHighAltitude = 0.17;
+    private double intakePositionLowAltitude = 0.18;
+    private double intakePositionHighAltitude = 0.23;
 
-    private double bucketClearancePosition = 0.3;
-    private double transferPosition = 0.48;
+    private double bucketClearancePosition = 0.6;
+    private double transferPosition = 0.86;
 
     private double shutdownPosition = transferPosition;
 
-    private double readyToIntakePosition = 0.38;
+    private double readyToIntakePosition = 0.35;
+
+    //  private double initPosition = 0.65;
+    //
+    //    // INDEX WHEN INTAKE IS ON FLOOR AND SERVO = .1
+    //    private double intakePositionReallyLowAltitude = 0.13;
+    //    private double intakePositionLowAltitude = 0.15;
+    //    private double intakePositionHighAltitude = 0.17;
+    //
+    //    private double bucketClearancePosition = 0.3;
+    //    private double transferPosition = 0.48;
+    //
+    //    private double shutdownPosition = transferPosition;
+    //
+    //    private double readyToIntakePosition = 0.38;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
