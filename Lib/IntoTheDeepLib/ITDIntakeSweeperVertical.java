@@ -130,7 +130,6 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
     private int numberOfTimesSampleSeen = 0;
     private int numberOfTimesTriedToDetermineColor = 0;
     private double timeLimit = 0;
-    private boolean pullInToGetColorDetection = false;
 
     //*********************************************************************************************
     //          Constructors
@@ -276,6 +275,7 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
             case ABORTING_INTAKE_CYCLE:
             case DEJAMMING_INTAKE:
             case CHECKING_FOR_CONSISTENT_SAMPLE_PRESENT:
+            case HAVE_SAMPLE_DETERMINING_COLOR:
                 // allow the command when in the above states
                 intakeActions();
                 intakeState = IntakeState.INTAKING;
@@ -775,6 +775,7 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
                     // since the sample is in the intake find out what color it is
                     intakeState = IntakeState.HAVE_SAMPLE_DETERMINING_COLOR;
                 } else {
+                    log("Sample not seen at rear after pull in - dejam");
                     // no sample seen at the rear sensor yet
                     // If this attempt to pull in the sample has run too long without seeing a sample
                     // then perhaps the intake has jammed.
@@ -787,6 +788,7 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
                 // if the dejam has not succeeded after a number of tries, it is time to abort this
                 // intake cycle
                 if (dejamCount > 1) {
+                    log("dejam did not succeed - abort intake");
                     abortIntake();
                 }
                 // the sweepers are running backwards for a short amount of time. Once that time
@@ -827,20 +829,27 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
                     log("sample color uknown while have sample");
                     numberOfTimesTriedToDetermineColor++;
                     // if the color is still uknown after 4 attempts we need to do something
-                    //todo this should be changed. We know the sample is seen by the rear sensor
-                    // and are assuming it is seen by the front sensor, but maybe not
                     if (numberOfTimesTriedToDetermineColor > 3) {
                         log("could not determine color of sample 4 times");
                         timer.reset();
-                        // reset the counter since we are about to restart the intake sequence
+                        // reset the counter for next time
                         numberOfTimesTriedToDetermineColor = 0;
-                        // run the sweepers but at a reduced speed
-                        setIntakeSweeperSpeed(.5);
-                        // start a timer to limit how long a pull in runs
-                        timer.reset();
-                        // tell the pull in we are looking for a color, not a sample to be present
-                        pullInToGetColorDetection = true;
-                        intakeState = IntakeState.PULLING_SAMPLE_IN_A_LITTLE_MORE;
+                        // We tried to get a color from the front sensor but failed 4 times. Maybe
+                        // there is no sample in the intake? We could check the distance for the front
+                        // sensor and see if one is there. But if it is, what do we do? We can't get a
+                        // color from it. So abort. On the other hand maybe somehow the sample is not
+                        // in the intake after all. Again, only choice is to abort.
+                        // I suppose to save time I could check the front and rear distances to see
+                        // if there is a sample. If not, the skip the abort and go right to the intake.
+                        getFreshDistanceFromRearSensor();
+                        getFreshDistanceFromFrontSensor();
+                        if (isSamplePresentFront() || isSamplePresentRear()) {
+                            resetCounters();
+                            intake();
+                        } else {
+                            // a sample is detected, clear it
+                            abortIntake();
+                        }
                     }
                 }
                 if (allianceColor == Color.BLUE && sampleColorFront == Color.RED) {
