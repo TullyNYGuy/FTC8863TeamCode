@@ -62,18 +62,18 @@ public class ITDLift implements FTCRobotSubsystem {
 
     private double initPosition = 0.0;
     private double transferPosition = 0;
-    private double readyToDeliverPositionTeleop = 24.5;
+    private double readyToDeliverPositionHighBasketTeleop = 24.5;
     // private double readyToDeliverPosition = 18.5;
     // private double readyToDeliverPosition = 23.0;
-    private double readyToDeliverPositionAuto=22.75;
-    private double readyToDeliverPosition = 24.5;
+    private double readyToDeliverPositionHighBasketAuto=22.75;
+    private double readyToDeliverPositionHighBasket = 24.5;
     private double lowBarHangPosition = 6.0;
     private double highBarHangPosition = 4.0;
 
     // The bucket arm movement to the delivery position will be triggered when the lift passes this position on its way to
     // the delivery position. IE 3 inches below the final delivery position the bucket arm will
     // start moving.
-    private double positionToMoveBucketArmToDeliver = readyToDeliverPosition - 3.0;
+    private double positionToMoveBucketArmToDeliver = readyToDeliverPositionHighBasket - 3.0;
 
     // The bucket arm movement to the transfer position will be triggered when the lift passes
     // this position on the way down.
@@ -116,9 +116,9 @@ public class ITDLift implements FTCRobotSubsystem {
 
         timer = new ElapsedTime();
         if (MatchPhase.getMatchPhase()==MatchPhase.TELEOP){
-            readyToDeliverPosition=readyToDeliverPositionTeleop;
+            readyToDeliverPositionHighBasket=readyToDeliverPositionHighBasketTeleop;
         }else {
-            readyToDeliverPosition=readyToDeliverPositionAuto;
+            readyToDeliverPositionHighBasket=readyToDeliverPositionHighBasketAuto;
         }
     }
     //*********************************************************************************************
@@ -224,10 +224,10 @@ public class ITDLift implements FTCRobotSubsystem {
     }
 
     private void readyToDeliverPositionAction() {
-
         // since the lift is up in the air, the motor needs to work against gravity or it will fall
         lift.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
-        lift.goToPosition(readyToDeliverPosition, extendPower);
+        // raise the lift to the height needed to delivery the sample into the basket
+        lift.goToPosition(readyToDeliverPositionHighBasket, extendPower);
     }
 
     public void lowBarHangPosition() {
