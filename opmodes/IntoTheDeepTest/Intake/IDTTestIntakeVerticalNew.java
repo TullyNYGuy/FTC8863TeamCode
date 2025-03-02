@@ -45,7 +45,7 @@ public class IDTTestIntakeVerticalNew extends LinearOpMode {
         extensionArmIntakeController = new ITDExtensionArmIntakeController(hardwareMap, telemetry);
         intakeBucketController = new ITDIntakeBucketController(hardwareMap, telemetry);
         timer = new ElapsedTime();
-        intakeSweeperVertical.setAllianceColor(Color.RED);
+        intakeSweeperVertical.setAllianceColor(Color.BLUE);
         intakeSweeperVertical.setController(extensionArmIntakeController);
         extensionArmIntakeController.setIntakeBucketController(intakeBucketController);
 
@@ -70,7 +70,7 @@ public class IDTTestIntakeVerticalNew extends LinearOpMode {
         waitForStart();
 
         // turn the color sensor LED on
-        intakeSweeperVertical.colorSensorOn();
+        intakeSweeperVertical.colorSensorsOn();
 
         while (opModeIsActive()) {
             intakeSweeperVertical.update();

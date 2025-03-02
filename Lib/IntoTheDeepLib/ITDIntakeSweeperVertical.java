@@ -221,12 +221,12 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
     /**
      * Turn on the color sensor. LED will turn on.
      */
-    public void colorSensorOn() {
+    public void colorSensorsOn() {
         intakeColorSensorFront.sensor.turnSensorOn();
         intakeColorSensorRear.sensor.turnSensorOn();
     }
 
-    public void ColorSensorOff() {
+    public void ColorSensorsOff() {
         intakeColorSensorFront.sensor.turnSensorOff();
         intakeColorSensorRear.sensor.turnSensorOff();
     }
@@ -276,6 +276,7 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
             case DEJAMMING_INTAKE:
             case CHECKING_FOR_CONSISTENT_SAMPLE_PRESENT:
             case HAVE_SAMPLE_DETERMINING_COLOR:
+            case EJECTING:
                 // allow the command when in the above states
                 intakeActions();
                 intakeState = IntakeState.INTAKING;
@@ -296,7 +297,7 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
         // and we have not seen a sample yet
         controller.setIntakeHasValidSample(false);
         controller.setIntakeHasSeenSample(false);
-        intakeColorSensorFront.sensor.turnSensorOn();
+        colorSensorsOn();
         // force an update to get fresh distance and color data
         getFreshDistanceAndColorFromFrontSensor();
         setIntakeSweeperSpeed(1.0);
@@ -398,7 +399,6 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
             case EJECTING:
             case DEJAMMING_EJECTION:
             case DEJAMMING_TRANSFER:
-
             case TRANSFERRING:
                 logCommand("Outtake sample command ignored");
                 break;
@@ -549,10 +549,18 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
         intakeColorSensorRear.sensor.displayColorSensorDistance(telemetry);
     }
 
-    public void writeDistanceToSampleFromBothSensors() {
+    public void logDistanceToSampleFromBothSensors() {
+        logDistanceToSampleFromFrontSensor();
+        logDistanceToSampleFromRearSensor();
+    }
+
+    public void logDistanceToSampleFromFrontSensor() {
         String frontDistance = String.format("%.2f", getDistanceToSampleFront(DistanceUnit.CM));
-        String rearDistance = String.format("%.2f", getDistanceToSampleRear(DistanceUnit.CM));
         log("Front Distance = " + frontDistance);
+    }
+
+    public void logDistanceToSampleFromRearSensor() {
+        String rearDistance = String.format("%.2f", getDistanceToSampleRear(DistanceUnit.CM));
         log("Rear Distance = " + rearDistance);
     }
 
@@ -698,7 +706,7 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
                 if (isSamplePresentFront()) {
                     log("Sample detected");
                     stopActions();
-                    writeDistanceToSampleFromBothSensors();
+                    logDistanceToSampleFromFrontSensor();
                     // tell the extension arm intake controller we have seen a sample. This will
                     // rotate the intake up from the floor to help make sure the intake does not
                     // jam
@@ -730,10 +738,10 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
             case CHECKING_FOR_CONSISTENT_SAMPLE_PRESENT:
                 // refresh the distance from rear sensor
                 getFreshDistanceFromRearSensor();
-                writeDistanceToSampleFromBothSensors();
                 // if the sample is seen at the rear sensor then it is completely in the intake
                 if (isSamplePresentRear()) {
                     log("Sample present at rear");
+                    logDistanceToSampleFromRearSensor();
                     intakeState = IntakeState.HAVE_SAMPLE_DETERMINING_COLOR;
                 } else {
                     // Sample was not seen at the rear sensor. These are the possibilities:
@@ -750,6 +758,7 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
                     } else {
                         // do the pullin when there is no dejam running
                         log("Sample not seen at rear, start pull in");
+                        logDistanceToSampleFromRearSensor();
                         // start a timer that limits how long a pull in can run
                         timer.reset();
                         // run the sweepers but at a reduced speed
@@ -768,18 +777,20 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
                 if (isSamplePresentRear()) {
                     // stop the intake
                     stopActions();
-                    writeDistanceToSampleFromBothSensors();
+                    log("Sample present at rear after pullin");
+                    logDistanceToSampleFromRearSensor();
                     // reset the dejam counter since the sample is now in the rear of the intake
                     // and not jammed
                     dejamCount = 0;
                     // since the sample is in the intake find out what color it is
                     intakeState = IntakeState.HAVE_SAMPLE_DETERMINING_COLOR;
                 } else {
-                    log("Sample not seen at rear after pull in - dejam");
                     // no sample seen at the rear sensor yet
                     // If this attempt to pull in the sample has run too long without seeing a sample
                     // then perhaps the intake has jammed.
                     if (timer.milliseconds() > 500) {
+                        log("Sample not seen at rear after pull in - dejam");
+                        logDistanceToSampleFromRearSensor();
                         dejamDuringIntake();
                     }
                 }
@@ -843,12 +854,19 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
                         // if there is a sample. If not, the skip the abort and go right to the intake.
                         getFreshDistanceFromRearSensor();
                         getFreshDistanceFromFrontSensor();
+                        logDistanceToSampleFromBothSensors();
                         if (isSamplePresentFront() || isSamplePresentRear()) {
-                            resetCounters();
-                            intake();
+                            // a sample is detected at either front or back or both
+                            // clear the sample
+                            log("Sample present in intake - aborting");
+                            abortIntake();
+
                         } else {
                             // a sample is detected, clear it
-                            abortIntake();
+                            log("Sample not present - restarting intake");
+                            resetCounters();
+                            intake();
+
                         }
                     }
                 }
@@ -914,6 +932,7 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
                 if (!isSamplePresentFront() && ! isSamplePresentRear()) {
                     // somehow the sample is lost
                     dejamCount = 0;
+                    // fake out the controller: tell it there is no sample in the intake
                     controller.setIntakeTransferComplete(true);
                     logCommand("Lost sample while waiting for a transfer :-(");
                     intakeState = IntakeState.IDLE;
@@ -929,7 +948,7 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
                 // ejecting states
             case EJECTING:
                 // refresh the distance from the color sample
-                intakeColorSensorFront.sensor.updateDataDistance();
+                getFreshDistanceFromFrontSensor();
                 if (timer.milliseconds() > 500 && isSamplePresentFront()) {
                     // the eject failed because the sample is still in the intake
                     if (dejamCount < 2) {
@@ -956,15 +975,14 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
                         controller.setupForTransfer();
                     }
                     else {
-                        intakeActions();
-                        intakeState = IntakeState.INTAKING;
+                        intake();
                     }
                 }
                 break;
 
             case DEJAMMING_EJECTION:
                 // refresh the distance from the color sample
-                intakeColorSensorFront.sensor.updateDataDistance();
+                getFreshDistanceFromFrontSensor();;
                 if (timer.milliseconds() > 125 && isSamplePresentFront()) {
                     // good the sample stayed in the intake while we ran the sweepers outwards
                     // try the eject again
@@ -984,7 +1002,7 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
                 // transfer states
             case TRANSFERRING:
                 // refresh the distance from the color sample
-                intakeColorSensorFront.sensor.updateDataDistance();
+                getFreshDistanceFromFrontSensor();;
                 if (timer.milliseconds() > 1000 && isSamplePresentFront()) {
                     // the sample is still in the intake after the transfer attempt
                     // better try to unjam it
@@ -1015,7 +1033,7 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
 
             case DEJAMMING_TRANSFER:
                 // refresh the distance from the color sample
-                intakeColorSensorFront.sensor.updateDataDistance();
+                getFreshDistanceFromFrontSensor();;
                 if (timer.milliseconds() > 125 && isSamplePresentFront()) {
                     // good! the sample stayed in the intake while we ran the sweepers outwards
                     // try the transfer again

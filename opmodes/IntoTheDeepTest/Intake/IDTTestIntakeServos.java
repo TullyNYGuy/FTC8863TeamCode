@@ -36,7 +36,7 @@ public class IDTTestIntakeServos extends LinearOpMode {
         waitForStart();
 
         // turn the color sensor LED on
-        intakeSweeperVertical.colorSensorOn();
+        intakeSweeperVertical.colorSensorsOn();
 
         while (opModeIsActive()) {
             intakeSweeperVertical.update();
