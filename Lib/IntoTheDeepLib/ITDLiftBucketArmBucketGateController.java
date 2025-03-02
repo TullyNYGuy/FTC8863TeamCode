@@ -165,6 +165,7 @@ public class ITDLiftBucketArmBucketGateController implements FTCRobotSubsystem {
         logCommand("Setup for drive before or after delivery");
         controller.setLiftBucketAtSafeToDrivePosition(false);
         bucketGateServo.closePosition();
+        lift.readyToDeliverPosition();
         bucketArmServo.safeForVerticalMovementPosition();
         state = LiftBucketArmGateControllerState.BUCKET_ARM_MOVING_TO_SAFE_POSITION_BEFORE_DELIVERY;
 
@@ -327,17 +328,17 @@ public class ITDLiftBucketArmBucketGateController implements FTCRobotSubsystem {
 
                 // setup to deliver sample to bin states
             case BUCKET_ARM_MOVING_TO_SAFE_POSITION_BEFORE_DELIVERY:
-                if (bucketArmServo.isPositionReached()) {
-                    lift.readyToDeliverPosition();
-                    state = LiftBucketArmGateControllerState.LIFT_MOVING_TO_READY_TO_DELIVER_POSITION;
-                }
-                break;
-            case LIFT_MOVING_TO_READY_TO_DELIVER_POSITION:
-                if (liftPositionReached) {
-                    controller.setLiftBucketAtSafeToDrivePosition(true);
+                if (bucketArmServo.isPositionReached() && lift.isPositionReached()) {
                     state = LiftBucketArmGateControllerState.WAITING_FOR_SETUP_FOR_DELIVERY_COMMAND;
+                    controller.setLiftBucketAtSafeToDrivePosition(true);
                 }
                 break;
+//            case LIFT_MOVING_TO_READY_TO_DELIVER_POSITION:
+//                if (liftPositionReached) {
+//                    controller.setLiftBucketAtSafeToDrivePosition(true);
+//                    state = LiftBucketArmGateControllerState.WAITING_FOR_SETUP_FOR_DELIVERY_COMMAND;
+//                }
+//                break;
             case WAITING_FOR_SETUP_FOR_DELIVERY_COMMAND:
                 // jump right to the setup for delivery so the bucket arm is over the basket
                 setupForDelivery();

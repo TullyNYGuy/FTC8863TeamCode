@@ -10,6 +10,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.ExtensionRetractionMechanism;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.MatchPhase;
 
 public class ITDLift implements FTCRobotSubsystem {
 
@@ -61,9 +62,11 @@ public class ITDLift implements FTCRobotSubsystem {
 
     private double initPosition = 0.0;
     private double transferPosition = 0;
-    private double readyToDeliverPosition = 24.5;
+    private double readyToDeliverPositionTeleop = 24.5;
     // private double readyToDeliverPosition = 18.5;
     // private double readyToDeliverPosition = 23.0;
+    private double readyToDeliverPositionAuto=22.75;
+    private double readyToDeliverPosition = 24.5;
     private double lowBarHangPosition = 6.0;
     private double highBarHangPosition = 4.0;
 
@@ -112,6 +115,11 @@ public class ITDLift implements FTCRobotSubsystem {
         initComplete = false;
 
         timer = new ElapsedTime();
+        if (MatchPhase.getMatchPhase()==MatchPhase.TELEOP){
+            readyToDeliverPosition=readyToDeliverPositionTeleop;
+        }else {
+            readyToDeliverPosition=readyToDeliverPositionAuto;
+        }
     }
     //*********************************************************************************************
     //          Helper Methods

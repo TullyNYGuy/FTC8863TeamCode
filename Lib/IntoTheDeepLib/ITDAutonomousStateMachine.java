@@ -178,7 +178,7 @@ public class ITDAutonomousStateMachine {
     // Define the robot positions
     private Pose2d startAutoPose = new Pose2d(32.5, 54.375, Math.toRadians(-90));
   //  private Pose2d deliveryPose = new Pose2d(48.5, 51.75, Math.toRadians(-135));
-    private Pose2d deliveryPose = new Pose2d(49.25, 48.5, Math.toRadians(-135));
+    private Pose2d deliveryPose = new Pose2d(51.75, 51, Math.toRadians(-135));
     private Pose2d sample1IntakePose = new Pose2d(47.75, 36.5, Math.toRadians(-90));
    // private Pose2d sample2IntakePose=new Pose2d(59, 39.25, Math.toRadians(-90));
     private Pose2d sample2IntakePose=new Pose2d(57.75, 36.5, Math.toRadians(-90));
