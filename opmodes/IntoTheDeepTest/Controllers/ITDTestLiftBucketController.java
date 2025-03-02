@@ -73,7 +73,7 @@ public class ITDTestLiftBucketController extends LinearOpMode {
             }
 
             if (gamepad1.y) {
-                liftBucketArmBucketGateController.setupForDrivingBeforeDelivery();
+                liftBucketArmBucketGateController.setupForDelivery();
             }
 
             if (gamepad1.dpad_down) {

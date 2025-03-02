@@ -77,7 +77,7 @@ public class ITDTestIntakeBucketController extends LinearOpMode {
             }
 
             if (gamepad1.y) {
-                intakeBucketController.setupForDrivingBeforeDelivery();
+                intakeBucketController.setupForDelivery();
             }
 
             if (gamepad1.dpad_down) {

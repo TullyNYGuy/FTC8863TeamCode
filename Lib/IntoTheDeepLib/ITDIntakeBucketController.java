@@ -54,8 +54,8 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
         AT_BUCKET_CLEARANCE,
 
         // setup for driving to delivery states
-        INTAKE_MOVING_TO_BUCKET_CLEARANCE_POSITION_FOR_SAFE_DRIVING_POSITION_BEFORE_DELIVERY,
-        BUCKET_ARM_MOVING_TO_SAFE_POSITION_BEFORE_DELIVERY,
+        INTAKE_MOVING_TO_BUCKET_CLEARANCE_POSITION_BEFORE_DELIVERY,
+        BUCKET_ARM_MOVING_TO_VERTICAL_POSITION,
         AT_SAFE_POSITION_BEFORE_DELIVERY,
 
         // setup for delivery states
@@ -258,8 +258,8 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
      * rotate the bucket arm to vertical
      * raise the lift to height needed for delivery
      */
-    public void setupForDrivingBeforeDelivery() {
-        logCommand("Setup for driving before delivery");
+    public void setupForDelivery() {
+        logCommand("Setup for delivery");
         setupForDeliveryComplete = false;
         // to save time, setupForBucketClearance() is now called right after the transfer completes by the
         // extensionArmIntakeController. This also moves the extension arm away from the metal that it is
@@ -271,19 +271,19 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
             extensionArmIntakeController.setupForBucketClearance();
             setupBucketForClearanceNotCalledYet = false;
         }
-        state = IntakeBucketControllerState.INTAKE_MOVING_TO_BUCKET_CLEARANCE_POSITION_FOR_SAFE_DRIVING_POSITION_BEFORE_DELIVERY;
+        state = IntakeBucketControllerState.INTAKE_MOVING_TO_BUCKET_CLEARANCE_POSITION_BEFORE_DELIVERY;
     }
 
     /**
      * Normally setup for bucket clearance is called automatically right after a transfer. However,
      * when we want to deliver at the start of auto, no transfer has occurred so we do have to run
-     * setupForBucketClearance(). From that point we can run the normal setupForDrivingBeforeDelivery()
+     * setupForBucketClearance(). From that point we can run the normal setupForDelivery()
      */
-    public void setupForDrivingBeforeDeliveryUponStart() {
+    public void setupForDeliveryUponStart() {
         // since setup for bucket clearance has not been run yet, run it.
         extensionArmIntakeController.setupForBucketClearance();
         // then follow the normal setup for driving before delivery
-        setupForDrivingBeforeDelivery();
+        setupForDelivery();
     }
 
     /**
@@ -292,9 +292,9 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
      * Steps:
      * rotate bucket orm horizontal (the lift is already at delivery height)
      */
-    public void setupForDelivery() {
-        logCommand("Setup for delivery");
-        liftBucketArmBucketGateController.setupForDelivery();
+    public void lineupForDelivery() {
+        logCommand("Lineup for delivery");
+        liftBucketArmBucketGateController.lineupForDelivery();
         state = IntakeBucketControllerState.BUCKET_ARM_MOVING_TO_DELIVERY_POSITION;
     }
 
@@ -561,16 +561,16 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
         return liftBucketAtTransferPosition;
     }
 
-    private boolean liftBucketAtSafeToDrivePosition = false;
+    private boolean liftBucketAtVerticalPosition = false;
 
-    public void setLiftBucketAtSafeToDrivePosition(boolean liftBucketAtSafeToDrivePosition) {
-        this.liftBucketAtSafeToDrivePosition = liftBucketAtSafeToDrivePosition;
+    public void setLiftBucketAtVerticalPosition(boolean liftBucketAtVerticalPosition) {
+        this.liftBucketAtVerticalPosition = liftBucketAtVerticalPosition;
     }
 
-    private boolean liftBucketAtReadyToDeliverPosition = false;
+    private boolean liftBucketAtDeliveryPosition = false;
 
-    public void setLiftBucketAtReadyToDeliverPosition(boolean liftBucketAtReadyToDeliverPosition) {
-        this.liftBucketAtReadyToDeliverPosition = liftBucketAtReadyToDeliverPosition;
+    public void setLiftBucketAtDeliveryPosition(boolean liftBucketAtDeliveryPosition) {
+        this.liftBucketAtDeliveryPosition = liftBucketAtDeliveryPosition;
     }
 
     private boolean liftBucketSampleIsDelivered = false;
@@ -738,29 +738,31 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
                 // do nothing while waiting for a command
                 break;
 
-            // setup for safe driving position before delivery states
-            case INTAKE_MOVING_TO_BUCKET_CLEARANCE_POSITION_FOR_SAFE_DRIVING_POSITION_BEFORE_DELIVERY:
+            // SETUP for delivery states
+            case INTAKE_MOVING_TO_BUCKET_CLEARANCE_POSITION_BEFORE_DELIVERY:
                 // We should not have to wait long (if at all) for bucket clearance because bucket clearance
                 // was automatically called right after the transfer completed, by the extensionArmIntake controller.
                 if (intakePositionedForBucketClearance) {
-                    liftBucketArmBucketGateController.setupForDrivingBeforeDelivery();
-                    state = IntakeBucketControllerState.BUCKET_ARM_MOVING_TO_SAFE_POSITION_BEFORE_DELIVERY;
+                    liftBucketArmBucketGateController.setupForDelivery();
+                    state = IntakeBucketControllerState.BUCKET_ARM_MOVING_TO_VERTICAL_POSITION;
                 }
                 break;
-            case BUCKET_ARM_MOVING_TO_SAFE_POSITION_BEFORE_DELIVERY:
-                if (liftBucketAtSafeToDrivePosition) {
+            case BUCKET_ARM_MOVING_TO_VERTICAL_POSITION:
+                if (liftBucketAtVerticalPosition) {
+                    // The LiftBucketArmBucketGateController automatically sends the lift bucket to
+                    // the lineup/delivery position so we don't have to issue the command for that
                     state = IntakeBucketControllerState.BUCKET_ARM_MOVING_TO_DELIVERY_POSITION;
                 }
                 break;
                 // skipping over this state because the liftBucketArmBucketGate controller immediately
                 // jumped into moving the bucket arm to the delivery position
-            case AT_SAFE_POSITION_BEFORE_DELIVERY:
-                // hang out waiting for driver to give setup for delivery command
-                break;
+//            case AT_SAFE_POSITION_BEFORE_DELIVERY:
+//                // hang out waiting for driver to give setup for delivery command
+//                break;
 
-            // setup for delivery states
+            // LINEUP for delivery states
             case BUCKET_ARM_MOVING_TO_DELIVERY_POSITION:
-                if (liftBucketAtReadyToDeliverPosition) {
+                if (liftBucketAtDeliveryPosition) {
                     setupForDeliveryComplete = true;
                     state = IntakeBucketControllerState.BUCKET_ARM_AT_DELIVERY_POSITION;
                 }
@@ -805,8 +807,8 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
                     extensionArmIntakeController.intakeToFloor();
                     // skip over the bucket clearance normally required before the bucket rotates up
                     // since the intake is all the way out already
-                    liftBucketArmBucketGateController.setupForDrivingBeforeDelivery();
-                    state = IntakeBucketControllerState.BUCKET_ARM_MOVING_TO_SAFE_POSITION_BEFORE_DELIVERY;
+                    liftBucketArmBucketGateController.setupForDelivery();
+                    state = IntakeBucketControllerState.BUCKET_ARM_MOVING_TO_VERTICAL_POSITION;
                 }
                 break;
 

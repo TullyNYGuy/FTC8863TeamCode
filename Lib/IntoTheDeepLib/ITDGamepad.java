@@ -409,7 +409,7 @@ public class ITDGamepad {
         if (gamepad2DpadUp.buttonPress(gamepad2.dpad_up)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            robot.intakeBucketController.setupForDrivingBeforeDelivery();
+            robot.intakeBucketController.setupForDelivery();
         }
 
         if (gamepad2DpadDown.buttonPress(gamepad2.dpad_down)) {

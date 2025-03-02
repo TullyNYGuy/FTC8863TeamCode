@@ -285,7 +285,7 @@ public class ITDAutonomousStateMachineOLD {
         switch (currentState) {
 
             case START:
-                robot.intakeBucketController.setupForDrivingBeforeDeliveryUponStart();
+                robot.intakeBucketController.setupForDeliveryUponStart();
                 currentState = States.WAIT_FOR_M0VE_2_DELIVERY_POS_FROM_START;
                 break;
 //            case WAIT_FOR_GET_READY_2_RUN:
@@ -484,7 +484,7 @@ public class ITDAutonomousStateMachineOLD {
                         currentState = States.WAIT_FOR_DELIVER_SAMPLE;
                     }
                     else {
-                        robot.intakeBucketController.setupForDrivingBeforeDelivery();
+                        robot.intakeBucketController.setupForDelivery();
                         currentState = States.WAIT_FOR_DELIVERY_JOE;
                     }
 
@@ -500,7 +500,7 @@ public class ITDAutonomousStateMachineOLD {
                         currentState = States.WAIT_FOR_DELIVER_SAMPLE;
                     }
                     else {
-                        robot.intakeBucketController.setupForDrivingBeforeDelivery();
+                        robot.intakeBucketController.setupForDelivery();
                         currentState = States.WAIT_FOR_DELIVERY_JOE;
                     }
 
@@ -516,7 +516,7 @@ public class ITDAutonomousStateMachineOLD {
                         currentState = States.WAIT_FOR_DELIVER_SAMPLE;
                     }
                     else {
-                        robot.intakeBucketController.setupForDrivingBeforeDelivery();
+                        robot.intakeBucketController.setupForDelivery();
                         currentState = States.WAIT_FOR_DELIVERY_JOE;
                     }
 
