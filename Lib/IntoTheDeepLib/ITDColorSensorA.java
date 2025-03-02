@@ -46,19 +46,34 @@ public class ITDColorSensorA {
         // customize the colors the sensor sees
         // define the colors the intake is looking for
         // f here means float instead of double type. HSV are float type.
+        // for high slope intake lid
+//        red = new ColorInHSV(Color.RED,
+//                0, 60,
+//                0.2f, 0.4f,
+//                0.07f, 0.09f);
+//        yellow = new ColorInHSV(Color.YELLOW,
+//                60, 120,
+//                0.5f, 0.65f,
+//                .13f, .16f);
+//
+//        blue = new ColorInHSV(Color.BLUE,
+//                180, 240,
+//                0.54f, 0.66f,
+//                0.08f, 0.2f);
+        // for low slope intake lid
         red = new ColorInHSV(Color.RED,
                 0, 60,
-                0.2f, 0.4f,
-                0.07f, 0.09f);
+                0.6f, 0.8f,
+                0.05f, 0.10f);
         yellow = new ColorInHSV(Color.YELLOW,
                 60, 120,
-                0.5f, 0.65f,
-                .13f, .16f);
+                0.7f, 0.8f,
+                .09f, .2f);
 
         blue = new ColorInHSV(Color.BLUE,
                 180, 240,
-                0.54f, 0.66f,
-                0.08f, 0.2f);
+                0.7f, 0.8f,
+                0.05f, 0.09f);
         possibleColors = new ColorInHSV[]{red, yellow, blue};
         sensor = new ColorSensorUpdatable(hardwareMap, telemetry, name, possibleColors);
     }

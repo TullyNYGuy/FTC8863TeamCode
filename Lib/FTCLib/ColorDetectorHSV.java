@@ -28,7 +28,7 @@ public class ColorDetectorHSV {
     // an array of possible colors
     private ColorInHSV[] possibleColors;
 
-    private int minimumNumberMatchesForValidColor = 2;
+    private int minimumNumberMatchesForValidColor = 1;
 
 
     //*********************************************************************************************
