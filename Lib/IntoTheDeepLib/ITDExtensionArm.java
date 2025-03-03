@@ -74,7 +74,7 @@ public class ITDExtensionArm implements FTCRobotSubsystem {
 
     private double initPower;
 
-    private double maxPosition = 12.75;
+    private double maxPosition = 15.25;
 
     public double getMaxPosition() {
         return maxPosition;

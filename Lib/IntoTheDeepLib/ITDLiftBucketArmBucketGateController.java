@@ -8,6 +8,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogOnChange;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.MatchPhase;
 
 public class ITDLiftBucketArmBucketGateController implements FTCRobotSubsystem {
 
@@ -67,7 +68,7 @@ public class ITDLiftBucketArmBucketGateController implements FTCRobotSubsystem {
     private boolean initComplete = false;
     private final String CONTROLLER_NAME = ITDRobot.HardwareName.LIFT_BUCKET_ARM_BUCKET_GATE_CONTROLLER.hwName;
 
-    private ITDLift lift;
+    public ITDLift lift;
 
     public void setLift(ITDLift lift) {
         this.lift = lift;
@@ -166,7 +167,12 @@ public class ITDLiftBucketArmBucketGateController implements FTCRobotSubsystem {
         controller.setLiftBucketAtVerticalPosition(false);
         bucketGateServo.closePosition();
         lift.readyToDeliverPosition();
-        bucketArmServo.safeForVerticalMovementPosition();
+        if (MatchPhase.getMatchPhase() == MatchPhase.AUTONOMOUS) {
+            bucketArmServo.safeForVerticalMovementPosition();
+        }
+        else {
+            bucketArmServo.deliveryPosition();
+        }
         state = LiftBucketArmGateControllerState.BUCKET_ARM_MOVING_TO_VERTICAL_POSITION_BEFORE_DELIVERY;
 
     }

@@ -127,7 +127,7 @@ public class ITDTeleop extends LinearOpMode {
             // The following code uses road runner to move the robot in a driver (field) centric
             // drive
 
-            telemetry.addData("Max Power = ", robot.robotModes.getCurrentMaxPower());
+            telemetry.addData("Basket = ", robot.liftBucketArmBucketGateController.lift.getDeliveryHeight().toString());
             telemetry.addLine();
 
             if (gamepad.getDrivingMode() == DrivingMode.ROBOT_CENTRIC) {

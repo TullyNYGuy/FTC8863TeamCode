@@ -259,19 +259,24 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
      * raise the lift to height needed for delivery
      */
     public void setupForDelivery() {
-        logCommand("Setup for delivery");
-        setupForDeliveryComplete = false;
-        // to save time, setupForBucketClearance() is now called right after the transfer completes by the
-        // extensionArmIntakeController. This also moves the extension arm away from the metal that it is
-        // trying to pull against. Doing that prevents the motor from overheating.
+        if(isTransferComplete()) {
+            logCommand("Setup for delivery");
+            setupForDeliveryComplete = false;
+            // to save time, setupForBucketClearance() is now called right after the transfer completes by the
+            // extensionArmIntakeController. This also moves the extension arm away from the metal that it is
+            // trying to pull against. Doing that prevents the motor from overheating.
 
-        // However, if the driver needs to deliver a sample right after init in teleop, then
-        // setupForBucketClearance has never been called. So we need to call it.
-        if (setupBucketForClearanceNotCalledYet) {
-            extensionArmIntakeController.setupForBucketClearance();
-            setupBucketForClearanceNotCalledYet = false;
+            // However, if the driver needs to deliver a sample right after init in teleop, then
+            // setupForBucketClearance has never been called. So we need to call it.
+            if (setupBucketForClearanceNotCalledYet) {
+                extensionArmIntakeController.setupForBucketClearance();
+                setupBucketForClearanceNotCalledYet = false;
+            }
+            state = IntakeBucketControllerState.INTAKE_MOVING_TO_BUCKET_CLEARANCE_POSITION_BEFORE_DELIVERY;
         }
-        state = IntakeBucketControllerState.INTAKE_MOVING_TO_BUCKET_CLEARANCE_POSITION_BEFORE_DELIVERY;
+        else {
+            log("Setup for delivery ignored");
+        }
     }
 
     /**
@@ -625,7 +630,11 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
             logStateOnChange.log(getName() + " state = " + state.toString());
         }
     }
-
+    protected void log(String stringToLog) {
+        if (logFile != null && loggingOn) {
+            logFile.logData(CONTROLLER_NAME, stringToLog);
+        }
+    }
     private void logCommand(String command) {
         if (loggingOn && logFile != null) {
             logDataOnchange.log(getName() + " command = " + command);
@@ -868,7 +877,7 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
                 }
                 break;
             case TRANSFER_COMPLETE:
-                // wait for a command
+                setupForDelivery();
                 break;
         }
 

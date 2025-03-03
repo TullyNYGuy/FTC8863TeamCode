@@ -409,10 +409,11 @@ public class ITDGamepad {
         if (gamepad2DpadUp.buttonPress(gamepad2.dpad_up)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            robot.intakeBucketController.setupForDelivery();
+            robot.liftBucketArmBucketGateController.lift.setDeliveryHeight(ITDLift.Basket.HIGH_TELEOP);
         }
 
         if (gamepad2DpadDown.buttonPress(gamepad2.dpad_down)) {
+            robot.liftBucketArmBucketGateController.lift.setDeliveryHeight(ITDLift.Basket.LOW_TELEOP);
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
 
@@ -425,6 +426,7 @@ public class ITDGamepad {
         }
 
         if (gamepad2DpadRight.buttonPress(gamepad2.dpad_right)) {
+            robot.intakeBucketController.setupForDelivery();
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
         }
