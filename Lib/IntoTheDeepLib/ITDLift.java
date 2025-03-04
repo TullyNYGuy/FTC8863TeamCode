@@ -32,24 +32,27 @@ public class ITDLift implements FTCRobotSubsystem {
     private LiftState state;
 
     public enum Basket {
-
         HIGH_AUTO,
         HIGH_TELEOP,
-        LOW_TELEOP,
-    }
+        LOW_TELEOP;
+     }
     private Basket deliveryHeight = Basket.HIGH_AUTO;
 
     public void setDeliveryHeight(Basket deliveryHeight) {
         this.deliveryHeight = deliveryHeight;
+        readyToDeliverPosition = deliveryHeight.height();
         switch(deliveryHeight) {
             case HIGH_AUTO:
                 readyToDeliverPosition = readyToDeliverPositionHighBasketAuto;
+                positionWhereWeSayDeliveryMovementIsCloseEnough = readyToDeliverPositionHighBasketAuto - 3;
                 break;
             case HIGH_TELEOP:
                 readyToDeliverPosition = readyToDeliverPositionHighBasketTeleop;
+                positionWhereWeSayDeliveryMovementIsCloseEnough = readyToDeliverPositionHighBasketTeleop - 3;
                 break;
             case LOW_TELEOP:
                 readyToDeliverPosition = readyToDeliverPositionLowBasketTeleop;
+                positionWhereWeSayDeliveryMovementIsCloseEnough = readyToDeliverPositionLowBasketTeleop - 2;
                 break;
         }
     }
@@ -98,10 +101,10 @@ public class ITDLift implements FTCRobotSubsystem {
     private double lowBarHangPosition = 6.0;
     private double highBarHangPosition = 4.0;
 
-    // The bucket arm movement to the delivery position will be triggered when the lift passes this position on its way to
-    // the delivery position. IE 3 inches below the final delivery position the bucket arm will
-    // start moving.
-    private double positionToMoveBucketArmToDeliver = readyToDeliverPosition - 3.0;
+    // The lift hunts for its final position for a while. We don't want that to delay the start of
+    // of the transfer. So we will call the lift movement complete when it is not quite to the
+    // final position yet.
+    private double positionWhereWeSayDeliveryMovementIsCloseEnough;
 
     // The bucket arm movement to the transfer position will be triggered when the lift passes
     // this position on the way down.
@@ -428,15 +431,17 @@ public class ITDLift implements FTCRobotSubsystem {
                 }
                 break;
             case MOVING_TO_DELIVERY_POSITION:
-                if (lift.isPositionReached()) {
-                    // tell the controller that the arm has reached its position
+                // short cut the lift hunting for final position
+                if (lift.getCurrentPosition() >= positionWhereWeSayDeliveryMovementIsCloseEnough) {
+                    // tell the controller that the lift has reached its position
                     controller.setLiftPositionReached(true);
                     state = LiftState.IDLE;
                 }
                 break;
             case MOVING_TO_TRANSFER_POSITION:
+                // short cut the lift hunting for final position
                 if (lift.getCurrentPosition() <= positionToMoveBucketArmToTransfer) {
-                    // tell the controller that the arm has reached its position
+                    // tell the controller that the lift has reached its position
                     controller.setLiftPositionReached(true);
                     state = LiftState.IDLE;
                 }
