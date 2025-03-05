@@ -113,9 +113,9 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
         glidingIntakePower = extensionArmIntakeController.extensionArm.getExtendPower();
     }
 
-    private ITDAutonomousStateMachine autonomousStateMachine;
+    private ITDAutonomousStateMachineNewold autonomousStateMachine;
 
-    public void setAutonomousStateMachine(ITDAutonomousStateMachine autonomousStateMachine) {
+    public void setAutonomousStateMachine(ITDAutonomousStateMachineNewold autonomousStateMachine) {
         this.autonomousStateMachine = autonomousStateMachine;
     }
 
@@ -285,6 +285,7 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
      * setupForBucketClearance(). From that point we can run the normal setupForDelivery()
      */
     public void setupForDeliveryUponStart() {
+        transferComplete=true;
         // since setup for bucket clearance has not been run yet, run it.
         extensionArmIntakeController.setupForBucketClearance();
         // then follow the normal setup for driving before delivery

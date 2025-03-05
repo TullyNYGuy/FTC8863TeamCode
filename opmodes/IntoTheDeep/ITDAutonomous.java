@@ -14,6 +14,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MatchPhase;
 import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ITDAutonomousStateMachine;
+import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ITDAutonomousStateMachineNewold;
 import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ITDGamepad;
 import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ITDRobot;
 import org.openftc.easyopencv.OpenCvCameraRotation;
@@ -35,7 +36,7 @@ public class ITDAutonomous extends LinearOpMode {
 
     public Configuration config = null;
     //public ITDField field;
-    private ITDAutonomousStateMachine autonomousStateMachine;
+    private ITDAutonomousStateMachineNewold autonomousStateMachine;
 
     private ElapsedTime timer;
 
@@ -78,7 +79,7 @@ public class ITDAutonomous extends LinearOpMode {
 
         // Here is where you create the state machine that is going to be run.
         // Change this state machine out and the robot will do something different.
-        autonomousStateMachine = new ITDAutonomousStateMachine(robot, telemetry);
+        autonomousStateMachine = new ITDAutonomousStateMachineNewold(robot, telemetry);
         autonomousStateMachine.setDataLog(dataLog);
         autonomousStateMachine.enableDataLogging();
         // tell the intake bucket controller about the autonomousStateMachine
