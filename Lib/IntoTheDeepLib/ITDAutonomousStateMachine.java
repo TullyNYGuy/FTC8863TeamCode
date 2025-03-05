@@ -183,6 +183,7 @@ public class ITDAutonomousStateMachine {
    // private Pose2d sample2IntakePose=new Pose2d(59, 39.25, Math.toRadians(-90));
     private Pose2d sample2IntakePose=new Pose2d(57.75, 36.5, Math.toRadians(-90));
     private Pose2d sample3IntakePose=new Pose2d(55.5, 25.25, Math.toRadians(0));
+    //private Pose2d sample3IntakePose=new Pose2d(60, 34.5, Math.toRadians(-45));
     private Pose2d initAfter3rdSampleFail=new Pose2d(49.5, 41, Math.toRadians(-45));
 
     // Define the action needed for a movement from point a to point b
