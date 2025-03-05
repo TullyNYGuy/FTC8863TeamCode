@@ -40,7 +40,6 @@ public class ITDLift implements FTCRobotSubsystem {
 
     public void setDeliveryHeight(Basket deliveryHeight) {
         this.deliveryHeight = deliveryHeight;
-        readyToDeliverPosition = deliveryHeight.height();
         switch(deliveryHeight) {
             case HIGH_AUTO:
                 readyToDeliverPosition = readyToDeliverPositionHighBasketAuto;
