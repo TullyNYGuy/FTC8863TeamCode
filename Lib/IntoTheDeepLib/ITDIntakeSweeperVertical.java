@@ -28,6 +28,7 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
         // intake states
         INTAKING,
         WAITING_FOR_SAMPLE_TO_STOP_MOVING,
+        DOUBLE_CHECK_SAMPLE_PRESENT,
         CHECKING_FOR_CONSISTENT_SAMPLE_PRESENT,
         HAVE_SAMPLE_DETERMINING_COLOR,
         WAITING_FOR_GOOD_COLOR,
@@ -414,8 +415,7 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
         controller.setOuttakeComplete(false);
         logCommand("outtake sample");
         intakeCommand = IntakeCommand.OUTAKE;
-        intakeSweeperServoLeft.setPower(-1);
-        intakeSweeperServoRight.setPower(-1);
+        setIntakeSweeperSpeed(-1);
         timer.reset();
     }
 
@@ -451,8 +451,7 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
         // tell the extension arm / intake arm / intake controller that a transfer is not complete
         // yet.
         controller.setIntakeTransferComplete(false);
-        intakeSweeperServoLeft.setPower(1);
-        intakeSweeperServoRight.setPower(1);
+        setIntakeSweeperSpeed(1);
         intakeCommand = IntakeCommand.TRANSFER;
         timer.reset();
     }
@@ -490,8 +489,7 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
      */
     private void ejectActions() {
         logCommand("eject sample");
-        intakeSweeperServoLeft.setPower(1);
-        intakeSweeperServoRight.setPower(1);
+        setIntakeSweeperSpeed(-1);
         intakeCommand = IntakeCommand.EJECT;
     }
 
@@ -509,8 +507,7 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
      */
     private void resetActions() {
         logCommand("reset intake");
-        intakeSweeperServoLeft.setPower(1);
-        intakeSweeperServoRight.setPower(1);
+        setIntakeSweeperSpeed(1);
         intakeCommand = IntakeCommand.RESET_STOP;
     }
 
@@ -704,15 +701,17 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
                 // refresh the distance from the sample
                 getFreshDistanceFromFrontSensor();
                 if (isSamplePresentFront()) {
-                    log("Sample detected");
-                    stopActions();
-                    logDistanceToSampleFromFrontSensor();
-                    // tell the extension arm intake controller we have seen a sample. This will
-                    // rotate the intake up from the floor to help make sure the intake does not
-                    // jam
-                    controller.setIntakeHasSeenSample(true);
-                    timer.reset();
-                    intakeState = IntakeState.WAITING_FOR_SAMPLE_TO_STOP_MOVING;
+                    //The detected sample might actually not be a sample. It might be the tubes
+                    //clashing and coming near the sensor. So check the presence a second time.
+//                    log("Sample detected");
+//                    stopActions();
+//                    logDistanceToSampleFromFrontSensor();
+//                    // tell the extension arm intake controller we have seen a sample. This will
+//                    // rotate the intake up from the floor to help make sure the intake does not
+//                    // jam
+//                    controller.setIntakeHasSeenSample(true);
+//                    timer.reset();
+                    intakeState = IntakeState.DOUBLE_CHECK_SAMPLE_PRESENT;
                 }
                 // After a dejam, if the sample is not seen for a certain period of time during
                 // the intake then it may be hard jammed on the front of the intake. We will
@@ -727,8 +726,34 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
                     abortIntake();
                 }
                 break;
+
+            case DOUBLE_CHECK_SAMPLE_PRESENT:
+                getFreshDistanceFromFrontSensor();
+                if (isSamplePresentFront()) {
+                    // A sample was detected a second time so probably not the tubing. It is likely
+                    // a real sample, but not 100% certain.
+                    log("Sample detected");
+                    stopActions();
+                    logDistanceToSampleFromFrontSensor();
+                    // tell the extension arm intake controller we have seen a sample. This will
+                    // rotate the intake up from the floor to help make sure the intake does not
+                    // jam
+                    controller.setIntakeHasSeenSample(true);
+                    timer.reset();
+                    intakeState = IntakeState.WAITING_FOR_SAMPLE_TO_STOP_MOVING;
+                }
+                else {
+                    // The sample that was previously seen was not seen again. This could have been
+                    // tubing giving a false reading or it might be a sample that is jammed into the
+                    // front of the intake. Either way, ignore the previous detection and go back
+                    // to intaking.
+                    intakeState = IntakeState.INTAKING;
+                }
+
                 // it takes some time for the sample to move between the front of the intake and the
             // rear
+            //todo could I move this into the CHECKING_FOR_CONSISTENT_SAMPLE_PRESENT state and short
+            // cut the timer if a sample shows up at the rear sensor before the timer expires?
             case WAITING_FOR_SAMPLE_TO_STOP_MOVING:
                 if (timer.milliseconds() > 250) {
                     timer.reset();
