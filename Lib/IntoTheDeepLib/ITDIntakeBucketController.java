@@ -285,6 +285,7 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
      * setupForBucketClearance(). From that point we can run the normal setupForDelivery()
      */
     public void setupForDeliveryUponStart() {
+        logCommand("Setup for delivery upon start");
         transferComplete=true;
         // since setup for bucket clearance has not been run yet, run it.
         extensionArmIntakeController.setupForBucketClearance();
@@ -874,12 +875,11 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
             case TRANSFERRING:
                 if (intakeTransferComplete) {
                     transferComplete = true;
-                    state = IntakeBucketControllerState.TRANSFER_COMPLETE;
+                    setupForDelivery();
                 }
                 break;
-            case TRANSFER_COMPLETE:
-                setupForDelivery();
-                break;
+//            case TRANSFER_COMPLETE:
+//                break;
         }
 
     }
