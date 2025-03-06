@@ -180,6 +180,10 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
         this.intakeHasSeenSample = intakeHasSeenSample;
     }
 
+    public boolean hasIntakeSeenSample() {
+        return intakeHasSeenSample;
+    }
+
     /**
      * The intake says it has a good, proper color sample.
      */
@@ -828,6 +832,12 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
                 // gliding intake states
             case WAITING_FOR_GOOD_GLIDING_SAMPLE:
                 // The intake picked up a sample while it was extending out.
+                //todo Could we call a gliding instake success if the intake has seen the sample,
+                // but not called it a valid sample yet? In auto, this would start the movement
+                // back to the delivery location and the sample would continue to intake.
+                // It also would avoid putting in a longer delay for the gliding intake after the
+                // extension has been reached. Intake of the sample can take longer than 250mSec
+                // after the end of the extension has been reached.
                 if (intakeHasValidSample) {
                     controller.setIntakeHasValidSample(true);
                     controller.setGlidingIntakeFailed(false);
@@ -911,6 +921,8 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
                     controller.setIntakeTransferComplete(true);
                     // immediately move the intake out of the way to prepare for a delivery
                     // This will also set the next state so we don't need to set it here
+                    //todo maybe skip the setup for bucket clearance in auto and setup for the gliding intake
+                    //instead. That will clear the bucket and setup for the next movement at the same time.
                     setupForBucketClearance();
                 }
                 if (intakesRequestsAnOuttake) {
