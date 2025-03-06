@@ -92,11 +92,11 @@ public class ITDIntakeArmServo implements FTCRobotSubsystem {
         intakeArmServo = new Servo8863New(INTAKE_ARM_SERVO_NAME, hardwareMap, telemetry);
 
         intakeArmServo.addPosition("initPosition", initPosition, 100, TimeUnit.MILLISECONDS);
-        intakeArmServo.addPosition("bucketClearancePosition", bucketClearancePosition, 200, TimeUnit.MILLISECONDS);
-        intakeArmServo.addPosition("intakePositionReallyLowAltitude", intakePositionReallyLowAltitude, 300, TimeUnit.MILLISECONDS);
-        intakeArmServo.addPosition("intakePositionLowAltitude", intakePositionLowAltitude, 300, TimeUnit.MILLISECONDS);
-        intakeArmServo.addPosition("intakePositionHighAltitude", intakePositionHighAltitude, 300, TimeUnit.MILLISECONDS);
-        intakeArmServo.addPosition("transferPosition", transferPosition, 1000, TimeUnit.MILLISECONDS);
+        intakeArmServo.addPosition("bucketClearancePosition", bucketClearancePosition, 100, TimeUnit.MILLISECONDS);
+        intakeArmServo.addPosition("intakePositionReallyLowAltitude", intakePositionReallyLowAltitude, 200, TimeUnit.MILLISECONDS);
+        intakeArmServo.addPosition("intakePositionLowAltitude", intakePositionLowAltitude, 200, TimeUnit.MILLISECONDS);
+        intakeArmServo.addPosition("intakePositionHighAltitude", intakePositionHighAltitude, 200, TimeUnit.MILLISECONDS);
+        intakeArmServo.addPosition("transferPosition", transferPosition, 400, TimeUnit.MILLISECONDS);
         intakeArmServo.addPosition("readyToIntakePosition", readyToIntakePosition, 100, TimeUnit.MILLISECONDS);
 
         intakeArmServo.setDirection(Servo.Direction.REVERSE);
