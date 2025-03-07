@@ -131,6 +131,7 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
     private int numberOfTimesSampleSeen = 0;
     private int numberOfTimesTriedToDetermineColor = 0;
     private double timeLimit = 0;
+    private boolean stopQueuedUp = false;
 
     //*********************************************************************************************
     //          Constructors
@@ -245,10 +246,20 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
                 stopActions();
                 break;
 
+            case DOUBLE_CHECK_SAMPLE_PRESENT:
+            case WAITING_FOR_SAMPLE_TO_STOP_MOVING:
+            case CHECKING_FOR_CONSISTENT_SAMPLE_PRESENT:
+            case PULLING_SAMPLE_IN_A_LITTLE_MORE:
+            case DEJAMMING_INTAKE:
+            case ABORTING_INTAKE_CYCLE:
             case HAVE_SAMPLE_DETERMINING_COLOR:
-            case WAITING_FOR_MOVEMENT_TO_TRANSFER_POSITION:
             case EJECTING:
             case DEJAMMING_EJECTION:
+                // The states above should not stop immediately, but should stop ofter they are done
+                // with their actions. Queue up a stop
+                stopQueuedUp = true;
+
+            case WAITING_FOR_MOVEMENT_TO_TRANSFER_POSITION:
             case DEJAMMING_TRANSFER:
             case WAITING_FOR_MOVE_TO_OUTTAKING:
             case TRANSFERRING:
@@ -839,7 +850,14 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
                     // hard jammed to the front of the intake, but if it was a drop during dejam
                     // the intake will run backwards for a bit while trying to intake.
                     timerForIntakeAfterJam.reset();
-                    intake();
+                    if (stopQueuedUp) {
+                        // clear the stop so it does not trigger a second time
+                        stopQueuedUp = false;
+                        stopActions();
+                        intakeState = IntakeState.IDLE;
+                    } else {
+                        intake();
+                    }
                 }
                 break;
             case ABORTING_INTAKE_CYCLE:
@@ -848,7 +866,14 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
                 if (timer.milliseconds() > 500) {
                     resetCounters();
                     controller.setIntakeHasSeenSample(false);
-                    intake();
+                    if (stopQueuedUp) {
+                        // clear the stop so it does not trigger a second time
+                        stopQueuedUp = false;
+                        stopActions();
+                        intakeState = IntakeState.IDLE;
+                    } else {
+                        intake();
+                    }
                 }
                 break;
 
@@ -949,6 +974,9 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
 //                break;
             // wait while the intake rotates to the bucket and the extension arm retracts
             case WAITING_FOR_MOVEMENT_TO_TRANSFER_POSITION:
+                // If a stop is queued up, we don't do anything about it since the intake will
+                // have stopped by the time it get here. Just clear the queued stop.
+                stopQueuedUp = false;
                 // it is possible that the sample somehow escapes from the intake. If this happens
                 // then the intake thinks it has a sample and is locked up waiting for a transfer
                 // that will never happen. So we have to reset it.
@@ -1000,7 +1028,15 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
                         controller.setupForTransfer();
                     }
                     else {
-                        intake();
+                        if (stopQueuedUp) {
+                            // reset the queued up stop
+                            stopQueuedUp = false;
+                            // stop the intake
+                            stopActions();
+                            intakeState = IntakeState.IDLE;
+                        } else {
+                            intake();
+                        }
                     }
                 }
                 break;
@@ -1019,8 +1055,16 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
                     // uh oh the sample must have been pushed out the front of the intake
                     // intake again
                     dejamCount = 0;
-                    intakeActions();
-                    intakeState = IntakeState.INTAKING;
+                    if (stopQueuedUp) {
+                        // reset the queued up stop
+                        stopQueuedUp = false;
+                        // stop the intake
+                        stopActions();
+                        intakeState = IntakeState.IDLE;
+                    } else {
+                        intakeActions();
+                        intakeState = IntakeState.INTAKING;
+                    }
                 }
                 break;
 
