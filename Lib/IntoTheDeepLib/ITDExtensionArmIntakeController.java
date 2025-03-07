@@ -75,7 +75,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
 
         // gliding intake states
         WAITING_FOR_SETUP_GLIDING_INTAKE,
-        WAIT_1_SEC,
+        //WAIT_1_SEC,
         READY_FOR_GLIDING_INTAKE,
         WAITING_FOR_GOOD_GLIDING_SAMPLE,
         WAITING_FOR_READY_TO_CYCLE_GLIDE,
@@ -128,6 +128,10 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
         this.controller = controller;
     }
     private double glidingIntakeDelay=0;
+
+    public double getCurrentPosition(){
+        return extensionArm.getCurrentPosition();
+    }
 
 
     //*********************************************************************************************
@@ -643,7 +647,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
 
     private void logComment(String comment) {
         if (loggingOn && logFile != null) {
-            logFile.logData(comment);
+            logFile.logData(getName() + comment);
         }
     }
 
@@ -874,12 +878,12 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
                     setupForBucketClearance();
                 }
                 break;
-            case WAIT_1_SEC:
-                timer.reset();
-                if (timer.milliseconds() == 1000){
-                    state = ExtensionArmIntakeBucketControllerState.WAITING_FOR_GOOD_GLIDING_SAMPLE;
-                }
-                break;
+//            case WAIT_1_SEC:
+//                timer.reset();
+//                if (timer.milliseconds() == 1000){
+//                    state = ExtensionArmIntakeBucketControllerState.WAITING_FOR_GOOD_GLIDING_SAMPLE;
+//                }
+//                break;
 
 //            case WAITING_FOR_READY_TO_CYCLE_GLIDE:
 //                if (intakeArmServo.isPositionReached() && extensionArm.isPositionReached()) {

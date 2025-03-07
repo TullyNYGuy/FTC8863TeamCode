@@ -60,7 +60,7 @@ public class ITDExtensionArm implements FTCRobotSubsystem {
         this.controller = controller;
     }
 
-    private double extendPower = .75;
+    private double extendPower = 1;
 
     public double getExtendPower() {
         return extendPower;
@@ -154,6 +154,10 @@ public class ITDExtensionArm implements FTCRobotSubsystem {
         } else {
             return false;
         }
+    }
+
+    public double getCurrentPosition() {
+        return extensionArm.getCurrentPosition();
     }
 
     public boolean isResetComplete() {

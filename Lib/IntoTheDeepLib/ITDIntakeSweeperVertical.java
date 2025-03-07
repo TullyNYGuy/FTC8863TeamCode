@@ -301,7 +301,7 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
         colorSensorsOn();
         // force an update to get fresh distance and color data
         getFreshDistanceAndColorFromFrontSensor();
-        setIntakeSweeperSpeed(1.0);
+        setIntakeSweeperSpeed(0.75);
     }
 
     public void runIntakeServos() {
