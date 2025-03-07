@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib;
 
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.ProfileAccelConstraint;
+import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -28,6 +30,7 @@ public class ITDAutonomousStateMachineNewold {
         WAIT_FOR_M0VE_TO_DELIVERY_POS_FROM_SAMPLE1,
         WAIT_FOR_M0VE_TO_DELIVERY_POS_FROM_SAMPLE2,
         WAIT_FOR_M0VE_TO_DELIVERY_POS_FROM_SAMPLE3,
+        WAIT_FOR_M0VE_TO_DELIVERY_POS_FROM_SAMPLE4,
         WAIT_FOR_DELIVERY_JOE,
         WAIT_FOR_NO_WOBBLE,
         WAIT_FOR_DELIVER_SAMPLE,
@@ -36,13 +39,16 @@ public class ITDAutonomousStateMachineNewold {
         WAIT_FOR_MOVE_TO_SAMPLE3,
         WAIT_FOR_MOVE_TO_SAMPLE4,
         WAITING_FOR_SETUP_OF_GLIDING_INTAKE_AT_SUBMERSIBLE,
+        WAIT_FOR_EXTENSTION_ARM_RETRACTION_TO_SAMPLE1,
+        WAIT_FOR_EXTENSTION_ARM_RETRACTION_TO_SAMPLE2,
+        WAIT_FOR_EXTENSTION_ARM_RETRACTION_TO_SAMPLE3,
+        WAIT_FOR_MOVE_TO_SAMPLE2_AFTER_SAMPLE1_FAILED,
         WAIT_FOR_MOVE_TO_SAMPLE3_AFTER_SAMPLE2_FAILED,
+        WAIT_FOR_MOVE_TO_SAMPLE4_AFTER_SAMPLE3_FAILED,
         WAIT_FOR_BUCKET_CLEARANCE_AFTER_SAMPLE2_FAILED,
         WAIT_FOR_SETUP_FOR_INTAKE,
         WAIT_FOR_INTAKE,
-
         WAIT_FOR_FINAL_BUCKET_AT_TRANSFER,
-
         WAIT_FOR_MOVE_TO_INIT_POSE,
         WAIT_FOR_SAMPLE3_INTAKE,
         COMPLETE
@@ -197,6 +203,7 @@ public class ITDAutonomousStateMachineNewold {
     private Action sample2ToSample3;
     private Action sample3ToInitPose;
     private Action deliveryToSubPose;
+    private Action subToDelivery;
 
     // Define a non-blocking runner to run the action
     RRNonBlockingRunner startToDeliveryRunner;
@@ -211,6 +218,7 @@ public class ITDAutonomousStateMachineNewold {
     RRNonBlockingRunner currentRunner;
     RRNonBlockingRunner sample3ToInitPoseRunner;
     RRNonBlockingRunner deliveryToSubPoseRunner;
+    RRNonBlockingRunner subToDeliveryRunnner;
     /**
      * Place all of the trajectories for the autonomous opmode in this method. This method gets
      * called from the constructor so that the trajectories are created when the autonomous object
@@ -252,13 +260,25 @@ public class ITDAutonomousStateMachineNewold {
         sample2ToSample3 = robot.mecanumDrive.actionBuilder(sample2IntakePose)
                 .strafeToLinearHeading(sample3IntakePose.position, sample3IntakePose.heading)
                 .build();
+
         sample3ToInitPose = robot.mecanumDrive.actionBuilder(sample3IntakePose)
                 .strafeToLinearHeading(initAfter3rdSampleFail.position, initAfter3rdSampleFail.heading)
                 .build();
+
         deliveryToSubPose = robot.mecanumDrive.actionBuilder(deliveryPose)
-                .splineToLinearHeading(subPose, -Math.PI)
+                .splineToSplineHeading(subPose, -Math.PI
+//                        ,new TranslationalVelConstraint(75.0)
+//                        ,new ProfileAccelConstraint(-75.0, 75.0)
+                )
                 .build();
 
+        subToDelivery = robot.mecanumDrive.actionBuilder(subPose)
+                .setReversed(true)
+                .splineToLinearHeading(deliveryPose, Math.PI/3
+                       // ,new TranslationalVelConstraint(75.0)
+                     //   ,new ProfileAccelConstraint(-75.0, 75.0)
+                )
+                .build();
 
 
         // Define a non-blocking runner to run the action
@@ -273,6 +293,7 @@ public class ITDAutonomousStateMachineNewold {
         sample2ToSample3Runner = new RRNonBlockingRunner(sample2ToSample3);
         sample3ToInitPoseRunner=new RRNonBlockingRunner(sample3ToInitPose);
         deliveryToSubPoseRunner=new RRNonBlockingRunner(deliveryToSubPose);
+        subToDeliveryRunnner=new RRNonBlockingRunner(subToDelivery);
     }
 
     //*********************************************************************************************
@@ -372,6 +393,9 @@ public class ITDAutonomousStateMachineNewold {
                             //robot.intakeBucketController.setupForGlidingIntake(11);
                             currentState = States.WAIT_FOR_MOVE_TO_SAMPLE4;
                             break;
+                        case 5:
+                            currentState =States.WAIT_FOR_FINAL_BUCKET_AT_TRANSFER;
+                            break;
                     }
                 }
                 break;
@@ -434,7 +458,7 @@ public class ITDAutonomousStateMachineNewold {
             case WAITING_FOR_SETUP_OF_GLIDING_INTAKE_AT_SUBMERSIBLE:
                 if (robot.intakeBucketController.isSetupForGlidingIntakeComplete()) {
                     robot.extensionArmIntakeController.setIntakeHeight(ITDExtensionArmIntakeController.IntakeHeight.HIGH);
-                    robot.intakeBucketController.runGlidingIntake(15.75, 0.2, 500);
+                    robot.intakeBucketController.runGlidingIntake(15.75, 0.1, 500);
                     glidingIntakeFailed = false;
                     currentState = States.WAIT_FOR_INTAKE;
                 }
@@ -467,34 +491,74 @@ public class ITDAutonomousStateMachineNewold {
                             currentState = States.WAIT_FOR_M0VE_TO_DELIVERY_POS_FROM_SAMPLE3;
                             break;
                         case 4:
-                            //TODO add movement from submersible back to the delivery position
+                            subToDeliveryRunnner.runNonBlocking();
+                            currentState = States.WAIT_FOR_M0VE_TO_DELIVERY_POS_FROM_SAMPLE4;
                             break;
+
                     }
                 }
                 if (glidingIntakeFailed){
                     // the gliding intake failed
                     switch(sampleNum){
                         case 1:
-                            currentRunner=sample1ToSample2Runner;
-                            currentRunner.runNonBlocking();
                             sampleNum=sampleNum+1;
-                            currentState= States.WAIT_FOR_MOVE_TO_SAMPLE2;
+                            currentState=States.WAIT_FOR_EXTENSTION_ARM_RETRACTION_TO_SAMPLE1;
                             break;
                         case 2:
                             sampleNum=sampleNum+1;
-                            // if we move to the sample3 intake position without picking up the intake, the
-                            // intake knocks sample 3 out of the way
-                            robot.intakeBucketController.setupForBucketClearance();
-                            currentState= States.WAIT_FOR_BUCKET_CLEARANCE_AFTER_SAMPLE2_FAILED;
+                            currentState=States.WAIT_FOR_EXTENSTION_ARM_RETRACTION_TO_SAMPLE2;
                             break;
                         case 3:
-                            sample3ToInitPoseRunner.runNonBlocking();
-                            currentState= States.WAIT_FOR_MOVE_TO_INIT_POSE;
+                            sampleNum=sampleNum+1;
+                            currentState=States.WAIT_FOR_EXTENSTION_ARM_RETRACTION_TO_SAMPLE3;
                             break;
                         case 4:
 
                             break;
                     }
+                }
+                break;
+            case  WAIT_FOR_EXTENSTION_ARM_RETRACTION_TO_SAMPLE1:
+                if(robot.extensionArmIntakeController.extensionArm.getCurrentPosition() < 11){
+                    currentRunner=sample1ToSample2Runner;
+                    currentRunner.runNonBlocking();
+                    currentState= States.WAIT_FOR_MOVE_TO_SAMPLE2_AFTER_SAMPLE1_FAILED;
+                }
+                break;
+            case WAIT_FOR_MOVE_TO_SAMPLE2_AFTER_SAMPLE1_FAILED:
+                if (currentRunner.isComplete()) {
+                    robot.intakeBucketController.setupForGlidingIntake(11);
+                    // even though the movement is already complete, this next state check that the movement is
+                    // complete (not needed but it is ok) and then check for completion of gliding intake
+                    // before running the gliding intake
+                    currentState = States.WAIT_FOR_INTAKE;
+                } else {
+                    currentRunner.runNonBlocking();
+                }
+                break;
+            case  WAIT_FOR_EXTENSTION_ARM_RETRACTION_TO_SAMPLE2:
+                if(robot.extensionArmIntakeController.extensionArm.getCurrentPosition() < 11){
+                    currentRunner=sample2ToSample3Runner;
+                    currentRunner.runNonBlocking();
+                    currentState= States.WAIT_FOR_MOVE_TO_SAMPLE2_AFTER_SAMPLE1_FAILED;
+                }
+                break;
+            case  WAIT_FOR_EXTENSTION_ARM_RETRACTION_TO_SAMPLE3:
+                if(robot.extensionArmIntakeController.extensionArm.getCurrentPosition() < 11){
+                    currentRunner=sample2ToSample3Runner;
+                    currentRunner.runNonBlocking();
+                    currentState= States.WAIT_FOR_MOVE_TO_SAMPLE3_AFTER_SAMPLE2_FAILED;
+                }
+                break;
+            case WAIT_FOR_MOVE_TO_SAMPLE3_AFTER_SAMPLE2_FAILED:
+                if (currentRunner.isComplete()) {
+                    robot.intakeBucketController.setupForGlidingIntake(11);
+                    // even though the movement is already complete, this next state check that the movement is
+                    // complete (not needed but it is ok) and then check for completion of gliding intake
+                    // before running the gliding intake
+                    currentState = States.WAIT_FOR_INTAKE;
+                } else {
+                    currentRunner.runNonBlocking();
                 }
                 break;
             case WAIT_FOR_BUCKET_CLEARANCE_AFTER_SAMPLE2_FAILED:
@@ -504,18 +568,6 @@ public class ITDAutonomousStateMachineNewold {
                     currentState = States.WAIT_FOR_MOVE_TO_SAMPLE3_AFTER_SAMPLE2_FAILED;
                 }
                 break;
-            case WAIT_FOR_MOVE_TO_SAMPLE3_AFTER_SAMPLE2_FAILED:
-                if (currentRunner.isComplete()) {
-                    robot.intakeBucketController.setupForGlidingIntake(2);
-                    // even though the movement is already complete, this next state check that the movement is
-                    // complete (not needed but it is ok) and then check for completion of gliding intake
-                    // before running the gliding intake
-                    currentState = States.WAIT_FOR_MOVE_TO_SAMPLE3;
-                } else {
-                    currentRunner.runNonBlocking();
-                }
-                break;
-
             case WAIT_FOR_M0VE_TO_DELIVERY_POS_FROM_SAMPLE1:
                 // The movement has to be complete and the transfer complete before setting up to deliver.
                 // todo could we start the setup for delivery after the transfer is complete but while
@@ -567,14 +619,29 @@ public class ITDAutonomousStateMachineNewold {
                     sample3ToDeliveryRunner.runNonBlocking();
                 }
                 break;
+            case WAIT_FOR_M0VE_TO_DELIVERY_POS_FROM_SAMPLE4:
+                if(subToDeliveryRunnner.isComplete()&& robot.intakeBucketController.isTransferComplete()) {
+                    logPosition("Delivery pose", deliveryPose);
+                    logPosition("Actual pose", robot.mecanumDrive.pose);
+                    if (glidingIntakeFailed) {
+                        currentState = States.WAIT_FOR_DELIVER_SAMPLE;
+                    }
+                    else {
+                        robot.intakeBucketController.setupForDelivery();
+                        currentState = States.WAIT_FOR_DELIVERY_JOE;
+                    }
 
-//            case WAIT_FOR_FINAL_BUCKET_AT_TRANSFER:
-//               if (robot.intakeBucketController.isLiftBucketAtTransferPosition()){
-//                 //  robot.intakeBucketController.init(null);
-//                   deliveryToSubPoseRunner.runNonBlocking();
-//                   currentState= States.WAIT_TO_MOVE_TO_SUBMERISLBE;
-//               }
-//                break;
+                } else {
+                    subToDeliveryRunnner.runNonBlocking();
+                }
+                break;
+
+            case WAIT_FOR_FINAL_BUCKET_AT_TRANSFER:
+               if (robot.intakeBucketController.isLiftBucketAtTransferPosition()){
+                   robot.intakeBucketController.init(null);
+                   currentState= States.COMPLETE;
+               }
+                break;
 
                // for when sample 3 intake fails
             case WAIT_FOR_MOVE_TO_INIT_POSE:
