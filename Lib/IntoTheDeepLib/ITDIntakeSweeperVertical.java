@@ -42,6 +42,7 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
         OUTTAKING,
         OUTTAKING_UNTIL_STOP_REQUESTED,
 
+        WAITING_FOR_ROATATION_TO_EJECT_POSITION,
         EJECTING,
         DEJAMMING_EJECTION,
         DEJAMMING_TRANSFER,
@@ -217,6 +218,21 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
     // public methods that give the class its functionality
     //*********************************************************************************************
 
+    //*********************************************************************************************
+    //          Communication from Extension arm intake controller
+    //*********************************************************************************************
+
+    private boolean rotationToEjectPositionComplete = false;
+
+    public void setRotationToEjectPositionComplete(boolean rotationToEjectPositionComplete) {
+        this.rotationToEjectPositionComplete = rotationToEjectPositionComplete;
+    }
+
+    private boolean roatationAwayFromEjectPositionComplete = false;
+
+    public void setRoatationAwayFromEjectPositionComplete(boolean roatationAwayFromEjectPositionComplete) {
+        this.roatationAwayFromEjectPositionComplete = roatationAwayFromEjectPositionComplete;
+    }
     //*********************************************************************************************
     //          Commands
     //*********************************************************************************************
@@ -505,7 +521,9 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
         logCommand("eject sample");
         // rotate the intake up more to eject farther away from the intake
         controller.setIntakeNeedsToEject(true);
-        setIntakeSweeperSpeed(-1);
+        intakeState = IntakeState.WAITING_FOR_ROATATION_TO_EJECT_POSITION;
+        // actually turning on the sweepers will be done once the intake arm finishes rotating
+        //setIntakeSweeperSpeed(-1);
         intakeCommand = IntakeCommand.EJECT;
     }
 
@@ -928,11 +946,10 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
                 if (allianceColor == Color.BLUE && sampleColorFront == Color.RED) {
                     // the sample is not the right color
                     log("have wrong color sample! " + sampleColorFront.toString());
-                    resetCounters();
-                    ejectActions();;
+                    resetCounters();;
                     timer.reset();
-                    intakeState = IntakeState.EJECTING;
-                    timer.reset();
+                    // eject actions will set the next state
+                    ejectActions();
                 }
                 if (allianceColor == Color.BLUE &&
                         ((sampleColorFront == Color.YELLOW) || sampleColorFront == Color.BLUE)) {
@@ -947,10 +964,9 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
                     // the sample is not the right color
                     log("have wrong color sample! " + sampleColorFront.toString());
                     resetCounters();
-                    ejectActions();;
                     timer.reset();
-                    intakeState = IntakeState.EJECTING;
-                    timer.reset();
+                    // eject actions will set the next state
+                    ejectActions();
                 }
                 if (allianceColor == Color.RED &&
                         ((sampleColorFront == Color.YELLOW) || sampleColorFront == Color.RED)) {
@@ -1004,6 +1020,15 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
                 break;
 
                 // ejecting states
+            case WAITING_FOR_ROATATION_TO_EJECT_POSITION:
+                if (rotationToEjectPositionComplete) {
+                    setIntakeSweeperSpeed(-1);
+                    // clear the request to rotate the intake to eject position
+                    controller.setIntakeNeedsToEject(false);
+                    timer.reset();
+                    intakeState = IntakeState.EJECTING;
+                }
+                break;
             case EJECTING:
                 // refresh the distance from the color sample
                 getFreshDistanceFromFrontSensor();
@@ -1026,7 +1051,7 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
                     // the eject succeeded because the sample is gone
                     // tell the controller the ejection has finished so the intake will rotate
                     // back down the floor
-                    controller.setIntakeNeedsToEject(false);
+                    controller.setIntakeEjectionComplete(true);
                     // in case the eject is coming after a dejam attempt that succeeded
                     dejamCount = 0;
                     // intake again
@@ -1055,15 +1080,15 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
                 if (timer.milliseconds() > 125 && isSamplePresentFront()) {
                     // good the sample stayed in the intake while we ran the sweepers outwards
                     // try the eject again
-                    ejectActions();
-                    intakeState = IntakeState.EJECTING;
                     timer.reset();
+                    // ejectActiions will set the next state
+                    ejectActions();
                 }
                 if (timer.milliseconds() > 125 && !isSamplePresentFront()) {
                     // uh oh the sample must have been pushed out the front of the intake
                     // tell the controller the ejection has finished so the intake will rotate
                     // back down the floor
-                    controller.setIntakeNeedsToEject(false);
+                    controller.setIntakeEjectionComplete(true);
                     // intake again
                     dejamCount = 0;
                     if (stopQueuedUp) {
