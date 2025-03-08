@@ -74,7 +74,7 @@ public class ITDLiftBucketArmBucketGateController implements FTCRobotSubsystem {
         this.lift = lift;
     }
 
-    private ITDBucketArmServo bucketArmServo;
+    public ITDBucketArmServo bucketArmServo;
     private ITDBucketGateServo bucketGateServo;
 
     private ITDIntakeBucketController controller;

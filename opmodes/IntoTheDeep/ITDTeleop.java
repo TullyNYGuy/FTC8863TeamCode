@@ -107,6 +107,8 @@ public class ITDTeleop extends LinearOpMode {
         //robot.setColor(color);
         waitForStart();
 
+        robot.intakeBucketController.setUpForTeleop();
+
 //            robot.intakeBucketController.getReadyToRun();
 //            while(!robot.intakeBucketController.isGetReadyToRunComplete()) {
 //                robot.update();

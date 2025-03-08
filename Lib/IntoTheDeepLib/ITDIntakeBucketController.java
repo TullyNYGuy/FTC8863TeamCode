@@ -25,6 +25,12 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
     private enum IntakeBucketControllerState {
         IDLE,
 
+        WAITING_FOR_BUCKET_CLEARANCE_FOR_TELEOP_SETUP,
+
+        WAITING_FOR_TELEOP_LIFT_RESET,
+
+        WAITING_FOR_BUCKET_ARM_FOR_TELEOP_SETUP,
+
         // setup for init states (run prior to arriving at match),
 
         INTAKE_ARM_MOVING_TO_TRANSFER_POSITION,
@@ -185,6 +191,16 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
     //*********************************************************************************************
     //          Commands
     //*********************************************************************************************
+
+    public void setUpForTeleop(){
+        // rotate the intake out of the way
+        extensionArmIntakeController.setupForBucketClearance();
+        // reset the extension arm
+        extensionArmIntakeController.extensionArm.reset();
+        state = IntakeBucketControllerState.WAITING_FOR_BUCKET_CLEARANCE_FOR_TELEOP_SETUP;
+        // reset the lift
+        // rotate the bucket
+    }
 
     /**
      * This moves the bucket, lift, extension arm and intake arm into positions so that when the driver
@@ -669,6 +685,26 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
         switch (state) {
             case IDLE:
                 // just hang out and wait for a command
+                break;
+
+            case WAITING_FOR_BUCKET_CLEARANCE_FOR_TELEOP_SETUP:
+                if (extensionArmIntakeController.intakeArmServo.isPositionReached()) {
+                    liftBucketArmBucketGateController.lift.reset();
+                    state = IntakeBucketControllerState.WAITING_FOR_TELEOP_LIFT_RESET;
+                }
+                break;
+
+            case WAITING_FOR_TELEOP_LIFT_RESET:
+                if (liftBucketArmBucketGateController.lift.isResetComplete()) {
+                    liftBucketArmBucketGateController.bucketArmServo.transferPosition();
+                    state = IntakeBucketControllerState.WAITING_FOR_BUCKET_ARM_FOR_TELEOP_SETUP;
+                }
+                break;
+
+            case WAITING_FOR_BUCKET_ARM_FOR_TELEOP_SETUP:
+                if (liftBucketArmBucketGateController.bucketArmServo.isPositionReached()) {
+                    state = IntakeBucketControllerState.IDLE;
+                }
                 break;
 
             // setup for init - run before arriving for match

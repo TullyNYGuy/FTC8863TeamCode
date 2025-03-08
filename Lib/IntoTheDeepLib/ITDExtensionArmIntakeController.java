@@ -124,7 +124,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
     private ITDIntakeSweeperVertical intake;
 
     public ITDExtensionArm extensionArm;
-    private ITDIntakeArmServo intakeArmServo;
+    public ITDIntakeArmServo intakeArmServo;
 
     private ITDIntakeBucketController controller;
 

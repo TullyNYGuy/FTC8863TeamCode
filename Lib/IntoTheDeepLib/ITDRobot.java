@@ -157,7 +157,7 @@ public class ITDRobot implements FTCRobot {
 
     @Override
     public boolean createRobot() {
-        imu = new AdafruitIMU8863(hardwareMap, null, "IMU", HardwareName.IMU.hwName);
+        //imu = new AdafruitIMU8863(hardwareMap, null, "IMU", HardwareName.IMU.hwName);
         if (capabilities.contains(Subsystem.MECANUM_DRIVE)) {
             Pose2d beginPose = new Pose2d(0, 0, 0);
             mecanumDrive = new ITDPinpointDrive(hardwareMap, beginPose);
@@ -212,7 +212,13 @@ public class ITDRobot implements FTCRobot {
 //            subsystemMap.put(ledStrip.getName(), ledStrip);
 //        }
 
-        init();
+        if (MatchPhase.getMatchPhase() == MatchPhase.AUTONOMOUS){
+            init();
+        }
+        else{
+
+        }
+
         return true;
     }
 
