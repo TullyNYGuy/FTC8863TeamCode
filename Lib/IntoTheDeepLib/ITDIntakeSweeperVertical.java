@@ -492,6 +492,8 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
      */
     private void ejectActions() {
         logCommand("eject sample");
+        // rotate the intake up more to eject farther away from the intake
+        controller.setIntakeNeedsToEject(true);
         setIntakeSweeperSpeed(-1);
         intakeCommand = IntakeCommand.EJECT;
     }
@@ -994,6 +996,9 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
                 }
                 if (!isSamplePresentFront()) {
                     // the eject succeeded because the sample is gone
+                    // tell the controller the ejection has finished so the intake will rotate
+                    // back down the floor
+                    controller.setIntakeNeedsToEject(false);
                     // in case the eject is coming after a dejam attempt that succeeded
                     dejamCount = 0;
                     // intake again
@@ -1020,6 +1025,9 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
                 }
                 if (timer.milliseconds() > 125 && !isSamplePresentFront()) {
                     // uh oh the sample must have been pushed out the front of the intake
+                    // tell the controller the ejection has finished so the intake will rotate
+                    // back down the floor
+                    controller.setIntakeNeedsToEject(false);
                     // intake again
                     dejamCount = 0;
                     intakeActions();

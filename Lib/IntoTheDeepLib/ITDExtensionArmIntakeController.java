@@ -191,6 +191,16 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
     }
 
     /**
+     * The intake needs to eject the sample while intaking. In order to spit it out further, the
+     * intake will have to be rotated up a bit more.
+     */
+    private boolean intakeNeedsToEject = false;
+
+    public void setIntakeNeedsToEject(boolean intakeNeedsToEject) {
+        this.intakeNeedsToEject = intakeNeedsToEject;
+    }
+
+    /**
      * The intake says it has a good, proper color sample.
      */
     private boolean intakeHasValidSample = false;
@@ -832,6 +842,14 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
                 } else {
                     // if the intake saw a sample, then did not see it again, lower the intake
                     // back towards the floor so it can continue to intake
+                    intakeArmServo.intakePositionHighAltitude();
+                }
+                // The intake needs to tilt up more to eject the sample farther away and not intake
+                // the ejected sample again.
+                if (intakeNeedsToEject) {
+                    intakeArmServo.ejectPosition();
+                } else {
+                    // rotate back down after the sample has been ejected
                     intakeArmServo.intakePositionHighAltitude();
                 }
                 // the intake is smart. It is going to filter through the samples until it has a

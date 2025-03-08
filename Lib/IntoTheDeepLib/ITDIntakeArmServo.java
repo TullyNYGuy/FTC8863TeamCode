@@ -45,7 +45,7 @@ public class ITDIntakeArmServo implements FTCRobotSubsystem {
 
     private boolean initComplete = false;
 
-    private double initPosition = 0.87;
+    private double initPosition = 0.9;
 
     // INDEX WHEN INTAKE IS ON FLOOR AND SERVO = .07
     private double intakePositionReallyLowAltitude = 0.13;
@@ -58,6 +58,7 @@ public class ITDIntakeArmServo implements FTCRobotSubsystem {
     private double shutdownPosition = transferPosition;
 
     private double readyToIntakePosition = 0.35;
+    private double ejectPosition = .45;
 
     //  private double initPosition = 0.65;
     //
@@ -98,6 +99,7 @@ public class ITDIntakeArmServo implements FTCRobotSubsystem {
         intakeArmServo.addPosition("intakePositionHighAltitude", intakePositionHighAltitude, 200, TimeUnit.MILLISECONDS);
         intakeArmServo.addPosition("transferPosition", transferPosition, 400, TimeUnit.MILLISECONDS);
         intakeArmServo.addPosition("readyToIntakePosition", readyToIntakePosition, 100, TimeUnit.MILLISECONDS);
+        intakeArmServo.addPosition("ejectPosition", ejectPosition, 100, TimeUnit.MILLISECONDS);
 
         intakeArmServo.setDirection(Servo.Direction.REVERSE);
     }
@@ -148,6 +150,10 @@ public class ITDIntakeArmServo implements FTCRobotSubsystem {
     public void readyToIntakePosition() {
         intakeArmServo.setPosition("readyToIntakePosition");
         logCommand("Ready To Intake Position");
+    }
+    public void ejectPosition() {
+        intakeArmServo.setPosition("ejectPosition");
+        logCommand("Eject Position");
     }
 
     @Override
