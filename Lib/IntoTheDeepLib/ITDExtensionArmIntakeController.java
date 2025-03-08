@@ -9,6 +9,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogOnChange;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.MatchPhase;
 
 public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
 
@@ -20,6 +21,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
     //*********************************************************************************************
 
     public enum IntakeHeight {
+        BUCKET_CLEARANCE,
         HIGH,
         LOW,
         REALLY_LOW
@@ -186,6 +188,16 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
 
     public boolean hasIntakeSeenSample() {
         return intakeHasSeenSample;
+    }
+
+    /**
+     * The intake needs to eject the sample while intaking. In order to spit it out further, the
+     * intake will have to be rotated up a bit more.
+     */
+    private boolean intakeNeedsToEject = false;
+
+    public void setIntakeNeedsToEject(boolean intakeNeedsToEject) {
+        this.intakeNeedsToEject = intakeNeedsToEject;
     }
 
     /**
@@ -465,6 +477,9 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
         extensionArm.goToPosition(extensionArmPosition);
         // at the same time rotate the intake to the floor
         switch (intakeHeight) {
+            case BUCKET_CLEARANCE:
+                intakeArmServo.bucketClearancePosition();
+                break;
             case HIGH:
                 intakeArmServo.intakePositionHighAltitude();
                 break;
@@ -499,6 +514,20 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
         controller.setIntakeHasValidSample(false);
         controller.setGlidingIntakeFailed(false);
         this.glidingIntakeDelay=glidingIntakeDelay;
+        switch (intakeHeight) {
+            case BUCKET_CLEARANCE:
+                intakeArmServo.bucketClearancePosition();
+                break;
+            case HIGH:
+                intakeArmServo.intakePositionHighAltitude();
+                break;
+            case LOW:
+                intakeArmServo.intakePositionLowAltitude();
+                break;
+            case REALLY_LOW:
+                intakeArmServo.intakePositionReallyLowAltitude();
+                break;
+        }
         //start the intake
         intake.intake();
         // extend the arm looking for a sample
@@ -556,6 +585,10 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
 //        // tell the intake / bucket controller that the intake is not ready for a transfer yet
 //        state = ExtensionArmIntakeBucketControllerState.INTAKE_ARM_MOVING_TO_TRANSFER_POSITION;
 //    }
+
+    public void cleanupFromFailedGlidingIntake(double distance) {
+
+    }
 
     public void transfer() {
         logCommand("Transfer");
@@ -811,6 +844,14 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
                     // back towards the floor so it can continue to intake
                     intakeArmServo.intakePositionHighAltitude();
                 }
+                // The intake needs to tilt up more to eject the sample farther away and not intake
+                // the ejected sample again.
+                if (intakeNeedsToEject) {
+                    intakeArmServo.ejectPosition();
+                } else {
+                    // rotate back down after the sample has been ejected
+                    intakeArmServo.intakePositionHighAltitude();
+                }
                 // the intake is smart. It is going to filter through the samples until it has a
                 // good one and then let us know.
                 if (intakeHasValidSample) {
@@ -853,7 +894,13 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
                         logComment("Gliding intake failed");
                         controller.setGlidingIntakeFailed(true);
                         intake.stop();
-                        setupForBucketClearance();
+                        if (MatchPhase.getMatchPhase() == MatchPhase.TELEOP) {
+                            setupForBucketClearance();
+                        } else {
+                            // in autonomous we let the autonomous state machine tell us what to do next
+                            state = ExtensionArmIntakeBucketControllerState.IDLE;
+                        }
+
 //                    intakeArmServo.readyToIntakePosition();
 //                    extensionArm.goToPosition(2);
 //                    state = ExtensionArmIntakeBucketControllerState.WAITING_FOR_READY_TO_CYCLE_GLIDE;
@@ -875,7 +922,12 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
                     logComment("Gliding intake failed");
                     controller.setGlidingIntakeFailed(true);
                     intake.stop();
-                    setupForBucketClearance();
+                    if (MatchPhase.getMatchPhase() == MatchPhase.TELEOP) {
+                        setupForBucketClearance();
+                    } else {
+                        // in autonomous we let the autonomous state machine tell us what to do next
+                        state = ExtensionArmIntakeBucketControllerState.IDLE;
+                    }
                 }
                 break;
 //            case WAIT_1_SEC:

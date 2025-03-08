@@ -17,7 +17,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.ServoPosition;
 import java.util.concurrent.TimeUnit;
 
 @Config
-public class ITDBucketArmServo implements FTCRobotSubsystem {
+public class ITDIntakeGateServo implements FTCRobotSubsystem {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -32,9 +32,9 @@ public class ITDBucketArmServo implements FTCRobotSubsystem {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
-    private Servo8863New bucketArmServo;
+    private Servo8863New intakeGateServo;
 
-    private final String BUCKET_ARM_SERVO_NAME = ITDRobot.HardwareName.BUCKET_ARM_SERVO.hwName;
+    private final String INTAKE_GATE_SERVO_NAME = ITDRobot.HardwareName.INTAKE_GATE_SERVO.hwName;
 
     private DataLogging logFile;
 
@@ -44,29 +44,12 @@ public class ITDBucketArmServo implements FTCRobotSubsystem {
 
     private boolean initComplete = false;
 
-    private double initPosition = 0.98;
-    private double intakePosition = 0.03;
-    private double safeForVerticalMovementPosition = 0.5;
-    private double afterDeliverPosition = 0.6;
-    private double deliveryPosition = 0.33;
-    private double transferPosition = 0.96;
-    private double specimenPickupPosition = 0.7;
-    private double specimenHangLowBarPosition = 0.7;
-    private double specimenHangHighBarPosition = 0.75;
-    private double parkPosition = 0.69;
-
-    //    private double initPosition = 0.98;
-    //    private double intakePosition = 0.03;
-    //
-    //    // index when arm is vertical and servo = .52
-    //    private double safeForVerticalMovementPosition = 0.52;
-    //    private double deliveryPosition = 0.42;
-    //    private double transferPosition = 0.99;
-    //    private double specimenPickupPosition = 0.7;
-    //    private double specimenHangLowBarPosition = 0.7;
-    //    private double specimenHangHighBarPosition = 0.75;
-
-    private double shutdownPosition = transferPosition;
+    // no index position
+    private double openPosition = 0.2;
+    private double closePosition = 0;
+    private double pickupPosition = 0.7;
+    private double initPosition = closePosition;
+    private double shutdownPosition = closePosition;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -83,20 +66,15 @@ public class ITDBucketArmServo implements FTCRobotSubsystem {
     // from it
     //*********************************************************************************************
 
-    public ITDBucketArmServo(HardwareMap hardwareMap, Telemetry telemetry) {
-        bucketArmServo = new Servo8863New(BUCKET_ARM_SERVO_NAME, hardwareMap, telemetry);
+    public ITDIntakeGateServo(HardwareMap hardwareMap, Telemetry telemetry) {
+        intakeGateServo = new Servo8863New(INTAKE_GATE_SERVO_NAME, hardwareMap, telemetry);
 
-        bucketArmServo.addPosition("initPosition", initPosition, 700, TimeUnit.MILLISECONDS);
-        bucketArmServo.addPosition("intakePosition", intakePosition, 700, TimeUnit.MILLISECONDS);
-        bucketArmServo.addPosition("safeForVerticalMovementPosition", safeForVerticalMovementPosition, 900, TimeUnit.MILLISECONDS);
-        bucketArmServo.addPosition("safeForVerticalMovementPositionAfterDelivery", afterDeliverPosition, 300, TimeUnit.MILLISECONDS);
-        bucketArmServo.addPosition("deliveryPosition", deliveryPosition, 300, TimeUnit.MILLISECONDS);
-        bucketArmServo.addPosition("transferPosition", transferPosition, 600, TimeUnit.MILLISECONDS);
-        bucketArmServo.addPosition("specimenPickupPosition", specimenPickupPosition, 800, TimeUnit.MILLISECONDS);
-        bucketArmServo.addPosition("specimenHangLowBarPosition", specimenHangLowBarPosition, 1000, TimeUnit.MILLISECONDS);
-        bucketArmServo.addPosition("specimenHangHighBarPosition", specimenHangHighBarPosition, 800, TimeUnit.MILLISECONDS);
-        bucketArmServo.addPosition("parkPosition", parkPosition, 800, TimeUnit.MILLISECONDS);
-        bucketArmServo.setDirection(Servo.Direction.FORWARD);
+        intakeGateServo.addPosition("initPosition", initPosition, 100, TimeUnit.MILLISECONDS);
+        intakeGateServo.addPosition("openPosition", openPosition, 100, TimeUnit.MILLISECONDS);
+        intakeGateServo.addPosition("closePosition", closePosition, 100, TimeUnit.MILLISECONDS);
+        intakeGateServo.addPosition("pickupPosition", closePosition, 100, TimeUnit.MILLISECONDS);
+
+        intakeGateServo.setDirection(Servo.Direction.FORWARD);
     }
     //*********************************************************************************************
     //          Helper Methods
@@ -115,81 +93,48 @@ public class ITDBucketArmServo implements FTCRobotSubsystem {
     //*********************************************************************************************
 
     public void initPosition() {
-        bucketArmServo.setPosition("initPosition");
+        intakeGateServo.setPosition("initPosition");
         logCommand("Init position");
     }
 
-    public void intakePosition() {
-        bucketArmServo.setPosition("intakePosition");
+    public void openPosition() {
+        intakeGateServo.setPosition("openPosition");
         logCommand("Intake position");
     }
 
-    public void safeForVerticalMovementPosition() {
-        bucketArmServo.setPosition("safeForVerticalMovementPosition");
-        logCommand("Safe for vertical movement position");
-    }
-    public void safeForVerticalMovementPositionAfterDelivery() {
-        bucketArmServo.setPosition("safeForVerticalMovementPositionAfterDelivery");
-        logCommand("Safe for vertical movement position");
-    }
-
-    public void deliveryPosition() {
-        bucketArmServo.setPosition("deliveryPosition");
-        logCommand("Delivery position");
-    }
-
-    public void transferPosition() {
-        bucketArmServo.setPosition("transferPosition");
+    public void closePosition() {
+        intakeGateServo.setPosition("closePosition");
         logCommand("Transfer position");
-    }
-
-    public void parkPosition() {
-        bucketArmServo.setPosition("parkPosition");
-        logCommand("park position");
-    }
-    public void specimenPickupPosition() {
-        bucketArmServo.setPosition("specimenPickupPosition");
-        logCommand("Specimen pickup position");
-    }
-
-    public void specimenHangLowBarPosition() {
-        bucketArmServo.setPosition("specimenHangLowBarPosition");
-        logCommand("Specimen low bar position");
-    }
-
-    public void specimenHangHighBarPosition() {
-        bucketArmServo.setPosition("specimenHangHighBarPosition");
-        logCommand("Specimen high bar position");
     }
 
     @Override
     public void shutdown() {
-        transferPosition();
+        closePosition();
         logCommand("shutdown");
     }
 
 
     public void bumpUpBig() {
-        bucketArmServo.bump(0.1);
+        intakeGateServo.bump(0.1);
     }
 
     public void bumpDownBig() {
-        bucketArmServo.bump(-0.1);
+        intakeGateServo.bump(-0.1);
     }
 
     public void bumpUpSmall() {
-        bucketArmServo.bump(0.01);
+        intakeGateServo.bump(0.01);
     }
 
     public void bumpDownSmall() {
-        bucketArmServo.bump(-0.01);
+        intakeGateServo.bump(-0.01);
     }
 
     //*********************************************************************************************
     //          Feedback
     //*********************************************************************************************
     public boolean isPositionReached() {
-        return bucketArmServo.isPositionReached();
+        return intakeGateServo.isPositionReached();
     }
 
     //*********************************************************************************************
@@ -197,23 +142,23 @@ public class ITDBucketArmServo implements FTCRobotSubsystem {
     //*********************************************************************************************
 
     public double getCurrentPosition() {
-        return bucketArmServo.getCurrentPosition();
+        return intakeGateServo.getCurrentPosition();
     }
 
     public ServoPosition getServoPosition(String positionName) {
-        return bucketArmServo.getServoPosition(positionName);
+        return intakeGateServo.getServoPosition(positionName);
     }
 
     public void changeServoPosition(String positionName, double position) {
-        bucketArmServo.changePosition(positionName, position);
+        intakeGateServo.changePosition(positionName, position);
     }
 
     public void testPositionUsingJoystick(LinearOpMode opmode) {
-        bucketArmServo.testPositionsUsingJoystick(opmode);
+        intakeGateServo.testPositionsUsingJoystick(opmode);
     }
 
     public void setupServoPositionsUsingGamepad(LinearOpMode opmode) {
-        bucketArmServo.setupServoPositionsUsingGamepad(opmode);
+        intakeGateServo.setupServoPositionsUsingGamepad(opmode);
     }
 
     //*********************************************************************************************
@@ -221,23 +166,23 @@ public class ITDBucketArmServo implements FTCRobotSubsystem {
     //*********************************************************************************************
     @Override
     public String getName() {
-        return BUCKET_ARM_SERVO_NAME;
+        return INTAKE_GATE_SERVO_NAME;
     }
 
     /**
-     * Since the bucket arm servo will probably not be a robot subsystem directly, this should not
+     * Since the bucket gate servo will probably not be a robot subsystem directly, this should not
      * get called. The intake arm / bucket arm / extension arm controller will contain this subsystem.
      *
      * @param config
      * @return
      */
     @Override
-    public boolean init(Configuration config){
+    public boolean init(Configuration config) {
         return true;
     }
 
     /**
-     * Since the bucket arm servo will probably not be a robot subsystem directly, this should not
+     * Since the bucket gate servo will probably not be a robot subsystem directly, this should not
      * get called. The intake arm / bucket arm / extension arm controller will contain this subsystem.
      */
     @Override
@@ -280,6 +225,6 @@ public class ITDBucketArmServo implements FTCRobotSubsystem {
      * This method does not need to be called since isPositionReached() is typically called directly.
      */
     public void update() {
-        bucketArmServo.isPositionReached();
+        intakeGateServo.isPositionReached();
     }
 }

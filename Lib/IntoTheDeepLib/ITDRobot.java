@@ -46,6 +46,7 @@ public class ITDRobot implements FTCRobot {
 //        WEBCAM("Webcam"),
 
         INTAKE_ARM_SERVO("intakeArmServo"),
+        INTAKE_GATE_SERVO("intakeGateServo"),
 
         BUCKET_ARM_SERVO("bucketArmServo"),
         BUCKET_GATE_SERVO("bucketGateServo"),
