@@ -68,6 +68,8 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
 
         // intake states
         WAITING_FOR_A_GOOD_SAMPLE,
+        WAITING_FOR_ROTATION_TO_EJECTION_POSITION,
+        WAITING_FOR_EJECTION_TO_COMPLETE,
         INTAKE_STOPPED,
 
         //setup for transfer states
@@ -198,6 +200,12 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
 
     public void setIntakeNeedsToEject(boolean intakeNeedsToEject) {
         this.intakeNeedsToEject = intakeNeedsToEject;
+    }
+
+    private boolean intakeEjectionComplete = false;
+
+    public void setIntakeEjectionComplete(boolean intakeEjectionComplete) {
+        this.intakeEjectionComplete = intakeEjectionComplete;
     }
 
     /**
@@ -847,10 +855,10 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
                 // The intake needs to tilt up more to eject the sample farther away and not intake
                 // the ejected sample again.
                 if (intakeNeedsToEject) {
+                    // reset the flag
+                    intakeNeedsToEject = false;
                     intakeArmServo.ejectPosition();
-                } else {
-                    // rotate back down after the sample has been ejected
-                    intakeArmServo.intakePositionHighAltitude();
+                    state = ExtensionArmIntakeBucketControllerState.WAITING_FOR_ROTATION_TO_EJECTION_POSITION;
                 }
                 // the intake is smart. It is going to filter through the samples until it has a
                 // good one and then let us know.
@@ -859,6 +867,22 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
                     setupForTransfer();
                 }
                 break;
+            case WAITING_FOR_ROTATION_TO_EJECTION_POSITION:
+                if (intakeArmServo.isPositionReached()) {
+                    intake.setRotationToEjectPositionComplete(true);
+                    state = ExtensionArmIntakeBucketControllerState.WAITING_FOR_EJECTION_TO_COMPLETE;
+                }
+                break;
+            case WAITING_FOR_EJECTION_TO_COMPLETE:
+                if (intakeEjectionComplete) {
+                    // reset the flag
+                    intakeEjectionComplete = false;
+                    // the ejection has complete so back to intaking
+                    intakeArmServo.intakePositionHighAltitude();
+                    state = ExtensionArmIntakeBucketControllerState.WAITING_FOR_A_GOOD_SAMPLE;
+                }
+                break;
+
             case INTAKE_STOPPED:
                 // intake is stopped. Wait for a new command.
                 break;
@@ -883,6 +907,9 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
                 // It also would avoid putting in a longer delay for the gliding intake after the
                 // extension has been reached. Intake of the sample can take longer than 250mSec
                 // after the end of the extension has been reached.
+
+                //todo implement rotation of the intake when a sample is seen
+                //todo implement rotation of the intake when an eject is requested
                 if (intakeHasValidSample) {
                     controller.setIntakeHasValidSample(true);
                     controller.setGlidingIntakeFailed(false);
