@@ -16,17 +16,36 @@ public class ITDDeliveryTracker {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
-private int sampleCount = 0;
+    private int numberOfSamplesDelivered = 0;
 
-public void deliveryOccured () {
-    sampleCount = sampleCount + 1;
-}
+    private ITDLift lift;
+
+    public void setLift(ITDLift lift) {
+        this.lift = lift;
+    }
+
+    public void deliveryOccured() {
+        numberOfSamplesDelivered++;
+        setHighDeliveryPosition();
+    }
+
+    public void setHighDeliveryPosition() {
+        if (numberOfSamplesDelivered > 12) {
+            lift.setDeliveryHeight(ITDLift.Basket.HIGH_TELEOP);
+        } else {
+            lift.setDeliveryHeight((ITDLift.Basket.HIGH_AUTO));
+        }
+    }
     //*********************************************************************************************
     //          Constructors
     //
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
+
+    public ITDDeliveryTracker() {
+
+    }
 
     //*********************************************************************************************
     //          Helper Methods

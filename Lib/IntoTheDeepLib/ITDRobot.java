@@ -181,6 +181,7 @@ public class ITDRobot implements FTCRobot {
             subsystemMap.put(liftBucketArmBucketGateController.getName(), liftBucketArmBucketGateController);
             liftBucketArmBucketGateController.setIntakeBucketController(intakeBucketController);
             intakeBucketController.setLiftBucketArmBucketGateController(liftBucketArmBucketGateController);
+            intakeBucketController.deliveryTracker.setLift(liftBucketArmBucketGateController.lift);
         }
 
         // Only setup and init the camera if this is autonomous. It takes up CPU and memory and is not needed in teleop.

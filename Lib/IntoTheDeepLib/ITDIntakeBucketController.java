@@ -124,7 +124,7 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
     public void setAutonomousStateMachine(ITDAutonomousStateMachineNewold autonomousStateMachine) {
         this.autonomousStateMachine = autonomousStateMachine;
     }
-
+    public ITDDeliveryTracker deliveryTracker;
     private double glidingIntakeMaxExtension;
     private double glidingIntakePower;
     //*********************************************************************************************
@@ -142,6 +142,8 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
     public boolean isSetupForDeliveryComplete() {
         return setupForDeliveryComplete;
     }
+
+    private boolean allowInitialSetupForIntake = true;
 
 //    private boolean bucketAtTransferPositionAfterDelivery = false;
 //
@@ -175,6 +177,7 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
 
         timer = new ElapsedTime();
         state = IntakeBucketControllerState.IDLE;
+        deliveryTracker = new ITDDeliveryTracker();
     }
     //*********************************************************************************************
     //          Helper Methods
@@ -341,6 +344,7 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
             liftBucketAtTransferPosition = false;
             liftBucketArmBucketGateController.deliverSample();
             state = IntakeBucketControllerState.DELIVERING_SAMPLE_AND_BUCKET_MOVING_TO_TRANSFER_POSITION;
+            deliveryTracker.deliveryOccured();
         }
     }
 
@@ -350,18 +354,30 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
      * extend extension arm to intake position (the intake arm is still up in the air though)
      */
     public void setupForIntake() {
-        logCommand("Setup for intake");
-        setupForIntakeComplete = false;
-        extensionArmIntakeController.setupForIntake();
-        liftBucketArmBucketGateController.closeGate();
-        state = IntakeBucketControllerState.EXTENSION_ARM_INTAKE_MOVING_TO_SETUP_FOR_INTAKE_POSITION;
+        if (isLiftBucketSampleIsDelivered() || allowInitialSetupForIntake) {
+            allowInitialSetupForIntake = false;
+            logCommand("Setup for intake");
+            setupForIntakeComplete = false;
+            extensionArmIntakeController.setupForIntake();
+            liftBucketArmBucketGateController.closeGate();
+            state = IntakeBucketControllerState.EXTENSION_ARM_INTAKE_MOVING_TO_SETUP_FOR_INTAKE_POSITION;
+        }
+        else {
+            log("Setup for intake ignored");
+        }
     }
     public void setupForIntake(double extentionArmPosition) {
-        logCommand("Setup for intake");
-        setupForIntakeComplete = false;
-        extensionArmIntakeController.setupForIntake(extentionArmPosition);
-        liftBucketArmBucketGateController.closeGate();
-        state = IntakeBucketControllerState.EXTENSION_ARM_INTAKE_MOVING_TO_SETUP_FOR_INTAKE_POSITION;
+        if (isLiftBucketSampleIsDelivered() || allowInitialSetupForIntake) {
+            allowInitialSetupForIntake = false;
+            logCommand("Setup for intake");
+            setupForIntakeComplete = false;
+            extensionArmIntakeController.setupForIntake(extentionArmPosition);
+            liftBucketArmBucketGateController.closeGate();
+            state = IntakeBucketControllerState.EXTENSION_ARM_INTAKE_MOVING_TO_SETUP_FOR_INTAKE_POSITION;
+        }
+      else {
+          log("Setup for intake ignored");
+        }
     }
 
     /**
