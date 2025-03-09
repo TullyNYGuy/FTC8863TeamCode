@@ -76,6 +76,9 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
         INTAKE_ARM_MOVING_TO_TRANSFER_POSITION,
         EXTENSION_ARM_MOVING_TO_TRANSFER_POSITION,
         AT_TRANSFER_POSITION,
+        WAITING_FOR_INTAKE_AT_PASSTHROUGH_POSITION,
+        WAITING_FOR_EXTENSION_ARM_AFTER_PASSTHROUGH,
+        WAITING_FOR_TRANSFER_POSITION_AFTER_PASSTHROUGH,
 
         // gliding intake states
         WAITING_FOR_SETUP_GLIDING_INTAKE,
@@ -104,6 +107,21 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
     }
 
     private ExtensionArmIntakeBucketControllerState state;
+
+    public enum TransferMode {
+        LONG_SIDE_TRANSFER,
+        SHORT_SIDE_TRANSFER
+
+    }
+    private TransferMode transferMode = TransferMode.LONG_SIDE_TRANSFER;
+
+    public TransferMode getTransferMode() {
+        return transferMode;
+    }
+
+    public void setTransferMode(TransferMode transferMode) {
+        this.transferMode = transferMode;
+    }
 
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS AND SETTERS and GETTERS
@@ -136,6 +154,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
     public double getCurrentPosition(){
         return extensionArm.getCurrentPosition();
     }
+    private boolean intakeTypeIsGliding=false;
 
 
     //*********************************************************************************************
@@ -259,6 +278,10 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
 
     public void setOuttakeComplete(boolean outtakeComplete) {
         this.outtakeComplete = outtakeComplete;
+    }
+
+    public ITDIntakeBucketController.DeliveryMode getDeliveryMode() {
+        return controller.getDeliveryMode();
     }
 
     //*********************************************************************************************
@@ -445,6 +468,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
      * then the setupForTranfer() will be automatically called.
      */
     public void intakeLowAltitude() {
+        intakeTypeIsGliding=false;
         logCommand("Intake");
         controller.setIntakeHasValidSample(false);
         // lower the intake to the floor
@@ -460,6 +484,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
      * then the setupForTranfer() will be automatically called.
      */
     public void intakeHighAltitude() {
+        intakeTypeIsGliding=false;
         logCommand("Intake");
         controller.setIntakeHasValidSample(false);
         // lower the intake to the floor
@@ -516,6 +541,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
      *      glidingIntakeFailed = false
      */
     public void runGlidingIntake(double maxPosition, double power,double glidingIntakeDelay) {
+        intakeTypeIsGliding=true;
         logCommand("Run gliding intake to " + maxPosition);
         // tell the intake bucket controller we do not have a sample and the gliding intake has not
         // failed yet
@@ -551,6 +577,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
      * @param maxPosition
      */
     public void runGlidingIntake(double maxPosition) {
+        intakeTypeIsGliding=true;
         logCommand("Run gliding intake to " + maxPosition);
         // tell the intake bucket controller we do not have a sample and the gliding intake has not
         // failed yet
@@ -580,11 +607,21 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
         logCommand("Setup for transfer");
         // tell the intake / bucket controller that the intake is not ready for a transfer yet
         controller.setIntakePositionedForTransfer(false);
-        intakeArmServo.transferPosition();
-        // added this so it occurs in parallel
-        extensionArm.transferPosition();
-        timer.reset();
-        state = ExtensionArmIntakeBucketControllerState.EXTENSION_ARM_MOVING_TO_TRANSFER_POSITION;
+        switch(transferMode) {
+            case LONG_SIDE_TRANSFER:
+                intakeArmServo.transferPosition();
+                // added this so it occurs in parallel
+                extensionArm.transferPosition();
+                timer.reset();
+                state = ExtensionArmIntakeBucketControllerState.EXTENSION_ARM_MOVING_TO_TRANSFER_POSITION;
+                break;
+            case SHORT_SIDE_TRANSFER:
+                intakeArmServo.shortSidePassthroughPosition();
+                timer.reset();
+                state = ExtensionArmIntakeBucketControllerState.WAITING_FOR_INTAKE_AT_PASSTHROUGH_POSITION;
+                break;
+        }
+
     }
 //    public void setupIntakeAfterDeliver() {
 //        logCommand("Setup Intake After Delivery");
@@ -609,6 +646,8 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
         logCommand("Setup for outtake");
         extensionArm.bucketClearancePosition();
         intakeArmServo.bucketClearancePosition();
+        controller.setLiftBucketSampleIsDelivered(false);
+        controller.setLiftBucketAtTransferPosition(false);
         state = ExtensionArmIntakeBucketControllerState.MOVING_TO_OUTTAKE_POSITION;
     }
 
@@ -879,7 +918,12 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
                     intakeEjectionComplete = false;
                     // the ejection has complete so back to intaking
                     intakeArmServo.intakePositionHighAltitude();
-                    state = ExtensionArmIntakeBucketControllerState.WAITING_FOR_A_GOOD_SAMPLE;
+                    if (intakeTypeIsGliding){
+                        state = ExtensionArmIntakeBucketControllerState.WAITING_FOR_GOOD_GLIDING_SAMPLE;
+                    }else {
+                        state = ExtensionArmIntakeBucketControllerState.WAITING_FOR_A_GOOD_SAMPLE;
+                    }
+                   
                 }
                 break;
 
@@ -914,6 +958,14 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
                     controller.setIntakeHasValidSample(true);
                     controller.setGlidingIntakeFailed(false);
                     setupForTransfer();
+                }
+                // The intake needs to tilt up more to eject the sample farther away and not intake
+                // the ejected sample again.
+                if (intakeNeedsToEject) {
+                    // reset the flag
+                    intakeNeedsToEject = false;
+                    intakeArmServo.ejectPosition();
+                    state = ExtensionArmIntakeBucketControllerState.WAITING_FOR_ROTATION_TO_EJECTION_POSITION;
                 }
                 // The arm extended all the way out and did not intake a sample
                 if (extensionArm.isPositionReached()) {
@@ -986,6 +1038,25 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
                 if (intakeArmServo.isPositionReached() && extensionArmPositionReached) {
                     // all the movements are finished. Tell the intake bucket controller that the
                     // intake is ready for a transfer.
+                    controller.setIntakePositionedForTransfer(true);
+                    state = ExtensionArmIntakeBucketControllerState.AT_TRANSFER_POSITION;
+                }
+                break;
+
+            case WAITING_FOR_INTAKE_AT_PASSTHROUGH_POSITION:
+                if (intakeArmServo.isPositionReached()) {
+                    extensionArm.transferPosition();
+                    state = ExtensionArmIntakeBucketControllerState.WAITING_FOR_EXTENSION_ARM_AFTER_PASSTHROUGH;
+                }
+                break;
+            case WAITING_FOR_EXTENSION_ARM_AFTER_PASSTHROUGH:
+                if (extensionArm.isPositionReached()) {
+                    intakeArmServo.transferPosition();
+                    state = ExtensionArmIntakeBucketControllerState.WAITING_FOR_TRANSFER_POSITION_AFTER_PASSTHROUGH;
+                }
+                break;
+            case WAITING_FOR_TRANSFER_POSITION_AFTER_PASSTHROUGH:
+                if (intakeArmServo.isPositionReached()) {
                     controller.setIntakePositionedForTransfer(true);
                     state = ExtensionArmIntakeBucketControllerState.AT_TRANSFER_POSITION;
                 }

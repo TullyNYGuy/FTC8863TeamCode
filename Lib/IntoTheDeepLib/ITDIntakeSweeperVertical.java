@@ -257,6 +257,7 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
             case INTAKING:
             case OUTTAKING:
             case OUTTAKING_UNTIL_STOP_REQUESTED:
+            case EJECTING:
                 // allow the command when in the above states
                 intakeState = IntakeState.IDLE;
                 stopActions();
@@ -264,7 +265,7 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
 
             case HAVE_SAMPLE_DETERMINING_COLOR:
             case WAITING_FOR_MOVEMENT_TO_TRANSFER_POSITION:
-            case EJECTING:
+
             case DEJAMMING_EJECTION:
             case DEJAMMING_TRANSFER:
             case WAITING_FOR_MOVE_TO_OUTTAKING:
@@ -1033,7 +1034,12 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
                         controller.setupForTransfer();
                     }
                     else {
-                        intake();
+                        if (controller.getDeliveryMode() == ITDIntakeBucketController.DeliveryMode.BASKET) {
+                            intake();
+                        }
+                        else {
+                            stop();
+                        }
                     }
                 }
                 break;

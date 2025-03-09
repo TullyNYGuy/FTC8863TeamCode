@@ -60,6 +60,8 @@ public class ITDIntakeArmServo implements FTCRobotSubsystem {
     private double readyToIntakePosition = 0.35;
     private double ejectPosition = .6;
 
+    private double shortSidePassthroughPosition = .45;
+
     //  private double initPosition = 0.65;
     //
     //    // INDEX WHEN INTAKE IS ON FLOOR AND SERVO = .1
@@ -100,6 +102,7 @@ public class ITDIntakeArmServo implements FTCRobotSubsystem {
         intakeArmServo.addPosition("transferPosition", transferPosition, 400, TimeUnit.MILLISECONDS);
         intakeArmServo.addPosition("readyToIntakePosition", readyToIntakePosition, 100, TimeUnit.MILLISECONDS);
         intakeArmServo.addPosition("ejectPosition", ejectPosition, 100, TimeUnit.MILLISECONDS);
+        intakeArmServo.addPosition("shortSidePassthroughPosition", shortSidePassthroughPosition, 100, TimeUnit.MILLISECONDS);
 
         intakeArmServo.setDirection(Servo.Direction.REVERSE);
     }
@@ -155,7 +158,10 @@ public class ITDIntakeArmServo implements FTCRobotSubsystem {
         intakeArmServo.setPosition("ejectPosition");
         logCommand("Eject Position");
     }
-
+    public void shortSidePassthroughPosition() {
+        intakeArmServo.setPosition("shortSidePassthroughPosition");
+        logCommand("shortSidePassthroughPosition");
+    }
     @Override
     public void shutdown() {
         transferPosition();

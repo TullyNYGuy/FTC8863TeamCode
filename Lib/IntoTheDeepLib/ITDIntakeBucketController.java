@@ -84,11 +84,28 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
         // TRANSFER_COMPLETE (REUSED)
         //setup for gliding intake states
         WAIT_FOR_SETUP_FOR_GLIDING_INTAKE,
-        SETUP_FOR_GLIDING_INTAKE_COMPLETE
+        SETUP_FOR_GLIDING_INTAKE_COMPLETE,
+        WAITING_FOR_SETUP_FOR_OUTAKE,
+        WAITING_FOR_OUTAKE_TO_COMPLETE
 
     }
 
     private IntakeBucketControllerState state;
+
+    public enum DeliveryMode {
+        BASKET,
+        PARTNER
+    }
+
+    private DeliveryMode deliveryMode = DeliveryMode.BASKET;
+
+    public DeliveryMode getDeliveryMode() {
+        return deliveryMode;
+    }
+
+    public void setDeliveryMode(DeliveryMode deliveryMode) {
+        this.deliveryMode = deliveryMode;
+    }
 
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS AND SETTERS and GETTERS
@@ -345,6 +362,15 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
             liftBucketArmBucketGateController.deliverSample();
             state = IntakeBucketControllerState.DELIVERING_SAMPLE_AND_BUCKET_MOVING_TO_TRANSFER_POSITION;
             deliveryTracker.deliveryOccured();
+        }
+    }
+    public void deliverSampleToPartner() {
+        if (state == state.WAITING_FOR_READY_TO_TRANSFER) {
+            logCommand("Deliver sample to partner");
+            // The setup for outtake actually runs the whole outtake so we just have to wait for it
+            // to complete
+            extensionArmIntakeController.setupForOuttake();
+            state = IntakeBucketControllerState.WAITING_FOR_OUTAKE_TO_COMPLETE;
         }
     }
 
@@ -897,14 +923,19 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
             // Intake states
             case INTAKING:
                 if (intakeHasValidSample && intakePositionedForTransfer) {
-                    //todo now that the extension arm is so fast, we may need to open the gate sooner
-                    // BUT we can't open it so soon that it gets stuck on the intake arm chain
-                    // while the extension arm is retracting
-                    liftBucketArmBucketGateController.openGate();
-                    //todo alternatively we could delay the transfer for just a bit. This is
-                    // probably the better option.
-                    extensionArmIntakeController.transfer();
-                    state = IntakeBucketControllerState.TRANSFERRING;
+                    if (deliveryMode == DeliveryMode.BASKET) {
+                        //todo now that the extension arm is so fast, we may need to open the gate sooner
+                        // BUT we can't open it so soon that it gets stuck on the intake arm chain
+                        // while the extension arm is retracting
+                        liftBucketArmBucketGateController.openGate();
+                        //todo alternatively we could delay the transfer for just a bit. This is
+                        // probably the better option.
+                        extensionArmIntakeController.transfer();
+                        state = IntakeBucketControllerState.TRANSFERRING;
+                    }
+                    else {
+                        state = IntakeBucketControllerState.WAITING_FOR_READY_TO_TRANSFER;
+                    }
                 }
                 if (glidingIntakeFailed) {
                     // reset the flag so future intakes don't see a gliding intake failed
@@ -932,6 +963,15 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
                 break;
 //            case TRANSFER_COMPLETE:
 //                break;
+
+            // states for delivering sample to partner
+            case WAITING_FOR_OUTAKE_TO_COMPLETE:
+                if (intakePositionedForTransfer) {
+                    // outtake has completed, it is just like we had a delivery to the basket
+                    liftBucketAtTransferPosition = true;
+                    state = IntakeBucketControllerState.AT_TRANSFER_POSITION_AFTER_DELIVERY;
+                }
+                break;
         }
 
     }

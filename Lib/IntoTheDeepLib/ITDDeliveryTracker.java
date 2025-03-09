@@ -22,6 +22,7 @@ public class ITDDeliveryTracker {
 
     public void setLift(ITDLift lift) {
         this.lift = lift;
+        lift.setDeliveryHeight(ITDLift.Basket.HIGH_AUTO);
     }
 
     public void deliveryOccured() {

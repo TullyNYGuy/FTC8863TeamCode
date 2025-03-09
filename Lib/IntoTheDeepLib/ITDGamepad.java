@@ -381,15 +381,18 @@ public class ITDGamepad {
         if (gamepad2a.buttonPress(gamepad2.a)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            robot.intakeBucketController.setupAndRunGlidingIntake(.1);
+            robot.intakeBucketController.setDeliveryMode(ITDIntakeBucketController.DeliveryMode.PARTNER);
+            robot.intakeBucketController.intakeHighAltitude();
         }
 
         if (gamepad2b.buttonPress(gamepad2.b)) {
+            robot.extensionArmIntakeController.setTransferMode(ITDExtensionArmIntakeController.TransferMode.SHORT_SIDE_TRANSFER);
+            robot.intakeBucketController.intakeHighAltitude();
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
             //robot.robotModes.setMaxDrivingPower(.75);
             //robot.intakeBucketController.intakeHighAltitude();
-            robot.intakeBucketController.intakeLowAltitude();
+
         }
 
         if (gamepad2y.buttonPress(gamepad2.y)) {
@@ -402,6 +405,7 @@ public class ITDGamepad {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
             //robot.robotModes.setMaxDrivingPower(1.0);
+            robot.extensionArmIntakeController.setTransferMode(ITDExtensionArmIntakeController.TransferMode.LONG_SIDE_TRANSFER);
             robot.intakeBucketController.intakeHighAltitude();
             //robot.intakeBucketController.intakeLowAltitude();
         }
@@ -426,6 +430,7 @@ public class ITDGamepad {
         }
 
         if (gamepad2DpadRight.buttonPress(gamepad2.dpad_right)) {
+            robot.intakeBucketController.deliverSampleToPartner();
 
             //robot.intakeBucketController.setupForDelivery();
             // this was a new button press, not a button held down for a while
