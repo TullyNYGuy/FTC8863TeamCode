@@ -923,7 +923,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
                     }else {
                         state = ExtensionArmIntakeBucketControllerState.WAITING_FOR_A_GOOD_SAMPLE;
                     }
-                   
+
                 }
                 break;
 

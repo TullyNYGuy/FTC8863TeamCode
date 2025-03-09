@@ -165,6 +165,7 @@ public class ITDExtensionArm implements FTCRobotSubsystem {
     }
 
     public void reset() {
+        extensionArm.setResetPower(-.6);
         extensionArm.reset();
         controller.setExtensionArmResetComplete(false);
         state = ExtensionArmState.RESETING;

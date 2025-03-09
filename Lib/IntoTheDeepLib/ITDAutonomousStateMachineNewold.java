@@ -653,7 +653,7 @@ public class ITDAutonomousStateMachineNewold {
                         currentState = States.WAIT_FOR_DELIVER_SAMPLE;
                     }
                     else {
-                        robot.intakeBucketController.setupForDelivery();
+                    //    robot.intakeBucketController.setupForDelivery();
                         currentState = States.WAIT_FOR_DELIVERY_JOE;
                     }
 
@@ -669,7 +669,7 @@ public class ITDAutonomousStateMachineNewold {
                         currentState = States.WAIT_FOR_DELIVER_SAMPLE;
                     }
                     else {
-                        robot.intakeBucketController.setupForDelivery();
+                      //  robot.intakeBucketController.setupForDelivery();
                         currentState = States.WAIT_FOR_DELIVERY_JOE;
                     }
 
