@@ -50,7 +50,7 @@ public class ITDIntakeArmServo implements FTCRobotSubsystem {
     // INDEX WHEN INTAKE IS ON FLOOR AND SERVO = .07
     private double intakePositionReallyLowAltitude = 0.13;
     private double intakePositionLowAltitude = 0.18;
-    private double intakePositionHighAltitude = 0.23;
+    private double intakePositionHighAltitude = 0.19;
 
     private double bucketClearancePosition = 0.6;
     private double transferPosition = 0.86;
