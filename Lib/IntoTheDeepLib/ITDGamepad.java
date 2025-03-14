@@ -386,6 +386,7 @@ public class ITDGamepad {
         }
 
         if (gamepad2b.buttonPress(gamepad2.b)) {
+            robot.intakeBucketController.setDeliveryMode(ITDIntakeBucketController.DeliveryMode.BASKET);
             robot.extensionArmIntakeController.setTransferMode(ITDExtensionArmIntakeController.TransferMode.SHORT_SIDE_TRANSFER);
             robot.intakeBucketController.intakeHighAltitude();
             // this was a new button press, not a button held down for a while
@@ -405,6 +406,7 @@ public class ITDGamepad {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
             //robot.robotModes.setMaxDrivingPower(1.0);
+            robot.intakeBucketController.setDeliveryMode(ITDIntakeBucketController.DeliveryMode.BASKET);
             robot.extensionArmIntakeController.setTransferMode(ITDExtensionArmIntakeController.TransferMode.LONG_SIDE_TRANSFER);
             robot.intakeBucketController.intakeHighAltitude();
             //robot.intakeBucketController.intakeLowAltitude();

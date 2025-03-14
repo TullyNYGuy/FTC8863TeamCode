@@ -216,8 +216,19 @@ public class ITDRobot implements FTCRobot {
         if (MatchPhase.getMatchPhase() == MatchPhase.AUTONOMOUS){
             init();
         }
-        else{
+        else {
+            dataLog.logData("Robot Init starting");
+            timer.reset();
 
+            for (FTCRobotSubsystem subsystem : subsystemMap.values()) {
+                subsystem.setDataLog(dataLog);
+                subsystem.enableDataLogging(); /*
+                if (!subsystem.init(config)) {
+                    if (dataLoggingEnabled)
+                        dataLog.logData(subsystem.getName() + " initialization failed");
+                }
+                */
+            }
         }
 
         return true;
