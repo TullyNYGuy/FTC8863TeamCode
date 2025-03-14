@@ -400,6 +400,7 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
         switch (intakeState) {
             case IDLE:
             case INTAKING:
+            case WAITING_FOR_MOVEMENT_TO_TRANSFER_POSITION:
             case HAVE_SAMPLE_DETERMINING_COLOR: // only for emergencies
                 // allow the command when in the above states
                 intakeState = IntakeState.OUTTAKING_UNTIL_STOP_REQUESTED;
@@ -415,7 +416,6 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
 
             case OUTTAKING:
             case OUTTAKING_UNTIL_STOP_REQUESTED:
-            case WAITING_FOR_MOVEMENT_TO_TRANSFER_POSITION:
             case EJECTING:
             case DEJAMMING_EJECTION:
             case DEJAMMING_TRANSFER:
@@ -1046,7 +1046,7 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
 
             case DEJAMMING_EJECTION:
                 // refresh the distance from the color sample
-                getFreshDistanceFromFrontSensor();;
+                getFreshDistanceFromFrontSensor();
                 if (timer.milliseconds() > 125 && isSamplePresentFront()) {
                     // good the sample stayed in the intake while we ran the sweepers outwards
                     // try the eject again
@@ -1134,6 +1134,12 @@ public class ITDIntakeSweeperVertical implements FTCRobotSubsystem {
                 break;
 
             case OUTTAKING_UNTIL_STOP_REQUESTED:
+                getFreshDistanceFromFrontSensor();
+                if (!isSamplePresentFront()) {
+                    controller.setOuttakeComplete(true);
+                    stop();
+                }
+
                 // just hanging waiting for a stop command
                 break;
         }

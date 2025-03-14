@@ -644,8 +644,8 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
 
     public void setupForOuttake() {
         logCommand("Setup for outtake");
-        extensionArm.bucketClearancePosition();
-        intakeArmServo.bucketClearancePosition();
+        extensionArm.intakePosition();
+        intakeArmServo.ejectPosition();
         controller.setLiftBucketSampleIsDelivered(false);
         controller.setLiftBucketAtTransferPosition(false);
         state = ExtensionArmIntakeBucketControllerState.MOVING_TO_OUTTAKE_POSITION;
@@ -1098,7 +1098,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
                     controller.setIntakeHasValidSample(false);
                     // move the intake and extension arm back to the transfer position to prepare
                     // for the driver's next move
-                    setupForTransfer();
+                    setupForBucketClearance();
                 }
                 break;
 
