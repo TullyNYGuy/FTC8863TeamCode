@@ -188,8 +188,9 @@ public class ITDAutonomousStateMachineNewold {
     //private Pose2d sample3IntakePose=new Pose2d(55.5, 25.25, Math.toRadians(0));
     private Pose2d sample3IntakePose=new Pose2d(60.75, 43.5, Math.toRadians(-70));
     private Pose2d initAfter3rdSampleFail=new Pose2d(49.5, 41, Math.toRadians(-45));
-    private Pose2d subPose=new Pose2d(16.5, 0, Math.toRadians(-180));
-    private Pose2d sample5IntakePose=new Pose2d(16.5, 5, Math.toRadians(-180));
+    private Pose2d sample4WaypointPose=new Pose2d(43, 23.5, Math.toRadians(-135));
+    private Pose2d subPose=new Pose2d(16.5, 10, Math.toRadians(-180));
+    private Pose2d sample5IntakePose=new Pose2d(16.5, 10.5, Math.toRadians(-200));
 
     // Define the action needed for a movement from point a to point b
     private Action startToDelivery;
@@ -280,10 +281,8 @@ public class ITDAutonomousStateMachineNewold {
                 .build();
 
         deliveryToSubPose = robot.mecanumDrive.actionBuilder(deliveryPose)
-                .splineToSplineHeading(subPose, -Math.PI
-//                        ,new TranslationalVelConstraint(75.0)
-//                        ,new ProfileAccelConstraint(-75.0, 75.0)
-                )
+                .strafeToLinearHeading(sample4WaypointPose.position, sample4WaypointPose.heading)
+                .splineToSplineHeading(subPose, -Math.PI)
                 .build();
 
         subToDelivery = robot.mecanumDrive.actionBuilder(subPose)
