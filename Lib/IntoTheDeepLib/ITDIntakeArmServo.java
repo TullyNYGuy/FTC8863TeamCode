@@ -51,6 +51,7 @@ public class ITDIntakeArmServo implements FTCRobotSubsystem {
     private double intakePositionReallyLowAltitude = 0.13;
     private double intakePositionLowAltitude = 0.18;
     private double intakePositionHighAltitude = 0.19;
+    private double intakePositionHighAltitudePrep = .25;
 
     private double bucketClearancePosition = 0.6;
     private double transferPosition = 0.86;
@@ -98,6 +99,7 @@ public class ITDIntakeArmServo implements FTCRobotSubsystem {
         intakeArmServo.addPosition("bucketClearancePosition", bucketClearancePosition, 100, TimeUnit.MILLISECONDS);
         intakeArmServo.addPosition("intakePositionReallyLowAltitude", intakePositionReallyLowAltitude, 200, TimeUnit.MILLISECONDS);
         intakeArmServo.addPosition("intakePositionLowAltitude", intakePositionLowAltitude, 200, TimeUnit.MILLISECONDS);
+        intakeArmServo.addPosition("intakePositionHighAltitudePrep", intakePositionHighAltitudePrep, 200, TimeUnit.MILLISECONDS);
         intakeArmServo.addPosition("intakePositionHighAltitude", intakePositionHighAltitude, 200, TimeUnit.MILLISECONDS);
         intakeArmServo.addPosition("transferPosition", transferPosition, 400, TimeUnit.MILLISECONDS);
         intakeArmServo.addPosition("readyToIntakePosition", readyToIntakePosition, 100, TimeUnit.MILLISECONDS);
@@ -139,6 +141,11 @@ public class ITDIntakeArmServo implements FTCRobotSubsystem {
     public void intakePositionLowAltitude() {
         intakeArmServo.setPosition("intakePositionLowAltitude");
         logCommand("Intake position low altitude");
+    }
+
+    public void intakePositionHighAltitudePrep() {
+        intakeArmServo.setPosition("intakePositionHighAltitudePrep");
+        logCommand("Intake position high altitude prep");
     }
 
     public void intakePositionHighAltitude() {
