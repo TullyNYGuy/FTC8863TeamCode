@@ -118,13 +118,14 @@ public class ITDLift implements FTCRobotSubsystem {
     //*********************************************************************************************
 
     public ITDLift(HardwareMap hardwareMap, Telemetry telemetry) {
+        // old lift movementPerRevolution = 4.517
         lift = new ExtensionRetractionMechanism(hardwareMap, telemetry,
                 ITDRobot.HardwareName.LIFT.hwName,
                 ITDRobot.HardwareName.LIFT_LIMIT_SWITCH_EXTENSION.hwName,
                 ITDRobot.HardwareName.LIFT_LIMIT_SWITCH_RETRACTION.hwName,
                 ITDRobot.HardwareName.LIFT_MOTOR.hwName,
                 DcMotor8863.MotorType.GOBILDA_1150,
-                4.517);
+                7.125);
         lift.setResetTimerLimitInmSec(5000);
         //*********************************************
         // SET the lift powers here

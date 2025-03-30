@@ -32,7 +32,7 @@ public class ITDTestLiftExtension extends LinearOpMode {
                 "liftRetractionLimitSwitch",
                 "liftMotor",
                 DcMotor8863.MotorType.GOBILDA_1150,
-                4.517);
+                7.125);
 
         lift.setResetTimerLimitInmSec(25000);
         lift.setExtensionPower(0.2);
