@@ -20,18 +20,12 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
     //
     //*********************************************************************************************
 
-    public enum IntakeHeight {
-        BUCKET_CLEARANCE,
-        HIGH,
-        LOW,
-        REALLY_LOW
-    }
 
-    private IntakeHeight intakeHeight = IntakeHeight.HIGH;
-
-    public void setIntakeHeight(IntakeHeight intakeHeight) {
-        this.intakeHeight = intakeHeight;
-    }
+//    private ITDIntakeArmServo.IntakeHeight intakeHeight = ITDIntakeArmServo.IntakeHeight.HIGH;
+//
+//    public void setIntakeHeight(IntakeHeight intakeHeight) {
+//        this.intakeHeight = intakeHeight;
+//    }
 
     private enum ExtensionArmIntakeBucketControllerState {
         IDLE,
@@ -155,6 +149,18 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
         return extensionArm.getCurrentPosition();
     }
     private boolean intakeTypeIsGliding=false;
+
+    private boolean timedIntake = false;
+    private double lengthOfIntake = 0;
+
+    /**
+     * These next two variables used when a setupForIntake is used instead of setupForBucketClearance.
+     * This is intended for auto to save time by setting up for the next intake while the delivery
+     * is taking place. They get set by calling useSetupForIntakeForNextBucketClearance()
+     */
+    private double nextSetupExtensionArmPosition = 0;
+    private ITDIntakeArmServo.IntakeHeight nextSetupIntakeHeight = ITDIntakeArmServo.IntakeHeight.HIGH_ALTITUDE_PREP;
+    private boolean useSetupForIntakeToClearBucket = false;
 
 
     //*********************************************************************************************
@@ -433,33 +439,77 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
     }
 
     /**
-     * The intake / bucket controller wants us to move to the intake position.
+     * In order to save time a setupForBucketClearance can be replaced by a setupForIntake. This is
+     * intended to be used in auto so that the setup for intake is run when delivery is occurring.
+     * This method should be called before the current intake. This will setup the extension arm
+     * position and intake height to be used immediately after a transfer has occurred and bucket
+     * clearance is needed.
+     * @param extensionArmPosition
+     * @param intakeHeight
+     */
+    public void useSetupForIntakeForNextBucketClearance(double extensionArmPosition, ITDIntakeArmServo.IntakeHeight intakeHeight) {
+        this.nextSetupExtensionArmPosition = extensionArmPosition;
+        this.nextSetupIntakeHeight = intakeHeight;
+        this.useSetupForIntakeToClearBucket = true;
+    }
+
+    /**
+     * The intake / bucket controller wants us to move to the intake position. Move the extension
+     * arm to the intake position (probably the max position) and the intake arm to ready to intake
+     * position
      */
     public void setupForIntake() {
-        logCommand("Setup for intake");
-        // tell the intake bucket controller that the position is not reached yet
-        controller.setIntakePositionReached(false);
-        // send the extension arm out to the max extension
-        extensionArm.intakePosition();
-        // rotate the intake to a position that is ready to intake, but not on the floor
-        intakeArmServo.readyToIntakePosition();
-        // The intake is not lowered to the floor yet. Just for safety. That will happen when we
-        // get the transfer command.
-        state = ExtensionArmIntakeBucketControllerState.EXTENSION_ARM_MOVING_TO_INTAKE_POSITION;
-
+        logCommand("Setup for intake at intake extension and ready to intake height");
+        setupForIntake(extensionArm.getIntakePosition(), ITDIntakeArmServo.IntakeHeight.READY_TO_INTAKE );
     }
-    public void setupForIntake(double extentionArmPosition) {
-        logCommand("Setup for intake");
+
+    /**
+     * Setup for intake at the specified extension arm position and the READY_TO_INTAKE height
+     * @param extensionArmPosition
+     */
+    public void setupForIntake(double extensionArmPosition) {
+        logCommand("Setup for intake at" + extensionArmPosition + " ready to intake height");
+        setupForIntake(extensionArmPosition, ITDIntakeArmServo.IntakeHeight.READY_TO_INTAKE);
+    }
+
+    /**
+     * Setup for an intake at the given extension arm position and intake arm height. Sets
+     * intakePositionReached in controller when it is done.
+     * @param extensionArmPosition
+     * @param intakeHeight
+     */
+    public void setupForIntake(double extensionArmPosition, ITDIntakeArmServo.IntakeHeight intakeHeight) {
         // tell the intake bucket controller that the position is not reached yet
         controller.setIntakePositionReached(false);
         // send the extension arm out to the max extension
-        extensionArm.goToPosition(extentionArmPosition);
+        extensionArm.goToPosition(extensionArmPosition);
         // rotate the intake to a position that is ready to intake, but not on the floor
-        intakeArmServo.readyToIntakePosition();
-        // The intake is not lowered to the floor yet. Just for safety. That will happen when we
-        // get the transfer command.
-        state = ExtensionArmIntakeBucketControllerState.EXTENSION_ARM_MOVING_TO_INTAKE_POSITION;
+        switch (intakeHeight) {
+            case READY_TO_INTAKE:
+                // The intake is not lowered to the floor yet. Just for safety. That will happen when we
+                // get the intake command.
+                intakeArmServo.readyToIntakePosition();
+                break;
+            case BUCKET_CLEARANCE:
+                intakeArmServo.bucketClearancePosition();
+                break;
+            case HIGH_ALTITUDE_PREP:
+                // The intake is not lowered to the floor yet. Just for safety. That will happen when we
+                // get the intake command.
+                intakeArmServo.intakePositionHighAltitudePrep();
+                break;
+            case HIGH:
+                intakeArmServo.intakePositionHighAltitude();
+                break;
+            case LOW:
+                intakeArmServo.intakePositionLowAltitude();
+                break;
+            case REALLY_LOW:
+                intakeArmServo.intakePositionReallyLowAltitude();
+                break;
+        }
 
+        state = ExtensionArmIntakeBucketControllerState.EXTENSION_ARM_MOVING_TO_INTAKE_POSITION;
     }
 
     /**
@@ -482,15 +532,42 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
      * The intake bucket controller wants us to intake. The intake is smart. It is going to filter
      * through the samples until it has a good one and then let us know. If we get a good sample,
      * then the setupForTranfer() will be automatically called.
+     *
+     * With the addition of a timed intake, this has become a front end to the runIntakeHighAlitude
+     * setting it up to run without a timer
      */
     public void intakeHighAltitude() {
+        logCommand("Intake high altitude");
+        timedIntake = false;
+        runIntakeHighAltitude();
+    }
+
+    /**
+     * Run a high altitude intake for a period of time. This uses gliding intake flags under the hood.
+     * After the time expires, the intake will be called a failure. If this happens,
+     * glidingIntakeFailed will be set in the controller.
+     */
+    public void intakeHighAltitudeTimed(double lengthOfIntakeInMsec) {
+        controller.setGlidingIntakeFailed(false);
+        logCommand("Intake high altitude timed");
+        timedIntake = true;
+        // how long to intake in milli seconds
+        lengthOfIntake = lengthOfIntakeInMsec;
+        runIntakeHighAltitude();
+    }
+
+    /**
+     * This is the back end to running a high altitude intake. It could be timed or not timed. It
+     * depends on which public call was made to get here.
+     */
+    private void runIntakeHighAltitude() {
         intakeTypeIsGliding=false;
-        logCommand("Intake");
         controller.setIntakeHasValidSample(false);
         // lower the intake to the floor
         intakeArmServo.intakePositionHighAltitude();
         // start intaking. This probably occurs as the intake is rotating towards the floor.
         intake.intake();
+        timer.reset();
         state = ExtensionArmIntakeBucketControllerState.WAITING_FOR_A_GOOD_SAMPLE;
     }
 
@@ -500,18 +577,25 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
     }
 
     /**
-     * This method will extend the extension arm and rotate the intake to the floor at the same time.
+     * This method will extend the extension arm and rotate the intake to the given height.
      * @param extensionArmPosition
+     * @param intakeHeight
      */
-    public void setupForGlidingIntake(double extensionArmPosition) {
+    public void setupForGlidingIntake(double extensionArmPosition, ITDIntakeArmServo.IntakeHeight intakeHeight) {
         controller.setSetupForGlidingIntakeComplete(false);
         logCommand("Setup For Gliding intake");
         // move the extension arm to the desired extension
         extensionArm.goToPosition(extensionArmPosition);
         // at the same time rotate the intake to the floor
         switch (intakeHeight) {
+            case READY_TO_INTAKE:
+                intakeArmServo.readyToIntakePosition();
+                break;
             case BUCKET_CLEARANCE:
                 intakeArmServo.bucketClearancePosition();
+                break;
+            case HIGH_ALTITUDE_PREP:
+                intakeArmServo.intakePositionHighAltitudePrep();
                 break;
             case HIGH:
                 intakeArmServo.intakePositionHighAltitude();
@@ -540,7 +624,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
      *      intakeHasValidSample = false
      *      glidingIntakeFailed = false
      */
-    public void runGlidingIntake(double maxPosition, double power,double glidingIntakeDelay) {
+    public void runGlidingIntake(double maxPosition, ITDIntakeArmServo.IntakeHeight intakeHeight, double power,double glidingIntakeDelay) {
         intakeTypeIsGliding=true;
         logCommand("Run gliding intake to " + maxPosition);
         // tell the intake bucket controller we do not have a sample and the gliding intake has not
@@ -568,27 +652,27 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
         extensionArm.goToPosition(maxPosition, power);
         state = ExtensionArmIntakeBucketControllerState.WAITING_FOR_GOOD_GLIDING_SAMPLE;
     }
-    public void runGlidingIntake(double maxPosition, double power) {
-        runGlidingIntake( maxPosition, power,0);
-    }
+//    public void runGlidingIntake(double maxPosition, double power) {
+//        runGlidingIntake( maxPosition, power,0);
+//    }
 
-    /**
-     * Same as above except that you can specify how far the extension arm extends before stopping.
-     * @param maxPosition
-     */
-    public void runGlidingIntake(double maxPosition) {
-        intakeTypeIsGliding=true;
-        logCommand("Run gliding intake to " + maxPosition);
-        // tell the intake bucket controller we do not have a sample and the gliding intake has not
-        // failed yet
-        controller.setIntakeHasValidSample(false);
-        controller.setGlidingIntakeFailed(false);
-        //start the intake
-        intake.intake();
-        // extend the arm looking for a sample
-        extensionArm.goToPosition(maxPosition);
-        state = ExtensionArmIntakeBucketControllerState.WAITING_FOR_GOOD_GLIDING_SAMPLE;
-    }
+//    /**
+//     * Same as above except that you can specify how far the extension arm extends before stopping.
+//     * @param maxPosition
+//     */
+//    public void runGlidingIntake(double maxPosition) {
+//        intakeTypeIsGliding=true;
+//        logCommand("Run gliding intake to " + maxPosition);
+//        // tell the intake bucket controller we do not have a sample and the gliding intake has not
+//        // failed yet
+//        controller.setIntakeHasValidSample(false);
+//        controller.setGlidingIntakeFailed(false);
+//        //start the intake
+//        intake.intake();
+//        // extend the arm looking for a sample
+//        extensionArm.goToPosition(maxPosition);
+//        state = ExtensionArmIntakeBucketControllerState.WAITING_FOR_GOOD_GLIDING_SAMPLE;
+//    }
 
     /**
      * Stop the intake. It will remain at its current rotation and the intake will wait for another command.
@@ -832,7 +916,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
                 // just waiting here until the intake bucket controller tells use we can proceed. It
                 // will tell us to go ahead once the bucket is moved into the transfer position.
                 break;
-                //
+            //
             case EXTENSION_ARM_MOVING_TO_TRANSFER_POSITION_FOR_GET_READY_TO_RUN:
                 // for transfer do not move the extension arm
                 //if (extensionArmPositionReached && intakeArmServo.isPositionReached()) {
@@ -848,7 +932,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
                 }
                 break;
 
-                // bucket clearance states
+            // bucket clearance states
             case INTAKE_MOVING_TO_BUCKET_CLEARANCE:
                 // even thought the extension arm is moving out we are not checking to see if that is complete.
                 // We really only need the intake to rotate down out of the way in order to get
@@ -866,7 +950,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
                 // to do something
                 break;
 
-                // setup for intake states
+            // setup for intake states
             case EXTENSION_ARM_MOVING_TO_INTAKE_POSITION:
                 if (extensionArmPositionReached) {
                     // tell the intake / bucket controller that the intake position is
@@ -880,8 +964,26 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
                 // Most likely it will be to intake.
                 break;
 
-                // intake states
+            // intake states
             case WAITING_FOR_A_GOOD_SAMPLE:
+                // If this is a timed intake check the timer to see if the intake has gone over the
+                // time allowed.
+                if (timedIntake) {
+                    if (timer.milliseconds() > lengthOfIntake) {
+                        // intake has gone over time and failed
+                        logComment("Intake over time. Failed!");
+                        // NOTE even though this is not a gliding intake we are using the gliding intake
+                        // failed flag rather than create a new one
+                        controller.setGlidingIntakeFailed(true);
+                        intake.stop();
+                        if (MatchPhase.getMatchPhase() == MatchPhase.TELEOP) {
+                            setupForBucketClearance();
+                        } else {
+                            // in autonomous we let the autonomous state machine tell us what to do next
+                            state = ExtensionArmIntakeBucketControllerState.IDLE;
+                        }
+                    }
+                }
                 // Once the front sensor has seen a sample, rotate the intake up a bit. This is
                 // because the intake has a tendency to jam when it is on the floor.
                 if (intakeHasSeenSample) {
@@ -931,7 +1033,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
                 // intake is stopped. Wait for a new command.
                 break;
 
-                // setup for gliding intake states
+            // setup for gliding intake states
             case WAITING_FOR_SETUP_GLIDING_INTAKE:
                 if (extensionArm.isPositionReached() && intakeArmServo.isPositionReached()) {
                     controller.setSetupForGlidingIntakeComplete(true);
@@ -942,7 +1044,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
                 // wait for a command
                 break;
 
-                // gliding intake states
+            // gliding intake states
             case WAITING_FOR_GOOD_GLIDING_SAMPLE:
                 // The intake picked up a sample while it was extending out.
                 //todo Could we call a gliding instake success if the intake has seen the sample,
@@ -953,7 +1055,6 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
                 // after the end of the extension has been reached.
 
                 //todo implement rotation of the intake when a sample is seen
-                //todo implement rotation of the intake when an eject is requested
                 if (intakeHasValidSample) {
                     controller.setIntakeHasValidSample(true);
                     controller.setGlidingIntakeFailed(false);
@@ -1022,7 +1123,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
 //                }
 //            break;
 
-                // setting up for transfer states
+            // setting up for transfer states
             // This state is no longer called because the extension arm and intake arm servo are moving in parallel
 //            case INTAKE_ARM_MOVING_TO_TRANSFER_POSITION:
 //                if (intakeArmServo.isPositionReached()) {
@@ -1068,7 +1169,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
                 // no sample in the intake, we are just waiting for the driver to decide what to do.
                 break;
 
-                // transfer states
+            // transfer states
             case TRANSFERRING_SAMPLE:
                 if (intakeTransferComplete) {
                     // transfer was successful. Tell the intake / bucket controller
@@ -1117,5 +1218,3 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
 
     }
 }
-
-

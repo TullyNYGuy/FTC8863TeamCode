@@ -335,7 +335,7 @@ public class ITDAutonomousStateMachine {
                             // start the movement from delivery position to position to intake sample
                             deliveryToSample1Runner.runNonBlocking();
                             // setup the intake for a gliding intake
-                            robot.intakeBucketController.setupForGlidingIntake(2);
+                            robot.intakeBucketController.setupForGlidingIntake(2, ITDIntakeArmServo.IntakeHeight.HIGH_ALTITUDE_PREP);
                             currentState = States.WAIT_FOR_MOVE_TO_SAMPLE1;
                             break;
                         case 2:
@@ -344,7 +344,7 @@ public class ITDAutonomousStateMachine {
                             currentRunner=deliveryToSample2Runner;
                             currentRunner.runNonBlocking();
                             // setup the intake for a gliding intake
-                            robot.intakeBucketController.setupForGlidingIntake(2);
+                            robot.intakeBucketController.setupForGlidingIntake(2, ITDIntakeArmServo.IntakeHeight.HIGH_ALTITUDE_PREP);
                             currentState = States.WAIT_FOR_MOVE_TO_SAMPLE2;
                             break;
                         case 3:
@@ -370,8 +370,7 @@ public class ITDAutonomousStateMachine {
                     logPosition("Sample1 intake pose", sample1IntakePose);
                     logPosition("Actual pose", robot.mecanumDrive.pose);
                     // run a gliding intake
-                    robot.extensionArmIntakeController.setIntakeHeight(ITDExtensionArmIntakeController.IntakeHeight.LOW);
-                    robot.intakeBucketController.runGlidingIntake(8,.2, 250);
+                    robot.intakeBucketController.runGlidingIntake(8, ITDIntakeArmServo.IntakeHeight.HIGH,.2, 250);
                     glidingIntakeFailed = false;
                     currentState = States.WAIT_FOR_INTAKE;
                 } else {
@@ -384,8 +383,7 @@ public class ITDAutonomousStateMachine {
                         robot.intakeBucketController.isSetupForGlidingIntakeComplete()) {
                     logPosition("Sample2 intake pose", sample2IntakePose);
                     logPosition("Actual pose", robot.mecanumDrive.pose);
-                    robot.extensionArmIntakeController.setIntakeHeight(ITDExtensionArmIntakeController.IntakeHeight.LOW);
-                    robot.intakeBucketController.runGlidingIntake(8,.2, 250);
+                    robot.intakeBucketController.runGlidingIntake(8, ITDIntakeArmServo.IntakeHeight.LOW,.2, 250);
                     glidingIntakeFailed = false;
                     currentState = States.WAIT_FOR_INTAKE;
                 } else {
@@ -465,7 +463,7 @@ public class ITDAutonomousStateMachine {
                 break;
             case WAIT_FOR_MOVE_TO_SAMPLE3_AFTER_SAMPLE2_FAILED:
                 if (currentRunner.isComplete()) {
-                    robot.intakeBucketController.setupForGlidingIntake(2);
+                    robot.intakeBucketController.setupForGlidingIntake(2, ITDIntakeArmServo.IntakeHeight.HIGH_ALTITUDE_PREP);
                     // even though the movement is already complete, this next state check that the movement is
                     // complete (not needed but it is ok) and then check for completion of gliding intake
                     // before running the gliding intake

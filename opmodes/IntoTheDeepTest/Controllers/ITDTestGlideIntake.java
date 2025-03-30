@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ITDExtensionArmIntakeController;
+import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ITDIntakeArmServo;
 import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ITDIntakeBucketController;
 import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ITDLiftBucketArmBucketGateController;
 
@@ -71,7 +72,7 @@ public class ITDTestGlideIntake extends LinearOpMode {
             if (gamepad1.b) {
             }
             if (gamepad1.y) {
-                extensionArmIntakeController.setupForGlidingIntake(2);
+                extensionArmIntakeController.setupForGlidingIntake(2, ITDIntakeArmServo.IntakeHeight.HIGH_ALTITUDE_PREP);
             }
 
             if (gamepad1.dpad_down) {

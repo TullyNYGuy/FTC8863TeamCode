@@ -384,7 +384,7 @@ public class ITDAutonomousStateMachineNewold {
                             // start the movement from delivery position to position to intake sample
                             deliveryToSample1Runner.runNonBlocking();
                             // setup the intake for a gliding intake
-                            robot.intakeBucketController.setupForGlidingIntake(11);
+                            robot.intakeBucketController.setupForGlidingIntake(11, ITDIntakeArmServo.IntakeHeight.HIGH_ALTITUDE_PREP);
                             currentState = States.WAIT_FOR_MOVE_TO_SAMPLE1;
                             break;
                         case 2:
@@ -393,7 +393,7 @@ public class ITDAutonomousStateMachineNewold {
                             currentRunner=deliveryToSample2Runner;
                             currentRunner.runNonBlocking();
                             // setup the intake for a gliding intake
-                            robot.intakeBucketController.setupForGlidingIntake(10);
+                            robot.intakeBucketController.setupForGlidingIntake(10, ITDIntakeArmServo.IntakeHeight.HIGH_ALTITUDE_PREP);
                             currentState = States.WAIT_FOR_MOVE_TO_SAMPLE2;
                             break;
                         case 3:
@@ -402,7 +402,7 @@ public class ITDAutonomousStateMachineNewold {
                             currentRunner=deliveryToSample3Runner;
                             currentRunner.runNonBlocking();
                             // setup the intake for a gliding intake
-                            robot.intakeBucketController.setupForGlidingIntake(11);
+                            robot.intakeBucketController.setupForGlidingIntake(11, ITDIntakeArmServo.IntakeHeight.HIGH_ALTITUDE_PREP);
                             currentState = States.WAIT_FOR_MOVE_TO_SAMPLE3;
                             break;
                         case 4:
@@ -431,8 +431,7 @@ public class ITDAutonomousStateMachineNewold {
                     logPosition("Sample1 intake pose", sample1IntakePose);
                     logPosition("Actual pose", robot.mecanumDrive.pose);
                     // run a gliding intake
-                    robot.extensionArmIntakeController.setIntakeHeight(ITDExtensionArmIntakeController.IntakeHeight.HIGH);
-                    robot.intakeBucketController.runGlidingIntake(15.75,.2, 500);
+                    robot.intakeBucketController.runGlidingIntake(15.75, ITDIntakeArmServo.IntakeHeight.HIGH,.2, 500);
                     glidingIntakeFailed = false;
                     currentState = States.WAIT_FOR_INTAKE;
                 } else {
@@ -445,8 +444,7 @@ public class ITDAutonomousStateMachineNewold {
                         robot.intakeBucketController.isSetupForGlidingIntakeComplete()) {
                     logPosition("Sample2 intake pose", sample2IntakePose);
                     logPosition("Actual pose", robot.mecanumDrive.pose);
-                    robot.extensionArmIntakeController.setIntakeHeight(ITDExtensionArmIntakeController.IntakeHeight.HIGH);
-                    robot.intakeBucketController.runGlidingIntake(15.75,0.2, 500);
+                    robot.intakeBucketController.runGlidingIntake(15.75, ITDIntakeArmServo.IntakeHeight.HIGH,0.2, 500);
                     glidingIntakeFailed = false;
                     currentState = States.WAIT_FOR_INTAKE;
                 } else {
@@ -459,8 +457,7 @@ public class ITDAutonomousStateMachineNewold {
                         robot.intakeBucketController.isSetupForGlidingIntakeComplete()) {
                     logPosition("Sample3 intake pose", sample3IntakePose);
                     logPosition("Actual pose", robot.mecanumDrive.pose);
-                    robot.extensionArmIntakeController.setIntakeHeight(ITDExtensionArmIntakeController.IntakeHeight.HIGH);
-                    robot.intakeBucketController.runGlidingIntake(15.75,0.2,500);
+                    robot.intakeBucketController.runGlidingIntake(15.75, ITDIntakeArmServo.IntakeHeight.HIGH,0.2,500);
                     glidingIntakeFailed = false;
                     currentState = States.WAIT_FOR_INTAKE;
                 } else {
@@ -472,8 +469,7 @@ public class ITDAutonomousStateMachineNewold {
                 if (currentRunner.isComplete()) {
                     logPosition("sub Pose ", subPose);
                     logPosition("Actual pose", robot.mecanumDrive.pose);
-                    robot.extensionArmIntakeController.setIntakeHeight(ITDExtensionArmIntakeController.IntakeHeight.BUCKET_CLEARANCE);
-                    robot.intakeBucketController.setupForGlidingIntake(3.5);
+                    robot.intakeBucketController.setupForGlidingIntake(3.5, ITDIntakeArmServo.IntakeHeight.BUCKET_CLEARANCE);
                     currentState = States.WAITING_FOR_SETUP_OF_GLIDING_INTAKE_AT_SUBMERSIBLE;
                 } else {
                     // continue to run the movement
@@ -484,8 +480,7 @@ public class ITDAutonomousStateMachineNewold {
                 if (currentRunner.isComplete()) {
                     logPosition("sub Pose ", subPose);
                     logPosition("Actual pose", robot.mecanumDrive.pose);
-                    robot.extensionArmIntakeController.setIntakeHeight(ITDExtensionArmIntakeController.IntakeHeight.BUCKET_CLEARANCE);
-                    robot.intakeBucketController.setupForGlidingIntake(3.5);
+                    robot.intakeBucketController.setupForGlidingIntake(3.5, ITDIntakeArmServo.IntakeHeight.BUCKET_CLEARANCE);
                     currentState = States.WAITING_FOR_SETUP_OF_GLIDING_INTAKE_AT_SUBMERSIBLE;
                 } else {
                     // continue to run the movement
@@ -494,8 +489,7 @@ public class ITDAutonomousStateMachineNewold {
                 break;
             case WAITING_FOR_SETUP_OF_GLIDING_INTAKE_AT_SUBMERSIBLE:
                 if (robot.intakeBucketController.isSetupForGlidingIntakeComplete()) {
-                    robot.extensionArmIntakeController.setIntakeHeight(ITDExtensionArmIntakeController.IntakeHeight.HIGH);
-                    robot.intakeBucketController.runGlidingIntake(15.75, 0.1, 500);
+                    robot.intakeBucketController.runGlidingIntake(15.75, ITDIntakeArmServo.IntakeHeight.HIGH, 0.1, 500);
                     glidingIntakeFailed = false;
                     currentState = States.WAIT_FOR_INTAKE;
                 }
@@ -543,28 +537,24 @@ public class ITDAutonomousStateMachineNewold {
                     switch(sampleNum){
                         case 1:
                             sampleNum=sampleNum+1;
-                            robot.extensionArmIntakeController.setIntakeHeight(ITDExtensionArmIntakeController.IntakeHeight.HIGH);
-                            robot.intakeBucketController.setupForGlidingIntake(11);
+                            robot.intakeBucketController.setupForGlidingIntake(11, ITDIntakeArmServo.IntakeHeight.HIGH_ALTITUDE_PREP);
                             currentState=States.WAIT_FOR_SETUP_NEW_GLIDING_INTAKE_FOR_SAMPLE2;
                             break;
                         case 2:
                             sampleNum=sampleNum+1;
-                            robot.extensionArmIntakeController.setIntakeHeight(ITDExtensionArmIntakeController.IntakeHeight.HIGH);
-                            robot.intakeBucketController.setupForGlidingIntake(11);
+                            robot.intakeBucketController.setupForGlidingIntake(11, ITDIntakeArmServo.IntakeHeight.HIGH_ALTITUDE_PREP);
                             currentState=States.WAIT_FOR_SETUP_NEW_GLIDING_INTAKE_FOR_SAMPLE3;
                             break;
                         case 3:
                             sampleNum=sampleNum+1;
-                            robot.extensionArmIntakeController.setIntakeHeight(ITDExtensionArmIntakeController.IntakeHeight.BUCKET_CLEARANCE);
-                            robot.intakeBucketController.setupForGlidingIntake(3.5);
+                            robot.intakeBucketController.setupForGlidingIntake(3.5, ITDIntakeArmServo.IntakeHeight.BUCKET_CLEARANCE);
                             currentRunner=sample3ToSample4Runner;
                             currentRunner.runNonBlocking();
                             currentState=States.WAIT_FOR_MOVE_TO_SAMPLE4;
                             break;
                         case 4:
                             sampleNum=sampleNum+1;
-                            robot.extensionArmIntakeController.setIntakeHeight(ITDExtensionArmIntakeController.IntakeHeight.BUCKET_CLEARANCE);
-                            robot.intakeBucketController.setupForGlidingIntake(3.5);
+                            robot.intakeBucketController.setupForGlidingIntake(3.5, ITDIntakeArmServo.IntakeHeight.BUCKET_CLEARANCE);
                             currentRunner=sample4ToSample5Runner;
                             currentRunner.runNonBlocking();
                             currentState=States.WAIT_FOR_MOVE_TO_SAMPLE5;

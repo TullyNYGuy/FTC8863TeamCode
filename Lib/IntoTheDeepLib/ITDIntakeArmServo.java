@@ -26,6 +26,14 @@ public class ITDIntakeArmServo implements FTCRobotSubsystem {
     // user defined types
     //
     //*********************************************************************************************
+    public enum IntakeHeight {
+        READY_TO_INTAKE,
+        BUCKET_CLEARANCE,
+        HIGH_ALTITUDE_PREP,
+        HIGH,
+        LOW,
+        REALLY_LOW
+    }
 
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS
