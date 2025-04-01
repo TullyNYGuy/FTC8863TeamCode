@@ -91,14 +91,24 @@ public class ITDLift implements FTCRobotSubsystem {
 
     private double initPosition = 0.0;
     private double transferPosition = 0;
-    private double readyToDeliverPositionHighBasketTeleop = 24.5;
     // private double readyToDeliverPosition = 18.5;
     // private double readyToDeliverPosition = 23.0;
-    private double readyToDeliverPositionLowBasketTeleop = 5;
-    private double readyToDeliverPositionHighBasketAuto= 22.75;
-    private double readyToDeliverPosition = 24.5;
+    private double readyToDeliverPositionLowBasketTeleop = 2.25;
+    private double readyToDeliverPositionHighBasketAuto= 19.75;
+    private double readyToDeliverPositionHighBasketTeleop = 20.5;
+    private double readyToDeliverPosition = 20.5;
     private double lowBarHangPosition = 6.0;
     private double highBarHangPosition = 4.0;
+
+    // Old singlelift heights
+    //    private double readyToDeliverPositionHighBasketTeleop = 24.5;
+    //    // private double readyToDeliverPosition = 18.5;
+    //    // private double readyToDeliverPosition = 23.0;
+    //    private double readyToDeliverPositionLowBasketTeleop = 5;
+    //    private double readyToDeliverPositionHighBasketAuto= 22.75;
+    //    private double readyToDeliverPosition = 24.5;
+    //    private double lowBarHangPosition = 6.0;
+    //    private double highBarHangPosition = 4.0;
 
     // The lift hunts for its final position for a while. We don't want that to delay the start of
     // of the transfer. So we will call the lift movement complete when it is not quite to the
