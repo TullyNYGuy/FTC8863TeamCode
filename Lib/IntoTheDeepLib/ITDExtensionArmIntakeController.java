@@ -433,8 +433,41 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
         // We really only need the intake to rotate down out of the way in order to get
         // clearance to move the bucket. The extension arm is moving so that the motor is
         // not trying to pull the arm against the metal causing it to overheat.
-        extensionArm.bucketClearancePosition();
-        intakeArmServo.bucketClearancePosition();
+        //
+        // For a normal bucket clearance, the positions of the extension arm and intake arm are
+        // fixed.
+        // However, if the setup for the next intake is being used for bucket clearance, then the
+        // positions are going to be the ones for the next intake. These were setup already.
+        if (useSetupForIntakeToClearBucket) {
+            extensionArm.goToPosition(nextSetupExtensionArmPosition);
+            switch (nextSetupIntakeHeight) {
+                    case READY_TO_INTAKE:
+                        // The intake is not lowered to the floor yet. Just for safety. That will happen when we
+                        // get the intake command.
+                        intakeArmServo.readyToIntakePosition();
+                        break;
+                    case BUCKET_CLEARANCE:
+                        intakeArmServo.bucketClearancePosition();
+                        break;
+                    case HIGH_ALTITUDE_PREP:
+                        // The intake is not lowered to the floor yet. Just for safety. That will happen when we
+                        // get the intake command.
+                        intakeArmServo.intakePositionHighAltitudePrep();
+                        break;
+                    case HIGH:
+                        intakeArmServo.intakePositionHighAltitude();
+                        break;
+                    case LOW:
+                        intakeArmServo.intakePositionLowAltitude();
+                        break;
+                    case REALLY_LOW:
+                        intakeArmServo.intakePositionReallyLowAltitude();
+                        break;
+                }
+        } else {
+            extensionArm.bucketClearancePosition();
+            intakeArmServo.bucketClearancePosition();
+        }
         state = ExtensionArmIntakeBucketControllerState.INTAKE_MOVING_TO_BUCKET_CLEARANCE;
     }
 
@@ -448,6 +481,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
      * @param intakeHeight
      */
     public void useSetupForIntakeForNextBucketClearance(double extensionArmPosition, ITDIntakeArmServo.IntakeHeight intakeHeight) {
+        logCommand("Use setup for intake as next bucket clearance");
         this.nextSetupExtensionArmPosition = extensionArmPosition;
         this.nextSetupIntakeHeight = intakeHeight;
         this.useSetupForIntakeToClearBucket = true;
@@ -811,7 +845,7 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
 
     private void logComment(String comment) {
         if (loggingOn && logFile != null) {
-            logFile.logData(getName() + comment);
+            logFile.logData(getName() + " " + comment);
         }
     }
 
@@ -942,7 +976,18 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
                     // tell the intake / bucket controller that the bucket clearance position is
                     // reached. The bucket can be moved now.
                     controller.setIntakePositionedForBucketClearance(true);
-                    state = ExtensionArmIntakeBucketControllerState.AT_BUCKET_CLEARANCE_POSITION;
+                    // if setup for intake is being use for bucket clearance, we have to proceed with
+                    // the setup for intake states for the rest of this sequence
+                    if (useSetupForIntakeToClearBucket) {
+                        // clear the flag to use setup for intake as bucket clearance
+                        useSetupForIntakeToClearBucket = false;
+                        // setup for intake is being used for bucket clearance
+                        state = ExtensionArmIntakeBucketControllerState.EXTENSION_ARM_MOVING_TO_INTAKE_POSITION;
+                    } else {
+                        // this is just a normal bucket clearance
+                        state = ExtensionArmIntakeBucketControllerState.AT_BUCKET_CLEARANCE_POSITION;
+                    }
+
                 }
                 break;
             case AT_BUCKET_CLEARANCE_POSITION:
@@ -966,24 +1011,6 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
 
             // intake states
             case WAITING_FOR_A_GOOD_SAMPLE:
-                // If this is a timed intake check the timer to see if the intake has gone over the
-                // time allowed.
-                if (timedIntake) {
-                    if (timer.milliseconds() > lengthOfIntake) {
-                        // intake has gone over time and failed
-                        logComment("Intake over time. Failed!");
-                        // NOTE even though this is not a gliding intake we are using the gliding intake
-                        // failed flag rather than create a new one
-                        controller.setGlidingIntakeFailed(true);
-                        intake.stop();
-                        if (MatchPhase.getMatchPhase() == MatchPhase.TELEOP) {
-                            setupForBucketClearance();
-                        } else {
-                            // in autonomous we let the autonomous state machine tell us what to do next
-                            state = ExtensionArmIntakeBucketControllerState.IDLE;
-                        }
-                    }
-                }
                 // Once the front sensor has seen a sample, rotate the intake up a bit. This is
                 // because the intake has a tendency to jam when it is on the floor.
                 if (intakeHasSeenSample) {
@@ -1006,6 +1033,24 @@ public class ITDExtensionArmIntakeController implements FTCRobotSubsystem {
                 if (intakeHasValidSample) {
                     controller.setIntakeHasValidSample(true);
                     setupForTransfer();
+                }
+                // If this is a timed intake check the timer to see if the intake has gone over the
+                // time allowed.
+                if (timedIntake) {
+                    if (timer.milliseconds() > lengthOfIntake) {
+                        // intake has gone over time and failed
+                        logComment("Intake over time. Failed!");
+                        // NOTE even though this is not a gliding intake we are using the gliding intake
+                        // failed flag rather than create a new one
+                        controller.setGlidingIntakeFailed(true);
+                        intake.stop();
+                        if (MatchPhase.getMatchPhase() == MatchPhase.TELEOP) {
+                            setupForBucketClearance();
+                        } else {
+                            // in autonomous we let the autonomous state machine tell us what to do next
+                            state = ExtensionArmIntakeBucketControllerState.IDLE;
+                        }
+                    }
                 }
                 break;
             case WAITING_FOR_ROTATION_TO_EJECTION_POSITION:

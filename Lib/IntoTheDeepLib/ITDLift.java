@@ -377,17 +377,20 @@ public class ITDLift implements FTCRobotSubsystem {
     @Override
     public void setDataLog(DataLogging logFile) {
         this.logFile = logFile;
+        lift.setDataLog(logFile);
         logDataOnchange = new DataLogOnChange(logFile);
     }
 
     @Override
     public void enableDataLogging() {
         this.loggingOn = true;
+        lift.enableDataLogging();
     }
 
     @Override
     public void disableDataLogging() {
         this.loggingOn = false;
+        lift.disableDataLogging();
     }
 
     private void logState() {

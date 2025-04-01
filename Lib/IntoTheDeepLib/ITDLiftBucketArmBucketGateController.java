@@ -261,6 +261,9 @@ public class ITDLiftBucketArmBucketGateController implements FTCRobotSubsystem {
     @Override
     public void setDataLog(DataLogging logFile) {
         this.logFile = logFile;
+        lift.setDataLog(logFile);
+        bucketArmServo.setDataLog(logFile);
+        bucketGateServo.setDataLog(logFile);
         logDataOnchange = new DataLogOnChange(logFile);
         logStateOnChange = new DataLogOnChange(logFile);
     }
@@ -268,6 +271,9 @@ public class ITDLiftBucketArmBucketGateController implements FTCRobotSubsystem {
     @Override
     public void enableDataLogging() {
         this.loggingOn = true;
+        lift.enableDataLogging();
+        bucketArmServo.enableDataLogging();
+        bucketGateServo.enableDataLogging();
     }
 
     @Override
