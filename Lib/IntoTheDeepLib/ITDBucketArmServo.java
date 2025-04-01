@@ -44,16 +44,33 @@ public class ITDBucketArmServo implements FTCRobotSubsystem {
 
     private boolean initComplete = false;
 
-    private double initPosition = 0.98;
+    private double initPosition = 0.85;
     private double intakePosition = 0.03;
-    private double safeForVerticalMovementPosition = 0.5;
-    private double afterDeliverPosition = 0.6;
-    private double deliveryPosition = 0.33;
-    private double transferPosition = 0.96;
+    private double safeForVerticalMovementPosition = 0.3;
+    private double afterDeliverPosition = 0.4;
+    private double deliveryPosition = 0.2;
+    private double transferPosition = 0.85;
     private double specimenPickupPosition = 0.7;
     private double specimenHangLowBarPosition = 0.7;
     private double specimenHangHighBarPosition = 0.75;
     private double parkPosition = 0.69;
+
+    //New index position (dual lift)  = .3
+
+    // single lift positions
+    //private double initPosition = 0.98;
+    //    private double intakePosition = 0.03;
+    //    private double safeForVerticalMovementPosition = 0.5;
+    //    private double afterDeliverPosition = 0.6;
+    //    private double deliveryPosition = 0.33;
+    //    private double transferPosition = 0.96;
+    //    private double specimenPickupPosition = 0.7;
+    //    private double specimenHangLowBarPosition = 0.7;
+    //    private double specimenHangHighBarPosition = 0.75;
+    //    private double parkPosition = 0.69;
+
+
+    /////////////////////////////////////////
 
     //    private double initPosition = 0.98;
     //    private double intakePosition = 0.03;
@@ -96,7 +113,8 @@ public class ITDBucketArmServo implements FTCRobotSubsystem {
         bucketArmServo.addPosition("specimenHangLowBarPosition", specimenHangLowBarPosition, 1000, TimeUnit.MILLISECONDS);
         bucketArmServo.addPosition("specimenHangHighBarPosition", specimenHangHighBarPosition, 800, TimeUnit.MILLISECONDS);
         bucketArmServo.addPosition("parkPosition", parkPosition, 800, TimeUnit.MILLISECONDS);
-        bucketArmServo.setDirection(Servo.Direction.FORWARD);
+        // old lift was forward direction
+        bucketArmServo.setDirection(Servo.Direction.REVERSE);
     }
     //*********************************************************************************************
     //          Helper Methods
