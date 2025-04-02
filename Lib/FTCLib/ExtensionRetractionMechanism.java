@@ -933,6 +933,11 @@ public class ExtensionRetractionMechanism {
         goToPosition(homePosition, 1);
     }
 
+    // 4/2/2025 this method previously forced the motor to hold position rather than float. But
+    // there are times when you want the motor to float after the completion of the movement. So
+    // keep this method as is, hold, but move the rest of it to a new method (see below) that does
+    // accept a parameter to hold or float. Make this method just a dispatch to the new one, with
+    // hold as a parameter.
     /**
      * Move the mechanism to a position using PID control to control the position.
      *
@@ -940,11 +945,25 @@ public class ExtensionRetractionMechanism {
      * @param moveToPositionPower the power to use during the movement
      */
     public void goToPosition(double position, double moveToPositionPower) {
+        // the assumption is that the motor is to hold position when it arrives at the destination
+        goToPosition(position, moveToPositionPower, DcMotor8863.FinishBehavior.HOLD);
+    }
+
+    /**
+     * Move the mechanism to a position using PID control to control the position.
+     *
+     * @param position            the desired position in units that make sense for this mechanism
+     * @param moveToPositionPower the power to use during the movement
+     * @param finishBehavior whether to hold or float the motor at the end of the movement
+     */
+    public void goToPosition(double position, double moveToPositionPower, DcMotor8863.FinishBehavior finishBehavior) {
         log("COMMANDED " + mechanismName.toUpperCase() + " TO GO TO POSITION " + position + " (encoder counts = " + convertMechanismUnitsToEncoderCounts(position) + ")");
         // set the properties so they can be used later
         this.desiredPosition = position;
         this.moveToPositionPower = moveToPositionPower;
         this.currentPower = moveToPositionPower;
+        // set the motor behaviour after the completion of the movement
+        setFinishBehavior(finishBehavior);
         // the next execution of the state machine will pick up this new command and execute it
         extensionRetractionCommand = ExtensionRetractionCommands.GO_TO_POSITION;
     }
@@ -1637,7 +1656,11 @@ public class ExtensionRetractionMechanism {
         // in the state machine. Part of that sets the finish behavior to float. Then when a
         // goToPosition command is issued by the user, the motor moves to the desired position but
         // does not hold position because it is still in FLOAT mode. This forces it to HOLD position.
-        setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
+        // 4/2/2025
+        // This is dumb. This forces the motor to hold. Maybe someone wants it to float. Move this
+        // functionality to the goToPosition public method where someone can choose what they want
+        // to do. By default, the motor will hold, working around the above bug.
+        //setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
         extensionRetractionMotor.moveToPosition(moveToPositionPower, desiredPosition, finishBehavior);
         // extensionRetractionMotor.rotateToEncoderCount(moveToPositionPower, 1300, finishBehavior);
     }

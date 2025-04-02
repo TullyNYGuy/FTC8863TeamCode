@@ -218,8 +218,8 @@ public class ITDLift implements FTCRobotSubsystem {
         // since the transfer position is at the bottom of the lift, and tolerances might cause the
         // lift to try to retract past the physical limit, we don't want to run the motor and hold
         // position
-        lift.setFinishBehavior(DcMotor8863.FinishBehavior.FLOAT);
-        lift.goToPosition(initPosition, initPower);
+        //lift.setFinishBehavior(DcMotor8863.FinishBehavior.FLOAT);
+        lift.goToPosition(initPosition, initPower, DcMotor8863.FinishBehavior.FLOAT);
     }
 
     public void transferPosition() {
@@ -242,8 +242,8 @@ public class ITDLift implements FTCRobotSubsystem {
         // since the transfer position is at the bottom of the lift, and tolerances might cause the
         // lift to try to retract past the physical limit, we don't want to run the motor and hold
         // position
-        lift.setFinishBehavior(DcMotor8863.FinishBehavior.FLOAT);
-        lift.goToPosition(transferPosition, retractPower);
+        //lift.setFinishBehavior(DcMotor8863.FinishBehavior.FLOAT);
+        lift.goToPosition(transferPosition, retractPower, DcMotor8863.FinishBehavior.FLOAT);
     }
 
     public void readyToDeliverPosition() {
@@ -266,9 +266,9 @@ public class ITDLift implements FTCRobotSubsystem {
 
     private void readyToDeliverPositionAction() {
         // since the lift is up in the air, the motor needs to work against gravity or it will fall
-        lift.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
+        //lift.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
         // raise the lift to the height needed to delivery the sample into the basket
-        lift.goToPosition(readyToDeliverPosition, extendPower);
+        lift.goToPosition(readyToDeliverPosition, extendPower, DcMotor8863.FinishBehavior.HOLD);
     }
 
     public void lowBarHangPosition() {
