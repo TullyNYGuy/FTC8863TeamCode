@@ -31,7 +31,7 @@ public class ITDDeliveryTracker {
     }
 
     public void setHighDeliveryPosition() {
-        if (numberOfSamplesDelivered > 12) {
+        if (numberOfSamplesDelivered > 9) {
             lift.setDeliveryHeight(ITDLift.Basket.HIGH_TELEOP);
         } else {
             lift.setDeliveryHeight((ITDLift.Basket.HIGH_AUTO));

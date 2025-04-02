@@ -48,7 +48,7 @@ public class ITDBucketArmServo implements FTCRobotSubsystem {
     private double intakePosition = 0.03;
     private double safeForVerticalMovementPosition = 0.3;
     private double afterDeliverPosition = 0.4;
-    private double deliveryPosition = 0.2;
+    private double deliveryPosition = 0.25;
     private double transferPosition = 0.85;
     private double specimenPickupPosition = 0.7;
     private double specimenHangLowBarPosition = 0.7;
