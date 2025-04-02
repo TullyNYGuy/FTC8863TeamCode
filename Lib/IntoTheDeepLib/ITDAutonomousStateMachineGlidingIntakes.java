@@ -3,8 +3,6 @@ package org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib;
 
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.ProfileAccelConstraint;
-import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -14,7 +12,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogOnChange;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.RRNonBlockingRunner;
 
-public class ITDAutonomousStateMachineNewold {
+public class ITDAutonomousStateMachineGlidingIntakes {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -121,7 +119,7 @@ public class ITDAutonomousStateMachineNewold {
     // from it
     //*********************************************************************************************
 
-    public ITDAutonomousStateMachineNewold(ITDRobot robot, Telemetry telemetry) {
+    public ITDAutonomousStateMachineGlidingIntakes(ITDRobot robot, Telemetry telemetry) {
         this.robot = robot;
         this.mecanumDrive = robot.mecanumDrive;
 

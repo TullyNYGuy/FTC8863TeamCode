@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.opmodes.IntoTheDeep;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -13,12 +12,9 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColorTeamLocation;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MatchPhase;
-import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ITDAutonomousStateMachine;
-import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ITDAutonomousStateMachineNewold;
+import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ITDAutonomousStateMachineNewLift;
 import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ITDGamepad;
 import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ITDRobot;
-import org.openftc.easyopencv.OpenCvCameraRotation;
-import org.openftc.easyopencv.OpenCvPipeline;
 
 import java.util.List;
 
@@ -36,7 +32,7 @@ public class ITDAutonomous extends LinearOpMode {
 
     public Configuration config = null;
     //public ITDField field;
-    private ITDAutonomousStateMachineNewold autonomousStateMachine;
+    private ITDAutonomousStateMachineNewLift autonomousStateMachine;
 
     private ElapsedTime timer;
 
@@ -79,7 +75,7 @@ public class ITDAutonomous extends LinearOpMode {
 
         // Here is where you create the state machine that is going to be run.
         // Change this state machine out and the robot will do something different.
-        autonomousStateMachine = new ITDAutonomousStateMachineNewold(robot, telemetry);
+        autonomousStateMachine = new ITDAutonomousStateMachineNewLift(robot, telemetry);
         autonomousStateMachine.setDataLog(dataLog);
         autonomousStateMachine.enableDataLogging();
         // tell the intake bucket controller about the autonomousStateMachine

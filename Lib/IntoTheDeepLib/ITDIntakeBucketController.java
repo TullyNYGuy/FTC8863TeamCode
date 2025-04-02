@@ -136,9 +136,9 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
         glidingIntakePower = extensionArmIntakeController.extensionArm.getExtendPower();
     }
 
-    private ITDAutonomousStateMachineNewold autonomousStateMachine;
+    private ITDAutonomousStateMachineNewLift autonomousStateMachine;
 
-    public void setAutonomousStateMachine(ITDAutonomousStateMachineNewold autonomousStateMachine) {
+    public void setAutonomousStateMachine(ITDAutonomousStateMachineNewLift autonomousStateMachine) {
         this.autonomousStateMachine = autonomousStateMachine;
     }
     public ITDDeliveryTracker deliveryTracker;
