@@ -183,6 +183,12 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
     private boolean showMaxExtension = false;
     private boolean runGlidingIntakeAfterSetup = false;
     private boolean setupBucketForClearanceNotCalledYet = true;
+
+    private boolean setupForTeleopComplete = false;
+
+    public boolean isSetupForTeleopComplete() {
+        return setupForTeleopComplete;
+    }
     //*********************************************************************************************
     //          Constructors
     //
@@ -213,6 +219,7 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
     //*********************************************************************************************
 
     public void setUpForTeleop(){
+        setupForTeleopComplete = false;
         // rotate the intake out of the way
         extensionArmIntakeController.setupForBucketClearance();
         // reset the extension arm
@@ -773,6 +780,7 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
 
             case WAITING_FOR_BUCKET_ARM_FOR_TELEOP_SETUP:
                 if (liftBucketArmBucketGateController.bucketArmServo.isPositionReached()) {
+                    setupForTeleopComplete = true;
                     state = IntakeBucketControllerState.IDLE;
                 }
                 break;
