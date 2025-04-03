@@ -106,6 +106,12 @@ public class ITDInspection extends LinearOpMode {
 
         waitForStart();
 
+        // init the robot
+        robot.intakeBucketController.setUpForTeleop();
+        while (opModeIsActive() && !robot.intakeBucketController.isSetupForTeleopComplete()) {
+            robot.update();
+        }
+
         robot.intakeBucketController.showMaxExtension();
 
         //*********************************************************************************************
