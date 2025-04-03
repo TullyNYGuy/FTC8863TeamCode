@@ -236,8 +236,8 @@ public class ITDHangMechanism implements FTCRobotSubsystem {
             command = Command.HANG;
             logCommand(command.toString());
             // pull in 6" of string.
-            leftHangMotor.moveByAmount(0.5, amountToHangBy, DcMotor8863.FinishBehavior.HOLD);
-            rightHangMotor.moveByAmount(0.5, amountToHangBy, DcMotor8863.FinishBehavior.HOLD);
+            leftHangMotor.moveByAmount(0.5, amountToHangBy, DcMotor8863.FinishBehavior.FLOAT);
+            rightHangMotor.moveByAmount(0.5, amountToHangBy, DcMotor8863.FinishBehavior.FLOAT);
         } else {
             // you can't start a new command when the old one is not finished
         }
