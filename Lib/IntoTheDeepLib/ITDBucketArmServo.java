@@ -53,7 +53,7 @@ public class ITDBucketArmServo implements FTCRobotSubsystem {
     private double specimenPickupPosition = 0.7;
     private double specimenHangLowBarPosition = 0.7;
     private double specimenHangHighBarPosition = 0.75;
-    private double parkPosition = 0.69;
+    private double parkPosition = 0.60;
 
     //New index position (dual lift)  = .3
 
