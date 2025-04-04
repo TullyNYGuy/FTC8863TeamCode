@@ -376,6 +376,7 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
             logCommand("Deliver sample to partner");
             // The setup for outtake actually runs the whole outtake so we just have to wait for it
             // to complete
+            liftBucketAtTransferPosition = false;
             extensionArmIntakeController.setupForOuttake();
             state = IntakeBucketControllerState.WAITING_FOR_OUTAKE_TO_COMPLETE;
         }
@@ -437,6 +438,7 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
         logCommand("Intake");
         transferComplete = false;
         extensionArmIntakeController.intakeHighAltitude();
+        liftBucketArmBucketGateController.openGate();
         state = IntakeBucketControllerState.INTAKING;
     }
 
@@ -444,6 +446,7 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
         logCommand("Intake high altitude timed");
         transferComplete = false;
         extensionArmIntakeController.intakeHighAltitudeTimed(lengthOfIntakeInMsec);
+        liftBucketArmBucketGateController.openGate();
         state = IntakeBucketControllerState.INTAKING;
     }
 
@@ -514,6 +517,7 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
         setGlidingIntakeFailed(false);
         transferComplete = false;
         extensionArmIntakeController.runGlidingIntake(maxPosition, intakeHeight, power, glidingIntakeDelay);
+        liftBucketArmBucketGateController.openGate();
         state = IntakeBucketControllerState.INTAKING;
     }
 
@@ -932,6 +936,7 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
                     extensionArmIntakeController.intakeToFloor();
                     // skip over the bucket clearance normally required before the bucket rotates up
                     // since the intake is all the way out already
+                    liftBucketArmBucketGateController.lift.setDeliveryHeight(ITDLift.Basket.LOW_TELEOP);
                     liftBucketArmBucketGateController.setupForDelivery();
                     state = IntakeBucketControllerState.BUCKET_ARM_MOVING_TO_VERTICAL_POSITION;
                 }
@@ -963,7 +968,7 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
                         //todo now that the extension arm is so fast, we may need to open the gate sooner
                         // BUT we can't open it so soon that it gets stuck on the intake arm chain
                         // while the extension arm is retracting
-                        liftBucketArmBucketGateController.openGate();
+                        //liftBucketArmBucketGateController.openGate();
                         //todo alternatively we could delay the transfer for just a bit. This is
                         // probably the better option.
                         extensionArmIntakeController.transfer();
@@ -1003,6 +1008,7 @@ public class ITDIntakeBucketController implements FTCRobotSubsystem {
             // states for delivering sample to partner
             case WAITING_FOR_OUTAKE_TO_COMPLETE:
                 if (intakePositionedForTransfer) {
+                    liftBucketSampleIsDelivered=true;
                     // outtake has completed, it is just like we had a delivery to the basket
                     liftBucketAtTransferPosition = true;
                     state = IntakeBucketControllerState.AT_TRANSFER_POSITION_AFTER_DELIVERY;
