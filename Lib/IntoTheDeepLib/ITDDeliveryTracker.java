@@ -27,7 +27,12 @@ public class ITDDeliveryTracker {
 
     public void deliveryOccured() {
         numberOfSamplesDelivered++;
-        setHighDeliveryPosition();
+        if (lift.getDeliveryHeight() == ITDLift.Basket.LOW_TELEOP) {
+
+        } else {
+            setHighDeliveryPosition();
+        }
+
     }
 
     public void setHighDeliveryPosition() {
@@ -37,27 +42,29 @@ public class ITDDeliveryTracker {
             lift.setDeliveryHeight((ITDLift.Basket.HIGH_AUTO));
         }
     }
-    //*********************************************************************************************
-    //          Constructors
-    //
-    // the function that builds the class when an object is created
-    // from it
-    //*********************************************************************************************
 
-    public ITDDeliveryTracker() {
 
-    }
+//*********************************************************************************************
+//          Constructors
+//
+// the function that builds the class when an object is created
+// from it
+//*********************************************************************************************
 
-    //*********************************************************************************************
-    //          Helper Methods
-    //
-    // methods that aid or support the major functions in the class
-    //*********************************************************************************************
+public ITDDeliveryTracker() {
 
-    //*********************************************************************************************
-    //          MAJOR METHODS
-    //
-    // public methods that give the class its functionality
-    //*********************************************************************************************
+}
+
+//*********************************************************************************************
+//          Helper Methods
+//
+// methods that aid or support the major functions in the class
+//*********************************************************************************************
+
+//*********************************************************************************************
+//          MAJOR METHODS
+//
+// public methods that give the class its functionality
+//*********************************************************************************************
 
 }
