@@ -76,10 +76,10 @@ public class ITDAutonomousStateMachineNewLift {
     private int sampleNum = 0;
 
     // was 13.25
-    private double sample1ExtensionArmPosition = 13.75;
-    private double sample2ExtensionArmPosition = 13.25;
+    private double sample1ExtensionArmPosition = 14.0;
+    private double sample2ExtensionArmPosition = 13.5;
     //was 12.75
-    private double sample3ExtensionArmPosition = 13.25;
+    private double sample3ExtensionArmPosition = 13.5;
 
     // when a gliding intake fails, the state machine needs to know about it so it can react
     // The intake bucket controller will tell us
@@ -188,7 +188,7 @@ public class ITDAutonomousStateMachineNewLift {
     // Define the robot positions
     private Pose2d startAutoPose = new Pose2d(32.5, 54.375, Math.toRadians(-90));
   //  private Pose2d deliveryPose = new Pose2d(48.5, 51.75, Math.toRadians(-135));
-    private Pose2d deliveryPose = new Pose2d(48.75, 50.0, Math.toRadians(-135));    
+    private Pose2d deliveryPose = new Pose2d(48.75, 50.0, Math.toRadians(-135));
     private Pose2d sample1IntakePose = new Pose2d(54.5, 44.5, Math.toRadians(-106.7821));
    // private Pose2d sample2IntakePose=new Pose2d(59, 39.25, Math.toRadians(-90));
     private Pose2d sample2IntakePose=new Pose2d(57.75, 45, Math.toRadians(-90));
