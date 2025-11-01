@@ -100,6 +100,14 @@ public class ITDLift implements FTCRobotSubsystem {
     private double lowBarHangPosition = 6.0;
     private double highBarHangPosition = 4.0;
 
+    private double heightAdjustment = 0.5;
+    private boolean hasHeightBeenAdjusted = false;
+
+    public void bumpHeight() {
+        if (!hasHeightBeenAdjusted) {
+            readyToDeliverPositionHighBasketAuto = readyToDeliverPositionHighBasketAuto + heightAdjustment;
+        }
+    }
     // Old singlelift heights
     //    private double readyToDeliverPositionHighBasketTeleop = 24.5;
     //    // private double readyToDeliverPosition = 18.5;
