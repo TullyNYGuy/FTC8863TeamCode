@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
 
-public class DecodeShooterMotor implements FTCRobotSubsystem {
+public class DecodeIntakeMotor implements FTCRobotSubsystem {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -35,7 +35,7 @@ public class DecodeShooterMotor implements FTCRobotSubsystem {
     // getter and setter methods
     //*********************************************************************************************
 
-    private DcMotor8863 shooterMotor;
+    private DcMotor8863 intakeMotor;
     //*********************************************************************************************
     //          PROPERTIES AND GETTER and SETTER Methods
     //
@@ -49,20 +49,23 @@ public class DecodeShooterMotor implements FTCRobotSubsystem {
     }
 
     public void setRPM (int aRPM){
-        if (aRPM > 6000 ){
-            aRPM = 6000;
+        if (aRPM > 1150 ){
+            aRPM = 1150;
         }
-        if (aRPM < -6000){
-            aRPM = -6000;
+        if (aRPM < -1150){
+            aRPM = -1150;
         }
         this.RPM = aRPM;
-        shooterMotor.runAtConstantRPM(this.RPM);
+        intakeMotor.runAtConstantRPM(this.RPM);
     }
     public void on(){
-        setRPM(3100);
+        setRPM (500);
     }
     public void off(){
-        setRPM(0);
+        setRPM (0);
+    }
+    public void outtake(){
+        setRPM (-500);
     }
     /**
      * Property that holds the direction of the output shaft.
@@ -83,12 +86,12 @@ public class DecodeShooterMotor implements FTCRobotSubsystem {
      */
     public void setDirection(Direction direction) {
         if (direction == Direction.FORWARD) {
-            shooterMotor.setDirection(FORWARD);
+            intakeMotor.setDirection(FORWARD);
             direction = Direction.FORWARD;
         }
 
         if (direction == Direction.REVERSE) {
-            shooterMotor.setDirection(REVERSE);
+            intakeMotor.setDirection(REVERSE);
             direction = Direction.REVERSE;
         }
 
@@ -125,17 +128,17 @@ public class DecodeShooterMotor implements FTCRobotSubsystem {
     //*********************************************************************************************
 
     /**
-     * @param shooterMotorName  The name of the left motor
+     * @param intakeMotorName  The name of the left motor
      * @param hardwareMap    Hardware map from the FTC robot
      * @param telemetry      The telemetry from the FTC robot
      */
-    public DecodeShooterMotor(String shooterMotorName, HardwareMap hardwareMap, Telemetry telemetry) {
-        shooterMotor = new DcMotor8863(shooterMotorName, hardwareMap, telemetry);
-        shooterMotor.setMotorType(DcMotor8863.MotorType.GOBILDA_6000);
-        shooterMotor.setMovementPerRev(360);
-        shooterMotor.setFinishBehavior(DcMotor8863.FinishBehavior.FLOAT);
+    public DecodeIntakeMotor(String intakeMotorName, HardwareMap hardwareMap, Telemetry telemetry) {
+        intakeMotor = new DcMotor8863(intakeMotorName, hardwareMap, telemetry);
+        intakeMotor.setMotorType(DcMotor8863.MotorType.GOBILDA_1150);
+        intakeMotor.setMovementPerRev(360);
+        intakeMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
 
-        setDirection(Direction.FORWARD);
+        setDirection(Direction.REVERSE);
     }
     //*********************************************************************************************
     //          Helper Methods
@@ -157,11 +160,11 @@ public class DecodeShooterMotor implements FTCRobotSubsystem {
      */
     public void stop() {
         // interrupt sets the motors to coast to a stop, not stop suddenly
-        shooterMotor.interrupt();
+        intakeMotor.interrupt();
     }
     @Override
     public String getName() {
-        return "shooter";
+        return "intake";
     }
 
     @Override

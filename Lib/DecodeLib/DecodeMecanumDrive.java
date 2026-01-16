@@ -50,6 +50,10 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogOnChange;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
 import org.firstinspires.ftc.teamcode.RoadRunner.Drawing;
 import org.firstinspires.ftc.teamcode.RoadRunner.Localizer;
 import org.firstinspires.ftc.teamcode.RoadRunner.messages.DriveCommandMessage;
@@ -62,7 +66,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 @Config
-public class DecodeMecanumDrive {
+public class DecodeMecanumDrive implements FTCRobotSubsystem {
     public static class Params {
         // IMU orientation
         // TODO: fill in these values based on
@@ -266,6 +270,17 @@ public class DecodeMecanumDrive {
         leftBack.setPower(wheelVels.leftBack.get(0) / maxPowerMag);
         rightBack.setPower(wheelVels.rightBack.get(0) / maxPowerMag);
         rightFront.setPower(wheelVels.rightFront.get(0) / maxPowerMag);
+    }
+
+    public void calculateMotorCommandsRobotCentric(double translationJoystickYValue, double translationJoystickXValue, double rotationJoystickXValue) {
+        setDrivePowers(new PoseVelocity2d(
+                new Vector2d(
+                        -translationJoystickYValue,
+                        -translationJoystickXValue
+                ),
+                -rotationJoystickXValue
+        ));
+        updatePoseEstimate();
     }
 
     public final class FollowTrajectoryAction implements Action {
@@ -496,5 +511,66 @@ public class DecodeMecanumDrive {
                 defaultTurnConstraints,
                 defaultVelConstraint, defaultAccelConstraint
         );
+    }
+
+    // for FTCRobotSubsystem
+    private DataLogging logFile;
+    private boolean loggingOn = false;
+    private DataLogOnChange logDataOnchange;
+
+    private boolean initComplete = false;
+    private final String MECANUM_NAME = DecodeRobot.HardwareName.MECANUM_DRIVE.hwName;
+
+    @Override
+    public boolean init(Configuration config) {
+        return true;
+    }
+
+    @Override
+    public void shutdown() {
+
+    }
+
+    @Override
+    public void timedUpdate(double timerValueMsec) {
+
+    }
+    @Override
+    public void update() {
+    }
+
+    @Override
+    public String getName() {
+        return MECANUM_NAME;
+    }
+
+    @Override
+    public boolean isInitComplete() {
+        if (initComplete) {
+            logCommand("Init complete");
+        }
+        return initComplete;
+    }
+
+    @Override
+    public void setDataLog(DataLogging logFile) {
+        this.logFile = logFile;
+        logDataOnchange = new DataLogOnChange(logFile);
+    }
+
+    @Override
+    public void enableDataLogging() {
+        this.loggingOn = true;
+    }
+
+    @Override
+    public void disableDataLogging() {
+        this.loggingOn = false;
+    }
+
+    private void logCommand(String command) {
+        if (loggingOn && logFile != null) {
+            logDataOnchange.log(getName() + " command = " + command);
+        }
     }
 }

@@ -47,6 +47,10 @@ public class DecodeRobot implements FTCRobot {
 
     public enum Subsystem {
         MECANUM_DRIVE,
+        INTAKE_MOTOR,
+        BALL_SHOOTER,
+        SORTER_MOTOR
+
     }
 
     Set<Subsystem> capabilities;
@@ -68,7 +72,11 @@ public class DecodeRobot implements FTCRobot {
     }
 
     private AdafruitIMU8863 imu;
-    public DecodePinpointDrive mecanumDrive;
+    //public DecodePinpointDrive mecanumDrive;
+    public DecodeMecanumDrive mecanumDrive;
+    public DecodeIntakeMotor intakeMotor;
+    public DecodeBallShooter ballShooter;
+    public DecodeSorterMotor sorterMotor;
     public LoopTimer loopTimer;
     public DecodeRobotModes robotModes;
 
@@ -111,8 +119,15 @@ public class DecodeRobot implements FTCRobot {
         //imu = new AdafruitIMU8863(hardwareMap, null, "IMU", HardwareName.IMU.hwName);
         if (capabilities.contains(Subsystem.MECANUM_DRIVE)) {
             Pose2d beginPose = new Pose2d(0, 0, 0);
-            mecanumDrive = new DecodePinpointDrive(hardwareMap, beginPose);
+            mecanumDrive = new DecodeMecanumDrive(hardwareMap, new Pose2d(0,0,0));
+            intakeMotor = new DecodeIntakeMotor("intakeMotor", hardwareMap, telemetry);
+            ballShooter = new DecodeBallShooter("ballShooter", hardwareMap, telemetry);
+            sorterMotor = new DecodeSorterMotor("sorterMotor",hardwareMap,telemetry);
+            //mecanumDrive = new DecodePinpointDrive(hardwareMap, beginPose);
             subsystemMap.put(mecanumDrive.getName(), mecanumDrive);
+            subsystemMap.put(intakeMotor.getName(),intakeMotor);
+            subsystemMap.put(ballShooter.getName(),ballShooter);
+            subsystemMap.put(sorterMotor.getName(), sorterMotor);
         }
 
         // example for a subsystem setup

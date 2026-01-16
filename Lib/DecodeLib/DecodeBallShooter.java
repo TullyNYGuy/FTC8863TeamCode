@@ -48,6 +48,17 @@ public class DecodeBallShooter implements FTCRobotSubsystem {
         this.RPM = aRPM;
         shooterMotor.setRPM(this.RPM);
     }
+    public void shootLong(){
+        setRPM(3100);
+        setHoodPosition(HoodPositions.LONG);
+    }
+    public void shootShort(){
+        setRPM(3100);
+        setHoodPosition(HoodPositions.SHORT);
+    }
+    public void off(){
+        setRPM(0);
+    }
 
     public void setHoodPosition(HoodPositions hoodPosition){
         if (hoodPosition==HoodPositions.SHORT){
