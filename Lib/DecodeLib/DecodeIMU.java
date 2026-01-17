@@ -5,6 +5,8 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
@@ -25,8 +27,9 @@ public class DecodeIMU implements FTCRobotSubsystem {
     // getter and setter methods
     //*********************************************************************************************
     private IMU imu;
-    private RevHubOrientationOnRobot orientation;
+    private RevHubOrientationOnRobot revHubOrientation;
     private double yaw;
+    private YawPitchRollAngles orientation;
 
     //*********************************************************************************************
     //          PROPERTIES AND GETTER and SETTER Methods
@@ -75,7 +78,8 @@ public class DecodeIMU implements FTCRobotSubsystem {
     // from it
     //*********************************************************************************************
     public DecodeIMU(HardwareMap hardwareMap, Telemetry telemetry){
-        imu=hardwareMap.g
+        imu=hardwareMap.get(IMU.class, subsystemName);
+        revHubOrientation = new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.BACKWARD, RevHubOrientationOnRobot.UsbFacingDirection.RIGHT);
     }
 
     //*********************************************************************************************
@@ -89,6 +93,10 @@ public class DecodeIMU implements FTCRobotSubsystem {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
+    public double getYaw(){
+        orientation = imu.getRobotYawPitchRollAngles();
+        return orientation.getYaw(AngleUnit.RADIANS);
+    }
 
     //*********************************************************************************************
     //          METHODS needed to implement FTCRobotSubsystem
@@ -119,6 +127,7 @@ public class DecodeIMU implements FTCRobotSubsystem {
 
     @Override
     public boolean init(Configuration config) {
+        imu.initialize(new IMU.Parameters(revHubOrientation));
         return true;
     }
 }
