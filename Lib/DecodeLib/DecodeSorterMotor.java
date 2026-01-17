@@ -6,6 +6,7 @@ import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
@@ -153,6 +154,14 @@ public class DecodeSorterMotor implements FTCRobotSubsystem {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
+
+    public double getCurrent(CurrentUnit currentUnit){
+        return sorterMotor.getCurrent(currentUnit);
+    }
+    public double getCurrentRPM(){
+        return sorterMotor.getCurrentRPM();
+    }
+
     @Override
     public void update() {
     }
