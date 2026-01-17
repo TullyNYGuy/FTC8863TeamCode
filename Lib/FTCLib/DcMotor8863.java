@@ -2110,7 +2110,7 @@ public class DcMotor8863 implements DcMotor8863Interface {
     public void setCurrentAlert(double current, CurrentUnit unit) {
         FTCDcMotor.setCurrentAlert(current,unit);
     }
-    
+
     public boolean isOverCurrent() {
         return FTCDcMotor.isOverCurrent();
     }
