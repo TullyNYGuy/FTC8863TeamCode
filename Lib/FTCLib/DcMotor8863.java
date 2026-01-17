@@ -2103,6 +2103,18 @@ public class DcMotor8863 implements DcMotor8863Interface {
         return FTCDcMotor.getCurrent(currentUnit);
     }
 
+    public double getCurrentAlert(CurrentUnit unit) {
+        return FTCDcMotor.getCurrentAlert(unit);
+    }
+
+    public void setCurrentAlert(double current, CurrentUnit unit) {
+        FTCDcMotor.setCurrentAlert(current,unit);
+    }
+    
+    public boolean isOverCurrent() {
+        return FTCDcMotor.isOverCurrent();
+    }
+
     // FTC SDK 3.4 removed these calls so I'm commenting out this code
     /*    *//**
      * When the motor is running in one of the <a href="https://en.wikipedia.org/wiki/PID_controller">PID modes</a>
