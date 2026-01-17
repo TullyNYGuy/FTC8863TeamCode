@@ -36,7 +36,8 @@ public class DecodeRobot implements FTCRobot {
         FRONT_RIGHT_DRIVE_MOTOR("rightFrontMotor"),
         REAR_LEFT_DRIVE_MOTOR("leftRearMotor"),
         REAR_RIGHT_DRIVE_MOTOR("rightRearMotor"),
-        MECANUM_DRIVE("mecanumDrive");
+        MECANUM_DRIVE("mecanumDrive"),
+        LIMELIGHT("limeLight");
 
         public final String hwName;
 
