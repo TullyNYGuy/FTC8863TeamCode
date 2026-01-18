@@ -24,7 +24,25 @@ public class PIDFController {
     // getter and setter methods
     //*********************************************************************************************
     private final PIDCoefficients pid;
-    private final double kA, kStatic;
+    private double kA;
+
+    public double getkA() {
+        return kA;
+    }
+
+    public void setkA(double kA) {
+        this.kA = kA;
+    }
+
+    private double kStatic;
+
+    public double getkStatic() {
+        return kStatic;
+    }
+
+    public void setkStatic(double kStatic) {
+        this.kStatic = kStatic;
+    }
     private final FeedforwardFunction kF;
     private double kV;
 
