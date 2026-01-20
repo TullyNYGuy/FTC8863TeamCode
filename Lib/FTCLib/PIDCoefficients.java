@@ -1,6 +1,9 @@
 package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
 
+import com.acmerobotics.dashboard.config.Config;
+
+@Config
 public class PIDCoefficients {
 
     //*********************************************************************************************
@@ -16,9 +19,10 @@ public class PIDCoefficients {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
-    public double kP;
-    public double kI;
-    public double kD;
+    // public static so that they can be set in the FTC Dashboard
+    public static double kP;
+    public static double kI;
+    public static double kD;
 
     //*********************************************************************************************
     //          Constructors

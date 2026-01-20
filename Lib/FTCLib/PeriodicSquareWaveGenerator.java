@@ -15,7 +15,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  */
 
 @Config
-public class PeriodicSquareWave {
+public class PeriodicSquareWaveGenerator {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -65,7 +65,7 @@ public class PeriodicSquareWave {
     // from it
     //*********************************************************************************************
 
-    public PeriodicSquareWave(double periodInMilliseconds, double amplitude) {
+    public PeriodicSquareWaveGenerator(double periodInMilliseconds, double amplitude) {
         this.periodInMilliseconds = periodInMilliseconds;
         this.amplitude = amplitude;
         timer = new ElapsedTime();

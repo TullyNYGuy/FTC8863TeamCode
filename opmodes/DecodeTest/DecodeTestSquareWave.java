@@ -1,12 +1,11 @@
 package org.firstinspires.ftc.teamcode.opmodes.DecodeTest;
 
 import com.acmerobotics.dashboard.FtcDashboard;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.PeriodicSquareWave;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.PeriodicSquareWaveGenerator;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
@@ -17,7 +16,7 @@ public class DecodeTestSquareWave extends LinearOpMode {
 
     // Put your variable declarations her
 
-    public PeriodicSquareWave periodicSquareWave;
+    public PeriodicSquareWaveGenerator periodicSquareWave;
     FtcDashboard dashboard = FtcDashboard.getInstance();
     Telemetry dashboardTelemetry = dashboard.getTelemetry();
 
@@ -28,7 +27,7 @@ public class DecodeTestSquareWave extends LinearOpMode {
 
         // Put your initializations here
 
-        periodicSquareWave = new PeriodicSquareWave(1000, 2);
+        periodicSquareWave = new PeriodicSquareWaveGenerator(1000, 2);
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");

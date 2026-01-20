@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
 
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 /**
@@ -12,7 +13,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  * The wave is shifted in phase so that at t=0, y=0
  * The period (in mSec) and amplitude can be controlled
  */
-public class PeriodicTrapezoid {
+@Config
+public class PeriodicTrapezoidGenerator {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -31,7 +33,7 @@ public class PeriodicTrapezoid {
     /**
      * The period of the wave in milliseconds
      */
-    private double periodInMilliseconds = 1000;
+    public static double periodInMilliseconds = 1000;
 
     public double getPeriodInMilliseconds() {
         return periodInMilliseconds;
@@ -44,7 +46,7 @@ public class PeriodicTrapezoid {
     /**
      * The amplitude of the wave in whatever units you are using.
      */
-    private double amplitude = 1;
+    public static double amplitude = 1;
 
     public double getAmplitude() {
         return amplitude;
@@ -62,7 +64,7 @@ public class PeriodicTrapezoid {
     // from it
     //*********************************************************************************************
 
-    public PeriodicTrapezoid(double periodInMilliseconds, double amplitude) {
+    public PeriodicTrapezoidGenerator(double periodInMilliseconds, double amplitude) {
         this.periodInMilliseconds = periodInMilliseconds;
         this.amplitude = amplitude;
         timer = new ElapsedTime();

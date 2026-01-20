@@ -1,10 +1,9 @@
-package org.firstinspires.ftc.teamcode.opmodes.DecodeTest;
+package org.firstinspires.ftc.teamcode.opmodes.DecodeTest.MotorTesting;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeSorterMotor;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeTurntableMotor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Debouncer;
 
@@ -22,8 +21,8 @@ public class TestTurntableMotor extends LinearOpMode {
     public void runOpMode() {
         int rpm = 0;
         int nextRPM = 0;
-        int courseRPMAdjustment = 60;
-        int fineRPMAdjustment = 20;
+        int courseRPMAdjustment = 10;
+        int fineRPMAdjustment = 2;
 
         // These debounce the buttons so that you only see a single press even if a button is held
         // down for a long time.
@@ -54,7 +53,7 @@ public class TestTurntableMotor extends LinearOpMode {
                 nextRPM = nextRPM - courseRPMAdjustment;
             }
             if (debouncedX.isPressed(gamepad2.x)) {
-                nextRPM = 6000;
+                nextRPM = 312;
             }
             if (debouncedB.isPressed(gamepad2.b)) {
                 nextRPM = 0;
@@ -67,7 +66,7 @@ public class TestTurntableMotor extends LinearOpMode {
             }
 
             // limit the rpm between 0 and 1
-            nextRPM = Range.clip(nextRPM, 0, 6000);
+            nextRPM = Range.clip(nextRPM, 0, 312);
 
             if (debouncedDpadLeft.isPressed(gamepad2.dpad_left)) {
                 rpm = nextRPM;
@@ -75,7 +74,7 @@ public class TestTurntableMotor extends LinearOpMode {
             }
 
             telemetry.addData("Y = ", "+" + Integer.toString(courseRPMAdjustment));
-            telemetry.addData("X = ", "435");
+            telemetry.addData("X = ", "312");
             telemetry.addData("B = ", "-" + Integer.toString(courseRPMAdjustment));
             telemetry.addData("A = ", "0");
             telemetry.addData("Dpad up = ", "+" + Integer.toString(fineRPMAdjustment));
@@ -84,7 +83,9 @@ public class TestTurntableMotor extends LinearOpMode {
             telemetry.addLine();
             telemetry.addData("Current Speed = ", rpm);
             telemetry.addData("Next Speed = ", nextRPM);
-            telemetry.addData("Actual RPM = ", turntableMotor.getRPM());
+            telemetry.addData("Actual RPM = ", turntableMotor.getActualRPM());
+            telemetry.addData("Current used = ", turntableMotor.getCurrent());
+            turntableMotor.displayTurntableAngle();
             telemetry.addData(">", "stop to finish");
             telemetry.update();
             idle();

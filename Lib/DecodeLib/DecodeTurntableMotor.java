@@ -6,6 +6,7 @@ import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
@@ -36,6 +37,7 @@ public class DecodeTurntableMotor implements FTCRobotSubsystem {
     //*********************************************************************************************
 
     private DcMotor8863 turntableMotor;
+    private Telemetry telemetry;
     //*********************************************************************************************
     //          PROPERTIES AND GETTER and SETTER Methods
     //
@@ -44,7 +46,7 @@ public class DecodeTurntableMotor implements FTCRobotSubsystem {
     //*********************************************************************************************
     private int RPM;
 
-    public int getRPM() {
+    public int getCommandedRPM() {
         return RPM;
     }
 
@@ -58,6 +60,7 @@ public class DecodeTurntableMotor implements FTCRobotSubsystem {
         this.RPM = aRPM;
         turntableMotor.runAtConstantRPM(this.RPM);
     }
+
     /**
      * Property that holds the direction of the output shaft.
      */
@@ -126,10 +129,11 @@ public class DecodeTurntableMotor implements FTCRobotSubsystem {
     public DecodeTurntableMotor(String turntableMotorName, HardwareMap hardwareMap, Telemetry telemetry) {
         turntableMotor = new DcMotor8863(turntableMotorName, hardwareMap, telemetry);
         turntableMotor.setMotorType(DcMotor8863.MotorType.GOBILDA_312);
-        turntableMotor.setMovementPerRev(360);
+        turntableMotor.setMovementPerRev(360*67.602/171*1.15);
         turntableMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
+        this.telemetry = telemetry;
 
-        setDirection(Direction.FORWARD);
+        setDirection(Direction.REVERSE);
     }
     //*********************************************************************************************
     //          Helper Methods
@@ -142,11 +146,36 @@ public class DecodeTurntableMotor implements FTCRobotSubsystem {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
+    public void displayTurntableAngle() {
+        telemetry.addData("encoder value ", turntableMotor.getCurrentPosition());
+        telemetry.addData("turntable angle ", turntableMotor.getPositionInTermsOfAttachment());
+    }
+
+    public double getPositionInTermsOfAttachment(){
+        return turntableMotor.getPositionInTermsOfAttachment();
+    }
+
     public void setPower(double power) {
         turntableMotor.setPower(power);
     }
+
+    public double getActualRPM() {
+        return turntableMotor.getCurrentRPM();
+    }
+
+    public double getCurrent() {
+        return turntableMotor.getCurrent(CurrentUnit.AMPS);
+    }
+
+    public double getNoLoadRPM(){
+        return turntableMotor.getNoLoadRPM();
+    }
+
     @Override
     public void update() {
+    }
+    public void moveToPosition(double Position) {
+        turntableMotor.moveToPosition(1, Position, DcMotor8863.FinishBehavior.HOLD);
     }
 
     /**

@@ -70,6 +70,11 @@ public class DecodeSorterMotor implements FTCRobotSubsystem {
     public void off(){
         setRPM(0);
     }
+
+    public void moveToPosition(double position){
+        sorterMotor.moveToPosition(1, position, DcMotor8863.FinishBehavior.HOLD);
+    }
+
     /**
      * Property that holds the direction of the output shaft.
      */

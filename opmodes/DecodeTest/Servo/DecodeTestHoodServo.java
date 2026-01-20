@@ -1,26 +1,26 @@
-package org.firstinspires.ftc.teamcode.opmodes.DecodeTest;
+package org.firstinspires.ftc.teamcode.opmodes.DecodeTest.Servo;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeRampServo;
+import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeHoodServo;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Decode Test Ramp Servo Positions", group = "Test")
+@TeleOp(name = "Decode Test Hood Servo Positions", group = "Test")
 //@Disabled
-public class DecodeTestRampServo extends LinearOpMode {
+public class DecodeTestHoodServo extends LinearOpMode {
 
     // Put your variable declarations here
-    public DecodeRampServo rampServo;
+    public DecodeHoodServo hoodServo;
 
     @Override
     public void runOpMode() {
 
 
         // Put your initializations here
-        rampServo = new DecodeRampServo(hardwareMap, telemetry);
+        hoodServo = new DecodeHoodServo(hardwareMap, telemetry);
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
@@ -30,18 +30,18 @@ public class DecodeTestRampServo extends LinearOpMode {
         // Put your calls here - they will not run in a loop
         while (opModeIsActive()) {
             // Put your calls that need to run in a loop here
-            rampServo.update();
+            hoodServo.update();
 
             if (gamepad1.a) {
-                rampServo.initPosition();
+                hoodServo.initPosition();
             }
 
             if (gamepad1.x) {
-                rampServo.upPosition();
+                hoodServo.shortPosition();
             }
 
             if (gamepad1.b) {
-                rampServo.downPosition();
+                hoodServo.longPosition();
             }
 
             if (gamepad1.y) {

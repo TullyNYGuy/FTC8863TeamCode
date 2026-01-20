@@ -3,6 +3,9 @@ package org.firstinspires.ftc.teamcode.Lib.FTCLib;
 
 import androidx.annotation.Nullable;
 
+import com.acmerobotics.dashboard.config.Config;
+
+@Config
 public class PIDFController {
 
     public interface FeedforwardFunction {
@@ -23,8 +26,10 @@ public class PIDFController {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
-    private final PIDCoefficients pid;
-    private double kA;
+    private PIDCoefficients pid;
+
+    // public static so FTC Dashboard can set it
+    public static double kA;
 
     public double getkA() {
         return kA;
@@ -34,7 +39,8 @@ public class PIDFController {
         this.kA = kA;
     }
 
-    private double kStatic;
+    // public static so FTC Dashboard can set it
+    public static double kStatic;
 
     public double getkStatic() {
         return kStatic;
@@ -44,8 +50,9 @@ public class PIDFController {
         this.kStatic = kStatic;
     }
     private final FeedforwardFunction kF;
-    private double kV;
 
+    // public static so FTC Dashboard can set it
+    public static double kV;
     /**
      * Allows kV to be changed on the fly. I used this for a non-linear kV that was a function of
      * velocity.
@@ -53,6 +60,9 @@ public class PIDFController {
      */
     public void setkV(double kV) {
         this.kV = kV;
+    }
+    public double getkV() {
+        return kV;
     }
 
     private double kG = 0;
@@ -284,6 +294,10 @@ public class PIDFController {
                 kF.compute(measuredPosition, measuredVelocity);
 
         double output = 0;
+
+        // if the base output is effectively 0, then don't output any command to compensate for kStatic
+        // Note that this precludes using this class to find kStatic since the baseOutput needs to be 0
+        // in order to find kStatic
         if (Math.abs(baseOutput) > 1e-6) {
             output = baseOutput + Math.copySign(kStatic, baseOutput);
         }
