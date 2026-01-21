@@ -124,6 +124,18 @@ public class DecodeLimelight implements FTCRobotSubsystem {
         return distanceToGoal;
 
     }
+    public Double getTxHorizontalAngle() {
+        double robotYaw = decodeIMU.getYaw();
+        Double tx = 0.0;
+        limelight.updateRobotOrientation(robotYaw);
+        LLResult result = limelight.getLatestResult();
+        if (result != null && result.isValid()) {
+            tx = result.getTx(); // Horizontal offset in degrees
+        } else {
+            tx = null;
+        }
+        return tx;
+    }
     //*********************************************************************************************
     //          METHODS needed to implement FTCRobotSubsystem
     //

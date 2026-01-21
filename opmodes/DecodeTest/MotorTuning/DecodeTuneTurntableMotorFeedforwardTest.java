@@ -14,9 +14,9 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.PeriodicSquareWaveGenerator;
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Decode Tune Turntable Motor PID", group = "Tune")
+@TeleOp(name = "Decode Tune Turntable Motor Feedforward test", group = "Tune")
 //@Disabled
-public class DecodeTuneTurntableMotorPID extends LinearOpMode {
+public class DecodeTuneTurntableMotorFeedforwardTest extends LinearOpMode {
 
     // Put your variable declarations her
     DecodeTurntableMotor turntableMotor;
@@ -48,7 +48,7 @@ public class DecodeTuneTurntableMotorPID extends LinearOpMode {
         turntableMotor = new DecodeTurntableMotor("turntableMotor", hardwareMap, telemetry);
         turntableMotor.init(null);
         squareWaveGenerator = new PeriodicSquareWaveGenerator(5000, 45);
-        controller = new PIDFController(new PIDCoefficients(0.00,0,.00),0,0,.002);
+        controller = new PIDFController(new PIDCoefficients(0,0,0),1.2,1.2,.004);
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");

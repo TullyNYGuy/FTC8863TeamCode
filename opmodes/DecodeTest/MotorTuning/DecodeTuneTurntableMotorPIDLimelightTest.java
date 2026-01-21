@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeLimelight;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeTurntableMotor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Debouncer;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.PIDCoefficients;
@@ -14,9 +15,9 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.PeriodicSquareWaveGenerator;
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Decode Tune Turntable Motor PID", group = "Tune")
+@TeleOp(name = "Decode Limelight Tracking", group = "Tune")
 //@Disabled
-public class DecodeTuneTurntableMotorPID extends LinearOpMode {
+public class DecodeTuneTurntableMotorPIDLimelightTest extends LinearOpMode {
 
     // Put your variable declarations her
     DecodeTurntableMotor turntableMotor;
@@ -25,6 +26,8 @@ public class DecodeTuneTurntableMotorPID extends LinearOpMode {
     Telemetry dashboardTelemetry = dashboard.getTelemetry();
     PIDFController controller;
     double newMotorPower = 0;
+    DecodeLimelight limelight;
+    Double horizontalAngleToAprilTag = 0.0;
 
 
     @Override
@@ -48,7 +51,8 @@ public class DecodeTuneTurntableMotorPID extends LinearOpMode {
         turntableMotor = new DecodeTurntableMotor("turntableMotor", hardwareMap, telemetry);
         turntableMotor.init(null);
         squareWaveGenerator = new PeriodicSquareWaveGenerator(5000, 45);
-        controller = new PIDFController(new PIDCoefficients(0.00,0,.00),0,0,.002);
+        controller = new PIDFController(new PIDCoefficients(0.008,0,.010),1.2,0,.002);
+        limelight = new DecodeLimelight(hardwareMap, telemetry);
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
@@ -58,23 +62,30 @@ public class DecodeTuneTurntableMotorPID extends LinearOpMode {
 
         // Put your calls here - they will not run in a loop
         squareWaveGenerator.start();
+        limelight.start();
 
         while (opModeIsActive()) {
 
-            controller.setTargetPosition(squareWaveGenerator.getY());
-            newMotorPower = controller.update(turntableMotor.getPositionInTermsOfAttachment());
-            turntableMotor.setPower(newMotorPower);
+            controller.setTargetPosition(0);
+            horizontalAngleToAprilTag = limelight.getTxHorizontalAngle();
+            if (horizontalAngleToAprilTag != null) {
+                newMotorPower = controller.update(horizontalAngleToAprilTag);
+                turntableMotor.setPower(newMotorPower);
+
+            }
+
 
             telemetry.addData("Actual RPM = ", turntableMotor.getCommandedRPM());
             turntableMotor.displayTurntableAngle();
             telemetry.addData("kStatic ", controller.getkStatic());
+            telemetry.addData("Actual Angle ", horizontalAngleToAprilTag);
             telemetry.addData("Motor Command ", newMotorPower);
             telemetry.addData(">", "stop to finish");
             telemetry.update();
 
             // send to the FTC Dashboard. Also makes them graphable
-            dashboardTelemetry.addData("Requested Angle ", squareWaveGenerator.getY());
-            dashboardTelemetry.addData("Actual Angle ", turntableMotor.getPositionInTermsOfAttachment());
+            dashboardTelemetry.addData("Requested Angle ",0);
+
             dashboardTelemetry.addData("Motor Current ", turntableMotor.getCurrent());
             dashboardTelemetry.update();
 
