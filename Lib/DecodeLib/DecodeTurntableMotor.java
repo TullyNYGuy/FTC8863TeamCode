@@ -11,6 +11,8 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.PIDCoefficients;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.PIDFController;
 
 public class DecodeTurntableMotor implements FTCRobotSubsystem {
 
@@ -38,24 +40,27 @@ public class DecodeTurntableMotor implements FTCRobotSubsystem {
 
     private DcMotor8863 turntableMotor;
     private Telemetry telemetry;
+    PIDFController controller;
     //*********************************************************************************************
     //          PROPERTIES AND GETTER and SETTER Methods
     //
     // allow access to private data fields for example setMotorPower,
     // getPositionInTermsOfAttachment
     //*********************************************************************************************
-    private int RPM;
 
-    public int getCommandedRPM() {
+    private double RPM;
+
+    public double getCommandedRPM() {
         return RPM;
     }
 
-    public void setRPM (int aRPM){
-        if (aRPM > 312 ){
-            aRPM = 312;
+    public void setRPM (double aRPM){
+        double maxRPM = turntableMotor.getNoLoadRPM();
+        if (aRPM > maxRPM ){
+            aRPM = maxRPM;
         }
-        if (aRPM < -312){
-            aRPM = -312;
+        if (aRPM < -maxRPM){
+            aRPM = -maxRPM;
         }
         this.RPM = aRPM;
         turntableMotor.runAtConstantRPM(this.RPM);
@@ -89,6 +94,26 @@ public class DecodeTurntableMotor implements FTCRobotSubsystem {
             direction = Direction.REVERSE;
         }
 
+    }
+
+    private double targetPosition = 0;
+
+    public double getTargetPosition() {
+        return targetPosition;
+    }
+
+    public void setTargetPosition(double targetPosition) {
+        this.targetPosition = targetPosition;
+        controller.setTargetPosition(targetPosition);
+    }
+
+    private double positionError = 0;
+    public double getPositionError() {
+        return positionError;
+    }
+
+    public void setPositionError(double positionError) {
+        this.positionError = positionError;
     }
 
     /**
@@ -131,9 +156,13 @@ public class DecodeTurntableMotor implements FTCRobotSubsystem {
         turntableMotor.setMotorType(DcMotor8863.MotorType.GOBILDA_312);
         turntableMotor.setMovementPerRev(360*67.602/171*1.15);
         turntableMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
-        this.telemetry = telemetry;
-
         setDirection(Direction.REVERSE);
+
+        controller = new PIDFController(new PIDCoefficients(0.008,0,.010),1.2,0,.002);
+        // set the target position tolerance in degrees. If the turntable is within 3 degrees of the target,
+        // the controller will say that it is on target
+        controller.setTargetPositionTolerance(3.0);
+        this.telemetry = telemetry;
     }
     //*********************************************************************************************
     //          Helper Methods
@@ -159,23 +188,20 @@ public class DecodeTurntableMotor implements FTCRobotSubsystem {
         turntableMotor.setPower(power);
     }
 
-    public double getActualRPM() {
-        return turntableMotor.getCurrentRPM();
+    public void moveToPosition(double Position) {
+        turntableMotor.moveToPosition(1, Position, DcMotor8863.FinishBehavior.HOLD);
     }
 
-    public double getCurrent() {
-        return turntableMotor.getCurrent(CurrentUnit.AMPS);
+    public double getActualRPM() {
+        return turntableMotor.getCurrentRPM();
     }
 
     public double getNoLoadRPM(){
         return turntableMotor.getNoLoadRPM();
     }
 
-    @Override
-    public void update() {
-    }
-    public void moveToPosition(double Position) {
-        turntableMotor.moveToPosition(1, Position, DcMotor8863.FinishBehavior.HOLD);
+    public double getCurrent() {
+        return turntableMotor.getCurrent(CurrentUnit.AMPS);
     }
 
     /**
@@ -185,6 +211,18 @@ public class DecodeTurntableMotor implements FTCRobotSubsystem {
         // interrupt sets the motors to coast to a stop, not stop suddenly
         turntableMotor.interrupt();
     }
+
+    public boolean isOnTarget() {
+        return controller.isMovementComplete();
+    }
+
+    @Override
+    public void update() {
+        // Something outside this class will have to update us with the positionError.
+        // That would most likely be the limelight. Use setPositionError() for that.
+        controller.update(positionError);
+    }
+
     @Override
     public String getName() {
         return "turntable";

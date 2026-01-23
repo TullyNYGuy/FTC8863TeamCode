@@ -37,42 +37,29 @@ public class DecodeSorterMotor implements FTCRobotSubsystem {
     //*********************************************************************************************
 
     private DcMotor8863 sorterMotor;
+    private Telemetry telemetry;
     //*********************************************************************************************
     //          PROPERTIES AND GETTER and SETTER Methods
     //
     // allow access to private data fields for example setMotorPower,
     // getPositionInTermsOfAttachment
     //*********************************************************************************************
-    private int RPM;
+    private double RPM;
 
-    public int getRPM() {
+    public double getCommandedRPM() {
         return RPM;
     }
 
-    public void setRPM (int aRPM){
-        if (aRPM > 435 ){
-            aRPM = 435;
+    public void setRPM (double aRPM){
+        double maxRPM = sorterMotor.getNoLoadRPM();
+        if (aRPM > maxRPM ){
+            aRPM = maxRPM;
         }
-        if (aRPM < -435){
-            aRPM = -435;
+        if (aRPM < -maxRPM){
+            aRPM = -maxRPM;
         }
         this.RPM = aRPM;
         sorterMotor.runAtConstantRPM(this.RPM);
-    }
-    public void shoot(){
-        setRPM(180);
-
-    }
-    public void intake(){
-        setRPM(40);
-
-    }
-    public void off(){
-        setRPM(0);
-    }
-
-    public void moveToPosition(double position){
-        sorterMotor.moveToPosition(1, position, DcMotor8863.FinishBehavior.HOLD);
     }
 
     /**
@@ -147,6 +134,7 @@ public class DecodeSorterMotor implements FTCRobotSubsystem {
         sorterMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
 
         setDirection(Direction.FORWARD);
+        this.telemetry = telemetry;
     }
     //*********************************************************************************************
     //          Helper Methods
@@ -167,8 +155,44 @@ public class DecodeSorterMotor implements FTCRobotSubsystem {
         return sorterMotor.getCurrentRPM();
     }
 
-    @Override
-    public void update() {
+    public void shoot(){
+        setRPM(180);
+
+    }
+    public void intake(){
+        setRPM(40);
+
+    }
+    public void off(){
+        setRPM(0);
+    }
+
+    public void moveToPosition(double position){
+        sorterMotor.moveToPosition(1, position, DcMotor8863.FinishBehavior.HOLD);
+    }
+    public void displaySorterAngle() {
+        telemetry.addData("encoder value ", sorterMotor.getCurrentPosition());
+        telemetry.addData("sorter angle ", sorterMotor.getPositionInTermsOfAttachment());
+    }
+
+    public double getPositionInTermsOfAttachment(){
+        return sorterMotor.getPositionInTermsOfAttachment();
+    }
+
+    public void setPower(double power) {
+        sorterMotor.setPower(power);
+    }
+
+    public double getActualRPM() {
+        return sorterMotor.getCurrentRPM();
+    }
+
+    public double getCurrent() {
+        return sorterMotor.getCurrent(CurrentUnit.AMPS);
+    }
+
+    public double getNoLoadRPM(){
+        return sorterMotor.getNoLoadRPM();
     }
 
     /**
@@ -178,6 +202,16 @@ public class DecodeSorterMotor implements FTCRobotSubsystem {
         // interrupt sets the motors to coast to a stop, not stop suddenly
         sorterMotor.interrupt();
     }
+    public boolean isMovementComplete() {
+        return sorterMotor.isMovementComplete();
+    }
+    public void resetEncoder() {
+        sorterMotor.resetEncoder();
+    }
+    @Override
+    public void update() {
+    }
+
     @Override
     public String getName() {
         return "sort";

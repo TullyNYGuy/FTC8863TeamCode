@@ -126,7 +126,7 @@ public class TestSorterAndIntakeMotors extends LinearOpMode {
             telemetry.addLine();
             telemetry.addData("Current Sorter Speed = ", rpmSorter);
             telemetry.addData("Next Sorter Speed = ", nextRPMSorter);
-            telemetry.addData("Actual Sorter RPM = ", sorterMotor.getRPM());
+            telemetry.addData("Actual Sorter RPM = ", sorterMotor.getActualRPM());
             telemetry.addData(">", "stop to finish");
 
             telemetry.addData("Y = ", "+" + Integer.toString(courseRPMAdjustmentIntake));

@@ -87,7 +87,20 @@ public class PIDFController {
 
     public void setTargetPosition(double targetPosition) {
         this.targetPosition = targetPosition;
+        // there is a new target position, set movement complete to false
+        movementComplete = false;
     }
+
+    public double getTargetPositionTolerance() {
+        return targetPositionTolerance;
+    }
+
+    public void setTargetPositionTolerance(double targetPositionTolerance) {
+        this.targetPositionTolerance = targetPositionTolerance;
+    }
+
+    private double targetPositionTolerance = 0;
+
 
     /**
      * Target velocity.
@@ -111,6 +124,14 @@ public class PIDFController {
      * Error computed in the last call to {@link #update(long, double, Double)}
      */
     private double lastError;
+
+    private boolean movementComplete = false;
+
+    public boolean isMovementComplete() {
+        return movementComplete;
+    }
+
+
 
     //*********************************************************************************************
     //          Constructors
@@ -216,6 +237,12 @@ public class PIDFController {
         return error;
     }
 
+    private void checkMovementComplete(double error) {
+        if (error < targetPositionTolerance) {
+            movementComplete = true;
+        }
+    }
+
     //*********************************************************************************************
     //          MAJOR METHODS
     //
@@ -264,6 +291,9 @@ public class PIDFController {
             double measuredPosition,
             @Nullable Double measuredVelocity) {
         final double error = getPositionError(measuredPosition);
+
+        // check if the thing being controlled has arrived at its target, within the targetPositionTolerance
+        checkMovementComplete(error);
 
         if (lastUpdateTs == 0) {
             lastError = error;

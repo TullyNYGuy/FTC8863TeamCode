@@ -61,7 +61,7 @@ public class TestSorterMotorGoToPosition extends LinearOpMode {
             telemetry.addData("X = ", "0");
             telemetry.addData("B = ", "360");
             telemetry.addData("A = ", "240");
-            telemetry.addData("Actual RPM = ", sorterMotor.getRPM());
+            telemetry.addData("Actual RPM = ", sorterMotor.getActualRPM());
             telemetry.addData(">", "stop to finish");
             telemetry.update();
             idle();
