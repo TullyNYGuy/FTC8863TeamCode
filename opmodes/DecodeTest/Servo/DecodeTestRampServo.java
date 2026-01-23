@@ -46,7 +46,9 @@ public class DecodeTestRampServo extends LinearOpMode {
 
             if (gamepad1.y) {
             }
-
+            telemetry.addData("a=initPosition","");
+            telemetry.addData("x=upPosition","");
+            telemetry.addData("b=downPosition","");
             telemetry.addData(">", "Press Stop to end test.");
             telemetry.update();
 

@@ -45,11 +45,11 @@ public class DecodeRampServo implements FTCRobotSubsystem {
     private boolean initComplete = false;
 
     private double initPosition = 0.13;
-    private double upPosition = 0.39;
+    private double upPosition = 0.42;
     private double downPosition = 0.13;
 
-    //New index position (hood down)  = .1
-    //Max position (hood up)  = .41
+    //New index position (hood down)  = .13
+    //Max position (hood up)  = .42
 
     private double shutdownPosition = initPosition;
 
