@@ -38,7 +38,7 @@ public class TestSorterMotorStall extends LinearOpMode {
         Debouncer debouncedDpadLeft = new Debouncer();
 
         // Put your initializations here
-        sorterMotor = new DecodeSorterMotor("sorterMotor", hardwareMap, telemetry);
+        sorterMotor = new DecodeSorterMotor(hardwareMap, telemetry);
         sorterMotor.init(null);
         stallDetector = new StallDetector(sorterMotor, .1, 1, CurrentUnit.AMPS);
         stallDetector.setEnabled(true);

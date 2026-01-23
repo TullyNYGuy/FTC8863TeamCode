@@ -116,6 +116,8 @@ public class DecodeTurntableMotor implements FTCRobotSubsystem {
         this.positionError = positionError;
     }
 
+    private final String SUB_SYSTEM_NAME = DecodeRobot.HardwareName.TURNTABLE_MOTOR.hwName;
+
     /**
      * Property that holds a log file
      */
@@ -147,12 +149,11 @@ public class DecodeTurntableMotor implements FTCRobotSubsystem {
     //*********************************************************************************************
 
     /**
-     * @param turntableMotorName  The name of the left motor
      * @param hardwareMap    Hardware map from the FTC robot
      * @param telemetry      The telemetry from the FTC robot
      */
-    public DecodeTurntableMotor(String turntableMotorName, HardwareMap hardwareMap, Telemetry telemetry) {
-        turntableMotor = new DcMotor8863(turntableMotorName, hardwareMap, telemetry);
+    public DecodeTurntableMotor(HardwareMap hardwareMap, Telemetry telemetry) {
+        turntableMotor = new DcMotor8863(SUB_SYSTEM_NAME, hardwareMap, telemetry);
         turntableMotor.setMotorType(DcMotor8863.MotorType.GOBILDA_312);
         turntableMotor.setMovementPerRev(360*67.602/171*1.15);
         turntableMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
@@ -225,7 +226,7 @@ public class DecodeTurntableMotor implements FTCRobotSubsystem {
 
     @Override
     public String getName() {
-        return "turntable";
+        return SUB_SYSTEM_NAME;
     }
 
     @Override

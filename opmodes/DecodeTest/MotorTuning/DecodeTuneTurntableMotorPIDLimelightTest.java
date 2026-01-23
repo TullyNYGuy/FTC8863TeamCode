@@ -48,7 +48,7 @@ public class DecodeTuneTurntableMotorPIDLimelightTest extends LinearOpMode {
         Debouncer debouncedDpadLeft = new Debouncer();
 
         // Put your initializations here
-        turntableMotor = new DecodeTurntableMotor("turntableMotor", hardwareMap, telemetry);
+        turntableMotor = new DecodeTurntableMotor(hardwareMap, telemetry);
         turntableMotor.init(null);
         squareWaveGenerator = new PeriodicSquareWaveGenerator(5000, 45);
         controller = new PIDFController(new PIDCoefficients(0.008,0,.010),1.2,0,.002);

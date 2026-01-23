@@ -30,7 +30,7 @@ public class TestSorterMotorGoToPosition extends LinearOpMode {
         Debouncer debouncedDpadLeft = new Debouncer();
 
         // Put your initializations here
-        sorterMotor = new DecodeSorterMotor("sorterMotor", hardwareMap, telemetry);
+        sorterMotor = new DecodeSorterMotor(hardwareMap, telemetry);
         sorterMotor.init(null);
 
         // Wait for the start button

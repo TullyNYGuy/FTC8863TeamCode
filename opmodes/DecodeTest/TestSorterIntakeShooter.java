@@ -51,13 +51,13 @@ public class TestSorterIntakeShooter extends LinearOpMode {
         Debouncer debouncedDpadDownG1 = new Debouncer();
         Debouncer debouncedDpadLeftG1 = new Debouncer();
         // Put your initializations here
-        sorterMotor = new DecodeSorterMotor("sorterMotor", hardwareMap, telemetry);
+        sorterMotor = new DecodeSorterMotor(hardwareMap, telemetry);
         sorterMotor.init(null);
 
-        intakeMotor = new DecodeIntakeMotor("intakeMotor", hardwareMap, telemetry);
+        intakeMotor = new DecodeIntakeMotor(hardwareMap, telemetry);
         intakeMotor.init(null);
 
-        ballShooter = new DecodeBallShooter("ballShooter", hardwareMap, telemetry);
+        ballShooter = new DecodeBallShooter(hardwareMap, telemetry);
         ballShooter.init(null);
 
         // Wait for the start button

@@ -66,12 +66,13 @@ public class DecodeColorSensorController implements FTCRobotSubsystem {
         this.loggingOn = false;
     }
 
-    private String subsystemName;
-
     private ITDColorSensorA intakeColorSensorRight;
     private ITDColorSensorB intakeColorSensorLeft;
     private Color artifactColorRight = Color.UNKNOWN;
     private Color artifactColorLeft = Color.UNKNOWN;
+    private final String COLOR_SENSOR_RIGHT_NAME = DecodeRobot.HardwareName.COLOR_SENSOR_RIGHT.hwName;
+    private final String COLOR_SENSOR_LEFT_NAME = DecodeRobot.HardwareName.COLOR_SENSOR_LEFT.hwName;
+    private final String SUB_SYSTEM_NAME = DecodeRobot.HardwareName.COLOR_SENSOR_CONTROLLER.hwName;
 
     //*********************************************************************************************
     //          Constructors
@@ -80,8 +81,8 @@ public class DecodeColorSensorController implements FTCRobotSubsystem {
     // from it
     //*********************************************************************************************
     public DecodeColorSensorController(HardwareMap hardwareMap, Telemetry telemetry) {
-        intakeColorSensorRight = new ITDColorSensorA(hardwareMap, telemetry, "colorSensorRight");
-        intakeColorSensorLeft = new ITDColorSensorB(hardwareMap, telemetry, "colorSensorLeft");
+        intakeColorSensorRight = new ITDColorSensorA(hardwareMap, telemetry, COLOR_SENSOR_RIGHT_NAME);
+        intakeColorSensorLeft = new ITDColorSensorB(hardwareMap, telemetry, COLOR_SENSOR_LEFT_NAME);
     }
 
     //*********************************************************************************************
@@ -147,7 +148,7 @@ public class DecodeColorSensorController implements FTCRobotSubsystem {
     // public methods that give the class its functionality
     //*********************************************************************************************
     public boolean isArtifactPresent() {
-        GiveFreshData();
+        getFreshData();
         if (isArtifactPresentInRightSensor() || isArtifactPresentInLeftSensor()) {
             return true;
         } else {
@@ -164,7 +165,7 @@ public class DecodeColorSensorController implements FTCRobotSubsystem {
         intakeColorSensorRight.sensor.turnSensorOff();
         intakeColorSensorLeft.sensor.turnSensorOff();
     }
-    public void GiveFreshData() {
+    public void getFreshData() {
         getFreshDistanceFromLeftSensor();
         getFreshDistanceFromRightSensor();
     }
@@ -180,7 +181,7 @@ public class DecodeColorSensorController implements FTCRobotSubsystem {
 
     @Override
     public String getName() {
-        return subsystemName;
+        return SUB_SYSTEM_NAME;
     }
 
     @Override

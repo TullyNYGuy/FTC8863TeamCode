@@ -45,7 +45,7 @@ public class DecodeTuneTurntableMotorFeedforwardTest extends LinearOpMode {
         Debouncer debouncedDpadLeft = new Debouncer();
 
         // Put your initializations here
-        turntableMotor = new DecodeTurntableMotor("turntableMotor", hardwareMap, telemetry);
+        turntableMotor = new DecodeTurntableMotor(hardwareMap, telemetry);
         turntableMotor.init(null);
         squareWaveGenerator = new PeriodicSquareWaveGenerator(5000, 45);
         controller = new PIDFController(new PIDCoefficients(0,0,0),1.2,1.2,.004);

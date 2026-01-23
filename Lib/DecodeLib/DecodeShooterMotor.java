@@ -6,6 +6,7 @@ import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
@@ -42,28 +43,24 @@ public class DecodeShooterMotor implements FTCRobotSubsystem {
     // allow access to private data fields for example setMotorPower,
     // getPositionInTermsOfAttachment
     //*********************************************************************************************
-    private int RPM;
+    private double RPM;
 
-    public int getRPM() {
+    public double getCommandedRPM() {
         return RPM;
     }
 
-    public void setRPM (int aRPM){
-        if (aRPM > 6000 ){
-            aRPM = 6000;
+    public void setRPM (double aRPM){
+        double maxRPM = shooterMotor.getNoLoadRPM();
+        if (aRPM > maxRPM ){
+            aRPM = maxRPM;
         }
-        if (aRPM < -6000){
-            aRPM = -6000;
+        if (aRPM < -maxRPM){
+            aRPM = -maxRPM;
         }
         this.RPM = aRPM;
         shooterMotor.runAtConstantRPM(this.RPM);
     }
-    public void on(){
-        setRPM(3100);
-    }
-    public void off(){
-        setRPM(0);
-    }
+
     /**
      * Property that holds the direction of the output shaft.
      */
@@ -93,6 +90,7 @@ public class DecodeShooterMotor implements FTCRobotSubsystem {
         }
 
     }
+    private final String SUB_SYSTEM_NAME = DecodeRobot.HardwareName.SHOOTER_MOTOR.hwName;
 
     /**
      * Property that holds a log file
@@ -148,6 +146,35 @@ public class DecodeShooterMotor implements FTCRobotSubsystem {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
+
+    public void runAtRPMForLongShot() {
+        setRPM(3100);
+    }
+
+    public void runAtRPMForShortShot() {
+        setRPM(2200);
+    }
+
+    public void off(){
+        setRPM(0);
+    }
+
+    public void setPower(double power) {
+        shooterMotor.setPower(power);
+    }
+
+    public double getActualRPM() {
+        return shooterMotor.getCurrentRPM();
+    }
+
+    public double getCurrent() {
+        return shooterMotor.getCurrent(CurrentUnit.AMPS);
+    }
+
+    public double getNoLoadRPM(){
+        return shooterMotor.getNoLoadRPM();
+    }
+
     @Override
     public void update() {
     }

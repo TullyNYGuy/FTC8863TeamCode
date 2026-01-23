@@ -34,8 +34,6 @@ public class DecodeRampServo implements FTCRobotSubsystem {
     //*********************************************************************************************
     private Servo8863New rampServo;
 
-  //  private final String RAMP_SERVO_NAME = ITDRobot.HardwareName.HOOD_SERVO.hwName;
-    private final String RAMP_SERVO_NAME = "rampServo";
     private DataLogging logFile;
 
     private boolean loggingOn = false;
@@ -52,6 +50,7 @@ public class DecodeRampServo implements FTCRobotSubsystem {
     //Max position (hood up)  = .42
 
     private double shutdownPosition = initPosition;
+    private final String SUB_SYSTEM_NAME = DecodeRobot.HardwareName.RAMP_SERVO.hwName;
 
     //*********************************************************************************************
     //          GETTER and SETTER Methods
@@ -69,7 +68,7 @@ public class DecodeRampServo implements FTCRobotSubsystem {
     //*********************************************************************************************
 
     public DecodeRampServo(HardwareMap hardwareMap, Telemetry telemetry) {
-        rampServo = new Servo8863New(RAMP_SERVO_NAME, hardwareMap, telemetry);
+        rampServo = new Servo8863New(SUB_SYSTEM_NAME, hardwareMap, telemetry);
 
         rampServo.addPosition("initPosition", initPosition, 170, TimeUnit.MILLISECONDS);
         rampServo.addPosition("upPosition", upPosition, 170, TimeUnit.MILLISECONDS);
@@ -168,7 +167,7 @@ public class DecodeRampServo implements FTCRobotSubsystem {
     //*********************************************************************************************
     @Override
     public String getName() {
-        return RAMP_SERVO_NAME;
+        return SUB_SYSTEM_NAME;
     }
 
     /**
@@ -228,6 +227,5 @@ public class DecodeRampServo implements FTCRobotSubsystem {
      * This method does not need to be called since isPositionReached() is typically called directly.
      */
     public void update() {
-        rampServo.isPositionReached();
     }
 }

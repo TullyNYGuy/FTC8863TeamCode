@@ -6,6 +6,7 @@ import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
@@ -36,34 +37,39 @@ public class DecodeIntakeMotor implements FTCRobotSubsystem {
     //*********************************************************************************************
 
     private DcMotor8863 intakeMotor;
+    private final String INTAKE_MOTOR_NAME = DecodeRobot.HardwareName.INTAKE_MOTOR.hwName;
     //*********************************************************************************************
     //          PROPERTIES AND GETTER and SETTER Methods
     //
     // allow access to private data fields for example setMotorPower,
     // getPositionInTermsOfAttachment
     //*********************************************************************************************
-    private int RPM;
+    private double RPM;
 
-    public int getRPM() {
+    public double getCommandedRPM() {
         return RPM;
     }
 
-    public void setRPM (int aRPM){
-        if (aRPM > 1150 ){
-            aRPM = 1150;
+    public void setRPM (double aRPM){
+        double maxRPM = intakeMotor.getNoLoadRPM();
+        if (aRPM > maxRPM ){
+            aRPM = maxRPM;
         }
-        if (aRPM < -1150){
-            aRPM = -1150;
+        if (aRPM < -maxRPM){
+            aRPM = -maxRPM;
         }
         this.RPM = aRPM;
         intakeMotor.runAtConstantRPM(this.RPM);
     }
+
     public void on(){
         setRPM (500);
     }
+
     public void off(){
         setRPM (0);
     }
+
     public void outtake(){
         setRPM (-500);
     }
@@ -97,6 +103,8 @@ public class DecodeIntakeMotor implements FTCRobotSubsystem {
 
     }
 
+    private final String SUB_SYSTEM_NAME = DecodeRobot.HardwareName.INTAKE_MOTOR.hwName;
+
     /**
      * Property that holds a log file
      */
@@ -128,12 +136,11 @@ public class DecodeIntakeMotor implements FTCRobotSubsystem {
     //*********************************************************************************************
 
     /**
-     * @param intakeMotorName  The name of the left motor
      * @param hardwareMap    Hardware map from the FTC robot
      * @param telemetry      The telemetry from the FTC robot
      */
-    public DecodeIntakeMotor(String intakeMotorName, HardwareMap hardwareMap, Telemetry telemetry) {
-        intakeMotor = new DcMotor8863(intakeMotorName, hardwareMap, telemetry);
+    public DecodeIntakeMotor(HardwareMap hardwareMap, Telemetry telemetry) {
+        intakeMotor = new DcMotor8863(INTAKE_MOTOR_NAME, hardwareMap, telemetry);
         intakeMotor.setMotorType(DcMotor8863.MotorType.GOBILDA_1150);
         intakeMotor.setMovementPerRev(360);
         intakeMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
@@ -151,8 +158,26 @@ public class DecodeIntakeMotor implements FTCRobotSubsystem {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
+
+    public void setPower(double power) {
+        intakeMotor.setPower(power);
+    }
+
+    public double getActualRPM() {
+        return intakeMotor.getCurrentRPM();
+    }
+
+    public double getCurrent() {
+        return intakeMotor.getCurrent(CurrentUnit.AMPS);
+    }
+
+    public double getNoLoadRPM(){
+        return intakeMotor.getNoLoadRPM();
+    }
+
     @Override
     public void update() {
+        intakeMotor.update();
     }
 
     /**
@@ -164,7 +189,7 @@ public class DecodeIntakeMotor implements FTCRobotSubsystem {
     }
     @Override
     public String getName() {
-        return "intake";
+        return SUB_SYSTEM_NAME;
     }
 
     @Override

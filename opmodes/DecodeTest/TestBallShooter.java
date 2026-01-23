@@ -35,7 +35,7 @@ public class TestBallShooter extends LinearOpMode {
         Debouncer debouncedDpadLeft = new Debouncer();
 
         // Put your initializations here
-        ballShooter = new DecodeBallShooter("ballShooter", hardwareMap, telemetry);
+        ballShooter = new DecodeBallShooter(hardwareMap, telemetry);
         ballShooter.init(null);
 
         // Wait for the start button

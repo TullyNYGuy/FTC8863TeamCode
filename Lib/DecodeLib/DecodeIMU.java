@@ -37,6 +37,7 @@ public class DecodeIMU implements FTCRobotSubsystem {
     // allow access to private data fields for example setMotorPower,
     // getPositionInTermsOfAttachment
     //*********************************************************************************************
+    private final String SUB_SYSTEM_NAME = DecodeRobot.HardwareName.IMU.hwName;
 
     //*********************************************************************************************
     //          PROPERTIES AND GETTER and SETTER Methods For Implementing FTCRobotSubsystem
@@ -49,6 +50,7 @@ public class DecodeIMU implements FTCRobotSubsystem {
      * Property that holds a log file
      */
     private DataLogging logFile;
+
     @Override
     public void setDataLog(DataLogging logFile) {
         this.logFile = logFile;
@@ -69,16 +71,14 @@ public class DecodeIMU implements FTCRobotSubsystem {
         this.loggingOn = false;
     }
 
-    private String subsystemName=DecodeRobot.HardwareName.IMU.hwName;
-
     //*********************************************************************************************
     //          Constructors
     //
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
-    public DecodeIMU(HardwareMap hardwareMap, Telemetry telemetry){
-        imu=hardwareMap.get(IMU.class, subsystemName);
+    public DecodeIMU(HardwareMap hardwareMap, Telemetry telemetry) {
+        imu = hardwareMap.get(IMU.class, SUB_SYSTEM_NAME);
         revHubOrientation = new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.BACKWARD, RevHubOrientationOnRobot.UsbFacingDirection.RIGHT);
     }
 
@@ -93,7 +93,7 @@ public class DecodeIMU implements FTCRobotSubsystem {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
-    public double getYaw(){
+    public double getYaw() {
         orientation = imu.getRobotYawPitchRollAngles();
         return orientation.getYaw(AngleUnit.RADIANS);
     }
@@ -109,7 +109,7 @@ public class DecodeIMU implements FTCRobotSubsystem {
 
     @Override
     public String getName() {
-        return subsystemName;
+        return SUB_SYSTEM_NAME;
     }
 
     @Override

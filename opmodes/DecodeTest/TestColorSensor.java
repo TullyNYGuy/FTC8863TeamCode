@@ -6,7 +6,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeColorSensorA;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeColorSensorB;
-import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeIntakeColorSensor;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.

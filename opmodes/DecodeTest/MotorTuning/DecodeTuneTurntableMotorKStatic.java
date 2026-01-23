@@ -35,7 +35,7 @@ public class DecodeTuneTurntableMotorKStatic extends LinearOpMode {
         Debouncer debouncedDpadLeft = new Debouncer();
 
         // Put your initializations here
-        turntableMotor = new DecodeTurntableMotor("turntableMotor", hardwareMap, telemetry);
+        turntableMotor = new DecodeTurntableMotor(hardwareMap, telemetry);
         turntableMotor.init(null);
 
         // Wait for the start button

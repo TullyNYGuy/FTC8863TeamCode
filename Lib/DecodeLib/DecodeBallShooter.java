@@ -19,7 +19,7 @@ public class DecodeBallShooter implements FTCRobotSubsystem {
     // user defined types
     //
     //*********************************************************************************************
-    public enum HoodPositions{
+    public enum HoodPositions {
         SHORT,
         LONG
     }
@@ -31,6 +31,7 @@ public class DecodeBallShooter implements FTCRobotSubsystem {
     //*********************************************************************************************
 
     private DecodeShooterMotor shooterMotor;
+    private final String SHOOTER_MOTOR_NAME = DecodeRobot.HardwareName.SHOOTER_MOTOR.hwName;
     private DecodeHoodServo hoodServo;
     //*********************************************************************************************
     //          PROPERTIES AND GETTER and SETTER Methods
@@ -44,35 +45,40 @@ public class DecodeBallShooter implements FTCRobotSubsystem {
         return RPM;
     }
 
-    public void setRPM (int aRPM){
+    public void setRPM(int aRPM) {
         this.RPM = aRPM;
         shooterMotor.setRPM(this.RPM);
     }
-    public void shootLong(){
+
+    public void shootLong() {
         setRPM(3100);
         setHoodPosition(HoodPositions.LONG);
     }
-    public void shootShort(){
+
+    public void shootShort() {
         setRPM(3100);
         setHoodPosition(HoodPositions.SHORT);
     }
-    public void off(){
+
+    public void off() {
         setRPM(0);
     }
 
-    public void setHoodPosition(HoodPositions hoodPosition){
-        if (hoodPosition==HoodPositions.SHORT){
+    public void setHoodPosition(HoodPositions hoodPosition) {
+        if (hoodPosition == HoodPositions.SHORT) {
             hoodServo.shortPosition();
         }
-        if (hoodPosition==HoodPositions.LONG){
+        if (hoodPosition == HoodPositions.LONG) {
             hoodServo.longPosition();
         }
     }
+
 
     /**
      * Property that holds a log file
      */
     private DataLogging logFile;
+
     @Override
     public void setDataLog(DataLogging logFile) {
         this.logFile = logFile;
@@ -92,6 +98,8 @@ public class DecodeBallShooter implements FTCRobotSubsystem {
     public void disableDataLogging() {
         this.loggingOn = false;
     }
+
+    private final String SUB_SYSTEM_NAME = DecodeRobot.HardwareName.BALL_SHOOTER.hwName;
     //*********************************************************************************************
     //          Constructors
     //
@@ -100,13 +108,12 @@ public class DecodeBallShooter implements FTCRobotSubsystem {
     //*********************************************************************************************
 
     /**
-     * @param shooterMotorName  The name of the left motor
-     * @param hardwareMap    Hardware map from the FTC robot
-     * @param telemetry      The telemetry from the FTC robot
+     * @param hardwareMap      Hardware map from the FTC robot
+     * @param telemetry        The telemetry from the FTC robot
      */
-    public DecodeBallShooter(String shooterMotorName, HardwareMap hardwareMap, Telemetry telemetry) {
-        shooterMotor=new DecodeShooterMotor("shooterMotor",hardwareMap,telemetry);
-        hoodServo=new DecodeHoodServo(hardwareMap,telemetry);
+    public DecodeBallShooter(HardwareMap hardwareMap, Telemetry telemetry) {
+        shooterMotor = new DecodeShooterMotor(SHOOTER_MOTOR_NAME, hardwareMap, telemetry);
+        hoodServo = new DecodeHoodServo(hardwareMap, telemetry);
     }
     //*********************************************************************************************
     //          Helper Methods
@@ -121,6 +128,7 @@ public class DecodeBallShooter implements FTCRobotSubsystem {
     //*********************************************************************************************
     @Override
     public void update() {
+        shooterMotor.update();
     }
 
     /**
@@ -134,7 +142,7 @@ public class DecodeBallShooter implements FTCRobotSubsystem {
 
     @Override
     public String getName() {
-        return "shooter";
+        return SUB_SYSTEM_NAME;
     }
 
     @Override

@@ -91,7 +91,7 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
         this.loggingOn = false;
     }
 
-    private String subsystemName;
+    private final String SUB_SYSTEM_NAME = DecodeRobot.HardwareName.SORTER_CONTROLLER.hwName;
 
     //*********************************************************************************************
     //          Constructors
@@ -258,7 +258,7 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
 
     @Override
     public String getName() {
-        return subsystemName;
+        return SUB_SYSTEM_NAME;
     }
 
     @Override

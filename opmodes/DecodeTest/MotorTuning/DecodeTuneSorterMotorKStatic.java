@@ -35,7 +35,7 @@ public class DecodeTuneSorterMotorKStatic extends LinearOpMode {
         Debouncer debouncedDpadLeft = new Debouncer();
 
         // Put your initializations here
-        sorterMotor = new DecodeTurntableMotor("sorterMotor", hardwareMap, telemetry);
+        sorterMotor = new DecodeTurntableMotor(hardwareMap, telemetry);
         sorterMotor.init(null);
 
         // Wait for the start button

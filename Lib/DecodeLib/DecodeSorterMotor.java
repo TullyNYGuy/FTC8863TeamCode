@@ -92,6 +92,8 @@ public class DecodeSorterMotor implements FTCRobotSubsystem {
 
     }
 
+    private final String SUB_SYSTEM_NAME = DecodeRobot.HardwareName.SORTER_MOTOR.hwName;
+
     /**
      * Property that holds a log file
      */
@@ -123,12 +125,11 @@ public class DecodeSorterMotor implements FTCRobotSubsystem {
     //*********************************************************************************************
 
     /**
-     * @param sorterMotorName  The name of the left motor
      * @param hardwareMap    Hardware map from the FTC robot
      * @param telemetry      The telemetry from the FTC robot
      */
-    public DecodeSorterMotor(String sorterMotorName, HardwareMap hardwareMap, Telemetry telemetry) {
-        sorterMotor = new DcMotor8863(sorterMotorName, hardwareMap, telemetry);
+    public DecodeSorterMotor(HardwareMap hardwareMap, Telemetry telemetry) {
+        sorterMotor = new DcMotor8863(SUB_SYSTEM_NAME, hardwareMap, telemetry);
         sorterMotor.setMotorType(DcMotor8863.MotorType.GOBILDA_435);
         sorterMotor.setMovementPerRev(360);
         sorterMotor.setFinishBehavior(DcMotor8863.FinishBehavior.HOLD);
@@ -210,11 +211,12 @@ public class DecodeSorterMotor implements FTCRobotSubsystem {
     }
     @Override
     public void update() {
+        sorterMotor.update();
     }
 
     @Override
     public String getName() {
-        return "sort";
+        return SUB_SYSTEM_NAME;
     }
 
     @Override

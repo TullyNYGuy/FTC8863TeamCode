@@ -31,7 +31,7 @@ public class DecodeTuneTurntableMotorFeedfoward extends LinearOpMode {
     public void runOpMode() {
 
         // Put your initializations here
-        turntableMotor = new DecodeTurntableMotor("turntableMotor", hardwareMap, telemetry);
+        turntableMotor = new DecodeTurntableMotor(hardwareMap, telemetry);
         turntableMotor.init(null);
         trapezoidWave = new PeriodicTrapezoidGenerator(4000, .8);
         // kStatic was already found experimentally

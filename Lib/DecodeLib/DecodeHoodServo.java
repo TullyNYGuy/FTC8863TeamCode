@@ -35,8 +35,6 @@ public class DecodeHoodServo implements FTCRobotSubsystem {
     //*********************************************************************************************
     private Servo8863New hoodServo;
 
-  //  private final String HOOD_SERVO_NAME = ITDRobot.HardwareName.HOOD_SERVO.hwName;
-    private final String HOOD_SERVO_NAME = "hoodServo";
     private DataLogging logFile;
 
     private boolean loggingOn = false;
@@ -54,6 +52,8 @@ public class DecodeHoodServo implements FTCRobotSubsystem {
 
     private double shutdownPosition = initPosition;
 
+    private final String SUB_SYSTEM_NAME = DecodeRobot.HardwareName.HOOD_SERVO.hwName;
+
     //*********************************************************************************************
     //          GETTER and SETTER Methods
     //
@@ -70,7 +70,7 @@ public class DecodeHoodServo implements FTCRobotSubsystem {
     //*********************************************************************************************
 
     public DecodeHoodServo(HardwareMap hardwareMap, Telemetry telemetry) {
-        hoodServo = new Servo8863New(HOOD_SERVO_NAME, hardwareMap, telemetry);
+        hoodServo = new Servo8863New(SUB_SYSTEM_NAME, hardwareMap, telemetry);
 
         hoodServo.addPosition("initPosition", initPosition, 250, TimeUnit.MILLISECONDS);
         hoodServo.addPosition("shortPosition", shortPosition, 250, TimeUnit.MILLISECONDS);
@@ -169,7 +169,7 @@ public class DecodeHoodServo implements FTCRobotSubsystem {
     //*********************************************************************************************
     @Override
     public String getName() {
-        return HOOD_SERVO_NAME;
+        return SUB_SYSTEM_NAME;
     }
 
     /**
@@ -180,7 +180,7 @@ public class DecodeHoodServo implements FTCRobotSubsystem {
      * @return
      */
     @Override
-    public boolean init(Configuration config){
+    public boolean init(Configuration config) {
         initPosition();
         return true;
     }
@@ -229,6 +229,5 @@ public class DecodeHoodServo implements FTCRobotSubsystem {
      * This method does not need to be called since isPositionReached() is typically called directly.
      */
     public void update() {
-        hoodServo.isPositionReached();
     }
 }

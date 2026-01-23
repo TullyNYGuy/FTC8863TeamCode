@@ -37,7 +37,18 @@ public class DecodeRobot implements FTCRobot {
         REAR_LEFT_DRIVE_MOTOR("leftRearMotor"),
         REAR_RIGHT_DRIVE_MOTOR("rightRearMotor"),
         MECANUM_DRIVE("mecanumDrive"),
-        LIMELIGHT("limeLight");
+        LIMELIGHT("limeLight"),
+        HOOD_SERVO("hoodServo"),
+        RAMP_SERVO("rampServo"),
+        BALL_SHOOTER("ballShooter"),
+        SHOOTER_MOTOR("shooterMotor"),
+        COLOR_SENSOR_RIGHT("colorSensorRight"),
+        COLOR_SENSOR_LEFT("colorSensorLeft"),
+        COLOR_SENSOR_CONTROLLER("colorSensorController"),
+        INTAKE_MOTOR("intakeMotor"),
+        SORTER_CONTROLLER("sorterController"),
+        SORTER_MOTOR("sorterMotor"),
+        TURNTABLE_MOTOR("turntableMotor");
 
         public final String hwName;
 
@@ -121,9 +132,9 @@ public class DecodeRobot implements FTCRobot {
         if (capabilities.contains(Subsystem.MECANUM_DRIVE)) {
             Pose2d beginPose = new Pose2d(0, 0, 0);
             mecanumDrive = new DecodeMecanumDrive(hardwareMap, new Pose2d(0,0,0));
-            intakeMotor = new DecodeIntakeMotor("intakeMotor", hardwareMap, telemetry);
-            ballShooter = new DecodeBallShooter("ballShooter", hardwareMap, telemetry);
-            sorterMotor = new DecodeSorterMotor("sorterMotor",hardwareMap,telemetry);
+            intakeMotor = new DecodeIntakeMotor(hardwareMap, telemetry);
+            ballShooter = new DecodeBallShooter(hardwareMap, telemetry);
+            sorterMotor = new DecodeSorterMotor(hardwareMap,telemetry);
             //mecanumDrive = new DecodePinpointDrive(hardwareMap, beginPose);
             subsystemMap.put(mecanumDrive.getName(), mecanumDrive);
             subsystemMap.put(intakeMotor.getName(),intakeMotor);

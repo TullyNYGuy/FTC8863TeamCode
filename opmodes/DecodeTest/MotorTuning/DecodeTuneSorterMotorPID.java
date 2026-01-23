@@ -45,7 +45,7 @@ public class DecodeTuneSorterMotorPID extends LinearOpMode {
         Debouncer debouncedDpadLeft = new Debouncer();
 
         // Put your initializations here
-        sorterMotor = new DecodeTurntableMotor("sorterMotor", hardwareMap, telemetry);
+        sorterMotor = new DecodeTurntableMotor(hardwareMap, telemetry);
         sorterMotor.init(null);
         squareWaveGenerator = new PeriodicSquareWaveGenerator(5000, 45);
         controller = new PIDFController(new PIDCoefficients(0.00,0,.00),0,0,.002);

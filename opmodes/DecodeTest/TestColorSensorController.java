@@ -27,7 +27,7 @@ public class TestColorSensorController extends LinearOpMode {
 
         // Put your initializations here
         colorSensorController = new DecodeColorSensorController(hardwareMap, telemetry);
-        intakeMotor = new DecodeIntakeMotor("intakeMotor", hardwareMap,telemetry);
+        intakeMotor = new DecodeIntakeMotor(hardwareMap, telemetry);
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");

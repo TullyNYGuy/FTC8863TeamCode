@@ -82,7 +82,7 @@ public class DecodeLimelight implements FTCRobotSubsystem {
         this.loggingOn = false;
     }
 
-    private String subsystemName = DecodeRobot.HardwareName.LIMELIGHT.hwName;
+    private final String SUB_SYSTEM_NAME = DecodeRobot.HardwareName.LIMELIGHT.hwName;
 
     //*********************************************************************************************
     //          Constructors
@@ -91,7 +91,7 @@ public class DecodeLimelight implements FTCRobotSubsystem {
     // from it
     //*********************************************************************************************
     public DecodeLimelight(HardwareMap hardwareMap, Telemetry telemetry) {
-        limelight = hardwareMap.get(Limelight3A.class, subsystemName);
+        limelight = hardwareMap.get(Limelight3A.class, SUB_SYSTEM_NAME);
         decodeIMU = new DecodeIMU(hardwareMap, telemetry);
     }
     //*********************************************************************************************
@@ -147,7 +147,7 @@ public class DecodeLimelight implements FTCRobotSubsystem {
 
     @Override
     public String getName() {
-        return subsystemName;
+        return SUB_SYSTEM_NAME;
     }
 
     @Override

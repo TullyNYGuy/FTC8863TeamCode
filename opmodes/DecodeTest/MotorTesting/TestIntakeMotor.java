@@ -35,7 +35,7 @@ public class TestIntakeMotor extends LinearOpMode {
         Debouncer debouncedDpadLeft = new Debouncer();
 
         // Put your initializations here
-        intakeMotor = new DecodeIntakeMotor("intakeMotor", hardwareMap, telemetry);
+        intakeMotor = new DecodeIntakeMotor(hardwareMap, telemetry);
         intakeMotor.init(null);
 
         // Wait for the start button
@@ -83,7 +83,7 @@ public class TestIntakeMotor extends LinearOpMode {
             telemetry.addLine();
             telemetry.addData("Current Speed = ", rpm);
             telemetry.addData("Next Speed = ", nextRPM);
-            telemetry.addData("Actual RPM = ", intakeMotor.getRPM());
+            telemetry.addData("Actual RPM = ", intakeMotor.getActualRPM());
             telemetry.addData(">", "stop to finish");
             telemetry.update();
             idle();
