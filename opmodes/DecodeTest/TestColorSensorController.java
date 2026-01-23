@@ -1,52 +1,49 @@
 package org.firstinspires.ftc.teamcode.opmodes.DecodeTest;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeColorSensorA;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeColorSensorB;
-import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeIntakeColorSensor;
+import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeColorSensorController;
+import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeIntakeMotor;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Decode Test Color Sensor", group = "Test")
+@TeleOp(name = "Decode Test Color Sensor Controller!!!!!!!!", group = "Test")
 //@Disabled
-public class TestColorSensor extends LinearOpMode {
+public class TestColorSensorController extends LinearOpMode {
 
     // Put your variable declarations her
-    DecodeColorSensorA colorSensorA;
-    DecodeColorSensorB colorSensorB;
+    DecodeColorSensorController colorSensorController;
+    DecodeIntakeMotor intakeMotor;
 
     @Override
     public void runOpMode() {
 
 
         // Put your initializations here
-        colorSensorA = new DecodeColorSensorA(hardwareMap, telemetry, "colorSensorA");
-        colorSensorB = new DecodeColorSensorB(hardwareMap, telemetry, "colorSensorB");
+        colorSensorController = new DecodeColorSensorController(hardwareMap, telemetry);
+        intakeMotor = new DecodeIntakeMotor("intakeMotor", hardwareMap,telemetry);
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
         telemetry.update();
         waitForStart();
 
-        colorSensorA.sensor.turnSensorOn();
-        colorSensorB.sensor.turnSensorOn();
+        colorSensorController.colorSensorsOn();
+        intakeMotor.setRPM(500);
+
 
         // Put your calls here - they will not run in a loop
 
         while (opModeIsActive()) {
 
 
-            colorSensorA.sensor.updateDataDistanceAndColor();
-            colorSensorA.sensor.displayColorSensorDistance(telemetry);
-            colorSensorA.sensor.displayColorData(telemetry);
-            telemetry.addData("","");
-            colorSensorB.sensor.updateDataDistanceAndColor();
-            colorSensorB.sensor.displayColorSensorDistance(telemetry);
-            colorSensorB.sensor.displayColorData(telemetry);
+            telemetry.addData("Ball present = ", Boolean.toString(colorSensorController.isArtifactPresent()));
             telemetry.addData(">", "Press Stop to end test.");
 
             telemetry.update();
