@@ -196,7 +196,7 @@ public class DecodeTeleop extends LinearOpMode {
         // I am working this is  code 0110011010001hhhhhhhhhhhhhhhhhhhhhhht code code codeing coding coding too 2 also me 2
         // multiple power commands by this factor
         double powerReductionFront = 1.0;
-        double powerReductionRear = 0.8;
+        double powerReductionRear = 0.3;
 
         double y = -gamepad1.left_stick_y; // Remember, Y stick value is reversed
         double x = -gamepad1.right_stick_x * 1.1; // Counteract imperfect strafing
