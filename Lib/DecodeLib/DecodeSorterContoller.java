@@ -18,19 +18,19 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
     private enum SorterState {
         WAITING_ARTIFACT_123,
         WAITING_FOR_120_INTAKE,
-        ONE_ARTIFACT_312_INTAKE,
+        ONE_ARTIFACT_IN_SORTER_312_INTAKE_CYCLE,
         WAITING_FOR_240_INTAKE,
-        TWO_ARTIFACT_231_INTAKE,
+        TWO_ARTIFACT_IN_SORTER_231_INTAKE_CYCLE,
         WAITING_FOR_360_INTAKE,
-        THREE_ARTIFACT_231_INTAKE,
+        THREE_ARTIFACT_IN_SORTER_231_INTAKE_CYCLE,
         WAITING_FOR_RAMP_UP,
-        THREE_ARTIFACT_123_PRESHOOT,
-        WAITING_FOR_FIRST_SHOT,
-        TWO_ARTIFACT_312_SHOOTING_CYCLE,
-        WAITING_FOR_SECOND_SHOT,
-        ONE_ARTIFACT_231_SHOOTING_CYCLE,
-        WAITING_FOR_THIRD_SHOT,
-        ZERO_ARTIFACT_123_SHOOTING_CYCLE;
+        THREE_ARTIFACT_IN_SORTER_123_PRESHOOT,
+        WAITING_FOR_FIRST_SHOT_TO_COMPLETE,
+        TWO_ARTIFACT_LEFT_312_SHOOTING_CYCLE,
+        WAITING_FOR_SECOND_SHOT_TO_COMPLETE,
+        ONE_ARTIFACT_LEFT_231_SHOOTING_CYCLE,
+        WAITING_FOR_THIRD_SHOT_TO_COMPLETE,
+        ZERO_ARTIFACT_LEFT_123_SHOOTING_CYCLE;
     }
 
     private SorterState currentState = SorterState.WAITING_ARTIFACT_123;
@@ -52,6 +52,7 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
     private DecodeColorSensorController colorSensorController;
     private DecodeSorterMotor sorterMotor;
     private DecodeRampServo rampServo;
+    private DecodeIntakeMotor decodeIntakeMotor;
     //*********************************************************************************************
     //          PROPERTIES AND GETTER and SETTER Methods
     //
@@ -102,10 +103,13 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
     public DecodeSorterContoller(HardwareMap hardwareMap, Telemetry telemetry,
                                  DecodeColorSensorController decodeColorSensorController,
                                  DecodeSorterMotor sorterMotor,
-                                 DecodeRampServo decodeRampServo) {
+                                 DecodeRampServo decodeRampServo,
+                                 DecodeIntakeMotor decodeIntakeMotor) {
         this.colorSensorController = decodeColorSensorController;
         this.sorterMotor = sorterMotor;
         this.rampServo = decodeRampServo;
+        this.decodeIntakeMotor = decodeIntakeMotor;
+        this.currentState = SorterState.WAITING_ARTIFACT_123;
     }
     //*********************************************************************************************
     //          Helper Methods
@@ -118,6 +122,10 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
+
+    public String getState(){
+        return currentState.toString();
+    }
     public void shootOne() {
         shootCommand = ShootCommand.SHOOT_ONE;
     }
@@ -130,6 +138,14 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
         shootCommand = ShootCommand.SHOOT_THREE;
     }
 
+    public void intakeOn(){
+        decodeIntakeMotor.on();
+    }
+
+    public void intakeOff(){
+        decodeIntakeMotor.off();
+    }
+
     //*********************************************************************************************
     //          METHODS needed to implement FTCRobotSubsystem
     //
@@ -139,117 +155,155 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
     public void update() {
         switch (currentState) {
 
+            // no artifacts in the sorter
+            // intake should be running
             case WAITING_ARTIFACT_123:
+                colorSensorController.getFreshData();
                 if (colorSensorController.isArtifactPresent()) {
+                    // got 1st artifact in the sorter
+                    colorSensorController.colorSensorsOff();
                     sorterMotor.moveToPosition(120);
                     currentState = SorterState.WAITING_FOR_120_INTAKE;
                 }
                 break;
-
+                
+                // waiting for motor to arrive at position
             case WAITING_FOR_120_INTAKE:
                 if (sorterMotor.isMovementComplete()) {
-                    currentState = SorterState.ONE_ARTIFACT_312_INTAKE;
+                    colorSensorController.colorSensorsOn();
+                    currentState = SorterState.ONE_ARTIFACT_IN_SORTER_312_INTAKE_CYCLE;
                 }
                 break;
 
-            case ONE_ARTIFACT_312_INTAKE:
+                // 1 artifact in the sorter
+            case ONE_ARTIFACT_IN_SORTER_312_INTAKE_CYCLE:
+                colorSensorController.getFreshData();
                 if (colorSensorController.isArtifactPresent()) {
+                    // got 2nd artifact in the sorter
                     sorterMotor.moveToPosition(240);
                     currentState = SorterState.WAITING_FOR_240_INTAKE;
                 }
                 break;
 
+            // waiting for motor to arrive at position
             case WAITING_FOR_240_INTAKE:
                 if (sorterMotor.isMovementComplete()) {
-                    currentState = SorterState.TWO_ARTIFACT_231_INTAKE;
+                    colorSensorController.colorSensorsOn();
+                    currentState = SorterState.TWO_ARTIFACT_IN_SORTER_231_INTAKE_CYCLE;
                 }
                 break;
 
-            case TWO_ARTIFACT_231_INTAKE:
+            // 2 artifacts in the sorter
+            case TWO_ARTIFACT_IN_SORTER_231_INTAKE_CYCLE:
+                colorSensorController.getFreshData();
                 if (colorSensorController.isArtifactPresent()) {
+                    // got 3rd artifact in the sorter
+                    // prepare to shoot
+                    colorSensorController.colorSensorsOff();
                     sorterMotor.moveToPosition(360);
                     currentState = SorterState.WAITING_FOR_360_INTAKE;
                 }
                 break;
 
+            // waiting for motor to arrive at position
             case WAITING_FOR_360_INTAKE:
                 if (sorterMotor.isMovementComplete()) {
+                    // prepare to shoot
                     sorterMotor.resetEncoder();
                     rampServo.upPosition();
+                    intakeOff();
                     currentState = SorterState.WAITING_FOR_RAMP_UP;
                 }
                 break;
 
-            case THREE_ARTIFACT_231_INTAKE:
-                break;
+//            case THREE_ARTIFACT_IN_SORTER_231_INTAKE_CYCLE:
+//                break;
 
             case WAITING_FOR_RAMP_UP:
                 if (rampServo.isPositionReached()) {
-                    currentState = SorterState.THREE_ARTIFACT_123_PRESHOOT;
+                    currentState = SorterState.THREE_ARTIFACT_IN_SORTER_123_PRESHOOT;
                 }
                 break;
 
-            case THREE_ARTIFACT_123_PRESHOOT:
+            // 3 artifacts in the sorter
+            case THREE_ARTIFACT_IN_SORTER_123_PRESHOOT:
                 if (shootCommand == ShootCommand.SHOOT_ONE) {
+                    // shoot 1 artifact
+                    colorSensorController.colorSensorsOff();
                     sorterMotor.moveToPosition(120);
-                    currentState = SorterState.WAITING_FOR_FIRST_SHOT;
+                    currentState = SorterState.WAITING_FOR_FIRST_SHOT_TO_COMPLETE;
                     shootCommand = ShootCommand.SHOOT_NONE;
                 }
                 if (shootCommand == ShootCommand.SHOOT_TWO) {
+                    // shoot 2 artifacts
                     sorterMotor.moveToPosition(240);
-                    currentState = SorterState.WAITING_FOR_SECOND_SHOT;
+                    currentState = SorterState.WAITING_FOR_SECOND_SHOT_TO_COMPLETE;
                     shootCommand = ShootCommand.SHOOT_NONE;
                 }
                 if (shootCommand == ShootCommand.SHOOT_THREE) {
+                    // shoot 3 artifacts
                     sorterMotor.moveToPosition(360);
-                    currentState = SorterState.WAITING_FOR_THIRD_SHOT;
+                    currentState = SorterState.WAITING_FOR_THIRD_SHOT_TO_COMPLETE;
                     shootCommand = ShootCommand.SHOOT_NONE;
                 }
                 break;
 
-            case WAITING_FOR_FIRST_SHOT:
+            // waiting for motor to arrive at position
+            case WAITING_FOR_FIRST_SHOT_TO_COMPLETE:
                 if (sorterMotor.isMovementComplete()) {
-                    currentState = SorterState.TWO_ARTIFACT_312_SHOOTING_CYCLE;
+                    currentState = SorterState.TWO_ARTIFACT_LEFT_312_SHOOTING_CYCLE;
                 }
                 break;
 
-            case TWO_ARTIFACT_312_SHOOTING_CYCLE:
+            // 2 artifacts lerft in the sorter
+            case TWO_ARTIFACT_LEFT_312_SHOOTING_CYCLE:
                 if (shootCommand == ShootCommand.SHOOT_ONE) {
+                    // shoot 1 artifact
                     sorterMotor.moveToPosition(240);
-                    currentState = SorterState.WAITING_FOR_SECOND_SHOT;
+                    currentState = SorterState.WAITING_FOR_SECOND_SHOT_TO_COMPLETE;
                     shootCommand = ShootCommand.SHOOT_NONE;
                 }
+                // there are 2 artifacts left. If driver says shoot 3, we can only really shoot 2
                 if (shootCommand == ShootCommand.SHOOT_TWO || shootCommand == ShootCommand.SHOOT_THREE) {
+                    // shoot 2 artifacts
                     sorterMotor.moveToPosition(360);
-                    currentState = SorterState.WAITING_FOR_THIRD_SHOT;
+                    currentState = SorterState.WAITING_FOR_THIRD_SHOT_TO_COMPLETE;
                     shootCommand = ShootCommand.SHOOT_NONE;
                 }
                 break;
 
-            case WAITING_FOR_SECOND_SHOT:
+            // waiting for motor to arrive at position
+            case WAITING_FOR_SECOND_SHOT_TO_COMPLETE:
                 if (sorterMotor.isMovementComplete()) {
-                    currentState = SorterState.ONE_ARTIFACT_231_SHOOTING_CYCLE;
+                    currentState = SorterState.ONE_ARTIFACT_LEFT_231_SHOOTING_CYCLE;
                 }
                 break;
 
-            case WAITING_FOR_THIRD_SHOT:
+            // waiting for motor to arrive at position
+            case WAITING_FOR_THIRD_SHOT_TO_COMPLETE:
                 if (sorterMotor.isMovementComplete()) {
-                    currentState = SorterState.ZERO_ARTIFACT_123_SHOOTING_CYCLE;
+                    currentState = SorterState.ZERO_ARTIFACT_LEFT_123_SHOOTING_CYCLE;
                 }
                 break;
 
-            case ONE_ARTIFACT_231_SHOOTING_CYCLE:
+             // 1 artifact left in the sorter
+            case ONE_ARTIFACT_LEFT_231_SHOOTING_CYCLE:
                 if (shootCommand == ShootCommand.SHOOT_ONE || shootCommand == ShootCommand.SHOOT_TWO || shootCommand == ShootCommand.SHOOT_THREE) {
+                    // shoot 1 artifact
                     sorterMotor.moveToPosition(360);
-                    currentState = SorterState.WAITING_FOR_THIRD_SHOT; // THREE_SHOT refers to the position of the last artifact being shot, not the number being shot.
+                    currentState = SorterState.WAITING_FOR_THIRD_SHOT_TO_COMPLETE; // THREE_SHOT refers to the position of the last artifact being shot, not the number being shot.
                     shootCommand = ShootCommand.SHOOT_NONE;
                 }
                 break;
 
-            case ZERO_ARTIFACT_123_SHOOTING_CYCLE:
+             // 0 artifacts left in the sorter
+            case ZERO_ARTIFACT_LEFT_123_SHOOTING_CYCLE:
                 if (sorterMotor.isMovementComplete()) {
+                    // prepare to intake
                     rampServo.downPosition();
                     sorterMotor.resetEncoder();
+                    intakeOn();
+                    colorSensorController.colorSensorsOn();
                 }
                 currentState = SorterState.WAITING_ARTIFACT_123;
                 break;
@@ -276,6 +330,8 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
 
     @Override
     public boolean init(Configuration config) {
+        sorterMotor.resetEncoder();
+        colorSensorController.colorSensorsOn();
         return true;
     }
 }

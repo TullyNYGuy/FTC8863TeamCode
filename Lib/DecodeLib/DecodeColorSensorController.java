@@ -161,7 +161,7 @@ public class DecodeColorSensorController implements FTCRobotSubsystem {
         intakeColorSensorLeft.sensor.turnSensorOn();
     }
 
-    public void ColorSensorsOff() {
+    public void colorSensorsOff() {
         intakeColorSensorRight.sensor.turnSensorOff();
         intakeColorSensorLeft.sensor.turnSensorOff();
     }
