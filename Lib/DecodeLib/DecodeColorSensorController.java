@@ -73,6 +73,11 @@ public class DecodeColorSensorController implements FTCRobotSubsystem {
     private final String COLOR_SENSOR_RIGHT_NAME = DecodeRobot.HardwareName.COLOR_SENSOR_RIGHT.hwName;
     private final String COLOR_SENSOR_LEFT_NAME = DecodeRobot.HardwareName.COLOR_SENSOR_LEFT.hwName;
     private final String SUB_SYSTEM_NAME = DecodeRobot.HardwareName.COLOR_SENSOR_CONTROLLER.hwName;
+    private boolean sensorOn = false;
+
+    public boolean isSensorOn() {
+        return sensorOn;
+    }
 
     //*********************************************************************************************
     //          Constructors
@@ -110,6 +115,7 @@ public class DecodeColorSensorController implements FTCRobotSubsystem {
     private void getFreshDistanceAndColorFromRightSensor() {
         intakeColorSensorRight.sensor.updateDataDistanceAndColor();
     }
+
     private void getFreshColorFromLeftSensor() {
         intakeColorSensorLeft.sensor.updateDataColor();
         // using the just updated HSV values, determine the color seen by the artifact
@@ -148,9 +154,13 @@ public class DecodeColorSensorController implements FTCRobotSubsystem {
     // public methods that give the class its functionality
     //*********************************************************************************************
     public boolean isArtifactPresent() {
-        getFreshData();
-        if (isArtifactPresentInRightSensor() || isArtifactPresentInLeftSensor()) {
-            return true;
+        if (sensorOn) {
+            getFreshData();
+            if (isArtifactPresentInRightSensor() || isArtifactPresentInLeftSensor()) {
+                return true;
+            } else {
+                return false;
+            }
         } else {
             return false;
         }
@@ -159,12 +169,15 @@ public class DecodeColorSensorController implements FTCRobotSubsystem {
     public void colorSensorsOn() {
         intakeColorSensorRight.sensor.turnSensorOn();
         intakeColorSensorLeft.sensor.turnSensorOn();
+        sensorOn = true;
     }
 
     public void colorSensorsOff() {
         intakeColorSensorRight.sensor.turnSensorOff();
         intakeColorSensorLeft.sensor.turnSensorOff();
+        sensorOn = false;
     }
+
     public void getFreshData() {
         getFreshDistanceFromLeftSensor();
         getFreshDistanceFromRightSensor();

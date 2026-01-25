@@ -64,13 +64,13 @@ public class DecodeColorSensorB {
                 0.54f, 0.66f,
                 0.08f, 0.2f);
         green = new ColorInHSV(Color.GREEN,
-                190, 240,
-                0.54f, 0.66f,
-                0.08f, 0.2f);
+                150, 185,
+                0.7f, 0.85f,
+                0.055f, 0.212f);
         purple = new ColorInHSV(Color.PURPLE,
-                190, 240,
-                0.54f, 0.66f,
-                0.08f, 0.2f);
+                210, 260,
+                0.55f, 0.65f,
+                0.47f, 0.220f);
         possibleColors = new ColorInHSV[]{green, purple};
         //possibleColors = new ColorInHSV[]{red, yellow, blue};
 
