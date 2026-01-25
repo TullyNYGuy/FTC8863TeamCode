@@ -168,6 +168,11 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
         }
     }
 
+    private void rampServoUp(SorterState nextStateAfterRampUp) {
+        this.stateAfterRampIsUp = nextStateAfterRampUp;
+        currentState = SorterState.WAITING_FOR_RAMP_UP;
+    }
+
     //*********************************************************************************************
     //          MAJOR METHODS
     //
@@ -367,6 +372,7 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
                     case SHOOT_TWO:
                     case SHOOT_THREE:
                         intakeMotor.off();
+                        rampServoUp(SorterState.ONE_ARTIFACT_LEFT_231_SHOOTING_CYCLE);
                         rampServo.upPosition();
                         currentState = SorterState.WAITING_FOR_RAMP_UP;
                         // set the state to go to after the reamp is up
@@ -455,7 +461,7 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
                 if (sorterMotor.isMovementComplete()) {
                     // prepare to shoot
                     commandComplete = true;
-                    sorterMotor.resetEncoder();
+                    //sorterMotor.resetEncoder();
                     rampServo.upPosition();
                     intakeOff();
                     currentState = SorterState.WAITING_FOR_RAMP_UP;
@@ -698,7 +704,7 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
                     logComment("Shot last artifact so auto starting intake");
                     // prepare to intake
                     rampServo.downPosition();
-                    sorterMotor.resetEncoder();
+                    //sorterMotor.resetEncoder();
                     intakeMotor.intake();
                     currentCommand = Commands.INTAKE;
                     colorSensorController.colorSensorsOn();
