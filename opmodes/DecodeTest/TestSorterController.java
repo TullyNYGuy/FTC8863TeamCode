@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeColorSensorController;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeIntakeMotor;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeRampServo;
+import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeShooterMotor;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeSorterContoller;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeSorterMotor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Debouncer;
@@ -23,6 +24,7 @@ public class TestSorterController extends LinearOpMode {
     DecodeRampServo decodeRampServo;
     DecodeIntakeMotor decodeIntakeMotor;
     DecodeSorterMotor decodeSorterMotor;
+    DecodeShooterMotor decodeShooterMotor;
     DecodeColorSensorController decodeColorSensorController;
 
     @Override
@@ -48,11 +50,17 @@ public class TestSorterController extends LinearOpMode {
 
         decodeIntakeMotor = new DecodeIntakeMotor(hardwareMap, telemetry);
         decodeIntakeMotor.init(null);
+        decodeShooterMotor = new DecodeShooterMotor("shooterMotor", hardwareMap, telemetry);
+        decodeShooterMotor.init(null);
 
         decodeRampServo = new DecodeRampServo(hardwareMap, telemetry);
         decodeRampServo.init(null);
 
-        decodeSorterContoller = new DecodeSorterContoller(hardwareMap, telemetry, decodeColorSensorController, decodeSorterMotor, decodeRampServo, decodeIntakeMotor);
+        decodeSorterContoller = new DecodeSorterContoller(hardwareMap, telemetry,
+                decodeColorSensorController,
+                decodeSorterMotor,
+                decodeRampServo,
+                decodeIntakeMotor);
         decodeSorterContoller.init(null);
 
         // Wait for the start button
@@ -60,9 +68,8 @@ public class TestSorterController extends LinearOpMode {
         telemetry.update();
         waitForStart();
 
+        decodeShooterMotor.setRPM(3100);
         // Put your calls here - they will not run in a loop
-
-        decodeSorterContoller.intakeOn();
 
 
         while (opModeIsActive()) {
@@ -79,6 +86,12 @@ public class TestSorterController extends LinearOpMode {
             if (debouncedB.isPressed(gamepad2.b)) {
                 decodeSorterContoller.shootTwo();
             }
+            if (debouncedDpadUp.isPressed(gamepad2.dpad_up)) {
+                decodeSorterContoller.intake();
+            }
+            if (debouncedDpadDown.isPressed(gamepad2.dpad_down)) {
+                decodeSorterContoller.intakeOff();
+            }
 
             decodeIntakeMotor.update();
             decodeSorterMotor.update();
@@ -88,12 +101,17 @@ public class TestSorterController extends LinearOpMode {
             // limit the rpm between 0 and 1
 
 
-            telemetry.addData("Y = ", "120");
-            telemetry.addData("X = ", "0");
-            telemetry.addData("B = ", "360");
-            telemetry.addData("A = ", "240");
+            telemetry.addData("Y = ", "Shoot three");
+            telemetry.addData("X = ", "Nothing");
+            telemetry.addData("B = ", "Shoot two");
+            telemetry.addData("A = ", "Shoot one");
+            telemetry.addData("Dpad up =", "Intake on");
+            telemetry.addData("Dpad down =", "Intake off");
             telemetry.addData("Actual RPM = ", decodeSorterMotor.getActualRPM());
             telemetry.addData("Sorter Controller State ", decodeSorterContoller.getState());
+            telemetry.addData("Sorter Controller Command ", decodeSorterContoller.getCommand());
+            telemetry.addData("Command complete?", decodeSorterContoller.getCommandComplete());
+            telemetry.addData("Color Sensor on =", decodeSorterContoller.getSensorStatus());
             telemetry.addData(">", "stop to finish");
             telemetry.update();
             idle();
