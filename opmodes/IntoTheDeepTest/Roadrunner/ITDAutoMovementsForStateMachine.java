@@ -4,6 +4,7 @@ import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -13,7 +14,7 @@ import org.firstinspires.ftc.teamcode.RoadRunner.PinpointDrive;
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
 @TeleOp(name = "ITD AutoMovements For State Machine", group = "Test")
-//@Disabled
+@Disabled
 public final class ITDAutoMovementsForStateMachine extends LinearOpMode {
 
     private Pose2d startAutoPose = new Pose2d(32.5, 54.375, Math.toRadians(-90));

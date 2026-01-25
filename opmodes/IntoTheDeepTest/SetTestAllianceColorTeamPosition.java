@@ -3,13 +3,14 @@ package org.firstinspires.ftc.teamcode.opmodes.IntoTheDeepTest;
 //
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColorTeamLocation;
 
 @Autonomous(name = "Verify Alliance Color Team Position", group = "AA")
-//@Disabled
+@Disabled
 
 public class SetTestAllianceColorTeamPosition extends LinearOpMode {
 

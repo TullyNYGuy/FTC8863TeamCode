@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.IntoTheDeep;
 
 import com.qualcomm.hardware.lynx.LynxModule;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -20,7 +21,7 @@ import org.opencv.core.Mat;
 import java.util.List;
 
 @TeleOp(name = "Teleop ITD", group = "AA")
-//@Disabled
+@Disabled
 
 public class ITDTeleop extends LinearOpMode {
 

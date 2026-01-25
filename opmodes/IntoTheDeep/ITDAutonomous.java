@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.opmodes.IntoTheDeep;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -19,7 +20,7 @@ import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ITDRobot;
 import java.util.List;
 
 @Autonomous(name = "ITD Autonomous", group = "AA")
-//@Disabled
+@Disabled
 
 public class ITDAutonomous extends LinearOpMode {
 

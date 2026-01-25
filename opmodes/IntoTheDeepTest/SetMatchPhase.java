@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.opmodes.IntoTheDeepTest;
 //
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -10,7 +11,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.AllianceColorTeamLocation;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MatchPhase;
 
 @Autonomous(name = "Set match phase", group = "Test")
-//@Disabled
+@Disabled
 
 public class SetMatchPhase extends LinearOpMode {
 

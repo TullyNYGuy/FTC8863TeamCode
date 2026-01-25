@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.IntoTheDeep;
 
 import com.qualcomm.hardware.lynx.LynxModule;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -17,7 +18,7 @@ import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ITDRobot;
 import java.util.List;
 
 @TeleOp(name = "Z Inspection ITD", group = "AA")
-//@Disabled
+@Disabled
 
 /**
  * This opmode runs the robot out to its max extension so the judges can measure it
