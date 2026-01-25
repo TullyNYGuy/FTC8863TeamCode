@@ -35,7 +35,7 @@ public class TestShooterSpeeds extends LinearOpMode {
         Debouncer debouncedDpadLeft = new Debouncer();
 
         // Put your initializations here
-        shooterMotor = new DecodeShooterMotor("shooterMotor", hardwareMap, telemetry);
+        shooterMotor = new DecodeShooterMotor(hardwareMap, telemetry);
         shooterMotor.setDirection(DecodeShooterMotor.Direction.FORWARD);
         shooterMotor.setRPM(0);
 

@@ -9,6 +9,7 @@ import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeRampServo;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeShooterMotor;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeSorterContoller;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeSorterMotor;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Debouncer;
 
 /**
@@ -26,6 +27,7 @@ public class TestSorterController extends LinearOpMode {
     DecodeSorterMotor decodeSorterMotor;
     DecodeShooterMotor decodeShooterMotor;
     DecodeColorSensorController decodeColorSensorController;
+    DataLogging dataLog;
 
     @Override
     public void runOpMode() {
@@ -41,19 +43,31 @@ public class TestSorterController extends LinearOpMode {
         Debouncer debouncedDpadLeft = new Debouncer();
 
         // Put your initializations here
+        dataLog = new DataLogging("SorterControllerTest", telemetry);
 
         decodeColorSensorController = new DecodeColorSensorController(hardwareMap, telemetry);
+        decodeColorSensorController.setDataLog(dataLog);
+        decodeColorSensorController.enableDataLogging();
         decodeColorSensorController.init(null);
 
         decodeSorterMotor = new DecodeSorterMotor(hardwareMap, telemetry);
+        decodeSorterMotor.setDataLog(dataLog);
+        decodeSorterMotor.enableDataLogging();
         decodeSorterMotor.init(null);
 
         decodeIntakeMotor = new DecodeIntakeMotor(hardwareMap, telemetry);
+        decodeIntakeMotor.setDataLog(dataLog);
+        decodeIntakeMotor.enableDataLogging();
         decodeIntakeMotor.init(null);
-        decodeShooterMotor = new DecodeShooterMotor("shooterMotor", hardwareMap, telemetry);
+
+        decodeShooterMotor = new DecodeShooterMotor(hardwareMap, telemetry);
+        decodeShooterMotor.setDataLog(dataLog);
+        decodeShooterMotor.enableDataLogging();
         decodeShooterMotor.init(null);
 
         decodeRampServo = new DecodeRampServo(hardwareMap, telemetry);
+        decodeRampServo.setDataLog(dataLog);
+        decodeRampServo.enableDataLogging();
         decodeRampServo.init(null);
 
         decodeSorterContoller = new DecodeSorterContoller(hardwareMap, telemetry,
@@ -61,6 +75,8 @@ public class TestSorterController extends LinearOpMode {
                 decodeSorterMotor,
                 decodeRampServo,
                 decodeIntakeMotor);
+        decodeSorterContoller.setDataLog(dataLog);
+        decodeSorterContoller.enableDataLogging();
         decodeSorterContoller.init(null);
 
         // Wait for the start button
@@ -68,27 +84,34 @@ public class TestSorterController extends LinearOpMode {
         telemetry.update();
         waitForStart();
 
-        decodeShooterMotor.setRPM(3100);
+        //decodeShooterMotor.setRPM(3100);
         // Put your calls here - they will not run in a loop
 
 
         while (opModeIsActive()) {
+            decodeSorterContoller.update();
+
             if (debouncedY.isPressed(gamepad2.y)) {
                 decodeSorterContoller.shootThree();
 
             }
+
             if (debouncedA.isPressed(gamepad2.a)) {
                 decodeSorterContoller.shootOne();
             }
+
             if (debouncedX.isPressed(gamepad2.x)) {
 
             }
+
             if (debouncedB.isPressed(gamepad2.b)) {
                 decodeSorterContoller.shootTwo();
             }
+
             if (debouncedDpadUp.isPressed(gamepad2.dpad_up)) {
                 decodeSorterContoller.intake();
             }
+
             if (debouncedDpadDown.isPressed(gamepad2.dpad_down)) {
                 decodeSorterContoller.intakeOff();
             }
@@ -107,11 +130,11 @@ public class TestSorterController extends LinearOpMode {
             telemetry.addData("A = ", "Shoot one");
             telemetry.addData("Dpad up =", "Intake on");
             telemetry.addData("Dpad down =", "Intake off");
-            telemetry.addData("Actual RPM = ", decodeSorterMotor.getActualRPM());
-            telemetry.addData("Sorter Controller State ", decodeSorterContoller.getState());
-            telemetry.addData("Sorter Controller Command ", decodeSorterContoller.getCommand());
-            telemetry.addData("Command complete?", decodeSorterContoller.getCommandComplete());
-            telemetry.addData("Color Sensor on =", decodeSorterContoller.getSensorStatus());
+            telemetry.addLine();
+            decodeSorterContoller.displayState(telemetry);
+            decodeSorterContoller.displayCommand(telemetry);
+            decodeSorterContoller.displayCommandComplete(telemetry);
+            decodeSorterContoller.displaySensorStatus(telemetry);
             telemetry.addData(">", "stop to finish");
             telemetry.update();
             idle();

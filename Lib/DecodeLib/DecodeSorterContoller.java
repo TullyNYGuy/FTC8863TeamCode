@@ -6,8 +6,13 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogOnChange;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DecodeSorterContoller implements FTCRobotSubsystem {
+
+    private static final Logger log = LoggerFactory.getLogger(DecodeSorterContoller.class);
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -57,6 +62,9 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
     private DecodeIntakeMotor intakeMotor;
     private boolean commandComplete = true;
     private SorterState stateAfterRampIsUp;
+    private DataLogOnChange logCommandOnchange;
+    private DataLogOnChange logStateOnChange;
+    private DataLogOnChange logCommentOnChange;
     //*********************************************************************************************
     //          PROPERTIES AND GETTER and SETTER Methods
     //
@@ -78,6 +86,13 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
 
     @Override
     public void setDataLog(DataLogging logFile) {
+        logCommandOnchange = new DataLogOnChange(logFile);
+        logStateOnChange = new DataLogOnChange(logFile);
+        logCommentOnChange = new DataLogOnChange(logFile);
+        sorterMotor.setDataLog(logFile);
+        intakeMotor.setDataLog(logFile);
+        rampServo.setDataLog(logFile);
+        colorSensorController.setDataLog(logFile);
         this.logFile = logFile;
     }
 
@@ -89,11 +104,19 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
     @Override
     public void enableDataLogging() {
         this.loggingOn = true;
+        sorterMotor.enableDataLogging();
+        intakeMotor.enableDataLogging();
+        rampServo.enableDataLogging();
+        colorSensorController.enableDataLogging();
     }
 
     @Override
     public void disableDataLogging() {
         this.loggingOn = false;
+        sorterMotor.disableDataLogging();
+        intakeMotor.disableDataLogging();
+        rampServo.disableDataLogging();
+        colorSensorController.disableDataLogging();
     }
 
     private final String SUB_SYSTEM_NAME = DecodeRobot.HardwareName.SORTER_CONTROLLER.hwName;
@@ -113,10 +136,12 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
         this.sorterMotor = sorterMotor;
         this.rampServo = decodeRampServo;
         this.intakeMotor = intakeMotor;
-        this.currentState = SorterState.WAITING_ARTIFACT_123;
 
-        commandComplete = false;
+        // allow commands to be honored
+        commandComplete = true;
+        // initial command is no command
         currentCommand = Commands.NO_COMMAND;
+        // initial state is intake
         currentState = SorterState.WAITING_ARTIFACT_123;
     }
     //*********************************************************************************************
@@ -124,6 +149,24 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
     //
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
+
+    private void logState() {
+        if (loggingOn && logFile != null) {
+            logStateOnChange.log(getName() + " state = " + currentState.toString());
+        }
+    }
+
+    private void logCommand() {
+        if (loggingOn && logFile != null) {
+            logCommandOnchange.log(getName() + " command = " + currentCommand);
+        }
+    }
+
+    private void logComment(String comment) {
+        if (loggingOn && logFile != null) {
+            logCommentOnChange.log(getName() + " " + comment);
+        }
+    }
 
     //*********************************************************************************************
     //          MAJOR METHODS
@@ -134,29 +177,20 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
     //          Public status
     //*********************************************************************************************
 
-    public String getState() {
-        return currentState.toString();
+    public void displayState(Telemetry telemetry) {
+        telemetry.addData("Sorter controller state = ", currentState.toString()) ;
     }
 
-    public String getCommand() {
-        return currentCommand.toString();
+    public void displayCommand(Telemetry telemetry) {
+        telemetry.addData("Sorter controller command = ", currentCommand.toString()) ;
     }
 
-    public String getCommandComplete() {
-        if (commandComplete) {
-            return "true";
-
-        } else {
-            return "false";
-        }
+    public void displayCommandComplete(Telemetry telemetry) {
+        telemetry.addData("Sorter controller command complete = ", Boolean.toString(commandComplete));
     }
 
-    public String getSensorStatus() {
-        if (colorSensorController.isSensorOn()) {
-            return "true";
-        } else {
-            return "false";
-        }
+    public void displaySensorStatus(Telemetry telemetry) {
+        telemetry.addData("Sorter controller sensors on = ", Boolean.toString(colorSensorController.isSensorOn()));
     }
 
     //*********************************************************************************************
@@ -170,7 +204,10 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
                 currentState == SorterState.TWO_ARTIFACT_IN_SORTER_231_INTAKE_CYCLE ||
                 currentState == SorterState.THREE_ARTIFACT_IN_SORTER_123_PRESHOOT) {
             currentCommand = Commands.SHOOT_ONE;
+            logCommand();
             commandComplete = false;
+        } else {
+            logComment("shoot one command rejected");
         }
     }
 
@@ -182,7 +219,10 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
                 currentState == SorterState.TWO_ARTIFACT_IN_SORTER_231_INTAKE_CYCLE ||
                 currentState == SorterState.THREE_ARTIFACT_IN_SORTER_123_PRESHOOT) {
             currentCommand = Commands.SHOOT_TWO;
+            logCommand();
             commandComplete = false;
+        } else {
+            logComment("shoot 2 command rejected");
         }
     }
 
@@ -194,7 +234,10 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
                 currentState == SorterState.TWO_ARTIFACT_IN_SORTER_231_INTAKE_CYCLE ||
                 currentState == SorterState.THREE_ARTIFACT_IN_SORTER_123_PRESHOOT) {
             currentCommand = Commands.SHOOT_THREE;
+            logCommand();
             commandComplete = false;
+        } else {
+            logComment("shoot 3 command rejected");
         }
     }
 
@@ -202,7 +245,10 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
         // do not honor a new command unless the previous one is complete
         if (commandComplete) {
             currentCommand = Commands.INTAKE;
+            logCommand();
             commandComplete = false;
+        } else {
+            logComment("intake command rejected");
         }
     }
 
@@ -210,7 +256,10 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
         // do not honor a new command unless the previous one is complete
         if (commandComplete) {
             currentCommand = Commands.INTAKE_OFF;
+            logCommand();
             commandComplete = false;
+        } else {
+            logComment("intake off command rejected");
         }
     }
 
@@ -228,6 +277,9 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
         sorterMotor.update();
         colorSensorController.update();
 
+        logState();
+        logCommand();
+
         switch (currentState) {
 
             // 0 artifacts in the sorter
@@ -235,9 +287,9 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
             case WAITING_ARTIFACT_123:
                 switch (currentCommand) {
                     case INTAKE:
-                        intakeMotor.on();
-                        colorSensorController.getFreshData();
+                        intakeMotor.intake();
                         if (colorSensorController.isArtifactPresent()) {
+                            logComment("Artifact #1 in sorter");
                             // got 1st artifact in the sorter
                             colorSensorController.colorSensorsOff();
                             sorterMotor.moveToPosition(120);
@@ -299,8 +351,8 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
             case ONE_ARTIFACT_IN_SORTER_312_INTAKE_CYCLE:
                 switch (currentCommand) {
                     case INTAKE:
-                        colorSensorController.getFreshData();
                         if (colorSensorController.isArtifactPresent()) {
+                            logComment("Artifact #2 in sorter");
                             // got 2nd artifact in the sorter
                             colorSensorController.colorSensorsOff();
                             sorterMotor.moveToPosition(240);
@@ -317,6 +369,7 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
                         intakeMotor.off();
                         rampServo.upPosition();
                         currentState = SorterState.WAITING_FOR_RAMP_UP;
+                        // set the state to go to after the reamp is up
                         stateAfterRampIsUp = SorterState.ONE_ARTIFACT_LEFT_231_SHOOTING_CYCLE;
                         break;
                     case INTAKE_OFF:
@@ -364,8 +417,8 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
             case TWO_ARTIFACT_IN_SORTER_231_INTAKE_CYCLE:
                 switch (currentCommand) {
                     case INTAKE:
-                        colorSensorController.getFreshData();
                         if (colorSensorController.isArtifactPresent()) {
+                            logComment("Artifact #3 in sorter");
                             // got 3rd artifact in the sorter
                             // prepare to shoot
                             colorSensorController.colorSensorsOff();
@@ -385,6 +438,7 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
                         intakeMotor.off();
                         rampServo.upPosition();
                         currentState = SorterState.WAITING_FOR_RAMP_UP;
+                        // set the state to go to after the reamp is up
                         stateAfterRampIsUp = SorterState.TWO_ARTIFACT_LEFT_312_SHOOTING_CYCLE;
                         break;
                     case INTAKE_OFF:
@@ -394,6 +448,7 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
                 }
 
                 break;
+
             // Three artifacts in sorter
             // waiting for motor to arrive at position
             case WAITING_FOR_360_INTAKE:
@@ -404,6 +459,8 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
                     rampServo.upPosition();
                     intakeOff();
                     currentState = SorterState.WAITING_FOR_RAMP_UP;
+                    // set the state to go to after the reamp is up
+                    stateAfterRampIsUp = SorterState.THREE_ARTIFACT_IN_SORTER_123_PRESHOOT;
                 }
                 switch (currentCommand) {
                     case INTAKE:
@@ -431,9 +488,6 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
                 }
                 break;
 
-//            case THREE_ARTIFACT_IN_SORTER_231_INTAKE_CYCLE:
-//                break;
-
             case WAITING_FOR_RAMP_UP:
                 switch (currentCommand) {
                     case INTAKE:
@@ -450,6 +504,10 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
                         break;
                 }
                 if (rampServo.isPositionReached()) {
+                    logComment("Ready to shoot");
+                    // move to the state that was setup to move to before this state was entered
+                    // DON'T FORGET TO SETUP THE NEXT STATE AFTER THIS ONE BEFORE YOU SET THIS STATE AS THE NEXT STATE
+                    // IF YOU FORGET YOU WILL CRASH ON A NULL POINTER EXCEPTION
                     currentState = stateAfterRampIsUp;
                     commandComplete = true;
                 }
@@ -473,18 +531,21 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
                         break;
                 }
                 if (currentCommand == Commands.SHOOT_ONE) {
+                    logComment("Shooting 1 artifact");
                     // shoot 1 artifact
                     sorterMotor.moveToPosition(120);
                     currentState = SorterState.WAITING_FOR_FIRST_SHOT_TO_COMPLETE;
                     currentCommand = Commands.NO_COMMAND;
                 }
                 if (currentCommand == Commands.SHOOT_TWO) {
+                    logComment("Shooting 2 artifacts");
                     // shoot 2 artifacts
                     sorterMotor.moveToPosition(240);
                     currentState = SorterState.WAITING_FOR_SECOND_SHOT_TO_COMPLETE;
                     currentCommand = Commands.NO_COMMAND;
                 }
                 if (currentCommand == Commands.SHOOT_THREE) {
+                    logComment("Shooting 3 artifacts");
                     // shoot 3 artifacts
                     sorterMotor.moveToPosition(360);
                     currentState = SorterState.WAITING_FOR_THIRD_SHOT_TO_COMPLETE;
@@ -531,6 +592,7 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
                         break;
                 }
                 if (currentCommand == Commands.SHOOT_ONE) {
+                    logComment("Shooting 1 artifacts");
                     // shoot 1 artifact
                     sorterMotor.moveToPosition(240);
                     currentState = SorterState.WAITING_FOR_SECOND_SHOT_TO_COMPLETE;
@@ -538,6 +600,7 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
                 }
                 // there are 2 artifacts left. If driver says shoot 3, we can only really shoot 2
                 if (currentCommand == Commands.SHOOT_TWO || currentCommand == Commands.SHOOT_THREE) {
+                    logComment("Shooting 2 artifacts");
                     // shoot 2 artifacts
                     sorterMotor.moveToPosition(360);
                     currentState = SorterState.WAITING_FOR_THIRD_SHOT_TO_COMPLETE;
@@ -583,6 +646,7 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
                         break;
                 }
                 if (sorterMotor.isMovementComplete()) {
+                    logComment("Shot last artifact");
                     currentState = SorterState.ZERO_ARTIFACT_LEFT_123_SHOOTING_CYCLE;
                 }
                 break;
@@ -605,6 +669,7 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
                         break;
                 }
                 if (currentCommand == Commands.SHOOT_ONE || currentCommand == Commands.SHOOT_TWO || currentCommand == Commands.SHOOT_THREE) {
+                    logComment("Shooting 1 artifact");
                     // shoot 1 artifact
                     sorterMotor.moveToPosition(360);
                     currentState = SorterState.WAITING_FOR_THIRD_SHOT_TO_COMPLETE; // THREE_SHOT refers to the position of the last artifact being shot, not the number being shot.
@@ -630,10 +695,11 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
                         break;
                 }
                 if (sorterMotor.isMovementComplete()) {
+                    logComment("Shot last artifact so auto starting intake");
                     // prepare to intake
                     rampServo.downPosition();
                     sorterMotor.resetEncoder();
-                    intakeMotor.on();
+                    intakeMotor.intake();
                     currentCommand = Commands.INTAKE;
                     colorSensorController.colorSensorsOn();
                 }

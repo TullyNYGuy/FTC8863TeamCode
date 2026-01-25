@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.opmodes.DecodeTest;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -36,7 +35,7 @@ public class TestColorSensor extends LinearOpMode {
 
         colorSensorA.sensor.turnSensorOn();
         colorSensorB.sensor.turnSensorOn();
-        decodeIntakeMotor.on();
+        decodeIntakeMotor.intake();
 
         // Put your calls here - they will not run in a loop
 

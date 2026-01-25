@@ -112,7 +112,7 @@ public class DecodeBallShooter implements FTCRobotSubsystem {
      * @param telemetry        The telemetry from the FTC robot
      */
     public DecodeBallShooter(HardwareMap hardwareMap, Telemetry telemetry) {
-        shooterMotor = new DecodeShooterMotor(SHOOTER_MOTOR_NAME, hardwareMap, telemetry);
+        shooterMotor = new DecodeShooterMotor(hardwareMap, telemetry);
         hoodServo = new DecodeHoodServo(hardwareMap, telemetry);
     }
     //*********************************************************************************************

@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogOnChange;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
@@ -38,6 +39,8 @@ public class DecodeSorterMotor implements FTCRobotSubsystem {
 
     private DcMotor8863 sorterMotor;
     private Telemetry telemetry;
+    private DataLogOnChange logCommandOnchange;
+    private DataLogOnChange logCommentOnChange;
     //*********************************************************************************************
     //          PROPERTIES AND GETTER and SETTER Methods
     //
@@ -100,6 +103,8 @@ public class DecodeSorterMotor implements FTCRobotSubsystem {
     private DataLogging logFile;
     @Override
     public void setDataLog(DataLogging logFile) {
+        logCommandOnchange = new DataLogOnChange(logFile);
+        logCommentOnChange = new DataLogOnChange(logFile);
         this.logFile = logFile;
     }
 
@@ -143,6 +148,18 @@ public class DecodeSorterMotor implements FTCRobotSubsystem {
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
 
+    private void logCommand(String command) {
+        if (loggingOn && logFile != null) {
+            logCommandOnchange.log(getName() + " command = " + command);
+        }
+    }
+
+    private void logComment(String comment) {
+        if (loggingOn && logFile != null) {
+            logCommentOnChange.log(getName() + " " + comment);
+        }
+    }
+
     //*********************************************************************************************
     //          MAJOR METHODS
     //
@@ -169,6 +186,7 @@ public class DecodeSorterMotor implements FTCRobotSubsystem {
     }
 
     public void moveToPosition(double position){
+        logCommand("move to " + Double.toString(position));
         sorterMotor.moveToPosition(1, position, DcMotor8863.FinishBehavior.HOLD);
     }
     public void displaySorterAngle() {
@@ -204,7 +222,9 @@ public class DecodeSorterMotor implements FTCRobotSubsystem {
         sorterMotor.interrupt();
     }
     public boolean isMovementComplete() {
-        return sorterMotor.isMovementComplete();
+        boolean result = sorterMotor.isMovementComplete();
+        logComment("position reached = " + Boolean.toString(result));
+        return result;
     }
     public void resetEncoder() {
         sorterMotor.resetEncoder();

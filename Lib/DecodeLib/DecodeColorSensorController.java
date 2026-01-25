@@ -6,6 +6,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Color;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogOnChange;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
 import org.firstinspires.ftc.teamcode.Lib.IntoTheDeepLib.ITDColorSensorA;
@@ -48,6 +49,9 @@ public class DecodeColorSensorController implements FTCRobotSubsystem {
 
     @Override
     public void setDataLog(DataLogging logFile) {
+        logCommandOnchange = new DataLogOnChange(logFile);
+        logCommentOnChangeRightSensor = new DataLogOnChange(logFile);
+        logCommentOnChangeLeftSensor = new DataLogOnChange(logFile);
         this.logFile = logFile;
     }
 
@@ -65,6 +69,9 @@ public class DecodeColorSensorController implements FTCRobotSubsystem {
     public void disableDataLogging() {
         this.loggingOn = false;
     }
+    private DataLogOnChange logCommandOnchange;
+    private DataLogOnChange logCommentOnChangeRightSensor;
+    private DataLogOnChange logCommentOnChangeLeftSensor;
 
     private ITDColorSensorA intakeColorSensorRight;
     private ITDColorSensorB intakeColorSensorLeft;
@@ -88,6 +95,8 @@ public class DecodeColorSensorController implements FTCRobotSubsystem {
     public DecodeColorSensorController(HardwareMap hardwareMap, Telemetry telemetry) {
         intakeColorSensorRight = new ITDColorSensorA(hardwareMap, telemetry, COLOR_SENSOR_RIGHT_NAME);
         intakeColorSensorLeft = new ITDColorSensorB(hardwareMap, telemetry, COLOR_SENSOR_LEFT_NAME);
+        // turn on the lights
+        colorSensorsOn();
     }
 
     //*********************************************************************************************
@@ -95,6 +104,24 @@ public class DecodeColorSensorController implements FTCRobotSubsystem {
     //
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
+
+    private void logCommand(String command) {
+        if (loggingOn && logFile != null) {
+            logCommandOnchange.log(getName() + " command = " + command);
+        }
+    }
+
+    private void logCommentRightSensor(String comment) {
+        if (loggingOn && logFile != null) {
+            logCommentOnChangeRightSensor.log(getName() + " " + comment);
+        }
+    }
+
+    private void logCommentLeftSensor(String comment) {
+        if (loggingOn && logFile != null) {
+            logCommentOnChangeLeftSensor.log(getName() + " " + comment);
+        }
+    }
 
     /**
      * This method gets fresh color data from the color sensor. Communication with the sensor takes
@@ -120,7 +147,6 @@ public class DecodeColorSensorController implements FTCRobotSubsystem {
         intakeColorSensorLeft.sensor.updateDataColor();
         // using the just updated HSV values, determine the color seen by the artifact
         artifactColorLeft = intakeColorSensorLeft.sensor.getMostLikelyColor();
-        ;
         // logComment2("Front Sample color = " + artifactColorRight.toString());
     }
 
@@ -134,16 +160,20 @@ public class DecodeColorSensorController implements FTCRobotSubsystem {
 
     private boolean isArtifactPresentInLeftSensor() {
         if (intakeColorSensorLeft.sensor.getDistance(DistanceUnit.CM) < 5) {
+            logCommentLeftSensor("Artifact present for left sensor");
             return true;
         } else {
+            logCommentLeftSensor("Artifact not present for left sensor");
             return false;
         }
     }
 
     private boolean isArtifactPresentInRightSensor() {
         if (intakeColorSensorRight.sensor.getDistance(DistanceUnit.CM) < 7) {
+            logCommentRightSensor("Artifact present for right sensor");
             return true;
         } else {
+            logCommentRightSensor("Artifact not present for right sensor");
             return false;
         }
     }
@@ -167,18 +197,20 @@ public class DecodeColorSensorController implements FTCRobotSubsystem {
     }
 
     public void colorSensorsOn() {
+        logCommand("Color sensors on");
         intakeColorSensorRight.sensor.turnSensorOn();
         intakeColorSensorLeft.sensor.turnSensorOn();
         sensorOn = true;
     }
 
     public void colorSensorsOff() {
+        logCommand("Color sensors off");
         intakeColorSensorRight.sensor.turnSensorOff();
         intakeColorSensorLeft.sensor.turnSensorOff();
         sensorOn = false;
     }
 
-    public void getFreshData() {
+    private void getFreshData() {
         getFreshDistanceFromLeftSensor();
         getFreshDistanceFromRightSensor();
     }

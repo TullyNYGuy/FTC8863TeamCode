@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogOnChange;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
@@ -62,15 +63,18 @@ public class DecodeIntakeMotor implements FTCRobotSubsystem {
         intakeMotor.runAtConstantRPM(this.RPM);
     }
 
-    public void on(){
+    public void intake(){
+        logCommand("intake");
         setRPM (500);
     }
 
     public void off(){
+        logCommand("off");
         setRPM (0);
     }
 
     public void outtake(){
+        logCommand("outake");
         setRPM (-500);
     }
     /**
@@ -111,6 +115,8 @@ public class DecodeIntakeMotor implements FTCRobotSubsystem {
     private DataLogging logFile;
     @Override
     public void setDataLog(DataLogging logFile) {
+        logCommandOnchange = new DataLogOnChange(logFile);
+        logCommentOnChange = new DataLogOnChange(logFile);
         this.logFile = logFile;
     }
 
@@ -128,6 +134,9 @@ public class DecodeIntakeMotor implements FTCRobotSubsystem {
     public void disableDataLogging() {
         this.loggingOn = false;
     }
+
+    private DataLogOnChange logCommandOnchange;
+    private DataLogOnChange logCommentOnChange;
     //*********************************************************************************************
     //          Constructors
     //
@@ -152,6 +161,18 @@ public class DecodeIntakeMotor implements FTCRobotSubsystem {
     //
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
+
+    private void logCommand(String command) {
+        if (loggingOn && logFile != null) {
+            logCommandOnchange.log(getName() + " command = " + command);
+        }
+    }
+
+    private void logComment(String comment) {
+        if (loggingOn && logFile != null) {
+            logCommentOnChange.log(getName() + " " + comment);
+        }
+    }
 
     //*********************************************************************************************
     //          MAJOR METHODS

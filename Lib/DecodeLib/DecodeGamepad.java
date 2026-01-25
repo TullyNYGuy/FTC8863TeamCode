@@ -382,14 +382,14 @@ public class DecodeGamepad {
             // put the command to be executed here
             //robot.robotModes.setMaxDrivingPower(.75);
             //robot.intakeBucketController.intakeHighAltitude();
-            robot.intakeMotor.on();
+            robot.intakeMotor.intake();
             robot.ballShooter.shootShort();
         }
 
         if (gamepad2y.buttonPress(gamepad2.y)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            robot.intakeMotor.on();
+            robot.intakeMotor.intake();
             robot.ballShooter.shootLong();
         }
 

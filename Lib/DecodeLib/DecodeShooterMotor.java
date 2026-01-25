@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogOnChange;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
@@ -37,6 +38,8 @@ public class DecodeShooterMotor implements FTCRobotSubsystem {
     //*********************************************************************************************
 
     private DcMotor8863 shooterMotor;
+    private DataLogOnChange logCommandOnchange;
+    private DataLogOnChange logCommentOnChange;
     //*********************************************************************************************
     //          PROPERTIES AND GETTER and SETTER Methods
     //
@@ -98,6 +101,8 @@ public class DecodeShooterMotor implements FTCRobotSubsystem {
     private DataLogging logFile;
     @Override
     public void setDataLog(DataLogging logFile) {
+        logCommandOnchange = new DataLogOnChange(logFile);
+        logCommentOnChange = new DataLogOnChange(logFile);
         this.logFile = logFile;
     }
 
@@ -123,12 +128,11 @@ public class DecodeShooterMotor implements FTCRobotSubsystem {
     //*********************************************************************************************
 
     /**
-     * @param shooterMotorName  The name of the left motor
      * @param hardwareMap    Hardware map from the FTC robot
      * @param telemetry      The telemetry from the FTC robot
      */
-    public DecodeShooterMotor(String shooterMotorName, HardwareMap hardwareMap, Telemetry telemetry) {
-        shooterMotor = new DcMotor8863(shooterMotorName, hardwareMap, telemetry);
+    public DecodeShooterMotor(HardwareMap hardwareMap, Telemetry telemetry) {
+        shooterMotor = new DcMotor8863(SUB_SYSTEM_NAME, hardwareMap, telemetry);
         shooterMotor.setMotorType(DcMotor8863.MotorType.GOBILDA_6000);
         shooterMotor.setMovementPerRev(360);
         shooterMotor.setFinishBehavior(DcMotor8863.FinishBehavior.FLOAT);
@@ -141,6 +145,18 @@ public class DecodeShooterMotor implements FTCRobotSubsystem {
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
 
+    private void logCommand(String command) {
+        if (loggingOn && logFile != null) {
+            logCommandOnchange.log(getName() + " command = " + command);
+        }
+    }
+
+    private void logComment(String comment) {
+        if (loggingOn && logFile != null) {
+            logCommentOnChange.log(getName() + " " + comment);
+        }
+    }
+
     //*********************************************************************************************
     //          MAJOR METHODS
     //
@@ -148,10 +164,12 @@ public class DecodeShooterMotor implements FTCRobotSubsystem {
     //*********************************************************************************************
 
     public void runAtRPMForLongShot() {
+        logCommand("run for long shot");
         setRPM(3100);
     }
 
     public void runAtRPMForShortShot() {
+        logCommand("run for short shot");
         setRPM(2200);
     }
 
@@ -188,7 +206,7 @@ public class DecodeShooterMotor implements FTCRobotSubsystem {
     }
     @Override
     public String getName() {
-        return "shooter";
+        return SUB_SYSTEM_NAME;
     }
 
     @Override

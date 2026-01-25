@@ -38,7 +38,8 @@ public class DecodeRampServo implements FTCRobotSubsystem {
 
     private boolean loggingOn = false;
 
-    private DataLogOnChange logDataOnchange;
+    private DataLogOnChange logCommandOnchange;
+    private DataLogOnChange logCommentOnChange;
 
     private boolean initComplete = false;
 
@@ -135,7 +136,9 @@ public class DecodeRampServo implements FTCRobotSubsystem {
     //          Feedback
     //*********************************************************************************************
     public boolean isPositionReached() {
-        return rampServo.isPositionReached();
+        boolean result = rampServo.isPositionReached();
+        logComment("ramp servo position reached = " + Boolean.toString(result));
+        return result;
     }
 
     //*********************************************************************************************
@@ -194,8 +197,9 @@ public class DecodeRampServo implements FTCRobotSubsystem {
 
     @Override
     public void setDataLog(DataLogging logFile) {
+        logCommandOnchange = new DataLogOnChange(logFile);
+        logCommentOnChange = new DataLogOnChange(logFile);
         this.logFile = logFile;
-        logDataOnchange = new DataLogOnChange(logFile);
     }
 
     @Override
@@ -210,7 +214,13 @@ public class DecodeRampServo implements FTCRobotSubsystem {
 
     private void logCommand(String command) {
         if (loggingOn && logFile != null) {
-            logDataOnchange.log(getName() + " command = " + command);
+            logCommandOnchange.log(getName() + " command = " + command);
+        }
+    }
+
+    private void logComment(String comment) {
+        if (loggingOn && logFile != null) {
+            logCommentOnChange.log(getName() + " " + comment);
         }
     }
 

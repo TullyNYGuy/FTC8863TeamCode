@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogOnChange;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DcMotor8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
@@ -41,6 +42,8 @@ public class DecodeTurntableMotor implements FTCRobotSubsystem {
     private DcMotor8863 turntableMotor;
     private Telemetry telemetry;
     PIDFController controller;
+    private DataLogOnChange logCommandOnchange;
+    private DataLogOnChange logCommentOnChange;
     //*********************************************************************************************
     //          PROPERTIES AND GETTER and SETTER Methods
     //
@@ -124,6 +127,8 @@ public class DecodeTurntableMotor implements FTCRobotSubsystem {
     private DataLogging logFile;
     @Override
     public void setDataLog(DataLogging logFile) {
+        logCommandOnchange = new DataLogOnChange(logFile);
+        logCommentOnChange = new DataLogOnChange(logFile);
         this.logFile = logFile;
     }
 
@@ -171,6 +176,18 @@ public class DecodeTurntableMotor implements FTCRobotSubsystem {
     // methods that aid or support the major functions in the class
     //*********************************************************************************************
 
+    private void logCommand(String command) {
+        if (loggingOn && logFile != null) {
+            logCommandOnchange.log(getName() + " command = " + command);
+        }
+    }
+
+    private void logComment(String comment) {
+        if (loggingOn && logFile != null) {
+            logCommentOnChange.log(getName() + " " + comment);
+        }
+    }
+
     //*********************************************************************************************
     //          MAJOR METHODS
     //
@@ -189,8 +206,9 @@ public class DecodeTurntableMotor implements FTCRobotSubsystem {
         turntableMotor.setPower(power);
     }
 
-    public void moveToPosition(double Position) {
-        turntableMotor.moveToPosition(1, Position, DcMotor8863.FinishBehavior.HOLD);
+    public void moveToPosition(double position) {
+        logCommand("move to position " + Double.toString(position));
+        turntableMotor.moveToPosition(1, position, DcMotor8863.FinishBehavior.HOLD);
     }
 
     public double getActualRPM() {
@@ -214,7 +232,9 @@ public class DecodeTurntableMotor implements FTCRobotSubsystem {
     }
 
     public boolean isOnTarget() {
-        return controller.isMovementComplete();
+        boolean result = controller.isMovementComplete();
+        logComment("on target = " + Boolean.toString(result));
+        return result;
     }
 
     @Override
