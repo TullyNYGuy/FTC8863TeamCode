@@ -84,7 +84,7 @@ public class TestSorterController extends LinearOpMode {
         telemetry.update();
         waitForStart();
 
-        //decodeShooterMotor.setRPM(3100);
+        decodeShooterMotor.setRPM(2600);
         // Put your calls here - they will not run in a loop
 
 

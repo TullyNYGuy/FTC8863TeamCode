@@ -160,11 +160,16 @@ public class DecodeSorterMotor implements FTCRobotSubsystem {
         }
     }
 
-    private double getAbsolutePosition(double positionRelativeToFrontOfRobot) {
-        long numberOfRotations = Math.floorDiv((long)sorterMotor.getPositionInTermsOfAttachment() , 360);
-        return numberOfRotations * 360 + positionRelativeToFrontOfRobot;
+    /**
+     * Allows the sorter wheel to move to the next position specified by the driver (converts
+     * driver input of 120, 240, or 360 to angle needed the motor)
+     * @param positionRelativeToFrontOfRobot
+     * @return
+     */
+    private double getActualPosition(double positionRelativeToFrontOfRobot) {
+        int numberOfFullRevolutions = (int) (sorterMotor.getPositionInTermsOfAttachment() / 360);
+        return numberOfFullRevolutions * 360 + positionRelativeToFrontOfRobot;
     }
-
     //*********************************************************************************************
     //          MAJOR METHODS
     //
@@ -192,7 +197,7 @@ public class DecodeSorterMotor implements FTCRobotSubsystem {
 
     public void moveToPosition(double position){
         logCommand("move to " + Double.toString(position));
-        sorterMotor.moveToPosition(1, getAbsolutePosition(position), DcMotor8863.FinishBehavior.HOLD);
+        sorterMotor.moveToPosition(1, getActualPosition(position), DcMotor8863.FinishBehavior.HOLD);
     }
     public void displaySorterAngle() {
         telemetry.addData("encoder value ", sorterMotor.getCurrentPosition());

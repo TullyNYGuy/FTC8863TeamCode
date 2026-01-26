@@ -29,6 +29,7 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
         WAITING_FOR_360_INTAKE,
         THREE_ARTIFACT_IN_SORTER_231_INTAKE_CYCLE,
         WAITING_FOR_RAMP_UP,
+        WAITING_FOR_RAMP_DOWN,
         THREE_ARTIFACT_IN_SORTER_123_PRESHOOT,
         WAITING_FOR_FIRST_SHOT_TO_COMPLETE,
         TWO_ARTIFACT_LEFT_312_SHOOTING_CYCLE,
@@ -50,6 +51,11 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
     }
 
     private Commands currentCommand = Commands.NO_COMMAND;
+    private enum RampDownStates {
+        WAITING_FOR_RAMP_DOWN,
+        WAITING_FOR_MOTOR_TO_MOVE;
+    }
+    private RampDownStates rampDownState;
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS
     //
@@ -65,6 +71,9 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
     private DataLogOnChange logCommandOnchange;
     private DataLogOnChange logStateOnChange;
     private DataLogOnChange logCommentOnChange;
+    private double motorPositionAfterRampDown;
+    private SorterState sorterStateAfterRampDown;
+    private boolean rampDownDone;
     //*********************************************************************************************
     //          PROPERTIES AND GETTER and SETTER Methods
     //
@@ -166,11 +175,6 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
         if (loggingOn && logFile != null) {
             logCommentOnChange.log(getName() + " " + comment);
         }
-    }
-
-    private void rampServoUp(SorterState nextStateAfterRampUp) {
-        this.stateAfterRampIsUp = nextStateAfterRampUp;
-        currentState = SorterState.WAITING_FOR_RAMP_UP;
     }
 
     //*********************************************************************************************
@@ -372,7 +376,6 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
                     case SHOOT_TWO:
                     case SHOOT_THREE:
                         intakeMotor.off();
-                        rampServoUp(SorterState.ONE_ARTIFACT_LEFT_231_SHOOTING_CYCLE);
                         rampServo.upPosition();
                         currentState = SorterState.WAITING_FOR_RAMP_UP;
                         // set the state to go to after the reamp is up
@@ -461,7 +464,6 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
                 if (sorterMotor.isMovementComplete()) {
                     // prepare to shoot
                     commandComplete = true;
-                    //sorterMotor.resetEncoder();
                     rampServo.upPosition();
                     intakeOff();
                     currentState = SorterState.WAITING_FOR_RAMP_UP;
@@ -507,6 +509,7 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
                     case SHOOT_THREE:
                         break;
                     case INTAKE_OFF:
+                        intakeMotor.off();
                         break;
                 }
                 if (rampServo.isPositionReached()) {
@@ -524,60 +527,64 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
             case THREE_ARTIFACT_IN_SORTER_123_PRESHOOT:
                 switch (currentCommand) {
                     case INTAKE:
+                        currentCommand=Commands.NO_COMMAND;
+                        commandComplete=true;
                         break;
                     case NO_COMMAND:
                         break;
                     case SHOOT_ONE:
+                        logComment("Shooting 1 artifact");
+                        // shoot 1 artifact
+                        sorterMotor.moveToPosition(120);
+                        currentState = SorterState.WAITING_FOR_FIRST_SHOT_TO_COMPLETE;
+                        currentCommand = Commands.NO_COMMAND;
                         break;
                     case SHOOT_TWO:
+                        logComment("Shooting 2 artifacts");
+                        // shoot 2 artifacts
+                        sorterMotor.moveToPosition(240);
+                        currentState = SorterState.WAITING_FOR_SECOND_SHOT_TO_COMPLETE;
+                        currentCommand = Commands.NO_COMMAND;
                         break;
                     case SHOOT_THREE:
-                        break;
+                        logComment("Shooting 3 artifacts");
+                        // shoot 3 artifacts
+                        sorterMotor.moveToPosition(360);
+                        currentState = SorterState.WAITING_FOR_THIRD_SHOT_TO_COMPLETE;
+                        currentCommand = Commands.NO_COMMAND;
                     case INTAKE_OFF:
+                        commandComplete=true;
+                        intakeMotor.off();
                         break;
                 }
-                if (currentCommand == Commands.SHOOT_ONE) {
-                    logComment("Shooting 1 artifact");
-                    // shoot 1 artifact
-                    sorterMotor.moveToPosition(120);
-                    currentState = SorterState.WAITING_FOR_FIRST_SHOT_TO_COMPLETE;
-                    currentCommand = Commands.NO_COMMAND;
-                }
-                if (currentCommand == Commands.SHOOT_TWO) {
-                    logComment("Shooting 2 artifacts");
-                    // shoot 2 artifacts
-                    sorterMotor.moveToPosition(240);
-                    currentState = SorterState.WAITING_FOR_SECOND_SHOT_TO_COMPLETE;
-                    currentCommand = Commands.NO_COMMAND;
-                }
-                if (currentCommand == Commands.SHOOT_THREE) {
-                    logComment("Shooting 3 artifacts");
-                    // shoot 3 artifacts
-                    sorterMotor.moveToPosition(360);
-                    currentState = SorterState.WAITING_FOR_THIRD_SHOT_TO_COMPLETE;
-                    currentCommand = Commands.NO_COMMAND;
-                }
+
                 break;
 
             // waiting for motor to arrive at position
             case WAITING_FOR_FIRST_SHOT_TO_COMPLETE:
                 switch (currentCommand) {
                     case INTAKE:
+                        currentCommand=Commands.NO_COMMAND;
+                        commandComplete=true;
                         break;
                     case NO_COMMAND:
                         break;
                     case SHOOT_ONE:
+                        if (sorterMotor.isMovementComplete()) {
+                            currentState = SorterState.TWO_ARTIFACT_LEFT_312_SHOOTING_CYCLE;
+                        }
                         break;
                     case SHOOT_TWO:
+                        currentCommand=Commands.SHOOT_ONE;
                         break;
                     case SHOOT_THREE:
+                        currentCommand=Commands.SHOOT_ONE;
                         break;
                     case INTAKE_OFF:
+                        intakeMotor.off();
                         break;
                 }
-                if (sorterMotor.isMovementComplete()) {
-                    currentState = SorterState.TWO_ARTIFACT_LEFT_312_SHOOTING_CYCLE;
-                }
+
                 break;
 
             // 2 artifacts left in the sorter
@@ -585,32 +592,36 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
             case TWO_ARTIFACT_LEFT_312_SHOOTING_CYCLE:
                 switch (currentCommand) {
                     case INTAKE:
+                        rampServo.downPosition();
+                        //currentState=
                         break;
                     case NO_COMMAND:
                         break;
                     case SHOOT_ONE:
+                        logComment("Shooting 1 artifacts");
+                        // shoot 1 artifact
+                        sorterMotor.moveToPosition(240);
+                        currentState = SorterState.WAITING_FOR_SECOND_SHOT_TO_COMPLETE;
+                        currentCommand = Commands.NO_COMMAND;
                         break;
                     case SHOOT_TWO:
-                        break;
                     case SHOOT_THREE:
+                        logComment("Shooting 2 artifacts");
+                        // shoot 2 artifacts
+                        sorterMotor.moveToPosition(360);
+                        currentState = SorterState.WAITING_FOR_THIRD_SHOT_TO_COMPLETE;
+                        currentCommand = Commands.NO_COMMAND;
                         break;
                     case INTAKE_OFF:
+                        intakeMotor.off();
                         break;
                 }
                 if (currentCommand == Commands.SHOOT_ONE) {
-                    logComment("Shooting 1 artifacts");
-                    // shoot 1 artifact
-                    sorterMotor.moveToPosition(240);
-                    currentState = SorterState.WAITING_FOR_SECOND_SHOT_TO_COMPLETE;
-                    currentCommand = Commands.NO_COMMAND;
+
                 }
                 // there are 2 artifacts left. If driver says shoot 3, we can only really shoot 2
                 if (currentCommand == Commands.SHOOT_TWO || currentCommand == Commands.SHOOT_THREE) {
-                    logComment("Shooting 2 artifacts");
-                    // shoot 2 artifacts
-                    sorterMotor.moveToPosition(360);
-                    currentState = SorterState.WAITING_FOR_THIRD_SHOT_TO_COMPLETE;
-                    currentCommand = Commands.NO_COMMAND;
+
                 }
                 break;
 
@@ -704,14 +715,41 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
                     logComment("Shot last artifact so auto starting intake");
                     // prepare to intake
                     rampServo.downPosition();
-                    //sorterMotor.resetEncoder();
                     intakeMotor.intake();
                     currentCommand = Commands.INTAKE;
                     colorSensorController.colorSensorsOn();
                 }
                 currentState = SorterState.WAITING_ARTIFACT_123;
                 break;
+            case WAITING_FOR_RAMP_DOWN:
+                if (rampServo.isPositionReached()){
+                    //sorterMotor.moveToPosition();
+                }
+                break;
+
         }
+        switch (rampDownState) {
+            case WAITING_FOR_RAMP_DOWN:
+                if (rampServo.isPositionReached()) {
+                    sorterMotor.moveToPosition(motorPositionAfterRampDown);
+                    rampDownState=RampDownStates.WAITING_FOR_MOTOR_TO_MOVE;
+                }
+                break;
+            case WAITING_FOR_MOTOR_TO_MOVE:
+                if (sorterMotor.isMovementComplete()) {
+                   currentState=sorterStateAfterRampDown;
+                   rampDownDone = true;
+                }
+                break;
+        }
+    }
+   private boolean rampDownMoveMotor(double position, SorterState nextState) {
+        rampDownDone=false;
+        motorPositionAfterRampDown=position;
+        sorterStateAfterRampDown=nextState;
+        rampServo.downPosition();
+        rampDownState=RampDownStates.WAITING_FOR_RAMP_DOWN;
+        return true;
     }
 
     @Override
