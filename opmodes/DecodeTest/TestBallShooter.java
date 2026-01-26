@@ -2,9 +2,12 @@ package org.firstinspires.ftc.teamcode.opmodes.DecodeTest;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeBallShooter;
+import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeIntakeMotor;
+import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeSorterMotor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Debouncer;
 
 /**
@@ -16,6 +19,8 @@ public class TestBallShooter extends LinearOpMode {
 
     // Put your variable declarations her
     DecodeBallShooter ballShooter;
+    DecodeSorterMotor sorterMotor;
+    DecodeIntakeMotor intakeMotor;
 
     @Override
     public void runOpMode() {
@@ -37,11 +42,15 @@ public class TestBallShooter extends LinearOpMode {
         // Put your initializations here
         ballShooter = new DecodeBallShooter(hardwareMap, telemetry);
         ballShooter.init(null);
+        sorterMotor = new DecodeSorterMotor(hardwareMap, telemetry);
+        intakeMotor = new DecodeIntakeMotor(hardwareMap, telemetry);
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
         telemetry.update();
         waitForStart();
+        sorterMotor.setRPM(140);
+        intakeMotor.setRPM(500);
 
         // Put your calls here - they will not run in a loop
 
