@@ -41,6 +41,13 @@ public class DecodeSorterMotor implements FTCRobotSubsystem {
     private Telemetry telemetry;
     private DataLogOnChange logCommandOnchange;
     private DataLogOnChange logCommentOnChange;
+
+    private double lastRequestedPosition = 0;
+
+    public double getLastRequestedPosition() {
+        return lastRequestedPosition;
+    }
+
     //*********************************************************************************************
     //          PROPERTIES AND GETTER and SETTER Methods
     //
@@ -196,8 +203,14 @@ public class DecodeSorterMotor implements FTCRobotSubsystem {
     }
 
     public void moveToPosition(double position){
-        logCommand("move to " + Double.toString(position));
-        sorterMotor.moveToPosition(1, getActualPosition(position), DcMotor8863.FinishBehavior.HOLD);
+        //logCommand("move to " + Double.toString(position));
+        sorterMotor.moveToPosition(1, position, DcMotor8863.FinishBehavior.HOLD);
+    }
+    public void moveByPosition(double addedPosition) {
+        logCommand("move by " + Double.toString(addedPosition));
+         double newPosition = lastRequestedPosition + addedPosition;
+         moveToPosition(newPosition);
+         lastRequestedPosition = newPosition;
     }
     public void displaySorterAngle() {
         telemetry.addData("encoder value ", sorterMotor.getCurrentPosition());

@@ -71,10 +71,10 @@ public class DecodeRampServo implements FTCRobotSubsystem {
     public DecodeRampServo(HardwareMap hardwareMap, Telemetry telemetry) {
         rampServo = new Servo8863New(SUB_SYSTEM_NAME, hardwareMap, telemetry);
 
-        rampServo.addPosition("initPosition", initPosition, 170, TimeUnit.MILLISECONDS);
-        rampServo.addPosition("upPosition", upPosition, 170, TimeUnit.MILLISECONDS);
-        rampServo.addPosition("downPosition", downPosition, 170, TimeUnit.MILLISECONDS);
-        rampServo.addPosition("shutdownPosition", shutdownPosition, 170, TimeUnit.MILLISECONDS);
+        rampServo.addPosition("initPosition", initPosition, 500, TimeUnit.MILLISECONDS);
+        rampServo.addPosition("upPosition", upPosition, 500, TimeUnit.MILLISECONDS);
+        rampServo.addPosition("downPosition", downPosition, 500, TimeUnit.MILLISECONDS);
+        rampServo.addPosition("shutdownPosition", shutdownPosition, 500, TimeUnit.MILLISECONDS);
         // old lift was forward direction
         rampServo.setDirection(Servo.Direction.REVERSE);
     }
