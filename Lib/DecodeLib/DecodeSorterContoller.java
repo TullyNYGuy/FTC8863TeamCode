@@ -26,6 +26,7 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
         SHOOT_TWO,
         SHOOT_THREE,
         NO_COMMAND,
+        PREPARE_TO_INTAKE,
         INTAKE,
         INTAKE_OFF;
     }
@@ -195,8 +196,7 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
                 currentState == SorterState.EMPTY_ARTIFACT_EMPTY ||
                 currentState == SorterState.ARTIFACT_ARTIFACT_EMPTY ||
                 currentState == SorterState.ARTIFACT_ARTIFACT_ARTIFACT ||
-                currentState == SorterState.ONE_CHECKING_FOR_ARTIFACT_PRIOR_TO_ARTIFACT_ARTIFACT_EMPTY ||
-                currentState == SorterState.TWO_CHECKING_FOR_ARTIFACT_PRIOR_TO_ARTIFACT_ARTIFACT_ARTIFACT) {
+                currentState == SorterState.EMPTY_ARTIFACT_ARTIFACT) {
             currentCommand = Commands.SHOOT_ONE;
             logCommand();
             commandComplete = false;
@@ -211,10 +211,9 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
                 // allow a shoot command even when the sorter does not have 3 artifacts in it
                 currentState == SorterState.ARTIFACT_EMPTY_EMPTY ||
                 currentState == SorterState.EMPTY_ARTIFACT_EMPTY ||
+                currentState == SorterState.EMPTY_ARTIFACT_ARTIFACT ||
                 currentState == SorterState.ARTIFACT_ARTIFACT_EMPTY ||
-                currentState == SorterState.ARTIFACT_ARTIFACT_ARTIFACT ||
-                currentState == SorterState.ONE_CHECKING_FOR_ARTIFACT_PRIOR_TO_ARTIFACT_ARTIFACT_EMPTY ||
-                currentState == SorterState.TWO_CHECKING_FOR_ARTIFACT_PRIOR_TO_ARTIFACT_ARTIFACT_ARTIFACT) {
+                currentState == SorterState.ARTIFACT_ARTIFACT_ARTIFACT) {
             currentCommand = Commands.SHOOT_TWO;
             logCommand();
             commandComplete = false;
@@ -229,10 +228,9 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
                 // allow a shoot command even when the sorter does not have 3 artifacts in it
                 currentState == SorterState.ARTIFACT_EMPTY_EMPTY ||
                 currentState == SorterState.EMPTY_ARTIFACT_EMPTY ||
+                currentState == SorterState.EMPTY_ARTIFACT_ARTIFACT ||
                 currentState == SorterState.ARTIFACT_ARTIFACT_EMPTY ||
-                currentState == SorterState.ARTIFACT_ARTIFACT_ARTIFACT ||
-                currentState == SorterState.ONE_CHECKING_FOR_ARTIFACT_PRIOR_TO_ARTIFACT_ARTIFACT_EMPTY ||
-                currentState == SorterState.TWO_CHECKING_FOR_ARTIFACT_PRIOR_TO_ARTIFACT_ARTIFACT_ARTIFACT) {
+                currentState == SorterState.ARTIFACT_ARTIFACT_ARTIFACT) {
             currentCommand = Commands.SHOOT_THREE;
             logCommand();
             commandComplete = false;
@@ -244,7 +242,7 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
     public void intake() {
         // do not honor a new command unless the previous one is complete
         if (commandComplete) {
-            currentCommand = Commands.INTAKE;
+            currentCommand = Commands.PREPARE_TO_INTAKE;
             logCommand();
             commandComplete = false;
         } else {
@@ -279,9 +277,6 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
         ARTIFACT_ARTIFACT_ARTIFACT,
         PREPARING_TO_SHOOT,
         PREPARING_TO_INTAKE,
-        ZERO_CHECKING_FOR_ARTIFACT_PRIOR_TO_ARTIFACT_EMPTY_EMPTY, // EMPTY_EMPTY_EMPTY
-        ONE_CHECKING_FOR_ARTIFACT_PRIOR_TO_ARTIFACT_ARTIFACT_EMPTY, // EMPTY_ARTIFACT_EMPTY
-        TWO_CHECKING_FOR_ARTIFACT_PRIOR_TO_ARTIFACT_ARTIFACT_ARTIFACT, // EMPTY_ARTIFACT_ARTIFACT
         // unused or intermediate states - here for tracking sorter slot status
         EMPTY_ARTIFACT_ARTIFACT;
     }
@@ -313,13 +308,24 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
         switch (currentState) {
 
             // 0 artifacts in the sorter
-            // look for an artifact coming into the sorter
+            // This state occurs after shooting all available artifacts
             case EMPTY_EMPTY_EMPTY:
                 sorterSlotStatus = currentState;
                 switch (currentCommand) {
-                    case INTAKE:
-                        rampDownIntakeOnMoveSorter(0, SorterState.ZERO_CHECKING_FOR_ARTIFACT_PRIOR_TO_ARTIFACT_EMPTY_EMPTY);
+                    case PREPARE_TO_INTAKE:
+                        // since this state already has an open slot, we can intake from this state and don't need to rotate the sorter wheel
+                        // We will come back to this state after preparing for the intake
+                        prepareToIntake(0, SorterState.EMPTY_EMPTY_EMPTY);
                         currentState = SorterState.PREPARING_TO_INTAKE;
+                        break;
+                    // since this state already has an open slot, we can intake from this state
+                    case INTAKE:
+                        if (colorSensorController.isArtifactPresent()) {
+                            currentState = SorterState.ARTIFACT_EMPTY_EMPTY;
+                            // since the slot now has an artifact, we will have to prepare to intake when we reach the next state
+                            currentCommand = Commands.PREPARE_TO_INTAKE;
+                            logComment("Artifact #1 in sorter - NOW ARTIFACT_EMPTY_EMPTY");
+                        }
                         break;
                     case NO_COMMAND:
                         break;
@@ -340,46 +346,57 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
                 break;
 
             case PREPARING_TO_SHOOT:
-                updateRampUpIntakeOffMoveSorter();
+                // run the state machine needed to prepare to shoot.
+                // That state machine will change us to the next state when it is complete.
+                updatePrepareToShoot();
                 break;
 
             case PREPARING_TO_INTAKE:
-                updateRampDownIntakeOnMoveSorter();
+                // run the state machine needed to prepare to intake.
+                // That state machine will change us to the next state when it is complete.
+                updatePrepareToIntake();
                 break;
 
-            case ZERO_CHECKING_FOR_ARTIFACT_PRIOR_TO_ARTIFACT_EMPTY_EMPTY:
-                sorterSlotStatus = SorterState.EMPTY_EMPTY_EMPTY;
-                switch (currentCommand) {
-                    case INTAKE:
-                        if (colorSensorController.isArtifactPresent()) {
-                            currentState = SorterState.ARTIFACT_EMPTY_EMPTY;
-                            logComment("Artifact #1 in sorter - NOW ARTIFACT_EMPTY_EMPTY");
-                        }
-                        break;
-                    case NO_COMMAND:
-                        break;
-                    case SHOOT_ONE:
-                    case SHOOT_TWO:
-                    case SHOOT_THREE:
-                        logComment("shoot 1/2/3 command rejected - no artifacts");
-                        //These commands are not valid continue intaking
-                        currentCommand = Commands.INTAKE;
-                        break;
-                    case INTAKE_OFF:
-                        intakeMotor.off();
-                        commandComplete = true;
-                        currentCommand = Commands.NO_COMMAND;
-                        break;
-                }
-                break;
+//            case ZERO_CHECKING_FOR_ARTIFACT_PRIOR_TO_ARTIFACT_EMPTY_EMPTY:
+//                sorterSlotStatus = SorterState.EMPTY_EMPTY_EMPTY;
+//                switch (currentCommand) {
+//                    case INTAKE:
+//                        if (colorSensorController.isArtifactPresent()) {
+//                            currentState = SorterState.ARTIFACT_EMPTY_EMPTY;
+//                            logComment("Artifact #1 in sorter - NOW ARTIFACT_EMPTY_EMPTY");
+//                        }
+//                        break;
+//                    case NO_COMMAND:
+//                        break;
+//                    case SHOOT_ONE:
+//                    case SHOOT_TWO:
+//                    case SHOOT_THREE:
+//                        logComment("shoot 1/2/3 command rejected - no artifacts");
+//                        //These commands are not valid continue intaking
+//                        currentCommand = Commands.INTAKE;
+//                        break;
+//                    case INTAKE_OFF:
+//                        intakeMotor.off();
+//                        commandComplete = true;
+//                        currentCommand = Commands.NO_COMMAND;
+//                        break;
+//                }
+//                break;
 
             // 1 artifact in sorter
+            // This state occurs after intaking the 1st artifact
+            // This state occurs after shooting 1 artifact from ARTIFACT_ARTIFACT_EMPTY
+            // This state occurs after shooting 1 artifact from EMPTY_ARTIFACT_ARTIFACT
             case ARTIFACT_EMPTY_EMPTY:
                 sorterSlotStatus = currentState;
                 switch (currentCommand) {
-                    case INTAKE:
-                        rampDownIntakeOnMoveSorter(120, SorterState.ONE_CHECKING_FOR_ARTIFACT_PRIOR_TO_ARTIFACT_ARTIFACT_EMPTY);
+                    case PREPARE_TO_INTAKE:
+                        prepareToIntake(120, SorterState.EMPTY_ARTIFACT_EMPTY);
                         currentState = SorterState.PREPARING_TO_INTAKE;
+                        break;
+                    case INTAKE:
+                        // we cannot intake in this state, there is no open slot
+                        currentCommand = Commands.NO_COMMAND;
                         break;
                     case NO_COMMAND:
                         break;
@@ -389,7 +406,7 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
                         // 1 artifact in the sorter, can only shoot 1
                         currentCommand = Commands.SHOOT_ONE;
                         logComment("Shooting 1 artifact");
-                        rampUpIntakeOffMoveSorter(120, SorterState.EMPTY_EMPTY_EMPTY);
+                        prepareToShoot(240, SorterState.EMPTY_EMPTY_EMPTY);
                         currentState = SorterState.PREPARING_TO_SHOOT;
                         break;
                     case INTAKE_OFF:
@@ -400,13 +417,24 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
                 }
                 break;
 
-            // 1 artifact in sorter. Checking for #2
-            case ONE_CHECKING_FOR_ARTIFACT_PRIOR_TO_ARTIFACT_ARTIFACT_EMPTY:
-                sorterSlotStatus = SorterState.EMPTY_ARTIFACT_EMPTY;
+            // 1 artifact in sorter
+            // This state occurs after preparing to intake a 2nd artifact
+            // This state also occurs after shooting 2 artifacts from a full sorter
+            case EMPTY_ARTIFACT_EMPTY:
+                sorterSlotStatus = currentState;
                 switch (currentCommand) {
+                    case PREPARE_TO_INTAKE:
+                        // since this state already has an open slot, we can intake from this state and don't need to rotate the sorter wheel
+                        // We will come back to this state after preparing for the intake
+                        prepareToIntake(0, SorterState.EMPTY_ARTIFACT_EMPTY);
+                        currentState = SorterState.PREPARING_TO_INTAKE;
+                        break;
+                    // since this state already has an open slot, we can intake from this state
                     case INTAKE:
                         if (colorSensorController.isArtifactPresent()) {
                             currentState = SorterState.ARTIFACT_ARTIFACT_EMPTY;
+                            // since the slot now has an artifact, we will have to prepare to intake when we reach the next state
+                            currentCommand = Commands.PREPARE_TO_INTAKE;
                             logComment("Artifact #2 in sorter - NOW ARTIFACT_ARTIFACT_EMPTY");
                         }
                         break;
@@ -418,7 +446,7 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
                         // 1 artifact in the sorter, can only shoot 1
                         currentCommand = Commands.SHOOT_ONE;
                         logComment("Shooting 1 artifact");
-                        rampUpIntakeOffMoveSorter(240, SorterState.EMPTY_EMPTY_EMPTY);
+                        prepareToShoot(240, SorterState.EMPTY_EMPTY_EMPTY);
                         currentState = SorterState.PREPARING_TO_SHOOT;
                         break;
                     case INTAKE_OFF:
@@ -429,19 +457,53 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
                 }
                 break;
 
+//            // 1 artifact in sorter. Checking for #2
+//            case ONE_CHECKING_FOR_ARTIFACT_PRIOR_TO_ARTIFACT_ARTIFACT_EMPTY:
+//                sorterSlotStatus = SorterState.EMPTY_ARTIFACT_EMPTY;
+//                switch (currentCommand) {
+//                    case INTAKE:
+//                        if (colorSensorController.isArtifactPresent()) {
+//                            currentState = SorterState.ARTIFACT_ARTIFACT_EMPTY;
+//                            logComment("Artifact #2 in sorter - NOW ARTIFACT_ARTIFACT_EMPTY");
+//                        }
+//                        break;
+//                    case NO_COMMAND:
+//                        break;
+//                    case SHOOT_ONE:
+//                    case SHOOT_TWO:
+//                    case SHOOT_THREE:
+//                        // 1 artifact in the sorter, can only shoot 1
+//                        currentCommand = Commands.SHOOT_ONE;
+//                        logComment("Shooting 1 artifact");
+//                        prepareToShoot(240, SorterState.EMPTY_EMPTY_EMPTY);
+//                        currentState = SorterState.PREPARING_TO_SHOOT;
+//                        break;
+//                    case INTAKE_OFF:
+//                        intakeMotor.off();
+//                        commandComplete = true;
+//                        currentCommand = Commands.NO_COMMAND;
+//                        break;
+//                }
+//                break;
+
             // 2 artifacts in the sorter
+            // This state occurs after intaking the 2nd artifact
             case ARTIFACT_ARTIFACT_EMPTY:
                 sorterSlotStatus = currentState;
                 switch (currentCommand) {
-                    case INTAKE:
-                        rampDownIntakeOnMoveSorter(120, SorterState.TWO_CHECKING_FOR_ARTIFACT_PRIOR_TO_ARTIFACT_ARTIFACT_ARTIFACT);
+                    case PREPARE_TO_INTAKE:
+                        prepareToIntake(120, SorterState.EMPTY_ARTIFACT_ARTIFACT);
                         currentState = SorterState.PREPARING_TO_INTAKE;
+                        break;
+                    case INTAKE:
+                        // we cannot intake in this state, there is no open slot
+                        currentCommand = Commands.NO_COMMAND;
                         break;
                     case NO_COMMAND:
                         break;
                     case SHOOT_ONE:
                         logComment("Shooting 1 artifact");
-                        rampUpIntakeOffMoveSorter(120, SorterState.ARTIFACT_EMPTY_EMPTY);
+                        prepareToShoot(120, SorterState.ARTIFACT_EMPTY_EMPTY);
                         currentState = SorterState.PREPARING_TO_SHOOT;
                         break;
                     case SHOOT_TWO:
@@ -449,7 +511,7 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
                         // 2 artifacts in the sorter, can only shoot 2
                         currentCommand = Commands.SHOOT_TWO;
                         logComment("Shooting 2 artifacts");
-                        rampUpIntakeOffMoveSorter(240, SorterState.EMPTY_EMPTY_EMPTY);
+                        prepareToShoot(240, SorterState.EMPTY_EMPTY_EMPTY);
                         currentState = SorterState.PREPARING_TO_SHOOT;
                         break;
                     case INTAKE_OFF:
@@ -460,13 +522,28 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
                 }
                 break;
 
-            // 2 artifacts in sorter. Checking for #3
-            case TWO_CHECKING_FOR_ARTIFACT_PRIOR_TO_ARTIFACT_ARTIFACT_ARTIFACT:
+            // 2 artifacts in sorter.
+            // This state occurs after preparing to intake a 3rd artifact
+            case EMPTY_ARTIFACT_ARTIFACT:
                 sorterSlotStatus = SorterState.EMPTY_ARTIFACT_ARTIFACT;
                 switch (currentCommand) {
+                    case PREPARE_TO_INTAKE:
+                        // since this state already has an open slot, we can intake from this state and don't need to rotate the sorter wheel
+                        // We will come back to this state after preparing for the intake
+                        prepareToIntake(0, SorterState.EMPTY_ARTIFACT_ARTIFACT);
+                        currentState = SorterState.PREPARING_TO_INTAKE;
+                        break;
+                    // since this state already has an open slot, we can intake from this state
                     case INTAKE:
                         if (colorSensorController.isArtifactPresent()) {
+                            // The sorter is full. Turn off the intake motor
+                            intakeMotor.off();
+                            // Intake cycle is finished
+                            commandComplete = true;
+                            currentCommand = Commands.NO_COMMAND;
                             currentState = SorterState.ARTIFACT_ARTIFACT_ARTIFACT;
+                            //TODO add a few degrees to the sorter position so that the ramp does not jam on the ball when it comes up.
+                            // The ball it jams on is position 3 (artifact_artifact_artifact last one)
                             logComment("Artifact #3 in sorter");
                         }
                         break;
@@ -474,7 +551,7 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
                         break;
                     case SHOOT_ONE:
                         logComment("Shooting 1 artifact");
-                        rampUpIntakeOffMoveSorter(120, SorterState.ARTIFACT_EMPTY_EMPTY);
+                        prepareToShoot(120, SorterState.ARTIFACT_EMPTY_EMPTY);
                         currentState = SorterState.PREPARING_TO_SHOOT;
                         break;
                     case SHOOT_TWO:
@@ -482,7 +559,7 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
                         // 2 artifacts in the sorter, can only shoot 2
                         currentCommand = Commands.SHOOT_TWO;
                         logComment("Shooting 2 artifacts");
-                        rampUpIntakeOffMoveSorter(360, SorterState.EMPTY_EMPTY_EMPTY);
+                        prepareToShoot(360, SorterState.EMPTY_EMPTY_EMPTY);
                         currentState = SorterState.PREPARING_TO_SHOOT;
                         break;
                     case INTAKE_OFF:
@@ -493,37 +570,15 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
                 }
                 break;
 
-            case EMPTY_ARTIFACT_EMPTY:
-                sorterSlotStatus = currentState;
-                switch (currentCommand) {
-                    case INTAKE:
-                        rampDownIntakeOnMoveSorter(0, SorterState.ONE_CHECKING_FOR_ARTIFACT_PRIOR_TO_ARTIFACT_ARTIFACT_EMPTY);
-                        currentState = SorterState.PREPARING_TO_INTAKE;
-                        break;
-                    case NO_COMMAND:
-                        break;
-                    case SHOOT_ONE:
-                    case SHOOT_TWO:
-                    case SHOOT_THREE:
-                        // 1 artifact in the sorter, can only shoot 1
-                        currentCommand = Commands.SHOOT_ONE;
-                        logComment("Shooting 1 artifact");
-                        rampUpIntakeOffMoveSorter(240, SorterState.EMPTY_EMPTY_EMPTY);
-                        currentState = SorterState.PREPARING_TO_SHOOT;
-                        break;
-                    case INTAKE_OFF:
-                        intakeMotor.off();
-                        commandComplete = true;
-                        currentCommand = Commands.NO_COMMAND;
-                        break;
-                }
-
-                break;
-
+            // 3 artifacts in sorter
+            // This state occurs after intaking a 3rd artifact
             case ARTIFACT_ARTIFACT_ARTIFACT:
                 sorterSlotStatus = currentState;
                 switch (currentCommand) {
+                    // The sorter is full. We cannot intake.
+                    case PREPARE_TO_INTAKE:
                     case INTAKE:
+                        intakeMotor.off();
                         currentCommand = Commands.NO_COMMAND;
                         commandComplete = true;
                         break;
@@ -532,19 +587,19 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
                     case SHOOT_ONE:
                         logComment("Shooting 1 artifact");
                         // shoot 1 artifact
-                        rampUpIntakeOffMoveSorter(120, SorterState.ARTIFACT_ARTIFACT_EMPTY);
+                        prepareToShoot(120, SorterState.ARTIFACT_ARTIFACT_EMPTY);
                         currentState = SorterState.PREPARING_TO_SHOOT;
                         break;
                     case SHOOT_TWO:
                         logComment("Shooting 2 artifacts");
                         // shoot 2 artifacts
-                        rampUpIntakeOffMoveSorter(240, SorterState.EMPTY_ARTIFACT_EMPTY);
+                        prepareToShoot(240, SorterState.EMPTY_ARTIFACT_EMPTY);
                         currentState = SorterState.PREPARING_TO_SHOOT;
                         break;
                     case SHOOT_THREE:
                         logComment("Shooting 3 artifacts");
                         // shoot 3 artifacts
-                        rampUpIntakeOffMoveSorter(360, SorterState.EMPTY_EMPTY_EMPTY);
+                        prepareToShoot(360, SorterState.EMPTY_EMPTY_EMPTY);
                         currentState = SorterState.PREPARING_TO_SHOOT;
                         break;
                     case INTAKE_OFF:
@@ -553,13 +608,9 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
                         currentCommand = Commands.NO_COMMAND;
                         break;
                 }
-
                 break;
-
         }
-
     }
-
 
 //*********************************************************************************************
 // State machine for moving ramp down, intake on and move sorter - prepping for an intake
@@ -606,7 +657,7 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
      * @param nextState
      * @return
      */
-    private boolean rampDownIntakeOnMoveSorter(double positionAddition, SorterState nextState) {
+    private boolean prepareToIntake(double positionAddition, SorterState nextState) {
         // set the completion flag to false, since we are just starting this state machine
         rampDownIntakeOnMoveSorterComplete = false;
         // save the position to add so we can use it later
@@ -626,11 +677,11 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
     }
 
     /**
-     * Run the state machine for rampDownIntakeOnMoveSorterState
+     * Run the state machine for prepare to intake
      * This method will get called repeatedly by the sorter controller state machine and will run
      * over and over until it completes and sets the next state for the sorter controller to jump to.
      */
-    private void updateRampDownIntakeOnMoveSorter() {
+    private void updatePrepareToIntake() {
         // check the state
         switch (rampDownIntakeOnMoveSorterState) {
             // wait for the ramp / elevator movement to complete
@@ -650,17 +701,6 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
                     // This will stop calling this state machine because the sorter controller state
                     // will jump to a new state.
                     currentState = stateAfterRampDownIntakeOnMoveSorter;
-                    switch (currentState) {
-                        case ZERO_CHECKING_FOR_ARTIFACT_PRIOR_TO_ARTIFACT_EMPTY_EMPTY:
-                            logComment("sorter slot already open, STILL EMPTY_EMPTY_EMPTY");
-                            break;
-                        case ONE_CHECKING_FOR_ARTIFACT_PRIOR_TO_ARTIFACT_ARTIFACT_EMPTY:
-                            logComment("sorter slot opened, NOW EMPTY_ARTIFACT_EMPTY");
-                            break;
-                        case TWO_CHECKING_FOR_ARTIFACT_PRIOR_TO_ARTIFACT_ARTIFACT_ARTIFACT:
-                            logComment("sorter slot opened, NOW EMPTY_ARTIFACT_ARTIFACT");
-                            break;
-                    }
                     // turn the color sensors on so that an artifact can be detected in the intake
                     colorSensorController.colorSensorsOn();
                     // set the flag to indicate that this state machine has completed its work
@@ -712,15 +752,15 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
      * Setup this little state machine that moves the ramp up , turns the intake off and moves
      * the sorter before shooting starts.
      *
-     * @param positionAddition
+     * @param positionAdditionToShoot
      * @param nextState
      * @return
      */
-    private boolean rampUpIntakeOffMoveSorter(double positionAddition, SorterState nextState) {
+    private boolean prepareToShoot(double positionAdditionToShoot, SorterState nextState) {
         // set the completion flag to false, since we are just starting this state machine
         rampUpIntakeOffMoveSorterComplete = false;
         // save the position to add so we can use it later
-        rampUpIntakeOffMoveSorterAngleAddition = positionAddition;
+        rampUpIntakeOffMoveSorterAngleAddition = positionAdditionToShoot;
         // save the next sorter controller state so we can jump to it later
         stateAfterRampUpIntakeOffMoveSorter = nextState;
         // turn the color sensors off so that the moving sorter wheel is not mistaken for an artifact
@@ -735,11 +775,11 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
     }
 
     /**
-     * Run the state machine for rampUpIntakeOffMoveSorterState
+     * Run the state machine for prepare to shoot
      * This method will get called repeatedly by the sorter controller state machine and will run
      * over and over until it completes and sets the next state for the sorter controller to jump to.
      */
-    private void updateRampUpIntakeOffMoveSorter() {
+    private void updatePrepareToShoot() {
         // check the state
         switch (rampUpIntakeOffMoveSorterState) {
             // wait for the ramp / elevator movement to complete
@@ -774,7 +814,7 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
                     if (stateAfterRampUpIntakeOffMoveSorter == SorterState.EMPTY_EMPTY_EMPTY) {
                         logComment("Shot last artifact so auto starting intake");
                         // auto start the intake if there are no artifacts in the sorter
-                        currentCommand = Commands.INTAKE;
+                        currentCommand = Commands.PREPARE_TO_INTAKE;
                     } else {
                         currentCommand = Commands.NO_COMMAND;
                     }

@@ -135,7 +135,7 @@ public class TestSorterController extends LinearOpMode {
             decodeSorterContoller.displayCommand(telemetry);
             decodeSorterContoller.displayCommandComplete(telemetry);
             decodeSorterContoller.displaySensorStatus(telemetry);
-            decodeSorterContoller.displaySorterSlotStatus(telemetry);
+            //decodeSorterContoller.displaySorterSlotStatus(telemetry);
             telemetry.addData(">", "stop to finish");
             telemetry.update();
             idle();
