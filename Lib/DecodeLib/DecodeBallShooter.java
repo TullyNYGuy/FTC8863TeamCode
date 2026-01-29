@@ -82,6 +82,9 @@ public class DecodeBallShooter implements FTCRobotSubsystem {
     @Override
     public void setDataLog(DataLogging logFile) {
         this.logFile = logFile;
+        // setup logging for the objects that make up this subsystem
+        hoodServo.setDataLog(logFile);
+        shooterMotor.setDataLog(logFile);
     }
 
     /**
@@ -92,11 +95,15 @@ public class DecodeBallShooter implements FTCRobotSubsystem {
     @Override
     public void enableDataLogging() {
         this.loggingOn = true;
+        hoodServo.enableDataLogging();
+        shooterMotor.enableDataLogging();
     }
 
     @Override
     public void disableDataLogging() {
         this.loggingOn = false;
+        hoodServo.disableDataLogging();
+        shooterMotor.disableDataLogging();
     }
 
     private final String SUB_SYSTEM_NAME = DecodeRobot.HardwareName.BALL_SHOOTER.hwName;
@@ -129,6 +136,7 @@ public class DecodeBallShooter implements FTCRobotSubsystem {
     @Override
     public void update() {
         shooterMotor.update();
+        // The hood servo updates when isPositionReached() is called
     }
 
     /**
@@ -160,6 +168,7 @@ public class DecodeBallShooter implements FTCRobotSubsystem {
 
     @Override
     public boolean init(Configuration config) {
+        // init all of the objects that make up this subsystem
         hoodServo.init(null);
         shooterMotor.init(null);
         return true;

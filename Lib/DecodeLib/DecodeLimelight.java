@@ -90,9 +90,9 @@ public class DecodeLimelight implements FTCRobotSubsystem {
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
-    public DecodeLimelight(HardwareMap hardwareMap, Telemetry telemetry) {
+    public DecodeLimelight(HardwareMap hardwareMap, Telemetry telemetry, DecodeIMU decodeIMU) {
         limelight = hardwareMap.get(Limelight3A.class, SUB_SYSTEM_NAME);
-        decodeIMU = new DecodeIMU(hardwareMap, telemetry);
+        this.decodeIMU = decodeIMU;
     }
     //*********************************************************************************************
     //          Helper Methods

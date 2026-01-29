@@ -301,6 +301,7 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
         intakeMotor.update();
         sorterMotor.update();
         colorSensorController.update();
+        // The ramp servo is updated when isPositionReached is called.
 
         logState();
         logCommand();
@@ -845,6 +846,12 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
 
     @Override
     public boolean init(Configuration config) {
+        // init all of the objects that make up this subsystem
+        sorterMotor.init(config);
+        intakeMotor.init(config);
+        rampServo.init(config);
+        colorSensorController.init(config);
+
         sorterMotor.resetEncoder();
         colorSensorController.colorSensorsOn();
         return true;

@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeIMU;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeLimelight;
 
 /**
@@ -16,13 +17,15 @@ public class TestLimelightDistance extends LinearOpMode {
 
     // Put your variable declarations here
     public DecodeLimelight limelight;
+    public DecodeIMU imu;
 
     @Override
     public void runOpMode() {
 
 
         // Put your initializations here
-limelight = new DecodeLimelight(hardwareMap, telemetry);
+        imu = new DecodeIMU(hardwareMap, telemetry);
+        limelight = new DecodeLimelight(hardwareMap, telemetry, imu);
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
         telemetry.update();

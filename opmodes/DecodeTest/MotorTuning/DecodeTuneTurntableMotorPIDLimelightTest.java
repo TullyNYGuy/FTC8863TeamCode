@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeIMU;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeLimelight;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeTurntableMotor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Debouncer;
@@ -27,6 +28,7 @@ public class DecodeTuneTurntableMotorPIDLimelightTest extends LinearOpMode {
     PIDFController controller;
     double newMotorPower = 0;
     DecodeLimelight limelight;
+    DecodeIMU imu;
     Double horizontalAngleToAprilTag = 0.0;
 
 
@@ -52,7 +54,8 @@ public class DecodeTuneTurntableMotorPIDLimelightTest extends LinearOpMode {
         turntableMotor.init(null);
         squareWaveGenerator = new PeriodicSquareWaveGenerator(5000, 45);
         controller = new PIDFController(new PIDCoefficients(0.008,0,.010),1.2,0,.002);
-        limelight = new DecodeLimelight(hardwareMap, telemetry);
+        imu = new DecodeIMU(hardwareMap, telemetry);
+        limelight = new DecodeLimelight(hardwareMap, telemetry, imu);
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
