@@ -36,7 +36,7 @@ public class TestLimelightDistance extends LinearOpMode {
         while (opModeIsActive()) {
 
             // Put your calls that need to run in a loop here
-            telemetry.addData("Distance To Goal ", limelight.getDistaceToGoal(DistanceUnit.INCH));
+            telemetry.addData("Distance To Goal (in) ", limelight.getDistaceToGoal(DistanceUnit.INCH));
             telemetry.addData(">", "Press Stop to end test.");
 
             telemetry.update();

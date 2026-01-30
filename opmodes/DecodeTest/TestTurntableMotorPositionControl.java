@@ -17,6 +17,13 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.Debouncer;
 //@Disabled
 public class TestTurntableMotorPositionControl extends LinearOpMode {
 
+    private enum Mode {
+        FORCE_OFF_TARGET,
+        SEEK_TARGET
+    }
+
+    Mode mode = Mode.SEEK_TARGET;
+
     // Put your variable declarations her
     DecodeTurntableMotor turntableMotor;
     DecodeLimelight limelight;
@@ -24,10 +31,13 @@ public class TestTurntableMotorPositionControl extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        double targetPosition = 0;
+        double targetPositionToGoal = 0;
+        final double TARGET_POSITION_TO_APRILTAG = 0;
         double targetPositionCenter = 0;
         double targetPositionCCW = 45;
         double targetPositionCW = -45;
+        double targetPosition = 0;
+
         double positionError = 0;
         double actualPosition = 0;
 
@@ -63,38 +73,72 @@ public class TestTurntableMotorPositionControl extends LinearOpMode {
         // Put your calls here - they will not run in a loop
 
         while (opModeIsActive()) {
-            actualPosition = turntableMotor.getPositionInTermsOfAttachment();
-            positionError = targetPosition - actualPosition;
-            turntableMotor.updateWithPosition(turntableMotor.getPositionInTermsOfAttachment());
+            switch (mode) {
 
-            LLResult result = limelight.limelight.getLatestResult();
-            if (result != null && result.isValid()) {
-                double tx = result.getTx(); // How far left or right the target is (degrees)
-                double ty = result.getTy(); // How far up or down the target is (degrees)
-                double ta = result.getTa(); // How big the target looks (0%-100% of the image)
-                aprilTagAcquired = true;
+                // obey the target set by the gamepad
+                case FORCE_OFF_TARGET:
+                    targetPosition = targetPositionToGoal;
+                    actualPosition = turntableMotor.getPositionInTermsOfAttachment();
+                    break;
 
-                telemetry.addData("Target X", tx);
-                telemetry.addData("Target Y", ty);
-                telemetry.addData("Target Area", ta);
-            } else {
-                telemetry.addData("Limelight", "No Targets");
-                aprilTagAcquired = false;
+                // start with the target set by the gamepad and then switch to limelight controlling the PID
+                case SEEK_TARGET:
+                    // get limelight data
+                    LLResult result = limelight.limelight.getLatestResult();
+                    if (result != null && result.isValid()) {
+                        double tx = result.getTx(); // How far left or right the target is (degrees)
+                        double ty = result.getTy(); // How far up or down the target is (degrees)
+                        double ta = result.getTa(); // How big the target looks (0%-100% of the image)
+                        aprilTagAcquired = true;
+
+                        telemetry.addData("Target X", tx);
+                        telemetry.addData("Target Y", ty);
+                        telemetry.addData("Target Area", ta);
+                    } else {
+                        telemetry.addData("Limelight", "No Targets");
+                        aprilTagAcquired = false;
+                    }
+
+                    // if the apriltag is in view control the turntable with its feedback
+                    // If not, then continue turning to the target set by the gamepad buttons
+                    if (aprilTagAcquired) {
+                        targetPosition = TARGET_POSITION_TO_APRILTAG;
+                        actualPosition = result.getTx();
+                    } else {
+                        targetPosition = targetPositionToGoal;
+                        actualPosition = turntableMotor.getPositionInTermsOfAttachment();
+                    }
+                    break;
             }
 
+            // set the position and run the PID control
+            turntableMotor.setTargetPosition(targetPosition);
+            turntableMotor.updateWithPosition(actualPosition);
+            positionError = targetPosition - actualPosition;
+
+            // set the target position
             if (debouncedDpadLeft.isPressed(gamepad2.dpad_left)) {
-                targetPosition = targetPositionCCW;
-                turntableMotor.setTargetPosition(targetPosition);
+                targetPositionToGoal = targetPositionCCW;
+                turntableMotor.setTargetPosition(targetPositionToGoal);
             }
 
             if (debouncedDpadRight.isPressed(gamepad2.dpad_right)) {
-                targetPosition = targetPositionCW;
-                turntableMotor.setTargetPosition(targetPosition);
+                targetPositionToGoal = targetPositionCW;
+                turntableMotor.setTargetPosition(targetPositionToGoal);
             }
 
             if (debouncedDpadUp.isPressed(gamepad2.dpad_up)) {
-                targetPosition = targetPositionCenter;
-                turntableMotor.setTargetPosition(targetPosition);
+                targetPositionToGoal = targetPositionCenter;
+                turntableMotor.setTargetPosition(targetPositionToGoal);
+            }
+
+            // set the mode
+            if (gamepad2.aWasPressed()) {
+                mode = Mode.FORCE_OFF_TARGET;
+            }
+
+            if (gamepad2.xWasPressed()) {
+                mode = Mode.SEEK_TARGET;
             }
 
             telemetry.addData("Dpad up = ", "center");

@@ -49,8 +49,8 @@ public class DecodePinpointDrive extends DecodeMecanumDrive implements FTCRobotS
          */
         //These are tuned for 3110-0002-0001 Product Insight #1
         // RR localizer note: These units are inches, presets are converted from mm (which is why they are inexact)
-        public double xOffset = -1.9685;
-        public double yOffset = -14.1732;
+        public double xOffset = +70/25.4;
+        public double yOffset = -5;
 
         /*
         Set the kind of pods used by your robot. If you're using goBILDA odometry pods, select either
