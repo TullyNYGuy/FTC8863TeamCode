@@ -41,6 +41,13 @@ public class DecodeSorterMotor implements FTCRobotSubsystem {
     private Telemetry telemetry;
     private DataLogOnChange logCommandOnchange;
     private DataLogOnChange logCommentOnChange;
+
+    private double lastRequestedPosition = 0;
+
+    public double getLastRequestedPosition() {
+        return lastRequestedPosition;
+    }
+
     //*********************************************************************************************
     //          PROPERTIES AND GETTER and SETTER Methods
     //
@@ -95,7 +102,6 @@ public class DecodeSorterMotor implements FTCRobotSubsystem {
 
     }
 
-    private double lastRequestedPosition = 0;
     private final String SUB_SYSTEM_NAME = DecodeRobot.HardwareName.SORTER_MOTOR.hwName;
 
     /**
@@ -197,26 +203,15 @@ public class DecodeSorterMotor implements FTCRobotSubsystem {
     }
 
     public void moveToPosition(double position){
-        logCommand("move to " + Double.toString(position));
-        lastRequestedPosition = position;
+        //logCommand("move to " + Double.toString(position));
         sorterMotor.moveToPosition(1, position, DcMotor8863.FinishBehavior.HOLD);
     }
-
-    /**
-     * Take the last position, which is an absolute position and add to it.
-     * The result is a new absolute position. This avoids the buildup of error that
-     * a relative movement based on the current actual location incurs. Example:
-     * last position = 120 degrees
-     * positionToAdd = 240 degrees
-     * absolute position to move to = 120 + 240 = 360
-     * @param positionToAdd
-     */
-    public void moveByPosition(double positionToAdd) {
-        double newPosition = lastRequestedPosition + positionToAdd;
-        lastRequestedPosition = newPosition;
-        sorterMotor.moveToPosition(1, newPosition, DcMotor8863.FinishBehavior.HOLD);
+    public void moveByPosition(double addedPosition) {
+        logCommand("move by " + Double.toString(addedPosition));
+         double newPosition = lastRequestedPosition + addedPosition;
+         moveToPosition(newPosition);
+         lastRequestedPosition = newPosition;
     }
-
     public void displaySorterAngle() {
         telemetry.addData("encoder value ", sorterMotor.getCurrentPosition());
         telemetry.addData("sorter angle ", sorterMotor.getPositionInTermsOfAttachment());
@@ -224,6 +219,10 @@ public class DecodeSorterMotor implements FTCRobotSubsystem {
 
     public double getPositionInTermsOfAttachment(){
         return sorterMotor.getPositionInTermsOfAttachment();
+    }
+
+    public int getCurrentPosition() {
+        return sorterMotor.getCurrentPosition();
     }
 
     public void setPower(double power) {

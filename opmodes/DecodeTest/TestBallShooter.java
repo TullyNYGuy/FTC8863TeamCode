@@ -99,6 +99,7 @@ public class TestBallShooter extends LinearOpMode {
             telemetry.addData("Current Speed = ", rpm);
             telemetry.addData("Next Speed = ", nextRPM);
             telemetry.addData("Actual RPM = ", ballShooter.getRPM());
+            telemetry.addData("Encoder count = ", ballShooter.getShooterMotorEncoderCount());
             telemetry.addData(">", "stop to finish");
             telemetry.update();
             idle();

@@ -165,12 +165,12 @@ public class DecodeShooterMotor implements FTCRobotSubsystem {
 
     public void runAtRPMForLongShot() {
         logCommand("run for long shot");
-        setRPM(3100);
+        setRPM(4760);
     }
 
     public void runAtRPMForShortShot() {
         logCommand("run for short shot");
-        setRPM(2200);
+        setRPM(2690);
     }
 
     public void off(){
@@ -183,6 +183,10 @@ public class DecodeShooterMotor implements FTCRobotSubsystem {
 
     public double getActualRPM() {
         return shooterMotor.getCurrentRPM();
+    }
+
+    public int getCurrentPosition() {
+        return shooterMotor.getCurrentPosition();
     }
 
     public double getCurrent() {

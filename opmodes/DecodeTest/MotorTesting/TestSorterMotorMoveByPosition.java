@@ -2,26 +2,22 @@ package org.firstinspires.ftc.teamcode.opmodes.DecodeTest.MotorTesting;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.util.Range;
+
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeSorterMotor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Debouncer;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Decode Test Motor - Sorter", group = "Test")
+@TeleOp(name = "Decode Test Sorter Motor Move by Position", group = "Test")
 //@Disabled
-public class TestSorterMotor extends LinearOpMode {
+public class TestSorterMotorMoveByPosition extends LinearOpMode {
 
     // Put your variable declarations her
     DecodeSorterMotor sorterMotor;
 
     @Override
     public void runOpMode() {
-        int rpm = 0;
-        int nextRPM = 0;
-        int courseRPMAdjustment = 60;
-        int fineRPMAdjustment = 20;
 
         // These debounce the buttons so that you only see a single press even if a button is held
         // down for a long time.
@@ -45,45 +41,32 @@ public class TestSorterMotor extends LinearOpMode {
         // Put your calls here - they will not run in a loop
 
         while (opModeIsActive()) {
+            sorterMotor.update();
+
             if (debouncedY.isPressed(gamepad2.y)) {
-                nextRPM = nextRPM + courseRPMAdjustment;
+               sorterMotor.moveByPosition(120);
             }
             if (debouncedA.isPressed(gamepad2.a)) {
-                nextRPM = nextRPM - courseRPMAdjustment;
+                sorterMotor.moveByPosition(240);
             }
             if (debouncedX.isPressed(gamepad2.x)) {
-                nextRPM = 6000;
+                sorterMotor.moveByPosition(0);
             }
             if (debouncedB.isPressed(gamepad2.b)) {
-                nextRPM = 0;
-            }
-            if (debouncedDpadUp.isPressed(gamepad2.dpad_up)) {
-                nextRPM = nextRPM + fineRPMAdjustment;
-            }
-            if (debouncedDpadDown.isPressed(gamepad2.dpad_down)) {
-                nextRPM = nextRPM - fineRPMAdjustment;
+                sorterMotor.moveByPosition(360);
             }
 
             // limit the rpm between 0 and 1
-            nextRPM = Range.clip(nextRPM, 0, 6000);
 
-            if (debouncedDpadLeft.isPressed(gamepad2.dpad_left)) {
-                rpm = nextRPM;
-                sorterMotor.setRPM(rpm);
-            }
 
-            telemetry.addData("Y = ", "+" + Integer.toString(courseRPMAdjustment));
-            telemetry.addData("X = ", "435");
-            telemetry.addData("B = ", "-" + Integer.toString(courseRPMAdjustment));
-            telemetry.addData("A = ", "0");
-            telemetry.addData("Dpad up = ", "+" + Integer.toString(fineRPMAdjustment));
-            telemetry.addData("Dpad down = ", "-" + Integer.toString(fineRPMAdjustment));
-            telemetry.addData("Dpad left = ", "Set motor to next rpm");
+            telemetry.addData("Y = ", "120");
+            telemetry.addData("X = ", "0");
+            telemetry.addData("B = ", "360");
+            telemetry.addData("A = ", "240");
             telemetry.addLine();
-            telemetry.addData("Current Speed = ", rpm);
-            telemetry.addData("Next Speed = ", nextRPM);
+            telemetry.addData("Last Requested Position = ", Double.toString(sorterMotor.getLastRequestedPosition()));
+            telemetry.addData("Actual Position = ", Double.toString(sorterMotor.getPositionInTermsOfAttachment()));
             telemetry.addData("Actual RPM = ", sorterMotor.getActualRPM());
-            telemetry.addData("Encoder count = ", sorterMotor.getCurrentPosition());
             telemetry.addData(">", "stop to finish");
             telemetry.update();
             idle();

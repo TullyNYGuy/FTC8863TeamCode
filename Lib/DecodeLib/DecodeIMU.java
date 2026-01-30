@@ -98,6 +98,10 @@ public class DecodeIMU implements FTCRobotSubsystem {
         return orientation.getYaw(AngleUnit.RADIANS);
     }
 
+    public double getHeading() {
+        return getYaw();
+    }
+
     //*********************************************************************************************
     //          METHODS needed to implement FTCRobotSubsystem
     //

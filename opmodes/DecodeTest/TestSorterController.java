@@ -84,7 +84,7 @@ public class TestSorterController extends LinearOpMode {
         telemetry.update();
         waitForStart();
 
-        decodeShooterMotor.setRPM(2600);
+        decodeShooterMotor.setRPM(4766);
         // Put your calls here - they will not run in a loop
 
 
@@ -135,6 +135,7 @@ public class TestSorterController extends LinearOpMode {
             decodeSorterContoller.displayCommand(telemetry);
             decodeSorterContoller.displayCommandComplete(telemetry);
             decodeSorterContoller.displaySensorStatus(telemetry);
+            //decodeSorterContoller.displaySorterSlotStatus(telemetry);
             telemetry.addData(">", "stop to finish");
             telemetry.update();
             idle();

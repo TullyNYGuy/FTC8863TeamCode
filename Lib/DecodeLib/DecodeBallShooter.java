@@ -50,30 +50,6 @@ public class DecodeBallShooter implements FTCRobotSubsystem {
         shooterMotor.setRPM(this.RPM);
     }
 
-    public void shootLong() {
-        setRPM(3100);
-        setHoodPosition(HoodPositions.LONG);
-    }
-
-    public void shootShort() {
-        setRPM(3100);
-        setHoodPosition(HoodPositions.SHORT);
-    }
-
-    public void off() {
-        setRPM(0);
-    }
-
-    public void setHoodPosition(HoodPositions hoodPosition) {
-        if (hoodPosition == HoodPositions.SHORT) {
-            hoodServo.shortPosition();
-        }
-        if (hoodPosition == HoodPositions.LONG) {
-            hoodServo.longPosition();
-        }
-    }
-
-
     /**
      * Property that holds a log file
      */
@@ -82,6 +58,9 @@ public class DecodeBallShooter implements FTCRobotSubsystem {
     @Override
     public void setDataLog(DataLogging logFile) {
         this.logFile = logFile;
+        // setup logging for the objects that make up this subsystem
+        hoodServo.setDataLog(logFile);
+        shooterMotor.setDataLog(logFile);
     }
 
     /**
@@ -92,11 +71,15 @@ public class DecodeBallShooter implements FTCRobotSubsystem {
     @Override
     public void enableDataLogging() {
         this.loggingOn = true;
+        hoodServo.enableDataLogging();
+        shooterMotor.enableDataLogging();
     }
 
     @Override
     public void disableDataLogging() {
         this.loggingOn = false;
+        hoodServo.disableDataLogging();
+        shooterMotor.disableDataLogging();
     }
 
     private final String SUB_SYSTEM_NAME = DecodeRobot.HardwareName.BALL_SHOOTER.hwName;
@@ -126,18 +109,50 @@ public class DecodeBallShooter implements FTCRobotSubsystem {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
-    @Override
-    public void update() {
-        shooterMotor.update();
+
+    public void shootLong() {
+        shooterMotor.runAtRPMForLongShot();
+        setHoodPosition(HoodPositions.LONG);
+    }
+
+    public void shootShort() {
+        shooterMotor.runAtRPMForShortShot();
+        setHoodPosition(HoodPositions.SHORT);
     }
 
     /**
-     * Stops the gearbox
+     * Set the rpm to 0, but does not change the hood position
+     */
+    public void off() {
+        setRPM(0);
+    }
+
+    public void setHoodPosition(HoodPositions hoodPosition) {
+        if (hoodPosition == HoodPositions.SHORT) {
+            hoodServo.shortPosition();
+        }
+        if (hoodPosition == HoodPositions.LONG) {
+            hoodServo.longPosition();
+        }
+    }
+
+    /**
+     * Stops the gearbox, sets the servo hood to init position
      */
     public void stop() {
         // interrupt sets the motors to coast to a stop, not stop suddenly
         shooterMotor.stop();
         hoodServo.initPosition();
+    }
+
+    public int getShooterMotorEncoderCount() {
+        return shooterMotor.getCurrentPosition();
+    }
+
+    @Override
+    public void update() {
+        shooterMotor.update();
+        // The hood servo updates when isPositionReached() is called
     }
 
     @Override
@@ -160,6 +175,7 @@ public class DecodeBallShooter implements FTCRobotSubsystem {
 
     @Override
     public boolean init(Configuration config) {
+        // init all of the objects that make up this subsystem
         hoodServo.init(null);
         shooterMotor.init(null);
         return true;

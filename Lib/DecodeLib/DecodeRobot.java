@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Lib.DecodeLib;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -57,12 +58,22 @@ public class DecodeRobot implements FTCRobot {
         }
     }
 
+    // to remove a subsystem, comment it out below. Then comment out the creation of the object (new statement)
+    // down a little ways
     public enum Subsystem {
+        IMU,
         MECANUM_DRIVE,
+        TURNTABLE_MOTOR,
+        BALL_SHOOTER, // BALL SHOOTER IS MADE UP OF:
+        SHOOTER_MOTOR,
+        HOOD_SERVO,
+        // SORTER CONTROLLER IS MADE UP OF:
+        SORTER_MOTOR,
         INTAKE_MOTOR,
-        BALL_SHOOTER,
-        SORTER_MOTOR
-
+        COLOR_SENSOR_CONTROLLER,
+        RAMP_SERVO, // END OF SORTER CONTROLLER OBJECTS
+        SORTER_CONTROLLER;
+        //LIMELIGHT3A;
     }
 
     Set<Subsystem> capabilities;
@@ -83,12 +94,22 @@ public class DecodeRobot implements FTCRobot {
         return dataLoggingEnabled;
     }
 
-    private AdafruitIMU8863 imu;
+    private DecodeIMU imu;
     //public DecodePinpointDrive mecanumDrive;
     public DecodeMecanumDrive mecanumDrive;
-    public DecodeIntakeMotor intakeMotor;
+    public DecodeTurntableMotor turntableMotor;
     public DecodeBallShooter ballShooter;
+    public DecodeShooterMotor shooterMotor;
+    public DecodeHoodServo hoodServo;
+
     public DecodeSorterMotor sorterMotor;
+
+    public DecodeIntakeMotor intakeMotor;
+    public DecodeColorSensorController colorSensorController;
+    public DecodeRampServo rampServo;
+    public DecodeSorterContoller sorterController;
+    public DecodeLimelight limelight;
+
     public LoopTimer loopTimer;
     public DecodeRobotModes robotModes;
 
@@ -128,32 +149,80 @@ public class DecodeRobot implements FTCRobot {
 
     @Override
     public boolean createRobot() {
-        //imu = new AdafruitIMU8863(hardwareMap, null, "IMU", HardwareName.IMU.hwName);
+        if (capabilities.contains(Subsystem.IMU)) {
+            imu = new DecodeIMU(hardwareMap,telemetry);
+            subsystemMap.put(imu.getName(), imu);
+        }
+
         if (capabilities.contains(Subsystem.MECANUM_DRIVE)) {
             Pose2d beginPose = new Pose2d(0, 0, 0);
             mecanumDrive = new DecodeMecanumDrive(hardwareMap, new Pose2d(0,0,0));
-            intakeMotor = new DecodeIntakeMotor(hardwareMap, telemetry);
-            ballShooter = new DecodeBallShooter(hardwareMap, telemetry);
-            sorterMotor = new DecodeSorterMotor(hardwareMap,telemetry);
             //mecanumDrive = new DecodePinpointDrive(hardwareMap, beginPose);
             subsystemMap.put(mecanumDrive.getName(), mecanumDrive);
-            subsystemMap.put(intakeMotor.getName(),intakeMotor);
-            subsystemMap.put(ballShooter.getName(),ballShooter);
-            subsystemMap.put(sorterMotor.getName(), sorterMotor);
         }
 
-        // example for a subsystem setup
-//        if (capabilities.contains(Subsystem.INTAKE_BUCKET_CONTROLLER)) {
-//            intakeBucketController = new ITDIntakeBucketController(hardwareMap, telemetry);
-//            subsystemMap.put(intakeBucketController.getName(), intakeBucketController);
-//        }
+        if (capabilities.contains(Subsystem.TURNTABLE_MOTOR)) {
+            turntableMotor = new DecodeTurntableMotor(hardwareMap, telemetry);
+            subsystemMap.put(turntableMotor.getName(), turntableMotor);
+        }
 
-        // Only setup and init the camera if this is autonomous. It takes up CPU and memory and is not needed in teleop.
-        // Note that this does not actually start the camera streaming. The autonomous opmode must do that because it
-        // needs to set the pipeline for the camera.
-//        if (capabilities.contains(Subsystem.WEBCAM) && matchPhase == MatchPhase.AUTONOMOUS) {
-//            webcam = new PowerPlayWebcam(hardwareMap, telemetry, HardwareName.WEBCAM.hwName);
-//            subsystemMap.put(webcam.getName(), webcam);
+
+        if (capabilities.contains(Subsystem.BALL_SHOOTER)) {
+            ballShooter = new DecodeBallShooter(hardwareMap, telemetry);
+            subsystemMap.put(ballShooter.getName(), ballShooter);
+        }
+
+
+        if (capabilities.contains(Subsystem.SHOOTER_MOTOR)) {
+            shooterMotor = new DecodeShooterMotor(hardwareMap, telemetry);
+            subsystemMap.put(shooterMotor.getName(), shooterMotor);
+        }
+
+        if (capabilities.contains(Subsystem.HOOD_SERVO)) {
+            hoodServo = new DecodeHoodServo(hardwareMap, telemetry);
+            subsystemMap.put(hoodServo.getName(), hoodServo);
+        }
+
+        if (capabilities.contains(Subsystem.SORTER_MOTOR)) {
+            sorterMotor = new DecodeSorterMotor(hardwareMap, telemetry);
+            // The sorterController will handle logging, init and update() for its parts so we don't put it
+            // into the list of subsystems.
+            //subsystemMap.put(sorterMotor.getName(), sorterMotor);
+        }
+
+        if (capabilities.contains(Subsystem.INTAKE_MOTOR)) {
+            intakeMotor = new DecodeIntakeMotor(hardwareMap, telemetry);
+            // The sorterController will handle logging, init and update() for its parts so we don't put it
+            // into the list of subsystems.
+            //subsystemMap.put(intakeMotor.getName(), intakeMotor);
+        }
+
+        if (capabilities.contains(Subsystem.COLOR_SENSOR_CONTROLLER)) {
+            colorSensorController = new DecodeColorSensorController(hardwareMap, telemetry);
+            // The sorterController will handle logging, init and update() for its parts so we don't put it
+            // into the list of subsystems.
+            //subsystemMap.put(colorSensorController.getName(), colorSensorController);
+        }
+
+        if (capabilities.contains(Subsystem.RAMP_SERVO)) {
+            rampServo = new DecodeRampServo(hardwareMap, telemetry);
+            // The sorterController will handle logging, init and update() for its parts so we don't put it
+            // into the list of subsystems.
+            //subsystemMap.put(rampServo.getName(), rampServo);
+        }
+
+        if (capabilities.contains(Subsystem.SORTER_CONTROLLER)) {
+            sorterController = new DecodeSorterContoller(hardwareMap, telemetry,
+                    colorSensorController,
+                    sorterMotor,
+                    rampServo,
+                    intakeMotor);
+            subsystemMap.put(sorterController.getName(), sorterController);
+        }
+
+//        if (capabilities.contains(Subsystem.LIMELIGHT3A)) {
+//            limelight = new DecodeLimelight(hardwareMap, telemetry, imu);
+//            subsystemMap.put(limelight.getName(), limelight);
 //        }
 
         if (MatchPhase.getMatchPhase() == MatchPhase.AUTONOMOUS){

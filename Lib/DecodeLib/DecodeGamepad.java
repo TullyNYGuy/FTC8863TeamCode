@@ -37,7 +37,8 @@ package org.firstinspires.ftc.teamcode.Lib.DecodeLib;
  *   /Right Bumper       - reset intake
  *   / Left stick button -
  *  / Right stick button -
-*/
+ */
+
 import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -267,11 +268,13 @@ public class DecodeGamepad {
         if (gamepad1a.buttonPress(gamepad1.a)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
+
         }
 
         if (gamepad1b.buttonPress(gamepad1.b)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
+            robot.ballShooter.off();
         }
 
         if (gamepad1y.buttonPress(gamepad1.y)) {
@@ -282,18 +285,21 @@ public class DecodeGamepad {
         if (gamepad1x.buttonPress(gamepad1.x)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
+
         }
 
         if (gamepad1DpadUp.buttonPress(gamepad1.dpad_up)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
             //robot.robotModes.setDirectionSwap(DecodeRobotModes.DirectionSwap.NORMAL);
+            robot.ballShooter.shootLong();
         }
 
         if (gamepad1DpadDown.buttonPress(gamepad1.dpad_down)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
             //robot.robotModes.setDirectionSwap(DecodeRobotModes.DirectionSwap.INVERSED);
+            robot.ballShooter.shootShort();
         }
 
         if (gamepad1DpadLeft.buttonPress(gamepad1.dpad_left)) {
@@ -372,9 +378,7 @@ public class DecodeGamepad {
         if (gamepad2a.buttonPress(gamepad2.a)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            robot.sorterMotor.off();
-            robot.intakeMotor.off();
-            robot.ballShooter.off();
+            robot.sorterController.shootOne();
         }
 
         if (gamepad2b.buttonPress(gamepad2.b)) {
@@ -382,15 +386,13 @@ public class DecodeGamepad {
             // put the command to be executed here
             //robot.robotModes.setMaxDrivingPower(.75);
             //robot.intakeBucketController.intakeHighAltitude();
-            robot.intakeMotor.intake();
-            robot.ballShooter.shootShort();
+            robot.sorterController.shootTwo();
         }
 
         if (gamepad2y.buttonPress(gamepad2.y)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            robot.intakeMotor.intake();
-            robot.ballShooter.shootLong();
+            robot.sorterController.shootThree();
         }
 
         if (gamepad2x.buttonPress(gamepad2.x)) {
@@ -398,25 +400,25 @@ public class DecodeGamepad {
             // put the command to be executed here
             //robot.robotModes.setMaxDrivingPower(1.0);
             //robot.intakeBucketController.intakeLowAltitude();
-            robot.sorterMotor.intake();
+
         }
 
         if (gamepad2DpadUp.buttonPress(gamepad2.dpad_up)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            robot.sorterMotor.shoot();
+            robot.ballShooter.shootLong();
         }
 
         if (gamepad2DpadDown.buttonPress(gamepad2.dpad_down)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            robot.sorterMotor.intake();
+            robot.ballShooter.shootShort();
         }
 
         if (gamepad2DpadLeft.buttonPress(gamepad2.dpad_left)) {
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-            robot.intakeMotor.outtake();
+            robot.sorterController.intake();
         }
 
         if (gamepad2DpadRight.buttonPress(gamepad2.dpad_right)) {
@@ -424,7 +426,7 @@ public class DecodeGamepad {
             //robot.intakeBucketController.setupForDelivery();
             // this was a new button press, not a button held down for a while
             // put the command to be executed here
-
+            robot.sorterController.intakeOff();
         }
 
         if (gamepad2LeftStickButton.buttonPress(gamepad2.left_stick_button)) {
@@ -462,7 +464,7 @@ public class DecodeGamepad {
         telemetry.addData("2-rightJoyStickX = ", gamepad2RightJoyStickXValue);
     }
 
-    public void setMaxDrivingPower (double maxDrivingPower) {
+    public void setMaxDrivingPower(double maxDrivingPower) {
         if (maxDrivingPower <= 1.0 && maxDrivingPower >= 0) {
             gamepad1LeftJoyStickX.setMaxPower(maxDrivingPower);
             gamepad1LeftJoyStickY.setMaxPower(maxDrivingPower);

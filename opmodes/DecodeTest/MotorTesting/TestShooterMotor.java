@@ -4,25 +4,28 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeTurntableMotor;
+import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeBallShooter;
+import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeIntakeMotor;
+import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeShooterMotor;
+import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeSorterMotor;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Debouncer;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Decode Test Motor - Turntable", group = "Test")
+@TeleOp(name = "Decode Test Motor - Shooter", group = "Test")
 //@Disabled
-public class TestTurntableMotor extends LinearOpMode {
+public class TestShooterMotor extends LinearOpMode {
 
     // Put your variable declarations her
-    DecodeTurntableMotor turntableMotor;
+    DecodeShooterMotor shooterMotor;
 
     @Override
     public void runOpMode() {
         int rpm = 0;
         int nextRPM = 0;
-        int courseRPMAdjustment = 10;
-        int fineRPMAdjustment = 2;
+        int courseRPMAdjustment = 500;
+        int fineRPMAdjustment = 100;
 
         // These debounce the buttons so that you only see a single press even if a button is held
         // down for a long time.
@@ -35,8 +38,8 @@ public class TestTurntableMotor extends LinearOpMode {
         Debouncer debouncedDpadLeft = new Debouncer();
 
         // Put your initializations here
-        turntableMotor = new DecodeTurntableMotor(hardwareMap, telemetry);
-        turntableMotor.init(null);
+        shooterMotor = new DecodeShooterMotor(hardwareMap, telemetry);
+        shooterMotor.init(null);
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
@@ -46,35 +49,35 @@ public class TestTurntableMotor extends LinearOpMode {
         // Put your calls here - they will not run in a loop
 
         while (opModeIsActive()) {
-            if (debouncedY.isPressed(gamepad2.y)) {
+            if (debouncedY.isPressed(gamepad1.y)) {
                 nextRPM = nextRPM + courseRPMAdjustment;
             }
-            if (debouncedA.isPressed(gamepad2.a)) {
+            if (debouncedA.isPressed(gamepad1.a)) {
                 nextRPM = nextRPM - courseRPMAdjustment;
             }
-            if (debouncedX.isPressed(gamepad2.x)) {
-                nextRPM = 312;
+            if (debouncedX.isPressed(gamepad1.x)) {
+                nextRPM = 6000;
             }
-            if (debouncedB.isPressed(gamepad2.b)) {
+            if (debouncedB.isPressed(gamepad1.b)) {
                 nextRPM = 0;
             }
-            if (debouncedDpadUp.isPressed(gamepad2.dpad_up)) {
+            if (debouncedDpadUp.isPressed(gamepad1.dpad_up)) {
                 nextRPM = nextRPM + fineRPMAdjustment;
             }
-            if (debouncedDpadDown.isPressed(gamepad2.dpad_down)) {
+            if (debouncedDpadDown.isPressed(gamepad1.dpad_down)) {
                 nextRPM = nextRPM - fineRPMAdjustment;
             }
 
             // limit the rpm between 0 and 1
-            nextRPM = Range.clip(nextRPM, 0, 312);
+            nextRPM = Range.clip(nextRPM, 0, 6000);
 
-            if (debouncedDpadLeft.isPressed(gamepad2.dpad_left)) {
+            if (debouncedDpadLeft.isPressed(gamepad1.dpad_left)) {
                 rpm = nextRPM;
-                turntableMotor.setRPM(rpm);
+                shooterMotor.setRPM(rpm);
             }
 
             telemetry.addData("Y = ", "+" + Integer.toString(courseRPMAdjustment));
-            telemetry.addData("X = ", "312");
+            telemetry.addData("X = ", "6000");
             telemetry.addData("B = ", "-" + Integer.toString(courseRPMAdjustment));
             telemetry.addData("A = ", "0");
             telemetry.addData("Dpad up = ", "+" + Integer.toString(fineRPMAdjustment));
@@ -83,9 +86,8 @@ public class TestTurntableMotor extends LinearOpMode {
             telemetry.addLine();
             telemetry.addData("Current Speed = ", rpm);
             telemetry.addData("Next Speed = ", nextRPM);
-            telemetry.addData("Actual RPM = ", turntableMotor.getActualRPM());
-            telemetry.addData("Current used = ", turntableMotor.getCurrent());
-            turntableMotor.displayTurntableAngle();
+            telemetry.addData("Actual RPM = ", shooterMotor.getActualRPM());
+            telemetry.addData("Encoder count = ", shooterMotor.getCurrentPosition());
             telemetry.addData(">", "stop to finish");
             telemetry.update();
             idle();
