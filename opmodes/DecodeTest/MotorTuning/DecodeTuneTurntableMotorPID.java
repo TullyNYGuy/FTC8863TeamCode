@@ -48,7 +48,7 @@ public class DecodeTuneTurntableMotorPID extends LinearOpMode {
         turntableMotor = new DecodeTurntableMotor(hardwareMap, telemetry);
         turntableMotor.init(null);
         squareWaveGenerator = new PeriodicSquareWaveGenerator(5000, 45);
-        controller = new PIDFController(new PIDCoefficients(0.00,0,.00),0,0,.002);
+        controller = new PIDFController(new PIDCoefficients(0.008,0,.010),1.2,0,.002);
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
@@ -75,6 +75,7 @@ public class DecodeTuneTurntableMotorPID extends LinearOpMode {
             // send to the FTC Dashboard. Also makes them graphable
             dashboardTelemetry.addData("Requested Angle ", squareWaveGenerator.getY());
             dashboardTelemetry.addData("Actual Angle ", turntableMotor.getPositionInTermsOfAttachment());
+            dashboardTelemetry.addData("Motor Power ", newMotorPower);
             dashboardTelemetry.addData("Motor Current ", turntableMotor.getCurrent());
             dashboardTelemetry.update();
 

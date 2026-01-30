@@ -239,9 +239,14 @@ public class DecodeTurntableMotor implements FTCRobotSubsystem {
 
     @Override
     public void update() {
-        // Something outside this class will have to update us with the positionError.
+
+    }
+
+    public void updateWithPosition(double actualPosition) {
+        // Something outside this class will have to update us with the Actual position.
         // That would most likely be the limelight. Use setPositionError() for that.
-        controller.update(positionError);
+        controller.update(actualPosition);
+        turntableMotor.setPower(controller.update(actualPosition));
     }
 
     @Override

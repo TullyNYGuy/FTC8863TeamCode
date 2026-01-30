@@ -36,7 +36,7 @@ public class DecodeLimelight implements FTCRobotSubsystem {
     // can be accessed only by this class, or by using the public
     // getter and setter methods
     //*********************************************************************************************
-    private Limelight3A limelight;
+    public Limelight3A limelight;
     private DecodeIMU decodeIMU;
     private final double HEIGHT_TO_LENS = 16;
     private final double HEIGHT_TO_APRIL_TAG = 29.5;
@@ -107,6 +107,10 @@ public class DecodeLimelight implements FTCRobotSubsystem {
     //*********************************************************************************************
     public void start() {
         limelight.start();
+    }
+
+    public void pipelineSwitch(int pipelineNumber) {
+        limelight.pipelineSwitch(pipelineNumber);
     }
 
     public double getDistaceToGoal(DistanceUnit requestedUnits){
