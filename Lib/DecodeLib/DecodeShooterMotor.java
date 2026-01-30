@@ -185,6 +185,10 @@ public class DecodeShooterMotor implements FTCRobotSubsystem {
         return shooterMotor.getCurrentRPM();
     }
 
+    public int getCurrentPosition() {
+        return shooterMotor.getCurrentPosition();
+    }
+
     public double getCurrent() {
         return shooterMotor.getCurrent(CurrentUnit.AMPS);
     }

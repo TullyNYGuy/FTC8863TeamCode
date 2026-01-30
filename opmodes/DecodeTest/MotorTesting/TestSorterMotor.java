@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.Debouncer;
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
  */
-@TeleOp(name = "Decode Test Sorter Motor", group = "Test")
+@TeleOp(name = "Decode Test Motor - Sorter", group = "Test")
 //@Disabled
 public class TestSorterMotor extends LinearOpMode {
 
@@ -83,6 +83,7 @@ public class TestSorterMotor extends LinearOpMode {
             telemetry.addData("Current Speed = ", rpm);
             telemetry.addData("Next Speed = ", nextRPM);
             telemetry.addData("Actual RPM = ", sorterMotor.getActualRPM());
+            telemetry.addData("Encoder count = ", sorterMotor.getCurrentPosition());
             telemetry.addData(">", "stop to finish");
             telemetry.update();
             idle();

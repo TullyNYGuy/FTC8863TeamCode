@@ -63,20 +63,6 @@ public class DecodeIntakeMotor implements FTCRobotSubsystem {
         intakeMotor.runAtConstantRPM(this.RPM);
     }
 
-    public void intake(){
-        logCommand("intake");
-        setRPM (500);
-    }
-
-    public void off(){
-        logCommand("off");
-        setRPM (0);
-    }
-
-    public void outtake(){
-        logCommand("outake");
-        setRPM (-500);
-    }
     /**
      * Property that holds the direction of the output shaft.
      */
@@ -180,12 +166,31 @@ public class DecodeIntakeMotor implements FTCRobotSubsystem {
     // public methods that give the class its functionality
     //*********************************************************************************************
 
+    public void intake(){
+        logCommand("intake");
+        setRPM (500);
+    }
+
+    public void off(){
+        logCommand("off");
+        setRPM (0);
+    }
+
+    public void outtake(){
+        logCommand("outake");
+        setRPM (-500);
+    }
+
     public void setPower(double power) {
         intakeMotor.setPower(power);
     }
 
     public double getActualRPM() {
         return intakeMotor.getCurrentRPM();
+    }
+
+    public int getCurrentPosition() {
+        return intakeMotor.getCurrentPosition();
     }
 
     public double getCurrent() {

@@ -221,6 +221,10 @@ public class DecodeSorterMotor implements FTCRobotSubsystem {
         return sorterMotor.getPositionInTermsOfAttachment();
     }
 
+    public int getCurrentPosition() {
+        return sorterMotor.getCurrentPosition();
+    }
+
     public void setPower(double power) {
         sorterMotor.setPower(power);
     }
