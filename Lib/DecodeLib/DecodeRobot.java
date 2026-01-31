@@ -95,8 +95,8 @@ public class DecodeRobot implements FTCRobot {
     }
 
     private DecodeIMU imu;
-    //public DecodePinpointDrive mecanumDrive;
-    public DecodeMecanumDrive mecanumDrive;
+    public DecodePinpointDrive mecanumDrive;
+   // public DecodeMecanumDrive mecanumDrive;
     public DecodeTurntableMotor turntableMotor;
     public DecodeBallShooter ballShooter;
     public DecodeShooterMotor shooterMotor;
@@ -156,7 +156,7 @@ public class DecodeRobot implements FTCRobot {
 
         if (capabilities.contains(Subsystem.MECANUM_DRIVE)) {
             Pose2d beginPose = new Pose2d(0, 0, 0);
-            mecanumDrive = new DecodeMecanumDrive(hardwareMap, new Pose2d(0,0,0));
+            mecanumDrive = new DecodePinpointDrive(hardwareMap, new Pose2d(0,0,0));
             //mecanumDrive = new DecodePinpointDrive(hardwareMap, beginPose);
             subsystemMap.put(mecanumDrive.getName(), mecanumDrive);
         }

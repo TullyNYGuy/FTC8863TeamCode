@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeGamepad;
 import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeRobot;
@@ -136,15 +137,15 @@ public class DecodeTeleop extends LinearOpMode {
                 telemetry.addData("Direction swap = ", robot.robotModes.getDirectionSwap());
                 telemetry.addData("ROBOT CENTRIC driving", "!");
 
-//                robot.mecanumDrive.calculateMotorCommandsRobotCentric(
-//                        gamepad.gamepad1LeftJoyStickYValue * robot.robotModes.getDirectionSwapMultiplier(),
-//                        gamepad.gamepad1LeftJoyStickXValue * robot.robotModes.getDirectionSwapMultiplier(),
-//                        gamepad.gamepad1RightJoyStickXValue
-//                );
+                robot.mecanumDrive.calculateMotorCommandsRobotCentric(
+                        gamepad.gamepad1LeftJoyStickYValue * robot.robotModes.getDirectionSwapMultiplier(),
+                        gamepad.gamepad1LeftJoyStickXValue * robot.robotModes.getDirectionSwapMultiplier(),
+                        gamepad.gamepad1RightJoyStickXValue
+                );
 
                 // this bypasses the fancy mecanumdrive above. Make sure you comment out the lines above to disable the fancy
                 // mecanum drive if you use this next line
-                simpleMecanumDrive(gamepad1);
+              //  simpleMecanumDrive(gamepad1);
             }
 
 
@@ -161,6 +162,9 @@ public class DecodeTeleop extends LinearOpMode {
             // feedback on the driver station
 
             gamepad.displayGamepad1JoystickValues(telemetry);
+            telemetry.addData("Robot Pose X: ", robot.mecanumDrive.pinpoint.getPosition().getX(DistanceUnit.INCH));
+            telemetry.addData("Robot Pose Y: ", robot.mecanumDrive.pinpoint.getPosition().getY(DistanceUnit.INCH));
+            telemetry.addData("Robot Pose Heading: ", robot.mecanumDrive.pinpoint.getPosition().getHeading(AngleUnit.DEGREES));
             telemetry.addData("", "");
             telemetry.addData(">", "Press Stop to end.");
             telemetry.update();

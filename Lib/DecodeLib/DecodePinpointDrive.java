@@ -50,7 +50,7 @@ public class DecodePinpointDrive extends DecodeMecanumDrive implements FTCRobotS
         //These are tuned for 3110-0002-0001 Product Insight #1
         // RR localizer note: These units are inches, presets are converted from mm (which is why they are inexact)
         public double xOffset = +70/25.4;
-        public double yOffset = -5;
+        public double yOffset = -405/25.4;
 
         /*
         Set the kind of pods used by your robot. If you're using goBILDA odometry pods, select either
@@ -70,7 +70,7 @@ public class DecodePinpointDrive extends DecodeMecanumDrive implements FTCRobotS
         you move the robot to the left.
          */
         public GoBildaPinpointDriver.EncoderDirection xDirection = GoBildaPinpointDriver.EncoderDirection.FORWARD;
-        public GoBildaPinpointDriver.EncoderDirection yDirection = GoBildaPinpointDriver.EncoderDirection.FORWARD;
+        public GoBildaPinpointDriver.EncoderDirection yDirection = GoBildaPinpointDriver.EncoderDirection.REVERSED;
 
         /*
         Use the pinpoint IMU for tuning
