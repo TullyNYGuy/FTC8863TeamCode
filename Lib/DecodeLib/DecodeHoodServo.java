@@ -44,12 +44,12 @@ public class DecodeHoodServo implements FTCRobotSubsystem {
 
     private boolean initComplete = false;
 
-    private double initPosition = 0.1;
-    private double shortPosition = 0.1;
-    private double longPosition = 0.32;
+    private double initPosition = 0.06;
+    private double shortPosition = 0.06;
+    private double longPosition = 0.35;
 
-    //New index position (hood down)  = .1
-    //Max position (hood up)  = .41
+    //New index position (hood down)  = .06
+    //Max position (hood up)  = .35
 
     private double shutdownPosition = initPosition;
 
