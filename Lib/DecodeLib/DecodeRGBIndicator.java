@@ -8,6 +8,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
+import org.firstinspires.ftc.teamcode.Lib.FTCLib.OnOffCycler;
 
 public class DecodeRGBIndicator implements FTCRobotSubsystem {
 
@@ -45,6 +46,7 @@ public class DecodeRGBIndicator implements FTCRobotSubsystem {
     // getter and setter methods
     //*********************************************************************************************
     private ServoImplEx indicatorLight;
+    private OnOffCycler onOffCycler;
     //private
 
     //*********************************************************************************************
@@ -96,6 +98,7 @@ public class DecodeRGBIndicator implements FTCRobotSubsystem {
     //*********************************************************************************************
     public DecodeRGBIndicator(HardwareMap hardwareMap, Telemetry telemetry) {
         indicatorLight = (ServoImplEx) hardwareMap.get(Servo.class, subsystemName);
+        onOffCycler = new OnOffCycler(1);
     }
 
     //*********************************************************************************************
@@ -139,6 +142,13 @@ public class DecodeRGBIndicator implements FTCRobotSubsystem {
     }
 public void setMode(Mode mode){
     this.mode = mode;
+    if (mode == Mode.BLINKING){
+        onOffCycler.start();
+    }
+
+}
+public void setFrequency(double frequency){
+        onOffCycler.setFrequency(frequency);
 }
     //*********************************************************************************************
     //          METHODS needed to implement FTCRobotSubsystem
@@ -147,6 +157,9 @@ public void setMode(Mode mode){
     //*********************************************************************************************
     @Override
     public void update() {
+        if (mode == Mode.BLINKING){
+            //if ()
+        }
     }
 
     @Override
