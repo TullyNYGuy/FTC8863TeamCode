@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
 
-public class DecodeRGBIndicater implements FTCRobotSubsystem {
+public class DecodeRGBIndicator implements FTCRobotSubsystem {
 
     //*********************************************************************************************
     //          ENUMERATED TYPES
@@ -17,7 +17,7 @@ public class DecodeRGBIndicater implements FTCRobotSubsystem {
     // user defined types
     //
     //*********************************************************************************************
-public enum IndicaterColor {
+    public enum IndicaterColor {
         WHITE,
         BLACK,
         GREEN,
@@ -28,7 +28,16 @@ public enum IndicaterColor {
         BLUE;
 
     }
-    private IndicaterColor indicaterColor =IndicaterColor.GREEN;
+
+    private IndicaterColor indicaterColor = IndicaterColor.GREEN;
+
+    private enum Mode {
+        SOLID,
+        BLINKING;
+    }
+
+    private Mode mode = Mode.SOLID;
+
     //*********************************************************************************************
     //          PRIVATE DATA FIELDS
     //
@@ -36,6 +45,7 @@ public enum IndicaterColor {
     // getter and setter methods
     //*********************************************************************************************
     private ServoImplEx indicatorLight;
+    //private
 
     //*********************************************************************************************
     //          PROPERTIES AND GETTER and SETTER Methods
@@ -55,6 +65,7 @@ public enum IndicaterColor {
      * Property that holds a log file
      */
     private DataLogging logFile;
+
     @Override
     public void setDataLog(DataLogging logFile) {
         this.logFile = logFile;
@@ -75,7 +86,7 @@ public enum IndicaterColor {
         this.loggingOn = false;
     }
 
-    private String subsystemName;
+    private String subsystemName = DecodeRobot.HardwareName.INDICATOR_LIGHT.hwName;
 
     //*********************************************************************************************
     //          Constructors
@@ -83,9 +94,9 @@ public enum IndicaterColor {
     // the function that builds the class when an object is created
     // from it
     //*********************************************************************************************
-   public DecodeRGBIndicater(HardwareMap hardwareMap, Telemetry telemetry){
-       indicatorLight = (ServoImplEx)hardwareMap.get(Servo .class, "indicatorLight");
-   }
+    public DecodeRGBIndicator(HardwareMap hardwareMap, Telemetry telemetry) {
+        indicatorLight = (ServoImplEx) hardwareMap.get(Servo.class, subsystemName);
+    }
 
     //*********************************************************************************************
     //          Helper Methods
@@ -98,34 +109,37 @@ public enum IndicaterColor {
     //
     // public methods that give the class its functionality
     //*********************************************************************************************
-     public void setColor(IndicaterColor color){
-         switch (color){
-             case RED:
-                 indicatorLight.setPosition(.277);
-                 break;
-             case BLUE:
-                 indicatorLight.setPosition(.611);
-                 break;
-             case BLACK:
-                 indicatorLight.setPosition(.0);
-                 break;
-             case GREEN:
-                 indicatorLight.setPosition(.444);
-                 break;
-             case WHITE:
-                 indicatorLight.setPosition(1.0);
-                 break;
-             case ORANGE:
-                 indicatorLight.setPosition(.333);
-                 break;
-             case VIOLET:
-                 indicatorLight.setPosition(.722);
-                 break;
-             case YELLOW:
-                 indicatorLight.setPosition(.388);
-                 break;
-         }
-     }
+    public void setColor(IndicaterColor color) {
+        switch (color) {
+            case RED:
+                indicatorLight.setPosition(.277);
+                break;
+            case BLUE:
+                indicatorLight.setPosition(.611);
+                break;
+            case BLACK:
+                indicatorLight.setPosition(.0);
+                break;
+            case GREEN:
+                indicatorLight.setPosition(.444);
+                break;
+            case WHITE:
+                indicatorLight.setPosition(1.0);
+                break;
+            case ORANGE:
+                indicatorLight.setPosition(.333);
+                break;
+            case VIOLET:
+                indicatorLight.setPosition(.722);
+                break;
+            case YELLOW:
+                indicatorLight.setPosition(.388);
+                break;
+        }
+    }
+public void setMode(Mode mode){
+    this.mode = mode;
+}
     //*********************************************************************************************
     //          METHODS needed to implement FTCRobotSubsystem
     //

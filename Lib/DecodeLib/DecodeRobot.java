@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.Lib.DecodeLib;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -11,7 +10,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
-import org.firstinspires.ftc.teamcode.Lib.FTCLib.AdafruitIMU8863;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Color;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.Configuration;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.DataLogging;
@@ -20,8 +18,6 @@ import org.firstinspires.ftc.teamcode.Lib.FTCLib.FTCRobotSubsystem;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.LoopTimer;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.MatchPhase;
 import org.firstinspires.ftc.teamcode.Lib.FTCLib.RobotPosition;
-import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodePinpointDrive;
-import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeRobotModes;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -50,7 +46,8 @@ public class DecodeRobot implements FTCRobot {
         INTAKE_MOTOR("intakeMotor"),
         SORTER_CONTROLLER("sorterController"),
         SORTER_MOTOR("sorterMotor"),
-        TURNTABLE_MOTOR("turntableMotor");
+        TURNTABLE_MOTOR("turntableMotor"),
+        INDICATOR_LIGHT("indicatorLight");
 
         public final String hwName;
 
@@ -75,7 +72,8 @@ public class DecodeRobot implements FTCRobot {
         RAMP_SERVO, // END OF SORTER CONTROLLER OBJECTS
         SORTER_CONTROLLER,
         LIMELIGHT3A,
-        TURNTABLE_CONTROLLER;
+        TURNTABLE_CONTROLLER,
+        INDICATOR_LIGHT;
     }
 
     Set<Subsystem> capabilities;
@@ -98,7 +96,7 @@ public class DecodeRobot implements FTCRobot {
 
     private DecodeIMU imu;
     public DecodePinpointDrive mecanumDrive;
-   // public DecodeMecanumDrive mecanumDrive;
+    // public DecodeMecanumDrive mecanumDrive;
     public DecodeTurntableMotor turntableMotor;
     public DecodeBallShooter ballShooter;
     public DecodeShooterMotor shooterMotor;
@@ -117,7 +115,7 @@ public class DecodeRobot implements FTCRobot {
     public DecodeTarget redGoal;
     public DecodeTarget blueGoal;
     public DecodeTurntableTrackingController turntableTrackingController;
-
+    public DecodeRGBIndicator indicator;
 
 
     public DecodeRobot(HardwareMap hardwareMap, Telemetry telemetry, Configuration config,
@@ -157,13 +155,13 @@ public class DecodeRobot implements FTCRobot {
     @Override
     public boolean createRobot() {
         if (capabilities.contains(Subsystem.IMU)) {
-            imu = new DecodeIMU(hardwareMap,telemetry);
+            imu = new DecodeIMU(hardwareMap, telemetry);
             subsystemMap.put(imu.getName(), imu);
         }
 
         if (capabilities.contains(Subsystem.MECANUM_DRIVE)) {
             Pose2d beginPose = new Pose2d(0, 0, 0);
-            mecanumDrive = new DecodePinpointDrive(hardwareMap, new Pose2d(0,0,0));
+            mecanumDrive = new DecodePinpointDrive(hardwareMap, new Pose2d(0, 0, 0));
             //mecanumDrive = new DecodePinpointDrive(hardwareMap, beginPose);
             subsystemMap.put(mecanumDrive.getName(), mecanumDrive);
         }
@@ -217,16 +215,21 @@ public class DecodeRobot implements FTCRobot {
             // into the list of subsystems.
             //subsystemMap.put(rampServo.getName(), rampServo);
         }
+        if (capabilities.contains(Subsystem.INDICATOR_LIGHT)) {
+            indicator = new DecodeRGBIndicator(hardwareMap, telemetry);
+            subsystemMap.put(indicator.getName(), indicator);
+        }
 
         if (capabilities.contains(Subsystem.SORTER_CONTROLLER)) {
             sorterController = new DecodeSorterContoller(hardwareMap, telemetry,
                     colorSensorController,
                     sorterMotor,
                     rampServo,
-                    intakeMotor);
+                    intakeMotor,
+                    indicator);
             subsystemMap.put(sorterController.getName(), sorterController);
         }
-                if (capabilities.contains(Subsystem.LIMELIGHT3A)) {
+        if (capabilities.contains(Subsystem.LIMELIGHT3A)) {
             limelight = new DecodeLimelight(hardwareMap, telemetry, imu);
             subsystemMap.put(limelight.getName(), limelight);
         }
@@ -237,13 +240,9 @@ public class DecodeRobot implements FTCRobot {
         }
 
 
-        
-        
-
-        if (MatchPhase.getMatchPhase() == MatchPhase.AUTONOMOUS){
+        if (MatchPhase.getMatchPhase() == MatchPhase.AUTONOMOUS) {
             init();
-        }
-        else {
+        } else {
             dataLog.logData("Robot Init starting");
             timer.reset();
 

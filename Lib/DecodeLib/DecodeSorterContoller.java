@@ -50,6 +50,7 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
     private DecodeRampServo rampServo;
     private DecodeIntakeMotor intakeMotor;
     private boolean commandComplete = true;
+    private DecodeRGBIndicator indicator;
     private SorterState stateAfterRampIsUp;
     private DataLogOnChange logCommandOnchange;
     private DataLogOnChange logStateOnChange;
@@ -123,11 +124,13 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
                                  DecodeColorSensorController decodeColorSensorController,
                                  DecodeSorterMotor sorterMotor,
                                  DecodeRampServo decodeRampServo,
-                                 DecodeIntakeMotor intakeMotor) {
+                                 DecodeIntakeMotor intakeMotor,
+                                 DecodeRGBIndicator indicator) {
         this.colorSensorController = decodeColorSensorController;
         this.sorterMotor = sorterMotor;
         this.rampServo = decodeRampServo;
         this.intakeMotor = intakeMotor;
+        this.indicator = indicator;
 
         // allow commands to be honored
         commandComplete = true;
@@ -327,6 +330,7 @@ public class DecodeSorterContoller implements FTCRobotSubsystem {
                         // We will come back to this state after preparing for the intake
                         prepareToIntake(0, SorterState.EMPTY_EMPTY_EMPTY);
                         currentState = SorterState.PREPARING_TO_INTAKE;
+                        indicator.setColor(DecodeRGBIndicator.IndicaterColor.RED);
                         break;
                     // since this state already has an open slot, we can intake from this state
                     case INTAKE:

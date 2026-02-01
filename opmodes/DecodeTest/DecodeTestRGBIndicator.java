@@ -3,8 +3,7 @@ package org.firstinspires.ftc.teamcode.opmodes.DecodeTest;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeRGBIndicater;
-import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeRampServo;
+import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeRGBIndicator;
 
 /**
  * This Opmode is a shell for a linear OpMode. Copy this file and fill in your code as indicated.
@@ -14,14 +13,14 @@ import org.firstinspires.ftc.teamcode.Lib.DecodeLib.DecodeRampServo;
 public class DecodeTestRGBIndicator extends LinearOpMode {
 
     // Put your variable declarations here
-    public DecodeRGBIndicater RGBIndicator;
+    public DecodeRGBIndicator RGBIndicator;
 
     @Override
     public void runOpMode() {
 
 
         // Put your initializations here
-        RGBIndicator   = new DecodeRGBIndicater(hardwareMap, telemetry);
+        RGBIndicator   = new DecodeRGBIndicator(hardwareMap, telemetry);
 
         // Wait for the start button
         telemetry.addData(">", "Press Start to run");
@@ -34,31 +33,31 @@ public class DecodeTestRGBIndicator extends LinearOpMode {
 
 
             if (gamepad1.a) {
-                RGBIndicator.setColor(DecodeRGBIndicater.IndicaterColor.GREEN);
+                RGBIndicator.setColor(DecodeRGBIndicator.IndicaterColor.GREEN);
             }
 
             if (gamepad1.x) {
-                RGBIndicator.setColor(DecodeRGBIndicater.IndicaterColor.BLUE);
+                RGBIndicator.setColor(DecodeRGBIndicator.IndicaterColor.BLUE);
             }
 
             if (gamepad1.b) {
-                RGBIndicator.setColor(DecodeRGBIndicater.IndicaterColor.RED);
+                RGBIndicator.setColor(DecodeRGBIndicator.IndicaterColor.RED);
             }
 
             if (gamepad1.y) {
-                RGBIndicator.setColor(DecodeRGBIndicater.IndicaterColor.YELLOW);
+                RGBIndicator.setColor(DecodeRGBIndicator.IndicaterColor.YELLOW);
             }
             if (gamepad1.dpad_down) {
-                RGBIndicator.setColor(DecodeRGBIndicater.IndicaterColor.VIOLET);
+                RGBIndicator.setColor(DecodeRGBIndicator.IndicaterColor.VIOLET);
             }
             if (gamepad1.dpad_up) {
-                RGBIndicator.setColor(DecodeRGBIndicater.IndicaterColor.BLACK);
+                RGBIndicator.setColor(DecodeRGBIndicator.IndicaterColor.BLACK);
             }
             if (gamepad1.dpad_left) {
-                RGBIndicator.setColor(DecodeRGBIndicater.IndicaterColor.WHITE);
+                RGBIndicator.setColor(DecodeRGBIndicator.IndicaterColor.WHITE);
             }
             if (gamepad1.dpad_right) {
-                RGBIndicator.setColor(DecodeRGBIndicater.IndicaterColor.ORANGE);
+                RGBIndicator.setColor(DecodeRGBIndicator.IndicaterColor.ORANGE);
             }
             telemetry.addData("dpad up = black","");
             telemetry.addData("dpad down = violet","");
